@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PreferenceSpecifiers</key>
+	<array>
+		<dict>
+			<key>Title</key>
+			<string>On startup show:</string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<string>YES</string>
+			<key>FalseValue</key>
+			<string>NO</string>
+			<key>Key</key>
+			<string>auto_commute</string>
+			<key>Title</key>
+			<string>Commuter bookmark</string>
+			<key>TrueValue</key>
+			<string>YES</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<string>YES</string>
+			<key>FalseValue</key>
+			<string>NO</string>
+			<key>Key</key>
+			<string>last_screen_preference</string>
+			<key>Title</key>
+			<string>Last stop displayed</string>
+			<key>TrueValue</key>
+			<string>YES</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<string>NO</string>
+			<key>FalseValue</key>
+			<string>NO</string>
+			<key>Key</key>
+			<string>trip_planner_first</string>
+			<key>Title</key>
+			<string>Trip Planner</string>
+			<key>TrueValue</key>
+			<string>YES</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<string>NO</string>
+			<key>FalseValue</key>
+			<string>NO</string>
+			<key>Key</key>
+			<string>bookmarks_at_the_top</string>
+			<key>Title</key>
+			<string>Bookmarks at the top</string>
+			<key>TrueValue</key>
+			<string>YES</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+		<dict>
+			<key>Title</key>
+			<string>Look and feel:</string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<string>YES</string>
+			<key>FalseValue</key>
+			<string>NO</string>
+			<key>Key</key>
+			<string>action_icons</string>
+			<key>Title</key>
+			<string>Show colorful icons</string>
+			<key>TrueValue</key>
+			<string>YES</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<integer>609678</integer>
+			<key>Key</key>
+			<string>toolbar_colors</string>
+			<key>Title</key>
+			<string>Color theme</string>
+			<key>Titles</key>
+			<array>
+				<string>Gray</string>
+				<string>Blue</string>
+				<string>Green</string>
+				<string>Black</string>
+				<string>Brown</string>
+				<string>Orange</string>
+				<string>Red</string>
+				<string>Purple</string>
+			</array>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Values</key>
+			<array>
+				<integer>16777215</integer>
+				<integer>609678</integer>
+				<integer>6397028</integer>
+				<integer>0</integer>
+				<integer>6042391</integer>
+				<integer>16750848</integer>
+				<integer>11141120</integer>
+				<integer>6684723</integer>
+			</array>
+		</dict>
+		<dict>
+			<key>Title</key>
+			<string>Recent History:</string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<integer>10</integer>
+			<key>Key</key>
+			<string>recent_stops</string>
+			<key>Title</key>
+			<string>Number of recent stops</string>
+			<key>Titles</key>
+			<array>
+				<string>None</string>
+				<string>1</string>
+				<string>5</string>
+				<string>10</string>
+				<string>15</string>
+				<string>20</string>
+			</array>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Values</key>
+			<array>
+				<integer>0</integer>
+				<integer>1</integer>
+				<integer>5</integer>
+				<integer>10</integer>
+				<integer>15</integer>
+				<integer>20</integer>
+			</array>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<integer>10</integer>
+			<key>Key</key>
+			<string>trip_history</string>
+			<key>Title</key>
+			<string>Number of recent trips</string>
+			<key>Titles</key>
+			<array>
+				<string>None</string>
+				<string>1</string>
+				<string>5</string>
+				<string>10</string>
+				<string>15</string>
+				<string>20</string>
+			</array>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Values</key>
+			<array>
+				<integer>0</integer>
+				<integer>1</integer>
+				<integer>5</integer>
+				<integer>10</integer>
+				<integer>15</integer>
+				<integer>20</integer>
+			</array>
+		</dict>
+		<dict>
+			<key>Title</key>
+			<string>PDX Bus can look up the closest address when using the GPS.  There are several different services that provide this information:</string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<integer>1</integer>
+			<key>Key</key>
+			<string>geocode_provider</string>
+			<key>Title</key>
+			<string>Service:</string>
+			<key>Titles</key>
+			<array>
+				<string>None</string>
+				<string>Address from Yahoo PlaceFinder</string>
+				<string>Address from GeoNames.org</string>
+				<string>Neighborhood from GeoNames.org</string>
+			</array>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Values</key>
+			<array>
+				<integer>0</integer>
+				<integer>1</integer>
+				<integer>2</integer>
+				<integer>3</integer>
+			</array>
+		</dict>
+		<dict>
+			<key>New item</key>
+			<dict>
+				<key>Title</key>
+				<string>Arrivals screen:</string>
+				<key>Type</key>
+				<string>PSGroupSpecifier</string>
+			</dict>
+			<key>Title</key>
+			<string>Arrivals screen:</string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<string>YES</string>
+			<key>FalseValue</key>
+			<string>NO</string>
+			<key>Key</key>
+			<string>auto_refresh</string>
+			<key>Title</key>
+			<string>Auto refresh</string>
+			<key>TrueValue</key>
+			<string>YES</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<string>YES</string>
+			<key>FalseValue</key>
+			<string>NO</string>
+			<key>Key</key>
+			<string>shake_to_refresh</string>
+			<key>Title</key>
+			<string>Shake to refresh</string>
+			<key>TrueValue</key>
+			<string>YES</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+		<dict>
+			<key>Title</key>
+			<string>Route &amp; Stop Data Cache:</string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<integer>1</integer>
+			<key>Key</key>
+			<string>route_cache</string>
+			<key>Title</key>
+			<string>Keep data until</string>
+			<key>Titles</key>
+			<array>
+				<string>app quits</string>
+				<string>end of day</string>
+				<string>end of week</string>
+			</array>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Values</key>
+			<array>
+				<integer>0</integer>
+				<integer>1</integer>
+				<integer>7</integer>
+			</array>
+		</dict>
+		<dict>
+			<key>Title</key>
+			<string>Default Trip Planner Options:</string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<real>0.5</real>
+			<key>Key</key>
+			<string>max_walking_distance</string>
+			<key>Title</key>
+			<string>Max walking distance</string>
+			<key>Titles</key>
+			<array>
+				<string>0.5 miles</string>
+				<string>1 mile</string>
+				<string>1.5 miles</string>
+				<string>2 miles</string>
+			</array>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Values</key>
+			<array>
+				<real>0.5</real>
+				<integer>1</integer>
+				<real>1.5</real>
+				<integer>2</integer>
+			</array>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<integer>2</integer>
+			<key>Key</key>
+			<string>travel_by</string>
+			<key>Title</key>
+			<string>Travel by</string>
+			<key>Titles</key>
+			<array>
+				<string>Bus only</string>
+				<string>Train only</string>
+				<string>Bus or train</string>
+			</array>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Values</key>
+			<array>
+				<integer>0</integer>
+				<integer>1</integer>
+				<integer>2</integer>
+			</array>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<integer>0</integer>
+			<key>Key</key>
+			<string>min</string>
+			<key>Title</key>
+			<string>Show me the</string>
+			<key>Titles</key>
+			<array>
+				<string>Quickest Trip</string>
+				<string>Fewest Transfers</string>
+				<string>Shortest Walk</string>
+			</array>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Values</key>
+			<array>
+				<integer>0</integer>
+				<integer>1</integer>
+				<integer>2</integer>
+			</array>
+		</dict>
+		<dict>
+			<key>Title</key>
+			<string>The proximity alarm initially uses cell-towers to locate the device, this is less accurate but does use low power.  As you get close to your stop, PDX Bus will switch to using GPS which is accurate but uses more power. </string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<real>4828.032</real>
+			<key>Key</key>
+			<string>proximity_gps</string>
+			<key>Title</key>
+			<string>Use GPS within</string>
+			<key>Titles</key>
+			<array>
+				<string>1 mile</string>
+				<string>2 miles</string>
+				<string>3 miles</string>
+				<string>4 miles</string>
+				<string>5 miles</string>
+			</array>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Values</key>
+			<array>
+				<real>1609.344</real>
+				<real>3218.688</real>
+				<real>4828.032</real>
+				<real>6437.376</real>
+				<real>8046.72</real>
+			</array>
+		</dict>
+		<dict>
+			<key>Title</key>
+			<string>Debugging options:</string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<string>NO</string>
+			<key>FalseValue</key>
+			<string>NO</string>
+			<key>Key</key>
+			<string>show_transit_tracker</string>
+			<key>Title</key>
+			<string>Transit Tracker link?</string>
+			<key>TrueValue</key>
+			<string>YES</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<string>NO</string>
+			<key>FalseValue</key>
+			<string>NO</string>
+			<key>Key</key>
+			<string>commute_button</string>
+			<key>Title</key>
+			<string>Commute button</string>
+			<key>TrueValue</key>
+			<string>YES</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+	</array>
+	<key>StringsTable</key>
+	<string>Root</string>
+	<key>Title</key>
+	<string>PDX Bus</string>
+</dict>
+</plist>

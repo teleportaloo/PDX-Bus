@@ -1,0 +1,265 @@
+//
+//  RouteView.m
+//  TriMetTimes
+//
+
+/*
+
+``The contents of this file are subject to the Mozilla Public License
+     Version 1.1 (the "License"); you may not use this file except in
+     compliance with the License. You may obtain a copy of the License at
+     http://www.mozilla.org/MPL/
+
+     Software distributed under the License is distributed on an "AS IS"
+     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+     License for the specific language governing rights and limitations
+     under the License.
+
+     The Original Code is PDXBus.
+
+     The Initial Developer of the Original Code is Andrew Wallace.
+     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
+
+ */
+
+#import "RouteView.h"
+#import "TriMetTimesAppDelegate.h"
+#import "AppDelegateMethods.h"
+#import "Route.h"
+#import "XMLRoutes.h"
+#import "DirectionView.h"
+#import "RouteColorBlobView.h"
+
+#define kRouteCellId @"RouteCell"
+
+@implementation RouteView
+
+
+#define kSectionRoutes	   0
+#define kSectionDisclaimer 1
+#define kSections		   2
+
+
+@synthesize routeData = _routeData;
+
+- (void)dealloc {
+	self.routeData = nil;
+	[super dealloc];
+}
+
+- (id)init {
+	if ((self = [super init]))
+	{
+		self.title = @"Routes";
+		self.enableSearch = YES;
+	}
+	return self;
+}
+
+
+#pragma mark Data fetchers
+
+- (void)fetchRoutes:(id)arg
+{	
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	[self.backgroundTask.callbackWhenFetching BackgroundThread:[NSThread currentThread]];
+	[self.backgroundTask.callbackWhenFetching BackgroundStart:1 title:@"getting routes"];
+	
+	NSError *parseError = nil;
+	
+	[self.routeData getRoutes:&parseError cacheAction:TriMetXMLUpdateCache];
+													   
+	[self.backgroundTask.callbackWhenFetching BackgroundCompleted:self];
+	[pool release];
+}
+
+- (void)fetchRoutesInBackground:(id<BackgroundTaskProgress>)callback
+{	
+	self.backgroundTask.callbackWhenFetching = callback;
+	self.routeData = [[[XMLRoutes alloc] init] autorelease];
+
+	NSError *parseError = nil;
+	if (!self.backgroundRefresh && [self.routeData getRoutes:&parseError cacheAction:TriMetXMLOnlyReadFromCache])
+	{
+		[self.backgroundTask.callbackWhenFetching BackgroundCompleted:self];
+	}
+	else 
+	{
+		[NSThread detachNewThreadSelector:@selector(fetchRoutes:) toTarget:self withObject:nil];
+	}
+}
+
+#pragma mark Table View methods
+
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+	return kSections;
+}
+
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {	
+	switch (section)
+	{
+		case kSectionRoutes:
+		{
+			NSArray *items = [self filteredData:tableView];
+			return items ? items.count : 0;
+		}
+		case kSectionDisclaimer:
+			return 1;
+	}
+	return 1;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+	switch (indexPath.section)
+	{
+		case kSectionRoutes:
+			return [self basicRowHeight];
+		case kSectionDisclaimer:
+			return kDisclaimerCellHeight;
+	}
+	return 1;
+	
+}
+
+#define COLOR_STRIPE_TAG 1
+
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+	UITableViewCell *cell = nil;
+	
+	switch (indexPath.section)
+	{
+	case kSectionRoutes:
+		{		
+			cell = [tableView dequeueReusableCellWithIdentifier:kRouteCellId];
+			if (cell == nil) {
+				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kRouteCellId] autorelease];
+				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+				CGRect rect = CGRectMake(0, 0, COLOR_STRIPE_WIDTH, [self tableView:tableView heightForRowAtIndexPath:indexPath]);
+				
+				RouteColorBlobView *colorStripe = [[RouteColorBlobView alloc] initWithFrame:rect];
+				colorStripe.tag = COLOR_STRIPE_TAG;
+				[cell.contentView addSubview:colorStripe];
+				[colorStripe release];
+				
+			}
+			// Configure the cell
+			Route *route = [[self filteredData:tableView] objectAtIndex:indexPath.row];
+			
+			cell.textLabel.text = route.desc; 
+			cell.textLabel.font = [self getBasicFont];
+			cell.textLabel.adjustsFontSizeToFitWidth = YES;
+			RouteColorBlobView *colorStripe = (RouteColorBlobView*)[cell.contentView viewWithTag:COLOR_STRIPE_TAG];
+			[colorStripe setRouteColor:route.route];
+		}
+		break;
+	case kSectionDisclaimer:
+		cell = [tableView dequeueReusableCellWithIdentifier:kDisclaimerCellId];
+		if (cell == nil) {
+			cell = [self disclaimerCellWithReuseIdentifier:kDisclaimerCellId];
+		}
+			
+		[self addTextToDisclaimerCell:cell text:[self.routeData displayDate:self.routeData.cacheTime]];	
+			
+		if (self.routeData.itemArray == nil)
+		{
+			[self noNetworkDisclaimerCell:cell];
+		}
+		else
+		{
+			cell.accessoryType = UITableViewCellAccessoryNone;
+		}
+		break;
+	}
+	return cell;
+}
+
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+	switch (indexPath.section)
+	{
+		case kSectionRoutes:
+		{
+			DirectionView *directionViewController = [[DirectionView alloc] init];
+			Route * route = [[self filteredData:tableView] objectAtIndex:indexPath.row];
+			// directionViewController.route = [self.routeData itemAtIndex:indexPath.row];
+			[directionViewController setCallback:self.callback];
+			[directionViewController fetchDirectionsInBackground:self.backgroundTask route:[route route]];
+			[directionViewController release];
+			break;
+		}
+		case kSectionDisclaimer:
+		{
+			if (self.routeData.itemArray == nil)
+			{
+				[self networkTips:self.routeData.htmlError networkError:self.routeData.errorMsg];
+			}
+			break;
+		}
+	}
+}
+
+#pragma mark View methods
+
+- (void)viewWillAppear:(BOOL)animated {
+	[super viewWillAppear:animated];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+	[super viewDidAppear:animated];
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+}
+
+- (void)viewDidDisappear:(BOOL)animated {
+}
+
+- (void)didReceiveMemoryWarning {
+	[super didReceiveMemoryWarning];
+}
+
+
+- (void)viewDidLoad {
+	[super viewDidLoad];
+	// Add the following line if you want the list to be editable
+	// self.navigationItem.leftBarButtonItem = self.editButtonItem;
+	// self.title = originalName;
+	
+	// add our custom add button as the nav bar's custom right view
+	UIBarButtonItem *refreshButton = [[UIBarButtonItem alloc]
+									  initWithTitle:NSLocalizedString(@"Refresh", @"")
+									  style:UIBarButtonItemStyleBordered
+									  target:self
+									  action:@selector(refreshAction:)];
+	self.navigationItem.rightBarButtonItem = refreshButton;
+	[refreshButton release];
+	self.searchableItems = self.routeData.itemArray;
+	
+	[self reloadData];
+	
+	if ([self.routeData safeItemCount] > 0)
+	{
+		[self.table scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] 
+						  atScrollPosition:UITableViewScrollPositionTop 
+								  animated:NO];
+	}
+
+	
+}
+
+#pragma mark UI callbacks
+
+- (void)refreshAction:(id)sender
+{
+	self.backgroundRefresh = true;
+	[self fetchRoutesInBackground:self.backgroundTask];
+}
+
+
+
+@end
+

@@ -1,0 +1,664 @@
+//
+//  RailStationTableView.m
+//  PDX Bus
+//
+//  Created by Andrew Wallace on 10/8/09.
+//
+
+/*
+
+``The contents of this file are subject to the Mozilla Public License
+     Version 1.1 (the "License"); you may not use this file except in
+     compliance with the License. You may obtain a copy of the License at
+     http://www.mozilla.org/MPL/
+
+     Software distributed under the License is distributed on an "AS IS"
+     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+     License for the specific language governing rights and limitations
+     under the License.
+
+     The Original Code is PDXBus.
+
+     The Initial Developer of the Original Code is Andrew Wallace.
+     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
+
+ */
+
+#import "RailStationTableView.h"
+#import "DepartureTimesView.h"
+#import "WebViewController.h"
+#import "SimpleAnnotation.h"
+#import "MapViewController.h"
+#import "RailMapView.h"
+#import "AllRailStationView.h"
+#import "TriMetRouteColors.h"
+#import "DirectionView.h"
+#import "AlarmTaskList.h"
+
+
+
+@implementation RailStationTableView
+
+@synthesize station			= _station;
+@synthesize from			= _from;
+@synthesize locationsDb		= _locationsDb;
+@synthesize map				= _map;
+@synthesize routes			= _routes;
+
+#define kSections				4
+#define kSectionsProximity		5
+
+#define kStation				0
+#define kStops					1
+#define kWikiLink				3
+#define kRouteSection			2
+#define kProximitySection		4    
+
+#define kDirectionCellHeight	45.0
+#define DIRECTION_TAG			1
+#define ID_TAG					2
+
+#define kRowWikiLink			0
+
+- (void)dealloc {
+	self.locationsDb = nil;
+	self.station = nil;
+	self.map = nil;
+	self.routes = nil;
+	[super dealloc];
+}
+
+
+- (id)init {
+	if ((self = [super init]))
+	{
+		self.title = @"Station Details";
+		
+		rowNearby = -1;
+		rowShowAll = -1;
+		rowOffset = 0;
+	}
+	return self;
+}
+
+#pragma mark ViewControllerBase methods
+
+- (UITableViewStyle) getStyle
+{
+	return UITableViewStylePlain;
+}
+
+- (void)createToolbarItems
+{	
+	
+	NSArray *items = nil;
+	
+	if (self.map == nil)
+	{
+		
+		items = [NSArray arrayWithObjects: [self autoDoneButton], 
+				 [CustomToolbar autoFlexSpace], 
+				 [CustomToolbar autoMapButtonWithTarget:self action:@selector(showMap:)],
+				 [CustomToolbar autoFlexSpace], [self autoFlashButton], nil];
+	}
+	else {
+		
+		
+		items = [NSArray arrayWithObjects: [self autoDoneButton], 
+				 [CustomToolbar autoFlexSpace], 
+				 [CustomToolbar autoMapButtonWithTarget:self action:@selector(showMap:)],
+				 [CustomToolbar autoFlexSpace],
+				 [[[UIBarButtonItem alloc]
+				   initWithTitle:@"Next" style:UIBarButtonItemStyleBordered 
+				   target:self action:@selector(showNext:)] autorelease],
+				 [CustomToolbar autoFlexSpace], [self autoFlashButton], nil];
+	}
+	
+	
+	
+	[self setToolbarItems:items animated:NO];
+	
+}
+
+#pragma mark View methods
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+	AlarmTaskList *taskList = [AlarmTaskList getSingleton];
+	NSString *stopId = [self.station.locList objectAtIndex:0];
+	CLLocation *here = [self.locationsDb getLocaction:stopId];
+	
+	
+	
+	[taskList userAlertForProximityAction:buttonIndex 
+								   stopId:stopId 
+									  lat:[NSString stringWithFormat:@"%f", here.coordinate.latitude] 
+									  lng:[NSString stringWithFormat:@"%f", here.coordinate.longitude] 
+									 desc:self.station.station];
+}
+
+- (void)didReceiveMemoryWarning {
+	// Releases the view if it doesn't have a superview.
+    [super didReceiveMemoryWarning];
+	
+	// Release any cached data, images, etc that aren't in use.
+}
+
+- (void)viewDidUnload {
+	// Release any retained subviews of the main view.
+	// e.g. self.myOutlet = nil;
+}
+
+- (void)addLineToRoutes:(RAILLINES)line
+{
+	if (self.station.line & line) 
+	{
+		[self.routes addObject:[NSNumber numberWithInt:line]];
+	}
+}
+
+- (void)viewDidLoad
+{
+	// Workout if we have any routes
+	
+	self.routes = [[[NSMutableArray alloc] init] autorelease];
+
+	
+	[self addLineToRoutes:kBlueLine];
+	[self addLineToRoutes:kRedLine];
+	[self addLineToRoutes:kGreenLine];
+	[self addLineToRoutes:kYellowLine];
+	[self addLineToRoutes:kStreetcarLine];
+	[self addLineToRoutes:kWesLine];
+}
+
+#pragma mark UI helper functions
+
+- (UITableViewCell *)plainCell:(UITableView *)tableView
+{
+	static NSString *CellIdentifier = @"Cell";
+    
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    if (cell == nil) {
+        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+    }
+	cell.textLabel.adjustsFontSizeToFitWidth = YES;
+	cell.textLabel.font = [self getBasicFont];
+	
+	return cell;
+	
+}
+
+-(void)showMap:(id)sender
+{
+	if (self.locationsDb.isEmpty)
+	{
+		[self noLocations:@"Show on map" delegate:self];
+	}
+	else {
+		
+		int i;
+		CLLocation *here;
+		
+		MapViewController *mapPage = [[MapViewController alloc] init];
+		
+		for (i=0; i< [self.station.locList count];  i++)
+		{
+			here = [self.locationsDb getLocaction:[self.station.locList objectAtIndex:i]];
+			
+			if (here)
+			{
+				Stop *a = [[[Stop alloc] init] autorelease];
+				
+				a.locid = [self.station.locList objectAtIndex:i];
+				a.desc  = self.station.station;
+				a.dir   = [self.station.dirList objectAtIndex:i];
+				a.lat   = [NSString stringWithFormat:@"%f", here.coordinate.latitude];
+				a.lng   = [NSString stringWithFormat:@"%f", here.coordinate.longitude];
+				a.callback = self;
+			
+				[mapPage addPin:a];
+			}
+		}
+		mapPage.callback = self.callback;
+		[[self navigationController] pushViewController:mapPage animated:YES];
+		[mapPage release];	
+	}
+	
+}
+
+-(void)showNext:(id)sender
+{
+	[[self navigationController] popViewControllerAnimated:YES];
+	
+	NSDate *soon = [[NSDate date] addTimeInterval:0.5];
+    NSTimer *timer = [[[NSTimer alloc] initWithFireDate:soon interval:0.1 target:self.map selector:@selector(next:) userInfo:nil repeats:NO] autorelease];
+    [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
+	// [self.map next];
+}
+
+
+#pragma mark Table view methods
+
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+	switch (section) {
+		case kRouteSection:
+			if (self.routes.count==0)
+			{
+				return nil;
+			}
+			return @"Routes:";
+		case kStation:
+			return nil;
+		case kStops:
+			
+			if (self.callback)
+			{
+				return @"Stops";
+			}
+			return @"Arrivals";
+		case kWikiLink:
+			if (self.station.wikiLink == nil)
+			{
+				return nil;
+			}
+			return @"More Information";
+		case kProximitySection:
+			return @"Alarms:";
+	}
+	return nil;
+}
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+	if ([AlarmTaskList proximitySupported])
+	{
+		return kSectionsProximity;
+	}
+    return kSections;
+}
+
+
+// Customize the number of rows in the table view.
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+	switch (section)
+	{
+		case kStation:
+		case kProximitySection:
+			return 1;
+		case kStops:
+			rows = [self.station.locList count];
+			if (rows > 1 && self.callback == nil)
+			{
+				rowShowAll = 0;
+				rowOffset = 1;
+				rows++;
+			}
+			else {
+				rowOffset = 0;
+			}
+
+			
+			if (self.callback == nil)
+			{
+				rowNearby = rows;
+				rows++;
+				rowRail = rows;
+				rows++;
+			}
+			return rows;
+		case kWikiLink:
+			if (self.station.wikiLink != nil)
+			{
+				return 1;
+			}
+			break;
+		case kRouteSection:
+			return self.routes.count;
+	}
+    return 0;
+}
+
+// Customize the appearance of table view cells.
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    UITableViewCell *cell = nil;
+    
+    switch (indexPath.section)
+	{
+		case kStation:
+		{
+			NSString *cellId = [NSString stringWithFormat:@"station%d", [self screenWidth]];
+			cell = [tableView dequeueReusableCellWithIdentifier:cellId];
+			if (cell == nil) {
+				
+				cell = [RailStation tableviewCellWithReuseIdentifier:cellId 
+														   rowHeight:[self basicRowHeight] 
+														 screenWidth:[self screenWidth]
+														 rightMargin:NO
+																font:[self getBasicFont]];
+				
+				/*
+				 [self newLabelWithPrimaryColor:[UIColor blueColor] selectedColor:[UIColor cyanColor] fontSize:14 bold:YES parentView:[cell contentView]];
+				 */
+			}
+			
+			
+			// cell = [self plainCell:tableView];
+			//cell.textLabel.text =  self.station.station;
+			cell.selectionStyle = UITableViewCellSelectionStyleNone;
+			cell.accessoryType = UITableViewCellAccessoryNone;
+			cell.imageView.image = nil;
+			//cell.textLabel.textAlignment = UITextAlignmentCenter;
+			
+			
+			[RailStation populateCell:cell 
+							  station:self.station.station
+								lines:[AllRailStationView railLines:self.station.index]];
+			
+			break;
+		}
+		case kStops:
+			if (indexPath.row == rowShowAll)
+			{
+				cell = [self plainCell:tableView];
+				cell.textLabel.text = @"All arrivals";
+				cell.selectionStyle = UITableViewCellSelectionStyleBlue;
+				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+				cell.imageView.image = [self getActionIcon:kIconRecent];
+			}
+			else if ((indexPath.row-rowOffset) < [self.station.dirList count])
+			{
+				cell = [self plainCell:tableView];
+				// cell = [self directionCellWithReuseIdentifier:@"dcell"];
+				
+				cell.textLabel.text = [NSString stringWithFormat:@"%@ (ID %@)", [self.station.dirList objectAtIndex:indexPath.row-rowOffset]
+									   ,[self.station.locList objectAtIndex:indexPath.row-rowOffset]];
+				
+				
+				
+				cell.selectionStyle = UITableViewCellSelectionStyleBlue;
+				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+				cell.imageView.image = [self getActionIcon:kIconRecent];
+			}
+			else if (indexPath.row == rowNearby)
+			{
+				cell = [self plainCell:tableView];
+				cell.textLabel.text = @"Nearby stops (1/2 mile)";
+				cell.selectionStyle = UITableViewCellSelectionStyleBlue;
+				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+				cell.imageView.image = [self getActionIcon:kIconLocate];
+
+			}
+			else if (indexPath.row == rowRail)
+			{
+				cell = [self plainCell:tableView];
+				cell.textLabel.text = @"Nearest rail stations";
+				cell.selectionStyle = UITableViewCellSelectionStyleBlue;
+				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+				cell.imageView.image = [self getActionIcon:kIconLocate];
+				
+			}
+
+			break;
+		case kWikiLink:
+			switch (indexPath.row)
+			{
+				case kRowWikiLink:
+					cell = [self plainCell:tableView];
+					cell.textLabel.text = @"Wikipedia article";
+					cell.selectionStyle = UITableViewCellSelectionStyleBlue;
+					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+					cell.imageView.image = [self getActionIcon:kIconWiki];
+					break;
+			}
+			break;
+		case kProximitySection:
+			cell = [self plainCell:tableView];
+			cell.textLabel.text = kUserProximityCellText;
+			cell.imageView.image = [self getActionIcon:kIconAlarm];
+			cell.selectionStyle = UITableViewCellSelectionStyleBlue;
+			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+			break;
+		case kRouteSection:
+		{
+			RAILLINES line = [((NSNumber*)[self.routes objectAtIndex:indexPath.row]) intValue];
+			
+			NSString *cellId = [NSString stringWithFormat:@"route%d", [self screenWidth]];
+			cell = [tableView dequeueReusableCellWithIdentifier:cellId];
+			if (cell == nil) {
+				
+				cell = [RailStation tableviewCellWithReuseIdentifier:cellId 
+														   rowHeight:[self basicRowHeight] 
+														 screenWidth:[self screenWidth]
+														 rightMargin:YES
+																font:[self getBasicFont]];
+				
+				/*
+				 [self newLabelWithPrimaryColor:[UIColor blueColor] selectedColor:[UIColor cyanColor] fontSize:14 bold:YES parentView:[cell contentView]];
+				 */
+			}
+			
+			
+			// cell = [self plainCell:tableView];
+			//cell.textLabel.text =  self.station.station;
+			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+			cell.imageView.image = nil;
+			//cell.textLabel.textAlignment = UITextAlignmentCenter;
+			
+			
+			[RailStation populateCell:cell 
+							  station:[NSString stringWithFormat:@"%@ info", [TriMetRouteColors rawColorForLine:line]->name]
+								lines:line];
+			
+		}
+				
+	}
+	
+    return cell;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    // Navigation logic may go here. Create and push another view controller.
+	// AnotherViewController *anotherViewController = [[AnotherViewController alloc] initWithNibName:@"AnotherView" bundle:nil];
+	// [self.navigationController pushViewController:anotherViewController];
+	// [anotherViewController release];
+	switch (indexPath.section)
+	{
+		case kStation:
+			break;
+		case kStops:
+			if (self.callback)
+			{
+								
+				if ([self.callback respondsToSelector:@selector(selectedStop:desc:)])
+				{
+					[self.callback selectedStop:[self.station.locList objectAtIndex:indexPath.row] desc:self.station.station];
+				}
+				else 
+				{
+					[self.callback selectedStop:[self.station.locList objectAtIndex:indexPath.row]];
+
+				}
+			}
+			else if (indexPath.row == rowShowAll)
+			{
+				DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
+				
+				NSMutableString *locs = [[[NSMutableString alloc] init] autorelease];
+				
+				int i;
+				
+				[locs appendString:[self.station.locList objectAtIndex:0]];
+				
+				for (i=1; i< [self.station.locList count]; i++)
+				{
+					[locs appendFormat:@",%@", [self.station.locList objectAtIndex:i]];
+				}
+				
+				[departureViewController fetchTimesForLocationInBackground:self.backgroundTask loc:locs];
+				[departureViewController release];
+			}
+			else if ((indexPath.row-rowOffset) < [self.station.locList count])
+			{
+				DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
+				
+				[departureViewController fetchTimesForLocationInBackground:self.backgroundTask loc:[self.station.locList objectAtIndex:indexPath.row-rowOffset]];
+				[departureViewController release];
+			}
+			
+			else if (indexPath.row == rowNearby || indexPath.row == rowRail)
+			{
+				CLLocation *here = [self.locationsDb getLocaction:[self.station.locList objectAtIndex:0]];
+				
+				if (here !=nil)
+				{
+					DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
+					
+					departureViewController.callback = self.callback;
+					
+					if (indexPath.row == rowNearby)
+					{
+						[departureViewController fetchTimesForNearestStopsInBackground:self.backgroundTask location:here maxToFind:kMaxStops minDistance:kDistHalfMile mode:TripModeAll];
+					}
+					else 
+					{
+						[departureViewController fetchTimesForNearestStopsInBackground:self.backgroundTask location:here maxToFind:kMaxStops minDistance:kDistMax mode:TripModeTrainOnly];
+					}
+					
+					
+					//	[departureViewController fetchTimesForLocationsInBackground:self.backgroundTask stops:self.locationsDb.nearestStops];
+					
+					[departureViewController release];
+			
+					
+			/*
+					if ([self.locationsDb.nearestStops count] > 0)
+					{
+						DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
+				
+						departureViewController.callback = self.callback;
+				
+						[departureViewController fetchTimesForLocationsInBackground:self.backgroundTask stops:self.locationsDb.nearestStops];
+				
+						[departureViewController release];
+					}
+					else
+					{
+						UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"Nearby stops"
+																   message:@"No stops were found"
+																  delegate:nil
+														 cancelButtonTitle:@"OK"
+														 otherButtonTitles:nil] autorelease];
+						[alert show];
+					}
+			*/
+				}
+				else 
+				{
+					UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"Nearby stops"
+																	   message:@"No location info is availble for that stop."
+																	  delegate:nil
+															 cancelButtonTitle:@"OK"
+															 otherButtonTitles:nil] autorelease];
+					[alert show];
+					
+				}
+			}
+			break;
+		case kWikiLink:
+		{
+			switch (indexPath.row)
+			{
+				case kRowWikiLink:
+				{
+					WebViewController *webPage = [[WebViewController alloc] init];
+					
+					[webPage setURLmobile:[NSString stringWithFormat:@"http://en.m.wikipedia.org/wiki/%@", self.station.wikiLink ] 
+									 full:[NSString stringWithFormat:@"http://en.wikipedia.org/wiki/%@", self.station.wikiLink ]
+									title:@"Wikipedia"];
+					
+					
+					if (self.callback)
+					{
+						webPage.whenDone = [self.callback getController];
+					}
+					
+					[[self navigationController] pushViewController:webPage animated:YES];
+					[webPage release];
+					break;
+				}
+			}
+			break;
+			
+		}
+		case kProximitySection:
+		{
+			AlarmTaskList *taskList = [AlarmTaskList getSingleton];
+			[taskList userAlertForProximity:self];
+			[self.table deselectRowAtIndexPath:indexPath animated:YES];
+			break;
+		}
+		case kRouteSection:
+		{
+			RAILLINES line = [((NSNumber*)[self.routes objectAtIndex:indexPath.row]) intValue];
+			NSString *route = [TriMetRouteColors rawColorForLine:line]->route;
+			
+			DirectionView *dirView = [[DirectionView alloc] init];
+			dirView.callback = self.callback;
+			[dirView fetchDirectionsInBackground:self.backgroundTask route:route];
+			[dirView release];
+			break;
+		}
+			
+
+			
+	}
+	
+}
+
+
+#pragma mark ReturnStop callbacks
+
+- (void) chosenStop:(Stop *)stop progress:(id<BackgroundTaskProgress>) progress
+{
+	if (self.callback)
+	{
+		/*
+		 if ([self.callback getController] != nil)
+		 {
+		 [[self navigationController] popToViewController:[self.callback getController] animated:YES];
+		 }
+		 */		
+		if ([self.callback respondsToSelector:@selector(selectedStop:desc:)])
+		{
+			[self.callback selectedStop:stop.locid desc:self.station.station];
+		}
+		else {
+			[self.callback selectedStop:stop.locid];
+		}
+
+		
+		return;
+	}
+	
+	DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
+	
+	departureViewController.displayName = stop.desc;
+	
+	[departureViewController fetchTimesForLocationInBackground:progress loc:stop.locid];
+	[departureViewController release];
+	
+}
+
+- (NSString *)actionText
+{
+	if (self.callback)
+	{
+		return [self.callback actionText];
+	}
+	return @"Show arrivals";
+	
+}
+
+@end
+

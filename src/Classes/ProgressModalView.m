@@ -1,0 +1,365 @@
+//
+//  ProgressModal.m
+//  PDX Bus
+//
+//  Created by Andrew Wallace on 2/19/10.
+//
+
+/*
+
+``The contents of this file are subject to the Mozilla Public License
+     Version 1.1 (the "License"); you may not use this file except in
+     compliance with the License. You may obtain a copy of the License at
+     http://www.mozilla.org/MPL/
+
+     Software distributed under the License is distributed on an "AS IS"
+     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+     License for the specific language governing rights and limitations
+     under the License.
+
+     The Original Code is PDXBus.
+
+     The Initial Developer of the Original Code is Andrew Wallace.
+     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
+
+ */
+
+#import "ProgressModalView.h"
+#import "TriMetTimesAppDelegate.h"
+#import "debug.h"
+
+CGPathRef NewPathWithRoundRect(CGRect rect, CGFloat cornerRadius);
+
+#pragma mark ProgressModalView
+
+@implementation ProgressModalView
+
+@synthesize items				= _items;
+@synthesize whirly				= _whirly;
+@synthesize progress			= _progress;
+@synthesize progressDelegate	= _progressDelegate;
+@synthesize subText				= _subText;
+
+- (void)dealloc {
+	self.whirly = nil;
+	self.progress = nil;
+	self.progressDelegate = nil;
+	self.subText = nil;
+    [super dealloc];
+}
+
+
+/*
+ // The designated initializer.  Override if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+    if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
+        // Custom initialization
+    }
+    return self;
+}
+*/
+
+#define kActivityViewWidth				200
+#define kActivityViewHeight				200
+#define kProgressWidth					65
+#define kProgressHeight					65
+#define kTextHeight						25
+#define kTextSpaceOffset				(kActivityViewHieght - ((kActivityViewHieght + kProgressHeight)/2))
+#define kBarHeight						10
+#define kTextWidth						kBarWidth
+#define kBarWidth						(kActivityViewWidth - 20)
+#define kBarGap							10
+#define kMargin							0
+#define kTopMargin						(15 + kMargin)
+#define kButtonHeight					40
+#define kButtonGap						5
+
+- (void)buttonAction:(id)sender
+{
+	UIButton *button = sender;
+	button.hidden = true;
+	
+	[self.progressDelegate ProgressDelegateCancel]; 
+	
+}
+
++ (ProgressModalView *)initWithSuper:(UIView *)back items:(int)items title:(NSString *)title delegate:(id<ProgressDelegate>)delegate
+						 orientation:(UIInterfaceOrientation)orientation
+{	
+	ProgressModalView *top = [[[ProgressModalView alloc] initWithFrame:[back bounds]] autorelease];
+
+	
+	
+	CGRect backFrame = [back frame];
+	CGFloat quarterTurns = 0;
+	
+	switch (orientation)
+	{
+		case UIInterfaceOrientationLandscapeLeft:
+			quarterTurns = 3;
+			break;
+		case UIInterfaceOrientationLandscapeRight:
+			quarterTurns = 1;
+			break;
+		case UIInterfaceOrientationPortrait:
+			quarterTurns = 0;
+			break;
+		case UIInterfaceOrientationPortraitUpsideDown:
+			quarterTurns = 2;
+			break;
+	}
+	
+	DEBUG_LOG(@"Quarter turns %d\n", quarterTurns);
+
+	
+	if (quarterTurns > 0)
+	{
+#define swap(X,Y) temp = (X); (X) = (Y); Y = temp;
+		
+		CGAffineTransform trans = CGAffineTransformMakeRotation(quarterTurns * M_PI/2);
+		
+		
+		// top.center = CGPointMake(CGRectGetMidX(frame), CGRectGetMidY(frame));
+		
+		
+	
+		if (quarterTurns != 2)
+		{
+			CGFloat temp;
+			swap(backFrame.size.height, backFrame.size. width);
+			
+			// I found these magic numbers by trial and error. I'm not proud!
+			trans = CGAffineTransformTranslate(trans, -128, 130);
+		//	frame.origin.x = -125;
+		//	frame.origin.y = 140;
+		}
+		[top setTransform:trans];
+	}
+	
+	RoundedTransparentRect *fullScreen = [[RoundedTransparentRect alloc] initWithFrame:CGRectMake(
+																			backFrame.origin.x + kMargin,
+																			backFrame.origin.y + kTopMargin,
+																			(backFrame.size.width  - kMargin *2),
+																			(backFrame.size.height - kTopMargin - kMargin)
+																			)];
+	
+	fullScreen.BACKGROUND_OPACITY  = 0.60;
+	fullScreen.R				   = 0.5;
+	fullScreen.G				   = 0.5;
+	fullScreen.B				   = 0.5;
+	
+	fullScreen.opaque = NO;
+	
+	[top addSubview:fullScreen];
+	
+	[fullScreen release];
+	
+	CGRect frontFrame = CGRectMake(
+								   (backFrame.size.width - kActivityViewWidth) /2,
+								   (backFrame.size.height - kActivityViewHeight) /2 - (kButtonGap+kButtonHeight)/2,
+								   kActivityViewWidth,
+								   kActivityViewHeight										
+								   );
+
+	RoundedTransparentRect *frontWin = [[RoundedTransparentRect alloc] initWithFrame:frontFrame];
+	
+	frontWin.BACKGROUND_OPACITY = 0.80;
+	frontWin.R				    =  112.0/255.0;
+	frontWin.G				    =  138.0/255.0;
+	frontWin.B				    =  144.0/255.0;
+	
+	frontWin.opaque = NO;
+	
+	[top addSubview:frontWin];
+	
+	top.whirly = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+	top.whirly.frame = CGRectMake((kActivityViewWidth - kProgressWidth)/2,
+								  (kActivityViewHeight -kProgressHeight)/2,  
+								  kProgressWidth,
+								  kProgressHeight);
+	
+	
+	
+	[frontWin addSubview:top.whirly];
+				   
+		
+	[top.whirly startAnimating];
+	
+	CGRect subframe = CGRectMake((kActivityViewWidth-kTextWidth)/2, 
+								 ((top.whirly.frame.origin.y + kProgressHeight) + (kActivityViewWidth - kBarHeight-kBarGap)) / 2 - kTextHeight/2, 
+								 kTextWidth, 
+								 kTextHeight);
+	
+	UILabel *subtextView = [[[UILabel alloc] initWithFrame:subframe] autorelease];
+	
+	subtextView.text = nil;
+	subtextView.opaque = NO;
+	subtextView.backgroundColor = [UIColor clearColor];
+	subtextView.textColor = [UIColor whiteColor];
+	subtextView.textAlignment = UITextAlignmentCenter;
+	subtextView.adjustsFontSizeToFitWidth = NO;
+	subtextView.font = [UIFont boldSystemFontOfSize:12];
+	top.subText = subtextView;
+	
+	[frontWin addSubview:subtextView];
+	
+	top.items = items;
+	
+	if (items > 1)
+	{
+		CGRect frame = CGRectMake((kActivityViewWidth-kBarWidth)/2, 
+								  (kActivityViewHeight - kBarHeight-kBarGap) , 
+								  kBarWidth, 
+								  kBarHeight);
+		top.progress = [[[UIProgressView alloc] initWithFrame:frame] autorelease];
+		top.progress.progressViewStyle = UIProgressViewStyleDefault;
+		top.progress.progress = 0.0;
+		
+		[frontWin addSubview:top.progress];
+	}
+	
+	[frontWin autorelease];
+	
+	if (delegate)
+	{
+		top.progressDelegate = delegate;
+	
+		UIButton *cancelButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+		
+		[cancelButton setTitle:@"Cancel" forState:UIControlStateNormal];	
+		
+		cancelButton.frame = CGRectMake(
+										frontFrame.origin.x,
+										frontFrame.origin.y + frontFrame.size.height + kButtonGap,
+										kActivityViewWidth,
+										kButtonHeight);									
+
+		[cancelButton addTarget:top action:@selector(buttonAction:) forControlEvents:UIControlEventTouchUpInside];	
+	
+		
+		[cancelButton setTitleColor:[UIColor colorWithRed:frontWin.R green:frontWin.G blue:frontWin.B alpha:1.0] forState:UIControlStateNormal];
+		[top addSubview:cancelButton];
+	}
+	
+	if (title !=nil)
+	{
+		CGRect titleFrame = CGRectMake((kActivityViewWidth-kTextWidth)/2, (kBarGap) , kTextWidth, kTextHeight);
+		
+		UILabel *textView = [[[UILabel alloc] initWithFrame:titleFrame] autorelease];
+		
+		textView.text = title;
+		textView.opaque = NO;
+		textView.backgroundColor = [UIColor clearColor];
+		textView.textColor = [UIColor whiteColor];
+		textView.textAlignment = UITextAlignmentCenter;
+		textView.adjustsFontSizeToFitWidth = YES;
+		textView.font = [UIFont boldSystemFontOfSize:17];
+		// top.subText = textView;
+		
+		[frontWin addSubview:textView];
+		
+	}
+
+	return top;
+}
+
+- (void) addSubtext:(NSString *)subtext
+{
+	if (self.subText)
+	{
+		self.subText.text = subtext;
+	}
+}
+
+
+- (void) itemsDone:(int)done
+{
+	self.progress.progress = (float)done/(float)self.items;
+}
+
+
+@end
+
+#pragma mark -
+#pragma mark RoundedTransparentRect
+
+@implementation RoundedTransparentRect
+
+@synthesize BACKGROUND_OPACITY;
+@synthesize R;
+@synthesize G;
+@synthesize B;
+
+
+- (id)initWithFrame:(CGRect)frame
+{
+	return [super initWithFrame:frame];
+}
+
+
+CGPathRef NewPathWithRoundRect(CGRect rect, CGFloat cornerRadius)
+{
+
+	CGMutablePathRef path = CGPathCreateMutable();
+	CGPathMoveToPoint(path, NULL,
+					  rect.origin.x,
+					  rect.origin.y + rect.size.height - cornerRadius);
+	
+	// Top left
+	CGPathAddArcToPoint(path, NULL,
+						rect.origin.x,
+						rect.origin.y,
+						rect.origin.x + rect.size.width,
+						rect.origin.y,
+						cornerRadius);
+	
+	// Top right
+	CGPathAddArcToPoint(path, NULL,
+						rect.origin.x + rect.size.width,
+						rect.origin.y,
+						rect.origin.x + rect.size.width,
+						rect.origin.y + rect.size.height,
+						cornerRadius);
+	
+	// Bottom right
+	CGPathAddArcToPoint(path, NULL,
+						rect.origin.x + rect.size.width,
+						rect.origin.y + rect.size.height,
+						rect.origin.x,
+						rect.origin.y + rect.size.height,
+						cornerRadius);
+	
+	// Bottom left
+	CGPathAddArcToPoint(path, NULL,
+						rect.origin.x,
+						rect.origin.y + rect.size.height,
+						rect.origin.x,
+						rect.origin.y,
+						cornerRadius);
+	
+	CGPathCloseSubpath(path);
+	
+	return path;
+}
+
+- (void)drawRect:(CGRect)rect
+{
+    const CGFloat ROUND_RECT_CORNER_RADIUS = 10.0;
+    CGPathRef roundRectPath =
+		NewPathWithRoundRect(rect, ROUND_RECT_CORNER_RADIUS);
+    
+    CGContextRef context = UIGraphicsGetCurrentContext();
+	
+	CGContextSetRGBFillColor(context, R, G, B, BACKGROUND_OPACITY);
+    CGContextAddPath(context, roundRectPath);
+    CGContextFillPath(context);
+	
+    const CGFloat STROKE_OPACITY = 0.25;
+    CGContextSetRGBStrokeColor(context, 1, 1, 1, STROKE_OPACITY);
+    CGContextAddPath(context, roundRectPath);
+    CGContextStrokePath(context);
+	
+    CGPathRelease(roundRectPath);
+}
+
+@end

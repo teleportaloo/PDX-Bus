@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>faves</key>
+	<array>
+		<dict>
+			<key>ChosenName</key>
+			<string>Pioneer Square North MAX Station</string>
+			<key>Location</key>
+			<string>8383</string>
+			<key>OriginalName</key>
+			<string>Pioneer Square North MAX Station</string>
+		</dict>
+		<dict>
+			<key>ChosenName</key>
+			<string>Trip from here to Pioneer Square</string>
+			<key>Trip</key>
+			<dict>
+				<key>fromPoint</key>
+				<dict>
+					<key>useCurrentLocation</key>
+					<true/>
+				</dict>
+				<key>maxItineraries</key>
+				<integer>6</integer>
+				<key>timeChoice</key>
+				<real>1</real>
+				<key>toPoint</key>
+				<dict>
+					<key>locationDesc</key>
+					<string>Pioneer Square</string>
+					<key>useCurrentLocation</key>
+					<false/>
+				</dict>
+				<key>tripMin</key>
+				<integer>0</integer>
+				<key>tripMode</key>
+				<integer>2</integer>
+				<key>walk</key>
+				<real>0.5</real>
+			</dict>
+		</dict>
+	</array>
+	<key>last</key>
+	<string></string>
+	<key>recents</key>
+	<array/>
+	<key>last_trip</key>
+	<dict>
+		<key>fromPoint</key>
+		<dict>
+			<key>useCurrentLocation</key>
+			<true/>
+		</dict>
+		<key>maxItineraries</key>
+		<integer>6</integer>
+		<key>timeChoice</key>
+		<real>1</real>
+		<key>toPoint</key>
+		<dict>
+			<key>locationDesc</key>
+			<string>Pioneer Square</string>
+			<key>useCurrentLocation</key>
+			<false/>
+		</dict>
+		<key>tripMin</key>
+		<integer>0</integer>
+		<key>tripMode</key>
+		<integer>2</integer>
+		<key>walk</key>
+		<real>0.5</real>
+	</dict>
+</dict>
+</plist>
