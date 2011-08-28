@@ -59,9 +59,9 @@ folders for the particular licenses used.
 has terms and conditions (including a non-commercial clause) but does 
 not need an application ID.
 * Yahoo Place Finder can be used to do Reverse Geo Coding on GPS coordinates.  
-This also needs a free API key which is not included
-- you will need to register with Yahoo [here](http://developer.yahoo.com/geo/placefinder) 
-- for this to be utilized - otherwise the code will fall back to GeoNames.org. 
+This also needs a free API key which is not included.  
+You will need to register with Yahoo [here](http://developer.yahoo.com/geo/placefinder)
+for this to be utilized - otherwise the code will fall back to GeoNames.org. 
 
 
 Graphics
@@ -83,12 +83,11 @@ PDX Bus will work without them, except the Rail Map will not be displayed.
 from the PDF of the rail map.  
 (The size here is important for the positioning of the hotspots). The original 
 file is available here -
-[http://www.trimet.org/maps/railsystem.htm](http://www.trimet.org/maps/railsystem.htm) 
- - I was granted special permission to use it for PDX Bus with a disclaimer - 
- you will need to ask permission if you want to distribute it
- in some way.  Note that I took the PDF and made the GIF file - the GIF 
- file provided by TriMet is too small
- and will not work.
+[http://www.trimet.org/maps/railsystem.htm](http://www.trimet.org/maps/railsystem.htm) - I was granted special permission to use it for PDX Bus with a disclaimer - 
+you will need to ask permission if you want to distribute it
+in some way.  Note that I took the PDF and made the GIF file - the GIF 
+file provided by TriMet is too small
+and will not work.
 
 ### Enabling the project to use the graphics
 Once the graphics have been downloaded and copied into place you will need to 
@@ -110,9 +109,9 @@ choose "Get Info" from the pop-up menu.
 [Creative Commons Attribution-Share Alike 3.0 License](http://creativecommons.org/licenses/by/3.0/us/). 
 These files are in a separate folder with attributions:
 
-Attribution:  [http://www.small-icons.com/packs/24x24-free-application-icons.htm](http://www.small-icons.com/packs/24x24-free-application-icons.htm).
-Attribution:  [http://www.small-icons.com/packs/48x48-free-time-icons.htm](http://www.small-icons.com/packs/48x48-free-time-icons.htm).
-Attribution:  [http://www.small-icons.com/packs/48x48-free-object-icons.htm](http://www.small-icons.com/packs/48x48-free-object-icons.htm).
+    * Attribution:  [http://www.small-icons.com/packs/24x24-free-application-icons.htm](http://www.small-icons.com/packs/24x24-free-application-icons.htm).
+    * Attribution:  [http://www.small-icons.com/packs/48x48-free-time-icons.htm](http://www.small-icons.com/packs/48x48-free-time-icons.htm).
+    * Attribution:  [http://www.small-icons.com/packs/48x48-free-object-icons.htm](http://www.small-icons.com/packs/48x48-free-object-icons.htm).
 
 * Glyphish Attribution - some graphics files from Gliphish.com are used under a
 [Creative Commons Attribution-Share Alike 3.0 License](http://creativecommons.org/licenses/by/3.0/us/)
