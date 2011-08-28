@@ -1,3 +1,24 @@
+PDX Bus is an award winning application that displays arrival times for public transport in Portland, Oregon.
+
+(PDX Bus won Best in Show at the [CivicApps.org](http://www.CivicApps.org) awards **
+
+This little application uses the Internet to quickly access TriMet's live tracking data to display arrival times perfectly formatted for the iPhone. It allows you to bookmark frequently used stops, displays recently accessed stops, and gives details for arrivals which are en-route.
+
+You can enter the stop "id" of the stop (as displayed at each stop or station) or you can browse the routes for the stop.
+
+Feature includes:
+* Interactive rail map, showing the MAX and WES stops.
+* Embedded Google maps, showing locations of stops, and when available, the last known position of the bus or train.
+* Use GPS to locate nearby stops or rail stations.
+* Browse routes and stops, show an entire route on the map.
+* Links to TriMet route information.
+* Displays Rider Alerts, and Detours.
+* A "Nighttime visibility flasher" - a flashing screen that can be used at night so that drivers can see you. TriMet suggests holding up a cell phone to make yourself visible to bus drivers.
+* Trip Planning - now you can use the same trip planning feature that is available on TriMet's web site.
+* Specially formatted text to work with the iPhone 3GS VoiceOver accessibility feature to speak arrivals.
+
+Route and arrival data provided by permission of TriMet.
+
 PDX Bus 6.0.1 sources
 =====================
 
