@@ -108,7 +108,7 @@
 		A17254D2125AD75F007EE22D /* RailStation.m in Sources */ = {isa = PBXBuildFile; fileRef = A17254D1125AD75F007EE22D /* RailStation.m */; };
 		A1725643125C1FAE007EE22D /* AllRailStationView.m in Sources */ = {isa = PBXBuildFile; fileRef = A1725642125C1FAE007EE22D /* AllRailStationView.m */; };
 		A1725948125D6CB7007EE22D /* RouteColorBlobView.m in Sources */ = {isa = PBXBuildFile; fileRef = A1725947125D6CB7007EE22D /* RouteColorBlobView.m */; };
-		A174F4701409E185003F81BE /* README.text in Resources */ = {isa = PBXBuildFile; fileRef = A174F46F1409E185003F81BE /* README.text */; };
+		A174F47E1409E7C6003F81BE /* README.text in Resources */ = {isa = PBXBuildFile; fileRef = A174F47D1409E7C6003F81BE /* README.text */; };
 		A17B03B90E72E33400B4FBF6 /* Entitlements.plist in Resources */ = {isa = PBXBuildFile; fileRef = A17B03B80E72E33400B4FBF6 /* Entitlements.plist */; };
 		A17F6C7911B46C51007DE9F7 /* StoppableFetcher.m in Sources */ = {isa = PBXBuildFile; fileRef = A17F6C7811B46C51007DE9F7 /* StoppableFetcher.m */; };
 		A17F6C8211B46EB7007DE9F7 /* LegShapeParser.m in Sources */ = {isa = PBXBuildFile; fileRef = A17F6C8111B46EB7007DE9F7 /* LegShapeParser.m */; };
@@ -429,7 +429,7 @@
 		A1725642125C1FAE007EE22D /* AllRailStationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = AllRailStationView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A1725946125D6CB7007EE22D /* RouteColorBlobView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RouteColorBlobView.h; sourceTree = "<group>"; };
 		A1725947125D6CB7007EE22D /* RouteColorBlobView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RouteColorBlobView.m; sourceTree = "<group>"; };
-		A174F46F1409E185003F81BE /* README.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.text; sourceTree = "<group>"; };
+		A174F47D1409E7C6003F81BE /* README.text */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = README.text; path = ../README.text; sourceTree = "<group>"; };
 		A176AB6D126402940037DF61 /* SearchFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SearchFilter.h; sourceTree = "<group>"; };
 		A17B03B80E72E33400B4FBF6 /* Entitlements.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Entitlements.plist; sourceTree = "<group>"; };
 		A17F6C7711B46C51007DE9F7 /* StoppableFetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StoppableFetcher.h; sourceTree = "<group>"; };
@@ -710,7 +710,7 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
-				A174F46F1409E185003F81BE /* README.text */,
+				A174F47D1409E7C6003F81BE /* README.text */,
 				A1C6C7E9107F01AA00787C5B /* HTML */,
 				080E96DDFE201D6D7F000001 /* Classes */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
@@ -1581,7 +1581,7 @@
 				A15644821380B5150050345B /* Settings@2x.png in Resources */,
 				A15644841380B53B0050345B /* Settings.png in Resources */,
 				A1A6EB0513A58B430000E7C0 /* Train_Honk_Horn_2x-Mike_Koenig-157974048.aif in Resources */,
-				A174F4701409E185003F81BE /* README.text in Resources */,
+				A174F47E1409E7C6003F81BE /* README.text in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
