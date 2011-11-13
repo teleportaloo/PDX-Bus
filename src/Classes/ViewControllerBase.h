@@ -134,6 +134,7 @@
 #define kIconMorning		@"Sun.png"
 #define kIconEvening		@"Moon.png"
 #define kIconCommute		@"63-runner.png"
+#define kIconLocateNear     @"74-location.png"
 #define kIconFindGps		@"network-satellite.png"
 #define kIconFindCell		kIconNetwork
 #define kIconSettings       @"Settings.png"

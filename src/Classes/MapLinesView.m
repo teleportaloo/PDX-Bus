@@ -173,8 +173,6 @@
 	
 	DEBUG_LOG(@"origin: %f %f\n", origin.x, origin.y);
 	
-	(@"eh", 1);
-	
 	self.drawView.frame = CGRectMake(origin.x, origin.y, self.mapView.frame.size.width, self.mapView.frame.size.height);
 	[self.drawView setNeedsDisplay];
 	

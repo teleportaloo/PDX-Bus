@@ -23,7 +23,7 @@
  */
 
 #import "DetoursView.h"
-#import "Detour.h";
+#import "Detour.h"
 #import "CellLabel.h"
 #import "DirectionView.h"
 

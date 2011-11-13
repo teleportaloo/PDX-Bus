@@ -27,7 +27,7 @@
 extern NSString *kCellLabelView_ID;
 
 @interface CellLabel : UITableViewCell {
-	UILabel *view;
+	UILabel *_view;
 }
 
 @property (nonatomic, retain) UILabel *view;

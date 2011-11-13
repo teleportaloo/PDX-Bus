@@ -59,6 +59,11 @@
 	{
 		self.title = @"What's new?";
 		newTextArray = [[NSArray arrayWithObjects:
+                         @"6.1: Now caches arrival times, so users can still see arrivals with no network (especially for iPod touch)",
+                         @"Night Visibility Flasher can now flash the LED (see settings to enable this).",
+                         @"Added Twitter style \"Pull to Refresh\" to arrivals.",
+                         @"Added a quick locate toolbar item to the first screen.",
+                         @"Fixed many small bugs, including issues discovered with Apple's latest tools.",
                          @"6.0.1: Fixed locate nearby stops so that GPS cannot be left on.",
                          @"6.0: Was a major upgrade - see below:",
                          @"Updated PGE Park to JELD-WEN Field on the map.  Go Timbers!",

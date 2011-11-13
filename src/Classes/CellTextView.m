@@ -28,7 +28,7 @@
 
 @implementation CellTextView
 
-@synthesize view;
+@dynamic view;
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)identifier
 {
@@ -37,16 +37,26 @@
 	{
 		// turn off selection use
 		self.selectionStyle = UITableViewCellSelectionStyleNone;
+        _view = nil;
 	}
 	return self;
 }
 
 - (void)setView:(UITextView *)inView
 {
-	view = inView;
-	[self.view retain];
+    if (_view !=nil)
+    {
+        [_view release];
+        _view = nil;
+    }
+	_view = [inView retain];
 	[self.contentView addSubview:inView];
 	[self layoutSubviews];
+}
+
+- (UITextView *)view
+{
+    return  _view;
 }
 
 - (void)layoutSubviews
@@ -67,7 +77,11 @@
 
 - (void)dealloc
 {
-    [view release];
+    if (_view !=nil)
+    {
+        [_view release];
+    }
+  
     [super dealloc];
 }
 

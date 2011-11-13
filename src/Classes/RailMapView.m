@@ -248,7 +248,7 @@ int nHotSpots = 0;
 	bounds.origin.y = 0;
 	
 	/// set up main scroll view
-    self.scrollView = [[UIScrollView alloc] initWithFrame:bounds];
+    self.scrollView = [[[UIScrollView alloc] initWithFrame:bounds] autorelease];
     [self.scrollView setBackgroundColor:[UIColor blackColor]];
     [self.scrollView setDelegate:self];
     [self.scrollView setBouncesZoom:YES];
@@ -928,6 +928,7 @@ int nHotSpots = 0;
 		UIColor * col;
 		switch (hs->action[0])
 		{
+            default:
 			case kLinkTypeHttp:
 				col = [UIColor orangeColor];
 				break;
@@ -944,8 +945,6 @@ int nHotSpots = 0;
 			case kLinkType3:
 				col = [UIColor blueColor];
 				break;
-				
-			
 			case kLinkTypeNorth:
 				col = [UIColor grayColor];
 				break;

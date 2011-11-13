@@ -40,7 +40,7 @@
 
 @implementation CellTextField
 
-@synthesize view;
+@dynamic view;
 @synthesize cellLeftOffset = _cellLeftOffset;
 static CGRect bounds;
 static bool bigScreen;
@@ -60,13 +60,21 @@ static bool bigScreen;
 
 - (void)setView:(UITextField *)inView
 {
-	view = inView;
-	[self.view retain];
-	
-	view.delegate = self;
+    if (_view != nil)
+    {
+        [_view release];
+        _view = nil;
+    } 
+	_view = [inView retain];
+	_view.delegate = self;
 	
 	[self.contentView addSubview:inView];
 	[self layoutSubviews];
+}
+
+- (UITextField *)view
+{
+    return _view;
 }
 
 - (void)layoutSubviews
@@ -84,13 +92,16 @@ static bool bigScreen;
 
 - (void)dealloc
 {
-    [view release];
+    if (_view != nil)
+    {
+        [_view release];
+    }
     [super dealloc];
 }
 
 - (void)stopEditing
 {
-    [view resignFirstResponder];
+    [_view resignFirstResponder];
 }
 
 +(void)initHeight

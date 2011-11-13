@@ -706,6 +706,8 @@
 
 	magnifyButton.accessibilityHint = @"Bus line indentifier";
 	self.navigationItem.rightBarButtonItem = magnifyButton;
+
+    [magnifyButton release];
 }
 
 - (void)viewDidAppear:(BOOL)animated {

@@ -164,9 +164,9 @@
 	
 	
 	
-	self.safari = [[UIBarButtonItem alloc]
+	self.safari = [[[UIBarButtonItem alloc]
 							 initWithBarButtonSystemItem:UIBarButtonSystemItemAction
-							 target:self action:@selector(safariButton:)];
+							 target:self action:@selector(safariButton:)] autorelease];
 	self.safari.style = style;
 	
 	
@@ -327,7 +327,7 @@
 	webViewRect.origin.y = 0;
 	
 	// Create a table viiew
-	self.webView = [[UIWebView alloc] initWithFrame:webViewRect];
+	self.webView = [[[UIWebView alloc] initWithFrame:webViewRect] autorelease];
 	// set the autoresizing mask so that the table will always fill the view
 	self.webView.autoresizingMask = (UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight);
 	
@@ -387,7 +387,8 @@
 		seg.momentary = YES;
 		[seg addTarget:self action:@selector(upDown:) forControlEvents:UIControlEventValueChanged];
 		
-		self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView: seg];
+		self.navigationItem.rightBarButtonItem = [[[UIBarButtonItem alloc] initWithCustomView: seg]
+                                                    autorelease];
 		
 		[self enableArrows:seg];
 		[seg release];

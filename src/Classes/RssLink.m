@@ -90,7 +90,6 @@
 	CGFloat TIME_HEIGHT					= [self getTimeHeight:width];
 //	CGFloat TEXT_FONT_SIZE				= 14.0;	
 	CGFloat TEXT_HEIGHT					= 15.0;
-	CGFloat ROW_HEIGHT					= TIME_HEIGHT + 3 * VGAP + TEXT_HEIGHT;
 	CGFloat LEFT_COL_OFFSET			    = 8.0;
 //	CGFloat VGAP					    = 4.0;
 	CGFloat COL_WIDTH					= 280;
@@ -105,10 +104,7 @@
 	 */
 	CGRect rect;
 	
-	rect = CGRectMake(0.0, 0.0, 320.0, ROW_HEIGHT);
-	
-	
-	UITableViewCell *cell = [[[UITableViewCell alloc] initWithFrame:rect 
+	UITableViewCell *cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault 
 													reuseIdentifier:identifier] autorelease];
 	
 	

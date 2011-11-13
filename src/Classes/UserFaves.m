@@ -47,7 +47,7 @@
 		}
 		self.appData = [[[NSMutableDictionary alloc] initWithContentsOfFile:self.pathToUserCopyOfPlist] autorelease];
 		
-		NSMutableDictionary *recentTrips = [self.appData objectForKey:kRecentTrips];
+		NSMutableArray *recentTrips = [self.appData objectForKey:kRecentTrips];
 		
 		if (recentTrips == nil)
 		{

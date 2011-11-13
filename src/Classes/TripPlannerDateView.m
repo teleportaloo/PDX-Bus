@@ -120,7 +120,7 @@
 
 - (void)createDatePicker
 {	
-	self.datePickerView = [[UIDatePicker alloc] initWithFrame:CGRectZero];
+	self.datePickerView = [[[UIDatePicker alloc] initWithFrame:CGRectZero] autorelease];
 	// self.datePickerView.autoresizingMask = UIViewAutoresizingFlexibleWidth; //UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
 	self.datePickerView.datePickerMode = UIDatePickerModeDateAndTime;
 	

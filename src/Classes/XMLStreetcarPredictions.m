@@ -78,7 +78,7 @@
 		self.dirFromQuery = dir;
 	}
 
-	[self startParsing:location parseError:error];
+	[self startParsing:location parseError:error cacheAction:TriMetXMLUseShortCache];
 	return true;
 }
 
@@ -165,7 +165,7 @@
 		}
 		else
 		{
-			self.currentDepartureObject!=nil;
+			self.currentDepartureObject=nil;
 		}
     }
 }

@@ -28,7 +28,7 @@
 #import "TriMetTimesAppDelegate.h"
 #import "debug.h"
 
-CGPathRef NewPathWithRoundRect(CGRect rect, CGFloat cornerRadius);
+CGPathRef CreatePathWithRoundRect(CGRect rect, CGFloat cornerRadius);
 
 #pragma mark ProgressModalView
 
@@ -172,7 +172,7 @@ CGPathRef NewPathWithRoundRect(CGRect rect, CGFloat cornerRadius);
 	
 	[top addSubview:frontWin];
 	
-	top.whirly = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+	top.whirly = [[[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge] autorelease];
 	top.whirly.frame = CGRectMake((kActivityViewWidth - kProgressWidth)/2,
 								  (kActivityViewHeight -kProgressHeight)/2,  
 								  kProgressWidth,
@@ -297,7 +297,7 @@ CGPathRef NewPathWithRoundRect(CGRect rect, CGFloat cornerRadius);
 }
 
 
-CGPathRef NewPathWithRoundRect(CGRect rect, CGFloat cornerRadius)
+CGPathRef CreatePathWithRoundRect(CGRect rect, CGFloat cornerRadius)
 {
 
 	CGMutablePathRef path = CGPathCreateMutable();
@@ -346,7 +346,7 @@ CGPathRef NewPathWithRoundRect(CGRect rect, CGFloat cornerRadius)
 {
     const CGFloat ROUND_RECT_CORNER_RADIUS = 10.0;
     CGPathRef roundRectPath =
-		NewPathWithRoundRect(rect, ROUND_RECT_CORNER_RADIUS);
+        CreatePathWithRoundRect(rect, ROUND_RECT_CORNER_RADIUS);
     
     CGContextRef context = UIGraphicsGetCurrentContext();
 	

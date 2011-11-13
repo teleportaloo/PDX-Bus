@@ -133,8 +133,9 @@ static NSString *departuresURLString = @"arrivals/locIDs/%@";
 {
 	TriMetTimesAppDelegate *appDelegate = (TriMetTimesAppDelegate *)[[UIApplication sharedApplication] delegate];
 	NSError *error = nil;
-	
-	[self startParsing:[NSString stringWithFormat:departuresURLString, self.locid] parseError:&error];
+    
+	[self startParsing:[NSString stringWithFormat:departuresURLString, self.locid] parseError:&error
+        cacheAction:TriMetXMLUseShortCache];
 	
 	self.streetcarPlatformMap = [appDelegate getStreetcarPlatforms];
 		self.streetcarRoute = [appDelegate getStreetcarRoute];
@@ -221,7 +222,14 @@ static NSString *departuresURLString = @"arrivals/locIDs/%@";
         
 			self.currentDepartureObject = [[[Departure alloc] init] autorelease];
 			self.currentDepartureObject.hasBlock = false;
-			self.currentDepartureObject.queryTime = self.queryTime;
+			
+            self.currentDepartureObject.cacheTime = self.cacheTime;
+            
+            // Adjust the query time based on the cache time
+            
+            NSTimeInterval i = -[self.cacheTime timeIntervalSinceNow];
+            
+            self.currentDepartureObject.queryTime = self.queryTime + i * 1000;
 			
 			self.currentDepartureObject.route =			[self safeValueFromDict:attributeDict valueForKey:@"route"];
 			self.currentDepartureObject.fullSign =		[self safeValueFromDict:attributeDict valueForKey:@"fullSign"];
@@ -264,7 +272,7 @@ static NSString *departuresURLString = @"arrivals/locIDs/%@";
 		}
 		else
 		{
-			self.currentDepartureObject!=nil;
+			self.currentDepartureObject=nil;
 		}
     }
 	

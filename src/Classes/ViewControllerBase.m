@@ -312,7 +312,7 @@
 
 - (UIBarButtonItem *)autoDoneButton
 {
-	if (self.callback !=nil && [self.callback getController] !=nil || [self forceRedoButton])
+	if (self.callback !=nil && ([self.callback getController] !=nil || [self forceRedoButton]))
 	{
 		return [CustomToolbar autoRedoButtonWithTarget:self action:@selector(backButton:)]; 
 	}

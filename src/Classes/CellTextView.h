@@ -26,7 +26,7 @@
 
 @interface CellTextView : UITableViewCell
 {
-    UITextView *view;
+    UITextView *_view;
 }
 
 @property (nonatomic, retain) UITextView *view;

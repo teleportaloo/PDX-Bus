@@ -33,7 +33,7 @@ NSString* kCellLabelView_ID = @"CellTextView_ID";
 #define kInsertValue	8.0
 
 
-@synthesize view;
+@dynamic view;
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)identifier
 {
@@ -42,16 +42,27 @@ NSString* kCellLabelView_ID = @"CellTextView_ID";
 	{
 		// turn off selection use
 //		self.selectionStyle = UITableViewCellSelectionStyleNone;
+        _view = nil;
 	}
 	return self;
 }
 
 - (void)setView:(UILabel *)inView
 {
-	view = inView;
-	[self.view retain];
+    if (_view !=nil)
+    {
+        [_view release];
+        _view = nil;
+    }
+	_view = [inView retain];
+    
 	[self.contentView addSubview:inView];
 	[self layoutSubviews];
+}
+
+- (UILabel *)view
+{
+    return _view;
 }
 
 - (void)layoutSubviews
@@ -72,7 +83,10 @@ NSString* kCellLabelView_ID = @"CellTextView_ID";
 
 - (void)dealloc
 {
-    [view release];
+    if (_view !=nil)
+    {
+        [_view release];
+    }
     [super dealloc];
 }
 

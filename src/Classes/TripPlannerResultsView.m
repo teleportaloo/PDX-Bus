@@ -259,7 +259,7 @@
 		seg.momentary = YES;
 		[seg addTarget:self action:@selector(upDown:) forControlEvents:UIControlEventValueChanged];
 		
-		self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView: seg];
+		self.navigationItem.rightBarButtonItem = [[[UIBarButtonItem alloc] initWithCustomView: seg] autorelease];
 		
 		[self enableArrows:seg];
 		[seg release];

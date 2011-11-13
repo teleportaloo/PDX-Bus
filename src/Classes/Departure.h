@@ -64,6 +64,7 @@ typedef enum {
 	bool				_hasBlock;
 	TriMetTime			_queryTime;
 	TriMetTime			_nextBus;
+    NSDate              *_cacheTime;
 	bool				_streetcar;
 	NSMutableArray *	_trips;
 	
@@ -119,6 +120,7 @@ typedef enum {
 @property (nonatomic, retain) NSString *stopLat;
 @property (nonatomic, retain) NSString *stopLng;
 @property (nonatomic, retain) NSString *copyright;
+@property (nonatomic, retain) NSDate *cacheTime;
 
 
 

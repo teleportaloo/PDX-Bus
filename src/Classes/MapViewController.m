@@ -347,7 +347,8 @@
 		_segPrevNext.momentary = YES;
 		[_segPrevNext addTarget:self action:@selector(prevNext:) forControlEvents:UIControlEventValueChanged];
 		
-		self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView: _segPrevNext];
+		self.navigationItem.rightBarButtonItem = [[[UIBarButtonItem alloc] initWithCustomView: _segPrevNext]
+                                                  autorelease];
 		
 		_selectedAnnotation = 0;
 		

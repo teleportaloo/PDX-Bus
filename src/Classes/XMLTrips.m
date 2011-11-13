@@ -92,17 +92,17 @@
 {
 	TripLegEndPoint *ep = [[ TripLegEndPoint allocWithZone:zone] init];
 	
-	ep.xlat				= [self.xlat			copyWithZone:zone];
-	ep.xlon				= [self.xlon			copyWithZone:zone];
-	ep.xdescription		= [self.xdescription	copyWithZone:zone];
-	ep.xstopId			= [self.xstopId			copyWithZone:zone];
-	ep.displayText		= [self.displayText		copyWithZone:zone];
-	ep.displayText		= [self.displayText		copyWithZone:zone];
-	ep.mapText			= [self.mapText			copyWithZone:zone];
-	ep.xnumber			= [self.xnumber			copyWithZone:zone];
+	ep.xlat				= [[self.xlat			copyWithZone:zone] autorelease];
+	ep.xlon				= [[self.xlon			copyWithZone:zone] autorelease];
+	ep.xdescription		= [[self.xdescription	copyWithZone:zone] autorelease];
+	ep.xstopId			= [[self.xstopId		copyWithZone:zone] autorelease];
+	ep.displayText		= [[self.displayText	copyWithZone:zone] autorelease];
+	ep.displayText		= [[self.displayText	copyWithZone:zone] autorelease];
+	ep.mapText			= [[self.mapText		copyWithZone:zone] autorelease];
+	ep.xnumber			= [[self.xnumber		copyWithZone:zone] autorelease];
 	ep.callback			= self.callback;
-	ep.displayModeText	= [self.displayModeText copyWithZone:zone];
-	ep.displayTimeText	= [self.displayTimeText copyWithZone:zone];
+	ep.displayModeText	= [[self.displayModeText copyWithZone:zone] autorelease];
+	ep.displayTimeText	= [[self.displayTimeText copyWithZone:zone] autorelease];
 	ep.leftColor		= self.leftColor;
 	ep.index			= self.index;
 	
@@ -280,6 +280,7 @@
 	
 	switch(screenWidth)
 	{
+        default:
 		case WidthiPhoneNarrow:
 			cellWidth = 193;  // 212;
 			break;
@@ -303,6 +304,7 @@
 	
 	switch(screenWidth)
 	{
+        default:
 		case WidthiPhoneNarrow:
 			width = 75;  // 212;
 			break;
@@ -327,9 +329,7 @@
 	CGFloat width = [TripLeg bodyTextWidthForScreenWidth:screenWidth];
 	CGRect rect;
 	
-	rect = CGRectMake(0.0, 0.0, width + (320.0 - 212.0), height);
-	
-	UITableViewCell *cell = [[[UITableViewCell alloc] initWithFrame:rect reuseIdentifier:identifier] autorelease];
+	UITableViewCell *cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier] autorelease];
 	
 #define LEFT_COLUMN_OFFSET 10.0
 	
@@ -902,7 +902,7 @@ static strmap dirmap [] =
 	
 	if (self.startPoint == nil)
 	{
-		self.startPoint = [firstPoint copy];
+		self.startPoint = [[firstPoint copy] autorelease];
 	}
 	
 	if (firstPoint!=nil && type != TripTextTypeMap)
@@ -1097,7 +1097,8 @@ static strmap dirmap [] =
 		
 	if (lat!=nil && lng!=nil)
 	{
-		self.currentLocation = [[CLLocation alloc] initWithLatitude:[lat doubleValue] longitude:[lng doubleValue]];
+		self.currentLocation = [[[CLLocation alloc] initWithLatitude:[lat doubleValue] longitude:[lng doubleValue]]
+                                autorelease];
 	}
 	
 
@@ -1193,6 +1194,8 @@ static strmap dirmap [] =
 			return @"Train only";
 		case TripModeAll:
 			return @"Bus or train";
+        default:
+            break;
 			
 	}
 	return @"";
@@ -1237,6 +1240,7 @@ static strmap dirmap [] =
 			return @"B";
 		case TripModeTrainOnly:
 			return @"T";
+        default:
 		case TripModeAll:
 			return @"A";
 	}
@@ -1584,7 +1588,7 @@ static NSString *tripURLString = @"trips/tripplanner?%@&%@&Date=%@&Time=%@&Arr=%
 	copy.userRequest.toPoint.useCurrentLocation		= self.userRequest.toPoint.useCurrentLocation;
 	
 	
-	copy.userRequest.dateAndTime			= [self.userRequest.dateAndTime copyWithZone:NSDefaultMallocZone()];
+	copy.userRequest.dateAndTime			= [[self.userRequest.dateAndTime copyWithZone:NSDefaultMallocZone()] autorelease];
 	copy.userRequest.arrivalTime			= self.userRequest.arrivalTime;
 	copy.userRequest.tripMode				= self.userRequest.tripMode;
 	copy.userRequest.tripMin				= self.userRequest.tripMin;

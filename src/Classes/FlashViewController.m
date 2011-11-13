@@ -24,16 +24,41 @@
  */
 
 #import "FlashViewController.h"
+#import "TorchController.h"
+#import "TriMetTimesAppDelegate.h"
+#import "AppDelegateMethods.h"
 
 
 @implementation FlashViewController
 @synthesize flashTimer = _flashTimer;
 
+
 #define kColors 4
 
 - (void)dealloc {
+    if (self.flashTimer)
+    {
+        [self.flashTimer invalidate];
+    }
 	self.flashTimer = nil;
+    if (_torch)
+    {
+        [_torch release];
+    }
     [super dealloc];
+}
+
+- (id)init
+{
+    if ((self = [super init]))
+    {
+        if ([TorchController supported])
+        {
+            _torch = [[TorchController alloc] init];
+        }
+    }
+    
+    return self;
 }
 
 - (void)infoAction:(id)sender
@@ -51,7 +76,7 @@
 }
 
 - (void)changeColor:(NSTimer *)timer {
-	switch (color)
+	switch (_color)
 	{
 		case 0:
 			self.view.backgroundColor = [UIColor blackColor];
@@ -66,14 +91,19 @@
 			self.view.backgroundColor = [UIColor whiteColor];
 			break;
 	}
-	color = ( color +1 ) % kColors;
+	_color = ( _color +1 ) % kColors;
 	[self.view setNeedsDisplay];
+    if (_torch)
+    {
+        [_torch toggle];
+    }
 }
 
-- (void)viewWillAppear:(BOOL)animated {
+- (void)viewWillAppear:(BOOL)animated 
+{
 
     NSDate *date = [NSDate date];
-    color = 0;
+    _color = 0;
     NSDate *oneSecondFromNow = [date addTimeInterval:0.1];
 	self.flashTimer = [[[NSTimer alloc] initWithFireDate:oneSecondFromNow interval:0.25 target:self selector:@selector(changeColor:) userInfo:nil repeats:YES] autorelease];
 
@@ -96,9 +126,10 @@
 	UILabel *label;
 		
 #define TEXT_HEIGHT 20
+#define TOOLBAR_HEIGHT 40
 	
 	CGRect frame = self.view.frame;
-	CGRect rect = CGRectMake(frame.origin.x, frame.origin.y + frame.size.height - TEXT_HEIGHT, frame.size.width, TEXT_HEIGHT);
+	CGRect rect = CGRectMake(frame.origin.x, frame.origin.y + frame.size.height - TEXT_HEIGHT - TOOLBAR_HEIGHT, frame.size.width, TEXT_HEIGHT);
 	
 	label = [[UILabel alloc] initWithFrame:rect];
 	label.font = [UIFont boldSystemFontOfSize:20];
@@ -113,18 +144,104 @@
 	[self.view addSubview:label];
 	label.text = @"Device sleep disabled!";
 	[label release];
+    
+    if (_torch)
+    {
+        [_torch on];
+    }
+    [super viewWillAppear:animated];
 
 }
 
 - (void)viewWillDisappear:(BOOL)animated
 {
 	[UIApplication sharedApplication].idleTimerDisabled = NO;
+    
+    if (self.flashTimer)
+    {
+        [self.flashTimer invalidate];
+        self.flashTimer = nil;
+    }
+    
+    if (_torch)
+    {
+        [_torch off];
+    }
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning]; // Releases the view if it doesn't have a superview
     // Release anything that's not essential, such as cached data
 }
+
+- (void)toggleLed:(id)sender
+{
+    UISegmentedControl *segControl = sender;
+	switch (segControl.selectedSegmentIndex)
+	{
+		case 0:	
+		{
+            _prefs.flashLed = YES;
+            break;
+		}
+		case 1:	
+		{
+			_prefs.flashLed = NO;
+			break;
+		}
+	}
+    
+}
+
+- (void)createToolbarItems
+{
+    NSArray *items = nil;
+    if (_torch)
+    {
+        // add a segmented control to the button bar
+        UISegmentedControl	*buttonBarSegmentedControl;
+        buttonBarSegmentedControl = [[UISegmentedControl alloc] initWithItems:
+								 [NSArray arrayWithObjects:@"Flash LED", @"LED Off", nil]];
+        [buttonBarSegmentedControl addTarget:self action:@selector(toggleLed:) forControlEvents:UIControlEventValueChanged];
+    
+        if (_prefs.flashLed)
+        {
+            buttonBarSegmentedControl.selectedSegmentIndex = 0.0;	// start by showing the normal picker
+        }
+        else
+        {
+            buttonBarSegmentedControl.selectedSegmentIndex = 1.0;
+        }
+        buttonBarSegmentedControl.segmentedControlStyle = UISegmentedControlStyleBar;
+    
+        int color = _prefs.toolbarColors;
+	
+        if (color == 0xFFFFFF)
+        {
+            buttonBarSegmentedControl.tintColor = [UIColor darkGrayColor];
+        }
+        else {
+            buttonBarSegmentedControl.tintColor = [self htmlColor:color];
+        }
+    
+        buttonBarSegmentedControl.backgroundColor = [UIColor clearColor];
+	
+        UIBarButtonItem *segItem = [[UIBarButtonItem alloc] initWithCustomView:buttonBarSegmentedControl];	
+	
+        items = [NSArray arrayWithObjects: [self autoDoneButton], [CustomToolbar autoFlexSpace], 
+                 segItem, [CustomToolbar autoFlexSpace], nil];
+
+        [segItem release];
+        [buttonBarSegmentedControl release];
+    }
+    else
+    {
+        items = [NSArray arrayWithObjects: [self autoDoneButton], nil];
+    }
+    
+     [self setToolbarItems:items animated:NO];
+}
+    
 
 @end
 

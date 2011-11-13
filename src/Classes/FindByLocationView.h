@@ -40,13 +40,17 @@
 	int maxRouteCount;
 	NSArray *_cachedRoutes;
 	NSMutableDictionary *_lastLocate;
+    
+    int _autoLaunch;
 }
 
 - (id) init;
+- (id) initAutoLaunch;
 - (void) located;
 
 @property (nonatomic, retain) NSArray *cachedRoutes;
 @property (nonatomic, retain) NSMutableDictionary *lastLocate;
+@property (nonatomic)         int autoLaunch;
 
 
 - (void)distSegmentChanged:(id)sender;

@@ -57,6 +57,7 @@
 @synthesize stopLng = _stopLng;
 @synthesize copyright = _copyright;
 @synthesize scheduledTime = _scheduledTime;
+@synthesize cacheTime = _cacheTime;
 
 - (void)dealloc
 {
@@ -75,6 +76,7 @@
 	self.stopLat = nil;
 	self.stopLng = nil;
 	self.copyright = nil;
+    self.cacheTime = nil;
 	
 	[super dealloc];
 	
@@ -193,6 +195,7 @@
 	
 	switch (width)
 	{
+    default:
 	case WidthiPhoneNarrow:
 			break;
 	//case WidthiPhoneWide:
@@ -201,7 +204,7 @@
 	//		break;
 	case WidthiPadWide:
 	case WidthiPadNarrow:
-			ROW_HEIGHT				= kWideDepartureCellHeight;
+			// ROW_HEIGHT				= kWideDepartureCellHeight;
 			LEFT_COLUMN_OFFSET		= 16.0;
 			LEFT_COLUMN_WIDTH		= 560.0;
 			
@@ -239,10 +242,7 @@
 	 */
 	CGRect rect;
 	
-	rect = CGRectMake(0.0, 0.0, 320.0, ROW_HEIGHT);
-	
-	
-	UITableViewCell *cell = [[[UITableViewCell alloc] initWithFrame:rect reuseIdentifier:identifier] autorelease];
+	UITableViewCell *cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier] autorelease];
 	
 	
 	
@@ -428,7 +428,7 @@
 	
 		UIColor *timeColor = nil;
 		UILabel *minsView = [self label:cell tag:BIG_MINS_TAG];
-		
+        
 		TriMetTime mins = (self.departureTime - self.queryTime) / 60000;
 		
 		NSDate *depatureDate = [NSDate dateWithTimeIntervalSince1970: TriMetToUnixTime(self.departureTime)];
@@ -461,7 +461,15 @@
 				[text appendFormat:@"(%@) ", self.block];
 			} */
 			
-			if (mins <= 0)
+            if (mins < 0)
+            {
+                minsText = @"-";
+				unitText = @"gone";
+				[timeText appendString:[dateFormatter stringFromDate:depatureDate]];
+				[timeText appendString:@" "];
+				timeColor = [UIColor blackColor]; 
+            }
+			else if (mins == 0)
 			{
 				minsText = @"Due";
 				unitText = @"now";
@@ -504,8 +512,14 @@
 		}
 		else
 		{
-
-			if (mins <= 0)
+            if (mins < 0)
+            {
+                [timeText appendString:@"Gone - "];
+				[timeText appendString:[dateFormatter stringFromDate:depatureDate]];
+				[timeText appendString:@" "];
+				timeColor = [UIColor redColor];
+            }
+			else if (mins == 0)
 			{
 				[timeText appendString:@"Due - "];
 				[timeText appendString:[dateFormatter stringFromDate:depatureDate]];

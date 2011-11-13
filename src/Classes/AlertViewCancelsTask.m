@@ -1,9 +1,9 @@
 //
-//  WhatsNewView.h
+//  AlertViewCancelsTask.m
 //  PDX Bus
 //
-//  Created by Andrew Wallace on 9/17/10.
-//  Copyright 2010. All rights reserved.
+//  Created by Andrew Wallace on 10/21/11.
+//  Copyright (c) 2011 Teleportaloo. All rights reserved.
 //
 
 /*
@@ -25,19 +25,24 @@
 
  */
 
+#import "AlertViewCancelsTask.h"
 
-#import <Foundation/Foundation.h>
+@implementation AlertViewCancelsTask
 
+@synthesize backgroundTask = _backgroundTask;
+@synthesize caller         = _caller;
 
-#import <UIKit/UIKit.h>
-#import "TableViewWithToolbar.h"
-
-#define kWhatsNewVersion @"6.1"
-
-	
-	
-@interface WhatsNewView : TableViewWithToolbar {
-		NSArray * newTextArray;
+- (void)dealloc
+{
+    self.backgroundTask = nil;
+    self.caller         = nil;
 }
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    [self.backgroundTask.callbackWhenFetching BackgroundCompleted:self.caller];
+    [self release];
+}
+
 
 @end

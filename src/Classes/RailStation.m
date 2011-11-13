@@ -244,6 +244,7 @@ static strmap dirmap [] =
 	{
 		switch(screenWidth)
 		{
+            default:
 			case WidthiPhoneNarrow:
 				cellWidth = 285;  // 212;
 				break;
@@ -262,6 +263,7 @@ static strmap dirmap [] =
 	{
 		switch(screenWidth)
 		{
+        default:
 		case WidthiPhoneNarrow:
 			cellWidth = 305;  // 212;
 			break;
@@ -281,9 +283,7 @@ static strmap dirmap [] =
 	
 	CGRect rect;
 	
-	rect = CGRectMake(0.0, 0.0, cellWidth, height);
-	
-	UITableViewCell *cell = [[[UITableViewCell alloc] initWithFrame:rect reuseIdentifier:identifier] autorelease];
+	UITableViewCell *cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier] autorelease];
 	
 #define LEFT_COLUMN_OFFSET 10.0
 	

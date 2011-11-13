@@ -809,6 +809,14 @@
 //	[self dismissModalViewControllerAnimated:YES];
 	return YES;
 }
+
+- (void)delayedCompletion:(NSTimer *)timer
+{
+    NSString *address = (NSString *)[timer userInfo];
+    
+    [self gotPlace:address setUiText:YES additionalInfo:nil];
+}
+
 // Called after a value has been selected by the user.
 // Return YES if you want default action to be performed.
 // Return NO to do nothing (the delegate is responsible for dismissing the peoplePicker).
@@ -831,6 +839,7 @@
 	
 	if (dict != nil)
 	{
+
 		NSString* item = (NSString *)CFDictionaryGetValue(dict, kABPersonAddressStreetKey);
 		
 		if (item && [item length] > 0)
@@ -873,12 +882,15 @@
 		 */
 		[self dismissModalViewControllerAnimated:YES];
 		
-		[self gotPlace:address setUiText:YES additionalInfo:nil];
+		
+        
+        NSDate *soon = [[NSDate date] addTimeInterval:0.1];
+        NSTimer *timer = [[[NSTimer alloc] initWithFireDate:soon interval:0.1 target:self selector:@selector(delayedCompletion:) userInfo:address repeats:NO] autorelease];
+        [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
 		
 		CFRelease(dict);
 	}
-	
-	
+
 	return NO;
 }
 

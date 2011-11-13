@@ -50,7 +50,7 @@
 
 #pragma mark Error check 
 
-- (bool)displayErrorIfNoneFound
+- (bool)displayErrorIfNoneFound:(id<UIAlertViewDelegate>)delegate
 {
 	NSThread *thread = [NSThread currentThread]; 
 	
@@ -62,10 +62,11 @@
 			[thread cancel];
 			UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"Nearby stops"
 															   message:@"Network problem: please try again later."
-															  delegate:nil
+															  delegate:delegate
 													 cancelButtonTitle:@"OK"
 													 otherButtonTitles:nil] autorelease];
-			[alert show];
+			[delegate retain];
+            [alert show];
 			return true;
 		}	
 		
@@ -79,10 +80,11 @@
 															   message:[NSString stringWithFormat:@"No stops were found within %0.1f miles",
 																		self.minDistance / 1609.344]
 								   
-															  delegate:nil
+															  delegate:delegate
 													 cancelButtonTitle:@"OK"
 													 otherButtonTitles:nil] autorelease];
-			[alert show];
+			[delegate retain];
+            [alert show];
 			return true;
 		}
 	}
@@ -133,7 +135,7 @@
 		// We don't care about the stops stored in the array! We ditch 'em and replace with 
 		// a sorted routes kinda thing.
 		
-		self.itemArray = [[NSMutableArray alloc] init];
+		self.itemArray = [[[NSMutableArray alloc] init] autorelease];
 		
 		[_itemArray addObjectsFromArray:[self.routes allValues]];
 		

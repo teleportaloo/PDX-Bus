@@ -94,7 +94,7 @@
 
 - (void)createDatePicker
 {	
-	self.pickerView = [[UIPickerView alloc] initWithFrame:CGRectZero];
+	self.pickerView = [[[UIPickerView alloc] initWithFrame:CGRectZero] autorelease];
 	// self.datePickerView.autoresizingMask = UIViewAutoresizingFlexibleWidth; //UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
 	self.pickerView.delegate = self;
 	self.pickerView.dataSource = self;

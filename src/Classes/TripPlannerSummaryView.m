@@ -72,6 +72,7 @@
 			req.toPoint.currentLocation    = nil;
 			req.timeChoice  = TripDepartAfterTime;
 			self.tripQuery.userRequest = req;
+            [req release];
 		}
 	}
 	return self;

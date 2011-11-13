@@ -1,9 +1,9 @@
 //
-//  WhatsNewView.h
+//  TorchController.h
 //  PDX Bus
 //
-//  Created by Andrew Wallace on 9/17/10.
-//  Copyright 2010. All rights reserved.
+//  Created by Andrew Wallace on 10/30/11.
+//  Copyright (c) 2011 Teleportaloo. All rights reserved.
 //
 
 /*
@@ -25,19 +25,24 @@
 
  */
 
-
 #import <Foundation/Foundation.h>
+#import <AVFoundation/AVFoundation.h>
+#import "UserPrefs.h"
 
 
-#import <UIKit/UIKit.h>
-#import "TableViewWithToolbar.h"
-
-#define kWhatsNewVersion @"6.1"
-
-	
-	
-@interface WhatsNewView : TableViewWithToolbar {
-		NSArray * newTextArray;
+@interface TorchController : NSObject
+{
+    AVCaptureSession *_torchSession;
+    UserPrefs *_prefs;
 }
+
+
+@property (nonatomic, retain) AVCaptureSession *torchSession;
++ (bool)supported;
+
+- (id)init;
+- (void)on;
+- (void)off;
+- (void)toggle;
 
 @end

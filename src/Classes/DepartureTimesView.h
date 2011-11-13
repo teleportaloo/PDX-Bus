@@ -28,11 +28,15 @@
 #import "DepartureTimesDataProvider.h"
 #import "BackgroundTaskContainer.h"
 #import "XMLStreetcarLocations.h"
+#import "PullRefreshTableViewController.h"
+#import "AlertViewCancelsTask.h"
 
 #define kSectionsPerStop	12
 #define kSectionRowInit		-1
-@class XMLDepartures;
 
+#define kCacheWarning @"WARNING: No network - extrapolated times"
+
+@class XMLDepartures;
 @class Departure;
 
 
@@ -40,7 +44,7 @@ typedef struct {
 	int row [kSectionsPerStop+1];
 } SECTIONROWS;
 
-@interface DepartureTimesView :  TableViewWithToolbar <UIAlertViewDelegate, UIActionSheetDelegate> {
+@interface DepartureTimesView :  PullRefreshTableViewController <UIAlertViewDelegate, UIActionSheetDelegate> {
 	NSString *			_displayName;
 	NSMutableArray *	_visibleDataArray;
 	NSMutableArray *	_originalDataArray;
@@ -58,6 +62,7 @@ typedef struct {
 	NSIndexPath *		_actionItem;
 	
 	NSDate *			_lastRefresh;
+    bool                _wasBackgrounded;
 	bool				_fetchingLocations;
 	int					_bookmarkItem;
 	NSString *			_bookmarkDesc;
@@ -90,7 +95,7 @@ typedef struct {
 - (void)resort;
 - (void)clearSections;
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex;
-
+- (void)stopTimer;
 + (BOOL)canGoDeeper;
 
 @property (nonatomic, retain) NSTimer *refreshTimer;

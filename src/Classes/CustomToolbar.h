@@ -39,6 +39,7 @@
 + (UIBarButtonItem *)autoMagnifyButtonWithTarget:(id)target action:(SEL)action;
 + (UIBarButtonItem *)autoNoSleepWithTarget:(id)target action:(SEL)action;
 + (UIBarButtonItem *)autoCommuteWithTarget:(id)target action:(SEL)action;
++ (UIBarButtonItem *)autoLocateWithTarget:(id)target action:(SEL)action;
 
 
 @end

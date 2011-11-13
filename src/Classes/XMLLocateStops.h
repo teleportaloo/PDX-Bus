@@ -30,7 +30,7 @@
 #import "StopDistance.h"
 
 
-@interface XMLLocateStops : TriMetXML {
+@interface XMLLocateStops : TriMetXML <UIAlertViewDelegate> {
 	StopDistance *_currentStop;
 	CLLocation *_location;
 	
@@ -53,6 +53,7 @@
 
 - (BOOL)findNearestStops;
 - (BOOL)findNearestRoutes;
-- (bool)displayErrorIfNoneFound;
+- (bool)displayErrorIfNoneFound:(id<UIAlertViewDelegate>)delegate;
+
 
 @end

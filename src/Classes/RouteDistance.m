@@ -127,7 +127,6 @@
 			//		break;
 		case WidthiPadWide:
 		case WidthiPadNarrow:
-			ROW_HEIGHT				= kRouteWideCellHeight;
 			LEFT_COLUMN_OFFSET		= 16.0;
 			LEFT_COLUMN_WIDTH		= 560.0;
 			MAIN_FONT_SIZE			= 32.0;
@@ -144,10 +143,7 @@
 	 */
 	CGRect rect;
 	
-	rect = CGRectMake(0.0, 0.0, 320.0, ROW_HEIGHT);
-	
-	
-	UITableViewCell *cell = [[[UITableViewCell alloc] initWithFrame:rect reuseIdentifier:identifier] autorelease];
+	UITableViewCell *cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier] autorelease];
 	
 	
 	

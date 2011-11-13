@@ -104,6 +104,7 @@ static int depthCount = 0;
 #define kRefreshInterval 60
 
 - (void)dealloc {
+    [self stopTimer];
 	self.displayName			= nil;
 	self.visibleDataArray		= nil;
 	self.locationsDb			= nil;
@@ -119,6 +120,7 @@ static int depthCount = 0;
 	self.actionItem				= nil;
 	self.savedBlock				= nil;
 	free(_sectionExpanded);
+    
 	
 	[self clearSections];
 	[super dealloc];
@@ -249,6 +251,53 @@ static int depthCount = 0;
 	[self reloadData];
 }
 
+#pragma Cache warning
+
+- (void)cacheWarning
+{
+    if (self.originalDataArray.count > 0)
+    {
+        XMLDepartures *first = nil;
+        
+        for (XMLDepartures *item in self.originalDataArray)
+        {
+            if (item.itemFromCache)
+            {
+                first = item;
+                break;
+            }
+        }
+        
+        if (first && first.itemFromCache)
+        {
+            self.navigationItem.prompt = kCacheWarning;
+        }
+        else
+        {
+            self.navigationItem.prompt = nil;
+        }
+        
+        XMLDepartures *item0 = [self.originalDataArray objectAtIndex:0];
+        
+        if (item0 && [item0 DTDataQueryTime] > 0)
+        {
+            NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
+            [dateFormatter setDateStyle:kCFDateFormatterNoStyle];
+            [dateFormatter setTimeStyle:NSDateFormatterMediumStyle];
+            NSDate *queryTime = [NSDate dateWithTimeIntervalSince1970: TriMetToUnixTime([item0 DTDataQueryTime])]; 
+            self.secondLine = [NSString stringWithFormat:@"Last updated: %@", [dateFormatter stringFromDate:queryTime]];
+        }
+        else
+        {
+             self.secondLine = @"";
+        }
+    }
+    else
+    {
+        self.secondLine = @"";
+        self.navigationItem.prompt = nil;
+    }
+}
 
 #pragma mark Refresh timer 
 
@@ -273,22 +322,42 @@ static int depthCount = 0;
 	}	
 }
 
+- (void)didEnterBackground {
+	_wasBackgrounded = YES;
+}
+
 - (void) countDownAction:(NSTimer *)timer
 {
 	if (self.refreshTimer !=nil && self.refreshTimer)
 	{
 		NSTimeInterval sinceRefresh = [self.lastRefresh timeIntervalSinceNow];
-		
-		if (sinceRefresh <= -kRefreshInterval)
+        
+        // If we detect that the app was backgrounded while this timer
+        // was expiring we go around one more time - this is to enable a commuter
+        // bookmark time to be processed.
+        
+        bool updateTimeOnButton = YES;
+        if (sinceRefresh <= -kRefreshInterval && _wasBackgrounded)
+        {
+            // Do nothing - next time around we'll fire
+        }
+		else if (sinceRefresh <= -kRefreshInterval)
 		{
 			[self refreshAction:timer];
 			self.refreshButton.title = @"Refreshing";
+            updateTimeOnButton = NO;
 		}
-		else {
-			self.refreshButton.title = [NSString stringWithFormat:@"Refresh in %d", (int)(1+kRefreshInterval+sinceRefresh)];
-		}
+        
+        if (updateTimeOnButton)
+        {
+            int secs = (1+kRefreshInterval+sinceRefresh);
+            
+            if (secs < 0) secs = 0;
+            
+            self.refreshButton.title = [NSString stringWithFormat:@"Refresh in %d", secs];
+        }
 	}
-	
+	 _wasBackgrounded   = NO;
 }
 
 #pragma mark Section calculations
@@ -600,7 +669,11 @@ static int depthCount = 0;
 	
 	[self.backgroundTask.callbackWhenFetching BackgroundItemsDone:1];
 	
-	if (![locator displayErrorIfNoneFound])
+    AlertViewCancelsTask *canceller = [[[AlertViewCancelsTask alloc] init] autorelease];
+	canceller.caller            = self;
+    canceller.backgroundTask    = self.backgroundTask;
+    
+    if (![locator displayErrorIfNoneFound:canceller])
 	{
 		NSMutableString * stopsstr = [[[NSMutableString alloc] init] autorelease];
 		self.stops = stopsstr;
@@ -638,10 +711,12 @@ static int depthCount = 0;
 			_blockFilter = false;
 			[self sortByBus];
 		}
+        
+        [self.backgroundTask.callbackWhenFetching BackgroundCompleted:self];
 		
 	}
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundCompleted:self];
+	
 	
 	[pool release];
 }
@@ -1031,9 +1106,7 @@ static int depthCount = 0;
 {
 	CGRect rect;
 	
-	rect = CGRectMake(0.0, 0.0, 320.0, kDepartureCellHeight);
-	
-	UITableViewCell *cell = [[[UITableViewCell alloc] initWithFrame:rect reuseIdentifier:identifier] autorelease];
+	UITableViewCell *cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier] autorelease];
 	
 #define LEFT_COLUMN_OFFSET 10.0
 #define LEFT_COLUMN_WIDTH 260
@@ -1073,6 +1146,12 @@ static int depthCount = 0;
 
 
 #pragma mark UI Callback methods
+
+- (void)refresh {
+    [self stopLoading];
+    [self refreshAction:nil];
+}
+
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
@@ -1421,12 +1500,14 @@ static int depthCount = 0;
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath 
 {
+    [super tableView:tableView willDisplayCell:cell forRowAtIndexPath:indexPath];
+    
     if ([cell.reuseIdentifier isEqualToString:kActionCellId])
 	{
 		cell.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1.0];
 	}
 	
-	[super tableView:tableView willDisplayCell:cell forRowAtIndexPath:indexPath];
+	
 }
 
 
@@ -1563,11 +1644,11 @@ static int depthCount = 0;
 				}
 				else if ([dd DTDataHasDetails])
 				{
-					cell.accessoryView =  [[ UIImageView alloc ] 
+					cell.accessoryView =  [[[ UIImageView alloc ] 
 										   initWithImage: _sectionExpanded[indexPath.section] 
 										   ? [self alwaysGetIcon:kIconCollapse]
 										   : [self alwaysGetIcon:kIconExpand]
-										   ];
+										   ] autorelease];
 					
 					
 					cell.accessoryType =  UITableViewCellAccessoryDisclosureIndicator;
@@ -1633,7 +1714,7 @@ static int depthCount = 0;
 				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kActionCellId] autorelease];
 			}
 			
-			cell.textLabel.text = @"Show stop info";
+			cell.textLabel.text = [NSString stringWithFormat:@"Stop ID %@ info", [dd DTDataLocID]];
 			cell.textLabel.textColor = [ UIColor darkGrayColor];
 			cell.textLabel.font = [self getBasicFont]; 
 			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
@@ -1776,6 +1857,8 @@ static int depthCount = 0;
 				{
 					DepartureDetailView *departureDetailView = [[DepartureDetailView alloc] init];
 					departureDetailView.callback = self.callback;
+                    
+                    departureDetailView.navigationItem.prompt = self.navigationItem.prompt;
 					
 					if (depthCount < kMaxDepth && [self.visibleDataArray count] > 1)
 					{
@@ -2077,6 +2160,8 @@ static int depthCount = 0;
 								   target:self
 									action:@selector(refreshAction:)] autorelease];
 	self.navigationItem.rightBarButtonItem = self.refreshButton;
+    
+    [self cacheWarning];
 	
 }
 
@@ -2218,6 +2303,15 @@ static int depthCount = 0;
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
 {
 	[self reloadData];
+}
+
+- (void)reloadData
+{
+    [super reloadData];
+    
+    [self cacheWarning];
+    
+    
 }
 
 @end

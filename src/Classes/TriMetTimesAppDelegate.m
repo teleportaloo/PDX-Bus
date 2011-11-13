@@ -55,11 +55,11 @@
 - (void)dealloc {
 	//	[departureList release];
 	//	[pathToUserCopyOfPlist release];
-	[navigationController release];
+	self.navigationController = nil;
 	//	[userFaves release];
 	[window release];
 	[activityView release];
-	[self.pathToCleanExit release];
+	self.pathToCleanExit = nil;
 	self.prefs = nil;
 
 	[super dealloc];
@@ -519,13 +519,13 @@
 		{
 			NSNumber *dow = [fave objectForKey:kUserFavesDayOfWeek];
 			NSNumber *am  = [fave objectForKey:kUserFavesMorning];
-			if (dow && am && [fave objectForKey:kUserFavesLocation]!=nil)
+			if (dow && [fave objectForKey:kUserFavesLocation]!=nil)
 			{
 				// does the day of week match our day of week?
 				if (([dow intValue] & todayBit) !=0)
 				{
 					// Does AM match or PM match?
-					if ((     [am boolValue] &&  IS_MORNING(nowComponents.hour))
+					if ((  (am == nil ||   [am boolValue]) &&  IS_MORNING(nowComponents.hour))
 						 || (![am boolValue] && !IS_MORNING(nowComponents.hour)))
 					{
 						return [[fave retain] autorelease];

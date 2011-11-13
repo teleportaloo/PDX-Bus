@@ -309,7 +309,7 @@
 	
 	if (lastTrip !=nil)
 	{
-		self.userRequest = [[TripUserRequest alloc] initFromDict:lastTrip];
+		self.userRequest = [[[TripUserRequest alloc] initFromDict:lastTrip] autorelease];
 		self.userRequest.dateAndTime = nil;
 		self.userRequest.arrivalTime = NO;
 	}

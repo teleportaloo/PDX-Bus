@@ -172,9 +172,7 @@
 	 */
 	CGRect rect;
 	
-	rect = CGRectMake(0.0, 0.0, 320.0, kLocatingRowHeight);
-	
-	UITableViewCell *cell = [[[UITableViewCell alloc] initWithFrame:rect reuseIdentifier:identifier] autorelease];
+	UITableViewCell *cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier] autorelease];
 	
 #define LEFT_COLUMN_OFFSET 20.0
 #define LEFT_COLUMN_WIDTH 30.0
@@ -344,7 +342,13 @@
 	[self.locationManager stopUpdatingLocation];
 }
 
-
+- (void)didBecomeActive
+{
+    if (waitingForLocation)
+    {
+        [self.locationManager startUpdatingLocation];
+    }
+}
 
 
 @end

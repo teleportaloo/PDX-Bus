@@ -28,7 +28,7 @@
 
 @interface CellTextField : EditableTableViewCell <UITextFieldDelegate>
 {
-    UITextField *view;
+    UITextField *_view;
 	CGFloat _cellLeftOffset;
 }
 

@@ -153,10 +153,7 @@
 	
 	CGFloat yGap = (height - (textHeight * 2)) / 3;
 	
-	rect = CGRectMake(0.0, 0.0, 320.0, height);
-	
-	
-	AlarmCell *cell = [[[AlarmCell alloc] initWithFrame:rect reuseIdentifier:identifier] autorelease];
+	AlarmCell *cell = [[[AlarmCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier] autorelease];
 	
 	
 	

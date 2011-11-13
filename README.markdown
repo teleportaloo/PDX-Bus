@@ -20,10 +20,10 @@ Feature includes:
 
 Route and arrival data provided by permission of TriMet.
 
-PDX Bus 6.0.1 sources
+PDX Bus 6.1.0 sources
 =====================
 
-I am making the sources to PDX Bus version 6.0.1 available as part of the 
+I am making the sources to PDX Bus version 6.1 available as part of the 
 [Civic Apps](http://www.civicapps.org) competition.  These
 sources were developed by me from Apple samples and documentation, except 
 where explicitly mentioned in the code.  
@@ -65,8 +65,8 @@ Links
 
 Things to know before building
 ------------------------------
-* PDX Bus is built with iPhone SDK 4.3 and Xcode 4.1 - available free 
-from [Apple](http://developer.apple.com).
+* PDX Bus is built with iPhone SDK 5.0 and Xcode 4.2 - available free 
+from [Apple](http://developer.apple.com) in their Mac App store.
 * Before building this code you will need to register with TriMet 
 to get a free "AppID" from [TriMet](http://developer.trimet.org/registration/),
 this is so that TriMet can track who is using their API. The AppID is 
@@ -124,7 +124,7 @@ choose "Get Info" from the pop-up menu.
 "PDX Bus".
 
 
-### Creative Commons Attributions
+### Attributions
 
 
 * Aha-Soft - some graphics files from Aha-Soft are used under a 
@@ -142,7 +142,6 @@ These files are in a separate folder with attribution -
 The high-resolution retina toolbar icons are not redistributable so are not 
 included in this distrubution.
 
-
 * Rob Alan Attribution - some graphics files from Rob Alan are used under a
 [Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License](http://creativecommons.org/licenses/by-nc-sa/3.0/).
 These files are in a separate folder with attribution - [App Icon by Rob Alan](http://robalan.com)
@@ -150,23 +149,48 @@ These files are in a separate folder with attribution - [App Icon by Rob Alan](h
 * The Working Group Attribution - some graphics files from The Working Group are from [The Working Group](http://blog.twg.ca/2009/09/free-iphone-toolbar-icons/) and are used under a 
 [Creative Commons Attribution-Share Alike 3.0 License](http://creativecommons.org/licenses/by/3.0/us/).
 
-
-
 * Oxygen Attribution - some graphics files from Oxygen-Icons.org are from [Oxygen Icons](http://www.oxygen-icons.org) and are used under a 
 [Creative Commons Attribution-Share Alike 3.0 License](http://creativecommons.org/licenses/by/3.0/us/)
 
-    
 * Mike Koenig Attribution - the Train Honk file is from Mike Koenig and are used under a 
     [Creative Commons Attribution License](http://creativecommons.org/licenses/by/3.0/)- location
 [soundbible.com](http://soundbible.com/1695-Train-Honk-Horn-2x.html).
 
-    
+* Leah Culver - Pull to Refresh: [http://github.com/leah/PullToRefresh]
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     
 
 Change log
 ----------
 
-### Version 6.0.1
+### Version 6.1 (November 2011)
+* Support for Xcode 4.2; still compiles and runs on original iPhone.
+* Fixed Xcode 4.2 analysis issues
+* Added Pull to Refresh code
+* Fixed issues with using Contacts with the Trip Planner in iOS5.
+* Now caches arrivals for up to two hours for devices that are not always connected.
+* Added a quick locate toolbar item to the first screen.
+* Added code to flash the LED if the hardware is available and the OS version allows.
+                         
+### Version 6.0.1 (August 2011)
 * Fixed locate nearby stops so that GPS cannot be left on.  
  
 ### Version 6.0
@@ -240,4 +264,4 @@ First Open Source Version.
 
 HAVE FUN!
 
-Andrew Wallace, August 2011.
+Andrew Wallace, November 2011.

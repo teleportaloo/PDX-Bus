@@ -120,6 +120,11 @@
 		self.table.tableHeaderView = self.searchController.searchBar;
 		// self.tableHeaderHeight = [self searchRowHeight];
 	}
+    
+    if (self.getStyle == UITableViewStylePlain)
+    {
+        self.table.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1.0];
+    }
 	
 	[self.view addSubview:self.table];
 	
@@ -232,6 +237,10 @@
 	{
 		cell.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1.0];
 	}
+    else
+    {
+        cell.backgroundColor = [UIColor whiteColor];
+    }
 }
 
 #pragma mark Table view call helper methods
@@ -318,10 +327,8 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 	 Create an instance of UITableViewCell and add tagged subviews for the name, local time, and quarter image of the time zone.
 	 */
 	CGRect rect;
-	
-	rect = CGRectMake(0.0, 0.0, 320.0, kDisclaimerCellHeight);
-	
-	UITableViewCell *cell = [[[UITableViewCell alloc] initWithFrame:rect reuseIdentifier:identifier] autorelease];
+		
+	UITableViewCell *cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier] autorelease];
 	
 #define LEFT_COLUMN_OFFSET 10.0
 #define LEFT_COLUMN_WIDTH 260
@@ -608,7 +615,7 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 		
 	rect = CGRectMake(0.0, 0.0, 320.0, [self searchRowHeight]);
 		
-	cell = [[[UITableViewCell alloc] initWithFrame:rect reuseIdentifier:cellId] autorelease];
+	cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellId] autorelease];
 		
 	self.searchBar = [[[UISearchBar alloc] initWithFrame:rect] autorelease];
 	

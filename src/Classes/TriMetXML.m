@@ -28,6 +28,7 @@
 #include "debug.h"
 #include "TriMetTimesAppDelegate.h"
 #include "AppDelegateMethods.h"
+#include "QueryCacheManager.h"
 
 @implementation TriMetXML
 
@@ -35,12 +36,40 @@
 @synthesize itemArray = _itemArray;
 @synthesize htmlError = _htmlError;
 @synthesize cacheTime = _cacheTime;
+@synthesize itemFromCache = _itemFromCache;
 
 
 #pragma mark Cache
 
-static NSMutableDictionary *queryCache = nil;
-static NSString *queryCacheFile= nil;
+static QueryCacheManager *routeCache = nil;
+static QueryCacheManager *shortTermCache = nil;
+
+
++ (void)initCaches
+{
+   if (routeCache == nil)
+   {
+       routeCache = [[QueryCacheManager alloc] initWithFileName:@"queryCache.plist"];
+   }
+    
+   if (shortTermCache == nil)
+   {
+       TriMetTimesAppDelegate *app = [TriMetTimesAppDelegate getSingleton];
+       shortTermCache = [[QueryCacheManager alloc] initWithFileName:@"shortTermCache.plist"]; 
+       shortTermCache.maxSize = app.prefs.maxRecentStops;
+   }
+}
+
++ (bool)deleteCacheFile
+{
+    [TriMetXML initCaches];
+    
+    [routeCache deleteCacheFile];
+    [shortTermCache deleteCacheFile];
+    
+    return YES;
+}
+
 
 - (void)dealloc {
 	self.contentOfCurrentProperty = nil;
@@ -202,48 +231,22 @@ static NSString *queryCacheFile= nil;
 	return [self startParsing:query parseError:error cacheAction:TriMetXMLNoCaching];
 }
 
-+ (void)initCacheFileName
-{
-	if (queryCacheFile == nil)
-	{
-		NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-		NSString *documentsDirectory = [paths objectAtIndex:0];
-	
-		queryCacheFile = [[documentsDirectory stringByAppendingPathComponent:@"queryCache.plist"] retain];
-	}
-}
-+ (bool)deleteCacheFile
-{
-	[TriMetXML initCacheFileName];
-	
-	NSFileManager *fileManager = [NSFileManager defaultManager];
-	bool ret = [fileManager removeItemAtPath:queryCacheFile error:nil];
-	
-	if (queryCache != nil)
-	{
-		[queryCache release];
-		queryCache = nil;
-	}
-	return ret;
-}
-
-#define kCacheDateAndTime 0
-#define kCacheData		1
-
 - (BOOL)startParsing:(NSString *)query parseError:(NSError **)error cacheAction:(CacheAction)cacheAction
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	TriMetTimesAppDelegate *appDelegate = (TriMetTimesAppDelegate *)[[UIApplication sharedApplication] delegate];
 	int tries = 2;
 	BOOL succeeded = NO;
-	BOOL itemFromCache = NO;
+    self.itemFromCache = NO;
 	int days = appDelegate.prefs.routeCacheDays;
 	
 	hasData = NO;
 	[self clearArray];
 	
 	NSString *str = [self fullAddressForQuery:query];
-	NSMutableString *cacheKey = nil;
+    NSString *cacheKey = [QueryCacheManager getCacheKey:str];
+    
+    [TriMetXML initCaches];
 	
 	DEBUG_LOG(@"Query: %@\n", str);
 	
@@ -258,42 +261,10 @@ static NSString *queryCacheFile= nil;
 		if ([TriMetXML isDataSourceAvailable:NO] == YES && ![NSThread currentThread].isCancelled) 
 		{
 			self.rawData = nil;
-			if (cacheAction != TriMetXMLNoCaching)
+			if (cacheAction != TriMetXMLNoCaching && cacheAction != TriMetXMLUseShortCache)
 			{
-				if (queryCache == nil)
-				{
-					// Check for cache in Documents directory. 
-					NSFileManager *fileManager = [NSFileManager defaultManager];
-					
-									
-					
-					[TriMetXML initCacheFileName];
-					
-					if (days > 0 && [fileManager fileExistsAtPath:queryCacheFile] == YES)
-					{
-						queryCache = [[NSMutableDictionary alloc] initWithContentsOfFile:queryCacheFile];
-					}
-					
-					if (queryCache == nil)
-					{
-						queryCache = [[NSMutableDictionary alloc] init];
-					}
-										
-					
-				}
 				
-				//
-				// Don't put the app id into the cache - we can use the rest of the URL as 
-				// the key.
-				//
-				cacheKey = [[[NSMutableString alloc] initWithString:str] autorelease];
-				
-				[cacheKey replaceOccurrencesOfString:TRIMET_APP_ID 
-											withString:@"" 
-											   options:NSCaseInsensitiveSearch 
-												 range:NSMakeRange(0, [cacheKey length])];
-				
-				NSArray *cachedArray = [queryCache objectForKey:cacheKey];
+                NSArray *cachedArray = [routeCache getCachedQuery:cacheKey];
 				
 				if (cachedArray != nil)
 				{
@@ -353,15 +324,14 @@ static NSString *queryCacheFile= nil;
 					    )
 					{
 						self.rawData	= [cachedArray objectAtIndex:kCacheData];
-						itemFromCache	= YES;
+						self.itemFromCache	= YES;
 						self.cacheTime	= itemDate;
 					}
 					else
 					{
-						[queryCache removeObjectForKey:cacheKey]; 
+						[routeCache removeFromCache:cacheKey]; 
 					}
 				}
-				
 				
 				if (self.rawData == nil && cacheAction!=TriMetXMLOnlyReadFromCache)
 				{
@@ -382,6 +352,30 @@ static NSString *queryCacheFile= nil;
 		}
 		tries --;
 	}
+    
+    if (!hasData && cacheAction == TriMetXMLUseShortCache)
+    {
+        NSArray *cachedArray = [shortTermCache getCachedQuery:cacheKey];
+        
+        if (cachedArray != nil)
+        {
+            NSDate *itemDate = [cachedArray objectAtIndex:kCacheDateAndTime];
+          
+            NSTimeInterval cacheAge = [itemDate timeIntervalSinceNow];
+            
+            if ((-cacheAge) < 2 * 60 * 60)
+            {
+                self.rawData	= [cachedArray objectAtIndex:kCacheData];
+                self.itemFromCache	= YES;
+                self.cacheTime	= itemDate;
+                succeeded       = [self parseRawData:error];
+            }
+            else
+            {
+                [shortTermCache removeFromCache:cacheKey]; 
+            }
+        }
+    }
 	
 	if (!hasData && ![NSThread currentThread].isCancelled)
 	{
@@ -396,20 +390,18 @@ static NSString *queryCacheFile= nil;
 #endif
 				
 	}
-	else if (![NSThread currentThread].isCancelled && cacheAction != TriMetXMLNoCaching && !itemFromCache)
+	else if (![NSThread currentThread].isCancelled && cacheAction != TriMetXMLNoCaching && !self.itemFromCache)
 	{
-		NSMutableArray *arrayToCache = [[[NSMutableArray alloc] init] autorelease];
+        if (cacheAction == TriMetXMLUseShortCache)
+        {
+            [shortTermCache addToCache:cacheKey item:self.rawData write:YES];
+        }
+        else
+        {
+            [routeCache addToCache:cacheKey     item:self.rawData write:(days > 0)];
 		
-		[arrayToCache insertObject:[NSDate date] atIndex:kCacheDateAndTime];
-		[arrayToCache insertObject:self.rawData atIndex:kCacheData];
-
-		[queryCache setObject:arrayToCache forKey:cacheKey];
-		
-		if (days > 0)
-		{
-			[queryCache writeToFile:queryCacheFile atomically:YES];
-		}
-	}
+        }
+    }
 	
 	[self clearRawData];
 	

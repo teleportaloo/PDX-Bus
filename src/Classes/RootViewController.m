@@ -151,6 +151,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 	if (_prefs.commuteButton)
 	{
 		items = [NSArray arrayWithObjects: 
+                      [CustomToolbar autoLocateWithTarget:self  action:@selector(autoLocate:)],
 					  [CustomToolbar autoCommuteWithTarget:self action:@selector(commuteAction:)],
 					  [CustomToolbar autoFlexSpace], 
 					  [self autoBigFlashButton], nil];
@@ -158,6 +159,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 	else 
 	{
 		items = [NSArray arrayWithObjects: 
+                 [CustomToolbar autoLocateWithTarget:self  action:@selector(autoLocate:)],
 				 [CustomToolbar autoFlexSpace], 
 				 [self autoBigFlashButton], nil];
 	}
@@ -166,6 +168,16 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 }
 
 #pragma mark UI Helper functions
+
+- (void)autoLocate:(id)sender
+{
+    FindByLocationView *findView = [[FindByLocationView alloc] initAutoLaunch];
+    
+    // Push the detail view controller
+    [[self navigationController] pushViewController:findView animated:YES];
+    [findView release];
+    
+}
 
 - (void)commuteAction:(id)sender
 {
@@ -910,9 +922,9 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 					{
 						NSNumber *morning = [item valueForKey:kUserFavesMorning];
 						NSNumber *day     = [item valueForKey:kUserFavesDayOfWeek];
-						if (day && morning && [day intValue]!=kDayNever)
+						if (day && [day intValue]!=kDayNever)
 						{
-							if ([morning boolValue])
+							if (morning == nil || [morning boolValue])
 							{
 								cell.imageView.image = [self getFaveIcon:kIconMorning]; 
 							}
@@ -1387,7 +1399,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
             {
                 case kTableAboutSettings:
                 {				
-                    self.settingsView = [[IASKAppSettingsViewController alloc] init];
+                    self.settingsView = [[[IASKAppSettingsViewController alloc] init] autorelease];
                     
                     self.settingsView.showDoneButton = NO;
                     // Push the detail view controller
@@ -1557,7 +1569,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 				break;
 			case kTableSectionAlarms:
 				[_taskList cancelTaskForKey:[self.alarmKeys objectAtIndex:indexPath.row]];
-				NSMutableArray *newKeys = [[NSMutableArray alloc] initWithArray:self.alarmKeys];
+				NSMutableArray *newKeys = [[[NSMutableArray alloc] initWithArray:self.alarmKeys] autorelease];
 				[newKeys removeObjectAtIndex:indexPath.row];
 				self.alarmKeys = newKeys;
 				[tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:NO];

@@ -44,7 +44,7 @@
 		
 	[locator findNearestStops];
 		
-	if (![locator displayErrorIfNoneFound])
+	if (![locator displayErrorIfNoneFound:nil])
 	{
 		for (int i=0; i< [locator safeItemCount] && ![thread isCancelled]; i++)
 		{

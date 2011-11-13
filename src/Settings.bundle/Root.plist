@@ -103,6 +103,8 @@
 				<string>Orange</string>
 				<string>Red</string>
 				<string>Purple</string>
+				<string>Salmon</string>
+				<string>Gold</string>
 			</array>
 			<key>Type</key>
 			<string>PSMultiValueSpecifier</string>
@@ -116,7 +118,23 @@
 				<integer>16750848</integer>
 				<integer>11141120</integer>
 				<integer>6684723</integer>
+				<integer>14781291</integer>
+				<integer>16494871</integer>
 			</array>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<string>NO</string>
+			<key>FalseValue</key>
+			<string>NO</string>
+			<key>Key</key>
+			<string>flash_led</string>
+			<key>Title</key>
+			<string>Flash LED for Visibility</string>
+			<key>TrueValue</key>
+			<string>YES</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
 		</dict>
 		<dict>
 			<key>Title</key>

@@ -160,6 +160,22 @@
 	
 }
 
++ (UIBarButtonItem *)autoLocateWithTarget:(id)target action:(SEL)action
+{
+	UIBarButtonItem *back = [[[UIBarButtonItem alloc]
+							  // initWithBarButtonSystemItem:UIBarButtonSystemItemRewind
+							  initWithImage:[TableViewWithToolbar getToolbarIcon:kIconLocateNear]
+							  style:UIBarButtonItemStylePlain
+							  target:target action:action] autorelease];
+	
+	
+	back.style = UIBarButtonItemStylePlain;
+	back.title = @"Locate";
+	back.accessibilityHint = @"Locate";
+	return back;
+	
+}
+
 
 + (UIBarButtonItem *)autoFlexSpace
 {

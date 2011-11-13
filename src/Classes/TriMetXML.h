@@ -29,7 +29,8 @@
 typedef enum  {
 	TriMetXMLOnlyReadFromCache,
 	TriMetXMLUpdateCache,
-	TriMetXMLNoCaching
+	TriMetXMLNoCaching,
+    TriMetXMLUseShortCache
 } CacheAction;
 
 @interface TriMetXML : StoppableFetcher <NSXMLParserDelegate> {
@@ -38,6 +39,7 @@ typedef enum  {
 	bool hasData;
 	NSData *_htmlError;
 	NSDate *_cacheTime;
+    bool    _itemFromCache;
 }
 
 - (NSString *)safeValueFromDict:(NSDictionary *)dict valueForKey:(NSString *)key;
@@ -54,7 +56,6 @@ typedef enum  {
 - (void)initArray;
 - (NSString *)replaceXMLcodes:(NSString *)string;
 - (bool)gotData;
-+ (void)initCacheFileName;
 + (bool)deleteCacheFile;
 - (NSString*)displayTriMetDate:(TriMetTime)time;
 - (NSString*)displayDate:(NSDate *)date;
@@ -63,6 +64,7 @@ typedef enum  {
 
 
 
+@property (nonatomic) bool itemFromCache;
 @property (nonatomic, retain) NSMutableArray  *itemArray;
 @property (nonatomic, retain) NSMutableString *contentOfCurrentProperty;
 @property (nonatomic, retain) NSData *htmlError;

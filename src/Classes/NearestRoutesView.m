@@ -87,7 +87,7 @@
 	
 	[locator findNearestRoutes];
 	
-	[locator displayErrorIfNoneFound];
+	[locator displayErrorIfNoneFound:nil];
 	
 	free(_checked);
 	

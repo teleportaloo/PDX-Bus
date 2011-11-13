@@ -46,7 +46,7 @@
 
 #define kLinkRows				6
 
-#define kLegalRows				11
+#define kLegalRows				12
 #define kRowCivicApps			0
 #define kRowGoogle				1
 #define kRowMainIcon			2
@@ -57,7 +57,8 @@
 #define kRowOxygen				7
 #define kRowGeoNames			8
 #define kRowPolygons			9
-#define kRowSrc					10
+#define kRowRefresh             10
+#define kRowSrc					11
 			
 #define kSectionHelpRows		2
 #define kSectionHelpRowHelp		0
@@ -370,11 +371,15 @@
 					cell.imageView.image = [self getActionIcon:kIconAward];
 					break;
 				case kRowSrc:
-					cell.textLabel.text = @"GPL Source Code";
+					cell.textLabel.text = @"Source Code";
 					cell.imageView.image = [self getActionIcon:kIconSrc];
 					break;
 				case KRowOtherIcons:
 					cell.textLabel.text = @"Some icons by Aha-Soft";
+					cell.imageView.image = [self getActionIcon:kIconBrush];
+					break;
+                case kRowRefresh:
+					cell.textLabel.text = @"Pull to Refresh (c) 2010 Leah Culver";
 					cell.imageView.image = [self getActionIcon:kIconBrush];
 					break;
 					
@@ -477,7 +482,7 @@
 					[webPage setURLmobile:@"http://civicapps.org/news/announcing-best-apps-winners-and-runners" full:nil title:@"CivicApps.org"];
 					break;
 				case kRowSrc:
-					[webPage setURLmobile:@"http://www.teleportaloo.org/pdxbus/src" full:nil title:@"GPL Source Code"];
+					[webPage setURLmobile:@"https://github.com/pdxbus/PDX-Bus" full:nil title:@"Source Code"];
 					break;
 				case KRowOtherIcons:
 					[webPage setURLmobile:@"http://www.small-icons.com/icons.htm" full:nil title:@"Aha-Soft"];
@@ -488,6 +493,11 @@
                 case kRowSettings:
 					[webPage setURLmobile:@"http://www.inappsettingskit.com/" full:nil title:@"www.inappsettingskit.com"];
 					break;
+                case kRowRefresh:
+					[webPage setURLmobile:@"https://github.com/leah/PullToRefresh" full:nil title:@"Pull to Refresh"];
+					break;
+                    
+                    
 			}
 			
 			[[self navigationController] pushViewController:webPage animated:YES];

@@ -63,6 +63,7 @@
 
 @synthesize cachedRoutes = _cachedRoutes;
 @synthesize lastLocate   = _lastLocate;
+@synthesize autoLaunch   = _autoLaunch;
 
 // @synthesize progressText = _progressText;
 
@@ -85,16 +86,73 @@
 	 
 		self.lastLocate = _userData.lastLocate;
 		
-		if (self.lastLocate != nil)
+		if (self.lastLocate != nil && !_autoLaunch)
 		{
 			mode = ((NSNumber *)[self.lastLocate objectForKey:kLocateMode]).intValue;	
 			show = ((NSNumber *)[self.lastLocate objectForKey:kLocateShow]).intValue;	
 			dist = ((NSNumber *)[self.lastLocate objectForKey:kLocateDist]).intValue;	
 		}
+        else if (_autoLaunch)
+        {
+            mode = TripModeAll;
+            show = kShowArrivals;
+            dist = kDistanceHalfMile;
+        }
 		
 		[self reinit];
 	}
 	return self;
+}
+
+- (id) initAutoLaunch
+{
+    _autoLaunch = YES;
+    
+	return [self init];
+}
+
+- (void)startLocating
+{
+    switch (dist)
+    {
+        case kDistanceNextToMe:
+            accuracy = kAccNextToMe;
+            minDistance = kDistNextToMe;
+            maxToFind = kMaxStops;
+            break;	
+        case kDistanceHalfMile:
+            accuracy = kAccHalfMile;
+            minDistance = kDistHalfMile;
+            maxToFind = kMaxStops;
+            break;
+        case kDistanceMile:
+            accuracy = kAccMile;
+            minDistance = kDistMile;
+            maxToFind = kMaxStops;
+            break;
+        case kDistance3Miles:
+            accuracy = kAcc3Miles;
+            minDistance = kDistMile * 3;
+            maxToFind = kMaxStops;
+            break;
+    }
+    
+    [self.locationManager startUpdatingLocation];
+    
+    if (![self checkLocation])
+    {
+        waitingForLocation = true;
+        [self reinit];
+        [[(RootViewController *)[self.navigationController topViewController] table] reloadData];
+        
+        NSIndexPath *sel = self.table.indexPathForSelectedRow;
+      
+        if (sel)
+        {
+            [self.table deselectRowAtIndexPath:sel animated:NO];
+        }
+    }
+    
 }
 
 #pragma mark TableViewWithToolbar methods
@@ -119,7 +177,7 @@
 
 - (int)sectionType:(int)section
 {
-	if (waitingForLocation)
+	if (waitingForLocation || _autoLaunch)
 	{
 		DEBUG_LOG(@"Section %d returned %d\n", section, kLocatingSection);
 		return kLocatingSection;
@@ -130,7 +188,7 @@
 
 - (void) reinit
 {
-	if (waitingForLocation)
+	if (waitingForLocation || _autoLaunch)
 	{
 		sections		= 1;
 	}
@@ -218,8 +276,6 @@
 	UISegmentedControl *seg = (UISegmentedControl *)sender;
 	dist = seg.selectedSegmentIndex;
 }
-
-
 
 
 #pragma mark TableViewWithToolbar methods
@@ -441,47 +497,14 @@
 	return nil;
 }
 
+
+
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 	
 	switch ([self sectionType:indexPath.section])
 	{
 		case kGoSection:
-			
-			
-			
-			switch (dist)
-			{
-				case kDistanceNextToMe:
-					accuracy = kAccNextToMe;
-					minDistance = kDistNextToMe;
-					maxToFind = kMaxStops;
-					break;	
-				case kDistanceHalfMile:
-					accuracy = kAccHalfMile;
-					minDistance = kDistHalfMile;
-					maxToFind = kMaxStops;
-					break;
-				case kDistanceMile:
-					accuracy = kAccMile;
-					minDistance = kDistMile;
-					maxToFind = kMaxStops;
-					break;
-				case kDistance3Miles:
-					accuracy = kAcc3Miles;
-					minDistance = kDistMile * 3;
-					maxToFind = kMaxStops;
-					break;
-			}
-			
-            [self.locationManager startUpdatingLocation];
-            
-			if (![self checkLocation])
-			{
-				waitingForLocation = true;
-				[self reinit];
-				[[(RootViewController *)[self.navigationController topViewController] table] reloadData];
-				[tableView deselectRowAtIndexPath:indexPath animated:NO];
-			}
+            [self startLocating];
 			break;
 		case kLocatingSection:
 		{
@@ -489,13 +512,17 @@
 			{
 				[self searchAndDisplay];
 			}
-			else if(indexPath.row == kLocatingStop)
+			else if(indexPath.row == kLocatingStop && !_autoLaunch)
 			{
 				waitingForLocation = NO;
 				[self reinit];
 				[tableView deselectRowAtIndexPath:indexPath animated:NO];
 				[[(RootViewController *)[self.navigationController topViewController] table] reloadData];
 			}
+            else if (indexPath.row == kLocatingStop && _autoLaunch)
+            {
+                [self.navigationController popViewControllerAnimated:YES];
+            }
 			break;
 		}
 	}
@@ -503,12 +530,14 @@
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath 
 {
+    [super tableView:tableView willDisplayCell:cell forRowAtIndexPath:indexPath];
+    
     if ([cell.reuseIdentifier isEqualToString:kGoCellId])
 	{
 		cell.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1.0];
 	}
 	
-	[super tableView:tableView willDisplayCell:cell forRowAtIndexPath:indexPath];
+	
 }
 
 
@@ -516,18 +545,25 @@
 
 - (void)viewWillDisappear:(BOOL)animated
 {
-	self.lastLocate = [[[NSMutableDictionary alloc] init] autorelease];
+    if (!_autoLaunch)
+    {
+        self.lastLocate = [[[NSMutableDictionary alloc] init] autorelease];
 	
-	[self.lastLocate setObject:[NSNumber numberWithInt:mode] forKey:kLocateMode];
-	[self.lastLocate setObject:[NSNumber numberWithInt:dist] forKey:kLocateDist];
-	[self.lastLocate setObject:[NSNumber numberWithInt:show] forKey:kLocateShow];
+        [self.lastLocate setObject:[NSNumber numberWithInt:mode] forKey:kLocateMode];
+        [self.lastLocate setObject:[NSNumber numberWithInt:dist] forKey:kLocateDist];
+        [self.lastLocate setObject:[NSNumber numberWithInt:show] forKey:kLocateShow];
 	
-	
-	_userData.lastLocate = self.lastLocate;
+        _userData.lastLocate = self.lastLocate;
+    }
 }
 
 - (void)viewDidLoad {
 	[super viewDidLoad];
+    
+    if (_autoLaunch && !waitingForLocation)
+    {
+         [self startLocating];
+    }
 }
 
 
@@ -545,14 +581,17 @@
 - (void)BackgroundTaskDone:(UIViewController *)viewController cancelled:(bool)cancelled
 {
 	waitingForLocation = false;
-	if (cancelled)
-	{
-		[self.locationManager startUpdatingLocation];	
-	}
-	
-	[self reinit];
-	[super BackgroundTaskDone:viewController cancelled:cancelled];
-	[self.table reloadData];
+	if (cancelled && _autoLaunch)
+    {
+        [super BackgroundTaskDone:viewController cancelled:cancelled];
+        [self.navigationController popViewControllerAnimated:YES];
+    }
+    else
+    {
+        [self reinit];
+        [super BackgroundTaskDone:viewController cancelled:cancelled];
+        [self.table reloadData];
+    }
 }
 
 @end

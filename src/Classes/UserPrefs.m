@@ -199,6 +199,17 @@
 	return [self getFloatFromDefaultsForKey:@"max_walking_distance"		ifMissing:0.5 max:2.0 min:0.5];
 	
 }
+- (bool) flashLed
+{
+	return [self getBoolFromDefaultsForKey:@"flash_led"		ifMissing:NO];
+    
+}
+
+- (void)setFlashLed:(_Bool)flashLed
+{
+    [_defaults setBool:flashLed forKey:@"flash_led"];
+}
+
 
 - (float)useGpsWithin
 {
