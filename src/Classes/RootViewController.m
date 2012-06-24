@@ -152,6 +152,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 	{
 		items = [NSArray arrayWithObjects: 
                       [CustomToolbar autoLocateWithTarget:self  action:@selector(autoLocate:)],
+                      [CustomToolbar autoFlexSpace], 
 					  [CustomToolbar autoCommuteWithTarget:self action:@selector(commuteAction:)],
 					  [CustomToolbar autoFlexSpace], 
 					  [self autoBigFlashButton], nil];
@@ -471,11 +472,15 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 }
 
 - (void)viewDidLoad {
-	// Add the following line if you want the list to be editable
 	self.navigationItem.leftBarButtonItem = self.editButtonItem;
 	self.title = NSLocalizedString(@"PDX Bus", @"RootViewController title");	
 	bool showAbout = [self newVersion:@"lastRun.plist" version:kAboutVersion];
 	bool showWhatsNew = [self newVersion:@"whatsNew.plist" version:kWhatsNewVersion];
+    
+    UIDevice* device = [UIDevice currentDevice];
+	BOOL backgroundSupported = NO;
+	if ([device respondsToSelector:@selector(isMultitaskingSupported)])
+		backgroundSupported = device.multitaskingSupported;
 	
 	if (showAbout)
 	{
@@ -492,7 +497,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 		[[self navigationController] pushViewController:whatsNew animated:NO];
 		[whatsNew release];
 	}
-	else if (![self maybeShowLast] && _prefs.displayTripPlanning)
+	else if (![self maybeShowLast] && _prefs.displayTripPlanning && !backgroundSupported)
 	{
 		[self tripPlanner:NO];
 	}

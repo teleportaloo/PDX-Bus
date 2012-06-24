@@ -323,7 +323,7 @@ static int depthCount = 0;
 }
 
 - (void)didEnterBackground {
-	_wasBackgrounded = YES;
+	_postBackgroundedDelay = 2;
 }
 
 - (void) countDownAction:(NSTimer *)timer
@@ -337,9 +337,10 @@ static int depthCount = 0;
         // bookmark time to be processed.
         
         bool updateTimeOnButton = YES;
-        if (sinceRefresh <= -kRefreshInterval && _wasBackgrounded)
+        if (sinceRefresh <= -kRefreshInterval && _postBackgroundedDelay > 0)
         {
             // Do nothing - next time around we'll fire
+            _postBackgroundedDelay--;
         }
 		else if (sinceRefresh <= -kRefreshInterval)
 		{
@@ -357,7 +358,6 @@ static int depthCount = 0;
             self.refreshButton.title = [NSString stringWithFormat:@"Refresh in %d", secs];
         }
 	}
-	 _wasBackgrounded   = NO;
 }
 
 #pragma mark Section calculations
@@ -2225,7 +2225,7 @@ static int depthCount = 0;
 								 style:UIBarButtonItemStylePlain
 								 target:self action:@selector(sortButton:)] autorelease];
 		
-		sort.title = @"Group";
+		sort.accessibilityLabel = @"Group Arrivals";
 		 
 		
 		items = [NSArray arrayWithObjects: [self autoDoneButton], [CustomToolbar autoFlexSpace], bookmark,  

@@ -243,10 +243,20 @@
 	return  [self getIntFromDefaultsForKey:@"route_cache"			     ifMissing:kDefaultRouteCache max:7 min:0];
 }
 
+- (bool) useCaching
+{
+    return [self getBoolFromDefaultsForKey:@"use_caching"				ifMissing:YES];
+}
+
 - (int) networkTimeout
 {
 	
 	return  [self getIntFromDefaultsForKey:@"network_timeout2"			 ifMissing:kDefaultNetworkTimeout max:60 min:0];
+}
+
+- (bool) alarmInitialWarning
+{
+	return [self getBoolFromDefaultsForKey:@"alarm_initial_10_min_warning"	ifMissing:YES];
 }
 
 

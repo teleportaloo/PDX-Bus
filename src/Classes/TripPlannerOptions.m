@@ -175,8 +175,7 @@
 			
 				[cell layoutSubviews];
 				cell.selectionStyle = UITableViewCellSelectionStyleNone;
-				[cell setAccessibilityLabel:@"Maximum walking distance"];
-				cell.isAccessibilityElement = YES;
+				cell.isAccessibilityElement = NO;
 				
 				cell.backgroundView = [self clearView];
 			}	
@@ -210,8 +209,7 @@
 				
 				[cell layoutSubviews];
 				cell.selectionStyle = UITableViewCellSelectionStyleNone;
-				[cell setAccessibilityLabel:@"Travel by"];
-				cell.isAccessibilityElement = YES;
+				cell.isAccessibilityElement = NO;
 				cell.backgroundView = [self clearView];
 			}	
 			
@@ -234,8 +232,7 @@
 				
 						[cell layoutSubviews];
 						cell.selectionStyle = UITableViewCellSelectionStyleNone;
-						[cell setAccessibilityLabel:@"Show me the"];
-						cell.isAccessibilityElement = YES;
+						cell.isAccessibilityElement = NO;
 						cell.backgroundView = [self clearView];
 					}
 					self.minSegment.selectedSegmentIndex = self.tripQuery.userRequest.tripMin;

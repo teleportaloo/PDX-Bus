@@ -175,12 +175,14 @@
 								initWithImage:[TableViewWithToolbar getToolbarIcon:kIconBack]
 								style:style
 								target:self action:@selector(webBackButton:)] autorelease];
+    self.webBack.accessibilityLabel = @"Back";
 
 	
 	self.webForward = [[[UIBarButtonItem alloc]
 								initWithImage:[TableViewWithToolbar getToolbarIcon:kIconForward]
 								style:style
 								target:self action:@selector(webForwardButton:)] autorelease];
+    self.webForward.accessibilityLabel = @"Forward";
 	self.webForward.style = style;
 	
 	NSArray *items = nil;

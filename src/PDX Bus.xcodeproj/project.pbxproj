@@ -183,7 +183,7 @@
 		A19FA74614524119008BE90F /* AlertViewCancelsTask.m in Sources */ = {isa = PBXBuildFile; fileRef = A19FA74514524119008BE90F /* AlertViewCancelsTask.m */; };
 		A1A6EB0513A58B430000E7C0 /* Train_Honk_Horn_2x-Mike_Koenig-157974048.aif in Resources */ = {isa = PBXBuildFile; fileRef = A1A6EB0413A58B430000E7C0 /* Train_Honk_Horn_2x-Mike_Koenig-157974048.aif */; };
 		A1B3CAEF10793D3200702634 /* RailMapView.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B3CAEE10793D3200702634 /* RailMapView.m */; };
-		A1B72A9012F63E070074240A /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B72A8F12F63E070074240A /* AudioToolbox.framework */; };
+		A1B72A9012F63E070074240A /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B72A8F12F63E070074240A /* AudioToolbox.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		A1B795041183B9480047F83C /* wiki.png in Resources */ = {isa = PBXBuildFile; fileRef = A1B794FF1183B9480047F83C /* wiki.png */; };
 		A1B795051183B9480047F83C /* RailSystem.png in Resources */ = {isa = PBXBuildFile; fileRef = A1B795001183B9480047F83C /* RailSystem.png */; };
 		A1B795071183B9480047F83C /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = A1B795021183B9480047F83C /* Default.png */; };
@@ -191,8 +191,8 @@
 		A1B7950F1183B9CA0047F83C /* Default-Landscape.png in Resources */ = {isa = PBXBuildFile; fileRef = A1B7950C1183B9CA0047F83C /* Default-Landscape.png */; };
 		A1B8599911CF1142003F2FEC /* 02-redo.png in Resources */ = {isa = PBXBuildFile; fileRef = A1B8599811CF1142003F2FEC /* 02-redo.png */; };
 		A1BAACFB123CB91500D4E397 /* TripPlannerCacheView.m in Sources */ = {isa = PBXBuildFile; fileRef = A1BAACFA123CB91500D4E397 /* TripPlannerCacheView.m */; };
-		A1BC00660FFD6AF300454CF3 /* AddressBookUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1BC00650FFD6AF300454CF3 /* AddressBookUI.framework */; };
-		A1BC00D10FFD72FD00454CF3 /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1BC00D00FFD72FD00454CF3 /* AddressBook.framework */; };
+		A1BC00660FFD6AF300454CF3 /* AddressBookUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1BC00650FFD6AF300454CF3 /* AddressBookUI.framework */; settings = {ATTRIBUTES = (Required, ); }; };
+		A1BC00D10FFD72FD00454CF3 /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1BC00D00FFD72FD00454CF3 /* AddressBook.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		A1BC02160FFD9F6800454CF3 /* TripPlannerDateView.m in Sources */ = {isa = PBXBuildFile; fileRef = A1BC02150FFD9F6800454CF3 /* TripPlannerDateView.m */; };
 		A1BC052D0FFE6E2800454CF3 /* MapLinesView.m in Sources */ = {isa = PBXBuildFile; fileRef = A1BC052C0FFE6E2800454CF3 /* MapLinesView.m */; };
 		A1BC07250FFEA13100454CF3 /* TripPlannerBookmarkView.m in Sources */ = {isa = PBXBuildFile; fileRef = A1BC07240FFEA13100454CF3 /* TripPlannerBookmarkView.m */; };
@@ -226,7 +226,7 @@
 		A1D6BDBF12DAB145001F84E7 /* RouteDistance.m in Sources */ = {isa = PBXBuildFile; fileRef = A1D6BDBE12DAB145001F84E7 /* RouteDistance.m */; };
 		A1D6BDEB12DABAC8001F84E7 /* NearestRoutesView.m in Sources */ = {isa = PBXBuildFile; fileRef = A1D6BDEA12DABAC8001F84E7 /* NearestRoutesView.m */; };
 		A1D74FFD0E89485200E38DC3 /* blank.sql in Resources */ = {isa = PBXBuildFile; fileRef = A1D74FFC0E89485200E38DC3 /* blank.sql */; };
-		A1D750010E8948BE00E38DC3 /* libsqlite3.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A1D750000E8948BE00E38DC3 /* libsqlite3.0.dylib */; };
+		A1D750010E8948BE00E38DC3 /* libsqlite3.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A1D750000E8948BE00E38DC3 /* libsqlite3.0.dylib */; settings = {ATTRIBUTES = (Required, ); }; };
 		A1D750060E8948DD00E38DC3 /* StopLocations.m in Sources */ = {isa = PBXBuildFile; fileRef = A1D750050E8948DD00E38DC3 /* StopLocations.m */; };
 		A1E37A8113DCD9F500310E2E /* pnpoly.mm in Sources */ = {isa = PBXBuildFile; fileRef = A1E37A8013DCD9F500310E2E /* pnpoly.mm */; };
 		A1E9C24E0E60C5F300938356 /* AboutView.m in Sources */ = {isa = PBXBuildFile; fileRef = A1E9C24D0E60C5F300938356 /* AboutView.m */; };
@@ -283,8 +283,8 @@
 		A107A6240F2D0E9600C20017 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		A107A8490F2D389700C20017 /* EditBookMarkView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditBookMarkView.h; sourceTree = "<group>"; };
 		A107A84A0F2D389700C20017 /* EditBookMarkView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = EditBookMarkView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		A107AD480F2D667800C20017 /* AddNewStopToBookMark.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = AddNewStopToBookMark.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		A107AD490F2D667800C20017 /* AddNewStopToBookMark.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = AddNewStopToBookMark.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		A107AD480F2D667800C20017 /* AddNewStopToBookMark.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddNewStopToBookMark.h; sourceTree = "<group>"; };
+		A107AD490F2D667800C20017 /* AddNewStopToBookMark.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AddNewStopToBookMark.m; sourceTree = "<group>"; };
 		A107AD7A0F2D6C7300C20017 /* ReturnStopId.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReturnStopId.h; sourceTree = "<group>"; };
 		A10CCD051037B72E00328A94 /* TripPlannerOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TripPlannerOptions.h; sourceTree = "<group>"; };
 		A10CCD061037B72E00328A94 /* TripPlannerOptions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = TripPlannerOptions.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
@@ -332,8 +332,8 @@
 		A13D6A7C0FF9CAEF00C949AE /* TripPlannerLocationListView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TripPlannerLocationListView.h; sourceTree = "<group>"; };
 		A13D6A7D0FF9CAEF00C949AE /* TripPlannerLocationListView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TripPlannerLocationListView.m; sourceTree = "<group>"; };
 		A13F6B2B1166E96E004960BD /* MainWindow-iPad.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = "MainWindow-iPad.xib"; path = "Resources-iPad/MainWindow-iPad.xib"; sourceTree = "<group>"; };
-		A14450BC13123723002FB3FC /* AlarmCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = AlarmCell.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		A14450BD13123723002FB3FC /* AlarmCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = AlarmCell.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		A14450BC13123723002FB3FC /* AlarmCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AlarmCell.h; sourceTree = "<group>"; };
+		A14450BD13123723002FB3FC /* AlarmCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AlarmCell.m; sourceTree = "<group>"; };
 		A146EE4E12F5F32D0039AC8C /* AlarmViewMinutes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AlarmViewMinutes.h; sourceTree = "<group>"; };
 		A146EE4F12F5F32D0039AC8C /* AlarmViewMinutes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = AlarmViewMinutes.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A146EFBA12F6123D0039AC8C /* Alarm.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Alarm.png; path = "Aha-Soft/Alarm.png"; sourceTree = "<group>"; };
@@ -507,7 +507,7 @@
 		A18E8AC21290C15E002FEB6B /* Source@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Source@2x.png"; path = "Aha-Soft/Source@2x.png"; sourceTree = "<group>"; };
 		A18E8AE91290C594002FEB6B /* Earth.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Earth.png; path = "Aha-Soft/Earth.png"; sourceTree = "<group>"; };
 		A18E8AEA1290C594002FEB6B /* Earth@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Earth@2x.png"; path = "Aha-Soft/Earth@2x.png"; sourceTree = "<group>"; };
-		A1917B8613065981008E3026 /* AlarmAccurateStopProximity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = AlarmAccurateStopProximity.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		A1917B8613065981008E3026 /* AlarmAccurateStopProximity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AlarmAccurateStopProximity.h; sourceTree = "<group>"; };
 		A1917B8713065981008E3026 /* AlarmAccurateStopProximity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = AlarmAccurateStopProximity.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A19573080E885DB900493326 /* XMLAllStops.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLAllStops.h; sourceTree = "<group>"; };
 		A19573090E885DB900493326 /* XMLAllStops.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XMLAllStops.m; sourceTree = "<group>"; };
@@ -632,7 +632,7 @@
 		A1D750050E8948DD00E38DC3 /* StopLocations.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = StopLocations.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A1E37A8013DCD9F500310E2E /* pnpoly.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = pnpoly.mm; sourceTree = "<group>"; };
 		A1E9C08D0E60B17F00938356 /* UserFaves.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserFaves.h; sourceTree = "<group>"; };
-		A1E9C24C0E60C5F300938356 /* AboutView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = AboutView.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		A1E9C24C0E60C5F300938356 /* AboutView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AboutView.h; sourceTree = "<group>"; };
 		A1E9C24D0E60C5F300938356 /* AboutView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = AboutView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A1F151B41183B26A00121292 /* Yes.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Yes.png; path = "Aha-Soft/Yes.png"; sourceTree = "<group>"; };
 		A1F151B51183B26A00121292 /* Warning.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Warning.png; path = "Aha-Soft/Warning.png"; sourceTree = "<group>"; };
@@ -742,7 +742,6 @@
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
 				A17B03B80E72E33400B4FBF6 /* Entitlements.plist */,
-				A107A6240F2D0E9600C20017 /* Settings.bundle */,
 			);
 			name = CustomTemplate;
 			sourceTree = "<group>";
@@ -778,6 +777,7 @@
 				2899E55F0DE3E45000AC0155 /* RootViewController.xib */,
 				28AD735F0D9D9599002E5188 /* MainWindow.xib */,
 				8D1107310486CEB800E47090 /* Info.plist */,
+				A107A6240F2D0E9600C20017 /* Settings.bundle */,
 				A1C03DB50E80A5CE005B8E07 /* PortlandStreetcar.plist */,
 			);
 			name = Resources;
@@ -1454,9 +1454,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		1D6058900D05DD3D006BFB54 /* PDX Times */ = {
+		1D6058900D05DD3D006BFB54 /* PDX Bus */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "PDX Times" */;
+			buildConfigurationList = 1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "PDX Bus" */;
 			buildPhases = (
 				1D60588D0D05DD3D006BFB54 /* Resources */,
 				1D60588E0D05DD3D006BFB54 /* Sources */,
@@ -1466,7 +1466,7 @@
 			);
 			dependencies = (
 			);
-			name = "PDX Times";
+			name = "PDX Bus";
 			productName = PDXBus;
 			productReference = 1D6058910D05DD3D006BFB54 /* PDXBus.app */;
 			productType = "com.apple.product-type.application";
@@ -1477,7 +1477,7 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0420;
+				LastUpgradeCheck = 0430;
 				ORGANIZATIONNAME = Teleportaloo;
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "PDX Bus" */;
@@ -1495,7 +1495,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				1D6058900D05DD3D006BFB54 /* PDX Times */,
+				1D6058900D05DD3D006BFB54 /* PDX Bus */,
 			);
 		};
 /* End PBXProject section */
@@ -1824,13 +1824,14 @@
 					armv6,
 					"$(ARCHS_STANDARD_32_BIT)",
 				);
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Andrew Wallace";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 3.0;
-				PRODUCT_NAME = "PDX Bus";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PRODUCT_NAME = PDXBus;
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "5BC2CADE-F6C8-4391-9C64-A49A9A931DBD";
 				SDKROOT = iphoneos;
 			};
 			name = "Ad-hoc Dist";
@@ -1858,7 +1859,6 @@
 					/usr/lib/libSystem.B.dylib,
 				);
 				PRODUCT_NAME = PDXBus;
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "8093A302-AC9C-4716-941A-1F89DB671BD7";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1871,13 +1871,14 @@
 					armv6,
 					"$(ARCHS_STANDARD_32_BIT)",
 				);
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Andrew Wallace";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 3.0;
-				PRODUCT_NAME = "PDX Bus";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PRODUCT_NAME = PDXBus;
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "E1B618E2-BB93-40A3-B931-8A3A08CCD1D4";
 				SDKROOT = iphoneos;
 			};
 			name = Distribution;
@@ -1905,7 +1906,6 @@
 				);
 				PRODUCT_NAME = PDXBus;
 				PROVISIONING_PROFILE = "";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "9203A80C-6455-478A-974A-AFD8B18DA5EC";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1918,6 +1918,7 @@
 					armv6,
 					"$(ARCHS_STANDARD_32_BIT)",
 				);
+				CODE_SIGN_IDENTITY = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_PREPROCESSOR_DEFINITIONS = "DEBUGLOGGING=1";
@@ -1925,7 +1926,8 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 3.0;
 				ONLY_ACTIVE_ARCH = NO;
-				PRODUCT_NAME = "PDX Bus";
+				PRODUCT_NAME = PDXBus;
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos;
 			};
 			name = Debug;
@@ -1937,12 +1939,13 @@
 					armv6,
 					"$(ARCHS_STANDARD_32_BIT)",
 				);
+				CODE_SIGN_IDENTITY = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 3.0;
-				PRODUCT_NAME = "PDX Bus";
+				PRODUCT_NAME = PDXBus;
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos;
 			};
@@ -1951,7 +1954,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "PDX Times" */ = {
+		1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "PDX Bus" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1D6058940D05DD3E006BFB54 /* Debug */,

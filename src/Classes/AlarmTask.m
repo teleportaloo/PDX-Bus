@@ -39,12 +39,13 @@
 
 @implementation AlarmTask
 
-@synthesize desc			= _desc;
-@synthesize alarmState		= _alarmState;
-@synthesize stopId			= _stopId;
-@synthesize observer		= _observer;
-@synthesize alarm			= _alarm;
-@synthesize nextFetch		= _nextFetch;
+@synthesize desc                    = _desc;
+@synthesize alarmState              = _alarmState;
+@synthesize stopId                  = _stopId;
+@synthesize observer                = _observer;
+@synthesize alarm                   = _alarm;
+@synthesize nextFetch               = _nextFetch;
+@synthesize alarmWarningDisplayed   = _alarmWarningDisplayed;
 @dynamic    threadReferenceCount;
 
 #ifdef DEBUG_ALARMS
@@ -80,7 +81,7 @@
 #ifdef DEBUG_ALARMS
 		self.dataReceived = [[NSMutableArray alloc] init];
 #endif
-		
+        self.alarmWarningDisplayed = NO;
 	}
 	return self;
 }
@@ -190,14 +191,14 @@
 	self.alarm.repeatInterval				= 0;
 	self.alarm.repeatCalendar				= nil;
 	self.alarm.soundName					= defaultSound ? UILocalNotificationDefaultSoundName : kAlarmSoundFile ;
-	self.alarm.alertBody					= [NSString stringWithFormat:@"%@%@\n%@",
+	self.alarm.alertBody					= [NSString stringWithFormat:@"%@%@ %@",
                                                approx,
                                                [alertDateFormatter stringFromDate:displayDate], 
                                                string];
 	self.alarm.hasAction					= (userInfo != nil) || (button !=nil);
 	self.alarm.userInfo						= userInfo;
 	self.alarm.alertAction					= button;
-	self.alarm.applicationIconBadgeNumber	= 1;
+	self.alarm.applicationIconBadgeNumber	= 0;
 	
 	if (fireDate == nil)
 	{

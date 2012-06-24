@@ -38,11 +38,14 @@
 {
     self.fullFileName = nil;
     self.cache        = nil;
+    [_prefs release];
+    
+    [super dealloc];
 }
 
 - (void)openCache
 {
-    if (self.cache == nil)
+    if (self.cache == nil && _prefs.useCaching)
     {
         // Check for cache in Documents directory. 
         NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -61,9 +64,23 @@
 
 - (void)writeCache
 {
-    if (self.cache!=nil)
+    if (self.cache!=nil && self.fullFileName != nil && _prefs.useCaching)
     {
-        [self.cache writeToFile:self.fullFileName atomically:YES];
+        //
+        // Crash logs show that this often crashes here - but it is hard
+        // to say why.  This is my attempt to catch that - saving the
+        // cache is nice but if it fails we'll catch it and not worry.
+        //
+        @try {
+            [self.cache writeToFile:self.fullFileName atomically:YES];
+        }
+        @catch (NSException *exception) 
+        {
+            NSLog(@"Failed to write the cache %@\n", self.fullFileName);
+            // clear the local cache, as I assume it is corrupted.
+            [self deleteCacheFile];
+        }
+        
     }
 }
 
@@ -77,15 +94,25 @@
         
 		self.fullFileName      = [documentsDirectory stringByAppendingPathComponent:fileName]; 
         _maxSize               = 0;
+        _prefs                 = [[UserPrefs alloc] init];
     }
     
     return self;
 }
+
 - (void)deleteCacheFile
 {
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-	[fileManager removeItemAtPath:self.fullFileName error:nil];
-	
+    @try {
+        if (self.fullFileName !=nil)
+        {
+            NSFileManager *fileManager = [NSFileManager defaultManager];
+            [fileManager removeItemAtPath:self.fullFileName error:nil];
+        }
+    }
+    @catch (NSException *exception) {
+        // if this fails don't worry
+    }
+        
 	self.cache = [[[NSMutableDictionary alloc] init] autorelease];
 }
 
@@ -102,53 +129,63 @@
 
 - (NSArray *)getCachedQuery:(NSString *)cacheQuery
 {
-    [self openCache];
-    return [self.cache objectForKey:cacheQuery];
+    if (_prefs.useCaching)
+    {
+        [self openCache];
+        return [self.cache objectForKey:cacheQuery];
+    }
+    return nil;
 }
 
 - (void)addToCache:(NSString *)cacheQuery item:(NSData *)item write:(bool)write
 {
-    [self openCache];
-    NSMutableArray *arrayToCache = [[[NSMutableArray alloc] init] autorelease];
-    
-    [arrayToCache insertObject:[NSDate date] atIndex:kCacheDateAndTime];
-    [arrayToCache insertObject:item atIndex:kCacheData];
-    
-    [self.cache setObject:arrayToCache forKey:cacheQuery]; 
-    
-    if (self.maxSize > 0 && self.cache.count > 1)
+    if (_prefs.useCaching)
     {
-        // Eviction time
-        NSString *oldestKey    = nil;
-        NSDate   *oldestDate   = nil;
-        
-        while (self.cache.count > self.maxSize)
+        [self openCache];
+        NSMutableArray *arrayToCache = [[[NSMutableArray alloc] init] autorelease];
+    
+        [arrayToCache insertObject:[NSDate date] atIndex:kCacheDateAndTime];
+        [arrayToCache insertObject:item atIndex:kCacheData];
+    
+        [self.cache setObject:arrayToCache forKey:cacheQuery]; 
+    
+        if (self.maxSize > 0 && self.cache.count > 1)
         {
-            for (NSString *str in self.cache)
+            // Eviction time
+            NSString *oldestKey    = nil;
+            NSDate   *oldestDate   = nil;
+        
+            while (self.cache.count > self.maxSize)
             {
-                NSArray *obj = [self.cache objectForKey:str];
-                NSDate  *objDate = [obj objectAtIndex:kCacheDateAndTime];
-                if (oldestKey == nil  || [oldestDate compare:objDate] == NSOrderedDescending)
+                for (NSString *str in self.cache)
                 {
-                    oldestKey    = str;
-                    oldestDate   = objDate;
+                    NSArray *obj = [self.cache objectForKey:str];
+                    NSDate  *objDate = [obj objectAtIndex:kCacheDateAndTime];
+                    if (oldestKey == nil  || [oldestDate compare:objDate] == NSOrderedDescending)
+                    {
+                        oldestKey    = str;
+                        oldestDate   = objDate;
+                    }
                 }
-            }
             
-            [self.cache removeObjectForKey:oldestKey];
+                [self.cache removeObjectForKey:oldestKey];
+            }
         }
-    }
     
-    if (write)
-    {
-        [self writeCache];
+        if (write)
+        {
+            [self writeCache];
+        }
     }
 }
 
 - (void)removeFromCache:(NSString *)cacheQuery
 {
-    [self openCache];
-    [self.cache removeObjectForKey:cacheQuery]; 
+    if (_prefs.useCaching)
+    {
+        [self openCache];
+        [self.cache removeObjectForKey:cacheQuery]; 
+    }
 }
 
 @end

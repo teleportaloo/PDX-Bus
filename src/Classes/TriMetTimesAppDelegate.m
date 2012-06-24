@@ -81,6 +81,14 @@
 {
     bool newWindow = NO;
     
+    [self cleanStart];
+    
+    if (!self.cleanExitLastTime)
+    {
+        rootViewController.lastArrivalsShown = nil;
+        rootViewController.lastArrivalNames  = nil;
+    }
+    
 	if (!_suppressCommuterBookmarkOnActivate && self.rootViewController && self.rootViewController.commuterBookmark==nil
 		&& _prefs.autoCommute)
 	{
@@ -129,6 +137,45 @@
             [topView performSelector:@selector(didEnterBackground)];
         }
     }
+    
+    AlarmTaskList *list = [AlarmTaskList getSingleton];
+    [list checkForLongAlarms];
+    [list updateBadge];
+    
+    [self cleanExit];
+}
+
+- (void)cleanExit
+{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+	
+	[fileManager removeItemAtPath:self.pathToCleanExit error:NULL];
+	
+	SafeUserData *userData = [SafeUserData getSingleton];
+	
+	[userData cacheAppData];
+}
+
+- (void)cleanStart
+{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+
+	if ([fileManager fileExistsAtPath:self.pathToCleanExit] == YES)
+	{
+		self.cleanExitLastTime = NO;
+        
+        // If the app crashed we should assume the cache file may be bad
+        // best to delete it just in case.
+        [TriMetXML deleteCacheFile];
+	}
+	else 
+	{
+		self.cleanExitLastTime = YES;
+		NSString * str = [[[NSString alloc] initWithString:@"clean"] autorelease];
+		
+		[str writeToFile:self.pathToCleanExit atomically:YES encoding:NSUTF8StringEncoding error:NULL];
+	}
+  
 }
 
 
@@ -144,19 +191,13 @@
 	{
 		[application cancelAllLocalNotifications];
 	}
+    
 	self.pathToCleanExit = [documentsDirectory stringByAppendingPathComponent:@"cleanExit.txt"];
 	
-	if ([fileManager fileExistsAtPath:self.pathToCleanExit] == YES)
-	{
-		self.cleanExitLastTime = NO;
-	}
-	else 
-	{
-		self.cleanExitLastTime = YES;
-		NSString * str = [[[NSString alloc] initWithString:@"clean"] autorelease];
-		
-		[str writeToFile:self.pathToCleanExit atomically:YES encoding:NSUTF8StringEncoding error:NULL];
-	}
+    UIDevice* device = [UIDevice currentDevice];
+    BOOL backgroundSupported = NO;
+    if ([device respondsToSelector:@selector(isMultitaskingSupported)])
+        backgroundSupported = device.multitaskingSupported;
 	
 	NSString *oldDatabase1 = [documentsDirectory stringByAppendingPathComponent:kOldDatabase1];
 	[fileManager removeItemAtPath:oldDatabase1 error:&error];
@@ -172,20 +213,19 @@
 	rootViewController.lastArrivalsShown = [SafeUserData getSingleton].last;
 	rootViewController.lastArrivalNames  = [SafeUserData getSingleton].lastNames;
 	
+    
 	if (_prefs.autoCommute)
 	{
 		rootViewController.commuterBookmark  = [self checkForCommuterBookmarkShowOnlyOnce:YES];
 	}
 	
 	if ((rootViewController.lastArrivalsShown!=nil && [rootViewController.lastArrivalsShown length] == 0)
-		 || !self.cleanExitLastTime
+            || backgroundSupported
 		)
 	{
 		rootViewController.lastArrivalsShown = nil;
 		rootViewController.lastArrivalNames  = nil;
 	}
-
-	
 
 	// Configure and show the window
 	[window addSubview:[navigationController view]];
@@ -198,19 +238,14 @@
 #endif
 	
 	_suppressCommuterBookmarkOnActivate = YES;
+    
+   
 	
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
-	// Save data if appropriate
-	NSFileManager *fileManager = [NSFileManager defaultManager];
 	
-	[fileManager removeItemAtPath:self.pathToCleanExit error:NULL];
-	
-	SafeUserData *userData = [SafeUserData getSingleton];
-	
-	[userData cacheAppData];
-	
+    [self cleanExit];
 	[StopLocations quit];
 }
 
@@ -525,8 +560,8 @@
 				if (([dow intValue] & todayBit) !=0)
 				{
 					// Does AM match or PM match?
-					if ((  (am == nil ||   [am boolValue]) &&  IS_MORNING(nowComponents.hour))
-						 || (![am boolValue] && !IS_MORNING(nowComponents.hour)))
+					if ((   (am == nil ||  [am boolValue]) &&  IS_MORNING(nowComponents.hour))
+						 || (am != nil && ![am boolValue]  && !IS_MORNING(nowComponents.hour)))
 					{
 						return [[fave retain] autorelease];
 					}

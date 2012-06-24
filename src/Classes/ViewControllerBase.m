@@ -39,7 +39,15 @@
 @synthesize callback		= _callback;
 
 - (void)dealloc {
-	self.backgroundTask = nil;
+    //
+    // There is a weak reference to self in the background task - it must
+    // be removed if we are dealloc'd.
+    //
+    if (self.backgroundTask)
+    {
+        self.backgroundTask.callbackComplete = nil;
+	}
+    self.backgroundTask = nil;
 	self.callback		= nil;
 	[_userData release];
 	[_prefs release];
@@ -282,7 +290,10 @@
 
 + (UIImage *)alwaysGetIcon:(NSString *)name
 {
-	return [UIImage imageNamed:name]; 
+    UIImage *image = [UIImage imageNamed:name];
+    image.accessibilityHint = nil;
+    image.accessibilityLabel = nil;
+	return image; 
 }
 
 + (UIImage *)getToolbarIcon:(NSString *)name

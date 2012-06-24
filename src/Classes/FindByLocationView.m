@@ -339,8 +339,7 @@
 	return result;
 }
 
-- (UITableViewCell *)segCell:(NSString*)cellId items:(NSArray*)items 
-		   accessibilityText:(NSString *)str action:(SEL)action
+- (UITableViewCell *)segCell:(NSString*)cellId items:(NSArray*)items action:(SEL)action
 {
 	UITableViewCell *cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellId] autorelease];
 	
@@ -353,11 +352,9 @@
 	[cell.contentView addSubview:segmentedControl];
 	[segmentedControl autorelease];
 	
-	
 	[cell layoutSubviews];
 	cell.selectionStyle = UITableViewCellSelectionStyleNone;
-	[cell setAccessibilityLabel:str];
-	cell.isAccessibilityElement = YES;
+	cell.isAccessibilityElement = NO;
 	cell.backgroundView = [self clearView];
 	
 	return cell;
@@ -392,7 +389,6 @@
 			if (cell == nil) {
 				cell = [self segCell:segmentId 
 							   items:[NSArray arrayWithObjects:@"Closest", @"½ mile", @"1 mile", @"3 miles", nil]
-				   accessibilityText:@"search radius"
 							  action:@selector(distSegmentChanged:)];
 			}	
 			
@@ -406,7 +402,6 @@
 			if (cell == nil) {
 				cell = [self segCell:segmentId 
 							   items:[NSArray arrayWithObjects:@"Arrivals", @"Map", @"Routes", nil]
-				   accessibilityText:@"show"
 							  action:@selector(showSegmentChanged:)];
 			}	
 			
@@ -420,7 +415,6 @@
 			if (cell == nil) {
 				cell = [self segCell:segmentId 
 							   items:[NSArray arrayWithObjects:@"Bus only", @"Rail only", @"Bus or Rail", nil]
-				   accessibilityText:@"mode of travel"
 							  action:@selector(modeSegmentChanged:)];
 			}	
 			
@@ -452,8 +446,6 @@
 					UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:locSecid];
 					if (cell == nil) {
 						cell = [self accuracyCellWithReuseIdentifier:locSecid];
-						
-		
 					}
 					
 					UILabel* text = (UILabel *)[cell.contentView viewWithTag:[self LocationTextTag]];

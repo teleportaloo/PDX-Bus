@@ -59,19 +59,15 @@
 {
 	
 	// create the system-defined "OK or Done" button
-	UIBarButtonItem *map = [[[UIBarButtonItem alloc]
+	UIBarButtonItem *mag = [[[UIBarButtonItem alloc]
 							 // initWithBarButtonSystemItem:UIBarButtonSystemItemRewind
 							 initWithImage:[TableViewWithToolbar getToolbarIcon:kIconMagnify]
 							 style:UIBarButtonItemStylePlain
 							 target:target action:action] autorelease];
 	
-	
-	// map.style = UIBarButtonItemStylePlain; */
-	
-	map.style = UIBarButtonItemStylePlain;
-	map.title = @"Magnify";
-	map.accessibilityHint = @"Large bus line identifier";
-	return map;
+	mag.style = UIBarButtonItemStylePlain;
+	mag.accessibilityLabel = @"Large bus line identifier";
+	return mag;
 }
 
 + (UIBarButtonItem *)autoMapButtonWithTarget:(id)target action:(SEL)action
@@ -79,17 +75,12 @@
 
 	// create the system-defined "OK or Done" button
 	UIBarButtonItem *map = [[[UIBarButtonItem alloc]
-							// initWithBarButtonSystemItem:UIBarButtonSystemItemRewind
 							initWithImage:[TableViewWithToolbar getToolbarIcon:kIconMap]
 							style:UIBarButtonItemStylePlain
 							 target:target action:action] autorelease];
 
-		
-	// map.style = UIBarButtonItemStylePlain; */
-	
 	map.style = UIBarButtonItemStylePlain;
-	map.title = @"Map";
-	map.accessibilityHint = @"map";
+	map.accessibilityLabel = @"Show Map";
 	
 	return map;
 }
@@ -103,9 +94,7 @@
 							 target:target action:action] autorelease];
 	
 	flash.style = UIBarButtonItemStylePlain;
-	flash.title = @"Flash";
-	flash.accessibilityHint = @"flash screen";
-
+	flash.accessibilityLabel = @"Flash Screen";
 	return flash;
 	
 }
@@ -114,15 +103,14 @@
 {
 	// create the system-defined "OK or Done" button
 	UIBarButtonItem *back = [[[UIBarButtonItem alloc]
-							   // initWithBarButtonSystemItem:UIBarButtonSystemItemRewind
 							   initWithImage:[TableViewWithToolbar getToolbarIcon:kIconHome]
 							   style:UIBarButtonItemStylePlain
 							   target:target action:action] autorelease];
 	
 	
 	back.style = UIBarButtonItemStylePlain;
-	back.title = @"Home";
-	back.accessibilityHint = @"home";
+    back.accessibilityLabel = @"Home";
+	back.accessibilityHint = nil;
 	
 	return back;
 }
@@ -131,16 +119,13 @@
 {
 	// create the system-defined "OK or Done" button
 	UIBarButtonItem *back = [[[UIBarButtonItem alloc]
-							  // initWithBarButtonSystemItem:UIBarButtonSystemItemRewind
 							  initWithImage:[TableViewWithToolbar getToolbarIcon:kIconRedo]
 							  style:UIBarButtonItemStylePlain
 							  target:target action:action] autorelease];
 	
 	
 	back.style = UIBarButtonItemStylePlain;
-	back.title = @"Redo";
-	back.accessibilityHint = @"redo";
-	
+	back.accessibilityLabel = @"Redo";	
 	return back;
 }
 
@@ -154,8 +139,7 @@
 	
 	
 	back.style = UIBarButtonItemStylePlain;
-	back.title = @"Commute";
-	back.accessibilityHint = @"Commute";
+	back.accessibilityLabel = @"Commuter Bookmark";
 	return back;
 	
 }
@@ -163,15 +147,13 @@
 + (UIBarButtonItem *)autoLocateWithTarget:(id)target action:(SEL)action
 {
 	UIBarButtonItem *back = [[[UIBarButtonItem alloc]
-							  // initWithBarButtonSystemItem:UIBarButtonSystemItemRewind
 							  initWithImage:[TableViewWithToolbar getToolbarIcon:kIconLocateNear]
 							  style:UIBarButtonItemStylePlain
 							  target:target action:action] autorelease];
 	
 	
 	back.style = UIBarButtonItemStylePlain;
-	back.title = @"Locate";
-	back.accessibilityHint = @"Locate";
+	back.accessibilityLabel = @"Locate Stops";
 	return back;
 	
 }

@@ -34,6 +34,7 @@
 #import "TriMetRouteColors.h"
 #import "DirectionView.h"
 #import "AlarmTaskList.h"
+#import "TripPlannerSummaryView.h"
 
 
 
@@ -45,20 +46,24 @@
 @synthesize map				= _map;
 @synthesize routes			= _routes;
 
-#define kSections				4
-#define kSectionsProximity		5
+#define kSections				5
+#define kSectionsProximity		6
 
 #define kStation				0
 #define kStops					1
-#define kWikiLink				3
-#define kRouteSection			2
-#define kProximitySection		4    
+#define kTripPlanner            2
+#define kWikiLink				4
+#define kRouteSection			3
+#define kProximitySection		5    
 
 #define kDirectionCellHeight	45.0
 #define DIRECTION_TAG			1
 #define ID_TAG					2
 
 #define kRowWikiLink			0
+
+#define kRowTripToHere          0
+#define kRowTripFromHere        1
 
 - (void)dealloc {
 	self.locationsDb = nil;
@@ -247,9 +252,11 @@
 			{
 				return nil;
 			}
-			return @"Routes:";
+			return @"Routes";
 		case kStation:
 			return nil;
+        case kTripPlanner:
+            return @"Trip Planner";
 		case kStops:
 			
 			if (self.callback)
@@ -264,7 +271,7 @@
 			}
 			return @"More Information";
 		case kProximitySection:
-			return @"Alarms:";
+			return @"Alarms";
 	}
 	return nil;
 }
@@ -282,6 +289,8 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 	switch (section)
 	{
+        case kTripPlanner:
+            return 2;
 		case kStation:
 		case kProximitySection:
 			return 1;
@@ -357,6 +366,22 @@
 			
 			break;
 		}
+        case kTripPlanner:
+            cell = [self plainCell:tableView];
+            
+            if (indexPath.row == kRowTripFromHere)
+            {
+                cell.textLabel.text = @"Plan trip from here";
+            }
+            else {
+                cell.textLabel.text = @"Plan trip to here";
+            }
+            
+            cell.selectionStyle = UITableViewCellSelectionStyleBlue;
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            cell.imageView.image = [self getActionIcon:kIconTripPlanner];
+            break;
+            
 		case kStops:
 			if (indexPath.row == rowShowAll)
 			{
@@ -466,6 +491,32 @@
 	{
 		case kStation:
 			break;
+        case kTripPlanner:
+        {
+            TripPlannerSummaryView *tripPlanner = [[[TripPlannerSummaryView alloc] init] autorelease];
+			
+			// Push the detail view controller
+            
+			TripEndPoint *endpoint = nil;
+			
+			if (indexPath.row == kRowTripFromHere)
+			{
+				endpoint = tripPlanner.tripQuery.userRequest.fromPoint;
+			}
+			else 
+			{
+				endpoint = tripPlanner.tripQuery.userRequest.toPoint;
+			}
+            
+			
+			endpoint.useCurrentLocation = false;
+			endpoint.additionalInfo     = self.station.station;
+			endpoint.locationDesc       = [self.station.locList objectAtIndex:0];
+			
+			
+			[[self navigationController] pushViewController:tripPlanner animated:YES];
+			break;
+        }
 		case kStops:
 			if (self.callback)
 			{

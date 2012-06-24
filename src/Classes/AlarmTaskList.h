@@ -84,5 +84,7 @@
 							   desc:(NSString *)desc;
 
 - (void)resumeOnActivate;
+- (void)checkForLongAlarms;
+- (void)updateBadge;
 
 @end

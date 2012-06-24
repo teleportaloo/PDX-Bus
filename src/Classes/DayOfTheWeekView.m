@@ -149,8 +149,7 @@ static int daysInWeek[] = {
 			[cell createSegmentWithContent:[NSArray arrayWithObjects: @"Morning", @"Afternoon", nil] 
 									target:self 
 									action:@selector(amOrPmSegmentChanged:)];
-			[cell setAccessibilityLabel:@"Morning or Afternoon"];
-			cell.isAccessibilityElement = YES;
+			cell.isAccessibilityElement = NO;
 			// cell.backgroundView = [self clearView];
 		}	
 		

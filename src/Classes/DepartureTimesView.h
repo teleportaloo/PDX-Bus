@@ -62,7 +62,7 @@ typedef struct {
 	NSIndexPath *		_actionItem;
 	
 	NSDate *			_lastRefresh;
-    bool                _wasBackgrounded;
+    int                 _postBackgroundedDelay;
 	bool				_fetchingLocations;
 	int					_bookmarkItem;
 	NSString *			_bookmarkDesc;

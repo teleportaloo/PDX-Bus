@@ -44,13 +44,19 @@
 			<key>FalseValue</key>
 			<string>NO</string>
 			<key>Key</key>
-			<string>trip_planner_first</string>
+			<string>bookmarks_at_the_top</string>
 			<key>Title</key>
-			<string>Trip Planner</string>
+			<string>Bookmarks at the top</string>
 			<key>TrueValue</key>
 			<string>YES</string>
 			<key>Type</key>
 			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Legacy (iOS 3) on startup show:</string>
 		</dict>
 		<dict>
 			<key>DefaultValue</key>
@@ -58,9 +64,9 @@
 			<key>FalseValue</key>
 			<string>NO</string>
 			<key>Key</key>
-			<string>bookmarks_at_the_top</string>
+			<string>trip_planner_first</string>
 			<key>Title</key>
-			<string>Bookmarks at the top</string>
+			<string>Trip Planner</string>
 			<key>TrueValue</key>
 			<string>YES</string>
 			<key>Type</key>
@@ -404,6 +410,22 @@
 			</array>
 		</dict>
 		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Alarm Warnings</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Initial 10 min warning</string>
+			<key>Key</key>
+			<string>alarm_initial_10_min_warning</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
+		<dict>
 			<key>Title</key>
 			<string>Debugging options:</string>
 			<key>Type</key>
@@ -436,6 +458,16 @@
 			<string>YES</string>
 			<key>Type</key>
 			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Cache data</string>
+			<key>Key</key>
+			<string>use_caching</string>
+			<key>DefaultValue</key>
+			<true/>
 		</dict>
 	</array>
 	<key>StringsTable</key>

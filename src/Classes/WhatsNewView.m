@@ -59,7 +59,14 @@
 	{
 		self.title = @"What's new?";
 		newTextArray = [[NSArray arrayWithObjects:
-                         @"6.1: Now caches arrival times, so users can still see arrivals with no network (especially for iPod touch)",
+                         @"6.2: Several bug fixes:",
+                         @"Fixed VoiceOver issues with segmented controls and buttons.",
+                         @"Increased size of 'X' icon to make easier to touch.",
+                         @"Caches are more robust.",
+                         @"Added additional alert for alarms that are too long to be accurate in the background.",
+                         @"Added 'Plan trip from/to here' option on rail station screen.",
+                         @"Improved stability & added new debug options.",
+                         @"6.1: Now caches arrival times, so users can still see arrivals with no network (especially for iPod touch).",
                          @"Night Visibility Flasher can now flash the LED (see settings to enable this).",
                          @"Added Twitter style \"Pull to Refresh\" to arrivals.",
                          @"Added a quick locate toolbar item to the first screen.",

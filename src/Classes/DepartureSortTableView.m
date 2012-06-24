@@ -148,8 +148,7 @@
 				
 				[cell layoutSubviews];
 				cell.selectionStyle = UITableViewCellSelectionStyleNone;
-				[cell setAccessibilityLabel:@"Sort by"];
-				cell.isAccessibilityElement = YES;
+				cell.isAccessibilityElement = NO;
 				cell.backgroundView = [self clearView];
 			}
 			

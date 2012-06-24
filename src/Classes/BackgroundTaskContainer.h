@@ -56,8 +56,8 @@
 - (void)BackgroundCompleted:(UIViewController*)viewController;
 
 @property (nonatomic, retain)	NSString *					title;
-@property (retain)				ProgressModalView *			progressModal; // atomic for thread safety
-@property (nonatomic, assign)	id<BackgroundTaskDone>		callbackComplete;  // weak
+@property (retain)				ProgressModalView *			progressModal;     // atomic for thread safety
+@property (   atomic, assign)	id<BackgroundTaskDone>		callbackComplete;  // weak
 @property (nonatomic, retain)	id<BackgroundTaskProgress>	callbackWhenFetching;
 @property (nonatomic, retain)	NSThread *					backgroundThread;
 

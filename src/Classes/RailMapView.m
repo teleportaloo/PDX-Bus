@@ -212,9 +212,6 @@ int nHotSpots = 0;
 
 - (void)createToolbarItems
 {
-	// match each of the toolbar item's style match the selection in the "UIBarButtonItemStyle" segmented control
-	// UIBarButtonItemStyle style = UIBarButtonItemStylePlain;
-	
 	NSArray *items = nil;
 	
 	

@@ -728,8 +728,7 @@
 						[cell createSegmentWithContent:[NSArray arrayWithObjects: @"Ask for Time", @"Depart Now", nil]
 												target:self
 												action:@selector(timeSegmentChanged:)];
-						[cell setAccessibilityLabel:@"Time"];
-						cell.isAccessibilityElement = YES;
+						cell.isAccessibilityElement = NO;
 					}	
 					cell.segment.selectedSegmentIndex = self.userRequest.timeChoice;
 					return cell;	

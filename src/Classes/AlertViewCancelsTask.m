@@ -36,6 +36,8 @@
 {
     self.backgroundTask = nil;
     self.caller         = nil;
+    
+    [super dealloc];
 }
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex

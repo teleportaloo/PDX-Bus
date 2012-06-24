@@ -20,10 +20,10 @@ Feature includes:
 
 Route and arrival data provided by permission of TriMet.
 
-PDX Bus 6.1.0 sources
+PDX Bus 6.2.4 sources
 =====================
 
-I am making the sources to PDX Bus version 6.1 available as part of the 
+I am making the sources to PDX Bus version 6.2 available as part of the 
 [Civic Apps](http://www.civicapps.org) competition.  These
 sources were developed by me from Apple samples and documentation, except 
 where explicitly mentioned in the code.  
@@ -45,7 +45,7 @@ found at [http://developer.apple.com](http://developer.apple.com)
 $100 membership to get a certificate to put an application on
 an actual device).
 
-Because I wish to retain the copyright on the code, I am currently not
+Because I wish to retain the sole copyright on the code, I am currently not
 yet collaborating on development - but this may change as I work out
 how open source iPhone development can work.
 
@@ -62,10 +62,11 @@ Links
 * [PDX Bus Blog](http://pdxbus.teleportaloo.org)
 * [PDX Bus in the iTunes store](http://phobos.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=289814055&mt=8")
 * [PDX Bus on Twitter](http://twitter.com/pdxbus)
+* [PDX Bus on Facebook](http://facebook.com/pdxbus)
 
 Things to know before building
 ------------------------------
-* PDX Bus is built with iPhone SDK 5.0 and Xcode 4.2 - available free 
+* PDX Bus is built with iPhone SDK 5.1 and Xcode 4.3.2 - available free 
 from [Apple](http://developer.apple.com) in their Mac App store.
 * Before building this code you will need to register with TriMet 
 to get a free "AppID" from [TriMet](http://developer.trimet.org/registration/),
@@ -180,6 +181,19 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Change log
 ----------
+### Version 6.2.4 (June 2012)
+* Support for Xcode 4.3.2; still compiles and runs on original iPhone.
+* Fixed Xcode 4.3.2 analysis issues
+* Fixed VoiceOver issues with "segment controls" and buttons.
+* Changed app name to "PDX Bus" (added the space).
+* Increased size of 'X' icon to make easier to touch.
+* Caches are more robust, if the app discovers it had previously crashed it will delete all caches.
+* Fixed weak reference in background task container - this will now be cleared when the view object is dealloced - this is about 33% of crashes.
+* Added alert for when an alarm will not be able to complete in the background so the user knows to go back to PDX Bus.
+* Added short version string to budle version to allow archiving to get the version.
+* Added debug option to turn off all caching (as caching sometimes causes crashes).
+* Added Plan trip from here/to here options on the rail station screen.
+
 
 ### Version 6.1 (November 2011)
 * Support for Xcode 4.2; still compiles and runs on original iPhone.
@@ -194,7 +208,6 @@ Change log
 * Fixed locate nearby stops so that GPS cannot be left on.  
  
 ### Version 6.0
-* Fixed locate nearby stops so that GPS cannot be left on.
 * Updated PGE Park to JELD-WEN Field on the map.  Go Timbers!
 * Added 'commuter bookmarks' - any bookmark can be configured to automatically display
     on your morning or evening commute.
@@ -206,8 +219,7 @@ Change log
 * Updated network error processing.
 * Added in-app settings which are the same as the Settings app settings.
 * Updated many user interface elements, including: reverse button on trip planner.
-* Bug fixes - now loads on iOS5.
-</ul>    
+* Bug fixes - now loads on iOS5.    
 
 ### Version 5.2
 * User requested changes:
@@ -264,4 +276,4 @@ First Open Source Version.
 
 HAVE FUN!
 
-Andrew Wallace, November 2011.
+Andrew Wallace, June 2012.

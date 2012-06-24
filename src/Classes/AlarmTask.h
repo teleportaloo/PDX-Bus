@@ -76,6 +76,7 @@ typedef enum AlarmStateTag {
 	bool						_done;
 #endif
 	NSDate *					_nextFetch;
+    bool                        _alarmWarningDisplayed;
 	
 }
 
@@ -87,6 +88,7 @@ typedef enum AlarmStateTag {
 @property (nonatomic, assign)	id<AlarmObserver> observer; // weak
 @property (retain)				UILocalNotification *alarm;
 @property (readonly, nonatomic) int threadReferenceCount;
+@property (nonatomic)           bool alarmWarningDisplayed;
 
 #ifdef DEBUG_ALARMS
 @property (retain) NSMutableArray *dataReceived;

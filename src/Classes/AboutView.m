@@ -60,9 +60,10 @@
 #define kRowRefresh             10
 #define kRowSrc					11
 			
-#define kSectionHelpRows		2
+#define kSectionHelpRows		3
 #define kSectionHelpRowHelp		0
 #define kSectionHelpRowNew		1
+#define kSectionHelpHowToRide   2
 
 
 @implementation AboutView
@@ -98,10 +99,10 @@
 		"...to Rob Alan for the stylish icon; and\n\n"
 		"...to CivicApps.org for Awarding PDX Bus the \"Most Appealing\" and \"Best in Show\" awards in July 2010.\n\n"
 		"Special thanks to Ken for putting up with all this.\n\n"
-		"\nCopyright (c)2008-2011\nAndrew Wallace", [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"]] retain];
+		"\nCopyright (c)2008-2012\nAndrew Wallace\n(See legal section above for other copyright owners and attrbutions).", [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"]] retain];
 		
 		tipText = [[NSArray alloc] initWithObjects:
-			@"There are LOTS of settings for PDXBus - take a look at the Settings application and choose PDXBus to change colors, move the bookmarks to the top of the screen or change other options.", 	   
+			@"There are LOTS of settings for PDXBus - take a look at the settings on the front screen to change colors, move the bookmarks to the top of the screen or change other options.", 	   
 			@"Shake the device to refresh the arrival times.",
 			@"Bookmark a trip from the Current Location to your home and call it \"Take me home!\"",
 		    @"Backup your bookmarks by emailing them to yourself.",
@@ -242,8 +243,17 @@
 					cell.textLabel.adjustsFontSizeToFitWidth = YES;
 					cell.selectionStyle = UITableViewCellSelectionStyleBlue;
 				}
-				cell.textLabel.text = @"What's new?";
-				cell.imageView.image = [self getActionIcon:@"AppIcon-29.png"];
+                
+                if (indexPath.row == kSectionHelpHowToRide)
+                {
+                    cell.textLabel.text = @"How to ride";
+                    cell.imageView.image = [self getActionIcon:kIconAbout];
+                }
+                else 
+                {
+                    cell.textLabel.text = @"What's new?";
+                    cell.imageView.image = [self getActionIcon:@"AppIcon-29.png"];
+                }
 				return cell;
 			}
 
@@ -525,7 +535,14 @@
 			{
 				[[self navigationController] popViewControllerAnimated:YES];
 			}
-			else
+			else if (indexPath.row == kSectionHelpHowToRide)
+            {
+                WebViewController *webPage = [[WebViewController alloc] init];
+                [webPage setURLmobile:@"http://trimet.org/howtoride/index.htm" full:nil title:@"How to ride"]; 
+                [[self navigationController] pushViewController:webPage animated:YES];
+                [webPage release];
+            }
+            else
 			{
 				WhatsNewView *whatsNew = [[WhatsNewView alloc] init];
 				[[self navigationController] pushViewController:whatsNew animated:YES];

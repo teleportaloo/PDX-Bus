@@ -27,6 +27,8 @@
 
 #import "AlarmTaskList.h"
 #import "AlarmAccurateStopProximity.h"
+#import "TriMetTimesAppDelegate.h"
+#import "AppDelegateMethods.h"
 #import "debug.h"
 
 #define kLoopTimeSecs 15
@@ -305,6 +307,54 @@
     }
 }
 
+
+- (void)checkForLongAlarms
+{
+        
+    @synchronized(_backgroundTasks)
+    {
+        UserPrefs *prefs = [[[UserPrefs alloc] init] autorelease];
+        UIApplication *app = [UIApplication sharedApplication];
+        NSTimeInterval remaining = app.backgroundTimeRemaining;
+        bool alertRequired = NO;
+        if (_backgroundTasks.count > 0 && prefs.alarmInitialWarning)
+        {
+            NSArray *keys = [self taskKeys];
+            
+            for (NSString *key in keys)
+            {
+                AlarmTask *task = [self taskForKey:key];
+                
+                if (task && task.alarm && task.alarm.fireDate != 0 && !task.alarmWarningDisplayed
+                    && [task.alarm.fireDate timeIntervalSinceNow] >= remaining)
+                {
+                        alertRequired              = YES;
+                        task.alarmWarningDisplayed = YES;
+                }
+    
+            }
+            
+            if (alertRequired)
+            {
+                AlarmTask *alertTask = [[[AlarmTask alloc] init] autorelease];
+                
+                NSDictionary *ignore = [NSDictionary dictionaryWithObjectsAndKeys:
+                                        kDoNotDisplayIfActive, kDoNotDisplayIfActive,
+                                        nil];
+                
+                int mins = ((remaining + 30) / 60.0);
+                [alertTask alert:[NSString stringWithFormat:@"You have an alarm set for longer than %d mins. iOS allows PDX Bus to check arrivals in the background for only %d mins - then you will be alerted to restart PDX Bus.", 
+                                  mins, mins]
+                        fireDate:nil 
+                          button:@"To PDX Bus" 
+                        userInfo:ignore
+                    defaultSound:YES];
+            }
+        }
+    }
+}
+
+
 - (void)addTaskForStopIdProximity:(NSString *)stopId 
 							  lat:(NSString *)lat 
 							  lng:(NSString *)lng 
@@ -482,7 +532,8 @@
 		
 		AlarmTask *alertTask = [[[AlarmTask alloc] init] autorelease];
 		
-		[alertTask alert:@"The operating system has stopped PDX Bus from running - arrival alarms will not be accurate unless you start the app again." 
+		[alertTask alert:@"iOS has stopped PDX Bus from checking arrivals in the background. "
+                         @"Please restart PDX Bus so it can update the arrival alarms."
 				fireDate:nil 
 				  button:@"Back to PDX Bus" 
 				userInfo:ignore

@@ -26,6 +26,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "UserPrefs.h"
 
 #define kCacheDateAndTime   0
 #define kCacheData          1
@@ -35,6 +36,7 @@
     NSMutableDictionary *   _cache;
     NSString *              _fullFileName;
     int                     _maxSize;
+    UserPrefs               *_prefs;
 }
 
 @property (nonatomic) int maxSize;
