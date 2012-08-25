@@ -109,7 +109,8 @@
 #define kTweetButtonList        1
 #define kTweetButtonTweet       2
 #define kTweetButtonApp         3
-#define kTweetButtonCancel      4
+#define kTweetButtonWeb         4
+#define kTweetButtonCancel      5
 
 static NSString *callString = @"tel:1-503-238-RIDE";
 
@@ -208,8 +209,10 @@ static NSString *callString = @"tel:1-503-238-RIDE";
          _tweetButtons[ [sheet addButtonWithTitle:@"Show in Twitter app"] ] = kTweetButtonApp;
     }
     
+    _tweetButtons[ [sheet addButtonWithTitle:@"Show in Safari"] ] = kTweetButtonWeb;
     
-    _tweetButtons[[sheet addButtonWithTitle:@"Recent tweets"] ] = kTweetButtonList;
+    
+    // _tweetButtons[[sheet addButtonWithTitle:@"Recent tweets"] ] = kTweetButtonList;
 
     sheet.cancelButtonIndex  = [sheet addButtonWithTitle:@"Cancel"];
     _tweetButtons[sheet.cancelButtonIndex ] = kTweetButtonCancel;
@@ -2169,6 +2172,14 @@ static NSString *callString = @"tel:1-503-238-RIDE";
             }
             break;
         }
+        case kTweetButtonWeb:
+        {
+            NSString *twitter=[NSString stringWithFormat:@"https://mobile.twitter.com/%@", self.tweetAt];
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:twitter]];
+            [self clearSelection];
+            break;
+        }
+            
         case kTweetButtonCancel:
         {
             [self clearSelection];

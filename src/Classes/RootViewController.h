@@ -39,7 +39,7 @@
 
 
 
-#define kMaxTweetButtons        4
+#define kMaxTweetButtons        5
 
 @class UITextField;
 

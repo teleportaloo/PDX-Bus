@@ -659,7 +659,7 @@
 		A1C79D7F11FD24BC00B31CE7 /* This Folder Creative Commons.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = "This Folder Creative Commons.html"; path = "Glyphish/This Folder Creative Commons.html"; sourceTree = "<group>"; };
 		A1C79D8311FD261700B31CE7 /* This Folder Creative Commons.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = "This Folder Creative Commons.html"; path = "RobAlan/This Folder Creative Commons.html"; sourceTree = "<group>"; };
 		A1C79D9111FD276D00B31CE7 /* This Folder from TriMet.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = "This Folder from TriMet.html"; path = "TriMet/This Folder from TriMet.html"; sourceTree = "<group>"; };
-		A1C79DAA11FD2BD900B31CE7 /* This Folder GPL.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = "This Folder GPL.html"; path = "PDX Bus/This Folder GPL.html"; sourceTree = "<group>"; };
+		A1C79DAA11FD2BD900B31CE7 /* This Folder Creative Commons.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = "This Folder Creative Commons.html"; path = "PDX Bus/This Folder Creative Commons.html"; sourceTree = "<group>"; };
 		A1C7F24B15B51AB3001FCD6C /* beep-beep.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; name = "beep-beep.aiff"; path = "ZXing Resources/beep-beep.aiff"; sourceTree = "<group>"; };
 		A1C90797112FB16900100030 /* BackgroundTaskProgress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BackgroundTaskProgress.h; sourceTree = "<group>"; };
 		A1C907AF112FC56200100030 /* ProgressModalView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProgressModalView.h; sourceTree = "<group>"; };
@@ -1514,7 +1514,7 @@
 		A1F1518D1183A75100121292 /* PDX Bus */ = {
 			isa = PBXGroup;
 			children = (
-				A1C79DAA11FD2BD900B31CE7 /* This Folder GPL.html */,
+				A1C79DAA11FD2BD900B31CE7 /* This Folder Creative Commons.html */,
 				A18E893F12904704002FEB6B /* RailStations@2x.png */,
 				A100B3071268095B00BAA288 /* RailStations.png */,
 				A1B794FF1183B9480047F83C /* wiki.png */,

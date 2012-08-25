@@ -187,7 +187,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Change log
 ----------
-### Version 6.3 (July 2012)
+### Version 6.3.5 (August 2012)
 * Added QR code reader
 * Added new higher resolution rail map with no zones and new PSU stations
 * Added Twitter integration
