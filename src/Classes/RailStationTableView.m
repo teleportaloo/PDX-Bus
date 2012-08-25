@@ -70,6 +70,7 @@
 	self.station = nil;
 	self.map = nil;
 	self.routes = nil;
+    [_sectionMap release];
 	[super dealloc];
 }
 
@@ -162,6 +163,7 @@
 	}
 }
 
+
 - (void)viewDidLoad
 {
 	// Workout if we have any routes
@@ -246,7 +248,10 @@
 #pragma mark Table view methods
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-	switch (section) {
+    
+    NSNumber * sect = [_sectionMap objectAtIndex:section];
+	switch (sect.intValue)
+    {
 		case kRouteSection:
 			if (self.routes.count==0)
 			{
@@ -277,17 +282,37 @@
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-	if ([AlarmTaskList proximitySupported])
-	{
-		return kSectionsProximity;
-	}
-    return kSections;
+    
+    if (_sectionMap == nil)
+    {
+        _sectionMap = [[NSMutableArray alloc] init];
+        
+        [_sectionMap addObject:  [NSNumber numberWithInt:kStation] ];
+        [_sectionMap addObject:  [NSNumber numberWithInt:kStops]   ];
+        
+        if (self.callback ==nil)
+        {
+          [_sectionMap addObject:  [NSNumber numberWithInt:kTripPlanner]   ];  
+        }
+        
+        [_sectionMap addObject:  [NSNumber numberWithInt:kWikiLink]   ];
+        [_sectionMap addObject:  [NSNumber numberWithInt:kRouteSection]   ];
+        
+        if ([AlarmTaskList proximitySupported])
+        {
+           [_sectionMap addObject:  [NSNumber numberWithInt:kProximitySection]   ]; 
+        }
+        
+    }
+	
+    return _sectionMap.count;
 }
 
 
 // Customize the number of rows in the table view.
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-	switch (section)
+    NSNumber * sect = [_sectionMap objectAtIndex:section];
+	switch (sect.intValue)
 	{
         case kTripPlanner:
             return 2;
@@ -332,7 +357,8 @@
     
     UITableViewCell *cell = nil;
     
-    switch (indexPath.section)
+    NSNumber * sect = [_sectionMap objectAtIndex:indexPath.section];
+	switch (sect.intValue)
 	{
 		case kStation:
 		{
@@ -487,7 +513,9 @@
 	// AnotherViewController *anotherViewController = [[AnotherViewController alloc] initWithNibName:@"AnotherView" bundle:nil];
 	// [self.navigationController pushViewController:anotherViewController];
 	// [anotherViewController release];
-	switch (indexPath.section)
+    
+    NSNumber * sect = [_sectionMap objectAtIndex:indexPath.section];
+	switch (sect.intValue)
 	{
 		case kStation:
 			break;

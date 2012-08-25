@@ -24,7 +24,7 @@
 
 #import "TapDetectingImageView.h"
 
-#define DOUBLE_TAP_DELAY 0.35
+#define DOUBLE_TAP_DELAY 0.3
 
 CGPoint midpointBetweenPoints(CGPoint a, CGPoint b);
 

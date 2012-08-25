@@ -155,7 +155,7 @@
 		label.text = nil;
 	}
 	
-	DEBUG_LOG(@"text width: %d\n", label.frame.size.width);
+	DEBUG_LOG(@"text width: %f\n", label.frame.size.width);
 	
 	label = [self label:cell tag:TEXT_TAG];
 	

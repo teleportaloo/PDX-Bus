@@ -1,0 +1,89 @@
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/!svn/ver/2346/trunk/cpp/core/src/zxing/qrcode/detector
+END
+Detector.h
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/2346/trunk/cpp/core/src/zxing/qrcode/detector/Detector.h
+END
+AlignmentPattern.h
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/1986/trunk/cpp/core/src/zxing/qrcode/detector/AlignmentPattern.h
+END
+QREdgeDetector.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/2056/trunk/cpp/core/src/zxing/qrcode/detector/QREdgeDetector.cpp
+END
+FinderPatternInfo.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/!svn/ver/1092/trunk/cpp/core/src/zxing/qrcode/detector/FinderPatternInfo.cpp
+END
+FinderPatternFinder.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/!svn/ver/2346/trunk/cpp/core/src/zxing/qrcode/detector/FinderPatternFinder.h
+END
+AlignmentPatternFinder.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/!svn/ver/1959/trunk/cpp/core/src/zxing/qrcode/detector/AlignmentPatternFinder.cpp
+END
+FinderPattern.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/!svn/ver/1986/trunk/cpp/core/src/zxing/qrcode/detector/FinderPattern.cpp
+END
+QREdgeDetector.h
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/1506/trunk/cpp/core/src/zxing/qrcode/detector/QREdgeDetector.h
+END
+FinderPatternInfo.h
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/1506/trunk/cpp/core/src/zxing/qrcode/detector/FinderPatternInfo.h
+END
+Detector.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/2346/trunk/cpp/core/src/zxing/qrcode/detector/Detector.cpp
+END
+AlignmentPatternFinder.h
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/!svn/ver/1524/trunk/cpp/core/src/zxing/qrcode/detector/AlignmentPatternFinder.h
+END
+FinderPattern.h
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/2346/trunk/cpp/core/src/zxing/qrcode/detector/FinderPattern.h
+END
+AlignmentPattern.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/!svn/ver/1986/trunk/cpp/core/src/zxing/qrcode/detector/AlignmentPattern.cpp
+END
+FinderPatternFinder.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/!svn/ver/2346/trunk/cpp/core/src/zxing/qrcode/detector/FinderPatternFinder.cpp
+END

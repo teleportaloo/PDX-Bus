@@ -4,30 +4,10 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
-		<key>PDX Bus Debug DBG.xcscheme</key>
-		<dict>
-			<key>orderHint</key>
-			<integer>4</integer>
-		</dict>
-		<key>PDX Bus Debug LLDB.xcscheme</key>
-		<dict>
-			<key>orderHint</key>
-			<integer>0</integer>
-		</dict>
-		<key>PDX Bus Release Ad-Hoc.xcscheme</key>
-		<dict>
-			<key>orderHint</key>
-			<integer>2</integer>
-		</dict>
-		<key>PDX Bus Release Distribute.xcscheme</key>
+		<key>PDX Bus.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>1</integer>
-		</dict>
-		<key>PDX Bus Release.xcscheme</key>
-		<dict>
-			<key>orderHint</key>
-			<integer>3</integer>
 		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>

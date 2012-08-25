@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/2057/trunk/cpp/core/tests/src/qrcode/decoder
+END
+ModeTest.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/1092/trunk/cpp/core/tests/src/qrcode/decoder/ModeTest.cpp
+END
+DataMaskTest.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/2057/trunk/cpp/core/tests/src/qrcode/decoder/DataMaskTest.cpp
+END
+ModeTest.h
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/1506/trunk/cpp/core/tests/src/qrcode/decoder/ModeTest.h
+END
+DataMaskTest.h
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/1506/trunk/cpp/core/tests/src/qrcode/decoder/DataMaskTest.h
+END

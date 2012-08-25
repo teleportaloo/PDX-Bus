@@ -32,6 +32,7 @@
 	-(void)BackgroundItemsDone:(int)itemsDone;
 	-(void)BackgroundSubtext:(NSString *)subtext;
 	-(void)BackgroundCompleted:(UIViewController*)viewController;
+    -(void)BackgroundSetErrorMsg:(NSString *)errMsg;
 @end
 
 

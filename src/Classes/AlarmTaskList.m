@@ -313,11 +313,10 @@
         
     @synchronized(_backgroundTasks)
     {
-        UserPrefs *prefs = [[[UserPrefs alloc] init] autorelease];
         UIApplication *app = [UIApplication sharedApplication];
         NSTimeInterval remaining = app.backgroundTimeRemaining;
         bool alertRequired = NO;
-        if (_backgroundTasks.count > 0 && prefs.alarmInitialWarning)
+        if (_backgroundTasks.count > 0 && [UserPrefs getSingleton].alarmInitialWarning)
         {
             NSArray *keys = [self taskKeys];
             

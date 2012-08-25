@@ -36,7 +36,6 @@
     NSMutableDictionary *   _cache;
     NSString *              _fullFileName;
     int                     _maxSize;
-    UserPrefs               *_prefs;
 }
 
 @property (nonatomic) int maxSize;

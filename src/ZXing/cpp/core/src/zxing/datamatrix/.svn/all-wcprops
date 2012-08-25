@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/2334/trunk/cpp/core/src/zxing/datamatrix
+END
+DataMatrixReader.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/2056/trunk/cpp/core/src/zxing/datamatrix/DataMatrixReader.cpp
+END
+Version.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/1992/trunk/cpp/core/src/zxing/datamatrix/Version.cpp
+END
+DataMatrixReader.h
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/1498/trunk/cpp/core/src/zxing/datamatrix/DataMatrixReader.h
+END
+Version.h
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/1334/trunk/cpp/core/src/zxing/datamatrix/Version.h
+END

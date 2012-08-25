@@ -34,7 +34,8 @@
 @synthesize callbackComplete		= _callbackComplete;
 @synthesize callbackWhenFetching	= _callbackWhenFetching;
 @synthesize backgroundThread		= _backgroundThread;
-@synthesize title = _title;
+@synthesize title                   = _title;
+@synthesize errMsg                  = _errMsg;
 
 static int taskCount;
 static NSNumber *syncObject;
@@ -44,6 +45,7 @@ static NSNumber *syncObject;
 	self.callbackComplete = nil;
 	self.callbackWhenFetching = nil;
 	self.backgroundThread = nil;
+    self.errMsg           = nil;
     [super dealloc];
 }
 
@@ -90,6 +92,7 @@ static NSNumber *syncObject;
 -(void)BackgroundStart:(int)items title:(NSString *)title
 {
 	self.title = title;	
+    self.errMsg = nil;
 	
 	if (syncObject == nil)
 	{
@@ -146,6 +149,15 @@ static NSNumber *syncObject;
 	{
 		[self.progressModal removeFromSuperview];
 	}
+    if (self.errMsg)
+    {
+        UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:nil
+                                                           message:self.errMsg
+                                                          delegate:nil
+                                                 cancelButtonTitle:@"OK"
+                                                 otherButtonTitles:nil ] autorelease];
+        [alert show];
+    }
 	[self.callbackComplete BackgroundTaskDone:viewController cancelled:cancelled];
 	self.callbackWhenFetching = nil;
 	self.progressModal = nil;
@@ -167,5 +179,11 @@ static NSNumber *syncObject;
 	
 	[self performSelectorOnMainThread:@selector(BackgroundCompletedMainThread:) withObject:viewController waitUntilDone:YES];	
 }
+
+- (void)BackgroundSetErrorMsg:(NSString *)errMsg
+{
+    self.errMsg = errMsg;
+}
+
 
 @end

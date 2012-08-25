@@ -44,6 +44,7 @@
 	int rowRail;
 	int rows;
 	NSMutableArray *_routes;
+    NSMutableArray *_sectionMap;
 }
 
 @property (nonatomic, retain) RailMapView *map;

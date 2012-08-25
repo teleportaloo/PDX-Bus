@@ -40,6 +40,7 @@
 #import "XMLLocateStops.h"
 #import "AlarmTaskList.h"
 #import "TripPlannerSummaryView.h"
+#import "ProcessQRCodeString.h"
 #import "debug.h"
 
 
@@ -54,7 +55,8 @@
 #define kSectionOneStop		8
 #define kSectionInfo        9
 #define kSectionAccuracy	10
-#define kSectionStatic		11
+#define kSectionXML         11
+#define kSectionStatic		12
 
 #define kDistanceRows		1
 
@@ -70,6 +72,7 @@
 #define kStatusCellId		@"Status"
 
 #define kGettingArrivals	@"getting arrivals"
+#define kGettingStop        @"getting stop ID";
 
 #define kDictLocation		@"loc"
 #define kDictBlock			@"block"
@@ -95,9 +98,9 @@ static int depthCount = 0;
 @synthesize streetcarLocations	= _streetcarLocations;
 @synthesize bookmarkLoc			= _bookmarkLoc;
 @synthesize bookmarkDesc		= _bookmarkDesc;
-@synthesize userPrefs			= _userPrefs;
 @synthesize actionItem			= _actionItem;
 @synthesize savedBlock			= _savedBlock;
+
 
 #define kNonDepartureHeight 35.0
 
@@ -116,7 +119,6 @@ static int depthCount = 0;
 	self.lastRefresh			= nil;
 	self.bookmarkLoc			= nil;
 	self.bookmarkDesc			= nil;
-	self.userPrefs				= nil;
 	self.actionItem				= nil;
 	self.savedBlock				= nil;
 	free(_sectionExpanded);
@@ -137,7 +139,7 @@ static int depthCount = 0;
 		self.visibleDataArray = self.originalDataArray;
 		self.locationsDb = [StopLocations getDatabase];
 		depthCount++;
-		self.userPrefs = [[[UserPrefs alloc] init] autorelease];
+        _timerPaused = NO;
 	}
 	return self;
 }
@@ -303,7 +305,7 @@ static int depthCount = 0;
 
 - (void)startTimer
 {
-	if (_prefs.autoRefresh)
+	if ([UserPrefs getSingleton].autoRefresh)
 	{
 		self.lastRefresh = [NSDate date];
 		NSDate *oneSecondFromNow = [NSDate dateWithTimeIntervalSinceNow:0];
@@ -323,7 +325,24 @@ static int depthCount = 0;
 }
 
 - (void)didEnterBackground {
-	_postBackgroundedDelay = 2;
+	if (self.refreshTimer !=nil)
+	{
+		[self.refreshTimer invalidate];
+		self.refreshTimer = nil;
+        _timerPaused = YES;
+    }
+}
+
+
+- (void)didBecomeActive {
+    DEBUG_LOG(@"didBecomeActive\n");
+	if ([UserPrefs getSingleton].autoRefresh && _timerPaused)
+	{
+        DEBUG_LOG(@"restarting timer\n");
+		self.refreshTimer = [[[NSTimer alloc] initWithFireDate:[NSDate date] interval:1 target:self selector:@selector(countDownAction:) userInfo:nil repeats:YES] autorelease];
+		[[NSRunLoop currentRunLoop] addTimer:self.refreshTimer forMode:NSDefaultRunLoopMode];
+        _timerPaused = NO;
+	}
 }
 
 - (void) countDownAction:(NSTimer *)timer
@@ -337,12 +356,7 @@ static int depthCount = 0;
         // bookmark time to be processed.
         
         bool updateTimeOnButton = YES;
-        if (sinceRefresh <= -kRefreshInterval && _postBackgroundedDelay > 0)
-        {
-            // Do nothing - next time around we'll fire
-            _postBackgroundedDelay--;
-        }
-		else if (sinceRefresh <= -kRefreshInterval)
+        if (sinceRefresh <= -kRefreshInterval)
 		{
 			[self refreshAction:timer];
 			self.refreshButton.title = @"Refreshing";
@@ -486,13 +500,20 @@ static int depthCount = 0;
 		sr->row[kSectionInfo] = next;
         
 		// kSectionAccuracy
-		if (expanded && self.userPrefs.showTransitTracker)
+		if (expanded && [UserPrefs getSingleton].showTransitTracker)
 		{
 			next ++;
 		}
-		
-		sr->row[kSectionAccuracy] = next;
-    
+        sr->row[kSectionAccuracy] = next;
+
+        
+        // kSectionXML
+		if (expanded && [UserPrefs getSingleton].debugXML)
+		{
+			next ++;
+		}
+		sr->row[kSectionXML] = next;
+		    
 		// kSectionStatic
 		next++;
 		sr->row[kSectionStatic] = next;
@@ -643,6 +664,61 @@ static int depthCount = 0;
 	
 	[pool release];
 }
+
+- (void)fetchTimesViaQrCodeRedirect:(NSString *)url
+{
+	
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	
+	NSThread *thread = [NSThread currentThread];
+
+	
+	[self.backgroundTask.callbackWhenFetching BackgroundThread:thread];
+    
+    [self.backgroundTask.callbackWhenFetching BackgroundStart:2 title:kGettingArrivals];
+
+    [self.backgroundTask.callbackWhenFetching BackgroundSubtext:@"getting stop ID"];
+    
+    
+    
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+    
+    ProcessQRCodeString *qrCode = [[[ProcessQRCodeString alloc] init] autorelease];
+    NSString *stopId = [qrCode extractStopId:url]; 
+    
+    [self.backgroundTask.callbackWhenFetching BackgroundItemsDone:1];
+    
+    [self clearSections];
+	[XMLDepartures clearCache];
+	self.streetcarLocations = nil;
+	self.stops = stopId;
+	NSError *parseError = nil;	
+	
+    if (!thread.isCancelled && stopId)
+    {
+        XMLDepartures *deps = [[ XMLDepartures alloc ] init];
+		
+        [self.originalDataArray addObject:deps];
+        [self.backgroundTask.callbackWhenFetching BackgroundSubtext:[NSString stringWithFormat:@"Stop ID %@", stopId]];
+        [deps getDeparturesForLocation:stopId parseError:&parseError];
+        [deps release];
+        [self.backgroundTask.callbackWhenFetching BackgroundItemsDone:2];
+	}
+    else 
+    {
+        [thread cancel];
+        [self.backgroundTask.callbackWhenFetching BackgroundSetErrorMsg:@"The QR Code is not for a TriMet stop."];
+    }
+    
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+		
+    _blockFilter = false;
+    [self sortByBus];
+    [self.backgroundTask.callbackWhenFetching BackgroundCompleted:self];	
+	
+	[pool release];
+}
+
 
 
 - (void)fetchTimesForNearestStops:(XMLLocateStops*) locator
@@ -1041,6 +1117,14 @@ static int depthCount = 0;
 	
 	[NSThread detachNewThreadSelector:@selector(fetchTimesForBlockVargs:) toTarget:self withObject:
 	  [NSArray arrayWithObjects:args count:sizeof(args)/sizeof(id)]];
+}
+
+- (void)fetchTimesViaQrCodeRedirectInBackground:(id<BackgroundTaskProgress>)background URL:(NSString*)url
+{
+    self.backgroundTask.callbackWhenFetching = background;
+	
+	[NSThread detachNewThreadSelector:@selector(fetchTimesViaQrCodeRedirect:) toTarget:self withObject:url];
+    
 }
 
 
@@ -1447,6 +1531,8 @@ static int depthCount = 0;
 			return [self narrowRowHeight];
 		case kSectionAccuracy:
 			return [self narrowRowHeight];
+        case kSectionXML:
+			return [self narrowRowHeight];
 		case kSectionDistance:
 			if ([dd DTDataDistance].accuracy > 0.0)
 			{
@@ -1829,6 +1915,20 @@ static int depthCount = 0;
 				cell.imageView.image = [self getActionIcon:kIconLink];
 			}
 			break;
+        case kSectionXML:
+        {
+            cell = [tableView dequeueReusableCellWithIdentifier:kTitleCellId];
+            if (cell == nil) {
+                cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kActionCellId] autorelease];
+            }
+            
+            cell.textLabel.text = @"Show raw XML data";
+            cell.textLabel.textColor = [ UIColor darkGrayColor];
+            cell.textLabel.font = [self getBasicFont]; 
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            cell.imageView.image = [self getActionIcon:kIconXml];
+        }
+			break;
 	}
 	[self maybeAddSectionToAccessibility:cell indexPath:indexPath alwaysSaySection:NO];
 	return cell;
@@ -1976,6 +2076,19 @@ static int depthCount = 0;
 			[webPage release];
 			break;
 		}
+        case kSectionXML:
+		{
+            XMLDepartures *dep = [dd DTDataXML];
+            
+            if (dep && dep.rawData)
+            {
+                self.xmlButton = nil;
+                [self xmlAction:[self.table cellForRowAtIndexPath:indexPath].imageView];
+            }
+            [self.table deselectRowAtIndexPath:indexPath animated:YES];
+           
+            break;
+        }
 		case kSectionOneStop:
 		{
 			DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
@@ -2255,7 +2368,7 @@ static int depthCount = 0;
 
 
 - (void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event {
-	if (_prefs.shakeToRefresh && event.type == UIEventSubtypeMotionShake) {
+	if ([UserPrefs getSingleton].shakeToRefresh && event.type == UIEventSubtypeMotionShake) {
 		UIViewController * top = [[self navigationController] visibleViewController];
 		
 		if ([top respondsToSelector:@selector(refreshAction:)])
@@ -2272,7 +2385,7 @@ static int depthCount = 0;
 	[self startTimer];
 }
 
-#pragma mark BackgroundTask methids
+#pragma mark BackgroundTask methods
 
 -(void)BackgroundTaskDone:(UIViewController *)viewController cancelled:(bool)cancelled
 {
@@ -2312,6 +2425,21 @@ static int depthCount = 0;
     [self cacheWarning];
     
     
+}
+
+- (NSData *)getXmlData
+{
+    id<DepartureTimesDataProvider> dd = [self departureData:[self.table.indexPathForSelectedRow section]];
+    XMLDepartures *dep = [dd DTDataXML];
+    
+    NSMutableData *fileData = [[[NSMutableData alloc] initWithData:dep.rawData] autorelease];
+
+    if (dep.streetcarData!=nil)
+    {
+        [fileData appendData:dep.streetcarData];
+    }
+
+    return fileData;
 }
 
 @end

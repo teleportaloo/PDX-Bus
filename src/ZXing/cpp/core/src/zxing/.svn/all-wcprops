@@ -1,0 +1,173 @@
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/!svn/ver/2346/trunk/cpp/core/src/zxing
+END
+Exception.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/1966/trunk/cpp/core/src/zxing/Exception.cpp
+END
+DecodeHints.h
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/2204/trunk/cpp/core/src/zxing/DecodeHints.h
+END
+LuminanceSource.h
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/1960/trunk/cpp/core/src/zxing/LuminanceSource.h
+END
+Reader.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/1505/trunk/cpp/core/src/zxing/Reader.cpp
+END
+Exception.h
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/1966/trunk/cpp/core/src/zxing/Exception.h
+END
+ResultPointCallback.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/1556/trunk/cpp/core/src/zxing/ResultPointCallback.cpp
+END
+FormatException.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/1966/trunk/cpp/core/src/zxing/FormatException.cpp
+END
+Reader.h
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/1505/trunk/cpp/core/src/zxing/Reader.h
+END
+BarcodeFormat.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/2204/trunk/cpp/core/src/zxing/BarcodeFormat.cpp
+END
+ResultPointCallback.h
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/1524/trunk/cpp/core/src/zxing/ResultPointCallback.h
+END
+NotFoundException.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/2023/trunk/cpp/core/src/zxing/NotFoundException.cpp
+END
+FormatException.h
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/1966/trunk/cpp/core/src/zxing/FormatException.h
+END
+BarcodeFormat.h
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/!svn/ver/2204/trunk/cpp/core/src/zxing/BarcodeFormat.h
+END
+Result.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/1995/trunk/cpp/core/src/zxing/Result.cpp
+END
+NotFoundException.h
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/2023/trunk/cpp/core/src/zxing/NotFoundException.h
+END
+ReaderException.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/1966/trunk/cpp/core/src/zxing/ReaderException.cpp
+END
+BinaryBitmap.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/1489/trunk/cpp/core/src/zxing/BinaryBitmap.cpp
+END
+Result.h
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/1995/trunk/cpp/core/src/zxing/Result.h
+END
+Binarizer.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/2346/trunk/cpp/core/src/zxing/Binarizer.cpp
+END
+BinaryBitmap.h
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/1506/trunk/cpp/core/src/zxing/BinaryBitmap.h
+END
+MultiFormatReader.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/2204/trunk/cpp/core/src/zxing/MultiFormatReader.cpp
+END
+ReaderException.h
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/1966/trunk/cpp/core/src/zxing/ReaderException.h
+END
+ResultPoint.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/!svn/ver/2332/trunk/cpp/core/src/zxing/ResultPoint.cpp
+END
+DecodeHints.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/!svn/ver/2204/trunk/cpp/core/src/zxing/DecodeHints.cpp
+END
+Binarizer.h
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/2346/trunk/cpp/core/src/zxing/Binarizer.h
+END
+MultiFormatReader.h
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/1510/trunk/cpp/core/src/zxing/MultiFormatReader.h
+END
+LuminanceSource.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/2056/trunk/cpp/core/src/zxing/LuminanceSource.cpp
+END
+ResultPoint.h
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/1992/trunk/cpp/core/src/zxing/ResultPoint.h
+END

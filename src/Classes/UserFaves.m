@@ -27,7 +27,6 @@
 
 - (void)dealloc
 {
-	[_prefs release];
 	[super dealloc];
 }
 
@@ -56,7 +55,6 @@
 			[self.appData setObject:recentTrips forKey:kRecentTrips];
 			[self cacheAppData];
 		}
-		_prefs = [[UserPrefs alloc] init];
 	}
 	return self;
 }
@@ -140,7 +138,7 @@
 		[newItem release];
 		
 		
-		int maxRecents = _prefs.maxRecentTrips;
+		int maxRecents = [UserPrefs getSingleton].maxRecentTrips;
 		
 		while (recentTrips.count > maxRecents)
 		{
@@ -195,7 +193,7 @@
 		[recents insertObject:newItem atIndex:0];
 		[newItem release];
 		
-		int maxRecents = _prefs.maxRecentStops;
+		int maxRecents = [UserPrefs getSingleton].maxRecentStops;
 		
 		while (recents.count > maxRecents)
 		{

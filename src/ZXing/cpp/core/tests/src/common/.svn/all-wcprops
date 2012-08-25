@@ -1,0 +1,77 @@
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/2204/trunk/cpp/core/tests/src/common
+END
+BlackPointEstimatorTest.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/2082/trunk/cpp/core/tests/src/common/BlackPointEstimatorTest.cpp
+END
+BitSourceTest.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/1092/trunk/cpp/core/tests/src/common/BitSourceTest.cpp
+END
+CountedTest.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/1092/trunk/cpp/core/tests/src/common/CountedTest.cpp
+END
+BitArrayTest.h
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/2086/trunk/cpp/core/tests/src/common/BitArrayTest.h
+END
+BitMatrixTest.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/1551/trunk/cpp/core/tests/src/common/BitMatrixTest.cpp
+END
+BlackPointEstimatorTest.h
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/1506/trunk/cpp/core/tests/src/common/BlackPointEstimatorTest.h
+END
+BitSourceTest.h
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/1506/trunk/cpp/core/tests/src/common/BitSourceTest.h
+END
+PerspectiveTransformTest.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/1271/trunk/cpp/core/tests/src/common/PerspectiveTransformTest.cpp
+END
+CountedTest.h
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/1506/trunk/cpp/core/tests/src/common/CountedTest.h
+END
+BitMatrixTest.h
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/1551/trunk/cpp/core/tests/src/common/BitMatrixTest.h
+END
+PerspectiveTransformTest.h
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/!svn/ver/1506/trunk/cpp/core/tests/src/common/PerspectiveTransformTest.h
+END
+BitArrayTest.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/2086/trunk/cpp/core/tests/src/common/BitArrayTest.cpp
+END

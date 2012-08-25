@@ -76,7 +76,7 @@
 	buttonBarSegmentedControl.selectedSegmentIndex = 0.0;	// start by showing the normal picker
 	buttonBarSegmentedControl.segmentedControlStyle = UISegmentedControlStyleBar;
 	
-	int color = _prefs.toolbarColors;
+	int color = [UserPrefs getSingleton].toolbarColors;
 	
 	if (color == 0xFFFFFF)
 	{
@@ -92,18 +92,32 @@
 	UIBarButtonItem *segItem = [[UIBarButtonItem alloc] initWithCustomView:buttonBarSegmentedControl];	
 	
 	
-	NSArray *items = [NSArray arrayWithObjects: 
+	NSMutableArray *items = [NSMutableArray arrayWithObjects:
 					  [self autoDoneButton], 
 					  [CustomToolbar autoFlexSpace],
 					  [CustomToolbar autoMapButtonWithTarget:self action:@selector(showMap:)],
 					  [CustomToolbar autoFlexSpace],
 					  segItem,
 					  [CustomToolbar autoFlexSpace],
-					  [self autoFlashButton], nil];
+                       nil];
+    
+    if ([UserPrefs getSingleton].debugXML)
+    {
+		[items addObject:[self autoXmlButton]];
+        [items addObject:[CustomToolbar autoFlexSpace]];
+    }
+    
+    [items addObject:[self autoFlashButton]];
+    
 	[self setToolbarItems:items animated:NO];
 	[segItem release];
 	[buttonBarSegmentedControl release];
 	
+}
+
+- (NSData *)getXmlData
+{
+    return self.stopData.rawData;
 }
 
 #pragma mark Data fetchers

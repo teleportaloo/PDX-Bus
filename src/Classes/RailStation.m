@@ -33,10 +33,6 @@
 #import "RouteColorBlobView.h"
 #import "AllRailStationView.h"
 
-#ifdef MAXCOLORS
-
-#endif
-
 @implementation RailStation
 
 @synthesize  locList = _locList;

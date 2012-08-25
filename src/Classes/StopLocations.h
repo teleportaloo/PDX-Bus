@@ -25,6 +25,7 @@
 #import <UIKit/UIKit.h>
 #import <sqlite3.h>
 #import <CoreLocation/CoreLocation.h>
+#import "debug.h"
 
 
 #define kIncompleteDatabase @"incomplete"

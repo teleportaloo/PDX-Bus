@@ -31,7 +31,7 @@
 #import "PullRefreshTableViewController.h"
 #import "AlertViewCancelsTask.h"
 
-#define kSectionsPerStop	12
+#define kSectionsPerStop	13
 #define kSectionRowInit		-1
 
 #define kCacheWarning @"WARNING: No network - extrapolated times"
@@ -44,7 +44,8 @@ typedef struct {
 	int row [kSectionsPerStop+1];
 } SECTIONROWS;
 
-@interface DepartureTimesView :  PullRefreshTableViewController <UIAlertViewDelegate, UIActionSheetDelegate> {
+@interface DepartureTimesView :  PullRefreshTableViewController <UIAlertViewDelegate, 
+        UIActionSheetDelegate> {
 	NSString *			_displayName;
 	NSMutableArray *	_visibleDataArray;
 	NSMutableArray *	_originalDataArray;
@@ -62,15 +63,12 @@ typedef struct {
 	NSIndexPath *		_actionItem;
 	
 	NSDate *			_lastRefresh;
-    int                 _postBackgroundedDelay;
+    bool                _timerPaused;
 	bool				_fetchingLocations;
 	int					_bookmarkItem;
 	NSString *			_bookmarkDesc;
 	NSString *			_bookmarkLoc;
-	
-	
-	UserPrefs *			_userPrefs;
-	
+            
 	XMLStreetcarLocations *_streetcarLocations;
 }
 
@@ -87,7 +85,7 @@ typedef struct {
 - (void)fetchTimesForBlockInBackground:(id<BackgroundTaskProgress>)background block:(NSString*)block start:(NSString*)start stop:(NSString*) stop;
 - (void)fetchTimesForNearestStopsInBackground:(id<BackgroundTaskProgress>)background location:(CLLocation *)here maxToFind:(int)max minDistance:(double)min mode:(TripMode)mode;
 - (void)fetchTimesForNearestStopsInBackground:(id<BackgroundTaskProgress>)background stops:(NSArray *)stops;
-
+- (void)fetchTimesViaQrCodeRedirectInBackground:(id<BackgroundTaskProgress>)background URL:(NSString*)url;
 
 
 - (void)refreshAction:(id)sender;
@@ -110,7 +108,6 @@ typedef struct {
 @property (nonatomic, retain) XMLStreetcarLocations *streetcarLocations;
 @property (nonatomic, retain) NSString *bookmarkLoc;
 @property (nonatomic, retain) NSString *bookmarkDesc;
-@property (nonatomic, retain) UserPrefs *userPrefs;
 @property (nonatomic, retain) NSIndexPath *actionItem;
 @property (nonatomic, retain) NSString *savedBlock;
 @end

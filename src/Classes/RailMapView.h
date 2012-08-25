@@ -38,6 +38,7 @@
 	UIImageView* _mapView;
 	BOOL _hidden;
 	int _selectedItem;
+    CGPoint _touchPoint;
 }
 
 @property (nonatomic, retain) UIImageView* mapView; 
@@ -47,6 +48,7 @@
 - (id)   initWithImageView:(UIImageView*)imgView;
 - (void) fadeOut;
 - (void) selectItem:(int)i;
+- (void) touchAtPoint:(CGPoint) point;
 
 
 @end
@@ -71,6 +73,7 @@ typedef enum
 	EasterEggState easterEgg;
 	int selectedItem;
 	StopLocations *_locationsDb;
+    CGPoint _tapPoint;
 }
 
 - (void)createToolbarItems;

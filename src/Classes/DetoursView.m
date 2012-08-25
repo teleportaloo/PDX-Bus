@@ -243,5 +243,16 @@
 }
 
 
+- (void)createToolbarItems
+{
+    [self createToolbarItemsWithXml];
+
+}
+
+- (NSData *)getXmlData
+{
+    return self.detourData.rawData;
+}
+
 @end
 

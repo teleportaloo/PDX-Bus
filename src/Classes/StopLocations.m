@@ -103,9 +103,13 @@ static StopLocations *singleton;
 		return;
 	}
 	 */
+#ifdef CREATE_MAX_ARRAYS
+    int options = SQLITE_OPEN_READWRITE;
+#else
+    int options = SQLITE_OPEN_READONLY;
+#endif
 	
-	
-	if (sqlite3_open_v2([self.path UTF8String], &database,SQLITE_OPEN_READONLY, NULL) != SQLITE_OK)
+	if (sqlite3_open_v2([self.path UTF8String], &database,options, NULL) != SQLITE_OK)
 	{
 		sqlite3_close(database);
 		NSAssert1(0, @"Failed to open database with message '%s'.", sqlite3_errmsg(database));
@@ -118,20 +122,21 @@ static StopLocations *singleton;
 	if ((self = [super init]))
 	{
 		// The database for rail stops is now part of the resources and isn't a document.
-		
-		self.path = [[NSBundle mainBundle] pathForResource:kRailOnlyDB ofType:kSqlFile];
-		
-		
-		/*
-		NSFileManager *fileManager = [NSFileManager defaultManager];
+	
+#ifdef CREATE_MAX_ARRAYS
+        NSFileManager *fileManager = [NSFileManager defaultManager];
 		NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
 		NSString *documentsDirectory = [paths objectAtIndex:0];
 		NSError *error = nil;
-		self.path = [documentsDirectory stringByAppendingPathComponent:kRailAwareStopDB];
-		self.railAwarePath = self.path;
-		NSString *oldPath = [documentsDirectory stringByAppendingPathComponent:kStopDB];
-		*/
-    
+		self.path = [documentsDirectory stringByAppendingPathComponent:kRailOnlyDB];
+        
+        [fileManager copyItemAtPath:[[NSBundle mainBundle] pathForResource:@"blank" ofType:kSqlFile]
+                             toPath:self.path error:&error];
+#else
+		self.path = [[NSBundle mainBundle] pathForResource:kRailOnlyDB ofType:kSqlFile];
+#endif
+		
+		CODE_LOG(@"\n--------\nLocation DB file path\n--------\n%@\n", self.path);
         
 		database = nil;
 

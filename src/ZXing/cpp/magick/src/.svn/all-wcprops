@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 39
+/svn/!svn/ver/2057/trunk/cpp/magick/src
+END
+MagickBitmapSource.h
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/1986/trunk/cpp/magick/src/MagickBitmapSource.h
+END
+main.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/2057/trunk/cpp/magick/src/main.cpp
+END
+MagickBitmapSource.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/!svn/ver/1986/trunk/cpp/magick/src/MagickBitmapSource.cpp
+END
+example.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/1480/trunk/cpp/magick/src/example.cpp
+END

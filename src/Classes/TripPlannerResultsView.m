@@ -158,15 +158,24 @@
 	
 	// create the system-defined "OK or Done" button
 	
-	NSArray *items = nil;
+	NSMutableArray *items = nil;
 	
-	items = [NSArray arrayWithObjects:	[self autoDoneButton], 
+    
+	items = [NSMutableArray arrayWithObjects:	[self autoDoneButton],
 										[CustomToolbar autoFlexSpace], 
 										bookmark,  
 										[CustomToolbar autoFlexSpace],
 										edit,
-										[CustomToolbar autoFlexSpace], 
-										[self autoFlashButton], nil];
+                                        [CustomToolbar autoFlexSpace],
+                                        nil];
+    
+    if ([UserPrefs getSingleton].debugXML)
+    {
+        [items addObject:[self autoXmlButton]];
+        [items addObject:[CustomToolbar autoFlexSpace]];
+    }
+    
+    [items addObject:[self autoFlashButton]];
 	
 	[self setToolbarItems:items animated:NO];
 	
@@ -174,7 +183,10 @@
 	[edit release];
 }
 
-
+- (NSData*)getXmlData
+{
+    return self.tripQuery.rawData;
+}
 
 #pragma mark View methods
 

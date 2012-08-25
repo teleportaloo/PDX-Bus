@@ -47,6 +47,7 @@
 	id<BackgroundTaskProgress>	_callbackWhenFetching;
 	NSThread *					_backgroundThread;
 	NSString *					_title;
+    NSString *                  _errMsg;
 }
 
 + (BackgroundTaskContainer*) create:(id<BackgroundTaskDone>) done;
@@ -54,12 +55,14 @@
 - (void)BackgroundStart:(int)items title:(NSString *)title;
 - (void)BackgroundItemsDone:(int)itemsDone;
 - (void)BackgroundCompleted:(UIViewController*)viewController;
+- (void)BackgroundSetErrorMsg:(NSString *)errMsg;
 
 @property (nonatomic, retain)	NSString *					title;
 @property (retain)				ProgressModalView *			progressModal;     // atomic for thread safety
 @property (   atomic, assign)	id<BackgroundTaskDone>		callbackComplete;  // weak
 @property (nonatomic, retain)	id<BackgroundTaskProgress>	callbackWhenFetching;
 @property (nonatomic, retain)	NSThread *					backgroundThread;
+@property (nonatomic, retain)   NSString *                  errMsg;
 
 
 @end

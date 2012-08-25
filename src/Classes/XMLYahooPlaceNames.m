@@ -41,8 +41,8 @@
 }
 
 - (NSString*)fullAddressForLocation:(CLLocation *)loc
-{	
-	return [NSString stringWithFormat:@"http://where.yahooapis.com/geocode?q=%f,%f&gflags=R&appid=@%", 
+{
+	return [NSString stringWithFormat:@"http://where.yahooapis.com/geocode?q=%f,%f&gflags=R&appid=%@", 
 			loc.coordinate.latitude, 
 			loc.coordinate.longitude,
 			kYahooAppId];

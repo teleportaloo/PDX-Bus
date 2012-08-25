@@ -416,5 +416,17 @@
 	[super didReceiveMemoryWarning];
 }
 
+#pragma mark XML debug methods
+
+- (void)createToolbarItems
+{
+    [self createToolbarItemsWithXml];
+}
+
+- (NSData *) getXmlData
+{
+    return self.directionData.rawData;
+}
+
 @end
 

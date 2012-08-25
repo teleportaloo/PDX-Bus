@@ -59,33 +59,28 @@
 	{
 		self.title = @"What's new?";
 		newTextArray = [[NSArray arrayWithObjects:
-                         @"6.2: Several bug fixes:",
+                         @".6.3 - New features & fixes:",
+                         @"Added QR Code reader (requires camera).",
+                         @"New higher resolution rail map with no zones and new PSU stations.",
+                         @"Tweet directly from the app, added link to the Streetcar's twitter feed.",
+                         @"Extended app URL scheme e.g. pdxbus://365 will launch PDX Bus and show stop 365.  (Useful for app launchers such as 'Icon Project' or 'Launch Center Pro').",
+                         @"Removed rail map if running iOS 3.1 - not enough memory (sorry).",
+                         // @"Facebook fan pages opens in Facebook app.",  // not any more - FB app doesn't support it!
+                         @"Trip planner allows min walking distance of 0.1 miles.",
+                         @".6.2 -  Several bug fixes:",
                          @"Fixed VoiceOver issues with segmented controls and buttons.",
                          @"Increased size of 'X' icon to make easier to touch.",
                          @"Caches are more robust.",
                          @"Added additional alert for alarms that are too long to be accurate in the background.",
                          @"Added 'Plan trip from/to here' option on rail station screen.",
                          @"Improved stability & added new debug options.",
-                         @"6.1: Now caches arrival times, so users can still see arrivals with no network (especially for iPod touch).",
+                         @".6.1 - New features & fixes:",
+                         @"Now caches arrival times, so users can still see arrivals with no network (especially for iPod touch).",
                          @"Night Visibility Flasher can now flash the LED (see settings to enable this).",
                          @"Added Twitter style \"Pull to Refresh\" to arrivals.",
                          @"Added a quick locate toolbar item to the first screen.",
                          @"Fixed many small bugs, including issues discovered with Apple's latest tools.",
-                         @"6.0.1: Fixed locate nearby stops so that GPS cannot be left on.",
-                         @"6.0: Was a major upgrade - see below:",
-                         @"Updated PGE Park to JELD-WEN Field on the map.  Go Timbers!",
-						 @"Added 'commuter bookmarks' - any bookmark can be configured to automatically display "
-						 @"on your morning or evening commute.",
-						 @"Added a proximity alarm to alert you when you get close to a stop (iOS 4.0 and above).",
-						 @"Added an arrival alarm to alert you when a bus or train is getting close (iOS 4.0 and above).",
-						 @"Added 'Plan trip from here' option to arrival screen.",
-						 @"Arrivals have an arrow to expand the rows to include extra menu items for each stop.",
-						 @"Locate by route now allows multiple route selection.",
-						 @"Updated network error processing.",
-                         @"Added in-app settings which are the same as the Settings app settings.",
-						 @"Updated many user interface elements, including: reverse button on trip planner.",
-						 @"Bug fixes - now loads on iOS5",
-                         nil] retain];
+                          nil] retain];
 	}
 	return self;
 }
@@ -111,6 +106,28 @@
 	return kDoneRows;
 }
 
+static NSString *versionId = @"version";
+static NSString *itemId = @"item";
+
+
+
+- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [super tableView:tableView willDisplayCell:cell forRowAtIndexPath:indexPath];
+    
+    if ([cell.reuseIdentifier isEqualToString:versionId])
+	{
+		cell.backgroundColor = [UIColor grayColor];
+	}
+    else
+    {
+        cell.backgroundColor = [UIColor whiteColor];
+    }
+	
+	
+}
+
+
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	
@@ -118,19 +135,35 @@
 	{
 		case kSectionText:
 		{
-			static NSString *newId = @"about";
-			CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:newId];
+            NSString *text = [newTextArray objectAtIndex:indexPath.row];
+            NSString *cellId = itemId;
+            bool    center = FALSE;
+            
+            
+            if ([text characterAtIndex:0]=='.')
+            {
+                text = [text substringFromIndex:1];
+                cellId = versionId;
+                center = YES;
+            }
+            
+            CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:cellId];
 			if (cell == nil) {
-				cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:newId] autorelease];
+				cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellId] autorelease];
 				cell.view = [self create_UITextView:nil font:[self getParagraphFont]];
 			}
 			
 			cell.view.font =  [self getParagraphFont];
-			cell.view.text = [newTextArray objectAtIndex:indexPath.row];
+			cell.view.text = text;
 			// printf("width:  %f\n", cell.view.bounds.size.width);
 			cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            if (center)
+            {
+                cell.view.textAlignment = UITextAlignmentCenter;
+            }
 			[self updateAccessibility:cell indexPath:indexPath text:[newTextArray objectAtIndex:indexPath.row] alwaysSaySection:YES];
 			// cell.backgroundView = [self clearView];
+            cell.view.backgroundColor = [UIColor clearColor];
 			return cell;
 			break;
 		}

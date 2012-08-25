@@ -76,6 +76,17 @@
 	
 }
 
++ (UserPrefs*) getSingleton
+{
+    static UserPrefs *_userPrefs = nil;
+    
+    if (_userPrefs == nil)
+    {
+        _userPrefs = [[UserPrefs alloc] init];
+    }
+    
+    return _userPrefs;
+}
 
 - (BOOL)getBoolFromDefaultsForKey:(NSString*)key ifMissing:(BOOL)missing
 {
@@ -196,7 +207,7 @@
 }
 - (float)maxWalkingDistance
 {
-	return [self getFloatFromDefaultsForKey:@"max_walking_distance"		ifMissing:0.5 max:2.0 min:0.5];
+	return [self getFloatFromDefaultsForKey:@"max_walking_distance"		ifMissing:0.5 max:2.0 min:0.1];
 	
 }
 - (bool) flashLed
@@ -246,6 +257,15 @@
 - (bool) useCaching
 {
     return [self getBoolFromDefaultsForKey:@"use_caching"				ifMissing:YES];
+}
+
+- (bool) debugXML
+{
+    if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 5.0)
+    {
+        return [self getBoolFromDefaultsForKey:@"debug_xml"				ifMissing:NO];
+    }
+    return FALSE;
 }
 
 - (int) networkTimeout

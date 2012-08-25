@@ -37,6 +37,7 @@
 
 @synthesize backgroundTask	= _backgroundTask;
 @synthesize callback		= _callback;
+@synthesize docMenu             = _docMenu;
 
 - (void)dealloc {
     //
@@ -49,8 +50,8 @@
 	}
     self.backgroundTask = nil;
 	self.callback		= nil;
+    self.docMenu                = nil;
 	[_userData release];
-	[_prefs release];
 	[super dealloc];
 }
 
@@ -66,7 +67,7 @@
 
 - (void)setTheme
 {
-	int color = _prefs.toolbarColors;
+	int color = [UserPrefs getSingleton].toolbarColors;
 	
 	if (color == 0xFFFFFF)
 	{
@@ -85,9 +86,7 @@
 {
 	if (self.backgroundTask == nil)
 	{
-		TriMetTimesAppDelegate *appDelegate = (TriMetTimesAppDelegate *)[[UIApplication sharedApplication] delegate];
-		_prefs = [[appDelegate prefs] retain];
-		_userData = [[SafeUserData getSingleton] retain];
+        _userData = [[SafeUserData getSingleton] retain];
 		self.backgroundTask = [BackgroundTaskContainer create:self];
 		return true;
 	}
@@ -303,7 +302,7 @@
 
 - (UIImage *)getActionIcon:(NSString *)name
 {
-	if (_prefs.actionIcons)
+	if ([UserPrefs getSingleton].actionIcons)
 	{
 		return [self alwaysGetIcon:name];
 	}
@@ -312,7 +311,7 @@
 
 - (UIImage *)getFaveIcon:(NSString *)name
 {
-	if (_prefs.actionIcons)
+	if ([UserPrefs getSingleton].actionIcons)
 	{
 		return [self alwaysGetIcon:name];
 	}
@@ -348,9 +347,84 @@
 {
 	// create the system-defined "OK or Done" button
 	UIBarButtonItem *flash = [[[UIBarButtonItem alloc]
-							   initWithTitle:@"Night Visibility Flashing Light" style:UIBarButtonItemStyleBordered 
+							   initWithTitle:@"Night Visibility Flash" style:UIBarButtonItemStyleBordered 
 							   target:self action:@selector(flashButton:)] autorelease];
 	return flash;
+}
+
+- (NSData*)getXmlData
+{
+    return nil;
+}
+
+
+- (void)xmlAction:(id)arg
+{
+    NSData *xmlData = [self getXmlData];
+    
+    if (self.docMenu)
+    {
+        [self.docMenu dismissMenuAnimated:YES];
+        self.docMenu = nil;
+    }
+    else if (xmlData)
+    {
+        // NSFileManager *fileManager = [NSFileManager defaultManager];
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        NSString *documentsDirectory = [paths objectAtIndex:0];
+    
+        NSString * filePath = [documentsDirectory stringByAppendingPathComponent:@"TriMet.xml"];
+    
+ 
+        NSMutableString *redactedData = [[[NSMutableString alloc] initWithBytes:xmlData.bytes
+                                                                         length:xmlData.length
+                                                                       encoding:NSUTF8StringEncoding] autorelease];
+            
+        [redactedData replaceOccurrencesOfString:TRIMET_APP_ID
+                                      withString:@"TRIMET_APP_ID"
+                                         options:NSCaseInsensitiveSearch
+                                           range:NSMakeRange(0, [redactedData length])];
+        
+        [redactedData writeToFile:filePath atomically:FALSE encoding:NSUTF8StringEncoding error:nil];
+    
+        self.docMenu = [UIDocumentInteractionController
+                    interactionControllerWithURL:[NSURL fileURLWithPath:filePath]];
+        self.docMenu.delegate = self;
+        self.docMenu.UTI = @"data.xml";
+
+        if (self.xmlButton)
+        {
+            [self.docMenu presentOpenInMenuFromBarButtonItem:self.xmlButton animated:YES];
+        }
+        else
+        {
+            UIView *view = self.navigationController.view;
+            CGRect rect = CGRectZero;
+            
+            if (arg!=nil)
+            {
+                UIView *button = arg;
+                rect = [view convertRect:button.frame fromView:button.superview];
+            }
+            [self.docMenu presentOpenInMenuFromRect:rect
+                                         inView:view
+                                       animated:YES];
+        }
+    }
+}
+
+- (UIBarButtonItem*)autoXmlButton
+{
+    // create the system-defined "OK or Done" button
+	self.xmlButton = [[[UIBarButtonItem alloc]
+                             initWithImage:[TableViewWithToolbar getToolbarIcon:kIconXml]
+                             style:UIBarButtonItemStylePlain
+							 target:self action:@selector(xmlAction:)] autorelease];
+    
+	self.xmlButton.style = UIBarButtonItemStylePlain;
+	self.xmlButton.accessibilityLabel = @"Show XML";
+	
+	return self.xmlButton;
 }
 
 
@@ -360,6 +434,28 @@
 	NSArray *items = [NSArray arrayWithObjects: [self autoDoneButton], [CustomToolbar autoFlexSpace], [self autoFlashButton], nil];
 	[self setToolbarItems:items animated:NO];
 }
+
+- (void)createToolbarItemsWithXml
+{    
+    if ([UserPrefs getSingleton].debugXML)
+    {
+        NSArray *items = [NSArray arrayWithObjects:
+                                [self autoDoneButton],
+                                [CustomToolbar autoFlexSpace],
+                                [self autoXmlButton],
+                                [CustomToolbar autoFlexSpace],
+                                [self autoFlashButton],
+                                 nil];
+        [self setToolbarItems:items animated:NO];
+
+    }
+    else
+    {
+        NSArray *items = [NSArray arrayWithObjects: [self autoDoneButton], [CustomToolbar autoFlexSpace], [self autoFlashButton], nil];
+        [self setToolbarItems:items animated:NO];
+    }
+}
+
 
 -(void)backButton:(id)sender
 {
@@ -528,7 +624,23 @@
 }
 
 
+#pragma mark Document interaction methods
 
+-(void)documentInteractionController:(UIDocumentInteractionController *)controller
+       willBeginSendingToApplication:(NSString *)application {
+    
+}
+
+-(void)documentInteractionController:(UIDocumentInteractionController *)controller
+          didEndSendingToApplication:(NSString *)application {
+    self.docMenu = nil;
+}
+
+-(void)documentInteractionControllerDidDismissOpenInMenu:
+(UIDocumentInteractionController *)controller {
+    //   [controller dismissMenuAnimated:YES];
+    self.docMenu = nil;
+}
 
 
 

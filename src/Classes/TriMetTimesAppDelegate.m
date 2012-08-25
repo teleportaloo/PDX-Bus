@@ -37,6 +37,7 @@
 #import "AllRailStationView.h"
 #import "AlarmNotification.h"
 #import "AlarmTaskList.h"
+#import <Twitter/TWTweetComposeViewController.h>
 
 @implementation TriMetTimesAppDelegate
 
@@ -48,8 +49,6 @@
 @synthesize rootViewController;
 @synthesize cleanExitLastTime		= _cleanExitLastTime;
 @synthesize pathToCleanExit			= _pathToCleanExit;
-@synthesize prefs				    = _prefs;
-
 
 
 - (void)dealloc {
@@ -60,7 +59,6 @@
 	[window release];
 	[activityView release];
 	self.pathToCleanExit = nil;
-	self.prefs = nil;
 
 	[super dealloc];
 }
@@ -72,13 +70,13 @@
     {
 		// 
 		activityView = nil;
-		self.prefs = [[[UserPrefs alloc] init] autorelease];
 	}
 	return self;
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
+    DEBUG_LOG(@"applicationDidBecomeActive\n");
     bool newWindow = NO;
     
     [self cleanStart];
@@ -89,28 +87,21 @@
         rootViewController.lastArrivalNames  = nil;
     }
     
-	if (!_suppressCommuterBookmarkOnActivate && self.rootViewController && self.rootViewController.commuterBookmark==nil
-		&& _prefs.autoCommute)
+    if ([UserPrefs getSingleton].autoCommute)
 	{
-		NSDictionary *commuterFave = [self checkForCommuterBookmarkShowOnlyOnce:YES];
-	
-		if (commuterFave != nil)
-		{
-			[[self.rootViewController navigationController] popToRootViewControllerAnimated:NO];
-		
-			DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
-			
-			[departureViewController fetchTimesForLocationInBackground:self.rootViewController.backgroundTask 
-																   loc:[commuterFave valueForKey:kUserFavesLocation]
-																 title:[commuterFave valueForKey:kUserFavesChosenName]
-			 ];
-			[departureViewController release];
-            
-            newWindow = YES;
-		
-		}
+		rootViewController.commuterBookmark  = [self checkForCommuterBookmarkShowOnlyOnce:YES];
 	}
-	_suppressCommuterBookmarkOnActivate = NO;
+    
+    if (_delayInitialArrivals)
+    {
+        rootViewController.delayedInitialArrivals = YES;
+    }
+    else
+    {
+        [rootViewController initialArrivals];
+    }
+       
+	_delayInitialArrivals = NO;
     
     AlarmTaskList *list = [AlarmTaskList getSingleton];
     [list resumeOnActivate];
@@ -180,6 +171,17 @@
 
 
 - (void)applicationDidFinishLaunching:(UIApplication *)application {
+    DEBUG_LOG(@"applicationDidFinishLaunching\n");
+    
+    // The variable is not actualy used - it is simply to pre-load the
+    // Twitter framework as it takes a litle time.
+    
+    if ([self canTweet])
+    {
+        TWTweetComposeViewController *picker = [[TWTweetComposeViewController alloc] init];
+        
+        [picker release];
+    }
 	
 	// Check for data in Documents directory. Copy default appData.plist to Documents if not found.
     NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -212,12 +214,8 @@
 	
 	rootViewController.lastArrivalsShown = [SafeUserData getSingleton].last;
 	rootViewController.lastArrivalNames  = [SafeUserData getSingleton].lastNames;
-	
     
-	if (_prefs.autoCommute)
-	{
-		rootViewController.commuterBookmark  = [self checkForCommuterBookmarkShowOnlyOnce:YES];
-	}
+    _delayInitialArrivals = YES;
 	
 	if ((rootViewController.lastArrivalsShown!=nil && [rootViewController.lastArrivalsShown length] == 0)
             || backgroundSupported
@@ -233,14 +231,9 @@
 		
 #if defined(MAXCOLORS) && defined(CREATE_MAX_ARRAYS)
 	AllRailStationView *station = [[[AllRailStationView alloc] init] autorelease];
-	
+    
 	[station generateArrays];
 #endif
-	
-	_suppressCommuterBookmarkOnActivate = YES;
-    
-   
-	
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
@@ -280,10 +273,11 @@
 	
 	NSScanner *scanner = [NSScanner scannerWithString:strUrl];
 	NSCharacterSet *slash = [NSCharacterSet characterSetWithCharactersInString:@"/"];
-	NSString *bookmark;
+	NSString *section;
+    NSString *protocol;
 	
 	// skip up to first slash
-	[scanner scanUpToCharactersFromSet:slash intoString:&bookmark];
+	[scanner scanUpToCharactersFromSet:slash intoString:&protocol];
 	
 	if (![scanner isAtEnd])
 	{
@@ -292,7 +286,7 @@
 		while (![scanner isAtEnd])
 		{	
 			// Sometimes we get NO back when there are two slashes in a row, skip that case
-			if ([scanner scanUpToCharactersFromSet:slash intoString:&bookmark] && ![self processBookMarkFromURL:bookmark])
+			if ([scanner scanUpToCharactersFromSet:slash intoString:&section] && ![self processURL:section protocol:protocol])
 			{
 				break;
 			}
@@ -313,6 +307,25 @@
 }
 
 #pragma mark Application Helper functions
+
+- (bool)canTweet
+{
+    
+    Class messageClass = (NSClassFromString(@"TWTweetComposeViewController"));
+    
+    if (messageClass != nil) {
+        // Check whether the current device is configured for sending SMS messages
+        
+        return YES;
+        
+        // if ([TWTweetComposeViewController canSendTweet]) {
+        //    return YES;
+        //}
+    }
+    
+    return NO;
+}
+
 
 
 -(void)loadStreetcarMapping
@@ -394,7 +407,56 @@
 
 #define HEX_DIGIT(B) (B <= '9' ?  (B)-'0' : (( (B) < 'G' ) ? (B) - 'A' + 10 : (B) - 'a' + 10))
 
-- (BOOL)processBookMarkFromURL:(NSString *)bookmark
+- (BOOL)processURL:(NSString *)url protocol:(NSString *)protocol
+{
+    NSScanner *scanner = [NSScanner scannerWithString:url];
+	NSCharacterSet *query = [NSCharacterSet characterSetWithCharactersInString:@"?"];
+	
+	if ([url length] == 0)
+	{
+		return YES;
+	}
+	
+	
+	NSString * name = nil;
+
+	[scanner scanUpToCharactersFromSet:query intoString:&name];
+	
+	if (![scanner isAtEnd])
+	{
+		return [self processBookMarkFromURL:url protocol:protocol];
+	};
+    
+    return [self processStopFromURL:name];
+}
+
+- (BOOL)processStopFromURL:(NSString *)stops
+{
+    DEBUG_LOG(@"processStopFromURL\n");
+	if ([stops length] == 0)
+	{
+		return YES;
+	}
+	
+	NSMutableString *safeStopString = [[[NSMutableString alloc] init] autorelease];
+    
+    int i;
+    unichar item;
+    for (i=0; i<stops.length; i++)
+    {
+        item = [stops characterAtIndex:i];
+        if (item == ',' || (item <= '9' && item >= '0'))
+        {
+            [safeStopString appendFormat:@"%c", item];
+        }
+    }
+    
+    self.rootViewController.launchStops = safeStopString;
+    
+	return YES;
+}
+
+- (BOOL)processBookMarkFromURL:(NSString *)bookmark protocol:(NSString *)protocol
 {
 	NSScanner *scanner = [NSScanner scannerWithString:bookmark];
 	NSCharacterSet *query = [NSCharacterSet characterSetWithCharactersInString:@"?"];
@@ -403,7 +465,6 @@
 	{
 		return YES;
 	}
-	
 	
 	NSString * name = nil;
 	NSString * stops = nil;
@@ -418,7 +479,7 @@
 	SafeUserData *userData = [SafeUserData getSingleton];
 	
 	// If this is an encoded dictionary we have to decode it
-	if ([stops characterAtIndex:0] == 'd')
+	if ([stops characterAtIndex:0] == 'd' && [protocol isEqualToString:@"pdxbus2:"])
 	{
 		DEBUG_LOG(@"dictionary");
 		NSMutableData *encodedDictionary = [[[NSMutableData alloc] initWithCapacity:stops.length / 2] autorelease];
@@ -466,7 +527,7 @@
 			}
 		}
 	}
-	else 
+	else if ([stops characterAtIndex:0] != 'd')
 	{
 		@synchronized (userData)
 		{
@@ -508,7 +569,7 @@
 	
 	if (previousState != UIApplicationStateActive)
 	{
-		_suppressCommuterBookmarkOnActivate = YES;
+		_delayInitialArrivals = YES;
 	}
 }
 

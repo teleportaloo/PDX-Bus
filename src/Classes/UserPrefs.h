@@ -44,6 +44,7 @@
 - (BOOL) getBoolFromDefaultsForKey:(NSString*)key ifMissing:(BOOL)missing;
 - (float)getFloatFromDefaultsForKey:(NSString*)key ifMissing:(float)missing max:(float)max min:(float)min;
 - (int)  getIntFromDefaultsForKey:(NSString*)key ifMissing:(int)missing max:(int)max min:(int)min;
++ (UserPrefs*) getSingleton;
 
 @property (nonatomic, readonly)  bool  bookmarksAtTheTop;
 @property (nonatomic, readonly)  bool  autoCommute;
@@ -66,6 +67,7 @@
 @property (nonatomic)            bool flashLed;
 @property (nonatomic, readonly)  bool alarmInitialWarning;
 @property (nonatomic, readonly)  bool useCaching;
+@property (nonatomic, readonly)  bool debugXML;
 @property (nonatomic, readonly)  XMLReverseGeoCode * reverseGeoCodeProvider;
 
 @end

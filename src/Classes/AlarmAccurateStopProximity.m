@@ -63,8 +63,6 @@
 #endif
 	
 	self.destination = nil;
-	
-	[_userPrefs release];
 	[super dealloc];
 }
 
@@ -103,7 +101,6 @@
 #ifdef DEBUG_ALARMS
         self.dataReceived = [[NSMutableArray alloc] init];
 #endif
-		_userPrefs = [[UserPrefs alloc] init];
 	}
 	return self;
 }
@@ -193,7 +190,7 @@
 	[self.dataReceived addObject:dict];
 #endif	
 	
-	double becomeAccurate = _userPrefs.useGpsWithin;
+	double becomeAccurate = [UserPrefs getSingleton].useGpsWithin;
 	
 	
 	
@@ -309,7 +306,7 @@
         case kCLErrorLocationUnknown:
             break;
         case kCLErrorDenied:
-            [self alert:[NSString stringWithFormat:@"Unable to acquire location - proximity alarm cancelled.",[error localizedDescription]] 
+            [self alert:[NSString stringWithFormat:@"Unable to acquire location - proximity alarm cancelled %@",[error localizedDescription]] 
                fireDate:nil 
                  button:nil 
                userInfo:nil

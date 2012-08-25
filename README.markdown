@@ -20,7 +20,7 @@ Feature includes:
 
 Route and arrival data provided by permission of TriMet.
 
-PDX Bus 6.2.4 sources
+PDX Bus 6.3.0 sources
 =====================
 
 I am making the sources to PDX Bus version 6.2 available as part of the 
@@ -150,6 +150,10 @@ These files are in a separate folder with attribution - [App Icon by Rob Alan](h
 * The Working Group Attribution - some graphics files from The Working Group are from [The Working Group](http://blog.twg.ca/2009/09/free-iphone-toolbar-icons/) and are used under a 
 [Creative Commons Attribution-Share Alike 3.0 License](http://creativecommons.org/licenses/by/3.0/us/).
 
+* Gentleface Attribution - some graphics files from Gentleface are from [Gentleface](http://gentleface.com/free_icon_set.html) and are used under a 
+[The Creative Commons Attribution-NonCommercial 3.0 License](http://creativecommons.org/licenses/by-nc/3.0/).
+
+
 * Oxygen Attribution - some graphics files from Oxygen-Icons.org are from [Oxygen Icons](http://www.oxygen-icons.org) and are used under a 
 [Creative Commons Attribution-Share Alike 3.0 License](http://creativecommons.org/licenses/by/3.0/us/)
 
@@ -178,9 +182,23 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     
+* QR Code Scanning - ZXing library [http://http://code.google.com/p/zxing/]
+
 
 Change log
 ----------
+### Version 6.3 (July 2012)
+* Added QR code reader
+* Added new higher resolution rail map with no zones and new PSU stations
+* Added Twitter integration
+* Added XML viewer integration
+* Removed Rail Map from iOS3.1 - it crashes, low memory.
+* Updated to XCode 4.4 and fixed analysis issues.
+* Extended app URL scheme e.g. pdxbus://365 will launch PDX Bus and show stop 365.  (Useful for app launchers such as 'Icon Project' or 'Launch Center Pro').
+* Trip planner allows min walking distance of 0.1 miles
+                       
+
+
 ### Version 6.2.4 (June 2012)
 * Support for Xcode 4.3.2; still compiles and runs on original iPhone.
 * Fixed Xcode 4.3.2 analysis issues

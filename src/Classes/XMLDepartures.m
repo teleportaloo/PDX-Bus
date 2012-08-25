@@ -48,6 +48,7 @@ static NSString *departuresURLString = @"arrivals/locIDs/%@";
 @synthesize streetcarPlatformMap = _streetcarPlatformMap;
 @synthesize streetcarRoute = _streetcarRoute;
 @synthesize sectionTitle = _sectionTitle;
+@synthesize streetcarData = _streetcarData;
 
 - (void)dealloc
 {
@@ -66,6 +67,7 @@ static NSString *departuresURLString = @"arrivals/locIDs/%@";
 	self.distance = nil;
 	self.locDir = nil;
 	self.sectionTitle = nil;
+    self.streetcarData = nil;
 	
 	[super dealloc];
 }
@@ -425,6 +427,8 @@ static NSMutableDictionary *cachedDetours = nil;
 - (void)addStreetcarArrivalsForLocation:(NSString *)location
 {
 	NSString *streetcarPlatform = [self.streetcarPlatformMap objectForKey:location];
+    
+    self.streetcarData = nil;
 	
 	if (streetcarPlatform != nil)
 	{
@@ -441,9 +445,14 @@ static NSMutableDictionary *cachedDetours = nil;
 		{
 			[self mergeStreetcarArrivals:streetcarPlatform departures:streetcar];
 		}	
+        
+        if ([UserPrefs getSingleton].debugXML)
+        {
+            self.streetcarData = streetcar.rawData;
+        }
 		[streetcar release];
 
-
+        
 	}	
 }
 

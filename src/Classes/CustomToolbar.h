@@ -40,6 +40,7 @@
 + (UIBarButtonItem *)autoNoSleepWithTarget:(id)target action:(SEL)action;
 + (UIBarButtonItem *)autoCommuteWithTarget:(id)target action:(SEL)action;
 + (UIBarButtonItem *)autoLocateWithTarget:(id)target action:(SEL)action;
++ (UIBarButtonItem *)autoQRScanner:(id)target action:(SEL)action;
 
 
 @end

@@ -1,4 +1,3 @@
-#define ALL_RAIL_STATIONS 1
 #define MAXCOLORS 1
 
 //
@@ -28,7 +27,6 @@
 
  */
 
-#ifdef ALL_RAIL_STATIONS
 
 #import <Foundation/Foundation.h>
 #import "TableViewWithToolbar.h"
@@ -46,5 +44,3 @@
 + (RAILLINES)railLines:(int)index;
 
 @end
-
-#endif

@@ -39,7 +39,7 @@
 {
 	// create the system-defined "OK or Done" button
 	UIBarButtonItem *flash = [[[UIBarButtonItem alloc]
-							   initWithTitle:@"Night Visibility Flashing Light" style:UIBarButtonItemStyleBordered 
+							   initWithTitle:@"Night Visibility Flash" style:UIBarButtonItemStyleBordered 
 							   target:self action:@selector(flashButton:)] autorelease];
 	return flash;
 }
@@ -154,6 +154,20 @@
 	
 	back.style = UIBarButtonItemStylePlain;
 	back.accessibilityLabel = @"Locate Stops";
+	return back;
+	
+}
+
++ (UIBarButtonItem *)autoQRScanner:(id)target action:(SEL)action
+{
+	UIBarButtonItem *back = [[[UIBarButtonItem alloc]
+							  initWithImage:[TableViewWithToolbar getToolbarIcon:kIconCamera]
+							  style:UIBarButtonItemStylePlain
+							  target:target action:action] autorelease];
+	
+	
+	back.style = UIBarButtonItemStylePlain;
+	back.accessibilityLabel = @"QR Scanner";
 	return back;
 	
 }

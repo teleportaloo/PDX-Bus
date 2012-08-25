@@ -259,7 +259,15 @@
 	[self fetchRoutesInBackground:self.backgroundTask];
 }
 
+- (void)createToolbarItems
+{
+    [self createToolbarItemsWithXml];
+}
 
+- (NSData *) getXmlData
+{
+    return self.routeData.rawData;
+}
 
 @end
 

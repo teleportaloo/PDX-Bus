@@ -32,11 +32,14 @@
 - (NSDictionary *)getStreetcarDirections;
 - (NSDictionary *)getStreetcarShortNames;
 - (NSString *)getStreetcarRoute;
-- (BOOL)processBookMarkFromURL:(NSString *)bookmark;
+- (BOOL)processURL:(NSString *)url protocol:(NSString *)protocol;
+- (BOOL)processBookMarkFromURL:(NSString *)bookmark protocol:(NSString *)protocol;
+- (BOOL)processStopFromURL:(NSString *)stop;
 - (void)showActivityViewer;
 - (void)hideActivityViewer;
 + (TriMetTimesAppDelegate*)getSingleton;
 - (NSDictionary *)checkForCommuterBookmarkShowOnlyOnce:(bool)onlyOnce;
+- (bool)canTweet;
 
 
 @end

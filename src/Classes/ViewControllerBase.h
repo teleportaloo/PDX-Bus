@@ -32,11 +32,12 @@
 #import "UserPrefs.h"
 #import "UserFaves.h"
 
-@interface ViewControllerBase : UIViewController <BackgroundTaskDone> {
+@interface ViewControllerBase : UIViewController <BackgroundTaskDone, UIDocumentInteractionControllerDelegate> {
 	BackgroundTaskContainer *_backgroundTask;
 	id<ReturnStopId> _callback;
-	UserPrefs		*_prefs;
 	SafeUserData	*_userData;
+    UIDocumentInteractionController *_docMenu;
+    UIBarButtonItem *_xmlButton;
 }
 
 - (bool)initMembers;
@@ -44,6 +45,7 @@
 - (UIBarButtonItem *)autoFlashButton;
 - (UIBarButtonItem *)autoBigFlashButton;
 - (UIBarButtonItem *)autoDoneButton;
+- (UIBarButtonItem*)autoXmlButton;
 - (bool)forceRedoButton;
 + (void)flashScreen:(UINavigationController *)nav;
 - (void)createToolbarItems;
@@ -70,11 +72,15 @@
 - (ScreenType)screenWidth;
 - (void)reloadData;
 - (UIColor*)htmlColor:(int)val;
+- (NSData*)getXmlData;
+- (void)xmlAction:(id)arg;
+- (void)createToolbarItemsWithXml;
 
 
-
+@property (nonatomic, retain) UIBarButtonItem *xmlButton;
 @property (nonatomic, retain) BackgroundTaskContainer *backgroundTask;
 @property (nonatomic, retain) id<ReturnStopId> callback;
+@property (nonatomic, retain) UIDocumentInteractionController *docMenu;
 
 #define kRailAwareReloadButton 1
 
@@ -138,6 +144,8 @@
 #define kIconFindGps		@"network-satellite.png"
 #define kIconFindCell		kIconNetwork
 #define kIconSettings       @"Settings.png"
+#define kIconCamera         @"86-camera.png"
+#define kIconXml            @"110-bug.png"
 
 
 

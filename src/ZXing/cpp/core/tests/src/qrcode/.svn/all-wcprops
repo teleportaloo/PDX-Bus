@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/2060/trunk/cpp/core/tests/src/qrcode
+END
+FormatInformationTest.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/2060/trunk/cpp/core/tests/src/qrcode/FormatInformationTest.cpp
+END
+ErrorCorrectionLevelTest.h
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/!svn/ver/1506/trunk/cpp/core/tests/src/qrcode/ErrorCorrectionLevelTest.h
+END
+FormatInformationTest.h
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/1506/trunk/cpp/core/tests/src/qrcode/FormatInformationTest.h
+END
+VersionTest.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/1092/trunk/cpp/core/tests/src/qrcode/VersionTest.cpp
+END
+ErrorCorrectionLevelTest.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/1092/trunk/cpp/core/tests/src/qrcode/ErrorCorrectionLevelTest.cpp
+END
+VersionTest.h
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/1506/trunk/cpp/core/tests/src/qrcode/VersionTest.h
+END

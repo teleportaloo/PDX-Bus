@@ -49,10 +49,12 @@
 #define kUISegHeight		40
 #define kUISegWidth			320
 
-#define kWalkDist0			0.5
-#define kWalkDist1			1.0
-#define kWalkDist2			1.5
-#define kWalkDist3			2.0
+#define kWalkDist0			0.1
+#define kWalkDist1			0.5
+#define kWalkDist2			1.0
+#define kWalkDist3			1.5
+#define kWalkDist4			2.0
+
 
 - (void)dealloc {
 	self.modeSegment	= nil;
@@ -122,6 +124,9 @@
 		case 3:
 			self.tripQuery.userRequest.walk = kWalkDist3;
 			break;
+        case 4:
+			self.tripQuery.userRequest.walk = kWalkDist4;
+			break;
 	}
 }
 
@@ -146,7 +151,7 @@
 	switch (section)
 	{
 		case kSectionWalk:
-			return @"Maximum walking distance:";
+			return @"Maximum walking distance in miles:";
 		case kSectionMode:
 			return @"Travel by:";
 		case kSectionMin:
@@ -168,7 +173,7 @@
 			if (cell == nil) {
 				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:segmentId1] autorelease];
 				self.walkSegment = [self createSegmentedControl:
-								[NSArray arrayWithObjects: @"0.5 miles", @"1.0 miles", @"1.5 miles", @"2.0 miles", nil] 
+								[NSArray arrayWithObjects:@"0.1", @"0.5", @"1.0", @"1.5", @"2.0", nil]
 													 parent:cell.contentView action:@selector(walkSegmentChanged:)];
 				
 				 
@@ -190,10 +195,14 @@
 			else if (self.tripQuery.userRequest.walk < kWalkDist3)
 			{
 				self.walkSegment.selectedSegmentIndex = 2;
-			} 
-			else 
+			}
+            else if (self.tripQuery.userRequest.walk < kWalkDist4)
 			{
 				self.walkSegment.selectedSegmentIndex = 3;
+			}
+			else 
+			{
+				self.walkSegment.selectedSegmentIndex = 4;
 			}
 			return cell;			
 		}

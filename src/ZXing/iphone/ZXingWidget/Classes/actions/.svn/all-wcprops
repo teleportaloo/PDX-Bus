@@ -1,0 +1,89 @@
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/!svn/ver/2100/trunk/iphone/ZXingWidget/Classes/actions
+END
+CallAction.h
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/1385/trunk/iphone/ZXingWidget/Classes/actions/CallAction.h
+END
+EmailAction.m
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/1385/trunk/iphone/ZXingWidget/Classes/actions/EmailAction.m
+END
+ShowMapAction.h
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/1385/trunk/iphone/ZXingWidget/Classes/actions/ShowMapAction.h
+END
+ResultAction.h
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/1385/trunk/iphone/ZXingWidget/Classes/actions/ResultAction.h
+END
+CallAction.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/1385/trunk/iphone/ZXingWidget/Classes/actions/CallAction.m
+END
+SMSAction.h
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/2100/trunk/iphone/ZXingWidget/Classes/actions/SMSAction.h
+END
+ResultAction.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/1385/trunk/iphone/ZXingWidget/Classes/actions/ResultAction.m
+END
+ShowMapAction.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/1385/trunk/iphone/ZXingWidget/Classes/actions/ShowMapAction.m
+END
+OpenUrlAction.h
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/1385/trunk/iphone/ZXingWidget/Classes/actions/OpenUrlAction.h
+END
+AddContactAction.h
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/1709/trunk/iphone/ZXingWidget/Classes/actions/AddContactAction.h
+END
+EmailAction.h
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/1385/trunk/iphone/ZXingWidget/Classes/actions/EmailAction.h
+END
+SMSAction.m
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/2100/trunk/iphone/ZXingWidget/Classes/actions/SMSAction.m
+END
+AddContactAction.m
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/1709/trunk/iphone/ZXingWidget/Classes/actions/AddContactAction.m
+END
+OpenUrlAction.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/1385/trunk/iphone/ZXingWidget/Classes/actions/OpenUrlAction.m
+END

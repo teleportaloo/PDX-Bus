@@ -38,14 +38,13 @@
 {
     self.fullFileName = nil;
     self.cache        = nil;
-    [_prefs release];
     
     [super dealloc];
 }
 
 - (void)openCache
 {
-    if (self.cache == nil && _prefs.useCaching)
+    if (self.cache == nil && [UserPrefs getSingleton].useCaching)
     {
         // Check for cache in Documents directory. 
         NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -64,7 +63,7 @@
 
 - (void)writeCache
 {
-    if (self.cache!=nil && self.fullFileName != nil && _prefs.useCaching)
+    if (self.cache!=nil && self.fullFileName != nil && [UserPrefs getSingleton].useCaching)
     {
         //
         // Crash logs show that this often crashes here - but it is hard
@@ -94,7 +93,6 @@
         
 		self.fullFileName      = [documentsDirectory stringByAppendingPathComponent:fileName]; 
         _maxSize               = 0;
-        _prefs                 = [[UserPrefs alloc] init];
     }
     
     return self;
@@ -129,7 +127,7 @@
 
 - (NSArray *)getCachedQuery:(NSString *)cacheQuery
 {
-    if (_prefs.useCaching)
+    if ([UserPrefs getSingleton].useCaching)
     {
         [self openCache];
         return [self.cache objectForKey:cacheQuery];
@@ -139,7 +137,7 @@
 
 - (void)addToCache:(NSString *)cacheQuery item:(NSData *)item write:(bool)write
 {
-    if (_prefs.useCaching)
+    if ([UserPrefs getSingleton].useCaching)
     {
         [self openCache];
         NSMutableArray *arrayToCache = [[[NSMutableArray alloc] init] autorelease];
@@ -181,7 +179,7 @@
 
 - (void)removeFromCache:(NSString *)cacheQuery
 {
-    if (_prefs.useCaching)
+    if ([UserPrefs getSingleton].useCaching)
     {
         [self openCache];
         [self.cache removeObjectForKey:cacheQuery]; 

@@ -201,13 +201,18 @@
 	
 	if (indexPath.row < [self.rssData safeItemCount])
 	{
-		RssLink *link = [self.rssData itemAtIndex:indexPath.row];
-		WebViewController *web = [[WebViewController alloc] init];
-
-		[web setRssItem:link title:self.rssData.title];
-		web.rssLinks = self.rssData.itemArray;
-		web.rssLinkItem = indexPath.row;
-	
+        WebViewController *web = [[WebViewController alloc] init];
+        RssLink *link = [self.rssData itemAtIndex:indexPath.row];
+        if (self.gotoOriginalArticle)
+        {
+            [web setURLmobile:link.link full:link.link title:@"Web Page"];
+        }
+        else
+        {
+            [web setRssItem:link title:self.rssData.title];
+            web.rssLinks = self.rssData.itemArray;
+            web.rssLinkItem = indexPath.row;
+        }
 		[[self navigationController] pushViewController:web animated:YES];
 		[web release];
 	}

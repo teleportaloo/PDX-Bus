@@ -76,7 +76,6 @@
 	NSMutableDictionary *_appData;
 	NSString *_pathToUserCopyOfPlist;
 	bool _favesChanged;
-	UserPrefs *_prefs;
 }
 
 @property (retain)   NSMutableDictionary *appData;

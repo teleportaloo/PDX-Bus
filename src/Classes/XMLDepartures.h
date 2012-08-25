@@ -52,6 +52,7 @@
 	
 	NSString *_streetcarRoute;
 	StopDistance *_distance;
+    NSData   *_streetcarData;
 }
 
 // MKAnnotation
@@ -75,6 +76,7 @@
 @property (nonatomic) TriMetTime queryTime;
 @property (nonatomic, retain) Departure *currentDepartureObject;
 @property (nonatomic, retain) Trip *currentTrip;
+@property (nonatomic, retain) NSData *streetcarData;
 
 
 - (BOOL)getDeparturesForLocation:(NSString *)location  parseError:(NSError **)error;

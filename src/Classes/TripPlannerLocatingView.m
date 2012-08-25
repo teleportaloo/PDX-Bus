@@ -105,7 +105,7 @@
 	
 	TripEndPoint *geoNameRequired = nil;
 	
-	XMLReverseGeoCode *geoProvider = _prefs.reverseGeoCodeProvider;
+	XMLReverseGeoCode *geoProvider = [UserPrefs getSingleton].reverseGeoCodeProvider;
 	
 	if (geoProvider !=nil && self.tripQuery.userRequest.toPoint.useCurrentLocation && self.tripQuery.userRequest.toPoint.locationDesc == nil)
 	{

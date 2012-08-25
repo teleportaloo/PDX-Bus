@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/2346/trunk/cpp/core/src/zxing/qrcode
+END
+FormatInformation.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/1754/trunk/cpp/core/src/zxing/qrcode/FormatInformation.cpp
+END
+ErrorCorrectionLevel.h
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/1966/trunk/cpp/core/src/zxing/qrcode/ErrorCorrectionLevel.h
+END
+QRCodeReader.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/2087/trunk/cpp/core/src/zxing/qrcode/QRCodeReader.cpp
+END
+FormatInformation.h
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/1754/trunk/cpp/core/src/zxing/qrcode/FormatInformation.h
+END
+QRCodeReader.h
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/1986/trunk/cpp/core/src/zxing/qrcode/QRCodeReader.h
+END
+Version.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/!svn/ver/1543/trunk/cpp/core/src/zxing/qrcode/Version.cpp
+END
+ErrorCorrectionLevel.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/1966/trunk/cpp/core/src/zxing/qrcode/ErrorCorrectionLevel.cpp
+END
+Version.h
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/1506/trunk/cpp/core/src/zxing/qrcode/Version.h
+END

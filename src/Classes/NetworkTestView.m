@@ -104,7 +104,7 @@
 	
 	[self.backgroundTask.callbackWhenFetching BackgroundItemsDone:4];
 	
-	XMLReverseGeoCode *provider = _prefs.reverseGeoCodeProvider;
+	XMLReverseGeoCode *provider = [UserPrefs getSingleton].reverseGeoCodeProvider;
 	
 	if (provider != nil)
 	{

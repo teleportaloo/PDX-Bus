@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/!svn/ver/2332/trunk/cpp/core/src/zxing/common/detector
+END
+math_utils.h
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/2332/trunk/cpp/core/src/zxing/common/detector/math_utils.h
+END
+WhiteRectangleDetector.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/!svn/ver/2332/trunk/cpp/core/src/zxing/common/detector/WhiteRectangleDetector.cpp
+END
+WhiteRectangleDetector.h
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/!svn/ver/2332/trunk/cpp/core/src/zxing/common/detector/WhiteRectangleDetector.h
+END
+MonochromeRectangleDetector.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/!svn/ver/1992/trunk/cpp/core/src/zxing/common/detector/MonochromeRectangleDetector.cpp
+END
+MonochromeRectangleDetector.h
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/!svn/ver/1992/trunk/cpp/core/src/zxing/common/detector/MonochromeRectangleDetector.h
+END

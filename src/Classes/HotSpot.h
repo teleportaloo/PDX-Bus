@@ -27,7 +27,7 @@
  */
 
 
-#define MAXHOTSPOTS 190
+#define MAXHOTSPOTS 195
 
 #define kLinkTypeHttp	'h'
 #define kLinkTypeWiki	'w'
@@ -63,5 +63,5 @@ typedef struct alpha_section_struct
 	int items;
 } ALPHA_SECTIONS;
 
-// #define CREATE_MAX_ARRAYS 1
+
 #define MAXCOLORS  1

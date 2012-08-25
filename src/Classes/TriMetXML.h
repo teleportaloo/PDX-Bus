@@ -26,6 +26,8 @@
 #import "TriMetTypes.h"
 #import "StoppableFetcher.h"
 
+@class UserPrefs;
+
 typedef enum  {
 	TriMetXMLOnlyReadFromCache,
 	TriMetXMLUpdateCache,

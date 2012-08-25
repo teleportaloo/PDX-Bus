@@ -109,12 +109,12 @@
 	
 	if (mins > 1)
 	{
-		[str appendFormat:@" %d mins", mins ];
+		[str appendFormat:@" %lld mins", mins ];
 	}
 	
 	if (secs > 0)
 	{
-		[str appendFormat:@" %02d secs", secs ];
+		[str appendFormat:@" %02lld secs", secs ];
 	}
 	
 	return str;
@@ -487,7 +487,7 @@
 			}
 			else if (mins < 6)
 			{	
-				minsText = [NSString stringWithFormat:@"%d", mins];
+				minsText = [NSString stringWithFormat:@"%lld", mins];
 				unitText = @"mins";
 				[timeText appendString:[dateFormatter stringFromDate:depatureDate]];
 				[timeText appendString:@" "];
@@ -495,7 +495,7 @@
 			}
 			else if (mins < 60)
 			{
-				minsText = [NSString stringWithFormat:@"%d", mins];
+				minsText = [NSString stringWithFormat:@"%lld", mins];
 				unitText = @"mins";
 				[timeText appendString:[dateFormatter stringFromDate:depatureDate]];
 				[timeText appendString:@" "];
@@ -535,14 +535,14 @@
 			}
 			else if (mins < 6)
 			{
-				[timeText appendFormat:@"%d mins - ", mins];
+				[timeText appendFormat:@"%lld mins - ", mins];
 				[timeText appendString:[dateFormatter stringFromDate:depatureDate]];
 				[timeText appendString:@" "];
 				timeColor = [UIColor redColor];	
 			}
 			else if (mins < 60)
 			{
-				[timeText appendFormat:@"%d mins - ", mins];
+				[timeText appendFormat:@"%lld mins - ", mins];
 				[timeText appendString:[dateFormatter stringFromDate:depatureDate]];
 				[timeText appendString:@" "];
 				timeColor = [UIColor blueColor];
@@ -865,14 +865,14 @@
 		}
 		else if (mins < 6)
 		{
-			[text appendFormat:@"%d mins - ", mins];
+			[text appendFormat:@"%lld mins - ", mins];
 			[text appendString:[dateFormatter stringFromDate:depatureDate]];
 			[text appendFormat:@" to %@", loc];
 			
 		}
 		else if (mins < 60)
 		{
-			[text appendFormat:@"%d mins - ", mins];
+			[text appendFormat:@"%lld mins - ", mins];
 			[text appendString:[dateFormatter stringFromDate:depatureDate]];
 			[text appendFormat:@" to %@", loc];
 		} 

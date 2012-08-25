@@ -29,6 +29,7 @@
 #include "TriMetTimesAppDelegate.h"
 #include "AppDelegateMethods.h"
 #include "QueryCacheManager.h"
+#include "UserPrefs.h"
 
 @implementation TriMetXML
 
@@ -54,9 +55,8 @@ static QueryCacheManager *shortTermCache = nil;
     
    if (shortTermCache == nil)
    {
-       TriMetTimesAppDelegate *app = [TriMetTimesAppDelegate getSingleton];
-       shortTermCache = [[QueryCacheManager alloc] initWithFileName:@"shortTermCache.plist"]; 
-       shortTermCache.maxSize = app.prefs.maxRecentStops;
+       shortTermCache = [[QueryCacheManager alloc] initWithFileName:@"shortTermCache.plist"];
+       shortTermCache.maxSize = [UserPrefs getSingleton].maxRecentStops;
    }
 }
 
@@ -234,11 +234,10 @@ static QueryCacheManager *shortTermCache = nil;
 - (BOOL)startParsing:(NSString *)query parseError:(NSError **)error cacheAction:(CacheAction)cacheAction
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	TriMetTimesAppDelegate *appDelegate = (TriMetTimesAppDelegate *)[[UIApplication sharedApplication] delegate];
 	int tries = 2;
 	BOOL succeeded = NO;
     self.itemFromCache = NO;
-	int days = appDelegate.prefs.routeCacheDays;
+	int days = [UserPrefs getSingleton].routeCacheDays;
 	
 	hasData = NO;
 	[self clearArray];
@@ -446,7 +445,10 @@ static QueryCacheManager *shortTermCache = nil;
 
 -(void)clearRawData
 {
-	self.rawData = nil;
+    if (![UserPrefs getSingleton].debugXML)
+    {
+        self.rawData = nil;
+    }
 }
 
 #pragma mark Parser callbacks

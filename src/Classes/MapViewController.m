@@ -260,7 +260,7 @@
 	buttonBarSegmentedControl.selectedSegmentIndex = 0.0;	// start by showing the normal picker
 	buttonBarSegmentedControl.segmentedControlStyle = UISegmentedControlStyleBar;
 	
-	int color = _prefs.toolbarColors;
+	int color = [UserPrefs getSingleton].toolbarColors;
 	
 	if (color == 0xFFFFFF)
 	{

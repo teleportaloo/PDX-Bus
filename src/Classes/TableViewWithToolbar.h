@@ -74,6 +74,7 @@
 - (UITableViewCell *)searchRowCell;
 - (NSMutableArray *)filteredData:(UITableView *)table;
 - (NSMutableArray *)topViewData;
+- (void)clearSelection;
 
 @property (nonatomic, retain) UITableView *table;
 @property bool backgroundRefresh;

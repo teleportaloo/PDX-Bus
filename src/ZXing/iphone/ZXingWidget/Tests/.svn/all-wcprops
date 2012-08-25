@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/1872/trunk/iphone/ZXingWidget/Tests
+END
+AddressBookAUResultParserTests.m
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/!svn/ver/1869/trunk/iphone/ZXingWidget/Tests/AddressBookAUResultParserTests.m
+END
+EmailDoCoMoResultParserTests.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/!svn/ver/1869/trunk/iphone/ZXingWidget/Tests/EmailDoCoMoResultParserTests.m
+END
+BookmarkDoCoMoTests.m
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/1869/trunk/iphone/ZXingWidget/Tests/BookmarkDoCoMoTests.m
+END
+ISBNResultParserTests.m
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/1872/trunk/iphone/ZXingWidget/Tests/ISBNResultParserTests.m
+END
+MeCardParserTests.m
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/1869/trunk/iphone/ZXingWidget/Tests/MeCardParserTests.m
+END
+EmailAddressResultParserTests.m
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/!svn/ver/1872/trunk/iphone/ZXingWidget/Tests/EmailAddressResultParserTests.m
+END
+BizcardResultParserTests.m
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/1869/trunk/iphone/ZXingWidget/Tests/BizcardResultParserTests.m
+END
+VCardResultParserTests.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/1869/trunk/iphone/ZXingWidget/Tests/VCardResultParserTests.m
+END
+SMTPResultParserTests.m
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/1872/trunk/iphone/ZXingWidget/Tests/SMTPResultParserTests.m
+END

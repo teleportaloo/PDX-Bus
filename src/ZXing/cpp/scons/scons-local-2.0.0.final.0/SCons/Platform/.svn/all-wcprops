@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/Platform
+END
+irix.py
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/Platform/irix.py
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/Platform/__init__.py
+END
+cygwin.py
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/Platform/cygwin.py
+END
+aix.py
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/Platform/aix.py
+END
+win32.py
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/Platform/win32.py
+END
+posix.py
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/Platform/posix.py
+END
+os2.py
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/Platform/os2.py
+END
+darwin.py
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/Platform/darwin.py
+END
+hpux.py
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/Platform/hpux.py
+END
+sunos.py
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/Platform/sunos.py
+END

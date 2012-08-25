@@ -40,11 +40,9 @@
 	NSString *_pathToCleanExit;
 	UIView *activityView;
 	bool _cleanExitLastTime;
-	UserPrefs *_prefs;	
-	bool _suppressCommuterBookmarkOnActivate;
+	bool _delayInitialArrivals;
 }
 
-@property (nonatomic, retain) UserPrefs *prefs;
 @property (nonatomic) bool cleanExitLastTime;
 @property (nonatomic, retain) NSMutableDictionary *streetcarMapping;
 @property (nonatomic, retain) NSString *pathToCleanExit;

@@ -1,0 +1,149 @@
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/2328/trunk/cpp/core/src/zxing/oned
+END
+UPCEANReader.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/1730/trunk/cpp/core/src/zxing/oned/UPCEANReader.cpp
+END
+OneDResultPoint.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/1986/trunk/cpp/core/src/zxing/oned/OneDResultPoint.cpp
+END
+EAN13Reader.h
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/!svn/ver/1563/trunk/cpp/core/src/zxing/oned/EAN13Reader.h
+END
+MultiFormatOneDReader.h
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/1561/trunk/cpp/core/src/zxing/oned/MultiFormatOneDReader.h
+END
+UPCEANReader.h
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/2056/trunk/cpp/core/src/zxing/oned/UPCEANReader.h
+END
+OneDResultPoint.h
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/1986/trunk/cpp/core/src/zxing/oned/OneDResultPoint.h
+END
+ITFReader.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/!svn/ver/2056/trunk/cpp/core/src/zxing/oned/ITFReader.cpp
+END
+OneDReader.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/1995/trunk/cpp/core/src/zxing/oned/OneDReader.cpp
+END
+Code39Reader.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/2328/trunk/cpp/core/src/zxing/oned/Code39Reader.cpp
+END
+ITFReader.h
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/2056/trunk/cpp/core/src/zxing/oned/ITFReader.h
+END
+UPCAReader.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/1563/trunk/cpp/core/src/zxing/oned/UPCAReader.cpp
+END
+OneDReader.h
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/1531/trunk/cpp/core/src/zxing/oned/OneDReader.h
+END
+Code39Reader.h
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/1511/trunk/cpp/core/src/zxing/oned/Code39Reader.h
+END
+EAN8Reader.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/2056/trunk/cpp/core/src/zxing/oned/EAN8Reader.cpp
+END
+UPCEReader.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/2056/trunk/cpp/core/src/zxing/oned/UPCEReader.cpp
+END
+UPCAReader.h
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/1563/trunk/cpp/core/src/zxing/oned/UPCAReader.h
+END
+MultiFormatUPCEANReader.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/1561/trunk/cpp/core/src/zxing/oned/MultiFormatUPCEANReader.cpp
+END
+EAN8Reader.h
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/1563/trunk/cpp/core/src/zxing/oned/EAN8Reader.h
+END
+UPCEReader.h
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/2056/trunk/cpp/core/src/zxing/oned/UPCEReader.h
+END
+MultiFormatUPCEANReader.h
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/1561/trunk/cpp/core/src/zxing/oned/MultiFormatUPCEANReader.h
+END
+Code128Reader.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/2328/trunk/cpp/core/src/zxing/oned/Code128Reader.cpp
+END
+EAN13Reader.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/2056/trunk/cpp/core/src/zxing/oned/EAN13Reader.cpp
+END
+MultiFormatOneDReader.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/1561/trunk/cpp/core/src/zxing/oned/MultiFormatOneDReader.cpp
+END
+Code128Reader.h
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/2056/trunk/cpp/core/src/zxing/oned/Code128Reader.h
+END

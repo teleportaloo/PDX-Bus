@@ -318,6 +318,7 @@
 			<string>Max walking distance</string>
 			<key>Titles</key>
 			<array>
+				<string>0.1 miles</string>
 				<string>0.5 miles</string>
 				<string>1 mile</string>
 				<string>1.5 miles</string>
@@ -327,6 +328,7 @@
 			<string>PSMultiValueSpecifier</string>
 			<key>Values</key>
 			<array>
+				<real>0.1</real>
 				<real>0.5</real>
 				<integer>1</integer>
 				<real>1.5</real>
@@ -468,6 +470,16 @@
 			<string>use_caching</string>
 			<key>DefaultValue</key>
 			<true/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Debug raw XML data</string>
+			<key>Key</key>
+			<string>debug_xml</string>
+			<key>DefaultValue</key>
+			<false/>
 		</dict>
 	</array>
 	<key>StringsTable</key>

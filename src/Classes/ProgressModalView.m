@@ -109,7 +109,7 @@ CGPathRef CreatePathWithRoundRect(CGRect rect, CGFloat cornerRadius);
 			break;
 	}
 	
-	DEBUG_LOG(@"Quarter turns %d\n", quarterTurns);
+	DEBUG_LOG(@"Quarter turns %f\n", quarterTurns);
 
 	
 	if (quarterTurns > 0)

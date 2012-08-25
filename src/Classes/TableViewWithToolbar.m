@@ -245,7 +245,14 @@
 
 #pragma mark Table view call helper methods
 
-
+- (void)clearSelection
+{
+    NSIndexPath *ip = [self.table indexPathForSelectedRow];
+    if (ip!=nil)
+    {
+        [self.table deselectRowAtIndexPath:ip animated:YES];
+    }
+}
 
 - (CGFloat)getTextHeight:(NSString *)text font:(UIFont *)font;
 {

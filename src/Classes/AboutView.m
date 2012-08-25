@@ -46,7 +46,7 @@
 
 #define kLinkRows				6
 
-#define kLegalRows				12
+#define kLegalRows				14
 #define kRowCivicApps			0
 #define kRowGoogle				1
 #define kRowMainIcon			2
@@ -58,7 +58,9 @@
 #define kRowGeoNames			8
 #define kRowPolygons			9
 #define kRowRefresh             10
-#define kRowSrc					11
+#define kRowZXing               11
+#define kRowGentleface          12
+#define kRowSrc					13
 			
 #define kSectionHelpRows		3
 #define kSectionHelpRowHelp		0
@@ -111,10 +113,11 @@
 			@"Create bookmarks containing both the start and end stops of your journey, then use the \"Show arrivals with just this trip\" feature"
 			" to see when a particular bus or train will arrive at each stop.",
 				   nil];
+        
 		
 		helpText = @"PDX Bus uses real-time tracking information from TriMet to display bus, MAX, WES and streetcar times for the Portland, Oregon, metro area.\n\n"
 			"Every TriMet bus stop and rail station has its own unique Stop ID number, up to five digits.\n\n"
-			"Enter the Stop ID to get the arrivals for that stop. You may also browse & search the routes to find a stop, or use a "
+			"Enter the Stop ID to get the arrivals for that stop. You may also scan a QR code (found at some stops), or browse & search the routes to find a stop, or use a "
 			"map of the rail system. The Trip Planner feature uses scheduled times to arrange a journey with several transfers.\n\n"
 			"See below for other tips and links, touch here to start using PDX Bus.";
 	}
@@ -392,6 +395,15 @@
 					cell.textLabel.text = @"Pull to Refresh (c) 2010 Leah Culver";
 					cell.imageView.image = [self getActionIcon:kIconBrush];
 					break;
+                case kRowZXing:
+					cell.textLabel.text = @"QR Scanning from ZXing library";
+					cell.imageView.image = [self getActionIcon:kIconSrc];
+					break;
+                case kRowGentleface:
+					cell.textLabel.text = @"Some icons by Gentleface";
+					cell.imageView.image = [self getActionIcon:kIconBrush];
+					break;
+
 					
 			}
 			[cell setAccessibilityLabel:[NSString stringWithFormat:@"Link to %@", cell.textLabel.text]];
@@ -505,6 +517,12 @@
 					break;
                 case kRowRefresh:
 					[webPage setURLmobile:@"https://github.com/leah/PullToRefresh" full:nil title:@"Pull to Refresh"];
+					break;
+                case kRowZXing:
+					[webPage setURLmobile:@"http://code.google.com/p/zxing/" full:nil title:@"ZXing"];
+					break;
+                case kRowGentleface:
+					[webPage setURLmobile:@"http://gentleface.com/free_icon_set.html" full:nil title:@"Gentleface"];
 					break;
                     
                     

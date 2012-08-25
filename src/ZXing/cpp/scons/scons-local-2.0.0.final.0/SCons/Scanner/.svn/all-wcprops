@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/Scanner
+END
+IDL.py
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/Scanner/IDL.py
+END
+Fortran.py
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/Scanner/Fortran.py
+END
+LaTeX.py
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/Scanner/LaTeX.py
+END
+Dir.py
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/Scanner/Dir.py
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/Scanner/__init__.py
+END
+C.py
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/Scanner/C.py
+END
+D.py
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/Scanner/D.py
+END
+RC.py
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/Scanner/RC.py
+END
+Prog.py
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/Scanner/Prog.py
+END

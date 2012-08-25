@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/Tool/packaging
+END
+msi.py
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/Tool/packaging/msi.py
+END
+src_zip.py
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/Tool/packaging/src_zip.py
+END
+src_tarbz2.py
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/Tool/packaging/src_tarbz2.py
+END
+rpm.py
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/Tool/packaging/rpm.py
+END
+src_targz.py
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/Tool/packaging/src_targz.py
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/Tool/packaging/__init__.py
+END
+zip.py
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/Tool/packaging/zip.py
+END
+ipk.py
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/Tool/packaging/ipk.py
+END
+tarbz2.py
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/Tool/packaging/tarbz2.py
+END
+targz.py
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/Tool/packaging/targz.py
+END

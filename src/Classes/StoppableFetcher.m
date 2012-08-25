@@ -39,17 +39,11 @@
 @synthesize timedOut = _timedOut;
 
 
-static UserPrefs *_userPrefs = nil;
-
 - (id)init
 {
 	if ((self = [super init]))
 	{
-		if (_userPrefs == nil)
-		{
-			_userPrefs = [[UserPrefs alloc] init]; // one time leak!
-		}
-		self.giveUp = _userPrefs.networkTimeout;
+		self.giveUp = [UserPrefs getSingleton].networkTimeout;
 	}
 	return self;
 }
@@ -137,7 +131,7 @@ static UserPrefs *_userPrefs = nil;
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
 {
-	DEBUG_LOG(@"Expected length: %d\n", response.expectedContentLength);
+	DEBUG_LOG(@"Expected length: %lld\n", response.expectedContentLength);
 	
 	// Don't pre-allocate more than 32K - seems like it could be a mistake if we need 32K!
 	if (response.expectedContentLength !=-1 && response.expectedContentLength < (32 * 1024))

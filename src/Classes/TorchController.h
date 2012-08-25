@@ -32,12 +32,9 @@
 
 @interface TorchController : NSObject
 {
-    AVCaptureSession *_torchSession;
-    UserPrefs *_prefs;
+ 
 }
 
-
-@property (nonatomic, retain) AVCaptureSession *torchSession;
 + (bool)supported;
 
 - (id)init;

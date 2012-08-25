@@ -32,7 +32,7 @@
 #import <UIKit/UIKit.h>
 #import "TableViewWithToolbar.h"
 
-#define kWhatsNewVersion @"6.2"
+#define kWhatsNewVersion @"6.3"
 
 	
 	

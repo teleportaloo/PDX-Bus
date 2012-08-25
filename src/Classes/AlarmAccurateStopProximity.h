@@ -36,7 +36,6 @@
 @interface AlarmAccurateStopProximity : AlarmTask <CLLocationManagerDelegate, MapPinColor>
 {
 	CLLocation	*_destination;
-	UserPrefs   *_userPrefs;
 	bool		_accurate;
 	CLLocationManager *_locationManager;
     bool        _updating;

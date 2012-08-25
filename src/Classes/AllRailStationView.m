@@ -28,9 +28,6 @@
 #import "AllRailStationView.h"
 #import "DepartureTimesView.h"
 
-#ifdef ALL_RAIL_STATIONS
-
-
 #import "Hotspot.h"
 #import "RailStation.h"
 #import "RailStationTableView.h"
@@ -61,137 +58,139 @@ static RAILLINES railLines2[MAXHOTSPOTS];
 //
 
 int stationsAlpha[]={
-	0x042, 	/* Albina/Mississippi */
-	0x094, 	/* Art Museum */
-	0x00d, 	/* Beaverton Central */
-	0x00b, 	/* Beaverton Creek */
-	0x00e, 	/* Beaverton TC */
-	0x04d, 	/* Cascades */
-	0x095, 	/* Central Library */
-	0x031, 	/* City Hall/SW 5th & Jefferson St */
-	0x05f, 	/* Civic Drive */
-	0x056, 	/* Clackamas Town Center TC */
-	0x062, 	/* Cleveland Ave */
-	0x045, 	/* Convention Center */
-	0x03b, 	/* Delta Park/Vanport */
-	0x057, 	/* E 102nd Ave */
-	0x058, 	/* E 122nd Ave */
-	0x059, 	/* E 148th Ave */
-	0x05a, 	/* E 162nd Ave */
-	0x05b, 	/* E 172nd */
-	0x05c, 	/* E 181st */
-	0x009, 	/* Elmonica/SW 170th Ave */
-	0x03a, 	/* Expo Center */
-	0x004, 	/* Fair Complex/Hillsboro Airport */
-	0x01e, 	/* Galleria/SW 10th */
-	0x01c, 	/* Gateway/NE 99th TC */
-	0x018, 	/* Goose Hollow/SW Jefferson St */
-	0x061, 	/* Gresham Central TC */
-	0x060, 	/* Gresham City Hall */
-	0x012, 	/* Hall/Nimbus */
-	0x000, 	/* Hatfield Government Center */
-	0x005, 	/* Hawthorn Farm */
-	0x001, 	/* Hillsboro Central/SE 3rd TC */
-	0x048, 	/* Hollywood/NE 42nd Ave */
-	0x043, 	/* Interstate/Rose Quarter */
-	0x01a, 	/* JELD-WEN Field (PGE Park) */
-	0x03c, 	/* Kenton/N Denver */
-	0x019, 	/* Kings Hill/SW Salmon St */
-	0x053, 	/* Lents/SE Foster Rd */
-	0x021, 	/* Library/SW 9th Ave */
-	0x047, 	/* Lloyd Center/NE 11th Ave */
-	0x032, 	/* Mall/SW 4th Ave */
-	0x02e, 	/* Mall/SW 5th Ave */
-	0x00a, 	/* Merlo Rd/SW 158th Ave */
-	0x00c, 	/* Millikan Way */
-	0x02f, 	/* Morrison/SW 3rd Ave */
-	0x04c, 	/* Mt Hood Ave */
-	0x03f, 	/* N Killingsworth */
-	0x03d, 	/* N Lombard TC */
-	0x040, 	/* N Prescott */
-	0x049, 	/* NE 60th Ave */
-	0x046, 	/* NE 7th Ave */
-	0x04a, 	/* NE 82nd Ave */
-	0x098, 	/* NW 10th & Couch */
-	0x099, 	/* NW 10th & Everett */
-	0x09a, 	/* NW 10th & Glisan */
-	0x09b, 	/* NW 10th & Johnson */
-	0x09c, 	/* NW 10th & Marshall */
-	0x0aa, 	/* NW 11th & Couch */
-	0x0a9, 	/* NW 11th & Everett */
-	0x0a8, 	/* NW 11th & Glisan */
-	0x0a7, 	/* NW 11th & Johnson */
-	0x09d, 	/* NW 12th & Northrup */
-	0x0a2, 	/* NW 23rd & Marshall */
-	0x02b, 	/* NW 5th & Couch St */
-	0x027, 	/* NW 6th & Davis St */
-	0x0a6, 	/* NW Lovejoy & 13th */
-	0x0a5, 	/* NW Lovejoy & 18th */
-	0x0a4, 	/* NW Lovejoy & 21st */
-	0x0a3, 	/* NW Lovejoy & 22nd */
-	0x09e, 	/* NW Northrup & 14th */
-	0x09f, 	/* NW Northrup & 18th */
-	0x0a0, 	/* NW Northrup & 21st */
-	0x0a1, 	/* NW Northrup & 22nd */
-	0x08b, 	/* OHSU Commons */
-	0x036, 	/* Oak/SW 1st Ave */
-	0x034, 	/* Old Town/Chinatown */
-	0x006, 	/* Orenco/NW 231st Ave */
-	0x041, 	/* Overlook Park */
-	0x091, 	/* PSU Urban Center */
-	0x030, 	/* PSU/SW 5th & Mill St */
-	0x024, 	/* PSU/SW 6th & Montgomery */
-	0x04e, 	/* Parkrose/Sumner TC */
-	0x020, 	/* Pioneer Courthouse/SW 6th Ave */
-	0x02c, 	/* Pioneer Place/SW 5th Ave */
-	0x01f, 	/* Pioneer Square North */
-	0x022, 	/* Pioneer Square South */
-	0x04b, 	/* Portland Int'l Airport */
-	0x007, 	/* Quatama/NW 205th Ave */
-	0x05d, 	/* Rockwood/E 188th Ave TC */
-	0x03e, 	/* Rosa Parks */
-	0x044, 	/* Rose Quarter TC */
-	0x05e, 	/* Ruby Junction/E 197th Ave */
-	0x050, 	/* SE Division St */
-	0x054, 	/* SE Flavel St */
-	0x055, 	/* SE Fuller Rd */
-	0x052, 	/* SE Holgate Blvd */
-	0x04f, 	/* SE Main St */
-	0x051, 	/* SE Powell Blvd */
-	0x096, 	/* SW 10th & Alder */
-	0x093, 	/* SW 10th & Clay */
-	0x097, 	/* SW 10th & Stark */
-	0x0ab, 	/* SW 11th & Alder */
-	0x0ae, 	/* SW 11th & Clay */
-	0x0ad, 	/* SW 11th & Jefferson */
-	0x0ac, 	/* SW 11th & Taylor */
-	0x08f, 	/* SW 1st & Harrison */
-	0x090, 	/* SW 3rd & Harrison */
-	0x0b0, 	/* SW 5th & Market */
-	0x0b1, 	/* SW 5th & Montgomery */
-	0x02d, 	/* SW 5th & Oak St */
-	0x023, 	/* SW 6th & Madison St */
-	0x028, 	/* SW 6th & Pine St */
-	0x08a, 	/* SW Bond & Lane */
-	0x08e, 	/* SW Harrison Street */
-	0x089, 	/* SW Lowell & Bond */
-	0x0b2, 	/* SW Moody & Gaines */
-	0x08c, 	/* SW Moody & Gibbs */
-	0x0af, 	/* SW Park & Market */
-	0x092, 	/* SW Park & Mill */
-	0x08d, 	/* SW River Pkwy & Moody */
-	0x035, 	/* Skidmore Fountain */
-	0x016, 	/* Sunset TC */
-	0x013, 	/* Tigard TC */
-	0x014, 	/* Tualatin */
-	0x002, 	/* Tuality Hospital/SE 8th Ave */
-	0x02a, 	/* Union Station/NW 5th & Glisan St */
-	0x026, 	/* Union Station/NW 6th & Hoyt St */
-	0x017, 	/* Washington Park */
-	0x003, 	/* Washington/SE 12th Ave */
-	0x008, 	/* Willow Creek/SW 185th Ave TC */
-	0x015, 	/* Wilsonville */
-	0x033, 	/* Yamhill District */
+	0x041, 	/* Albina/Mississippi */
+	0x082, 	/* Art Museum */
+	0x00f, 	/* Beaverton Central */
+	0x00d, 	/* Beaverton Creek */
+	0x010, 	/* Beaverton TC */
+	0x04c, 	/* Cascades */
+	0x083, 	/* Central Library */
+	0x033, 	/* City Hall/SW 5th & Jefferson St */
+	0x05e, 	/* Civic Drive */
+	0x055, 	/* Clackamas Town Center TC */
+	0x061, 	/* Cleveland Ave */
+	0x044, 	/* Convention Center */
+	0x03a, 	/* Delta Park/Vanport */
+	0x056, 	/* E 102nd Ave */
+	0x057, 	/* E 122nd Ave */
+	0x058, 	/* E 148th Ave */
+	0x059, 	/* E 162nd Ave */
+	0x05a, 	/* E 172nd */
+	0x05b, 	/* E 181st */
+	0x00b, 	/* Elmonica/SW 170th Ave */
+	0x039, 	/* Expo Center */
+	0x006, 	/* Fair Complex/Hillsboro Airport */
+	0x020, 	/* Galleria/SW 10th */
+	0x01e, 	/* Gateway/NE 99th TC */
+	0x01a, 	/* Goose Hollow/SW Jefferson St */
+	0x060, 	/* Gresham Central TC */
+	0x05f, 	/* Gresham City Hall */
+	0x014, 	/* Hall/Nimbus */
+	0x002, 	/* Hatfield Government Center */
+	0x007, 	/* Hawthorn Farm */
+	0x003, 	/* Hillsboro Central/SE 3rd TC */
+	0x047, 	/* Hollywood/NE 42nd Ave */
+	0x042, 	/* Interstate/Rose Quarter */
+	0x01c, 	/* JELD-WEN Field */
+	0x03b, 	/* Kenton/N Denver */
+	0x01b, 	/* Kings Hill/SW Salmon St */
+	0x052, 	/* Lents/SE Foster Rd */
+	0x023, 	/* Library/SW 9th Ave */
+	0x046, 	/* Lloyd Center/NE 11th Ave */
+	0x034, 	/* Mall/SW 4th Ave */
+	0x030, 	/* Mall/SW 5th Ave */
+	0x00c, 	/* Merlo Rd/SW 158th Ave */
+	0x00e, 	/* Millikan Way */
+	0x031, 	/* Morrison/SW 3rd Ave */
+	0x04b, 	/* Mt Hood Ave */
+	0x03e, 	/* N Killingsworth */
+	0x03c, 	/* N Lombard TC */
+	0x03f, 	/* N Prescott */
+	0x048, 	/* NE 60th Ave */
+	0x045, 	/* NE 7th Ave */
+	0x049, 	/* NE 82nd Ave */
+	0x086, 	/* NW 10th & Couch */
+	0x087, 	/* NW 10th & Everett */
+	0x088, 	/* NW 10th & Glisan */
+	0x089, 	/* NW 10th & Johnson */
+	0x08a, 	/* NW 10th & Marshall */
+	0x098, 	/* NW 11th & Couch */
+	0x097, 	/* NW 11th & Everett */
+	0x096, 	/* NW 11th & Glisan */
+	0x095, 	/* NW 11th & Johnson */
+	0x08b, 	/* NW 12th & Northrup */
+	0x090, 	/* NW 23rd & Marshall */
+	0x02d, 	/* NW 5th & Couch St */
+	0x029, 	/* NW 6th & Davis St */
+	0x094, 	/* NW Lovejoy & 13th */
+	0x093, 	/* NW Lovejoy & 18th */
+	0x092, 	/* NW Lovejoy & 21st */
+	0x091, 	/* NW Lovejoy & 22nd */
+	0x08c, 	/* NW Northrup & 14th */
+	0x08d, 	/* NW Northrup & 18th */
+	0x08e, 	/* NW Northrup & 21st */
+	0x08f, 	/* NW Northrup & 22nd */
+	0x079, 	/* OHSU Commons */
+	0x038, 	/* Oak/SW 1st Ave */
+	0x036, 	/* Old Town/Chinatown */
+	0x008, 	/* Orenco/NW 231st Ave */
+	0x040, 	/* Overlook Park */
+	0x000, 	/* PSU South/SW 5th & Jackson */
+	0x001, 	/* PSU South/SW 6th & College */
+	0x07f, 	/* PSU Urban Center */
+	0x032, 	/* PSU/SW 5th & Mill St */
+	0x026, 	/* PSU/SW 6th & Montgomery */
+	0x04d, 	/* Parkrose/Sumner TC */
+	0x022, 	/* Pioneer Courthouse/SW 6th Ave */
+	0x02e, 	/* Pioneer Place/SW 5th Ave */
+	0x021, 	/* Pioneer Square North */
+	0x024, 	/* Pioneer Square South */
+	0x04a, 	/* Portland Int'l Airport */
+	0x009, 	/* Quatama/NW 205th Ave */
+	0x05c, 	/* Rockwood/E 188th Ave TC */
+	0x03d, 	/* Rosa Parks */
+	0x043, 	/* Rose Quarter TC */
+	0x05d, 	/* Ruby Junction/E 197th Ave */
+	0x04f, 	/* SE Division St */
+	0x053, 	/* SE Flavel St */
+	0x054, 	/* SE Fuller Rd */
+	0x051, 	/* SE Holgate Blvd */
+	0x04e, 	/* SE Main St */
+	0x050, 	/* SE Powell Blvd */
+	0x084, 	/* SW 10th & Alder */
+	0x081, 	/* SW 10th & Clay */
+	0x085, 	/* SW 10th & Stark */
+	0x099, 	/* SW 11th & Alder */
+	0x09c, 	/* SW 11th & Clay */
+	0x09b, 	/* SW 11th & Jefferson */
+	0x09a, 	/* SW 11th & Taylor */
+	0x07d, 	/* SW 1st & Harrison */
+	0x07e, 	/* SW 3rd & Harrison */
+	0x09e, 	/* SW 5th & Market */
+	0x09f, 	/* SW 5th & Montgomery */
+	0x02f, 	/* SW 5th & Oak St */
+	0x025, 	/* SW 6th & Madison St */
+	0x02a, 	/* SW 6th & Pine St */
+	0x078, 	/* SW Bond & Lane */
+	0x07c, 	/* SW Harrison Street */
+	0x077, 	/* SW Lowell & Bond */
+	0x0a0, 	/* SW Moody & Gaines */
+	0x07a, 	/* SW Moody & Gibbs */
+	0x09d, 	/* SW Park & Market */
+	0x080, 	/* SW Park & Mill */
+	0x07b, 	/* SW River Pkwy & Moody */
+	0x037, 	/* Skidmore Fountain */
+	0x018, 	/* Sunset TC */
+	0x015, 	/* Tigard TC */
+	0x016, 	/* Tualatin */
+	0x004, 	/* Tuality Hospital/SE 8th Ave */
+	0x02c, 	/* Union Station/NW 5th & Glisan St */
+	0x028, 	/* Union Station/NW 6th & Hoyt St */
+	0x019, 	/* Washington Park */
+	0x005, 	/* Washington/SE 12th Ave */
+	0x00a, 	/* Willow Creek/SW 185th Ave TC */
+	0x017, 	/* Wilsonville */
+	0x035, 	/* Yamhill District */
 };
 
 //
@@ -200,6 +199,8 @@ int stationsAlpha[]={
 //
 
 static RAILLINES railLines[]={
+	0x0c,	/* PSU South/SW 5th & Jackson */
+	0x0c,	/* PSU South/SW 6th & College */
 	0x02,	/* Hatfield Government Center */
 	0x02,	/* Hillsboro Central/SE 3rd TC */
 	0x02,	/* Tuality Hospital/SE 8th Ave */
@@ -215,9 +216,9 @@ static RAILLINES railLines[]={
 	0x03,	/* Millikan Way */
 	0x03,	/* Beaverton Central */
 	0x13,	/* Beaverton TC */
-	0x00,	
-	0x00,	
-	0x00,	
+	0x00,
+	0x00,
+	0x00,
 	0x10,	/* Hall/Nimbus */
 	0x10,	/* Tigard TC */
 	0x10,	/* Tualatin */
@@ -226,10 +227,10 @@ static RAILLINES railLines[]={
 	0x03,	/* Washington Park */
 	0x03,	/* Goose Hollow/SW Jefferson St */
 	0x03,	/* Kings Hill/SW Salmon St */
-	0x03,	/* JELD-WEN Field (PGE Park) */
-	0x00,	
+	0x03,	/* JELD-WEN Field */
+	0x00,
 	0x07,	/* Gateway/NE 99th TC */
-	0x00,	
+	0x00,
 	0x03,	/* Galleria/SW 10th */
 	0x03,	/* Pioneer Square North */
 	0x0c,	/* Pioneer Courthouse/SW 6th Ave */
@@ -237,11 +238,11 @@ static RAILLINES railLines[]={
 	0x03,	/* Pioneer Square South */
 	0x0c,	/* SW 6th & Madison St */
 	0x0c,	/* PSU/SW 6th & Montgomery */
-	0x00,	
+	0x00,
 	0x0c,	/* Union Station/NW 6th & Hoyt St */
 	0x0c,	/* NW 6th & Davis St */
 	0x0c,	/* SW 6th & Pine St */
-	0x00,	
+	0x00,
 	0x0c,	/* Union Station/NW 5th & Glisan St */
 	0x0c,	/* NW 5th & Couch St */
 	0x0c,	/* Pioneer Place/SW 5th Ave */
@@ -255,9 +256,6 @@ static RAILLINES railLines[]={
 	0x03,	/* Old Town/Chinatown */
 	0x03,	/* Skidmore Fountain */
 	0x03,	/* Oak/SW 1st Ave */
-	0x00,	
-	0x00,	
-	0x00,	
 	0x08,	/* Expo Center */
 	0x08,	/* Delta Park/Vanport */
 	0x08,	/* Kenton/N Denver */
@@ -299,44 +297,27 @@ static RAILLINES railLines[]={
 	0x02,	/* Gresham City Hall */
 	0x02,	/* Gresham Central TC */
 	0x02,	/* Cleveland Ave */
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
-	0x00,	
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
 	0x20,	/* SW Lowell & Bond */
 	0x20,	/* SW Bond & Lane */
 	0x20,	/* OHSU Commons */
@@ -356,7 +337,7 @@ static RAILLINES railLines[]={
 	0x20,	/* NW 10th & Everett */
 	0x20,	/* NW 10th & Glisan */
 	0x20,	/* NW 10th & Johnson */
-	0x20,	/* NW 10th & Marshall */
+	0x00,	/* NW 10th & Marshall */
 	0x20,	/* NW 12th & Northrup */
 	0x20,	/* NW Northrup & 14th */
 	0x20,	/* NW Northrup & 18th */
@@ -403,14 +384,14 @@ static ALPHA_SECTIONS alphaSections[]={
 	{ 'M', 39, 6},
 	{ 'N', 45, 27},
 	{ 'O', 72, 5},
-	{ 'P', 77, 9},
-	{ 'Q', 86, 1},
-	{ 'R', 87, 4},
-	{ 'S', 91, 30},
-	{ 'T', 121, 3},
-	{ 'U', 124, 2},
-	{ 'W', 126, 4},
-	{ 'Y', 130, 1},
+	{ 'P', 77, 11},
+	{ 'Q', 88, 1},
+	{ 'R', 89, 4},
+	{ 'S', 93, 30},
+	{ 'T', 123, 3},
+	{ 'U', 126, 2},
+	{ 'W', 128, 4},
+	{ 'Y', 132, 1},
 };
 
 #define ALPHA_SECTIONS_CNT (sizeof(alphaSections)/sizeof(alphaSections[0]))
@@ -427,17 +408,18 @@ static ALPHA_SECTIONS alphaSections[]={
 		
 		self.searchableItems = [[[NSMutableArray alloc] init] autorelease];
 		
+#ifndef CREATE_MAX_ARRAYS
 		for (int i=0; i< sizeof(stationsAlpha)/sizeof(int);  i++)
 		{
 			RailStation *station = [[RailStation alloc] initFromHotSpot:_hotSpots+stationsAlpha[i] index:stationsAlpha[i]];
 			
-			[self.searchableItems addObject:station];
+            [self.searchableItems addObject:station];
 			
-			[station release];
-		}
+                [station release];
+        }
 		
 		self.enableSearch = YES;
-		
+#endif
 	}
 	return self;
 }
@@ -900,9 +882,15 @@ static ALPHA_SECTIONS alphaSections[]={
 - (void)generateArrays
 {
 #ifdef CREATE_MAX_ARRAYS 
+    CODE_LOG(@"\n-------------------------------------------------------\n"
+               @"-     Creating Static Arrays of Rail Stations         -\n"
+               @"-------------------------------------------------------\n\n");
+    
+    
 	[RailMapView initHotspotData];
 	
-#ifdef MAKE_STREETCAR_LIST
+// #ifdef MAKE_STREETCAR_LIST
+#if 1
 	NSMutableArray *streetcarStops = [[[NSMutableArray alloc] init] autorelease];
 	
 	[self addStreetcar:kStreetcarLine route:@"193" direction:@"0" stations:streetcarStops];
@@ -917,7 +905,7 @@ static ALPHA_SECTIONS alphaSections[]={
 		[res0 appendFormat:@"\tNULL_HOTSPOT(\"%@\");\n", [r url]];
 	}
 	
-	DEBUG_LOG(@"%@", res0);
+	CODE_LOG(@"\n--------\nStreetcar Station Data\n--------%@\n\n", res0);
 #endif
 	
 	NSMutableArray *stations = [[[NSMutableArray alloc] init] autorelease];
@@ -948,7 +936,7 @@ static ALPHA_SECTIONS alphaSections[]={
 	}
 	[res appendString:@"};\n"];
 	
-	DEBUG_LOG(@"%@", res);
+	CODE_LOG(@"\n--------\nStation Names in Alphabetical Order\n--------\n%@\n\n", res);
 	
 	StopLocations *db = [StopLocations getDatabase];
 	
@@ -973,10 +961,7 @@ static ALPHA_SECTIONS alphaSections[]={
 	[self addLine:kStreetcarLine route:@"193" direction:@"1" stations:stations];
 	
 	// Civic Drive is a special case - add it now by hand - when I made the 
-	// stop location database it had been removed from the lines.
-	[db insert:13450 lat:45.5079717219104 lng:-122.441301600866 rail:YES];
-	[db insert:13449 lat:45.5082978213805 lng:-122.441819427459 rail:YES];
-	
+	// stop location database it had been removed from the lines
 	[db close];
 	
 	
@@ -998,7 +983,7 @@ static ALPHA_SECTIONS alphaSections[]={
 	}
 	[res1 appendString:@"};\n"];
 	
-	DEBUG_LOG(@"%@", res1);
+	CODE_LOG(@"\n--------\nLine colors for each station\n--------\n%@\n\n", res1);
 	
 	NSMutableString *res3 = [[[NSMutableString alloc] init] autorelease];
 	
@@ -1030,11 +1015,10 @@ static ALPHA_SECTIONS alphaSections[]={
 	[res3 appendFormat:@"\t{ '%c', %d, %d},\n", title, offset, count];
 	
 	[res3 appendFormat:@"};\n"];
-	DEBUG_LOG(@"%@", res3);
+	CODE_LOG(@"\n--------\nTable Sections\n--------\n%@\n\n", res3);
 #endif	
 }
 
 
 @end
 
-#endif

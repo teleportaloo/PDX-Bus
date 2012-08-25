@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/!svn/ver/2328/trunk/cpp/core/src/zxing/datamatrix/decoder
+END
+DecodedBitStreamParser.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/!svn/ver/2328/trunk/cpp/core/src/zxing/datamatrix/decoder/DecodedBitStreamParser.cpp
+END
+BitMatrixParser.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/!svn/ver/1992/trunk/cpp/core/src/zxing/datamatrix/decoder/BitMatrixParser.cpp
+END
+DecodedBitStreamParser.h
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/!svn/ver/1992/trunk/cpp/core/src/zxing/datamatrix/decoder/DecodedBitStreamParser.h
+END
+DataBlock.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/1217/trunk/cpp/core/src/zxing/datamatrix/decoder/DataBlock.cpp
+END
+BitMatrixParser.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/!svn/ver/1343/trunk/cpp/core/src/zxing/datamatrix/decoder/BitMatrixParser.h
+END
+Decoder.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/2204/trunk/cpp/core/src/zxing/datamatrix/decoder/Decoder.cpp
+END
+DataBlock.h
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/1271/trunk/cpp/core/src/zxing/datamatrix/decoder/DataBlock.h
+END
+Decoder.h
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/2204/trunk/cpp/core/src/zxing/datamatrix/decoder/Decoder.h
+END

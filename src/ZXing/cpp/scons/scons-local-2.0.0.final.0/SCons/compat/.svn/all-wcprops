@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/compat
+END
+_scons_io.py
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/compat/_scons_io.py
+END
+_scons_subprocess.py
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/compat/_scons_subprocess.py
+END
+_scons_builtins.py
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/compat/_scons_builtins.py
+END
+_scons_hashlib.py
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/compat/_scons_hashlib.py
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/compat/__init__.py
+END
+_scons_collections.py
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/compat/_scons_collections.py
+END
+_scons_sets.py
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/compat/_scons_sets.py
+END
+_scons_dbm.py
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/!svn/ver/1549/trunk/cpp/scons/scons-local-2.0.0.final.0/SCons/compat/_scons_dbm.py
+END

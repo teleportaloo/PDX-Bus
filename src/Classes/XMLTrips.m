@@ -1296,11 +1296,9 @@ static strmap dirmap [] =
 {
 	if ((self = [super init]))
 	{
-		TriMetTimesAppDelegate *appDelegate = (TriMetTimesAppDelegate *)[[UIApplication sharedApplication] delegate];
-	
-		self.walk =		appDelegate.prefs.maxWalkingDistance;
-		self.tripMode = appDelegate.prefs.travelBy;
-		self.tripMin =  appDelegate.prefs.tripMin;
+		self.walk =		[UserPrefs getSingleton].maxWalkingDistance;
+		self.tripMode = [UserPrefs getSingleton].travelBy;
+		self.tripMin =  [UserPrefs getSingleton].tripMin;
 		self.maxItineraries = 6;
 		self.toPoint = [[[TripEndPoint alloc] init] autorelease];
 		self.fromPoint = [[[TripEndPoint alloc] init] autorelease];
@@ -1362,22 +1360,20 @@ static strmap dirmap [] =
 
 
 - (bool)fromDictionary:(NSDictionary *)dict
-{
-	TriMetTimesAppDelegate *appDelegate = (TriMetTimesAppDelegate *)[[UIApplication sharedApplication] delegate];
-	
+{	
 	self.fromPoint = [[[TripEndPoint alloc] initFromDict:[self forceNSDictionary:[dict objectForKey:kDictUserRequestFromPoint]]] autorelease];
 	self.toPoint   = [[[TripEndPoint alloc] initFromDict:[self forceNSDictionary:[dict objectForKey:kDictUserRequestToPoint  ]]] autorelease];
 	
 	NSNumber *tripMode = [self forceNSNumber:[dict objectForKey:kDictUserRequestTripMode]];
 	
 	self.tripMode = tripMode	? [tripMode intValue]
-								: appDelegate.prefs.travelBy;
+								: [UserPrefs getSingleton].travelBy;
 
 
 	
 	NSNumber *tripMin = [self forceNSNumber:[dict objectForKey:kDictUserRequestTripMin]];
 	self.tripMin = tripMin	? [tripMin intValue]
-							: appDelegate.prefs.tripMin;
+							: [UserPrefs getSingleton].tripMin;
 	
 	NSNumber *maxItineraries = [self forceNSNumber:[dict objectForKey:kDictUserRequestMaxItineraries]];
 	self.maxItineraries =  maxItineraries ? [maxItineraries intValue]
@@ -1385,7 +1381,7 @@ static strmap dirmap [] =
 	
 	NSNumber *walk = [self forceNSNumber:[dict objectForKey:kDictUserRequestWalk]];
 	self.walk = walk	? [walk floatValue]
-						: appDelegate.prefs.maxWalkingDistance;
+						: [UserPrefs getSingleton].maxWalkingDistance;
 
 	
 	NSNumber *arrivalTime = [self forceNSNumber:[dict objectForKey:kDictUserRequestArrivalTime]];
@@ -1813,7 +1809,7 @@ static NSString *tripURLString = @"trips/tripplanner?%@&%@&Date=%@&Time=%@&Arr=%
 		}
 		else 
 		{
-			self.currentTagData = [NSString stringWithFormat:@"@% ($@%)", tag];
+			self.currentTagData = [NSString stringWithFormat:@"%@ ($%@)", tag, @"%@"];
 		}
 	}
 	else if ([elementName isEqualToString:@"fare"])

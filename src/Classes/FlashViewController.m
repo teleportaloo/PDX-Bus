@@ -181,12 +181,12 @@
 	{
 		case 0:	
 		{
-            _prefs.flashLed = YES;
+            [UserPrefs getSingleton].flashLed = YES;
             break;
 		}
 		case 1:	
 		{
-			_prefs.flashLed = NO;
+			[UserPrefs getSingleton].flashLed = NO;
 			break;
 		}
 	}
@@ -204,7 +204,7 @@
 								 [NSArray arrayWithObjects:@"Flash LED", @"LED Off", nil]];
         [buttonBarSegmentedControl addTarget:self action:@selector(toggleLed:) forControlEvents:UIControlEventValueChanged];
     
-        if (_prefs.flashLed)
+        if ([UserPrefs getSingleton].flashLed)
         {
             buttonBarSegmentedControl.selectedSegmentIndex = 0.0;	// start by showing the normal picker
         }
@@ -214,7 +214,7 @@
         }
         buttonBarSegmentedControl.segmentedControlStyle = UISegmentedControlStyleBar;
     
-        int color = _prefs.toolbarColors;
+        int color = [UserPrefs getSingleton].toolbarColors;
 	
         if (color == 0xFFFFFF)
         {

@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/2056/trunk/cpp/core/src/zxing/multi/qrcode/detector
+END
+MultiDetector.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/!svn/ver/1986/trunk/cpp/core/src/zxing/multi/qrcode/detector/MultiDetector.cpp
+END
+MultiFinderPatternFinder.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/!svn/ver/2056/trunk/cpp/core/src/zxing/multi/qrcode/detector/MultiFinderPatternFinder.cpp
+END
+MultiDetector.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/!svn/ver/1986/trunk/cpp/core/src/zxing/multi/qrcode/detector/MultiDetector.h
+END
+MultiFinderPatternFinder.h
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/!svn/ver/2056/trunk/cpp/core/src/zxing/multi/qrcode/detector/MultiFinderPatternFinder.h
+END

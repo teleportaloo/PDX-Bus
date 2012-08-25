@@ -31,12 +31,14 @@
 @interface RssView : TableViewWithToolbar {
 	RssXML *_rssData; 
 	NSString *_rssUrl;
+    bool _gotoOriginalArticle;
 }
 
 - (void)fetchRssInBackground:(id<BackgroundTaskProgress>) callback url:(NSString*)rssUrl;
 
 @property (nonatomic, retain) RssXML *rssData;
 @property (nonatomic, retain) NSString *rssUrl;
+@property (nonatomic) bool gotoOriginalArticle;
 
 
 @end

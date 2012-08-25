@@ -31,8 +31,6 @@
 
 @implementation TorchController
 
-@synthesize torchSession = _torchSession;
-
 +(bool)supported
 {
     static bool checkDone = NO;
@@ -59,40 +57,7 @@
 {
     if ((self = [super init]))
     {
-        _prefs = [TriMetTimesAppDelegate getSingleton].prefs;
-        if ([TorchController supported])
-        {
-            AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-            
-            if ([device hasTorch] && [device hasFlash])
-            {
-                
-                if (device.torchMode == AVCaptureTorchModeOff) 
-                {
-                    AVCaptureDeviceInput *flashInput = [AVCaptureDeviceInput deviceInputWithDevice:device error: nil];
-                    AVCaptureVideoDataOutput *output = [[AVCaptureVideoDataOutput alloc] init];
-                    
-                    AVCaptureSession *session = [[AVCaptureSession alloc] init];
-                    
-                    [session beginConfiguration];
-                    [device lockForConfiguration:nil];
-                    
-                    [session addInput:flashInput];
-                    [session addOutput:output];
-                    
-                    [device unlockForConfiguration];
-                    
-                    [output release];
-                    
-                    [session commitConfiguration];
-                    [session startRunning];
-                    
-                    [self setTorchSession:session];
-                    [session release];
-                }
 
-            }
-        }
     }
     
     return self;
@@ -102,7 +67,7 @@
 - (void)on
 {
     
-    if ([TorchController supported] && _prefs.flashLed) {
+    if ([TorchController supported] && [UserPrefs getSingleton].flashLed) {
         
         AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
         
@@ -141,7 +106,7 @@
         
         [device lockForConfiguration:nil];
         
-        if (device.torchMode != AVCaptureTorchModeOn && _prefs.flashLed)
+        if (device.torchMode != AVCaptureTorchModeOn && [UserPrefs getSingleton].flashLed)
         {
             [device setTorchMode:AVCaptureTorchModeOn];
             [device setFlashMode:AVCaptureFlashModeOn];            
@@ -158,7 +123,6 @@
 - (void)dealloc
 {
     [self off];
-    self.torchSession = nil;
     [super dealloc];
 }
 
