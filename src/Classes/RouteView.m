@@ -264,9 +264,9 @@
     [self createToolbarItemsWithXml];
 }
 
-- (NSData *) getXmlData
+-(void) appendXmlData:(NSMutableData *)buffer
 {
-    return self.routeData.rawData;
+    [self.routeData appendQueryAndData:buffer];
 }
 
 @end

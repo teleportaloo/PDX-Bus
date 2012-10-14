@@ -40,7 +40,6 @@
 	NSString *_pathToCleanExit;
 	UIView *activityView;
 	bool _cleanExitLastTime;
-	bool _delayInitialArrivals;
 }
 
 @property (nonatomic) bool cleanExitLastTime;
@@ -49,7 +48,6 @@
 @property (nonatomic, retain) UIWindow *window;
 @property (nonatomic, retain) IBOutlet UINavigationController *navigationController;
 @property (nonatomic, retain) IBOutlet RootViewController *rootViewController;
-
 
 @end
 

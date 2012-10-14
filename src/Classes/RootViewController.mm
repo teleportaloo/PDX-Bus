@@ -31,6 +31,7 @@
 #import "CellTextField.h"
 #import "UserFaves.h"
 #import "AboutView.h"
+#import "SupportView.h"
 #import "WebViewController.h"
 #import "DetoursView.h"
 #import "FindByLocationView.h"
@@ -52,11 +53,15 @@
 #import "AlarmViewMinutes.h"
 #import "AlarmAccurateStopProximity.h"
 #import "LocationServicesDebugView.h"
-#import <Twitter/TWTweetComposeViewController.h>
+
+#import "TripPlannerLocatingView.h"
 
 #import "ZXingWidgetController.h"
 #import "QRCodeReader.h"
 #import "ProgressModalView.h"
+
+#import "AddressBook/AddressBook.h"
+#import <AddressBook/ABPerson.h>
 
 #define kTableSectionStopId		0
 #define kTableSectionFaves		1
@@ -79,7 +84,7 @@
 
 #define kTableAboutSettings     0
 #define kTableAboutRowAbout     1
-#define kTableAboutTweet        3
+#define kTableAboutSupport      3
 #define kTableAboutFacebook		4
 #define kTableAboutRate         5
 #define kTableAboutRowEmail     6
@@ -88,7 +93,7 @@
 #define kTableFindRowBrowse		1
 #define kTableFindRowLocate		2
 #define kTableFindRowRailStops	3
-#define kTableFindRowRailMap	4
+#define kTableFindRowRailMap    4
 #define kTableFindRowQR         5
 #define kTableFindRowHistory	6
 
@@ -106,13 +111,10 @@
 #define kPlainId				@"Plain"
 #define kAlarmCellId			@"Alarm"
 
-#define kTweetButtonList        1
-#define kTweetButtonTweet       2
-#define kTweetButtonApp         3
-#define kTweetButtonWeb         4
-#define kTweetButtonCancel      5
 
 static NSString *callString = @"tel:1-503-238-RIDE";
+
+// #define LOADINGSCREEN
 
 
 @implementation RootViewController
@@ -127,10 +129,13 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 @synthesize triMetRows          = _triMetRows;
 @synthesize aboutRows           = _aboutRows;
 @synthesize arrivalRows         = _arrivalRows;
-@synthesize tweetAt             = _tweetAt;
-@synthesize initTweet           = _initTweet;
 @synthesize launchStops         = _launchStops;
-@synthesize delayedInitialArrivals = _delayedInitialArrivals;
+@synthesize routingURL          = _routingURL;
+@synthesize delayedInitialAction = _delayedInitialAction;
+@synthesize initialAction       = _initialAction;
+@synthesize initialBookmarkName = _initalBookmarkName;
+@synthesize initialBookmarkIndex = _initialBookmarkIndex;
+@synthesize viewLoaded          = _viewLoaded;
 
 
 - (void)dealloc {
@@ -148,6 +153,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
     self.initTweet          = nil;
     self.arrivalRows        = nil;
     self.launchStops        = nil;
+    self.routingURL         = nil;
 
 	[super dealloc];
 }
@@ -186,40 +192,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 
 
 
-- (void) tweet
-{
-    UIActionSheet *sheet = [[[UIActionSheet alloc] initWithTitle:[NSString stringWithFormat:@"@%@ on Twitter", self.tweetAt]
-                                                        delegate:self
-                                               cancelButtonTitle:nil
-                                          destructiveButtonTitle:nil
-                                               otherButtonTitles:nil] autorelease];
-    
-    
-    
-    if ([[TriMetTimesAppDelegate getSingleton] canTweet])
-    {
-        _tweetButtons[ [sheet addButtonWithTitle:@"Send tweet"] ] = kTweetButtonTweet;
-    }
 
-    
-    NSString *twitter=[NSString stringWithFormat:@"twitter:"];
-    
-    if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:twitter]])
-    {
-         _tweetButtons[ [sheet addButtonWithTitle:@"Show in Twitter app"] ] = kTweetButtonApp;
-    }
-    
-    _tweetButtons[ [sheet addButtonWithTitle:@"Show in Safari"] ] = kTweetButtonWeb;
-    
-    
-    // _tweetButtons[[sheet addButtonWithTitle:@"Recent tweets"] ] = kTweetButtonList;
-
-    sheet.cancelButtonIndex  = [sheet addButtonWithTitle:@"Cancel"];
-    _tweetButtons[sheet.cancelButtonIndex ] = kTweetButtonCancel;
-
-    [sheet showFromToolbar:self.navigationController.toolbar];
-    
-}
 
 - (void) delayedQRScanner:(NSObject *)arg
 {
@@ -284,6 +257,105 @@ static NSString *callString = @"tel:1-503-238-RIDE";
         return NO;
     }
     return YES;
+}
+
+- (NSString *)addressFromMapItem:(MKMapItem *)mapItem
+{
+    if (mapItem.name != nil)
+    {
+        return mapItem.name;
+    }
+    
+    NSMutableString *address = [[[NSMutableString alloc] init] autorelease];
+    
+    if (mapItem.placemark.addressDictionary != nil)
+    {
+        // NSDictionary *dict = mapItem.placemark.addressDictionary;
+       
+        CFDictionaryRef dict =  (CFDictionaryRef)mapItem.placemark.addressDictionary;
+
+        NSString* item =  (NSString *)CFDictionaryGetValue(dict, kABPersonAddressStreetKey);
+    
+        if (item && [item length] > 0)
+        {
+            [address appendString:item];
+        }
+    
+        item =  (NSString *)CFDictionaryGetValue(dict, kABPersonAddressCityKey);
+    
+        if (item && [item length] > 0)
+        {
+            if ([address length] > 0)
+            {
+                [address appendString:@", "];
+            }
+            [address appendString:item];
+        }
+    
+        item =  (NSString *)CFDictionaryGetValue(dict, kABPersonAddressStateKey);
+        
+        if (item && [item length] > 0)
+        {
+            if ([address length] > 0)
+            {
+                [address appendString:@","];
+            }
+            [address appendString:item];
+    
+    
+        }
+        return address;
+    }
+    
+    return nil;
+
+}
+
+- (void)launchTripPlannerFromURL
+{
+    MKDirectionsRequest* directionsInfo = [[[MKDirectionsRequest alloc] initWithContentsOfURL:self.routingURL] autorelease];
+    
+    self.routingURL = nil;
+    
+    TripPlannerLocatingView * locView = [[ TripPlannerLocatingView alloc ] init];
+	
+    XMLTrips *query = [[[XMLTrips alloc] init] autorelease];
+    
+    if (directionsInfo.source.isCurrentLocation)
+    {
+        query.userRequest.fromPoint.useCurrentLocation = YES;
+    }
+    else
+    {
+        query.userRequest.fromPoint.locationDesc = [self addressFromMapItem:directionsInfo.source];
+        query.userRequest.fromPoint.currentLocation = directionsInfo.source.placemark.location;
+        DEBUG_LOG(@"From desc: %@\n", query.userRequest.fromPoint.locationDesc);
+    }
+    
+    if (directionsInfo.destination.isCurrentLocation)
+    {
+        query.userRequest.toPoint.useCurrentLocation = YES;
+    }
+    else
+    {
+        query.userRequest.toPoint.locationDesc = [self addressFromMapItem:directionsInfo.destination];
+        query.userRequest.toPoint.currentLocation = directionsInfo.destination.placemark.location;
+        DEBUG_LOG(@"To desc: %@\n", query.userRequest.fromPoint.locationDesc);
+    }
+    
+    
+    query.userRequest.timeChoice = TripDepartAfterTime;
+    query.userRequest.dateAndTime = [NSDate date];
+    
+    locView.tripQuery = query;
+	
+    [locView nextScreen:[self navigationController] forceResults:NO postQuery:NO
+            orientation:self.interfaceOrientation
+          taskContainer:self.backgroundTask];
+	
+    [locView release];
+
+
 }
 
 - (void)launchFromURL
@@ -358,11 +430,47 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 	return [[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:callString]];
 }
 
-- (bool)initialArrivals
+- (void)executeInitialAction
 {
 	DEBUG_PRINTF("Last arrivals: %s LSD %d\n", [self.lastArrivalsShown cStringUsingEncoding:NSUTF8StringEncoding], [UserPrefs getSingleton].lastScreenDisplayed);
 	
-    if (self.launchStops)
+    if (!self.viewLoaded)
+    {
+        self.delayedInitialAction = YES;
+        return;
+    }
+    
+    
+    bool showAbout = [self newVersion:@"lastRun.plist" version:kAboutVersion];
+	bool showWhatsNew = [self newVersion:@"whatsNew.plist" version:kWhatsNewVersion];
+    
+    UIDevice* device = [UIDevice currentDevice];
+	BOOL backgroundSupported = NO;
+	if ([device respondsToSelector:@selector(isMultitaskingSupported)])
+		backgroundSupported = device.multitaskingSupported;
+	
+	if (showAbout)
+	{
+		AboutView *aboutView = [[AboutView alloc] init];
+		
+		// Push the detail view controller
+		[[self navigationController] pushViewController:aboutView animated:NO];
+		[aboutView release];
+		
+	}
+	else  if (showWhatsNew)
+	{
+		WhatsNewView *whatsNew = [[WhatsNewView alloc] init];
+		[[self navigationController] pushViewController:whatsNew animated:NO];
+		[whatsNew release];
+	}
+	else if (self.routingURL)
+    {
+        [self.navigationController popToRootViewControllerAnimated:NO];
+        
+        [self launchTripPlannerFromURL];
+    }
+    else if (self.launchStops)
     {
         [self.navigationController popToRootViewControllerAnimated:NO];
         
@@ -382,8 +490,50 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 		[departureViewController release];		
 		showingLast = true;
 		self.commuterBookmark = nil;
-		return true;
 	}
+    else if (self.initialAction == InitialAction_TripPlanner)
+    {
+        [self tripPlanner:YES];
+    }
+    else if (self.initialAction == InitialAction_Commute)
+    {
+        [self commuteAction:nil];
+    }
+    else if (self.initialAction == InitialAction_Locate)
+    {
+        [self autoLocate:nil];
+    }
+    else if (self.initialAction == InitialAction_QRCode)
+    {
+        [self QRCodeScanner];
+    }
+    else if (self.initialAction == InitialAction_BookmarkIndex)
+    {
+        [self openFave:self.initialBookmarkIndex allowEdit:NO];
+    }
+    else if (self.initialBookmarkName != nil)
+    {
+        bool found = NO;
+        int foundItem = 0;
+        @synchronized (_userData)
+        {
+            for (int i=0; i< _userData.faves.count; i++)
+            {
+                NSMutableDictionary *item = (NSMutableDictionary *)[_userData.faves objectAtIndex:i];
+                NSString *name = [item valueForKey:kUserFavesChosenName];
+                if (name!=nil && [self.initialBookmarkName isEqualToString:name])
+                {
+                    found = YES;
+                    foundItem = i;
+                    break;
+                }
+            }
+        }
+        if (found)
+        {
+            [self openFave:foundItem allowEdit:NO];
+        }
+    }
 	else if (self.lastArrivalsShown!=nil && [UserPrefs getSingleton].lastScreenDisplayed)
 	{
         [self.navigationController popToRootViewControllerAnimated:NO];
@@ -402,10 +552,15 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 		[localCopyLastArrivals release];
 		[localCopyLastNames release];
 		showingLast = true;
-		return true;
 	}
-    self.delayedInitialArrivals = NO;
-	return false;
+    else if ([UserPrefs getSingleton].displayTripPlanning && !backgroundSupported)
+	{
+		[self tripPlanner:NO];
+	}
+    
+    self.delayedInitialAction = NO;
+    self.initialAction = InitialAction_None;
+    self.initialBookmarkName = nil;
 }
 
 - (UITextField *)createTextField_Rounded
@@ -620,38 +775,20 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 }
 
 - (void)viewDidLoad {
-	self.navigationItem.leftBarButtonItem = self.editButtonItem;
-	self.title = NSLocalizedString(@"PDX Bus", @"RootViewController title");	
-	bool showAbout = [self newVersion:@"lastRun.plist" version:kAboutVersion];
-	bool showWhatsNew = [self newVersion:@"whatsNew.plist" version:kWhatsNewVersion];
-    
-    UIDevice* device = [UIDevice currentDevice];
-	BOOL backgroundSupported = NO;
-	if ([device respondsToSelector:@selector(isMultitaskingSupported)])
-		backgroundSupported = device.multitaskingSupported;
+#ifndef LOADINGSCREEN
+	self.navigationItem.leftBarButtonItem = self.editButtonItem;    
+	self.title = NSLocalizedString(@"PDX Bus", @"RootViewController title");
+#else
+    self.title = @"Loading PDX Bus";
+#endif
 	
-	if (showAbout)
-	{
-		AboutView *aboutView = [[AboutView alloc] init];
-		
-		// Push the detail view controller
-		[[self navigationController] pushViewController:aboutView animated:NO];
-		[aboutView release];
-		
-	}
-	else  if (showWhatsNew)
-	{
-		WhatsNewView *whatsNew = [[WhatsNewView alloc] init];
-		[[self navigationController] pushViewController:whatsNew animated:NO];
-		[whatsNew release];
-	}
-	else if (((self.delayedInitialArrivals && ![self initialArrivals])
-             ||  !self.delayedInitialArrivals)
-             && [UserPrefs getSingleton].displayTripPlanning && !backgroundSupported)
-	{
-		[self tripPlanner:NO];
-	}
-    
+    self.viewLoaded = YES;
+    if (self.delayedInitialAction)
+    {
+        [self executeInitialAction];
+        self.delayedInitialAction = NO;
+    }
+   
 	DEBUG_PRINTF("Last arrivals: %s LSD %d\n", [self.lastArrivalsShown cStringUsingEncoding:NSUTF8StringEncoding], [UserPrefs getSingleton].lastScreenDisplayed);
 	
 }
@@ -684,15 +821,17 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 		//[[(RootViewController *)[self.navigationController topViewController] table] reloadData];	
 
 	}
+    
+#ifndef LOADINGSCREEN
 	
 	UIBarButtonItem *info = [[[UIBarButtonItem alloc]
 							  initWithTitle:@"Help"
 							  style:UIBarButtonItemStyleBordered
 							  target:self action:@selector(infoAction:)] autorelease];
 	
-	
+
 	self.navigationItem.rightBarButtonItem = info;
-	
+#endif
 	
 	[self reloadData];
 	showingLast = false;
@@ -851,7 +990,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
             
             [rowArray addObject:[NSNumber numberWithInt:kTableAboutSettings]];
             [rowArray addObject:[NSNumber numberWithInt:kTableAboutRowAbout]];
-            [rowArray addObject:[NSNumber numberWithInt:kTableAboutTweet]];
+            [rowArray addObject:[NSNumber numberWithInt:kTableAboutSupport]];
             [rowArray addObject:[NSNumber numberWithInt:kTableAboutFacebook]];
             [rowArray addObject:[NSNumber numberWithInt:kTableAboutRate]];
             [rowArray addObject:[NSNumber numberWithInt:kTableAboutRowEmail]];
@@ -1027,14 +1166,15 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 					}
 					
 					// Set up the cell
-					cell.textLabel.text = @"Choose from rail map";
+					cell.textLabel.text = @"Choose from rail maps";
 					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 					[self maybeAddSectionToAccessibility:cell indexPath:indexPath alwaysSaySection:YES];
-					cell.imageView.image = [self getActionIcon:kIconRailMap]; 
+					cell.imageView.image = [self getActionIcon:kIconMaxMap];
 					cell.textLabel.font = [self getBasicFont];
 					cell.textLabel.adjustsFontSizeToFitWidth = YES;
 					return cell;
 				}
+                    
 			    case kTableFindRowRailStops:
 				{
 					UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kPlainId];
@@ -1251,9 +1391,9 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 					cell.imageView.image = [self getActionIcon:kIconAbout];
 					break;
-                case kTableAboutTweet:
-					cell.textLabel.text = @"@pdxbus on Twitter";
-					cell.imageView.image = [self getActionIcon:kIconTwitter];
+                case kTableAboutSupport:
+					cell.textLabel.text = @"Help & support";
+					cell.imageView.image = [self getActionIcon:kIconXml];
 					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 					break;
 				case kTableAboutFacebook:
@@ -1384,8 +1524,90 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 	return nil;
 }
 
+- (void)openFave:(int)index allowEdit:(bool)allowEdit
+{
+    NSMutableDictionary *item = nil;
+    NSString *location = nil;
+    TripUserRequest *req = nil;
+    NSMutableDictionary *tripItem = nil;
+    
+    if (index < _userData.faves.count)
+    {
+        @synchronized (_userData)
+        {
+            item = (NSMutableDictionary *)[_userData.faves objectAtIndex:index];
+            location = [item valueForKey:kUserFavesLocation];
+            tripItem = [item valueForKey:kUserFavesTrip];
+            req = [[[TripUserRequest alloc] initFromDict:tripItem] autorelease];
+        }
+    }
+    if (    allowEdit
+        &&  (self.table.editing
+             || _userData.faves.count==0
+             || (tripItem==nil && item!=nil && ((location==nil) || ([location length] == 0)))
+             || (tripItem !=nil
+                 && req !=nil
+                 && req.fromPoint.locationDesc==nil
+                 && req.fromPoint.useCurrentLocation == false)))
+    {
+        switch (index - _userData.faves.count)
+        {
+            default:
+            {
+                EditBookMarkView *edit = [[EditBookMarkView alloc] init];
+                [edit editBookMark:item item:index];
+                [[self navigationController] pushViewController:edit animated:YES];
+                [edit release];
+                break;
+            }
+            case kTableFaveAdd:
+            {
+                EditBookMarkView *edit = [[EditBookMarkView alloc] init];
+                [edit addBookMark];
+                [[self navigationController] pushViewController:edit animated:YES];
+                [edit release];
+                break;
+            }
+            case kTableFaveTrip:
+            {
+                EditBookMarkView *edit = [[EditBookMarkView alloc] init];
+                [edit addTripBookMark];
+                [[self navigationController] pushViewController:edit animated:YES];
+                [edit release];
+                break;
+            }
+        }
+    }
+    else if (location !=nil)
+    {
+        DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
+        
+        
+        [departureViewController fetchTimesForLocationInBackground:self.backgroundTask
+                                                               loc:location
+                                                             title:[item valueForKey:kUserFavesChosenName]];
+        [departureViewController release];
+    }
+    else
+    {
+        TripPlannerDateView *tripDate = [[TripPlannerDateView alloc] init];
+        
+        [tripDate initializeFromBookmark:req];
+        @synchronized (_userData)
+        {
+            [tripDate.tripQuery addStopsFromUserFaves:_userData.faves];
+        }
+        
+        // Push the detail view controller
+        [tripDate nextScreen:[self navigationController] taskContainer:self.backgroundTask];
+        [tripDate release];
+        
+    }
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {	
+}
+
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     if (self.navigationItem.rightBarButtonItem != nil)
     {
         self.navigationItem.rightBarButtonItem = nil;
@@ -1460,77 +1682,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
         }
         case kTableSectionFaves:
         {
-            NSMutableDictionary *item = nil;
-            NSString *location = nil;
-            TripUserRequest *req = nil;
-            NSMutableDictionary *tripItem = nil;
-            
-            if (indexPath.row < _userData.faves.count)
-            {
-                @synchronized (_userData)
-                {
-                    item = (NSMutableDictionary *)[_userData.faves objectAtIndex:indexPath.row];
-                    location = [item valueForKey:kUserFavesLocation];
-                    tripItem = [item valueForKey:kUserFavesTrip];
-                    req = [[[TripUserRequest alloc] initFromDict:tripItem] autorelease];
-                }
-            }
-            if (tableView.editing || _userData.faves.count==0 || (tripItem==nil && item!=nil && ((location==nil) || ([location length] == 0)))
-                || (tripItem !=nil && req !=nil && req.fromPoint.locationDesc==nil && req.fromPoint.useCurrentLocation == false))
-            {
-                switch (indexPath.row - _userData.faves.count)
-                {	 
-					default:
-					{
-						EditBookMarkView *edit = [[EditBookMarkView alloc] init];
-						[edit editBookMark:item item:indexPath.row];
-						[[self navigationController] pushViewController:edit animated:YES];
-						[edit release];
-						break;
-					}
-					case kTableFaveAdd:
-					{
-						EditBookMarkView *edit = [[EditBookMarkView alloc] init];
-						[edit addBookMark];
-						[[self navigationController] pushViewController:edit animated:YES];
-						[edit release];
-						break;
-					}
-					case kTableFaveTrip:
-					{
-                        EditBookMarkView *edit = [[EditBookMarkView alloc] init];
-                        [edit addTripBookMark];
-                        [[self navigationController] pushViewController:edit animated:YES];
-                        [edit release];
-                        break;
-					}
-                }
-            }
-            else if (location !=nil)
-            {	 
-                DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
-                
-                
-                [departureViewController fetchTimesForLocationInBackground:self.backgroundTask 
-                                                                       loc:location
-                                                                     title:[item valueForKey:kUserFavesChosenName]];
-                [departureViewController release];
-            }
-            else
-            {
-                TripPlannerDateView *tripDate = [[TripPlannerDateView alloc] init];
-                
-                [tripDate initializeFromBookmark:req];
-                @synchronized (_userData)
-                {
-                    [tripDate.tripQuery addStopsFromUserFaves:_userData.faves];
-                }
-                
-                // Push the detail view controller
-                [tripDate nextScreen:[self navigationController] taskContainer:self.backgroundTask];
-                [tripDate release];
-                
-            }
+            [self openFave:indexPath.row allowEdit:YES];
             break;
         }
         case kTableSectionAlarms:
@@ -1649,12 +1801,13 @@ static NSString *callString = @"tel:1-503-238-RIDE";
                     [aboutView release];
                     break;
                 }			
-                case kTableAboutTweet:
+                case kTableAboutSupport:
                 {
-                    self.tweetAt   = @"pdxbus";
-                    self.initTweet = @"@pdxbus #trimet";
+                    SupportView  *supportView = [[SupportView alloc] init];
                     
-                    [self tweet];
+                    // Push the detail view controller
+                    [[self navigationController] pushViewController:supportView animated:YES];
+                    [supportView release];
                     
                     break;
                 }
@@ -1669,27 +1822,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
                     
                 case kTableAboutFacebook:
                 {
-                    // The new facebook app does not support this URL any more.  :-(
-                    // static NSString *fb=@"fb://page/218101161593";
-                    
-                    // if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:fb]])
-                    // {
-                    //     [[UIApplication sharedApplication] openURL:[NSURL URLWithString:fb]];
-                    // }
-                    // else
-                    {
-                        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"http://m.facebook.com/PDXBus"]];
-                    }
-                    [self.table deselectRowAtIndexPath:indexPath animated:YES];
-                    
-                    /*
-                     WebViewController *webPage = [[WebViewController alloc] init];
-                     //[webPage setRSS:@"http:://twitter.com/statuses/user_timeline/78506125.rss"  title:@"@pdxbus"];
-                     [webPage setURLmobile:@"http://touch.facebook.com/PDXBus" full:@"http://www.facebook.com/PDXBus" title:@"Facebook"]; 
-                     webPage.showErrors = NO;
-                     [[self navigationController] pushViewController:webPage animated:YES];
-                     [webPage release];
-                     */
+                    [self facebook];
                     break;
                 }
                 case kTableAboutRowEmail:
@@ -2153,67 +2286,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
     [self dismissModalViewControllerAnimated:YES];  
 }
 
-#pragma mark -
-#pragma mark UIActionSheetDelegate methods
 
-- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex;
-{
-    switch (_tweetButtons[buttonIndex])
-    {
-        default:
-        case kTweetButtonApp:
-        {
-            NSString *twitter=[NSString stringWithFormat:@"twitter://user?screen_name=%@", self.tweetAt];
-            
-            if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:twitter]])
-            {
-                [[UIApplication sharedApplication] openURL:[NSURL URLWithString:twitter]];
-                [self clearSelection];
-            }
-            break;
-        }
-        case kTweetButtonWeb:
-        {
-            NSString *twitter=[NSString stringWithFormat:@"https://mobile.twitter.com/%@", self.tweetAt];
-            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:twitter]];
-            [self clearSelection];
-            break;
-        }
-            
-        case kTweetButtonCancel:
-        {
-            [self clearSelection];
-            break;
-        }
-        case kTweetButtonList:
-        {
-            
-            RssView *rss = [[[RssView alloc] init] autorelease];
-            
-            rss.gotoOriginalArticle = YES;
-            
-            [rss fetchRssInBackground:self.backgroundTask url:[NSString stringWithFormat:@"http://api.twitter.com/1/statuses/user_timeline.rss?screen_name=%@", self.tweetAt]];
-            break;
-        }
-            
-        case kTweetButtonTweet:
-        {
-            TWTweetComposeViewController *picker = [[TWTweetComposeViewController alloc] init];
-            [picker setInitialText:self.initTweet];
-            
-            picker.completionHandler =
-            ^(TWTweetComposeViewControllerResult result) {
-                [self clearSelection];
-                [self dismissModalViewControllerAnimated:YES];
-            };
-            
-            [self presentModalViewController:picker animated:YES];
-            
-            [picker release];
-            break;
-        }
-    }
-}
 
 
 @end

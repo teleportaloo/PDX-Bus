@@ -67,7 +67,7 @@
 		
 		if (![scanner isAtEnd])
 		{
-			[scanner setScanLocation:[scanner scanLocation]+1];
+			scanner.scanLocation++;
 		}
 	}
 	
@@ -86,7 +86,7 @@
 		
 		if (![scanner isAtEnd])
 		{
-			[scanner setScanLocation:[scanner scanLocation]+1];
+			scanner.scanLocation++;
 		}
 		[deps release];
 		items++;

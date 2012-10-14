@@ -175,7 +175,8 @@
 	[self addLineToRoutes:kRedLine];
 	[self addLineToRoutes:kGreenLine];
 	[self addLineToRoutes:kYellowLine];
-	[self addLineToRoutes:kStreetcarLine];
+	[self addLineToRoutes:kStreetcarNsLine];
+    [self addLineToRoutes:kStreetcarClLine];
 	[self addLineToRoutes:kWesLine];
 }
 
@@ -237,8 +238,11 @@
 -(void)showNext:(id)sender
 {
 	[[self navigationController] popViewControllerAnimated:YES];
-	
-	NSDate *soon = [[NSDate date] addTimeInterval:0.5];
+#ifdef ORIGINAL_IPHONE
+    NSDate *soon = [[NSDate date] addTimeInterval:0.5];
+#else
+    NSDate *soon = [[NSDate date] dateByAddingTimeInterval:0.5];
+#endif
     NSTimer *timer = [[[NSTimer alloc] initWithFireDate:soon interval:0.1 target:self.map selector:@selector(next:) userInfo:nil repeats:NO] autorelease];
     [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
 	// [self.map next];

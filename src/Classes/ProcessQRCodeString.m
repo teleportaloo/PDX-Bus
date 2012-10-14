@@ -25,7 +25,7 @@
 
 - (NSString *)extractStopId:(NSString *)originalURL
 {
-    if ([[originalURL substringToIndex:URL_PROTOCOL.length] isEqualToString:URL_PROTOCOL])
+    if (originalURL.length >=URL_PROTOCOL.length && [[originalURL substringToIndex:URL_PROTOCOL.length] isEqualToString:URL_PROTOCOL])
     {
         [self checkURL:originalURL];
         
@@ -50,7 +50,7 @@
 {
     NSString *stopId = nil;
     self.stopId = nil;
-    if (![[str substringToIndex:URL_BEFORE_ID.length] isEqualToString:URL_BEFORE_ID])
+    if (str.length < URL_BEFORE_ID.length || ![[str substringToIndex:URL_BEFORE_ID.length] isEqualToString:URL_BEFORE_ID])
     {
         return;
     }
@@ -73,7 +73,7 @@
             
             while ([str characterAtIndex:[scanner scanLocation]]=='0')
             {
-                scanner.scanLocation = scanner.scanLocation + 1;
+                scanner.scanLocation++;
             }
             
             [scanner scanUpToCharactersFromSet:slash intoString:&stopId];

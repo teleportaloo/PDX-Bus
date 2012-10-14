@@ -43,14 +43,22 @@
 @interface XMLStreetcarLocations : NextBusXML {
 	NSMutableDictionary *_locations;
 	TriMetTime _lastTime;
+    NSString *_route;
 }
  
 
 @property (nonatomic, retain) NSMutableDictionary *locations;
+@property (nonatomic, retain) NSString *route;
+
 
 - (BOOL)getLocations:(NSError **)error;
 - (void)insertLocation:(Departure *)dep;
+- (id) initWithRoute:(NSString *)route;
 
-+ (XMLStreetcarLocations*) getSingleton;
++ (NSSet *)getStreetcarRoutesInDepartureArray:(NSArray *)deps;
++ (void)insertLocationsIntoDepartureArray:(NSArray *)deps forRoutes:(NSSet *)routes;
+
++ (XMLStreetcarLocations*) getSingletonForRoute:(NSString *)route;
+
 
 @end

@@ -44,6 +44,7 @@
 - (BOOL) DTDataNetworkError;
 - (NSString *)DTDataNetworkErrorMsg;
 - (NSData *)DTDataHtmlError;
+- (BOOL) DTDataStreetcarException;
 
 @optional
 

@@ -65,6 +65,7 @@
 @property (nonatomic, readonly)  float useGpsWithin;
 @property (nonatomic, readonly)  bool commuteButton;
 @property (nonatomic)            bool flashLed;
+@property (nonatomic)            bool  showStreetcarMapFirst;
 @property (nonatomic, readonly)  bool alarmInitialWarning;
 @property (nonatomic, readonly)  bool useCaching;
 @property (nonatomic, readonly)  bool debugXML;

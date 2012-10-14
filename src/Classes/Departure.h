@@ -28,7 +28,6 @@
 #import "MapPinColor.h"
 #import "TableViewWithToolbar.h"
 
-
 @class XMLDepartures, Trip;
 
 #define kDepartureCellHeight	55
@@ -71,6 +70,9 @@ typedef enum {
 	NSString *			_stopLat;
 	NSString *			_stopLng;
 	NSString *			_copyright;
+    NSString *          _streetcarBlock;
+    bool                _nextBusFeedInTriMetData;
+    NSString *          _nextBusRouteId;
 }
 
 // MKAnnotation
@@ -121,6 +123,9 @@ typedef enum {
 @property (nonatomic, retain) NSString *stopLng;
 @property (nonatomic, retain) NSString *copyright;
 @property (nonatomic, retain) NSDate *cacheTime;
+@property (nonatomic, retain) NSString *streecarBlock;
+@property (nonatomic, retain) NSString *nextBusRouteId;
+@property (nonatomic) bool nextBusFeedInTriMetData;
 
 
 

@@ -87,7 +87,7 @@
 	
 	[locator findNearestRoutes];
 	
-	[locator displayErrorIfNoneFound:nil];
+	[locator displayErrorIfNoneFound:self.backgroundTask.callbackWhenFetching];
 	
 	free(_checked);
 	

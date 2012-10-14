@@ -66,7 +66,7 @@
 {	
 	if (![scanner isAtEnd])
 	{
-		[scanner setScanLocation:[scanner scanLocation] + 1];
+		scanner.scanLocation++;
 	}
 }
 
@@ -129,7 +129,13 @@ static strmap dirmap [] =
 {
 	NSMutableString *url = [[[NSMutableString alloc] init] autorelease];
 	
-	[url appendFormat:@"s:%@/%@", [self.station stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding], 
+    NSMutableString *stationName = [[[NSMutableString alloc] init] autorelease];
+    
+    [stationName appendString:[self.station stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding ]];
+    [stationName replaceOccurrencesOfString:@"/" withString:@"%2F" options:NSCaseInsensitiveSearch range:NSMakeRange(0, stationName.length)];
+    
+    
+	[url appendFormat:@"s:%@/%@", stationName, 
 	 self.wikiLink!=nil ? [self.wikiLink stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] : @""];
 	
 	for (int i=0; i<self.locList.count; i++)
@@ -201,7 +207,7 @@ static strmap dirmap [] =
 		{	
 			if (![scanner isAtEnd])
 			{
-				[scanner setScanLocation:[scanner scanLocation]+1];
+				scanner.scanLocation++;
 			}
 			
 			[scanner scanUpToCharactersFromSet:slash intoString:&locId];
@@ -211,7 +217,7 @@ static strmap dirmap [] =
 			
 			if (![scanner isAtEnd])
 			{
-				[scanner setScanLocation:[scanner scanLocation]+1];
+				scanner.scanLocation++;
 			}
 			
 		}
@@ -355,12 +361,13 @@ static strmap dirmap [] =
 	label.text = station;
 	
 	
-	tag = [RailStation addLine:cell tag:tag line:kBlueLine		lines:lines];
-	tag = [RailStation addLine:cell tag:tag line:kRedLine		lines:lines];
-	tag = [RailStation addLine:cell tag:tag line:kYellowLine	lines:lines];
-	tag = [RailStation addLine:cell tag:tag line:kGreenLine		lines:lines];
-	tag = [RailStation addLine:cell tag:tag line:kWesLine		lines:lines];
-	tag = [RailStation addLine:cell tag:tag line:kStreetcarLine lines:lines];
+	tag = [RailStation addLine:cell tag:tag line:kBlueLine          lines:lines];
+	tag = [RailStation addLine:cell tag:tag line:kRedLine           lines:lines];
+	tag = [RailStation addLine:cell tag:tag line:kYellowLine        lines:lines];
+	tag = [RailStation addLine:cell tag:tag line:kGreenLine         lines:lines];
+	tag = [RailStation addLine:cell tag:tag line:kWesLine           lines:lines];
+	tag = [RailStation addLine:cell tag:tag line:kStreetcarNsLine   lines:lines];
+    tag = [RailStation addLine:cell tag:tag line:kStreetcarClLine   lines:lines];
 	
 	for (; tag < MAX_TAG + MAX_LINES; tag++)
 	{

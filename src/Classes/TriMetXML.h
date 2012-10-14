@@ -42,6 +42,7 @@ typedef enum  {
 	NSData *_htmlError;
 	NSDate *_cacheTime;
     bool    _itemFromCache;
+    NSString *_fullQuery;
 }
 
 - (NSString *)safeValueFromDict:(NSDictionary *)dict valueForKey:(NSString *)key;
@@ -63,6 +64,8 @@ typedef enum  {
 - (NSString*)displayDate:(NSDate *)date;
 - (void)clearRawData;
 - (bool)parseRawData:(NSError **)error;
+- (void)appendQueryAndData:(NSMutableData *)buffer;
+
 
 
 
@@ -71,5 +74,6 @@ typedef enum  {
 @property (nonatomic, retain) NSMutableString *contentOfCurrentProperty;
 @property (nonatomic, retain) NSData *htmlError;
 @property (nonatomic, retain) NSDate *cacheTime;
+@property (nonatomic, retain) NSString *fullQuery;
 
 @end

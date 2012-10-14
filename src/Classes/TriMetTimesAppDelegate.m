@@ -92,16 +92,8 @@
 		rootViewController.commuterBookmark  = [self checkForCommuterBookmarkShowOnlyOnce:YES];
 	}
     
-    if (_delayInitialArrivals)
-    {
-        rootViewController.delayedInitialArrivals = YES;
-    }
-    else
-    {
-        [rootViewController initialArrivals];
-    }
-       
-	_delayInitialArrivals = NO;
+    [rootViewController executeInitialAction];
+
     
     AlarmTaskList *list = [AlarmTaskList getSingleton];
     [list resumeOnActivate];
@@ -173,16 +165,6 @@
 - (void)applicationDidFinishLaunching:(UIApplication *)application {
     DEBUG_LOG(@"applicationDidFinishLaunching\n");
     
-    // The variable is not actualy used - it is simply to pre-load the
-    // Twitter framework as it takes a litle time.
-    
-    if ([self canTweet])
-    {
-        TWTweetComposeViewController *picker = [[TWTweetComposeViewController alloc] init];
-        
-        [picker release];
-    }
-	
 	// Check for data in Documents directory. Copy default appData.plist to Documents if not found.
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
@@ -210,13 +192,11 @@
 
 	DEBUG_PRINTF("Last arrivals %s clean %d\n", [rootViewController.lastArrivalsShown cStringUsingEncoding:NSUTF8StringEncoding],
 				 self.cleanExitLastTime);
-	
-	
+
+    window.rootViewController = self.navigationController;
 	rootViewController.lastArrivalsShown = [SafeUserData getSingleton].last;
 	rootViewController.lastArrivalNames  = [SafeUserData getSingleton].lastNames;
     
-    _delayInitialArrivals = YES;
-	
 	if ((rootViewController.lastArrivalsShown!=nil && [rootViewController.lastArrivalsShown length] == 0)
             || backgroundSupported
 		)
@@ -263,6 +243,15 @@
         return NO;
     }
     
+    Class dirClass = (NSClassFromString(@"MKDirectionsRequest"));
+        
+    if (dirClass && [MKDirectionsRequest isDirectionsRequestURL:url]) {
+        rootViewController.routingURL = url;
+        return YES;
+    }
+    
+    
+    
 	NSString *strUrl = [url absoluteString];
 	
 	// we bound the length of the URL to 15K.  This is really big!
@@ -281,7 +270,7 @@
 	
 	if (![scanner isAtEnd])
 	{
-		[scanner setScanLocation:[scanner scanLocation]+1];
+		scanner.scanLocation++;
 		
 		while (![scanner isAtEnd])
 		{	
@@ -293,7 +282,7 @@
 			
 			if (![scanner isAtEnd])
 			{
-				[scanner setScanLocation:[scanner scanLocation]+1];
+				scanner.scanLocation++;
 			}
 		}	
 	}
@@ -336,12 +325,18 @@
 	}
 }
 
-- (NSString *)getStreetcarRoute
+- (NSDictionary *)getStreetcarRoutes
 {
 	[self loadStreetcarMapping];
 	return [self.streetcarMapping  objectForKey:@"route"];
 }
 
+
+- (NSDictionary *)getStreetcarBlockMap
+{
+	[self loadStreetcarMapping];
+	return [self.streetcarMapping  objectForKey:@"block"];
+}
 
 - (NSDictionary *)getStreetcarPlatforms
 {
@@ -350,6 +345,8 @@
 	return [self.streetcarMapping  objectForKey:@"platforms"];
 	
 }
+
+
 - (NSDictionary *)getStreetcarDirections
 {
 	[self loadStreetcarMapping];
@@ -401,10 +398,6 @@
 }
 
 
-
-
-
-
 #define HEX_DIGIT(B) (B <= '9' ?  (B)-'0' : (( (B) < 'G' ) ? (B) - 'A' + 10 : (B) - 'a' + 10))
 
 - (BOOL)processURL:(NSString *)url protocol:(NSString *)protocol
@@ -425,9 +418,70 @@
 	if (![scanner isAtEnd])
 	{
 		return [self processBookMarkFromURL:url protocol:protocol];
-	};
+	}
+    else if (isalpha([url characterAtIndex:0]))
+    {
+       return [self processCommandFromURL:url];
+    }
     
     return [self processStopFromURL:name];
+}
+
+- (BOOL)processCommandFromURL:(NSString *)command
+{
+    NSScanner *scanner = [NSScanner scannerWithString:command];
+    NSCharacterSet *equals = [NSCharacterSet characterSetWithCharactersInString:@"="];
+    NSString * token = nil;
+    NSCharacterSet *blankSet = [[[NSCharacterSet alloc] init] autorelease];
+    
+	[scanner scanUpToCharactersFromSet:equals intoString:&token];
+        
+    if (token==nil)
+    {
+        return YES;
+    }
+    else if ([token caseInsensitiveCompare:@"locate"]==NSOrderedSame || [token caseInsensitiveCompare:@"nearby"]==NSOrderedSame)
+    {
+        self.rootViewController.initialAction = InitialAction_Locate;
+    }
+    else if ([token caseInsensitiveCompare:@"commute"]==NSOrderedSame)
+    {
+        self.rootViewController.initialAction = InitialAction_Commute;
+    }
+    else if ([token caseInsensitiveCompare:@"bookmark"]==NSOrderedSame && ![scanner isAtEnd])
+    {
+        scanner.scanLocation++;
+        
+        if (![scanner isAtEnd])
+        {
+            NSString *bookmarkName = nil;
+            [scanner scanUpToCharactersFromSet:blankSet intoString:&bookmarkName];
+            self.rootViewController.initialBookmarkName = [bookmarkName stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+        }
+    }
+    else if ([token caseInsensitiveCompare:@"bookmarknumber"]==NSOrderedSame && ![scanner isAtEnd])
+    {
+        scanner.scanLocation++;
+        
+        if (![scanner isAtEnd])
+        {
+            int bookmarkNumber=0;
+            if ([scanner scanInt:&bookmarkNumber])
+            {
+                self.rootViewController.initialBookmarkIndex = bookmarkNumber;
+                self.rootViewController.initialAction = InitialAction_BookmarkIndex;
+            }
+        }
+    }
+    else if ([token caseInsensitiveCompare:@"tripplanner"]==NSOrderedSame)
+    {
+         self.rootViewController.initialAction = InitialAction_TripPlanner;
+    }
+    else if ([token caseInsensitiveCompare:@"qrcode"]==NSOrderedSame)
+    {
+        self.rootViewController.initialAction = InitialAction_QRCode;
+    }
+    return YES;
 }
 
 - (BOOL)processStopFromURL:(NSString *)stops
@@ -566,11 +620,6 @@
 	[notify application:app didReceiveLocalNotification:notif];
 	
 	[notify release];
-	
-	if (previousState != UIApplicationStateActive)
-	{
-		_delayInitialArrivals = YES;
-	}
 }
 
 + (TriMetTimesAppDelegate*)getSingleton

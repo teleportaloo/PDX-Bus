@@ -35,17 +35,18 @@
 #import "Hotspot.h"
 
 @interface RailMapHotSpots : UIView {
-	UIImageView* _mapView;
+	UIView* _mapView;
 	BOOL _hidden;
 	int _selectedItem;
     CGPoint _touchPoint;
+    RAILMAP *_railMap;
 }
 
-@property (nonatomic, retain) UIImageView* mapView; 
+@property (nonatomic, retain) UIView* mapView;
 @property (nonatomic) BOOL hidden;
 @property (nonatomic) int selectedItem;
 
-- (id)   initWithImageView:(UIImageView*)imgView;
+- (id)   initWithImageView:(UIView*)imgView map:(RAILMAP*)map;
 - (void) fadeOut;
 - (void) selectItem:(int)i;
 - (void) touchAtPoint:(CGPoint) point;
@@ -64,6 +65,13 @@ typedef enum
 	EasterEgg3
 } EasterEggState;
 
+typedef struct savedImageStruct
+{
+    CGPoint contentOffset;
+    float   zoom;
+    bool    saved;
+} SAVED_IMAGE;
+
 @interface RailMapView : ViewControllerBase <ReturnStop, UIScrollViewDelegate, TapDetectingImageViewDelegate, UIAlertViewDelegate>{
 	UIScrollView	*_scrollView;
 	bool _from;
@@ -74,6 +82,13 @@ typedef enum
 	int selectedItem;
 	StopLocations *_locationsDb;
     CGPoint _tapPoint;
+    RAILMAP *_railMap;
+    int _railMapIndex;
+    TapDetectingImageView *_imageView;
+    UIImageView *_lowResBackgroundImage;
+    SAVED_IMAGE _savedImage[kRailMaps];
+    UISegmentedControl *_railMapSeg;
+    
 }
 
 - (void)createToolbarItems;
@@ -81,6 +96,7 @@ typedef enum
 - (void)next:(NSTimer*)theTimer;
 - (void)scannerInc:(NSScanner *)scanner;
 - (void)nextSlash:(NSScanner *)scanner intoString:(NSString **)substr;
+- (void)loadImage;
 
 #ifdef MAXCOLORS
 + (int)nHotspots;
@@ -93,5 +109,8 @@ typedef enum
 @property (nonatomic, retain) NSMutableArray *stopIDs;
 @property (nonatomic, retain) RailMapHotSpots *hotSpots;
 @property (nonatomic, retain) StopLocations *locationsDb;
+@property (nonatomic, retain) TapDetectingImageView *imageView;
+@property (nonatomic, retain) UIImageView *lowResBackgroundImage;
+@property (nonatomic, retain) UISegmentedControl *railMapSeg;
 
 @end

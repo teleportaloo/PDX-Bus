@@ -104,7 +104,11 @@
 
     NSDate *date = [NSDate date];
     _color = 0;
+#ifdef ORIGINAL_IPHONE
     NSDate *oneSecondFromNow = [date addTimeInterval:0.1];
+#else
+    NSDate *oneSecondFromNow = [date dateByAddingTimeInterval:0.1];
+#endif
 	self.flashTimer = [[[NSTimer alloc] initWithFireDate:oneSecondFromNow interval:0.25 target:self selector:@selector(changeColor:) userInfo:nil repeats:YES] autorelease];
 
     [[NSRunLoop currentRunLoop] addTimer:self.flashTimer forMode:NSDefaultRunLoopMode];

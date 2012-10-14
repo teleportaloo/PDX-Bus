@@ -96,7 +96,7 @@
 	
 	[self.backgroundTask.callbackWhenFetching BackgroundItemsDone:3];
 	
-	XMLStreetcarLocations *locations = [XMLStreetcarLocations getSingleton];
+	XMLStreetcarLocations *locations = [XMLStreetcarLocations getSingletonForRoute:@"streetcar"];
 	
 	[locations getLocations:&error];
 	

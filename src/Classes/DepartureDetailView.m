@@ -95,59 +95,53 @@
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
 	int items = 0;
-	
+	NSSet *streetcarRoutes = nil;
+    
 	if (self.departure.detour)
 	{
 		items++;
 	}
 	
-	if (self.departure.streetcar)
+	if (self.departure.streetcar && self.allDepartures!=nil)
 	{
-		items++;
+		streetcarRoutes = [XMLStreetcarLocations getStreetcarRoutesInDepartureArray:self.allDepartures];
+        items += streetcarRoutes.count;
 	}
 	
 	[self.backgroundTask.callbackWhenFetching BackgroundStart:items title:@"getting details"];
-	
+	items = 0;
+    
 	if (self.departure.detour)
 	{
 		NSError *parseError = nil;
 		self.detourData = [[[XMLDetour alloc] init] autorelease];
 	    [self.detourData getDetourForRoute:self.departure.route parseError:&parseError];
 		
-		[self.backgroundTask.callbackWhenFetching BackgroundItemsDone:1];
+        items++;
+		[self.backgroundTask.callbackWhenFetching BackgroundItemsDone:items];
+        
 	}
+    
+    
 	
 	if (self.departure.streetcar && self.departure.blockPositionLat == nil)
 	{
-		NSError *parseError = nil;
-		XMLStreetcarLocations *locs = [XMLStreetcarLocations getSingleton];
-		[locs getLocations:&parseError];
-		
-		int i,j;
-		
-		if (self.allDepartures != nil)
-		{
-			for (i=[self.allDepartures count]-1; i>=0 ; i--)
-			{
-				XMLDepartures * dep = [self.allDepartures objectAtIndex:i];
-			
-				for (j=0; j< [dep safeItemCount]; j++)
-				{
-					Departure *dd = [dep itemAtIndex:j];
-					if (dd.streetcar)
-					{
-						[locs insertLocation:dd];
-					}
-				}
-			}
-		}
+        for (NSString *route in streetcarRoutes)
+        {
+            NSError *parseError = nil;
+            XMLStreetcarLocations *locs = [XMLStreetcarLocations getSingletonForRoute:route];
+            [locs getLocations:&parseError];
+            
+            items++;
+            [self.backgroundTask.callbackWhenFetching BackgroundItemsDone:items];
+        }
+            
+		[XMLStreetcarLocations insertLocationsIntoDepartureArray:self.allDepartures forRoutes:streetcarRoutes];
 		
 		self.allDepartures = nil;
 
 		
 		[self.backgroundTask.callbackWhenFetching BackgroundItemsDone:items];
-		
-		//[locs release];
 	}
 	
 	[self.backgroundTask.callbackWhenFetching BackgroundCompleted:self];

@@ -28,6 +28,7 @@
 #import <Foundation/Foundation.h>
 #import "TriMetXML.h"
 #import "StopDistance.h"
+#import "BackgroundTaskContainer.h"
 
 
 @interface XMLLocateStops : TriMetXML <UIAlertViewDelegate> {
@@ -53,7 +54,7 @@
 
 - (BOOL)findNearestStops;
 - (BOOL)findNearestRoutes;
-- (bool)displayErrorIfNoneFound:(id<UIAlertViewDelegate>)delegate;
+- (bool)displayErrorIfNoneFound:(id<BackgroundTaskProgress>)progress;
 
 
 @end

@@ -177,7 +177,7 @@
 						
 						if (![xyscanner isAtEnd])
 						{
-							[xyscanner setScanLocation:xyscanner.scanLocation+1];
+							xyscanner.scanLocation++;
 							unichar c = [axis characterAtIndex:1];
 							if ((c == 'x' || c == 'X'))
 							{

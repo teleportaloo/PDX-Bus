@@ -186,12 +186,11 @@
 	if (buttonIndex == mapButtonIndex)
 	{
 		
-		
-		NSString *url = [NSString stringWithFormat:@"maps:q=PDXBus@%f,%f",  
-						 // [self.tappedAnnot.title stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
+		NSString *url = [NSString stringWithFormat:@"maps:q=PDXBus@%f,%f",
+                         //[self.tappedAnnot.title stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
 						 self.tappedAnnot.coordinate.latitude, self.tappedAnnot.coordinate.longitude];
 		
-		if (![[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]])
+		if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 6.0 || ![[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]])
 		{
 			NSString *url2 = [NSString stringWithFormat:@"http://map.google.com/?q=PDXBus@%f,%f",  
 							  // [self.tappedAnnot.title stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],

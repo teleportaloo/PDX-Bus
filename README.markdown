@@ -20,10 +20,10 @@ Feature includes:
 
 Route and arrival data provided by permission of TriMet.
 
-PDX Bus 6.3.0 sources
+PDX Bus 6.6 sources
 =====================
 
-I am making the sources to PDX Bus version 6.2 available as part of the 
+I am making the sources to PDX Bus version 6.5 available as part of the
 [Civic Apps](http://www.civicapps.org) competition.  These
 sources were developed by me from Apple samples and documentation, except 
 where explicitly mentioned in the code.  
@@ -66,7 +66,7 @@ Links
 
 Things to know before building
 ------------------------------
-* PDX Bus is built with iPhone SDK 5.1 and Xcode 4.3.2 - available free 
+* PDX Bus is built with iPhone SDK 5.1 and Xcode 4.5 - available free 
 from [Apple](http://developer.apple.com) in their Mac App store.
 * Before building this code you will need to register with TriMet 
 to get a free "AppID" from [TriMet](http://developer.trimet.org/registration/),
@@ -187,7 +187,31 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Change log
 ----------
-### Version 6.3.5 (August 2012)
+### Version 6.6 (October 2012)
+* Fixed stop ID 13604 - added NS Line arrivals.
+* Optimized rail maps to use "tiles" - reducing crashes due to memory issues.
+* Added additional informational hotspots to streetcar map.
+* Trip planner min walk distances now match web site (1/10, 1/4, 1/2, 3/4, 1 & 2 miles).
+* Commuter bookmarks fixed (startup sequence is different in iOS6).
+
+
+### Version 6.5 (September 2012)
+* Full support for New Portland Streetcar Central Loop Line, including Streetcar map.
+* iOS6: Fixed crash when GPS finds no nearby stops,
+* iOS6: Fixed calendaring.
+* iOS6: Fixed orientation issues.
+* Icon has been tweaked (thanks Rob!), improved launch screens.
+
+
+### Version 6.4 (September 2012)
+* Added partial support for new Streetcar Loop. Full support soon!
+* New for iOS 6 - added support for transit routing from Apple's map app.
+* Full screen iPhone 5 support.
+* New retina display launch screens.
+* Dropped support for original iPhone running iOS 3.2. :-(
+* Extended URL scheme to include new keywords: "nearby", "commute", "tripplanner", "qrcode", "bookmarknumber=<number>"
+
+### Version 6.3 (September 2012)
 * Added QR code reader
 * Added new higher resolution rail map with no zones and new PSU stations
 * Added Twitter integration
@@ -294,4 +318,4 @@ First Open Source Version.
 
 HAVE FUN!
 
-Andrew Wallace, June 2012.
+Andrew Wallace, October 2012.

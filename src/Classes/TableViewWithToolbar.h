@@ -32,6 +32,8 @@
 
 #define kDisclaimerCellHeight	55.0
 #define kDisclaimerCellId		@"Disclaimer"
+#define kExceptionCellId		@"Exception"
+
 #define kNoNetwork				@"%@: touch here for info"
 #define kNoNetworkErrorID		@"(ID %@) %@: touch here for info"
 #define kNoNetworkID			@"(ID %@) No Network: touch here for info"

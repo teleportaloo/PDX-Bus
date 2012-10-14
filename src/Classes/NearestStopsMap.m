@@ -44,7 +44,7 @@
 		
 	[locator findNearestStops];
 		
-	if (![locator displayErrorIfNoneFound:nil])
+	if (![locator displayErrorIfNoneFound:self.backgroundTask.callbackWhenFetching])
 	{
 		for (int i=0; i< [locator safeItemCount] && ![thread isCancelled]; i++)
 		{

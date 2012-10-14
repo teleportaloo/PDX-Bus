@@ -37,11 +37,17 @@
 #define kVersion		@"Version"
 #define kAboutVersion	@"2"
 
-
-
-#define kMaxTweetButtons        5
-
 @class UITextField;
+
+typedef enum InitialAction_tag
+{
+    InitialAction_None,
+    InitialAction_Locate,
+    InitialAction_Commute,
+    InitialAction_TripPlanner,
+    InitialAction_QRCode,
+    InitialAction_BookmarkIndex
+} InitialAction;
 
 
 @interface RootViewController : TableViewWithToolbar <EditableTableViewCellDelegate, 
@@ -63,21 +69,24 @@
     NSArray *_triMetRows;
     NSArray *_aboutRows;
     NSArray *_arrivalRows;
-    NSString *_tweetAt;
-    NSString *_initTweet;
+   
 	
 	CellTextField *_editCell;
 	bool keyboardUp;
 	bool showingLast;
     NSString *_launchStops;
-    int _tweetButtons[kMaxTweetButtons];
-    
+        
     // We need to keep hold of this view because of a bug
     // in which the app will crash if this is popped off 
     // the stack.
     IASKAppSettingsViewController *_settingsView;
     ProgressModalView *_progressView;
-    bool    _delayedInitialArrivals;
+    NSURL   *_routingURL;
+    bool    _delayedInitialAction;
+    InitialAction _initialAction;
+    NSString *_initalBookmarkName;
+    int _initialBookmarkIndex;
+    bool _viewLoaded;
 }
 
 - (void)postEditingAction:(UITextView *)textView;
@@ -86,7 +95,8 @@
 - (bool)ZXingSupported;
 - (bool)RailMapSupported;
 - (void)launchFromURL;
-- (bool)initialArrivals;
+- (void)executeInitialAction;
+- (void)openFave:(int)index allowEdit:(bool)allowEdit;
 
 
 @property (nonatomic, retain) UITextField *editWindow;
@@ -100,9 +110,12 @@
 @property (nonatomic, retain) NSArray *triMetRows;
 @property (nonatomic, retain) NSArray *aboutRows;
 @property (nonatomic, retain) NSArray *arrivalRows;
-@property (nonatomic, retain) NSString *tweetAt;
-@property (nonatomic, retain) NSString *initTweet;
 @property (nonatomic, retain) NSString *launchStops;
-@property (nonatomic)         bool delayedInitialArrivals;
+@property (nonatomic, retain) NSURL *routingURL;
+@property (nonatomic)         bool delayedInitialAction;
+@property (nonatomic)         InitialAction initialAction;
+@property (nonatomic, retain) NSString *initialBookmarkName;
+@property (nonatomic)         int       initialBookmarkIndex;
+@property (nonatomic)         bool      viewLoaded;
 
 @end

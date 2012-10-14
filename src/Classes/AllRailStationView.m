@@ -59,12 +59,12 @@ static RAILLINES railLines2[MAXHOTSPOTS];
 
 int stationsAlpha[]={
 	0x041, 	/* Albina/Mississippi */
-	0x082, 	/* Art Museum */
+	0x0aa, 	/* Art Museum */
 	0x00f, 	/* Beaverton Central */
 	0x00d, 	/* Beaverton Creek */
 	0x010, 	/* Beaverton TC */
 	0x04c, 	/* Cascades */
-	0x083, 	/* Central Library */
+	0x0a8, 	/* Central Library */
 	0x033, 	/* City Hall/SW 5th & Jefferson St */
 	0x05e, 	/* Civic Drive */
 	0x055, 	/* Clackamas Town Center TC */
@@ -106,38 +106,53 @@ int stationsAlpha[]={
 	0x03e, 	/* N Killingsworth */
 	0x03c, 	/* N Lombard TC */
 	0x03f, 	/* N Prescott */
+	0x08f, 	/* N Weidler/Broadway & Ross */
 	0x048, 	/* NE 60th Ave */
+	0x089, 	/* NE 7th & Halsey */
+	0x088, 	/* NE 7th & Holladay */
 	0x045, 	/* NE 7th Ave */
 	0x049, 	/* NE 82nd Ave */
-	0x086, 	/* NW 10th & Couch */
-	0x087, 	/* NW 10th & Everett */
-	0x088, 	/* NW 10th & Glisan */
-	0x089, 	/* NW 10th & Johnson */
-	0x08a, 	/* NW 10th & Marshall */
-	0x098, 	/* NW 11th & Couch */
-	0x097, 	/* NW 11th & Everett */
-	0x096, 	/* NW 11th & Glisan */
-	0x095, 	/* NW 11th & Johnson */
-	0x08b, 	/* NW 12th & Northrup */
-	0x090, 	/* NW 23rd & Marshall */
+	0x08d, 	/* NE Broadway & 2nd (Streetcar) */
+	0x08b, 	/* NE Grand & Broadway */
+	0x085, 	/* NE Grand & Hoyt */
+	0x08a, 	/* NE Grand & Multnomah */
+	0x087, 	/* NE Grand & Pacific */
+	0x083, 	/* NE M L King & E Burnside */
+	0x084, 	/* NE M L King & Hoyt */
+	0x086, 	/* NE Oregon & Grand */
+	0x08e, 	/* NE Weidler & 2nd (Streetcar) */
+	0x08c, 	/* NE Weidler & Grand */
+	0x0a4, 	/* NW 10th & Couch */
+	0x0a2, 	/* NW 10th & Everett */
+	0x0a0, 	/* NW 10th & Glisan */
+	0x09e, 	/* NW 10th & Johnson */
+	0x09c, 	/* NW 10th & Northrup */
+	0x0a3, 	/* NW 11th & Couch */
+	0x0a1, 	/* NW 11th & Everett */
+	0x09f, 	/* NW 11th & Glisan */
+	0x09d, 	/* NW 11th & Johnson */
+	0x091, 	/* NW 11th & Marshall */
+	0x09b, 	/* NW 12th & Northrup */
+	0x092, 	/* NW 23rd & Marshall */
 	0x02d, 	/* NW 5th & Couch St */
 	0x029, 	/* NW 6th & Davis St */
-	0x094, 	/* NW Lovejoy & 13th */
-	0x093, 	/* NW Lovejoy & 18th */
-	0x092, 	/* NW Lovejoy & 21st */
-	0x091, 	/* NW Lovejoy & 22nd */
-	0x08c, 	/* NW Northrup & 14th */
-	0x08d, 	/* NW Northrup & 18th */
-	0x08e, 	/* NW Northrup & 21st */
-	0x08f, 	/* NW Northrup & 22nd */
-	0x079, 	/* OHSU Commons */
+	0x090, 	/* NW 9th & Lovejoy */
+	0x09a, 	/* NW Lovejoy & 13th */
+	0x098, 	/* NW Lovejoy & 18th */
+	0x095, 	/* NW Lovejoy & 21st */
+	0x093, 	/* NW Lovejoy & 22nd */
+	0x099, 	/* NW Northrup & 14th */
+	0x097, 	/* NW Northrup & 18th */
+	0x096, 	/* NW Northrup & 21st */
+	0x094, 	/* NW Northrup & 22nd */
+	0x0b5, 	/* OHSU Commons */
 	0x038, 	/* Oak/SW 1st Ave */
 	0x036, 	/* Old Town/Chinatown */
 	0x008, 	/* Orenco/NW 231st Ave */
 	0x040, 	/* Overlook Park */
 	0x000, 	/* PSU South/SW 5th & Jackson */
 	0x001, 	/* PSU South/SW 6th & College */
-	0x07f, 	/* PSU Urban Center */
+	0x0b0, 	/* PSU Urban Center */
 	0x032, 	/* PSU/SW 5th & Mill St */
 	0x026, 	/* PSU/SW 6th & Montgomery */
 	0x04d, 	/* Parkrose/Sumner TC */
@@ -154,31 +169,44 @@ int stationsAlpha[]={
 	0x04f, 	/* SE Division St */
 	0x053, 	/* SE Flavel St */
 	0x054, 	/* SE Fuller Rd */
+	0x07e, 	/* SE Grand & Belmont */
+	0x082, 	/* SE Grand & E Burnside */
+	0x07a, 	/* SE Grand & Hawthorne */
+	0x078, 	/* SE Grand & Mill */
+	0x080, 	/* SE Grand & Stark */
+	0x07c, 	/* SE Grand & Taylor */
 	0x051, 	/* SE Holgate Blvd */
+	0x07b, 	/* SE M L King & Hawthorne */
+	0x079, 	/* SE M L King & Mill */
+	0x07f, 	/* SE M L King & Morrison */
+	0x081, 	/* SE M L King & Stark */
+	0x07d, 	/* SE M L King & Taylor */
 	0x04e, 	/* SE Main St */
 	0x050, 	/* SE Powell Blvd */
-	0x084, 	/* SW 10th & Alder */
-	0x081, 	/* SW 10th & Clay */
-	0x085, 	/* SW 10th & Stark */
-	0x099, 	/* SW 11th & Alder */
-	0x09c, 	/* SW 11th & Clay */
-	0x09b, 	/* SW 11th & Jefferson */
-	0x09a, 	/* SW 11th & Taylor */
-	0x07d, 	/* SW 1st & Harrison */
-	0x07e, 	/* SW 3rd & Harrison */
-	0x09e, 	/* SW 5th & Market */
-	0x09f, 	/* SW 5th & Montgomery */
+	0x077, 	/* SE Water/OMSI (Streetcar) */
+	0x0a7, 	/* SW 10th & Alder */
+	0x0ad, 	/* SW 10th & Clay */
+	0x0a5, 	/* SW 10th & Stark */
+	0x0a6, 	/* SW 11th & Alder */
+	0x0ac, 	/* SW 11th & Clay */
+	0x0ab, 	/* SW 11th & Jefferson */
+	0x0a9, 	/* SW 11th & Taylor */
+	0x0b4, 	/* SW 1st & Harrison */
+	0x0b3, 	/* SW 3rd & Harrison */
+	0x0b2, 	/* SW 5th & Market */
+	0x0b1, 	/* SW 5th & Montgomery */
 	0x02f, 	/* SW 5th & Oak St */
 	0x025, 	/* SW 6th & Madison St */
 	0x02a, 	/* SW 6th & Pine St */
-	0x078, 	/* SW Bond & Lane */
-	0x07c, 	/* SW Harrison Street */
-	0x077, 	/* SW Lowell & Bond */
-	0x0a0, 	/* SW Moody & Gaines */
-	0x07a, 	/* SW Moody & Gibbs */
-	0x09d, 	/* SW Park & Market */
-	0x080, 	/* SW Park & Mill */
-	0x07b, 	/* SW River Pkwy & Moody */
+	0x0ba, 	/* SW Bond & Lane */
+	0x0b8, 	/* SW Harrison Street */
+	0x0bc, 	/* SW Lowell & Bond */
+	0x0bb, 	/* SW Moody & Gaines */
+	0x0b6, 	/* SW Moody & Gibbs */
+	0x0b9, 	/* SW Moody & Meade */
+	0x0ae, 	/* SW Park & Market */
+	0x0af, 	/* SW Park & Mill */
+	0x0b7, 	/* SW River Pkwy & Moody */
 	0x037, 	/* Skidmore Fountain */
 	0x018, 	/* Sunset TC */
 	0x015, 	/* Tigard TC */
@@ -318,49 +346,96 @@ static RAILLINES railLines[]={
 	0x00,
 	0x00,
 	0x00,
-	0x20,	/* SW Lowell & Bond */
-	0x20,	/* SW Bond & Lane */
+	0x40,	/* SE Water/OMSI (Streetcar) */
+	0x40,	/* SE Grand & Mill */
+	0x40,	/* SE M L King & Mill */
+	0x40,	/* SE Grand & Hawthorne */
+	0x40,	/* SE M L King & Hawthorne */
+	0x40,	/* SE Grand & Taylor */
+	0x40,	/* SE M L King & Taylor */
+	0x40,	/* SE Grand & Belmont */
+	0x40,	/* SE M L King & Morrison */
+	0x40,	/* SE Grand & Stark */
+	0x40,	/* SE M L King & Stark */
+	0x40,	/* SE Grand & E Burnside */
+	0x40,	/* NE M L King & E Burnside */
+	0x40,	/* NE M L King & Hoyt */
+	0x40,	/* NE Grand & Hoyt */
+	0x40,	/* NE Oregon & Grand */
+	0x40,	/* NE Grand & Pacific */
+	0x40,	/* NE 7th & Holladay */
+	0x40,	/* NE 7th & Halsey */
+	0x40,	/* NE Grand & Multnomah */
+	0x40,	/* NE Grand & Broadway */
+	0x40,	/* NE Weidler & Grand */
+	0x40,	/* NE Broadway & 2nd (Streetcar) */
+	0x40,	/* NE Weidler & 2nd (Streetcar) */
+	0x40,	/* N Weidler/Broadway & Ross */
+	0x40,	/* NW 9th & Lovejoy */
+	0x40,	/* NW 11th & Marshall */
+	0x20,	/* NW 23rd & Marshall */
+	0x20,	/* NW Lovejoy & 22nd */
+	0x20,	/* NW Northrup & 22nd */
+	0x20,	/* NW Lovejoy & 21st */
+	0x20,	/* NW Northrup & 21st */
+	0x20,	/* NW Northrup & 18th */
+	0x20,	/* NW Lovejoy & 18th */
+	0x20,	/* NW Northrup & 14th */
+	0x20,	/* NW Lovejoy & 13th */
+	0x20,	/* NW 12th & Northrup */
+	0x60,	/* NW 10th & Northrup */
+	0x60,	/* NW 11th & Johnson */
+	0x60,	/* NW 10th & Johnson */
+	0x60,	/* NW 11th & Glisan */
+	0x60,	/* NW 10th & Glisan */
+	0x60,	/* NW 11th & Everett */
+	0x60,	/* NW 10th & Everett */
+	0x60,	/* NW 11th & Couch */
+	0x60,	/* NW 10th & Couch */
+	0x60,	/* SW 10th & Stark */
+	0x60,	/* SW 11th & Alder */
+	0x60,	/* SW 10th & Alder */
+	0x60,	/* Central Library */
+	0x60,	/* SW 11th & Taylor */
+	0x60,	/* Art Museum */
+	0x60,	/* SW 11th & Jefferson */
+	0x60,	/* SW 11th & Clay */
+	0x60,	/* SW 10th & Clay */
+	0x20,	/* SW Park & Market */
+	0x20,	/* SW Park & Mill */
+	0x20,	/* PSU Urban Center */
+	0x20,	/* SW 5th & Montgomery */
+	0x20,	/* SW 5th & Market */
+	0x20,	/* SW 3rd & Harrison */
+	0x20,	/* SW 1st & Harrison */
 	0x20,	/* OHSU Commons */
 	0x20,	/* SW Moody & Gibbs */
 	0x20,	/* SW River Pkwy & Moody */
 	0x20,	/* SW Harrison Street */
-	0x20,	/* SW 1st & Harrison */
-	0x20,	/* SW 3rd & Harrison */
-	0x20,	/* PSU Urban Center */
-	0x20,	/* SW Park & Mill */
-	0x20,	/* SW 10th & Clay */
-	0x20,	/* Art Museum */
-	0x20,	/* Central Library */
-	0x20,	/* SW 10th & Alder */
-	0x20,	/* SW 10th & Stark */
-	0x20,	/* NW 10th & Couch */
-	0x20,	/* NW 10th & Everett */
-	0x20,	/* NW 10th & Glisan */
-	0x20,	/* NW 10th & Johnson */
-	0x00,	/* NW 10th & Marshall */
-	0x20,	/* NW 12th & Northrup */
-	0x20,	/* NW Northrup & 14th */
-	0x20,	/* NW Northrup & 18th */
-	0x20,	/* NW Northrup & 21st */
-	0x20,	/* NW Northrup & 22nd */
-	0x20,	/* NW 23rd & Marshall */
-	0x20,	/* NW Lovejoy & 22nd */
-	0x20,	/* NW Lovejoy & 21st */
-	0x20,	/* NW Lovejoy & 18th */
-	0x20,	/* NW Lovejoy & 13th */
-	0x20,	/* NW 11th & Johnson */
-	0x20,	/* NW 11th & Glisan */
-	0x20,	/* NW 11th & Everett */
-	0x20,	/* NW 11th & Couch */
-	0x20,	/* SW 11th & Alder */
-	0x20,	/* SW 11th & Taylor */
-	0x20,	/* SW 11th & Jefferson */
-	0x20,	/* SW 11th & Clay */
-	0x20,	/* SW Park & Market */
-	0x20,	/* SW 5th & Market */
-	0x20,	/* SW 5th & Montgomery */
+	0x20,	/* SW Moody & Meade */
+	0x20,	/* SW Bond & Lane */
 	0x20,	/* SW Moody & Gaines */
+	0x20,	/* SW Lowell & Bond */
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
 };
+
 
 
 
@@ -382,16 +457,16 @@ static ALPHA_SECTIONS alphaSections[]={
 	{ 'K', 34, 2},
 	{ 'L', 36, 3},
 	{ 'M', 39, 6},
-	{ 'N', 45, 27},
-	{ 'O', 72, 5},
-	{ 'P', 77, 11},
-	{ 'Q', 88, 1},
-	{ 'R', 89, 4},
-	{ 'S', 93, 30},
-	{ 'T', 123, 3},
-	{ 'U', 126, 2},
-	{ 'W', 128, 4},
-	{ 'Y', 132, 1},
+	{ 'N', 45, 42},
+	{ 'O', 87, 5},
+	{ 'P', 92, 11},
+	{ 'Q', 103, 1},
+	{ 'R', 104, 4},
+	{ 'S', 108, 43},
+	{ 'T', 151, 3},
+	{ 'U', 154, 2},
+	{ 'W', 156, 4},
+	{ 'Y', 160, 1},
 };
 
 #define ALPHA_SECTIONS_CNT (sizeof(alphaSections)/sizeof(alphaSections[0]))
@@ -890,11 +965,13 @@ static ALPHA_SECTIONS alphaSections[]={
 	[RailMapView initHotspotData];
 	
 // #ifdef MAKE_STREETCAR_LIST
-#if 1
+#if 0
 	NSMutableArray *streetcarStops = [[[NSMutableArray alloc] init] autorelease];
 	
-	[self addStreetcar:kStreetcarLine route:@"193" direction:@"0" stations:streetcarStops];
-	[self addStreetcar:kStreetcarLine route:@"193" direction:@"1" stations:streetcarStops];
+	[self addStreetcar:kStreetcarNsLine route:@"193" direction:@"0" stations:streetcarStops];
+	[self addStreetcar:kStreetcarNsLine route:@"193" direction:@"1" stations:streetcarStops];
+    [self addStreetcar:kStreetcarClLine route:@"194" direction:@"0" stations:streetcarStops];
+	[self addStreetcar:kStreetcarClLine route:@"194" direction:@"1" stations:streetcarStops];
 	
 	NSMutableString * res0 = [[[NSMutableString alloc] init] autorelease];
 	
@@ -957,8 +1034,11 @@ static ALPHA_SECTIONS alphaSections[]={
 	[self addLine:kWesLine route:@"203" direction:@"0" stations:stations];
 	[self addLine:kWesLine route:@"203" direction:@"1" stations:stations];
 	
-	[self addLine:kStreetcarLine route:@"193" direction:@"0" stations:stations];
-	[self addLine:kStreetcarLine route:@"193" direction:@"1" stations:stations];
+	[self addLine:kStreetcarNsLine route:@"193" direction:@"0" stations:stations];
+	[self addLine:kStreetcarNsLine route:@"193" direction:@"1" stations:stations];
+    
+    [self addLine:kStreetcarClLine route:@"194" direction:@"0" stations:stations];
+	[self addLine:kStreetcarClLine route:@"194" direction:@"1" stations:stations];
 	
 	// Civic Drive is a special case - add it now by hand - when I made the 
 	// stop location database it had been removed from the lines

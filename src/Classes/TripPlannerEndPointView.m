@@ -497,14 +497,14 @@
 					}
 					if (self.from)
 					{
-						cell.textLabel.text = @"Select from Rail Map";
+						cell.textLabel.text = @"Select from rail maps";
 					}
 					else
 					{
-						cell.textLabel.text = @"Select from Rail Map";
+						cell.textLabel.text = @"Select from rail maps";
 					}
 					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-					cell.imageView.image = [self getActionIcon:kIconRailMap]; 
+					cell.imageView.image = [self getActionIcon:kIconMaxMap];
 					cell.textLabel.font = [self getBasicFont];
 					
 					return cell;
@@ -602,12 +602,15 @@
 				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kOptionsFieldId] autorelease];
 			}
 			
+            NSString *walk =
+                [[XMLTrips distanceMapSingleton] objectAtIndex:
+                 [XMLTrips distanceToIndex:self.tripQuery.userRequest.walk]];
 			
-			cell.textLabel.text = [NSString stringWithFormat:@"Max walking distance: %0.1f miles\nTravel by: %@\nShow me the: %@", 
-								   self.tripQuery.userRequest.walk,
+			cell.textLabel.text = [NSString stringWithFormat:@"Max walking distance: %@ miles\nTravel by: %@\nShow me the: %@", 
+								   walk,
 								   [self.tripQuery.userRequest getMode], [self.tripQuery.userRequest getMin]];
-			[cell setAccessibilityLabel:[NSString stringWithFormat:@"Max walking distance: %0.1f miles, Travel by: %@, Show me the:%@", 
-										 self.tripQuery.userRequest.walk,
+			[cell setAccessibilityLabel:[NSString stringWithFormat:@"Max walking distance: %@ miles, Travel by: %@, Show me the:%@", 
+										 walk,
 										 [self.tripQuery.userRequest getMode], [self.tripQuery.userRequest getMin]]];
 			cell.textLabel.lineBreakMode = UILineBreakModeWordWrap;
 			cell.textLabel.numberOfLines = 0;
@@ -882,9 +885,11 @@
 		 */
 		[self dismissModalViewControllerAnimated:YES];
 		
-		
-        
+#ifdef ORIGINAL_IPHONE
         NSDate *soon = [[NSDate date] addTimeInterval:0.1];
+#else
+        NSDate *soon = [[NSDate date] dateByAddingTimeInterval:0.1];
+#endif
         NSTimer *timer = [[[NSTimer alloc] initWithFireDate:soon interval:0.1 target:self selector:@selector(delayedCompletion:) userInfo:address repeats:NO] autorelease];
         [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
 		

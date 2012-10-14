@@ -49,10 +49,11 @@
 	NSString *_sectionTitle;
 	
 	NSDictionary *_streetcarPlatformMap;
-	
-	NSString *_streetcarRoute;
+	NSDictionary *_streetcarRoutes;
+    NSDictionary *_streetcarBlockMap;
 	StopDistance *_distance;
-    NSData   *_streetcarData;
+    NSMutableData   *_streetcarData;
+    bool _streetcarException;
 }
 
 // MKAnnotation
@@ -70,13 +71,15 @@
 @property (nonatomic, retain) NSString *locLat;
 @property (nonatomic, retain) NSString *locDir;
 @property (nonatomic, retain) NSString *locLng;
-@property (nonatomic, retain) NSString *streetcarRoute;
+@property (nonatomic, retain) NSDictionary *streetcarRoutes;
+@property (nonatomic, retain) NSDictionary *streetcarBlockMap;
 @property (nonatomic, retain) NSString *blockFilter;
 @property (nonatomic, retain) NSString *sectionTitle;
-@property (nonatomic) TriMetTime queryTime;
+@property (nonatomic)         TriMetTime queryTime;
 @property (nonatomic, retain) Departure *currentDepartureObject;
 @property (nonatomic, retain) Trip *currentTrip;
-@property (nonatomic, retain) NSData *streetcarData;
+@property (nonatomic, retain) NSMutableData *streetcarData;
+@property (nonatomic)         bool streetcarException;
 
 
 - (BOOL)getDeparturesForLocation:(NSString *)location  parseError:(NSError **)error;

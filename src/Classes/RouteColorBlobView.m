@@ -34,6 +34,7 @@
 @synthesize red		= _red;
 @synthesize green	= _green;
 @synthesize blue	= _blue;
+@synthesize square  = _square;
 
 - (id)initWithFrame:(CGRect)frame {
     if ((self = [super initWithFrame:frame])) {
@@ -48,9 +49,10 @@
 	
 	if (rcol !=nil)
 	{
-		_red		= rcol->r;
+		_red	= rcol->r;
 		_green	= rcol->g;
 		_blue	= rcol->b;
+        _square = rcol->square;
 		self.hidden	= NO;
 		[self setNeedsDisplay];
 	}
@@ -73,9 +75,10 @@
 
 	if (rcol !=nil && route!=nil)
 	{
-		_red		= rcol->r;
+		_red	= rcol->r;
 		_green	= rcol->g;
 		_blue	= rcol->b;
+        _square = rcol->square;
 		self.hidden	= NO;
 		[self setNeedsDisplay];
 	}
@@ -100,22 +103,30 @@
 	
 	// CGPathAddRects(fillPath, NULL, &rect, 1);
 	
-	CGRect square;
+	CGRect outerSquare;
 	
 	CGFloat width = min(CGRectGetWidth(rect), CGRectGetHeight(rect));
 	
-	square.origin.x = CGRectGetMidX(rect) - width/2;
-	square.origin.y = CGRectGetMidY(rect) - width/2;
-	square.size.width = width;
-	square.size.height = width;
-	
-	CGPathAddEllipseInRect(fillPath, NULL, square);
-	
+	outerSquare.origin.x = CGRectGetMidX(rect) - width/2;
+	outerSquare.origin.y = CGRectGetMidY(rect) - width/2;
+	outerSquare.size.width = width;
+	outerSquare.size.height = width;
+    
+    if (_square)
+    {
+        CGRect innerSquare = CGRectInset(outerSquare, 1, 1);
+        CGPathAddRect(fillPath, NULL, innerSquare);
+    }
+    else
+    {
+        CGPathAddEllipseInRect(fillPath, NULL, outerSquare);
+    }
+    
     CGContextRef context = UIGraphicsGetCurrentContext();
-	
-	CGContextSetRGBFillColor(context, _red , _green, _blue, self.hidden ? 0.0 : 1.0);
+    CGContextSetRGBFillColor(context, _red , _green, _blue, self.hidden ? 0.0 : 1.0);
     CGContextAddPath(context, fillPath);
     CGContextFillPath(context);
+
 	
 //	DEBUG_LOG(@"%f %f %f\n", _red, _green, _blue);
     	

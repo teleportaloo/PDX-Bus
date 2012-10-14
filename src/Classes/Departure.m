@@ -58,6 +58,9 @@
 @synthesize copyright = _copyright;
 @synthesize scheduledTime = _scheduledTime;
 @synthesize cacheTime = _cacheTime;
+@synthesize streecarBlock = _streetcarBlock;
+@synthesize nextBusRouteId = _nextBusRouteId;
+@synthesize nextBusFeedInTriMetData = _nextBusFeedInTriMetData;
 
 - (void)dealloc
 {
@@ -77,6 +80,8 @@
 	self.stopLng = nil;
 	self.copyright = nil;
     self.cacheTime = nil;
+    self.streecarBlock = nil;
+    self.nextBusRouteId = nil;
 	
 	[super dealloc];
 	

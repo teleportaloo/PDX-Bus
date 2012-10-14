@@ -46,9 +46,11 @@ static NSString *departuresURLString = @"arrivals/locIDs/%@";
 @synthesize currentDepartureObject = _currentDepartureObject;
 @synthesize currentTrip = _currentTrip;
 @synthesize streetcarPlatformMap = _streetcarPlatformMap;
-@synthesize streetcarRoute = _streetcarRoute;
+@synthesize streetcarRoutes = _streetcarRoutes;
 @synthesize sectionTitle = _sectionTitle;
 @synthesize streetcarData = _streetcarData;
+@synthesize streetcarException = _streetcarException;
+@synthesize streetcarBlockMap = _streetcarBlockMap;
 
 - (void)dealloc
 {
@@ -63,7 +65,8 @@ static NSString *departuresURLString = @"arrivals/locIDs/%@";
 	self.blockFilter = nil;
 	
 	self.streetcarPlatformMap = nil;
-	self.streetcarRoute = nil;
+	self.streetcarRoutes = nil;
+    self.streetcarBlockMap = nil;
 	self.distance = nil;
 	self.locDir = nil;
 	self.sectionTitle = nil;
@@ -140,7 +143,8 @@ static NSString *departuresURLString = @"arrivals/locIDs/%@";
         cacheAction:TriMetXMLUseShortCache];
 	
 	self.streetcarPlatformMap = [appDelegate getStreetcarPlatforms];
-		self.streetcarRoute = [appDelegate getStreetcarRoute];
+    self.streetcarRoutes = [appDelegate getStreetcarRoutes];
+    self.streetcarBlockMap = [appDelegate getStreetcarBlockMap];
 	
 	NSScanner *idScanner =  [NSScanner scannerWithString:self.locid];
 	NSString *nextStop;
@@ -154,7 +158,7 @@ static NSString *departuresURLString = @"arrivals/locIDs/%@";
 		
 		if (![idScanner isAtEnd])
 		{
-			[idScanner setScanLocation:[idScanner scanLocation] + 1];
+			idScanner.scanLocation++;
 		}
 	}
 	
@@ -185,6 +189,15 @@ static NSString *departuresURLString = @"arrivals/locIDs/%@";
 }
 
 #pragma mark Parser callbacks
+
+- (void)dumpDict:(NSDictionary *)dict
+{
+    for (NSString *key in dict)
+    {
+        DEBUG_LOG(@"Key %@ value %@\n", key, [dict valueForKey:key]);
+    }
+    
+}
 
 - (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict
 {
@@ -271,7 +284,10 @@ static NSString *departuresURLString = @"arrivals/locIDs/%@";
 			}
 			self.currentDepartureObject.scheduledTime = [self getTimeFromAttribute:attributeDict valueForKey:@"scheduled"];	
 			self.currentDepartureObject.detour = [[self safeValueFromDict:attributeDict valueForKey:@"detour"] isEqualToString:@"true"];
-		}
+			self.currentDepartureObject.nextBusFeedInTriMetData = [[self safeValueFromDict:attributeDict valueForKey:@"nextBusFeed"] isEqualToString:@"true"];
+            DEBUG_LOG(@"Nextbusfeed:%d %@\n", self.currentDepartureObject.nextBusFeedInTriMetData, [self safeValueFromDict:attributeDict valueForKey:@"nextbusfeed"])	;
+            // [self dumpDict:attributeDict];
+        }
 		else
 		{
 			self.currentDepartureObject=nil;
@@ -380,13 +396,31 @@ static NSMutableDictionary *cachedDetours = nil;
 #pragma mark Streetcar data 
 
 - (void)mergeStreetcarArrivals:(NSString *)platform departures:(XMLStreetcarPredictions*)streetcars
-{	
-	bool detour = [self checkForDetour:self.streetcarRoute];
+{
+	bool detour = NO;
+    NSString *triMetRoute = nil;
+    
+    DEBUG_LOG(@"###############################################\n");
+    DEBUG_LOG(@"ID       :%@\n", self.locid);
+    DEBUG_LOG(@"Streetcar:%@\n", streetcars.stopTitle);
+    DEBUG_LOG(@"TriMet   :%@\n", self.locDesc);
+    
+    if (streetcars.nextBusRouteId!=nil && self.streetcarRoutes!=nil)
+    {
+        triMetRoute = [self.streetcarRoutes objectForKey:streetcars.nextBusRouteId];
+        
+        if (triMetRoute)
+        {
+              detour = [self checkForDetour:triMetRoute];
+        }
+    }
 	
 	int i;
 	for (i=0; i < [streetcars safeItemCount]; i++)
 	{
-		self.currentDepartureObject = [streetcars itemAtIndex:i];
+        Departure *dep = [streetcars itemAtIndex:i];
+        
+		self.currentDepartureObject = dep;
 		
 		// self.currentDepartureObject.fullSign = routeName;
 		// self.currentDepartureObject.routeName = routeName;
@@ -395,7 +429,7 @@ static NSMutableDictionary *cachedDetours = nil;
 		self.currentDepartureObject.detour = detour;
 		self.currentDepartureObject.queryTime = self.queryTime;
 		// self.currentDepartureObject.hasBlock = false;
-		self.currentDepartureObject.route = self.streetcarRoute;
+		self.currentDepartureObject.route = triMetRoute;
 		self.currentDepartureObject.locid = self.locid;
 		self.currentDepartureObject.locationDesc = self.locDesc;
 		self.currentDepartureObject.stopLat = self.locLat;
@@ -404,6 +438,53 @@ static NSMutableDictionary *cachedDetours = nil;
 
 		int i;
 		Departure *item;
+        
+        // Look for any blocks that appear as scheduled that matches this one and merge
+        // As the TriMet data can contain scheduled times for the same block.
+        NSString *blockFormat = [self.streetcarBlockMap objectForKey:streetcars.nextBusRouteId];
+        
+        if (blockFormat !=nil && triMetRoute !=nil)
+        {
+            NSString *triMetBlock;
+            
+            if (dep.streecarBlock.length < 4)
+            {
+                triMetBlock = [NSString stringWithFormat:blockFormat, dep.streecarBlock];
+            }
+            else
+            {
+                triMetBlock = dep.streecarBlock;
+            }
+            
+            for (i=0; i< [self.itemArray count];)
+            {
+                item = [self.itemArray objectAtIndex:i];
+                
+                
+                if (item.block && [item.block isEqualToString:triMetBlock] && item.status == kStatusScheduled && [item.route isEqualToString:triMetRoute])
+                {
+                    if (dep.scheduledTime == 0)
+                    {
+                        dep.scheduledTime = item.scheduledTime;
+                    }
+                    [self.itemArray removeObjectAtIndex:i];
+                    
+                }
+                else if (item.block && [item.block isEqualToString:triMetBlock] && [item.route isEqualToString:triMetRoute])
+                {
+                    [self.itemArray removeObjectAtIndex:i];
+                }
+                else if (item.nextBusFeedInTriMetData)
+                {
+                     [self.itemArray removeObjectAtIndex:i];
+                }
+                else
+                {
+                    i++;
+                }
+            }
+        }
+        
 		
 		for (i=0; i< [self.itemArray count] && self.currentDepartureObject!=nil; i++)
 		{
@@ -415,6 +496,7 @@ static NSMutableDictionary *cachedDetours = nil;
 				self.currentDepartureObject = nil;
 			}
 		}
+        
 		
 		if ( self.currentDepartureObject != nil)
 		{
@@ -422,38 +504,93 @@ static NSMutableDictionary *cachedDetours = nil;
 			self.currentDepartureObject = nil;
 		}
 	}
+    
+    // Remove orphaned scheduled times
+    /*
+    for (i=0; i< [self.itemArray count] && triMetRoute!=nil;)
+    {
+		Departure *item;
+        
+        item = [self.itemArray objectAtIndex:i];
+        
+        if (item.status == kStatusScheduled && [item.route isEqualToString:triMetRoute])
+        {
+            [self.itemArray removeObjectAtIndex:i];
+        }
+        else
+        {
+            i++;
+        }
+    }
+    */
 }
 
 - (void)addStreetcarArrivalsForLocation:(NSString *)location
 {
-	NSString *streetcarPlatform = [self.streetcarPlatformMap objectForKey:location];
+    NSString *route = nil;
+    self.streetcarData = [[[NSMutableData alloc] init] autorelease];
     
-    self.streetcarData = nil;
-	
-	if (streetcarPlatform != nil)
-	{
-		XMLStreetcarPredictions *streetcar = [[XMLStreetcarPredictions alloc] init];
-		
-		streetcar.blockFilter = self.blockFilter;
-		
-		NSError *error = nil;
-		
-		[streetcar getDeparturesForLocation:[NSString stringWithFormat:@"predictions&a=portland-sc&r=streetcar&%@", streetcarPlatform] 
-									 								     parseError:&error];
-		
-		if ([streetcar gotData])
-		{
-			[self mergeStreetcarArrivals:streetcarPlatform departures:streetcar];
-		}	
+    for (route in self.streetcarPlatformMap)
+    {
+        NSDictionary *platforms = [self.streetcarPlatformMap objectForKey:route];
         
-        if ([UserPrefs getSingleton].debugXML)
+        NSObject *streetcarPlatformObj = [platforms objectForKey:location];
+        
+        if (streetcarPlatformObj != nil)
         {
-            self.streetcarData = streetcar.rawData;
+            NSArray *streetcarItems = nil;
+            
+            if (streetcarPlatformObj !=nil && [streetcarPlatformObj isKindOfClass:[NSArray class]])
+            {
+                streetcarItems = (NSArray*)streetcarPlatformObj;
+            }
+            else if (streetcarPlatformObj !=nil && [streetcarPlatformObj isKindOfClass:[NSString class]])
+            {
+                streetcarItems = [NSArray arrayWithObject:streetcarPlatformObj];
+            }
+            
+            for (NSString *streetcarPlatform in streetcarItems)
+            {
+                DEBUG_LOG(@"Streetcar query: %@\n", streetcarPlatform);
+                XMLStreetcarPredictions *streetcar = [[XMLStreetcarPredictions alloc] init];
+            
+                streetcar.blockFilter = self.blockFilter;
+                streetcar.nextBusRouteId = route;
+            
+                NSError *error = nil;
+            
+                [streetcar getDeparturesForLocation:[NSString stringWithFormat:@"predictions&a=portland-sc&r=%@&%@", route, streetcarPlatform]
+                                         parseError:&error];
+            
+                if ([streetcar gotData])
+                {
+                    [self mergeStreetcarArrivals:streetcarPlatform departures:streetcar];
+                }
+                
+                // Temporary street car warning
+                if ([route isEqualToString:@"cl"])
+                {
+                    self.streetcarException = YES;
+                }
+            
+                if ([UserPrefs getSingleton].debugXML)
+                {
+                    [streetcar appendQueryAndData:self.streetcarData];
+                }
+                [streetcar release];
+            }
         }
-		[streetcar release];
-
-        
-	}	
+    }
+    
+	
+	/*
+    NSString *exception = [self.streetcarExceptions objectForKey:location];
+    
+    if (exception!=nil)
+    {
+        self.streetcarException = YES;
+    }
+     */
 }
 
 #pragma mark Data accessors
@@ -542,6 +679,12 @@ static NSMutableDictionary *cachedDetours = nil;
 - (NSString *) DTDataDir
 {
 	return self.locDir;
+}
+
+
+- (BOOL) DTDataStreetcarException
+{
+    return self.streetcarException;
 }
 
 - (NSData *) DTDataHtmlError

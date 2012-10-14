@@ -27,24 +27,22 @@
 #include "WebViewController.h"
 #include "TriMetXML.h"
 #import "WhatsNewView.h"
+#import "debug.h"
 
 #define kSectionHelp			0
 #define kSectionTips			1
-#define kSectionNetwork			2
-#define kSectionCache			3
-#define kSectionWeb				4
-#define kSectionLegal			5
-#define kSectionAbout			6
-#define kSections				7
+#define kSectionWeb				2
+#define kSectionLegal			3
+#define kSectionAbout			4
+#define kSections				5
 
 #define kRowSite				0
 #define kLinkTracker			1
 #define kLinkStopIDs			2
 #define kRowPortlandTransport   3
-#define kRowTriMettiquette		4
-#define kRowTriMet				5
+#define kRowTriMet				4
 
-#define kLinkRows				6
+#define kLinkRows				5
 
 #define kLegalRows				14
 #define kRowCivicApps			0
@@ -101,7 +99,7 @@
 		"...to Rob Alan for the stylish icon; and\n\n"
 		"...to CivicApps.org for Awarding PDX Bus the \"Most Appealing\" and \"Best in Show\" awards in July 2010.\n\n"
 		"Special thanks to Ken for putting up with all this.\n\n"
-		"\nCopyright (c)2008-2012\nAndrew Wallace\n(See legal section above for other copyright owners and attrbutions).", [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"]] retain];
+		"\nCopyright (c) 2008-2012\nAndrew Wallace\n(See legal section above for other copyright owners and attrbutions).", [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"]] retain];
 		
 		tipText = [[NSArray alloc] initWithObjects:
 			@"There are LOTS of settings for PDXBus - take a look at the settings on the front screen to change colors, move the bookmarks to the top of the screen or change other options.", 	   
@@ -134,10 +132,6 @@
 			return @"Attributions and Legal";
 		case kSectionTips:
 			return @"Tips";
-		case kSectionNetwork:
-			return @"Network";
-		case kSectionCache:
-			return @"Route and Stop Data Cache";
 		case kSectionHelp:
 			return @"Welcome to PDX Bus!";
 			
@@ -156,9 +150,6 @@
 			return 1;
 		case kSectionHelp:
 			return kSectionHelpRows;
-		case kSectionNetwork:
-		case kSectionCache:
-			return 1;
 		case kSectionWeb:
 			return kLinkRows;
 		case kSectionLegal:
@@ -173,44 +164,6 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	
 	switch (indexPath.section) {
-		case kSectionNetwork:
-		{
-			static NSString *networkId = @"network";
-			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:networkId];
-			if (cell == nil) {
-				
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:networkId] autorelease];
-				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-				/*
-				 [self newLabelWithPrimaryColor:[UIColor blueColor] selectedColor:[UIColor cyanColor] fontSize:14 bold:YES parentView:[cell contentView]];
-				 */
-				
-				cell.textLabel.font =  [self getBasicFont]; //  [UIFont fontWithName:@"Ariel" size:14];
-				cell.textLabel.adjustsFontSizeToFitWidth = YES;
-				cell.textLabel.text = @"Check Network Connection";
-				cell.imageView.image = [self getActionIcon:kIconNetwork];
-				
-			}
-			return cell;
-			break;
-		}
-		case kSectionCache:
-		{
-			static NSString *cacheId = @"cache";
-			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cacheId];
-			if (cell == nil) {
-				
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cacheId] autorelease];
-				cell.textLabel.font =  [self getBasicFont]; //  [UIFont fontWithName:@"Ariel" size:14];
-				cell.textLabel.adjustsFontSizeToFitWidth = YES;
-				cell.textLabel.text = @"Delete Cached Routes and Stops";
-				cell.textLabel.textAlignment = UITextAlignmentLeft;
-				cell.imageView.image = [self getActionIcon:kIconDelete];
-			}
-			return cell;
-			break;
-		}
-			
 		case kSectionAbout:
 		case kSectionHelp:
 		{
@@ -225,7 +178,7 @@
 				
 				cell.view.font =  [self getParagraphFont];
 				cell.view.text = (indexPath.section == kSectionAbout) ? aboutText : helpText;
-				// printf("width:  %f\n", cell.view.bounds.size.width);
+				DEBUG_LOG(@"help width:  %f\n", cell.view.bounds.size.width);
 				cell.selectionStyle = UITableViewCellSelectionStyleNone;
 				[self updateAccessibility:cell indexPath:indexPath text:((indexPath.section == kSectionAbout) ? aboutText : helpText) alwaysSaySection:YES];
 				// cell.backgroundView = [self clearView];
@@ -255,7 +208,7 @@
                 else 
                 {
                     cell.textLabel.text = @"What's new?";
-                    cell.imageView.image = [self getActionIcon:@"AppIcon-29.png"];
+                    cell.imageView.image = [self getActionIcon:@"Icon-Small.png"];
                 }
 				return cell;
 			}
@@ -314,11 +267,7 @@
 				cell.textLabel.text = @"TriMet.org";
 				cell.imageView.image = [self getActionIcon:kIconTriMetLink];
 				break;
-			case kRowTriMettiquette:
-				cell.textLabel.text = @"TriMetiquette.com";
-				cell.imageView.image = [self getActionIcon:kIconBlog];
-				break;
-			case kRowPortlandTransport:
+            case kRowPortlandTransport:
 				cell.textLabel.text = @"PortlandTransport.com";
 				cell.imageView.image = [self getActionIcon:kIconBlog];
 				break;
@@ -377,7 +326,7 @@
 					break;
 				case kRowMainIcon:
 					cell.textLabel.text = @"App icon by Rob Alan";
-					cell.imageView.image = [self getActionIcon:@"AppIcon-29.png"];
+					cell.imageView.image = [self getActionIcon:@"Icon-Small.png"];
 					break;
 				case kRowCivicApps:
 					cell.textLabel.text = @"Thanks for the Civic App award!";
@@ -433,7 +382,6 @@
 			return [self getTextHeight:[tipText objectAtIndex:indexPath.row] font:[self getParagraphFont]];
 			break;
 		case kSectionWeb:
-		case kSectionNetwork:
 		case kSectionLegal:
 			return [self basicRowHeight];
 		default:
@@ -462,10 +410,6 @@
 					break;
 				case kRowTriMet:
 					[webPage setURLmobile:@"http://m.trimet.org/" full:@"http://www.trimet.org/" title:@"TriMet.org"];
-					break;
-				case kRowTriMettiquette:
-					[webPage setURLmobile:@"http://trimetiquette.com/" full:nil title:@"trimetiquette.com"];
-					webPage.showErrors = NO;
 					break;
 				case kRowPortlandTransport:
 					[webPage setURLmobile:@"http://portlandtransport.com" full:nil title:@"portlandtransport.com"];
@@ -504,7 +448,7 @@
 					[webPage setURLmobile:@"http://civicapps.org/news/announcing-best-apps-winners-and-runners" full:nil title:@"CivicApps.org"];
 					break;
 				case kRowSrc:
-					[webPage setURLmobile:@"https://github.com/pdxbus/PDX-Bus" full:nil title:@"Source Code"];
+					[webPage setURLmobile:@"https://github.com/teleportaloo/PDX-Bus" full:nil title:@"Source Code"];
 					break;
 				case KRowOtherIcons:
 					[webPage setURLmobile:@"http://www.small-icons.com/icons.htm" full:nil title:@"Aha-Soft"];
@@ -530,22 +474,6 @@
 			
 			[[self navigationController] pushViewController:webPage animated:YES];
 			[webPage release];
-			break;
-		}
-		case kSectionNetwork:
-			[self networkTips:nil networkError:nil];
-			break;
-		case kSectionCache:
-		{
-			[TriMetXML deleteCacheFile];
-			[self.table deselectRowAtIndexPath:indexPath animated:YES];
-			UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"Data Cache"
-															   message:@"Cached Routes and Stops have been deleted"
-															  delegate:nil
-													 cancelButtonTitle:@"OK"
-													 otherButtonTitles:nil ] autorelease];
-			[alert show];
-			
 			break;
 		}
 		case kSectionHelp:

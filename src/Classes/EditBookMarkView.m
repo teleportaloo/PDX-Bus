@@ -342,7 +342,7 @@
 		
 		if (![scanner isAtEnd])
 		{
-			[scanner setScanLocation:[scanner scanLocation]+1];
+			scanner.scanLocation++;
 		}
 	}	
 	
@@ -624,7 +624,7 @@
 					cell.textLabel.text = @"Browse routes for stop";
 					break;
 				case kTableSubSectionStopsRailMap:
-					cell.textLabel.text = @"Select stop from Rail Map";
+					cell.textLabel.text = @"Select stop from rail maps";
 					break;
 				case kTableSubSectionStopsRailStations:
 					cell.textLabel.text = @"Search rail stations for stop";

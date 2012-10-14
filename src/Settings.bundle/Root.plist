@@ -318,10 +318,11 @@
 			<string>Max walking distance</string>
 			<key>Titles</key>
 			<array>
-				<string>0.1 miles</string>
-				<string>0.5 miles</string>
+				<string>1/10 mile</string>
+				<string>1/4 mile</string>
+				<string>1/2 mile</string>
+				<string>3/4 mile</string>
 				<string>1 mile</string>
-				<string>1.5 miles</string>
 				<string>2 miles</string>
 			</array>
 			<key>Type</key>
@@ -329,10 +330,11 @@
 			<key>Values</key>
 			<array>
 				<real>0.1</real>
+				<real>0.25</real>
 				<real>0.5</real>
+				<real>0.75</real>
 				<integer>1</integer>
-				<real>1.5</real>
-				<integer>2</integer>
+				<real>2</real>
 			</array>
 		</dict>
 		<dict>
@@ -478,6 +480,16 @@
 			<string>Debug raw XML data</string>
 			<key>Key</key>
 			<string>debug_xml</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Show Streetcar Map initially</string>
+			<key>Key</key>
+			<string>streetcar_map_first</string>
 			<key>DefaultValue</key>
 			<false/>
 		</dict>

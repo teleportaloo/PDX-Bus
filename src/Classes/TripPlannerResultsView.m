@@ -183,9 +183,9 @@
 	[edit release];
 }
 
-- (NSData*)getXmlData
+- (void)appendXmlData:(NSMutableData *)buffer
 {
-    return self.tripQuery.rawData;
+    [self.tripQuery appendQueryAndData:buffer];
 }
 
 #pragma mark View methods
@@ -931,6 +931,83 @@
 	
 	return trip;
 }
+
+-(void)addCalendarItem:(EKEventStore *)eventStore
+{
+    if (eventStore==nil)
+    {
+        eventStore = [[[EKEventStore alloc] init] autorelease];
+    }
+    
+    EKEvent *event  = [EKEvent eventWithEventStore:eventStore];
+    event.title     = [NSString stringWithFormat:@"TriMet Trip\n%@", [self.tripQuery mediumName]];
+    event.notes     = [NSString stringWithFormat:@"Note: ensure you leave early enough to arrive in time for the first connection.\n\n%@"
+                       "\nRoute and arrival data provided by permission of TriMet.",
+                       [self plainText:self.calendarItinerary]];
+    
+    NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
+    NSLocale *enUS = [[[NSLocale alloc] initWithLocaleIdentifier:@"en_US"] autorelease];
+    [dateFormatter setLocale:enUS];
+    
+    [dateFormatter setDateFormat:@"M/d/yy hh:mm a"];
+    [dateFormatter setTimeZone:[NSTimeZone localTimeZone]];
+    NSString *fullDateStr = [NSString stringWithFormat:@"%@ %@", self.calendarItinerary.xdate, self.calendarItinerary.xstartTime];
+    NSDate *start = [dateFormatter dateFromString:fullDateStr];
+    
+    
+    
+    // The start time does not include the inital walk so take it off...
+    for (int i=0; i< [self.calendarItinerary legCount]; i++)
+    {
+        TripLeg *leg = [self.calendarItinerary getLeg:i];
+        
+        if (leg.mode == nil)
+        {
+            continue;
+        }
+        if ([leg.mode isEqualToString:kModeWalk])
+        {
+#ifdef ORIGINAL_IPHONE
+            start = [start addTimeInterval: -([leg.xduration intValue] * 60)];
+#else
+            start = [start dateByAddingTimeInterval: -([leg.xduration intValue] * 60)];;
+#endif
+            
+            
+        }
+        else {
+            break;
+        }
+    }
+#ifdef ORIGINAL_IPHONE
+    NSDate *end   = [start addTimeInterval: [self.calendarItinerary.xduration intValue] * 60];
+#else
+    NSDate *end   = [start dateByAddingTimeInterval: [self.calendarItinerary.xduration intValue] * 60];
+#endif
+    
+    
+    event.startDate = start;
+    event.endDate   = end;
+    
+    [event setCalendar:[eventStore defaultCalendarForNewEvents]];
+    NSError *err;
+    if ([eventStore saveEvent:event span:EKSpanThisEvent error:&err])
+    {
+        // Upon selecting an event, create an EKEventViewController to display the event.
+        EKEventViewController *detailViewController = [[EKEventViewController alloc] initWithNibName:nil bundle:nil];
+        detailViewController.event = event;
+        detailViewController.title = @"Calendar Event";
+        
+        // Allow event editing.
+        detailViewController.allowsEditing = YES;
+        
+        //	Push detailViewController onto the navigation controller stack
+        //	If the underlying event gets deleted, detailViewController will remove itself from
+        //	the stack and clear its event property.
+        [self.navigationController pushViewController:detailViewController animated:YES];
+        [detailViewController release];
+    }
+}
 	
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex;
 {
@@ -945,67 +1022,30 @@
 	else
 	{
 		EKEventStore *eventStore = [[[EKEventStore alloc] init] autorelease];
+        
+        
+        // maybe check for access
+        
+        if ([eventStore respondsToSelector:@selector(requestAccessToEntityType:completion:)])
+        {
+            
+            [eventStore requestAccessToEntityType:EKEntityTypeEvent completion:^(BOOL granted, NSError *error) {
+                
+                if (granted)
+                {
+                    // [self addCalendarItem:nil];
+                    [self performSelectorOnMainThread:@selector(addCalendarItem:) withObject:nil waitUntilDone:FALSE];
+                }
+                
+            }];
+        }
+        else
+        {
+            [self addCalendarItem:eventStore];
+        }
+            
+    }
 		
-		EKEvent *event  = [EKEvent eventWithEventStore:eventStore];
-		event.title     = [NSString stringWithFormat:@"TriMet Trip\n%@", [self.tripQuery mediumName]];
-		event.notes     = [NSString stringWithFormat:@"Note: ensure you leave early enough to arrive in time for the first connection.\n\n%@"
-						   "\nRoute and arrival data provided by permission of TriMet.",
-								[self plainText:self.calendarItinerary]];
-		
-		NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
-		NSLocale *enUS = [[[NSLocale alloc] initWithLocaleIdentifier:@"en_US"] autorelease];
-		[dateFormatter setLocale:enUS];
-		
-		[dateFormatter setDateFormat:@"M/d/yy hh:mm a"];
-		[dateFormatter setTimeZone:[NSTimeZone localTimeZone]];
-		NSString *fullDateStr = [NSString stringWithFormat:@"%@ %@", self.calendarItinerary.xdate, self.calendarItinerary.xstartTime];
-		NSDate *start = [dateFormatter dateFromString:fullDateStr];
-		
-		
-		
-		// The start time does not include the inital walk so take it off...
-		for (int i=0; i< [self.calendarItinerary legCount]; i++)
-		{
-			TripLeg *leg = [self.calendarItinerary getLeg:i];
-			
-			if (leg.mode == nil)
-			{
-				continue;
-			}
-			if ([leg.mode isEqualToString:kModeWalk])
-			{
-
-				start = [start addTimeInterval: -([leg.xduration intValue] * 60)];
-			}
-			else {
-				break;
-			}
-		}
-		
-		NSDate *end   = [start addTimeInterval: [self.calendarItinerary.xduration intValue] * 60];
-		
-		event.startDate = start;
-		event.endDate   = end;
-		
-		[event setCalendar:[eventStore defaultCalendarForNewEvents]];
-		NSError *err;
-		if ([eventStore saveEvent:event span:EKSpanThisEvent error:&err])
-		{
-			// Upon selecting an event, create an EKEventViewController to display the event.
-			EKEventViewController *detailViewController = [[EKEventViewController alloc] initWithNibName:nil bundle:nil];			
-			detailViewController.event = event;
-			detailViewController.title = @"Calendar Event";
-			
-			// Allow event editing.
-			detailViewController.allowsEditing = YES;
-			
-			//	Push detailViewController onto the navigation controller stack
-			//	If the underlying event gets deleted, detailViewController will remove itself from
-			//	the stack and clear its event property.
-			[self.navigationController pushViewController:detailViewController animated:YES];
-			[detailViewController release];
-		}
-	}
 }
 	
 	

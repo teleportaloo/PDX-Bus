@@ -522,8 +522,11 @@ static strmap dirmap [] =
 		{
 			if (type == TripTextTypeUI)
 			{
+                
 				self.from.displayTimeText = self.xstartTime;
 				self.from.leftColor = [UIColor blueColor];
+                
+                // Bug in response can give streetcar data as MAX Mode.
 				
 				if ([self.mode isEqualToString:kModeBus])
 				{
@@ -533,7 +536,11 @@ static strmap dirmap [] =
 				{
 					self.from.displayModeText = @"MAX";
 				}
-				else
+				else if ([self.mode isEqualToString:kModeSc])
+                {
+                    self.from.displayModeText = @"Streetcar";
+                }
+                else
 				{
 					self.from.displayModeText = self.xnumber;
 				}
@@ -1468,14 +1475,22 @@ static strmap dirmap [] =
 
 - (NSString *)optionsAccessability
 {
-	return [NSString stringWithFormat:@"Options, Maximum walking distance %0.1f miles, Travel by %@, Show the %@", 
-			self.walk, [self getMode], [self getMin]];
+    NSString *walk =
+    [[XMLTrips distanceMapSingleton] objectAtIndex:
+     [XMLTrips distanceToIndex:self.walk]];
+    
+	return [NSString stringWithFormat:@"Options, Maximum walking distance %@ miles, Travel by %@, Show the %@", 
+			walk, [self getMode], [self getMin]];
 	
 }
 
 - (NSString*)optionsDisplayText
 {
-	return [NSString stringWithFormat:@"Max walk: %0.1f miles\nTravel by: %@\nShow the: %@", self.walk,
+    NSString *walk =
+    [[XMLTrips distanceMapSingleton] objectAtIndex:
+     [XMLTrips distanceToIndex:self.walk]];
+    
+	return [NSString stringWithFormat:@"Max walk: %@ miles\nTravel by: %@\nShow the: %@", walk,
 			[self getMode], [self getMin]];
 }
 
@@ -2034,5 +2049,53 @@ static NSString *tripURLString = @"trips/tripplanner?%@&%@&Date=%@&Time=%@&Arr=%
 	return self;
 	
 }
+
++(NSArray *)distanceMapSingleton
+{
+    static NSArray *distanceMap = nil;
+    
+    if (distanceMap==nil)
+    {
+        distanceMap = [[NSArray arrayWithObjects:
+                        @"1/10",
+                        @"1/4",
+                        @"1/2",
+                        @"3/4",
+                        @"1",
+                        @"2",
+                        nil] retain];
+    }
+    
+    return [[distanceMap retain] autorelease];
+}
+
+static float distances[] = {0.1, 0.25, 0.5, 0.75, 1.0, 2.0};
+
++(int)distanceToIndex:(float)distance
+{
+    int max = sizeof(distances)/sizeof(distances[0]);
+    
+    for (int i=1; i<max; i++)
+    {
+        if (distance < distances[i])
+        {
+            return i-1;
+        }
+    }
+    
+    return max-1;
+}
+
++(float)indexToDistance:(int)index
+{
+    int max = sizeof(distances)/sizeof(distances[0]);
+    if (index < max)
+    {
+        return distances[index];
+    }
+    
+    return distances[max-1];
+}
+
 
 @end

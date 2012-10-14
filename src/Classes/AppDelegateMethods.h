@@ -31,10 +31,12 @@
 - (NSDictionary *)getStreetcarPlatforms;
 - (NSDictionary *)getStreetcarDirections;
 - (NSDictionary *)getStreetcarShortNames;
-- (NSString *)getStreetcarRoute;
+- (NSDictionary *)getStreetcarBlockMap;
+- (NSDictionary *)getStreetcarRoutes;
 - (BOOL)processURL:(NSString *)url protocol:(NSString *)protocol;
 - (BOOL)processBookMarkFromURL:(NSString *)bookmark protocol:(NSString *)protocol;
 - (BOOL)processStopFromURL:(NSString *)stop;
+- (BOOL)processCommandFromURL:(NSString *)command;
 - (void)showActivityViewer;
 - (void)hideActivityViewer;
 + (TriMetTimesAppDelegate*)getSingleton;

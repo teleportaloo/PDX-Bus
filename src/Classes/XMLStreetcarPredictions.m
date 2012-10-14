@@ -38,6 +38,7 @@
 @synthesize streetcarDirections = _streetcarDirections;
 @synthesize copyright = _copyright;
 @synthesize dirFromQuery = _dirFromQuery;
+@synthesize nextBusRouteId = _nextBusRouteId;
 
 - (void)dealloc
 {
@@ -49,6 +50,8 @@
 	self.streetcarShortNames = nil;
 	self.copyright = nil;
 	self.dirFromQuery = nil;
+    self.nextBusRouteId = nil;
+    self.stopTitle = nil;
 	
 	[super dealloc];
 }
@@ -105,6 +108,10 @@
 		self.routeTitle = [self safeValueFromDict:attributeDict valueForKey:@"routeTitle"];
 		
 		self.directionTitle = [attributeDict valueForKey:@"dirTitleBecauseNoPredictions"];
+#ifdef DEBUGLOGGING
+        self.stopTitle = [attributeDict valueForKey:@"stopTitle"];
+#endif
+        
 		if (self.directionTitle!=nil)
 		{
 			[self initArray];
@@ -124,7 +131,8 @@
 	
     if ([elementName isEqualToString:@"prediction"]
 		&& [[self safeValueFromDict:attributeDict valueForKey:@"dirTag"] isEqualToString:self.dirFromQuery])
-	{		
+	{
+        // Note - the vehicle is the block - I put the block into the streetcar block!
 		NSString *block = [self safeValueFromDict:attributeDict valueForKey:@"vehicle"];
 		if ((self.blockFilter==nil) || ([self.blockFilter isEqualToString:block]))
 		{
@@ -138,17 +146,18 @@
 			}
 			
 			self.currentDepartureObject = [[[Departure alloc] init] autorelease];
-			self.currentDepartureObject.hasBlock = true;
-			self.currentDepartureObject.route =			nil;
-			self.currentDepartureObject.fullSign =		name;
-			self.currentDepartureObject.routeName =		shortName;
-			self.currentDepartureObject.block =         block;
-			self.currentDepartureObject.status =		kStatusEstimated;
-			self.currentDepartureObject.nextBus =		[self getTimeFromAttribute:attributeDict valueForKey:@"minutes"];
-			self.currentDepartureObject.streetcar = true;
-			self.currentDepartureObject.dir =			[self.streetcarDirections objectForKey:[self safeValueFromDict:attributeDict valueForKey:@"dirTag"]];
-			self.currentDepartureObject.copyright = self.copyright;
-			
+			self.currentDepartureObject.hasBlock       = true;
+			self.currentDepartureObject.route          = nil;
+			self.currentDepartureObject.fullSign       = name;
+			self.currentDepartureObject.routeName      = shortName;
+			self.currentDepartureObject.block          = block;
+			self.currentDepartureObject.status         = kStatusEstimated;
+			self.currentDepartureObject.nextBus        = [self getTimeFromAttribute:attributeDict valueForKey:@"minutes"];
+			self.currentDepartureObject.streetcar      = true;
+			self.currentDepartureObject.dir            = [self.streetcarDirections objectForKey:[self safeValueFromDict:attributeDict valueForKey:@"dirTag"]];
+			self.currentDepartureObject.copyright      = self.copyright;
+            self.currentDepartureObject.streecarBlock  = [self safeValueFromDict:attributeDict valueForKey:@"block"];
+			self.currentDepartureObject.nextBusRouteId = self.nextBusRouteId;
 			
 			/*
 			[[self safeValueFromDict:attributeDict valueForKey:@"dirTag"] isEqualToString:@"t5"]
@@ -169,6 +178,5 @@
 		}
     }
 }
-
 
 @end

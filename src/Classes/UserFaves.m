@@ -344,10 +344,10 @@
 	NSInteger year = 0;
 	
 	[s scanInteger:&month];
-	[s setScanLocation: [s scanLocation]+1];
+	s.scanLocation++;
 	
 	[s scanInteger:&day];
-	[s setScanLocation: [s scanLocation]+1];
+	s.scanLocation++;
 	
 	[s scanInteger:&year];
 	

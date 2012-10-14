@@ -48,6 +48,16 @@
 	return YES;
 }
 
+// iOS6 methods
+
+- (BOOL)shouldAutorotate {
+    return YES;
+}
+
+- (NSUInteger)supportedInterfaceOrientations {
+    return UIInterfaceOrientationMaskAll;
+}
+
 - (void)infoAction:(id)sender
 {
 	UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"Info"

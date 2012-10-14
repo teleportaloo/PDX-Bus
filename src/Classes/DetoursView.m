@@ -249,9 +249,9 @@
 
 }
 
-- (NSData *)getXmlData
+- (void)appendXmlData:(NSMutableData *)buffer
 {
-    return self.detourData.rawData;
+    [self.detourData appendQueryAndData:buffer];
 }
 
 @end

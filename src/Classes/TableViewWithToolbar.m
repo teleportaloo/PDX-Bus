@@ -283,10 +283,10 @@
 		switch ([self screenWidth])
 		{
 		case WidthiPadNarrow:
-			width = 690.0 - font.pointSize;
+            width = 662.0; //  - font.pointSize;
 			break;
 		case WidthiPadWide:
-			width = 1000.0 - font.pointSize;
+            width = 918.0; // - font.pointSize;
 			break;
 		case WidthiPhoneNarrow:
 			width = 280.0 - font.pointSize;

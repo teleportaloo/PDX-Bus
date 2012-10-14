@@ -32,6 +32,7 @@
 @interface XMLStreetcarPredictions : NextBusXML {
 	Departure *_currentDepartureObject;
 	NSString *_directionTitle;
+    NSString *_stopTitle;
 	NSString *_routeTitle;
 	NSString *_blockFilter;
 	NSString *_copyright;
@@ -39,6 +40,8 @@
 	
 	NSDictionary *_streetcarDirections;
 	NSDictionary *_streetcarShortNames;
+    
+    NSString *_nextBusRouteId;
 }
 
 @property (nonatomic, retain) Departure *currentDepartureObject;
@@ -47,6 +50,8 @@
 @property (nonatomic, retain) NSString *blockFilter;
 @property (nonatomic, retain) NSString *copyright;
 @property (nonatomic, retain) NSString *dirFromQuery;
+@property (nonatomic, retain) NSString *nextBusRouteId;
+@property (nonatomic, retain) NSString *stopTitle;
 
 
 @property (nonatomic, retain) NSDictionary *streetcarDirections;

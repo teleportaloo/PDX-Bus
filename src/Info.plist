@@ -6,22 +6,31 @@
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
 	<string>PDX Bus</string>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>MKDirectionsRequest</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.apple.maps.directionsrequest</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIconFile</key>
-	<string>AppIcon-57.png</string>
-	<key>UIRequiredDeviceCapabilities</key>
-	<array>
-		<string>armv6</string>
-	</array>
+	<string>Icon.png</string>
 	<key>CFBundleIconFiles</key>
 	<array>
-		<string>AppIcon-57.png</string>
-		<string>AppIcon-114.png</string>
-		<string>AppIcon-72.png</string>
-		<string>AppIcon-29.png</string>
-		<string>AppIcon-50.png</string>
-		<string>AppIcon-58.png</string>
+		<string>Icon.png</string>
+		<string>Icon@2x.png</string>
+		<string>Icon-72.png</string>
+		<string>Icon-72@2x.png</string>
+		<string>Icon-Small.png</string>
+		<string>Icon-Small@2x.png</string>
+		<string>Icon-Small-50.png</string>
+		<string>Icon-Small-50@2x.png</string>
 	</array>
 	<key>CFBundleIdentifier</key>
 	<string>org.teleportaloo.${PRODUCT_NAME:identifier}</string>
@@ -31,6 +40,8 @@
 	<string>PDX Bus</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>6.6</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -46,11 +57,15 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>6.3.5</string>
-	<key>CFBundleShortVersionString</key>
-	<string>6.3.5</string>
+	<string>6.6.1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>MKDirectionsApplicationSupportedModes</key>
+	<array>
+		<string>MKDirectionsModeBus</string>
+		<string>MKDirectionsModeStreetCar</string>
+		<string>MKDirectionsModeTrain</string>
+	</array>
 	<key>NSMainNibFile</key>
 	<string>MainWindow</string>
 	<key>NSMainNibFile~ipad</key>
@@ -61,12 +76,23 @@
 	</array>
 	<key>UIPrerenderedIcon</key>
 	<true/>
+	<key>UIRequiredDeviceCapabilities</key>
+	<array>
+		<string>armv6</string>
+	</array>
 	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInteraceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInteraceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
+		<string>UIInterfaceOrientationPortrait</string>
 	</array>
 </dict>
 </plist>

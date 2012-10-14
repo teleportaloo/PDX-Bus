@@ -23,10 +23,12 @@
 
  */
 
+#include "TilingView.h"
 @protocol TapDetectingImageViewDelegate;
 
 
-@interface TapDetectingImageView : UIImageView {
+
+@interface TapDetectingImageView : TilingView {
 	
     id <TapDetectingImageViewDelegate> _delegate;
     
@@ -37,6 +39,8 @@
 }
 
 @property (nonatomic, assign) id <TapDetectingImageViewDelegate> delegate;
+
+- (id)initWithImageName:(NSString *)image size:(CGSize)size;
 
 @end
 

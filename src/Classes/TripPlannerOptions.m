@@ -49,12 +49,6 @@
 #define kUISegHeight		40
 #define kUISegWidth			320
 
-#define kWalkDist0			0.1
-#define kWalkDist1			0.5
-#define kWalkDist2			1.0
-#define kWalkDist3			1.5
-#define kWalkDist4			2.0
-
 
 - (void)dealloc {
 	self.modeSegment	= nil;
@@ -110,24 +104,7 @@
 
 - (void)walkSegmentChanged:(id)sender
 {
-	switch (self.walkSegment.selectedSegmentIndex)
-	{
-		case 0:
-			self.tripQuery.userRequest.walk = kWalkDist0;
-			break;
-		case 1:
-			self.tripQuery.userRequest.walk = kWalkDist1;
-			break;
-		case 2:
-			self.tripQuery.userRequest.walk = kWalkDist2;
-			break;
-		case 3:
-			self.tripQuery.userRequest.walk = kWalkDist3;
-			break;
-        case 4:
-			self.tripQuery.userRequest.walk = kWalkDist4;
-			break;
-	}
+	self.tripQuery.userRequest.walk = [XMLTrips indexToDistance:self.walkSegment.selectedSegmentIndex];
 }
 
 
@@ -172,9 +149,9 @@
 			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:segmentId1];
 			if (cell == nil) {
 				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:segmentId1] autorelease];
-				self.walkSegment = [self createSegmentedControl:
-								[NSArray arrayWithObjects:@"0.1", @"0.5", @"1.0", @"1.5", @"2.0", nil]
-													 parent:cell.contentView action:@selector(walkSegmentChanged:)];
+				self.walkSegment = [self createSegmentedControl:[XMLTrips distanceMapSingleton]
+                                                         parent:cell.contentView
+                                                         action:@selector(walkSegmentChanged:)];
 				
 				 
 			
@@ -183,28 +160,12 @@
 				cell.isAccessibilityElement = NO;
 				
 				cell.backgroundView = [self clearView];
-			}	
+			}
+            
+            self.walkSegment.selectedSegmentIndex = [XMLTrips distanceToIndex:self.tripQuery.userRequest.walk];
+            
 		
-			if (self.tripQuery.userRequest.walk < kWalkDist1)
-			{
-				self.walkSegment.selectedSegmentIndex = 0;
-			} else if (self.tripQuery.userRequest.walk < kWalkDist2)
-			{
-				self.walkSegment.selectedSegmentIndex = 1;
-			} 
-			else if (self.tripQuery.userRequest.walk < kWalkDist3)
-			{
-				self.walkSegment.selectedSegmentIndex = 2;
-			}
-            else if (self.tripQuery.userRequest.walk < kWalkDist4)
-			{
-				self.walkSegment.selectedSegmentIndex = 3;
-			}
-			else 
-			{
-				self.walkSegment.selectedSegmentIndex = 4;
-			}
-			return cell;			
+            return cell;
 		}
 		case kSectionMode:
 		{

@@ -222,6 +222,20 @@
 }
 
 
+- (bool) showStreetcarMapFirst
+{
+	return [self getBoolFromDefaultsForKey:@"streetcar_map_first"		ifMissing:NO];
+    
+}
+
+- (void)setShowStreetcarMapFirst:(_Bool)first
+{
+    [_defaults setBool:first forKey:@"streetcar_map_first"];
+}
+
+
+
+
 - (float)useGpsWithin
 {
 	return [self getFloatFromDefaultsForKey:@"use_gps_within"			ifMissing:4828.032 max:8046.72 min:1609.344];

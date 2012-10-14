@@ -142,4 +142,10 @@
 	return nil;
 }
 
+- (BOOL) DTDataStreetcarException
+{
+    return NO;
+}
+
+
 @end

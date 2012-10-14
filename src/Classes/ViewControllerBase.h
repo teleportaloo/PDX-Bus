@@ -32,12 +32,23 @@
 #import "UserPrefs.h"
 #import "UserFaves.h"
 
-@interface ViewControllerBase : UIViewController <BackgroundTaskDone, UIDocumentInteractionControllerDelegate> {
+
+#define kMaxTweetButtons        5
+
+@interface ViewControllerBase : UIViewController <BackgroundTaskDone, UIDocumentInteractionControllerDelegate, UIActionSheetDelegate> {
 	BackgroundTaskContainer *_backgroundTask;
 	id<ReturnStopId> _callback;
 	SafeUserData	*_userData;
     UIDocumentInteractionController *_docMenu;
     UIBarButtonItem *_xmlButton;
+    
+    NSString *_tweetAt;
+    NSString *_initTweet;
+    
+    int _tweetButtons[kMaxTweetButtons];
+    
+    UIActionSheet *_tweetAlert;
+
 }
 
 - (bool)initMembers;
@@ -72,15 +83,23 @@
 - (ScreenType)screenWidth;
 - (void)reloadData;
 - (UIColor*)htmlColor:(int)val;
-- (NSData*)getXmlData;
+- (void)appendXmlData:(NSMutableData *)buffer;
 - (void)xmlAction:(id)arg;
 - (void)createToolbarItemsWithXml;
+- (void)tweet;
+- (void)clearSelection;
+- (void)facebook;
 
 
 @property (nonatomic, retain) UIBarButtonItem *xmlButton;
 @property (nonatomic, retain) BackgroundTaskContainer *backgroundTask;
 @property (nonatomic, retain) id<ReturnStopId> callback;
 @property (nonatomic, retain) UIDocumentInteractionController *docMenu;
+@property (nonatomic, retain) NSString *tweetAt;
+@property (nonatomic, retain) NSString *initTweet;
+@property (nonatomic, retain) UIActionSheet *tweetAlert;
+
+
 
 #define kRailAwareReloadButton 1
 
@@ -130,7 +149,8 @@
 #define kIconMap			@"103-map.png"
 #define kIconMagnify		@"magnifier.png"
 #define kIconMapAction		@"103-map.png"
-#define kIconRailMap		@"RailSystem.png"
+#define kIconMaxMap         @"RailSystem.png"
+#define kIconStreetcarMap   @"Streetcar.png"
 #define KIconRailStations	@"RailStations.png"
 #define kIconReverse		@"Redo.png"
 #define kIconArrivals		@"Clock.png"

@@ -42,8 +42,9 @@ CGPoint midpointBetweenPoints(CGPoint a, CGPoint b);
 	[super dealloc];
 }
 
-- (id)initWithImage:(UIImage *)image {
-    self = [super initWithImage:image];
+- (id)initWithImageName:(NSString *)image size:(CGSize)size
+{
+    self = [super initWithImageName:image size:size];
     if (self) {
         [self setUserInteractionEnabled:YES];
         [self setMultipleTouchEnabled:YES];

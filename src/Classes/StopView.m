@@ -115,9 +115,9 @@
 	
 }
 
-- (NSData *)getXmlData
+- (void)appendXmlData:(NSMutableData *)buffer
 {
-    return self.stopData.rawData;
+    [self.stopData appendQueryAndData:buffer];
 }
 
 #pragma mark Data fetchers

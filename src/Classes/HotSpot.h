@@ -27,7 +27,7 @@
  */
 
 
-#define MAXHOTSPOTS 195
+#define MAXHOTSPOTS 251
 
 #define kLinkTypeHttp	'h'
 #define kLinkTypeWiki	'w'
@@ -37,10 +37,12 @@
 #define kLinkType2		'2'
 #define kLinkType3		'3'
 #define kLinkTypeDir	'd'
+#define kLinkTypeMap    'm'
 
 typedef struct hotspot_struct
 {
 	const CGPoint *vertices;
+    const CGRect *rect;
 	int	nVertices;
 	const char *action;
 	bool touched;
@@ -52,7 +54,9 @@ typedef struct hotspot_struct
 #define kGreenLine  0x0004
 #define kYellowLine 0x0008
 #define kWesLine    0x0010
-#define kStreetcarLine	0x0020
+#define kStreetcarNsLine	0x0020
+#define kStreetcarClLine	0x0040
+
 
 typedef int RAILLINES;
 
@@ -62,6 +66,19 @@ typedef struct alpha_section_struct
 	int offset;
 	int items;
 } ALPHA_SECTIONS;
+
+typedef struct railmap_struct
+{
+    NSString *title;
+    NSString *fileName;
+    CGSize   size;
+    int      firstHotspot;
+    int      lastHotspot;
+} RAILMAP;
+
+#define kRailMapMaxWes          0
+#define kRailMapPdxStreetcar    1
+#define kRailMaps               2
 
 
 #define MAXCOLORS  1

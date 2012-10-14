@@ -32,12 +32,40 @@
 #import "WebViewController.h"
 #import "NetworkTestView.h"
 #import "RssView.h"
+#import <Twitter/TWTweetComposeViewController.h>
+
+#define kTweetButtonList        1
+#define kTweetButtonTweet       2
+#define kTweetButtonApp         3
+#define kTweetButtonWeb         4
+#define kTweetButtonCancel      5
+
+
+@implementation UINavigationController (Rotation_IOS6)
+
+-(BOOL)shouldAutorotate
+{
+    return [[self.viewControllers lastObject] shouldAutorotate];
+}
+
+-(NSUInteger)supportedInterfaceOrientations
+{
+    return [[self.viewControllers lastObject] supportedInterfaceOrientations];
+}
+
+- (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation
+{
+    return [[self.viewControllers lastObject] preferredInterfaceOrientationForPresentation];
+}
+
+@end
 
 @implementation ViewControllerBase
 
 @synthesize backgroundTask	= _backgroundTask;
 @synthesize callback		= _callback;
 @synthesize docMenu             = _docMenu;
+
 
 - (void)dealloc {
     //
@@ -50,7 +78,11 @@
 	}
     self.backgroundTask = nil;
 	self.callback		= nil;
-    self.docMenu                = nil;
+    self.docMenu        = nil;
+    self.tweetAlert     = nil;
+    self.tweetAt        = nil;
+    self.initTweet      = nil;
+    
 	[_userData release];
 	[super dealloc];
 }
@@ -128,6 +160,38 @@
     [super viewDidLoad];
 //	[self.view bringSubviewToFront:self.toolbar];
 }
+
+// iOS6 methods
+
+- (BOOL)shouldAutorotate {
+    
+    if (self.backgroundTask.backgroundThread !=nil)
+    {
+        return NO;
+    }
+    return YES;
+
+}
+
+- (NSUInteger)supportedInterfaceOrientations {
+    CGRect bounds = [[UIScreen mainScreen] bounds];
+	
+	// Small devices do not need to orient
+	if (bounds.size.width <= kLargestSmallScreenDimension)
+	{
+        return UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskPortraitUpsideDown;
+	}
+
+	/*
+	if (self.backgroundTask.backgroundThread !=nil)
+	{
+		return ;
+	}
+    */
+    
+    return UIInterfaceOrientationMaskAll;
+}
+
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
 	// Return YES for supported orientations
@@ -352,64 +416,115 @@
 	return flash;
 }
 
-- (NSData*)getXmlData
+- (void)appendXmlData:(NSMutableData *)buffer
 {
-    return nil;
+    
 }
 
 
 - (void)xmlAction:(id)arg
 {
-    NSData *xmlData = [self getXmlData];
+    // This only for debugging so we can be a little bit slap dash.
+    // We replace some items in the XML to hide it or to make the reader
+    // happy when concatonating.  This was learnt by trial and error!
+    NSArray *finders = [NSArray arrayWithObjects:
+                        TRIMET_APP_ID,              // hide APP ID
+                        @"<?xml", @"?>",            // XML encoding gets in the way
+                        @"<--?xml", @"?-->",        // XML encoding gets in the way
+                        @"<body", @"body>",         // This keyword gets dropped
+                        nil];
+    
+    NSArray *replacers = [NSArray arrayWithObjects:
+                          @"TRIMET_APP_ID",
+                          @"<!--", @"-->",
+                          @"<!--", @"-->",
+                          @"<wasbody", @"wasbody>",
+                          nil];
+
+
+  
+    NSMutableData *buffer = [[NSMutableData alloc] init];
+       
+    [self appendXmlData:buffer];
+    
+    
     
     if (self.docMenu)
     {
         [self.docMenu dismissMenuAnimated:YES];
         self.docMenu = nil;
+        [buffer release];
     }
-    else if (xmlData)
+    else 
     {
         // NSFileManager *fileManager = [NSFileManager defaultManager];
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
         NSString *documentsDirectory = [paths objectAtIndex:0];
     
-        NSString * filePath = [documentsDirectory stringByAppendingPathComponent:@"TriMet.xml"];
+        NSString * filePath = [documentsDirectory stringByAppendingPathComponent:@"PDXBusData.xml"];
+        
+        [[NSFileManager defaultManager] removeItemAtPath:filePath error:nil];
     
  
-        NSMutableString *redactedData = [[[NSMutableString alloc] initWithBytes:xmlData.bytes
-                                                                         length:xmlData.length
-                                                                       encoding:NSUTF8StringEncoding] autorelease];
-            
-        [redactedData replaceOccurrencesOfString:TRIMET_APP_ID
-                                      withString:@"TRIMET_APP_ID"
-                                         options:NSCaseInsensitiveSearch
-                                           range:NSMakeRange(0, [redactedData length])];
+        NSMutableString *redactedData = [[NSMutableString alloc] initWithBytes:buffer.bytes
+                                                                         length:buffer.length
+                                                                       encoding:NSUTF8StringEncoding];
         
-        [redactedData writeToFile:filePath atomically:FALSE encoding:NSUTF8StringEncoding error:nil];
-    
-        self.docMenu = [UIDocumentInteractionController
-                    interactionControllerWithURL:[NSURL fileURLWithPath:filePath]];
-        self.docMenu.delegate = self;
-        self.docMenu.UTI = @"data.xml";
-
-        if (self.xmlButton)
+        [buffer release];
+        
+        for (int i=0; i<finders.count; i++)
         {
-            [self.docMenu presentOpenInMenuFromBarButtonItem:self.xmlButton animated:YES];
+            
+            [redactedData replaceOccurrencesOfString:[finders objectAtIndex:i]
+                                          withString:[replacers objectAtIndex:i]
+                                             options:NSCaseInsensitiveSearch
+                                               range:NSMakeRange(0, redactedData.length)];
+        
+        }
+        
+        [redactedData insertString:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?><root>" atIndex:0];
+        [redactedData appendString:@"</root>"];
+        
+        DEBUG_LOG(@"%@", redactedData);
+        if ([redactedData writeToFile:filePath atomically:FALSE encoding:NSUTF8StringEncoding error:nil])
+        {
+    
+            self.docMenu = [UIDocumentInteractionController
+                            interactionControllerWithURL:[NSURL fileURLWithPath:filePath]];
+            self.docMenu.delegate = self;
+            self.docMenu.UTI = @"data.xml";
+
+            if (self.xmlButton)
+            {
+                [self.docMenu presentOpenInMenuFromBarButtonItem:self.xmlButton animated:YES];
+            }
+            else
+            {
+                UIView *view = self.navigationController.view;
+                CGRect rect = CGRectZero;
+            
+                if (arg!=nil)
+                {
+                    UIView *button = arg;
+                    rect = [view convertRect:button.frame fromView:button.superview];
+                }
+                [self.docMenu presentOpenInMenuFromRect:rect
+                                                 inView:view
+                                               animated:YES];
+        
+            }
         }
         else
         {
-            UIView *view = self.navigationController.view;
-            CGRect rect = CGRectZero;
-            
-            if (arg!=nil)
-            {
-                UIView *button = arg;
-                rect = [view convertRect:button.frame fromView:button.superview];
-            }
-            [self.docMenu presentOpenInMenuFromRect:rect
-                                         inView:view
-                                       animated:YES];
+            UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"XML error"
+                                                               message:@"Could not write to file."
+                                                              delegate:nil
+                                                     cancelButtonTitle:@"OK"
+                                                     otherButtonTitles:nil] autorelease];
+            [alert show];
         }
+        
+        [redactedData release];
     }
 }
 
@@ -640,6 +755,129 @@
 (UIDocumentInteractionController *)controller {
     //   [controller dismissMenuAnimated:YES];
     self.docMenu = nil;
+}
+
+- (void) tweet
+{
+    self.tweetAlert = [[[UIActionSheet alloc] initWithTitle:[NSString stringWithFormat:@"@%@ on Twitter", self.tweetAt]
+                                                   delegate:self
+                                          cancelButtonTitle:nil
+                                     destructiveButtonTitle:nil
+                                          otherButtonTitles:nil] autorelease];
+    
+    
+    
+    if ([[TriMetTimesAppDelegate getSingleton] canTweet])
+    {
+        _tweetButtons[ [self.tweetAlert addButtonWithTitle:@"Send tweet"] ] = kTweetButtonTweet;
+    }
+    
+    
+    NSString *twitter=[NSString stringWithFormat:@"twitter:"];
+    
+    if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:twitter]])
+    {
+        _tweetButtons[ [self.tweetAlert addButtonWithTitle:@"Show in Twitter app"] ] = kTweetButtonApp;
+    }
+    
+    _tweetButtons[ [self.tweetAlert addButtonWithTitle:@"Show in Safari"] ] = kTweetButtonWeb;
+    
+    
+    // _tweetButtons[[sheet addButtonWithTitle:@"Recent tweets"] ] = kTweetButtonList;
+    
+    self.tweetAlert.cancelButtonIndex  = [self.tweetAlert addButtonWithTitle:@"Cancel"];
+    _tweetButtons[self.tweetAlert.cancelButtonIndex ] = kTweetButtonCancel;
+    
+    [self.tweetAlert showFromToolbar:self.navigationController.toolbar];
+    
+}
+
+
+-(void)clearSelection
+{
+    
+}
+
+- (void)facebook
+{
+    static NSString *fb=@"fb://profile/218101161593";
+    
+    if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:fb]])
+    {
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:fb]];
+    }
+    else
+    {
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"http://m.facebook.com/PDXBus"]];
+    }
+    [self clearSelection];
+}
+
+#pragma mark -
+#pragma mark UIActionSheetDelegate methods
+
+- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex;
+{
+    
+    if (actionSheet != self.tweetAlert)
+    {
+        return;
+    }
+    switch (_tweetButtons[buttonIndex])
+    {
+        default:
+        case kTweetButtonApp:
+        {
+            NSString *twitter=[NSString stringWithFormat:@"twitter://user?screen_name=%@", self.tweetAt];
+            
+            if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:twitter]])
+            {
+                [[UIApplication sharedApplication] openURL:[NSURL URLWithString:twitter]];
+                [self clearSelection];
+            }
+            break;
+        }
+        case kTweetButtonWeb:
+        {
+            NSString *twitter=[NSString stringWithFormat:@"https://mobile.twitter.com/%@", self.tweetAt];
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:twitter]];
+            [self clearSelection];
+            break;
+        }
+            
+        case kTweetButtonCancel:
+        {
+            [self clearSelection];
+            break;
+        }
+        case kTweetButtonList:
+        {
+            
+            RssView *rss = [[[RssView alloc] init] autorelease];
+            
+            rss.gotoOriginalArticle = YES;
+            
+            [rss fetchRssInBackground:self.backgroundTask url:[NSString stringWithFormat:@"http://api.twitter.com/1/statuses/user_timeline.rss?screen_name=%@", self.tweetAt]];
+            break;
+        }
+            
+        case kTweetButtonTweet:
+        {
+            TWTweetComposeViewController *picker = [[TWTweetComposeViewController alloc] init];
+            [picker setInitialText:self.initTweet];
+            
+            picker.completionHandler =
+            ^(TWTweetComposeViewControllerResult result) {
+                [self clearSelection];
+                [self dismissModalViewControllerAnimated:YES];
+            };
+            
+            [self presentModalViewController:picker animated:YES];
+            
+            [picker release];
+            break;
+        }
+    }
 }
 
 

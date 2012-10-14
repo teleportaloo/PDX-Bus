@@ -58,6 +58,7 @@
 #define kSectionXML         11
 #define kSectionStatic		12
 
+
 #define kDistanceRows		1
 
 #define kTripRows			2
@@ -496,7 +497,6 @@ static int depthCount = 0;
 		{
 			next ++;
 		}
-		
 		sr->row[kSectionInfo] = next;
         
 		// kSectionAccuracy
@@ -669,6 +669,8 @@ static int depthCount = 0;
 {
 	
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    
+    [[url retain] autorelease];
 	
 	NSThread *thread = [NSThread currentThread];
 
@@ -694,6 +696,8 @@ static int depthCount = 0;
 	self.stops = stopId;
 	NSError *parseError = nil;	
 	
+    static NSString *streetcar = @"www.portlandstreetcar.org";
+    
     if (!thread.isCancelled && stopId)
     {
         XMLDepartures *deps = [[ XMLDepartures alloc ] init];
@@ -704,7 +708,12 @@ static int depthCount = 0;
         [deps release];
         [self.backgroundTask.callbackWhenFetching BackgroundItemsDone:2];
 	}
-    else 
+    else if (url.length >= streetcar.length && [[url substringToIndex:streetcar.length] isEqualToString:streetcar])
+    {
+        [thread cancel];
+        [self.backgroundTask.callbackWhenFetching BackgroundSetErrorMsg:@"That QR Code is for the Portland Streetcar web site - there should be another QR code close by that has the stop ID."];
+    }
+    else
     {
         [thread cancel];
         [self.backgroundTask.callbackWhenFetching BackgroundSetErrorMsg:@"The QR Code is not for a TriMet stop."];
@@ -749,7 +758,8 @@ static int depthCount = 0;
 	canceller.caller            = self;
     canceller.backgroundTask    = self.backgroundTask;
     
-    if (![locator displayErrorIfNoneFound:canceller])
+    
+    if (![locator displayErrorIfNoneFound:self.backgroundTask.callbackWhenFetching])
 	{
 		NSMutableString * stopsstr = [[[NSMutableString alloc] init] autorelease];
 		self.stops = stopsstr;
@@ -787,12 +797,10 @@ static int depthCount = 0;
 			_blockFilter = false;
 			[self sortByBus];
 		}
-        
-        [self.backgroundTask.callbackWhenFetching BackgroundCompleted:self];
-		
 	}
-	
-	
+    
+    [self.backgroundTask.callbackWhenFetching BackgroundCompleted:self];
+
 	
 	[pool release];
 }
@@ -893,7 +901,7 @@ static int depthCount = 0;
 		
 		if (![scanner isAtEnd])
 		{
-			[scanner setScanLocation:[scanner scanLocation]+1];
+			scanner.scanLocation++;
 		}
 	} 
 	
@@ -923,7 +931,7 @@ static int depthCount = 0;
 		
 		if (![scanner isAtEnd])
 		{
-			[scanner setScanLocation:[scanner scanLocation]+1];
+			scanner.scanLocation++;
 		}
 		[deps release];
 		
@@ -1131,31 +1139,24 @@ static int depthCount = 0;
 - (void)fetchStreetcarLocations:(id)arg
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    int i=0;
 	
-	
-	[self.backgroundTask.callbackWhenFetching BackgroundStart:1 title:@"getting locations"];
+	NSSet *streetcarRoutes = [XMLStreetcarLocations getStreetcarRoutesInDepartureArray:self.originalDataArray];
+
+	[self.backgroundTask.callbackWhenFetching BackgroundStart:streetcarRoutes.count title:@"getting locations"];
 	
 	[UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
-	
-	NSError *parseError = nil;
-	XMLStreetcarLocations *locs = [XMLStreetcarLocations getSingleton];
-	[locs getLocations:&parseError];
-	
-	
-	int i,j;
-	for (i=[self.originalDataArray count]-1; i>=0 ; i--)
-	{
-		XMLDepartures * dep = [self.originalDataArray objectAtIndex:i];
-		
-		for (j=0; j< [dep safeItemCount]; j++)
-		{
-			Departure *dd = [dep itemAtIndex:j];
-			if (dd.streetcar)
-			{
-				[locs insertLocation:dd];
-			}
-		}
-	}
+    
+    for (NSString *route in streetcarRoutes)
+    {
+        NSError *parseError = nil;
+        XMLStreetcarLocations *loc = [XMLStreetcarLocations getSingletonForRoute:route];
+        [loc getLocations:&parseError];
+        [self.backgroundTask.callbackWhenFetching BackgroundItemsDone:++i];
+    }
+    
+    [XMLStreetcarLocations insertLocationsIntoDepartureArray:self.originalDataArray forRoutes:streetcarRoutes];
+
 	
 	[UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
 	
@@ -1927,9 +1928,9 @@ static int depthCount = 0;
             cell.textLabel.font = [self getBasicFont]; 
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             cell.imageView.image = [self getActionIcon:kIconXml];
+            break;
         }
-			break;
-	}
+    }
 	[self maybeAddSectionToAccessibility:cell indexPath:indexPath alwaysSaySection:NO];
 	return cell;
 }
@@ -2397,7 +2398,7 @@ static int depthCount = 0;
 	
 	if (_fetchingLocations)
 	{
-		[self showMap:nil];
+		[self showMapNow:nil];
 		_fetchingLocations = false;
 	}
 	else
@@ -2427,19 +2428,17 @@ static int depthCount = 0;
     
 }
 
-- (NSData *)getXmlData
+- (void)appendXmlData:(NSMutableData *)buffer
 {
     id<DepartureTimesDataProvider> dd = [self departureData:[self.table.indexPathForSelectedRow section]];
     XMLDepartures *dep = [dd DTDataXML];
     
-    NSMutableData *fileData = [[[NSMutableData alloc] initWithData:dep.rawData] autorelease];
-
-    if (dep.streetcarData!=nil)
+    [dep appendQueryAndData:buffer];
+    
+    if (dep.streetcarData)
     {
-        [fileData appendData:dep.streetcarData];
+        [buffer appendData:dep.streetcarData];
     }
-
-    return fileData;
 }
 
 @end

@@ -35,11 +35,13 @@
 	CGFloat _red;
 	CGFloat _green;
 	CGFloat _blue;
+    bool    _square;
 }
 
 @property (nonatomic) CGFloat red;
 @property (nonatomic) CGFloat green;
 @property (nonatomic) CGFloat blue;
+@property (nonatomic) bool square;
 
 - (void)setRouteColor:(NSString *)route;
 - (bool)setRouteColorLine:(RAILLINES)line;

@@ -95,7 +95,11 @@
 	
 	[self.locationManager stopUpdatingLocation];
 
-	NSDate *soon = [[NSDate date] addTimeInterval:0.1];
+#ifdef ORIGINAL_IPHONE
+    NSDate *soon = [[NSDate date] addTimeInterval:0.1];
+#else
+    NSDate *soon = [[NSDate date] dateByAddingTimeInterval:0.1];
+#endif
 	NSTimer *timer = [[[NSTimer alloc] initWithFireDate:soon interval:0.1 target:self selector:@selector(delayedCompletion:) userInfo:nil repeats:NO] autorelease];
 	[[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
 	

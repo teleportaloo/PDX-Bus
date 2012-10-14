@@ -35,6 +35,8 @@
 #define kModeWalk @"Walk"
 #define kModeBus  @"Bus"
 #define kModeMax  @"Light Rail"
+#define kModeSc  @"Streetcar"
+
 #define kAcquiredLocation @"Acquired GPS Location"
 
 
@@ -324,5 +326,8 @@ typedef enum {
 - (NSString*)mediumName;
 - (void)addStopsFromUserFaves:(NSArray *)userFaves;
 - (id)init;
++(NSArray *)distanceMapSingleton;
++(int)distanceToIndex:(float)distance;
++(float)indexToDistance:(int)index;
 
 @end

@@ -25,7 +25,7 @@
  */
 
 #import "XMLStreetcarLocations.h"
-
+#import "XMLDepartures.h"
 
 @implementation XMLPosition
 
@@ -45,25 +45,79 @@
 @implementation XMLStreetcarLocations
 
 @synthesize locations = _locations;
+@synthesize route = _route;
 
-static  XMLStreetcarLocations *singleLocations = nil;
+static NSMutableDictionary *singleLocationsPerLine = nil;
 
 - (void)dealloc
 {
 	self.locations = nil;
+    self.route = nil;
 	[super dealloc];
+}
+
+- (id)initWithRoute:(NSString *)route
+{
+    if (self = [super init])
+    {
+        self.route = route;
+    }
+    return self;
 }
 
 #pragma mark Singleton
 
-+ (XMLStreetcarLocations *)getSingleton
++ (XMLStreetcarLocations *)getSingletonForRoute:(NSString *)route
 {
-	if (singleLocations == nil)
+	if (singleLocationsPerLine == nil)
 	{
-		singleLocations = [[XMLStreetcarLocations alloc] init];
+        singleLocationsPerLine = [[NSMutableDictionary alloc] init];
+    }
+    
+    XMLStreetcarLocations *singleLocations = [singleLocationsPerLine objectForKey:route];
+    
+    if (singleLocations == nil)
+    {
+		singleLocations = [[[XMLStreetcarLocations alloc] initWithRoute:route] autorelease];
+        
+        [singleLocationsPerLine setObject:singleLocations forKey:route];
 	}
 	
 	return [[singleLocations retain] autorelease];
+}
+
++ (NSSet *)getStreetcarRoutesInDepartureArray:(NSArray *)deps
+{
+    NSMutableSet *routes = [[[NSMutableSet alloc] init] autorelease];
+    for (XMLDepartures *dep in deps)
+    {
+        for (Departure *dd in dep.itemArray)
+		{
+			if (dd.streetcar)
+			{
+				[routes addObject:dd.nextBusRouteId];
+			}
+		}
+    }
+    
+    return routes;
+}
++ (void)insertLocationsIntoDepartureArray:(NSArray *)deps forRoutes:(NSSet *)routes
+{
+    for (NSString *route in routes)
+    {
+        XMLStreetcarLocations *locs = [XMLStreetcarLocations getSingletonForRoute:route];
+        for (XMLDepartures *dep in deps)
+        {
+            for (Departure *dd in dep.itemArray)
+            {
+                if (dd.streetcar && [dd.nextBusRouteId isEqualToString:route])
+                {
+                    [locs insertLocation:dd];
+                }
+            }
+        }
+    }
 }
 
 #pragma mark Initiate Parsing
@@ -71,7 +125,7 @@ static  XMLStreetcarLocations *singleLocations = nil;
 - (BOOL)getLocations:(NSError **)error
 {
 	hasData = false;
-	[self startParsing:[NSString stringWithFormat:@"vehicleLocations&a=portland-sc&r=streetcar&t=%qu", _lastTime] parseError:error];
+	[self startParsing:[NSString stringWithFormat:@"vehicleLocations&a=portland-sc&r=%@&t=%qu", self.route, _lastTime] parseError:error];
 	return true;	
 }
 

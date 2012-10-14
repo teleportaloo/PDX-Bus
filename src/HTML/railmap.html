@@ -11,9 +11,9 @@
 <p>This HTML files is used to design the hotspots on the TriMet rail map.  Use a tool to get the hotspots in the correct place, then 
 copy the map section into the method "initHotspotData" in RailMapView.m, replacing the HTML with macros as explained below.
 <ul>
-<li>Replace <tt>&lt;area&nbsp;shape=&quot;poly&quot;&nbsp;coords=&quot;</tt> with HOTSPOT_POLYGON</li>
-<li>Replace <tt>&quot;&nbsp;href=</tt> with HOTSPOT_ACTION</li>
-<li>Replace <tt>/&gt;</tt> with HOTSPOT_END</li>
+<li>Replace <tt>&lt;area&nbsp;shape=&quot;poly&quot;&nbsp;coords=&quot;</tt> with HS_START_POLY</li>
+<li>Replace <tt>&quot;&nbsp;href=</tt> with HS_END_POLY</li>
+<li>Replace <tt>/&gt;</tt> with HS_END</li>
 </ul>
 </p>
 <img src="../TriMet/railsystem.gif" alt="" border="0" usemap="#Map" />
@@ -120,7 +120,7 @@ copy the map section into the method "initHotspotData" in RailMapView.m, replaci
   <area shape="poly" coords="22,910,461,911,461,943,23,943,24,927" href="d://90" />
   <area shape="poly" coords="24,945,478,945,477,977,23,978" href="d://190" />
   <area shape="poly" coords="26,980,445,978,445,1010,26,1011" href="d://203" />
-  <area shape="poly" coords="27,1012,708,1012,708,1048,27,1046" href="d://193" />
+  <area shape="poly" coords="27,1012,708,1012,708,1048,27,1046" href="m://1" />
   <area shape="poly" coords="29,1048,204,1050,203,1079,28,1078" href="w:Park_and_ride" />
   <area shape="poly" coords="30,1079,203,1080,202,1111,30,1112" href="http://trimet.org/howtoride/bikes/bikeandride.htm" />
   <area shape="poly" coords="32,1112,211,1113,210,1149,32,1149" href="http://trimet.org/transitcenters/index.htm" />

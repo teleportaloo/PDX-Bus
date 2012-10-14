@@ -38,6 +38,7 @@
 @synthesize htmlError = _htmlError;
 @synthesize cacheTime = _cacheTime;
 @synthesize itemFromCache = _itemFromCache;
+@synthesize fullQuery = _fullQuery;
 
 
 #pragma mark Cache
@@ -248,6 +249,11 @@ static QueryCacheManager *shortTermCache = nil;
     [TriMetXML initCaches];
 	
 	DEBUG_LOG(@"Query: %@\n", str);
+    
+    if (([UserPrefs getSingleton].debugXML))
+    {
+        self.fullQuery = str;
+    }
 	
 	if (cacheAction == TriMetXMLOnlyReadFromCache)
 	{
@@ -449,6 +455,28 @@ static QueryCacheManager *shortTermCache = nil;
     {
         self.rawData = nil;
     }
+}
+
+-(void)appendQueryAndData:(NSMutableData *)buffer
+{
+    NSString *start = nil;
+    if (self.fullQuery)
+    {
+       start = [NSString stringWithFormat:@"<query url=\"%@\">", self.fullQuery];
+    }
+    else
+    {
+        start = [NSString stringWithFormat:@"<query>"];
+    }
+    
+    [buffer appendData:[start dataUsingEncoding:NSUTF8StringEncoding]];
+    if (self.rawData)
+    {
+        [buffer appendData:self.rawData];
+    }
+    
+    [buffer appendData:[@"</query>" dataUsingEncoding:NSUTF8StringEncoding]];
+    
 }
 
 #pragma mark Parser callbacks
