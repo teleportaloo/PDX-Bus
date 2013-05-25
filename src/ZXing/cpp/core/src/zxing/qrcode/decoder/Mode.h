@@ -7,6 +7,7 @@
  *  zxing
  *
  *  Copyright 2010 ZXing authors All rights reserved.
+ *  PDX Bus changes (c) 2013 A.R.Wallace
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +33,9 @@ private:
   int characterCountBitsForVersions0To9_;
   int characterCountBitsForVersions10To26_;
   int characterCountBitsForVersions27AndHigher_;
+public:
   int bits_;
+private:
   std::string name_;
 
   Mode(int cbv0_9, int cbv10_26, int cbv27, int bits, char const* name);

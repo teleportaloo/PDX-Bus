@@ -30,9 +30,11 @@
 
 @interface AboutView : TableViewWithToolbar {
 	NSString *aboutText;
-	NSArray *tipText;
 	NSString *helpText;
+    
+    bool _hideButton;
 }
 
+@property (nonatomic) bool hideButton;
 
 @end

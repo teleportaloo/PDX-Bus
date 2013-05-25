@@ -53,7 +53,7 @@
 	return MKPinAnnotationColorGreen;
 }
 
-- (bool) mapDisclosure
+- (bool) showActionMenu
 {
 	return YES;
 }

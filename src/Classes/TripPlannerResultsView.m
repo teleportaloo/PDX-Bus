@@ -1062,6 +1062,7 @@
 			{
 				
 				[self networkTips:self.tripQuery.htmlError networkError:self.tripQuery.errorMsg];
+                [self clearSelection];
 				
 			}
 			break;

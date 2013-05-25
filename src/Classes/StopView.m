@@ -125,8 +125,8 @@
 - (void)fetchDestinations:(Departure*) dep
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	[self.backgroundTask.callbackWhenFetching BackgroundThread:[NSThread currentThread]];
-	[self.backgroundTask.callbackWhenFetching BackgroundStart:1 title:kGettingStops];
+	[self.backgroundTask.callbackWhenFetching backgroundThread:[NSThread currentThread]];
+	[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:kGettingStops];
 	
 	NSError *parseError = nil;
 	[self.stopData getStopsAfterLocation:dep.locid route:dep.route direction:dep.dir 
@@ -134,7 +134,7 @@
 	self.departure = dep;
 	self.title = @"Destinations";
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundCompleted:self];
+	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
 	[pool release];
 }
 
@@ -153,7 +153,7 @@
 		self.departure = dep;
 		self.title = @"Destinations";
 
-		[self.backgroundTask.callbackWhenFetching BackgroundCompleted:self];
+		[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
 	}
 	else 
 	{
@@ -166,8 +166,8 @@
 - (void)fetchStops:(NSArray*) args
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	[self.backgroundTask.callbackWhenFetching BackgroundThread:[NSThread currentThread]];
-	[self.backgroundTask.callbackWhenFetching BackgroundStart:1 title:kGettingStops];
+	[self.backgroundTask.callbackWhenFetching backgroundThread:[NSThread currentThread]];
+	[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:kGettingStops];
 
 	
     NSString *routeid = [args objectAtIndex:0];
@@ -182,7 +182,7 @@
 						description:desc 
 						 parseError:&parseError 
 						cacheAction:TriMetXMLUpdateCache];	
-	[self.backgroundTask.callbackWhenFetching BackgroundCompleted:self];
+	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
 
 	[pool release];
 }
@@ -202,7 +202,7 @@
 														parseError:&parseError 
 													   cacheAction:TriMetXMLOnlyReadFromCache])
 	{
-		[self.backgroundTask.callbackWhenFetching BackgroundCompleted:self];
+		[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
 	}
 	else 
 	{
@@ -420,6 +420,7 @@
 				if (self.stopData.itemArray == nil)
 				{
 					[self networkTips:self.stopData.htmlError networkError:self.stopData.errorMsg];
+                    [self clearSelection];
 				}
 				return;
 			}

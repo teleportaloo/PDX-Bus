@@ -7,6 +7,7 @@
  *  zxing
  *
  *  Copyright 2010 ZXing authors All rights reserved.
+ *  PDXBus changes (C) 2013 A.R.Wallace
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -167,7 +168,7 @@ public:
     return (*array_)[i];
   }
   size_t size() const {
-    return array_->size();
+      return array_!=0 ? array_->size() : 0;
   }
 
   void reset(Array<T> *a) {

@@ -665,8 +665,9 @@
 					{
 						webPage.whenDone = [self.callback getController];
 					}
+                    
+                    [webPage displayPage:[self navigationController] animated:YES tableToDeselect:self.table];
 					
-					[[self navigationController] pushViewController:webPage animated:YES];
 					[webPage release];
 					break;
 				}

@@ -42,6 +42,8 @@
 	NSMutableDictionary *_lastLocate;
     
     int _autoLaunch;
+    NSDictionary *_launchArgs;
+    int _firstDisplay;
 }
 
 - (id) init;
@@ -56,6 +58,7 @@
 - (void)distSegmentChanged:(id)sender;
 - (void)modeSegmentChanged:(id)sender;
 - (void)showSegmentChanged:(id)sender;
+- (void)actionArgs:(NSDictionary *)args;
 
 //@property (nonatomic, retain) UILabel *progressText;
 

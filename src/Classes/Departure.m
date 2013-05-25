@@ -807,7 +807,7 @@
 
 #pragma mark Map callbacks 
 
-- (bool)mapDisclosure
+- (bool)showActionMenu
 {
 	return YES;
 }

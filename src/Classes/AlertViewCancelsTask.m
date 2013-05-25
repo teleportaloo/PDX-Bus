@@ -42,7 +42,7 @@
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-    [self.backgroundTask.callbackWhenFetching BackgroundCompleted:self.caller];
+    [self.backgroundTask.callbackWhenFetching backgroundCompleted:self.caller];
     [self release];
 }
 

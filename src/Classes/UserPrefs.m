@@ -33,6 +33,7 @@
 #import "XMLYahooPlaceNames.h"
 #import "XMLGeoNames.h"
 #import "XMLGeoNamesNeighborhood.h"
+#include "debug.h"
 
 
 @implementation UserPrefs
@@ -52,6 +53,7 @@
 @dynamic networkTimeout;
 @dynamic useGpsWithin;
 @dynamic commuteButton;
+@dynamic autoLocateShowOptions;
 
 #define kPreferencesDomain @"org.teleportaloo.PDXBus"
 #define kDefaultRecentStops 10
@@ -98,6 +100,22 @@
 	return [_defaults boolForKey:key];
 	
 }
+
+- (NSString*)getStringFromDefaultsForKey:(NSString*)key ifMissing:(NSString*)missing
+{
+	if  ([_defaults persistentDomainForName:kPreferencesDomain] == nil
+		 || [_defaults objectForKey:key] == nil)
+	{
+        DEBUG_LOG(@"UserPrefs: Missing key %@ used %@\n", key, missing);
+		return missing;
+	}
+    NSString *ret = [_defaults stringForKey:key];
+    DEBUG_LOG(@"UserPrefs key %@ value %@\n", key, ret);
+    
+	return ret;
+	
+}
+
 - (float)getFloatFromDefaultsForKey:(NSString*)key ifMissing:(float)missing max:(float)max min:(float)min
 {
 	float res;
@@ -174,7 +192,7 @@
 
 - (bool) commuteButton
 {
-	return [self getBoolFromDefaultsForKey:@"commute_button"			ifMissing:NO];	
+	return [self getBoolFromDefaultsForKey:@"commute_button"			ifMissing:YES];
 }
 
 - (bool) showTransitTracker
@@ -245,6 +263,16 @@
 	return [self getIntFromDefaultsForKey:@"travel_by"					ifMissing:(int)TripModeAll max:2 min:0];
 }
 
+- (bool) autoLocateShowOptions
+{
+	return [self getBoolFromDefaultsForKey:@"auto_locate_show_options"			ifMissing:YES];
+}
+
+- (void)setAutoLocateShowOptions:(_Bool)showOptions
+{
+    [_defaults setBool:showOptions forKey:@"auto_locate_show_options"];
+}
+
 - (int)  tripMin
 {
 	return [self getIntFromDefaultsForKey:@"min"						ifMissing:(int)TripMinQuickestTrip max:2 min:0];	
@@ -282,6 +310,11 @@
     return FALSE;
 }
 
+- (bool) useChrome
+{
+    return [self getBoolFromDefaultsForKey:@"chrome"				ifMissing:NO];
+}
+
 - (int) networkTimeout
 {
 	
@@ -291,6 +324,18 @@
 - (bool) alarmInitialWarning
 {
 	return [self getBoolFromDefaultsForKey:@"alarm_initial_10_min_warning"	ifMissing:YES];
+}
+
+- (bool) googleMapApp
+{
+	return [self getBoolFromDefaultsForKey:@"google_maps"	ifMissing:YES];
+}
+- (NSString*)alarmSoundFile
+{
+    NSString *fileName = [self getStringFromDefaultsForKey:@"alarm_sound" ifMissing:@"Train_Honk_Horn_2x-Mike_Koenig-157974048.aif"];
+
+    DEBUG_LOG(@"alarmSoundFile %@\n", fileName);
+    return fileName;
 }
 
 

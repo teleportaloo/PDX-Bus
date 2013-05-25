@@ -219,7 +219,7 @@
 
 	
     NSString *tileName = [NSString stringWithFormat:@"%d-%d-%d", level, col, row];
-    NSLog(@"%@\n", tileName);
+    // NSLog(@"%@\n", tileName);
     NSString *path = [[NSBundle mainBundle] pathForResource:tileName ofType:@"jpg" inDirectory:imageName];
     
     

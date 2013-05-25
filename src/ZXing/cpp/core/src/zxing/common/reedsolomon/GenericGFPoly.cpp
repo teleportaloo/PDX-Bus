@@ -5,6 +5,7 @@
  *
  *  Created by Lukas Stabe on 13/02/2012.
  *  Copyright 2012 ZXing authors All rights reserved.
+ *  PDX Bus changes (C) 2013
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,11 +64,11 @@ int GenericGFPoly::getDegree() {
 }
   
 bool GenericGFPoly::isZero() {
-  return coefficients_[0] == 0;
+    return coefficients_.array_!=0 ? coefficients_[0] == 0 : 0;
 }
   
 int GenericGFPoly::getCoefficient(int degree) {
-  return coefficients_[coefficients_.size() - 1 - degree];
+    return coefficients_.array_!=0 ? coefficients_[coefficients_.size() - 1 - degree] : 0;
 }
   
 int GenericGFPoly::evaluateAt(int a) {
@@ -85,7 +86,7 @@ int GenericGFPoly::evaluateAt(int a) {
     }
     return result;
   }
-  int result = coefficients_[0];
+  int result = coefficients_.array_!=0 ?  coefficients_[0] : 0;
   for (int i = 1; i < size; i++) {
     result = GenericGF::addOrSubtract(field_->multiply(a, result), coefficients_[i]);
   }
@@ -114,11 +115,12 @@ Ref<GenericGFPoly> GenericGFPoly::addOrSubtract(Ref<zxing::GenericGFPoly> other)
   ArrayRef<int> sumDiff(new Array<int>(largerCoefficients.size()));
   int lengthDiff = largerCoefficients.size() - smallerCoefficients.size();
   // Copy high-order terms only found in higher-degree polynomial's coefficients
-  for (int i = 0; i < lengthDiff; i++) {
+  for (int i = 0; i < lengthDiff && largerCoefficients.array_!=0; i++) {
     sumDiff[i] = largerCoefficients[i];
   }
     
-  for (int i = lengthDiff; i < (int)largerCoefficients.size(); i++) {
+  for (int i = lengthDiff; i < (int)largerCoefficients.size() && smallerCoefficients.array_!=0
+                            && largerCoefficients.array_!=0; i++) {
     sumDiff[i] = GenericGF::addOrSubtract(smallerCoefficients[i-lengthDiff],
                                           largerCoefficients[i]);
   }

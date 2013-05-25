@@ -158,7 +158,7 @@ static RAILMAP railmaps[] =
 
 #pragma mark BackgroundTask methods
 
--(void)BackgroundCompleted:(UIViewController *)viewController
+-(void)backgroundCompleted:(UIViewController *)viewController
 {
 	[self.navigationController pushViewController:viewController animated:YES];
 }
@@ -473,9 +473,9 @@ static RAILMAP railmaps[] =
 	NSCharacterSet *colon = [NSCharacterSet characterSetWithCharactersInString:@":"];
 
 	NSString *substr;
-	NSString *stationName;
+	NSString *stationName = @"";
 	NSString *wikiLink;
-    NSString *map;
+    NSString *map = @"";
 	
 	[scanner scanUpToCharactersFromSet:colon intoString:&substr];
 	
@@ -521,7 +521,7 @@ static RAILMAP railmaps[] =
 				{
 					webPage.whenDone = [self.callback getController];
 				}
-				[[self navigationController] pushViewController:webPage animated:YES];
+				[webPage displayPage:[self navigationController] animated:YES tableToDeselect:nil];
 				[webPage release];
 				
 				easterEgg = EasterEggStart;
@@ -549,7 +549,7 @@ static RAILMAP railmaps[] =
 			{
 				webPage.whenDone = [self.callback getController];
 			}
-			[[self navigationController] pushViewController:webPage animated:YES];
+			[webPage displayPage:[self navigationController] animated:YES tableToDeselect:nil];
 			[webPage release];
 			break;
 		}
@@ -569,7 +569,7 @@ static RAILMAP railmaps[] =
 				webPage.whenDone = [self.callback getController];
 			}
 		
-			[[self navigationController] pushViewController:webPage animated:YES];
+			[webPage displayPage:[self navigationController] animated:YES tableToDeselect:nil];
 			[webPage release];
 			break;
 		}

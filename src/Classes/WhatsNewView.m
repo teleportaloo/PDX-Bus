@@ -27,6 +27,7 @@
 
 #import "WhatsNewView.h"
 #include "CellLabel.h"
+#import "DepartureTimesView.h"
 
 
 @implementation WhatsNewView
@@ -41,6 +42,7 @@
 
 - (void)dealloc {
 	[newTextArray release];
+    [actionDict release];
 	[super dealloc];
 }
 
@@ -59,8 +61,19 @@
 	{
 		self.title = @"What's new?";
 		newTextArray = [[NSArray arrayWithObjects:
+                         @".6.7 - Mostly bug fixes",
+                         @"#02 Bug fix - added Streetcar CL line to stop ID 9600 (SW 11th & Alder).",
+                         @"Added new options when pins on a map are selected - app can now open an external map app and display the location. Supported map apps include Google map app, Waze, MotionX-GPS, and Apple maps.",
+                         @"Several map fixes including: Maps can track with location and rotate with compass heading (iOS 5 & above); updated maps button to only show stops (and not arrivals) when there are multiple stops.",
+                         @"Updated Commuter toolbar icon.",
+                         @"Rationalized locate options; added setting to change toolbar locate button behavior, made locate icon the same.",
+                         @"User is now warned that the alarm will not sound if the device is muted (the app cannot detect if it is actually muted or not). This is to stop me sleeping through stops by accident.",
+                         @"Added a new longer, more annoying sound that can be used for alarms (see settings to change the sound).",
+                         @"Fixed keyboard not being displayed the first time user tries to enter a stop ID.",
+                         @"Added option to open Google Chrome app instead of Safari.",
+                         @"Updated URL scheme to add parameters for nearby command, e.g.:  'pdxbus://nearby&show=maps&distance=1&mode=trains'\nwhere:\n\n'show=' can be followed by 'maps', 'routes' or 'arrivals'\n'distance=' can be followed by 'closest', '0.5', '1', or '3'\n'mode=' can be followed by 'bus', 'train' or 'both'.",
                          @".6.6 - Mostly bug fixes",
-                         @"Fixed stop ID 13604 - added NS Line arrivals.",
+                         @"#01 Fixed stop ID 13604 - added NS Line arrivals.",
                          @"Optimized rail maps to use \"tiles\" - reducing crashes due to memory issues.",
                          @"Added additional informational hotspots to streetcar map.",
                          @"Trip planner min walk distances now match web site (1/10, 1/4, 1/2, 3/4, 1 & 2 miles).",
@@ -101,8 +114,33 @@
                          @"Added a quick locate toolbar item to the first screen.",
                          @"Fixed many small bugs, including issues discovered with Apple's latest tools.",
                           nil] retain];
+
+        
+        actionDict = [[NSDictionary dictionaryWithObjectsAndKeys:
+                      [NSValue valueWithPointer:@selector(id13604)], @"01",
+                      [NSValue valueWithPointer:@selector(id9600)],  @"02",
+                       nil] retain];
 	}
 	return self;
+}
+
+-(void)id13604
+{
+    DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
+    
+    departureViewController.displayName = @"";
+    [departureViewController fetchTimesForLocationInBackground:self.backgroundTask loc:@"13604"];
+    [departureViewController release];
+}
+
+
+-(void)id9600
+{
+    DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
+    
+    departureViewController.displayName = @"";
+    [departureViewController fetchTimesForLocationInBackground:self.backgroundTask loc:@"9600"];
+    [departureViewController release];
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
@@ -147,7 +185,51 @@ static NSString *itemId = @"item";
 	
 }
 
+- (NSString *)textForItem:(int)item
+{
+    NSString *text = [newTextArray objectAtIndex:item];
+    
+    if ([text characterAtIndex:0]=='.')
+    {
+        text = [text substringFromIndex:1];
+    }
+    else if ([text characterAtIndex:0] =='#')
+    {
+        text = [text substringFromIndex:4];
+    }    
+    return text;
+}
 
+- (bool)isHeader:(int)item
+{
+    NSString *text = [newTextArray objectAtIndex:item];
+    
+    return ([text characterAtIndex:0]=='.');
+}
+
+- (bool)hasAction:(int)item
+{
+    NSString *text = [newTextArray objectAtIndex:item];
+    
+    return ([text characterAtIndex:0]=='#');
+}
+
+-(NSString*)actionKey:(int)item
+{
+    NSString *text = [newTextArray objectAtIndex:item];
+    NSString *action = nil;
+    
+    if ([text characterAtIndex:0]=='#')
+    {
+        NSRange range;
+        range.location = 1;
+        range.length   = 2;
+        
+        action = [text substringWithRange:range];
+    }
+    
+    return action;
+}
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	
@@ -155,14 +237,14 @@ static NSString *itemId = @"item";
 	{
 		case kSectionText:
 		{
-            NSString *text = [newTextArray objectAtIndex:indexPath.row];
+            NSString *text = [self textForItem:indexPath.row];
             NSString *cellId = itemId;
             bool    center = FALSE;
             
             
-            if ([text characterAtIndex:0]=='.')
+        
+            if ([self isHeader:indexPath.row])
             {
-                text = [text substringFromIndex:1];
                 cellId = versionId;
                 center = YES;
             }
@@ -181,6 +263,16 @@ static NSString *itemId = @"item";
             {
                 cell.view.textAlignment = UITextAlignmentCenter;
             }
+            
+            if ([self hasAction:indexPath.row])
+            {
+                cell.selectionStyle = UITableViewCellSelectionStyleBlue;
+            }
+            else
+            {
+                cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            }
+            
 			[self updateAccessibility:cell indexPath:indexPath text:[newTextArray objectAtIndex:indexPath.row] alwaysSaySection:YES];
 			// cell.backgroundView = [self clearView];
             cell.view.backgroundColor = [UIColor clearColor];
@@ -210,7 +302,7 @@ static NSString *itemId = @"item";
 {
 	if (indexPath.section == kSectionText)
 	{
-		return [self getTextHeight:[newTextArray objectAtIndex:indexPath.row] font:[self getParagraphFont]];
+		return [self getTextHeight:[self textForItem:indexPath.row] font:[self getParagraphFont]];
 	}
 	return [self basicRowHeight];
 }
@@ -218,7 +310,21 @@ static NSString *itemId = @"item";
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 	if (indexPath.section == kSectionText)
 	{
-		[[self navigationController] popViewControllerAnimated:YES];
+        if ([self hasAction:indexPath.row])
+        {
+            NSValue *ptr = [actionDict objectForKey:[self actionKey:indexPath.row]];
+            
+            if (ptr!=nil)
+            {
+                SEL sel = [ptr pointerValue];
+                
+                [self performSelector:sel];
+            }
+        }
+        else
+        {
+            [[self navigationController] popViewControllerAnimated:YES];
+        }
 	}
 	else {
 		[[self navigationController] popToRootViewControllerAnimated:YES];

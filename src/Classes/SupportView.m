@@ -27,15 +27,17 @@
 #include "WebViewController.h"
 #include "TriMetXML.h"
 #import "WhatsNewView.h"
+#import "AboutView.h"
 
 #define kSectionSupport			0
-#define kSectionLinks			1
-#define kSectionNetwork			2
-#define kSectionCache           3
+#define kSectionTips			1
+#define kSectionLinks			2
+#define kSectionNetwork			3
+#define kSectionCache           4
 
 
 
-#define kSections               4
+#define kSections               5
 
 #define kLinkRows				3
 			
@@ -54,8 +56,11 @@
 
 @implementation SupportView
 
+@synthesize hideButton = _hideButton;
+
 - (void)dealloc {
 	[supportText release];
+    [tipText release];
 	[super dealloc];
 }
 
@@ -80,21 +85,64 @@
                     "\n\nFor app support or feature requests please leave a comment on the blog; alternatively use twitter, Facebook or Github. He is not able to respond to app store reviews, "
                     "so do not use these for support or feature requests. "
                     "He cannot provide an email address for support because of privacy reasons, both yours and his.";
+        
+        tipText = [[NSArray alloc] initWithObjects:
+                   @"There are LOTS of settings for PDXBus - take a look at the settings on the front screen to change colors, move the bookmarks to the top of the screen or change other options.",
+                   @"Shake the device to refresh the arrival times.",
+                   @"Bookmark a trip from the Current Location to your home and call it \"Take me home!\"",
+                   @"Backup your bookmarks by emailing them to yourself.",
+                   @"Keep an eye on the toolbar at the bottom - there are maps, options, and other features to explore.",
+                   @"At night, TriMet recommends holding up a cell phone or flashing light so the driver can see you.",
+                   @"Create bookmarks containing both the start and end stops of your journey, then use the \"Show arrivals with just this trip\" feature"
+                   " to see when a particular bus or train will arrive at each stop.",
+				   @"Many issues can be solved by deleting the app and reinstalling - be sure to email the bookmarks to yourself first so you can restore them.",
+                   nil];
+        
+        _hideButton = NO;
+
 	}
 	return self;
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+	[super viewDidAppear:animated];
+	
+    if (!_hideButton)
+    {
+        UIBarButtonItem *info = [[[UIBarButtonItem alloc]
+                                  initWithTitle:@"About"
+                                  style:UIBarButtonItemStyleBordered
+                                  target:self action:@selector(infoAction:)] autorelease];
+        
+        
+        self.navigationItem.rightBarButtonItem = info;
+	}
+}
+
+- (void)infoAction:(id)sender
+{
+	AboutView *infoView = [[AboutView alloc] init];
+    
+    infoView.hideButton = YES;
+	
+	// Push the detail view controller
+    [[self navigationController] pushViewController:infoView animated:YES];
+	[infoView release];
+	
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
 	switch (section) {
 		case kSectionSupport:
 			return @"PDX Bus - App Support";
+        case kSectionTips:
+			return @"Tips";
 		case kSectionLinks:
 			return @"App Support Links";
         case kSectionNetwork:
 			return @"Network & Server Connectivity";
 		case kSectionCache:
 			return @"Route and Stop Data Cache";
-            
 			
 	}
 	return nil;
@@ -114,6 +162,8 @@
         case kSectionNetwork:
 		case kSectionCache:
 			return 1;
+        case kSectionTips:
+			return [tipText count];
 	}
 	return 0;
 }
@@ -251,6 +301,22 @@
 			return cell;
 			break;
 		}
+        case kSectionTips:
+		{
+			static NSString *tipsId = @"tips";
+			CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:tipsId];
+			if (cell == nil) {
+				cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:tipsId] autorelease];
+				cell.view = [self create_UITextView:nil font:[self getParagraphFont]];
+			}
+			
+			cell.view.font =  [self getParagraphFont];
+			cell.view.text = [tipText objectAtIndex:indexPath.row];
+			cell.selectionStyle = UITableViewCellSelectionStyleNone;
+			[self updateAccessibility:cell indexPath:indexPath text:[tipText objectAtIndex:indexPath.row] alwaysSaySection:YES];
+			return cell;
+			break;
+		}
 		default:
 			break;
 	}
@@ -266,6 +332,9 @@
 			{
 				return [self getTextHeight:supportText font:[self getParagraphFont]];
 			}
+			break;
+        case kSectionTips:
+			return [self getTextHeight:[tipText objectAtIndex:indexPath.row] font:[self getParagraphFont]];
 			break;
 		default:
 			break;
@@ -284,11 +353,11 @@
 			{
 				case kSectionLinkBlog:
 					[webPage setURLmobile:@"http:/pdxbus.teleportaloo.org" full:nil title:@"pdxbus.teleportaloo.org"];
-                    [[self navigationController] pushViewController:webPage animated:YES];
+                    [webPage displayPage:[self navigationController] animated:YES tableToDeselect:self.table];
 					break;
                 case kSectionLinkGitHub:
 					[webPage setURLmobile:@"http:/github.com/teleportaloo/PDX-Bus" full:nil title:@"GitHub"];
-                    [[self navigationController] pushViewController:webPage animated:YES];
+                    [webPage displayPage:[self navigationController] animated:YES tableToDeselect:self.table];
 					break;
                 case kSectionLinkTwitter:
                     self.tweetAt   = @"pdxbus";
@@ -306,6 +375,7 @@
 		}
 		case kSectionNetwork:
 			[self networkTips:nil networkError:nil];
+            [self clearSelection];
 			break;
 		case kSectionCache:
 		{
@@ -329,7 +399,7 @@
             {
                 WebViewController *webPage = [[WebViewController alloc] init];
                 [webPage setURLmobile:@"http://trimet.org/howtoride/index.htm" full:nil title:@"How to ride"]; 
-                [[self navigationController] pushViewController:webPage animated:YES];
+                [webPage displayPage:[self navigationController] animated:YES tableToDeselect:self.table];
                 [webPage release];
             }
             else

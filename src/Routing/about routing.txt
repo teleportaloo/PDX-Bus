@@ -1,7 +1,7 @@
 This folder contains some location information.
 
 TriMet.geojson contain the rough coordinates of the TriMet service area. This is 
-uploaded to iTunes Connect and tells the map app that PDX Bus can route public 
+updaloaded to iTunes Connect and tells the map app that PDX Bus can route public 
 transport in this area.
 
 Test Location Data.gpx is a file that contains some coordinates in Portland - 

@@ -5,6 +5,7 @@
  *
  *  Created by Lukas Stabe on 08/02/2012.
  *  Copyright 2012 ZXing authors All rights reserved.
+ *  PDX Bus changes (c) 2013 A.R.Wallace
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

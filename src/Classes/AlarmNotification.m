@@ -34,11 +34,8 @@
 #import "AlarmTask.h"
 #import "DepartureTimesView.h"
 #import "RootViewController.h"
-#import <AudioToolbox/AudioToolbox.h>
 #import "MapViewController.h"
 #import "SimpleAnnotation.h"
-
-#define kSoundFile @"Train_Honk_Horn_2x-Mike_Koenig-157974048.aif"
 
 @implementation AlarmNotification
 
@@ -47,6 +44,10 @@
 
 - (void)dealloc
 {
+    if (_soundID != 0)
+    {
+        AudioServicesDisposeSystemSoundID(_soundID);
+    }
 	self.notification = nil;
 	[super dealloc];
 }
@@ -123,29 +124,42 @@
 	{
 		if (notif.userInfo!=nil && [notif.userInfo objectForKey:kDoNotDisplayIfActive]==nil)
 		{
-			//declare a system sound id
-			static SystemSoundID soundID = 0;
+            UInt32 sessionCategory = kAudioSessionCategory_AmbientSound;    
+            
+            AudioSessionSetProperty (
+                                     kAudioSessionProperty_AudioCategory,     
+                                     sizeof (sessionCategory),                        
+                                     &sessionCategory                     
+                                     );
+            
+            
+            NSString *soundFile = notif.soundName;
+            
+            DEBUG_LOG(@"Playing sound %@\n", notif.soundName);
+            
+            if ([soundFile isEqualToString:@"UILocalNotificationDefaultSoundName"])
+            {
+                soundFile = @"default_sound.wav";
+            }
 			
-			if (soundID == 0)
-			{
-				//Get the filename of the sound file:
-				NSString *path = [NSString stringWithFormat:@"%@/%@",
+			// UserPrefs *prefs = [UserPrefs getSingleton];
+            //Get the filename of the sound file:
+            NSString *path = [NSString stringWithFormat:@"%@/%@",
 								  [[NSBundle mainBundle] resourcePath],
-								  kSoundFile];
+								  soundFile];
 				
-				//Get a URL for the sound file
-				NSURL *filePath = [NSURL fileURLWithPath:path isDirectory:NO];
+            //Get a URL for the sound file
+            NSURL *filePath = [NSURL fileURLWithPath:path isDirectory:NO];
 				
-				//Use audio sevices to create the sound
-				AudioServicesCreateSystemSoundID((CFURLRef)filePath, &soundID);
-			}
+            //Use audio sevices to create the sound
+            AudioServicesCreateSystemSoundID((CFURLRef)filePath, &_soundID);
+        
 			
 			//Use audio services to play the sound
-			AudioServicesPlaySystemSound(soundID);
+			AudioServicesPlaySystemSound(_soundID);
 			// AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
 			
-			// AudioServicesDisposeSystemSoundID(soundID);
-			
+						
 			
 			UIAlertView *showArrival = [[[ UIAlertView alloc ] initWithTitle:@"Alarm"
 																	 message:notif.alertBody
@@ -174,7 +188,7 @@
 	return MKPinAnnotationColorGreen;
 }
 
-- (bool) mapDisclosure
+- (bool) showActionMenu
 {
 	return YES;
 }

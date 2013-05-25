@@ -65,10 +65,14 @@
 @property (nonatomic, readonly)  float useGpsWithin;
 @property (nonatomic, readonly)  bool commuteButton;
 @property (nonatomic)            bool flashLed;
-@property (nonatomic)            bool  showStreetcarMapFirst;
+@property (nonatomic)            bool showStreetcarMapFirst;
 @property (nonatomic, readonly)  bool alarmInitialWarning;
 @property (nonatomic, readonly)  bool useCaching;
 @property (nonatomic, readonly)  bool debugXML;
+@property (nonatomic, readonly)  bool useChrome;
+@property (nonatomic, readonly)  bool googleMapApp;
+@property (nonatomic)            bool autoLocateShowOptions;
 @property (nonatomic, readonly)  XMLReverseGeoCode * reverseGeoCodeProvider;
+@property (nonatomic, readonly)  NSString *alarmSoundFile;
 
 @end

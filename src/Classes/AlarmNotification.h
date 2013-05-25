@@ -29,12 +29,14 @@
 
 #import <Foundation/Foundation.h>
 #import "MapPinColor.h"
+#import <AudioToolbox/AudioToolbox.h>
 
-#define kAlarmSoundFile @"Train_Honk_Horn_2x-Mike_Koenig-157974048.aif"
+
 
 @interface AlarmNotification : NSObject <UIAlertViewDelegate, MapPinColor> {
 	UILocalNotification *_notification;
 	UIApplicationState _previousState;
+    SystemSoundID _soundID;
 }
 
 @property (nonatomic, retain)	UILocalNotification *notification;

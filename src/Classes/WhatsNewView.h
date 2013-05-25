@@ -32,12 +32,13 @@
 #import <UIKit/UIKit.h>
 #import "TableViewWithToolbar.h"
 
-#define kWhatsNewVersion @"6.6"
+#define kWhatsNewVersion @"6.7"
 
 	
 	
 @interface WhatsNewView : TableViewWithToolbar {
 		NSArray * newTextArray;
+        NSDictionary *actionDict;
 }
 
 @end

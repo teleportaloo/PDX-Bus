@@ -580,7 +580,7 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 	}	
 }
 
--(void)BackgroundTaskStarted
+-(void)backgroundTaskStarted
 {
 	if (self.searchBar)
 	{
@@ -588,7 +588,7 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 	}
 }
 
-- (bool)BackgroundTaskWait
+- (bool)backgroundTaskWait
 {
 	return self.backgroundRefresh && self.table.decelerating;
 }

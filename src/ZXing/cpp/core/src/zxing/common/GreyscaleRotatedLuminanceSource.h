@@ -5,6 +5,7 @@
  *  zxing
  *
  *  Copyright 2010 ZXing authors All rights reserved.
+ *  PDX Bus changes (c) 2013 A.R.Wallace
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,14 +28,17 @@ namespace zxing {
 class GreyscaleRotatedLuminanceSource : public LuminanceSource {
  private:
   unsigned char* greyData_;
+ public:
   int dataWidth_;
   int dataHeight_;
+ private:
   int left_;
   int top_;
   int width_;
   int height_;
 
 public:
+  
   GreyscaleRotatedLuminanceSource(unsigned char* greyData, int dataWidth, int dataHeight,
       int left, int top, int width, int height);
 

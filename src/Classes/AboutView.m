@@ -27,14 +27,15 @@
 #include "WebViewController.h"
 #include "TriMetXML.h"
 #import "WhatsNewView.h"
+#import "SupportView.h"
 #import "debug.h"
 
+
 #define kSectionHelp			0
-#define kSectionTips			1
-#define kSectionWeb				2
-#define kSectionLegal			3
-#define kSectionAbout			4
-#define kSections				5
+#define kSectionWeb				1
+#define kSectionLegal			2
+#define kSectionAbout			3
+#define kSections				4
 
 #define kRowSite				0
 #define kLinkTracker			1
@@ -44,21 +45,22 @@
 
 #define kLinkRows				5
 
-#define kLegalRows				14
+#define kLegalRows				15
 #define kRowCivicApps			0
-#define kRowGoogle				1
-#define kRowMainIcon			2
-#define kRowIcons				3
-#define kRowTWG					4
-#define kRowSettings            5
-#define KRowOtherIcons			6
-#define kRowOxygen				7
-#define kRowGeoNames			8
-#define kRowPolygons			9
-#define kRowRefresh             10
-#define kRowZXing               11
-#define kRowGentleface          12
-#define kRowSrc					13
+#define kRowMainIcon			1
+#define kRowIcons				2
+#define kRowTWG					3
+#define kRowSettings            4
+#define KRowOtherIcons			5
+#define kRowOxygen				6
+#define kRowGeoNames			7
+#define kRowPolygons			8
+#define kRowRefresh             9
+#define kRowZXing               10
+#define kRowGentleface          11
+#define kRowMyell0w             12
+#define kRowChrome              13
+#define kRowSrc					14
 			
 #define kSectionHelpRows		3
 #define kSectionHelpRowHelp		0
@@ -68,9 +70,10 @@
 
 @implementation AboutView
 
+@synthesize hideButton = _hideButton;
+
 - (void)dealloc {
 	[aboutText release];
-	[tipText release];
 	[helpText release];
 	[super dealloc];
 }
@@ -88,7 +91,7 @@
 - (id)init {
 	if ((self = [super init]))
 	{
-		self.title = @"Tips & About & Links";
+		self.title = @"About";
 		aboutText = [[NSString stringWithFormat:@"Version %@\n\n"
 		"Route and arrival data provided by permission of TriMet.\n\n"
 		"This app was developed as a volunteer effort to provide a service for TriMet riders. The developer has no affiliation with TriMet, AT&T or Apple.\n\n"
@@ -99,27 +102,46 @@
 		"...to Rob Alan for the stylish icon; and\n\n"
 		"...to CivicApps.org for Awarding PDX Bus the \"Most Appealing\" and \"Best in Show\" awards in July 2010.\n\n"
 		"Special thanks to Ken for putting up with all this.\n\n"
-		"\nCopyright (c) 2008-2012\nAndrew Wallace\n(See legal section above for other copyright owners and attrbutions).", [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"]] retain];
-		
-		tipText = [[NSArray alloc] initWithObjects:
-			@"There are LOTS of settings for PDXBus - take a look at the settings on the front screen to change colors, move the bookmarks to the top of the screen or change other options.", 	   
-			@"Shake the device to refresh the arrival times.",
-			@"Bookmark a trip from the Current Location to your home and call it \"Take me home!\"",
-		    @"Backup your bookmarks by emailing them to yourself.",
-			@"Keep an eye on the toolbar at the bottom - there are maps, options, and other features to explore.",
-			@"At night, TriMet recommends holding up a cell phone or flashing light so the driver can see you.",
-			@"Create bookmarks containing both the start and end stops of your journey, then use the \"Show arrivals with just this trip\" feature"
-			" to see when a particular bus or train will arrive at each stop.",
-				   nil];
-        
+		"\nCopyright (c) 2008-2013\nAndrew Wallace\n(See legal section above for other copyright owners and attrbutions).", [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"]] retain];
 		
 		helpText = @"PDX Bus uses real-time tracking information from TriMet to display bus, MAX, WES and streetcar times for the Portland, Oregon, metro area.\n\n"
 			"Every TriMet bus stop and rail station has its own unique Stop ID number, up to five digits.\n\n"
 			"Enter the Stop ID to get the arrivals for that stop. You may also scan a QR code (found at some stops), or browse & search the routes to find a stop, or use a "
 			"map of the rail system. The Trip Planner feature uses scheduled times to arrange a journey with several transfers.\n\n"
 			"See below for other tips and links, touch here to start using PDX Bus.";
-	}
+        
+        _hideButton = NO;
+    }
 	return self;
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+	[super viewDidAppear:animated];
+	
+	
+    if (!_hideButton)
+    {
+        UIBarButtonItem *info = [[[UIBarButtonItem alloc]
+                                  initWithTitle:@"Help"
+                                  style:UIBarButtonItemStyleBordered
+                                  target:self action:@selector(infoAction:)] autorelease];
+        
+        
+        self.navigationItem.rightBarButtonItem = info;
+	}
+}
+
+- (void)infoAction:(id)sender
+{
+	SupportView *infoView = [[SupportView alloc] init];
+	
+	// Push the detail view controller
+    
+    infoView.hideButton = YES;
+
+	[[self navigationController] pushViewController:infoView animated:YES];
+	[infoView release];
+	
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
@@ -130,8 +152,6 @@
 			return @"Links";
 		case kSectionLegal:
 			return @"Attributions and Legal";
-		case kSectionTips:
-			return @"Tips";
 		case kSectionHelp:
 			return @"Welcome to PDX Bus!";
 			
@@ -154,8 +174,6 @@
 			return kLinkRows;
 		case kSectionLegal:
 			return kLegalRows;
-		case kSectionTips:
-			return [tipText count];
 	}
 	return 0;
 }
@@ -213,22 +231,6 @@
 				return cell;
 			}
 
-			break;
-		}
-		case kSectionTips:
-		{
-			static NSString *tipsId = @"tips";
-			CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:tipsId];
-			if (cell == nil) {
-				cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:tipsId] autorelease];
-				cell.view = [self create_UITextView:nil font:[self getParagraphFont]];
-			}
-			
-			cell.view.font =  [self getParagraphFont];
-			cell.view.text = [tipText objectAtIndex:indexPath.row];
-			cell.selectionStyle = UITableViewCellSelectionStyleNone;
-			[self updateAccessibility:cell indexPath:indexPath text:[tipText objectAtIndex:indexPath.row] alwaysSaySection:YES];
-			return cell;
 			break;
 		}
 		case kSectionWeb:
@@ -296,10 +298,6 @@
 			
 			switch (indexPath.row)
 			{
-				case kRowGoogle:
-					cell.textLabel.text = @"Google Terms & Conditions";
-					cell.imageView.image = [self getActionIcon:kIconEarthMap];
-					break;
 				case kRowOxygen:
 					cell.textLabel.text = @"Some icons from Oxygen-Icons.org";
 					cell.imageView.image = [self getActionIcon:kIconBrush];
@@ -311,6 +309,10 @@
 				case kRowTWG:
 					cell.textLabel.text = @"Some toolbar icons by TWG";
 					cell.imageView.image = [self getActionIcon:kIconBrush];
+					break;
+                case kRowChrome:
+					cell.textLabel.text = @"Open in Chrome from Google";
+					cell.imageView.image = [self getActionIcon:kIconSrc];
 					break;
                 case kRowSettings:
 					cell.textLabel.text = @"Uses code from www.inappsettingskit.com";
@@ -352,6 +354,10 @@
 					cell.textLabel.text = @"Some icons by Gentleface";
 					cell.imageView.image = [self getActionIcon:kIconBrush];
 					break;
+                case kRowMyell0w:
+					cell.textLabel.text = @"Some icons from myell0w";
+					cell.imageView.image = [self getActionIcon:kIconBrush];
+					break;
 
 					
 			}
@@ -377,9 +383,6 @@
 			{
 				return [self getTextHeight:helpText font:[self getParagraphFont]];
 			}
-			break;
-		case kSectionTips:
-			return [self getTextHeight:[tipText objectAtIndex:indexPath.row] font:[self getParagraphFont]];
 			break;
 		case kSectionWeb:
 		case kSectionLegal:
@@ -416,7 +419,7 @@
 					break;
 			}
 	
-			[[self navigationController] pushViewController:webPage animated:YES];
+			[webPage displayPage:[self navigationController] animated:YES tableToDeselect:self.table];
 			[webPage release];
 			break;
 		}
@@ -426,9 +429,6 @@
 			
 			switch (indexPath.row)
 			{
-				case kRowGoogle:
-					[webPage setURLmobile:@"http://www.google.com/intl/en_us/help/terms_maps.html" full:nil title:@"Google Maps/Earth Terms of Service"];
-					break;
 				case kRowOxygen:
 					[webPage setURLmobile:@"http://www.oxygen-icons.org" full:nil title:@"Oxygen Icons"];
 					break;
@@ -465,14 +465,17 @@
                 case kRowZXing:
 					[webPage setURLmobile:@"http://code.google.com/p/zxing/" full:nil title:@"ZXing"];
 					break;
-                case kRowGentleface:
-					[webPage setURLmobile:@"http://gentleface.com/free_icon_set.html" full:nil title:@"Gentleface"];
+                case kRowMyell0w:
+					[webPage setURLmobile:@"https://github.com/myell0w/MTLocation" full:nil title:@"myell0w"];
+					break;
+                case kRowChrome:
+					[webPage setURLmobile:@"https://github.com/GoogleChrome/OpenInChrome" full:nil title:@"Open in Chrome"];
 					break;
                     
                     
 			}
 			
-			[[self navigationController] pushViewController:webPage animated:YES];
+			[webPage displayPage:[self navigationController] animated:YES tableToDeselect:self.table];
 			[webPage release];
 			break;
 		}
@@ -485,7 +488,7 @@
             {
                 WebViewController *webPage = [[WebViewController alloc] init];
                 [webPage setURLmobile:@"http://trimet.org/howtoride/index.htm" full:nil title:@"How to ride"]; 
-                [[self navigationController] pushViewController:webPage animated:YES];
+                [webPage displayPage:[self navigationController] animated:YES tableToDeselect:self.table];
                 [webPage release];
             }
             else

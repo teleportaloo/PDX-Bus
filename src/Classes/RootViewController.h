@@ -84,9 +84,13 @@ typedef enum InitialAction_tag
     NSURL   *_routingURL;
     bool    _delayedInitialAction;
     InitialAction _initialAction;
+    NSDictionary *_initialActionArgs;
     NSString *_initalBookmarkName;
     int _initialBookmarkIndex;
     bool _viewLoaded;
+    
+    UIBarButtonItem *_goButton;
+    UIBarButtonItem *_helpButton;
 }
 
 - (void)postEditingAction:(UITextView *)textView;
@@ -97,6 +101,7 @@ typedef enum InitialAction_tag
 - (void)launchFromURL;
 - (void)executeInitialAction;
 - (void)openFave:(int)index allowEdit:(bool)allowEdit;
+- (void)helpAction:(id)sender;
 
 
 @property (nonatomic, retain) UITextField *editWindow;
@@ -117,5 +122,8 @@ typedef enum InitialAction_tag
 @property (nonatomic, retain) NSString *initialBookmarkName;
 @property (nonatomic)         int       initialBookmarkIndex;
 @property (nonatomic)         bool      viewLoaded;
+@property (nonatomic, retain) NSDictionary *initialActionArgs;
+@property (nonatomic, retain) UIBarButtonItem *goButton;
+@property (nonatomic, retain) UIBarButtonItem *helpButton;
 
 @end

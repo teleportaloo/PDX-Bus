@@ -46,14 +46,14 @@
 - (void)fetchRss:(id) arg
 {	
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	[self.backgroundTask.callbackWhenFetching BackgroundThread:[NSThread currentThread]];
-	[self.backgroundTask.callbackWhenFetching BackgroundStart:1 title:kGettingRss];
+	[self.backgroundTask.callbackWhenFetching backgroundThread:[NSThread currentThread]];
+	[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:kGettingRss];
 	
 	NSError *parseError = nil;
     self.rssData = [[[RssXML alloc] init] autorelease];
 	[self.rssData startParsing:self.rssUrl parseError:&parseError];
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundCompleted:self];
+	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
 	[pool release];
 }
 
@@ -201,24 +201,25 @@
 	
 	if (indexPath.row < [self.rssData safeItemCount])
 	{
-        WebViewController *web = [[WebViewController alloc] init];
+        WebViewController *webPage = [[WebViewController alloc] init];
         RssLink *link = [self.rssData itemAtIndex:indexPath.row];
         if (self.gotoOriginalArticle)
         {
-            [web setURLmobile:link.link full:link.link title:@"Web Page"];
+            [webPage setURLmobile:link.link full:link.link title:@"Web Page"];
         }
         else
         {
-            [web setRssItem:link title:self.rssData.title];
-            web.rssLinks = self.rssData.itemArray;
-            web.rssLinkItem = indexPath.row;
+            [webPage setRssItem:link title:self.rssData.title];
+            webPage.rssLinks = self.rssData.itemArray;
+            webPage.rssLinkItem = indexPath.row;
         }
-		[[self navigationController] pushViewController:web animated:YES];
-		[web release];
+		[webPage displayPage:[self navigationController] animated:YES tableToDeselect:self.table];
+		[webPage release];
 	}
 	else if (![self.rssData gotData])
 	{
 		[self networkTips:nil networkError:self.rssData.errorMsg];
+        [self clearSelection];
 	}
 }
 

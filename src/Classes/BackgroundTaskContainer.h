@@ -35,27 +35,31 @@
 
 @optional
 
-- (void)BackgroundTaskStarted;
-- (bool)BackgroundTaskWait;
+- (void)backgroundTaskStarted;
+- (bool)backgroundTaskWait;
 
 @end
 
 
-@interface BackgroundTaskContainer : NSObject  <BackgroundTaskProgress,ProgressDelegate> {
+@interface BackgroundTaskContainer : NSObject  <BackgroundTaskProgress,ProgressDelegate, UIAlertViewDelegate> {
 	ProgressModalView *			_progressModal;
 	id<BackgroundTaskDone>		_callbackComplete;
 	id<BackgroundTaskProgress>	_callbackWhenFetching;
 	NSThread *					_backgroundThread;
 	NSString *					_title;
+    NSString *                  _help;
     NSString *                  _errMsg;
+    UIViewController *          _controllerToPop;
+    
 }
 
 + (BackgroundTaskContainer*) create:(id<BackgroundTaskDone>) done;
-- (void)BackgroundThread:(NSThread *)thread;
-- (void)BackgroundStart:(int)items title:(NSString *)title;
-- (void)BackgroundItemsDone:(int)itemsDone;
-- (void)BackgroundCompleted:(UIViewController*)viewController;
-- (void)BackgroundSetErrorMsg:(NSString *)errMsg;
+- (void)backgroundThread:(NSThread *)thread;
+- (void)backgroundStart:(int)items title:(NSString *)title;
+- (void)backgroundItemsDone:(int)itemsDone;
+- (void)backgroundCompleted:(UIViewController*)viewController;
+- (void)backgroundSetErrorMsg:(NSString *)errMsg;
+- (void)BackgroundSetHelpText:(NSString*)helpText;
 
 @property (nonatomic, retain)	NSString *					title;
 @property (retain)				ProgressModalView *			progressModal;     // atomic for thread safety
@@ -63,6 +67,8 @@
 @property (nonatomic, retain)	id<BackgroundTaskProgress>	callbackWhenFetching;
 @property (nonatomic, retain)	NSThread *					backgroundThread;
 @property (nonatomic, retain)   NSString *                  errMsg;
+@property (nonatomic, retain)   UIViewController *          controllerToPop;
+@property (nonatomic, retain)   NSString *                  help;
 
 
 @end

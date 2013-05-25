@@ -158,7 +158,7 @@
  defaultSound:(bool)defaultSound;
 {
 	UIApplication*    app = [UIApplication sharedApplication];
-		
+    UserPrefs   *prefs = [UserPrefs getSingleton];
 
 	
 	[self cancelNotification];
@@ -190,7 +190,7 @@
 	self.alarm.timeZone						= [NSTimeZone defaultTimeZone];
 	self.alarm.repeatInterval				= 0;
 	self.alarm.repeatCalendar				= nil;
-	self.alarm.soundName					= defaultSound ? UILocalNotificationDefaultSoundName : kAlarmSoundFile ;
+	self.alarm.soundName					= defaultSound ? UILocalNotificationDefaultSoundName : [prefs alarmSoundFile] ;
 	self.alarm.alertBody					= [NSString stringWithFormat:@"%@%@ %@",
                                                approx,
                                                [alertDateFormatter stringFromDate:displayDate], 

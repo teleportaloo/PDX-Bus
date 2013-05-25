@@ -31,16 +31,17 @@
 
 @implementation NearestStopsMap
 
+
 - (void)fetchNearestStops:(XMLLocateStops*) locator
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
 	NSThread *thread = [NSThread currentThread];
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundThread:thread];
+	[self.backgroundTask.callbackWhenFetching backgroundThread:thread];
 	
 
-	[self.backgroundTask.callbackWhenFetching BackgroundStart:1 title:@"getting locations"];
+	[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:@"getting locations"];
 		
 	[locator findNearestStops];
 		
@@ -51,8 +52,8 @@
 			[self addPin:[locator.itemArray objectAtIndex:i]];
 		}
 	}
-	
-	[self.backgroundTask.callbackWhenFetching BackgroundCompleted:self];
+   	
+	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
 	
 	[pool release];
 }

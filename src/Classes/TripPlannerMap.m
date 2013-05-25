@@ -38,11 +38,11 @@
 	
 	NSThread *thread = [NSThread currentThread];
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundThread:thread];
+	[self.backgroundTask.callbackWhenFetching backgroundThread:thread];
 	
 	[UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
 		
-	[self.backgroundTask.callbackWhenFetching BackgroundStart:[self.it legCount] title:kBusyText];
+	[self.backgroundTask.callbackWhenFetching backgroundStart:[self.it legCount] title:kBusyText];
 	
 	NSMutableArray *lineCoords = [[[NSMutableArray alloc] init] autorelease];
 	
@@ -57,14 +57,14 @@
 			
 			[lineCoords addObjectsFromArray:leg.legShape.shapeCoords];
 			[lineCoords addObject:[ShapeCoord makeEnd]];
-			[self.backgroundTask.callbackWhenFetching BackgroundItemsDone:i+1];
+			[self.backgroundTask.callbackWhenFetching backgroundItemsDone:i+1];
 		}
 	}
 	[UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
 	
 	self.lineCoords = lineCoords;
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundCompleted:self];
+	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
 	
 	[pool release];
 	

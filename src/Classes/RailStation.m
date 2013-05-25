@@ -153,7 +153,7 @@ static strmap dirmap [] =
 	NSCharacterSet *colon = [NSCharacterSet characterSetWithCharactersInString:@":"];
 	
 	NSString *substr;
-	NSString *stationName;
+	NSString *stationName = @"";
 	
 	[scanner scanUpToCharactersFromSet:colon intoString:&substr];
 	

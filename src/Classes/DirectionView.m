@@ -66,8 +66,8 @@
 {	
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	self.routeId = route;
-	[self.backgroundTask.callbackWhenFetching BackgroundThread:[NSThread currentThread]];
-	[self.backgroundTask.callbackWhenFetching BackgroundStart:1 title:@"getting directions"];
+	[self.backgroundTask.callbackWhenFetching backgroundThread:[NSThread currentThread]];
+	[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:@"getting directions"];
 	
 	NSError *parseError = nil;
     
@@ -77,7 +77,7 @@
 	{
 		self.route = [self.directionData itemAtIndex:0];
 	}	
-	[self.backgroundTask.callbackWhenFetching BackgroundCompleted:self];
+	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
 	[pool release];
 }
 
@@ -95,7 +95,7 @@
 			self.route = [self.directionData itemAtIndex:0];
 		}
 		
-		[self.backgroundTask.callbackWhenFetching BackgroundCompleted:self];
+		[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
 	}
 	else 
 	{
@@ -268,6 +268,7 @@
 	if (self.route == nil)
 	{
 		[self networkTips:self.directionData.htmlError networkError:self.directionData.errorMsg] ;
+        [self clearSelection];
 		return;
 	}
 	switch (indexPath.section)
@@ -306,12 +307,13 @@
 					{
 						webPage.whenDone = [self.callback getController];
 					}
-					[[self navigationController] pushViewController:webPage animated:YES];
+					[webPage displayPage:[self navigationController] animated:YES tableToDeselect:self.table];
 					[webPage release];
 					break;
 				}
 				case kOtherRowMap:
 					[self showRouteSchedule:[self.route route]];
+                    [self clearSelection];
 					break;
 				case kOtherRowDetours:
 				{
@@ -328,6 +330,7 @@
 			if (self.directionData.itemArray == nil)
 			{
 				[self networkTips:self.directionData.htmlError networkError:self.directionData.errorMsg] ;
+                [self clearSelection];
 			}
 			break;
 		}

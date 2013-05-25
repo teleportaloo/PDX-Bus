@@ -49,6 +49,7 @@
 - (void)setURLmobile:(NSString *)url full:(NSString *)full title:(NSString*)title;
 - (void)setRawData:(NSData *)rawData title:(NSString *)title;
 - (void)setMapLocationLat:(NSString *)lat lng:(NSString *)lng title:(NSString *)title;
+- (void)displayPage:(UINavigationController *)nav animated:(BOOL)animated tableToDeselect:(UITableView*)table;
 
 @property (nonatomic, retain) NSData *rawDataToDisplay;
 @property (nonatomic, retain) NSString *urlToDisplay;

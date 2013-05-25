@@ -83,7 +83,7 @@ static NSString *departuresURLString = @"arrivals/locIDs/%@";
 	return self.locid;
 }
 
-- (bool)mapDisclosure
+- (bool)showActionMenu
 {
 	return YES;
 }

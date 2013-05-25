@@ -162,7 +162,7 @@
 	return pos;
 }
 
-- (bool)mapDisclosure
+- (bool)showActionMenu
 {
 	return self.xstopId!=nil || self.callback!=nil;
 }

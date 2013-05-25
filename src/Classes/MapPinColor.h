@@ -26,7 +26,7 @@
 @protocol MapPinColor <MKAnnotation>
 
 - (MKPinAnnotationColor) getPinColor;
-- (bool) mapDisclosure;
+- (bool) showActionMenu;
 
 @optional
 

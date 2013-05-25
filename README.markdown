@@ -6,10 +6,10 @@ This little application uses the Internet to quickly access TriMet's live tracki
 
 You can enter the stop "id" of the stop (as displayed at each stop or station) or you can browse the routes for the stop.
 
-Feature includes:
+Features include:
 
-* Interactive rail map, showing the MAX and WES stops.
-* Embedded Google maps, showing locations of stops, and when available, the last known position of the bus or train.
+* Interactive rail maps, showing the MAX, WES and Streetcar stops.
+* Embedded maps, showing locations of stops, and when available, the last known position of the bus or train.
 * Use GPS to locate nearby stops or rail stations.
 * Browse routes and stops, show an entire route on the map.
 * Links to TriMet route information.
@@ -20,10 +20,10 @@ Feature includes:
 
 Route and arrival data provided by permission of TriMet.
 
-PDX Bus 6.6 sources
-=====================
+PDX Bus 6.7 sources
+===================
 
-I am making the sources to PDX Bus version 6.5 available as part of the
+I am making the sources to PDX Bus version 6.7 available as part of the
 [Civic Apps](http://www.civicapps.org) competition.  These
 sources were developed by me from Apple samples and documentation, except 
 where explicitly mentioned in the code.  
@@ -66,7 +66,7 @@ Links
 
 Things to know before building
 ------------------------------
-* PDX Bus is built with iPhone SDK 5.1 and Xcode 4.5 - available free 
+* PDX Bus is built with iPhone SDK 6.1 and Xcode 4.6 - available free
 from [Apple](http://developer.apple.com) in their Mac App store.
 * Before building this code you will need to register with TriMet 
 to get a free "AppID" from [TriMet](http://developer.trimet.org/registration/),
@@ -153,7 +153,6 @@ These files are in a separate folder with attribution - [App Icon by Rob Alan](h
 * Gentleface Attribution - some graphics files from Gentleface are from [Gentleface](http://gentleface.com/free_icon_set.html) and are used under a 
 [The Creative Commons Attribution-NonCommercial 3.0 License](http://creativecommons.org/licenses/by-nc/3.0/).
 
-
 * Oxygen Attribution - some graphics files from Oxygen-Icons.org are from [Oxygen Icons](http://www.oxygen-icons.org) and are used under a 
 [Creative Commons Attribution-Share Alike 3.0 License](http://creativecommons.org/licenses/by/3.0/us/)
 
@@ -161,7 +160,9 @@ These files are in a separate folder with attribution - [App Icon by Rob Alan](h
     [Creative Commons Attribution License](http://creativecommons.org/licenses/by/3.0/)- location
 [soundbible.com](http://soundbible.com/1695-Train-Honk-Horn-2x.html).
 
-* Leah Culver - Pull to Refresh: [http://github.com/leah/PullToRefresh]
+* QR Code Scanning - ZXing library [http://http://code.google.com/p/zxing/] is Apache 2.0 licensed with changes by A.R.Wallace.
+
+* Leah Culver - Pull to Refresh: [http://github.com/leah/PullToRefresh] - license below:
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -182,11 +183,25 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     
-* QR Code Scanning - ZXing library [http://http://code.google.com/p/zxing/]
+
 
 
 Change log
 ----------
+
+### Version 6.7 (May 2013)
+* Added Streetcar CL line to stop ID 9600 (SW 11th & Alder).
+* Added new options when pins on a map are selected - app can now open an external map app and display the location. Supported map apps include Google map app, Waze, MotionX-GPS, and Apple maps.
+* Several map fixes including: Maps can track with location and rotate with compass heading (iOS 5 & above); updated maps button to only show stops (and not arrivals) when there are multiple stops.
+* Updated Commuter toolbar icon.
+* Rationalized locate options; added setting to change toolbar behavior, made locate icon the same.
+* Updated URL scheme to add parameters for nearby command:  pdxbus://nearby&show=maps&distance=1&mode=trains where show can be maps, routes or arrivals, distance can be closest, 0.5, 1, or 3 and mode can be bus, train or both.
+* User is now warned that the alarm will not sound if the device is muted (the app cannot detect if it is actually muted or not). This is to stop me sleeping through stops by accident.
+* Added a new longer, more annoying sound that can be used for alarms.
+* Fixed issue when keyboard did not show up when hitting the search button for the first time and fixed Help/Done buttons for the same editing case.
+* Added option to open Google Chrome app instead of Safari.
+* Updated to XCode 4.6 - fixed analysis errors found by latest analyser.
+                         
 ### Version 6.6 (October 2012)
 * Fixed stop ID 13604 - added NS Line arrivals.
 * Optimized rail maps to use "tiles" - reducing crashes due to memory issues.
@@ -194,14 +209,12 @@ Change log
 * Trip planner min walk distances now match web site (1/10, 1/4, 1/2, 3/4, 1 & 2 miles).
 * Commuter bookmarks fixed (startup sequence is different in iOS6).
 
-
 ### Version 6.5 (September 2012)
 * Full support for New Portland Streetcar Central Loop Line, including Streetcar map.
 * iOS6: Fixed crash when GPS finds no nearby stops,
 * iOS6: Fixed calendaring.
 * iOS6: Fixed orientation issues.
 * Icon has been tweaked (thanks Rob!), improved launch screens.
-
 
 ### Version 6.4 (September 2012)
 * Added partial support for new Streetcar Loop. Full support soon!
@@ -220,8 +233,6 @@ Change log
 * Updated to XCode 4.4 and fixed analysis issues.
 * Extended app URL scheme e.g. pdxbus://365 will launch PDX Bus and show stop 365.  (Useful for app launchers such as 'Icon Project' or 'Launch Center Pro').
 * Trip planner allows min walking distance of 0.1 miles
-                       
-
 
 ### Version 6.2.4 (June 2012)
 * Support for Xcode 4.3.2; still compiles and runs on original iPhone.
@@ -235,7 +246,6 @@ Change log
 * Added short version string to budle version to allow archiving to get the version.
 * Added debug option to turn off all caching (as caching sometimes causes crashes).
 * Added Plan trip from here/to here options on the rail station screen.
-
 
 ### Version 6.1 (November 2011)
 * Support for Xcode 4.2; still compiles and runs on original iPhone.
@@ -303,7 +313,6 @@ Change log
 * Minor bug fixes
 * Fixed issue with some Streetcar stops giving the wrong arrivals (e.g. Stop ID 12375).
 
-
 ### Version 4.2
 * Support for iOS4 and fast switching between apps. Regular features are designed to work on all models of iPhone, iPad and iPod touch running OS version 3.0 and above.
 * The current location "blue dot" is now shown on all maps.
@@ -318,4 +327,4 @@ First Open Source Version.
 
 HAVE FUN!
 
-Andrew Wallace, October 2012.
+Andrew Wallace, February 2013.

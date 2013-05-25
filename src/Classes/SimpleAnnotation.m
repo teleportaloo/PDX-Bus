@@ -73,7 +73,7 @@
 	return coord;
 }
 
-- (bool) mapDisclosure
+- (bool) showActionMenu
 {
 	return false;
 }

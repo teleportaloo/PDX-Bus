@@ -2,6 +2,7 @@
 /*
  *  Detector.cpp
  *  zxing
+ *  PDXBus changes (C) 2013 A.R.Wallace
  *
  *  Created by Lukas Stabe on 08/02/2012.
  *  Copyright 2012 ZXing authors All rights reserved.
@@ -295,6 +296,8 @@ std::vector<Ref<Point> > Detector::getBullEyeCornerPoints(Ref<zxing::aztec::Poin
         
 Ref<Point> Detector::getMatrixCenter() {
   Ref<ResultPoint> pointA, pointB, pointC, pointD;
+  int cx = 0;
+  int cy = 0;
   try {
                 
     std::vector<Ref<ResultPoint> > cornerPoints = WhiteRectangleDetector(image_).detect();
@@ -314,10 +317,12 @@ Ref<Point> Detector::getMatrixCenter() {
     pointD = getFirstDifferent(Ref<Point>(new Point(cx-15/2, cy-15/2)), false, -1, -1)->toResultPoint();
                                       
   }
-            
-  int cx = math_utils::round((pointA->getX() + pointD->getX() + pointB->getX() + pointC->getX()) / 4);
-  int cy = math_utils::round((pointA->getY() + pointD->getY() + pointB->getY() + pointC->getY()) / 4);
-            
+   
+  if (pointA!=0 && pointB!=0 && pointC!=0 && pointD!=0)
+  {
+      cx = math_utils::round((pointA->getX() + pointD->getX() + pointB->getX() + pointC->getX()) / 4);
+      cy = math_utils::round((pointA->getY() + pointD->getY() + pointB->getY() + pointC->getY()) / 4);
+  }
   try {
                 
     std::vector<Ref<ResultPoint> > cornerPoints = WhiteRectangleDetector(image_, 15, cx, cy).detect();
@@ -334,10 +339,12 @@ Ref<Point> Detector::getMatrixCenter() {
     pointD = getFirstDifferent(Ref<Point>(new Point(cx-15/2, cy-15/2)), false, -1, -1)->toResultPoint();
                 
   }
-            
-  cx = math_utils::round((pointA->getX() + pointD->getX() + pointB->getX() + pointC->getX()) / 4);
-  cy = math_utils::round((pointA->getY() + pointD->getY() + pointB->getY() + pointC->getY()) / 4);
-            
+  
+  if (pointA!=0 && pointB!=0 && pointC!=0 && pointD!=0)
+  {
+    cx = math_utils::round((pointA->getX() + pointD->getX() + pointB->getX() + pointC->getX()) / 4);
+    cy = math_utils::round((pointA->getY() + pointD->getY() + pointB->getY() + pointC->getY()) / 4);
+  }
   return Ref<Point>(new Point(cx, cy));
             
 }

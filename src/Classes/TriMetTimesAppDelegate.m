@@ -38,6 +38,7 @@
 #import "AlarmNotification.h"
 #import "AlarmTaskList.h"
 #import <Twitter/TWTweetComposeViewController.h>
+#import "WebViewController.h"
 
 @implementation TriMetTimesAppDelegate
 
@@ -223,8 +224,7 @@
 }
 
 - (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url
-{   
-	
+{	
 	// Debugger();
 	// BOOL more = NO;
     // while (more) {
@@ -427,14 +427,48 @@
     return [self processStopFromURL:name];
 }
 
+- (void)processLaunchArgs:(NSScanner*)scanner
+{
+    NSMutableDictionary *launchArgs = [[[NSMutableDictionary alloc] init] autorelease];
+    
+    NSCharacterSet *delim = [NSCharacterSet characterSetWithCharactersInString:@"&"];
+    NSCharacterSet *equals = [NSCharacterSet characterSetWithCharactersInString:@"="];
+    
+    
+    while (![scanner isAtEnd])
+    {
+        NSString *option = nil;
+        [scanner scanUpToCharactersFromSet:equals intoString:&option];
+        
+        if (![scanner isAtEnd])
+        {
+            scanner.scanLocation++;
+            NSString *value = nil;
+            [scanner scanUpToCharactersFromSet:delim intoString:&value];
+            
+            if (option!=nil && value!=nil)
+            {
+                [launchArgs setObject:value
+                               forKey:option];
+            }
+            
+            if (![scanner isAtEnd])
+            {
+                scanner.scanLocation++;
+            }
+        }
+    }
+    self.rootViewController.initialActionArgs = launchArgs;
+}
+
 - (BOOL)processCommandFromURL:(NSString *)command
 {
     NSScanner *scanner = [NSScanner scannerWithString:command];
-    NSCharacterSet *equals = [NSCharacterSet characterSetWithCharactersInString:@"="];
+    NSCharacterSet *delim = [NSCharacterSet characterSetWithCharactersInString:@"=&"];
     NSString * token = nil;
     NSCharacterSet *blankSet = [[[NSCharacterSet alloc] init] autorelease];
     
-	[scanner scanUpToCharactersFromSet:equals intoString:&token];
+	[scanner scanUpToCharactersFromSet:delim intoString:&token];
         
     if (token==nil)
     {
@@ -442,7 +476,15 @@
     }
     else if ([token caseInsensitiveCompare:@"locate"]==NSOrderedSame || [token caseInsensitiveCompare:@"nearby"]==NSOrderedSame)
     {
+        
         self.rootViewController.initialAction = InitialAction_Locate;
+        
+        if (![scanner isAtEnd])
+        {
+            scanner.scanLocation++;
+    
+            [self processLaunchArgs:scanner];
+        }
     }
     else if ([token caseInsensitiveCompare:@"commute"]==NSOrderedSame)
     {
@@ -480,6 +522,13 @@
     else if ([token caseInsensitiveCompare:@"qrcode"]==NSOrderedSame)
     {
         self.rootViewController.initialAction = InitialAction_QRCode;
+    }
+    else if ([token caseInsensitiveCompare:@"back"]==NSOrderedSame)
+    {
+        if ([[self.navigationController topViewController] isKindOfClass:[WebViewController class]])
+        {
+            [[self navigationController] popViewControllerAnimated:YES];
+        }
     }
     return YES;
 }

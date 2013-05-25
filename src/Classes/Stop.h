@@ -53,7 +53,7 @@
 @property (nonatomic) int index;
 
 - (MKPinAnnotationColor) getPinColor;
-- (bool) mapDisclosure;
+- (bool) showActionMenu;
 - (bool) mapTapped:(id<BackgroundTaskProgress>) progress;
 -(NSString*)stringToFilter;
 

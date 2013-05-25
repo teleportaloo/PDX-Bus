@@ -101,7 +101,7 @@
 - (void)fetchItineraries:(id)arg
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	[self.backgroundTask.callbackWhenFetching BackgroundThread:[NSThread currentThread]];
+	[self.backgroundTask.callbackWhenFetching backgroundThread:[NSThread currentThread]];
 	
 	TripEndPoint *geoNameRequired = nil;
 	
@@ -119,20 +119,20 @@
 		
 	if (geoNameRequired && geoProvider !=nil)
 	{
-		[self.backgroundTask.callbackWhenFetching BackgroundStart:2 title:@"getting trip"];
-		[self.backgroundTask.callbackWhenFetching BackgroundSubtext:@"geolocating"];
+		[self.backgroundTask.callbackWhenFetching backgroundStart:2 title:@"getting trip"];
+		[self.backgroundTask.callbackWhenFetching backgroundSubtext:@"geolocating"];
 		
 		geoNameRequired.locationDesc = [geoProvider fetchAddress:geoNameRequired.currentLocation];
 		
-		[self.backgroundTask.callbackWhenFetching BackgroundItemsDone:1];
-		[self.backgroundTask.callbackWhenFetching BackgroundSubtext:@"planning trip"];
+		[self.backgroundTask.callbackWhenFetching backgroundItemsDone:1];
+		[self.backgroundTask.callbackWhenFetching backgroundSubtext:@"planning trip"];
 		
 		[self.tripQuery fetchItineraries:nil];
 		
-		[self.backgroundTask.callbackWhenFetching BackgroundItemsDone:2];
+		[self.backgroundTask.callbackWhenFetching backgroundItemsDone:2];
 	}
 	else {
-		[self.backgroundTask.callbackWhenFetching BackgroundStart:1 title:@"getting trip"];
+		[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:@"getting trip"];
 		[self.tripQuery fetchItineraries:nil];
 	}
 
@@ -146,7 +146,7 @@
 		locView.from = true;
 		
 		// Push the detail view controller
-		[self.backgroundTask.callbackWhenFetching BackgroundCompleted:locView];
+		[self.backgroundTask.callbackWhenFetching backgroundCompleted:locView];
 		[locView release];
 	}
 	else if (self.tripQuery.toList != nil && !self.backgroundTaskForceResults && !self.tripQuery.userRequest.toPoint.useCurrentLocation)
@@ -157,7 +157,7 @@
 		locView.from = false;
 		
 		// Push the detail view controller
-		[self.backgroundTask.callbackWhenFetching BackgroundCompleted:locView];
+		[self.backgroundTask.callbackWhenFetching backgroundCompleted:locView];
 		[locView release];
 	}
 	else
@@ -170,7 +170,7 @@
 		
 		
 		// Push the detail view controller
-		[self.backgroundTask.callbackWhenFetching BackgroundCompleted:tripResults];
+		[self.backgroundTask.callbackWhenFetching backgroundCompleted:tripResults];
 		[tripResults release];
 	}
 

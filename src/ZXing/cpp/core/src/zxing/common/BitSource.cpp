@@ -5,6 +5,7 @@
  *
  *  Created by Christian Brunschen on 09/05/2008.
  *  Copyright 2008 Google UK. All rights reserved.
+ *  PDX Bus changes (C) 2013 A.R.Wallace
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +36,7 @@ int BitSource::readBits(int numBits) {
   int result = 0;
 
   // First, read remainder from current byte
-  if (bitOffset_ > 0) {
+  if (bitOffset_ > 0 && bytes_.array_!=0) {
     int bitsLeft = 8 - bitOffset_;
     int toRead = numBits < bitsLeft ? numBits : bitsLeft;
     int bitsToNotRead = bitsLeft - toRead;
@@ -51,7 +52,7 @@ int BitSource::readBits(int numBits) {
 
   // Next read whole bytes
   if (numBits > 0) {
-    while (numBits >= 8) {
+    while (numBits >= 8 && bytes_.array_!=0) {
       result = (result << 8) | (bytes_[byteOffset_] & 0xFF);
       byteOffset_++;
       numBits -= 8;
@@ -59,7 +60,7 @@ int BitSource::readBits(int numBits) {
 
 
     // Finally read a partial byte
-    if (numBits > 0) {
+    if (numBits > 0 && bytes_.array_!=0) {
       int bitsToNotRead = 8 - numBits;
       int mask = (0xFF >> bitsToNotRead) << bitsToNotRead;
       result = (result << numBits) | ((bytes_[byteOffset_] & mask) >> bitsToNotRead);

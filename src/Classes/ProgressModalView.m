@@ -26,6 +26,7 @@
 
 #import "ProgressModalView.h"
 #import "TriMetTimesAppDelegate.h"
+#import "QuartzCore/QuartzCore.h"
 #import "debug.h"
 
 CGPathRef CreatePathWithRoundRect(CGRect rect, CGFloat cornerRadius);
@@ -39,12 +40,16 @@ CGPathRef CreatePathWithRoundRect(CGRect rect, CGFloat cornerRadius);
 @synthesize progress			= _progress;
 @synthesize progressDelegate	= _progressDelegate;
 @synthesize subText				= _subText;
+@synthesize helpText            = _helpText;
+@synthesize helpFrame           = _helpFrame;
 
 - (void)dealloc {
 	self.whirly = nil;
 	self.progress = nil;
 	self.progressDelegate = nil;
 	self.subText = nil;
+    self.helpText = nil;
+    self.helpFrame = nil;
     [super dealloc];
 }
 
@@ -163,7 +168,7 @@ CGPathRef CreatePathWithRoundRect(CGRect rect, CGFloat cornerRadius);
 
 	RoundedTransparentRect *frontWin = [[RoundedTransparentRect alloc] initWithFrame:frontFrame];
 	
-	frontWin.BACKGROUND_OPACITY = 0.80;
+	frontWin.BACKGROUND_OPACITY =  0.80;
 	frontWin.R				    =  112.0/255.0;
 	frontWin.G				    =  138.0/255.0;
 	frontWin.B				    =  144.0/255.0;
@@ -240,6 +245,35 @@ CGPathRef CreatePathWithRoundRect(CGRect rect, CGFloat cornerRadius);
 		[cancelButton setTitleColor:[UIColor colorWithRed:frontWin.R green:frontWin.G blue:frontWin.B alpha:1.0] forState:UIControlStateNormal];
 		[top addSubview:cancelButton];
 	}
+    
+    double y = frontFrame.origin.y + frontFrame.size.height + 2 * kButtonGap + kButtonHeight;
+    double width = kActivityViewWidth * 1.5;
+	CGRect helpOuterFrame = CGRectMake(frontFrame.origin.x - (width-kActivityViewWidth)/2,
+								 y,
+								 width,
+								 kButtonHeight * 2 );
+    
+    CGRect helpInnerFrame = CGRectInset(helpOuterFrame, 5, 5);
+    
+	
+	UILabel *helpTextView = [[[UILabel alloc] initWithFrame:helpInnerFrame] autorelease];
+	
+	helpTextView.text = nil;
+	helpTextView.opaque = NO;
+	helpTextView.backgroundColor = [UIColor clearColor];
+    helpTextView.lineBreakMode = UILineBreakModeWordWrap;
+    helpTextView.numberOfLines = 10;
+	helpTextView.textColor = [UIColor whiteColor];
+	helpTextView.textAlignment = UITextAlignmentCenter;
+	helpTextView.adjustsFontSizeToFitWidth = NO;
+	helpTextView.font = [UIFont boldSystemFontOfSize:16];
+    helpTextView.hidden = YES;
+	top.helpText = helpTextView;
+    helpTextView.layer.masksToBounds = YES;
+    helpTextView.layer.cornerRadius = 5.0;
+	
+	[top addSubview:helpTextView];
+
 	
 	if (title !=nil)
 	{
@@ -270,6 +304,34 @@ CGPathRef CreatePathWithRoundRect(CGRect rect, CGFloat cornerRadius);
 		self.subText.text = subtext;
 	}
 }
+
+- (void) addHelpText:(NSString *)helpText
+{
+    self.helpText.text = helpText;
+    
+    if (helpText == nil)
+    {
+        self.helpText.hidden = YES;
+        self.helpFrame.hidden = YES;
+    }
+    else
+    {
+                
+        CGRect rect = self.helpText.frame;
+        
+        rect.size =[helpText sizeWithFont:self.helpText.font constrainedToSize:self.helpText.frame.size lineBreakMode:UILineBreakModeWordWrap];
+        rect.size.height += 10;
+        
+        self.helpText.frame = rect;
+        
+        self.helpText.hidden = NO;
+        self.helpFrame.hidden = NO;
+        
+    }
+    
+
+}
+
 
 
 - (void) itemsDone:(int)done

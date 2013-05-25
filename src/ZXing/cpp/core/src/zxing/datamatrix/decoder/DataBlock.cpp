@@ -4,6 +4,7 @@
  *
  *  Created by Luiz Silva on 09/02/2010.
  *  Copyright 2010 ZXing authors All rights reserved.
+ *  PDX Bus changes (c) 2012 A.R.Wallace
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,7 +67,7 @@ std::vector<Ref<DataBlock> > DataBlock::getDataBlocks(ArrayRef<unsigned char> ra
 
   // All blocks have the same amount of data, except that the last n
   // (where n may be 0) have 1 more byte. Figure out where these start.
-  int shorterBlocksTotalCodewords = result[0]->codewords_.size();
+  int shorterBlocksTotalCodewords = result[0]!=0 ? result[0]->codewords_.size() : 0;
   int longerBlocksStartAt = result.size() - 1;
   while (longerBlocksStartAt >= 0) {
     int numCodewords = result[longerBlocksStartAt]->codewords_.size();
@@ -86,20 +87,29 @@ std::vector<Ref<DataBlock> > DataBlock::getDataBlocks(ArrayRef<unsigned char> ra
   int rawCodewordsOffset = 0;
   for (int i = 0; i < shorterBlocksNumDataCodewords; i++) {
     for (int j = 0; j < numResultBlocks; j++) {
-      result[j]->codewords_[i] = rawCodewords[rawCodewordsOffset++];
+      if (result[j]!=0)
+      {
+          result[j]->codewords_[i] = rawCodewords[rawCodewordsOffset++];
+      }
     }
   }
   // Fill out the last data block in the longer ones
   for (int j = longerBlocksStartAt; j < numResultBlocks; j++) {
-    result[j]->codewords_[shorterBlocksNumDataCodewords] = rawCodewords[rawCodewordsOffset++];
+    if (result[j]!=0)
+    {
+        result[j]->codewords_[shorterBlocksNumDataCodewords] = rawCodewords[rawCodewordsOffset++];
+    }
   }
   // Now add in error correction blocks
-  int max = result[0]->codewords_.size();
-  for (int i = shorterBlocksNumDataCodewords; i < max; i++) {
-    for (int j = 0; j < numResultBlocks; j++) {
-      int iOffset = j < longerBlocksStartAt ? i : i + 1;
-      result[j]->codewords_[iOffset] = rawCodewords[rawCodewordsOffset++];
-    }
+    int max = result[0]!=0 ? result[0]->codewords_.size() : 0;
+    for (int i = shorterBlocksNumDataCodewords; i < max; i++) {
+      for (int j = 0; j < numResultBlocks; j++) {
+        int iOffset = j < longerBlocksStartAt ? i : i + 1;
+        if (result[j]!=0)
+        {
+          result[j]->codewords_[iOffset] = rawCodewords[rawCodewordsOffset++];
+        }
+      }
   }
 
   if ((size_t)rawCodewordsOffset != rawCodewords.size()) {

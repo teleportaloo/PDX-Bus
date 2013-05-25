@@ -40,7 +40,7 @@
 - (MKPinAnnotationColor) getPinColor;
 - (void)setCoordinateLat:(NSString *)lat lng:(NSString *)lng;
 - (void)setCoord:(CLLocationCoordinate2D)value;
-- (bool) mapDisclosure;
+- (bool) showActionMenu;
 
 @property (nonatomic,retain) NSString *pinTitle;
 @property (nonatomic,retain) NSString *pinSubtitle;

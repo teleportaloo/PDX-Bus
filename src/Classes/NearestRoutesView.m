@@ -80,10 +80,10 @@
 	
 	NSThread *thread = [NSThread currentThread];
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundThread:thread];
+	[self.backgroundTask.callbackWhenFetching backgroundThread:thread];
 	
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundStart:1 title:@"getting routes"];
+	[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:@"getting routes"];
 	
 	[locator findNearestRoutes];
 	
@@ -98,7 +98,7 @@
 		_checked[i] = NO;
 	}
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundCompleted:self];
+	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
 	
 	[pool release];
 }
@@ -379,6 +379,7 @@
 			if (self.routeData.itemArray == nil)
 			{
 				[self networkTips:self.routeData.htmlError networkError:self.routeData.errorMsg];
+                [self clearSelection];
 			}
 		}
 	}

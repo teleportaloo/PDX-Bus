@@ -43,8 +43,8 @@
 - (void)fetchDetours:(id) arg
 {	
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	[self.backgroundTask.callbackWhenFetching BackgroundThread:[NSThread currentThread]];
-	[self.backgroundTask.callbackWhenFetching BackgroundStart:1 title:kGettingDetours];
+	[self.backgroundTask.callbackWhenFetching backgroundThread:[NSThread currentThread]];
+	[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:kGettingDetours];
 	
 	NSError *parseError = nil;
     self.detourData = [[[XMLDetour alloc] init] autorelease];
@@ -60,7 +60,7 @@
 
 	disclaimerSection = [self.detourData safeItemCount];
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundCompleted:self];
+	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
 	[pool release];
 }
 
@@ -82,8 +82,8 @@
 - (void)fetchDetoursForRoute:(NSString *)route
 {	
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	[self.backgroundTask.callbackWhenFetching BackgroundThread:[NSThread currentThread]];
-	[self.backgroundTask.callbackWhenFetching BackgroundStart:1 title:kGettingDetours];
+	[self.backgroundTask.callbackWhenFetching backgroundThread:[NSThread currentThread]];
+	[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:kGettingDetours];
 	
 	NSError *parseError = nil;
     self.detourData = [[[XMLDetour alloc] init] autorelease];
@@ -91,7 +91,7 @@
 
 	disclaimerSection = [self.detourData safeItemCount];
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundCompleted:self];
+	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
 	[pool release];
 }
 
@@ -207,6 +207,7 @@
 	else if (self.detourData.itemArray == nil)
 	{
 		[self networkTips:self.detourData.htmlError networkError:self.detourData.errorMsg];
+        [self clearSelection];
 	}
 
 }

@@ -559,13 +559,13 @@ static int depthCount = 0;
 	
 	NSThread *thread = [NSThread currentThread];
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundThread:thread];
+	[self.backgroundTask.callbackWhenFetching backgroundThread:thread];
 	
 	NSString *block = [args objectAtIndex:0];
 	NSString *start = [args objectAtIndex:1];
 	NSString *stop =  [args objectAtIndex:2];
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundStart:2 title:kGettingArrivals];
+	[self.backgroundTask.callbackWhenFetching backgroundStart:2 title:kGettingArrivals];
 	
 	[self clearSections];
 	[XMLDepartures clearCache];
@@ -577,11 +577,11 @@ static int depthCount = 0;
 	
 	[self.originalDataArray addObject:deps];
 	[deps setBlockFilter:block];
-	[self.backgroundTask.callbackWhenFetching BackgroundSubtext:[NSString stringWithFormat:@"Stop ID %@", start]];
+	[self.backgroundTask.callbackWhenFetching backgroundSubtext:[NSString stringWithFormat:@"Stop ID %@", start]];
 	[deps getDeparturesForLocation:start parseError:&parseError];
 	deps.sectionTitle = @"Departure";
 	[deps release];
-	[self.backgroundTask.callbackWhenFetching BackgroundItemsDone:1];
+	[self.backgroundTask.callbackWhenFetching backgroundItemsDone:1];
 	
 	if(![thread isCancelled])
 	{
@@ -589,11 +589,11 @@ static int depthCount = 0;
 	
 		[self.originalDataArray addObject:deps];
 		[deps setBlockFilter:block];
-		[self.backgroundTask.callbackWhenFetching BackgroundSubtext:[NSString stringWithFormat:@"Stop ID %@", stop]];
+		[self.backgroundTask.callbackWhenFetching backgroundSubtext:[NSString stringWithFormat:@"Stop ID %@", stop]];
 		[deps getDeparturesForLocation:stop parseError:&parseError];
 		deps.sectionTitle = @"Arrival";
 		[deps release];
-		[self.backgroundTask.callbackWhenFetching BackgroundItemsDone:2];
+		[self.backgroundTask.callbackWhenFetching backgroundItemsDone:2];
 	}
 	
 	_blockFilter = true;
@@ -602,7 +602,7 @@ static int depthCount = 0;
 	[self sortByBus];
 	[UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundCompleted:self];
+	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
 	
 	[pool release];
 }
@@ -614,14 +614,14 @@ static int depthCount = 0;
 	
 	NSThread *thread = [NSThread currentThread];
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundThread:thread];
+	[self.backgroundTask.callbackWhenFetching backgroundThread:thread];
 
 	
 	[self clearSections];
 	[XMLDepartures clearCache];
 	self.streetcarLocations = nil;
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundStart:[stops count] title:kGettingArrivals];
+	[self.backgroundTask.callbackWhenFetching backgroundStart:[stops count] title:kGettingArrivals];
 	
 	
 	NSMutableString * stopsstr = [[[NSMutableString alloc] init] autorelease];
@@ -635,7 +635,7 @@ static int depthCount = 0;
 		StopDistance *sd = [stops objectAtIndex:i];
 		
 		[self.originalDataArray addObject:deps];
-		[self.backgroundTask.callbackWhenFetching BackgroundSubtext:[NSString stringWithFormat:@"Stop ID %@", sd.locid]];
+		[self.backgroundTask.callbackWhenFetching backgroundSubtext:[NSString stringWithFormat:@"Stop ID %@", sd.locid]];
 		[deps getDeparturesForLocation:sd.locid parseError:&parseError];
 		if (i==0)
 		{
@@ -649,7 +649,7 @@ static int depthCount = 0;
 		[deps release];
 		
 		
-		[self.backgroundTask.callbackWhenFetching BackgroundItemsDone:i+1];
+		[self.backgroundTask.callbackWhenFetching backgroundItemsDone:i+1];
 	}
 	
 	if ([self.originalDataArray count] > 0)
@@ -660,7 +660,7 @@ static int depthCount = 0;
 		[self sortByBus];
 	}
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundCompleted:self];	
+	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];	
 	
 	[pool release];
 }
@@ -675,11 +675,11 @@ static int depthCount = 0;
 	NSThread *thread = [NSThread currentThread];
 
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundThread:thread];
+	[self.backgroundTask.callbackWhenFetching backgroundThread:thread];
     
-    [self.backgroundTask.callbackWhenFetching BackgroundStart:2 title:kGettingArrivals];
+    [self.backgroundTask.callbackWhenFetching backgroundStart:2 title:kGettingArrivals];
 
-    [self.backgroundTask.callbackWhenFetching BackgroundSubtext:@"getting stop ID"];
+    [self.backgroundTask.callbackWhenFetching backgroundSubtext:@"getting stop ID"];
     
     
     
@@ -688,7 +688,7 @@ static int depthCount = 0;
     ProcessQRCodeString *qrCode = [[[ProcessQRCodeString alloc] init] autorelease];
     NSString *stopId = [qrCode extractStopId:url]; 
     
-    [self.backgroundTask.callbackWhenFetching BackgroundItemsDone:1];
+    [self.backgroundTask.callbackWhenFetching backgroundItemsDone:1];
     
     [self clearSections];
 	[XMLDepartures clearCache];
@@ -703,27 +703,27 @@ static int depthCount = 0;
         XMLDepartures *deps = [[ XMLDepartures alloc ] init];
 		
         [self.originalDataArray addObject:deps];
-        [self.backgroundTask.callbackWhenFetching BackgroundSubtext:[NSString stringWithFormat:@"Stop ID %@", stopId]];
+        [self.backgroundTask.callbackWhenFetching backgroundSubtext:[NSString stringWithFormat:@"Stop ID %@", stopId]];
         [deps getDeparturesForLocation:stopId parseError:&parseError];
         [deps release];
-        [self.backgroundTask.callbackWhenFetching BackgroundItemsDone:2];
+        [self.backgroundTask.callbackWhenFetching backgroundItemsDone:2];
 	}
     else if (url.length >= streetcar.length && [[url substringToIndex:streetcar.length] isEqualToString:streetcar])
     {
         [thread cancel];
-        [self.backgroundTask.callbackWhenFetching BackgroundSetErrorMsg:@"That QR Code is for the Portland Streetcar web site - there should be another QR code close by that has the stop ID."];
+        [self.backgroundTask.callbackWhenFetching backgroundSetErrorMsg:@"That QR Code is for the Portland Streetcar web site - there should be another QR code close by that has the stop ID."];
     }
     else
     {
         [thread cancel];
-        [self.backgroundTask.callbackWhenFetching BackgroundSetErrorMsg:@"The QR Code is not for a TriMet stop."];
+        [self.backgroundTask.callbackWhenFetching backgroundSetErrorMsg:@"The QR Code is not for a TriMet stop."];
     }
     
     [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
 		
     _blockFilter = false;
     [self sortByBus];
-    [self.backgroundTask.callbackWhenFetching BackgroundCompleted:self];	
+    [self.backgroundTask.callbackWhenFetching backgroundCompleted:self];	
 	
 	[pool release];
 }
@@ -737,7 +737,7 @@ static int depthCount = 0;
 	
 	NSThread *thread = [NSThread currentThread];
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundThread:thread];
+	[self.backgroundTask.callbackWhenFetching backgroundThread:thread];
 	
 	
 	[self clearSections];
@@ -746,13 +746,13 @@ static int depthCount = 0;
 	
 	
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundStart:locator.maxToFind+1 title:kGettingArrivals];
+	[self.backgroundTask.callbackWhenFetching backgroundStart:locator.maxToFind+1 title:kGettingArrivals];
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundSubtext:@"getting locations"];
+	[self.backgroundTask.callbackWhenFetching backgroundSubtext:@"getting locations"];
 	
 	[locator findNearestStops];
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundItemsDone:1];
+	[self.backgroundTask.callbackWhenFetching backgroundItemsDone:1];
 	
     AlertViewCancelsTask *canceller = [[[AlertViewCancelsTask alloc] init] autorelease];
 	canceller.caller            = self;
@@ -773,7 +773,7 @@ static int depthCount = 0;
 			
 			[self.originalDataArray addObject:deps];
 			
-			[self.backgroundTask.callbackWhenFetching BackgroundSubtext:sd.desc];
+			[self.backgroundTask.callbackWhenFetching backgroundSubtext:sd.desc];
 			[deps getDeparturesForLocation:sd.locid parseError:&parseError];
 			if (i==0)
 			{
@@ -787,7 +787,7 @@ static int depthCount = 0;
 			[deps release];
 			
 			
-			[self.backgroundTask.callbackWhenFetching BackgroundItemsDone:i+2];
+			[self.backgroundTask.callbackWhenFetching backgroundItemsDone:i+2];
 		}
 		
 		if ([self.originalDataArray count] > 0)
@@ -799,7 +799,7 @@ static int depthCount = 0;
 		}
 	}
     
-    [self.backgroundTask.callbackWhenFetching BackgroundCompleted:self];
+    [self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
 
 	
 	[pool release];
@@ -812,7 +812,7 @@ static int depthCount = 0;
 	
 	NSThread *thread = [NSThread currentThread];
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundThread:thread];
+	[self.backgroundTask.callbackWhenFetching backgroundThread:thread];
 	
 	
 	[self clearSections];
@@ -821,7 +821,7 @@ static int depthCount = 0;
 	
 	
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundStart:[stops count] title:kGettingArrivals];
+	[self.backgroundTask.callbackWhenFetching backgroundStart:[stops count] title:kGettingArrivals];
 	
 	NSMutableString * stopsstr = [[[NSMutableString alloc] init] autorelease];
 	self.stops = stopsstr;
@@ -836,7 +836,7 @@ static int depthCount = 0;
 			
 		[self.originalDataArray addObject:deps];
 			
-		[self.backgroundTask.callbackWhenFetching BackgroundSubtext:sd.desc];
+		[self.backgroundTask.callbackWhenFetching backgroundSubtext:sd.desc];
 		[deps getDeparturesForLocation:sd.locid parseError:&parseError];
 		if (i==0)
 		{
@@ -850,7 +850,7 @@ static int depthCount = 0;
 		[deps release];
 			
 			
-		[self.backgroundTask.callbackWhenFetching BackgroundItemsDone:i+2];
+		[self.backgroundTask.callbackWhenFetching backgroundItemsDone:i+2];
 	}
 		
 	if ([self.originalDataArray count] > 0)
@@ -862,7 +862,7 @@ static int depthCount = 0;
 	}
 		
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundCompleted:self];
+	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
 	
 	[pool release];
 }
@@ -873,7 +873,7 @@ static int depthCount = 0;
 	
 	NSThread *thread = [NSThread currentThread];
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundThread:thread];
+	[self.backgroundTask.callbackWhenFetching backgroundThread:thread];
 	
 	
 	NSString* loc		= [args objectForKey:kDictLocation];
@@ -905,7 +905,7 @@ static int depthCount = 0;
 		}
 	} 
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundStart:items title:(bookmark!=nil?bookmark:kGettingArrivals)];
+	[self.backgroundTask.callbackWhenFetching backgroundStart:items title:(bookmark!=nil?bookmark:kGettingArrivals)];
 	
 	
 	[scanner setScanLocation:0];
@@ -920,10 +920,10 @@ static int depthCount = 0;
 		
 		if (names == nil || (items -1) > [names count])
 		{
-			[self.backgroundTask.callbackWhenFetching BackgroundSubtext:[NSString stringWithFormat:@"Stop ID %@", aLoc]];
+			[self.backgroundTask.callbackWhenFetching backgroundSubtext:[NSString stringWithFormat:@"Stop ID %@", aLoc]];
 		}
 		else {
-			[self.backgroundTask.callbackWhenFetching BackgroundSubtext:[names objectAtIndex:(items -1)]];
+			[self.backgroundTask.callbackWhenFetching backgroundSubtext:[names objectAtIndex:(items -1)]];
 		}
 
 	
@@ -935,7 +935,7 @@ static int depthCount = 0;
 		}
 		[deps release];
 		
-		[self.backgroundTask.callbackWhenFetching BackgroundItemsDone:items];
+		[self.backgroundTask.callbackWhenFetching backgroundItemsDone:items];
 		items ++;
 		
 	}
@@ -957,7 +957,7 @@ static int depthCount = 0;
 		// return YES;
 	}
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundCompleted:self];
+	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
 	
 	if (![thread isCancelled])
 	{
@@ -995,10 +995,10 @@ static int depthCount = 0;
 	
 	NSThread *thread = [NSThread currentThread];
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundThread:thread];
+	[self.backgroundTask.callbackWhenFetching backgroundThread:thread];
 	
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundStart:[self.originalDataArray count] title:kGettingArrivals];
+	[self.backgroundTask.callbackWhenFetching backgroundStart:[self.originalDataArray count] title:kGettingArrivals];
 
 	[self clearSections];
 
@@ -1008,16 +1008,16 @@ static int depthCount = 0;
 		XMLDepartures *dd = [self.originalDataArray objectAtIndex:i];
 		if (dd.locDesc !=nil)
 		{
-			[self.backgroundTask.callbackWhenFetching BackgroundSubtext:dd.locDesc];
+			[self.backgroundTask.callbackWhenFetching backgroundSubtext:dd.locDesc];
 		}
 		[dd reload];
-		[self.backgroundTask.callbackWhenFetching BackgroundItemsDone:i+1];
+		[self.backgroundTask.callbackWhenFetching backgroundItemsDone:i+1];
 	}
 	[UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
 	[self sortByBus];
 	[self clearSections];
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundCompleted:nil];
+	[self.backgroundTask.callbackWhenFetching backgroundCompleted:nil];
 	 
 	 
 	[pool release];
@@ -1143,7 +1143,7 @@ static int depthCount = 0;
 	
 	NSSet *streetcarRoutes = [XMLStreetcarLocations getStreetcarRoutesInDepartureArray:self.originalDataArray];
 
-	[self.backgroundTask.callbackWhenFetching BackgroundStart:streetcarRoutes.count title:@"getting locations"];
+	[self.backgroundTask.callbackWhenFetching backgroundStart:streetcarRoutes.count title:@"getting locations"];
 	
 	[UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     
@@ -1152,7 +1152,7 @@ static int depthCount = 0;
         NSError *parseError = nil;
         XMLStreetcarLocations *loc = [XMLStreetcarLocations getSingletonForRoute:route];
         [loc getLocations:&parseError];
-        [self.backgroundTask.callbackWhenFetching BackgroundItemsDone:++i];
+        [self.backgroundTask.callbackWhenFetching backgroundItemsDone:++i];
     }
     
     [XMLStreetcarLocations insertLocationsIntoDepartureArray:self.originalDataArray forRoutes:streetcarRoutes];
@@ -1160,7 +1160,7 @@ static int depthCount = 0;
 	
 	[UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundCompleted:nil];
+	[self.backgroundTask.callbackWhenFetching backgroundCompleted:nil];
 	
 	[pool release];
 }
@@ -1272,8 +1272,15 @@ static int depthCount = 0;
 {
 	MapViewController *mapPage = [[MapViewController alloc] init];
 	mapPage.callback = self.callback;
-	mapPage.title =@"Arrivals";
-	
+    
+    if ([self.originalDataArray count]==1)
+    {
+        mapPage.title =@"Arrivals";
+    }
+    else
+    {
+       mapPage.title =@"Stops"; 
+    }
 	
 	int i,j;
 	for (i=[self.originalDataArray count]-1; i>=0 ; i--)
@@ -1283,18 +1290,21 @@ static int depthCount = 0;
 		if (dep.locLat !=nil)
 		{
 			[mapPage addPin:dep];
+            
+            if ([self.originalDataArray count]==1)
+            {
 			
-			for (j=0; j< [dep safeItemCount]; j++)
-			{
-				Departure *dd = [dep itemAtIndex:j];
+                for (j=0; j< [dep safeItemCount]; j++)
+                {
+                    Departure *dd = [dep itemAtIndex:j];
 				
-				if (dd.hasBlock)
-				{
-					[mapPage addPin:dd];
-				}
-			}
-		}
-		
+                    if (dd.hasBlock)
+                    {
+                        [mapPage addPin:dd];
+                    }
+                }
+            }
+        }
 	}
 	
 	[[self navigationController] pushViewController:mapPage animated:YES];
@@ -1304,39 +1314,44 @@ static int depthCount = 0;
 
 -(void)showMap:(id)sender
 {
-	bool needToFetchStreetcarLocations = false;
+    if ([self.originalDataArray count] > 1)
+    {
+        [self showMapNow:nil];
+    }
+    else
+    {
+        bool needToFetchStreetcarLocations = false;
 	
-	int i,j;
-	for (i=[self.originalDataArray count]-1; i>=0 && !needToFetchStreetcarLocations ; i--)
-	{
-		XMLDepartures * dep = [self.originalDataArray objectAtIndex:i];
+        int i,j;
+        for (i=[self.originalDataArray count]-1; i>=0 && !needToFetchStreetcarLocations ; i--)
+        {
+            XMLDepartures * dep = [self.originalDataArray objectAtIndex:i];
 		
-		if (dep.locLat !=nil)
-		{
-			for (j=0; j< [dep safeItemCount]; j++)
-			{
-				Departure *dd = [dep itemAtIndex:j];
+            if (dep.locLat !=nil)
+            {
+                for (j=0; j< [dep safeItemCount]; j++)
+                {
+                    Departure *dd = [dep itemAtIndex:j];
 				
-				if (dd.streetcar && dd.blockPositionLat == nil)
-				{
-					needToFetchStreetcarLocations = true;
-					break;
-				}
-			}
-		}
-		
-	}
+                    if (dd.streetcar && dd.blockPositionLat == nil)
+                    {
+                        needToFetchStreetcarLocations = true;
+                        break;
+                    }
+                }
+            }
+        }
 	
-	
-	if (needToFetchStreetcarLocations)
-	{
-		_fetchingLocations = YES;
-		self.backgroundTask.callbackWhenFetching = self.backgroundTask;
-		[NSThread detachNewThreadSelector:@selector(fetchStreetcarLocations:) toTarget:self withObject:nil];
-	}
-	else {
-		[self showMapNow:nil];
-	}
+        if (needToFetchStreetcarLocations)
+        {
+            _fetchingLocations = YES;
+            self.backgroundTask.callbackWhenFetching = self.backgroundTask;
+            [NSThread detachNewThreadSelector:@selector(fetchStreetcarLocations:) toTarget:self withObject:nil];
+        }
+        else {
+            [self showMapNow:nil];
+        }
+    }
 	
 }
 
@@ -2062,10 +2077,10 @@ static int depthCount = 0;
 			WebViewController *webPage = [[WebViewController alloc] init];
 			[webPage setURLmobile:url full:url title:@"TriMet"]; 
 			webPage.showErrors = NO;
-			[[self navigationController] pushViewController:webPage animated:YES];
+			[webPage displayPage:[self navigationController] animated:YES tableToDeselect:self.table];
 			[webPage release];
 			break;
-		}    
+		}
 		case kSectionAccuracy:
 		{
 			NSString *url = [NSString stringWithFormat:@"http://trimet.org/arrivals/small/tracker?locationID=%@",
@@ -2073,7 +2088,7 @@ static int depthCount = 0;
 			WebViewController *webPage = [[WebViewController alloc] init];
 			[webPage setURLmobile:url full:url title:@"TriMet"]; 
 			webPage.showErrors = NO;
-			[[self navigationController] pushViewController:webPage animated:YES];
+			[webPage displayPage:[self navigationController] animated:YES tableToDeselect:self.table];
 			[webPage release];
 			break;
 		}
@@ -2129,6 +2144,7 @@ static int depthCount = 0;
 			if ([dd DTDataNetworkError])
 			{
 				[self networkTips:[dd DTDataHtmlError] networkError:[dd DTDataNetworkErrorMsg]];
+                [self clearSelection];
 				
 			} else if (!_blockSort)
 			{
@@ -2408,7 +2424,7 @@ static int depthCount = 0;
 
 }
 
--(void)BackgroundTaskStarted
+-(void)backgroundTaskStarted
 {
 	[self stopTimer];
 }

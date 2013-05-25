@@ -101,8 +101,6 @@
 #define kTableTripRowCache      1
 #define kTableTripRows          2
 
-
-
 #define kUIEditHeight			50.0
 #define kUIRowHeight			40.0
 
@@ -135,8 +133,10 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 @synthesize initialAction       = _initialAction;
 @synthesize initialBookmarkName = _initalBookmarkName;
 @synthesize initialBookmarkIndex = _initialBookmarkIndex;
+@synthesize initialActionArgs   = _initialActionArgs;
 @synthesize viewLoaded          = _viewLoaded;
-
+@synthesize goButton            = _goButton;
+@synthesize helpButton          = _helpButton;
 
 - (void)dealloc {
 	self.editWindow			= nil;
@@ -154,6 +154,9 @@ static NSString *callString = @"tel:1-503-238-RIDE";
     self.arrivalRows        = nil;
     self.launchStops        = nil;
     self.routingURL         = nil;
+    self.initialActionArgs  = nil;
+    self.goButton           = nil;
+    self.helpButton         = nil;
 
 	[super dealloc];
 }
@@ -172,7 +175,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
     [items addObject:[CustomToolbar autoLocateWithTarget:self  action:@selector(autoLocate:)]];
     [items addObject:[CustomToolbar autoFlexSpace]];
     
-    if ([UserPrefs getSingleton].autoCommute)
+    if ([UserPrefs getSingleton].commuteButton)
     {
         [items addObject:[CustomToolbar autoCommuteWithTarget:self action:@selector(commuteAction:)]];
         [items addObject:[CustomToolbar autoFlexSpace]];     
@@ -186,13 +189,24 @@ static NSString *callString = @"tel:1-503-238-RIDE";
     [items addObject:[self autoBigFlashButton]];
 
 	[self setToolbarItems:items animated:NO];
+    
+    if (self.goButton==nil)
+    {
+         self.goButton = [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone
+                                                                        target:self
+                                                                        action:@selector(editGoAction:)] autorelease];
+    }
+    
+    
+    if (self.helpButton==nil)
+    {
+        self.helpButton = [[[UIBarButtonItem alloc] initWithTitle:@"Help"
+                                                            style:UIBarButtonItemStyleBordered
+                                                           target:self action:@selector(helpAction:)] autorelease];
+    }
 }
 
 #pragma mark UI Helper functions
-
-
-
-
 
 - (void) delayedQRScanner:(NSObject *)arg
 {
@@ -379,11 +393,37 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 
 - (void)autoLocate:(id)sender
 {
-    FindByLocationView *findView = [[FindByLocationView alloc] initAutoLaunch];
-    
-    // Push the detail view controller
-    [[self navigationController] pushViewController:findView animated:YES];
-    [findView release];
+    if (self.initialActionArgs)
+    {
+        FindByLocationView *findView = [[FindByLocationView alloc] initAutoLaunch];
+        
+        [findView actionArgs:self.initialActionArgs];
+        self.initialActionArgs = nil;
+        
+        
+        // Push the detail view controller
+        [[self navigationController] pushViewController:findView animated:YES];
+        [findView release];
+    }
+    else if ([UserPrefs getSingleton].autoLocateShowOptions)
+    {
+        FindByLocationView *findView = [[FindByLocationView alloc] init];
+        
+        // Push the detail view controller
+        [[self navigationController] pushViewController:findView animated:YES];
+        [findView release];
+
+    }
+    else
+    {
+
+        FindByLocationView *findView = [[FindByLocationView alloc] initAutoLaunch];
+        
+        // Push the detail view controller
+        [[self navigationController] pushViewController:findView animated:YES];
+        [findView release];
+    }
+
     
 }
 
@@ -413,13 +453,13 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 	}
 }
 
-- (void)infoAction:(id)sender
+- (void)helpAction:(id)sender
 {
-	AboutView *aboutView = [[AboutView alloc] init];
+	SupportView *supportView = [[SupportView alloc] init];
 	
 	// Push the detail view controller
-	[[self navigationController] pushViewController:aboutView animated:YES];
-	[aboutView release];
+	[[self navigationController] pushViewController:supportView animated:YES];
+	[supportView release];
 	
 }
 
@@ -557,6 +597,12 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 	{
 		[self tripPlanner:NO];
 	}
+    else
+    {
+        // Reload just in case the user changed the settings outside the app
+        [self reloadData];
+        [self createToolbarItems];
+    }
     
     self.delayedInitialAction = NO;
     self.initialAction = InitialAction_None;
@@ -642,13 +688,10 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 									  action:@selector(cancelAction:)] autorelease];
 	
 	
-	UIBarButtonItem *goButton = [[[UIBarButtonItem alloc]
-								  initWithBarButtonSystemItem:UIBarButtonSystemItemDone
-								  target:self
-								  action:@selector(editGoAction:)] autorelease];
+	
 	
 	self.navigationItem.leftBarButtonItem = cancelButton;
-	self.navigationItem.rightBarButtonItem = goButton;
+	self.navigationItem.rightBarButtonItem = self.goButton;
 	
 	[self.table scrollToRowAtIndexPath:[NSIndexPath 
 										indexPathForRow:kTableFindRowId
@@ -707,11 +750,6 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 	
 }
 
-- (void) handleChangeInUserSettings:(id)obj
-{
-	[self reloadData];
-	[self createToolbarItems];
-}
 
 - (bool)initMembers
 {
@@ -720,10 +758,6 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 	if ([AlarmTaskList supported])
 	{
 		_taskList = [AlarmTaskList getSingleton];
-	}
-	if (result)
-	{
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleChangeInUserSettings:) name:NSUserDefaultsDidChangeNotification object:nil];	
 	}
 	return result;
 }
@@ -823,17 +857,11 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 	}
     
 #ifndef LOADINGSCREEN
-	
-	UIBarButtonItem *info = [[[UIBarButtonItem alloc]
-							  initWithTitle:@"Help"
-							  style:UIBarButtonItemStyleBordered
-							  target:self action:@selector(infoAction:)] autorelease];
-	
-
-	self.navigationItem.rightBarButtonItem = info;
+	self.navigationItem.rightBarButtonItem = self.helpButton;
 #endif
 	
 	[self reloadData];
+    [self createToolbarItems];
 	showingLast = false;
 	
 }
@@ -848,10 +876,6 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 		_taskList.observer = nil;
 	}
 }
-
-
-
-
 
 - (void)didReceiveMemoryWarning {
 	[super didReceiveMemoryWarning]; // Releases the view if it doesn't have a superview
@@ -900,7 +924,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 
 - (void)cancelAction:(id)sender
 {
-	self.navigationItem.rightBarButtonItem = nil;
+	self.navigationItem.rightBarButtonItem = self.helpButton;
 	[self.editWindow resignFirstResponder];
 }
 
@@ -908,7 +932,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 {
 	NSString *editText = [self justNumbers:textView.text];
 	
-	if (editText.length !=0 && (!keyboardUp || self.navigationItem.rightBarButtonItem != nil ))
+	if (editText.length !=0 && (!keyboardUp || self.navigationItem.rightBarButtonItem != self.helpButton ))
 	{
 		
 		DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
@@ -921,7 +945,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 	{
 		[self.editWindow resignFirstResponder];	
 	}
-	self.navigationItem.rightBarButtonItem = nil;
+	self.navigationItem.rightBarButtonItem = self.helpButton;
 	self.navigationItem.leftBarButtonItem = self.editButtonItem;
 	keyboardUp = NO;
 	
@@ -1203,7 +1227,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 					cell.textLabel.font = [self getBasicFont];
 					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 					[self maybeAddSectionToAccessibility:cell indexPath:indexPath alwaysSaySection:YES];
-					cell.imageView.image = [self getActionIcon:kIconLocate]; 
+					cell.imageView.image = [self getActionIcon:kIconLocate];
 					return cell;
 				}
 				case kTableFindRowHistory:
@@ -1387,12 +1411,12 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 					cell.imageView.image = [self getActionIcon:kIconSettings];
 					break;    
 				case kTableAboutRowAbout:
-					cell.textLabel.text = @"Tips, Links & About";
+					cell.textLabel.text = @"About & legal";
 					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 					cell.imageView.image = [self getActionIcon:kIconAbout];
 					break;
                 case kTableAboutSupport:
-					cell.textLabel.text = @"Help & support";
+					cell.textLabel.text = @"Help, Tips & support";
 					cell.imageView.image = [self getActionIcon:kIconXml];
 					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 					break;
@@ -1608,9 +1632,9 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (self.navigationItem.rightBarButtonItem != nil)
+    if (self.navigationItem.rightBarButtonItem == self.goButton)
     {
-        self.navigationItem.rightBarButtonItem = nil;
+        self.navigationItem.rightBarButtonItem = self.helpButton;
         [self.editWindow resignFirstResponder];
     }
 	
@@ -1735,7 +1759,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
                 {
                     WebViewController *webPage = [[WebViewController alloc] init];
                     [webPage setURLmobile:@"http://trimet.org" full:nil title:@"TriMet.org"]; 
-                    [[self navigationController] pushViewController:webPage animated:YES];
+                    [webPage displayPage:[self navigationController] animated:YES tableToDeselect:self.table];
                     [webPage release];
                     break;
                 }
@@ -1743,7 +1767,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
                 {
                     WebViewController *webPage = [[WebViewController alloc] init];
                     [webPage setURLmobile:@"http://trimet.org/m/alerts" full:nil title:@"TriMet.org"]; 
-                    [[self navigationController] pushViewController:webPage animated:YES];
+                    [webPage displayPage:[self navigationController] animated:YES tableToDeselect:self.table];
                     [webPage release];
                     break;
                     
@@ -2120,9 +2144,9 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 	{
 		case kTableSectionAlarms:
 		{
-			if (self.navigationItem.rightBarButtonItem != nil)
+			if (self.navigationItem.rightBarButtonItem == self.goButton)
 			{
-				self.navigationItem.rightBarButtonItem = nil;
+				self.navigationItem.rightBarButtonItem = self.helpButton;
 				[self.editWindow resignFirstResponder];
 			}
 	

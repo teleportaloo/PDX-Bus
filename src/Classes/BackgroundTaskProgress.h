@@ -27,12 +27,12 @@
 #import <Foundation/Foundation.h>
 
 @protocol BackgroundTaskProgress <NSObject>
-	-(void)BackgroundThread:(NSThread *)thread;
-	-(void)BackgroundStart:(int)items title:(NSString *)title;
-	-(void)BackgroundItemsDone:(int)itemsDone;
-	-(void)BackgroundSubtext:(NSString *)subtext;
-	-(void)BackgroundCompleted:(UIViewController*)viewController;
-    -(void)BackgroundSetErrorMsg:(NSString *)errMsg;
+	-(void)backgroundThread:(NSThread *)thread;
+	-(void)backgroundStart:(int)items title:(NSString *)title;
+	-(void)backgroundItemsDone:(int)itemsDone;
+	-(void)backgroundSubtext:(NSString *)subtext;
+	-(void)backgroundCompleted:(UIViewController*)viewController;
+    -(void)backgroundSetErrorMsg:(NSString *)errMsg;
 @end
 
 

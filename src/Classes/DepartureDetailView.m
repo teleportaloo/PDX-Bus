@@ -108,7 +108,7 @@
         items += streetcarRoutes.count;
 	}
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundStart:items title:@"getting details"];
+	[self.backgroundTask.callbackWhenFetching backgroundStart:items title:@"getting details"];
 	items = 0;
     
 	if (self.departure.detour)
@@ -118,7 +118,7 @@
 	    [self.detourData getDetourForRoute:self.departure.route parseError:&parseError];
 		
         items++;
-		[self.backgroundTask.callbackWhenFetching BackgroundItemsDone:items];
+		[self.backgroundTask.callbackWhenFetching backgroundItemsDone:items];
         
 	}
     
@@ -133,7 +133,7 @@
             [locs getLocations:&parseError];
             
             items++;
-            [self.backgroundTask.callbackWhenFetching BackgroundItemsDone:items];
+            [self.backgroundTask.callbackWhenFetching backgroundItemsDone:items];
         }
             
 		[XMLStreetcarLocations insertLocationsIntoDepartureArray:self.allDepartures forRoutes:streetcarRoutes];
@@ -141,10 +141,10 @@
 		self.allDepartures = nil;
 
 		
-		[self.backgroundTask.callbackWhenFetching BackgroundItemsDone:items];
+		[self.backgroundTask.callbackWhenFetching backgroundItemsDone:items];
 	}
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundCompleted:self];
+	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
 	[pool release];
 }
 
@@ -225,7 +225,7 @@
 	
 	if (self.backgroundTask.callbackWhenFetching == nil)
 	{
-		[callback BackgroundCompleted:self];
+		[callback backgroundCompleted:self];
 	}
 }
 
@@ -583,6 +583,7 @@
 					break;
 				case kWebInfo:
 				    [self showRouteSchedule:self.departure.route];
+                    [self clearSelection];
 					break;
 				case kWebStops:
 					[self showStops:self.departure.route];

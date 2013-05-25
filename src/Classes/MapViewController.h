@@ -64,10 +64,18 @@
 	int _selectedAnnotation;
 	MapLinesView *_linesView;
 	id<MapPinColor> _tappedAnnot;
-	NSInteger mapButtonIndex;
-	NSInteger cancelButtonIndex;
+    NSInteger _actionMapButtonIndex;
+	NSInteger _appleMapButtonIndex;
+    NSInteger _ios5MapButtonIndex;
+	NSInteger _cancelButtonIndex;
+    NSInteger _googleMapButtonIndex;
+    NSInteger _motionxMapButtonIndex;
+    NSInteger _motionxHdMapButtonIndex;
+    NSInteger _wazeMapButtonIndex;
 	bool _overlaysSupported;
 	UISegmentedControl *_segPrevNext;
+    UIBarButtonItem *_compassButton;
+    CGRect _portraitMapRect;
 }
 
 @property (nonatomic, retain) NSMutableArray *routePolyLines;
@@ -77,6 +85,8 @@
 @property (nonatomic, retain) MapLinesView *linesView;
 @property (nonatomic, retain) NSMutableArray *lineCoords;
 @property (nonatomic, retain) MKCircle *circle;
+@property (nonatomic, retain) UIBarButtonItem *compassButton;
+@property (atomic)            bool animating;
 
 // - (void)setMapLocationLat:(NSString *)lat lng:(NSString *)lng title:(NSString *)title;
 - (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation;

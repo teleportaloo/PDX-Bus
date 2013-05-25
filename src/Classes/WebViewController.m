@@ -26,7 +26,7 @@
 #import "TableViewWithToolbar.h"
 #include "debug.h"
 #include "TriMetTypes.h"
-
+#include "OpenInChromeController.h"
 
 @implementation WebViewController
 
@@ -219,10 +219,20 @@
 // Called when a button is clicked. The view will be automatically dismissed after this call returns
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
 {
+    NSURL *address = [NSURL URLWithString:[self.webView stringByEvaluatingJavaScriptFromString:@"document.URL"]];
+    OpenInChromeController *chrome = [OpenInChromeController sharedInstance];
+    
 	if (buttonIndex == 0)
 	{
-		[[UIApplication sharedApplication] openURL:[NSURL URLWithString:[self.webView stringByEvaluatingJavaScriptFromString:@"document.URL"]]];
+		[[UIApplication sharedApplication] openURL:address];
 	}
+    
+    if (chrome.isChromeInstalled && buttonIndex == 1)
+    {
+        [[OpenInChromeController sharedInstance] openInChrome:address
+                                              withCallbackURL:[NSURL URLWithString:@"pdxbus://back"]
+                                                 createNewTab:YES];
+    }
 }
 
 -(void)safariButton:(id)sender
@@ -240,8 +250,15 @@
 	else
 	{
 		UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:@"Safari"
-															 delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil
+															 delegate:self cancelButtonTitle:nil destructiveButtonTitle:nil
 													otherButtonTitles:@"Show in Safari", nil];
+        
+        if ([OpenInChromeController sharedInstance].isChromeInstalled)
+        {
+            [actionSheet addButtonWithTitle:@"Show in Chrome"];
+        }
+        
+        actionSheet.cancelButtonIndex  = [actionSheet addButtonWithTitle:@"Cancel"];
 		actionSheet.actionSheetStyle = UIActionSheetStyleDefault;
 		[actionSheet showFromToolbar:self.navigationController.toolbar]; // show from our table view (pops up in the middle of the table)
 		[actionSheet release];
@@ -508,6 +525,29 @@
 
 }
 
+
+- (void)displayPage:(UINavigationController *)nav animated:(BOOL)animated tableToDeselect:(UITableView *)table
+{
+    if ([UserPrefs getSingleton].useChrome && [OpenInChromeController sharedInstance].isChromeInstalled && self.urlToDisplay!=nil)
+    {
+        [[OpenInChromeController sharedInstance] openInChrome:[NSURL URLWithString:self.urlToDisplay]
+                                              withCallbackURL:[NSURL URLWithString:@"pdxbus:"]
+                                                 createNewTab:NO];
+        
+        if (table)
+        {
+            NSIndexPath *ip = [table indexPathForSelectedRow];
+            if (ip!=nil)
+            {
+                [table deselectRowAtIndexPath:ip animated:YES];
+            }
+        }
+    }
+    else
+    {
+        [nav pushViewController:self animated:animated];
+    }
+}
 
 
 @end

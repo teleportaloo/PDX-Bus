@@ -71,7 +71,7 @@
 			//[delegate retain];
             //[alert show];
             
-            [progress BackgroundSetErrorMsg:@"Network problem: please try again later."];
+            [progress backgroundSetErrorMsg:@"Network problem: please try again later."];
             
 			return true;
 		}	
@@ -83,7 +83,10 @@
 		{
 			[thread cancel];
             
-            [progress BackgroundSetErrorMsg:[NSString stringWithFormat:@"No stops were found within %0.1f miles",
+            NSArray *modes = [NSArray arrayWithObjects:@"bus stops", @"train stops", @"bus or train stops", nil];
+        
+            [progress backgroundSetErrorMsg:[NSString stringWithFormat:@"No %@ were found within %0.1f miles.",
+                                        [modes objectAtIndex:_mode],
                                         self.minDistance / 1609.344]];
 			//UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"Nearby stops"
 			//												   message:[NSString stringWithFormat:@"No stops were found within %0.1f miles",

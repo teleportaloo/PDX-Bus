@@ -30,7 +30,12 @@
 
 @interface SupportView : TableViewWithToolbar {
 	NSString *supportText;
+    NSArray *tipText;
+    
+    bool _hideButton;
 }
+
+@property (nonatomic) bool hideButton;
 
 
 @end

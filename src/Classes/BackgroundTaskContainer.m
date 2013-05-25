@@ -35,7 +35,9 @@
 @synthesize callbackWhenFetching	= _callbackWhenFetching;
 @synthesize backgroundThread		= _backgroundThread;
 @synthesize title                   = _title;
+@synthesize help                    = _help;
 @synthesize errMsg                  = _errMsg;
+@synthesize controllerToPop         = _controllerToPop;
 
 static int taskCount;
 static NSNumber *syncObject;
@@ -46,6 +48,8 @@ static NSNumber *syncObject;
 	self.callbackWhenFetching = nil;
 	self.backgroundThread = nil;
     self.errMsg           = nil;
+    self.controllerToPop  = nil;
+    self.help             = nil;
     [super dealloc];
 }
 
@@ -71,9 +75,9 @@ static NSNumber *syncObject;
 	if (self.progressModal == nil)
 	{
 		
-		if ([self.callbackComplete respondsToSelector:@selector(BackgroundTaskStarted)])
+		if ([self.callbackComplete respondsToSelector:@selector(backgroundTaskStarted)])
 		{
-			[self.callbackComplete BackgroundTaskStarted];
+			[self.callbackComplete backgroundTaskStarted];
 		}
 		
 		self.progressModal = [ProgressModalView initWithSuper:delegate.window items:[num intValue] 
@@ -82,6 +86,8 @@ static NSNumber *syncObject;
 												  orientation:[self.callbackComplete BackgroundTaskOrientation]];
 		
 		[delegate.window addSubview:self.progressModal];
+        
+        [self.progressModal addHelpText:self.help];
 	}
 	else 
 	{
@@ -89,9 +95,10 @@ static NSNumber *syncObject;
 	}
 }
 
--(void)BackgroundStart:(int)items title:(NSString *)title
+
+-(void)backgroundStart:(int)items title:(NSString *)title
 {
-	self.title = title;	
+	self.title = title;
     self.errMsg = nil;
 	
 	if (syncObject == nil)
@@ -113,9 +120,9 @@ static NSNumber *syncObject;
 	
 	[self performSelectorOnMainThread:@selector(BackgroundStartMainThread:) withObject:[NSNumber numberWithInt:items] waitUntilDone:YES];
 	
-	if ([self.callbackComplete respondsToSelector:@selector(BackgroundTaskWait)])
+	if ([self.callbackComplete respondsToSelector:@selector(backgroundTaskWait)])
 	{
-		while([self.callbackComplete BackgroundTaskWait])
+		while([self.callbackComplete backgroundTaskWait])
 		{
 			[NSThread sleepForTimeInterval:0.3];
 		}
@@ -123,7 +130,7 @@ static NSNumber *syncObject;
 }
 
 
--(void)BackgroundSubtext:(NSString *)subtext
+-(void)backgroundSubtext:(NSString *)subtext
 {
 	[self.progressModal addSubtext:subtext]; 
 	
@@ -135,33 +142,22 @@ static NSNumber *syncObject;
 }
 
 
--(void)BackgroundItemsDone:(int)itemsDone
+-(void)backgroundItemsDone:(int)itemsDone
 {
 	NSNumber *num = [NSNumber numberWithInt:itemsDone];
 	[self performSelectorOnMainThread:@selector(BackgroundItemsMainThread:) withObject:num waitUntilDone:YES];	
 }
 
--(void)BackgroundCompletedMainThread:(UIViewController *)viewController
+-(void)finish
 {
-	bool cancelled = (self.backgroundThread !=nil && [self.backgroundThread isCancelled]);
-	
-	if (self.progressModal)
-	{
-		[self.progressModal removeFromSuperview];
-	}
-    if (self.errMsg)
-    {
-        UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:nil
-                                                           message:self.errMsg
-                                                          delegate:nil
-                                                 cancelButtonTitle:@"OK"
-                                                 otherButtonTitles:nil ] autorelease];
-        [alert show];
-    }
-	[self.callbackComplete BackgroundTaskDone:viewController cancelled:cancelled];
-	self.callbackWhenFetching = nil;
+    bool cancelled = (self.backgroundThread !=nil && [self.backgroundThread isCancelled]);
+    [self.callbackComplete BackgroundTaskDone:self.controllerToPop cancelled:cancelled];
+    self.controllerToPop = nil;
+    self.backgroundThread = nil;
+    
+    self.callbackWhenFetching = nil;
 	self.progressModal = nil;
-	self.backgroundThread = nil;
+	
 	
 	@synchronized (syncObject)
 	{
@@ -169,20 +165,59 @@ static NSNumber *syncObject;
 	}
 }
 
-- (void)BackgroundThread:(NSThread *)thread
+-(void)BackgroundCompletedMainThread:(UIViewController *)viewController
+{
+
+    
+    self.controllerToPop = viewController;
+	
+	if (self.progressModal)
+	{
+		[self.progressModal removeFromSuperview];
+	}
+    
+    if (self.errMsg)
+    {
+        UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:nil
+                                                           message:self.errMsg
+                                                          delegate:self
+                                                 cancelButtonTitle:@"OK"
+                                                 otherButtonTitles:nil ] autorelease];
+        [alert show];
+    }
+    else
+    {
+        [self finish];
+    }
+	
+}
+
+// Called when a button is clicked. The view will be automatically dismissed after this call returns
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    [self finish];
+}
+
+
+- (void)backgroundThread:(NSThread *)thread
 {
 	self.backgroundThread = thread;	
 }
 
--(void)BackgroundCompleted:(UIViewController *)viewController
+-(void)backgroundCompleted:(UIViewController *)viewController
 {
 	
 	[self performSelectorOnMainThread:@selector(BackgroundCompletedMainThread:) withObject:viewController waitUntilDone:YES];	
 }
 
-- (void)BackgroundSetErrorMsg:(NSString *)errMsg
+- (void)backgroundSetErrorMsg:(NSString *)errMsg
 {
     self.errMsg = errMsg;
+}
+
+- (void)BackgroundSetHelpText:(NSString *)helpText
+{
+    [self.progressModal addHelpText:helpText];
 }
 
 

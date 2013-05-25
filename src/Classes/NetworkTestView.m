@@ -64,12 +64,12 @@
 {	
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundThread:[NSThread currentThread]];
-	[self.backgroundTask.callbackWhenFetching BackgroundStart:5 title:@"checking network"];
+	[self.backgroundTask.callbackWhenFetching backgroundThread:[NSThread currentThread]];
+	[self.backgroundTask.callbackWhenFetching backgroundStart:5 title:@"checking network"];
 	
 	self.internetConnectionStatus = [TriMetXML isDataSourceAvailable:YES];
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundItemsDone:1];
+	[self.backgroundTask.callbackWhenFetching backgroundItemsDone:1];
 	
 	XMLDetour *detours = [[ XMLDetour alloc] init];
 	
@@ -81,7 +81,7 @@
 	
 	[detours release];
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundItemsDone:2];
+	[self.backgroundTask.callbackWhenFetching backgroundItemsDone:2];
 	
 	XMLTrips *trips = [[[XMLTrips alloc] init] autorelease];
 	trips.userRequest.dateAndTime = nil;
@@ -94,7 +94,7 @@
 	
 	self.trimetTripStatus = [trips gotData];
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundItemsDone:3];
+	[self.backgroundTask.callbackWhenFetching backgroundItemsDone:3];
 	
 	XMLStreetcarLocations *locations = [XMLStreetcarLocations getSingletonForRoute:@"streetcar"];
 	
@@ -102,7 +102,7 @@
 	
 	self.nextbusQueryStatus = [locations gotData];
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundItemsDone:4];
+	[self.backgroundTask.callbackWhenFetching backgroundItemsDone:4];
 	
 	XMLReverseGeoCode *provider = [UserPrefs getSingleton].reverseGeoCodeProvider;
 	
@@ -120,7 +120,7 @@
 		self.reverseGeoCodeStatus = YES;
 	}
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundItemsDone:5];
+	[self.backgroundTask.callbackWhenFetching backgroundItemsDone:5];
 
 	NSMutableString *diagnosticString = [[[NSMutableString alloc] init] autorelease];
 	
@@ -144,7 +144,7 @@
 	
 	self.diagnosticText = diagnosticString;
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundCompleted:self];
+	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
 
 	
 	[pool release];

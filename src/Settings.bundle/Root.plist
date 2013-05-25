@@ -304,6 +304,22 @@
 			</array>
 		</dict>
 		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Stop Locator Toolbar behavior:</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Always show options</string>
+			<key>Key</key>
+			<string>auto_locate_show_options</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
+		<dict>
 			<key>Title</key>
 			<string>Default Trip Planner Options:</string>
 			<key>Type</key>
@@ -420,6 +436,28 @@
 			<string>Alarm Warnings</string>
 		</dict>
 		<dict>
+			<key>Values</key>
+			<array>
+				<string>default_sound.wav</string>
+				<string>Train_Honk_Horn_2x-Mike_Koenig-157974048.aif</string>
+				<string>Pager Beeps-SoundBible.com-260751720.aiff</string>
+			</array>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Alarm Sound</string>
+			<key>Key</key>
+			<string>alarm_sound</string>
+			<key>Titles</key>
+			<array>
+				<string>Default Notification Sound</string>
+				<string>Train Honk</string>
+				<string>Pager Sound</string>
+			</array>
+			<key>DefaultValue</key>
+			<string>Train_Honk_Horn_2x-Mike_Koenig-157974048.aif</string>
+		</dict>
+		<dict>
 			<key>Type</key>
 			<string>PSToggleSwitchSpecifier</string>
 			<key>Title</key>
@@ -434,34 +472,6 @@
 			<string>Debugging options:</string>
 			<key>Type</key>
 			<string>PSGroupSpecifier</string>
-		</dict>
-		<dict>
-			<key>DefaultValue</key>
-			<string>NO</string>
-			<key>FalseValue</key>
-			<string>NO</string>
-			<key>Key</key>
-			<string>show_transit_tracker</string>
-			<key>Title</key>
-			<string>Transit Tracker link?</string>
-			<key>TrueValue</key>
-			<string>YES</string>
-			<key>Type</key>
-			<string>PSToggleSwitchSpecifier</string>
-		</dict>
-		<dict>
-			<key>DefaultValue</key>
-			<string>NO</string>
-			<key>FalseValue</key>
-			<string>NO</string>
-			<key>Key</key>
-			<string>commute_button</string>
-			<key>Title</key>
-			<string>Commute button</string>
-			<key>TrueValue</key>
-			<string>YES</string>
-			<key>Type</key>
-			<string>PSToggleSwitchSpecifier</string>
 		</dict>
 		<dict>
 			<key>Type</key>
@@ -484,12 +494,74 @@
 			<false/>
 		</dict>
 		<dict>
+			<key>Title</key>
+			<string>Show Streetcar Map initially instead of the MAX map.</string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
 			<key>Type</key>
 			<string>PSToggleSwitchSpecifier</string>
 			<key>Title</key>
-			<string>Show Streetcar Map initially</string>
+			<string>Streetcat map first</string>
 			<key>Key</key>
 			<string>streetcar_map_first</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>Title</key>
+			<string>Show a link to TriMet&apos;s Transit Tracker for each stop:</string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<string>NO</string>
+			<key>FalseValue</key>
+			<string>NO</string>
+			<key>Key</key>
+			<string>show_transit_tracker</string>
+			<key>Title</key>
+			<string>Tracker link</string>
+			<key>TrueValue</key>
+			<string>YES</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+		<dict>
+			<key>Title</key>
+			<string>Show an additional toolbar button on the main screen. The Commute button will re-display the commuter bookmark set up for that time and day (it looks like a clock):</string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<string>YES</string>
+			<key>FalseValue</key>
+			<string>NO</string>
+			<key>Key</key>
+			<string>commute_button</string>
+			<key>Title</key>
+			<string>Commute button</string>
+			<key>TrueValue</key>
+			<string>YES</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Use Google Chrome instead of Safari embedded inside the app - this will take you outside of the app but you can navigate quickly back.</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Use Chrome</string>
+			<key>Key</key>
+			<string>chrome</string>
 			<key>DefaultValue</key>
 			<false/>
 		</dict>

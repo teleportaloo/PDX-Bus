@@ -71,8 +71,8 @@
 		}
 	}
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundThread:[NSThread currentThread]];
-	[self.backgroundTask.callbackWhenFetching BackgroundStart:items title:@"getting stop names"];
+	[self.backgroundTask.callbackWhenFetching backgroundThread:[NSThread currentThread]];
+	[self.backgroundTask.callbackWhenFetching backgroundStart:items title:@"getting stop names"];
 	
 	[scanner setScanLocation:0];
 	
@@ -90,12 +90,12 @@
 		}
 		[deps release];
 		items++;
-		[self.backgroundTask.callbackWhenFetching BackgroundItemsDone:items];
+		[self.backgroundTask.callbackWhenFetching backgroundItemsDone:items];
 		
 	}
 	[UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
 	
-	[self.backgroundTask.callbackWhenFetching BackgroundCompleted:self];
+	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
 
 	
 	[pool release];

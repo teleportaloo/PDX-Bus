@@ -24,6 +24,7 @@
 		A109801B1612CE600036D8C9 /* Icon-Small-50@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A125BD3D161161FB0079274B /* Icon-Small-50@2x.png */; };
 		A10CCD071037B72E00328A94 /* TripPlannerOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = A10CCD061037B72E00328A94 /* TripPlannerOptions.m */; };
 		A1125EAE16223F5A00C647A4 /* SupportView.h in Resources */ = {isa = PBXBuildFile; fileRef = A1125EAD16223F5A00C647A4 /* SupportView.h */; };
+		A119A7FC17403CDD006D5CB6 /* OpenInChromeController.m in Sources */ = {isa = PBXBuildFile; fileRef = A119A7FB17403CDD006D5CB6 /* OpenInChromeController.m */; };
 		A11AD1000F34D188002FBC8A /* FlashViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A11AD0FF0F34D188002FBC8A /* FlashViewController.m */; };
 		A11C8FB91244756A001DDAC5 /* WhatsNewView.m in Sources */ = {isa = PBXBuildFile; fileRef = A11C8FB71244756A001DDAC5 /* WhatsNewView.m */; };
 		A11C91DD12451757001DDAC5 /* icon_arrow_up.png in Resources */ = {isa = PBXBuildFile; fileRef = A11C91D812451757001DDAC5 /* icon_arrow_up.png */; };
@@ -110,7 +111,6 @@
 		A160C3A2131A0B71004EC76D /* Sun.png in Resources */ = {isa = PBXBuildFile; fileRef = A160C3A0131A0B71004EC76D /* Sun.png */; };
 		A160C3A3131A0B71004EC76D /* Sun@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A160C3A1131A0B71004EC76D /* Sun@2x.png */; };
 		A160C4A2131AE729004EC76D /* SegmentCell.m in Sources */ = {isa = PBXBuildFile; fileRef = A160C4A1131AE729004EC76D /* SegmentCell.m */; };
-		A160C8CF131B27A0004EC76D /* 63-runner.png in Resources */ = {isa = PBXBuildFile; fileRef = A160C8CE131B27A0004EC76D /* 63-runner.png */; };
 		A1671E1C1076C9FA0054174C /* DepartureTimesByBus.m in Sources */ = {isa = PBXBuildFile; fileRef = A1671E1B1076C9FA0054174C /* DepartureTimesByBus.m */; };
 		A16D3F58161182440032E936 /* Icon-72@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A16D3F57161182440032E936 /* Icon-72@2x.png */; };
 		A16D3F5B1611F99C0032E936 /* Default-Landscape@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A16D3F591611F99C0032E936 /* Default-Landscape@2x.png */; };
@@ -121,7 +121,6 @@
 		A17254D2125AD75F007EE22D /* RailStation.m in Sources */ = {isa = PBXBuildFile; fileRef = A17254D1125AD75F007EE22D /* RailStation.m */; };
 		A1725643125C1FAE007EE22D /* AllRailStationView.m in Sources */ = {isa = PBXBuildFile; fileRef = A1725642125C1FAE007EE22D /* AllRailStationView.m */; };
 		A1725948125D6CB7007EE22D /* RouteColorBlobView.m in Sources */ = {isa = PBXBuildFile; fileRef = A1725947125D6CB7007EE22D /* RouteColorBlobView.m */; };
-		A17B03B90E72E33400B4FBF6 /* Entitlements.plist in Resources */ = {isa = PBXBuildFile; fileRef = A17B03B80E72E33400B4FBF6 /* Entitlements.plist */; };
 		A17F6C7911B46C51007DE9F7 /* StoppableFetcher.m in Sources */ = {isa = PBXBuildFile; fileRef = A17F6C7811B46C51007DE9F7 /* StoppableFetcher.m */; };
 		A17F6C8211B46EB7007DE9F7 /* LegShapeParser.m in Sources */ = {isa = PBXBuildFile; fileRef = A17F6C8111B46EB7007DE9F7 /* LegShapeParser.m */; };
 		A17F6D5C11B48D2B007DE9F7 /* TripPlannerMap.m in Sources */ = {isa = PBXBuildFile; fileRef = A17F6D5B11B48D2B007DE9F7 /* TripPlannerMap.m */; };
@@ -146,7 +145,6 @@
 		A18E8825128F7919002FEB6B /* List@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A18E8824128F7919002FEB6B /* List@2x.png */; };
 		A18E882A128F798F002FEB6B /* Info@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A18E8829128F798F002FEB6B /* Info@2x.png */; };
 		A18E882C128F79DB002FEB6B /* Globe@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A18E882B128F79DB002FEB6B /* Globe@2x.png */; };
-		A18E8837128F7BB1002FEB6B /* Compass@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A18E8836128F7BB1002FEB6B /* Compass@2x.png */; };
 		A18E8839128F7C00002FEB6B /* Clock@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A18E8838128F7C00002FEB6B /* Clock@2x.png */; };
 		A18E883D128F7C5F002FEB6B /* Blog@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A18E883C128F7C5F002FEB6B /* Blog@2x.png */; };
 		A18E8843128F7D27002FEB6B /* Add@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A18E8842128F7D27002FEB6B /* Add@2x.png */; };
@@ -157,7 +155,7 @@
 		A18E88F4128F8E48002FEB6B /* Network connection@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A18E88F3128F8E48002FEB6B /* Network connection@2x.png */; };
 		A18E88FA128F9097002FEB6B /* Twitter@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A18E88F8128F9097002FEB6B /* Twitter@2x.png */; };
 		A18E88FB128F9097002FEB6B /* Twitter.png in Resources */ = {isa = PBXBuildFile; fileRef = A18E88F9128F9097002FEB6B /* Twitter.png */; };
-		A18E8900128F9233002FEB6B /* This Folder from Twitter.html in Resources */ = {isa = PBXBuildFile; fileRef = A18E88FF128F9233002FEB6B /* This Folder from Twitter.html */; };
+		A18E8900128F9233002FEB6B /* This Folder from Twitter.markdown in Resources */ = {isa = PBXBuildFile; fileRef = A18E88FF128F9233002FEB6B /* This Folder from Twitter.markdown */; };
 		A18E893812904333002FEB6B /* Find@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A18E893712904333002FEB6B /* Find@2x.png */; };
 		A18E893C12904422002FEB6B /* Address book@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A18E893B12904422002FEB6B /* Address book@2x.png */; };
 		A18E894012904704002FEB6B /* RailStations@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A18E893F12904704002FEB6B /* RailStations@2x.png */; };
@@ -171,6 +169,7 @@
 		A18E8AC41290C15E002FEB6B /* Source@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A18E8AC21290C15E002FEB6B /* Source@2x.png */; };
 		A18E8AEB1290C594002FEB6B /* Earth.png in Resources */ = {isa = PBXBuildFile; fileRef = A18E8AE91290C594002FEB6B /* Earth.png */; };
 		A18E8AEC1290C594002FEB6B /* Earth@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A18E8AEA1290C594002FEB6B /* Earth@2x.png */; };
+		A1909FE616D03DCC004D14EF /* default_sound.wav in Resources */ = {isa = PBXBuildFile; fileRef = A1909FE416D03DCC004D14EF /* default_sound.wav */; };
 		A1917B8813065981008E3026 /* AlarmAccurateStopProximity.m in Sources */ = {isa = PBXBuildFile; fileRef = A1917B8713065981008E3026 /* AlarmAccurateStopProximity.m */; };
 		A195730A0E885DB900493326 /* XMLAllStops.m in Sources */ = {isa = PBXBuildFile; fileRef = A19573090E885DB900493326 /* XMLAllStops.m */; };
 		A195731F0E88664400493326 /* FindByLocationView.m in Sources */ = {isa = PBXBuildFile; fileRef = A195731E0E88664400493326 /* FindByLocationView.m */; };
@@ -208,7 +207,7 @@
 		A1BB470016153B8400634B2F /* TilingView.m in Sources */ = {isa = PBXBuildFile; fileRef = A1BB46FF16153B8400634B2F /* TilingView.m */; };
 		A1BB47061615713100634B2F /* StreetcarMap in Resources */ = {isa = PBXBuildFile; fileRef = A1BB47051615713100634B2F /* StreetcarMap */; };
 		A1BB470A16169E5D00634B2F /* MAXWESMap in Resources */ = {isa = PBXBuildFile; fileRef = A1BB470916169E5D00634B2F /* MAXWESMap */; };
-		A1BB470C16169F3D00634B2F /* This Folder from Portland Streetcar.html in Resources */ = {isa = PBXBuildFile; fileRef = A1BB470B16169F3D00634B2F /* This Folder from Portland Streetcar.html */; };
+		A1BB470C16169F3D00634B2F /* This Folder from Portland Streetcar.markdown in Resources */ = {isa = PBXBuildFile; fileRef = A1BB470B16169F3D00634B2F /* This Folder from Portland Streetcar.markdown */; };
 		A1BB470F1616B95500634B2F /* MAXWESMap_Placeholder.gif in Resources */ = {isa = PBXBuildFile; fileRef = A1BB470D1616B95500634B2F /* MAXWESMap_Placeholder.gif */; };
 		A1BB47131616BAED00634B2F /* StreetcarMap_Placeholder.gif in Resources */ = {isa = PBXBuildFile; fileRef = A1BB47111616BAED00634B2F /* StreetcarMap_Placeholder.gif */; };
 		A1BC00660FFD6AF300454CF3 /* AddressBookUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1BC00650FFD6AF300454CF3 /* AddressBookUI.framework */; settings = {ATTRIBUTES = (Required, ); }; };
@@ -247,12 +246,14 @@
 		A1C90B12113076D700100030 /* BackgroundTaskContainer.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C90B11113076D700100030 /* BackgroundTaskContainer.m */; };
 		A1C910BE11322D2A00100030 /* ViewControllerBase.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C910BD11322D2A00100030 /* ViewControllerBase.m */; };
 		A1CA04460E6515A9006EFB6E /* TableViewWithToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = A1CA04450E6515A9006EFB6E /* TableViewWithToolbar.m */; };
+		A1D19DAB16954C8300D2EBD9 /* 11-clock.png in Resources */ = {isa = PBXBuildFile; fileRef = A1D19DAA16954C8300D2EBD9 /* 11-clock.png */; };
 		A1D6A0CB0E639C5E0092CE22 /* TriMetXML.m in Sources */ = {isa = PBXBuildFile; fileRef = A1D6A0CA0E639C5E0092CE22 /* TriMetXML.m */; };
 		A1D6BDBF12DAB145001F84E7 /* RouteDistance.m in Sources */ = {isa = PBXBuildFile; fileRef = A1D6BDBE12DAB145001F84E7 /* RouteDistance.m */; };
 		A1D6BDEB12DABAC8001F84E7 /* NearestRoutesView.m in Sources */ = {isa = PBXBuildFile; fileRef = A1D6BDEA12DABAC8001F84E7 /* NearestRoutesView.m */; };
 		A1D74FFD0E89485200E38DC3 /* blank.sql in Resources */ = {isa = PBXBuildFile; fileRef = A1D74FFC0E89485200E38DC3 /* blank.sql */; };
 		A1D750010E8948BE00E38DC3 /* libsqlite3.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A1D750000E8948BE00E38DC3 /* libsqlite3.0.dylib */; settings = {ATTRIBUTES = (Required, ); }; };
 		A1D750060E8948DD00E38DC3 /* StopLocations.m in Sources */ = {isa = PBXBuildFile; fileRef = A1D750050E8948DD00E38DC3 /* StopLocations.m */; };
+		A1DB5C6516BF83B300679BEC /* Pager Beeps-SoundBible.com-260751720.aiff in Resources */ = {isa = PBXBuildFile; fileRef = A1DB5C6416BF83B300679BEC /* Pager Beeps-SoundBible.com-260751720.aiff */; };
 		A1E37A8113DCD9F500310E2E /* pnpoly.mm in Sources */ = {isa = PBXBuildFile; fileRef = A1E37A8013DCD9F500310E2E /* pnpoly.mm */; };
 		A1E9C24E0E60C5F300938356 /* AboutView.m in Sources */ = {isa = PBXBuildFile; fileRef = A1E9C24D0E60C5F300938356 /* AboutView.m */; };
 		A1F151CF1183B26A00121292 /* Yes.png in Resources */ = {isa = PBXBuildFile; fileRef = A1F151B41183B26A00121292 /* Yes.png */; };
@@ -271,7 +272,6 @@
 		A1F151DE1183B26A00121292 /* Find.png in Resources */ = {isa = PBXBuildFile; fileRef = A1F151C31183B26A00121292 /* Find.png */; };
 		A1F151E01183B26A00121292 /* Erase.png in Resources */ = {isa = PBXBuildFile; fileRef = A1F151C51183B26A00121292 /* Erase.png */; };
 		A1F151E31183B26A00121292 /* Cut.png in Resources */ = {isa = PBXBuildFile; fileRef = A1F151C81183B26A00121292 /* Cut.png */; };
-		A1F151E41183B26A00121292 /* Compass.png in Resources */ = {isa = PBXBuildFile; fileRef = A1F151C91183B26A00121292 /* Compass.png */; };
 		A1F151E51183B26A00121292 /* Clock.png in Resources */ = {isa = PBXBuildFile; fileRef = A1F151CA1183B26A00121292 /* Clock.png */; };
 		A1F151E61183B26A00121292 /* Blog.png in Resources */ = {isa = PBXBuildFile; fileRef = A1F151CB1183B26A00121292 /* Blog.png */; };
 		A1F151E71183B26A00121292 /* Address book.png in Resources */ = {isa = PBXBuildFile; fileRef = A1F151CC1183B26A00121292 /* Address book.png */; };
@@ -339,18 +339,20 @@
 		A10CCD051037B72E00328A94 /* TripPlannerOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TripPlannerOptions.h; sourceTree = "<group>"; };
 		A10CCD061037B72E00328A94 /* TripPlannerOptions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = TripPlannerOptions.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A1125EAD16223F5A00C647A4 /* SupportView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SupportView.h; sourceTree = "<group>"; };
+		A119A7FA17403CDD006D5CB6 /* OpenInChromeController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenInChromeController.h; sourceTree = "<group>"; };
+		A119A7FB17403CDD006D5CB6 /* OpenInChromeController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OpenInChromeController.m; sourceTree = "<group>"; };
 		A11AD0FE0F34D188002FBC8A /* FlashViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlashViewController.h; sourceTree = "<group>"; };
 		A11AD0FF0F34D188002FBC8A /* FlashViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FlashViewController.m; sourceTree = "<group>"; };
 		A11C8FB71244756A001DDAC5 /* WhatsNewView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = WhatsNewView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A11C8FB81244756A001DDAC5 /* WhatsNewView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhatsNewView.h; sourceTree = "<group>"; };
-		A11C91D712451757001DDAC5 /* This Folder Creative Commons.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = "This Folder Creative Commons.html"; path = "TWG/This Folder Creative Commons.html"; sourceTree = "<group>"; };
+		A11C91D712451757001DDAC5 /* This Folder Creative Commons.markdown */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "This Folder Creative Commons.markdown"; path = "TWG/This Folder Creative Commons.markdown"; sourceTree = "<group>"; };
 		A11C91D812451757001DDAC5 /* icon_arrow_up.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon_arrow_up.png; path = TWG/icon_arrow_up.png; sourceTree = "<group>"; };
 		A11C91D912451757001DDAC5 /* icon_arrow_right.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon_arrow_right.png; path = TWG/icon_arrow_right.png; sourceTree = "<group>"; };
 		A11C91DA12451757001DDAC5 /* icon_arrow_left.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon_arrow_left.png; path = TWG/icon_arrow_left.png; sourceTree = "<group>"; };
 		A11C91DB12451757001DDAC5 /* icon_arrow_down.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon_arrow_down.png; path = TWG/icon_arrow_down.png; sourceTree = "<group>"; };
 		A12548641409EF9800A62BFC /* README.markdown */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = README.markdown; path = ../README.markdown; sourceTree = "<group>"; };
 		A125BD3D161161FB0079274B /* Icon-Small-50@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon-Small-50@2x.png"; path = "RobAlan/Icon-Small-50@2x.png"; sourceTree = "<group>"; };
-		A12DF5B215BB055E00C3F038 /* This Folder Creative Commons.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = "This Folder Creative Commons.html"; path = "Gentleface/This Folder Creative Commons.html"; sourceTree = "<group>"; };
+		A12DF5B215BB055E00C3F038 /* This Folder Creative Commons.markdown */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "This Folder Creative Commons.markdown"; path = "Gentleface/This Folder Creative Commons.markdown"; sourceTree = "<group>"; };
 		A12DF5B315BB055E00C3F038 /* info_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = info_icon.png; path = Gentleface/info_icon.png; sourceTree = "<group>"; };
 		A12DF5B415BB055E00C3F038 /* info_icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "info_icon@2x.png"; path = "Gentleface/info_icon@2x.png"; sourceTree = "<group>"; };
 		A1317EC711F7E0DA001C91F3 /* Icon-Small.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon-Small.png"; path = "RobAlan/Icon-Small.png"; sourceTree = "<group>"; };
@@ -371,6 +373,7 @@
 		A138B0700E5D1A2000483634 /* XMLRoutes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XMLRoutes.m; sourceTree = "<group>"; };
 		A138B0740E5D1F5300483634 /* Route.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Route.h; sourceTree = "<group>"; };
 		A138B0750E5D1F5300483634 /* Route.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = Route.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		A138EE2F16D3206E00568D8C /* This Folder from ZXing.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = "This Folder from ZXing.html"; path = "ZXing/This Folder from ZXing.html"; sourceTree = "<group>"; };
 		A13AFF4111587A1600E967EE /* XMLStreetcarPredictions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLStreetcarPredictions.h; sourceTree = "<group>"; };
 		A13AFF4211587A1600E967EE /* XMLStreetcarPredictions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XMLStreetcarPredictions.m; sourceTree = "<group>"; };
 		A13AFFC81159C8BC00E967EE /* XMLStreetcarLocations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLStreetcarLocations.h; sourceTree = "<group>"; };
@@ -482,8 +485,6 @@
 		A160C3A1131A0B71004EC76D /* Sun@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Sun@2x.png"; path = "Aha-Soft/Sun@2x.png"; sourceTree = "<group>"; };
 		A160C4A0131AE729004EC76D /* SegmentCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SegmentCell.h; sourceTree = "<group>"; };
 		A160C4A1131AE729004EC76D /* SegmentCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SegmentCell.m; sourceTree = "<group>"; };
-		A160C8CE131B27A0004EC76D /* 63-runner.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "63-runner.png"; path = "Glyphish/63-runner.png"; sourceTree = "<group>"; };
-		A160C8D0131B27B4004EC76D /* 63-runner@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "63-runner@2x.png"; path = "Glyphish@2x/63-runner@2x.png"; sourceTree = "<group>"; };
 		A161484A119789C5006EA864 /* ScreenConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenConstants.h; sourceTree = "<group>"; };
 		A1671DD51076B7C00054174C /* DepartureTimesDataProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DepartureTimesDataProvider.h; sourceTree = "<group>"; };
 		A1671E1A1076C9FA0054174C /* DepartureTimesByBus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DepartureTimesByBus.h; sourceTree = "<group>"; };
@@ -495,9 +496,9 @@
 		A16D3F5E1611FC9B0032E936 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default@2x.png"; path = "PDX Bus/Default@2x.png"; sourceTree = "<group>"; };
 		A16D3F6116128FDF0032E936 /* iTunesArtwork.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = iTunesArtwork.png; path = RobAlan/iTunesArtwork.png; sourceTree = "<group>"; };
 		A16D3F6216128FDF0032E936 /* iTunesArtwork@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "iTunesArtwork@2x.png"; path = "RobAlan/iTunesArtwork@2x.png"; sourceTree = "<group>"; };
-		A16DDA0C0FF313D1006D4D5F /* SimpleAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimpleAnnotation.h; sourceTree = "<group>"; };
-		A16DDA0D0FF313D1006D4D5F /* SimpleAnnotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SimpleAnnotation.m; sourceTree = "<group>"; };
-		A170C5CF12E6A76800C38410 /* This Folder from Facebook.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = "This Folder from Facebook.html"; path = "Facebook/This Folder from Facebook.html"; sourceTree = "<group>"; };
+		A16DDA0C0FF313D1006D4D5F /* SimpleAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = SimpleAnnotation.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		A16DDA0D0FF313D1006D4D5F /* SimpleAnnotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = SimpleAnnotation.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		A170C5CF12E6A76800C38410 /* This Folder from Facebook.markdown */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "This Folder from Facebook.markdown"; path = "Facebook/This Folder from Facebook.markdown"; sourceTree = "<group>"; };
 		A17254D0125AD75F007EE22D /* RailStation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RailStation.h; sourceTree = "<group>"; };
 		A17254D1125AD75F007EE22D /* RailStation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = RailStation.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A17254D3125AD7C7007EE22D /* HotSpot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HotSpot.h; sourceTree = "<group>"; };
@@ -508,7 +509,6 @@
 		A176AB6D126402940037DF61 /* SearchFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SearchFilter.h; sourceTree = "<group>"; };
 		A17A6C69160C28F00082F97E /* StreetcarMap.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = StreetcarMap.gif; path = "Portland Streetcar/StreetcarMap.gif"; sourceTree = "<group>"; };
 		A17A6C6F160C355C0082F97E /* streetcar.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = streetcar.html; path = HTML/streetcar.html; sourceTree = "<group>"; };
-		A17B03B80E72E33400B4FBF6 /* Entitlements.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Entitlements.plist; sourceTree = "<group>"; };
 		A17F6C7711B46C51007DE9F7 /* StoppableFetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StoppableFetcher.h; sourceTree = "<group>"; };
 		A17F6C7811B46C51007DE9F7 /* StoppableFetcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = StoppableFetcher.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A17F6C8011B46EB7007DE9F7 /* LegShapeParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LegShapeParser.h; sourceTree = "<group>"; };
@@ -541,7 +541,6 @@
 		A18E8824128F7919002FEB6B /* List@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "List@2x.png"; path = "Aha-Soft/List@2x.png"; sourceTree = "<group>"; };
 		A18E8829128F798F002FEB6B /* Info@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Info@2x.png"; path = "Aha-Soft/Info@2x.png"; sourceTree = "<group>"; };
 		A18E882B128F79DB002FEB6B /* Globe@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Globe@2x.png"; path = "Aha-Soft/Globe@2x.png"; sourceTree = "<group>"; };
-		A18E8836128F7BB1002FEB6B /* Compass@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Compass@2x.png"; path = "Aha-Soft/Compass@2x.png"; sourceTree = "<group>"; };
 		A18E8838128F7C00002FEB6B /* Clock@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Clock@2x.png"; path = "Aha-Soft/Clock@2x.png"; sourceTree = "<group>"; };
 		A18E883C128F7C5F002FEB6B /* Blog@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Blog@2x.png"; path = "Aha-Soft/Blog@2x.png"; sourceTree = "<group>"; };
 		A18E8842128F7D27002FEB6B /* Add@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Add@2x.png"; path = "Aha-Soft/Add@2x.png"; sourceTree = "<group>"; };
@@ -551,17 +550,17 @@
 		A18E887B128F7EFB002FEB6B /* 61-brightness@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "61-brightness@2x.png"; path = "Glyphish@2x/61-brightness@2x.png"; sourceTree = "<group>"; };
 		A18E887C128F7EFB002FEB6B /* 71-compass@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "71-compass@2x.png"; path = "Glyphish@2x/71-compass@2x.png"; sourceTree = "<group>"; };
 		A18E887D128F7EFB002FEB6B /* 103-map@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "103-map@2x.png"; path = "Glyphish@2x/103-map@2x.png"; sourceTree = "<group>"; };
-		A18E888E128F8247002FEB6B /* This Folder from Glyphish.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = "This Folder from Glyphish.html"; path = "Glyphish@2x/This Folder from Glyphish.html"; sourceTree = "<group>"; };
+		A18E888E128F8247002FEB6B /* This Folder from Glyphish.markdown */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "This Folder from Glyphish.markdown"; path = "Glyphish@2x/This Folder from Glyphish.markdown"; sourceTree = "<group>"; };
 		A18E88B0128F87AE002FEB6B /* Message@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Message@2x.png"; path = "Public Domain/Message@2x.png"; sourceTree = "<group>"; };
 		A18E88B2128F8853002FEB6B /* Cut@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Cut@2x.png"; path = "Public Domain/Cut@2x.png"; sourceTree = "<group>"; };
 		A18E88B6128F892C002FEB6B /* Warning@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Warning@2x.png"; path = "Public Domain/Warning@2x.png"; sourceTree = "<group>"; };
 		A18E88C5128F8B2A002FEB6B /* Erase@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Erase@2x.png"; path = "Oxygen/Erase@2x.png"; sourceTree = "<group>"; };
-		A18E88C7128F8B92002FEB6B /* This Folder Creative Commons.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = "This Folder Creative Commons.html"; path = "Oxygen/This Folder Creative Commons.html"; sourceTree = "<group>"; };
-		A18E88C9128F8BA2002FEB6B /* This folder Public Domain.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = "This folder Public Domain.html"; path = "Public Domain/This folder Public Domain.html"; sourceTree = "<group>"; };
+		A18E88C7128F8B92002FEB6B /* This Folder Creative Commons.markdown */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "This Folder Creative Commons.markdown"; path = "Oxygen/This Folder Creative Commons.markdown"; sourceTree = "<group>"; };
+		A18E88C9128F8BA2002FEB6B /* This folder Public Domain.markdown */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "This folder Public Domain.markdown"; path = "Public Domain/This folder Public Domain.markdown"; sourceTree = "<group>"; };
 		A18E88F3128F8E48002FEB6B /* Network connection@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Network connection@2x.png"; path = "Oxygen/Network connection@2x.png"; sourceTree = "<group>"; };
 		A18E88F8128F9097002FEB6B /* Twitter@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Twitter@2x.png"; path = "Twitter/Twitter@2x.png"; sourceTree = "<group>"; };
 		A18E88F9128F9097002FEB6B /* Twitter.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Twitter.png; path = Twitter/Twitter.png; sourceTree = "<group>"; };
-		A18E88FF128F9233002FEB6B /* This Folder from Twitter.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = "This Folder from Twitter.html"; path = "Twitter/This Folder from Twitter.html"; sourceTree = "<group>"; };
+		A18E88FF128F9233002FEB6B /* This Folder from Twitter.markdown */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "This Folder from Twitter.markdown"; path = "Twitter/This Folder from Twitter.markdown"; sourceTree = "<group>"; };
 		A18E893712904333002FEB6B /* Find@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Find@2x.png"; path = "Public Domain/Find@2x.png"; sourceTree = "<group>"; };
 		A18E893B12904422002FEB6B /* Address book@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Address book@2x.png"; path = "Public Domain/Address book@2x.png"; sourceTree = "<group>"; };
 		A18E893F12904704002FEB6B /* RailStations@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "RailStations@2x.png"; path = "PDX Bus/RailStations@2x.png"; sourceTree = "<group>"; };
@@ -575,6 +574,8 @@
 		A18E8AC21290C15E002FEB6B /* Source@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Source@2x.png"; path = "Aha-Soft/Source@2x.png"; sourceTree = "<group>"; };
 		A18E8AE91290C594002FEB6B /* Earth.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Earth.png; path = "Aha-Soft/Earth.png"; sourceTree = "<group>"; };
 		A18E8AEA1290C594002FEB6B /* Earth@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Earth@2x.png"; path = "Aha-Soft/Earth@2x.png"; sourceTree = "<group>"; };
+		A1909FE316D03DCC004D14EF /* This folder unknown.markdown */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "This folder unknown.markdown"; path = "iPhone Sounds/This folder unknown.markdown"; sourceTree = "<group>"; };
+		A1909FE416D03DCC004D14EF /* default_sound.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; name = default_sound.wav; path = "iPhone Sounds/default_sound.wav"; sourceTree = "<group>"; };
 		A1917B8613065981008E3026 /* AlarmAccurateStopProximity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AlarmAccurateStopProximity.h; sourceTree = "<group>"; };
 		A1917B8713065981008E3026 /* AlarmAccurateStopProximity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = AlarmAccurateStopProximity.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A19573080E885DB900493326 /* XMLAllStops.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLAllStops.h; sourceTree = "<group>"; };
@@ -621,7 +622,7 @@
 		A1B3CAED10793D3200702634 /* RailMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RailMapView.h; sourceTree = "<group>"; };
 		A1B3CAEE10793D3200702634 /* RailMapView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = RailMapView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A1B72A8F12F63E070074240A /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
-		A1B72AC712F642B60074240A /* This Folder Creative Commons.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = "This Folder Creative Commons.html"; path = "soundbible.com/This Folder Creative Commons.html"; sourceTree = "<group>"; };
+		A1B72AC712F642B60074240A /* This Folder Creative Commons.markdown */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "This Folder Creative Commons.markdown"; path = "soundbible.com/This Folder Creative Commons.markdown"; sourceTree = "<group>"; };
 		A1B794FF1183B9480047F83C /* wiki.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wiki.png; path = "PDX Bus/wiki.png"; sourceTree = "<group>"; };
 		A1B795001183B9480047F83C /* RailSystem.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = RailSystem.png; path = "PDX Bus/RailSystem.png"; sourceTree = "<group>"; };
 		A1B795021183B9480047F83C /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Default.png; path = "PDX Bus/Default.png"; sourceTree = "<group>"; };
@@ -635,7 +636,7 @@
 		A1BB47051615713100634B2F /* StreetcarMap */ = {isa = PBXFileReference; lastKnownFileType = folder; name = StreetcarMap; path = "Portland Streetcar/StreetcarMap"; sourceTree = "<group>"; };
 		A1BB470716169E5400634B2F /* MAXWESMap.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = MAXWESMap.gif; path = TriMet/MAXWESMap.gif; sourceTree = "<group>"; };
 		A1BB470916169E5D00634B2F /* MAXWESMap */ = {isa = PBXFileReference; lastKnownFileType = folder; name = MAXWESMap; path = TriMet/MAXWESMap; sourceTree = "<group>"; };
-		A1BB470B16169F3D00634B2F /* This Folder from Portland Streetcar.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = "This Folder from Portland Streetcar.html"; path = "Portland Streetcar/This Folder from Portland Streetcar.html"; sourceTree = "<group>"; };
+		A1BB470B16169F3D00634B2F /* This Folder from Portland Streetcar.markdown */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "This Folder from Portland Streetcar.markdown"; path = "Portland Streetcar/This Folder from Portland Streetcar.markdown"; sourceTree = "<group>"; };
 		A1BB470D1616B95500634B2F /* MAXWESMap_Placeholder.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = MAXWESMap_Placeholder.gif; path = TriMet/MAXWESMap_Placeholder.gif; sourceTree = "<group>"; };
 		A1BB470E1616B95500634B2F /* tile.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = tile.sh; path = TriMet/tile.sh; sourceTree = "<group>"; };
 		A1BB47111616BAED00634B2F /* StreetcarMap_Placeholder.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = StreetcarMap_Placeholder.gif; path = "Portland Streetcar/StreetcarMap_Placeholder.gif"; sourceTree = "<group>"; };
@@ -653,7 +654,7 @@
 		A1BC08F00FFFC50B00454CF3 /* LocatingTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocatingTableView.h; sourceTree = "<group>"; };
 		A1BC08F10FFFC50B00454CF3 /* LocatingTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = LocatingTableView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A1BCEC6612FBD01600228745 /* AlarmNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AlarmNotification.h; sourceTree = "<group>"; };
-		A1BCEC6712FBD01600228745 /* AlarmNotification.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AlarmNotification.m; sourceTree = "<group>"; };
+		A1BCEC6712FBD01600228745 /* AlarmNotification.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = AlarmNotification.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A1BCFEE10FFD45EC00454CF3 /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS3.0.sdk/System/Library/Frameworks/MessageUI.framework; sourceTree = DEVELOPER_DIR; };
 		A1BD286C0E7C69FB00B59713 /* Detour.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Detour.m; sourceTree = "<group>"; };
 		A1BD286D0E7C69FB00B59713 /* Detour.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Detour.h; sourceTree = "<group>"; };
@@ -679,7 +680,8 @@
 		A1C3F3640FC0B434007B69E7 /* MapViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapViewController.h; sourceTree = "<group>"; };
 		A1C3F3650FC0B434007B69E7 /* MapViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = MapViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A1C3F49E0FC0C6D6007B69E7 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS3.0.sdk/System/Library/Frameworks/MapKit.framework; sourceTree = DEVELOPER_DIR; };
-		A1C3F5BC0FC0E336007B69E7 /* MapPinColor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapPinColor.h; sourceTree = "<group>"; };
+		A1C3F5BC0FC0E336007B69E7 /* MapPinColor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = MapPinColor.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		A1C4F38217500B6F008B1803 /* PDXBus.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = PDXBus.entitlements; path = "PDX Bus/PDXBus.entitlements"; sourceTree = "<group>"; };
 		A1C54F52144BE8D400429617 /* 74-location.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "74-location.png"; path = "Glyphish/74-location.png"; sourceTree = "<group>"; };
 		A1C54F54144BE8EB00429617 /* 74-location@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "74-location@2x.png"; path = "Glyphish@2x/74-location@2x.png"; sourceTree = "<group>"; };
 		A1C54F56144D3EB500429617 /* PullRefreshTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PullRefreshTableViewController.h; sourceTree = "<group>"; };
@@ -693,21 +695,23 @@
 		A1C6C58A107DA29A00787C5B /* TapDetectingImageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TapDetectingImageView.m; sourceTree = "<group>"; };
 		A1C6C67F107ECA6E00787C5B /* RailStationTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RailStationTableView.h; sourceTree = "<group>"; };
 		A1C6C680107ECA6E00787C5B /* RailStationTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = RailStationTableView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		A1C79D6511FD1F6F00B31CE7 /* This Folder Creative Commons.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = "This Folder Creative Commons.html"; path = "Aha-Soft/This Folder Creative Commons.html"; sourceTree = "<group>"; };
-		A1C79D7F11FD24BC00B31CE7 /* This Folder Creative Commons.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = "This Folder Creative Commons.html"; path = "Glyphish/This Folder Creative Commons.html"; sourceTree = "<group>"; };
-		A1C79D8311FD261700B31CE7 /* This Folder Creative Commons.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = "This Folder Creative Commons.html"; path = "RobAlan/This Folder Creative Commons.html"; sourceTree = "<group>"; };
-		A1C79D9111FD276D00B31CE7 /* This Folder from TriMet.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = "This Folder from TriMet.html"; path = "TriMet/This Folder from TriMet.html"; sourceTree = "<group>"; };
-		A1C79DAA11FD2BD900B31CE7 /* This Folder Creative Commons.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = "This Folder Creative Commons.html"; path = "PDX Bus/This Folder Creative Commons.html"; sourceTree = "<group>"; };
+		A1C79D6511FD1F6F00B31CE7 /* This Folder Creative Commons.markdown */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "This Folder Creative Commons.markdown"; path = "Aha-Soft/This Folder Creative Commons.markdown"; sourceTree = "<group>"; };
+		A1C79D7F11FD24BC00B31CE7 /* This Folder Creative Commons.markdown */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "This Folder Creative Commons.markdown"; path = "Glyphish/This Folder Creative Commons.markdown"; sourceTree = "<group>"; };
+		A1C79D8311FD261700B31CE7 /* This Folder Creative Commons.markdown */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "This Folder Creative Commons.markdown"; path = "RobAlan/This Folder Creative Commons.markdown"; sourceTree = "<group>"; };
+		A1C79D9111FD276D00B31CE7 /* This Folder from TriMet.markdown */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "This Folder from TriMet.markdown"; path = "TriMet/This Folder from TriMet.markdown"; sourceTree = "<group>"; };
+		A1C79DAA11FD2BD900B31CE7 /* This Folder Creative Commons.markdown */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "This Folder Creative Commons.markdown"; path = "PDX Bus/This Folder Creative Commons.markdown"; sourceTree = "<group>"; };
 		A1C7F24B15B51AB3001FCD6C /* beep-beep.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; name = "beep-beep.aiff"; path = "ZXing Resources/beep-beep.aiff"; sourceTree = "<group>"; };
-		A1C90797112FB16900100030 /* BackgroundTaskProgress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BackgroundTaskProgress.h; sourceTree = "<group>"; };
+		A1C90797112FB16900100030 /* BackgroundTaskProgress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = BackgroundTaskProgress.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		A1C907AF112FC56200100030 /* ProgressModalView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProgressModalView.h; sourceTree = "<group>"; };
 		A1C907B0112FC56200100030 /* ProgressModalView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProgressModalView.m; sourceTree = "<group>"; };
-		A1C90B10113076D700100030 /* BackgroundTaskContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BackgroundTaskContainer.h; sourceTree = "<group>"; };
-		A1C90B11113076D700100030 /* BackgroundTaskContainer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BackgroundTaskContainer.m; sourceTree = "<group>"; };
+		A1C90B10113076D700100030 /* BackgroundTaskContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = BackgroundTaskContainer.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		A1C90B11113076D700100030 /* BackgroundTaskContainer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = BackgroundTaskContainer.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A1C910BC11322D2A00100030 /* ViewControllerBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewControllerBase.h; sourceTree = "<group>"; };
 		A1C910BD11322D2A00100030 /* ViewControllerBase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = ViewControllerBase.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A1CA04440E6515A9006EFB6E /* TableViewWithToolbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TableViewWithToolbar.h; sourceTree = "<group>"; };
 		A1CA04450E6515A9006EFB6E /* TableViewWithToolbar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = TableViewWithToolbar.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		A1D19DAA16954C8300D2EBD9 /* 11-clock.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "11-clock.png"; path = "Glyphish/11-clock.png"; sourceTree = "<group>"; };
+		A1D19DAC16954C9900D2EBD9 /* 11-clock@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "11-clock@2x.png"; path = "Glyphish@2x/11-clock@2x.png"; sourceTree = "<group>"; };
 		A1D6A0C90E639C5E0092CE22 /* TriMetXML.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TriMetXML.h; sourceTree = "<group>"; };
 		A1D6A0CA0E639C5E0092CE22 /* TriMetXML.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TriMetXML.m; sourceTree = "<group>"; };
 		A1D6BDBD12DAB145001F84E7 /* RouteDistance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RouteDistance.h; sourceTree = "<group>"; };
@@ -718,6 +722,7 @@
 		A1D750000E8948BE00E38DC3 /* libsqlite3.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.0.dylib; path = usr/lib/libsqlite3.0.dylib; sourceTree = SDKROOT; };
 		A1D750040E8948DD00E38DC3 /* StopLocations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StopLocations.h; sourceTree = "<group>"; };
 		A1D750050E8948DD00E38DC3 /* StopLocations.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = StopLocations.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		A1DB5C6416BF83B300679BEC /* Pager Beeps-SoundBible.com-260751720.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; name = "Pager Beeps-SoundBible.com-260751720.aiff"; path = "soundbible.com/Pager Beeps-SoundBible.com-260751720.aiff"; sourceTree = "<group>"; };
 		A1E37A8013DCD9F500310E2E /* pnpoly.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = pnpoly.mm; sourceTree = "<group>"; };
 		A1E9C08D0E60B17F00938356 /* UserFaves.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserFaves.h; sourceTree = "<group>"; };
 		A1E9C24C0E60C5F300938356 /* AboutView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AboutView.h; sourceTree = "<group>"; };
@@ -738,7 +743,6 @@
 		A1F151C31183B26A00121292 /* Find.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Find.png; path = "Aha-Soft/Find.png"; sourceTree = "<group>"; };
 		A1F151C51183B26A00121292 /* Erase.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Erase.png; path = "Aha-Soft/Erase.png"; sourceTree = "<group>"; };
 		A1F151C81183B26A00121292 /* Cut.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Cut.png; path = "Aha-Soft/Cut.png"; sourceTree = "<group>"; };
-		A1F151C91183B26A00121292 /* Compass.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Compass.png; path = "Aha-Soft/Compass.png"; sourceTree = "<group>"; };
 		A1F151CA1183B26A00121292 /* Clock.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Clock.png; path = "Aha-Soft/Clock.png"; sourceTree = "<group>"; };
 		A1F151CB1183B26A00121292 /* Blog.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Blog.png; path = "Aha-Soft/Blog.png"; sourceTree = "<group>"; };
 		A1F151CC1183B26A00121292 /* Address book.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Address book.png"; path = "Aha-Soft/Address book.png"; sourceTree = "<group>"; };
@@ -827,16 +831,14 @@
 			isa = PBXGroup;
 			children = (
 				A12548641409EF9800A62BFC /* README.markdown */,
-				A1C7F24815B50590001FCD6C /* ZXing */,
-				A1C6C7E9107F01AA00787C5B /* HTML */,
 				080E96DDFE201D6D7F000001 /* Classes */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
 				A13F6B2A1166E96E004960BD /* Resources-iPad */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
+				A1C7F24815B50590001FCD6C /* ZXing */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
-				A1F1E8FB15E17C0600C43B41 /* Routing */,
-				A17B03B80E72E33400B4FBF6 /* Entitlements.plist */,
+				A138EE2E16D31E3300568D8C /* Sources not in Target */,
 			);
 			name = CustomTemplate;
 			sourceTree = "<group>";
@@ -858,6 +860,7 @@
 				A12DF5B115BB051C00C3F038 /* Gentleface */,
 				A1C7F24A15B519F8001FCD6C /* ZXing */,
 				A1003E9C144E7BC00086E120 /* PullToRefresh */,
+				A1909FE116D03CF9004D14EF /* iPhone Sounds */,
 				A1B72A8E12F63D1A0074240A /* soundbible.com */,
 				A180EC62129EEA3B000AACFA /* Facebook */,
 				A18E88F7128F9080002FEB6B /* Twitter */,
@@ -877,6 +880,7 @@
 				8D1107310486CEB800E47090 /* Info.plist */,
 				A107A6240F2D0E9600C20017 /* Settings.bundle */,
 				A1C03DB50E80A5CE005B8E07 /* PortlandStreetcar.plist */,
+				A1C4F38217500B6F008B1803 /* PDXBus.entitlements */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -919,7 +923,7 @@
 		A11C91B7124515F8001DDAC5 /* TWG */ = {
 			isa = PBXGroup;
 			children = (
-				A11C91D712451757001DDAC5 /* This Folder Creative Commons.html */,
+				A11C91D712451757001DDAC5 /* This Folder Creative Commons.markdown */,
 				A199A2D312A0F7E900A8BC8A /* icon_arrow_down@x2.png */,
 				A199A2D412A0F7E900A8BC8A /* icon_arrow_left@x2.png */,
 				A199A2D512A0F7E900A8BC8A /* icon_arrow_right@x2.png */,
@@ -937,7 +941,7 @@
 		A12DF5B115BB051C00C3F038 /* Gentleface */ = {
 			isa = PBXGroup;
 			children = (
-				A12DF5B215BB055E00C3F038 /* This Folder Creative Commons.html */,
+				A12DF5B215BB055E00C3F038 /* This Folder Creative Commons.markdown */,
 				A12DF5B315BB055E00C3F038 /* info_icon.png */,
 				A12DF5B415BB055E00C3F038 /* info_icon@2x.png */,
 			);
@@ -947,7 +951,7 @@
 		A1317EA711F7E070001C91F3 /* RobAlan */ = {
 			isa = PBXGroup;
 			children = (
-				A1C79D8311FD261700B31CE7 /* This Folder Creative Commons.html */,
+				A1C79D8311FD261700B31CE7 /* This Folder Creative Commons.markdown */,
 				A16D3F591611F99C0032E936 /* Default-Landscape@2x.png */,
 				A16D3F5A1611F99C0032E936 /* Default-Portrait@2x.png */,
 				A1317EC911F7E0DA001C91F3 /* Icon.png */,
@@ -962,6 +966,15 @@
 				A16D3F6216128FDF0032E936 /* iTunesArtwork@2x.png */,
 			);
 			name = RobAlan;
+			sourceTree = "<group>";
+		};
+		A138EE2E16D31E3300568D8C /* Sources not in Target */ = {
+			isa = PBXGroup;
+			children = (
+				A1F1E8FB15E17C0600C43B41 /* Routing */,
+				A1C6C7E9107F01AA00787C5B /* Map Templates */,
+			);
+			name = "Sources not in Target";
 			sourceTree = "<group>";
 		};
 		A13F6B2A1166E96E004960BD /* Resources-iPad */ = {
@@ -1058,7 +1071,7 @@
 		A17A6C66160C279A0082F97E /* Portland Streetcar */ = {
 			isa = PBXGroup;
 			children = (
-				A1BB470B16169F3D00634B2F /* This Folder from Portland Streetcar.html */,
+				A1BB470B16169F3D00634B2F /* This Folder from Portland Streetcar.markdown */,
 				A1BB47111616BAED00634B2F /* StreetcarMap_Placeholder.gif */,
 				A1BB47121616BAED00634B2F /* tile.sh */,
 				A1BB47051615713100634B2F /* StreetcarMap */,
@@ -1070,7 +1083,7 @@
 		A180EC62129EEA3B000AACFA /* Facebook */ = {
 			isa = PBXGroup;
 			children = (
-				A170C5CF12E6A76800C38410 /* This Folder from Facebook.html */,
+				A170C5CF12E6A76800C38410 /* This Folder from Facebook.markdown */,
 				A180EC68129EEB41000AACFA /* Facebook.png */,
 				A180EC69129EEB41000AACFA /* Facebook@2x.png */,
 			);
@@ -1237,6 +1250,8 @@
 		A1869AAD108BD0D90013794C /* Web */ = {
 			isa = PBXGroup;
 			children = (
+				A119A7FA17403CDD006D5CB6 /* OpenInChromeController.h */,
+				A119A7FB17403CDD006D5CB6 /* OpenInChromeController.m */,
 				A1F152021183B5A900121292 /* WebViewController.m */,
 				A1F152031183B5A900121292 /* WebViewController.h */,
 				A1BDAADA11695E2E009ECEB3 /* RssXML.h */,
@@ -1378,9 +1393,9 @@
 		A18E8844128F7D35002FEB6B /* Gyphish@2x */ = {
 			isa = PBXGroup;
 			children = (
-				A18E888E128F8247002FEB6B /* This Folder from Glyphish.html */,
+				A18E888E128F8247002FEB6B /* This Folder from Glyphish.markdown */,
+				A1D19DAC16954C9900D2EBD9 /* 11-clock@2x.png */,
 				A1C54F54144BE8EB00429617 /* 74-location@2x.png */,
-				A160C8D0131B27B4004EC76D /* 63-runner@2x.png */,
 				A18E8878128F7EFB002FEB6B /* 02-redo@2x.png */,
 				A18E8879128F7EFB002FEB6B /* 05-shuffle@2x.png */,
 				A18E887A128F7EFB002FEB6B /* 53-house@2x.png */,
@@ -1396,7 +1411,7 @@
 		A18E88A8128F8717002FEB6B /* Public Domain */ = {
 			isa = PBXGroup;
 			children = (
-				A18E88C9128F8BA2002FEB6B /* This folder Public Domain.html */,
+				A18E88C9128F8BA2002FEB6B /* This folder Public Domain.markdown */,
 				A15644811380B5140050345B /* Settings@2x.png */,
 				A18E893B12904422002FEB6B /* Address book@2x.png */,
 				A18E893712904333002FEB6B /* Find@2x.png */,
@@ -1410,7 +1425,7 @@
 		A18E88BA128F8A9B002FEB6B /* Oxygen Icons */ = {
 			isa = PBXGroup;
 			children = (
-				A18E88C7128F8B92002FEB6B /* This Folder Creative Commons.html */,
+				A18E88C7128F8B92002FEB6B /* This Folder Creative Commons.markdown */,
 				A18E88F3128F8E48002FEB6B /* Network connection@2x.png */,
 				A18E88C5128F8B2A002FEB6B /* Erase@2x.png */,
 			);
@@ -1420,11 +1435,20 @@
 		A18E88F7128F9080002FEB6B /* Twitter */ = {
 			isa = PBXGroup;
 			children = (
-				A18E88FF128F9233002FEB6B /* This Folder from Twitter.html */,
+				A18E88FF128F9233002FEB6B /* This Folder from Twitter.markdown */,
 				A18E88F8128F9097002FEB6B /* Twitter@2x.png */,
 				A18E88F9128F9097002FEB6B /* Twitter.png */,
 			);
 			name = Twitter;
+			sourceTree = "<group>";
+		};
+		A1909FE116D03CF9004D14EF /* iPhone Sounds */ = {
+			isa = PBXGroup;
+			children = (
+				A1909FE316D03DCC004D14EF /* This folder unknown.markdown */,
+				A1909FE416D03DCC004D14EF /* default_sound.wav */,
+			);
+			name = "iPhone Sounds";
 			sourceTree = "<group>";
 		};
 		A1973B3B12F4DC3D00C1CEBF /* Alarms */ = {
@@ -1453,7 +1477,8 @@
 		A1B72A8E12F63D1A0074240A /* soundbible.com */ = {
 			isa = PBXGroup;
 			children = (
-				A1B72AC712F642B60074240A /* This Folder Creative Commons.html */,
+				A1B72AC712F642B60074240A /* This Folder Creative Commons.markdown */,
+				A1DB5C6416BF83B300679BEC /* Pager Beeps-SoundBible.com-260751720.aiff */,
 				A1A6EB0413A58B430000E7C0 /* Train_Honk_Horn_2x-Mike_Koenig-157974048.aif */,
 			);
 			name = soundbible.com;
@@ -1468,18 +1493,19 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		A1C6C7E9107F01AA00787C5B /* HTML */ = {
+		A1C6C7E9107F01AA00787C5B /* Map Templates */ = {
 			isa = PBXGroup;
 			children = (
 				A17A6C6F160C355C0082F97E /* streetcar.html */,
 				A1F151FB1183B4A800121292 /* railmap.html */,
 			);
-			name = HTML;
+			name = "Map Templates";
 			sourceTree = "<group>";
 		};
 		A1C7F24815B50590001FCD6C /* ZXing */ = {
 			isa = PBXGroup;
 			children = (
+				A138EE2F16D3206E00568D8C /* This Folder from ZXing.html */,
 				A1C61E2215B4EC1A000CC92B /* ZXingWidget.xcodeproj */,
 			);
 			name = ZXing;
@@ -1508,7 +1534,7 @@
 		A1F151881183A6E500121292 /* Aha-Soft */ = {
 			isa = PBXGroup;
 			children = (
-				A1C79D6511FD1F6F00B31CE7 /* This Folder Creative Commons.html */,
+				A1C79D6511FD1F6F00B31CE7 /* This Folder Creative Commons.markdown */,
 				A15644831380B5310050345B /* Settings.png */,
 				A160C3A0131A0B71004EC76D /* Sun.png */,
 				A160C3A1131A0B71004EC76D /* Sun@2x.png */,
@@ -1560,8 +1586,6 @@
 				A1F151C31183B26A00121292 /* Find.png */,
 				A1F151C51183B26A00121292 /* Erase.png */,
 				A1F151C81183B26A00121292 /* Cut.png */,
-				A1F151C91183B26A00121292 /* Compass.png */,
-				A18E8836128F7BB1002FEB6B /* Compass@2x.png */,
 				A1F151CA1183B26A00121292 /* Clock.png */,
 				A18E8838128F7C00002FEB6B /* Clock@2x.png */,
 				A1F151CB1183B26A00121292 /* Blog.png */,
@@ -1576,7 +1600,7 @@
 		A1F1518D1183A75100121292 /* PDX Bus */ = {
 			isa = PBXGroup;
 			children = (
-				A1C79DAA11FD2BD900B31CE7 /* This Folder Creative Commons.html */,
+				A1C79DAA11FD2BD900B31CE7 /* This Folder Creative Commons.markdown */,
 				A16D3F5D1611FC9B0032E936 /* Default-568h@2x.png */,
 				A16D3F5E1611FC9B0032E936 /* Default@2x.png */,
 				A1B795021183B9480047F83C /* Default.png */,
@@ -1593,7 +1617,7 @@
 		A1F1518E1183A75E00121292 /* TriMet */ = {
 			isa = PBXGroup;
 			children = (
-				A1C79D9111FD276D00B31CE7 /* This Folder from TriMet.html */,
+				A1C79D9111FD276D00B31CE7 /* This Folder from TriMet.markdown */,
 				A1BB470D1616B95500634B2F /* MAXWESMap_Placeholder.gif */,
 				A1BB470E1616B95500634B2F /* tile.sh */,
 				A1BB470716169E5400634B2F /* MAXWESMap.gif */,
@@ -1606,13 +1630,13 @@
 		A1F1518F1183A76600121292 /* Glyphish */ = {
 			isa = PBXGroup;
 			children = (
-				A1C79D7F11FD24BC00B31CE7 /* This Folder Creative Commons.html */,
+				A1C79D7F11FD24BC00B31CE7 /* This Folder Creative Commons.markdown */,
+				A1D19DAA16954C8300D2EBD9 /* 11-clock.png */,
 				A1B8599811CF1142003F2FEC /* 02-redo.png */,
 				A1F151F01183B34400121292 /* 05-shuffle.png */,
 				A1F151EC1183B34400121292 /* 103-map.png */,
 				A1F151EF1183B34400121292 /* 53-house.png */,
 				A1F151EE1183B34400121292 /* 61-brightness.png */,
-				A160C8CE131B27A0004EC76D /* 63-runner.png */,
 				A1F151ED1183B34400121292 /* 71-compass.png */,
 				A1C54F52144BE8D400429617 /* 74-location.png */,
 				A18E373815B8F2970097CCE2 /* 86-camera.png */,
@@ -1712,7 +1736,6 @@
 				28AD73600D9D9599002E5188 /* MainWindow.xib in Resources */,
 				2899E5600DE3E45000AC0155 /* RootViewController.xib in Resources */,
 				A14D86070E578CFB008A11AF /* appData.plist in Resources */,
-				A17B03B90E72E33400B4FBF6 /* Entitlements.plist in Resources */,
 				A1C03DB60E80A5CE005B8E07 /* PortlandStreetcar.plist in Resources */,
 				A1D74FFD0E89485200E38DC3 /* blank.sql in Resources */,
 				A107A6250F2D0E9600C20017 /* Settings.bundle in Resources */,
@@ -1733,7 +1756,6 @@
 				A1F151DE1183B26A00121292 /* Find.png in Resources */,
 				A1F151E01183B26A00121292 /* Erase.png in Resources */,
 				A1F151E31183B26A00121292 /* Cut.png in Resources */,
-				A1F151E41183B26A00121292 /* Compass.png in Resources */,
 				A1F151E51183B26A00121292 /* Clock.png in Resources */,
 				A1F151E61183B26A00121292 /* Blog.png in Resources */,
 				A1F151E71183B26A00121292 /* Address book.png in Resources */,
@@ -1778,7 +1800,6 @@
 				A18E8825128F7919002FEB6B /* List@2x.png in Resources */,
 				A18E882A128F798F002FEB6B /* Info@2x.png in Resources */,
 				A18E882C128F79DB002FEB6B /* Globe@2x.png in Resources */,
-				A18E8837128F7BB1002FEB6B /* Compass@2x.png in Resources */,
 				A18E8839128F7C00002FEB6B /* Clock@2x.png in Resources */,
 				A18E883D128F7C5F002FEB6B /* Blog@2x.png in Resources */,
 				A18E8843128F7D27002FEB6B /* Add@2x.png in Resources */,
@@ -1789,7 +1810,7 @@
 				A18E88F4128F8E48002FEB6B /* Network connection@2x.png in Resources */,
 				A18E88FA128F9097002FEB6B /* Twitter@2x.png in Resources */,
 				A18E88FB128F9097002FEB6B /* Twitter.png in Resources */,
-				A18E8900128F9233002FEB6B /* This Folder from Twitter.html in Resources */,
+				A18E8900128F9233002FEB6B /* This Folder from Twitter.markdown in Resources */,
 				A18E893812904333002FEB6B /* Find@2x.png in Resources */,
 				A18E893C12904422002FEB6B /* Address book@2x.png in Resources */,
 				A18E894012904704002FEB6B /* RailStations@2x.png in Resources */,
@@ -1821,7 +1842,6 @@
 				A160C39F131A0B56004EC76D /* Moon@2xpng.png in Resources */,
 				A160C3A2131A0B71004EC76D /* Sun.png in Resources */,
 				A160C3A3131A0B71004EC76D /* Sun@2x.png in Resources */,
-				A160C8CF131B27A0004EC76D /* 63-runner.png in Resources */,
 				A1564467137F3AE50050345B /* IASKAppSettingsView.xib in Resources */,
 				A1564468137F3AE50050345B /* IASKAppSettingsWebView.xib in Resources */,
 				A1564469137F3AE50050345B /* IASKPSSliderSpecifierViewCell.xib in Resources */,
@@ -1846,10 +1866,13 @@
 				A109801B1612CE600036D8C9 /* Icon-Small-50@2x.png in Resources */,
 				A1BB47061615713100634B2F /* StreetcarMap in Resources */,
 				A1BB470A16169E5D00634B2F /* MAXWESMap in Resources */,
-				A1BB470C16169F3D00634B2F /* This Folder from Portland Streetcar.html in Resources */,
+				A1BB470C16169F3D00634B2F /* This Folder from Portland Streetcar.markdown in Resources */,
 				A1BB470F1616B95500634B2F /* MAXWESMap_Placeholder.gif in Resources */,
 				A1BB47131616BAED00634B2F /* StreetcarMap_Placeholder.gif in Resources */,
 				A1125EAE16223F5A00C647A4 /* SupportView.h in Resources */,
+				A1D19DAB16954C8300D2EBD9 /* 11-clock.png in Resources */,
+				A1DB5C6516BF83B300679BEC /* Pager Beeps-SoundBible.com-260751720.aiff in Resources */,
+				A1909FE616D03DCC004D14EF /* default_sound.wav in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1978,6 +2001,7 @@
 				A18E373715B66FA10097CCE2 /* ProcessQRCodeString.m in Sources */,
 				A1BB470016153B8400634B2F /* TilingView.m in Sources */,
 				A14C447416223FC5008BC198 /* SupportView.m in Sources */,
+				A119A7FC17403CDD006D5CB6 /* OpenInChromeController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1997,6 +2021,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CODE_SIGN_ENTITLEMENTS = "PDX Bus/PDXBus.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Andrew Wallace (84N3M6433V)";
 				COPY_PHASE_STRIP = NO;
@@ -2031,6 +2056,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CODE_SIGN_ENTITLEMENTS = "PDX Bus/PDXBus.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Andrew Wallace (84N3M6433V)";
 				COPY_PHASE_STRIP = YES;
@@ -2053,6 +2079,7 @@
 				);
 				PRODUCT_NAME = PDXBus;
 				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "1E58AB50-0696-4A1D-A066-0064636A294F";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -2066,14 +2093,14 @@
 					"$(ARCHS_STANDARD_32_BIT)",
 				);
 				CODE_SIGN_IDENTITY = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Andrew Wallace";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Andrew Wallace (84N3M6433V)";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_THUMB_SUPPORT = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 3.0;
 				PRODUCT_NAME = PDXBus;
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "5BC2CADE-F6C8-4391-9C64-A49A9A931DBD";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "0452E1C0-48CA-4398-B1BF-8707AD7DCCBC";
 				SDKROOT = iphoneos;
 			};
 			name = "Ad-hoc Dist";
@@ -2083,9 +2110,9 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				CODE_SIGN_ENTITLEMENTS = Entitlements.plist;
-				CODE_SIGN_IDENTITY = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Andrew Wallace";
+				CODE_SIGN_ENTITLEMENTS = "PDX Bus/PDXBus.entitlements";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Andrew Wallace (84N3M6433V)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Andrew Wallace (84N3M6433V)";
 				COPY_PHASE_STRIP = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -2105,7 +2132,8 @@
 					/usr/lib/libSystem.B.dylib,
 				);
 				PRODUCT_NAME = PDXBus;
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "B2878144-6C9D-44BC-82AC-59C8366B528F";
+				PROVISIONING_PROFILE = "0452E1C0-48CA-4398-B1BF-8707AD7DCCBC";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "9128B0A9-D692-4F8A-B2C1-DBD8943479FE";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -2138,6 +2166,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CODE_SIGN_ENTITLEMENTS = "PDX Bus/PDXBus.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Andrew Wallace (84N3M6433V)";
 				COPY_PHASE_STRIP = NO;
@@ -2176,14 +2205,14 @@
 					"$(ARCHS_STANDARD_32_BIT)",
 				);
 				CODE_SIGN_IDENTITY = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Andrew Wallace";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Andrew Wallace (995PKK348R)";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_THUMB_SUPPORT = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 3.0;
 				PRODUCT_NAME = PDXBus;
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "E1B618E2-BB93-40A3-B931-8A3A08CCD1D4";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "98859CD7-3204-48E6-AD84-20A2EBF224A4";
 				SDKROOT = iphoneos;
 			};
 			name = Distribution;
@@ -2193,6 +2222,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CODE_SIGN_ENTITLEMENTS = "PDX Bus/PDXBus.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Andrew Wallace";
 				COPY_PHASE_STRIP = YES;

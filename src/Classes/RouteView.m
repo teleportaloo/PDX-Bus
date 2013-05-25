@@ -62,14 +62,14 @@
 - (void)fetchRoutes:(id)arg
 {	
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	[self.backgroundTask.callbackWhenFetching BackgroundThread:[NSThread currentThread]];
-	[self.backgroundTask.callbackWhenFetching BackgroundStart:1 title:@"getting routes"];
+	[self.backgroundTask.callbackWhenFetching backgroundThread:[NSThread currentThread]];
+	[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:@"getting routes"];
 	
 	NSError *parseError = nil;
 	
 	[self.routeData getRoutes:&parseError cacheAction:TriMetXMLUpdateCache];
 													   
-	[self.backgroundTask.callbackWhenFetching BackgroundCompleted:self];
+	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
 	[pool release];
 }
 
@@ -81,7 +81,7 @@
 	NSError *parseError = nil;
 	if (!self.backgroundRefresh && [self.routeData getRoutes:&parseError cacheAction:TriMetXMLOnlyReadFromCache])
 	{
-		[self.backgroundTask.callbackWhenFetching BackgroundCompleted:self];
+		[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
 	}
 	else 
 	{
@@ -196,6 +196,7 @@
 			if (self.routeData.itemArray == nil)
 			{
 				[self networkTips:self.routeData.htmlError networkError:self.routeData.errorMsg];
+                [self clearSelection];
 			}
 			break;
 		}

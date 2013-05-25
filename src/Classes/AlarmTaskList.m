@@ -151,6 +151,21 @@
 	}
 }
 
+- (void)checkForMute
+{
+    // Cannot check for mute so just warn the user!
+    if (self.taskCount == 0)
+    {
+        UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"New Alarm"
+                                                           message:@"Note: The alarm will not sound if the device is muted."
+                                                          delegate:nil
+                                                 cancelButtonTitle:@"OK"
+                                                 otherButtonTitles:nil] autorelease];
+        [alert show];
+    }
+    
+}
+
 - (void)addTaskForDeparture:(Departure *)dep mins:(uint)mins
 {
 	@synchronized(_backgroundTasks)
@@ -175,6 +190,8 @@
 			newTask.desc = [NSString stringWithFormat:@"%d mins before %@", mins, dep.routeName];
 		}
 		newTask.lastFetched = dep;
+        
+        [self checkForMute];
 
 		[self cancelTaskForKey:newTask.key];
 	
@@ -367,6 +384,8 @@
 		[newTask setStop:stopId lat:lat lng:lng desc:desc];
 		newTask.observer = self;
 	
+        [self checkForMute];
+        
 		[self cancelTaskForKey:newTask.key];
 	
 	
