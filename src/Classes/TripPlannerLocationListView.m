@@ -28,6 +28,7 @@
 #import "TripPlannerResultsView.h"
 #import "TripPlannerLocatingView.h"
 #import "MapViewController.h"
+#import "TripPlannerEndPointView.h"
 
 
 @implementation TripPlannerLocationListView
@@ -52,17 +53,25 @@ static int depthCount = 0;
 	return UITableViewStyleGrouped;
 }
 
-- (void)createToolbarItems
+- (void)updateToolbarItems:(NSMutableArray *)toolbarItems
 {
-	NSArray *items = [NSArray arrayWithObjects: 
-					  [self autoDoneButton], 
-					  [CustomToolbar autoFlexSpace],
-					  [CustomToolbar autoMapButtonWithTarget:self action:@selector(showMap:)],
-					  [CustomToolbar autoFlexSpace],
-					  [self autoFlashButton], nil];
-	[self setToolbarItems:items animated:NO];
+	[toolbarItems addObject:[CustomToolbar autoMapButtonWithTarget:self action:@selector(showMap:)]];
+    [self maybeAddFlashButtonWithSpace:YES buttons:toolbarItems big:NO];
 }
 
+
+- (void)editHomeAction:(id)sender
+{
+	TripPlannerEndPointView *editHome = [[TripPlannerEndPointView alloc] init];
+    
+    [editHome initTakMeHome:self.tripQuery.userRequest];
+    
+    UINavigationController * navigationController = self.navigationController;
+    [navigationController popToRootViewControllerAnimated:NO];
+    [navigationController pushViewController:editHome animated:YES];
+    
+    [editHome release];
+}
 
 #pragma mark View methods
 
@@ -87,6 +96,19 @@ static int depthCount = 0;
 			self.locList = self.tripQuery.toList;
 		}
 	}
+    
+    if (self.tripQuery.userRequest.takeMeHome)
+    {
+        UIBarButtonItem *editHome = [[UIBarButtonItem alloc]
+                                     initWithTitle:NSLocalizedString(@"Edit Home", @"")
+                                     style:UIBarButtonItemStyleBordered
+                                     target:self
+                                     action:@selector(editHomeAction:)];
+        self.navigationItem.rightBarButtonItem = editHome;
+        
+        [editHome release];
+    }
+    
 }
 
 

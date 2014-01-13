@@ -30,6 +30,7 @@
 #import "XMLStreetcarLocations.h"
 #import "PullRefreshTableViewController.h"
 #import "AlertViewCancelsTask.h"
+#import "DepartureDetailView.h"
 
 #define kSectionsPerStop	13
 #define kSectionRowInit		-1
@@ -45,7 +46,7 @@ typedef struct {
 } SECTIONROWS;
 
 @interface DepartureTimesView :  PullRefreshTableViewController <UIAlertViewDelegate, 
-        UIActionSheetDelegate> {
+        UIActionSheetDelegate, DepartureDetailDelegate> {
 	NSString *			_displayName;
 	NSMutableArray *	_visibleDataArray;
 	NSMutableArray *	_originalDataArray;
@@ -68,8 +69,11 @@ typedef struct {
 	int					_bookmarkItem;
 	NSString *			_bookmarkDesc;
 	NSString *			_bookmarkLoc;
+    bool                _reloadWhenAppears;
+    bool                _allowSort;
             
 	XMLStreetcarLocations *_streetcarLocations;
+    NSMutableArray      *_vehiclesStops;
 }
 
 
@@ -77,6 +81,8 @@ typedef struct {
 - (id<DepartureTimesDataProvider>)departureData:(int)i;
 
 
+
+- (void)fetchTimesForVehicleInBackground:(id<BackgroundTaskProgress>)background route:(NSString *)route direction:(NSString *)direction nextLoc:(NSString*)loc block:(NSString *)block;
 - (void)fetchTimesForLocationInBackground:(id<BackgroundTaskProgress>)background loc:(NSString*)loc block:(NSString *)block;
 - (void)fetchTimesForLocationInBackground:(id<BackgroundTaskProgress>)background loc:(NSString*)loc title:(NSString *)title;
 - (void)fetchTimesForLocationInBackground:(id<BackgroundTaskProgress>)background loc:(NSString*)loc;
@@ -96,6 +102,8 @@ typedef struct {
 - (void)stopTimer;
 + (BOOL)canGoDeeper;
 
+- (void)detailsChanged;
+
 @property (nonatomic, retain) NSTimer *refreshTimer;
 @property (nonatomic, retain) NSMutableArray *visibleDataArray;
 @property (nonatomic, retain) NSMutableArray *originalDataArray;
@@ -110,4 +118,6 @@ typedef struct {
 @property (nonatomic, retain) NSString *bookmarkDesc;
 @property (nonatomic, retain) NSIndexPath *actionItem;
 @property (nonatomic, retain) NSString *savedBlock;
+@property (nonatomic)         bool allowSort;
+@property (nonatomic, retain) NSMutableArray *vehicleStops;
 @end

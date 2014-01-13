@@ -112,6 +112,9 @@
 
 - (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict
 {
+    
+    [super parser:parser didStartElement:elementName namespaceURI:namespaceURI qualifiedName:qName attributes:attributeDict];
+    
     if (qName) {
         elementName = qName;
     }
@@ -129,7 +132,9 @@
 
 
 - (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName
-{     
+{
+    [super parser:parser didEndElement:elementName namespaceURI:namespaceURI qualifiedName:qName];
+    
     if (qName) {
         elementName = qName;
     }

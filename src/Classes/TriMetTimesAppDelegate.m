@@ -51,13 +51,12 @@
 @synthesize cleanExitLastTime		= _cleanExitLastTime;
 @synthesize pathToCleanExit			= _pathToCleanExit;
 
-
 - (void)dealloc {
 	//	[departureList release];
 	//	[pathToUserCopyOfPlist release];
 	self.navigationController = nil;
 	//	[userFaves release];
-	[window release];
+    [window release];
 	[activityView release];
 	self.pathToCleanExit = nil;
 
@@ -75,6 +74,11 @@
 	return self;
 }
 
+- (void)applicationWillResignActive:(UIApplication *)application
+{
+    [self cleanExit];
+}
+
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
     DEBUG_LOG(@"applicationDidBecomeActive\n");
@@ -90,7 +94,7 @@
     
     if ([UserPrefs getSingleton].autoCommute)
 	{
-		rootViewController.commuterBookmark  = [self checkForCommuterBookmarkShowOnlyOnce:YES];
+        rootViewController.commuterBookmark  = [self checkForCommuterBookmarkShowOnlyOnce:YES];
 	}
     
     [rootViewController executeInitialAction];
@@ -101,11 +105,11 @@
     
     if (!newWindow && self.rootViewController)
     {
-        UIViewController *topView = [self.rootViewController.navigationController topViewController];
+            UIViewController *topView = [self.rootViewController.navigationController topViewController];
         
-        if ([topView respondsToSelector:@selector(didBecomeActive)])
+            if ([topView respondsToSelector:@selector(didBecomeActive)])
         {
-            [topView performSelector:@selector(didBecomeActive)];
+                [topView performSelector:@selector(didBecomeActive)];
         }
     }
 }
@@ -193,9 +197,8 @@
 
 	DEBUG_PRINTF("Last arrivals %s clean %d\n", [rootViewController.lastArrivalsShown cStringUsingEncoding:NSUTF8StringEncoding],
 				 self.cleanExitLastTime);
-
-    window.rootViewController = self.navigationController;
-	rootViewController.lastArrivalsShown = [SafeUserData getSingleton].last;
+    
+    rootViewController.lastArrivalsShown = [SafeUserData getSingleton].last;
 	rootViewController.lastArrivalNames  = [SafeUserData getSingleton].lastNames;
     
 	if ((rootViewController.lastArrivalsShown!=nil && [rootViewController.lastArrivalsShown length] == 0)
@@ -206,9 +209,19 @@
 		rootViewController.lastArrivalNames  = nil;
 	}
 
-	// Configure and show the window
-	[window addSubview:[navigationController view]];
-	[window makeKeyAndVisible];
+    
+    // Configure and show the window
+    
+    // self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    
+    [self.window setRootViewController:self.rootViewController];
+    
+    // drawerController.closeDrawerGestureModeMask = MMCloseDrawerGestureModeTapCenterView | MMCloseDrawerGestureModeTapNavigationBar;
+
+    
+    window.rootViewController = self.navigationController ;
+    
+   	[window makeKeyAndVisible];
 		
 #if defined(MAXCOLORS) && defined(CREATE_MAX_ARRAYS)
 	AllRailStationView *station = [[[AllRailStationView alloc] init] autorelease];
@@ -289,7 +302,7 @@
 	
 	if (rootViewController != nil)
 	{
-		[rootViewController reloadData];
+        [rootViewController reloadData];
 	}
 	
     return YES;
@@ -510,8 +523,8 @@
             int bookmarkNumber=0;
             if ([scanner scanInt:&bookmarkNumber])
             {
-                self.rootViewController.initialBookmarkIndex = bookmarkNumber;
-                self.rootViewController.initialAction = InitialAction_BookmarkIndex;
+                    self.rootViewController.initialBookmarkIndex = bookmarkNumber;
+                    self.rootViewController.initialAction = InitialAction_BookmarkIndex;
             }
         }
     }
@@ -641,7 +654,7 @@
 	
 			if (stops !=nil && [stops length]!=0 && [userData.faves count] < kMaxFaves)
 			{
-				rootViewController.lastArrivalsShown = nil;
+				rootViewController = nil;
 
 				NSString *fullName = [name stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 		

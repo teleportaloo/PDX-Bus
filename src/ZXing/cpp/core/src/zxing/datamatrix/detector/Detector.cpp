@@ -408,6 +408,7 @@ Ref<BitMatrix> Detector::sampleGrid(Ref<BitMatrix> image, int dimensionX, int di
 }
 
 void Detector::insertionSort(std::vector<Ref<ResultPointsAndTransitions> > &vector) {
+#ifndef __clang_analyzer__
   int max = vector.size();
   bool swapped = true;
   Ref<ResultPointsAndTransitions> value;
@@ -423,6 +424,7 @@ void Detector::insertionSort(std::vector<Ref<ResultPointsAndTransitions> > &vect
       }
     }
   } while (swapped);
+#endif
 }
 
 int Detector::compare(Ref<ResultPointsAndTransitions> a, Ref<ResultPointsAndTransitions> b) {

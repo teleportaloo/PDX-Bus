@@ -51,6 +51,7 @@ static NSString *departuresURLString = @"arrivals/locIDs/%@";
 @synthesize streetcarData = _streetcarData;
 @synthesize streetcarException = _streetcarException;
 @synthesize streetcarBlockMap = _streetcarBlockMap;
+@synthesize firstOnly = _firstOnly;
 
 - (void)dealloc
 {
@@ -206,6 +207,8 @@ static NSString *departuresURLString = @"arrivals/locIDs/%@";
 		[parser abortParsing];
 		return;
 	}
+    
+    [super parser:parser didStartElement:elementName namespaceURI:namespaceURI qualifiedName:qName attributes:attributeDict];
 	
     if (qName) {
         elementName = qName;
@@ -232,7 +235,8 @@ static NSString *departuresURLString = @"arrivals/locIDs/%@";
     if ([elementName isEqualToString:@"arrival"]) {
 		
 		NSString *block = [self safeValueFromDict:attributeDict valueForKey:@"block"];
-		if ((self.blockFilter==nil) || ([self.blockFilter isEqualToString:block]))
+		if (((self.blockFilter==nil) || ([self.blockFilter isEqualToString:block])) &&
+                ((!self.firstOnly || self.safeItemCount < 1)))
 		{
         
 			self.currentDepartureObject = [[[Departure alloc] init] autorelease];
@@ -337,6 +341,8 @@ static NSString *departuresURLString = @"arrivals/locIDs/%@";
 		[parser abortParsing];
 		return;
 	}
+    
+    [super parser:parser didEndElement:elementName namespaceURI:namespaceURI qualifiedName:qName];
 	
     if (qName) {
         elementName = qName;

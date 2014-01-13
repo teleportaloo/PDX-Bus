@@ -31,6 +31,9 @@
 @interface AboutView : TableViewWithToolbar {
 	NSString *aboutText;
 	NSString *helpText;
+    NSArray *links;
+    NSArray *legal;
+    
     
     bool _hideButton;
 }

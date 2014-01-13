@@ -62,7 +62,6 @@
 	{
 		if (mapDescr)
 		{
-            DEBUG_LOG(@"Popping stack");
 			[[appDelegate.rootViewController navigationController] popToRootViewControllerAnimated:NO];
 			MapViewController *mapPage = [[MapViewController alloc] init];
 			
@@ -85,21 +84,18 @@
 				[mapPage addPin:currentLocation];
 			}
 			
-			[mapPage addPin:self];
 			[[appDelegate.rootViewController navigationController] pushViewController:mapPage animated:YES];
-			[mapPage release];
+          	[mapPage release];
 			
 		}
 		else if (stopId)
 		{
-            DEBUG_LOG(@"Popping stack");
 			[[appDelegate.rootViewController navigationController] popToRootViewControllerAnimated:NO];
-			
+		
 			DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
 			NSString *block = [self.notification.userInfo objectForKey:kAlarmBlock];
-			
 			[departureViewController fetchTimesForLocationInBackground:appDelegate.rootViewController.backgroundTask 
-																   loc:stopId
+                                                                 loc:stopId
 																 block:block];
 			[departureViewController release];
 		}

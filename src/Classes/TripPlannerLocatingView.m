@@ -43,29 +43,22 @@
     [super dealloc];
 }
 
-- (id) init
-{
-	if ((self = [super init]))
-	{
-		self.title = @"Locating";
-	}
-	return self;
-}
 
 #pragma mark UI helpers
 
 - (void)refreshAction:(id)sender
 {
-	[self.locationManager startUpdatingLocation];
-	self.currentEndPoint.locationDesc = nil;
-	[self startAnimating:YES];
 	
-	waitingForLocation = true;
+	self.currentEndPoint.locationDesc = nil;
+	
+    [super refreshAction:sender];
 }
 
 #pragma mark Data fetchers
 
-- (void)nextScreen:(UINavigationController *)controller forceResults:(bool)forceResults postQuery:(bool)postQuery orientation:(UIInterfaceOrientation)orientation
+- (void)nextScreen:(UINavigationController *)controller
+      forceResults:(bool)forceResults postQuery:(bool)postQuery
+       orientation:(UIInterfaceOrientation)orientation
 	 taskContainer:(BackgroundTaskContainer*)taskContainer
 {	
 	bool findLocation = false;
@@ -202,27 +195,30 @@
 
 #pragma mark View callbacks
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
-	accuracy = 200.0;
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    self.delegate = self;
+    _accuracy = 200.0;
+    
 	
-	if (self.currentEndPoint.currentLocation == nil)
+	if (self.currentEndPoint.currentLocation == nil || !_appeared)
 	{
-		[self.locationManager startUpdatingLocation];
-		waitingForLocation = true;
+		[self startLocating];
+        _appeared = YES;
 	}
 	else
 	{
 		self.lastLocation = self.currentEndPoint.currentLocation;
+        [self stopLocating];
+        [self reloadData];
 	}
-	
-	UIBarButtonItem *refreshButton = [[UIBarButtonItem alloc]
-									  initWithTitle:NSLocalizedString(@"Refresh", @"")
-									  style:UIBarButtonItemStyleBordered
-									  target:self
-									  action:@selector(refreshAction:)];
-	self.navigationItem.rightBarButtonItem = refreshButton;
-	[refreshButton release];
+}
+
+- (void)viewDidDisappear:(BOOL)animated
+{
+    self.delegate = nil;
+    [super viewDidDisappear:animated];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -238,128 +234,33 @@
 }
 
 
-
-#pragma mark TableView methods
-
-- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-	if (waitingForLocation)
-	{
-		return @"Acquiring location. Accuracy will improve momentarily; search will start when accuracy is sufficient or whenever you choose.";
-	}
-	
-	
-	if (failed)
-	{
-		if (self.tripQuery.userRequest.fromPoint.useCurrentLocation)
-		{
-			return @"Failed to acquire location, please go back and change the starting location for the trip.\n\n";
-		}
-		return @"Failed to acquire location, please go back and change the trip's destination.\n\n";
-	}
-	return @"Location acquired. Select 'Refresh' to re-acquire current location.\n\n\n";
-}
-
-
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return 1;
-}
-
-
-// Customize the number of rows in the table view.
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return 1;
-}
-
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-	return kLocatingRowHeight;
-}
-
-
-// Customize the appearance of table view cells.
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-	static NSString *locSectionId = @"LocatingSection";
-
-	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:locSectionId];
-	if (cell == nil) {
-		cell = [self accuracyCellWithReuseIdentifier:locSectionId];
-	}
-	
-	UILabel* text = (UILabel *)[cell.contentView viewWithTag:[self LocationTextTag]];
-	
-	if (waitingForLocation)
-	{
-		[self startAnimating:NO];
-	}
-	
-	
-	if (self.lastLocation != nil)
-	{
-		text.text = [NSString stringWithFormat:@"Accuracy acquired:\n+/- %@", 
-					 [self formatDistance:self.lastLocation.horizontalAccuracy]];
-		cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-		[cell setAccessibilityHint:@"Double-tap for results"];
-	}
-	else if(!failed)
-	{
-		text.text = @"Locating...";
-		cell.accessoryType = UITableViewCellAccessoryNone;
-		[cell setAccessibilityHint:nil];
-	}
-	else
-	{
-		text.text = @"Location not acquired.";
-		cell.accessoryType = UITableViewCellAccessoryNone;
-		[cell setAccessibilityHint:nil];
-		
-	}
-	[self updateAccessibility:cell indexPath:indexPath text:text.text alwaysSaySection:YES];
-	return cell;
-}
-
-
-
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    // Navigation logic may go here. Create and push another view controller.
-	// AnotherViewController *anotherViewController = [[AnotherViewController alloc] initWithNibName:@"AnotherView" bundle:nil];
-	// [self.navigationController pushViewController:anotherViewController];
-	// [anotherViewController release];
-	if (self.lastLocation!=nil)
-	{
-		[self.locationManager stopUpdatingLocation];
-		waitingForLocation = NO;
-		[self stopAnimating:YES];
-		[self located];
-	}
-}
-
-
 #pragma mark LocatingTableView callbacks
 
-- (void)failedToLocate
-{
-	
-}
 
-
-- (void)located
+- (void)locatingViewFinished:(LocatingView *)locatingView
 {
+    if (!locatingView.failed && !locatingView.cancelled)
+    {
+        TripEndPoint *point = nil;
 	
-	TripEndPoint *point = nil;
+        if (self.tripQuery.userRequest.fromPoint.useCurrentLocation)
+        {
+            point = self.tripQuery.userRequest.fromPoint;
+        }
+        else
+        {
+            point = self.tripQuery.userRequest.toPoint;
+        }
 	
-	if (self.tripQuery.userRequest.fromPoint.useCurrentLocation)
-	{
-		point = self.tripQuery.userRequest.fromPoint;
-	}
-	else
-	{
-		point = self.tripQuery.userRequest.toPoint;
-	}
-	
-	point.currentLocation = self.lastLocation;
+        point.currentLocation = self.lastLocation;
 	
 	
-	[self fetchAndDisplay:self.navigationController forceResults:NO taskContainer:self.backgroundTask];
+        [self fetchAndDisplay:locatingView.navigationController forceResults:NO taskContainer:locatingView.backgroundTask];
+        
+    } else if (locatingView.cancelled)
+    {
+        [locatingView.navigationController popViewControllerAnimated:YES];
+    }
 }
 
 

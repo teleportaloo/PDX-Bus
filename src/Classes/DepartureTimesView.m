@@ -42,6 +42,8 @@
 #import "TripPlannerSummaryView.h"
 #import "ProcessQRCodeString.h"
 #import "debug.h"
+#import "XMLStops.h"
+#import "Vehicle.h"
 
 
 #define kSectionDistance	0
@@ -79,6 +81,8 @@
 #define kDictBlock			@"block"
 #define kDictNames			@"names"
 #define kDictBookmark		@"bookmark"
+#define kDictDir            @"dir"
+#define kDictRoute          @"route"
 
 #define DISTANCE_TAG 1
 #define ACCURACY_TAG 2
@@ -101,11 +105,14 @@ static int depthCount = 0;
 @synthesize bookmarkDesc		= _bookmarkDesc;
 @synthesize actionItem			= _actionItem;
 @synthesize savedBlock			= _savedBlock;
+@synthesize allowSort           = _allowSort;
 
 
 #define kNonDepartureHeight 35.0
 
 #define kRefreshInterval 60
+
+#define MAX_STOPS 8
 
 - (void)dealloc {
     [self stopTimer];
@@ -122,6 +129,7 @@ static int depthCount = 0;
 	self.bookmarkDesc			= nil;
 	self.actionItem				= nil;
 	self.savedBlock				= nil;
+    self.vehicleStops           = nil;
 	free(_sectionExpanded);
     
 	
@@ -805,6 +813,143 @@ static int depthCount = 0;
 	[pool release];
 }
 
+
+
+- (void)fetchTimesForVehicleStops:(NSString*)block
+{
+    int items = 0;
+    int pos  = 0;
+    NSError *parseError = nil;
+    bool found = false;
+    bool done = false;
+    
+    while (items < MAX_STOPS && pos < self.vehicleStops.count && !done)
+    {
+        Stop * stop = [self.vehicleStops objectAtIndex:pos];
+        XMLDepartures *deps = [[ XMLDepartures alloc ] init];
+        
+        
+        [deps setBlockFilter:block];
+        deps.firstOnly = YES;
+        
+        [self.backgroundTask.callbackWhenFetching backgroundSubtext:stop.desc];
+        
+        [self.backgroundTask.callbackWhenFetching backgroundItemsDone:items+1];
+        
+        [deps getDeparturesForLocation:stop.locid parseError:&parseError];
+        
+        if (deps.gotData && deps.safeItemCount > 0)
+        {
+            [self.originalDataArray addObject:deps];
+            pos++;
+            items++;
+            found = YES;
+        }
+        else if (!found)
+        {
+            [self.vehicleStops removeObjectAtIndex:pos];
+        }
+        else
+        {
+            pos++;
+            done = YES;
+        }
+    
+    
+        [deps release];
+    }
+}
+
+
+
+- (void)fetchTimesForVehicle:(NSDictionary *)args
+{
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	
+	NSThread *thread = [NSThread currentThread];
+	
+	[self.backgroundTask.callbackWhenFetching backgroundThread:thread];
+	
+	
+	NSString* loc		= [args objectForKey:kDictLocation];
+	NSString* block		= [args objectForKey:kDictBlock];
+	NSString* route    = [args objectForKey:kDictRoute];
+	NSString* dir       = [args objectForKey:kDictDir];
+	
+	[self clearSections];
+	[XMLDepartures clearCache];
+	self.streetcarLocations = nil;
+    
+    // Get Route info
+    XMLStops * stops = [[[XMLStops alloc] init] autorelease];
+    
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+	NSError *parseError = nil;
+    
+    [self.backgroundTask.callbackWhenFetching backgroundStart:MAX_STOPS+1 title:@"Getting next stop IDs"];
+    
+    [stops getStopsAfterLocation:loc route:route direction:dir description:@"" parseError:&parseError cacheAction:TriMetXMLUpdateCache];
+    
+    [self.backgroundTask.callbackWhenFetching backgroundItemsDone:1];
+    
+    if ([stops gotData])
+    {
+        
+         self.vehicleStops = stops.itemArray;
+        
+        [self fetchTimesForVehicleStops:block];
+    }
+	
+    
+    if (self.originalDataArray.count == 0)
+    {
+        [thread cancel];
+        [self.backgroundTask.callbackWhenFetching backgroundSetErrorMsg:@"Could not find any arrivals for that vehicle."];
+    }
+	
+	[UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+	
+
+    _blockFilter = true;
+    self.blockSort = YES;
+	
+    [self sortByBus];
+    
+    self.allowSort = YES;
+    
+	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
+	
+	if (![thread isCancelled])
+	{
+		[_userData setLastArrivals:loc];
+		
+		NSMutableArray *names = [[[NSMutableArray alloc] init] autorelease];
+		
+		for (XMLDepartures *dep in self.originalDataArray)
+		{
+			if (dep.locDesc)
+			{
+				[names addObject:dep.locDesc];
+			}
+		}
+		
+		if (names.count == self.originalDataArray.count)
+		{
+			[_userData setLastNames:names];
+		}
+		else {
+			[_userData setLastNames:nil];
+		}
+        
+	}
+	
+	
+	[pool release];
+	
+}
+
+
+
 - (void)fetchTimesForNearestStopsWithArray:(NSArray*) stops
 {
 	
@@ -953,7 +1098,7 @@ static int depthCount = 0;
 			_blockFilter = false;
 		}
 		[self sortByBus];
-		// [[(RootViewController *)[self.navigationController topViewController] tableView] reloadData];	
+		// [[(MainTableViewController *)[self.navigationController topViewController] tableView] reloadData];	
 		// return YES;
 	}
 	
@@ -986,6 +1131,45 @@ static int depthCount = 0;
 	
 	[pool release];
 	
+}
+
+- (void)fetchVehiclesAgain:(id)arg
+{
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	
+	NSThread *thread = [NSThread currentThread];
+	
+	[self.backgroundTask.callbackWhenFetching backgroundThread:thread];
+	
+	
+	[self.backgroundTask.callbackWhenFetching backgroundStart:MAX_STOPS title:kGettingArrivals];
+    
+	[self clearSections];
+    
+	[UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+    
+    
+    XMLDepartures *dd = [self.originalDataArray objectAtIndex:0];
+    NSString *block = dd.blockFilter;
+	
+    [self.originalDataArray removeAllObjects];
+    
+    [self fetchTimesForVehicleStops:block];
+    
+	[UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+    
+    
+    _blockFilter = true;
+    self.blockSort = YES;
+    self.allowSort = YES;
+	
+    [self sortByBus];
+	[self clearSections];
+	
+	[self.backgroundTask.callbackWhenFetching backgroundCompleted:nil];
+    
+    
+	[pool release];
 }
 
 - (void)fetchAgain:(id)arg
@@ -1027,7 +1211,14 @@ static int depthCount = 0;
 {
 	self.backgroundTask.callbackWhenFetching = background;
 	
-	[NSThread detachNewThreadSelector:@selector(fetchAgain:) toTarget:self withObject:nil];
+    if (self.vehicleStops)
+    {
+        [NSThread detachNewThreadSelector:@selector(fetchVehiclesAgain:) toTarget:self withObject:nil];
+    }
+    else
+    {
+        [NSThread detachNewThreadSelector:@selector(fetchAgain:) toTarget:self withObject:nil];
+    }
 }
 
 - (void)fetchTimesForLocationInBackground:(id<BackgroundTaskProgress>)background loc:(NSString*)loc block:(NSString *)block
@@ -1041,6 +1232,20 @@ static int depthCount = 0;
 									nil]];
 	
 }
+
+- (void)fetchTimesForVehicleInBackground:(id<BackgroundTaskProgress>)background route:(NSString *)route direction:(NSString *)direction nextLoc:(NSString*)loc block:(NSString *)block
+{
+    self.backgroundTask.callbackWhenFetching = background;
+	
+	[NSThread detachNewThreadSelector:@selector(fetchTimesForVehicle:) toTarget:self withObject:
+     [NSDictionary dictionaryWithObjectsAndKeys:
+      loc,      kDictLocation,
+      block,	kDictBlock,
+      direction,kDictDir,
+      route,    kDictRoute,
+      nil]];
+}
+
 
 - (void)fetchTimesForNearestStopsInBackground:(id<BackgroundTaskProgress>)background location:(CLLocation *)here maxToFind:(int)max minDistance:(double)min mode:(TripMode)mode
 {
@@ -1232,6 +1437,12 @@ static int depthCount = 0;
 
 #pragma mark UI Callback methods
 
+
+- (void)detailsChanged
+{
+    _reloadWhenAppears = YES;
+}
+
 - (void)refresh {
     [self stopLoading];
     [self refreshAction:nil];
@@ -1265,7 +1476,7 @@ static int depthCount = 0;
 	[self fetchAgainInBackground:self.backgroundTask];
 	
 	
-	//	[[(RootViewController *)[self.navigationController topViewController] table] reloadData];	
+	//	[[(MainTableViewController *)[self.navigationController topViewController] table] reloadData];	
 }
 
 -(void)showMapNow:(id)sender
@@ -1283,6 +1494,9 @@ static int depthCount = 0;
     }
 	
 	int i,j;
+    
+    NSMutableSet *blocks = [[[NSMutableSet alloc] init] autorelease];
+    
 	for (i=[self.originalDataArray count]-1; i>=0 ; i--)
 	{
 		XMLDepartures * dep = [self.originalDataArray objectAtIndex:i];
@@ -1291,16 +1505,17 @@ static int depthCount = 0;
 		{
 			[mapPage addPin:dep];
             
-            if ([self.originalDataArray count]==1)
+            if ([self.originalDataArray count]==1 || _blockFilter)
             {
 			
                 for (j=0; j< [dep safeItemCount]; j++)
                 {
                     Departure *dd = [dep itemAtIndex:j];
 				
-                    if (dd.hasBlock)
+                    if (dd.hasBlock && ![blocks containsObject:dd.block])
                     {
                         [mapPage addPin:dd];
+                        [blocks addObject:dd.block];
                     }
                 }
             }
@@ -1600,16 +1815,18 @@ static int depthCount = 0;
 	return [dd DTDataGetSectionHeader];
 }
 
-- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath 
+- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    [super tableView:tableView willDisplayCell:cell forRowAtIndexPath:indexPath];
-    
     if ([cell.reuseIdentifier isEqualToString:kActionCellId])
 	{
-		cell.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1.0];
+		// cell.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1.0];
+        
+        cell.backgroundColor = [self greyBackground];
 	}
-	
-	
+    else
+    {
+        [super tableView:tableView willDisplayCell:cell forRowAtIndexPath:indexPath];
+    }
 }
 
 
@@ -1748,8 +1965,8 @@ static int depthCount = 0;
 				{
 					cell.accessoryView =  [[[ UIImageView alloc ] 
 										   initWithImage: _sectionExpanded[indexPath.section] 
-										   ? [self alwaysGetIcon:kIconCollapse]
-										   : [self alwaysGetIcon:kIconExpand]
+                                            ? [self alwaysGetIcon7:kIconCollapse7 old:kIconCollapse]
+                                            : [self alwaysGetIcon7:kIconExpand7 old:kIconExpand]
 										   ] autorelease];
 					
 					
@@ -1791,7 +2008,7 @@ static int depthCount = 0;
 				cell.textLabel.textColor = [ UIColor darkGrayColor];
 				cell.textLabel.font = [self getBasicFont]; 
 				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-				cell.imageView.image = [self getActionIcon:kIconLocate];
+				cell.imageView.image = [self getActionIcon7:kIconLocate7 old:kIconLocate];
 			}
 			break;
              
@@ -1806,7 +2023,7 @@ static int depthCount = 0;
 			cell.textLabel.textColor = [ UIColor darkGrayColor];
 			cell.textLabel.font = [self getBasicFont]; 
 			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-			cell.imageView.image = [self getActionIcon:kIconLocate];
+			cell.imageView.image = [self getActionIcon7:kIconLocate7 old:kIconLocate];
 		}
 		break;	
         case kSectionInfo:
@@ -1841,7 +2058,7 @@ static int depthCount = 0;
 			cell.textLabel.textColor = [ UIColor darkGrayColor];
 			cell.textLabel.font = [self getBasicFont]; 
 			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-			cell.imageView.image = [self getActionIcon:kIconLocate];
+			cell.imageView.image = [self getActionIcon7:kIconLocate7 old:kIconLocate];
 		}
 			break;	
 		case kSectionProximity:
@@ -1900,7 +2117,7 @@ static int depthCount = 0;
 					cell.textLabel.textColor = [ UIColor darkGrayColor];
 					cell.textLabel.font = [self getBasicFont]; 
 					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-					cell.imageView.image = [self getActionIcon:kIconLocate];
+					cell.imageView.image = [self getActionIcon7:kIconLocate7 old:kIconLocate];
 				}
 				break;		
 		case kSectionTitle:
@@ -1973,6 +2190,7 @@ static int depthCount = 0;
 				{
 					DepartureDetailView *departureDetailView = [[DepartureDetailView alloc] init];
 					departureDetailView.callback = self.callback;
+                    departureDetailView.delegate = self;
                     
                     departureDetailView.navigationItem.prompt = self.navigationItem.prompt;
 					
@@ -1981,7 +2199,8 @@ static int depthCount = 0;
 						departureDetailView.stops = self.stops;
 					}
 					
-					[departureDetailView fetchDepartureInBackground:self.backgroundTask dep:departure allDepartures:self.originalDataArray allowDestination:(!_blockFilter)];
+					[departureDetailView fetchDepartureInBackground:self.backgroundTask dep:departure allDepartures:self.originalDataArray
+                                                   allowDestination:((!_blockFilter) || [UserPrefs getSingleton].vehicleLocations) && depthCount < kMaxDepth];
 					
 					[departureDetailView release];	
 				}
@@ -2202,8 +2421,8 @@ static int depthCount = 0;
 				{
 					staticCell.accessoryView =  [[ UIImageView alloc ] 
 									   initWithImage: _sectionExpanded[sect] 
-									   ? [self alwaysGetIcon:kIconCollapse]
-									   : [self alwaysGetIcon:kIconExpand]
+                                                 ? [self alwaysGetIcon7:kIconCollapse7  old:kIconCollapse]
+                                                 : [self alwaysGetIcon7:kIconExpand7    old:kIconCollapse]
 									   ];
 					[staticCell setNeedsDisplay];
 				}
@@ -2303,9 +2522,6 @@ static int depthCount = 0;
 	[super viewWillAppear:animated];
 	//Configure and enable the accelerometer
 	
-	
-
-	
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleChangeInUserSettings:) name:NSUserDefaultsDidChangeNotification object:nil];
 	
 	[self startTimer];
@@ -2325,50 +2541,47 @@ static int depthCount = 0;
 
 #pragma mark TableViewWithToolbar methods
 
-- (void)createToolbarItems
-{	
+- (void)updateToolbarItems:(NSMutableArray *)toolbarItems
+{
 	// match each of the toolbar item's style match the selection in the "UIBarButtonItemStyle" segmented control
 	UIBarButtonItemStyle style = UIBarButtonItemStylePlain;
 	
 	// create the system-defined "OK or Done" button
     UIBarButtonItem *bookmark = [[UIBarButtonItem alloc]
-							 initWithBarButtonSystemItem:UIBarButtonSystemItemBookmarks
-							 target:self action:@selector(bookmarkButton:)];
+                                 initWithBarButtonSystemItem:UIBarButtonSystemItemBookmarks
+                                 target:self action:@selector(bookmarkButton:)];
 	bookmark.style = style;
 	
-	// create the system-defined "OK or Done" button
-   		
-	NSArray *items = nil;
 	
-	if (_blockFilter || [self.originalDataArray count] == 1)
-	{
-		items = [NSArray arrayWithObjects: [self autoDoneButton], [CustomToolbar autoFlexSpace], bookmark,  
-						  [CustomToolbar autoFlexSpace],  
-						  [CustomToolbar autoMapButtonWithTarget:self action:@selector(showMap:)],
-						  [CustomToolbar autoFlexSpace], [self autoFlashButton], nil];
-	}
-	else {
-		
-		UIBarButtonItem *sort = [[[UIBarButtonItem alloc]
-								 // initWithBarButtonSystemItem:UIBarButtonSystemItemRewind
-								 initWithImage:[TableViewWithToolbar getToolbarIcon:kIconSort]
-								 style:UIBarButtonItemStylePlain
-								 target:self action:@selector(sortButton:)] autorelease];
-		
-		sort.accessibilityLabel = @"Group Arrivals";
-		 
-		
-		items = [NSArray arrayWithObjects: [self autoDoneButton], [CustomToolbar autoFlexSpace], bookmark,  
-				 [CustomToolbar autoFlexSpace],  
-				 sort,
-				 [CustomToolbar autoFlexSpace],  
-				 [CustomToolbar autoMapButtonWithTarget:self action:@selector(showMap:)],
-				 [CustomToolbar autoFlexSpace], [self autoFlashButton], nil];
-		
-	}
-
-	[self setToolbarItems:items animated:NO];
-	
+    
+	[toolbarItems addObject:bookmark];
+    [toolbarItems addObject:[CustomToolbar autoFlexSpace]];
+    
+    if (((!(_blockFilter || [self.originalDataArray count] == 1)) || _allowSort) && ([UserPrefs getSingleton].groupByArrivalsIcon))
+    {
+        UIBarButtonItem *sort = [[[UIBarButtonItem alloc]
+                                  // initWithBarButtonSystemItem:UIBarButtonSystemItemRewind
+                                  initWithImage:[TableViewWithToolbar getToolbarIcon7:kIconSort7 old:kIconSort]
+                                  style:UIBarButtonItemStylePlain
+                                  target:self action:@selector(sortButton:)] autorelease];
+        
+        sort.accessibilityLabel = @"Group Arrivals";
+        
+        [toolbarItems addObject:sort];;
+        [toolbarItems addObject:[CustomToolbar autoFlexSpace]];
+        
+    }
+    
+    [toolbarItems addObject:[CustomToolbar autoMapButtonWithTarget:self action:@selector(showMap:)]];
+    
+    if ([UserPrefs getSingleton].ticketAppIcon)
+    {
+        [toolbarItems addObject:[CustomToolbar autoFlexSpace]];
+        [toolbarItems addObject:[self autoTicketAppButton]];
+    }
+    
+    [self maybeAddFlashButtonWithSpace:YES buttons:toolbarItems big:NO];
+    
 	[bookmark release];
 }
 
@@ -2381,6 +2594,12 @@ static int depthCount = 0;
 -(void)viewDidAppear:(BOOL)animated {
 	[super viewDidAppear:animated];
 	[self becomeFirstResponder];
+    
+    if (_reloadWhenAppears)
+    {
+        _reloadWhenAppears = NO;
+        [self reloadData];
+    }
 }
 
 

@@ -76,6 +76,8 @@
 	UISegmentedControl *_segPrevNext;
     UIBarButtonItem *_compassButton;
     CGRect _portraitMapRect;
+    
+    bool _backgroundRefresh;
 }
 
 @property (nonatomic, retain) NSMutableArray *routePolyLines;
@@ -87,6 +89,8 @@
 @property (nonatomic, retain) MKCircle *circle;
 @property (nonatomic, retain) UIBarButtonItem *compassButton;
 @property (atomic)            bool animating;
+@property (nonatomic)         bool backgroundRefresh;
+@property (readonly)          bool hasXML;
 
 // - (void)setMapLocationLat:(NSString *)lat lng:(NSString *)lng title:(NSString *)title;
 - (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation;

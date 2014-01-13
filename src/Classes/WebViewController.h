@@ -44,7 +44,7 @@
 	int _depth;
 }
 
-- (void)createToolbarItems;
+- (void)updateToolbarItems:(NSMutableArray*)toolbarItems;
 - (void)setRssItem:(RssLink *)rss title:(NSString *)title;
 - (void)setURLmobile:(NSString *)url full:(NSString *)full title:(NSString*)title;
 - (void)setRawData:(NSData *)rawData title:(NSString *)title;

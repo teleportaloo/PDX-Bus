@@ -52,7 +52,7 @@ typedef enum {
 	NSString *			_locid;
 	TriMetTime			_departureTime;
 	TriMetTime			_scheduledTime;
-	kStatus				_status;
+	kStatus				_status;    
 	bool				_detour;
 	TriMetDistance		_blockPositionFeet;
 	TriMetTime			_blockPositionAt;

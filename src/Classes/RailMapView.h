@@ -88,15 +88,16 @@ typedef struct savedImageStruct
     UIImageView *_lowResBackgroundImage;
     SAVED_IMAGE _savedImage[kRailMaps];
     UISegmentedControl *_railMapSeg;
+    bool _showNextOnAppearance;
     
 }
 
-- (void)createToolbarItems;
 + (void)initHotspotData;
-- (void)next:(NSTimer*)theTimer;
 - (void)scannerInc:(NSScanner *)scanner;
 - (void)nextSlash:(NSScanner *)scanner intoString:(NSString **)substr;
 - (void)loadImage;
++ (bool)RailMapSupported;
+
 
 #ifdef MAXCOLORS
 + (int)nHotspots;
@@ -112,5 +113,6 @@ typedef struct savedImageStruct
 @property (nonatomic, retain) TapDetectingImageView *imageView;
 @property (nonatomic, retain) UIImageView *lowResBackgroundImage;
 @property (nonatomic, retain) UISegmentedControl *railMapSeg;
+@property (nonatomic)         bool showNextOnAppearance;
 
 @end

@@ -18,35 +18,7 @@
 			<key>Key</key>
 			<string>auto_commute</string>
 			<key>Title</key>
-			<string>Commuter bookmark</string>
-			<key>TrueValue</key>
-			<string>YES</string>
-			<key>Type</key>
-			<string>PSToggleSwitchSpecifier</string>
-		</dict>
-		<dict>
-			<key>DefaultValue</key>
-			<string>YES</string>
-			<key>FalseValue</key>
-			<string>NO</string>
-			<key>Key</key>
-			<string>last_screen_preference</string>
-			<key>Title</key>
-			<string>Last stop displayed</string>
-			<key>TrueValue</key>
-			<string>YES</string>
-			<key>Type</key>
-			<string>PSToggleSwitchSpecifier</string>
-		</dict>
-		<dict>
-			<key>DefaultValue</key>
-			<string>NO</string>
-			<key>FalseValue</key>
-			<string>NO</string>
-			<key>Key</key>
-			<string>bookmarks_at_the_top</string>
-			<key>Title</key>
-			<string>Bookmarks at the top</string>
+			<string>Auto Commuter bookmark</string>
 			<key>TrueValue</key>
 			<string>YES</string>
 			<key>Type</key>
@@ -56,21 +28,61 @@
 			<key>Type</key>
 			<string>PSGroupSpecifier</string>
 			<key>Title</key>
-			<string>Legacy (iOS 3) on startup show:</string>
+			<string>Optional Toolbar Icons</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Locate icon</string>
+			<key>Key</key>
+			<string>locate_toolbar_icon</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>QR code scanner icon</string>
+			<key>Key</key>
+			<string>qr_code_scanner_icon</string>
+			<key>DefaultValue</key>
+			<true/>
 		</dict>
 		<dict>
 			<key>DefaultValue</key>
-			<string>NO</string>
+			<string>YES</string>
 			<key>FalseValue</key>
 			<string>NO</string>
 			<key>Key</key>
-			<string>trip_planner_first</string>
+			<string>commute_button</string>
 			<key>Title</key>
-			<string>Trip Planner</string>
+			<string>Auto Commute bookmark icon</string>
 			<key>TrueValue</key>
 			<string>YES</string>
 			<key>Type</key>
 			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>TriMet Tickets App icon</string>
+			<key>Key</key>
+			<string>ticket_app_icon</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Flashing Light icon</string>
+			<key>Key</key>
+			<string>flashing_light_icon</string>
+			<key>DefaultValue</key>
+			<true/>
 		</dict>
 		<dict>
 			<key>Title</key>
@@ -101,7 +113,7 @@
 			<string>Color theme</string>
 			<key>Titles</key>
 			<array>
-				<string>Gray</string>
+				<string>Standard</string>
 				<string>Blue</string>
 				<string>Green</string>
 				<string>Black</string>
@@ -141,6 +153,22 @@
 			<string>YES</string>
 			<key>Type</key>
 			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Warnings</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Show Flashing Light warning</string>
+			<key>Key</key>
+			<string>flashing_light_warning</string>
+			<key>DefaultValue</key>
+			<true/>
 		</dict>
 		<dict>
 			<key>Title</key>
@@ -220,7 +248,6 @@
 			<key>Titles</key>
 			<array>
 				<string>None</string>
-				<string>Address from Yahoo PlaceFinder</string>
 				<string>Address from GeoNames.org</string>
 				<string>Neighborhood from GeoNames.org</string>
 			</array>
@@ -229,7 +256,6 @@
 			<key>Values</key>
 			<array>
 				<integer>0</integer>
-				<integer>1</integer>
 				<integer>2</integer>
 				<integer>3</integer>
 			</array>
@@ -274,6 +300,16 @@
 			<string>YES</string>
 			<key>Type</key>
 			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Group by Arrivals icon</string>
+			<key>Key</key>
+			<string>group_by_arrivals_icon</string>
+			<key>DefaultValue</key>
+			<false/>
 		</dict>
 		<dict>
 			<key>Title</key>
@@ -494,6 +530,38 @@
 			<false/>
 		</dict>
 		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>The vehicle locator is an experimental feature that will try to find which vehicle you are currently on. The distance may need tuning - if it is too big it will find too many vehicles close by, but too small and it won&apos;t find the one you are on.</string>
+		</dict>
+		<dict>
+			<key>Values</key>
+			<array>
+				<integer>0</integer>
+				<integer>200</integer>
+				<real>400</real>
+				<real>600</real>
+				<integer>800</integer>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>OFF</string>
+				<string>200 meters</string>
+				<string>400 meters</string>
+				<string>600 meters</string>
+				<string>800 meters</string>
+			</array>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Vehicle Locator</string>
+			<key>Key</key>
+			<string>vehicle_locator_distance</string>
+			<key>DefaultValue</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
 			<key>Title</key>
 			<string>Show Streetcar Map initially instead of the MAX map.</string>
 			<key>Type</key>
@@ -524,26 +592,6 @@
 			<string>show_transit_tracker</string>
 			<key>Title</key>
 			<string>Tracker link</string>
-			<key>TrueValue</key>
-			<string>YES</string>
-			<key>Type</key>
-			<string>PSToggleSwitchSpecifier</string>
-		</dict>
-		<dict>
-			<key>Title</key>
-			<string>Show an additional toolbar button on the main screen. The Commute button will re-display the commuter bookmark set up for that time and day (it looks like a clock):</string>
-			<key>Type</key>
-			<string>PSGroupSpecifier</string>
-		</dict>
-		<dict>
-			<key>DefaultValue</key>
-			<string>YES</string>
-			<key>FalseValue</key>
-			<string>NO</string>
-			<key>Key</key>
-			<string>commute_button</string>
-			<key>Title</key>
-			<string>Commute button</string>
 			<key>TrueValue</key>
 			<string>YES</string>
 			<key>Type</key>

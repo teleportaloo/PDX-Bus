@@ -27,6 +27,8 @@ typedef long long TriMetTime;
 typedef long long TriMetDistance;
 
 #define TriMetToUnixTime(X) ((X)/1000)
+#define UnixToTriMetTime(X) ((X)*1000)
+
 
 typedef enum {
 	TripModeBusOnly,

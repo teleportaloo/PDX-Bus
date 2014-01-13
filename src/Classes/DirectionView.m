@@ -421,9 +421,9 @@
 
 #pragma mark XML debug methods
 
-- (void)createToolbarItems
+- (void)updateToolbarItems:(NSMutableArray *)toolbarItems
 {
-    [self createToolbarItemsWithXml];
+    [self updateToolbarItemsWithXml:toolbarItems];
 }
 
 - (void) appendXmlData:(NSMutableData*)buffer

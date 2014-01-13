@@ -36,37 +36,17 @@
 #define kSectionLegal			2
 #define kSectionAbout			3
 #define kSections				4
-
-#define kRowSite				0
-#define kLinkTracker			1
-#define kLinkStopIDs			2
-#define kRowPortlandTransport   3
-#define kRowTriMet				4
-
-#define kLinkRows				5
-
-#define kLegalRows				15
-#define kRowCivicApps			0
-#define kRowMainIcon			1
-#define kRowIcons				2
-#define kRowTWG					3
-#define kRowSettings            4
-#define KRowOtherIcons			5
-#define kRowOxygen				6
-#define kRowGeoNames			7
-#define kRowPolygons			8
-#define kRowRefresh             9
-#define kRowZXing               10
-#define kRowGentleface          11
-#define kRowMyell0w             12
-#define kRowChrome              13
-#define kRowSrc					14
 			
 #define kSectionHelpRows		3
 #define kSectionHelpRowHelp		0
 #define kSectionHelpRowNew		1
 #define kSectionHelpHowToRide   2
 
+#define kLinkFull   @"LinkF"
+#define kLinkMobile @"LinkM"
+#define kPageTitle  @"Page"
+#define kIcon       @"Icon"
+#define kCellText   @"Title"
 
 @implementation AboutView
 
@@ -75,6 +55,8 @@
 - (void)dealloc {
 	[aboutText release];
 	[helpText release];
+    [links release];
+    [legal release];
 	[super dealloc];
 }
 
@@ -91,24 +73,164 @@
 - (id)init {
 	if ((self = [super init]))
 	{
-		self.title = @"About";
-		aboutText = [[NSString stringWithFormat:@"Version %@\n\n"
-		"Route and arrival data provided by permission of TriMet.\n\n"
-		"This app was developed as a volunteer effort to provide a service for TriMet riders. The developer has no affiliation with TriMet, AT&T or Apple.\n\n"
-		"Lots of thanks...\n\n"
-		"...to http://www.portlandtransport.com for help and advice;\n\n"
-		"...to Scott, Tim and Mike for beta testing and suggestions;\n\n"
-		"...to Scott (again) for lending me his brand new iPad;\n\n"
-		"...to Rob Alan for the stylish icon; and\n\n"
-		"...to CivicApps.org for Awarding PDX Bus the \"Most Appealing\" and \"Best in Show\" awards in July 2010.\n\n"
-		"Special thanks to Ken for putting up with all this.\n\n"
-		"\nCopyright (c) 2008-2013\nAndrew Wallace\n(See legal section above for other copyright owners and attrbutions).", [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"]] retain];
+		self.title = NSLocalizedString(@"About", @"About screen title");
+		aboutText = [[NSString stringWithFormat:
+                      NSLocalizedString(
+                                        @"Version %@\n\n"
+                                        "Route and arrival data provided by permission of TriMet.\n\n"
+                                        "This app was developed as a volunteer effort to provide a service for TriMet riders. The developer has no affiliation with TriMet, AT&T or Apple.\n\n"
+                                        "Lots of thanks...\n\n"
+                                        "...to http://www.portlandtransport.com for help and advice;\n\n"
+                                        "...to Scott, Tim and Mike for beta testing and suggestions;\n\n"
+                                        "...to Scott (again) for lending me his brand new iPad;\n\n"
+                                        "...to Rob Alan for the stylish icon; and\n\n"
+                                        "...to CivicApps.org for Awarding PDX Bus the \"Most Appealing\" and \"Best in Show\" awards in July 2010.\n\n"
+                                        "Special thanks to Ken for putting up with all this.\n\n"
+                                        "\nCopyright (c) 2008-2013\nAndrew Wallace\n(See legal section above for other copyright owners and attrbutions).",
+                                        @"Dedication text"),
+                      
+                      [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"]] retain];
 		
-		helpText = @"PDX Bus uses real-time tracking information from TriMet to display bus, MAX, WES and streetcar times for the Portland, Oregon, metro area.\n\n"
-			"Every TriMet bus stop and rail station has its own unique Stop ID number, up to five digits.\n\n"
-			"Enter the Stop ID to get the arrivals for that stop. You may also scan a QR code (found at some stops), or browse & search the routes to find a stop, or use a "
-			"map of the rail system. The Trip Planner feature uses scheduled times to arrange a journey with several transfers.\n\n"
-			"See below for other tips and links, touch here to start using PDX Bus.";
+		helpText =
+        NSLocalizedString(
+                          @"PDX Bus uses real-time tracking information from TriMet to display bus, MAX, WES and streetcar times for the Portland, Oregon, metro area.\n\n"
+                          "Every TriMet bus stop and rail station has its own unique Stop ID number, up to five digits.\n\n"
+                          "Enter the Stop ID to get the arrivals for that stop. You may also scan a QR code (found at some stops), or browse & search the routes to find a stop, or use a "
+                          "map of the rail system. The Trip Planner feature uses scheduled times to arrange a journey with several transfers.\n\n"
+                          "See below for other tips and links, touch here to start using PDX Bus.", @"Main help description");
+        
+        
+        links = [[NSArray arrayWithObjects:
+                  [NSDictionary dictionaryWithObjectsAndKeys:
+                   NSLocalizedString(@"About TriMet's Transit Tracker", @"Link to TriMet page"),                               kCellText,
+                   kIconLink,                                                                                                  kIcon,
+                   @"http://trimet.org/transittracker/about.htm",                                                              kLinkMobile,
+                   NSLocalizedString(@"Transit Tracker", @"web page title"),                                                   kPageTitle, nil],
+                  
+                  [NSDictionary dictionaryWithObjectsAndKeys:
+                   NSLocalizedString(@"About Stop IDs", @"Link to TriMet page"),                                               kCellText,
+                   kIconLink,                                                                                                  kIcon,
+                   NSLocalizedString(@"http://trimet.org/transittracker/stopidnumbers.htm", @"web page on stop ids"),          kLinkMobile,
+                   NSLocalizedString(@"Transit Tracker", @"web page title"),                                                   kPageTitle, nil],
+                  
+                  [NSDictionary dictionaryWithObjectsAndKeys:
+                   NSLocalizedString(@"PDX Bus web site & Support", @"Link to TriMet page"),                                   kCellText,
+                   kIconBlog,                                                                                                  kIcon,
+                   @"http:/pdxbus.teleportaloo.org",                                                                           kLinkMobile,
+                   @"pdxbus.teleportaloo.org",                                                                                 kPageTitle, nil],
+                  
+                  [NSDictionary dictionaryWithObjectsAndKeys:
+                   NSLocalizedString(@"TriMet.org", @"Link to TriMet page"),                                                   kCellText,
+                   kIconTriMetLink,                                                                                            kIcon,
+                   NSLocalizedString(@"http://m.trimet.org/", @"mobile web page"),                                             kLinkMobile,
+                   NSLocalizedString(@"http://www.trimet.org/", @"full sized web page"),                                       kLinkFull,
+                   @"TriMet",                                                                                                  kPageTitle, nil],
+                  
+                  
+                  [NSDictionary dictionaryWithObjectsAndKeys:
+                   NSLocalizedString(@"Portland Transport Blog", @"Link to Portland Transport Blog"),                          kCellText,
+                   kIconBlog,                                                                                                  kIcon,
+                   @"http://portlandtransport.com" ,                                                                           kLinkMobile,
+                   @"Portland Transport",                                                                                      kPageTitle, nil],
+                  
+                  nil] retain];
+        
+        legal = [[NSArray arrayWithObjects:
+                  [NSDictionary dictionaryWithObjectsAndKeys:
+                   NSLocalizedString(@"Thanks for the Civic App award!", @"Link"),                                              kCellText,
+                   kIconAward,                                                                                                  kIcon,
+                   @"http://civicapps.org/news/announcing-best-apps-winners-and-runners",                                       kLinkMobile,
+                   @"CivicApps.org",                                                                                            kPageTitle, nil],
+                  
+                  [NSDictionary dictionaryWithObjectsAndKeys:
+                   NSLocalizedString(@"App icon by Rob Alan", @"Link"),                                                         kCellText,
+                   kIconAppIconAction,                                                                                          kIcon,
+                   @"http://www.robalan.com",                                                                                   kLinkMobile,
+                   @"Rob Alan",                                                                                                 kPageTitle, nil],
+
+/*
+                  [NSDictionary dictionaryWithObjectsAndKeys:
+                   NSLocalizedString(@"Some icons from Oxygen-Icons.org", @"Link"),                                             kCellText,
+                   kIconBrush,                                                                                                  kIcon,
+                   @"http://www.oxygen-icons.org",                                                                              kLinkMobile,
+                   @"Oxygen Icons",                                                                                             kPageTitle, nil],
+*/
+                  [NSDictionary dictionaryWithObjectsAndKeys:
+                   NSLocalizedString(@"Icons by Joseph Wain / glyphish.com", @"Link"),                                          kCellText,
+                   kIconBrush,                                                                                                  kIcon,
+                   @"http://glyphish.com/",                                                                                     kLinkMobile,
+                   @"glyphish.com",                                                                                             kPageTitle, nil],
+                  
+                  [NSDictionary dictionaryWithObjectsAndKeys:
+                   NSLocalizedString(@"Some toolbar icons by TWG", @"Link"),                                                    kCellText,
+                   kIconBrush,                                                                                                  kIcon,
+                   @"http://blog.twg.ca/2009/09/free-iphone-toolbar-icons/",                                                    kLinkMobile,
+                   @"TWG",                                                                                                      kPageTitle, nil],
+                  
+                  [NSDictionary dictionaryWithObjectsAndKeys:
+                   NSLocalizedString(@"Open in Chrome from Google", @"Link"),                                                   kCellText,
+                   kIconSrc,                                                                                                    kIcon,
+                   @"https://github.com/GoogleChrome/OpenInChrome",                                                             kLinkMobile,
+                   @"Open in Chrome",                                                                                           kPageTitle, nil],
+                  
+                  [NSDictionary dictionaryWithObjectsAndKeys:
+                   NSLocalizedString(@"Inf Color Picker by InfinitApps", @"Link"),                                              kCellText,
+                   kIconSrc,                                                                                                    kIcon,
+                   @"https://github.com/InfinitApps/InfColorPicker",                                                            kLinkMobile,
+                   @"InfColorPicker",                                                                                           kPageTitle, nil],
+                  
+                  [NSDictionary dictionaryWithObjectsAndKeys:
+                   NSLocalizedString(@"Uses code from www.inappsettingskit.com", @"Link"),                                      kCellText,
+                   kIconSrc,                                                                                                    kIcon,
+                   @"http://www.inappsettingskit.com/",                                                                         kLinkMobile,
+                   @"www.inappsettingskit.com",                                                                                 kPageTitle, nil],
+                  
+                  [NSDictionary dictionaryWithObjectsAndKeys:
+                   NSLocalizedString(@"Location names from GeoNames.org", @"Link"),                                             kCellText,
+                   kIconEarthMap,                                                                                               kIcon,
+                   @"http://geonames.org/",                                                                                     kLinkMobile,
+                   @"GeoNames.org",                                                                                             kPageTitle, nil],
+                  
+                  
+                  [NSDictionary dictionaryWithObjectsAndKeys:
+                   NSLocalizedString(@"Polygon code (c) 1970-2003, Wm. Randolph Franklin", @"Link"),                            kCellText,
+                   kIconSrc,                                                                                                    kIcon,
+                   @"http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html",                                   kLinkMobile,
+                   @"Polygon code",                                                                                             kPageTitle, nil],
+                  
+                  [NSDictionary dictionaryWithObjectsAndKeys:
+                   NSLocalizedString(@"Some icons by Aha-Soft", @"Link"),                                                       kCellText,
+                   kIconBrush,                                                                                                  kIcon,
+                   @"http://www.small-icons.com/icons.htm",                                                                     kLinkMobile,
+                   @"Aha-Soft",                                                                                                 kPageTitle, nil],
+                  
+                  [NSDictionary dictionaryWithObjectsAndKeys:
+                   NSLocalizedString(@"Pull to Refresh (c) 2010 Leah Culver", @"Link"),                                         kCellText,
+                   kIconSrc,                                                                                                    kIcon,
+                   @"https://github.com/leah/PullToRefresh",                                                                    kLinkMobile,
+                   @"Pull to Refresh",                                                                                          kPageTitle, nil],
+                  
+                  [NSDictionary dictionaryWithObjectsAndKeys:
+                   NSLocalizedString(@"QR Scanning from ZXing library", @"Link"),                                               kCellText,
+                   kIconSrc,                                                                                                    kIcon,
+                   @"http://code.google.com/p/zxing/",                                                                          kLinkMobile,
+                   @"ZXing",                                                                                                    kPageTitle, nil],
+                  
+                  
+                  [NSDictionary dictionaryWithObjectsAndKeys:
+                   NSLocalizedString(@"Some icons by Gentleface", @"Link"),                                                     kCellText,
+                   kIconSrc,                                                                                                    kIcon,
+                   @"http://gentleface.com/free_icon_set.html",                                                                 kLinkMobile,
+                   @"GentleFace",                                                                                               kPageTitle, nil],
+                 
+                  [NSDictionary dictionaryWithObjectsAndKeys:
+                   NSLocalizedString(@"Source Code", @"Link"),                                                                  kCellText,
+                   kIconSrc,                                                                                                    kIcon,
+                   @"https://github.com/teleportaloo/PDX-Bus",                                                                  kLinkMobile,
+                   @"Source Code",                                                                                              kPageTitle, nil],
+                  
+                  
+                  nil] retain];
         
         _hideButton = NO;
     }
@@ -122,7 +244,7 @@
     if (!_hideButton)
     {
         UIBarButtonItem *info = [[[UIBarButtonItem alloc]
-                                  initWithTitle:@"Help"
+                                  initWithTitle:NSLocalizedString(@"Help", @"Help button")
                                   style:UIBarButtonItemStyleBordered
                                   target:self action:@selector(infoAction:)] autorelease];
         
@@ -147,13 +269,13 @@
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
 	switch (section) {
 		case kSectionAbout:
-			return @"PDX Bus - Portland Transit Times";
+			return NSLocalizedString(@"Thanks!", @"Thanks section header");
 		case kSectionWeb:
-			return @"Links";
+			return NSLocalizedString(@"Links", @"Link section header");
 		case kSectionLegal:
-			return @"Attributions and Legal";
+			return NSLocalizedString(@"Attributions and Legal", @"Section header");
 		case kSectionHelp:
-			return @"Welcome to PDX Bus!";
+			return NSLocalizedString(@"Welcome to PDX Bus!", @"Section header");
 			
 	}
 	return nil;
@@ -171,14 +293,40 @@
 		case kSectionHelp:
 			return kSectionHelpRows;
 		case kSectionWeb:
-			return kLinkRows;
+			return links.count;
 		case kSectionLegal:
-			return kLegalRows;
+			return legal.count;
 	}
 	return 0;
 }
 
 
+- (UITableViewCell *)tableView:(UITableView *)tableView cellFromDict:(NSDictionary*)item
+{
+    static NSString *linkId = @"pdxbuslink";
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:linkId];
+    if (cell == nil) {
+        
+        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:linkId] autorelease];
+        cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+        /*
+         [self newLabelWithPrimaryColor:[UIColor blueColor] selectedColor:[UIColor cyanColor] fontSize:14 bold:YES parentView:[cell contentView]];
+         */
+        
+        cell.textLabel.font =  [self getBasicFont]; //  [UIFont fontWithName:@"Ariel" size:14];
+        cell.textLabel.textColor = [UIColor blueColor];
+        cell.textLabel.adjustsFontSizeToFitWidth = YES;
+        cell.selectionStyle = UITableViewCellSelectionStyleBlue;
+    }
+    
+    cell.textLabel.text =   [item objectForKey:kCellText];
+    cell.imageView.image =  [self getActionIcon:[item objectForKey:kIcon]];
+    
+    [cell setAccessibilityLabel:[NSString stringWithFormat:NSLocalizedString(@"Link to %@", @"Accessibility label"), cell.textLabel.text]];
+    
+    return cell;
+    
+}
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	
 	switch (indexPath.section) {
@@ -220,13 +368,13 @@
                 
                 if (indexPath.row == kSectionHelpHowToRide)
                 {
-                    cell.textLabel.text = @"How to ride";
+                    cell.textLabel.text = NSLocalizedString(@"How to ride", @"Link to page");
                     cell.imageView.image = [self getActionIcon:kIconAbout];
                 }
                 else 
                 {
-                    cell.textLabel.text = @"What's new?";
-                    cell.imageView.image = [self getActionIcon:@"Icon-Small.png"];
+                    cell.textLabel.text = NSLocalizedString(@"What's new?", @"Link to what's new");
+                    cell.imageView.image = [self getActionIcon:kIconAppIconAction];
                 }
 				return cell;
 			}
@@ -235,134 +383,14 @@
 		}
 		case kSectionWeb:
 		{
-			static NSString *linkId = @"pdxbuslink";
-			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:linkId];
-			if (cell == nil) {
-				
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:linkId] autorelease];
-				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-				/*
-				 [self newLabelWithPrimaryColor:[UIColor blueColor] selectedColor:[UIColor cyanColor] fontSize:14 bold:YES parentView:[cell contentView]];
-				 */
-				
-				cell.textLabel.font =  [self getBasicFont]; //  [UIFont fontWithName:@"Ariel" size:14];
-				cell.textLabel.textColor = [UIColor blueColor];
-				cell.textLabel.adjustsFontSizeToFitWidth = YES;
-				cell.selectionStyle = UITableViewCellSelectionStyleBlue;
-			}
-			
-			switch (indexPath.row)
-			{
-			case kLinkTracker:	
-				cell.textLabel.text = @"About TriMet's Transit Tracker";
-				cell.imageView.image = [self getActionIcon:kIconLink];
-				break;
-			case kLinkStopIDs:
-				cell.textLabel.text = @"About Stop IDs";
-				cell.imageView.image = [self getActionIcon:kIconLink];
-				break;
-			case kRowSite:
-				cell.textLabel.text = @"PDX Bus web site & Support";
-				cell.imageView.image = [self getActionIcon:kIconBlog];
-				break;
-			case kRowTriMet:
-				cell.textLabel.text = @"TriMet.org";
-				cell.imageView.image = [self getActionIcon:kIconTriMetLink];
-				break;
-            case kRowPortlandTransport:
-				cell.textLabel.text = @"PortlandTransport.com";
-				cell.imageView.image = [self getActionIcon:kIconBlog];
-				break;
-			}
-			[cell setAccessibilityLabel:[NSString stringWithFormat:@"Link to %@", cell.textLabel.text]];
-			return cell;
+			return [self tableView:tableView cellFromDict:[links objectAtIndex:indexPath.row]];
 			break;
 		}
 		case kSectionLegal:
 		{
-			static NSString *linkId = @"pdxbuslink";
-			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:linkId];
-			if (cell == nil) {
-				
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:linkId] autorelease];
-				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-				/*
-				 [self newLabelWithPrimaryColor:[UIColor blueColor] selectedColor:[UIColor cyanColor] fontSize:14 bold:YES parentView:[cell contentView]];
-				 */
-				
-				cell.textLabel.font =  [self getBasicFont]; //  [UIFont fontWithName:@"Ariel" size:14];
-				cell.textLabel.textColor = [UIColor blueColor];
-				cell.textLabel.adjustsFontSizeToFitWidth = YES;
-				cell.selectionStyle = UITableViewCellSelectionStyleBlue;
-			}
 			
-			switch (indexPath.row)
-			{
-				case kRowOxygen:
-					cell.textLabel.text = @"Some icons from Oxygen-Icons.org";
-					cell.imageView.image = [self getActionIcon:kIconBrush];
-					break;
-				case kRowIcons:
-					cell.textLabel.text = @"Icons by Joseph Wain / glyphish.com";
-					cell.imageView.image = [self getActionIcon:kIconBrush];
-					break;
-				case kRowTWG:
-					cell.textLabel.text = @"Some toolbar icons by TWG";
-					cell.imageView.image = [self getActionIcon:kIconBrush];
-					break;
-                case kRowChrome:
-					cell.textLabel.text = @"Open in Chrome from Google";
-					cell.imageView.image = [self getActionIcon:kIconSrc];
-					break;
-                case kRowSettings:
-					cell.textLabel.text = @"Uses code from www.inappsettingskit.com";
-					cell.imageView.image = [self getActionIcon:kIconSrc];
-					break;
-				case kRowGeoNames:
-					cell.textLabel.text = @"Location names from GeoNames.org";
-					cell.imageView.image = [self getActionIcon:kIconEarthMap];
-					break;	
-				case kRowPolygons:
-					cell.textLabel.text = @"Polygon code (c) 1970-2003, Wm. Randolph Franklin";
-					cell.imageView.image = [self getActionIcon:kIconSrc];
-					break;
-				case kRowMainIcon:
-					cell.textLabel.text = @"App icon by Rob Alan";
-					cell.imageView.image = [self getActionIcon:@"Icon-Small.png"];
-					break;
-				case kRowCivicApps:
-					cell.textLabel.text = @"Thanks for the Civic App award!";
-					cell.imageView.image = [self getActionIcon:kIconAward];
-					break;
-				case kRowSrc:
-					cell.textLabel.text = @"Source Code";
-					cell.imageView.image = [self getActionIcon:kIconSrc];
-					break;
-				case KRowOtherIcons:
-					cell.textLabel.text = @"Some icons by Aha-Soft";
-					cell.imageView.image = [self getActionIcon:kIconBrush];
-					break;
-                case kRowRefresh:
-					cell.textLabel.text = @"Pull to Refresh (c) 2010 Leah Culver";
-					cell.imageView.image = [self getActionIcon:kIconBrush];
-					break;
-                case kRowZXing:
-					cell.textLabel.text = @"QR Scanning from ZXing library";
-					cell.imageView.image = [self getActionIcon:kIconSrc];
-					break;
-                case kRowGentleface:
-					cell.textLabel.text = @"Some icons by Gentleface";
-					cell.imageView.image = [self getActionIcon:kIconBrush];
-					break;
-                case kRowMyell0w:
-					cell.textLabel.text = @"Some icons from myell0w";
-					cell.imageView.image = [self getActionIcon:kIconBrush];
-					break;
+			return [self tableView:tableView cellFromDict:[legal objectAtIndex:indexPath.row]];
 
-					
-			}
-			[cell setAccessibilityLabel:[NSString stringWithFormat:@"Link to %@", cell.textLabel.text]];
-			return cell;
 			break;
 		}
 		default:
@@ -393,91 +421,30 @@
 	return [self basicRowHeight];
 }
 
+- (void)gotoDict:(NSDictionary*)dict
+{
+    WebViewController *webPage = [[WebViewController alloc] init];
+    
+    [webPage setURLmobile:[dict objectForKey:kLinkMobile]
+                     full:[dict objectForKey:kLinkFull]
+                    title:[dict objectForKey:kPageTitle]];
+
+    [webPage displayPage:[self navigationController] animated:YES tableToDeselect:self.table];
+    [webPage release];
+}
+
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 	switch (indexPath.section)
 	{
 		case kSectionWeb:
 		{
-			WebViewController *webPage = [[WebViewController alloc] init];
-		
-			switch (indexPath.row)
-			{
-				case kLinkTracker:	
-					[webPage setURLmobile:@"http://trimet.org/transittracker/about.htm" full:nil title:@"Transit Tracker"]; 
-					break;
-				case kLinkStopIDs:
-					[webPage setURLmobile:@"http://trimet.org/transittracker/stopidnumbers.htm" full:nil title:@"Stop IDs"];
-					break;
-				case kRowSite:	
-					[webPage setURLmobile:@"http:/pdxbus.teleportaloo.org" full:nil title:@"pdxbus.teleportaloo.org"]; 
-					break;
-				case kRowTriMet:
-					[webPage setURLmobile:@"http://m.trimet.org/" full:@"http://www.trimet.org/" title:@"TriMet.org"];
-					break;
-				case kRowPortlandTransport:
-					[webPage setURLmobile:@"http://portlandtransport.com" full:nil title:@"portlandtransport.com"];
-					break;
-			}
-	
-			[webPage displayPage:[self navigationController] animated:YES tableToDeselect:self.table];
-			[webPage release];
+			[self gotoDict:[links objectAtIndex:indexPath.row]];
 			break;
 		}
 		case kSectionLegal:
 		{
-			WebViewController *webPage = [[WebViewController alloc] init];
-			
-			switch (indexPath.row)
-			{
-				case kRowOxygen:
-					[webPage setURLmobile:@"http://www.oxygen-icons.org" full:nil title:@"Oxygen Icons"];
-					break;
-				case kRowIcons:
-					[webPage setURLmobile:@"http://glyphish.com/" full:nil title:@"glyphish.com"];
-					break;
-				case kRowGeoNames:
-					[webPage setURLmobile:@"http://geonames.org/" full:nil title:@"GeoNames.org"];
-					break;
-				case kRowPolygons:
-					[webPage setURLmobile:@"http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html" full:nil title:@"pnpoly"];
-					break;
-				case kRowMainIcon:
-					[webPage setURLmobile:@"http://www.robalan.com" full:nil title:@"Rob Alan"];
-					break;
-				case kRowCivicApps:
-					[webPage setURLmobile:@"http://civicapps.org/news/announcing-best-apps-winners-and-runners" full:nil title:@"CivicApps.org"];
-					break;
-				case kRowSrc:
-					[webPage setURLmobile:@"https://github.com/teleportaloo/PDX-Bus" full:nil title:@"Source Code"];
-					break;
-				case KRowOtherIcons:
-					[webPage setURLmobile:@"http://www.small-icons.com/icons.htm" full:nil title:@"Aha-Soft"];
-					break;
-				case kRowTWG:
-					[webPage setURLmobile:@"http://blog.twg.ca/2009/09/free-iphone-toolbar-icons/" full:nil title:@"TWG"];
-					break;
-                case kRowSettings:
-					[webPage setURLmobile:@"http://www.inappsettingskit.com/" full:nil title:@"www.inappsettingskit.com"];
-					break;
-                case kRowRefresh:
-					[webPage setURLmobile:@"https://github.com/leah/PullToRefresh" full:nil title:@"Pull to Refresh"];
-					break;
-                case kRowZXing:
-					[webPage setURLmobile:@"http://code.google.com/p/zxing/" full:nil title:@"ZXing"];
-					break;
-                case kRowMyell0w:
-					[webPage setURLmobile:@"https://github.com/myell0w/MTLocation" full:nil title:@"myell0w"];
-					break;
-                case kRowChrome:
-					[webPage setURLmobile:@"https://github.com/GoogleChrome/OpenInChrome" full:nil title:@"Open in Chrome"];
-					break;
-                    
-                    
-			}
-			
-			[webPage displayPage:[self navigationController] animated:YES tableToDeselect:self.table];
-			[webPage release];
-			break;
+            [self gotoDict:[legal objectAtIndex:indexPath.row]];
+            break;
 		}
 		case kSectionHelp:
 			if (indexPath.row == kSectionHelpRowHelp)
@@ -487,7 +454,7 @@
 			else if (indexPath.row == kSectionHelpHowToRide)
             {
                 WebViewController *webPage = [[WebViewController alloc] init];
-                [webPage setURLmobile:@"http://trimet.org/howtoride/index.htm" full:nil title:@"How to ride"]; 
+                [webPage setURLmobile:NSLocalizedString(@"http://trimet.org/howtoride/index.htm", @"how to ride site") full:nil title:NSLocalizedString(@"How to ride",@"how to ride title")];
                 [webPage displayPage:[self navigationController] animated:YES tableToDeselect:self.table];
                 [webPage release];
             }

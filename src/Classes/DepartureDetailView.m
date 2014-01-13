@@ -40,6 +40,9 @@
 #import "BigRouteView.h"
 #import "AlarmTaskList.h"
 #import "AlarmViewMinutes.h"
+#import "BlockColorDb.h"
+#import "../InfColorPicker/InfColorPickerController.h"
+#import "BlockColorViewController.h"
 
 #define kRouteSection				0
 
@@ -53,6 +56,8 @@
 #define kTripDetailsCellId			@"Trip"
 
 #define kWebId						@"WebId"
+#define kColId						@"ColId"
+
 #define kWebAlerts					4 // not used 
 #define kWebInfo					0
 #define kWebStops					1
@@ -71,6 +76,7 @@
 @synthesize detourData = _detourData;
 @synthesize stops = _stops;
 @synthesize allDepartures = _allDepartures;
+@synthesize delegate    = _delegate;
 
 - (void)dealloc {
 	self.departure = nil;
@@ -182,6 +188,17 @@
 	else {
 		locationSection = -1;
 	}
+    
+    if (self.departure.block !=nil)
+    {
+        highlightSection = sections;
+        sections ++;
+    }
+    else
+    {
+        highlightSection = -1;
+    }
+        
 	
 	if (dep.block && [AlarmTaskList supported] && dep.secondsToArrival > 0)
 	{
@@ -192,10 +209,7 @@
 		alertSection = -1;
 	}
 	
-	
-
-	
-	if (dep.block !=nil && allowDest)
+	if (allowDest)
 	{
 		destinationSection = sections;
 		sections ++;
@@ -230,6 +244,29 @@
 }
 
 #pragma mark Helper functions
+
+- (UIColor*) randomColor
+{
+    CGFloat red    = (double)(arc4random() % 256 ) / 255.0;
+    CGFloat green  = (double)(arc4random() % 256 ) / 255.0;
+    CGFloat blue   = (double)(arc4random() % 256 ) / 255.0;
+    
+    return [UIColor colorWithRed:red green:green blue:blue alpha:1.0];    
+}
+
+- (void) colorPickerControllerDidFinish: (InfColorPickerController*) controller
+{
+    [[BlockColorDb getSingleton] addColor:controller.resultColor
+                                 forBlock:self.departure.block
+                              description:self.departure.description];
+    [controller dismissModalViewControllerAnimated:YES];
+    
+    if (_delegate)
+    {
+        [_delegate detailsChanged];
+    }
+    [self reloadData];
+}
 
 - (void)showStops:(NSString *)route
 {
@@ -297,6 +334,11 @@
 	{
 		return 1;
 	}
+    
+    if (section == highlightSection)
+	{
+		return 1;
+	}
 	
 	if (section == alertSection)
 	{
@@ -343,6 +385,16 @@
 	return [NSString stringWithFormat:@"Detour: %@", [det detourDesc]];
 }
 
+-(void) tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
+{
+    if (indexPath.section == highlightSection)
+    {
+        BlockColorViewController *blockTable = [[BlockColorViewController alloc] init];
+        [[self navigationController] pushViewController:blockTable animated:YES];
+        [blockTable release];
+    }
+}
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	
 	if (indexPath.section == kRouteSection)
@@ -366,32 +418,63 @@
 	}
 	else if (indexPath.section == locationSection)
 	{
-		UITableViewCell *cell = nil;
+        UITableViewCell *cell = nil;
 		
-		NSString *cellId = [self.departure cellReuseIdentifier:kLocationId width:[self screenWidth]];
-		cell = [tableView dequeueReusableCellWithIdentifier: cellId];
+        NSString *cellId = [self.departure cellReuseIdentifier:kLocationId width:[self screenWidth]];
+        cell = [tableView dequeueReusableCellWithIdentifier: cellId];
 		
-		if (cell == nil) {
-			cell = [self.departure tableviewCellWithReuseIdentifier:cellId 
-																big:NO 
-													spaceToDecorate:YES
-															  width:[self screenWidth]];
-		}
-		NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
+        if (cell == nil) {
+            cell = [self.departure tableviewCellWithReuseIdentifier:cellId
+                                                                big:NO
+                                                    spaceToDecorate:YES
+                                                              width:[self screenWidth]];
+        }
+        NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
 		
-		[dateFormatter setDateStyle:kCFDateFormatterNoStyle];
-		[dateFormatter setTimeStyle:NSDateFormatterMediumStyle];
-		NSDate *lastPosition = [NSDate dateWithTimeIntervalSince1970: self.departure.blockPositionAt / 1000]; 
+        [dateFormatter setDateStyle:kCFDateFormatterNoStyle];
+        [dateFormatter setTimeStyle:NSDateFormatterMediumStyle];
+        NSDate *lastPosition = [NSDate dateWithTimeIntervalSince1970: self.departure.blockPositionAt / 1000];
 		
-		[self.departure populateCellGeneric:cell
-									  first:[NSString stringWithFormat:@"Last known location at %@", [dateFormatter stringFromDate:lastPosition]]
-									 second:[NSString stringWithFormat:@"%@ away", [self.departure formatDistance:self.departure.blockPositionFeet]]
-									   col1:[UIColor blueColor]
-									   col2:[UIColor blueColor]];
-		cell.selectionStyle = UITableViewCellSelectionStyleBlue;
-		cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-		return cell;
-	} 
+        [self.departure populateCellGeneric:cell
+                                      first:[NSString stringWithFormat:@"Last known location at %@", [dateFormatter stringFromDate:lastPosition]]
+                                     second:[NSString stringWithFormat:@"%@ away", [self.departure formatDistance:self.departure.blockPositionFeet]]
+                                       col1:[UIColor blueColor]
+                                       col2:[UIColor blueColor]];
+        cell.selectionStyle = UITableViewCellSelectionStyleBlue;
+        cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+        return cell;
+    }
+    else if (indexPath.section == highlightSection)
+    {
+        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kColId];
+        if (cell == nil) {
+            cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kColId] autorelease];
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            cell.textLabel.font = [self getBasicFont];
+            cell.textLabel.textColor = [UIColor grayColor];
+            cell.textLabel.adjustsFontSizeToFitWidth = YES;
+        }
+        cell.imageView.image = nil;
+        
+        UIColor * color = [[BlockColorDb getSingleton] colorForBlock:self.departure.block];
+        if (color == nil)
+        {
+            cell.textLabel.textColor = [UIColor grayColor];
+            cell.textLabel.text = @"Tag this vehicle with a color";
+            cell.imageView.image = [BlockColorDb imageWithColor:[UIColor grayColor]];
+            cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
+        }
+        else
+        {
+            cell.textLabel.textColor = [UIColor grayColor];
+            cell.textLabel.text = @"Remove vehicle color tag";
+            cell.imageView.image = [BlockColorDb imageWithColor:color];
+            cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
+            
+        }
+        
+        return cell;
+	}
 	else if (indexPath.section == detourSection)
 	{
 		static NSString *detourId = @"detour";
@@ -640,6 +723,31 @@
 	{
 		[self showMap:nil];
 	}
+    else if (indexPath.section == highlightSection)
+    {
+        
+        if ([[BlockColorDb getSingleton] colorForBlock:self.departure.block] !=nil)
+        {
+            [[BlockColorDb getSingleton] addColor:nil forBlock:self.departure.block description:nil];
+            [self reloadData];
+            if (_delegate)
+            {
+                [_delegate detailsChanged];
+            }
+        }
+        else
+        {
+            InfColorPickerController* picker = [ InfColorPickerController colorPickerViewController ];
+            
+            picker.delegate = self;
+            
+            picker.sourceColor = [self randomColor];
+            
+            
+            [ picker presentModallyOverViewController: self ];
+        }
+            
+    }
 	else if (indexPath.section == detourSection)
 	{
 		if (self.detourData.detour !=nil)
@@ -662,7 +770,7 @@
 	{
 		return 35.0;
 	}
-	else if (indexPath.section == alertSection)
+	else if (indexPath.section == alertSection || indexPath.section == highlightSection)
 	{
 		return 35.0;
 	}
@@ -722,31 +830,28 @@
 
 #pragma mark TableViewWithToolbar functions
 
-- (void)createToolbarItems
-{	
+- (void)updateToolbarItems:(NSMutableArray *)toolbarItems
+{
 	// match each of the toolbar item's style match the selection in the "UIBarButtonItemStyle" segmented control
+    bool needSpace = NO;
 
 	if (self.departure.hasBlock)
 	{
-		NSArray *items = [NSArray arrayWithObjects: 
-						  [self autoDoneButton], 
-						  [CustomToolbar autoFlexSpace],
-						  [CustomToolbar autoMapButtonWithTarget:self action:@selector(showMap:)],
-						  [CustomToolbar autoFlexSpace],
-						  [self autoFlashButton], nil];
-		[self setToolbarItems:items animated:NO];	
-		
-	}
-	else
-	{
-		NSArray *items = [NSArray arrayWithObjects: 
-						  [self autoDoneButton], 
-						  [CustomToolbar autoFlexSpace],
-						  [self autoFlashButton], 
-						  nil];
-		[self setToolbarItems:items animated:NO];
-	}
-	
+        [toolbarItems addObject:[CustomToolbar autoMapButtonWithTarget:self action:@selector(showMap:)]];
+        needSpace = YES;
+    }
+    
+    if ([UserPrefs getSingleton].ticketAppIcon)
+    {
+        if (needSpace)
+        {
+            [toolbarItems addObject:[CustomToolbar autoFlexSpace]];
+        }
+        [toolbarItems addObject:[self autoTicketAppButton]];
+        needSpace = YES;
+    }
+    
+    [self maybeAddFlashButtonWithSpace:needSpace buttons:toolbarItems big:NO];
 }
 
 @end

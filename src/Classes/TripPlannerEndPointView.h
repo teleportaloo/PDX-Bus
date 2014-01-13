@@ -38,11 +38,11 @@
 
 @interface TripPlannerEndPointView: TripPlannerBaseView <EditableTableViewCellDelegate, ReturnStopId, ABPeoplePickerNavigationControllerDelegate> {
 	
-	bool _from;
-	UITextField *_placeNameField;
-	bool keyboardUp;
-	CellTextField *_editCell;
-	UIViewController *_popBackTo;
+	bool                _from;
+	UITextField *       _placeNameField;
+	bool                keyboardUp;
+	CellTextField *     _editCell;
+	UIViewController *  _popBackTo;
 	
 }
 
@@ -63,6 +63,7 @@
 - (TripEndPoint *)endPoint;
 - (void)initEndPoint;
 - (void)nextScreen;
+- (void)initTakMeHome:(TripUserRequest *)req;
 
 
 @end

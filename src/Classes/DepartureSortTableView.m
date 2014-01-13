@@ -36,10 +36,10 @@
 #define kSectionSeg  1
 
 
-#define kSegRowWidth	300
-#define kSegRowHeight	60
-#define kUISegHeight	40
-#define kUISegWidth		300
+#define kSegRowWidth		320
+#define kSegRowHeight		40
+#define kUISegHeight		40
+#define kUISegWidth			320
 
 @synthesize sortSegment = _sortSegment;
 @synthesize info		= _info;

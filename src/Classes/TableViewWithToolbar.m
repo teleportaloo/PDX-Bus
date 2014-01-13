@@ -51,11 +51,25 @@
 
 
 - (void)dealloc {
-	self.table			= nil;
-	self.callback		= nil;
+    self.table.tableHeaderView  = nil;
+	self.table                  = nil;
+	self.callback               = nil;
+    
+    if (self.searchController)
+    {
+        self.searchController.delegate = nil;
+		self.searchController.searchResultsDataSource = nil;
+		self.searchController.searchResultsDelegate = nil;
+    }
+	self.searchController = nil;
+    if (self.searchBar)
+    {
+        [self.searchBar removeFromSuperview];
+        self.searchBar.delegate = nil;
+    }
 	self.searchBar		= nil;
 	self.searchableItems= nil;
-	self.searchController = nil;
+   
 	[_basicFont release];
 	[_smallFont release];
 	[_paragraphFont release];
@@ -127,7 +141,26 @@
     }
 	
 	[self.view addSubview:self.table];
+    
+    // Hide all the cell lines at the end
+    self.table.tableFooterView = [[[UIView alloc] init] autorelease];
 	
+}
+
+- (UIColor *)lighterColorForColor:(UIColor *)c
+{
+    float r, g, b, a;
+    if ([c getRed:&r green:&g blue:&b alpha:&a])
+        return [UIColor colorWithRed:MIN(r + 0.2, 1.0)
+                               green:MIN(g + 0.2, 1.0)
+                                blue:MIN(b + 0.2, 1.0)
+                               alpha:a];
+    return nil;
+}
+
+- (UIColor *)greyBackground
+{
+    return [UIColor colorWithWhite:0.99 alpha:1.0];
 }
 
 -(void)filterItems
@@ -235,7 +268,7 @@
 {
     if ([cell.reuseIdentifier isEqualToString:kDisclaimerCellId])
 	{
-		cell.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1.0];
+		cell.backgroundColor =  [self greyBackground];
 	}
     else
     {
@@ -299,7 +332,7 @@
 	}
 	CGSize rect = CGSizeMake(width, MAXFLOAT);
 	CGSize sz = [text sizeWithFont:font constrainedToSize:rect lineBreakMode:UILineBreakModeWordWrap];
-	return sz.height + font.pointSize;
+	return sz.height + font.pointSize + (self.iOS7style ? font.pointSize : 0);
 }
 
 - (void)updateAccessibility:(UITableViewCell *)cell indexPath:(NSIndexPath *)indexPath text:(NSString *)str alwaysSaySection:(BOOL)alwaysSaySection
@@ -476,18 +509,36 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 	
 }
 
+- (UIFont *)systemFontBold:(bool)bold size:(CGFloat)size
+{
+    if (bold)
+    {
+        return [UIFont boldSystemFontOfSize:size];
+    }
+    
+    return [UIFont systemFontOfSize:size];
+
+}
+
 - (UIFont*)getBasicFont
 {
 	if (_basicFont == nil)
 	{
+        bool bold = TRUE;
+        if ([self respondsToSelector:@selector(setEdgesForExtendedLayout:)])
+        {
+            bold = FALSE;
+        }
+        
 		if (SMALL_SCREEN(self.screenWidth))
 		{
-			_basicFont =[[UIFont boldSystemFontOfSize:18.0] retain];
+            _basicFont =[[self systemFontBold:bold size:18.0] retain];
+
 		}
 		else 
 		{
-			_basicFont = [[UIFont boldSystemFontOfSize:22.0] retain];
-		}		
+            _basicFont = [[self systemFontBold:bold size:22.0] retain];
+		}
 	}
 	return _basicFont;
 }
@@ -496,13 +547,19 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 {
 	if (_smallFont == nil)
 	{
+        bool bold = TRUE;
+        if ([self respondsToSelector:@selector(setEdgesForExtendedLayout:)])
+        {
+            bold = FALSE;
+        }
+        
 		if  (SMALL_SCREEN(self.screenWidth))
 		{
-			_smallFont =[[UIFont boldSystemFontOfSize:14.0] retain];
+            _smallFont =[[self systemFontBold:bold size:14.0] retain];
 		}
 		else 
 		{
-			_smallFont = [[UIFont boldSystemFontOfSize:22.0] retain];
+			_smallFont = [[self systemFontBold:bold size:22.0] retain];
 		}		
 	}
 	return _smallFont;
@@ -558,7 +615,7 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 		if (!cancelled)
 		{
 			[self reloadData];
-			// [[(RootViewController *)[self.navigationController topViewController] tableView] reloadData];
+			// [[(MainTableViewController *)[self.navigationController topViewController] tableView] reloadData];
 		}
 		else {
 			[self.navigationController popViewControllerAnimated:YES];

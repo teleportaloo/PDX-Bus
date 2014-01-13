@@ -94,36 +94,22 @@
 	return UITableViewStylePlain;
 }
 
-- (void)createToolbarItems
+- (void)updateToolbarItems:(NSMutableArray *)toolbarItems
 {	
-	
-	NSArray *items = nil;
-	
-	if (self.map == nil)
+	[toolbarItems addObject:[CustomToolbar autoMapButtonWithTarget:self action:@selector(showMap:)]];
+    [toolbarItems addObject:[CustomToolbar autoFlexSpace]];
+    
+    
+	if (self.map != nil)
 	{
-		
-		items = [NSArray arrayWithObjects: [self autoDoneButton], 
-				 [CustomToolbar autoFlexSpace], 
-				 [CustomToolbar autoMapButtonWithTarget:self action:@selector(showMap:)],
-				 [CustomToolbar autoFlexSpace], [self autoFlashButton], nil];
-	}
-	else {
-		
-		
-		items = [NSArray arrayWithObjects: [self autoDoneButton], 
-				 [CustomToolbar autoFlexSpace], 
-				 [CustomToolbar autoMapButtonWithTarget:self action:@selector(showMap:)],
-				 [CustomToolbar autoFlexSpace],
-				 [[[UIBarButtonItem alloc]
+		[toolbarItems addObject: [[[UIBarButtonItem alloc]
 				   initWithTitle:@"Next" style:UIBarButtonItemStyleBordered 
-				   target:self action:@selector(showNext:)] autorelease],
-				 [CustomToolbar autoFlexSpace], [self autoFlashButton], nil];
+				   target:self action:@selector(showNext:)] autorelease]];
+        [toolbarItems addObject:[CustomToolbar autoFlexSpace]];
 	}
 	
 	
-	
-	[self setToolbarItems:items animated:NO];
-	
+    [self maybeAddFlashButtonWithSpace:NO buttons:toolbarItems big:NO];
 }
 
 #pragma mark View methods
@@ -237,15 +223,8 @@
 
 -(void)showNext:(id)sender
 {
+    self.map.showNextOnAppearance = YES;
 	[[self navigationController] popViewControllerAnimated:YES];
-#ifdef ORIGINAL_IPHONE
-    NSDate *soon = [[NSDate date] addTimeInterval:0.5];
-#else
-    NSDate *soon = [[NSDate date] dateByAddingTimeInterval:0.5];
-#endif
-    NSTimer *timer = [[[NSTimer alloc] initWithFireDate:soon interval:0.1 target:self.map selector:@selector(next:) userInfo:nil repeats:NO] autorelease];
-    [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
-	// [self.map next];
 }
 
 
@@ -441,7 +420,7 @@
 				cell.textLabel.text = @"Nearby stops (1/2 mile)";
 				cell.selectionStyle = UITableViewCellSelectionStyleBlue;
 				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-				cell.imageView.image = [self getActionIcon:kIconLocate];
+				cell.imageView.image = [self getActionIcon7:kIconLocate7 old:kIconLocate];
 
 			}
 			else if (indexPath.row == rowRail)
@@ -450,7 +429,7 @@
 				cell.textLabel.text = @"Nearest rail stations";
 				cell.selectionStyle = UITableViewCellSelectionStyleBlue;
 				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-				cell.imageView.image = [self getActionIcon:kIconLocate];
+				cell.imageView.image = [self getActionIcon7:kIconLocate7 old:kIconLocate];
 				
 			}
 

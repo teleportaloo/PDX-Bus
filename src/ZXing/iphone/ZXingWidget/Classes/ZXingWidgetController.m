@@ -57,6 +57,21 @@
 @synthesize oneDMode, showCancel, showLicense, isStatusBarHidden;
 @synthesize readers;
 
+- (BOOL)shouldAutorotate
+{
+    //returns true if want to allow orientation change
+    return FALSE;
+    
+    
+}
+
+- (NSUInteger)supportedInterfaceOrientations
+{
+    //decide number of origination tob supported by Viewcontroller.
+    return UIInterfaceOrientationPortrait | UIInterfaceOrientationPortraitUpsideDown;
+    
+    
+}
 
 - (id)initWithDelegate:(id<ZXingDelegate>)scanDelegate showCancel:(BOOL)shouldShowCancel OneDMode:(BOOL)shouldUseoOneDMode {
   

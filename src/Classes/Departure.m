@@ -29,6 +29,7 @@
 #import "TriMetRouteColors.h"
 #import "RouteColorBlobView.h"
 #import "debug.h"
+#import "BlockColorDb.h"
 
 @implementation Departure
 
@@ -164,6 +165,7 @@
 #define COLOR_STRIPE_TAG 5
 #define SCHEDULED_TAG 6
 #define DETOUR_TAG 7
+#define BLOCK_COLOR_TAG 8
 
 - (UILabel*)label:(UITableViewCell*)cell tag:(NSInteger)tag
 {
@@ -196,6 +198,9 @@
 	CGFloat ROW_HEIGHT					= kDepartureCellHeight;
 	CGFloat MINS_GAP = ((ROW_HEIGHT - MINS_HEIGHT - MINS_UNIT_HEIGHT) / 3.0);
 	CGFloat ROW_GAP  = ((ROW_HEIGHT - LABEL_HEIGHT - LABEL_HEIGHT) / 3.0);
+    CGFloat BLOCK_COLOR_GAP             = 2;
+    CGFloat BLOCK_COLOR_WIDTH           = 15;
+    CGFloat BLOCK_COLOR_HEIGHT          = ROW_HEIGHT - 5;
 	
 	
 	switch (width)
@@ -209,7 +214,7 @@
 	//		break;
 	case WidthiPadWide:
 	case WidthiPadNarrow:
-			// ROW_HEIGHT				= kWideDepartureCellHeight;
+			ROW_HEIGHT				= kWideDepartureCellHeight;
 			LEFT_COLUMN_OFFSET		= 16.0;
 			LEFT_COLUMN_WIDTH		= 560.0;
 			
@@ -238,6 +243,7 @@
 			
 			MINS_GAP				= ((kWideDepartureCellHeight - MINS_HEIGHT - MINS_UNIT_HEIGHT) / 3.0);
 			ROW_GAP					= ((kWideDepartureCellHeight - LABEL_HEIGHT - LABEL_HEIGHT) / 3.0);
+            BLOCK_COLOR_HEIGHT      = 70;
 			
 			break;
 	}
@@ -258,6 +264,12 @@
 
 	if (big)
 	{
+        rect = CGRectMake(MINS_LEFT+MINS_WIDTH+BLOCK_COLOR_GAP, (ROW_HEIGHT - BLOCK_COLOR_HEIGHT)/2, BLOCK_COLOR_WIDTH, BLOCK_COLOR_HEIGHT);
+        UIView *blockColor = [[UIView alloc] initWithFrame:rect];
+        blockColor.tag = BLOCK_COLOR_TAG;
+        [cell.contentView addSubview:blockColor];
+        [blockColor release];
+        
 		rect = CGRectMake(LEFT_COLUMN_OFFSET, MINS_GAP, SHORT_LEFT_COLUMN_WIDTH, LABEL_HEIGHT);
 		label = [[UILabel alloc] initWithFrame:rect];
 		label.tag = ROUTE_TAG;
@@ -315,9 +327,17 @@
 		[cell.contentView addSubview:label];
 		label.highlightedTextColor = [UIColor whiteColor];
 		[label release];
+        
+      
 	}
 	else
 	{
+        rect = CGRectMake(MINS_LEFT+MINS_WIDTH+BLOCK_COLOR_GAP, (ROW_HEIGHT - BLOCK_COLOR_HEIGHT)/2, BLOCK_COLOR_WIDTH, BLOCK_COLOR_HEIGHT);
+        UIView *blockColor = [[UIView alloc] initWithFrame:rect];
+        blockColor.tag = BLOCK_COLOR_TAG;
+        [cell.contentView addSubview:blockColor];
+        [blockColor release];
+        
 		rect = CGRectMake(LEFT_COLUMN_OFFSET, ROW_GAP, spaceToDecorate? LEFT_COLUMN_WIDTH : LONG_LEFT_COLUMN_WIDTH, LABEL_HEIGHT);
 		label = [[UILabel alloc] initWithFrame:rect];
 		label.tag = ROUTE_TAG;
@@ -325,6 +345,7 @@
 		label.adjustsFontSizeToFitWidth = YES;
 		[cell.contentView addSubview:label];
 		label.highlightedTextColor = [UIColor whiteColor];
+        label.backgroundColor = [UIColor clearColor];
 		[label release];
 		
 		rect = CGRectMake(0, ROW_GAP, COLOR_STRIPE_WIDTH, LABEL_HEIGHT);
@@ -357,6 +378,8 @@
 		[cell.contentView addSubview:label];
 		label.highlightedTextColor = [UIColor whiteColor];
 		[label release];
+        
+       
 	}
 	
 	
@@ -442,10 +465,8 @@
 		NSMutableString *detourText = [[[NSMutableString alloc] init] autorelease];
 		NSString *minsText = nil;
 		NSString *unitText = nil;
+        
 		NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
-		
-		
-		
 		[dateFormatter setDateStyle:NSDateFormatterMediumStyle];
 		[dateFormatter setTimeStyle:kCFDateFormatterNoStyle];
 		
@@ -458,7 +479,9 @@
 		}
 		[dateFormatter setTimeStyle:NSDateFormatterShortStyle];
 		
-		
+		UIView * blockColor = [cell.contentView viewWithTag:BLOCK_COLOR_TAG];
+        blockColor.backgroundColor = [[BlockColorDb getSingleton] colorForBlock:self.block];
+        
 		if (big)
 		{
 			/* if (self.hasBlock)

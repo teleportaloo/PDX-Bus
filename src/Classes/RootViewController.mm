@@ -53,6 +53,7 @@
 #import "AlarmViewMinutes.h"
 #import "AlarmAccurateStopProximity.h"
 #import "LocationServicesDebugView.h"
+#import "VehicleLocatingTableView.h"
 
 #import "TripPlannerLocatingView.h"
 
@@ -77,9 +78,11 @@
 #define kTableTriMetDetours		0
 #define kTableTriMetAlerts		1
 #define kTableTriMetLink        2
-#define kTableTriMetCall		3
-#define kTableTriMetTweet		4
-#define kTableStreetcarTweet	5
+#define kTableTriMetFacebook    3
+#define kTableTriMetCall		4
+#define kTableTriMetTweet		5
+#define kTableTriMetTicketApp   6
+#define kTableStreetcarTweet	7
 
 
 #define kTableAboutSettings     0
@@ -96,6 +99,8 @@
 #define kTableFindRowRailMap    4
 #define kTableFindRowQR         5
 #define kTableFindRowHistory	6
+#define kTableFindRowVehicle	7
+
 
 #define kTableTripRowPlanner    0
 #define kTableTripRowCache      1
@@ -168,33 +173,65 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 	return UITableViewStyleGrouped;
 }
 
-- (void)createToolbarItems
+- (CGFloat) heightOffset
 {
-	NSMutableArray *items = [[[NSMutableArray alloc] init] autorelease];
-	
-    [items addObject:[CustomToolbar autoLocateWithTarget:self  action:@selector(autoLocate:)]];
-    [items addObject:[CustomToolbar autoFlexSpace]];
+    if ([self respondsToSelector:@selector(setEdgesForExtendedLayout:)])
+    {
+        return -20.0;
+    }
+    return 0.0;
+}
+
+- (void)updateToolbarItems:(NSMutableArray *)toolbarItems
+{
+    [toolbarItems removeAllObjects];
+    bool spaceNeeded = NO;
+    
+    
+    if ([UserPrefs getSingleton].locateToolbarIcon)
+    {
+        [toolbarItems addObject:[CustomToolbar autoLocateWithTarget:self  action:@selector(autoLocate:)]];
+        spaceNeeded = YES;
+    }
     
     if ([UserPrefs getSingleton].commuteButton)
     {
-        [items addObject:[CustomToolbar autoCommuteWithTarget:self action:@selector(commuteAction:)]];
-        [items addObject:[CustomToolbar autoFlexSpace]];     
-    }                   
-		
-    if (self.ZXingSupported)
-    {
-        [items addObject:[CustomToolbar autoQRScanner:self action:@selector(QRScannerAction:)]];
-        [items addObject:[CustomToolbar autoFlexSpace]];
+        if (spaceNeeded)
+        {
+            [toolbarItems addObject:[CustomToolbar autoFlexSpace]];
+        }
+        [toolbarItems addObject:[CustomToolbar autoCommuteWithTarget:self action:@selector(commuteAction:)]];
+        spaceNeeded = YES;
     }
-    [items addObject:[self autoBigFlashButton]];
-
-	[self setToolbarItems:items animated:NO];
+    
+    if (self.ZXingSupported && [UserPrefs getSingleton].qrCodeScannerIcon)
+    {
+        if (spaceNeeded)
+        {
+             [toolbarItems addObject:[CustomToolbar autoFlexSpace]];
+        }
+        [toolbarItems addObject:[CustomToolbar autoQRScanner:self action:@selector(QRScannerAction:)]];
+        spaceNeeded = YES;
+    }
+    
+    if ([UserPrefs getSingleton].ticketAppIcon)
+    {
+        if (spaceNeeded)
+        {
+             [toolbarItems addObject:[CustomToolbar autoFlexSpace]];
+        }
+        [toolbarItems addObject:[self autoTicketAppButton]];
+        spaceNeeded = YES;
+    }
+    
+    [self maybeAddFlashButtonWithSpace:spaceNeeded buttons:toolbarItems big:YES];
+    
     
     if (self.goButton==nil)
     {
-         self.goButton = [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone
-                                                                        target:self
-                                                                        action:@selector(editGoAction:)] autorelease];
+        self.goButton = [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone
+                                                                       target:self
+                                                                       action:@selector(editGoAction:)] autorelease];
     }
     
     
@@ -208,19 +245,41 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 
 #pragma mark UI Helper functions
 
+
+
 - (void) delayedQRScanner:(NSObject *)arg
 {
     ZXingWidgetController *widController = [[ZXingWidgetController alloc] initWithDelegate:self showCancel:YES OneDMode:NO];
     
+    
+
     int color = [UserPrefs getSingleton].toolbarColors;
 	
+    
 	if (color == 0xFFFFFF)
 	{
-        widController.overlayView.toolbar.tintColor =  nil;
+        if (self.iOS7style)
+        {
+            widController.overlayView.toolbar.barTintColor =  nil;
+            widController.overlayView.toolbar.tintColor =  nil;
+        }
+        else
+        {
+            widController.overlayView.toolbar.tintColor =  nil;
+        }
 	}
-	else 
+	else
 	{
-		widController.overlayView.toolbar.tintColor = [self htmlColor:color]; 
+        if (self.iOS7style)
+        {
+            widController.overlayView.toolbar.barTintColor = [self htmlColor:color];
+            widController.overlayView.toolbar.tintColor =  [UIColor whiteColor];
+        }
+        else
+        {
+            widController.overlayView.toolbar.tintColor =  nil;
+        }
+            
     }
     
     NSMutableSet *readers = [[NSMutableSet alloc ] init];
@@ -472,7 +531,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 
 - (void)executeInitialAction
 {
-	DEBUG_PRINTF("Last arrivals: %s LSD %d\n", [self.lastArrivalsShown cStringUsingEncoding:NSUTF8StringEncoding], [UserPrefs getSingleton].lastScreenDisplayed);
+	DEBUG_PRINTF("Last arrivals: %s", [self.lastArrivalsShown cStringUsingEncoding:NSUTF8StringEncoding]);
 	
     if (!self.viewLoaded)
     {
@@ -483,11 +542,6 @@ static NSString *callString = @"tel:1-503-238-RIDE";
     
     bool showAbout = [self newVersion:@"lastRun.plist" version:kAboutVersion];
 	bool showWhatsNew = [self newVersion:@"whatsNew.plist" version:kWhatsNewVersion];
-    
-    UIDevice* device = [UIDevice currentDevice];
-	BOOL backgroundSupported = NO;
-	if ([device respondsToSelector:@selector(isMultitaskingSupported)])
-		backgroundSupported = device.multitaskingSupported;
 	
 	if (showAbout)
 	{
@@ -574,34 +628,11 @@ static NSString *callString = @"tel:1-503-238-RIDE";
             [self openFave:foundItem allowEdit:NO];
         }
     }
-	else if (self.lastArrivalsShown!=nil && [UserPrefs getSingleton].lastScreenDisplayed)
-	{
-        [self.navigationController popToRootViewControllerAnimated:NO];
-        
-		NSString *localCopyLastArrivals = [self.lastArrivalsShown retain];
-		NSArray *localCopyLastNames = [self.lastArrivalNames retain];
-		self.lastArrivalsShown = nil;
-		self.lastArrivalNames = nil;
-				
-		[_userData clearLastArrivals];
-		DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
-		
-		departureViewController.displayName = nil;
-		[departureViewController fetchTimesForLocationInBackground:self.backgroundTask loc:localCopyLastArrivals names:localCopyLastNames];
-		[departureViewController release];
-		[localCopyLastArrivals release];
-		[localCopyLastNames release];
-		showingLast = true;
-	}
-    else if ([UserPrefs getSingleton].displayTripPlanning && !backgroundSupported)
-	{
-		[self tripPlanner:NO];
-	}
     else
     {
         // Reload just in case the user changed the settings outside the app
         [self reloadData];
-        [self createToolbarItems];
+        [self updateToolbar];
     }
     
     self.delayedInitialAction = NO;
@@ -811,7 +842,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 - (void)viewDidLoad {
 #ifndef LOADINGSCREEN
 	self.navigationItem.leftBarButtonItem = self.editButtonItem;    
-	self.title = NSLocalizedString(@"PDX Bus", @"RootViewController title");
+	self.title = NSLocalizedString(@"PDX Bus", @"Main Screen title");
 #else
     self.title = @"Loading PDX Bus";
 #endif
@@ -822,15 +853,17 @@ static NSString *callString = @"tel:1-503-238-RIDE";
         [self executeInitialAction];
         self.delayedInitialAction = NO;
     }
-   
-	DEBUG_PRINTF("Last arrivals: %s LSD %d\n", [self.lastArrivalsShown cStringUsingEncoding:NSUTF8StringEncoding], [UserPrefs getSingleton].lastScreenDisplayed);
-	
 }
 
 - (void)viewWillAppear:(BOOL)animated {
 	[super viewWillAppear:animated];
 	
 	
+}
+
+- (void) handleChangeInUserSettings:(id)obj
+{
+	[self reloadData];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -861,20 +894,22 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 #endif
 	
 	[self reloadData];
-    [self createToolbarItems];
+    [self updateToolbar];
 	showingLast = false;
 	
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleChangeInUserSettings:) name:NSUserDefaultsDidChangeNotification object:nil];
+    
 }
 
-- (void)viewWillDisappear:(BOOL)animated {
-	
-}
 
 - (void)viewDidDisappear:(BOOL)animated {
 	if (_taskList)
 	{
 		_taskList.observer = nil;
 	}
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -969,9 +1004,15 @@ static NSString *callString = @"tel:1-503-238-RIDE";
             [rowArray addObject:[NSNumber numberWithInt:kTableFindRowId]];
             [rowArray addObject:[NSNumber numberWithInt:kTableFindRowBrowse]];
             [rowArray addObject:[NSNumber numberWithInt:kTableFindRowLocate]];
+            
+            if ([UserPrefs getSingleton].vehicleLocations)
+            {
+                [rowArray addObject:[NSNumber numberWithInt:kTableFindRowVehicle]];
+            }
+            
             [rowArray addObject:[NSNumber numberWithInt:kTableFindRowRailStops]];
             
-            if (self.RailMapSupported)
+            if ([RailMapView RailMapSupported])
             {
                 [rowArray addObject:[NSNumber numberWithInt:kTableFindRowRailMap]];
             }
@@ -1031,7 +1072,10 @@ static NSString *callString = @"tel:1-503-238-RIDE";
             [rowArray addObject:[NSNumber numberWithInt:kTableTriMetDetours]];
             [rowArray addObject:[NSNumber numberWithInt:kTableTriMetAlerts]];
             [rowArray addObject:[NSNumber numberWithInt:kTableTriMetTweet]];
+            
             [rowArray addObject:[NSNumber numberWithInt:kTableStreetcarTweet]];
+            [rowArray addObject:[NSNumber numberWithInt:kTableTriMetFacebook]];
+            [rowArray addObject:[NSNumber numberWithInt:kTableTriMetTicketApp]];
             [rowArray addObject:[NSNumber numberWithInt:kTableTriMetLink]];
             
             if ([self canMakePhoneCall])
@@ -1159,9 +1203,17 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 						self.editCell =  [[[CellTextField alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kTextFieldId] autorelease];	
 						self.editCell.view = [self createTextField_Rounded];
 						self.editCell.delegate = self;
-						self.editCell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
+                        
+                        if (self.iOS7style)
+                        {
+                            self.editCell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+                        }
+                        else
+                        {
+                            self.editCell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
+                        }
 						self.editCell.imageView.image = [self alwaysGetIcon:kIconEnterStopID]; 
-						self.editCell.cellLeftOffset = 40.0;
+						self.editCell.cellLeftOffset = 50.0;
 					}
 					// printf("kTableFindRowId %p\n", sourceCell);
 					return self.editCell;	
@@ -1215,6 +1267,21 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 					cell.textLabel.adjustsFontSizeToFitWidth = YES;
 					return cell;
 				}
+                case kTableFindRowVehicle:
+				{
+					UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kPlainId];
+					if (cell == nil) {
+						cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kPlainId] autorelease];
+					}
+					
+					// Set up the cell
+					cell.textLabel.text = @"Locate the vehicle I'm on";
+					cell.textLabel.font = [self getBasicFont];
+					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+					[self maybeAddSectionToAccessibility:cell indexPath:indexPath alwaysSaySection:YES];
+					cell.imageView.image = [self getActionIcon7:kIconLocate7 old:kIconLocate];
+					return cell;
+				}
 				case kTableFindRowLocate:
 				{
 					UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kPlainId];
@@ -1227,7 +1294,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 					cell.textLabel.font = [self getBasicFont];
 					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 					[self maybeAddSectionToAccessibility:cell indexPath:indexPath alwaysSaySection:YES];
-					cell.imageView.image = [self getActionIcon:kIconLocate];
+					cell.imageView.image = [self getActionIcon7:kIconLocate7 old:kIconLocate];
 					return cell;
 				}
 				case kTableFindRowHistory:
@@ -1258,7 +1325,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 					cell.textLabel.font = [self getBasicFont];
 					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 					[self maybeAddSectionToAccessibility:cell indexPath:indexPath alwaysSaySection:YES];
-					cell.imageView.image = [self getActionIcon:kIconCamera]; 
+					cell.imageView.image = [self getActionIcon7:kIconCameraAction7 old:kIconCameraAction];
 					return cell;
 				}
 			}
@@ -1378,6 +1445,11 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 					cell.imageView.image = [self getActionIcon:kIconTwitter];
 					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 					break;
+                case kTableTriMetTicketApp:
+					cell.textLabel.text = @"TriMet Tickets app";
+					cell.imageView.image = [self getActionIcon:kIconTicket];
+					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+					break;
 				case kTableTriMetAlerts:
 					cell.textLabel.text = @"Rider alerts";
 					cell.imageView.image = [self getActionIcon:kIconAlerts];  
@@ -1388,6 +1460,12 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 					cell.imageView.image = [self getActionIcon:kIconDetour];  
 					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 					break;
+                case kTableTriMetFacebook:
+					cell.textLabel.text = @"TriMet's Facebook Page";
+					cell.imageView.image = [self getActionIcon:kIconFacebook];
+					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+					break;
+
 			}
 			cell.textLabel.font = [self getBasicFont];
 			return cell;
@@ -1421,7 +1499,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 					break;
 				case kTableAboutFacebook:
-					cell.textLabel.text = @"Facebook Fan Page";
+					cell.textLabel.text = @"PDX Bus Fan Page";
 					cell.imageView.image = [self getActionIcon:kIconFacebook];
 					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 					break;
@@ -1645,6 +1723,30 @@ static NSString *callString = @"tel:1-503-238-RIDE";
             NSNumber *row = [self.arrivalRows objectAtIndex:indexPath.row];
             switch (row.intValue)
             {
+                case kTableFindRowId:
+                {
+                    
+                    UITextView *textView = (UITextView*)[self.editCell view];
+                    
+                    NSString *editText = [self justNumbers:textView.text];
+                    
+                    if ([editText length] == 0)
+                    {
+                        return;
+                    }
+                    
+                    
+                    if (keyboardUp)
+                    {
+                        [self.editWindow resignFirstResponder];
+                    }
+                    else
+                    {
+                        // UITextView *textView = (UITextView*)[self.editCell view];
+                        [self postEditingAction:textView];
+                    }
+                    break;
+                }
                 case kTableFindRowBrowse:
                 {
                     RouteView *routeViewController = [[RouteView alloc] init];
@@ -1664,6 +1766,15 @@ static NSString *callString = @"tel:1-503-238-RIDE";
                     [findView release];
                     break;
                 }
+                case kTableFindRowVehicle:
+                {
+                    VehicleLocatingTableView *findView = [[VehicleLocatingTableView alloc] init];
+                    [[self navigationController] pushViewController:findView animated:YES];
+                    [findView release];
+                    break;
+                }
+
+                    
                 case kTableFindRowRailMap:
                 {
                     
@@ -1747,6 +1858,12 @@ static NSString *callString = @"tel:1-503-238-RIDE";
                     break;
                 }
                     
+                case kTableTriMetTicketApp:
+                {
+                    [self ticketApp];
+                    break;
+                }
+                    
                 case kTableTriMetCall:
                 {
                     if (![[UIApplication sharedApplication] openURL:[NSURL URLWithString:callString]])
@@ -1793,6 +1910,11 @@ static NSString *callString = @"tel:1-503-238-RIDE";
                     [detourView fetchDetoursInBackground:self.backgroundTask];
                     
                     [detourView release];
+                    break;
+                }
+                case kTableTriMetFacebook:
+                {
+                    [self facebookTriMet];
                     break;
                 }
             }
@@ -1845,6 +1967,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
                 }    
                     
                 case kTableAboutFacebook:
+                    
                 {
                     [self facebook];
                     break;
@@ -2269,10 +2392,6 @@ static NSString *callString = @"tel:1-503-238-RIDE";
     return NO ;
 }
 
-- (bool)RailMapSupported
-{
-    return ([[[UIDevice currentDevice] systemVersion] floatValue] >= 4.0);
-}
 
 - (void)zxingController:(ZXingWidgetController*)controller didScanResult:(NSString *)result {
     [self dismissModalViewControllerAnimated:YES];

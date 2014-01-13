@@ -41,8 +41,6 @@
 @dynamic bookmarksAtTheTop;
 @dynamic maxRecentStops;
 @dynamic maxRecentTrips;
-@dynamic lastScreenDisplayed;
-@dynamic displayTripPlanning;
 @dynamic maxWalkingDistance;
 @dynamic travelBy;
 @dynamic tripMin;
@@ -214,15 +212,6 @@
 	return [self getIntFromDefaultsForKey:@"trip_history"				ifMissing:kDefaultTripHistory max:20 min:0];
 }
 
-- (bool) lastScreenDisplayed
-{
-	return [self getBoolFromDefaultsForKey:@"last_screen_preference"	ifMissing:YES];
-}
-- (bool) displayTripPlanning
-{
-	return [self getBoolFromDefaultsForKey:@"trip_planner_first"		ifMissing:NO];
-
-}
 - (float)maxWalkingDistance
 {
 	return [self getFloatFromDefaultsForKey:@"max_walking_distance"		ifMissing:0.5 max:2.0 min:0.1];
@@ -237,6 +226,66 @@
 - (void)setFlashLed:(_Bool)flashLed
 {
     [_defaults setBool:flashLed forKey:@"flash_led"];
+}
+
+- (bool) flashingLightWarning
+{
+	return [self getBoolFromDefaultsForKey:@"flashing_light_warning"		ifMissing:YES];
+    
+}
+
+- (void)setFlashingLightWarning:(_Bool)warning
+{
+    [_defaults setBool:warning forKey:@"flashing_light_warning"];
+}
+
+
+
+- (bool) locateToolbarIcon
+{
+	return [self getBoolFromDefaultsForKey:@"locate_toolbar_icon"		ifMissing:YES];
+    
+}
+
+- (bool) groupByArrivalsIcon
+{
+	return [self getBoolFromDefaultsForKey:@"group_by_arrivals_icon"         ifMissing:NO];
+    
+}
+
+
+- (bool) flashingLightIcon
+{
+	return [self getBoolFromDefaultsForKey:@"flashing_light_icon"         ifMissing:YES];
+    
+}
+
+- (void)setFlashingLightIcon:(_Bool)icon
+{
+    [_defaults setBool:icon forKey:@"flashing_light_icon"];
+}
+
+
+- (bool) qrCodeScannerIcon
+{
+	return [self getBoolFromDefaultsForKey:@"qr_code_scanner_icon"         ifMissing:YES];
+    
+}
+- (void)setLocateToolbarIcon:(_Bool)icon
+{
+    [_defaults setBool:icon forKey:@"locate_toolbar_icon"];
+}
+
+
+- (bool) ticketAppIcon
+{
+	return [self getBoolFromDefaultsForKey:@"ticket_app_icon"		ifMissing:YES];
+    
+}
+
+- (void)setTicketAppIcon:(_Bool)icon
+{
+    [_defaults setBool:icon forKey:@"ticket_app_icon"];
 }
 
 
@@ -299,6 +348,16 @@
 - (bool) useCaching
 {
     return [self getBoolFromDefaultsForKey:@"use_caching"				ifMissing:YES];
+}
+
+- (int)vehicleLocatorDistance
+{
+    return [self getIntFromDefaultsForKey:@"vehicle_locator_distance"	ifMissing:(int)0 max:800 min:0];
+}
+
+- (bool) vehicleLocations
+{
+    return self.vehicleLocatorDistance!=0;
 }
 
 - (bool) debugXML

@@ -26,21 +26,9 @@
 
 #import "XMLStreetcarLocations.h"
 #import "XMLDepartures.h"
-
-@implementation XMLPosition
-
-@synthesize lat;
-@synthesize lng;
-
-- (void)dealloc
-{
-	self.lat = nil;
-	self.lng = nil;
-	[super dealloc];
-}
-
-@end
-
+#import "Vehicle.h"
+#import "TriMetTimesAppDelegate.h"
+#import "AppDelegateMethods.h"
 
 @implementation XMLStreetcarLocations
 
@@ -53,6 +41,9 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
 {
 	self.locations = nil;
     self.route = nil;
+    
+    [_trimetRoute release];
+    [_directionDict release];
 	[super dealloc];
 }
 
@@ -60,7 +51,12 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
 {
     if (self = [super init])
     {
+        TriMetTimesAppDelegate *app = [TriMetTimesAppDelegate getSingleton];
         self.route = route;
+        
+        _trimetRoute = [[app getStreetcarRoutes] objectForKey:route];
+        _directionDict = [app getStreetcarDirections];
+        
     }
     return self;
 }
@@ -138,6 +134,8 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
 		[parser abortParsing];
 		return;
 	}
+    
+    [super parser:parser didStartElement:elementName namespaceURI:namespaceURI qualifiedName:qName attributes:attributeDict];
 	
     if (qName) {
         elementName = qName;
@@ -153,14 +151,22 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
 	
     if ([elementName isEqualToString:@"vehicle"]) {
 		
-		NSString *id = [self safeValueFromDict:attributeDict valueForKey:@"id"];
+		NSString *block = [self safeValueFromDict:attributeDict valueForKey:@"id"];
 		
-		XMLPosition *pos = [[ XMLPosition alloc ] init];
+		Vehicle *pos = [[ Vehicle alloc ] init];
 		
-		pos.lng = [self safeValueFromDict:attributeDict valueForKey:@"lon"];
-		pos.lat = [self safeValueFromDict:attributeDict valueForKey:@"lat"];
+        pos.location = [[[CLLocation alloc] initWithLatitude:[self getCoordFromAttribute:attributeDict valueForKey:@"lat"]
+                                                   longitude:[self getCoordFromAttribute:attributeDict valueForKey:@"lon"]] autorelease];
 		
-		[self.locations setObject:pos forKey:id];
+        pos.type = kVehicleTypeStreetcar;
+        
+        pos.block = block;
+        pos.routeNumber = _trimetRoute;
+        pos.locationTime = UnixToTriMetTime([[NSDate date] timeIntervalSince1970] + [self getTimeFromAttribute:attributeDict valueForKey:@"secsSinceReport"]);
+        
+        pos.direction = [_directionDict objectForKey:[self safeValueFromDict:attributeDict valueForKey:@"dirTag"]];
+        
+		[self.locations setObject:pos forKey:block];
 		
 		[pos release];
 	
@@ -176,29 +182,27 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
 
 -(void)insertLocation:(Departure *)dep
 {
-	XMLPosition *pos = [self.locations objectForKey:dep.block];
+	Vehicle *pos = [self.locations objectForKey:dep.block];
 	
 	if (pos !=nil)
 	{
-		dep.blockPositionLat = pos.lat;
-		dep.blockPositionLng = pos.lng;
+		dep.blockPositionLat = [NSString stringWithFormat:@"%f", pos.location.coordinate.latitude];
+		dep.blockPositionLng = [NSString stringWithFormat:@"%f", pos.location.coordinate.longitude];
 		
-		CLLocation *carLocation  = [[CLLocation alloc] initWithLatitude:[pos.lat doubleValue] longitude:[pos.lng doubleValue]];
 		CLLocation *stopLocation = [[CLLocation alloc] initWithLatitude:[dep.stopLat doubleValue] longitude:[dep.stopLng doubleValue]];
 		
 		// This allows this to run on a 3.0 iPhone but makes the warning go away
 #ifdef __IPHONE_3_2
 		if ([stopLocation respondsToSelector:@selector(distanceFromLocation:)])
 		{
-			dep.blockPositionFeet = [stopLocation distanceFromLocation:carLocation] / 3.2808399; // convert meters to feet
+			dep.blockPositionFeet = [stopLocation distanceFromLocation:pos.location] / 3.2808399; // convert meters to feet
 		}
 		else
 #endif
 		{
-			dep.blockPositionFeet = [(id)stopLocation getDistanceFrom:carLocation] / 3.2808399; // convert meters to feet
+			dep.blockPositionFeet = [(id)stopLocation getDistanceFrom:pos.location] / 3.2808399; // convert meters to feet
 		}
 		
-		[carLocation release];
 		[stopLocation release];
 
 		dep.blockPositionAt = _lastTime;

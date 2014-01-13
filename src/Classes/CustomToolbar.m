@@ -39,8 +39,9 @@
 {
 	// create the system-defined "OK or Done" button
 	UIBarButtonItem *flash = [[[UIBarButtonItem alloc]
-							   initWithTitle:@"Night Visibility Flash" style:UIBarButtonItemStyleBordered 
-							   target:self action:@selector(flashButton:)] autorelease];
+                                initWithImage:[TableViewWithToolbar getToolbarIcon7:kIconFlash7 old:kIconFlash]
+                               style:UIBarButtonItemStylePlain
+                               target:self action:@selector(flashButton:)] autorelease];
 	return flash;
 }
 
@@ -75,7 +76,7 @@
 
 	// create the system-defined "OK or Done" button
 	UIBarButtonItem *map = [[[UIBarButtonItem alloc]
-							initWithImage:[TableViewWithToolbar getToolbarIcon:kIconMap]
+                             initWithImage:[TableViewWithToolbar getToolbarIcon7:kIconMap7 old:kIconMap]
 							style:UIBarButtonItemStylePlain
 							 target:target action:action] autorelease];
 
@@ -89,7 +90,7 @@
 {
 	UIBarButtonItem *flash = [[[UIBarButtonItem alloc]
 							 // initWithBarButtonSystemItem:UIBarButtonSystemItemRewind
-							 initWithImage:[TableViewWithToolbar getToolbarIcon:kIconFlash]
+                               initWithImage:[TableViewWithToolbar getToolbarIcon7:kIconFlash7 old:kIconFlash]
 							 style:UIBarButtonItemStylePlain
 							 target:target action:action] autorelease];
 	
@@ -103,7 +104,7 @@
 {
 	// create the system-defined "OK or Done" button
 	UIBarButtonItem *back = [[[UIBarButtonItem alloc]
-							   initWithImage:[TableViewWithToolbar getToolbarIcon:kIconHome]
+                               initWithImage:[TableViewWithToolbar getToolbarIcon7:kIconHome7 old:kIconHome]
 							   style:UIBarButtonItemStylePlain
 							   target:target action:action] autorelease];
 	
@@ -133,7 +134,7 @@
 {
 	UIBarButtonItem *back = [[[UIBarButtonItem alloc]
 							  // initWithBarButtonSystemItem:UIBarButtonSystemItemRewind
-							  initWithImage:[TableViewWithToolbar getToolbarIcon:kIconCommute]
+							  initWithImage:[TableViewWithToolbar getToolbarIcon7:kIconCommute7 old:kIconCommute]
 							  style:UIBarButtonItemStylePlain
 							  target:target action:action] autorelease];
 	
@@ -147,7 +148,7 @@
 + (UIBarButtonItem *)autoLocateWithTarget:(id)target action:(SEL)action
 {
 	UIBarButtonItem *back = [[[UIBarButtonItem alloc]
-							  initWithImage:[TableViewWithToolbar getToolbarIcon:kIconLocateNear]
+							  initWithImage:[TableViewWithToolbar getToolbarIcon7:kIconLocateNear7 old:kIconLocateNear]
 							  style:UIBarButtonItemStylePlain
 							  target:target action:action] autorelease];
 	
@@ -161,7 +162,7 @@
 + (UIBarButtonItem *)autoQRScanner:(id)target action:(SEL)action
 {
 	UIBarButtonItem *back = [[[UIBarButtonItem alloc]
-							  initWithImage:[TableViewWithToolbar getToolbarIcon:kIconCamera]
+							  initWithImage:[TableViewWithToolbar getToolbarIcon7:kIconCamera7 old:kIconCamera]
 							  style:UIBarButtonItemStylePlain
 							  target:target action:action] autorelease];
 	

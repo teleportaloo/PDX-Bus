@@ -83,6 +83,8 @@ static NSString *allDetoursURLString = @"detours";
 
 - (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict
 {
+    [super parser:parser didStartElement:elementName namespaceURI:namespaceURI qualifiedName:qName attributes:attributeDict];
+    
     if (qName) {
         elementName = qName;
     }
@@ -110,11 +112,6 @@ static NSString *allDetoursURLString = @"detours";
 			[detour release];
 		}
 	}
-}
-
-- (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName
-{     
-	
 }
 
 

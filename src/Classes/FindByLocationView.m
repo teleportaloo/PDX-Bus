@@ -33,14 +33,14 @@
 #import "NearestStopsMap.h"
 #import "NearestRoutesView.h"
 #import "debug.h"
+#import "TripPlannerEndPointView.h"
 
-#define kLocatingSection	0
-#define kGoSection			1
-#define kDistanceSection	2
-#define kModeSection		3
-#define kShowSection        4
-#define kAutoSection        5
-#define kNoteSection        6
+#define kGoSection			0
+#define kDistanceSection	1
+#define kModeSection		2
+#define kShowSection        3
+#define kAutoSection        4
+#define kNoteSection        5
 
 #define kLocatingAccuracy	0
 #define kLocatingStop		1
@@ -64,7 +64,7 @@
 
 #define kGoCellId			@"go"
 
-#define kHelpText           @"Note: Using previous settings chosen in 'Locate nearby stops' main menu."
+#define kHelpText           @"\nNote: Using previous settings chosen in 'Locate nearby stops' main menu."
 
 @implementation FindByLocationView
 
@@ -86,40 +86,21 @@
 	if ((self = [super init]))
 	{
 		self.title = @"Locate Stops";
-		waitingForLocation = NO;
-		maxRouteCount = 1;
-		mode = TripModeAll;
-        dist = kDistanceHalfMile;
-        show = kShowArrivals;
+		_maxRouteCount = 1;
+		_mode = TripModeAll;
+        _dist = kDistanceHalfMile;
+        _show = kShowArrivals;
         _firstDisplay = YES;
 		
-	 
 		self.lastLocate = _userData.lastLocate;
         
         if (self.lastLocate != nil)
 		{
-			mode = ((NSNumber *)[self.lastLocate objectForKey:kLocateMode]).intValue;
-			show = ((NSNumber *)[self.lastLocate objectForKey:kLocateShow]).intValue;
-			dist = ((NSNumber *)[self.lastLocate objectForKey:kLocateDist]).intValue;
+			_mode = ((NSNumber *)[self.lastLocate objectForKey:kLocateMode]).intValue;
+			_show = ((NSNumber *)[self.lastLocate objectForKey:kLocateShow]).intValue;
+			_dist = ((NSNumber *)[self.lastLocate objectForKey:kLocateDist]).intValue;
 		}
 		
-        /*
-		if (self.lastLocate != nil && !_autoLaunch)
-		{
-			mode = ((NSNumber *)[self.lastLocate objectForKey:kLocateMode]).intValue;	
-			show = ((NSNumber *)[self.lastLocate objectForKey:kLocateShow]).intValue;	
-			dist = ((NSNumber *)[self.lastLocate objectForKey:kLocateDist]).intValue;	
-		}
-        else if (_autoLaunch)
-        {
-            UserPrefs *prefs = [UserPrefs getSingleton];
-            mode = prefs.autoLocateMode;
-            show = kShowArrivals;
-            dist = kDistanceHalfMile;
-        }
-        */
-		
-		[self reinit];
 	}
 	return self;
 }
@@ -141,7 +122,7 @@
         NSNumber *num = [dmap objectForKey:arg];
         if (num)
         {
-            dist = [num integerValue];
+            _dist = [num integerValue];
         }
     }
     
@@ -170,7 +151,7 @@
         NSNumber *num = [dmap objectForKey:arg];
         if (num)
         {
-            mode = [num integerValue];
+            _mode = [num integerValue];
         }
     }
     
@@ -190,7 +171,7 @@
         NSNumber *num = [dmap objectForKey:arg];
         if (num)
         {
-            show = [num integerValue];
+            _show = [num integerValue];
         }
     }
 }
@@ -204,69 +185,59 @@
 
 - (void)startLocating
 {
-    switch (dist)
+    LocatingView *locator = [[[LocatingView alloc] init] autorelease];
+    
+    locator.delegate = self;
+    
+    switch (_dist)
     {
         case kDistanceNextToMe:
-            accuracy = kAccNextToMe;
-            minDistance = kDistNextToMe;
-            maxToFind = kMaxStops;
+            locator.accuracy = kAccNextToMe;
+            _minDistance = kDistNextToMe;
+            _maxToFind = kMaxStops;
             break;	
         case kDistanceHalfMile:
-            accuracy = kAccHalfMile;
-            minDistance = kDistHalfMile;
-            maxToFind = kMaxStops;
+            locator.accuracy = kAccHalfMile;
+            _minDistance = kDistHalfMile;
+            _maxToFind = kMaxStops;
             break;
         case kDistanceMile:
-            accuracy = kAccMile;
-            minDistance = kDistMile;
-            maxToFind = kMaxStops;
+            locator.accuracy = kAccMile;
+            _minDistance = kDistMile;
+            _maxToFind = kMaxStops;
             break;
         case kDistance3Miles:
-            accuracy = kAcc3Miles;
-            minDistance = kDistMile * 3;
-            maxToFind = kMaxStops;
+            locator.accuracy = kAcc3Miles;
+            _minDistance = kDistMile * 3;
+            _maxToFind = kMaxStops;
             break;
     }
     
-    [self.locationManager startUpdatingLocation];
     
-    if (![self checkLocation])
-    {
-        waitingForLocation = true;
-        [self reinit];
-        [[(RootViewController *)[self.navigationController topViewController] table] reloadData];
-        
-        NSIndexPath *sel = self.table.indexPathForSelectedRow;
-      
-        if (sel)
-        {
-            [self.table deselectRowAtIndexPath:sel animated:NO];
-        }
-    }
-    
+    [self.navigationController pushViewController:locator animated:YES];
 }
 
 #pragma mark TableViewWithToolbar methods
 
 -(void)resetButton:(id)arg
 {
-    mode = TripModeAll;
-    show = kShowArrivals;
-    dist = kDistanceHalfMile;
+    _mode = TripModeAll;
+    _show = kShowArrivals;
+    _dist = kDistanceHalfMile;
     UserPrefs *prefs = [UserPrefs getSingleton];
     prefs.autoLocateShowOptions = YES;
     [self reloadData];
 }
 
-- (void)createToolbarItems
+- (void)updateToolbarItems:(NSMutableArray *)toolbarItems
 {
     UIBarButtonItem *resetButton = [[[UIBarButtonItem alloc]
                               initWithTitle:@"Reset Options" style:UIBarButtonItemStyleBordered
                               target:self action:@selector(resetButton:)] autorelease];
     
-	NSArray *items = [NSArray arrayWithObjects: [self autoDoneButton], [CustomToolbar autoFlexSpace], resetButton, [CustomToolbar autoFlexSpace], nil];
-	
-    [self setToolbarItems:items animated:NO];
+    
+    [toolbarItems addObject:resetButton];
+    
 }
 
 - (UITableViewStyle) getStyle
@@ -281,44 +252,30 @@
 	[super backButton:sender];
 }
 
-- (int)sectionType:(int)section
+- (void)locatingViewFinished:(LocatingView *)locatingView
 {
-	if (waitingForLocation || _autoLaunch)
-	{
-		DEBUG_LOG(@"Section %d returned %d\n", section, kLocatingSection);
-		return kLocatingSection;
-	}
-	
-	return section + 1;
+    if (!locatingView.failed && !locatingView.cancelled)
+    {
+        [self searchAndDisplay:locatingView];
+    }
+    else if (locatingView.cancelled)
+    {
+        [locatingView.navigationController popViewControllerAnimated:YES];
+    }
 }
 
-- (void) reinit
+- (void)searchAndDisplay:(LocatingView *)locatingView
 {
-	if (waitingForLocation || _autoLaunch)
-	{
-		sections		= 1;
-	}
-	else 
-	{
-		sections		= 6;
-	}
-}
-
-- (void)searchAndDisplay
-{
-	[self.locationManager stopUpdatingLocation];
-	[self reinit];
-	
-	switch (show)
+	switch (_show)
 	{
 		case kShowMap:
 		{
 			NearestStopsMap *mapView = [[NearestStopsMap alloc] init];
-			[mapView fetchNearestStopsInBackground:self.backgroundTask location:self.lastLocation maxToFind:maxToFind minDistance:minDistance mode:mode];
+			[mapView fetchNearestStopsInBackground:locatingView.backgroundTask location:locatingView.lastLocation maxToFind:_maxToFind minDistance:_minDistance mode:_mode];
 			
 			if ([mapView supportsOverlays])
 			{
-				mapView.circle = [MKCircle circleWithCenterCoordinate:self.lastLocation.coordinate radius:minDistance];
+				mapView.circle = [MKCircle circleWithCenterCoordinate:locatingView.lastLocation.coordinate radius:_minDistance];
 			}
 			[mapView release];
 			break;
@@ -326,14 +283,14 @@
 		case kShowRoute:
 		{
 			NearestRoutesView *routesView = [[NearestRoutesView alloc] init];
-			[routesView fetchNearestRoutesInBackground:self.backgroundTask location:self.lastLocation maxToFind:maxToFind minDistance:minDistance mode:mode];
+			[routesView fetchNearestRoutesInBackground:locatingView.backgroundTask location:locatingView.lastLocation maxToFind:_maxToFind minDistance:_minDistance mode:_mode];
 			[routesView release];
 			break;
 		}
 		case kShowArrivals:
 		{
 			DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
-			[departureViewController fetchTimesForNearestStopsInBackground:self.backgroundTask location:self.lastLocation maxToFind:maxToFind minDistance:minDistance mode:mode];
+			[departureViewController fetchTimesForNearestStopsInBackground:locatingView.backgroundTask location:locatingView.lastLocation maxToFind:_maxToFind minDistance:_minDistance mode:_mode];
 			[departureViewController release];
 			break;
 		}
@@ -341,16 +298,10 @@
     
     if (_autoLaunch)
     {
-        [self.backgroundTask setHelp:kHelpText];
+        [locatingView.backgroundTask setHelp:kHelpText];
     }
 }
 
-
-
-- (void)located
-{
-	[self searchAndDisplay];
-}
 
 #pragma mark Segment Controls
 
@@ -372,20 +323,20 @@
 - (void)modeSegmentChanged:(id)sender
 {
 	UISegmentedControl *seg = (UISegmentedControl *)sender;
-	mode = seg.selectedSegmentIndex;
+	_mode = seg.selectedSegmentIndex;
 }
 
 - (void)showSegmentChanged:(id)sender
 {
 	UISegmentedControl *seg = (UISegmentedControl *)sender;
-	show = seg.selectedSegmentIndex;
+	_show = seg.selectedSegmentIndex;
 }
 
 
 - (void)distSegmentChanged:(id)sender
 {
 	UISegmentedControl *seg = (UISegmentedControl *)sender;
-	dist = seg.selectedSegmentIndex;
+	_dist = seg.selectedSegmentIndex;
 }
 
 - (void)autoSegmentChanged:(id)sender
@@ -412,16 +363,13 @@
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
 	
-	return sections;
+	return 6;
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
 	
-	switch ([self sectionType:section])
+	switch (section)
 	{
-		case kLocatingSection:
-			return [NSString stringWithFormat:@"%@Acquiring location. Accuracy will improve momentarily; search will start when accuracy is sufficient or whenever you choose.",
-                    self.autoLaunch ? kHelpText @"\n\n": @""];
 		case kDistanceSection:
 			return @"Search radius:";
 		case kModeSection:
@@ -438,18 +386,14 @@
 	return nil;
 }
 
+
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 	
-    switch ([self sectionType:section])
+    if (section != kNoteSection)
     {
-        case kLocatingSection:
-            return 2;
-        case kNoteSection:
-            return 0;
-        default:
-            return 1;
+        return 1;
     }
-    return 1;
+    return 0;
 }
 
 #define kUIProgressBarWidth		240.0
@@ -462,12 +406,9 @@
 {
 	CGFloat result = 0.0;
 
-	switch ([self sectionType:indexPath.section])
+	switch (indexPath.section)
 	{
-		case kLocatingSection:
-			result = kLocatingRowHeight;
-			break;
-		case kDistanceSection:
+        case kDistanceSection:
 		case kModeSection:
 		case kShowSection:
         case kAutoSection:
@@ -475,6 +416,7 @@
 			result = kSegRowHeight;
 			break;
 		case kGoSection:
+        case kNoteSection:
 			result = [self basicRowHeight];
 			break;
 	}
@@ -517,12 +459,10 @@
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+		
+	DEBUG_LOG(@"Requesting cell for ip %d %d\n", indexPath.section, indexPath.row);
 	
-	static NSString *MyIdentifier = @"Location";
-	
-	DEBUG_LOG(@"Requesting cell for ip %d %d type %d\n", indexPath.section, indexPath.row, [self sectionType:indexPath.section]);
-	
-	switch ([self sectionType:indexPath.section])
+	switch (indexPath.section)
 	{
 		case kDistanceSection:
 		{
@@ -534,7 +474,7 @@
 							  action:@selector(distSegmentChanged:)];
 			}	
 			
-			[self getSeg:cell].selectedSegmentIndex = dist;
+			[self getSeg:cell].selectedSegmentIndex = _dist;
 			return cell;	
 		}
 		case kShowSection:
@@ -547,7 +487,7 @@
 							  action:@selector(showSegmentChanged:)];
 			}	
 			
-			[self getSeg:cell].selectedSegmentIndex = show;
+			[self getSeg:cell].selectedSegmentIndex = _show;
 			return cell;	
 		}
 		case kModeSection:
@@ -560,7 +500,7 @@
 							  action:@selector(modeSegmentChanged:)];
 			}	
 			
-			[self getSeg:cell].selectedSegmentIndex = mode;
+			[self getSeg:cell].selectedSegmentIndex = _mode;
 			return cell;	
 		}
         case kAutoSection:
@@ -591,62 +531,14 @@
 				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kGoCellId] autorelease];
 			}
 			cell.textLabel.text = @"Start locating";
-			cell.textLabel.textAlignment = UITextAlignmentLeft;
+			cell.textLabel.textAlignment = UITextAlignmentCenter;
 			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 			cell.textLabel.font = [self getBasicFont];
 			
 			[self updateAccessibility:cell indexPath:indexPath text:cell.textLabel.text alwaysSaySection:YES];
 			return cell;
-		}
-			
-		case kLocatingSection:
-		{
-			switch (indexPath.row)
-			{
-				case kLocatingAccuracy:
-				{
-					static NSString *locSecid = @"LocatingSection";
-					UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:locSecid];
-					if (cell == nil) {
-						cell = [self accuracyCellWithReuseIdentifier:locSecid];
-					}
-					
-					UILabel* text = (UILabel *)[cell.contentView viewWithTag:[self LocationTextTag]];
-					
-					[self.progressInd startAnimating];
-					
-					if (self.lastLocation != nil)
-					{
-						text.text = [NSString stringWithFormat:@"Accuracy acquired:\n+/- %@", 
-									 [self formatDistance:self.lastLocation.horizontalAccuracy]];
-						cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-						[cell setAccessibilityHint:@"Double-tap for arrivals"];
-					}
-					else
-					{
-						text.text = @"Locating...";
-						cell.accessoryType = UITableViewCellAccessoryNone;
-						[cell setAccessibilityHint:nil];
-					}
-					[self updateAccessibility:cell indexPath:indexPath text:text.text alwaysSaySection:YES];
-					return cell;
-				}
-				case kLocatingStop:
-				{
-					UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MyIdentifier];
-					if (cell == nil) {
-						cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MyIdentifier] autorelease];
-					}
-					cell.textLabel.text = @"Cancel";
-					cell.accessoryType = UITableViewCellAccessoryNone;
-					cell.imageView.image = [self getActionIcon:kIconCancel];
-					cell.textLabel.font = [self getBasicFont];
-
-					[self updateAccessibility:cell indexPath:indexPath text:cell.textLabel.text alwaysSaySection:YES];
-					return cell;
-				}	
-			}
-		}
+        }
+        
 	}
 		
 	return nil;
@@ -656,30 +548,11 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 	
-	switch ([self sectionType:indexPath.section])
+	switch (indexPath.section)
 	{
 		case kGoSection:
             [self startLocating];
 			break;
-		case kLocatingSection:
-		{
-			if (indexPath.row == kLocatingAccuracy && self.lastLocation!=nil)
-			{
-				[self searchAndDisplay];
-			}
-			else if(indexPath.row == kLocatingStop && !_autoLaunch)
-			{
-				waitingForLocation = NO;
-				[self reinit];
-				[tableView deselectRowAtIndexPath:indexPath animated:NO];
-				[[(RootViewController *)[self.navigationController topViewController] table] reloadData];
-			}
-            else if (indexPath.row == kLocatingStop && _autoLaunch)
-            {
-                [self.navigationController popViewControllerAnimated:YES];
-            }
-			break;
-		}
 	}
 }
 
@@ -689,8 +562,10 @@
     
     if ([cell.reuseIdentifier isEqualToString:kGoCellId])
 	{
-		cell.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1.0];
+		cell.backgroundColor = [UIColor greenColor];
 	}
+    
+    
 }
 
 
@@ -702,9 +577,9 @@
     {
         self.lastLocate = [[[NSMutableDictionary alloc] init] autorelease];
 	
-        [self.lastLocate setObject:[NSNumber numberWithInt:mode] forKey:kLocateMode];
-        [self.lastLocate setObject:[NSNumber numberWithInt:dist] forKey:kLocateDist];
-        [self.lastLocate setObject:[NSNumber numberWithInt:show] forKey:kLocateShow];
+        [self.lastLocate setObject:[NSNumber numberWithInt:_mode] forKey:kLocateMode];
+        [self.lastLocate setObject:[NSNumber numberWithInt:_dist] forKey:kLocateDist];
+        [self.lastLocate setObject:[NSNumber numberWithInt:_show] forKey:kLocateShow];
 	
         _userData.lastLocate = self.lastLocate;
     }
@@ -715,15 +590,12 @@
 {
     [super viewDidAppear:animated];
     
-    if (_autoLaunch && !waitingForLocation && _firstDisplay)
+    if (_autoLaunch && _firstDisplay)
     {
         _firstDisplay=NO;
         [self startLocating];
     }
 }
-
-
-
 
 - (void)viewWillAppear:(BOOL)animated {
 	[super viewWillAppear:animated];
@@ -734,27 +606,7 @@
 	[super didReceiveMemoryWarning];
 }
 
-#pragma mark Background methods
 
-- (void)BackgroundTaskDone:(UIViewController *)viewController cancelled:(bool)cancelled
-{
-    DEBUG_LOG(@"BackgroundTaskDone\n");
-	waitingForLocation = false;
-	if (cancelled && _autoLaunch)
-    {
-        [super BackgroundTaskDone:viewController cancelled:cancelled];
-        if (self == self.navigationController.topViewController)
-        {
-            [self.navigationController popViewControllerAnimated:YES];
-        }
-    }
-    else
-    {
-        [self reinit];
-        [super BackgroundTaskDone:viewController cancelled:cancelled];
-        [self.table reloadData];
-    }
-}
 
 @end
 

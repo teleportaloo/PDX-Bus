@@ -32,7 +32,6 @@
 #import "UserPrefs.h"
 #import "UserFaves.h"
 
-
 #define kMaxTweetButtons        6
 
 @interface ViewControllerBase : UIViewController <BackgroundTaskDone, UIDocumentInteractionControllerDelegate, UIActionSheetDelegate> {
@@ -48,7 +47,6 @@
     int _tweetButtons[kMaxTweetButtons];
     
     UIActionSheet *_tweetAlert;
-
 }
 
 - (bool)initMembers;
@@ -57,16 +55,22 @@
 - (UIBarButtonItem *)autoBigFlashButton;
 - (UIBarButtonItem *)autoDoneButton;
 - (UIBarButtonItem*)autoXmlButton;
+- (UIBarButtonItem *)autoTicketAppButton;
 - (bool)forceRedoButton;
 + (void)flashScreen:(UINavigationController *)nav;
-- (void)createToolbarItems;
+- (void)backToRootButtons:(NSMutableArray *)toolbarItems;
+- (void)updateToolbarItems:(NSMutableArray *)toolbarItems;
 - (void)networkTips:(NSData *)htmlError networkError:(NSString *)networkError;
+- (void)maybeAddFlashButtonWithSpace:(bool)space buttons:(NSMutableArray *)array big:(bool)big;
 
 - (UILabel *)create_UITextView:(UIColor *)backgroundColor font:(UIFont *)font;
 - (UIImage *)alwaysGetIcon:(NSString *)name;
+- (UIImage *)alwaysGetIcon7:(NSString *)name old:(NSString*)old;
 + (UIImage *)alwaysGetIcon:(NSString *)name;
 - (UIImage *)getActionIcon:(NSString *)name;
+- (UIImage *)getActionIcon7:(NSString *)name old:(NSString *)old;
 + (UIImage *)getToolbarIcon:(NSString *)name;
++ (UIImage *)getToolbarIcon7:(NSString *)name old:(NSString *)old;
 - (UIImage *)getFaveIcon:(NSString *)name;
 - (UIView *)clearView;
 - (void)setBackfont:(UILabel *)label;
@@ -85,11 +89,17 @@
 - (UIColor*)htmlColor:(int)val;
 - (void)appendXmlData:(NSMutableData *)buffer;
 - (void)xmlAction:(id)arg;
-- (void)createToolbarItemsWithXml;
+- (void)updateToolbar;
+- (void)updateToolbarItemsWithXml:(NSMutableArray *)toolbarItems;
 - (void)tweet;
 - (void)clearSelection;
 - (void)facebook;
-
+- (void)facebookTriMet;
+- (bool)iOS7style;
++ (bool)iOS7style;
+- (bool)ZXingSupported;
+- (void)setSegColor:(UISegmentedControl*)seg;
+- (bool)ticketApp;
 
 @property (nonatomic, retain) UIBarButtonItem *xmlButton;
 @property (nonatomic, retain) BackgroundTaskContainer *backgroundTask;
@@ -99,10 +109,9 @@
 @property (nonatomic, retain) NSString *initTweet;
 @property (nonatomic, retain) UIActionSheet *tweetAlert;
 
-
-
 #define kRailAwareReloadButton 1
 
+#define kIconTicket          @"Ticket24.png"
 #define kIconDetour			 @"Trackback.png"
 #define kIconEarthMap		 @"Earth.png"
 #define kIconAlarmFired      @"Alarm.png"
@@ -120,6 +129,7 @@
 #define kIconLink			 @"Globe.png"
 #define kIconTriMetLink		 @"visittrimeticon.gif"
 #define kIconHome			 @"53-house.png"
+#define kIconHome7           @"750-home.png"
 #define kIconRedo			 @"02-redo.png"
 #define kIconBrowse			 @"List.png"
 #define kIconTwitter		 @"Twitter.png"
@@ -133,22 +143,31 @@
 #define kIconContacts		 @"Address book.png"
 #define kIconAbout			 @"Info.png"
 #define kIconFlash			 @"61-brightness.png"
+#define kIconFlash7			 @"861-sun-2.png"
 #define kIconBack			 @"icon_arrow_left.png"
+#define kIconBack7           @"765-arrow-left.png"
 #define kIconForward		 @"icon_arrow_right.png"
+#define kIconForward7		 @"766-arrow-right.png"
 #define kIconUp				 @"icon_arrow_up.png"
+#define kIconUp7             @"763-arrow-up.png"
 #define kIconDown			 @"icon_arrow_down.png"
+#define kIconDown7           @"764-arrow-down.png"
 #define kIconNetworkOk		 @"Yes.png"
 #define kIconNetworkBad		 @"Problem.png"
 #define kIconNetwork		 @"Network connection.png"
 #define kIconPhone			 @"Phone number.png"
-#define kIconLocate			 kIconLocateNear
+#define kIconLocate			 kIconLargeLocateNear
+#define kIconLocate7		 @"845-location-targeta.png"
 #define kIconDeleteDatabase  @"Erase.png"
 #define kIconDelete			 @"Erase.png"
 #define kIconCancel			 @"Erase.png"
 #define kIconSort			 @"05-shuffle.png"
+#define kIconSort7			 @"891-shuffle.png"
 #define kIconMap			 @"103-map.png"
+#define kIconMap7			 @"852-map.png"
 #define kIconMagnify		 @"magnifier.png"
 #define kIconMapAction		 @"103-map.png"
+#define kIconMapAction7		 @"852-mapa.png"
 #define kIconMaxMap          @"RailSystem.png"
 #define kIconStreetcarMap    @"Streetcar.png"
 #define KIconRailStations	 @"RailStations.png"
@@ -156,21 +175,28 @@
 #define kIconArrivals		 @"Clock.png"
 #define kIconAdd			 @"Add.png"
 #define kIconExpand			 @"Downdate.png"
+#define kIconExpand7		 kIconDown7
 #define kIconCollapse		 @"Update.png"
+#define kIconCollapse7		 kIconUp7
 #define kIconMorning		 @"Sun.png"
 #define kIconEvening		 @"Moon.png"
 #define kIconCommute		 @"11-clock.png"
+#define kIconCommute7		 @"780-building.png"
 #define kIconLocateNear      @"74-location.png"
+#define kIconLargeLocateNear @"74-locationa.png"
+#define kIconLargeLocateNear7 kIconLocateNear7
+#define kIconLocateNear7     @"845-location-target.png"
 #define kIconFindGps		 @"network-satellite.png"
 #define kIconFindCell		 kIconNetwork
 #define kIconSettings        @"Settings.png"
 #define kIconCamera          @"86-camera.png"
+#define kIconCamera7         @"714-camera.png"
+#define kIconCameraAction    @"86-camera.png"
+#define kIconCameraAction7   @"714-cameraa.png"
 #define kIconXml             @"110-bug.png"
 #define kIconLocation        @"Location.png"
 #define kIconLocationHeading @"LocationHeading.png"
-
-
-
+#define kIconAppIconAction   @"ActionIcon.png"
 
 
 #define TableViewBasicFont	[UIFont systemFontOfSize:kBasicTextViewFontSize]

@@ -45,6 +45,13 @@ static const CGFloat kLicenseButtonPadding = 10;
   return [self initWithFrame:theFrame cancelEnabled:isCancelEnabled oneDMode:isOneDModeEnabled showLicense:YES];
 }
 
+- (UIImage*) getImage7:(NSString*)name old:(NSString *)old
+{
+    UIImage *icon = [UIImage imageNamed:name];
+    
+    return icon != nil ? icon :[UIImage imageNamed:old];
+}
+
 - (id) initWithFrame:(CGRect)theFrame cancelEnabled:(BOOL)isCancelEnabled oneDMode:(BOOL)isOneDModeEnabled showLicense:(BOOL)showLicenseButton {
     self = [super initWithFrame:theFrame];
     if( self ) {
@@ -76,7 +83,7 @@ static const CGFloat kLicenseButtonPadding = 10;
         
         NSMutableArray *toolbarItems = [[[NSMutableArray alloc] init] autorelease];
         
-        [toolbarItems addObject:[[[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"53-house.png"]
+        [toolbarItems addObject:[[[UIBarButtonItem alloc] initWithImage:[self getImage7:@"750-home.png" old:@"53-house.png"]
                                                                   style:UIBarButtonItemStylePlain
                                                                  target:self
                                                                  action:@selector(cancel:)] autorelease]]; 
@@ -86,7 +93,7 @@ static const CGFloat kLicenseButtonPadding = 10;
                                                                                    target:nil
                                                                                    action:nil] autorelease]]; 
             [toolbarItems addObject:[[[UIBarButtonItem alloc]
-                                      initWithImage:[UIImage imageNamed:@"info_icon.png"]
+                                      initWithImage:[self getImage7:@"724-info.png" old:@"info_icon.png"]
                                       style:UIBarButtonItemStylePlain
                                       target:self action:@selector(showLicenseAlert:)] autorelease]];
             

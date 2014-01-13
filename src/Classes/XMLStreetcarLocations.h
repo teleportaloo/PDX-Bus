@@ -28,22 +28,13 @@
 #import "NextBusXML.h"
 #import "Departure.h"
 
-@interface XMLPosition : NSObject
-{
-	NSString *lat;
-	NSString *lng;
-}
-
-@property (nonatomic, retain) NSString *lat;
-@property (nonatomic, retain) NSString *lng;
-
-@end
-
-
 @interface XMLStreetcarLocations : NextBusXML {
 	NSMutableDictionary *_locations;
 	TriMetTime _lastTime;
     NSString *_route;
+    
+    NSString *_trimetRoute;
+    NSDictionary *_directionDict;
 }
  
 

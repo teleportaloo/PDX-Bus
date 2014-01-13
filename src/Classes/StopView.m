@@ -66,7 +66,7 @@
 #pragma mark TableViewWithToolbar methods
 
 
-- (void)createToolbarItems
+- (void)updateToolbarItems:(NSMutableArray *)toolbarItems
 {
 	// add a segmented control to the button bar
 	UISegmentedControl	*buttonBarSegmentedControl;
@@ -75,41 +75,26 @@
 	[buttonBarSegmentedControl addTarget:self action:@selector(toggleSort:) forControlEvents:UIControlEventValueChanged];
 	buttonBarSegmentedControl.selectedSegmentIndex = 0.0;	// start by showing the normal picker
 	buttonBarSegmentedControl.segmentedControlStyle = UISegmentedControlStyleBar;
-	
-	int color = [UserPrefs getSingleton].toolbarColors;
-	
-	if (color == 0xFFFFFF)
-	{
-		
-		buttonBarSegmentedControl.tintColor = [UIColor darkGrayColor];
-	}
-	else {
-		buttonBarSegmentedControl.tintColor = [self htmlColor:color];
-	}
-	
-	buttonBarSegmentedControl.backgroundColor = [UIColor clearColor];
+    
+    [self setSegColor:buttonBarSegmentedControl];
 	
 	UIBarButtonItem *segItem = [[UIBarButtonItem alloc] initWithCustomView:buttonBarSegmentedControl];	
 	
 	
-	NSMutableArray *items = [NSMutableArray arrayWithObjects:
-					  [self autoDoneButton], 
-					  [CustomToolbar autoFlexSpace],
+	[toolbarItems addObjectsFromArray:[NSMutableArray arrayWithObjects:
 					  [CustomToolbar autoMapButtonWithTarget:self action:@selector(showMap:)],
 					  [CustomToolbar autoFlexSpace],
 					  segItem,
-					  [CustomToolbar autoFlexSpace],
-                       nil];
+                       nil]];
     
     if ([UserPrefs getSingleton].debugXML)
     {
-		[items addObject:[self autoXmlButton]];
-        [items addObject:[CustomToolbar autoFlexSpace]];
+        [toolbarItems addObject:[CustomToolbar autoFlexSpace]];
+		[toolbarItems addObject:[self autoXmlButton]];
     }
     
-    [items addObject:[self autoFlashButton]];
+    [self maybeAddFlashButtonWithSpace:YES buttons:toolbarItems big:NO];
     
-	[self setToolbarItems:items animated:NO];
 	[segItem release];
 	[buttonBarSegmentedControl release];
 	

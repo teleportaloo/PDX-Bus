@@ -157,8 +157,9 @@
 
 #pragma mark ViewControllerBase methods
 
-- (void)createToolbarItems
+- (void)updateToolbarItems:(NSMutableArray *)toolbarItems
 {
+    [toolbarItems removeAllObjects];
 	// match each of the toolbar item's style match the selection in the "UIBarButtonItemStyle" segmented control
 	UIBarButtonItemStyle style = UIBarButtonItemStylePlain;
 	
@@ -172,46 +173,35 @@
 	
 	self.webBack = [[[UIBarButtonItem alloc]
 								// initWithBarButtonSystemItem:UIBarButtonSystemItemRewind
-								initWithImage:[TableViewWithToolbar getToolbarIcon:kIconBack]
+								initWithImage:[TableViewWithToolbar getToolbarIcon7:kIconBack7 old:kIconBack]
 								style:style
 								target:self action:@selector(webBackButton:)] autorelease];
     self.webBack.accessibilityLabel = @"Back";
 
 	
 	self.webForward = [[[UIBarButtonItem alloc]
-								initWithImage:[TableViewWithToolbar getToolbarIcon:kIconForward]
-								style:style
+                            initWithImage:[TableViewWithToolbar getToolbarIcon7:kIconForward7 old:kIconForward]
+                                style:style
 								target:self action:@selector(webForwardButton:)] autorelease];
     self.webForward.accessibilityLabel = @"Forward";
 	self.webForward.style = style;
-	
-	NSArray *items = nil;
+
 	
 	if (self.rawDataToDisplay == nil && self.localURL == nil)
 	{
-	
-		items = [NSArray arrayWithObjects: 
-					  self.webBack, 
-					  [CustomToolbar autoFlexSpace], 
-					  self.webForward, 
-					  [CustomToolbar autoFlexSpace], 
-					  self.safari, 
-					  [CustomToolbar autoFlexSpace],
-					  [self autoDoneButton], 
-					  [CustomToolbar autoFlexSpace], 
-					  [CustomToolbar autoFlashButtonWithTarget:self action:@selector(flashButton:)],
-					  nil];
-	}
-	else {
-		items = [NSArray arrayWithObjects: 
-				 [self autoDoneButton], 
-				 [CustomToolbar autoFlexSpace], 
-				 [CustomToolbar autoFlashButtonWithTarget:self action:@selector(flashButton:)],
-				 nil];
-	}
 
-	[self setToolbarItems:items animated:NO];
-	
+        [toolbarItems addObject:self.webBack];
+        [toolbarItems addObject:[CustomToolbar autoFlexSpace]];
+        [toolbarItems addObject:self.webForward];
+        [toolbarItems addObject:[CustomToolbar autoFlexSpace]];
+        [toolbarItems addObject:self.safari];
+        [toolbarItems addObject:[CustomToolbar autoFlexSpace]];
+    }
+        
+    
+    [toolbarItems addObject:[self autoDoneButton]];
+    [self maybeAddFlashButtonWithSpace:YES buttons:toolbarItems big:NO];
+
 }
 
 #pragma mark UI callbacks
@@ -399,8 +389,8 @@
 	if (self.rssLinks != nil)
 	{
 		UISegmentedControl *seg = [[UISegmentedControl alloc] initWithItems:[NSArray arrayWithObjects: 
-																			 [TableViewWithToolbar getToolbarIcon:kIconUp],
-																			 [TableViewWithToolbar getToolbarIcon:kIconDown], nil] ];
+																			 [TableViewWithToolbar getToolbarIcon7:kIconUp7 old:kIconUp],
+																			 [TableViewWithToolbar getToolbarIcon7:kIconDown7 old:kIconDown], nil] ];
 		seg.frame = CGRectMake(0, 0, 60, 30.0);
 		seg.segmentedControlStyle = UISegmentedControlStyleBar;
 		seg.momentary = YES;

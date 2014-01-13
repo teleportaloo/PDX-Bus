@@ -174,8 +174,18 @@
 	self.navigationItem.rightBarButtonItem = refreshButton;
 	[refreshButton release];
 	
-	self.navigationItem.prompt = @"Select the routes you need:";
+}
 
+- (void) viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    self.navigationItem.prompt = @"Select the routes you need:";
+}
+
+- (void) viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    self.navigationItem.prompt = nil;
 }
 
 #pragma mark UI callbacks

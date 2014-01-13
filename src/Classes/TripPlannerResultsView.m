@@ -136,7 +136,7 @@
 	return UITableViewStyleGrouped;
 }
 
-- (void)createToolbarItems
+- (void)updateToolbarItems:(NSMutableArray *)toolbarItems
 {	
 	// match each of the toolbar item's style match the selection in the "UIBarButtonItemStyle" segmented control
 	UIBarButtonItemStyle style = UIBarButtonItemStylePlain;
@@ -146,8 +146,9 @@
 	
 	// create the system-defined "OK or Done" button
     UIBarButtonItem *bookmark = [[UIBarButtonItem alloc]
-								 initWithBarButtonSystemItem:UIBarButtonSystemItemBookmarks
-								 target:self action:@selector(bookmarkButton:)];
+                                 initWithBarButtonSystemItem:UIBarButtonSystemItemBookmarks
+                                 target:self action:@selector(bookmarkButton:)];
+	
 	bookmark.style = style;
 	
 	// create the system-defined "OK or Done" button
@@ -157,27 +158,20 @@
 															action:@selector(showCopy:)];
 	
 	// create the system-defined "OK or Done" button
-	
-	NSMutableArray *items = nil;
-	
-    
-	items = [NSMutableArray arrayWithObjects:	[self autoDoneButton],
-										[CustomToolbar autoFlexSpace], 
-										bookmark,  
-										[CustomToolbar autoFlexSpace],
-										edit,
-                                        [CustomToolbar autoFlexSpace],
-                                        nil];
-    
+
+
+	[toolbarItems addObject: bookmark];
+	[toolbarItems addObject: [CustomToolbar autoFlexSpace]];
+	[toolbarItems addObject: edit];
+    [toolbarItems addObject: [CustomToolbar autoFlexSpace]];
+     
     if ([UserPrefs getSingleton].debugXML)
     {
-        [items addObject:[self autoXmlButton]];
-        [items addObject:[CustomToolbar autoFlexSpace]];
+        [toolbarItems addObject:[self autoXmlButton]];
+        [toolbarItems addObject:[CustomToolbar autoFlexSpace]];
     }
     
-    [items addObject:[self autoFlashButton]];
-	
-	[self setToolbarItems:items animated:NO];
+    [self maybeAddFlashButtonWithSpace:NO buttons:toolbarItems big:NO];
 	
 	[bookmark release];
 	[edit release];
@@ -198,6 +192,20 @@
 	[seg setEnabled:(_recentTripItem < (_userData.recentTrips.count-1)) forSegmentAtIndex:1];
 
 }
+
+- (void)editHomeAction:(id)sender
+{
+	TripPlannerEndPointView *editHome = [[TripPlannerEndPointView alloc] init];
+    
+    [editHome initTakMeHome:self.tripQuery.userRequest];
+
+    UINavigationController * navigationController = self.navigationController;
+    [navigationController popToRootViewControllerAnimated:NO];
+    [navigationController pushViewController:editHome animated:YES];
+    
+    [editHome release];
+}
+
 
 - (void)upDown:(id)sender
 {
@@ -264,8 +272,8 @@
 	if (_recentTripItem >=0)
 	{
 		UISegmentedControl *seg = [[UISegmentedControl alloc] initWithItems:[NSArray arrayWithObjects: 
-											[TableViewWithToolbar getToolbarIcon:kIconUp],
-											[TableViewWithToolbar getToolbarIcon:kIconDown], nil] ];
+                                            [TableViewWithToolbar getToolbarIcon7:kIconUp7      old:kIconUp],
+                                            [TableViewWithToolbar getToolbarIcon7:kIconDown7    old:kIconDown], nil] ];
 		seg.frame = CGRectMake(0, 0, 60, 30.0);
 		seg.segmentedControlStyle = UISegmentedControlStyleBar;
 		seg.momentary = YES;
@@ -277,6 +285,19 @@
 		[seg release];
 		
 	}
+    
+    if (self.tripQuery.userRequest.takeMeHome)
+    {
+        UIBarButtonItem *editHome = [[UIBarButtonItem alloc]
+                                     initWithTitle:NSLocalizedString(@"Edit Home", @"")
+                                     style:UIBarButtonItemStyleBordered
+                                     target:self
+                                     action:@selector(editHomeAction:)];
+        self.navigationItem.rightBarButtonItem = editHome;
+        
+        [editHome release];
+    }
+
 }
 
 
@@ -792,7 +813,7 @@
 					break;
 				case kRowTypeMap:
 					cell.textLabel.text = @"Show on map";
-					cell.imageView.image = [self getActionIcon:kIconMapAction];
+					cell.imageView.image = [self getActionIcon7:kIconMapAction7 old:kIconMapAction];
 					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 					break;
 				case kRowTypeEmail:

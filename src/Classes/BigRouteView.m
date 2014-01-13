@@ -85,7 +85,7 @@
 	label.textAlignment = UITextAlignmentCenter;
 	label.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
 	label.highlightedTextColor = [UIColor whiteColor];
-	label.textColor = [UIColor blackColor];
+	label.textColor = [UIColor whiteColor];
 	label.backgroundColor = [UIColor clearColor];
 	label.autoresizingMask = UIViewAutoresizingFlexibleWidth;
 	[self.view addSubview:label];
@@ -116,6 +116,20 @@
 	
 	self.title = @"Bus line identifier";
 	[self createTextView];
+
+    ROUTE_COL *col = [TriMetRouteColors rawColorForRoute:self.departure.route];
+	
+    
+    if (col == nil)
+    {
+        self.view.backgroundColor = [UIColor redColor];
+    }
+    else
+    {
+        self.view.backgroundColor = [UIColor colorWithRed:col->back_r green:col->back_g blue:col->back_b alpha:1.0];
+    }
+    
+    
 	
 	UIBarButtonItem *info = [[[UIBarButtonItem alloc]
 							  initWithTitle:@"info"
@@ -133,6 +147,7 @@
 - (void)viewWillDisappear:(BOOL)animated
 {
 	[UIApplication sharedApplication].idleTimerDisabled = NO;
+    
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event { 
@@ -146,15 +161,10 @@
     [super dealloc];
 }
 
-- (void)createToolbarItems
-{	
-	[self setToolbarItems:[NSArray arrayWithObjects: 
-						   [self autoDoneButton], 
-						   [CustomToolbar autoFlexSpace], 
-						   [CustomToolbar autoNoSleepWithTarget:self action:@selector(infoAction:)],  
-						   [CustomToolbar autoFlexSpace],  
-						   [self autoFlashButton], nil] 
-				 animated:NO];
+- (void)updateToolbarItems:(NSMutableArray *)toolbarItems
+{
+    [toolbarItems addObject:[CustomToolbar autoNoSleepWithTarget:self action:@selector(infoAction:)]];
+    [self maybeAddFlashButtonWithSpace:YES buttons:toolbarItems big:NO];
 }
 
 

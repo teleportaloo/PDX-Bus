@@ -28,16 +28,19 @@
 #include "TriMetXML.h"
 #import "WhatsNewView.h"
 #import "AboutView.h"
+#import "BlockColorDb.h"
+#import "BlockColorViewController.h"
 
 #define kSectionSupport			0
 #define kSectionTips			1
 #define kSectionLinks			2
 #define kSectionNetwork			3
 #define kSectionCache           4
+#define kSectionHighlights      5
 
 
 
-#define kSections               5
+#define kSections               6
 
 #define kLinkRows				3
 			
@@ -89,7 +92,6 @@
         tipText = [[NSArray alloc] initWithObjects:
                    @"There are LOTS of settings for PDXBus - take a look at the settings on the front screen to change colors, move the bookmarks to the top of the screen or change other options.",
                    @"Shake the device to refresh the arrival times.",
-                   @"Bookmark a trip from the Current Location to your home and call it \"Take me home!\"",
                    @"Backup your bookmarks by emailing them to yourself.",
                    @"Keep an eye on the toolbar at the bottom - there are maps, options, and other features to explore.",
                    @"At night, TriMet recommends holding up a cell phone or flashing light so the driver can see you.",
@@ -143,7 +145,9 @@
 			return @"Network & Server Connectivity";
 		case kSectionCache:
 			return @"Route and Stop Data Cache";
-			
+        case kSectionHighlights:
+			return @"Vehicle highlights";
+
 	}
 	return nil;
 }
@@ -161,6 +165,7 @@
 			return kSectionLinkRows;
         case kSectionNetwork:
 		case kSectionCache:
+        case kSectionHighlights:
 			return 1;
         case kSectionTips:
 			return [tipText count];
@@ -209,6 +214,23 @@
 			return cell;
 			break;
 		}
+            
+        case kSectionHighlights:
+		{
+			static NSString *cacheId = @"high";
+			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cacheId];
+			if (cell == nil) {
+				
+				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cacheId] autorelease];
+				cell.textLabel.font =  [self getBasicFont]; //  [UIFont fontWithName:@"Ariel" size:14];
+				cell.textLabel.adjustsFontSizeToFitWidth = YES;
+				cell.textLabel.text = @"Show vehicle color tags";
+				cell.textLabel.textAlignment = UITextAlignmentLeft;
+				cell.imageView.image = [BlockColorDb imageWithColor:[UIColor redColor]];
+			}
+			return cell;
+			break;
+		}
 			
 		case kSectionSupport:
 		{
@@ -253,7 +275,7 @@
                 else 
                 {
                     cell.textLabel.text = @"What's new?";
-                    cell.imageView.image = [self getActionIcon:@"Icon-Small.png"];
+                    cell.imageView.image = [self getActionIcon:kIconAppIconAction];
                 }
 				return cell;
 			}
@@ -389,6 +411,18 @@
 			[alert show];
 			
 			break;
+		}
+        case kSectionHighlights:
+		{
+            BlockColorViewController *blockTable = [[BlockColorViewController alloc] init];
+            [[self navigationController] pushViewController:blockTable animated:YES];
+            [blockTable release];
+            
+            /*
+			[[BlockColorDb getSingleton] clearAll];
+            [self.table deselectRowAtIndexPath:indexPath animated:YES];
+			*/
+            break;
 		}
 		case kSectionSupport:
 			if (indexPath.row == kSectionSupportRowSupport)

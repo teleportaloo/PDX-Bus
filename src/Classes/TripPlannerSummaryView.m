@@ -33,6 +33,7 @@
 #import "TripPlannerOptions.h"
 #import "TripPlannerDateView.h"
 #import "TripPlannerLocatingView.h"
+#import "TripPlannerCacheView.h"
 
 #define kRowsInTripSection			4
 #define kTripSectionRowFrom			0
@@ -40,12 +41,17 @@
 #define kTripSectionRowOptions		2
 #define kTripSectionRowTime			3
 #define kTripSectionRowPlan			4
+#define kTripSectionRowHistory		5
 
-#define kSections					2
+
+#define kSections					3
 #define kSectionUserRequest			0
 #define kSectionPlanTrip			1
+#define kSectionHistory             2
+
 
 #define kPlanTripSectionRows		1
+#define kHistorySectionRows         1
 
 
 #define kTripOptions @"option cell"
@@ -61,7 +67,7 @@
 	{
 		self.tripQuery = [[[XMLTrips alloc] init] autorelease];
 		
-		NSDictionary *lastTrip = _userData.lastTrip; 
+		NSDictionary *lastTrip = _userData.lastTrip;
 		
 		if (lastTrip !=nil)
 		{
@@ -71,12 +77,20 @@
 			req.fromPoint.currentLocation   = nil;
 			req.toPoint.currentLocation    = nil;
 			req.timeChoice  = TripDepartAfterTime;
+            [req clearGpsNames];
+           
 			self.tripQuery.userRequest = req;
             [req release];
 		}
 	}
 	return self;
 }
+
+- (void)initQuery
+{
+    [self.tripQuery addStopsFromUserFaves:_userData.faves];
+}
+
 
 - (void)resetAction:(id)sender
 {
@@ -122,13 +136,18 @@
 	
 - (int)rowType:(NSIndexPath *)path
 {
-	if (path.section ==kSectionUserRequest)
-	{
-		return path.row;
-	}
-	return kTripSectionRowPlan;
+    switch (path.section)
+    {
+        case kSectionUserRequest:
+            return path.row;
+        case kSectionPlanTrip:
+            return kTripSectionRowPlan;
+        case kSectionHistory:
+            return kTripSectionRowHistory;
+    }
+    return 0;
 }
-	
+
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
 	return kSections;
 }
@@ -141,6 +160,9 @@
 			return kRowsInTripSection;
 		case kSectionPlanTrip:
 			return kPlanTripSectionRows;
+        case kSectionHistory:
+			return kHistorySectionRows;
+
 	}
 	return 0;
 }
@@ -160,22 +182,17 @@
 	return UITableViewStyleGrouped;
 }
 
-- (void)createToolbarItems
+- (void)updateToolbarItems:(NSMutableArray *)toolbarItems
 {	
 	// create the system-defined "OK or Done" button
 	UIBarButtonItem *reverse = [[[UIBarButtonItem alloc]
-							   initWithTitle:@"Reverse trip" style:UIBarButtonItemStyleBordered 
+							   initWithTitle:@"Reverse trip" style:UIBarButtonItemStyleBordered
 							   target:self action:@selector(reverseAction:)] autorelease];
 	
 	
-	NSArray *items = [NSArray arrayWithObjects: 
-					  self.autoDoneButton, 
-					  [CustomToolbar autoFlexSpace],
-					  reverse,
-					  [CustomToolbar autoFlexSpace],
-					  self.autoFlashButton, 
-					  nil];
-	[self setToolbarItems:items animated:NO];
+	 [toolbarItems addObject:reverse];
+    
+    [self maybeAddFlashButtonWithSpace:YES buttons:toolbarItems big:NO];
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -201,6 +218,7 @@
 									  width:[TripLeg bodyTextWidthForScreenWidth:[self screenWidth]]];
 		break;
 	case kTripSectionRowPlan:
+    case kTripSectionRowHistory:
 			result = [self basicRowHeight];
 			break;
 	
@@ -298,7 +316,21 @@
 			cell.textLabel.text = @"Show trip";
 			cell.imageView.image = [self getActionIcon:kIconTripPlanner];
 			return cell;
-		}	
+		}
+        case kTripSectionRowHistory:
+		{
+			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kTripId];
+			if (cell == nil) {
+				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kTripId] autorelease];
+			}
+			
+			// Set up the cell
+			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+			cell.editingAccessoryType = UITableViewCellAccessoryDisclosureIndicator ;
+			cell.textLabel.text = @"Recent trips";
+			cell.imageView.image = [self getActionIcon:kIconRecent];
+			return cell;
+		}
 
 	}
 	return nil;
@@ -388,6 +420,14 @@
 
 			break;
 		}
+        case kTripSectionRowHistory:
+		{
+            TripPlannerCacheView *tripCache = [[TripPlannerCacheView alloc] init];
+            // Push the detail view controller
+            [[self navigationController] pushViewController:tripCache animated:YES];
+            [tripCache release];
+        }
+        break;
 	}
 }
 	

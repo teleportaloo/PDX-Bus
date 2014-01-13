@@ -20,7 +20,7 @@ Features include:
 
 Route and arrival data provided by permission of TriMet.
 
-PDX Bus 6.7 sources
+PDX Bus 7.0 sources
 ===================
 
 I am making the sources to PDX Bus version 6.7 available as part of the
@@ -66,7 +66,7 @@ Links
 
 Things to know before building
 ------------------------------
-* PDX Bus is built with iPhone SDK 6.1 and Xcode 4.6 - available free
+* PDX Bus is built with iPhone SDK 7.0 and Xcode 5.0.2 - available free
 from [Apple](http://developer.apple.com) in their Mac App store.
 * Before building this code you will need to register with TriMet 
 to get a free "AppID" from [TriMet](http://developer.trimet.org/registration/),
@@ -183,11 +183,28 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     
-
-
+    
 
 Change log
 ----------
+### Version 7.0 (January 2014)
+* Updated for iOS7.
+* Updated user interface for iOS 7.
+* New icon from Rob Alan.
+* Added vehicle color "tags"
+* Added TriMet Facebook page.
+* Added support to launch TriMet Tickets App.
+* Added warning for flashing light.
+* Many toolbar icons are now optional - see settings.
+* Fixed location search so that stops that are both bus and rail stops are correctly filtered.
+* Fixed locator screen flow.
+* Large bus line identifier now rotates on iPhone.
+* Disabled screen rotation on old iPads as it did not fully work.
+* Added rail map toolbar button to station list screen.
+* Fixed streetcar arrivals on Harrison.
+* Refactored trip planner
+
+
 
 ### Version 6.7 (May 2013)
 * Added Streetcar CL line to stop ID 9600 (SW 11th & Alder).
@@ -327,4 +344,4 @@ First Open Source Version.
 
 HAVE FUN!
 
-Andrew Wallace, February 2013.
+Andrew Wallace, January 2014.

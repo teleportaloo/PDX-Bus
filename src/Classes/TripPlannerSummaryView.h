@@ -35,4 +35,6 @@
 
 }
 
+-(void) initQuery;
+
 @end

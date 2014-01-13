@@ -116,6 +116,11 @@
 	[self.annotations addObject:pin];
 }
 
+- (bool)hasXML
+{
+    return NO;
+}
+
 #pragma mark Prev/Next Segment controller
 
 - (void)setSegText:(UISegmentedControl*)seg
@@ -318,7 +323,7 @@
 	
 }
 
-- (void)createToolbarItems
+- (void) updateToolbarItems:(NSMutableArray *)toolbarItems
 {
 	// add a segmented control to the button bar
 	UISegmentedControl	*buttonBarSegmentedControl;
@@ -328,38 +333,23 @@
 	buttonBarSegmentedControl.selectedSegmentIndex = 0.0;	// start by showing the normal picker
 	buttonBarSegmentedControl.segmentedControlStyle = UISegmentedControlStyleBar;
 	
-	int color = [UserPrefs getSingleton].toolbarColors;
-	
-	if (color == 0xFFFFFF)
-	{
-		
-		buttonBarSegmentedControl.tintColor = [UIColor darkGrayColor];
-	}
-	else {
-		buttonBarSegmentedControl.tintColor = [self htmlColor:color];
-	}
+    [self setSegColor:buttonBarSegmentedControl];
     
-	buttonBarSegmentedControl.backgroundColor = [UIColor clearColor];
-	
-	UIBarButtonItem *segItem = [[UIBarButtonItem alloc] initWithCustomView:buttonBarSegmentedControl];
-	
-	NSMutableArray *items = [[[NSMutableArray alloc] init] autorelease];
-    
+    UIBarButtonItem *segItem = [[UIBarButtonItem alloc] initWithCustomView:buttonBarSegmentedControl];
+
     
     if ([MKMapView instancesRespondToSelector:@selector(setUserTrackingMode:animated:)])
     {
         self.compassButton = [[[MKUserTrackingBarButtonItem alloc] initWithMapView:mapView] autorelease];
     }
 	
-    [items addObjectsFromArray:[NSArray arrayWithObjects: [self autoDoneButton], [CustomToolbar autoFlexSpace], nil]];
     
     if (self.compassButton)
     {
-        [items addObjectsFromArray:[NSArray arrayWithObjects: self.compassButton, [CustomToolbar autoFlexSpace], nil]];
-        
+        [toolbarItems addObjectsFromArray:[NSArray arrayWithObjects: self.compassButton, [CustomToolbar autoFlexSpace], nil]];
     }
     
-    [items addObjectsFromArray:[NSArray arrayWithObjects: segItem, [CustomToolbar autoFlexSpace], nil]] ;
+    [toolbarItems addObject:segItem] ;
     
     if (self.lines)
     {
@@ -369,17 +359,20 @@
                                   style:UIBarButtonItemStyleBordered
                                   target:self action:@selector(infoAction:)] autorelease];
         
-        [items addObjectsFromArray:[NSArray arrayWithObjects:   info,
-                                    [CustomToolbar autoFlexSpace], nil]];
+        [toolbarItems addObjectsFromArray:[NSArray arrayWithObjects: [CustomToolbar autoFlexSpace],  info,
+                                     nil]];
     }
     
+    if (self.hasXML)
+    {
+        [toolbarItems addObject:[CustomToolbar autoFlexSpace]];
+        [self updateToolbarItemsWithXml:toolbarItems];
+    }
+    else
+    {
+        [self maybeAddFlashButtonWithSpace:YES buttons:toolbarItems big:NO];
+    }
     
-    [items addObjectsFromArray:[NSArray arrayWithObjects:[CustomToolbar autoFlashButtonWithTarget:self action:@selector(flashButton:)], nil]];
-    
-	
-    
-	[self setToolbarItems:items animated:NO];
-	
 	[segItem release];
 	[buttonBarSegmentedControl release];
 }
@@ -394,40 +387,32 @@
 #pragma mark View functions
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
-- (void)viewDidLoad {
-    [super viewDidLoad];
-	
-	    
-    // Get the size of the diagonal
-    CGRect mapViewRect;
-	mapViewRect.size.width = [[UIScreen mainScreen] applicationFrame].size.width;
-	mapViewRect.size.height = [[UIScreen mainScreen] applicationFrame].size.height;
-	mapViewRect.origin.x = 0;
-	mapViewRect.origin.y = 0;
-    
-	//if (self.interfaceOrientation == UIInterfaceOrientationLandscapeLeft ||
-	//	self.interfaceOrientation == UIInterfaceOrientationLandscapeRight)
-	//{
-    //    mapViewRect.origin.x = _portraitMapRect.origin.y;
-    //    mapViewRect.origin.y = _portraitMapRect.origin.x;
-    //}
-    
-    
-	mapView=[[MKMapView alloc] initWithFrame:mapViewRect];
-	mapView.showsUserLocation=TRUE;
-	mapView.mapType=MKMapTypeStandard;
-	mapView.delegate=self;
-	mapView.autoresizingMask = (UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight);
+- (void)addDataToMap:(bool)zoom {
+  
+	_overlaysSupported = [self supportsOverlays];
 
     
+    NSArray *oldAnnotations = [mapView.annotations retain];
     
-    // DEBUG_LOG(@"W %f H %f side %f\n",appFrame.size.width , appFrame.size.height, side);
-    DEBUG_LOG(@"X %f Y %f\n",        mapViewRect.origin.x , mapViewRect.origin.y);
+    if (oldAnnotations !=nil && oldAnnotations.count >0)
+    {
+        [mapView removeAnnotations:oldAnnotations];
+    }
     
-    DEBUG_LOG(@"MAP: (%f, %f, %f, %f)\n", mapView.frame.origin.x, mapView.frame.origin.y, mapView.frame.size.width, mapView.frame.size.height);
+    [oldAnnotations release];
     
-	_overlaysSupported = [self supportsOverlays];
-	
+    if  (_overlaysSupported)
+    {
+        NSArray *oldOverlays = [mapView.overlays retain];
+        
+        if (oldOverlays !=nil && oldOverlays.count >0)
+        {
+            [mapView removeOverlays:oldOverlays];
+        }
+        
+        [oldOverlays release];
+    }
+    
 
     if (self.lineCoords != nil)
 	{
@@ -458,7 +443,7 @@
 		}
 	}
 	
-	if (self.annotations !=nil && [self.annotations count] < 2)
+	if (self.annotations !=nil && [self.annotations count] < 2 && zoom)
 	{
 		
 		/*Region and Zoom*/
@@ -487,7 +472,7 @@
 		[mapView regionThatFits:region];
 		[mapView setRegion:region animated:TRUE];
 	}
-	else if (self.annotations !=nil && [self.annotations count] >= 2 && _overlaysSupported)
+	else if (self.annotations !=nil && [self.annotations count] >= 2 && _overlaysSupported && zoom)
 	{
 		// Walk the list of overlays and annotations and create a MKMapRect that
 		// bounds all of them and store it into flyTo.
@@ -542,7 +527,7 @@
         };
 		mapView.visibleMapRect=[mapView mapRectThatFits:flyTo edgePadding:insets];
 	} 
-	else if (self.annotations !=nil && [self.annotations count] >= 2)
+	else if (self.annotations !=nil && [self.annotations count] >= 2 && zoom)
 	{
 		CLLocationDegrees maxLat = -90;
 		CLLocationDegrees maxLon = -180;
@@ -625,8 +610,8 @@
 		[annot release];
 	}
 	else if (self.lines) { // overlays!
-		
-		CLLocationCoordinate2D *coords = malloc(sizeof(CLLocationCoordinate2D) * self.lineCoords.count); 
+        
+		CLLocationCoordinate2D *coords = malloc(sizeof(CLLocationCoordinate2D) * self.lineCoords.count);
 		self.routePolyLines = [[[NSMutableArray alloc] init] autorelease];
 		
 		int j = 0;
@@ -660,9 +645,36 @@
 		
 	}
 	
-	[self.view insertSubview:mapView atIndex:0];
+    [self updateToolbar];
+}
+
+
+// Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
+- (void)viewDidLoad {
+    [super viewDidLoad];
+	
     
-    [self createToolbarItems];
+    
+    // Get the size of the diagonal
+    CGRect mapViewRect = [self getMiddleWindowRect];
+    
+	//if (self.interfaceOrientation == UIInterfaceOrientationLandscapeLeft ||
+	//	self.interfaceOrientation == UIInterfaceOrientationLandscapeRight)
+	//{
+    //    mapViewRect.origin.x = _portraitMapRect.origin.y;
+    //    mapViewRect.origin.y = _portraitMapRect.origin.x;
+    //}
+    
+    
+	mapView=[[MKMapView alloc] initWithFrame:mapViewRect];
+	mapView.showsUserLocation=TRUE;
+	mapView.mapType=MKMapTypeStandard;
+	mapView.delegate=self;
+	mapView.autoresizingMask = (UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight);
+    
+    [self addDataToMap:YES];
+    
+    [self.view insertSubview:mapView atIndex:0];
 }
 
 
@@ -902,11 +914,28 @@
 
 -(void)BackgroundTaskDone:(UIViewController *)viewController cancelled:(bool)cancelled
 {
-	if (!cancelled)
+	if (self.backgroundRefresh)
 	{
-		[self.navigationController pushViewController:viewController animated:YES];
+		self.backgroundRefresh = false;
+		
+		if (!cancelled)
+		{
+			[self addDataToMap:NO];
+
+			// [[(MainTableViewController *)[self.navigationController topViewController] tableView] reloadData];
+		}
+		else {
+			[self.navigationController popViewControllerAnimated:YES];
+		}
 	}
+	else {
+		if (!cancelled)
+		{
+			[self.navigationController pushViewController:viewController animated:YES];
+		}
+	}	
 }
+
 
 - (UIInterfaceOrientation)BackgroundTaskOrientation
 {

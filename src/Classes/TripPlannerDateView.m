@@ -62,7 +62,8 @@
 
 - (CGFloat) heightOffset
 {
-	return 150.0;
+	// return 150.0;
+    return 0;
 }
 
 - (void)initializeFromBookmark:(TripUserRequest *)req
@@ -110,9 +111,16 @@
 		screenRect.size.width = temp;
 	}
 	
+    float offset = 20.0;
+    
+    if (!self.iOS7style)
+    {
+        offset = 84.0;
+    }
 	
+    
 	CGRect pickerRect = CGRectMake(	0.0,
-								   screenRect.size.height - 40.0 - 44.0 - size.height,
+								   screenRect.size.height - size.height - offset,
 								   screenRect.size.width,
 								   size.height);
 	return pickerRect;

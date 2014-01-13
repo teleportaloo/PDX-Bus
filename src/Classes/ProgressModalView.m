@@ -88,13 +88,16 @@ CGPathRef CreatePathWithRoundRect(CGRect rect, CGFloat cornerRadius);
 	
 }
 
++ (bool)iOS7style
+{
+    return [[UIDevice currentDevice].systemVersion floatValue] >= 7.0;
+}
+
 + (ProgressModalView *)initWithSuper:(UIView *)back items:(int)items title:(NSString *)title delegate:(id<ProgressDelegate>)delegate
 						 orientation:(UIInterfaceOrientation)orientation
 {	
 	ProgressModalView *top = [[[ProgressModalView alloc] initWithFrame:[back bounds]] autorelease];
 
-	
-	
 	CGRect backFrame = [back frame];
 	CGFloat quarterTurns = 0;
 	
@@ -141,6 +144,7 @@ CGPathRef CreatePathWithRoundRect(CGRect rect, CGFloat cornerRadius);
 		[top setTransform:trans];
 	}
 	
+    /*
 	RoundedTransparentRect *fullScreen = [[RoundedTransparentRect alloc] initWithFrame:CGRectMake(
 																			backFrame.origin.x + kMargin,
 																			backFrame.origin.y + kTopMargin,
@@ -154,8 +158,21 @@ CGPathRef CreatePathWithRoundRect(CGRect rect, CGFloat cornerRadius);
 	fullScreen.B				   = 0.5;
 	
 	fullScreen.opaque = NO;
+	*/
+    
+    UIView *fullScreen = [[UIView alloc] initWithFrame:CGRectMake(
+                                                                                                  backFrame.origin.x + kMargin,
+                                                                                                  backFrame.origin.y + kTopMargin,
+                                                                                                  (backFrame.size.width  - kMargin *2),
+                                                                                                  (backFrame.size.height - kTopMargin - kMargin)
+                                                                                                  )];
+    
+    fullScreen.backgroundColor = [UIColor colorWithRed:0.5 green:0.5 blue:0.5 alpha:0.6];
 	
-	[top addSubview:fullScreen];
+	fullScreen.opaque = NO;
+     
+     
+ 	[top addSubview:fullScreen];
 	
 	[fullScreen release];
 	
@@ -233,17 +250,27 @@ CGPathRef CreatePathWithRoundRect(CGRect rect, CGFloat cornerRadius);
 		
 		[cancelButton setTitle:@"Cancel" forState:UIControlStateNormal];	
 		
+
 		cancelButton.frame = CGRectMake(
 										frontFrame.origin.x,
 										frontFrame.origin.y + frontFrame.size.height + kButtonGap,
 										kActivityViewWidth,
-										kButtonHeight);									
-
+										kButtonHeight);
+    
 		[cancelButton addTarget:top action:@selector(buttonAction:) forControlEvents:UIControlEventTouchUpInside];	
-	
+        
+        if ([ProgressModalView iOS7style])
+        {
+            cancelButton.backgroundColor = [UIColor whiteColor];
+        }
 		
 		[cancelButton setTitleColor:[UIColor colorWithRed:frontWin.R green:frontWin.G blue:frontWin.B alpha:1.0] forState:UIControlStateNormal];
 		[top addSubview:cancelButton];
+        
+        cancelButton.hidden = NO;
+        
+        [top bringSubviewToFront:cancelButton];
+        
 	}
     
     double y = frontFrame.origin.y + frontFrame.size.height + 2 * kButtonGap + kButtonHeight;

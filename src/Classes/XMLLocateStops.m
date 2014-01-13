@@ -196,6 +196,8 @@
 
 - (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict
 {
+    [super parser:parser didStartElement:elementName namespaceURI:namespaceURI qualifiedName:qName attributes:attributeDict];
+    
     if (qName) {
         elementName = qName;
     }
@@ -233,21 +235,50 @@
 	if ([elementName isEqualToString:@"route"])
 	{
 		NSString *type = [self safeValueFromDict:attributeDict valueForKey:@"type"];
+        NSString *number = [self safeValueFromDict:attributeDict valueForKey:@"route"];
+        
+        // Route 98 is the MAX Shuttle and makes all max trains look like bus stops
+        if ([number intValue]!=98)
+        {
 		
-		switch ([type characterAtIndex:0])
-		{
-			case 'R':
-			case 'r':
-				_currentMode = TripModeTrainOnly;
-				break;
-			case 'B':
-			case 'b':
-				_currentMode = TripModeBusOnly;
-				break;
-			default:
-				_currentMode = TripModeAll;
-				break;
-		}
+            switch ([type characterAtIndex:0])
+            {
+                case 'R':
+                case 'r':
+                    switch (_currentMode)
+                    {
+                        case TripModeNone:
+                        case TripModeTrainOnly:
+                            _currentMode = TripModeTrainOnly;
+                            break;
+                        case TripModeBusOnly:
+                        case TripModeAll:
+                        default:
+                            _currentMode = TripModeAll;
+                            break;
+                    }
+                    
+                    break;
+                case 'B':
+                case 'b':
+                    switch (_currentMode)
+                    {
+                        case TripModeNone:
+                        case TripModeBusOnly:
+                            _currentMode = TripModeBusOnly;
+                            break;
+                        case TripModeTrainOnly:
+                        case TripModeAll:
+                        default:
+                            _currentMode = TripModeAll;
+                            break;
+                    }
+                    break;
+                default:
+                    _currentMode = TripModeAll;
+                    break;
+            }
+        }
 		if (self.routes != nil && [self modeMatch:_currentMode second:_mode])
 		{
 			NSString *xmlRoute = [self safeValueFromDict:attributeDict valueForKey:@"route"];
@@ -273,7 +304,9 @@
 }
 
 - (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName
-{     
+{
+    [super parser:parser didEndElement:elementName namespaceURI:namespaceURI qualifiedName:qName];
+    
     if (qName) {
         elementName = qName;
     }

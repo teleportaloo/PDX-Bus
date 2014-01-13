@@ -28,9 +28,15 @@
 #import "WhatsNewView.h"
 #include "CellLabel.h"
 #import "DepartureTimesView.h"
+#import "BlockColorViewController.h"
+#import "WebViewController.h"
+#import "FlashWarning.h"
+#import "AllRailStationView.h"
 
 
 @implementation WhatsNewView
+
+@synthesize settingsView = _settingsView;
 
 #define kSectionText	    	0
 #define kSectionDone			1
@@ -42,7 +48,6 @@
 
 - (void)dealloc {
 	[newTextArray release];
-    [actionDict release];
 	[super dealloc];
 }
 
@@ -61,8 +66,22 @@
 	{
 		self.title = @"What's new?";
 		newTextArray = [[NSArray arrayWithObjects:
+                         @".7.0 - iOS 7 updates",
+                         @"Updated user interface for iOS 7",
+                         @"#showRobAlan New icon from Rob Alan.",
+                         @"#showHighlights Added vehicle color 'tags'.",
+                         @"#fbTriMet Added TriMet Facebook page.",
+                         @"#ticketApp Added support to launch TriMet Tickets App.",
+                         @"#flashWarning Added warning for flashing light.",
+                         @"#settings Many toolbar icons are now optional - see settings.",
+                         @"Fixed location search so that stops that are both bus and rail stops are correctly filtered.",
+                         @"Fixed locator screen flow.",
+                         @"Large bus line identifier now rotates on iPhone.",
+                         @"Disabled screen rotation on old iPads as it did not fully work",
+                         @"#stations Added rail map toolbar button to station list screen.",
+                         @"#id12380 Fixed streetcar arrivals on Harrison.",
                          @".6.7 - Mostly bug fixes",
-                         @"#02 Bug fix - added Streetcar CL line to stop ID 9600 (SW 11th & Alder).",
+                         @"#id9600 Bug fix - added Streetcar CL line to stop ID 9600 (SW 11th & Alder).",
                          @"Added new options when pins on a map are selected - app can now open an external map app and display the location. Supported map apps include Google map app, Waze, MotionX-GPS, and Apple maps.",
                          @"Several map fixes including: Maps can track with location and rotate with compass heading (iOS 5 & above); updated maps button to only show stops (and not arrivals) when there are multiple stops.",
                          @"Updated Commuter toolbar icon.",
@@ -73,7 +92,7 @@
                          @"Added option to open Google Chrome app instead of Safari.",
                          @"Updated URL scheme to add parameters for nearby command, e.g.:  'pdxbus://nearby&show=maps&distance=1&mode=trains'\nwhere:\n\n'show=' can be followed by 'maps', 'routes' or 'arrivals'\n'distance=' can be followed by 'closest', '0.5', '1', or '3'\n'mode=' can be followed by 'bus', 'train' or 'both'.",
                          @".6.6 - Mostly bug fixes",
-                         @"#01 Fixed stop ID 13604 - added NS Line arrivals.",
+                         @"#id13604 Fixed stop ID 13604 - added NS Line arrivals.",
                          @"Optimized rail maps to use \"tiles\" - reducing crashes due to memory issues.",
                          @"Added additional informational hotspots to streetcar map.",
                          @"Trip planner min walk distances now match web site (1/10, 1/4, 1/2, 3/4, 1 & 2 miles).",
@@ -116,12 +135,64 @@
                           nil] retain];
 
         
-        actionDict = [[NSDictionary dictionaryWithObjectsAndKeys:
-                      [NSValue valueWithPointer:@selector(id13604)], @"01",
-                      [NSValue valueWithPointer:@selector(id9600)],  @"02",
-                       nil] retain];
-	}
+    }
 	return self;
+}
+
+- (void)stations
+{
+    AllRailStationView *station = [[[AllRailStationView alloc] init] autorelease];
+    
+    [self.navigationController pushViewController:station animated:YES];
+}
+
+- (void)fbTriMet
+{
+    [self facebookTriMet];
+}
+
+- (void)flashWarning
+{
+    [UserPrefs getSingleton].flashingLightWarning = YES;
+    
+    FlashWarning *warning = [[FlashWarning alloc] initWithNav:[self navigationController]];
+    
+    warning.parentBase = self;
+    
+	[warning release];
+}
+
+- (void)settings
+{
+    self.settingsView = [[[IASKAppSettingsViewController alloc] init] autorelease];
+    
+    self.settingsView.showDoneButton = NO;
+    // Push the detail view controller
+    [[self navigationController] pushViewController:self.settingsView animated:YES];
+}
+
+- (void)showRobAlan
+{
+    WebViewController *webPage = [[WebViewController alloc] init];
+    [webPage setURLmobile:@"http://www.robalan.com" full:nil title:@"Rob Alan"];
+    [webPage displayPage:[self navigationController] animated:YES tableToDeselect:self.table];
+    [webPage release];
+}
+
+-(void)showHighlights
+{
+    BlockColorViewController *blockTable = [[BlockColorViewController alloc] init];
+    [[self navigationController] pushViewController:blockTable animated:YES];
+    [blockTable release];
+}
+
+-(void)id12380
+{
+    DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
+    
+    departureViewController.displayName = @"";
+    [departureViewController fetchTimesForLocationInBackground:self.backgroundTask loc:@"12380,12381, 12382"];
+    [departureViewController release];
 }
 
 -(void)id13604
@@ -185,6 +256,35 @@ static NSString *itemId = @"item";
 	
 }
 
+- (SEL)selectorForActionItem:(NSString *)item restOfTest:(NSString**)rest
+{
+    NSScanner *scanner = [NSScanner scannerWithString:item];
+    NSString *selector = nil;
+    
+    if ([scanner isAtEnd])
+    {
+        return nil;
+    }
+    
+    scanner.scanLocation = 1;
+    
+    [scanner scanUpToString:@" " intoString:&selector];
+    
+    if (rest && ![scanner isAtEnd])
+    {
+        *rest = [item substringFromIndex:scanner.scanLocation+1];
+    }
+    
+    SEL action = NSSelectorFromString(selector);
+    if (![self respondsToSelector:action])
+    {
+        action = nil;
+    }
+    
+    return action;
+    
+}
+
 - (NSString *)textForItem:(int)item
 {
     NSString *text = [newTextArray objectAtIndex:item];
@@ -195,7 +295,9 @@ static NSString *itemId = @"item";
     }
     else if ([text characterAtIndex:0] =='#')
     {
-        text = [text substringFromIndex:4];
+        NSString *rest = nil;
+        [self selectorForActionItem:text restOfTest:&rest];
+        text = rest;
     }    
     return text;
 }
@@ -267,10 +369,12 @@ static NSString *itemId = @"item";
             if ([self hasAction:indexPath.row])
             {
                 cell.selectionStyle = UITableViewCellSelectionStyleBlue;
+                cell.accessoryType  = UITableViewCellAccessoryDisclosureIndicator;
             }
             else
             {
                 cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                cell.accessoryType  = UITableViewCellAccessoryNone;
             }
             
 			[self updateAccessibility:cell indexPath:indexPath text:[newTextArray objectAtIndex:indexPath.row] alwaysSaySection:YES];
@@ -312,13 +416,12 @@ static NSString *itemId = @"item";
 	{
         if ([self hasAction:indexPath.row])
         {
-            NSValue *ptr = [actionDict objectForKey:[self actionKey:indexPath.row]];
+            SEL sel = [self selectorForActionItem:[newTextArray objectAtIndex:indexPath.row] restOfTest:nil];
             
-            if (ptr!=nil)
+            if (sel!=nil)
             {
-                SEL sel = [ptr pointerValue];
-                
                 [self performSelector:sel];
+                [tableView deselectRowAtIndexPath:indexPath animated:YES];
             }
         }
         else

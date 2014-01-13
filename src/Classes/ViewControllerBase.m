@@ -26,6 +26,7 @@
 
 #import "ViewControllerBase.h"
 #import "FindByLocationView.h"
+#import "FlashWarning.h"
 #import "FlashViewController.h"
 #import "TriMetTimesAppDelegate.h"
 #import "AppDelegateMethods.h"
@@ -34,6 +35,8 @@
 #import "RssView.h"
 #import <Twitter/TWTweetComposeViewController.h>
 #import "OpenInChromeController.h"
+#import "TicketAlert.h"
+#import "UserPrefs.h"
 
 #define kTweetButtonList        1
 #define kTweetButtonTweet       2
@@ -64,10 +67,9 @@
 
 @implementation ViewControllerBase
 
-@synthesize backgroundTask	= _backgroundTask;
-@synthesize callback		= _callback;
-@synthesize docMenu             = _docMenu;
-
+@synthesize backgroundTask	 = _backgroundTask;
+@synthesize callback		 = _callback;
+@synthesize docMenu          = _docMenu;
 
 - (void)dealloc {
     //
@@ -78,12 +80,12 @@
     {
         self.backgroundTask.callbackComplete = nil;
 	}
-    self.backgroundTask = nil;
-	self.callback		= nil;
-    self.docMenu        = nil;
-    self.tweetAlert     = nil;
-    self.tweetAt        = nil;
-    self.initTweet      = nil;
+    self.backgroundTask   = nil;
+	self.callback		  = nil;
+    self.docMenu          = nil;
+    self.tweetAlert       = nil;
+    self.tweetAt          = nil;
+    self.initTweet        = nil;
     
 	[_userData release];
 	[super dealloc];
@@ -98,6 +100,24 @@
 }
 
 
+- (void)setSegColor:(UISegmentedControl*)seg
+{
+    int color = [UserPrefs getSingleton].toolbarColors;
+    
+    if (![self iOS7style])
+    {
+        if (color == 0xFFFFFF)
+        {
+            
+            seg.tintColor = [UIColor darkGrayColor];
+        }
+        else {
+            seg.tintColor = [self htmlColor:color];
+        }
+        
+        seg.backgroundColor = [UIColor clearColor];
+	}
+}
 
 - (void)setTheme
 {
@@ -105,16 +125,47 @@
 	
 	if (color == 0xFFFFFF)
 	{
-		self.navigationController.toolbar.tintColor = nil;
-		self.navigationController.navigationBar.tintColor = nil;
+        if ([self.navigationController.toolbar respondsToSelector:@selector(setBarTintColor:)])
+        {
+            self.navigationController.toolbar.barTintColor = nil;
+            self.navigationController.navigationBar.barTintColor = nil;
+            self.navigationController.toolbar.tintColor = nil;
+            self.navigationController.navigationBar.tintColor = nil;
+            
+        }
+        else
+        {
+            self.navigationController.toolbar.tintColor = nil;
+            self.navigationController.navigationBar.tintColor = nil;
+        }
 	}
-	else 
+	else
 	{
-		self.navigationController.toolbar.tintColor = [self htmlColor:color]; 
-		self.navigationController.navigationBar.tintColor = [self htmlColor:color]; 
+        if ([self.navigationController.toolbar respondsToSelector:@selector(setBarTintColor:)])
+        {
+            self.navigationController.toolbar.barTintColor = [self htmlColor:color];
+            self.navigationController.navigationBar.barTintColor = [self htmlColor:color];
+            self.navigationController.toolbar.tintColor = [UIColor whiteColor];
+            self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
+        }
+        else
+        {
+            self.navigationController.toolbar.tintColor = [self htmlColor:color];
+            self.navigationController.navigationBar.tintColor = [self htmlColor:color];
+        }
+        
 	}
 }
 
+- (bool)iOS7style
+{
+    return ([self respondsToSelector:@selector(setEdgesForExtendedLayout:)]);
+}
+
++ (bool)iOS7style
+{
+    return [[UIDevice currentDevice].systemVersion floatValue] >= 7.0;
+}
 
 - (bool)initMembers
 {
@@ -127,12 +178,39 @@
 	return false;
 }
 
+- (id)initWithCoder:(NSCoder *)aDecoder
+{
+    if ((self = [super initWithCoder:aDecoder]))
+	{
+		[self initMembers];
+	}
+	return self;
+}
+
 - (id)init {
 	if ((self = [super init]))
 	{
 		[self initMembers];
 	}
 	return self;
+}
+
+- (void)backToRootButtons:(NSMutableArray *)toolbarItems
+{
+    [toolbarItems addObject:[self autoDoneButton]];
+    [toolbarItems addObject:[CustomToolbar autoFlexSpace]];
+}
+
+- (void)updateToolbar
+{
+    NSMutableArray *toolbarItems = [[[NSMutableArray alloc] init] autorelease];
+    
+    [self backToRootButtons:toolbarItems];
+    
+	[self updateToolbarItems:toolbarItems];
+    
+    
+    [self setToolbarItems:toolbarItems animated:NO];
 }
 
 
@@ -147,7 +225,8 @@
 	
 	[self setTheme];
 		
-	[self createToolbarItems];
+    [self updateToolbar];
+    
  }
 
 
@@ -197,6 +276,12 @@
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
 	// Return YES for supported orientations
+    
+    // ios 5 bug - just return NO
+    
+    return NO;
+    
+    /*
 	CGRect bounds = [[UIScreen mainScreen] bounds];
 	
 	// Small devices do not need to orient
@@ -210,6 +295,7 @@
 		return NO;
 	}
 	return YES;
+     */
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -256,7 +342,17 @@
 - (CGRect)getMiddleWindowRect
 {
 	CGRect tableViewRect;
-	tableViewRect.size.width = [[UIScreen mainScreen] applicationFrame].size.width;
+    
+    if ([self iOS7style])
+    {
+        tableViewRect.size.width = self.navigationController.view.frame.size.width;
+    }
+    else
+    {
+        tableViewRect.size.width = [[UIScreen mainScreen] applicationFrame].size.width;
+    }
+    DEBUG_LOG(@"Table Width %f\n",tableViewRect.size.width);
+    
 	tableViewRect.size.height = [[UIScreen mainScreen] applicationFrame].size.height-[self heightOffset];
 	tableViewRect.origin.x = 0;
 	tableViewRect.origin.y = 0;
@@ -353,12 +449,24 @@
 	return [ViewControllerBase alwaysGetIcon:name];
 }
 
+- (UIImage *)alwaysGetIcon7:(NSString *)name old:(NSString *)old
+{
+    UIImage* icon =[self alwaysGetIcon:name];
+    return icon != nil ? icon : [self alwaysGetIcon:old];
+}
+
 + (UIImage *)alwaysGetIcon:(NSString *)name
 {
     UIImage *image = [UIImage imageNamed:name];
     image.accessibilityHint = nil;
     image.accessibilityLabel = nil;
 	return image; 
+}
+
++ (UIImage *)getToolbarIcon7:(NSString *)name old:(NSString *)old
+{
+    UIImage* icon =[self alwaysGetIcon:name];
+	return icon != nil ? icon : [self alwaysGetIcon:old];
 }
 
 + (UIImage *)getToolbarIcon:(NSString *)name
@@ -372,6 +480,15 @@
 	{
 		return [self alwaysGetIcon:name];
 	}
+	return nil;
+}
+
+- (UIImage *)getActionIcon7:(NSString *)name old:(NSString *)old
+{
+	if ([UserPrefs getSingleton].actionIcons)
+	{
+        return [self alwaysGetIcon7:name old:old];
+    }
 	return nil;
 }
 
@@ -404,6 +521,27 @@
 	return false;
 }
 
+- (void)maybeAddFlashButtonWithSpace:(bool)space buttons:(NSMutableArray *)array big:(bool)big
+{
+    if ([UserPrefs getSingleton].flashingLightIcon)
+    {
+        
+        if (space)
+        {
+            [array addObject:[CustomToolbar autoFlexSpace]];
+        }
+    
+        if (big)
+        {
+            [array addObject:[self autoBigFlashButton]];
+        }
+        else
+        {
+            [array addObject:[self autoFlashButton]];
+        }
+    }
+}
+
 - (UIBarButtonItem *)autoFlashButton
 {
 	return [CustomToolbar autoFlashButtonWithTarget:self action:@selector(flashButton:)]; 
@@ -411,11 +549,34 @@
 
 - (UIBarButtonItem *)autoBigFlashButton
 {
+    return [CustomToolbar autoFlashButtonWithTarget:self action:@selector(flashButton:)];
+#if 0
 	// create the system-defined "OK or Done" button
 	UIBarButtonItem *flash = [[[UIBarButtonItem alloc]
-							   initWithTitle:@"Night Visibility Flash" style:UIBarButtonItemStyleBordered 
+							   initWithTitle:@" Flash" style:UIBarButtonItemStyleBordered 
 							   target:self action:@selector(flashButton:)] autorelease];
 	return flash;
+#endif
+}
+
+
+- (UIBarButtonItem *)autoTicketAppButton
+{
+	// create the system-defined "OK or Done" button
+	UIBarButtonItem *tix = [[[UIBarButtonItem alloc]
+							 // initWithBarButtonSystemItem:UIBarButtonSystemItemRewind
+							 initWithImage:[TableViewWithToolbar getToolbarIcon:kIconTicket]
+							 style:UIBarButtonItemStylePlain
+							 target:self action:@selector(ticketButton:)] autorelease];
+	
+	tix.style = UIBarButtonItemStylePlain;
+	tix.accessibilityLabel = @"Ticket";
+    
+    if (tix.image == nil)
+    {
+        tix.title = @"T";
+    }
+	return tix;
 }
 
 - (void)appendXmlData:(NSMutableData *)buffer
@@ -546,30 +707,21 @@
 
 
 
-- (void)createToolbarItems
+- (void)updateToolbarItems:(NSMutableArray *)toolbarItems
 {
-	NSArray *items = [NSArray arrayWithObjects: [self autoDoneButton], [CustomToolbar autoFlexSpace], [self autoFlashButton], nil];
-	[self setToolbarItems:items animated:NO];
+    [self maybeAddFlashButtonWithSpace:(toolbarItems.count == 0) buttons:toolbarItems big:NO];
 }
 
-- (void)createToolbarItemsWithXml
+- (void)updateToolbarItemsWithXml:(NSMutableArray *)toolbarItems
 {    
     if ([UserPrefs getSingleton].debugXML)
     {
-        NSArray *items = [NSArray arrayWithObjects:
-                                [self autoDoneButton],
-                                [CustomToolbar autoFlexSpace],
-                                [self autoXmlButton],
-                                [CustomToolbar autoFlexSpace],
-                                [self autoFlashButton],
-                                 nil];
-        [self setToolbarItems:items animated:NO];
-
+        [toolbarItems addObject:[self autoXmlButton]];
+        [self maybeAddFlashButtonWithSpace:YES buttons:toolbarItems big:NO];
     }
     else
     {
-        NSArray *items = [NSArray arrayWithObjects: [self autoDoneButton], [CustomToolbar autoFlexSpace], [self autoFlashButton], nil];
-        [self setToolbarItems:items animated:NO];
+        [self maybeAddFlashButtonWithSpace:NO buttons:toolbarItems big:NO];
     }
 }
 
@@ -586,17 +738,28 @@
 	}
 }
 
+-(void)ticketButton:(id)sender
+{
+	[self ticketApp];
+}
+
 + (void)flashScreen:(UINavigationController *)nav
 {
-	FlashViewController *flash = [[FlashViewController alloc] init];
-	[nav pushViewController:flash animated:YES];
-	[flash release];
+    FlashWarning *warning = [[FlashWarning alloc] initWithNav:nav];
+    
+    
+	[warning release];
 }
 
 
 -(void)flashButton:(id)sender
 {
-	[TableViewWithToolbar flashScreen:[self navigationController]];
+    FlashWarning *warning = [[FlashWarning alloc] initWithNav:[self navigationController]];
+    
+    warning.parentBase = self;
+    
+	[warning release];
+    
 }
 
 
@@ -617,6 +780,22 @@
 }
 
 #pragma mark Common actions
+
+- (bool)ZXingSupported
+{
+    Class captureDeviceClass = NSClassFromString(@"AVCaptureDevice");
+    if (captureDeviceClass != nil)
+    {
+        AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+        
+        if (device != nil)
+        {
+            return YES;
+        }
+    }
+    
+    return NO ;
+}
 
 - (void)showRouteAlerts:(NSString *)route fullSign:(NSString *)fullSign
 {
@@ -804,25 +983,59 @@
     
 }
 
-- (void)facebook
+
+- (void)facebookWithId:(NSString*)fbid path:(NSString*)fbpath
 {
-    static NSString *fb=@"fb://profile/218101161593";
-    
-    if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:fb]])
+    if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:fbid]])
     {
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:fb]];
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:fbid]];
     }
     else if ([ OpenInChromeController sharedInstance].isChromeInstalled)
     {
-        [[OpenInChromeController sharedInstance] openInChrome:[NSURL URLWithString:@"http://m.facebook.com/PDXBus"]
+        [[OpenInChromeController sharedInstance] openInChrome:[NSURL URLWithString:fbpath]
                                               withCallbackURL:[NSURL URLWithString:@"pdxbus:"]
                                                  createNewTab:NO];
     }
     else
     {
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"http://m.facebook.com/PDXBus"]];
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:fbpath]];
     }
     [self clearSelection];
+}
+
+- (bool)ticketApp
+{
+#if 1
+    static NSString *ticket = @"trimettickets://";
+    
+
+    if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:ticket]])
+    {
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:ticket]];
+        return YES;
+    }
+#endif
+    TicketAlert *alert = [[[TicketAlert alloc] initWithParent:self] autorelease];
+    [alert.sheet showFromToolbar:self.navigationController.toolbar];
+    
+    return NO;
+    
+}
+
+- (void)facebookTriMet
+{
+    static NSString *fbid=@"fb://profile/270344585472";
+    static NSString *fbpath = @"http://m.facebook.com/TriMet";
+    
+    [self facebookWithId:fbid path:fbpath];
+}
+
+- (void)facebook
+{
+    static NSString *fbid=@"fb://profile/218101161593";
+    static NSString *fbpath = @"http://m.facebook.com/PDXBus";
+    
+    [self facebookWithId:fbid path:fbpath];
 }
 
 #pragma mark -

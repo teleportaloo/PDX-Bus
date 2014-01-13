@@ -35,4 +35,5 @@
 
 @property (nonatomic, retain) XMLTrips *tripQuery;
 
+
 @end

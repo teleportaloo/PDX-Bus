@@ -27,18 +27,21 @@
 
 
 #import <Foundation/Foundation.h>
+#import "IASKAppSettingsViewController.h"
 
 
 #import <UIKit/UIKit.h>
 #import "TableViewWithToolbar.h"
 
-#define kWhatsNewVersion @"6.7"
+#define kWhatsNewVersion @"7.0.2"
 
 	
 	
 @interface WhatsNewView : TableViewWithToolbar {
 		NSArray * newTextArray;
-        NSDictionary *actionDict;
+        IASKAppSettingsViewController *_settingsView;
 }
+
+@property (nonatomic, retain) IASKAppSettingsViewController *settingsView;
 
 @end

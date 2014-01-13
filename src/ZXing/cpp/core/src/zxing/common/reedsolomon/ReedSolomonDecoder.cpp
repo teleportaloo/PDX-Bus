@@ -38,6 +38,8 @@ ReedSolomonDecoder::~ReedSolomonDecoder() {
 
 void ReedSolomonDecoder::decode(ArrayRef<int> received, int twoS) {
 
+#ifndef __clang_analyzer__
+    
   Ref<GenericGFPoly> poly(new GenericGFPoly(field, received));
 
 
@@ -111,6 +113,7 @@ vector<Ref<GenericGFPoly> > ReedSolomonDecoder::runEuclideanAlgorithm(Ref<Generi
       // Oops, Euclidean algorithm already terminated?
       throw ReedSolomonException("r_{i-1} was zero");
     }
+
     r = rLastLast;
     Ref<GenericGFPoly> q(field->getZero());
     int denominatorLeadingTerm = rLast->getCoefficient(rLast->getDegree());
@@ -149,6 +152,7 @@ vector<Ref<GenericGFPoly> > ReedSolomonDecoder::runEuclideanAlgorithm(Ref<Generi
   result[0] = sigma;
   result[1] = omega;
   return result;
+#endif
 }
 
 ArrayRef<int> ReedSolomonDecoder::findErrorLocations(Ref<GenericGFPoly> errorLocator) {

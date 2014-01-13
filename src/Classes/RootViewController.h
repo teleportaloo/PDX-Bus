@@ -97,7 +97,6 @@ typedef enum InitialAction_tag
 - (void)commuteAction:(id)sender;
 - (void)tripPlanner:(bool)animated;
 - (bool)ZXingSupported;
-- (bool)RailMapSupported;
 - (void)launchFromURL;
 - (void)executeInitialAction;
 - (void)openFave:(int)index allowEdit:(bool)allowEdit;

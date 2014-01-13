@@ -77,6 +77,7 @@
 - (NSMutableArray *)filteredData:(UITableView *)table;
 - (NSMutableArray *)topViewData;
 - (void)clearSelection;
+- (UIColor*)greyBackground;
 
 @property (nonatomic, retain) UITableView *table;
 @property bool backgroundRefresh;

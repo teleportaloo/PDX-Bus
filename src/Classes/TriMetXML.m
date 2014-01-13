@@ -462,7 +462,7 @@ static QueryCacheManager *shortTermCache = nil;
     NSString *start = nil;
     if (self.fullQuery)
     {
-       start = [NSString stringWithFormat:@"<query url=\"%@\">", self.fullQuery];
+        start = [NSString stringWithFormat:@"<query url=\"%@\">", [self insertXMLcodes:self.fullQuery] ];
     }
     else
     {
@@ -519,14 +519,15 @@ static XMLreplacements replacements[] =
 	
 };
 
-- (NSString *)replaceXMLcodes:(NSString *)string
-{
-	static XMLreplacementsNSStrings *replacementsNsString;	
-	XMLreplacementsNSStrings *j;
-	
+static XMLreplacementsNSStrings *replacementsNsString = nil;
 
+- (void)makeReplacementArray
+{
 	if (replacementsNsString == nil)
 	{
+        
+        XMLreplacementsNSStrings *j;
+        
 		XMLreplacements *i;
 		
 		replacementsNsString = malloc(sizeof(XMLreplacementsNSStrings) * (sizeof(replacements) / sizeof(XMLreplacements)));
@@ -539,8 +540,39 @@ static XMLreplacements replacements[] =
 		j->code = nil;
 		j->replacement = nil;
 	}
+}
 
+
+- (NSString *)insertXMLcodes:(NSString *)string
+{
 	
+	XMLreplacementsNSStrings *j;
+	
+    
+    [self makeReplacementArray];
+	
+	NSMutableString *ms = [[[NSMutableString alloc] init] autorelease];
+	[ms appendString:string];
+	
+	for (j=replacementsNsString; j->code !=NULL; j++)
+	{
+		[ms replaceOccurrencesOfString:j->replacement
+							withString:j->code
+                               options:NSLiteralSearch
+                                 range:NSMakeRange(0, [ms length])];
+		
+        //- (NSUInteger)replaceOccurrencesOfString:(NSString *)target withString:(NSString *)replacement options:(NSStringCompareOptions)options range:(NSRange)searchRange;
+	}
+	return ms;
+	
+}
+
+- (NSString *)replaceXMLcodes:(NSString *)string
+{
+    XMLreplacementsNSStrings *j;
+
+	[self makeReplacementArray];
+
 	NSMutableString *ms = [[[NSMutableString alloc] init] autorelease];
 	[ms appendString:string];
 	
@@ -557,4 +589,33 @@ static XMLreplacements replacements[] =
 	
 }
 
+- (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict
+{
+#ifdef DEBUGLOGGING
+    if (qName) {
+        elementName = qName;
+    }
+    
+    DEBUG_LOG(@"Element: %@\n", elementName);
+    
+    NSEnumerator *i = attributeDict.keyEnumerator;
+    NSString *key = nil;
+    
+    
+    while ((key = i.nextObject))
+    {
+        DEBUG_LOG(@"  %@ = %@\n", key, [attributeDict objectForKey:key]);
+    }
+#endif
+}
+
+- (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName
+{
+#ifdef DEBUGLOGGING
+    if (self.contentOfCurrentProperty != nil)
+    {
+        DEBUG_LOG(@"  Content: %@\n", self.contentOfCurrentProperty);
+    }
+#endif
+}
 @end

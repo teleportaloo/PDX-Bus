@@ -165,8 +165,10 @@
                         oldestDate   = objDate;
                     }
                 }
-            
-                [self.cache removeObjectForKey:oldestKey];
+                if (oldestKey!=nil)
+                {
+                    [self.cache removeObjectForKey:oldestKey];
+                }
             }
         }
     

@@ -25,30 +25,27 @@
 #import <UIKit/UIKit.h>
 #import "StopLocations.h"
 #import "XMLAllStops.h"
-#import "LocatingTableView.h"
+#import "LocatingView.h"
 
 
-@interface FindByLocationView : LocatingTableView {
-	int sections;
-
-	int maxToFind;
-	TripMode mode; 
-	int show;
-	int dist;
-	double minDistance;
-	int routeCount;
-	int maxRouteCount;
-	NSArray *_cachedRoutes;
-	NSMutableDictionary *_lastLocate;
-    
-    int _autoLaunch;
-    NSDictionary *_launchArgs;
-    int _firstDisplay;
+@interface FindByLocationView : TableViewWithToolbar<LocatingViewDelegate>  {
+	int                     _maxToFind;
+	TripMode                _mode;
+	int                     _show;
+	int                     _dist;
+	double                  _minDistance;
+	int                     _routeCount;
+	int                     _maxRouteCount;
+	NSArray *               _cachedRoutes;
+	NSMutableDictionary *   _lastLocate;
+    int                     _autoLaunch;
+    NSDictionary *          _launchArgs;
+    int                     _firstDisplay;
 }
 
 - (id) init;
 - (id) initAutoLaunch;
-- (void) located;
+
 
 @property (nonatomic, retain) NSArray *cachedRoutes;
 @property (nonatomic, retain) NSMutableDictionary *lastLocate;
@@ -59,8 +56,5 @@
 - (void)modeSegmentChanged:(id)sender;
 - (void)showSegmentChanged:(id)sender;
 - (void)actionArgs:(NSDictionary *)args;
-
-//@property (nonatomic, retain) UILabel *progressText;
-
 
 @end

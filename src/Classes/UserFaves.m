@@ -114,6 +114,25 @@
 	}
 }
 
+- (NSDictionary *)getTakeMeHomeUserRequest
+{
+    @synchronized (self)
+	{
+		NSMutableDictionary *takeMeHome   = [self.appData objectForKey:kTakeMeHome];
+		
+		return takeMeHome;
+	}
+}
+
+- (void)saveTakeMeHomeUserRequest:(NSDictionary *)userRequest
+{
+    @synchronized (self)
+	{
+        [self.appData setObject:userRequest forKey:kTakeMeHome];
+        
+        [self cacheAppData];
+    }
+}
 
 - (void)addToRecentTripsWithUserRequest:(NSDictionary*)userRequest description:(NSString *)desc blob:(NSData *)blob
 {

@@ -27,7 +27,6 @@
 #import "UserPrefs.h"
 
 
-
 @class RootViewController;
 @class Departure;
 
@@ -35,6 +34,7 @@
 	IBOutlet UIWindow *window;
 	IBOutlet UINavigationController *navigationController;
 	IBOutlet RootViewController *rootViewController;
+
 		
 	NSMutableDictionary *_streetcarMapping;
 	NSString *_pathToCleanExit;
@@ -48,6 +48,7 @@
 @property (nonatomic, retain) UIWindow *window;
 @property (nonatomic, retain) IBOutlet UINavigationController *navigationController;
 @property (nonatomic, retain) IBOutlet RootViewController *rootViewController;
+
 
 @end
 

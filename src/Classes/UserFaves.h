@@ -55,6 +55,7 @@
 #define kLastTrip				@"last_trip"
 #define kLastNames				@"last_names"
 #define kLastRun				@"last_run"
+#define kTakeMeHome             @"take_me_home"
 
 #define kLastLocate				@"last_locate"
 #define kLocateMode				@"mode"
@@ -73,27 +74,28 @@
 
 @interface SafeUserData : NSObject
 {
-	NSMutableDictionary *_appData;
-	NSString *_pathToUserCopyOfPlist;
-	bool _favesChanged;
+	NSMutableDictionary *               _appData;
+	NSString *                          _pathToUserCopyOfPlist;
+	bool                                _favesChanged;
 }
 
-@property (retain)   NSMutableDictionary *appData;
-@property (retain)   NSString * pathToUserCopyOfPlist;
-@property (readonly) NSMutableArray *faves;
-@property (readonly) NSMutableArray *recents;
-@property (readonly) NSMutableArray *recentTrips;
-@property (readonly) NSString *last;
-@property (readonly) NSArray *lastNames;
-@property (retain)	 NSMutableDictionary *lastTrip;
-@property (retain)   NSMutableDictionary *lastLocate;
-@property			 bool		 favesChanged;
-@property (assign)	 NSDate *lastRun;
-
+@property (retain)   NSMutableDictionary *      appData;
+@property (retain)   NSString *                 pathToUserCopyOfPlist;
+@property (readonly) NSMutableArray *           faves;
+@property (readonly) NSMutableArray *           recents;
+@property (readonly) NSMutableArray *           recentTrips;
+@property (readonly) NSString *                 last;
+@property (readonly) NSArray *                  lastNames;
+@property (retain)	 NSMutableDictionary *      lastTrip;
+@property (retain)   NSMutableDictionary *      lastLocate;
+@property			 bool                       favesChanged;
+@property (assign)	 NSDate *                   lastRun;
 
 + (SafeUserData *)getSingleton;
 - (void)addToRecentsWithLocation:(NSString *)locid description:(NSString *)desc;
 - (void)addToRecentTripsWithUserRequest:(NSDictionary *)userRequest description:(NSString *)desc blob:(NSData *)blob;
+- (NSDictionary *)getTakeMeHomeUserRequest;
+- (void)saveTakeMeHomeUserRequest:(NSDictionary *)userReqest;
 - (void)clearLastArrivals;
 - (void)setLastArrivals:(NSString *)locations;
 - (void)setLastNames:(NSArray *)names;

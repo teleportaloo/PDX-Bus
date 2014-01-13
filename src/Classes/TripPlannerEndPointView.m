@@ -37,6 +37,7 @@
 #import "TripPlannerOptions.h"
 #import "RailMapView.h"
 #import "AllRailStationView.h"
+#import "TripPlannerLocatingView.h"
 
 #define kTableSectionEnterDestination		 0
 #define kTableSectionLocate					 1
@@ -80,10 +81,11 @@
 
 @implementation TripPlannerEndPointView
 
-@synthesize from = _from;
-@synthesize placeNameField = _placeNameField;
-@synthesize editCell    = _editCell;
-@synthesize popBackTo  = _popBackTo;
+@synthesize from                = _from;
+@synthesize placeNameField      = _placeNameField;
+@synthesize editCell            = _editCell;
+@synthesize popBackTo           = _popBackTo;
+
 
 
 
@@ -94,6 +96,31 @@
 	[super dealloc];
 }
 
+
+- (void)initTakMeHome:(TripUserRequest *)req
+{
+    self.tripQuery = [[[XMLTrips alloc] init] autorelease];
+    
+    if (req == nil)
+    {
+        req = [[[TripUserRequest alloc] init] autorelease];
+
+    }
+    
+    self.tripQuery.userRequest = req;
+    
+    //Reset everything anyway!
+    self.tripQuery.userRequest.fromPoint.useCurrentLocation = YES;
+    self.tripQuery.userRequest.fromPoint.locationDesc = nil;
+    self.tripQuery.userRequest.timeChoice = TripDepartAfterTime;
+    self.tripQuery.userRequest.dateAndTime = [NSDate date];
+    [self.tripQuery addStopsFromUserFaves:_userData.faves];
+    self.tripQuery.userRequest.walk =             [UserPrefs getSingleton].maxWalkingDistance;
+    self.tripQuery.userRequest.tripMode =         [UserPrefs getSingleton].travelBy;
+    self.tripQuery.userRequest.tripMin =          [UserPrefs getSingleton].tripMin;
+    self.tripQuery.userRequest.takeMeHome = YES;
+}
+
 #pragma mark TableViewWithToolbar methods
 
 - (UITableViewStyle) getStyle
@@ -102,13 +129,9 @@
 }
 
 
-- (void)createToolbarItems
+- (void)updateToolbarItems:(NSMutableArray *)toolbarItems
 {
-	NSArray *items = [NSArray arrayWithObjects: 
-					  [self autoDoneButton], 
-					  [CustomToolbar autoFlexSpace],
-					  [self autoFlashButton], nil];
-	[self setToolbarItems:items animated:NO];
+    [self maybeAddFlashButtonWithSpace:NO buttons:toolbarItems big:NO];
 }
 
 
@@ -122,7 +145,11 @@
 	{
 		self.title = @"Start"; // @"Start & Options";
 	}
-	else
+	else if (self.tripQuery.userRequest.takeMeHome)
+    {
+        self.title = @"Where is home?";
+    }
+    else
 	{
 		self.title = @"Destination";
 	}
@@ -207,7 +234,22 @@
 
 - (void)nextScreen
 {
-	if (self.popBackTo)
+    if (self.tripQuery.userRequest.takeMeHome)
+    {
+     
+        [_userData saveTakeMeHomeUserRequest:[self.tripQuery.userRequest toDictionary]];
+        
+        TripPlannerLocatingView * locView = [[ TripPlannerLocatingView alloc ] init];
+        
+		locView.tripQuery = self.tripQuery;
+        
+		[locView nextScreen:[self navigationController] forceResults:NO postQuery:NO
+				orientation:self.interfaceOrientation
+			  taskContainer:self.backgroundTask];
+        
+		[locView release];
+        
+    } else if (self.popBackTo)
 	{
 		[self.navigationController popToViewController:self.popBackTo animated:YES];
 	}
@@ -251,6 +293,7 @@
 			[self endPoint].locationDesc = place;
 			[self endPoint].additionalInfo = info;
 		}
+        
 		[self nextScreen];
 	}
 }
@@ -392,7 +435,11 @@
 			{
 				return @"Choose starting address, or stop:";
 			}
-			else
+			else if (self.tripQuery.userRequest.takeMeHome)
+            {
+               return @"Choose home address, or stop:"; 
+            }
+            else
 			{
 				return @"Choose destination, or stop:";
 			}
@@ -590,7 +637,7 @@
 			}
 			cell.textLabel.font = [self getBasicFont];
 			cell.accessoryType = UITableViewCellAccessoryNone;
-			cell.imageView.image = [self getActionIcon:kIconLocate];
+			cell.imageView.image = [self getActionIcon7:kIconLocate7 old:kIconLocate];
 			cell.textLabel.adjustsFontSizeToFitWidth = YES;
 			return cell;
 		}

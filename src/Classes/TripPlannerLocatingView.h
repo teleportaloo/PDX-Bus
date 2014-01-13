@@ -26,27 +26,24 @@
 
 #import <UIKit/UIKit.h>
 #import <CoreLocation/CoreLocation.h>
-#import "LocatingTableView.h"
+#import "LocatingView.h"
 #import "XMLTrips.h"
 
 
-@interface TripPlannerLocatingView : LocatingTableView  {
+@interface TripPlannerLocatingView : LocatingView <LocatingViewDelegate> {
 	XMLTrips *_tripQuery;
 	TripEndPoint  *_currentEndPoint;
 	UINavigationController *_backgroundTaskController;
 	bool _backgroundTaskForceResults;
 	UIInterfaceOrientation _cachedOrientation;
 	bool _useCachedOrientation;
+    bool _appeared;
 }
 
 @property (nonatomic, retain) XMLTrips *tripQuery;
 @property (nonatomic, retain) TripEndPoint  *currentEndPoint;
 @property (nonatomic, retain) UINavigationController *backgroundTaskController;
 @property (nonatomic) bool backgroundTaskForceResults;
-
-
-
-- (id)init;
 
 -(void)nextScreen:(UINavigationController *)controller forceResults:(bool)forceResults postQuery:(bool)postQuery 
 	  orientation:(UIInterfaceOrientation)orientation

@@ -64,6 +64,7 @@ std::vector<Ref<ResultPoint> > MonochromeRectangleDetector::detect() {
 
 Ref<ResultPoint> MonochromeRectangleDetector::findCornerFromCenter(int centerX, int deltaX, int left, int right,
       int centerY, int deltaY, int top, int bottom, int maxWhiteRun) {
+#ifndef __clang_analyzer__
 	  Ref<TwoInts> lastRange(NULL);
     for (int y = centerY, x = centerX;
          y < bottom && y >= top && x < right && x >= left;
@@ -114,6 +115,7 @@ Ref<ResultPoint> MonochromeRectangleDetector::findCornerFromCenter(int centerX, 
       lastRange = range;
     }   
     throw NotFoundException("Couldn't find corners");
+#endif
   }
 
 Ref<TwoInts> MonochromeRectangleDetector::blackWhiteRange(int fixedDimension, int maxWhiteRun, int minDim, int maxDim,

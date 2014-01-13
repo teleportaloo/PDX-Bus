@@ -54,6 +54,7 @@
 	StopDistance *_distance;
     NSMutableData   *_streetcarData;
     bool _streetcarException;
+    bool _firstOnly;
 }
 
 // MKAnnotation
@@ -80,6 +81,7 @@
 @property (nonatomic, retain) Trip *currentTrip;
 @property (nonatomic, retain) NSMutableData *streetcarData;
 @property (nonatomic)         bool streetcarException;
+@property (nonatomic)         bool firstOnly;
 
 
 - (BOOL)getDeparturesForLocation:(NSString *)location  parseError:(NSError **)error;

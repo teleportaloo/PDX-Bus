@@ -32,18 +32,21 @@
 
 
 #define RGB(R,G,B) ((CGFloat)R)/255.0, ((CGFloat)G)/255.0, ((CGFloat)B)/255.0
+#define RGB_RED   RGB(255,  0,  0)
+#define RGB_WHITE RGB(255,255,255)
+
 
 static ROUTE_COL routeColours[] = 
 {
-	{ @"100",	kBlueLine,          RGB( 15,106,172),   @"MAX_Blue_Line",				@"MAX Blue Line",               @"MAX",       NO},		// Blue Line
-	{ @"200",	kGreenLine,         RGB(  2,137, 83),   @"MAX_Green_Line",				@"MAX Green Line",              @"MAX",       NO},		// Green Line
-	{ @"90",	kRedLine,           RGB(211, 31, 67),   @"MAX_Red_Line",				@"MAX Red Line",                @"MAX",       NO},		// Red line
-	{ @"190",	kYellowLine,        RGB(255,197, 36),   @"MAX_Yellow_Line",				@"MAX Yellow Line",             @"MAX",       NO},		// Yellow line
-	{ @"203",	kWesLine,           RGB(  0,  0,  0),   @"Westside_Express_Service",	@"WES Commuter Rail",           @"WES",       NO},		// WES Black
-	{ @"193",	kStreetcarNsLine,	RGB(140,198, 63),	@"Portland_Streetcar",			@"Portland Streetcar - NS Line", @"Streetcar", YES},	// Streetcar Green
-    { @"194",	kStreetcarClLine,	RGB(0,  169,204),	@"Portland_Streetcar",			@"Portland Streetcar - CL Line", @"Streetcar", YES},	// Streetcar Blue
+	{ @"100",	kBlueLine,          RGB( 15,106,172),   RGB_RED,    @"MAX_Blue_Line",				@"MAX Blue Line",               @"MAX",       NO},		// Blue Line
+	{ @"200",	kGreenLine,         RGB(  2,137, 83),   RGB_WHITE,  @"MAX_Green_Line",				@"MAX Green Line",              @"MAX",       NO},		// Green Line
+	{ @"90",	kRedLine,           RGB(211, 31, 67),   RGB_WHITE,  @"MAX_Red_Line",				@"MAX Red Line",                @"MAX",       NO},		// Red line
+	{ @"190",	kYellowLine,        RGB(255,197, 36),   RGB_RED,    @"MAX_Yellow_Line",				@"MAX Yellow Line",             @"MAX",       NO},		// Yellow line
+	{ @"203",	kWesLine,           RGB(  0,  0,  0),   RGB_WHITE,  @"Westside_Express_Service",	@"WES Commuter Rail",           @"WES",       NO},		// WES Black
+	{ @"193",	kStreetcarNsLine,	RGB(140,198, 63),	RGB_RED,    @"Portland_Streetcar",			@"Portland Streetcar - NS Line", @"NS Line", YES},	// Streetcar Green
+    { @"194",	kStreetcarClLine,	RGB(0,  169,204),	RGB_RED,    @"Portland_Streetcar",			@"Portland Streetcar - CL Line", @"CL Line", YES},	// Streetcar Blue
 
-	{ nil,		0,				0,	0,	0,			nil,							nil}
+	{ nil,		0,				0,	0,	0,	0, 0, 0, nil,							nil}
 };
 
 + (ROUTE_COL*)rawColorForLine:(RAILLINES)line

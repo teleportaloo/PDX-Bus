@@ -133,7 +133,7 @@
 #define TOOLBAR_HEIGHT 40
 	
 	CGRect frame = self.view.frame;
-	CGRect rect = CGRectMake(frame.origin.x, frame.origin.y + frame.size.height - TEXT_HEIGHT - TOOLBAR_HEIGHT, frame.size.width, TEXT_HEIGHT);
+	CGRect rect = CGRectMake(frame.origin.x, frame.origin.y + frame.size.height - TEXT_HEIGHT - TOOLBAR_HEIGHT*2, frame.size.width, TEXT_HEIGHT);
 	
 	label = [[UILabel alloc] initWithFrame:rect];
 	label.font = [UIFont boldSystemFontOfSize:20];
@@ -197,9 +197,8 @@
     
 }
 
-- (void)createToolbarItems
+- (void)updateToolbarItems:(NSMutableArray *)toolbarItems
 {
-    NSArray *items = nil;
     if (_torch)
     {
         // add a segmented control to the button bar
@@ -217,33 +216,22 @@
             buttonBarSegmentedControl.selectedSegmentIndex = 1.0;
         }
         buttonBarSegmentedControl.segmentedControlStyle = UISegmentedControlStyleBar;
-    
-        int color = [UserPrefs getSingleton].toolbarColors;
-	
-        if (color == 0xFFFFFF)
-        {
-            buttonBarSegmentedControl.tintColor = [UIColor darkGrayColor];
-        }
-        else {
-            buttonBarSegmentedControl.tintColor = [self htmlColor:color];
-        }
-    
-        buttonBarSegmentedControl.backgroundColor = [UIColor clearColor];
-	
+        
+        [self setSegColor:buttonBarSegmentedControl];
+        
         UIBarButtonItem *segItem = [[UIBarButtonItem alloc] initWithCustomView:buttonBarSegmentedControl];	
 	
-        items = [NSArray arrayWithObjects: [self autoDoneButton], [CustomToolbar autoFlexSpace], 
-                 segItem, [CustomToolbar autoFlexSpace], nil];
-
+        [toolbarItems addObject:segItem];
+        [toolbarItems addObject:[CustomToolbar autoFlexSpace]];
+       
         [segItem release];
         [buttonBarSegmentedControl release];
     }
-    else
-    {
-        items = [NSArray arrayWithObjects: [self autoDoneButton], nil];
-    }
     
-     [self setToolbarItems:items animated:NO];
+    if ([UserPrefs getSingleton].ticketAppIcon)
+    {
+        [toolbarItems addObject:[self autoTicketAppButton]];
+    }
 }
     
 

@@ -244,9 +244,9 @@
 }
 
 
-- (void)createToolbarItems
+- (void)updateToolbarItems:(NSMutableArray *)toolbarItems
 {
-    [self createToolbarItemsWithXml];
+    [self updateToolbarItemsWithXml:toolbarItems];
 
 }
 

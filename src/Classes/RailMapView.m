@@ -63,6 +63,7 @@ static RAILMAP railmaps[] =
 @synthesize imageView = _imageView;
 @synthesize lowResBackgroundImage = _lowResBackgroundImage;
 @synthesize railMapSeg = _railMapSeg;
+@synthesize showNextOnAppearance = _showNextOnAppearance;
 
 
 - (void)dealloc {
@@ -256,10 +257,8 @@ static RAILMAP railmaps[] =
 #pragma mark ViewControllerBase methods
 
 
-- (void)createToolbarItems
+- (void)updateToolbarItems:(NSMutableArray *)toolbarItems
 {
-	NSArray *items = nil;
-    
     // add a segmented control to the button bar
 	UISegmentedControl	*buttonBarSegmentedControl;
 	buttonBarSegmentedControl = [[[UISegmentedControl alloc] initWithItems:
@@ -271,35 +270,18 @@ static RAILMAP railmaps[] =
     
     self.railMapSeg = buttonBarSegmentedControl;
     
-	int color = [UserPrefs getSingleton].toolbarColors;
-	
-	if (color == 0xFFFFFF)
-	{
-		
-		buttonBarSegmentedControl.tintColor = [UIColor darkGrayColor];
-	}
-	else {
-		buttonBarSegmentedControl.tintColor = [self htmlColor:color];
-	}
-    
-	buttonBarSegmentedControl.backgroundColor = [UIColor clearColor];
+    [self setSegColor:buttonBarSegmentedControl];
 	
 	UIBarButtonItem *segItem = [[[UIBarButtonItem alloc] initWithCustomView:buttonBarSegmentedControl] autorelease];
 
     
-	
-	
-	items = [NSArray arrayWithObjects: 
-				 [self autoDoneButton], 
-				 [CustomToolbar autoFlexSpace], 
+	[toolbarItems addObjectsFromArray: [NSArray arrayWithObjects:
 				 [CustomToolbar autoMapButtonWithTarget:self action:@selector(showMap:)],
 				 [CustomToolbar autoFlexSpace],
                  segItem,
-                 [CustomToolbar autoFlexSpace],
-				 [CustomToolbar autoFlashButtonWithTarget:self action:@selector(flashButton:)],
-				 nil];
-	
-	[self setToolbarItems:items animated:NO];
+				 nil]];
+    
+    [self maybeAddFlashButtonWithSpace:YES buttons:toolbarItems big:NO];
 }
 
 #pragma mark View methods
@@ -404,11 +386,7 @@ static RAILMAP railmaps[] =
 	[RailMapView initHotspotData];
 	
 	// Set the size for the table view
-	CGRect bounds;
-	bounds.size.width = [[UIScreen mainScreen] applicationFrame].size.width;
-	bounds.size.height = [[UIScreen mainScreen] applicationFrame].size.height;
-	bounds.origin.x = 0;
-	bounds.origin.y = 0;
+	CGRect bounds = [self getMiddleWindowRect];
 	
 	/// set up main scroll view
     self.scrollView = [[[UIScrollView alloc] initWithFrame:bounds] autorelease];
@@ -422,7 +400,7 @@ static RAILMAP railmaps[] =
 
 	
 	// [self.scrollView scrollRectToVisible:zoom animated:NO];
- 	[self createToolbarItems];
+ 	[self updateToolbar];
 	
 	
 	
@@ -498,7 +476,7 @@ static RAILMAP railmaps[] =
 					self.hotSpots.hidden = !self.hotSpots.hidden;
 					[self.hotSpots setAlpha:self.hotSpots.hidden ? 0.0 : 1.0];
 					[self.hotSpots setNeedsDisplay];
-					[self createToolbarItems];
+					[self updateToolbar];
 //					[self.toolbar setNeedsDisplay];
 					easterEgg = EasterEggStart;
 					break;
@@ -671,17 +649,21 @@ static RAILMAP railmaps[] =
 
 #pragma mark TapDetectingImageViewDelegate methods
 
-- (void) next:(NSTimer*)theTimer
+- (void)viewDidAppear:(BOOL)animated
 {
-	do
-	{
-		selectedItem = _railMap->firstHotspot + ((selectedItem - _railMap->firstHotspot + 1) % (_railMap->lastHotspot - _railMap->firstHotspot +1));
-    } while (hotSpotRegions[selectedItem].action[0] !='s');
-	
-	hotSpotRegions[selectedItem].touched = YES;
-	// selectedItem = i;
-	[self.hotSpots setNeedsDisplay];
-	[self   processHotSpot:[NSString stringWithUTF8String:hotSpotRegions[selectedItem].action] item:selectedItem];
+    if (self.showNextOnAppearance)
+    {
+        do
+        {
+            selectedItem = _railMap->firstHotspot + ((selectedItem - _railMap->firstHotspot + 1) % (_railMap->lastHotspot - _railMap->firstHotspot +1));
+        } while (hotSpotRegions[selectedItem].action[0] !='s');
+        
+        hotSpotRegions[selectedItem].touched = YES;
+        // selectedItem = i;
+        [self.hotSpots setNeedsDisplay];
+        [self   processHotSpot:[NSString stringWithUTF8String:hotSpotRegions[selectedItem].action] item:selectedItem];
+        self.showNextOnAppearance = NO;
+    }
 }
 
 - (void) selectedHotspot:(NSTimer*)theTimer
@@ -1050,6 +1032,12 @@ static RAILMAP railmaps[] =
     [super BackgroundTaskDone:viewController cancelled:cancelled];
 }
 
++ (bool)RailMapSupported
+{
+    return ([[[UIDevice currentDevice] systemVersion] floatValue] >= 4.0);
+}
+
+
 
 @end
 
@@ -1285,6 +1273,7 @@ static RAILMAP railmaps[] =
 		// CGContextStrokePath(context);
 	}
 }
+
 
 @end
 

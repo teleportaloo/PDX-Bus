@@ -51,8 +51,6 @@
 @property (nonatomic, readonly)  bool  shakeToRefresh;
 @property (nonatomic, readonly)  int   maxRecentStops;
 @property (nonatomic, readonly)  int   maxRecentTrips;
-@property (nonatomic, readonly)  bool  lastScreenDisplayed;
-@property (nonatomic, readonly)  bool  displayTripPlanning;
 @property (nonatomic, readonly)  float maxWalkingDistance;
 @property (nonatomic, readonly)  int   travelBy;
 @property (nonatomic, readonly)  int   tripMin;
@@ -74,5 +72,13 @@
 @property (nonatomic)            bool autoLocateShowOptions;
 @property (nonatomic, readonly)  XMLReverseGeoCode * reverseGeoCodeProvider;
 @property (nonatomic, readonly)  NSString *alarmSoundFile;
+@property (nonatomic, readonly)  bool vehicleLocations;
+@property (nonatomic, readonly)  int  vehicleLocatorDistance;
+@property (nonatomic)            bool ticketAppIcon;
+@property (nonatomic)            bool locateToolbarIcon;
+@property (nonatomic, readonly)  bool groupByArrivalsIcon;
+@property (nonatomic)            bool flashingLightIcon;
+@property (nonatomic, readonly)  bool qrCodeScannerIcon;
+@property (nonatomic)            bool flashingLightWarning;
 
 @end

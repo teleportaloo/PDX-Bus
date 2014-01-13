@@ -58,6 +58,7 @@ typedef enum  {
 - (void)clearArray;
 - (void)initArray;
 - (NSString *)replaceXMLcodes:(NSString *)string;
+- (NSString *)insertXMLcodes:(NSString *)string;
 - (bool)gotData;
 + (bool)deleteCacheFile;
 - (NSString*)displayTriMetDate:(TriMetTime)time;

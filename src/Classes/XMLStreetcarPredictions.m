@@ -94,6 +94,8 @@
 		[parser abortParsing];
 		return;
 	}
+    
+    [super parser:parser didStartElement:elementName namespaceURI:namespaceURI qualifiedName:qName attributes:attributeDict];
 	
     if (qName) {
         elementName = qName;

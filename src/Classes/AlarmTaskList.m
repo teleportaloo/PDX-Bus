@@ -359,8 +359,8 @@
                                         nil];
                 
                 int mins = ((remaining + 30) / 60.0);
-                [alertTask alert:[NSString stringWithFormat:@"You have an alarm set for longer than %d mins. iOS allows PDX Bus to check arrivals in the background for only %d mins - then you will be alerted to restart PDX Bus.", 
-                                  mins, mins]
+                [alertTask alert:[NSString stringWithFormat:@"PDX Bus checks arrivals in the background for only %d mins - then you will be alerted to restart PDX Bus.",
+                                   mins]
                         fireDate:nil 
                           button:@"To PDX Bus" 
                         userInfo:ignore
@@ -550,7 +550,7 @@
 		
 		AlarmTask *alertTask = [[[AlarmTask alloc] init] autorelease];
 		
-		[alertTask alert:@"iOS has stopped PDX Bus from checking arrivals in the background. "
+		[alertTask alert:@"iOS has stopped PDX Bus from checking arrivals. "
                          @"Please restart PDX Bus so it can update the arrival alarms."
 				fireDate:nil 
 				  button:@"Back to PDX Bus" 

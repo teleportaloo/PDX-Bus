@@ -24,11 +24,17 @@
 
 #import <UIKit/UIKit.h>
 #import "TableViewWithToolbar.h"
+#import "../InfColorPicker/InfColorPicker.h"
 @class XMLDetour;
 @class Departure;
 
+@protocol DepartureDetailDelegate
 
-@interface DepartureDetailView : TableViewWithToolbar <UIActionSheetDelegate>  {
+- (void)detailsChanged;
+
+@end
+
+@interface DepartureDetailView : TableViewWithToolbar <UIActionSheetDelegate, InfColorPickerControllerDelegate>  {
 	int detourSection;
 	int locationSection;
 	int webSection;
@@ -36,21 +42,26 @@
 	int disclaimerSection;
 	int destinationSection;
 	int alertSection;
+    int highlightSection;
 	int sections;
 	Departure *_departure;
 	NSArray *_allDepartures;
 	XMLDetour *_detourData;
 	NSString *_stops;
+    id<DepartureDetailDelegate> _delegate;
 }
 
 @property (nonatomic, retain) Departure *departure;
 @property (nonatomic, retain) XMLDetour *detourData;
 @property (nonatomic, retain) NSString *stops;
 @property (nonatomic, retain) NSArray *allDepartures;
+@property (nonatomic, assign) id<DepartureDetailDelegate> delegate;
 
 - (void)fetchDepartureInBackground:(id<BackgroundTaskProgress>) callback dep:(Departure *)dep allDepartures:(NSArray*)deps allowDestination:(BOOL)allowDest;
 // - (void)fetchDetourForRouteInBackground:(id<BackgroundTaskProgress> callback route:(NSString*) route;
 - (void)showMap:(id)sender;
+
+- (void) colorPickerControllerDidFinish: (InfColorPickerController*) controller;
 
 
 @end

@@ -43,7 +43,8 @@
     self = [super initWithCoder:aDecoder];
     if (self != nil) {
         [self setupStrings];
-    }
+        
+            }
     return self;
 }
 
@@ -55,11 +56,27 @@
     return self;
 }
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
-    [self addPullToRefreshHeader];
+
+- (CGFloat) heightOffset
+{
+    if ([self respondsToSelector:@selector(setEdgesForExtendedLayout:)])
+    {
+        return -20.0;
+    }
+    return 0.0;
 }
+
+- (void)viewDidLoad {
     
+    [self addPullToRefreshHeader];
+    
+    if ([self respondsToSelector:@selector(setEdgesForExtendedLayout:)])
+    {
+        [self setEdgesForExtendedLayout:UIRectEdgeNone];
+    }
+    [super viewDidLoad];
+}
+
 
 - (void)setupStrings{
     textPull = [[NSString alloc] initWithString:@"Pull down to refresh..."];

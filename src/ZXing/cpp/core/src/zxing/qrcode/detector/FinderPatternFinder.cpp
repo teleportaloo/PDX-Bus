@@ -223,6 +223,7 @@ float FinderPatternFinder::crossCheckHorizontal(size_t startJ, size_t centerI, i
 }
 
 bool FinderPatternFinder::handlePossibleCenter(int* stateCount, size_t i, size_t j) {
+#ifndef __clang_analyzer__
   int stateCountTotal = stateCount[0] + stateCount[1] + stateCount[2] + stateCount[3] + stateCount[4];
   float centerJ = centerFromEnd(stateCount, j);
   float centerI = crossCheckVertical(i, (size_t)centerJ, stateCount[2], stateCountTotal);
@@ -253,6 +254,7 @@ bool FinderPatternFinder::handlePossibleCenter(int* stateCount, size_t i, size_t
     }
   }
   return false;
+#endif
 }
 
 int FinderPatternFinder::findRowSkip() {
@@ -282,6 +284,7 @@ int FinderPatternFinder::findRowSkip() {
 }
 
 bool FinderPatternFinder::haveMultiplyConfirmedCenters() {
+#ifndef __clang_analyzer__
   int confirmedCount = 0;
   float totalModuleSize = 0.0f;
   size_t max = possibleCenters_.size();
@@ -306,6 +309,7 @@ bool FinderPatternFinder::haveMultiplyConfirmedCenters() {
     totalDeviation += abs(pattern->getEstimatedModuleSize() - average);
   }
   return totalDeviation <= 0.05f * totalModuleSize;
+#endif
 }
 
 vector<Ref<FinderPattern> > FinderPatternFinder::selectBestPatterns() {
@@ -364,6 +368,7 @@ vector<Ref<FinderPattern> > FinderPatternFinder::selectBestPatterns() {
 }
 
 vector<Ref<FinderPattern> > FinderPatternFinder::orderBestPatterns(vector<Ref<FinderPattern> > patterns) {
+#ifndef __clang_analyzer__
   // Find distances between pattern centers
   float abDistance = distance(patterns[0], patterns[1]);
   float bcDistance = distance(patterns[1], patterns[2]);
@@ -396,6 +401,7 @@ vector<Ref<FinderPattern> > FinderPatternFinder::orderBestPatterns(vector<Ref<Fi
     Ref<FinderPattern> temp = topRight;
     topRight = bottomLeft;
     bottomLeft = temp;
+#endif
   }
 
   vector<Ref<FinderPattern> > results(3);

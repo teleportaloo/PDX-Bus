@@ -53,6 +53,7 @@
 @property (nonatomic, retain) StopLocations *locationsDb;
 @property (nonatomic, retain) NSMutableArray *routes;
 
+
 - (void) chosenStop:(Stop *)stop progress:(id<BackgroundTaskProgress>) progress;
 - (NSString *)actionText;
 

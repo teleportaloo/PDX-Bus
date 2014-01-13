@@ -34,6 +34,9 @@ typedef struct route_cols {
 	float r;
 	float g;
 	float b;
+    float back_r;
+    float back_g;
+    float back_b;
 	NSString *wiki;
 	NSString *name;
 	NSString *type;

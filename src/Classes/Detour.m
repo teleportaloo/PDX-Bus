@@ -42,7 +42,7 @@
 	UILabel *textView = [[[UILabel alloc] initWithFrame:frame] autorelease];
     textView.textColor = [UIColor blackColor];
     textView.font = font;
-    textView.backgroundColor = [UIColor whiteColor];
+    textView.backgroundColor = [UIColor clearColor];
 	textView.lineBreakMode =   UILineBreakModeWordWrap;
 	textView.adjustsFontSizeToFitWidth = YES;
 	textView.numberOfLines = 0;

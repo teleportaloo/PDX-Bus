@@ -36,6 +36,7 @@
 #import "XMLDepartures.h"
 #import "MapViewController.h"
 #import "debug.h"
+#import "RailMapView.h"
 
 #define kSearchDataSection 0
 #define kSearchDisclaimerSection 1
@@ -504,24 +505,36 @@ static ALPHA_SECTIONS alphaSections[]={
 	[self reloadData];
 }
 
-
-- (void)createToolbarItems
+- (void)showRailMap:(id)sender
 {
-	// match each of the toolbar item's style match the selection in the "UIBarButtonItemStyle" segmented control
-	// UIBarButtonItemStyle style = UIBarButtonItemStylePlain;
-	
-	NSArray *items = nil;
-	
-	
-	items = [NSArray arrayWithObjects: 
-			 [self autoDoneButton], 
-			 [CustomToolbar autoFlexSpace], 
-			 [CustomToolbar autoMapButtonWithTarget:self action:@selector(showMap:)],
-			 [CustomToolbar autoFlexSpace],
-			 [CustomToolbar autoFlashButtonWithTarget:self action:@selector(flashButton:)],
-			 nil];
-	
-	[self setToolbarItems:items animated:NO];
+    RailMapView *webPage = [[RailMapView alloc] init];
+    [[self navigationController] pushViewController:webPage animated:YES];
+    [webPage release];
+}
+
+- (void)updateToolbarItems:(NSMutableArray *)toolbarItems
+{
+	[toolbarItems addObject:[CustomToolbar autoMapButtonWithTarget:self action:@selector(showMap:)]];
+    
+    
+    if ([RailMapView RailMapSupported])
+    {
+        [toolbarItems addObject:[CustomToolbar autoFlexSpace]];
+    
+        UIBarButtonItem *stations = [[[UIBarButtonItem alloc]
+                             initWithTitle:@"Rail map"
+                             style:UIBarButtonItemStylePlain
+                            target:self action:@selector(showRailMap:)] autorelease];
+    
+        stations.style = UIBarButtonItemStylePlain;
+        stations.accessibilityLabel = @"Show Rail Map";
+        
+        [toolbarItems addObject:stations];
+    }
+    
+    
+    
+	[self maybeAddFlashButtonWithSpace:YES buttons:toolbarItems big:NO];
 }
 
 -(void)showMap:(id)sender
