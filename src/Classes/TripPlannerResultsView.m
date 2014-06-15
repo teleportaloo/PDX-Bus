@@ -5,24 +5,12 @@
 //  Created by Andrew Wallace on 6/28/09.
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 #import "TripPlannerResultsView.h"
 #import "CellLabel.h"
@@ -30,7 +18,6 @@
 #import "MapViewController.h"
 #import "SimpleAnnotation.h"
 #import <MessageUI/MFMailComposeViewController.h>
-#import "TriMetTimesAppDelegate.h"
 #import "TripPlannerDateView.h"
 #import "DepartureTimesView.h"
 #import "NetworkTestView.h"
@@ -38,7 +25,6 @@
 #import "TripPlannerMap.h"
 #include "UserFaves.h"
 #include "EditBookMarkView.h"
-#include "AppDelegateMethods.h"
 #import <MessageUI/MessageUI.h>
 #include "TripPlannerEndPointView.h"
 #import <EventKit/EventKit.h>
@@ -315,7 +301,7 @@
 
 #pragma mark UI helpers
 
-- (int)sectionType:(int)section
+- (NSInteger)sectionType:(NSInteger)section
 {
 	if (section < itinerarySectionOffset)	
 	{
@@ -328,7 +314,7 @@
 	return kSectionTypeDisclaimer;
 }
 
-- (TripItinerary *)getSafeItinerary:(int)section
+- (TripItinerary *)getSafeItinerary:(NSInteger)section
 {
 	if ([self sectionType:section] ==  kSectionTypeOptions)
 	{
@@ -337,14 +323,14 @@
 	return nil;
 }
 
-- (int)legRows:(TripItinerary *)it
+- (NSInteger)legRows:(TripItinerary *)it
 {
 	return [it.displayEndPoints count];
 }
 
-- (int)rowType:(NSIndexPath *)indexPath
+- (NSInteger)rowType:(NSIndexPath *)indexPath
 {
-	int sectionType = [self sectionType:indexPath.section];
+	NSInteger sectionType = [self sectionType:indexPath.section];
 	
 	switch (sectionType)
 	{
@@ -353,7 +339,7 @@
 		case kSectionTypeOptions:
 		{
 			TripItinerary *it = [self getSafeItinerary:indexPath.section];
-			int legs = [self legRows:it];
+			NSInteger legs = [self legRows:it];
 			
 			if (legs == 0)	
 			{
@@ -366,7 +352,7 @@
 			}
 			else
 			{
-				int row = 1 + indexPath.row - legs;
+				NSInteger row = 1 + indexPath.row - legs;
 				if (row >= kRowTypeFare && ![it hasFare])
 				{
 					row ++;
@@ -634,11 +620,11 @@
 		{
 			TripItinerary *it = [self getSafeItinerary:section];
 
-			int legs = [self legRows:it];
+			NSInteger legs = [self legRows:it];
 	
 			if (legs > 0)
 			{
-				return [NSString stringWithFormat:@"Option %d - %@", section + 1 - itinerarySectionOffset, [it getShortTravelTime]];
+				return [NSString stringWithFormat:@"Option %ld - %@", (long)(section + 1 - itinerarySectionOffset), [it getShortTravelTime]];
 			}
 			else
 			{
@@ -657,7 +643,7 @@
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-	int rowType = [self rowType:indexPath];
+	NSInteger rowType = [self rowType:indexPath];
 	
 	switch (rowType)
 	{
@@ -868,7 +854,7 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	int rowType = [self rowType:indexPath];
+	NSInteger rowType = [self rowType:indexPath];
 	TripItinerary *it = [self getSafeItinerary:indexPath.section];
 	// CGFloat width = [self variableTextFieldWidth];
 	CGFloat shorterWidth = [self fieldWidth];

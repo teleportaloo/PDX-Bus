@@ -6,6 +6,13 @@
 //  Copyright (c) 2013 Teleportaloo. All rights reserved.
 //
 
+
+
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+
 #import "BlockColorViewController.h"
 #import "CellLabel.h"
 
@@ -20,7 +27,7 @@
 {
 	if ((self = [super init]))
 	{
-		self.title = @"Vehicle Color Tags";
+		self.title = NSLocalizedString(@"Vehicle Color Tags", @"screen text");
         _db = [[BlockColorDb getSingleton] retain];
         _keys = [[_db keys] retain];
         self.table.allowsSelectionDuringEditing = YES;
@@ -257,14 +264,14 @@
 	// UIBarButtonItemStyle style = UIBarButtonItemStylePlain;
 	
 	
-    UIBarButtonItem *delete = [[UIBarButtonItem alloc] initWithTitle:@"Delete All"
+    UIBarButtonItem *delete = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Delete All", @"button text")
                                                                 style:UIBarButtonItemStylePlain
                                                                target:self
                                                                action:@selector(deleteAll:)];
 	
 	
 	delete.style = UIBarButtonItemStylePlain;
-	delete.accessibilityLabel = @"Delete all";
+	delete.accessibilityLabel = NSLocalizedString(@"Delete all", @"accessibility text");
 	
     [toolbarItems addObject:delete];
     [self maybeAddFlashButtonWithSpace:YES buttons:toolbarItems big:NO];

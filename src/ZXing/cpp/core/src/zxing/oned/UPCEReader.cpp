@@ -46,7 +46,7 @@ namespace zxing {
       const int countersLen = 4;
       int counters[countersLen] = { 0, 0, 0, 0 };
 
-      int end = row->getSize();
+      int end = (int)row->getSize();
       int rowOffset = startGuardEnd;
       int lgPatternFound = 0;
 

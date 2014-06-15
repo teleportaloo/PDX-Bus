@@ -77,7 +77,7 @@ namespace zxing {
 
         // To avoid false positives with 2D barcodes (and other patterns), make
         // an assumption that the decoded string must be a known length
-        int length = tmpResult.length();
+        int length = (int)tmpResult.length();
         bool lengthOK = false;
         for (int i = 0; i < DEFAULT_ALLOWED_LENGTHS_LEN; i++) {
           if (length == DEFAULT_ALLOWED_LENGTHS[i]) {
@@ -210,8 +210,8 @@ namespace zxing {
         // accommodate
         // the reversed nature of the search
         int temp = endPattern[0];
-        endPattern[0] = row->getSize() - endPattern[1];
-        endPattern[1] = row->getSize() - temp;
+        endPattern[0] = (int)row->getSize() - endPattern[1];
+        endPattern[1] = (int)row->getSize() - temp;
 
         row->reverse();
         return endPattern;
@@ -263,7 +263,7 @@ namespace zxing {
      * @throws ReaderException Throws exception if no black lines are found in the row
      */
     int ITFReader::skipWhiteSpace(Ref<BitArray> row) {
-      int width = row->getSize();
+      int width = (int)row->getSize();
       int endStart = 0;
       while (endStart < width) {
         if (row->get(endStart)) {
@@ -295,7 +295,7 @@ namespace zxing {
       for (int i=0; i<patternLength; i++) {
         counters[i] = 0;
       }
-      int width = row->getSize();
+      int width = (int)row->getSize();
       bool isWhite = false;
 
       int counterPosition = 0;

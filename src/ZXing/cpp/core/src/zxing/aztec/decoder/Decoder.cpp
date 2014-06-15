@@ -403,7 +403,7 @@ Ref<BitArray> Decoder::extractBits(Ref<zxing::BitMatrix> matrix) {
   }
             
   int layer = ddata_->getNBLayers();
-  int size = matrix->getHeight();
+  int size = (int)matrix->getHeight();
   int rawbitsOffset = 0;
   int matrixOffset = 0;
             
@@ -443,7 +443,7 @@ Ref<BitArray> Decoder::extractBits(Ref<zxing::BitMatrix> matrix) {
 }
         
 Ref<BitMatrix> Decoder::removeDashedLines(Ref<zxing::BitMatrix> matrix) {
-  int nbDashed = 1 + 2 * ((matrix->getWidth() - 1) / 2 / 16);
+  int nbDashed = 1 + 2 * (((int)matrix->getWidth() - 1) / 2 / 16);
   Ref<BitMatrix> newMatrix(new BitMatrix(matrix->getWidth() - nbDashed, matrix->getHeight() - nbDashed));
             
   int nx = 0;

@@ -6,12 +6,20 @@
 //  Copyright (c) 2013 Teleportaloo. All rights reserved.
 //
 
+
+
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+
 #import "BlockColorDb.h"
+#import "DebugLogging.h"
 
 @implementation BlockColorDb
 
 #define kKeyR   @"r"
-#define kKeyG    @"g"
+#define kKeyG   @"g"
 #define kKeyB   @"b"
 #define kKeyA   @"a"
 #define kKeyT   @"time"
@@ -22,7 +30,45 @@
 
 - (void)writeToFile
 {
-	[_colorMap writeToFile:_fileName atomically:YES];
+    bool written = false;
+    @try {
+        written = [_colorMap writeToFile:_fileName atomically:YES];
+    }
+    @catch (NSException *exception)
+    {
+        NSLog(@"writeToFile exception: %@ %@\n", exception.name, exception.reason );
+    }
+    
+    if (!written)
+    {
+        UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"Internal error"
+                                                           message:@"Could not write colors to file."
+                                                          delegate:nil
+                                                 cancelButtonTitle:@"OK"
+                                                 otherButtonTitles:nil] autorelease];
+        [alert show];
+        
+        NSLog(@"Failed to write the color map %@\n", _fileName);
+        
+        // clear the local cache, as I assume it is corrupted.
+        [_colorMap release];
+		_colorMap = [[NSMutableDictionary alloc] init];
+    }
+}
+
+- (void)openFile
+{
+    if (_colorMap == nil)
+    {
+        [self readFromFile];
+    }
+}
+
+- (void)memoryWarning
+{
+    DEBUG_LOG(@"Releasing color map %p\n", _colorMap);
+    [_colorMap release];
+    _colorMap = nil;
 }
 
 - (void)readFromFile
@@ -46,6 +92,8 @@
         NSString *documentsDirectory = [paths objectAtIndex:0];
         
         _fileName= [[documentsDirectory stringByAppendingPathComponent:blockFile] retain];
+        
+        [MemoryCaches addCache:self];
 
         [self readFromFile];
     }
@@ -62,7 +110,9 @@
 - (void)dealloc
 {
     [_colorMap release];
-    [_fileName release]; 
+    [_fileName release];
+    
+    [MemoryCaches removeCache:self];
     
     [super dealloc];
 }
@@ -81,11 +131,14 @@
 
 - (CGFloat) getComponent:(NSString*)key fromDict:(NSDictionary *)dict
 {
+    [self openFile];
     return (CGFloat) [(NSNumber*)[dict objectForKey:key] floatValue];
 }
 
 - (UIColor *) colorForBlock:(NSString *)block
 {
+    [self openFile];
+    
     if (block == nil)
     {
         return [UIColor clearColor];
@@ -106,6 +159,8 @@
 
 - (void)addColor:(UIColor *)color forBlock:(NSString *)block description:(NSString*)desc
 {
+    [self openFile];
+    
     CGFloat red;
     CGFloat green;
     CGFloat blue;
@@ -184,11 +239,15 @@
 
 - (NSArray *)keys
 {
+    [self openFile];
+    
     return [_colorMap allKeys];
 }
 
 - (NSString *)descForBlock:(NSString *)block
 {
+    [self openFile];
+    
     NSDictionary *item = [_colorMap objectForKey:block];
     
     if (item==nil)
@@ -201,6 +260,8 @@
 
 - (NSDate *)timeForBlock:(NSString *)block
 {
+    [self openFile];
+    
     NSDictionary *item = [_colorMap objectForKey:block];
     
     if (item==nil)

@@ -3,24 +3,12 @@
 //  TriMetTimes
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 #import <Foundation/Foundation.h>
 #import "TriMetTypes.h"
@@ -87,10 +75,10 @@ typedef enum {
 - (NSString *)cellReuseIdentifier:(NSString *)identifier width:(ScreenType)width;
 - (UITableViewCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier big:(bool)big spaceToDecorate:(bool)spaceToDecorate width:(ScreenType)width;
 - (void)populateCell:(UITableViewCell *)cell decorate:(BOOL)decorate big:(BOOL)big busName:(BOOL)busName wide:(BOOL)wide;
-- (void)populateTripCell:(UITableViewCell *)cell item:(int)item;
+- (void)populateTripCell:(UITableViewCell *)cell item:(NSInteger)item;
 - (void)populateCellGeneric:(UITableViewCell *)cell first:(NSString *)first second:(NSString *)second col1:(UIColor *)col1 col2:(UIColor *)col2;
 -(id)init;
--(NSString *)formatDistance:(int)distance;
+-(NSString *)formatDistance:(TriMetDistance)distance;
 -(NSString *)formatLayoverTime:(TriMetTime)t;
 -(TriMetTime)secondsToArrival;
 -(int)minsToArrival;

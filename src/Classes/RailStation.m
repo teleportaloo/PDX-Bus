@@ -6,28 +6,16 @@
 //  Copyright 2010. All rights reserved.
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 #import "RailStation.h"
 #import "XMLStops.h"
-#import "debug.h"
+#import "DebugLogging.h"
 #import "RailMapView.h"
 #import "TriMetRouteColors.h"
 #import "RouteColorBlobView.h"
@@ -58,7 +46,7 @@
 
 -(NSComparisonResult)compareUsingStation:(RailStation*)inStation
 {
-	return [self.station compare:inStation.station];
+	return [self.station caseInsensitiveCompare:inStation.station];
 }
 
 
@@ -83,68 +71,37 @@
 	
 }
 
-typedef struct strmap {
-	NSString *shortname;
-	NSString *longname;
-} strmap;
-
-static strmap dirmap [] =
+- (NSString *)longDirectionFromTableName:(NSString *)dir
 {
-	{ @"N", @"Northbound" },
-	{ @"S", @"Southbound" },
-	{ @"E", @"Eastbound"  },
-	{ @"W", @"Westbound"  },
-	{ @"NE", @"Northeastbound" },
-	{ @"SE", @"Southeastbound" },
-	{ @"SW", @"Southwestbound" },
-	{ @"NW", @"Sorthwestbound" },
-	{ nil, nil },
-	{ nil, nil } };
-
-- (NSString *)direction:(NSString *)dir
-{
-	for (strmap *i = dirmap; i->shortname!=nil ; i++)
-	{
-		if ([i->shortname isEqualToString:dir])
-		{
-			return i->longname;
-		}
-	}
-	return [dir stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-}
-
-- (NSString *)shortDirection:(NSString *)dir
-{
-	for (strmap *i = dirmap; i->shortname!=nil ; i++)
-	{
-		if ([i->longname isEqualToString:dir])
-		{
-			return i->shortname;
-		}
-	}
-	return [dir stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-}
-
-- (NSString*)url
-{
-	NSMutableString *url = [[[NSMutableString alloc] init] autorelease];
-	
-    NSMutableString *stationName = [[[NSMutableString alloc] init] autorelease];
+    static NSDictionary *names = nil;
     
-    [stationName appendString:[self.station stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding ]];
-    [stationName replaceOccurrencesOfString:@"/" withString:@"%2F" options:NSCaseInsensitiveSearch range:NSMakeRange(0, stationName.length)];
+    if (names == nil)
+    {
+        names = [[[NSDictionary alloc] initWithObjectsAndKeys:
+                  NSLocalizedString(@"Northbound",           @"Train direction"),  @"N",
+                  NSLocalizedString(@"Southbound",           @"Train direction"),  @"S",
+                  NSLocalizedString(@"Eastbound",            @"Train direction"),  @"E",
+                  NSLocalizedString(@"Westbound",            @"Train direction"),  @"W",
+                  NSLocalizedString(@"Northeastbound",       @"Train direction"),  @"NE",
+                  NSLocalizedString(@"Southeastbound",       @"Train direction"),  @"SE",
+                  NSLocalizedString(@"Southwestbound",       @"Train direction"),  @"SW",
+                  NSLocalizedString(@"Northwestbound",       @"Train direction"),  @"NW",
+                  NSLocalizedString(@"MAX Northbound",       @"Train direction"),  @"MAXN",
+                  NSLocalizedString(@"MAX Southbound",       @"Train direction"),  @"MAXS",
+                  NSLocalizedString(@"WES Southbound",       @"Train direction"),  @"WESS",
+                  NSLocalizedString(@"WES Both Directions",  @"Train direction"),  @"WESA",
+                  nil] retain];
+    }
+
     
+    NSString * obj = [names objectForKey:dir];
     
-	[url appendFormat:@"s:%@/%@", stationName, 
-	 self.wikiLink!=nil ? [self.wikiLink stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] : @""];
-	
-	for (int i=0; i<self.locList.count; i++)
-	{
-		[url appendFormat:@"/%@,%@", 	[self shortDirection:[self.dirList objectAtIndex:i]],
-		 [self.locList objectAtIndex:i]];
-	}
-	
-	return url;
+    if (obj == nil)
+    {
+        obj = [dir stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+
+    }
+	return obj;
 }
 
 + (NSString *)nameFromHotspot:(HOTSPOT *)hotspot
@@ -212,7 +169,7 @@ static strmap dirmap [] =
 			
 			[scanner scanUpToCharactersFromSet:slash intoString:&locId];
 			
-			[self.dirList addObject:[self direction:dir]];
+			[self.dirList addObject:[self longDirectionFromTableName:dir]];
 			[self.locList addObject:locId];
 			
 			if (![scanner isAtEnd])

@@ -143,7 +143,7 @@ namespace zxing {
 		}
 
 		int* Code128Reader::findStartPattern(Ref<BitArray> row){
-			int width = row->getSize();
+			int width = (int)row->getSize();
 			int rowOffset = 0;
 			while (rowOffset < width) {
 				if (row->get(rowOffset)) {
@@ -423,7 +423,7 @@ namespace zxing {
         // Check for ample whitespace following pattern, but, to do this we first need to remember that
         // we fudged decoding CODE_STOP since it actually has 7 bars, not 6. There is a black bar left
         // to read off. Would be slightly better to properly read. Here we just skip it:
-        int width = row->getSize();
+        int width = (int)row->getSize();
         while (nextStart < width && row->get(nextStart)) {
           nextStart++;
         }
@@ -441,7 +441,7 @@ namespace zxing {
         }
 
         // Need to pull out the check digits from string
-        int resultLength = tmpResultString.length();
+        int resultLength = (int)tmpResultString.length();
         // Only bother if the result had at least one character, and if the checksum digit happened to
         // be a printable character. If it was just interpreted as a control code, nothing to remove.
         if (resultLength > 0 && lastCharacterWasPrintable) {
@@ -478,7 +478,7 @@ namespace zxing {
 		}
 
 		void Code128Reader::append(char* s, char c){
-			int len = strlen(s);
+			int len = (int)strlen(s);
 			s[len] = c;
 			s[len + 1] = '\0';
 		}

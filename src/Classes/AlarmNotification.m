@@ -7,24 +7,12 @@
 //
 
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 
 
@@ -54,7 +42,7 @@
 
 - (void)executeAction
 {
-	TriMetTimesAppDelegate *appDelegate = [TriMetTimesAppDelegate getSingleton];
+	TriMetTimesAppDelegate *app = [TriMetTimesAppDelegate getSingleton];
 	NSString *stopId   = [self.notification.userInfo objectForKey:kStopIdNotification];
 	NSString *mapDescr = [self.notification.userInfo objectForKey:kStopMapDescription];
 	
@@ -62,7 +50,7 @@
 	{
 		if (mapDescr)
 		{
-			[[appDelegate.rootViewController navigationController] popToRootViewControllerAnimated:NO];
+			[[app.rootViewController navigationController] popToRootViewControllerAnimated:NO];
 			MapViewController *mapPage = [[MapViewController alloc] init];
 			
 			
@@ -78,23 +66,23 @@
 			
 				SimpleAnnotation *currentLocation = [[[SimpleAnnotation alloc] init] autorelease];
 				currentLocation.pinColor = MKPinAnnotationColorPurple;
-				currentLocation.pinTitle = @"Current Location";
-				currentLocation.pinSubtitle = [NSString stringWithFormat:@"as of %@", stamp];
+				currentLocation.pinTitle = NSLocalizedString(@"Current Location", @"map pin");
+				currentLocation.pinSubtitle = [NSString stringWithFormat:NSLocalizedString(@"as of %@","location as of time {time}"), stamp];
 				[currentLocation setCoord:coord];
 				[mapPage addPin:currentLocation];
 			}
 			
-			[[appDelegate.rootViewController navigationController] pushViewController:mapPage animated:YES];
+			[[app.rootViewController navigationController] pushViewController:mapPage animated:YES];
           	[mapPage release];
 			
 		}
 		else if (stopId)
 		{
-			[[appDelegate.rootViewController navigationController] popToRootViewControllerAnimated:NO];
+			[[app.rootViewController navigationController] popToRootViewControllerAnimated:NO];
 		
 			DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
 			NSString *block = [self.notification.userInfo objectForKey:kAlarmBlock];
-			[departureViewController fetchTimesForLocationInBackground:appDelegate.rootViewController.backgroundTask 
+			[departureViewController fetchTimesForLocationInBackground:app.rootViewController.backgroundTask
                                                                  loc:stopId
 																 block:block];
 			[departureViewController release];
@@ -157,10 +145,10 @@
 			
 						
 			
-			UIAlertView *showArrival = [[[ UIAlertView alloc ] initWithTitle:@"Alarm"
+			UIAlertView *showArrival = [[[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"Alarm", @"alarm message title")
 																	 message:notif.alertBody
 																	delegate:self
-														   cancelButtonTitle:@"OK"
+														   cancelButtonTitle:NSLocalizedString(@"OK", @"OK button")
 														   otherButtonTitles:notif.alertAction, nil] autorelease];
 			[self retain];
 			[showArrival show]; 
@@ -208,7 +196,7 @@
 
 - (NSString *)subtitle
 {
-	return [NSString stringWithFormat:@"Stop ID %@", [self.notification.userInfo objectForKey:kStopIdNotification]];
+	return [NSString stringWithFormat:NSLocalizedString(@"Stop ID %@", @"TriMet Stop identifer <number>"), [self.notification.userInfo objectForKey:kStopIdNotification]];
 }
 
 - (NSString *) mapStopId

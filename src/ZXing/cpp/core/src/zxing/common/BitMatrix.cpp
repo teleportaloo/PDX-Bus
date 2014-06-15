@@ -35,7 +35,7 @@ namespace {
                       unsigned int bitsPerWord,
                       unsigned int logBits) {
     size_t bits = width * height;
-    int arraySize = (bits + bitsPerWord - 1) >> logBits;
+    int arraySize = (int)((bits + bitsPerWord - 1) >> logBits);
     return arraySize;
   }
 }
@@ -81,7 +81,7 @@ void BitMatrix::setRegion(size_t left, size_t top, size_t width, size_t height) 
     throw IllegalArgumentException("top + height and left + width must be <= matrix dimension");
   }
   for (size_t y = top; y < bottom; y++) {
-    int yOffset = width_ * y;
+    int yOffset = (int)(width_ * y);
     for (size_t x = left; x < right; x++) {
       size_t offset = x + yOffset;
       bits_[offset >> logBits] |= 1 << (offset & bitsMask);

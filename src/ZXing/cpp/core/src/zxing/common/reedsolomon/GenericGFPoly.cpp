@@ -35,7 +35,7 @@ GenericGFPoly::GenericGFPoly(Ref<GenericGF> field,
   if (coefficients.size() == 0) {
     throw IllegalArgumentException("need coefficients");
   }
-  int coefficientsLength = coefficients.size();
+  int coefficientsLength = (int)coefficients.size();
   if (coefficientsLength > 1 && coefficients[0] == 0) {
     // Leading term must be non-zero for anything except the constant polynomial "0"
     int firstNonZero = 1;
@@ -60,7 +60,7 @@ ArrayRef<int> GenericGFPoly::getCoefficients() {
 }
   
 int GenericGFPoly::getDegree() {
-  return coefficients_.size() - 1;
+  return (int)coefficients_.size() - 1;
 }
   
 bool GenericGFPoly::isZero() {
@@ -77,7 +77,7 @@ int GenericGFPoly::evaluateAt(int a) {
     return getCoefficient(0);
   }
     
-  int size = coefficients_.size();
+  int size = (int)coefficients_.size();
   if (a == 1) {
     // Just the sum of the coefficients
     int result = 0;
@@ -104,6 +104,7 @@ Ref<GenericGFPoly> GenericGFPoly::addOrSubtract(Ref<zxing::GenericGFPoly> other)
     return Ref<GenericGFPoly>(this);
   }
     
+#ifndef __clang_analyzer__
   ArrayRef<int> smallerCoefficients = coefficients_;
   ArrayRef<int> largerCoefficients = other->getCoefficients();
   if (smallerCoefficients.size() > largerCoefficients.size()) {
@@ -113,11 +114,12 @@ Ref<GenericGFPoly> GenericGFPoly::addOrSubtract(Ref<zxing::GenericGFPoly> other)
   }
     
   ArrayRef<int> sumDiff(new Array<int>(largerCoefficients.size()));
-  int lengthDiff = largerCoefficients.size() - smallerCoefficients.size();
+  int lengthDiff = (int)(largerCoefficients.size() - smallerCoefficients.size());
   // Copy high-order terms only found in higher-degree polynomial's coefficients
   for (int i = 0; i < lengthDiff && largerCoefficients.array_!=0; i++) {
     sumDiff[i] = largerCoefficients[i];
   }
+#endif
     
   for (int i = lengthDiff; i < (int)largerCoefficients.size() && smallerCoefficients.array_!=0
                             && largerCoefficients.array_!=0; i++) {
@@ -138,10 +140,10 @@ Ref<GenericGFPoly> GenericGFPoly::multiply(Ref<zxing::GenericGFPoly> other) {
   }
     
   ArrayRef<int> aCoefficients = coefficients_;
-  int aLength = aCoefficients.size();
+  int aLength = (int)aCoefficients.size();
     
   ArrayRef<int> bCoefficients = other->getCoefficients();
-  int bLength = bCoefficients.size();
+  int bLength = (int)bCoefficients.size();
     
   ArrayRef<int> product(new Array<int>(aLength + bLength - 1));
   for (int i = 0; i < aLength; i++) {
@@ -162,7 +164,7 @@ Ref<GenericGFPoly> GenericGFPoly::multiply(int scalar) {
   if (scalar == 1) {
     return Ref<GenericGFPoly>(this);
   }
-  int size = coefficients_.size();
+  int size = (int)coefficients_.size();
   ArrayRef<int> product(new Array<int>(size));
   for (int i = 0; i < size; i++) {
     product[i] = field_->multiply(coefficients_[i], scalar);
@@ -177,7 +179,7 @@ Ref<GenericGFPoly> GenericGFPoly::multiplyByMonomial(int degree, int coefficient
   if (coefficient == 0) {
     return field_->getZero();
   }
-  int size = coefficients_.size();
+  int size = (int)coefficients_.size();
   ArrayRef<int> product(new Array<int>(size+degree));
   for (int i = 0; i < size; i++) {
     product[i] = field_->multiply(coefficients_[i], coefficient);

@@ -23,7 +23,7 @@
 #import <AVFoundation/AVFoundation.h>
 
 static const CGFloat kPadding = 10;
-static const CGFloat kLicenseButtonPadding = 10;
+// static const CGFloat kLicenseButtonPadding = 10;
 
 @interface OverlayView()
 @property (nonatomic,retain) UILabel *instructionsLabel;

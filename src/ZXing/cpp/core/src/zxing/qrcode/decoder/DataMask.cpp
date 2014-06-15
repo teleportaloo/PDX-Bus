@@ -152,7 +152,7 @@ int DataMask::buildDataMasks() {
   DATA_MASKS.push_back(Ref<DataMask> (new DataMask101()));
   DATA_MASKS.push_back(Ref<DataMask> (new DataMask110()));
   DATA_MASKS.push_back(Ref<DataMask> (new DataMask111()));
-  return DATA_MASKS.size();
+  return (int)DATA_MASKS.size();
 }
 
 }

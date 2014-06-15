@@ -3,24 +3,12 @@
 //  TriMetTimes
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 #import "RootViewController.h"
 #import "TriMetTimesAppDelegate.h"
@@ -40,7 +28,7 @@
 #import "TripPlannerDateView.h"
 #import "AppDelegateMethods.h"
 #import "RailMapView.h"
-#import "debug.h"
+#import "DebugLogging.h"
 #import "RssView.h"
 #import "XMLTrips.h"
 #import "TripPlannerDateView.h"
@@ -272,7 +260,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 	{
         if (self.iOS7style)
         {
-            widController.overlayView.toolbar.barTintColor = [self htmlColor:color];
+            widController.overlayView.toolbar.barTintColor = [ViewControllerBase htmlColor:color];
             widController.overlayView.toolbar.tintColor =  [UIColor whiteColor];
         }
         else
@@ -302,15 +290,15 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 {
     if (self.ZXingSupported)
     {
-        TriMetTimesAppDelegate *delegate = [TriMetTimesAppDelegate getSingleton];
+        TriMetTimesAppDelegate *app = [TriMetTimesAppDelegate getSingleton];
     
-        self.progressView = [ProgressModalView initWithSuper:delegate.window
+        self.progressView = [ProgressModalView initWithSuper:app.window
                                                        items:0 
                                                        title:@"Starting QR Code Scanner"
                                                     delegate:nil
                                                  orientation:self.interfaceOrientation];
     
-        [delegate.window addSubview:self.progressView];
+        [app.window addSubview:self.progressView];
     
         NSTimer *timer = [[[NSTimer alloc] initWithFireDate:[NSDate dateWithTimeIntervalSinceNow:0.01]
                                                    interval:0.0 
@@ -384,7 +372,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 
 }
 
-- (void)launchTripPlannerFromURL
+- (void)launchTripPlannerFromAppleURL
 {
     MKDirectionsRequest* directionsInfo = [[[MKDirectionsRequest alloc] initWithContentsOfURL:self.routingURL] autorelease];
     
@@ -401,7 +389,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
     else
     {
         query.userRequest.fromPoint.locationDesc = [self addressFromMapItem:directionsInfo.source];
-        query.userRequest.fromPoint.currentLocation = directionsInfo.source.placemark.location;
+        query.userRequest.fromPoint.coordinates = directionsInfo.source.placemark.location;
         DEBUG_LOG(@"From desc: %@\n", query.userRequest.fromPoint.locationDesc);
     }
     
@@ -412,7 +400,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
     else
     {
         query.userRequest.toPoint.locationDesc = [self addressFromMapItem:directionsInfo.destination];
-        query.userRequest.toPoint.currentLocation = directionsInfo.destination.placemark.location;
+        query.userRequest.toPoint.coordinates = directionsInfo.destination.placemark.location;
         DEBUG_LOG(@"To desc: %@\n", query.userRequest.fromPoint.locationDesc);
     }
     
@@ -427,7 +415,241 @@ static NSString *callString = @"tel:1-503-238-RIDE";
           taskContainer:self.backgroundTask];
 	
     [locView release];
+}
 
+- (void)launchTripPlannerFromRouteURL
+{
+    NSString *strUrl = [self.routingURL absoluteString];
+    
+    
+    self.routingURL = nil;
+    
+    NSScanner *scanner = [NSScanner scannerWithString:strUrl];
+    NSCharacterSet *query = [NSCharacterSet characterSetWithCharactersInString:@"?"];
+    NSCharacterSet *ampersand = [NSCharacterSet characterSetWithCharactersInString:@"&"];
+    NSCharacterSet *colon = [NSCharacterSet characterSetWithCharactersInString:@":"];
+    NSCharacterSet *equalsOrAmpersand = [NSCharacterSet characterSetWithCharactersInString:@"=&"];
+    
+    
+	NSString *section;
+    NSString *protocol;
+    NSString *value;
+    
+    NSString *from_lon = nil;
+    NSString *from_lat = nil;
+    NSString *from_name = nil;
+    NSString *to_lon = nil;
+    NSString *to_lat = nil;
+    NSString *to_name = nil;
+    bool from_here = NO;
+    bool to_here   = NO;
+    
+    
+    
+	
+	// skip up to first colon
+	[scanner scanUpToCharactersFromSet:colon intoString:&protocol];
+	
+	if ([scanner isAtEnd])
+	{
+        DEBUG_LOG(@"Badly formed route URL %@ - no :\n",strUrl);
+        return;
+    }
+    
+    scanner.scanLocation++;
+	   
+    // Skip slashes
+    while (![scanner isAtEnd] && [strUrl characterAtIndex:scanner.scanLocation] == '/')
+    {
+        scanner.scanLocation++;
+    }
+    
+    if ([scanner isAtEnd])
+	{
+        DEBUG_LOG(@"Badly formed route URL %@ - nothing after :\n",strUrl);
+        return;
+    }
+    
+    [scanner scanUpToCharactersFromSet:query intoString:&section];
+    
+    if ([section caseInsensitiveCompare:@"route"] != NSOrderedSame)
+    {
+        DEBUG_LOG(@"Badly formed route URL %@ - route command missing\n",strUrl);
+        return;
+    }
+    
+    scanner.scanLocation++;
+    
+    if ([scanner isAtEnd])
+	{
+        DEBUG_LOG(@"Badly formed route URL %@ - nothing after route?\n",strUrl);
+        return;
+    }
+	
+    while (![scanner isAtEnd])
+    {
+        value = nil;
+        
+        [scanner scanUpToCharactersFromSet:equalsOrAmpersand intoString:&section];
+        
+        if (![scanner isAtEnd])
+        {
+            if ([strUrl characterAtIndex:scanner.scanLocation] == '=')
+            {
+                scanner.scanLocation++;
+                
+                if ([scanner isAtEnd])
+                {
+                    DEBUG_LOG(@"Badly formed route URL %@ - nothing after =\n",strUrl);
+                    return;
+                }
+                
+                [scanner scanUpToCharactersFromSet:ampersand intoString:&value];
+                
+                
+                if (![scanner isAtEnd])
+                {
+                    scanner.scanLocation++;
+                }
+
+            }
+            else
+            {
+                scanner.scanLocation++;
+            }
+        }
+        
+        
+        if ([section caseInsensitiveCompare:@"from_lon"] == NSOrderedSame && value!=nil)
+        {
+            from_lon = [value stringByRemovingPercentEncoding];;
+        }
+        else if ([section caseInsensitiveCompare:@"to_lon"] == NSOrderedSame && value!=nil)
+        {
+            to_lon = [value stringByRemovingPercentEncoding];;
+        }
+        else if ([section caseInsensitiveCompare:@"from_lat"] == NSOrderedSame && value!=nil)
+        {
+            from_lat = [value stringByRemovingPercentEncoding];;
+        }
+        else if ([section caseInsensitiveCompare:@"to_lat"] == NSOrderedSame && value!=nil)
+        {
+            to_lat = [value stringByRemovingPercentEncoding];;
+        }
+        else if ([section caseInsensitiveCompare:@"from_name"] == NSOrderedSame && value!=nil)
+        {
+            from_name = [value stringByRemovingPercentEncoding];
+        }
+        else if ([section caseInsensitiveCompare:@"to_name"] == NSOrderedSame && value!=nil)
+        {
+            to_name = [value stringByRemovingPercentEncoding];
+        }
+        else if ([section caseInsensitiveCompare:@"from_here"] == NSOrderedSame)
+        {
+            from_here = YES;
+        }
+        else if ([section caseInsensitiveCompare:@"to_here"] == NSOrderedSame)
+        {
+            to_here = YES;
+        }
+    }
+    
+    bool error = false;
+    if (from_name == nil && (from_lat == nil || from_lon == nil) && !from_here)
+    {
+        error = true;
+    }
+    
+    if (to_name == nil && (to_lat == nil || to_lon == nil) && !to_here)
+    {
+        error = true;
+    }
+
+    if (from_here && (from_lat != nil || from_lon !=nil || from_name != nil))
+    {
+        error = true;
+    }
+    
+    if (to_here && (to_lat != nil || to_lon !=nil || to_name != nil))
+    {
+        error = true;
+    }
+    
+    if (to_here && from_here)
+    {
+        error = true;
+    }
+    
+    if (error)
+    {
+        DEBUG_LOG(@"Badly formed route URL %@ - bad value from_name %@ from_lat %@ from_lon %@ to_name %@ to_lat %@ to_lon %@ from_here %d to_here %d\n",
+                  strUrl,
+                  from_name, from_lat, from_lon,
+                  to_name, to_lat, to_lon,
+                  (int)from_here, (int)to_here
+                  );
+        return;
+    }
+    
+    DEBUG_LOG(@"Route URL %@ - from_name %@ from_lat %@ from_lon %@ to_name %@ to_lat %@ to_lon %@ from_here %d to_here %d\n",
+              strUrl,
+              from_name, from_lat, from_lon,
+              to_name, to_lat, to_lon,
+              (int)from_here,
+              (int)to_here
+              );
+    
+    TripPlannerLocatingView * locView = [[ TripPlannerLocatingView alloc ] init];
+	
+    XMLTrips *tripQuery = [[[XMLTrips alloc] init] autorelease];
+    
+    tripQuery.userRequest.fromPoint.locationDesc = from_name;
+    
+    if (from_lat!=nil && from_lon!=nil)
+    {
+        tripQuery.userRequest.fromPoint.coordinates = [[[CLLocation alloc] initWithLatitude:[from_lat doubleValue] longitude:[from_lon doubleValue]] autorelease];
+    }
+    tripQuery.userRequest.toPoint.locationDesc = to_name;
+    
+    if (to_lat!=nil && to_lon!=nil)
+    {
+        tripQuery.userRequest.toPoint.coordinates = [[[CLLocation alloc] initWithLatitude:[to_lat doubleValue] longitude:[to_lon doubleValue]] autorelease];
+    }
+    
+    if (from_here)
+    {
+        tripQuery.userRequest.fromPoint.useCurrentLocation = YES;
+    }
+    
+    if (to_here)
+    {
+        tripQuery.userRequest.toPoint.useCurrentLocation = YES;
+    }
+    
+    tripQuery.userRequest.timeChoice = TripDepartAfterTime;
+    tripQuery.userRequest.dateAndTime = [NSDate date];
+    
+    locView.tripQuery = tripQuery;
+	
+    [locView nextScreen:[self navigationController] forceResults:NO postQuery:NO
+            orientation:self.interfaceOrientation
+          taskContainer:self.backgroundTask];
+	
+    [locView release];
+}
+
+- (void)launchTripPlannerFromURL
+{
+    Class dirClass = (NSClassFromString(@"MKDirectionsRequest"));
+    
+    if (dirClass && [MKDirectionsRequest isDirectionsRequestURL:self.routingURL]) {
+        [self launchTripPlannerFromAppleURL];
+    }
+    else
+    {
+        [self launchTripPlannerFromRouteURL];
+    }
+    
 
 }
 
@@ -688,7 +910,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 						   [NSIndexPath indexPathForRow:[_userData.faves count]+1 inSection:faveSection],
 						   nil];
 	
-	int rows = [self.table numberOfRowsInSection:faveSection];
+	NSInteger rows = [self.table numberOfRowsInSection:faveSection];
 	
 	if (add && (rows <= [_userData.faves count])) {
 		// Show the placeholder rows
@@ -808,6 +1030,24 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 	self.table.allowsSelectionDuringEditing = YES;
 }
 
+-(void)writeLastRun:(NSDictionary *)dict file:(NSString*)lastRun
+{
+    bool written = false;
+    
+    @try {
+        written = [dict writeToFile:lastRun atomically:YES];
+    }
+    @catch (NSException *exception)
+    {
+        NSLog(@"Exception: %@ %@\n", exception.name, exception.reason );
+    }
+    
+    if (!written)
+    {
+        NSLog(@"Failed to write to %@\n", lastRun);
+    }
+}
+
 - (bool)newVersion:(NSString *)file version:(NSString *)version
 {
 	NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -821,7 +1061,9 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 	if ([fileManager fileExistsAtPath:lastRun] == NO) {
         dict = [[[NSMutableDictionary alloc] init] autorelease];
 		[dict setObject:version forKey:kVersion];
-		[dict writeToFile:lastRun atomically:YES];
+        
+        [self writeLastRun:dict file:lastRun];
+        
 		newVersion = YES;
     }
 	else {
@@ -831,7 +1073,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 		{
 			newVersion = YES;	
 			[dict setObject:version forKey:kVersion];
-			[dict writeToFile:lastRun atomically:YES];
+			[self writeLastRun:dict file:lastRun];
 		}
 	}
 	
@@ -847,6 +1089,8 @@ static NSString *callString = @"tel:1-503-238-RIDE";
     self.title = @"Loading PDX Bus";
 #endif
 	
+    [super viewDidLoad];
+    
     self.viewLoaded = YES;
     if (self.delayedInitialAction)
     {
@@ -855,10 +1099,16 @@ static NSString *callString = @"tel:1-503-238-RIDE";
     }
 }
 
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+}
+
 - (void)viewWillAppear:(BOOL)animated {
 	[super viewWillAppear:animated];
 	
-	
+    DEBUG_LOG(@"RootViewController:viewDidAppear\n");
+
 }
 
 - (void) handleChangeInUserSettings:(id)obj
@@ -868,6 +1118,8 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 
 - (void)viewDidAppear:(BOOL)animated {
 	[super viewDidAppear:animated];
+    
+    DEBUG_LOG(@"RootViewController:viewDidAppear\n");
 	
 	if (_taskList)
 	{
@@ -897,9 +1149,10 @@ static NSString *callString = @"tel:1-503-238-RIDE";
     [self updateToolbar];
 	showingLast = false;
 	
-    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleChangeInUserSettings:) name:NSUserDefaultsDidChangeNotification object:nil];
     
+    
+    [self iOS7workaroundPromptGap];
 }
 
 
@@ -1034,10 +1287,10 @@ static NSString *callString = @"tel:1-503-238-RIDE";
         }
 	case kTableSectionFaves:
 		{
-			uint cnt = _userData.faves.count;
-			DEBUG_LOG(@"Cnt %d Editing self %d tableview %d\n", cnt, self.editing, tableView.editing);
+			NSInteger cnt = _userData.faves.count;
+			DEBUG_LOG(@"Cnt %ld Editing self %d tableview %d\n", (long)cnt, self.editing, tableView.editing);
 			rows = cnt + ((cnt==0 || self.editing) ? kTableFaveEditingRows : 0);
-			DEBUG_LOG(@"Rows %d\n", rows);
+			DEBUG_LOG(@"Rows %ld\n", (long)rows);
 
 			break;
 		}
@@ -1817,7 +2070,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
         }
         case kTableSectionFaves:
         {
-            [self openFave:indexPath.row allowEdit:YES];
+            [self openFave:(int)indexPath.row allowEdit:YES];
             break;
         }
         case kTableSectionAlarms:
@@ -1875,16 +2128,16 @@ static NSString *callString = @"tel:1-503-238-RIDE";
                 case kTableTriMetLink:
                 {
                     WebViewController *webPage = [[WebViewController alloc] init];
-                    [webPage setURLmobile:@"http://trimet.org" full:nil title:@"TriMet.org"]; 
-                    [webPage displayPage:[self navigationController] animated:YES tableToDeselect:self.table];
+                    [webPage setURLmobile:@"http://trimet.org" full:nil];
+                    [webPage displayPage:[self navigationController] animated:YES itemToDeselect:self];
                     [webPage release];
                     break;
                 }
                 case kTableTriMetAlerts:
                 {
                     WebViewController *webPage = [[WebViewController alloc] init];
-                    [webPage setURLmobile:@"http://trimet.org/m/alerts" full:nil title:@"TriMet.org"]; 
-                    [webPage displayPage:[self navigationController] animated:YES tableToDeselect:self.table];
+                    [webPage setURLmobile:@"http://trimet.org/m/alerts" full:nil]; 
+                    [webPage displayPage:[self navigationController] animated:YES itemToDeselect:self];
                     [webPage release];
                     break;
                     
@@ -1960,8 +2213,8 @@ static NSString *callString = @"tel:1-503-238-RIDE";
                 case kTableAboutRate:
                 {
                     [[UIApplication sharedApplication] openURL:[NSURL URLWithString:
-                                                                // @"itms-apps://ax.itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?type=Purple+Software&id=289814055"]];
-                                                                @"http://phobos.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=289814055&mt=8"]];       
+                                                                @"http://itunes.apple.com/app/pdx-bus-max-streetcar-and-wes/id289814055?mt=8"]];
+                                                                // @"itms-apps://www.itunes.com/apps/pdx-bus-max-streetcar-and-wes/id289814055?mt=8"]];
                     [self.table deselectRowAtIndexPath:indexPath animated:YES];
                     break;
                 }    
@@ -2065,7 +2318,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
  // Override if you support editing the list
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
 	bool editingSet = false;
-	DEBUG_LOG(@"delete r %d  s %d\n", indexPath.row, indexPath.section);
+	DEBUG_LOG(@"delete r %ld  s %ld\n", (long)indexPath.row, (long)indexPath.section);
 	if (editingStyle == UITableViewCellEditingStyleDelete) {
 		// Delete the row from the data source
 //		[self.table beginUpdates];
@@ -2168,7 +2421,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 	switch (srcSection)
 	{
 		case kTableSectionFaves:
-			sectionMax = _userData.faves.count;
+			sectionMax = (int)_userData.faves.count;
 			break;
 			
 	}

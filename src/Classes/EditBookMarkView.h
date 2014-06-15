@@ -4,24 +4,12 @@
 //
 //  Created by Andrew Wallace on 1/25/09.
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 
 #import <UIKit/UIKit.h>
@@ -39,12 +27,12 @@
 	NSMutableDictionary *_originalFave;
 	NSMutableArray *_stops;
 	UITextField *_editWindow;
-	uint _item;
+	NSInteger _item;
 	CellTextField *_editCell;
 	bool _reloadTrip;
 	bool _reloadArrival;
 	int _sectionMap[kEditBookMarkMaxSections];
-	int _stopSection;
+	NSInteger _stopSection;
 	int _sections;
 	TripUserRequest * _userReq;
 }
@@ -52,7 +40,7 @@
 @property (nonatomic, retain) NSMutableArray *stops;
 @property (nonatomic, retain) NSMutableDictionary *originalFave;
 @property (nonatomic, retain) UITextField *editWindow;
-@property (nonatomic) uint item;
+@property (nonatomic) NSInteger item;
 @property (nonatomic, retain) CellTextField *editCell;
 @property (nonatomic, retain) TripUserRequest *userRequest;
 

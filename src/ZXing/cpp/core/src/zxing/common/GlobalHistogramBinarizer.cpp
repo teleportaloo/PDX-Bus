@@ -136,7 +136,7 @@ Ref<BitMatrix> GlobalHistogramBinarizer::getBlackMatrix() {
 }
 
 int GlobalHistogramBinarizer::estimate(vector<int> &histogram) {
-  int numBuckets = histogram.size();
+  int numBuckets = (int)histogram.size();
   int maxBucketCount = 0;
 
   // Find tallest peak in histogram

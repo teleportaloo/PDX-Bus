@@ -6,14 +6,20 @@
 //  Copyright (c) 2013 Teleportaloo. All rights reserved.
 //
 
+
+
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+
 #import "XMLLocateVehicles.h"
 #import "Vehicle.h"
 #import <MapKit/MapKit.h>
 #import <MapKit/MKGeometry.h>
 #import "BackgroundTaskContainer.h"
 #import "XMLStreetcarLocations.h"
-#import "TriMetTimesAppDelegate.h"
-#import "AppDelegateMethods.h"
+#import "StreetcarConversions.h"
 
 #define MetersInAMile 1609.344
 
@@ -67,9 +73,7 @@
     
     if (self.gotData && self.dist < 1.0)
     {
-        TriMetTimesAppDelegate * app = [TriMetTimesAppDelegate getSingleton];
-        
-        NSDictionary *routes = [app getStreetcarRoutes];
+        NSDictionary *routes = [StreetcarConversions getStreetcarRoutes];
         
         for (NSString *key in routes)
         {

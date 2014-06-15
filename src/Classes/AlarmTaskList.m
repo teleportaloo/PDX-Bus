@@ -6,32 +6,18 @@
 //  Copyright 2011. All rights reserved.
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 #import "AlarmTaskList.h"
 #import "AlarmAccurateStopProximity.h"
-#import "TriMetTimesAppDelegate.h"
-#import "AppDelegateMethods.h"
-#import "debug.h"
+#import "DebugLogging.h"
 
-#define kLoopTimeSecs 15
+#define kLoopTimeSecs 20
 
 @implementation AlarmTaskList
 
@@ -156,10 +142,10 @@
     // Cannot check for mute so just warn the user!
     if (self.taskCount == 0)
     {
-        UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"New Alarm"
-                                                           message:@"Note: The alarm will not sound if the device is muted."
+        UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"New Alarm",@"alarm pop-up title")
+                                                           message:NSLocalizedString(@"Note: The alarm will not sound if the device is muted.", @"alarm warning")
                                                           delegate:nil
-                                                 cancelButtonTitle:@"OK"
+                                                 cancelButtonTitle:NSLocalizedString(@"OK",@"OK button")
                                                  otherButtonTitles:nil] autorelease];
         [alert show];
     }
@@ -183,11 +169,11 @@
 		}
 		else if (mins == 1)
 		{
-			newTask.desc = [NSString stringWithFormat:@"1 min before %@",  dep.routeName];
+			newTask.desc = [NSString stringWithFormat:NSLocalizedString(@"1 min before %@", @"single minute alarm description"),  dep.routeName];
 		}
 		else 
 		{
-			newTask.desc = [NSString stringWithFormat:@"%d mins before %@", mins, dep.routeName];
+			newTask.desc = [NSString stringWithFormat:NSLocalizedString(@"%d mins before %@", @"plural minyes alarm description"), mins, dep.routeName];
 		}
 		newTask.lastFetched = dep;
         
@@ -359,10 +345,11 @@
                                         nil];
                 
                 int mins = ((remaining + 30) / 60.0);
-                [alertTask alert:[NSString stringWithFormat:@"PDX Bus checks arrivals in the background for only %d mins - then you will be alerted to restart PDX Bus.",
+                [alertTask alert:[NSString stringWithFormat:NSLocalizedString(@"PDX Bus checks arrivals in the background for only %d mins - then you will be alerted to restart PDX Bus.",
+                                                                              @"alarm alert warning"),
                                    mins]
                         fireDate:nil 
-                          button:@"To PDX Bus" 
+                          button:NSLocalizedString(@"To PDX Bus", @"button test to launch PDX BUS from alert")
                         userInfo:ignore
                     defaultSound:YES];
             }
@@ -550,10 +537,10 @@
 		
 		AlarmTask *alertTask = [[[AlarmTask alloc] init] autorelease];
 		
-		[alertTask alert:@"iOS has stopped PDX Bus from checking arrivals. "
-                         @"Please restart PDX Bus so it can update the arrival alarms."
+		[alertTask alert:NSLocalizedString(@"iOS has stopped PDX Bus from checking arrivals. "
+                         @"Please restart PDX Bus so it can update the arrival alarms.", @"alarm alert")
 				fireDate:nil 
-				  button:@"Back to PDX Bus" 
+				  button:NSLocalizedString(@"Back to PDX Bus", @"Button to return to PDX Bus")
 				userInfo:ignore
 			defaultSound:NO];
 		
@@ -585,7 +572,7 @@
 }
 
 
-- (int)taskCount
+- (NSInteger)taskCount
 {
 	@synchronized (_backgroundTasks)
 	{
@@ -610,18 +597,21 @@
 
 - (void)userAlertForProximity:(id<UIAlertViewDelegate>) delegate
 {
-	UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"Proximity Alarm"
-													   message:[NSString stringWithFormat:@"PDX Bus can use accurate GPS or low-power cell-towers to"
-																" determine your location and alert"
-																" you when you get within %@ of the stop.",
+	UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"Proximity Alarm", @"alarm alert title")
+													   message:[NSString stringWithFormat:
+                                                                NSLocalizedString(@"PDX Bus can use accurate GPS or low-power cell-towers to"
+                                                                                  " determine your location and alert"
+                                                                                  " you when you get within %@ of the stop.",
+                                                                                  @"alert question"),
 																kUserDistanceProximity]
 													  delegate:delegate
-											 cancelButtonTitle:@"Cancel"
-											 otherButtonTitles:@"Use accurate GPS", @"Use low-power cell-towers", nil] autorelease];
+											 cancelButtonTitle:NSLocalizedString(@"Cancel", @"button text")
+											 otherButtonTitles:NSLocalizedString(@"Use accurate GPS", @"button text"),
+                                                               NSLocalizedString(@"Use low-power cell-towers", @"button text"), nil] autorelease];
 	[alert show];
 }
 
-- (bool)userAlertForProximityAction:(int)button stopId:(NSString *)stopId lat:(NSString *)lat lng:(NSString *)lng desc:(NSString *)desc
+- (bool)userAlertForProximityAction:(NSInteger)button stopId:(NSString *)stopId lat:(NSString *)lat lng:(NSString *)lng desc:(NSString *)desc
 {
 	if (button != 0)
 	{

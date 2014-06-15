@@ -35,7 +35,7 @@
                                  format:(BarcodeFormat)format {
   NSRange prefixRange = [s rangeOfString:PREFIX options:NSCaseInsensitiveSearch];
   if (prefixRange.location == 0) {
-    int restStart = /*prefixRange.location + */ prefixRange.length;
+    NSUInteger restStart = /*prefixRange.location + */ prefixRange.length;
     return [[[GeoParsedResult alloc] initWithLocation:[s substringFromIndex:restStart]]
             autorelease];
   }

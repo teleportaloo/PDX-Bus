@@ -20,16 +20,16 @@ Features include:
 
 Route and arrival data provided by permission of TriMet.
 
-PDX Bus 7.0 sources
+PDX Bus 7.1 sources
 ===================
 
-I am making the sources to PDX Bus version 6.7 available as part of the
+I am making the sources to PDX Bus version 7.1 available as part of the
 [Civic Apps](http://www.civicapps.org) competition.  These
 sources were developed by me from Apple samples and documentation, except 
 where explicitly mentioned in the code.  
 
 I am choosing to release a copy of the code under the 
-[MPL 1.1](http://www.mozilla.org/MPL/) License but I retain the copyright,
+[MPL 2.0](http://www.mozilla.org/MPL/) License but I retain the copyright,
 which enables me to release the iPhone app under the regular Apple iPhone 
 license (this avoids any conflict of licenses for the time being).
  (No outside MPL or GPL code has been incorporated into the
@@ -60,13 +60,13 @@ to enable it to be of more use.
 Links
 -----
 * [PDX Bus Blog](http://pdxbus.teleportaloo.org)
-* [PDX Bus in the iTunes store](http://phobos.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=289814055&mt=8")
+* [PDX Bus in the iTunes store](https://itunes.apple.com/app/pdx-bus-max-streetcar-and-wes/id289814055?mt=8)
 * [PDX Bus on Twitter](http://twitter.com/pdxbus)
 * [PDX Bus on Facebook](http://facebook.com/pdxbus)
 
 Things to know before building
 ------------------------------
-* PDX Bus is built with iPhone SDK 7.0 and Xcode 5.0.2 - available free
+* PDX Bus is built with iPhone SDK 7.0 and Xcode 5.1.1 - available free
 from [Apple](http://developer.apple.com) in their Mac App store.
 * Before building this code you will need to register with TriMet 
 to get a free "AppID" from [TriMet](http://developer.trimet.org/registration/),
@@ -81,10 +81,6 @@ folders for the particular licenses used.
 * The data feed from [Next Bus](http://www.civicapps.org/datasets/portland-streetcar-routes-arrivals) 
 has terms and conditions (including a non-commercial clause) but does 
 not need an application ID.
-* Yahoo Place Finder can be used to do Reverse Geo Coding on GPS coordinates.  
-This also needs a free API key which is not included.  
-You will need to register with Yahoo [here](http://developer.yahoo.com/geo/placefinder)
-for this to be utilized - otherwise the code will fall back to GeoNames.org. 
 
 
 Graphics
@@ -110,14 +106,13 @@ file is available here -
 you will need to ask permission if you want to distribute it
 in some way.  Note that I took the PDF and made the GIF file - the GIF 
 file provided by TriMet is too small
-and will not work.
+and will not work.  This gif file is converted into a set of tiles to enable a more efficient display.
 
 ### Enabling the project to use the graphics
 Once the graphics have been downloaded and copied into place you will need to 
 enable them in the project.
 
-* In the Xcode project, under Resouces you will find the Aha-Soft, 
-TriMet and Glyphish folders. The file names
+* In the Xcode project, under Resouces you will find graphics folders. The file names
 will be red for any missing files.
 * For files that are not red, select them all, CTRL-Click then 
 choose "Get Info" from the pop-up menu.
@@ -187,6 +182,30 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Change log
 ----------
+### Version 7.1 (February 2014)
+* Fix for Streetcar API changes
+* Added back 'Bookmarks at the top' setting.
+* Added Cross for canceled busses.
+* Fixed refresh timer button so it doesn't flash.
+* Fixed app store link from main screen.
+* Fixed table alignment when using prompts on navigator bar in iOS7.
+* Fixed window size for iPad rail map view and web view.
+* Now uses Apple's geocoder for getting addresses from GPS locations
+* Fixed issues when GPS is used for destination in Trip Planner.
+* Added back proximity alarm icon.
+* Moved machine generated into into their own files.
+* Removed black color theme as it does not work well in iOS7.
+* Changed JELD-WEN Field to Providence Park.
+* Added Route map with stops to arrival details.
+* Toolbar map icon now behaves consistantly & added new menu item to map arrivals.
+* 64-bit type casting changes.
+* Added new pdxbusroute: URL to support the BlindSquare app.
+* Added tiling to the MAX and Steetcar maps - this reduces the number of hotspots to search by a lot as for each tile there is a short array to search.
+* Moved streetcar data into a singleton instread of it being with the app object; removed streetcar exception code.
+* Fixed circular references in the RailMapView - this caused a memory leak that was not spotted by static analyis or Instruments.
+* Nearby stops now uses the FindByLocationView to show all the possible options.
+
+
 ### Version 7.0 (January 2014)
 * Updated for iOS7.
 * Updated user interface for iOS 7.
@@ -203,8 +222,6 @@ Change log
 * Added rail map toolbar button to station list screen.
 * Fixed streetcar arrivals on Harrison.
 * Refactored trip planner
-
-
 
 ### Version 6.7 (May 2013)
 * Added Streetcar CL line to stop ID 9600 (SW 11th & Alder).
@@ -344,4 +361,4 @@ First Open Source Version.
 
 HAVE FUN!
 
-Andrew Wallace, January 2014.
+Andrew Wallace, April 2014.

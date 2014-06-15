@@ -1,26 +1,14 @@
-    //
+//
 //  SupportView.m
 //  TriMetTimes
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 #import "SupportView.h"
 #include "CellLabel.h"
@@ -38,8 +26,6 @@
 #define kSectionCache           4
 #define kSectionHighlights      5
 
-
-
 #define kSections               6
 
 #define kLinkRows				3
@@ -54,8 +40,6 @@
 #define kSectionLinkTwitter     1
 #define kSectionLinkFacebook    2
 #define kSectionLinkGitHub      3
-
-
 
 @implementation SupportView
 
@@ -95,9 +79,7 @@
                    @"Backup your bookmarks by emailing them to yourself.",
                    @"Keep an eye on the toolbar at the bottom - there are maps, options, and other features to explore.",
                    @"At night, TriMet recommends holding up a cell phone or flashing light so the driver can see you.",
-                   @"Create bookmarks containing both the start and end stops of your journey, then use the \"Show arrivals with just this trip\" feature"
-                   " to see when a particular bus or train will arrive at each stop.",
-				   @"Many issues can be solved by deleting the app and reinstalling - be sure to email the bookmarks to yourself first so you can restore them.",
+                   @"Many issues can be solved by deleting the app and reinstalling - be sure to email the bookmarks to yourself first so you can restore them.",
                    nil];
         
         _hideButton = NO;
@@ -374,12 +356,12 @@
 			switch (indexPath.row)
 			{
 				case kSectionLinkBlog:
-					[webPage setURLmobile:@"http:/pdxbus.teleportaloo.org" full:nil title:@"pdxbus.teleportaloo.org"];
-                    [webPage displayPage:[self navigationController] animated:YES tableToDeselect:self.table];
+					[webPage setURLmobile:@"http:/pdxbus.teleportaloo.org" full:nil];
+                    [webPage displayPage:[self navigationController] animated:YES itemToDeselect:self];
 					break;
                 case kSectionLinkGitHub:
-					[webPage setURLmobile:@"http:/github.com/teleportaloo/PDX-Bus" full:nil title:@"GitHub"];
-                    [webPage displayPage:[self navigationController] animated:YES tableToDeselect:self.table];
+					[webPage setURLmobile:@"http:/github.com/teleportaloo/PDX-Bus" full:nil];
+                    [webPage displayPage:[self navigationController] animated:YES itemToDeselect:self];
 					break;
                 case kSectionLinkTwitter:
                     self.tweetAt   = @"pdxbus";
@@ -432,8 +414,8 @@
 			else if (indexPath.row == kSectionSupportHowToRide)
             {
                 WebViewController *webPage = [[WebViewController alloc] init];
-                [webPage setURLmobile:@"http://trimet.org/howtoride/index.htm" full:nil title:@"How to ride"]; 
-                [webPage displayPage:[self navigationController] animated:YES tableToDeselect:self.table];
+                [webPage setURLmobile:@"http://trimet.org/howtoride/index.htm" full:nil]; 
+                [webPage displayPage:[self navigationController] animated:YES itemToDeselect:self];
                 [webPage release];
             }
             else

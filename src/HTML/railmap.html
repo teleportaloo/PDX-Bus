@@ -8,6 +8,12 @@
 
 <body>
 <h1>Rail Map Hotspots</h1>
+<pre>  <pre>
+
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 <p>This HTML files is used to design the hotspots on the TriMet rail map.  Use a tool to get the hotspots in the correct place, then 
 copy the map section into the method "initHotspotData" in RailMapView.m, replacing the HTML with macros as explained below.
 <ul>
@@ -16,7 +22,7 @@ copy the map section into the method "initHotspotData" in RailMapView.m, replaci
 <li>Replace <tt>/&gt;</tt> with HS_END</li>
 </ul>
 </p>
-<img src="../TriMet/railsystem.gif" alt="" border="0" usemap="#Map" />
+<img src="../TriMet/MAXWESMap.gif" alt="" border="0" usemap="#Map" />
 <map name="Map" id="Map">
   <area shape="poly" coords="1327,924,1370,927,1376,1099,1330,1100" href="s:PSU South%2FSW 5th & Jackson/PSU_South_MAX_station/S,7606" />
   <area shape="poly" coords="1160,888,1319,886,1325,928,1161,929" href="s:PSU South%2FSW 6th & College/PSU_South_MAX_station/N,10293" />
@@ -34,19 +40,19 @@ copy the map section into the method "initHotspotData" in RailMapView.m, replaci
   <area shape="poly" coords="607,667,653,668,655,621,801,471,771,451,617,618" href="s:Beaverton Creek/Beaverton_Creek/S,9822/N,9819" />
   <area shape="poly" coords="656,670,710,669,717,620,814,514,789,490,661,620" href="s:Millikan Way/Millikan_Way/E,9826/W,9825" />
   <area shape="poly" coords="713,670,758,669,759,622,899,482,873,458,722,618" href="s:Beaverton Central/Beaverton_Central/E,9824/W,9823" />
-  <area shape="poly" coords="765,677,824,679,820,639,1018,442,978,413,765,620" href="s:Beaverton TC/Beaverton_Transit_Center/MAX Northbound,9821/MAX Southbound,9818/WES Southbound,13066" />
+  <area shape="poly" coords="765,677,824,679,820,639,1018,442,978,413,765,620" href="s:Beaverton TC/Beaverton_Transit_Center/MAXN,9821/MAXS,9818/WESS,13066" />
   <area shape="poly" coords="281,47,281,160,707,159,707,48" href="http://www.trimet.org" />
   <area shape="poly" coords="1638,561,1698,507,1722,568,1682,608" href="w:Steel_Bridge" />
   <area shape="poly" coords="1343,185,1309,216,1513,423,1551,386" href="w:Willamette_River" />
-  <area shape="poly" coords="982,787,772,785,773,736,982,735" href="s:Hall%2FNimbus/Hall%2FNimbus/WES,13067" />
+  <area shape="poly" coords="982,787,772,785,773,736,982,735" href="s:Hall%2FNimbus/Hall%2FNimbus/WESA,13067" />
   <area shape="poly" coords="770,840,770,900,977,900,976,837" href="s:Tigard TC/Tigard_Transit_Center/S,13068/N,13073" />
-  <area shape="poly" coords="769,968,770,1020,939,1021,938,971" href="s:Tualatin/Tualatin_Station/WES,13069" />
+  <area shape="poly" coords="769,968,770,1020,939,1021,938,971" href="s:Tualatin/Tualatin_Station/WESA,13069" />
   <area shape="poly" coords="769,1083,769,1145,1020,1149,1019,1084" href="s:Wilsonville/Wilsonville_Station/N,13070" />
   <area shape="poly" coords="891,677,976,677,964,633,1089,515,1045,475,908,615" href="s:Sunset TC/Sunset_Transit_Center/E,9969/W,9624" />
   <area shape="poly" coords="1161,427,1163,671,1209,669,1209,427" href="s:Washington Park/Washington_Park_(MAX_station)/E,10120/W,10121" />
   <area shape="poly" coords="1207,261,1252,261,1250,620,1210,659" href="s:Goose Hollow%2FSW Jefferson St/Goose_Hollow%2FSW_Jefferson_St/E,10118/W,10117" />
   <area shape="poly" coords="1251,298,1290,299,1290,593,1251,597" href="s:Kings Hill%2FSW Salmon St/Kings_Hill%2FSouthwest_Salmon/N,9759/S,9820" />
-  <area shape="poly" coords="1295,400,1330,399,1351,454,1350,591,1299,631" href="s:JELD-WEN Field/PGE_Park_(MAX_station)/E,9758/W,9757" />
+  <area shape="poly" coords="1299,385,1340,385,1351,454,1350,591,1299,631" href="s:Providence Park/PGE_Park_(MAX_station)/E,9758/W,9757" />
   <area shape="poly" coords="22,842,21,877,463,878,461,843" href="d://100" />
   <area shape="poly" coords="2158,542,2381,323,2426,358,2198,582" href="s:Gateway%2FNE 99th TC/Gateway%2FNortheast_99th_Avenue_Transit_Center/N,8370/S,8347" />
   <area shape="poly" coords="2917,67,2916,150,2991,152,2987,68" href="n" />
@@ -117,7 +123,7 @@ copy the map section into the method "initHotspotData" in RailMapView.m, replaci
   <area shape="poly" coords="2767,568,2826,567,2833,534,2991,370,2995,306,2767,531" href="s:Gresham Central TC/Gresham_Central_Transit_Center_(MAX_station)/E,8357/W,8360" />
   <area shape="poly" coords="2828,570,2887,571,2886,529,2984,443,2960,407,2837,532" href="s:Cleveland Ave/Cleveland_Avenue_(MAX_station)/W,8359" />
   <area shape="poly" coords="23,878,463,880,462,909,23,911" href="d://200" />
-  <area shape="poly" coords="22,910,461,911,461,943,23,943,24,927" href="d://90" />
+  <area shape="poly" coords="22,910,461,911,461,943,23,943" href="d://90" />
   <area shape="poly" coords="24,945,478,945,477,977,23,978" href="d://190" />
   <area shape="poly" coords="26,980,445,978,445,1010,26,1011" href="d://203" />
   <area shape="poly" coords="27,1012,708,1012,708,1048,27,1046" href="m://1" />

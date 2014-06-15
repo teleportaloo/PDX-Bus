@@ -3,24 +3,12 @@
 //  TriMetTimes
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 #import "Departure.h"
 #import "Trip.h"
@@ -28,8 +16,9 @@
 #import "ViewControllerBase.h"
 #import "TriMetRouteColors.h"
 #import "RouteColorBlobView.h"
-#import "debug.h"
+#import "DebugLogging.h"
 #import "BlockColorDb.h"
+#import "CanceledBusOverlay.h"
 
 @implementation Departure
 
@@ -110,17 +99,17 @@
 	
 	if (mins == 1)
 	{
-		[str appendFormat:@" 1 min"];
+		[str appendFormat:NSLocalizedString(@" 1 min", @"how long a bus layover will be")];
 	}
 	
 	if (mins > 1)
 	{
-		[str appendFormat:@" %lld mins", mins ];
+		[str appendFormat:NSLocalizedString(@" %lld mins", @"how long a bus layover will be"), mins ];
 	}
 	
 	if (secs > 0)
 	{
-		[str appendFormat:@" %02lld secs", secs ];
+		[str appendFormat:NSLocalizedString(@" %02lld secs", @"how long a bus layover will be"), secs ];
 	}
 	
 	return str;
@@ -136,20 +125,20 @@
 
 - (int)minsToArrival
 {
-	return self.secondsToArrival / 60;
+	return (int)(self.secondsToArrival / 60);
 }
 
--(NSString *)formatDistance:(int)distance
+-(NSString *)formatDistance:(TriMetDistance)distance
 {
 	NSString *str = nil;
 	if (distance < 500)
 	{
-		str = [NSString stringWithFormat:@"%d ft (%d meters)", distance,
-			   (int)(distance / 3.2808398950131235) ];
+		str = [NSString stringWithFormat:NSLocalizedString(@"%lld ft (%lld meters)", @"distance of bus or train"), distance,
+			   (TriMetDistance)(distance / 3.2808398950131235) ];
 	}
 	else
 	{
-		str = [NSString stringWithFormat:@"%.2f miles (%.2f km)", (float)(distance / 5280.0),
+		str = [NSString stringWithFormat:NSLocalizedString(@"%.2f miles (%.2f km)", @"distance of bus or train"), (float)(distance / 5280.0),
 			   (float)(distance / 3280.839895013123) ];
 	}	
 	return str;
@@ -166,6 +155,7 @@
 #define SCHEDULED_TAG 6
 #define DETOUR_TAG 7
 #define BLOCK_COLOR_TAG 8
+#define CANCELED_OVERLAY 9
 
 - (UILabel*)label:(UITableViewCell*)cell tag:(NSInteger)tag
 {
@@ -261,6 +251,7 @@
 	 Create labels for the text fields; set the highlight color so that when the cell is selected it changes appropriately.
 	 */
 	UILabel *label;
+    CanceledBusOverlay *canceled;
 
 	if (big)
 	{
@@ -293,6 +284,7 @@
 		[cell.contentView addSubview:label];
 		label.highlightedTextColor = [UIColor whiteColor];
 		[label release];
+        
 		
 		label = [[UILabel alloc] initWithFrame:rect];
 		label.tag = SCHEDULED_TAG;
@@ -318,6 +310,13 @@
 		[cell.contentView addSubview:label];
 		label.highlightedTextColor = [UIColor whiteColor];
 		[label release];
+        
+        canceled = [[CanceledBusOverlay alloc] initWithFrame:rect];
+        canceled.tag = CANCELED_OVERLAY;
+        [cell.contentView addSubview:canceled];
+        canceled.backgroundColor = [UIColor clearColor];
+        canceled.hidden = YES;
+        [canceled release];
 		
 		rect = CGRectMake(MINS_LEFT, MINS_GAP+MINS_HEIGHT+MINS_GAP, MINS_WIDTH, MINS_UNIT_HEIGHT);
 		label = [[UILabel alloc] initWithFrame:rect];
@@ -492,23 +491,23 @@
             if (mins < 0)
             {
                 minsText = @"-";
-				unitText = @"gone";
+				unitText = NSLocalizedString(@"gone", @"text displayed for arrival time if the bus has gone already");
 				[timeText appendString:[dateFormatter stringFromDate:depatureDate]];
 				[timeText appendString:@" "];
 				timeColor = [UIColor blackColor]; 
             }
 			else if (mins == 0)
 			{
-				minsText = @"Due";
-				unitText = @"now";
+				minsText = NSLocalizedString(@"Due", @"first line of text to display when bus is due");
+				unitText = NSLocalizedString(@"now", @"second line of test to display when bus is due");
 				[timeText appendString:[dateFormatter stringFromDate:depatureDate]];
 				[timeText appendString:@" "];
 				timeColor = [UIColor redColor];
 			}
 			else if (mins == 1)
 			{
-				minsText = @"1";
-				unitText = @"min";
+				minsText = NSLocalizedString(@"1", @"first line of text to display when bus is due in 1 minute");
+				unitText = NSLocalizedString(@"min", @"second line of text to display when bus is due in 1 minute");
 				[timeText appendString:[dateFormatter stringFromDate:depatureDate]];
 				[timeText appendString:@" "];
 				timeColor = [UIColor redColor];
@@ -516,7 +515,7 @@
 			else if (mins < 6)
 			{	
 				minsText = [NSString stringWithFormat:@"%lld", mins];
-				unitText = @"mins";
+				unitText = NSLocalizedString(@"mins", @"plural number of minutes to display for bus arrival time");
 				[timeText appendString:[dateFormatter stringFromDate:depatureDate]];
 				[timeText appendString:@" "];
 				timeColor = [UIColor redColor];	
@@ -524,7 +523,7 @@
 			else if (mins < 60)
 			{
 				minsText = [NSString stringWithFormat:@"%lld", mins];
-				unitText = @"mins";
+				unitText = NSLocalizedString(@"mins", @"plural number of minutes to display for bus arrival time");
 				[timeText appendString:[dateFormatter stringFromDate:depatureDate]];
 				[timeText appendString:@" "];
 				timeColor = [UIColor blueColor];
@@ -540,37 +539,37 @@
 		}
 		else
 		{
-            if (mins < 0)
+            if (mins < 0 && self.status != kStatusCancelled)
             {
-                [timeText appendString:@"Gone - "];
+                [timeText appendString:NSLocalizedString(@"Gone - ", @"first part of text to display on a single line if a bus has gone")];
 				[timeText appendString:[dateFormatter stringFromDate:depatureDate]];
 				[timeText appendString:@" "];
 				timeColor = [UIColor redColor];
             }
-			else if (mins == 0)
+			else if (mins == 0 && self.status != kStatusCancelled)
 			{
-				[timeText appendString:@"Due - "];
+				[timeText appendString:NSLocalizedString(@"Due - ", @"first part of text to display on a single line if a bus is due")];
 				[timeText appendString:[dateFormatter stringFromDate:depatureDate]];
 				[timeText appendString:@" "];
 				timeColor = [UIColor redColor];
 			}
-			else if (mins == 1)
+			else if (mins == 1 && self.status != kStatusCancelled)
 			{
-				[timeText appendString:@"1 min - "];
+				[timeText appendString:NSLocalizedString(@"1 min - ", @"first part of text to display on a single line if a bus is due in 1 minute")];
 				[timeText appendString:[dateFormatter stringFromDate:depatureDate]];
 				[timeText appendString:@" "];
 				timeColor = [UIColor redColor];
 			}
-			else if (mins < 6)
+			else if (mins < 6 && self.status != kStatusCancelled)
 			{
-				[timeText appendFormat:@"%lld mins - ", mins];
+				[timeText appendFormat:NSLocalizedString(@"%lld mins - ", @"first part of text to display on a single line if a bus is due in several minutes"), mins];
 				[timeText appendString:[dateFormatter stringFromDate:depatureDate]];
 				[timeText appendString:@" "];
 				timeColor = [UIColor redColor];	
 			}
-			else if (mins < 60)
+			else if (mins < 60 && self.status != kStatusCancelled)
 			{
-				[timeText appendFormat:@"%lld mins - ", mins];
+				[timeText appendFormat:NSLocalizedString(@"%lld mins - ", @"first part of text to display on a single line if a bus is due in several minutes"), mins];
 				[timeText appendString:[dateFormatter stringFromDate:depatureDate]];
 				[timeText appendString:@" "];
 				timeColor = [UIColor blueColor];
@@ -582,34 +581,50 @@
 				timeColor = [UIColor blueColor];	
 			}
 		}
+        
+        CanceledBusOverlay *canceled = (CanceledBusOverlay*)[cell.contentView viewWithTag:CANCELED_OVERLAY];
+        
+        if (canceled!=nil)
+        {
+            canceled.hidden = YES;
+        }
 		
 		switch (self.status)
 		{
 		case kStatusEstimated:
 			break;
 		case kStatusScheduled:
-			[scheduledText appendFormat:@"scheduled "];
+			[scheduledText appendFormat:NSLocalizedString(@"scheduled ", @"info about arrival time")];
 			timeColor = [UIColor grayColor];
 			break;
 		case kStatusCancelled:
-			[detourText appendFormat:@"canceled "];
-			timeColor = [UIColor orangeColor];
+            [detourText appendFormat:NSLocalizedString(@"canceled ", @"info about arrival time")];
+            timeColor = [UIColor orangeColor];
+            if (canceled!=nil)
+            {
+                canceled.hidden = NO;
+            }
 			break;
 		case kStatusDelayed:
-			[detourText appendFormat:@"delayed "];
+			[detourText appendFormat:NSLocalizedString(@"delayed ",  @"info about arrival time")];
 			timeColor = [UIColor orangeColor];
 			break;	
 		}
+        
+        if (canceled!=nil)
+        {
+            [canceled setNeedsDisplay];
+        }
 		
 		if (self.status != kStatusScheduled && self.scheduledTime !=0 && (self.scheduledTime/60000) != (self.departureTime/60000))
 		{
 			NSDate *scheduledDate = [NSDate dateWithTimeIntervalSince1970: TriMetToUnixTime(self.scheduledTime)];
-			[scheduledText appendFormat:@"scheduled %@ ", [dateFormatter stringFromDate:scheduledDate]];;
+			[scheduledText appendFormat:NSLocalizedString(@"scheduled %@ ",@"info about arrival time"), [dateFormatter stringFromDate:scheduledDate]];;
 		}
 		
 		if (self.detour)
 		{
-			[detourText appendFormat:@"detour"];
+			[detourText appendFormat:NSLocalizedString(@"detour",@"info about arrival time")];
 		}
 		
 		
@@ -735,7 +750,7 @@
 	
 }
 
-- (void)populateTripCell:(UITableViewCell *)cell item:(int)item
+- (void)populateTripCell:(UITableViewCell *)cell item:(NSInteger)item
 {
 	Trip * trip = [self.trips objectAtIndex:item];
 	
@@ -756,16 +771,16 @@
 		
 		if (trip.progress > 0)
 		{
-			[self label:cell tag:ROUTE_TAG].text = [NSString stringWithFormat:@"Current trip: %@", trip.name];
+			[self label:cell tag:ROUTE_TAG].text = [NSString stringWithFormat:NSLocalizedString(@"Current trip: %@", @"trip details"), trip.name];
 			[self label:cell tag:ROUTE_TAG].textColor = [UIColor blackColor];
-			timeText = [NSString stringWithFormat:@"%@ left to go", [self formatDistance:toGo]];
+			timeText = [NSString stringWithFormat:NSLocalizedString(@"%@ left to go", @"distance remaining"), [self formatDistance:(int)toGo]];
 			timeColor = [UIColor blueColor];
 		}
 		else
 		{
-			[self label:cell tag:ROUTE_TAG].text = [NSString stringWithFormat:@"Trip: %@", trip.name];
+			[self label:cell tag:ROUTE_TAG].text = [NSString stringWithFormat:NSLocalizedString(@"Trip: %@", @"name of trip"), trip.name];
 			[self label:cell tag:ROUTE_TAG].textColor = [UIColor blackColor];
-			timeText = [NSString stringWithFormat:@"%@ total", [self formatDistance:toGo]];
+			timeText = [NSString stringWithFormat:NSLocalizedString(@"%@ total", @"total distance"), [self formatDistance:(int)toGo]];
 			timeColor = [UIColor grayColor];
 		}
 		[cell setAccessibilityLabel:[NSString stringWithFormat:@"%@, %@", 
@@ -795,7 +810,7 @@
 		if (trip.startTime < self.queryTime && trip.endTime > self.queryTime)
 		{
 			toGo = trip.endTime - self.queryTime;
-			timeText = [NSString stringWithFormat:@"Layover at %@ remaining: %@",  
+			timeText = [NSString stringWithFormat:NSLocalizedString(@"Layover at %@ remaining: %@", @"bus waiting at <location> for a <time>"),
 							 [dateFormatter stringFromDate:startLayover],  [self formatLayoverTime:toGo]];
 			timeColor = [UIColor blueColor];
 		}
@@ -804,8 +819,8 @@
 			NSMutableString *str = [[[NSMutableString alloc] init] autorelease];
 			toGo = trip.endTime - trip.startTime;
 			
-			[str appendFormat:@"Layover at %@", [dateFormatter stringFromDate:startLayover]];
-			[str appendFormat:@" for%@", [self formatLayoverTime:toGo]];
+			[str appendFormat:NSLocalizedString(@"Layover at %@", @"waiting starting at <time>"), [dateFormatter stringFromDate:startLayover]];
+			[str appendFormat:NSLocalizedString(@" for%@", @"waiting for length of time"), [self formatLayoverTime:toGo]];
 			timeText = str;
 			timeColor = [UIColor grayColor];
 		}
@@ -881,36 +896,20 @@
 		
 		if (mins <= 0)
 		{
-			[text appendString:@"Due - "];
-			[text appendString:[dateFormatter stringFromDate:depatureDate]];
-			[text appendFormat:@" at %@", loc];
+			[text appendFormat:NSLocalizedString(@"Due - %@ at %@", @"bus due <time> at <location>"), [dateFormatter stringFromDate:depatureDate], loc];
 		}
 		else if (mins == 1)
 		{
-			[text appendString:@"1 min - "];
-			[text appendString:[dateFormatter stringFromDate:depatureDate]];
-			[text appendFormat:@" to %@", loc];
-		}
-		else if (mins < 6)
-		{
-			[text appendFormat:@"%lld mins - ", mins];
-			[text appendString:[dateFormatter stringFromDate:depatureDate]];
-			[text appendFormat:@" to %@", loc];
-			
+			[text appendFormat:NSLocalizedString(@"1 min - %@ to %@",@"bus due <time> at <location>"), [dateFormatter stringFromDate:depatureDate], loc];
 		}
 		else if (mins < 60)
 		{
-			[text appendFormat:@"%lld mins - ", mins];
-			[text appendString:[dateFormatter stringFromDate:depatureDate]];
-			[text appendFormat:@" to %@", loc];
+			[text appendFormat:NSLocalizedString(@"%lld mins - %@ to %@ ", @"in <mins> minutes bus is due <time> at <location>"), mins, [dateFormatter stringFromDate:depatureDate], loc];
 		} 
 		else
 		{			
-			[text appendString:[dateFormatter stringFromDate:depatureDate]];
-			[text appendFormat:@" to %@", loc];
+			[text appendFormat:NSLocalizedString(@"%@ to %@", @"at <time> bus will arrival at <location>"), [dateFormatter stringFromDate:depatureDate], loc];
 		}
-		
-		
 	}
 	
 	return text;

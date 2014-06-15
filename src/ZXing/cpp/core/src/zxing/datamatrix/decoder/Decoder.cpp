@@ -37,7 +37,7 @@ Decoder::Decoder() :
 
 
 void Decoder::correctErrors(ArrayRef<unsigned char> codewordBytes, int numDataCodewords) {
-  int numCodewords = codewordBytes->size();
+  int numCodewords = (int)codewordBytes->size();
   ArrayRef<int> codewordInts(numCodewords);
   for (int i = 0; i < numCodewords; i++) {
     codewordInts[i] = codewordBytes[i] & 0xff;
@@ -66,7 +66,7 @@ Ref<DecoderResult> Decoder::decode(Ref<BitMatrix> bits) {
   // Separate into data blocks
   std::vector<Ref<DataBlock> > dataBlocks = DataBlock::getDataBlocks(codewords, version);
 
-  int dataBlocksCount = dataBlocks.size();
+  int dataBlocksCount = (int)dataBlocks.size();
 
   // Count total number of data bytes
   int totalBytes = 0;

@@ -4,24 +4,12 @@
 //
 //  Created by Andrew Wallace on 1/25/09.
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 
 #import "EditBookMarkView.h"
@@ -29,8 +17,6 @@
 #import "CellTextField.h"
 #import "CellTextView.h"
 #import "DepartureTimesView.h"
-#import "TriMetTimesAppDelegate.h"
-#import "AppDelegateMethods.h"
 #import "RouteView.h"
 #import "AddNewStopToBookMark.h"
 #import "RailMapView.h"
@@ -170,10 +156,9 @@
 	
 	if ([self autoCommuteMorning])
 	{
-		return @" mornings";
+		return NSLocalizedString(@" mornings", @"text concatonated after a list of weekdays");
 	}
-	return @" afternoons";
-	
+	return NSLocalizedString(@" afternoons", @"text concatonated after a list of weekdays");
 }
 
 - (NSString *)dayPrefix
@@ -191,9 +176,9 @@
 		case kDayNever:
 			return @"";
 		case kDayAllWeek:
-			return @"Show ";
+			return NSLocalizedString(@"Show ", @"before text 'every day in the <morning or evening>'");
 		default:
-			return @"Show on ";
+			return NSLocalizedString(@"Show on ", @"followed by a list of the days of the week");
 	}
 }
 
@@ -215,27 +200,27 @@
 	switch (days)
 	{
 		case kDayNever:
-			return @"No days selected";
+			return NSLocalizedString(@"No days selected", @"error message");
 		case kDayWeekend:
-			return @"weekend";
+			return NSLocalizedString(@"weekend", @"");
 		case kDayWeekday:
-			return @"weekday";
+			return NSLocalizedString(@"weekday", @"");
 		case kDayAllWeek:
-			return @"everyday in the";
+			return NSLocalizedString(@"everyday in the", @"followed by <morning/afternoon>");
 		case kDayMon:
-			return @"Monday";
+			return NSLocalizedString(@"Monday",   @"full name for day of the week");
 		case kDayTue:
-			return @"Tuesday";
+			return NSLocalizedString(@"Tuesday",  @"full name for day of the week");
 		case kDayWed:
-			return @"Wednesday";
+			return NSLocalizedString(@"Wednesday",@"full name for day of the week");
 		case kDayThu:
-			return @"Thursday";
+			return NSLocalizedString(@"Thursday", @"full name for day of the week");
 		case kDayFri:
-			return @"Friday";
+			return NSLocalizedString(@"Friday",   @"full name for day of the week");
 		case kDaySat:
-			return @"Saturday";
+			return NSLocalizedString(@"Saturday", @"full name for day of the week");
 		case kDaySun:
-			return @"Sunday";
+			return NSLocalizedString(@"Sunday",   @"full name for day of the week");
 		default:
 		{
 			NSMutableString *dayStr = [[[NSMutableString alloc] init] autorelease];
@@ -250,13 +235,13 @@
 				spacing = space;						\
 			}											
 			
-			ADD_DAY(kDayMon, @"Mon")
-			ADD_DAY(kDayTue, @"Tue")
-			ADD_DAY(kDayWed, @"Wed")
-			ADD_DAY(kDayThu, @"Thu")
-			ADD_DAY(kDayFri, @"Fri")
-			ADD_DAY(kDaySat, @"Sat")
-			ADD_DAY(kDaySun, @"Sun")
+			ADD_DAY(kDayMon, NSLocalizedString(@"Mon", @"short name for day of the week"))
+			ADD_DAY(kDayTue, NSLocalizedString(@"Tue", @"short name for day of the week"))
+			ADD_DAY(kDayWed, NSLocalizedString(@"Wed", @"short name for day of the week"))
+			ADD_DAY(kDayThu, NSLocalizedString(@"Thu", @"short name for day of the week"))
+			ADD_DAY(kDayFri, NSLocalizedString(@"Fri", @"short name for day of the week"))
+			ADD_DAY(kDaySat, NSLocalizedString(@"Sat", @"short name for day of the week"))
+			ADD_DAY(kDaySun, NSLocalizedString(@"Sun", @"short name for day of the week"))
 			
 			return dayStr;
 		}
@@ -268,7 +253,7 @@
 - (void)timeSegmentChanged:(id)sender
 {
 	UISegmentedControl *seg = (UISegmentedControl*)sender;
-	self.userRequest.timeChoice = seg.selectedSegmentIndex;
+	self.userRequest.timeChoice = (TripTimeChoice)seg.selectedSegmentIndex;
 	[self.originalFave setObject:[self.userRequest toDictionary] forKey:kUserFavesTrip];
 }
 
@@ -296,7 +281,7 @@
 	[self makeNewFave];
 	[self.originalFave setObject:kNewBookMark forKey:kUserFavesChosenName];
 	self.stops = [[[NSMutableArray alloc] init] autorelease];
-	self.title = @"Add Bookmark";
+	self.title = NSLocalizedString(@"Add Bookmark", @"screen title");
 	[self setupArrivalSections];
 }
 
@@ -321,7 +306,7 @@
 	
 	self.userRequest.timeChoice = TripDepartAfterTime;
 	[self.originalFave setObject:[self.userRequest toDictionary] forKey:kUserFavesTrip];
-	self.title = @"Add Trip Bookmark";	
+	self.title = NSLocalizedString(@"Add Trip Bookmark", @"screen title");
 	[self setupTripSections];
 }
 
@@ -356,7 +341,7 @@
 	self.userRequest = nil;
 	[self setupArrivalSections];
 	[self.originalFave setObject:locid forKey:kUserFavesLocation];
-	self.title = @"Add bookmark";	
+	self.title = NSLocalizedString(@"Add Bookmark", @"screen title");
 }
 
 -(void) addBookMarkFromUserRequest:(XMLTrips*)tripQuery;
@@ -366,7 +351,7 @@
 	
 	if (title == nil) 
 	{
-		title = @"New Trip";
+		title = NSLocalizedString(@"New Trip", @"screen title");
 	}
 
 	[self.originalFave setObject:title forKey:kUserFavesChosenName];
@@ -374,7 +359,7 @@
 	[self setupTripSections];
 	self.userRequest = tripQuery.userRequest;
 	[self.originalFave setObject:[tripQuery.userRequest toDictionary] forKey:kUserFavesTrip];
-	self.title = @"Add bookmark";	
+	self.title = NSLocalizedString(@"Add bookmark", @"screen title");
 }
 
 
@@ -396,10 +381,10 @@
 		[self setupTripSections];
 	}
 		
-	self.title = @"Edit bookmark";	
+	self.title = NSLocalizedString(@"Edit bookmark", @"screen title");
 }
 
-- (int) getStopsSubsection:(int)row
+- (NSInteger) getStopsSubsection:(NSInteger)row
 {	
 	if (row < [self.stops count])
 	{
@@ -528,13 +513,13 @@
 	switch (_sectionMap[section])
 	{
 		case kTableSectionName:
-			return @"Bookmark name:";
+			return NSLocalizedString(@"Bookmark name:", @"section header");
 		case kTableSectionStops:
-			return @"Add stop ids in the desired order:";
+			return NSLocalizedString(@"Add stop ids in the desired order:", @"section header");
 		case kTableSectionTrip:
-			return @"Trip:";
+			return NSLocalizedString(@"Trip:", @"section header");
 		case kTableSectionCommute:
-			return @"For commuters, PDX Bus can automatically show this bookmark the first time the app starts in the morning or afternoon:";
+			return NSLocalizedString(@"For commuters, PDX Bus can automatically show this bookmark the first time the app starts in the morning or afternoon:", @"section header");
 	}
 	return nil;
 }
@@ -618,19 +603,17 @@
 					cell.textLabel.text = [self.stops objectAtIndex:indexPath.row];
 					break;
 				case kTableSubSectionStopsId:
-					cell.textLabel.text = @"Add new stop ID";
+					cell.textLabel.text = NSLocalizedString(@"Add new stop ID", @"button text");
 					break;
 				case kTableSubSectionStopsBrowse:
-					cell.textLabel.text = @"Browse routes for stop";
+					cell.textLabel.text = NSLocalizedString(@"Browse routes for stop", @"button text)");
 					break;
 				case kTableSubSectionStopsRailMap:
-					cell.textLabel.text = @"Select stop from rail maps";
+					cell.textLabel.text = NSLocalizedString(@"Select stop from rail maps", @"button text");
 					break;
 				case kTableSubSectionStopsRailStations:
-					cell.textLabel.text = @"Search rail stations for stop";
+					cell.textLabel.text = NSLocalizedString(@"Search rail stations for stop", @"button text");
 					break;
-					
-					
 			}
 			[self maybeAddSectionToAccessibility:cell indexPath:indexPath alwaysSaySection:YES];
 			cell.textLabel.font = [self getBasicFont];
@@ -648,7 +631,7 @@
 			// Set up the cell
 			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 			cell.editingAccessoryType = UITableViewCellAccessoryDisclosureIndicator ;
-			cell.textLabel.text = @"Show trip";
+			cell.textLabel.text = NSLocalizedString(@"Show trip", @"button text");
 			cell.imageView.image = [self getActionIcon:kIconTripPlanner];
 			return cell;
 			
@@ -685,12 +668,12 @@
 					if (indexPath.row == kTripSectionRowFrom)
 					{
 						text = [self.userRequest.fromPoint userInputDisplayText];
-						dir = @"From";
+						dir = NSLocalizedString(@"From", @"trip starting from");
 						
 					}
 					else {
 						text = [self.userRequest.toPoint userInputDisplayText];
-						dir = @"To";
+						dir = NSLocalizedString(@"To", @"trip ending at");
 					}
 					
 					[TripLeg populateCell:cell body:text mode:dir time:nil leftColor:nil route:nil];
@@ -713,7 +696,7 @@
 					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 					cell.imageView.image = nil;
 					
-					[TripLeg populateCell:cell body:[self.userRequest optionsDisplayText] mode:@"Options" time:nil leftColor:nil route:nil];
+					[TripLeg populateCell:cell body:[self.userRequest optionsDisplayText] mode:NSLocalizedString(@"Options", @"trip options") time:nil leftColor:nil route:nil];
 					return cell;
 				}
 					
@@ -725,7 +708,9 @@
 						cell = [[[SegmentCell alloc] initWithStyle:UITableViewCellStyleDefault 
 													reuseIdentifier:segmentId2] autorelease];
 						
-						[cell createSegmentWithContent:[NSArray arrayWithObjects: @"Ask for Time", @"Depart Now", nil]
+						[cell createSegmentWithContent:[NSArray arrayWithObjects:
+                                                            NSLocalizedString(@"Ask for Time",@"trip time in bookmark"),
+                                                            NSLocalizedString(@"Depart Now",@"trip time in bookmark"),  nil]
 												target:self
 												action:@selector(timeSegmentChanged:)];
 						cell.isAccessibilityElement = NO;
@@ -748,7 +733,7 @@
 			// Set up the cell
 			
 			
-			cell.textLabel.text = @"Delete bookmark";
+			cell.textLabel.text = NSLocalizedString(@"Delete bookmark", @"button text");
 			cell.imageView.image = [self getActionIcon:kIconDelete];
 			[self maybeAddSectionToAccessibility:cell indexPath:indexPath alwaysSaySection:YES];
 			return cell;

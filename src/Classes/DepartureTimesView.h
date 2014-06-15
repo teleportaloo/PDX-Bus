@@ -3,24 +3,12 @@
 //  TriMetTimes
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 #import <UIKit/UIKit.h>
 #import "TableViewWithToolbar.h"
@@ -35,7 +23,7 @@
 #define kSectionsPerStop	13
 #define kSectionRowInit		-1
 
-#define kCacheWarning @"WARNING: No network - extrapolated times"
+#define kCacheWarning NSLocalizedString(@"WARNING: No network - extrapolated times", @"error message")
 
 @class XMLDepartures;
 @class Departure;
@@ -45,7 +33,7 @@ typedef struct {
 	int row [kSectionsPerStop+1];
 } SECTIONROWS;
 
-@interface DepartureTimesView :  PullRefreshTableViewController <UIAlertViewDelegate, 
+@interface DepartureTimesView :  PullRefreshTableViewController <UIAlertViewDelegate,
         UIActionSheetDelegate, DepartureDetailDelegate> {
 	NSString *			_displayName;
 	NSMutableArray *	_visibleDataArray;
@@ -60,12 +48,14 @@ typedef struct {
 	bool *				_sectionExpanded;
 	
 	UIBarButtonItem *	_refreshButton;
+    UILabel *           _refreshText;
 	
 	NSIndexPath *		_actionItem;
 	
 	NSDate *			_lastRefresh;
     bool                _timerPaused;
 	bool				_fetchingLocations;
+    XMLDepartures       *_singleMapItem; // weak
 	int					_bookmarkItem;
 	NSString *			_bookmarkDesc;
 	NSString *			_bookmarkLoc;
@@ -78,7 +68,7 @@ typedef struct {
 
 
 
-- (id<DepartureTimesDataProvider>)departureData:(int)i;
+- (id<DepartureTimesDataProvider>)departureData:(NSInteger)i;
 
 
 
@@ -101,6 +91,7 @@ typedef struct {
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex;
 - (void)stopTimer;
 + (BOOL)canGoDeeper;
+- (void)setRefreshButtonText:(NSString*)text;
 
 - (void)detailsChanged;
 
@@ -112,6 +103,7 @@ typedef struct {
 @property (nonatomic, retain) NSString *stops;
 @property (nonatomic) bool blockSort;
 @property (nonatomic, retain) UIBarButtonItem *refreshButton;
+@property (nonatomic, retain) UILabel     *refreshText;
 @property (nonatomic, retain) NSDate *lastRefresh;
 @property (nonatomic, retain) XMLStreetcarLocations *streetcarLocations;
 @property (nonatomic, retain) NSString *bookmarkLoc;

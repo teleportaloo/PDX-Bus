@@ -5,24 +5,12 @@
 //  Created by Andrew Wallace on 10/17/09.
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 #import "DepartureSortTableView.h"
 #import "CellLabel.h"
@@ -57,11 +45,11 @@
 {
 	if ((self = [super init]))
 	{
-		self.title = @"Group Arrivals";
-		self.info = @"Group by stop: shows arrivals for each stop.\n\n"
+		self.title = NSLocalizedString(@"Group Arrivals", @"screen title");
+		self.info = NSLocalizedString(@"Group by stop: shows arrivals for each stop.\n\n"
 					 "Group by trip: follows a particular bus or train as it passes through each stop.\n\n"
 					 "Tip: 'Group by trip' is only useful with bookmarks containing several close stops on "
-					 "the same route.";
+                                      "the same route.", @"description of group feature");
 	}
 	return self;
 }
@@ -143,7 +131,9 @@
 			if (cell == nil) {
 				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:segmentId] autorelease];
 				self.sortSegment = [self createSegmentedControl:
-								   [NSArray arrayWithObjects: @"Group by stop", @"Group by trip", nil] 
+								   [NSArray arrayWithObjects:
+                                                NSLocalizedString(@"Group by stop", @"button text"),
+                                                NSLocalizedString(@"Group by trip", @"button text"), nil]
 														parent:cell.contentView action:@selector(sortSegmentChanged:)];
 				
 				[cell layoutSubviews];

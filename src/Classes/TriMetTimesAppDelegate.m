@@ -3,24 +3,12 @@
 //  TriMetTimes
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 #import "TriMetTimesAppDelegate.h"
 #import "AppDelegateMethods.h"
@@ -33,7 +21,7 @@
 #import "UserFaves.h"
 #import "StopView.h"
 #import "DepartureTimesView.h"
-#import "debug.h"
+#import "DebugLogging.h"
 #import "AllRailStationView.h"
 #import "AlarmNotification.h"
 #import "AlarmTaskList.h"
@@ -46,7 +34,7 @@
 @synthesize window;
 @synthesize navigationController;
 
-@synthesize streetcarMapping		= _streetcarMapping;
+
 @synthesize rootViewController;
 @synthesize cleanExitLastTime		= _cleanExitLastTime;
 @synthesize pathToCleanExit			= _pathToCleanExit;
@@ -57,7 +45,6 @@
 	self.navigationController = nil;
 	//	[userFaves release];
     [window release];
-	[activityView release];
 	self.pathToCleanExit = nil;
 
 	[super dealloc];
@@ -68,8 +55,7 @@
 - (id)init {
 	if ((self = [super init])) 
     {
-		// 
-		activityView = nil;
+		 
 	}
 	return self;
 }
@@ -280,6 +266,12 @@
 	
 	// skip up to first slash
 	[scanner scanUpToCharactersFromSet:slash intoString:&protocol];
+    
+    if ([protocol caseInsensitiveCompare:@"pdxbusroute:"]==NSOrderedSame)
+    {
+        rootViewController.routingURL = url;
+        return YES;
+    }
 	
 	if (![scanner isAtEnd])
 	{
@@ -310,105 +302,6 @@
 
 #pragma mark Application Helper functions
 
-- (bool)canTweet
-{
-    
-    Class messageClass = (NSClassFromString(@"TWTweetComposeViewController"));
-    
-    if (messageClass != nil) {
-        // Check whether the current device is configured for sending SMS messages
-        
-        return YES;
-        
-        // if ([TWTweetComposeViewController canSendTweet]) {
-        //    return YES;
-        //}
-    }
-    
-    return NO;
-}
-
-
-
--(void)loadStreetcarMapping
-{
-	if (self.streetcarMapping == nil)
-	{
-		self.streetcarMapping = [[[NSMutableDictionary alloc] initWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"PortlandStreetcar" ofType:@"plist"]] autorelease];
-	}
-}
-
-- (NSDictionary *)getStreetcarRoutes
-{
-	[self loadStreetcarMapping];
-	return [self.streetcarMapping  objectForKey:@"route"];
-}
-
-
-- (NSDictionary *)getStreetcarBlockMap
-{
-	[self loadStreetcarMapping];
-	return [self.streetcarMapping  objectForKey:@"block"];
-}
-
-- (NSDictionary *)getStreetcarPlatforms
-{
-	[self loadStreetcarMapping];
-	
-	return [self.streetcarMapping  objectForKey:@"platforms"];
-	
-}
-
-
-- (NSDictionary *)getStreetcarDirections
-{
-	[self loadStreetcarMapping];
-
-	return [self.streetcarMapping  objectForKey:@"directions"];
-}
-
-- (NSDictionary *)getStreetcarShortNames
-{
-	[self loadStreetcarMapping];
-	
-	return [self.streetcarMapping  objectForKey:@"shortnames"];
-	
-}
-
--(void)hideActivityViewer
-{
-	[[[activityView subviews] objectAtIndex:0] stopAnimating];
-	[activityView removeFromSuperview];
-	activityView = nil;
-}
-
--(void)showActivityViewer
-{
-	[activityView release];
-	activityView = [[UIView alloc] initWithFrame: CGRectMake(0, 0, window.bounds.size.width, window.bounds.size.height)];
-	activityView.backgroundColor = [UIColor blackColor];
-	activityView.alpha = 0.5;
-	
-	UIActivityIndicatorView *activityWheel = [[UIActivityIndicatorView alloc] initWithFrame: CGRectMake(window.bounds.size.width / 2 - 12, window.bounds.size.height / 2 - 12, 24, 24)];
-	activityWheel.activityIndicatorViewStyle = UIActivityIndicatorViewStyleWhite;
-	activityWheel.autoresizingMask = (UIViewAutoresizingFlexibleLeftMargin |
-									  UIViewAutoresizingFlexibleRightMargin |
-									  UIViewAutoresizingFlexibleTopMargin |
-									  UIViewAutoresizingFlexibleBottomMargin);
-	[activityView addSubview:activityWheel];
-	[activityWheel release];
-	
-	
-//	UILabel *text = [[[UILabel alloc] initWithFrame:CGRectMake(window.bounds.size.width / 2 - 30, window.bounds.size.height / 2 - 30,100 ,35)] autorelease];
-//	[activityView addSubview: text];
-	
-	[window addSubview: activityView];
-	[activityView release];
-	
-	[[[activityView subviews] objectAtIndex:0] startAnimating];
-	
-//	return text;
-}
 
 
 #define HEX_DIGIT(B) (B <= '9' ?  (B)-'0' : (( (B) < 'G' ) ? (B) - 'A' + 10 : (B) - 'a' + 10))
@@ -610,7 +503,7 @@
 		NSError *error = nil;
 		NSPropertyListFormat fmt = NSPropertyListXMLFormat_v1_0;
 		
-		DEBUG_LOG(@"Stops: %@ %d data length %d stops/2 %d\n", stops, stops.length, encodedDictionary.length, stops.length/2);
+		DEBUG_LOG(@"Stops: %@ %ld data length %ld stops/2 %ld\n", stops, (unsigned long)stops.length, (unsigned long)encodedDictionary.length, (unsigned long)stops.length/2);
 		
 		
 		

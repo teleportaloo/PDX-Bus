@@ -52,7 +52,7 @@ namespace zxing {
     }
 
     Ref<Result> MultiFormatOneDReader::decodeRow(int rowNumber, Ref<BitArray> row) {
-      int size = readers.size();
+      int size = (int)readers.size();
       for (int i = 0; i < size; i++) {
         OneDReader* reader = readers[i];
         Ref<Result> result = reader->decodeRow(rowNumber, row);

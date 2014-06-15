@@ -35,7 +35,7 @@
                                  format:(BarcodeFormat)format {
   NSRange telRange = [s rangeOfString:PREFIX options:NSCaseInsensitiveSearch];
   if (telRange.location == 0) {
-    int restStart = /*telRange.location + */ telRange.length;
+    NSUInteger restStart = /*telRange.location + */ telRange.length;
     return [[[TelParsedResult alloc] initWithNumber:[s substringFromIndex:restStart]]
             autorelease];
   }

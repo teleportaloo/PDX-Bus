@@ -36,7 +36,7 @@ Ref<BitMatrix> GridSampler::sampleGrid(Ref<BitMatrix> image, int dimension, Ref<
   Ref<BitMatrix> bits(new BitMatrix(dimension));
   vector<float> points(dimension << 1, (const float)0.0f);
   for (int y = 0; y < dimension; y++) {
-    int max = points.size();
+    int max = (int)points.size();
     float yValue = (float)y + 0.5f;
     for (int x = 0; x < max; x += 2) {
       points[x] = (float)(x >> 1) + 0.5f;
@@ -57,7 +57,7 @@ Ref<BitMatrix> GridSampler::sampleGrid(Ref<BitMatrix> image, int dimensionX, int
   Ref<BitMatrix> bits(new BitMatrix(dimensionX, dimensionY));
   vector<float> points(dimensionX << 1, (const float)0.0f);
   for (int y = 0; y < dimensionY; y++) {
-    int max = points.size();
+    int max = (int)points.size();
     float yValue = (float)y + 0.5f;
     for (int x = 0; x < max; x += 2) {
       points[x] = (float)(x >> 1) + 0.5f;
@@ -85,8 +85,8 @@ Ref<BitMatrix> GridSampler::sampleGrid(Ref<BitMatrix> image, int dimension, floa
 }
 
 void GridSampler::checkAndNudgePoints(Ref<BitMatrix> image, vector<float> &points) {
-  int width = image->getWidth();
-  int height = image->getHeight();
+  int width = (int)image->getWidth();
+  int height = (int)image->getHeight();
 
 
   // The Java code assumes that if the start and end points are in bounds, the rest will also be.

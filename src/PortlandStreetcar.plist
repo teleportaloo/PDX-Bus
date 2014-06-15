@@ -4,204 +4,208 @@
 <dict>
 	<key>block</key>
 	<dict>
-		<key>cl</key>
+		<key>194</key>
 		<string>94%@</string>
-		<key>streetcar</key>
+		<key>193</key>
 		<string>93%@</string>
 	</dict>
 	<key>platforms</key>
 	<dict>
-		<key>streetcar</key>
+		<key>193</key>
 		<dict>
 			<key>8989</key>
-			<string>d=t5&amp;s=n23mar_d</string>
+			<true/>
 			<key>3596</key>
-			<string>d=t5&amp;s=loven22</string>
+			<true/>
 			<key>3595</key>
-			<string>d=t5&amp;s=loven21</string>
+			<true/>
 			<key>10751</key>
-			<string>d=t5&amp;s=loven18</string>
+			<true/>
 			<key>10752</key>
-			<string>d=t5&amp;s=loven13</string>
+			<true/>
 			<key>10753</key>
-			<string>d=t5&amp;s=n11john</string>
+			<true/>
 			<key>10754</key>
-			<string>d=t5&amp;s=n11glis</string>
+			<true/>
 			<key>10755</key>
-			<string>d=t5&amp;s=n11eve</string>
+			<true/>
 			<key>10756</key>
-			<string>d=t5&amp;s=n11cou</string>
+			<true/>
 			<key>9600</key>
-			<string>d=t5&amp;s=s11ald</string>
+			<true/>
 			<key>9633</key>
-			<string>d=t5&amp;s=s11tay</string>
+			<true/>
 			<key>10759</key>
-			<string>d=t5&amp;s=s11jeff</string>
+			<true/>
 			<key>10760</key>
-			<string>d=t5&amp;s=s11clay</string>
+			<true/>
 			<key>11011</key>
-			<string>d=t5&amp;s=marspark</string>
+			<true/>
 			<key>10762</key>
-			<string>d=t5&amp;s=mars5</string>
+			<true/>
 			<key>10763</key>
-			<string>d=t5&amp;s=mons5</string>
+			<true/>
 			<key>12375</key>
-			<string>d=t5&amp;s=sw3harr</string>
+			<true/>
 			<key>12376</key>
-			<string>d=t5&amp;s=sw1harr</string>
+			<true/>
 			<key>12377</key>
-			<string>d=t5&amp;s=swharrd</string>
+			<true/>
 			<key>12378</key>
-			<string>d=t5&amp;s=swrivmo</string>
+			<true/>
 			<key>12760</key>
-			<string>d=t5&amp;s=swmogibb_a</string>
+			<true/>
+			<key>13602</key>
+			<true/>
+			<key>13601</key>
+			<true/>
 			<key>12880</key>
-			<string>d=t5&amp;s=moodgain</string>
+			<true/>
 			<key>12881</key>
-			<string>d=t23&amp;s=lowell_d</string>
+			<true/>
 			<key>12882</key>
-			<string>d=t23&amp;s=bondlane</string>
+			<true/>
 			<key>12883</key>
-			<string>d=t23&amp;s=bondohsu</string>
+			<true/>
 			<key>12379</key>
-			<string>d=t23&amp;s=swrivmo_h</string>
+			<true/>
 			<key>12380</key>
-			<string>d=t23&amp;s=swharrd_o</string>
+			<true/>
 			<key>12381</key>
-			<string>d=t23&amp;s=sw1harr_o</string>
+			<true/>
 			<key>12382</key>
-			<string>d=t23&amp;s=sw3harr_o</string>
+			<true/>
 			<key>10764</key>
-			<string>d=t23&amp;s=shop</string>
+			<true/>
 			<key>10766</key>
-			<string>d=t23&amp;s=milspark</string>
+			<true/>
 			<key>10765</key>
-			<string>d=t23&amp;s=s10clay</string>
+			<true/>
 			<key>6493</key>
-			<string>d=t23&amp;s=s10mad</string>
+			<true/>
 			<key>10767</key>
-			<string>d=t23&amp;s=s10yam</string>
+			<true/>
 			<key>10768</key>
-			<string>d=t23&amp;s=s10ald</string>
+			<true/>
 			<key>10769</key>
-			<string>d=t23&amp;s=s10wash</string>
+			<true/>
 			<key>10770</key>
-			<string>d=t23&amp;s=n10cou</string>
+			<true/>
 			<key>10771</key>
-			<string>d=t23&amp;s=n10ev</string>
+			<true/>
 			<key>10772</key>
-			<string>d=t23&amp;s=n10glis</string>
+			<true/>
 			<key>10773</key>
-			<string>d=t23&amp;s=n10john</string>
+			<true/>
 			<key>10774</key>
-			<string>d=t23&amp;s=n10mar</string>
+			<true/>
 			<key>12796</key>
-			<string>d=t23&amp;s=nw12north</string>
+			<true/>
 			<key>10775</key>
-			<string>d=t23&amp;s=northn14</string>
+			<true/>
 			<key>10776</key>
-			<string>d=t23&amp;s=northn18</string>
+			<true/>
 			<key>10777</key>
-			<string>d=t23&amp;s=northn21</string>
+			<true/>
 			<key>10778</key>
-			<string>d=t23&amp;s=northn22</string>
+			<true/>
 			<key>13604</key>
-			<string>d=t23&amp;s=n10nort</string>
+			<true/>
 		</dict>
-		<key>cl</key>
+		<key>194</key>
 		<dict>
 			<key>10765</key>
-			<string>d=omsi&amp;s=s10clay</string>
+			<true/>
 			<key>6493</key>
-			<string>d=omsi&amp;s=s10mad</string>
+			<true/>
 			<key>10767</key>
-			<string>d=omsi&amp;s=s10yam</string>
+			<true/>
 			<key>10768</key>
-			<string>d=omsi&amp;s=s10ald</string>
+			<true/>
 			<key>10769</key>
-			<string>d=omsi&amp;s=s10wash</string>
+			<true/>
 			<key>10770</key>
-			<string>d=omsi&amp;s=n10cou</string>
+			<true/>
 			<key>10771</key>
-			<string>d=omsi&amp;s=n10ev</string>
+			<true/>
 			<key>10772</key>
-			<string>d=omsi&amp;s=n10glis</string>
+			<true/>
 			<key>10773</key>
-			<string>d=omsi&amp;s=n10john</string>
+			<true/>
 			<key>13606</key>
-			<string>d=omsi&amp;s=n9love</string>
+			<true/>
 			<key>13607</key>
-			<string>d=omsi&amp;s=weidross</string>
+			<true/>
 			<key>13608</key>
-			<string>d=omsi&amp;s=weid2nd</string>
+			<true/>
 			<key>13609</key>
-			<string>d=omsi&amp;s=weidgran</string>
+			<true/>
 			<key>13610</key>
-			<string>d=omsi&amp;s=7thhals</string>
+			<true/>
 			<key>13611</key>
-			<string>d=omsi&amp;s=7thholl</string>
+			<true/>
 			<key>13612</key>
-			<string>d=omsi&amp;s=oreggran</string>
-			<key>5912</key>
-			<string>d=omsi&amp;s=mlkhoyt</string>
-			<key>5901</key>
-			<string>d=omsi&amp;s=mklburn</string>
-			<key>13613</key>
-			<string>d=omsi&amp;s=mlkstar</string>
-			<key>13584</key>
-			<string>d=omsi&amp;s=mlkmorr</string>
-			<key>13585</key>
-			<string>d=omsi&amp;s=mlktayl</string>
-			<key>13614</key>
-			<string>d=omsi&amp;s=mlkhawt</string>
-			<key>5933</key>
-			<string>d=omsi&amp;s=mlkmill</string>
-			<key>13615</key>
-			<string>d=psu&amp;s=omsi_d</string>
+			<true/>
 			<key>2171</key>
-			<string>d=psu&amp;s=granmill</string>
+			<true/>
+			<key>5912</key>
+			<true/>
+			<key>5901</key>
+			<true/>
+			<key>13613</key>
+			<true/>
+			<key>13584</key>
+			<true/>
+			<key>13585</key>
+			<true/>
+			<key>13614</key>
+			<true/>
+			<key>5933</key>
+			<true/>
+			<key>13615</key>
+			<true/>
 			<key>13616</key>
-			<string>d=psu&amp;s=granhawt</string>
+			<true/>
 			<key>11483</key>
-			<string>d=psu&amp;s=grantayl</string>
+			<true/>
 			<key>11484</key>
-			<string>d=psu&amp;s=granbelm</string>
+			<true/>
 			<key>13597</key>
-			<string>d=psu&amp;s=granstar</string>
+			<true/>
 			<key>2167</key>
-			<string>d=psu&amp;s=granburn</string>
+			<true/>
 			<key>2169</key>
-			<string>d=psu&amp;s=granhoyt</string>
+			<true/>
 			<key>2175</key>
-			<string>d=psu&amp;s=granpaci</string>
+			<true/>
 			<key>9343</key>
-			<string>d=psu&amp;s=granmult</string>
+			<true/>
 			<key>13617</key>
-			<string>d=psu&amp;s=granbroad</string>
+			<true/>
 			<key>13618</key>
-			<string>d=psu&amp;s=broa2nd</string>
+			<true/>
 			<key>13619</key>
-			<string>d=psu&amp;s=broaross</string>
+			<true/>
 			<key>13604</key>
-			<string>d=psu&amp;s=n10nort</string>
+			<true/>
 			<key>13620</key>
-			<string>d=psu&amp;s=n11mars</string>
+			<true/>
 			<key>10753</key>
-			<string>d=psu&amp;s=n11john</string>
+			<true/>
 			<key>10754</key>
-			<string>d=psu&amp;s=n11glis</string>
+			<true/>
 			<key>10755</key>
-			<string>d=psu&amp;s=n11eve</string>
+			<true/>
 			<key>10756</key>
-			<string>d=psu&amp;s=n11cou</string>
+			<true/>
 			<key>9600</key>
-			<string>d=psu&amp;s=s11ald</string>
+			<true/>
 			<key>9633</key>
-			<string>d=psu&amp;s=s11tay</string>
+			<true/>
 			<key>10759</key>
-			<string>d=psu&amp;s=s11jeff</string>
+			<true/>
 			<key>10760</key>
-			<string>d=psu&amp;s=s11clay</string>
+			<true/>
 		</dict>
 	</dict>
 	<key>shortnames</key>
@@ -214,23 +218,32 @@
 		<string>NS Line to South Waterfront</string>
 		<key>Streetcar To NW 23rd and Marshall</key>
 		<string>Streetcar to NW 23rd Ave</string>
+		<key>Cl Line SE Water/OMSI (Streetcar)</key>
+		<string>Cl Line SE Water/OMSI</string>
+		<key>CL Line SE Water/OMSI (Streetcar)</key>
+		<string>CL Line SE Water/OMSI</string>
 	</dict>
 	<key>route</key>
 	<dict>
-		<key>cl</key>
+		<key>194</key>
 		<string>194</string>
-		<key>streetcar</key>
+		<key>193</key>
 		<string>193</string>
+	</dict>
+	<key>substitutions</key>
+	<dict>
+		<key>Cl Line</key>
+		<string>CL Line</string>
 	</dict>
 	<key>directions</key>
 	<dict>
-		<key>t23</key>
+		<key>193_0_var1</key>
 		<string>0</string>
-		<key>t5</key>
+		<key>193_1_var2</key>
 		<string>1</string>
-		<key>omsi</key>
+		<key>194_0_var0</key>
 		<string>0</string>
-		<key>psu</key>
+		<key>194_1_var1</key>
 		<string>1</string>
 	</dict>
 </dict>

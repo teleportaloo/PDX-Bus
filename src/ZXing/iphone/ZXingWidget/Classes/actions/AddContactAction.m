@@ -78,7 +78,7 @@
     }
   } else {
     NSArray *nameParts = [name componentsSeparatedByCharactersInSet:whitespaceSet];
-    int nParts = nameParts.count;
+    int nParts = (int)nameParts.count;
     if (nParts == 1) {
       ABRecordSetValue(person, kABPersonFirstNameProperty, name, error);
     } else if (nParts >= 2) {

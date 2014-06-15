@@ -205,7 +205,7 @@ float Detector::sizeOfBlackWhiteBlackRunBothWays(int fromX, int fromY, int toX, 
       otherToX = 0;
     } else if (otherToX >= (int)image_->getWidth()) {
       scale = (float) (image_->getWidth() - 1 - fromX) / (float) (otherToX - fromX);
-      otherToX = image_->getWidth() - 1;
+      otherToX = (int)(image_->getWidth() - 1);
     }
     int otherToY = (int) (fromY - (toY - fromY) * scale);
 
@@ -215,7 +215,7 @@ float Detector::sizeOfBlackWhiteBlackRunBothWays(int fromX, int fromY, int toX, 
       otherToY = 0;
     } else if (otherToY >= (int)image_->getHeight()) {
       scale = (float) (image_->getHeight() - 1 - fromY) / (float) (otherToY - fromY);
-      otherToY = image_->getHeight() - 1;
+      otherToY = (int)(image_->getHeight() - 1);
     }
     otherToX = (int) (fromX + (otherToX - fromX) * scale);
 

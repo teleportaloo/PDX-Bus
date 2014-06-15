@@ -3,28 +3,14 @@
 //  TriMetTimes
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 #import "DepartureTimesView.h"
-#import "TriMetTimesAppDelegate.h"
-#import "AppDelegateMethods.h"
 #import "Departure.h"
 #import "XMLDepartures.h"
 #import "DepartureDetailView.h"
@@ -41,9 +27,11 @@
 #import "AlarmTaskList.h"
 #import "TripPlannerSummaryView.h"
 #import "ProcessQRCodeString.h"
-#import "debug.h"
+#import "DebugLogging.h"
 #import "XMLStops.h"
 #import "Vehicle.h"
+#import "AlignedBarItemButton.h"
+#import "FindByLocationView.h"
 
 
 #define kSectionDistance	0
@@ -53,8 +41,8 @@
 #define kSectionFilter		4
 #define kSectionProximity	5
 #define kSectionNearby		6
-#define kSectionRail		7
-#define kSectionOneStop		8
+#define kSectionOneStop		7
+#define kSectionMapOne      8
 #define kSectionInfo        9
 #define kSectionAccuracy	10
 #define kSectionXML         11
@@ -84,6 +72,10 @@
 #define kDictDir            @"dir"
 #define kDictRoute          @"route"
 
+#define kRefreshText        NSLocalizedString(@"Refresh", @"Refresh arrivals button")
+
+#define kShowAllStopsOnMap  (-1)
+
 #define DISTANCE_TAG 1
 #define ACCURACY_TAG 2
 
@@ -106,6 +98,7 @@ static int depthCount = 0;
 @synthesize actionItem			= _actionItem;
 @synthesize savedBlock			= _savedBlock;
 @synthesize allowSort           = _allowSort;
+@synthesize refreshText         = _refreshText;
 
 
 #define kNonDepartureHeight 35.0
@@ -130,6 +123,7 @@ static int depthCount = 0;
 	self.actionItem				= nil;
 	self.savedBlock				= nil;
     self.vehicleStops           = nil;
+    self.refreshText            = nil;
 	free(_sectionExpanded);
     
 	
@@ -153,14 +147,23 @@ static int depthCount = 0;
 	return self;
 }
 
+- (CGFloat) heightOffset
+{
+    if (self.iOS7style && ((([self screenWidth] & WidthiPad) ==0) || (self.screenWidth == WidthiPadNarrow)))
+    {
+        return -[UIApplication sharedApplication].statusBarFrame.size.height;
+    }
+	return 0.0;
+}
+
 #pragma mark Data sorting and manipulation
 
-- (id<DepartureTimesDataProvider>)departureData:(int)i
+- (id<DepartureTimesDataProvider>)departureData:(NSInteger)i
 {
 	return [self.visibleDataArray objectAtIndex:i];
 }
 
-- (bool)validStop:(int) i
+- (bool)validStop:(unsigned long) i
 {
 	id<DepartureTimesDataProvider> dd = [self departureData:i];
 	return ([dd DTDataGetSectionHeader]!=nil 
@@ -264,10 +267,13 @@ static int depthCount = 0;
 
 #pragma Cache warning
 
-- (void)cacheWarning
+- (void)cacheWarningRefresh:(bool)refresh
 {
+    DEBUG_LOG(@"cacheWarningRefresh %d\n", refresh);
+
     if (self.originalDataArray.count > 0)
     {
+       
         XMLDepartures *first = nil;
         
         for (XMLDepartures *item in self.originalDataArray)
@@ -295,8 +301,8 @@ static int depthCount = 0;
             NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
             [dateFormatter setDateStyle:kCFDateFormatterNoStyle];
             [dateFormatter setTimeStyle:NSDateFormatterMediumStyle];
-            NSDate *queryTime = [NSDate dateWithTimeIntervalSince1970: TriMetToUnixTime([item0 DTDataQueryTime])]; 
-            self.secondLine = [NSString stringWithFormat:@"Last updated: %@", [dateFormatter stringFromDate:queryTime]];
+            NSDate *queryTime = [NSDate dateWithTimeIntervalSince1970: TriMetToUnixTime([item0 DTDataQueryTime])];
+            self.secondLine = [NSString stringWithFormat:NSLocalizedString(@"Last updated: %@", @"pull to refresh text"), [dateFormatter stringFromDate:queryTime]];
         }
         else
         {
@@ -308,9 +314,32 @@ static int depthCount = 0;
         self.secondLine = @"";
         self.navigationItem.prompt = nil;
     }
+    
+    DEBUG_LOG(@"Frame x=%f y=%f w=%f h=%f\n", self.table.frame.origin.x, self.table.frame.origin.y, self.table.frame.size.width, self.table.frame.size.height);
 }
 
-#pragma mark Refresh timer 
+
+#pragma mark Refresh timer
+
+- (void)setRefreshtextColor
+{
+    if (self.refreshText)
+    {
+        self.refreshText.textColor = self.navigationController.navigationBar.tintColor;
+    }
+}
+
+- (void)setRefreshButtonText:(NSString*)text
+{
+    if (self.refreshText)
+    {
+        self.refreshText.text = text;
+    }
+    else
+    {
+        self.refreshButton.title = text;
+    }
+}
 
 - (void)startTimer
 {
@@ -329,8 +358,8 @@ static int depthCount = 0;
 	{
 		[self.refreshTimer invalidate];
 		self.refreshTimer = nil;
-		self.refreshButton.title = @"Refresh";
-	}	
+        [self setRefreshButtonText:kRefreshText];
+    }
 }
 
 - (void)didEnterBackground {
@@ -368,7 +397,7 @@ static int depthCount = 0;
         if (sinceRefresh <= -kRefreshInterval)
 		{
 			[self refreshAction:timer];
-			self.refreshButton.title = @"Refreshing";
+			[self setRefreshButtonText: NSLocalizedString(@"Refreshing", @"Refresh button text")];
             updateTimeOnButton = NO;
 		}
         
@@ -378,7 +407,7 @@ static int depthCount = 0;
             
             if (secs < 0) secs = 0;
             
-            self.refreshButton.title = [NSString stringWithFormat:@"Refresh in %d", secs];
+            [self setRefreshButtonText:[NSString stringWithFormat:NSLocalizedString(@"Refresh in %d", @"Refresh button text {number of seconds}"), secs] ];
         }
 	}
 }
@@ -391,13 +420,13 @@ static int depthCount = 0;
 	_sectionRows= NULL;
 }
 
--(SECTIONROWS *)calcSubsections:(int)section
+-(SECTIONROWS *)calcSubsections:(NSInteger)section
 {
 	if (_sectionRows == NULL)
 	{
 		_sectionRows = malloc(sizeof(SECTIONROWS) * [self.visibleDataArray count]);
 		
-		for (int i=0; i< [self.visibleDataArray count]; i++)
+		for (NSInteger i=0; i< [self.visibleDataArray count]; i++)
 		{
 			_sectionRows[i].row[0] = kSectionRowInit;
 		}
@@ -447,7 +476,7 @@ static int depthCount = 0;
 		
 		
 		// kSectionTimes
-		int itemCount = [dd DTDataGetSafeItemCount];
+		NSInteger itemCount = [dd DTDataGetSafeItemCount];
 		
 		if (itemCount==0)
 		{
@@ -485,19 +514,19 @@ static int depthCount = 0;
 		}
 		sr->row[kSectionNearby] = next;
 		
-		// kSectionRail
-		if ([dd DTDataLocLat]!=nil && depthCount < kMaxDepth && expanded)
-		{
-			next ++;
-		}
-		sr->row[kSectionRail] = next;
-		
 		// kSectionOneStop
 		if ([dd DTDataLocLat]!=nil && depthCount < kMaxDepth && expanded && self.visibleDataArray.count>1)
 		{
 			next ++;
 		}
 		sr->row[kSectionOneStop] = next;
+        
+        // kSectionOneStop
+		if ([dd DTDataLocLat]!=nil && expanded)
+		{
+			next ++;
+		}
+		sr->row[kSectionMapOne] = next;
 		
 		
         // kSectionInfo
@@ -506,6 +535,8 @@ static int depthCount = 0;
 			next ++;
 		}
 		sr->row[kSectionInfo] = next;
+        
+        
         
 		// kSectionAccuracy
 		if (expanded && [UserPrefs getSingleton].showTransitTracker)
@@ -539,7 +570,7 @@ static int depthCount = 0;
 	NSIndexPath *newIndexPath = nil;
 	
 	int prevrow = 0;
-	SECTIONROWS *sr = [self calcSubsections: indexPath.section];
+	SECTIONROWS *sr = [self calcSubsections: (int)indexPath.section];
 	
 	for (int i=0; i < kSectionsPerStop; i++)
 	{
@@ -585,9 +616,9 @@ static int depthCount = 0;
 	
 	[self.originalDataArray addObject:deps];
 	[deps setBlockFilter:block];
-	[self.backgroundTask.callbackWhenFetching backgroundSubtext:[NSString stringWithFormat:@"Stop ID %@", start]];
+	[self.backgroundTask.callbackWhenFetching backgroundSubtext:[NSString stringWithFormat:NSLocalizedString(@"Stop ID %@", @"TriMet Stop identifer <number>"), start]];
 	[deps getDeparturesForLocation:start parseError:&parseError];
-	deps.sectionTitle = @"Departure";
+	deps.sectionTitle = NSLocalizedString(@"Departure", @"");
 	[deps release];
 	[self.backgroundTask.callbackWhenFetching backgroundItemsDone:1];
 	
@@ -597,15 +628,15 @@ static int depthCount = 0;
 	
 		[self.originalDataArray addObject:deps];
 		[deps setBlockFilter:block];
-		[self.backgroundTask.callbackWhenFetching backgroundSubtext:[NSString stringWithFormat:@"Stop ID %@", stop]];
+		[self.backgroundTask.callbackWhenFetching backgroundSubtext:[NSString stringWithFormat:NSLocalizedString(@"Stop ID %@", @"TriMet Stop identifer <number>"), stop]];
 		[deps getDeparturesForLocation:stop parseError:&parseError];
-		deps.sectionTitle = @"Arrival";
+		deps.sectionTitle = NSLocalizedString(@"Arrival", @"");
 		[deps release];
 		[self.backgroundTask.callbackWhenFetching backgroundItemsDone:2];
 	}
 	
 	_blockFilter = true;
-	self.title = @"Trip";
+	self.title = NSLocalizedString(@"Trip", @"");
 	
 	[self sortByBus];
 	[UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
@@ -629,7 +660,7 @@ static int depthCount = 0;
 	[XMLDepartures clearCache];
 	self.streetcarLocations = nil;
 	
-	[self.backgroundTask.callbackWhenFetching backgroundStart:[stops count] title:kGettingArrivals];
+	[self.backgroundTask.callbackWhenFetching backgroundStart:(int)[stops count] title:kGettingArrivals];
 	
 	
 	NSMutableString * stopsstr = [[[NSMutableString alloc] init] autorelease];
@@ -643,7 +674,7 @@ static int depthCount = 0;
 		StopDistance *sd = [stops objectAtIndex:i];
 		
 		[self.originalDataArray addObject:deps];
-		[self.backgroundTask.callbackWhenFetching backgroundSubtext:[NSString stringWithFormat:@"Stop ID %@", sd.locid]];
+		[self.backgroundTask.callbackWhenFetching backgroundSubtext:[NSString stringWithFormat:NSLocalizedString(@"Stop ID %@", @"TriMet Stop identifer <number>"), sd.locid]];
 		[deps getDeparturesForLocation:sd.locid parseError:&parseError];
 		if (i==0)
 		{
@@ -687,7 +718,7 @@ static int depthCount = 0;
     
     [self.backgroundTask.callbackWhenFetching backgroundStart:2 title:kGettingArrivals];
 
-    [self.backgroundTask.callbackWhenFetching backgroundSubtext:@"getting stop ID"];
+    [self.backgroundTask.callbackWhenFetching backgroundSubtext:NSLocalizedString(@"getting stop ID", @"progress message")];
     
     
     
@@ -711,7 +742,7 @@ static int depthCount = 0;
         XMLDepartures *deps = [[ XMLDepartures alloc ] init];
 		
         [self.originalDataArray addObject:deps];
-        [self.backgroundTask.callbackWhenFetching backgroundSubtext:[NSString stringWithFormat:@"Stop ID %@", stopId]];
+        [self.backgroundTask.callbackWhenFetching backgroundSubtext:[NSString stringWithFormat:NSLocalizedString(@"Stop ID %@", @"TriMet Stop identifer <number>"), stopId]];
         [deps getDeparturesForLocation:stopId parseError:&parseError];
         [deps release];
         [self.backgroundTask.callbackWhenFetching backgroundItemsDone:2];
@@ -719,12 +750,13 @@ static int depthCount = 0;
     else if (url.length >= streetcar.length && [[url substringToIndex:streetcar.length] isEqualToString:streetcar])
     {
         [thread cancel];
-        [self.backgroundTask.callbackWhenFetching backgroundSetErrorMsg:@"That QR Code is for the Portland Streetcar web site - there should be another QR code close by that has the stop ID."];
+        [self.backgroundTask.callbackWhenFetching backgroundSetErrorMsg:NSLocalizedString(@"That QR Code is for the Portland Streetcar web site - there should be another QR code close by that has the stop ID.",
+                                                                                          @"error message")];
     }
     else
     {
         [thread cancel];
-        [self.backgroundTask.callbackWhenFetching backgroundSetErrorMsg:@"The QR Code is not for a TriMet stop."];
+        [self.backgroundTask.callbackWhenFetching backgroundSetErrorMsg:NSLocalizedString(@"The QR Code is not for a TriMet stop.", @"error message")];
     }
     
     [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
@@ -756,7 +788,7 @@ static int depthCount = 0;
 	
 	[self.backgroundTask.callbackWhenFetching backgroundStart:locator.maxToFind+1 title:kGettingArrivals];
 	
-	[self.backgroundTask.callbackWhenFetching backgroundSubtext:@"getting locations"];
+	[self.backgroundTask.callbackWhenFetching backgroundSubtext:NSLocalizedString(@"getting locations", @"progress message")];
 	
 	[locator findNearestStops];
 	
@@ -886,7 +918,7 @@ static int depthCount = 0;
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
 	NSError *parseError = nil;
     
-    [self.backgroundTask.callbackWhenFetching backgroundStart:MAX_STOPS+1 title:@"Getting next stop IDs"];
+    [self.backgroundTask.callbackWhenFetching backgroundStart:MAX_STOPS+1 title:NSLocalizedString(@"getting next stop IDs", @"progress message")];
     
     [stops getStopsAfterLocation:loc route:route direction:dir description:@"" parseError:&parseError cacheAction:TriMetXMLUpdateCache];
     
@@ -904,7 +936,7 @@ static int depthCount = 0;
     if (self.originalDataArray.count == 0)
     {
         [thread cancel];
-        [self.backgroundTask.callbackWhenFetching backgroundSetErrorMsg:@"Could not find any arrivals for that vehicle."];
+        [self.backgroundTask.callbackWhenFetching backgroundSetErrorMsg:NSLocalizedString(@"Could not find any arrivals for that vehicle.", @"error message")];
     }
 	
 	[UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
@@ -966,7 +998,7 @@ static int depthCount = 0;
 	
 	
 	
-	[self.backgroundTask.callbackWhenFetching backgroundStart:[stops count] title:kGettingArrivals];
+	[self.backgroundTask.callbackWhenFetching backgroundStart:(int)[stops count] title:kGettingArrivals];
 	
 	NSMutableString * stopsstr = [[[NSMutableString alloc] init] autorelease];
 	self.stops = stopsstr;
@@ -1065,7 +1097,7 @@ static int depthCount = 0;
 		
 		if (names == nil || (items -1) > [names count])
 		{
-			[self.backgroundTask.callbackWhenFetching backgroundSubtext:[NSString stringWithFormat:@"Stop ID %@", aLoc]];
+			[self.backgroundTask.callbackWhenFetching backgroundSubtext:[NSString stringWithFormat:NSLocalizedString(@"Stop ID %@", @"TriMet Stop identifer <number>"), aLoc]];
 		}
 		else {
 			[self.backgroundTask.callbackWhenFetching backgroundSubtext:[names objectAtIndex:(items -1)]];
@@ -1090,7 +1122,7 @@ static int depthCount = 0;
 	{	
 		if (block!=nil)
 		{
-			self.title = @"Track Trip";
+			self.title = NSLocalizedString(@"Track Trip", @"screen title");
 			_blockFilter = true;
 		}
 		else
@@ -1182,7 +1214,7 @@ static int depthCount = 0;
 	[self.backgroundTask.callbackWhenFetching backgroundThread:thread];
 	
 	
-	[self.backgroundTask.callbackWhenFetching backgroundStart:[self.originalDataArray count] title:kGettingArrivals];
+	[self.backgroundTask.callbackWhenFetching backgroundStart:(int)[self.originalDataArray count] title:kGettingArrivals];
 
 	[self clearSections];
 
@@ -1348,7 +1380,7 @@ static int depthCount = 0;
 	
 	NSSet *streetcarRoutes = [XMLStreetcarLocations getStreetcarRoutesInDepartureArray:self.originalDataArray];
 
-	[self.backgroundTask.callbackWhenFetching backgroundStart:streetcarRoutes.count title:@"getting locations"];
+	[self.backgroundTask.callbackWhenFetching backgroundStart:(int)streetcarRoutes.count title:NSLocalizedString(@"getting locations", @"progress message")];
 	
 	[UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     
@@ -1361,7 +1393,6 @@ static int depthCount = 0;
     }
     
     [XMLStreetcarLocations insertLocationsIntoDepartureArray:self.originalDataArray forRoutes:streetcarRoutes];
-
 	
 	[UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
 	
@@ -1380,12 +1411,12 @@ static int depthCount = 0;
 	NSString *str = nil;
 	if (distance < 500)
 	{
-		str = [NSString stringWithFormat:@"%d ft (%d meters)", (int)(distance * 3.2808398950131235),
+		str = [NSString stringWithFormat:NSLocalizedString(@"%d ft (%d meters)", @"distance in <feet> then in <metres>"), (int)(distance * 3.2808398950131235),
 			   (int)(distance) ];
 	}
 	else
 	{
-		str = [NSString stringWithFormat:@"%.2f miles (%.2f km)", (float)(distance / 1609.344),
+		str = [NSString stringWithFormat:NSLocalizedString(@"%.2f miles (%.2f km)", @"distance in <miles> then in <kilometres>"), (float)(distance / 1609.344),
 			   (float)(distance / 1000) ];
 	}	
 	return str;
@@ -1455,7 +1486,7 @@ static int depthCount = 0;
 	self.actionItem = nil;
 	
 	AlarmTaskList *taskList = [AlarmTaskList getSingleton];
-	if ([taskList userAlertForProximityAction:buttonIndex stopId:dd.DTDataLocID lat:dd.DTDataLocLat lng:dd.DTDataLocLng desc:dd.DTDataLocDesc])
+	if ([taskList userAlertForProximityAction:(int)buttonIndex stopId:dd.DTDataLocID lat:dd.DTDataLocLat lng:dd.DTDataLocLng desc:dd.DTDataLocDesc])
 	{
 		[self reloadData];	
 	}
@@ -1484,28 +1515,33 @@ static int depthCount = 0;
 	MapViewController *mapPage = [[MapViewController alloc] init];
 	mapPage.callback = self.callback;
     
-    if ([self.originalDataArray count]==1)
+    if (_blockFilter || _singleMapItem!=nil)
     {
-        mapPage.title =@"Arrivals";
+        mapPage.title = NSLocalizedString(@"Arrivals", @"screen title");
     }
     else
     {
-       mapPage.title =@"Stops"; 
+        mapPage.title = NSLocalizedString(@"Stops", @"screen title");
     }
 	
-	int i,j;
+    long i,j;
     
     NSMutableSet *blocks = [[[NSMutableSet alloc] init] autorelease];
     
 	for (i=[self.originalDataArray count]-1; i>=0 ; i--)
 	{
 		XMLDepartures * dep = [self.originalDataArray objectAtIndex:i];
+        
+        if (_singleMapItem!=nil && dep !=_singleMapItem)
+        {
+            continue;
+        }
 		
 		if (dep.locLat !=nil)
 		{
 			[mapPage addPin:dep];
             
-            if ([self.originalDataArray count]==1 || _blockFilter)
+            if (_blockFilter || _singleMapItem!=nil)
             {
 			
                 for (j=0; j< [dep safeItemCount]; j++)
@@ -1521,14 +1557,52 @@ static int depthCount = 0;
             }
         }
 	}
+    _singleMapItem = nil;
 	
 	[[self navigationController] pushViewController:mapPage animated:YES];
 	[mapPage release];
 	
 }
 
+-(bool)needtoFetchStreetcarLocationsForStop:(XMLDepartures*)dep
+{
+    bool needToFetchStreetcarLocations = false;
+    
+    if (dep.locLat !=nil)
+    {
+        for (int j=0; j< [dep safeItemCount]; j++)
+        {
+            Departure *dd = [dep itemAtIndex:j];
+            
+            if (dd.streetcar && dd.blockPositionLat == nil)
+            {
+                needToFetchStreetcarLocations = true;
+                break;
+            }
+        }
+    }
+    
+    return needToFetchStreetcarLocations;
+}
+
+- (void)showMapFetchlocations:(bool)needToFetchStreetcarLocations
+{
+    if (needToFetchStreetcarLocations)
+    {
+        _fetchingLocations = YES;
+        self.backgroundTask.callbackWhenFetching = self.backgroundTask;
+        [NSThread detachNewThreadSelector:@selector(fetchStreetcarLocations:) toTarget:self withObject:nil];
+    }
+    else {
+        [self showMapNow:nil];
+    }
+
+}
+
 -(void)showMap:(id)sender
 {
+    _singleMapItem = nil;
+    
     if ([self.originalDataArray count] > 1)
     {
         [self showMapNow:nil];
@@ -1537,37 +1611,20 @@ static int depthCount = 0;
     {
         bool needToFetchStreetcarLocations = false;
 	
-        int i,j;
+        long i;
         for (i=[self.originalDataArray count]-1; i>=0 && !needToFetchStreetcarLocations ; i--)
         {
-            XMLDepartures * dep = [self.originalDataArray objectAtIndex:i];
-		
-            if (dep.locLat !=nil)
-            {
-                for (j=0; j< [dep safeItemCount]; j++)
-                {
-                    Departure *dd = [dep itemAtIndex:j];
-				
-                    if (dd.streetcar && dd.blockPositionLat == nil)
-                    {
-                        needToFetchStreetcarLocations = true;
-                        break;
-                    }
-                }
-            }
+            needToFetchStreetcarLocations = [self needtoFetchStreetcarLocationsForStop:[self.originalDataArray objectAtIndex:i]];
         }
 	
-        if (needToFetchStreetcarLocations)
-        {
-            _fetchingLocations = YES;
-            self.backgroundTask.callbackWhenFetching = self.backgroundTask;
-            [NSThread detachNewThreadSelector:@selector(fetchStreetcarLocations:) toTarget:self withObject:nil];
-        }
-        else {
-            [self showMapNow:nil];
-        }
+        [self showMapFetchlocations:needToFetchStreetcarLocations];
     }
-	
+}
+
+- (void)showMapForOneStop:(XMLDepartures *)dep
+{
+    _singleMapItem = dep;
+    [self showMapFetchlocations:[self needtoFetchStreetcarLocationsForStop:dep]];
 }
 
 
@@ -1610,7 +1667,7 @@ static int depthCount = 0;
 	{
 		XMLDepartures *dd = [self.originalDataArray objectAtIndex:0];
 		[loc appendFormat:@"%@", dd.locid];
-		[desc appendFormat:@"Stop IDs: %@", dd.locid];
+		[desc appendFormat:NSLocalizedString(@"Stop IDs: %@", @"A list of TriMet stop IDs"), dd.locid];
 		for (i=1; i< [self.originalDataArray count]; i++)
 		{
 			XMLDepartures *dd = [self.originalDataArray objectAtIndex:i];
@@ -1641,21 +1698,21 @@ static int depthCount = 0;
 	
 	if (_bookmarkItem == kNoBookmark)
 	{
-		UIActionSheet *actionSheet = [[[ UIActionSheet alloc ] initWithTitle:@"Bookmark"
-														  delegate:self
-												 cancelButtonTitle:@"Cancel" 
-											destructiveButtonTitle:nil
-												 otherButtonTitles:@"Add new bookmark", nil] autorelease];
+		UIActionSheet *actionSheet = [[[ UIActionSheet alloc ] initWithTitle:NSLocalizedString(@"Bookmark", @"action list title")
+                                                                    delegate:self
+                                                           cancelButtonTitle:NSLocalizedString(@"Cancel", @"button text")
+                                                      destructiveButtonTitle:nil
+                                                           otherButtonTitles:NSLocalizedString(@"Add new bookmark", @"button text"), nil] autorelease];
 		actionSheet.actionSheetStyle = UIActionSheetStyleDefault;
 		[actionSheet showFromToolbar:self.navigationController.toolbar]; // show from our table view (pops up in the middle of the table)
 	}
 	else {
 		UIActionSheet *actionSheet = [[[ UIActionSheet alloc ] initWithTitle:desc
-														  delegate:self
-												 cancelButtonTitle:@"Cancel"
-												destructiveButtonTitle:@"Delete this bookmark"
-												 otherButtonTitles:@"Edit this bookmark",
-																   @"Add new bookmark", nil] autorelease];
+                                                                    delegate:self
+                                                           cancelButtonTitle:NSLocalizedString(@"Cancel", @"button text")
+                                                      destructiveButtonTitle:NSLocalizedString(@"Delete this bookmark", @"button text")
+                                                           otherButtonTitles:NSLocalizedString(@"Edit this bookmark", @"button text"),
+																   NSLocalizedString(@"Add new bookmark", @"button text"), nil] autorelease];
 		actionSheet.actionSheetStyle = UIActionSheetStyleDefault;
 		[actionSheet showFromToolbar:self.navigationController.toolbar]; // show from our table view (pops up in the middle of the table)
 	}	
@@ -1753,12 +1810,12 @@ static int depthCount = 0;
 			return kDisclaimerCellHeight;
 		case kSectionTitle:
 			return [self narrowRowHeight];
-		case kSectionRail:
 		case kSectionNearby:
 		case kSectionProximity:
 		case kSectionTrip:
 		case kSectionOneStop:
         case kSectionInfo:
+        case kSectionMapOne:
 			return [self narrowRowHeight];
 		case kSectionAccuracy:
 			return [self narrowRowHeight];
@@ -1801,8 +1858,8 @@ static int depthCount = 0;
 											 [dd DTDataDir]]];
 	}
 	
-	DEBUG_LOG(@"Section: %d rows %d expanded %d\n", section, sr->row[kSectionsPerStop-1],
-			  _sectionExpanded[section]);
+	DEBUG_LOG(@"Section: %ld rows %ld expanded %d\n", (long)section, (long)sr->row[kSectionsPerStop-1],
+			  (int)_sectionExpanded[section]);
 
 	
 	return sr->row[kSectionsPerStop-1];
@@ -1850,10 +1907,10 @@ static int depthCount = 0;
 					cell = [self distanceCellWithReuseIdentifier:kDistanceCellId2];
 				}
 				
-				NSString *distance = [NSString stringWithFormat:@"Distance %@", [self formatDistance:[dd DTDataDistance].distance]];
+				NSString *distance = [NSString stringWithFormat:NSLocalizedString(@"Distance %@", @"stop distance"), [self formatDistance:[dd DTDataDistance].distance]];
 				((UILabel*)[cell.contentView viewWithTag:DISTANCE_TAG]).text = distance;
 				UILabel *accuracy = (UILabel*)[cell.contentView viewWithTag:ACCURACY_TAG];
-				accuracy.text = [NSString stringWithFormat:@"Accuracy +/- %@", [self formatDistance:[dd DTDataDistance].accuracy]];
+				accuracy.text = [NSString stringWithFormat:NSLocalizedString(@"Accuracy +/- %@", @"accuracy of location services"), [self formatDistance:[dd DTDataDistance].accuracy]];
 				[cell setAccessibilityLabel:[NSString stringWithFormat:@"%@, %@", distance, accuracy.text]];
 				
 			}
@@ -1864,7 +1921,7 @@ static int depthCount = 0;
 					cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kDistanceCellId] autorelease];
 				}
 				
-				cell.textLabel.text = [NSString stringWithFormat:@"Distance %@", [self formatDistance:[dd DTDataDistance].distance]];
+				cell.textLabel.text = [NSString stringWithFormat:NSLocalizedString(@"Distance %@", @"stop distance"), [self formatDistance:[dd DTDataDistance].distance]];
 				cell.textLabel.textColor = [UIColor blueColor];
 				cell.textLabel.font = [self getBasicFont];;
 				[cell setAccessibilityLabel:cell.textLabel.text];
@@ -1876,8 +1933,8 @@ static int depthCount = 0;
 		case kSectionTimes:
 		// Configure the cell
 		{
-			int i = newIndexPath.row;
-			int deps = [dd DTDataGetSafeItemCount];
+			int i = (int)newIndexPath.row;
+			NSInteger deps = [dd DTDataGetSafeItemCount];
 			if (deps ==0 && i == 0)
 			{
 				cell = [tableView dequeueReusableCellWithIdentifier:kStatusCellId];
@@ -1886,7 +1943,7 @@ static int depthCount = 0;
 				}
 				if (_blockFilter)
 				{
-					cell.textLabel.text = @"No arrival data for that particular trip.";
+					cell.textLabel.text = NSLocalizedString(@"No arrival data for that particular trip.", @"error message");
 					cell.textLabel.adjustsFontSizeToFitWidth = NO;
 					cell.textLabel.numberOfLines = 0;
 					cell.textLabel.lineBreakMode = UILineBreakModeWordWrap;
@@ -1895,7 +1952,7 @@ static int depthCount = 0;
 				}
 				else
 				{
-					cell.textLabel.text = [NSString stringWithFormat:@"(ID %@) No arrivals found.", [dd DTDataLocID]];
+					cell.textLabel.text = [NSString stringWithFormat:NSLocalizedString(@"(ID %@) No arrivals found.", @"No arrivals for a specific TriMet stop ID"), [dd DTDataLocID]];
 					cell.textLabel.font = [self getBasicFont];
 
 				}
@@ -1949,7 +2006,7 @@ static int depthCount = 0;
 					[dateFormatter setDateStyle:kCFDateFormatterNoStyle];
 					[dateFormatter setTimeStyle:NSDateFormatterMediumStyle];
 					NSDate *queryTime = [NSDate dateWithTimeIntervalSince1970: TriMetToUnixTime([dd DTDataQueryTime])]; 
-					[self addTextToDisclaimerCell:cell text:[NSString stringWithFormat:@"%@ Updated: %@", 
+					[self addTextToDisclaimerCell:cell text:[NSString stringWithFormat:NSLocalizedString(@"%@ Updated: %@", @"text followed by time data was fetched"),
 															 [dd DTDataStaticText],
 															 [dateFormatter stringFromDate:queryTime]]];
 				}
@@ -2004,7 +2061,7 @@ static int depthCount = 0;
 				if (cell == nil) {
 					cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kActionCellId] autorelease];
 				}
-				cell.textLabel.text = @"Nearby stops (1/2 mile)";
+				cell.textLabel.text = NSLocalizedString(@"Nearby stops", @"button text");
 				cell.textLabel.textColor = [ UIColor darkGrayColor];
 				cell.textLabel.font = [self getBasicFont]; 
 				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
@@ -2019,7 +2076,7 @@ static int depthCount = 0;
 				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kActionCellId] autorelease];
 			}
 			
-			cell.textLabel.text = @"Show only this stop";
+			cell.textLabel.text = NSLocalizedString(@"Show only this stop", @"button text");
 			cell.textLabel.textColor = [ UIColor darkGrayColor];
 			cell.textLabel.font = [self getBasicFont]; 
 			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
@@ -2033,13 +2090,26 @@ static int depthCount = 0;
 				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kActionCellId] autorelease];
 			}
 			
-			cell.textLabel.text = [NSString stringWithFormat:@"Stop ID %@ info", [dd DTDataLocID]];
+			cell.textLabel.text = [NSString stringWithFormat:NSLocalizedString(@"Stop ID %@ info", @"button text"), [dd DTDataLocID]];
 			cell.textLabel.textColor = [ UIColor darkGrayColor];
 			cell.textLabel.font = [self getBasicFont]; 
 			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 			cell.imageView.image = [self getActionIcon:kIconLink];
 		}
-            break;	
+            break;
+        case kSectionMapOne:
+		{
+			cell = [tableView dequeueReusableCellWithIdentifier:kActionCellId];
+			if (cell == nil) {
+				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kActionCellId] autorelease];
+			}
+			cell.textLabel.text = [NSString stringWithFormat:NSLocalizedString(@"Show map of arrivals", @"button text")];
+			cell.textLabel.textColor = [ UIColor darkGrayColor];
+			cell.textLabel.font = [self getBasicFont];
+			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+			cell.imageView.image = cell.imageView.image = [self getActionIcon7:kIconMapAction7 old:kIconMapAction];
+		}
+            break;
 		case kSectionFilter:
 		{
 			cell = [tableView dequeueReusableCellWithIdentifier:kActionCellId];
@@ -2049,10 +2119,10 @@ static int depthCount = 0;
 			
 			if (self.savedBlock)
 			{
-				cell.textLabel.text = @"Show one arrival";
+				cell.textLabel.text = NSLocalizedString(@"Show one arrival", @"button text");
 			}
 			else {
-				cell.textLabel.text = @"Show all arrivals";
+				cell.textLabel.text = NSLocalizedString(@"Show all arrivals", @"button text");
 			}
 
 			cell.textLabel.textColor = [ UIColor darkGrayColor];
@@ -2072,7 +2142,7 @@ static int depthCount = 0;
 			
 			if ([taskList hasTaskForStopIdProximity:dd.DTDataLocID])
 			{
-				cell.textLabel.text = @"Cancel proximity alarm";
+				cell.textLabel.text = NSLocalizedString(@"Cancel proximity alarm", @"button text");
 			}
 			else 
 			{
@@ -2094,11 +2164,11 @@ static int depthCount = 0;
 			
 			if (newIndexPath.row == kTripRowFrom)
 			{
-				cell.textLabel.text = @"Plan trip from here";
+				cell.textLabel.text = NSLocalizedString(@"Plan trip from here", @"button text");
 			}
 			else
 			{
-				cell.textLabel.text = @"Plan trip to here";
+				cell.textLabel.text = NSLocalizedString(@"Plan trip to here", @"button text");
 			}
 			cell.textLabel.textColor = [ UIColor darkGrayColor];
 			cell.textLabel.font = [self getBasicFont]; 
@@ -2106,20 +2176,6 @@ static int depthCount = 0;
 			cell.imageView.image = [self getActionIcon:kIconTripPlanner];
 		}
 			break;	
-		case kSectionRail:
-				{
-					cell = [tableView dequeueReusableCellWithIdentifier:kActionCellId];
-					if (cell == nil) {
-						cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kActionCellId] autorelease];
-					}
-					
-					cell.textLabel.text = @"Nearest rail stations";
-					cell.textLabel.textColor = [ UIColor darkGrayColor];
-					cell.textLabel.font = [self getBasicFont]; 
-					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-					cell.imageView.image = [self getActionIcon7:kIconLocate7 old:kIconLocate];
-				}
-				break;		
 		case kSectionTitle:
 			{
 				cell = [tableView dequeueReusableCellWithIdentifier:kTitleCellId];
@@ -2141,7 +2197,7 @@ static int depthCount = 0;
 					cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kActionCellId] autorelease];
 				}
 				
-				cell.textLabel.text = @"Check TriMet web site";
+				cell.textLabel.text = NSLocalizedString(@"Check TriMet web site", @"button text");
 				cell.textLabel.textColor = [ UIColor darkGrayColor];
 				cell.textLabel.font = [self getBasicFont]; 
 				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
@@ -2155,7 +2211,7 @@ static int depthCount = 0;
                 cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kActionCellId] autorelease];
             }
             
-            cell.textLabel.text = @"Show raw XML data";
+            cell.textLabel.text = NSLocalizedString(@"Show raw XML data", @"button text");
             cell.textLabel.textColor = [ UIColor darkGrayColor];
             cell.textLabel.font = [self getBasicFont]; 
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
@@ -2254,26 +2310,16 @@ static int depthCount = 0;
 			[self reloadData];
 			break;
 		}
-		case kSectionRail:
 		case kSectionNearby:
 		{
 			
 			CLLocation *here = [[[CLLocation alloc] initWithLatitude:[[dd DTDataLocLat] doubleValue] longitude:[[dd DTDataLocLng] doubleValue]] autorelease];
+            
+            FindByLocationView *find = [[FindByLocationView alloc] initWithLocation:here description:[dd DTDataLocDesc]];
 
-			DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
-				
-			departureViewController.callback = self.callback;
-				
-			if (newIndexPath.section == kSectionNearby)
-			{
-				[departureViewController fetchTimesForNearestStopsInBackground:self.backgroundTask location:here maxToFind:kMaxStops minDistance:kDistHalfMile mode:TripModeAll];
-			}
-			else 
-			{
-				[departureViewController fetchTimesForNearestStopsInBackground:self.backgroundTask location:here maxToFind:kMaxStops minDistance:kDistMax mode:TripModeTrainOnly];
-			}
-				
-			[departureViewController release];
+			[[self navigationController] pushViewController:find animated:YES];
+            
+			[find release];
 
 			/*
 			else
@@ -2294,10 +2340,16 @@ static int depthCount = 0;
 			NSString *url = [NSString stringWithFormat:@"http://trimet.org/go/cgi-bin/cstops.pl?action=entry&resptype=U&lang=pdaen&noCat=Landmark&Loc=%@",
 							 [dd DTDataLocID]];
 			WebViewController *webPage = [[WebViewController alloc] init];
-			[webPage setURLmobile:url full:url title:@"TriMet"]; 
+			[webPage setURLmobile:url full:url];
 			webPage.showErrors = NO;
-			[webPage displayPage:[self navigationController] animated:YES tableToDeselect:self.table];
+			[webPage displayPage:[self navigationController] animated:YES itemToDeselect:self];
 			[webPage release];
+			break;
+		}
+            
+        case kSectionMapOne:
+		{
+			[self showMapForOneStop:[dd DTDataXML ]];
 			break;
 		}
 		case kSectionAccuracy:
@@ -2305,9 +2357,9 @@ static int depthCount = 0;
 			NSString *url = [NSString stringWithFormat:@"http://trimet.org/arrivals/small/tracker?locationID=%@",
 							 [dd DTDataLocID]];
 			WebViewController *webPage = [[WebViewController alloc] init];
-			[webPage setURLmobile:url full:url title:@"TriMet"]; 
+			[webPage setURLmobile:url full:url]; 
 			webPage.showErrors = NO;
-			[webPage displayPage:[self navigationController] animated:YES tableToDeselect:self.table];
+			[webPage displayPage:[self navigationController] animated:YES itemToDeselect:self];
 			[webPage release];
 			break;
 		}
@@ -2367,7 +2419,7 @@ static int depthCount = 0;
 				
 			} else if (!_blockSort)
 			{
-				int sect = indexPath.section;
+				int sect = (int)indexPath.section;
 				[self.table deselectRowAtIndexPath:indexPath animated:YES];
 				_sectionExpanded[sect] = _sectionExpanded[sect] ? false : true;
 			
@@ -2496,22 +2548,38 @@ static int depthCount = 0;
 #pragma mark View methods
 
 
+
 - (void)viewDidLoad {
 	[super viewDidLoad];
-	// Add the following line if you want the list to be editable
-	// self.navigationItem.leftBarButtonItem = self.editButtonItem;
-	// self.title = originalName;
-	
-	// add our custom add button as the nav bar's custom right view
-	self.refreshButton = [[[UIBarButtonItem alloc]
-								   initWithTitle:NSLocalizedString(@"Refresh", @"")
-								   style:UIBarButtonItemStyleBordered
-								   target:self
-									action:@selector(refreshAction:)] autorelease];
-	self.navigationItem.rightBarButtonItem = self.refreshButton;
+	// add our custom refresh button as the nav bar's custom right view
+    // The custom button here is to stop the button from flashing each time
+    // the text is updated in iOS7.
     
-    [self cacheWarning];
-	
+    if ([AlignedBarItemButton iOS7])
+    {
+        CGRect buttonRect = CGRectMake(0,0, 110, 30);
+    
+        self.refreshText = [[[UILabel alloc] initWithFrame:buttonRect] autorelease];
+        self.refreshText.backgroundColor = [UIColor clearColor];
+        self.refreshText.textAlignment = UITextAlignmentRight;
+    
+        UIButton *button = [AlignedBarItemButton suitableButtonRight:YES];
+    
+        [button addTarget:self action:@selector(refreshAction:)forControlEvents:UIControlEventTouchUpInside];
+        [button addSubview:self.refreshText];
+        button.frame = buttonRect;
+
+        self.refreshButton = [[[UIBarButtonItem alloc] initWithCustomView:button] autorelease];
+        
+        [self setRefreshtextColor];
+        
+    }
+    else
+    {
+        self.refreshButton = [[UIBarButtonItem alloc] initWithTitle:kRefreshText style:UIBarButtonItemStylePlain target:self action:@selector(refreshAction:)];
+    }
+    
+    self.navigationItem.rightBarButtonItem = self.refreshButton;
 }
 
 - (void)didReceiveMemoryWarning {
@@ -2525,13 +2593,29 @@ static int depthCount = 0;
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleChangeInUserSettings:) name:NSUserDefaultsDidChangeNotification object:nil];
 	
 	[self startTimer];
+    
+    [self cacheWarningRefresh:NO];
+}
+
+- (void) viewWillDisappear:(BOOL)animated
+{
+    DEBUG_LOG(@"DepartureTimesView:viewWillDisappear\n");
+    
+    // [UIView setAnimationsEnabled:NO];
+    self.navigationItem.prompt = nil;
+    // [UIView setAnimationsEnabled:YES];
+    
+    [super viewWillDisappear:animated];
 }
 
 - (void) viewDidDisappear:(BOOL)animated
 {
+    DEBUG_LOG(@"DepartureTimesView:viewDidDisappear\n");
+    [super viewDidDisappear:animated];
+    
 	[self stopTimer];
     DEBUG_LOG(@"viewDidDisappear\n");
-	
+    
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -2565,7 +2649,7 @@ static int depthCount = 0;
                                   style:UIBarButtonItemStylePlain
                                   target:self action:@selector(sortButton:)] autorelease];
         
-        sort.accessibilityLabel = @"Group Arrivals";
+        sort.accessibilityLabel = NSLocalizedString(@"Group Arrivals", @"Accessibility text");
         
         [toolbarItems addObject:sort];;
         [toolbarItems addObject:[CustomToolbar autoFlexSpace]];
@@ -2600,6 +2684,8 @@ static int depthCount = 0;
         _reloadWhenAppears = NO;
         [self reloadData];
     }
+    
+    [self iOS7workaroundPromptGap];
 }
 
 
@@ -2658,8 +2744,9 @@ static int depthCount = 0;
 {
     [super reloadData];
     
-    [self cacheWarning];
+    [self setRefreshtextColor];
     
+    [self cacheWarningRefresh:YES];
     
 }
 

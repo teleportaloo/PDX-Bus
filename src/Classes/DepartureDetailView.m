@@ -3,28 +3,14 @@
 //  TriMetTimes
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 #import "DepartureDetailView.h"
-#import "TriMetTimesAppDelegate.h"
-#import "AppDelegateMethods.h"
 #import "Departure.h"
 #import "CellTextView.h"
 #import "XMLDetour.h"
@@ -36,6 +22,7 @@
 #import "DirectionView.h"
 
 #import "MapViewController.h"
+#import "MapViewWithStops.h"
 #import "SimpleAnnotation.h"
 #import "BigRouteView.h"
 #import "AlarmTaskList.h"
@@ -61,7 +48,8 @@
 #define kWebAlerts					4 // not used 
 #define kWebInfo					0
 #define kWebStops					1
-#define kWebRows					2
+#define kWebMap                     2
+#define kWebRows					3
 #define kWebRowsShort				1
 
 
@@ -89,7 +77,7 @@
 {
 	if ((self = [super init]))
 	{
-		self.title = @"Details";
+		self.title = NSLocalizedString(@"Details", @"Departure details screen title");
 	}
 	return self;
 }
@@ -114,7 +102,7 @@
         items += streetcarRoutes.count;
 	}
 	
-	[self.backgroundTask.callbackWhenFetching backgroundStart:items title:@"getting details"];
+	[self.backgroundTask.callbackWhenFetching backgroundStart:items title:NSLocalizedString(@"getting details", @"Progress indication")];
 	items = 0;
     
 	if (self.departure.detour)
@@ -143,7 +131,7 @@
         }
             
 		[XMLStreetcarLocations insertLocationsIntoDepartureArray:self.allDepartures forRoutes:streetcarRoutes];
-		
+        
 		self.allDepartures = nil;
 
 		
@@ -282,15 +270,15 @@
 	
 }
 
--(void)showMap:(id)sender
+-(void)showMapWithStops:(bool)withStops
 {
-	MapViewController *mapPage = [[MapViewController alloc] init];
+    MapViewWithStops *mapPage = [[MapViewWithStops alloc] init];
 	SimpleAnnotation *pin = [[[SimpleAnnotation alloc] init] autorelease];
 	mapPage.title = self.departure.fullSign;
 	mapPage.callback = self.callback;
 	[pin setCoordinateLat:self.departure.blockPositionLat lng:self.departure.blockPositionLng ];
 	pin.pinTitle = [self.departure routeName];
-	pin.pinSubtitle = [NSString stringWithFormat:@"%@ away", [self.departure formatDistance:self.departure.blockPositionFeet]];
+	pin.pinSubtitle = [NSString stringWithFormat:NSLocalizedString(@"%@ away", @"<distance> of vehicle"), [self.departure formatDistance:self.departure.blockPositionFeet]];
 	pin.pinColor = MKPinAnnotationColorPurple;
 	[mapPage addPin:pin];
 	
@@ -301,9 +289,22 @@
 	stopPin.pinSubtitle = nil;
 	stopPin.pinColor = MKPinAnnotationColorRed;
 	[mapPage addPin:stopPin];
-	
-	[[self navigationController] pushViewController:mapPage animated:YES];
+    
+    if (withStops)
+    {
+        [mapPage fetchStopsInBackground:self.backgroundTask route:self.departure.route  direction:self.departure.dir returnStop:self];
+    }
+    else
+    {
+        [[self navigationController] pushViewController:mapPage animated:YES];
+    }
 	[mapPage release];
+
+}
+
+-(void)showMap:(id)sender
+{
+	[self showMapWithStops:NO];
 }
 
 
@@ -382,7 +383,7 @@
 
 - (NSString *)detourText:(Detour *)det
 {
-	return [NSString stringWithFormat:@"Detour: %@", [det detourDesc]];
+	return [NSString stringWithFormat:NSLocalizedString(@"Detour: %@", @"detour text"), [det detourDesc]];
 }
 
 -(void) tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
@@ -436,8 +437,8 @@
         NSDate *lastPosition = [NSDate dateWithTimeIntervalSince1970: self.departure.blockPositionAt / 1000];
 		
         [self.departure populateCellGeneric:cell
-                                      first:[NSString stringWithFormat:@"Last known location at %@", [dateFormatter stringFromDate:lastPosition]]
-                                     second:[NSString stringWithFormat:@"%@ away", [self.departure formatDistance:self.departure.blockPositionFeet]]
+                                      first:[NSString stringWithFormat:NSLocalizedString(@"Last known location at %@", @"the time of the vehicle location"), [dateFormatter stringFromDate:lastPosition]]
+                                     second:[NSString stringWithFormat:NSLocalizedString(@"%@ away", @"distance that the vehicle is away"),[self.departure formatDistance:self.departure.blockPositionFeet]]
                                        col1:[UIColor blueColor]
                                        col2:[UIColor blueColor]];
         cell.selectionStyle = UITableViewCellSelectionStyleBlue;
@@ -460,14 +461,14 @@
         if (color == nil)
         {
             cell.textLabel.textColor = [UIColor grayColor];
-            cell.textLabel.text = @"Tag this vehicle with a color";
+            cell.textLabel.text = NSLocalizedString(@"Tag this vehicle with a color", @"menu item");
             cell.imageView.image = [BlockColorDb imageWithColor:[UIColor grayColor]];
             cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
         }
         else
         {
             cell.textLabel.textColor = [UIColor grayColor];
-            cell.textLabel.text = @"Remove vehicle color tag";
+            cell.textLabel.text = NSLocalizedString(@"Remove vehicle color tag", @"menu item");
             cell.imageView.image = [BlockColorDb imageWithColor:color];
             cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
             
@@ -496,7 +497,7 @@
 		}
 		else
 		{
-			cell.view.text = @"Detour information not known.";
+			cell.view.text = NSLocalizedString(@"Detour information not known.", @"error message");
 		}
 		
 		
@@ -538,12 +539,12 @@
 		
 		if (self.departure.block !=nil)
 		{
-			[self addTextToDisclaimerCell:cell text:[NSString stringWithFormat:@"(Trip ID %@) Updated: %@", 
+			[self addTextToDisclaimerCell:cell text:[NSString stringWithFormat:NSLocalizedString(@"(Trip ID %@) Updated: %@", @"infomation at the end of the arrivals"),
 													 self.departure.block,
 													 [dateFormatter stringFromDate:queryTime]]];
 		}
 		else {
-			[self addTextToDisclaimerCell:cell text:[NSString stringWithFormat:@"Updated: %@", 
+			[self addTextToDisclaimerCell:cell text:[NSString stringWithFormat:NSLocalizedString(@"Updated: %@", @"infomation at the end of the arrivals"),
 													 [dateFormatter stringFromDate:queryTime]]];
 		}
 
@@ -569,16 +570,20 @@
 		switch (indexPath.row)
 		{
 		case kWebAlerts:
-				cell.textLabel.text = @"Route alerts";
+				cell.textLabel.text = NSLocalizedString(@"Route alerts", @"menu item");
 				cell.imageView.image = [self getActionIcon:kIconAlerts];
 				break;
 		case kWebInfo:
-				cell.textLabel.text = @"Map & schedule";
+				cell.textLabel.text = NSLocalizedString(@"Map & schedule", @"menu item");
 				cell.imageView.image = [self getActionIcon:kIconEarthMap];
 				break;
 		case kWebStops:
-				cell.textLabel.text = @"Browse stops";
+				cell.textLabel.text = NSLocalizedString(@"Browse stops", @"menu item");
 				cell.imageView.image = [self getActionIcon:kIconBrowse];
+				break;
+        case kWebMap:
+				cell.textLabel.text = NSLocalizedString(@"Show map with route stops", @"menu item");
+				cell.imageView.image = [self getActionIcon:kIconMap];
 				break;
 		}
 		[self maybeAddSectionToAccessibility:cell indexPath:indexPath alwaysSaySection:YES];
@@ -598,10 +603,10 @@
 		switch (indexPath.row)
 		{
 			case kDestBrowseRow:
-				cell.textLabel.text = @"Browse for destination arrival time";
+				cell.textLabel.text = NSLocalizedString(@"Browse for destination arrival time", @"menu item");
 				break;
 			case kDestFilterRow:
-				cell.textLabel.text = @"Show arrivals with just this trip";
+				cell.textLabel.text = NSLocalizedString(@"Show arrivals with just this trip", @"menu item");
 				break;
 		}
 		return cell;
@@ -625,10 +630,10 @@
 				
 				if ([taskList hasTaskForStopId:self.departure.locid block:self.departure.block])
 				{
-					cell.textLabel.text = @"Edit arrival alarm";
+					cell.textLabel.text = NSLocalizedString(@"Edit arrival alarm", @"menu item");
 				}
 				else {
-					cell.textLabel.text = @"Set arrival alarm";
+					cell.textLabel.text = NSLocalizedString(@"Set arrival alarm", @"menu item");
 				}
 				cell.imageView.image = [self getActionIcon:kIconAlarm];
 				break;
@@ -648,11 +653,11 @@
 	}
 	if (section == tripSection)
 	{
-		return @"Remaining trips before arrival:";
+		return NSLocalizedString(@"Remaining trips before arrival:", @"section title");
 	}
 	if (section == webSection)
 	{
-		return @"Route info:";
+		return NSLocalizedString(@"Route info:", @"section title");
 	}
 	return nil;
 }
@@ -670,6 +675,9 @@
 					break;
 				case kWebStops:
 					[self showStops:self.departure.route];
+					break;
+                case kWebMap:
+					[self showMapWithStops:YES];
 					break;
 				default:
 					break;
@@ -807,7 +815,7 @@
 																	  style:(UIBarButtonItemStyle)UIBarButtonItemStyleBordered 
 																	 target:self action:@selector(showBig:)];
 
-	magnifyButton.accessibilityHint = @"Bus line indentifier";
+	magnifyButton.accessibilityHint = NSLocalizedString(@"Bus line indentifier", @"accessibilty hint");
 	self.navigationItem.rightBarButtonItem = magnifyButton;
 
     [magnifyButton release];
@@ -853,6 +861,24 @@
     
     [self maybeAddFlashButtonWithSpace:needSpace buttons:toolbarItems big:NO];
 }
+
+#pragma mark Stop callback function
+
+- (NSString *)actionText
+{
+	return NSLocalizedString(@"Show arrivals", @"menu item");
+}
+
+- (void)chosenStop:(Stop*)stop progress:(id<BackgroundTaskProgress>) progress
+{
+	DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
+		
+    departureViewController.displayName = stop.desc;
+    [departureViewController fetchTimesForLocationInBackground:self.backgroundTask loc:stop.locid];
+		
+    [departureViewController release];
+}
+
 
 @end
 

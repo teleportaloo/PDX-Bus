@@ -5,35 +5,24 @@
 //  Created by Andrew Wallace on 3/23/10.
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 #import "XMLStreetcarLocations.h"
 #import "XMLDepartures.h"
 #import "Vehicle.h"
-#import "TriMetTimesAppDelegate.h"
-#import "AppDelegateMethods.h"
+#import "StreetcarConversions.h"
+#import "DebugLogging.h"
 
 @implementation XMLStreetcarLocations
 
 @synthesize locations = _locations;
 @synthesize route = _route;
+@synthesize trimetRoute = _trimetRoute;
 
 static NSMutableDictionary *singleLocationsPerLine = nil;
 
@@ -41,9 +30,8 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
 {
 	self.locations = nil;
     self.route = nil;
+    self.trimetRoute = nil;
     
-    [_trimetRoute release];
-    [_directionDict release];
 	[super dealloc];
 }
 
@@ -51,12 +39,11 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
 {
     if (self = [super init])
     {
-        TriMetTimesAppDelegate *app = [TriMetTimesAppDelegate getSingleton];
         self.route = route;
         
-        _trimetRoute = [[app getStreetcarRoutes] objectForKey:route];
-        _directionDict = [app getStreetcarDirections];
+        self.trimetRoute  = [[StreetcarConversions getStreetcarRoutes] objectForKey:route];
         
+        [MemoryCaches addCache:self];
     }
     return self;
 }
@@ -114,6 +101,7 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
             }
         }
     }
+    
 }
 
 #pragma mark Initiate Parsing
@@ -161,10 +149,10 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
         pos.type = kVehicleTypeStreetcar;
         
         pos.block = block;
-        pos.routeNumber = _trimetRoute;
+        pos.routeNumber = self.trimetRoute;
         pos.locationTime = UnixToTriMetTime([[NSDate date] timeIntervalSince1970] + [self getTimeFromAttribute:attributeDict valueForKey:@"secsSinceReport"]);
         
-        pos.direction = [_directionDict objectForKey:[self safeValueFromDict:attributeDict valueForKey:@"dirTag"]];
+        pos.direction = [[StreetcarConversions getStreetcarDirections] objectForKey:[self safeValueFromDict:attributeDict valueForKey:@"dirTag"]];
         
 		[self.locations setObject:pos forKey:block];
 		
@@ -207,6 +195,13 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
 
 		dep.blockPositionAt = _lastTime;
 	}
+}
+
+- (void)memoryWarning
+{
+    DEBUG_LOG(@"Clearing streetcar location cache %p\n", self.locations);
+    self.locations = nil;
+    _lastTime = 0;
 }
 
 @end

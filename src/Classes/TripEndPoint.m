@@ -6,24 +6,12 @@
 //  Copyright (c) 2013 Teleportaloo. All rights reserved.
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 #import "TripEndPoint.h"
 
@@ -36,14 +24,14 @@
 
 @implementation TripEndPoint
 @synthesize locationDesc			= _locationDesc;
-@synthesize currentLocation			= _currentLocation;
+@synthesize coordinates             = _coordinates;
 @synthesize useCurrentLocation		= _useCurrentLocation;
 @synthesize additionalInfo			= _additionalInfo;
 
 - (void)dealloc
 {
-	self.locationDesc = nil;
-	self.currentLocation = nil;
+	self.locationDesc   = nil;
+	self.coordinates    = nil;
 	self.additionalInfo = nil;
     
 	[super dealloc];
@@ -56,7 +44,7 @@
     
 	NSString * desc = self.locationDesc;
     
-	if (desc == nil)
+	if (desc == nil || self.coordinates!=nil)
 	{
 		desc = kAcquiredLocation;
 	}
@@ -80,9 +68,9 @@
 	[ret appendFormat:@"%@Place=%@",toOrFrom, ms];
 	[ms release];
     
-	if (self.currentLocation != nil)
+	if (self.coordinates != nil)
 	{
-		[ret appendFormat:@"&%@Coord=%f,%f", toOrFrom, self.currentLocation.coordinate.longitude, self.currentLocation.coordinate.latitude];
+		[ret appendFormat:@"&%@Coord=%f,%f", toOrFrom, self.coordinates.coordinate.longitude, self.coordinates.coordinate.latitude];
 	}
 	return ret;
 }
@@ -108,11 +96,11 @@
 		[dict setObject:self.additionalInfo forKey:kDictEndPointAddtionalInfo];
 	}
 	
-	if (self.currentLocation!=nil)
+	if (self.coordinates!=nil)
 	{
-		[dict setObject:[[[NSNumber alloc] initWithDouble:self.currentLocation.coordinate.latitude] autorelease]
+		[dict setObject:[[[NSNumber alloc] initWithDouble:self.coordinates.coordinate.latitude] autorelease]
 				 forKey:kDictEndPointLocationLat];
-		[dict setObject:[[[NSNumber alloc] initWithDouble:self.currentLocation.coordinate.longitude] autorelease]
+		[dict setObject:[[[NSNumber alloc] initWithDouble:self.coordinates.coordinate.longitude] autorelease]
 				 forKey:kDictEndPointLocationLng];
 		
 	}
@@ -167,7 +155,7 @@
     
 	if (lat!=nil && lng!=nil)
 	{
-		self.currentLocation = [[[CLLocation alloc] initWithLatitude:[lat doubleValue] longitude:[lng doubleValue]]
+		self.coordinates = [[[CLLocation alloc] initWithLatitude:[lat doubleValue] longitude:[lng doubleValue]]
                                 autorelease];
 	}
 	
@@ -228,7 +216,7 @@
 	{
 		return [NSString stringWithFormat:@"%@ - Stop ID %@",  self.additionalInfo, self.locationDesc];
 	}
-	return [NSString stringWithFormat:@"Stop ID %@", self.locationDesc];
+	return [NSString stringWithFormat:NSLocalizedString(@"Stop ID %@", @"TriMet Stop identifer <number>"), self.locationDesc];
 }
 
 @end

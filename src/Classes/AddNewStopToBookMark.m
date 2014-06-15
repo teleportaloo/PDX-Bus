@@ -4,24 +4,12 @@
 //
 //  Created by Andrew Wallace on 1/25/09.
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 
 #import "AddNewStopToBookMark.h"
@@ -53,7 +41,7 @@
 	returnTextField.borderStyle = UITextBorderStyleRoundedRect;
     returnTextField.textColor = [UIColor blackColor];
 	returnTextField.font = [CellTextField editFont];
-    returnTextField.placeholder = @"<enter stop ID>";
+    returnTextField.placeholder = NSLocalizedString(@"<enter stop ID>", @"default stop id text");
     returnTextField.backgroundColor = [UIColor whiteColor];
 	returnTextField.autocorrectionType = UITextAutocorrectionTypeNo;	// no auto correction support
 	
@@ -94,7 +82,7 @@
 #pragma mark TableView methods
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-	return @"Enter stop ID:";
+	return NSLocalizedString(@"Enter stop ID:", @"stop id section header");
 }
 
 
@@ -144,7 +132,7 @@
 			}
 			
 			// Set up the cell
-			cell.textLabel.text = @"Add this stop ID";
+			cell.textLabel.text = NSLocalizedString(@"Add this stop ID", @"action button");
 			cell.imageView.image = [self getActionIcon:kIconAdd];
 			// [self maybeAddSectionToAccessibility:cell indexPath:indexPath];
 			cell.textLabel.font = [self getBasicFont];

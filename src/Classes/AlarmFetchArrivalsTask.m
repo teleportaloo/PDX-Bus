@@ -6,27 +6,15 @@
 //  Copyright 2011. All rights reserved.
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 #import "AlarmFetchArrivalsTask.h"
-#import "debug.h"
+#import "DebugLogging.h"
 #import "DepartureTimesView.h"
 
 
@@ -81,7 +69,7 @@
 	} 
 	else if (self.lastFetched == nil)
 	{
-		[self alert:@"PDX Bus was not able to get the time for this arrival" 
+		[self alert:NSLocalizedString(@"PDX Bus was not able to get the time for this arrival", @"arrival alarm error")
 		   fireDate:nil
 			 button:nil
 		   userInfo:nil
@@ -124,21 +112,21 @@
 		
 		if (self.minsToAlert <= 0)
 		{
-			alertText = [NSString stringWithFormat:@"\"%@\" is due at %@",
+			alertText = [NSString stringWithFormat:NSLocalizedString(@"\"%@\" is due at %@", @"alarm message"),
 						 self.lastFetched.routeName,
 						 self.lastFetched.locationDesc
 						 ];
 		}
 		else if (self.minsToAlert == 1)
 		{
-			alertText = [NSString stringWithFormat:@"\"%@\" 1 minute way from %@",
+			alertText = [NSString stringWithFormat:NSLocalizedString(@"\"%@\" 1 minute way from %@", @"alarm message"),
 						 self.lastFetched.routeName,
 						 self.lastFetched.locationDesc
 						 ];
 		}
 		else 
 		{
-			alertText = [NSString stringWithFormat:@"\"%@\" is %d minutes away from %@",
+			alertText = [NSString stringWithFormat:NSLocalizedString(@"\"%@\" is %d minutes away from %@", @"alarm message"),
 						 self.lastFetched.routeName,
 						 self.minsToAlert,
 						 self.lastFetched.locationDesc
@@ -149,7 +137,7 @@
 		{
 			[self alert:alertText 
 			   fireDate:alarmTime
-				 button:@"Show arrivals"
+				 button:NSLocalizedString(@"Show arrivals", @"alert text")
 			   userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
 						 self.stopId,							kStopIdNotification,
 						 self.block,							kAlarmBlock,
@@ -305,11 +293,11 @@
 			NSDate *alarmDate = [NSDate dateWithTimeInterval:secs sinceDate:departureDate];
             if (self.alarmState == AlarmFired)
             {
-                str = [NSString stringWithFormat:@"Alarm done: %@", [dateFormatter stringFromDate: alarmDate]];
+                str = [NSString stringWithFormat:NSLocalizedString(@"Alarm done: %@", @"Alarm was done at time {time}"), [dateFormatter stringFromDate: alarmDate]];
             }
             else
             {
-                str = [NSString stringWithFormat:@"Alarm time: %@", [dateFormatter stringFromDate: alarmDate]];
+                str = [NSString stringWithFormat:NSLocalizedString(@"Alarm time: %@", @"Alarm wil be done at time {time}"), [dateFormatter stringFromDate: alarmDate]];
             }
 		}
 	}

@@ -3,24 +3,12 @@
 //  TriMetTimes
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 #import "DirectionView.h"
 #import "StopView.h"
@@ -55,7 +43,7 @@
 - (id)init {
 	if ((self = [super init]))
 	{
-		self.title = @"Route Info";
+		self.title = NSLocalizedString(@"Route Info", @"screen title");
 	}
 	return self;
 }
@@ -67,7 +55,7 @@
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	self.routeId = route;
 	[self.backgroundTask.callbackWhenFetching backgroundThread:[NSThread currentThread]];
-	[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:@"getting directions"];
+	[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:NSLocalizedString(@"getting directions", @"progress message")];
 	
 	NSError *parseError = nil;
     
@@ -246,15 +234,15 @@
 			switch (indexPath.row)
 			{
 				case kOtherRowMap:
-					cell.textLabel.text = @"Map & schedule page";
+					cell.textLabel.text = NSLocalizedString(@"Map & schedule page", @"button text");
 					cell.imageView.image = [self getActionIcon:kIconEarthMap];
 					break;
 				case kOtherRowDetours:
-					cell.textLabel.text = @"Detours";
+					cell.textLabel.text = NSLocalizedString(@"Detours", @"button text");
 					cell.imageView.image = [self getActionIcon:kIconDetour];
 					break;
 				case kOtherRowWiki:
-					cell.textLabel.text = @"Wikipedia page";
+					cell.textLabel.text = NSLocalizedString(@"Wikipedia page", @"Link to English wikipedia page");
 					cell.imageView.image = [self getActionIcon:kIconWiki];
 					break;
 			}
@@ -300,14 +288,13 @@
 					NSString *wiki = [TriMetRouteColors rawColorForRoute:self.route.route]->wiki;
 					
 					[webPage setURLmobile:[NSString stringWithFormat:@"http://en.m.wikipedia.org/wiki/%@", wiki ] 
-									 full:[NSString stringWithFormat:@"http://en.wikipedia.org/wiki/%@", wiki ] 
-									title:@"Wikipedia"];
+									 full:[NSString stringWithFormat:@"http://en.wikipedia.org/wiki/%@", wiki ]];
 					
 					if (self.callback)
 					{
 						webPage.whenDone = [self.callback getController];
 					}
-					[webPage displayPage:[self navigationController] animated:YES tableToDeselect:self.table];
+					[webPage displayPage:[self navigationController] animated:YES itemToDeselect:self];
 					[webPage release];
 					break;
 				}
@@ -350,9 +337,9 @@
 	case kSectionName:
 		return nil;
 	case kSectionDirection:
-		return @"Directions (touch for stops):";
+            return NSLocalizedString(@"Directions (touch for stops and map):", @"section title");
 	case kSectionOther:
-		return @"Additional route info:";
+            return NSLocalizedString(@"Additional route info:", @"section title");
 	default:
 		return nil;
 	}
@@ -381,7 +368,7 @@
 	[super viewDidLoad];
 	// add our custom add button as the nav bar's custom right view
 	UIBarButtonItem *refreshButton = [[UIBarButtonItem alloc]
-									  initWithTitle:NSLocalizedString(@"Refresh", @"")
+									  initWithTitle:NSLocalizedString(@"Refresh", @"button text")
 									  style:UIBarButtonItemStyleBordered
 									  target:self
 									  action:@selector(refreshAction:)];

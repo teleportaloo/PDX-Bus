@@ -7,27 +7,16 @@
  *
  */
 
-/*
-
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
-
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
-
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 
-#define MAXHOTSPOTS 251
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+
+
+#define MAXHOTSPOTS 255
+#define MAXSTRIPES   40
 
 #define kLinkTypeHttp	'h'
 #define kLinkTypeWiki	'w'
@@ -41,12 +30,19 @@
 
 typedef struct hotspot_struct
 {
-	const CGPoint *vertices;
-    const CGRect *rect;
-	int	nVertices;
-	const char *action;
-	bool touched;
+    union
+    {
+        const CGPoint *vertices;
+        const CGRect  *rect;
+    } coords;
+    const char *    action;
+	unsigned char   nVertices: 6;
+    unsigned char   touched  : 1;
+    unsigned char   isRect   : 1;
 } HOTSPOT;
+
+#define HOTSPOT_IS_RECT(X) ((X)->isRect==1)
+#define HOTSPOT_IS_POLY(X) ((X)->isRect==0)
 
 
 #define kRedLine    0x0001
@@ -57,15 +53,24 @@ typedef struct hotspot_struct
 #define kStreetcarNsLine	0x0020
 #define kStreetcarClLine	0x0040
 
+#define MAP_LAST_INDEX 0xFF
+
 
 typedef int RAILLINES;
 
 typedef struct alpha_section_struct
 {
-	char title;
+	char *title;
 	int offset;
 	int items;
 } ALPHA_SECTIONS;
+
+typedef unsigned char HOTSPOT_INDEX;
+
+typedef struct tile_array
+{
+    HOTSPOT_INDEX *hotspots;
+}  RAILMAP_TILE;
 
 typedef struct railmap_struct
 {
@@ -74,8 +79,15 @@ typedef struct railmap_struct
     CGSize   size;
     int      firstHotspot;
     int      lastHotspot;
-} RAILMAP;
+    int      xTiles;
+    int      yTiles;
+    
+    RAILMAP_TILE **tiles;
+    
+    CGSize   tileSize;
 
+} RAILMAP;
+   
 #define kRailMapMaxWes          0
 #define kRailMapPdxStreetcar    1
 #define kRailMaps               2

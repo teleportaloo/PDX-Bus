@@ -3,28 +3,16 @@
 //  PDX Bus
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 #import "WebViewController.h"
 #import "TableViewWithToolbar.h"
-#include "debug.h"
+#include "DebugLogging.h"
 #include "TriMetTypes.h"
 #include "OpenInChromeController.h"
 
@@ -77,8 +65,8 @@
 	map = false;
 }
 
-- (void)setURLmobile:(NSString *)url full:(NSString *)full title:(NSString *)title
-{	
+- (void)setURLmobile:(NSString *)url full:(NSString *)full
+{
 	if (([self screenWidth] & WidthiPad) !=0 && full!=nil)
 	{
 		self.urlToDisplay = full;
@@ -88,7 +76,7 @@
 
 	}
 
-	self.title = title;
+	self.title = NSLocalizedString(@"Loading page...", @"Initial web page title");
 	map = false;
 }
 
@@ -324,16 +312,31 @@
 }
 
 #pragma mark View methods
+
+
+// OK - we need a little adjustment here for iOS7.  It took we a while to get this right - I'm exactly
+// sure what is going on but on the iPad we need to make the height a little bigger in some cases.
+// Annoying.
+
+- (CGFloat) heightOffset
+{
+    if (self.iOS7style && ((([self screenWidth] & WidthiPad) ==0) || (self.screenWidth == WidthiPadNarrow)))
+    {
+        return -[UIApplication sharedApplication].statusBarFrame.size.height;
+    }
+	return 0.0;
+}
+
 					  
 - (void)loadView {
 	[super loadView];
 	
 	// Set the size for the table view
-	CGRect webViewRect;
-	webViewRect.size.width = [[UIScreen mainScreen] applicationFrame].size.width;
-	webViewRect.size.height = [[UIScreen mainScreen] applicationFrame].size.height;
-	webViewRect.origin.x = 0;
-	webViewRect.origin.y = 0;
+	CGRect webViewRect = [self getMiddleWindowRect];
+	///webViewRect.size.width = [[UIScreen mainScreen] applicationFrame].size.width;
+	//webViewRect.size.height = [[UIScreen mainScreen] applicationFrame].size.height - [self heightOffset];
+	//webViewRect.origin.x = 0;
+	//webViewRect.origin.y = 0;
 	
 	// Create a table viiew
 	self.webView = [[[UIWebView alloc] initWithFrame:webViewRect] autorelease];
@@ -516,7 +519,7 @@
 }
 
 
-- (void)displayPage:(UINavigationController *)nav animated:(BOOL)animated tableToDeselect:(UITableView *)table
+- (void)displayPage:(UINavigationController *)nav animated:(BOOL)animated itemToDeselect:(id<DeselectItemDelegate>)deselect
 {
     if ([UserPrefs getSingleton].useChrome && [OpenInChromeController sharedInstance].isChromeInstalled && self.urlToDisplay!=nil)
     {
@@ -524,13 +527,9 @@
                                               withCallbackURL:[NSURL URLWithString:@"pdxbus:"]
                                                  createNewTab:NO];
         
-        if (table)
+        if (deselect)
         {
-            NSIndexPath *ip = [table indexPathForSelectedRow];
-            if (ip!=nil)
-            {
-                [table deselectRowAtIndexPath:ip animated:YES];
-            }
+            [deselect deselectItemCallback];
         }
     }
     else

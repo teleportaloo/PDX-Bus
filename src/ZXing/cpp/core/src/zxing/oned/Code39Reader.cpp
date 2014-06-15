@@ -83,7 +83,7 @@ namespace oned {
     try {
       start = findAsteriskPattern(row);
       int nextStart = start[1];
-      int end = row->getSize();
+      int end = (int)row->getSize();
 
       // Read off white space
       while (nextStart < end && !row->get(nextStart)) {
@@ -133,7 +133,7 @@ namespace oned {
       }
 
       if (usingCheckDigit) {
-        int max = tmpResultString.length() - 1;
+        int max = (int)tmpResultString.length() - 1;
         unsigned int total = 0;
         for (int i = 0; i < max; i++) {
           total += alphabet_string.find_first_of(tmpResultString[i], 0);
@@ -179,7 +179,7 @@ namespace oned {
   }
 
   int* Code39Reader::findAsteriskPattern(Ref<BitArray> row){
-    int width = row->getSize();
+    int width = (int)row->getSize();
     int rowOffset = 0;
     while (rowOffset < width) {
       if (row->get(rowOffset)) {
@@ -287,7 +287,7 @@ namespace oned {
   }
 
   Ref<String> Code39Reader::decodeExtended(std::string encoded){
-    int length = encoded.length();
+    int length = (int)encoded.length();
     std::string tmpDecoded;
     for (int i = 0; i < length; i++) {
       char c = encoded[i];

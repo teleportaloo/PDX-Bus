@@ -47,12 +47,12 @@ bool AlignmentPatternFinder::foundPatternCross(vector<int> &stateCount) {
 
 float AlignmentPatternFinder::crossCheckVertical(size_t startI, size_t centerJ, int maxCount,
     int originalStateCountTotal) {
-  int maxI = image_->getHeight();
+  int maxI = (int)image_->getHeight();
   vector<int> stateCount(3, 0);
 
 
   // Start counting up from center
-  int i = startI;
+  int i = (int)startI;
   while (i >= 0 && image_->get(centerJ, i) && stateCount[1] <= maxCount) {
     stateCount[1]++;
     i--;
@@ -70,7 +70,7 @@ float AlignmentPatternFinder::crossCheckVertical(size_t startI, size_t centerJ, 
   }
 
   // Now also count down from center
-  i = startI + 1;
+  i = (int)startI + 1;
   while (i < maxI && image_->get(centerJ, i) && stateCount[1] <= maxCount) {
     stateCount[1]++;
     i++;
@@ -96,11 +96,11 @@ float AlignmentPatternFinder::crossCheckVertical(size_t startI, size_t centerJ, 
 
 Ref<AlignmentPattern> AlignmentPatternFinder::handlePossibleCenter(vector<int> &stateCount, size_t i, size_t j) {
   int stateCountTotal = stateCount[0] + stateCount[1] + stateCount[2];
-  float centerJ = centerFromEnd(stateCount, j);
+  float centerJ = centerFromEnd(stateCount, (int)j);
   float centerI = crossCheckVertical(i, (int)centerJ, 2 * stateCount[1], stateCountTotal);
   if (!isnan(centerI)) {
     float estimatedModuleSize = (float)(stateCount[0] + stateCount[1] + stateCount[2]) / 3.0f;
-    int max = possibleCenters_->size();
+    int max = (int)possibleCenters_->size();
     for (int index = 0; index < max; index++) {
       Ref<AlignmentPattern> center((*possibleCenters_)[index]);
       // Look for about the same center and module size:

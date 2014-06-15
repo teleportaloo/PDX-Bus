@@ -5,31 +5,17 @@
 //  Created by Andrew Wallace on 6/27/09.
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 #import "XMLTrips.h"
-#import "TriMetTimesAppDelegate.h"
-#import "AppDelegateMethods.h"
 #import "ScreenConstants.h"
 #import "UserFaves.h"
-#import "debug.h"
+#import "DebugLogging.h"
 #import "TriMetRouteColors.h"
 #import "RouteColorBlobView.h"
 #import "TripUserRequest.h"
@@ -83,11 +69,11 @@ static NSString *tripURLString = @"trips/tripplanner?%@&%@&Date=%@&Time=%@&Arr=%
 	
 	
 	reverse.userRequest.fromPoint.locationDesc			= self.userRequest.toPoint.locationDesc;
-	reverse.userRequest.fromPoint.currentLocation		= self.userRequest.toPoint.currentLocation;
+	reverse.userRequest.fromPoint.coordinates           = self.userRequest.toPoint.coordinates;
 	reverse.userRequest.fromPoint.useCurrentLocation	= self.userRequest.toPoint.useCurrentLocation;
 	
 	reverse.userRequest.toPoint.locationDesc			= self.userRequest.fromPoint.locationDesc;
-	reverse.userRequest.toPoint.currentLocation			= self.userRequest.fromPoint.currentLocation;
+	reverse.userRequest.toPoint.coordinates             = self.userRequest.fromPoint.coordinates;
 	reverse.userRequest.toPoint.useCurrentLocation		= self.userRequest.fromPoint.useCurrentLocation;
 	
 	
@@ -114,11 +100,11 @@ static NSString *tripURLString = @"trips/tripplanner?%@&%@&Date=%@&Time=%@&Arr=%
 	
 	
 	copy.userRequest.fromPoint.locationDesc			= self.userRequest.fromPoint.locationDesc;
-	copy.userRequest.fromPoint.currentLocation		= self.userRequest.fromPoint.currentLocation;
+	copy.userRequest.fromPoint.coordinates          = self.userRequest.fromPoint.coordinates;
 	copy.userRequest.fromPoint.useCurrentLocation	= self.userRequest.fromPoint.useCurrentLocation;
 	
 	copy.userRequest.toPoint.locationDesc			= self.userRequest.toPoint.locationDesc;
-	copy.userRequest.toPoint.currentLocation		= self.userRequest.toPoint.currentLocation;
+	copy.userRequest.toPoint.coordinates            = self.userRequest.toPoint.coordinates;
 	copy.userRequest.toPoint.useCurrentLocation		= self.userRequest.toPoint.useCurrentLocation;
 	
 	
@@ -168,6 +154,21 @@ static NSString *tripURLString = @"trips/tripplanner?%@&%@&Date=%@&Time=%@&Arr=%
 
 
 #pragma mark Initiate parsing
+
+- (void)addGeocodedDescriptionToLeg:(TripLeg *)leg
+{
+    // Add in reverse geocoded name
+    if (leg && self.resultFrom  && self.userRequest.fromPoint.locationDesc && [leg.from.xdescription isEqualToString:kAcquiredLocation])
+    {
+        leg.from.xdescription = self.userRequest.fromPoint.locationDesc;
+    }
+    
+    // Add in reverse geocoded name
+    if (self.resultTo && self.userRequest.toPoint.locationDesc && [leg.to.xdescription isEqualToString:kAcquiredLocation])
+    {
+        leg.to.xdescription = self.userRequest.toPoint.locationDesc;
+    }
+}
 
 - (void)fetchItineraries:(NSMutableData*)oldRawData
 {
@@ -231,7 +232,11 @@ static NSString *tripURLString = @"trips/tripplanner?%@&%@&Date=%@&Time=%@&Arr=%
 	{
 		it = [self itemAtIndex:i];
 		it.displayEndPoints = [[[NSMutableArray alloc] init] autorelease];
-
+        
+        leg = [it.legs firstObject];
+        
+        [self addGeocodedDescriptionToLeg:leg];
+        
 		[it startPointText:TripTextTypeUI];
 		
 		if (it.startPoint !=nil && it.startPoint.displayText != nil)
@@ -241,14 +246,17 @@ static NSString *tripURLString = @"trips/tripplanner?%@&%@&Date=%@&Time=%@&Arr=%
 		
 		if (it.legs != nil)
 		{
-			for (l = 0; l < [it.legs count]; l++)
+			for (l = 0; l < it.legs.count; l++)
 			{
 				leg = [it.legs objectAtIndex:l];
-				
+                
+                [self addGeocodedDescriptionToLeg:leg];
+                    
+
 				[leg createFromText:(l==0) textType:TripTextTypeUI];
 				leg.to.xnumber = leg.xinternalNumber;
-				
-				[leg createToText:  (l==[it.legs count]-1) textType:TripTextTypeUI];
+                
+				[leg createToText:  (l==it.legs.count-1) textType:TripTextTypeUI];
 				leg.from.xnumber = leg.xinternalNumber;
 				
 				if (leg.from && leg.from.displayText !=nil)
@@ -263,6 +271,23 @@ static NSString *tripURLString = @"trips/tripplanner?%@&%@&Date=%@&Time=%@&Arr=%
 			}
 		}
 	}
+    
+    // Fix up the reverse geocoded names
+    if (self.resultFrom)
+    {
+        if (self.userRequest.fromPoint.coordinates!=nil)
+        {
+            self.resultFrom.xdescription = self.userRequest.fromPoint.locationDesc;
+        }
+    }
+    
+    if (self.resultTo)
+    {
+        if (self.userRequest.toPoint.coordinates!=nil)
+        {
+            self.resultTo.xdescription = self.userRequest.toPoint.locationDesc;
+        }
+    }
 	
 	if ([self safeItemCount] ==0 || !hasData)
 	{

@@ -34,8 +34,8 @@ int WhiteRectangleDetector::CORR = 1;
 
 
 WhiteRectangleDetector::WhiteRectangleDetector(Ref<BitMatrix> image) : image_(image) {
-  width_ = image->getWidth();
-  height_ = image->getHeight();
+  width_ = (int)image->getWidth();
+  height_ = (int)image->getHeight();
   
   leftInit_ = (width_ - INIT_SIZE) >> 1;
   rightInit_ = (width_ + INIT_SIZE) >> 1;
@@ -48,8 +48,8 @@ WhiteRectangleDetector::WhiteRectangleDetector(Ref<BitMatrix> image) : image_(im
 }
 
 WhiteRectangleDetector::WhiteRectangleDetector(Ref<BitMatrix> image, int initSize, int x, int y) : image_(image) {
-  width_ = image->getWidth();
-  height_ = image->getHeight();
+  width_ = (int)image->getWidth();
+  height_ = (int)image->getHeight();
   
   int halfsize = initSize >> 1;
   leftInit_ = x - halfsize;

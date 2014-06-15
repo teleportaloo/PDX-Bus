@@ -35,8 +35,8 @@
                                  format:(BarcodeFormat)format {
   NSRange prefixRange = [s rangeOfString:PREFIX options:NSCaseInsensitiveSearch];
   if (prefixRange.location == 0) {
-    int max = [s length];
-    int restStart = /*prefixRange.location + */ prefixRange.length;
+    NSUInteger max = [s length];
+    NSUInteger restStart = /*prefixRange.location + */ prefixRange.length;
     
     // initial presuption: everything after the prefix is the number, and there is no body
     NSRange numberRange = NSMakeRange(restStart, max - restStart);
@@ -48,11 +48,11 @@
       // truncate the number range at the beginning of the query string
       numberRange.length = queryRange.location - numberRange.location;
       
-      int paramsStart = queryRange.location + queryRange.length;
+      NSUInteger paramsStart = queryRange.location + queryRange.length;
       NSRange paramsRange = NSMakeRange(paramsStart, max - paramsStart);
       NSRange bodyPrefixRange = [s rangeOfString:@"body=" options:0 range:paramsRange];
       if (bodyPrefixRange.location != NSNotFound) {
-        int bodyStart = bodyPrefixRange.location + bodyPrefixRange.length;
+        NSUInteger bodyStart = bodyPrefixRange.location + bodyPrefixRange.length;
         bodyRange = NSMakeRange(bodyStart, max - bodyStart);
         NSRange ampRange = [s rangeOfString:@"&" options:0 range:bodyRange];
         if (ampRange.location != NSNotFound) {

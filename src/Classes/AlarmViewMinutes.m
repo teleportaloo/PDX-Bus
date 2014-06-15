@@ -6,24 +6,12 @@
 //  Copyright 2011. All rights reserved.
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 #import "AlarmViewMinutes.h"
 #import "AlarmTaskList.h"
@@ -54,7 +42,7 @@
 - (id)init {
 	if ((self = [super init]))
 	{
-		self.title = @"Alert Time";
+		self.title = NSLocalizedString(@"Alert Time", @"screen title");
 	}
 	return self;
 }
@@ -182,10 +170,10 @@
 		switch (indexPath.row)
 		{
 			case kAlertViewSectionAlert:
-				cell.textLabel.text = @"Set alarm for the time below";
+				cell.textLabel.text = NSLocalizedString(@"Set alarm for the time below", @"button text");
 				break;
 			case kAlertViewSectionCancel:
-				cell.textLabel.text = @"Cancel alarm";
+				cell.textLabel.text = NSLocalizedString(@"Cancel alarm", @"button text");
 				break;
 		}
 		
@@ -206,7 +194,7 @@
 	{
 		case kAlertViewSectionAlert:
 		{
-			int mins = [self.pickerView selectedRowInComponent:0];
+			int mins = (int)[self.pickerView selectedRowInComponent:0];
 			
 			[taskList addTaskForDeparture:self.dep mins:mins];
             [self.navigationController popViewControllerAnimated:YES];
@@ -296,11 +284,11 @@
 	switch (row)
 	{
 	case 0:
-		return @"when due";
+        return NSLocalizedString(@"when due", @"alarm option");
 	case 1:
-		return @"1 minute before arrival";
+        return NSLocalizedString(@"1 minute before arrival", @"alarm option");
 	default:
-		return [NSString stringWithFormat:@"%d minutes before arrival", (int)row];
+		return [NSString stringWithFormat:NSLocalizedString(@"%d minutes before arrival", @"alarm option"), (int)row];
 	}
 	return nil;
 }

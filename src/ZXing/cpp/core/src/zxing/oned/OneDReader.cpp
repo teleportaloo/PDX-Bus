@@ -172,7 +172,7 @@ namespace zxing {
       for (int i = 0; i < numCounters; i++) {
         counters[i] = 0;
       }
-      int end = row->getSize();
+      int end = (int)row->getSize();
       if (start >= end) {
         return false;
       }

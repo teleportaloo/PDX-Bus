@@ -6,32 +6,22 @@
 //  Copyright 2010. All rights reserved.
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 #import "LegShapeParser.h"
-#import "debug.h"
+#import "DebugLogging.h"
 #import "math.h"
+
+#define END_LAT 2000
 
 @implementation ShapeCoord
 
-@synthesize end = _end;
+@dynamic end;
 @synthesize coord = _coord;
 
 - (CLLocationDegrees) latitude
@@ -71,6 +61,23 @@
 	return newEnd;
 }
 
+- (bool)end
+{
+    return _coord.latitude >= END_LAT;
+}
+
+- (void)setEnd:(bool)end
+{
+    if (end)
+    {
+        _coord.latitude = END_LAT;
+    }
+    else
+    {
+        _coord.latitude = 0;
+    }
+}
+
 @end
 
 
@@ -97,13 +104,16 @@
 
 	[query deleteCharactersInRange:NSMakeRange(0,9)];  // /transweb is 9 characters
 	
-	[self fetchDataAsynchronously:[[NSString stringWithFormat:@"http://developer.trimet.org%@", query] 
+	[self fetchDataByPolling:[[NSString stringWithFormat:@"http://developer.trimet.org%@", query] 
 										stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
 	
 	if (self.dataComplete && self.rawData)
 	{
 		NSString * data = [[[NSString alloc] initWithData:self.rawData encoding:NSUTF8StringEncoding] autorelease];
 		self.rawData = nil;
+        
+        DEBUG_LOG(@"Data: %@\n", data);
+        
 		
 		NSScanner *scanner = [NSScanner scannerWithString:data];
 		

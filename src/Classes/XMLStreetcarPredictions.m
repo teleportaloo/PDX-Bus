@@ -5,28 +5,15 @@
 //  Created by Andrew Wallace on 3/22/10.
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 #import "XMLStreetcarPredictions.h"
-#import "TriMetTimesAppDelegate.h"
-#import "AppDelegateMethods.h"
+#import "StreetcarConversions.h"
 
 @implementation XMLStreetcarPredictions
 
@@ -34,10 +21,7 @@
 @synthesize directionTitle = _directionTitle;
 @synthesize routeTitle = _routeTitle;
 @synthesize blockFilter = _blockFilter;
-@synthesize streetcarShortNames = _streetcarShortNames;
-@synthesize streetcarDirections = _streetcarDirections;
 @synthesize copyright = _copyright;
-@synthesize dirFromQuery = _dirFromQuery;
 @synthesize nextBusRouteId = _nextBusRouteId;
 
 - (void)dealloc
@@ -46,10 +30,7 @@
 	self.directionTitle = nil;
 	self.routeTitle = nil;
 	self.blockFilter = nil;
-	self.streetcarDirections = nil;
-	self.streetcarShortNames = nil;
 	self.copyright = nil;
-	self.dirFromQuery = nil;
     self.nextBusRouteId = nil;
     self.stopTitle = nil;
 	
@@ -60,27 +41,8 @@
 
 - (BOOL)getDeparturesForLocation:(NSString *)location parseError:(NSError **)error;
 
-{
-	TriMetTimesAppDelegate *appDelegate = (TriMetTimesAppDelegate *)[[UIApplication sharedApplication] delegate];
-	
-	self.streetcarDirections = [appDelegate getStreetcarDirections];
-	self.streetcarShortNames = [appDelegate getStreetcarShortNames];
-	
-	// We need to extract the direction from the query so we can filter on it,
-	// as some Streetcar stops return predictions for two different directions.
-	NSScanner *scanner = [NSScanner scannerWithString:location];
-	
-	NSString *tmp = nil;
-	[scanner scanUpToString:@"d=" intoString:&tmp];
-	
-	if (![scanner isAtEnd])
-	{
-		[scanner setScanLocation:[scanner scanLocation] + 2]; // 2 is the size of "d=".
-		NSString *dir;
-		[scanner scanUpToString:@"&" intoString:&dir];
-		self.dirFromQuery = dir;
-	}
-
+{	
+   
 	[self startParsing:location parseError:error cacheAction:TriMetXMLUseShortCache];
 	return true;
 }
@@ -131,8 +93,7 @@
 		}
 	}
 	
-    if ([elementName isEqualToString:@"prediction"]
-		&& [[self safeValueFromDict:attributeDict valueForKey:@"dirTag"] isEqualToString:self.dirFromQuery])
+    if ([elementName isEqualToString:@"prediction"])
 	{
         // Note - the vehicle is the block - I put the block into the streetcar block!
 		NSString *block = [self safeValueFromDict:attributeDict valueForKey:@"vehicle"];
@@ -140,12 +101,24 @@
 		{
 			NSString *name = [NSString stringWithFormat:@"%@ %@", self.routeTitle, self.directionTitle];
 			
-			NSString *shortName = [self.streetcarShortNames objectForKey:name];
+			NSString *shortName = [[StreetcarConversions getStreetcarShortNames] objectForKey:name];
 			
 			if (shortName==nil) 
 			{
 				shortName = name;
 			}
+            
+            // There are some bugs in the streetcar feed (e.g. Cl instead of CL)
+            
+            NSDictionary *subs = [StreetcarConversions getSubstitutions];
+            
+            for (NSString *key in subs)
+            {
+                shortName  = [shortName stringByReplacingOccurrencesOfString:key withString:[subs objectForKey:key]];
+                name  =      [name stringByReplacingOccurrencesOfString:key withString:[subs objectForKey:key]];
+                
+        
+            }
 			
 			self.currentDepartureObject = [[[Departure alloc] init] autorelease];
 			self.currentDepartureObject.hasBlock       = true;
@@ -156,7 +129,7 @@
 			self.currentDepartureObject.status         = kStatusEstimated;
 			self.currentDepartureObject.nextBus        = [self getTimeFromAttribute:attributeDict valueForKey:@"minutes"];
 			self.currentDepartureObject.streetcar      = true;
-			self.currentDepartureObject.dir            = [self.streetcarDirections objectForKey:[self safeValueFromDict:attributeDict valueForKey:@"dirTag"]];
+			self.currentDepartureObject.dir            = [[StreetcarConversions getStreetcarDirections] objectForKey:[self safeValueFromDict:attributeDict valueForKey:@"dirTag"]];
 			self.currentDepartureObject.copyright      = self.copyright;
             self.currentDepartureObject.streecarBlock  = [self safeValueFromDict:attributeDict valueForKey:@"block"];
 			self.currentDepartureObject.nextBusRouteId = self.nextBusRouteId;

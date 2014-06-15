@@ -23,7 +23,7 @@ namespace zxing {
 
 
 size_t BitArray::wordsForBits(size_t bits) {
-  int arraySize = (bits + bitsPerWord_ - 1) >> logBits_;
+  int arraySize = (int)((bits + bitsPerWord_ - 1) >> logBits_);
   return arraySize;
 }
 

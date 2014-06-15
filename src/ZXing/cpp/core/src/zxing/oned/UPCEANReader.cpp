@@ -167,11 +167,11 @@ namespace zxing {
         const int pattern[], int patternLen, int* start, int* end) {
       int patternLength = patternLen;
       int counters[patternLength];
-      int countersCount = sizeof(counters) / sizeof(int);
+      int countersCount = (int)(sizeof(counters) / sizeof(int));
       for (int i = 0; i < countersCount; i++) {
         counters[i] = 0;
       }
-      int width = row->getSize();
+      int width = (int)row->getSize();
       bool isWhite = false;
       while (rowOffset < width) {
         isWhite = !row->get(rowOffset);
@@ -281,7 +281,7 @@ namespace zxing {
      * @return true iff string of digits passes the UPC/EAN checksum algorithm
      */
     bool UPCEANReader::checkStandardUPCEANChecksum(std::string s) {
-      int length = s.length();
+      int length = (int)s.length();
       if (length == 0) {
         return false;
       }

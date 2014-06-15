@@ -113,7 +113,7 @@ Line findLine(const BitMatrix& image, Line estimate, bool invert, int deviation,
   edges.clear();
   findEdgePoints(edges, image, start, end, invert, skip, deviation);
 
-  int n = edges.size();
+  int n = (int)edges.size();
 
   float xdist = end.x - start.x;
   float ydist = end.y - start.y;

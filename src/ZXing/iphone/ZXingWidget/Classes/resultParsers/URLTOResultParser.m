@@ -35,14 +35,14 @@
                                  format:(BarcodeFormat)format {
   NSRange prefixRange = [s rangeOfString:PREFIX options:NSCaseInsensitiveSearch];
   if (prefixRange.location == 0) {
-    int max = [s length];
-    int titleStart = /*prefixRange.location + */ prefixRange.length;
+    NSUInteger max = [s length];
+    NSUInteger titleStart = /*prefixRange.location + */ prefixRange.length;
     NSRange searchRange = NSMakeRange(titleStart, max - titleStart);
     NSRange colonRange = [s rangeOfString:@":" options:0 range:searchRange];
     if (colonRange.location != NSNotFound) {
       NSRange titleRange = NSMakeRange(titleStart,
                                        colonRange.location - titleStart);
-      int linkStart = colonRange.location + colonRange.length;
+      NSUInteger linkStart = colonRange.location + colonRange.length;
       NSRange linkRange = NSMakeRange(linkStart, max - linkStart);
       return [[[URIParsedResult alloc] initWithURLString:[s substringWithRange:linkRange]
                                                    title:[s substringWithRange:titleRange]]

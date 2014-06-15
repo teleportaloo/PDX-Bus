@@ -57,7 +57,7 @@ Ref<FormatInformation> BitMatrixParser::readFormatInformation() {
   }
 
   // Read the top-right/bottom-left pattern
-  int dimension = bitMatrix_->getDimension();
+  int dimension = (int)bitMatrix_->getDimension();
   int formatInfoBits2 = 0;
   int jMin = dimension - 7;
   for (int j = dimension - 1; j >= jMin; j--) {
@@ -79,7 +79,7 @@ Version *BitMatrixParser::readVersion() {
     return parsedVersion_;
   }
 
-  int dimension = bitMatrix_->getDimension();
+  int dimension = (int)bitMatrix_->getDimension();
 
   int provisionalVersion = (dimension - 17) >> 2;
   if (provisionalVersion <= 6) {
@@ -128,7 +128,7 @@ ArrayRef<unsigned char> BitMatrixParser::readCodewords() {
   // some bits from reading as we wind through the bit matrix.
   DataMask &dataMask = DataMask::forReference((int)formatInfo->getDataMask());
   //	cout << (int)formatInfo->getDataMask() << endl;
-  int dimension = bitMatrix_->getDimension();
+  int dimension = (int)bitMatrix_->getDimension();
   dataMask.unmaskBitMatrix(*bitMatrix_, dimension);
 
 

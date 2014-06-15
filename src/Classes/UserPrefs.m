@@ -6,34 +6,17 @@
 //  Copyright 2010. All rights reserved.
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 
 #import "UserPrefs.h"
 #import "XMLTrips.h"
-#import "XMLYahooPlaceNames.h"
-#import "XMLReverseGeoCode.h"
-#import "XMLYahooPlaceNames.h"
-#import "XMLGeoNames.h"
-#import "XMLGeoNamesNeighborhood.h"
-#include "debug.h"
+#include "DebugLogging.h"
 
 
 @implementation UserPrefs
@@ -139,43 +122,13 @@
 	{
 		return missing;
 	}
-	res =  [_defaults integerForKey:key];
+	res = (int)[_defaults integerForKey:key];
 	
 	if (res > max || res < min)
 	{
 		return missing;
 	}
 	return res;
-}
-
-- (XMLReverseGeoCode *) reverseGeoCodeProvider
-{
-	int prov = [self getIntFromDefaultsForKey:@"geocode_provider"		
-									ifMissing:UserPrefs_ReverseGeoCodeYahoo 
-										  max:UserPrefs_ReverseGeoCodeMax 
-										  min:0];
-	if (prov == UserPrefs_ReverseGeoCodeYahoo && [kYahooAppId length]==0)
-	{
-		prov = UserPrefs_ReverseGeoCodeGeoNames;
-	}
-	
-	XMLReverseGeoCode *geoCoder=nil;
-	
-	switch (prov)
-	{
-		case UserPrefs_ReverseGeoCodeYahoo:
-			geoCoder = [[[XMLYahooPlaceNames alloc] init] autorelease];
-			break;
-		case UserPrefs_ReverseGeoCodeGeoNames:
-			geoCoder = [[[XMLGeoNames alloc] init] autorelease];
-			break;
-		case UserPrefs_ReverseGeoCodeGeoNamesNbh:
-			geoCoder = [[[XMLGeoNamesNeighborhood alloc] init] autorelease];
-			break;
-	}
-	
-	return geoCoder;
-		
 }
 
 - (bool) bookmarksAtTheTop
@@ -332,7 +285,14 @@
 }
 - (int) toolbarColors
 {
-	return [self getIntFromDefaultsForKey:@"toolbar_colors"			    ifMissing:0x094D8E max:0xFFFFFF min:0];
+    int color = [self getIntFromDefaultsForKey:@"toolbar_colors"			    ifMissing:0x094D8E max:0xFFFFFF min:0];
+    
+    // Black does not work with iOS7 - so make it standard instead
+    if (color == 0)
+    {
+        color = 0xFFFFFF;
+    }
+	return color;
 }
 - (bool) actionIcons
 {

@@ -6,27 +6,16 @@
 //  Copyright (c) 2011 Teleportaloo. All rights reserved.
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 #import "QueryCacheManager.h"
 #import "TriMetTypes.h"
+#import "DebugLogging.h"
 
 @implementation QueryCacheManager
 
@@ -38,6 +27,8 @@
 {
     self.fullFileName = nil;
     self.cache        = nil;
+    
+    [MemoryCaches removeCache:self];
     
     [super dealloc];
 }
@@ -70,11 +61,25 @@
         // to say why.  This is my attempt to catch that - saving the
         // cache is nice but if it fails we'll catch it and not worry.
         //
+        bool written = false;
+        
         @try {
-            [self.cache writeToFile:self.fullFileName atomically:YES];
+            written = [self.cache writeToFile:self.fullFileName atomically:YES];
         }
         @catch (NSException *exception) 
         {
+            NSLog(@"writeToFile exception: %@ %@\n", exception.name, exception.reason );
+        }
+        
+        if (!written)
+        {
+            UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"Internal error"
+                                                               message:@"Could not write cache to file."
+                                                              delegate:nil
+                                                     cancelButtonTitle:@"OK"
+                                                     otherButtonTitles:nil] autorelease];
+            [alert show];
+            
             NSLog(@"Failed to write the cache %@\n", self.fullFileName);
             // clear the local cache, as I assume it is corrupted.
             [self deleteCacheFile];
@@ -93,6 +98,8 @@
         
 		self.fullFileName      = [documentsDirectory stringByAppendingPathComponent:fileName]; 
         _maxSize               = 0;
+        
+        [MemoryCaches addCache:self];
     }
     
     return self;
@@ -186,6 +193,13 @@
         [self openCache];
         [self.cache removeObjectForKey:cacheQuery]; 
     }
+}
+
+- (void)memoryWarning
+{
+    DEBUG_LOG(@"Releasing query cache %p\n", self.cache);
+    [self writeCache];
+    self.cache = nil;
 }
 
 @end

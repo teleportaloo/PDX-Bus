@@ -3,31 +3,17 @@
 //  TriMetTimes
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 #import "TriMetXML.h"
 #import "TriMetTypes.h"
 #import <SystemConfiguration/SystemConfiguration.h>
-#include "debug.h"
-#include "TriMetTimesAppDelegate.h"
-#include "AppDelegateMethods.h"
+#include "DebugLogging.h"
 #include "QueryCacheManager.h"
 #include "UserPrefs.h"
 
@@ -112,7 +98,7 @@ static QueryCacheManager *shortTermCache = nil;
 #pragma mark Item array
 
 
-- (id)itemAtIndex:(int)index
+- (id)itemAtIndex:(NSInteger)index
 {
 	if (self.itemArray != nil)
 	{
@@ -137,7 +123,7 @@ static QueryCacheManager *shortTermCache = nil;
 }
 
 
-- (int)safeItemCount
+- (NSInteger)safeItemCount
 {
 	if (_itemArray !=nil)
 	{
@@ -341,13 +327,13 @@ static QueryCacheManager *shortTermCache = nil;
 				if (self.rawData == nil && cacheAction!=TriMetXMLOnlyReadFromCache)
 				{
 					self.cacheTime = [NSDate date];
-					[self fetchDataAsynchronously:str];
+					[self fetchDataByPolling:str];
 				}
 
 			}
 			else {
 				self.cacheTime = [NSDate date];
-				[self fetchDataAsynchronously:str];
+				[self fetchDataByPolling:str];
 			}
 
 			if (self.rawData !=nil)

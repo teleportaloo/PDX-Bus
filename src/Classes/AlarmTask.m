@@ -6,32 +6,19 @@
 //  Copyright 2011. All rights reserved.
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 
 #import "AlarmTask.h"
-#import "TriMetTimesAppDelegate.h"
 #import "RootViewController.h"
 #import "DepartureTimesView.h"
 #import "AlarmNotification.h"
-#import "debug.h"
+#import "DebugLogging.h"
 #import "AlarmCell.h"
 #import "ViewControllerBase.h"
 
@@ -103,6 +90,7 @@
 
 - (void)dumpAlerts:(NSString *)dump
 {
+#ifdef DEBUGLOGGING
 	DEBUG_LOG(@"Alerts: %@\n", dump);
 	
 	UIApplication*    app = [UIApplication sharedApplication];
@@ -115,13 +103,14 @@
 		[dateFormatter setDateStyle:NSDateFormatterMediumStyle];
 		[dateFormatter setTimeStyle:NSDateFormatterLongStyle];
 		
-		DEBUG_LOG(@"Notifications %d\n", alerts.count);
+		DEBUG_LOG(@"Notifications %lu\n", (unsigned long)(unsigned long)alerts.count);
 	
 		for (UILocalNotification *notif in alerts)
 		{
 			DEBUG_LOG(@"Notif %@ %@\n", notif.alertBody, [dateFormatter stringFromDate:notif.fireDate]);
 		}
 	}
+#endif
 }
 
 - (void)cancelNotification
@@ -181,7 +170,7 @@
     
     if ([displayDate timeIntervalSinceNow] > (10.0 * 60.0))
     {
-        approx = @"Approximately ";
+        approx = NSLocalizedString(@"Approximately ", "aproximately prefix before a date");
     }
 	
 	// Create a new notification
@@ -365,9 +354,9 @@
 
 - (NSDate *)earlierAlert:(NSDate *)alert
 {
-	if (self.alarm && self.alarm.fireDate)
+	if (self.alarm && self.alarm.fireDate  && self.nextFetch)
 	{
-		return [alert earlierDate:self.alarm.fireDate];
+		return [[alert earlierDate:self.alarm.fireDate] earlierDate:self.nextFetch];
 	}
 	
 	return alert;
@@ -390,7 +379,7 @@
             CASE_ENUM_TO_STR(UIApplicationStateInactive);
             CASE_ENUM_TO_STR(UIApplicationStateBackground);
         default:
-            [str appendFormat:@"%d\n", appState];
+            [str appendFormat:@"%d\n", (int)appState];
     }
     
     return str;

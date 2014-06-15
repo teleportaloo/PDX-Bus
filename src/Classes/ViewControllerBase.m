@@ -5,31 +5,17 @@
 //  Created by Andrew Wallace on 2/21/10.
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 #import "ViewControllerBase.h"
 #import "FindByLocationView.h"
 #import "FlashWarning.h"
 #import "FlashViewController.h"
-#import "TriMetTimesAppDelegate.h"
-#import "AppDelegateMethods.h"
 #import "WebViewController.h"
 #import "NetworkTestView.h"
 #import "RssView.h"
@@ -37,6 +23,7 @@
 #import "OpenInChromeController.h"
 #import "TicketAlert.h"
 #import "UserPrefs.h"
+#import "MemoryCaches.h"
 
 #define kTweetButtonList        1
 #define kTweetButtonTweet       2
@@ -91,7 +78,7 @@
 	[super dealloc];
 }
 
-- (UIColor*)htmlColor:(int)val
++ (UIColor*)htmlColor:(int)val
 {
 	return [UIColor colorWithRed:((CGFloat)((val >> 16) & 0xFF))/255.0 
 						   green:((CGFloat)((val >> 8) & 0xFF))/255.0 
@@ -112,7 +99,7 @@
             seg.tintColor = [UIColor darkGrayColor];
         }
         else {
-            seg.tintColor = [self htmlColor:color];
+            seg.tintColor = [ViewControllerBase htmlColor:color];
         }
         
         seg.backgroundColor = [UIColor clearColor];
@@ -143,15 +130,15 @@
 	{
         if ([self.navigationController.toolbar respondsToSelector:@selector(setBarTintColor:)])
         {
-            self.navigationController.toolbar.barTintColor = [self htmlColor:color];
-            self.navigationController.navigationBar.barTintColor = [self htmlColor:color];
+            self.navigationController.toolbar.barTintColor = [ViewControllerBase htmlColor:color];
+            self.navigationController.navigationBar.barTintColor = [ViewControllerBase htmlColor:color];
             self.navigationController.toolbar.tintColor = [UIColor whiteColor];
             self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
         }
         else
         {
-            self.navigationController.toolbar.tintColor = [self htmlColor:color];
-            self.navigationController.navigationBar.tintColor = [self htmlColor:color];
+            self.navigationController.toolbar.tintColor = [ViewControllerBase htmlColor:color];
+            self.navigationController.navigationBar.tintColor = [ViewControllerBase htmlColor:color];
         }
         
 	}
@@ -233,6 +220,8 @@
 - (void)viewDidUnload {
 	// Release any retained subviews of the main view.
 	// e.g. self.myOutlet = nil;
+    
+    
 }
  
 
@@ -240,6 +229,14 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 //	[self.view bringSubviewToFront:self.toolbar];
+    
+    /*
+    if ([self respondsToSelector:@selector(setEdgesForExtendedLayout:)])
+    {
+        [self setEdgesForExtendedLayout:UIRectEdgeNone];
+        self.extendedLayoutIncludesOpaqueBars = NO;
+    }
+     */
 }
 
 // iOS6 methods
@@ -399,7 +396,7 @@
 }
 
 
-- (void)notRailAwareButton:(int)button
+- (void)notRailAwareButton:(NSInteger)button
 {
 	if (button == kRailAwareReloadButton)
 	{
@@ -570,7 +567,7 @@
 							 target:self action:@selector(ticketButton:)] autorelease];
 	
 	tix.style = UIBarButtonItemStylePlain;
-	tix.accessibilityLabel = @"Ticket";
+	tix.accessibilityLabel = @"Tickets";
     
     if (tix.image == nil)
     {
@@ -771,9 +768,8 @@
 	webPage.whenDone = [self.callback getController];
 	[self padRoute:route padding:&padding];
 	[webPage setURLmobile: [NSString stringWithFormat:@"http://www.trimet.org/schedules/r%@.htm",padding]
-					 full:nil
-					title:@"Map & schedule"]; 
-	[webPage displayPage:[self navigationController] animated:YES tableToDeselect:nil];
+					 full:nil]; 
+	[webPage displayPage:[self navigationController] animated:YES itemToDeselect:nil];
 	[webPage release];
 	[padding release];
 	
@@ -850,7 +846,7 @@
 	{
 		WebViewController *errorScreen = [[WebViewController alloc] init];
 		[errorScreen setRawData:htmlError title:@"Error Message"];
-		[errorScreen displayPage:[self navigationController] animated:YES tableToDeselect:nil];
+		[errorScreen displayPage:[self navigationController] animated:YES itemToDeselect:nil];
 		[errorScreen release];
 	}
 	else {
@@ -914,9 +910,16 @@
 
 - (void)didReceiveMemoryWarning {
 	// Releases the view if it doesn't have a superview.
-    [super didReceiveMemoryWarning];
+    
+    if ([self isViewLoaded] && [self.view window] == nil) {
+        self.view = nil;
+    }
+    
 	
 	// Release any cached data, images, etc that aren't in use.
+    [MemoryCaches memoryWarning];
+    
+    [super didReceiveMemoryWarning];
 }
 
 
@@ -938,6 +941,24 @@
     self.docMenu = nil;
 }
 
+- (bool)canTweet
+{
+    
+    Class messageClass = (NSClassFromString(@"TWTweetComposeViewController"));
+    
+    if (messageClass != nil) {
+        
+        return YES;
+        
+        // if ([TWTweetComposeViewController canSendTweet]) {
+        //    return YES;
+        //}
+    }
+    
+    return NO;
+}
+
+
 - (void) tweet
 {
     self.tweetAlert = [[[UIActionSheet alloc] initWithTitle:[NSString stringWithFormat:@"@%@ on Twitter", self.tweetAt]
@@ -948,7 +969,7 @@
     
     
     
-    if ([[TriMetTimesAppDelegate getSingleton] canTweet])
+    if ([self canTweet])
     {
         _tweetButtons[ [self.tweetAlert addButtonWithTitle:@"Send tweet"] ] = kTweetButtonTweet;
     }

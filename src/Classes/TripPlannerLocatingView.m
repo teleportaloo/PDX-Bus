@@ -5,29 +5,21 @@
 //  Created by Andrew Wallace on 7/4/09.
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 #import "TripPlannerLocatingView.h"
 #import "TripPlannerLocationListView.h"
 #import "TripPlannerResultsView.h"
-#import "XMLReverseGeoCode.h"
+#import "AddressBookUI/ABAddressFormatting.h"
+#import "AddressBook/AddressBook.h"
+#import <AddressBook/ABPerson.h>
+#import "DebugLogging.h"
+#import "ReverseGeoLocator.h"
 
 @implementation TripPlannerLocatingView
 
@@ -35,6 +27,7 @@
 @synthesize currentEndPoint = _currentEndPoint;
 @synthesize backgroundTaskController = _backgroundTaskController;
 @synthesize backgroundTaskForceResults = _backgroundTaskForceResults;
+@synthesize waitingForGeocoder = _waitingForGeocoder;
 
 - (void)dealloc {
 	self.tripQuery = nil;
@@ -91,33 +84,46 @@
 	}
 }
 
+
+
+
 - (void)fetchItineraries:(id)arg
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	[self.backgroundTask.callbackWhenFetching backgroundThread:[NSThread currentThread]];
 	
-	TripEndPoint *geoNameRequired = nil;
+    NSMutableArray *geoNamesRequired = [[[NSMutableArray alloc] init] autorelease];
 	
-	XMLReverseGeoCode *geoProvider = [UserPrefs getSingleton].reverseGeoCodeProvider;
-	
-	if (geoProvider !=nil && self.tripQuery.userRequest.toPoint.useCurrentLocation && self.tripQuery.userRequest.toPoint.locationDesc == nil)
+    bool canReverseGeocode = [ReverseGeoLocator supported];
+    
+	if (canReverseGeocode && (self.tripQuery.userRequest.toPoint.useCurrentLocation || self.tripQuery.userRequest.toPoint.coordinates!=nil) && self.tripQuery.userRequest.toPoint.locationDesc == nil)
 	{
-		geoNameRequired = self.tripQuery.userRequest.toPoint;
+		[geoNamesRequired addObject:self.tripQuery.userRequest.toPoint];
 	}
 	
-	if (geoProvider !=nil && self.tripQuery.userRequest.fromPoint.useCurrentLocation && self.tripQuery.userRequest.fromPoint.locationDesc == nil)
+	if (canReverseGeocode && (self.tripQuery.userRequest.fromPoint.useCurrentLocation || self.tripQuery.userRequest.fromPoint.coordinates!=nil) && self.tripQuery.userRequest.fromPoint.locationDesc == nil)
 	{
-		geoNameRequired = self.tripQuery.userRequest.fromPoint;
+		[geoNamesRequired addObject:self.tripQuery.userRequest.fromPoint];
 	}
 		
-	if (geoNameRequired && geoProvider !=nil)
+	if (geoNamesRequired.count > 0 && canReverseGeocode)
 	{
-		[self.backgroundTask.callbackWhenFetching backgroundStart:2 title:@"getting trip"];
+		[self.backgroundTask.callbackWhenFetching backgroundStart:1+(int)geoNamesRequired.count title:@"getting trip"];
 		[self.backgroundTask.callbackWhenFetching backgroundSubtext:@"geolocating"];
 		
-		geoNameRequired.locationDesc = [geoProvider fetchAddress:geoNameRequired.currentLocation];
+        int taskCounter = 0;
+        for (TripEndPoint *point in geoNamesRequired)
+        {
+            ReverseGeoLocator *geocoder = [[[ReverseGeoLocator alloc] init] autorelease];
+        
+            if ([geocoder fetchAddress:point.coordinates])
+            {
+                point.locationDesc = geocoder.result;
+            }
 		
-		[self.backgroundTask.callbackWhenFetching backgroundItemsDone:1];
+            taskCounter++;
+            [self.backgroundTask.callbackWhenFetching backgroundItemsDone:taskCounter];
+        }
 		[self.backgroundTask.callbackWhenFetching backgroundSubtext:@"planning trip"];
 		
 		[self.tripQuery fetchItineraries:nil];
@@ -202,14 +208,14 @@
     _accuracy = 200.0;
     
 	
-	if (self.currentEndPoint.currentLocation == nil || !_appeared)
+	if (self.currentEndPoint.coordinates == nil || !_appeared)
 	{
 		[self startLocating];
         _appeared = YES;
 	}
 	else
 	{
-		self.lastLocation = self.currentEndPoint.currentLocation;
+		self.lastLocation = self.currentEndPoint.coordinates;
         [self stopLocating];
         [self reloadData];
 	}
@@ -252,7 +258,7 @@
             point = self.tripQuery.userRequest.toPoint;
         }
 	
-        point.currentLocation = self.lastLocation;
+        point.coordinates = self.lastLocation;
 	
 	
         [self fetchAndDisplay:locatingView.navigationController forceResults:NO taskContainer:locatingView.backgroundTask];

@@ -6,31 +6,17 @@
 //  Copyright 2010. All rights reserved.
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 
 #import "DepartureHistoryView.h"
 #import "DepartureTimesView.h"
 #import "UserFaves.h"
-#import "TriMetTimesAppDelegate.h"
-#import "AppDelegateMethods.h"
 
 #define kPlainId @"plain"
 
@@ -53,11 +39,10 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 	
-	self.title = @"Recent stops";
+	self.title = NSLocalizedString(@"Recent stops", @"screen title");
 	// self.table.editing = YES;
 	self.table.allowsSelectionDuringEditing = YES;
-	self.navigationItem.rightBarButtonItem = self.editButtonItem;
-	
+	self.navigationItem.rightBarButtonItem = self.editButtonItem;	
 }
 
 
@@ -86,9 +71,9 @@
 {
 	if (_userData.recents.count == 0)
 	{
-		return @"No items in history";
+		return NSLocalizedString(@"No items in history", @"section title");
 	}
-	return @"These recently viewed stops can be re-used to get current arrivals.";
+	return NSLocalizedString(@"These recently viewed stops can be re-used to get current arrivals.", @"section title");
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {

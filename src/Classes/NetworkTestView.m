@@ -5,30 +5,19 @@
 //  Created by Andrew Wallace on 8/25/09.
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 #import "NetworkTestView.h"
 #import "CellLabel.h"
 #import "XMLDetour.h"
 #import "XMLTrips.h"
 #import "XMLStreetcarLocations.h"
+#import "ReverseGeoLocator.h"
 
 @implementation NetworkTestView
 
@@ -61,7 +50,7 @@
 #pragma mark Data fetchers
 
 - (void)fetchData:(id)arg
-{	
+{
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
 	[self.backgroundTask.callbackWhenFetching backgroundThread:[NSThread currentThread]];
@@ -90,7 +79,7 @@
 	trips.userRequest.toPoint.locationDesc   = @"8336"; // Yamhil District
 	trips.userRequest.fromPoint.locationDesc = @"8334"; // Pioneer Square South
 	
-	[trips fetchItineraries:nil]; 
+	[trips fetchItineraries:nil];
 	
 	self.trimetTripStatus = [trips gotData];
 	
@@ -103,17 +92,17 @@
 	self.nextbusQueryStatus = [locations gotData];
 	
 	[self.backgroundTask.callbackWhenFetching backgroundItemsDone:4];
+    
+    if ([ReverseGeoLocator supported])
+    {
 	
-	XMLReverseGeoCode *provider = [UserPrefs getSingleton].reverseGeoCodeProvider;
-	
-	if (provider != nil)
-	{
+        ReverseGeoLocator *provider = [[[ReverseGeoLocator alloc] init] autorelease];
 		// Pioneer Square!
-
+        
 		CLLocation *loc = [[[CLLocation alloc] initWithLatitude:45.519077 longitude:-122.678602] autorelease];
 		[provider fetchAddress:loc];
-		self.reverseGeoCodeStatus = [provider gotData];
-		self.reverseGeoCodeService = [provider getServiceName];
+		self.reverseGeoCodeStatus = (provider.error == nil);
+        self.reverseGeoCodeService = @"Apple Geocoder";
 	}
 	else {
 		self.reverseGeoCodeService = nil;
@@ -121,7 +110,7 @@
 	}
 	
 	[self.backgroundTask.callbackWhenFetching backgroundItemsDone:5];
-
+    
 	NSMutableString *diagnosticString = [[[NSMutableString alloc] init] autorelease];
 	
 	if (!self.internetConnectionStatus)
@@ -137,15 +126,16 @@
 		[diagnosticString appendString:@"The main network services are working at this time. If you are having problems, touch here to load www.trimet.org, then restart PDX Bus."];
 	}
 	
-	if (self.internetConnectionStatus && !self.reverseGeoCodeStatus)
+	if (self.internetConnectionStatus && !self.reverseGeoCodeStatus && self.reverseGeoCodeService!=nil)
 	{
-		[diagnosticString appendFormat:@"\n\nThe reverse GeoCoding service, %@, is not responding. This may cause trip planning to take longer. You may wish to disable the closest address service in the PDXBus appliation settings.", self.reverseGeoCodeService];
+        
+		[diagnosticString appendFormat:@"\n\nApple's GeoCoding service is not responding."];
 	}
 	
 	self.diagnosticText = diagnosticString;
 	
 	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
-
+    
 	
 	[pool release];
 	
@@ -169,7 +159,7 @@
 	return self;
 }
 
-- (int)adjustSectionNumber:(int)section
+- (NSInteger)adjustSectionNumber:(NSInteger)section
 {
 	if (self.networkErrorFromQuery==nil)
 	{
@@ -179,61 +169,61 @@
 }
 
 /*
-- (id)initWithStyle:(UITableViewStyle)style {
-    // Override initWithStyle: if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
-    if (self = [super initWithStyle:style]) {
-    }
-    return self;
-}
-*/
+ - (id)initWithStyle:(UITableViewStyle)style {
+ // Override initWithStyle: if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
+ if (self = [super initWithStyle:style]) {
+ }
+ return self;
+ }
+ */
 
 
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-
- 
-	 // add our custom add button as the nav bar's custom right view
-	 UIBarButtonItem *refreshButton = [[UIBarButtonItem alloc]
-									   initWithTitle:NSLocalizedString(@"Refresh", @"")
-									   style:UIBarButtonItemStyleBordered
-									   target:self
-									   action:@selector(refreshAction:)];
-	 self.navigationItem.rightBarButtonItem = refreshButton;
-	 [refreshButton release];
+    
+    
+    // add our custom add button as the nav bar's custom right view
+    UIBarButtonItem *refreshButton = [[UIBarButtonItem alloc]
+                                      initWithTitle:NSLocalizedString(@"Refresh", @"")
+                                      style:UIBarButtonItemStyleBordered
+                                      target:self
+                                      action:@selector(refreshAction:)];
+    self.navigationItem.rightBarButtonItem = refreshButton;
+    [refreshButton release];
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
 }
 
 
 /*
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
-}
-*/
+ - (void)viewWillAppear:(BOOL)animated {
+ [super viewWillAppear:animated];
+ }
+ */
 /*
-- (void)viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:animated];
-}
-*/
+ - (void)viewDidAppear:(BOOL)animated {
+ [super viewDidAppear:animated];
+ }
+ */
 /*
-- (void)viewWillDisappear:(BOOL)animated {
-	[super viewWillDisappear:animated];
-}
-*/
+ - (void)viewWillDisappear:(BOOL)animated {
+ [super viewWillDisappear:animated];
+ }
+ */
 /*
-- (void)viewDidDisappear:(BOOL)animated {
-	[super viewDidDisappear:animated];
-}
-*/
+ - (void)viewDidDisappear:(BOOL)animated {
+ [super viewDidDisappear:animated];
+ }
+ */
 
 /*
-// Override to allow orientations other than the default portrait orientation.
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-    // Return YES for supported orientations
-    return (interfaceOrientation == UIInterfaceOrientationPortrait);
-}
-*/
+ // Override to allow orientations other than the default portrait orientation.
+ - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+ // Return YES for supported orientations
+ return (interfaceOrientation == UIInterfaceOrientationPortrait);
+ }
+ */
 
 
 
@@ -359,7 +349,7 @@
 				cell.imageView.image = [TableViewWithToolbar alwaysGetIcon:kIconNetworkOk];
 				cell.textLabel.font = [self getBasicFont];
 			}
-			break;	
+			break;
 		case kSectionNextBus:
 			cell = [self networkStatusCell];
 			
@@ -383,21 +373,21 @@
 			
 			if (self.reverseGeoCodeService == nil)
 			{
-				cell.textLabel.text = @"No Reverse GeoCoding service has been selected.";
+				cell.textLabel.text = @"No Reverse GeoCoding service is not supported.";
 				cell.textLabel.textColor = [UIColor grayColor];
 				cell.imageView.image = [TableViewWithToolbar alwaysGetIcon:kIconNetworkOk];
 				cell.textLabel.font = [self getBasicFont];
 			}
 			else  if (!self.reverseGeoCodeStatus)
 			{
-				cell.textLabel.text = [NSString stringWithFormat:@"Not able to access %@ servers", self.reverseGeoCodeService];
+				cell.textLabel.text = [NSString stringWithFormat:@"Not able to access Apple's Geocoding servers."];
 				cell.textLabel.textColor = [UIColor redColor];
 				cell.imageView.image = [TableViewWithToolbar alwaysGetIcon:kIconNetworkBad];
 				cell.textLabel.font = [self getBasicFont];
 			}
 			else
 			{
-				cell.textLabel.text = [NSString stringWithFormat:@"%@ servers are available", self.reverseGeoCodeService];
+				cell.textLabel.text = [NSString stringWithFormat:@"Apple's Geocoding servers are available."];
 				cell.textLabel.textColor = [UIColor blackColor];
 				cell.imageView.image = [TableViewWithToolbar alwaysGetIcon:kIconNetworkOk];
 				cell.textLabel.font = [self getBasicFont];
@@ -435,7 +425,7 @@
 			cell = diagCell;
 			break;
 		}
-		break;
+            break;
 	}
 	
     return cell;
@@ -473,43 +463,43 @@
 
 
 /*
-// Override to support conditional editing of the table view.
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
-    // Return NO if you do not want the specified item to be editable.
-    return YES;
-}
-*/
+ // Override to support conditional editing of the table view.
+ - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+ // Return NO if you do not want the specified item to be editable.
+ return YES;
+ }
+ */
 
 
 /*
-// Override to support editing the table view.
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-    
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        // Delete the row from the data source
-        [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:YES];
-    }   
-    else if (editingStyle == UITableViewCellEditingStyleInsert) {
-        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-    }   
-}
-*/
+ // Override to support editing the table view.
+ - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+ 
+ if (editingStyle == UITableViewCellEditingStyleDelete) {
+ // Delete the row from the data source
+ [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:YES];
+ }
+ else if (editingStyle == UITableViewCellEditingStyleInsert) {
+ // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
+ }
+ }
+ */
 
 
 /*
-// Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath {
-}
-*/
+ // Override to support rearranging the table view.
+ - (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath {
+ }
+ */
 
 
 /*
-// Override to support conditional rearranging of the table view.
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
-    // Return NO if you do not want the item to be re-orderable.
-    return YES;
-}
-*/
+ // Override to support conditional rearranging of the table view.
+ - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
+ // Return NO if you do not want the item to be re-orderable.
+ return YES;
+ }
+ */
 
 
 

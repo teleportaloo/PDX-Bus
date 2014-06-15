@@ -6,29 +6,16 @@
 //  Copyright 2010. All rights reserved.
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 #import "BigRouteView.h"
 #import "Departure.h"
 #import "TriMetRouteColors.h"
-#import "TriMetTimesAppDelegate.h"
 
 @implementation BigRouteView
 
@@ -60,10 +47,10 @@
 
 - (void)infoAction:(id)sender
 {
-	UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"Info"
-													   message:@"This Bus line identifier screen is intended as an alternative to the large-print book provided to partially sighted travelers to let the operator know which bus they need to board.\n\nNote: the screen will not dim while this is displayed, so this will drain the battery quicker."
+	UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"Info", @"alert title")
+													   message:NSLocalizedString(@"This Bus line identifier screen is intended as an alternative to the large-print book provided to partially sighted travelers to let the operator know which bus they need to board.\n\nNote: the screen will not dim while this is displayed, so this will drain the battery quicker.",@"feature information")
 													  delegate:nil
-											 cancelButtonTitle:@"OK"
+											 cancelButtonTitle:NSLocalizedString(@"OK", @"button text")
 											 otherButtonTitles:nil ] autorelease];
 	[alert show];
 }
@@ -114,7 +101,7 @@
 - (void)viewWillAppear:(BOOL)animated {
 
 	
-	self.title = @"Bus line identifier";
+	self.title = NSLocalizedString(@"Bus line identifier", @"screen title");
 	[self createTextView];
 
     ROUTE_COL *col = [TriMetRouteColors rawColorForRoute:self.departure.route];
@@ -132,7 +119,7 @@
     
 	
 	UIBarButtonItem *info = [[[UIBarButtonItem alloc]
-							  initWithTitle:@"info"
+							  initWithTitle:NSLocalizedString(@"info", @"button text")
 							  style:UIBarButtonItemStyleBordered
 							  target:self action:@selector(infoAction:)] autorelease];
 	

@@ -6,24 +6,12 @@
 //  Copyright 2011 Teleportaloo. All rights reserved.
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 
 
@@ -33,7 +21,7 @@
 #import "AppDelegateMethods.h"
 #import "MapViewController.h"
 #import "SimpleAnnotation.h"
-#import "debug.h"
+#import "DebugLogging.h"
 #import "MapViewController.h"
 
 #ifdef DEBUG_ALARMS
@@ -228,9 +216,9 @@
 		[dateFormatter setDateStyle:NSDateFormatterMediumStyle];
 		[dateFormatter setTimeStyle:NSDateFormatterLongStyle];
 		
-		[self alert:[NSString stringWithFormat:@"You are within %@ of %@", kUserDistanceProximity, self.desc] 
+		[self alert:[NSString stringWithFormat:NSLocalizedString(@"You are within %@ of %@", @"gives a distance to a stop"), kUserDistanceProximity, self.desc]
 		   fireDate:nil
-			 button:@"Show map"
+			 button:NSLocalizedString(@"Show map", @"map alert button text")
 		   userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
 									self.stopId,														kStopIdNotification,
 									self.desc,															kStopMapDescription,
@@ -306,7 +294,7 @@
         case kCLErrorLocationUnknown:
             break;
         case kCLErrorDenied:
-            [self alert:[NSString stringWithFormat:@"Unable to acquire location - proximity alarm cancelled %@",[error localizedDescription]] 
+            [self alert:[NSString stringWithFormat:NSLocalizedString(@"Unable to acquire location - proximity alarm cancelled %@", @"location error with alarm name"), [error localizedDescription]]
                fireDate:nil 
                  button:nil 
                userInfo:nil
@@ -327,11 +315,11 @@
 - (void)cancelAlert
 {
 	
-	UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"Proximity Alarm"
-													   message:@"Cancel proximity alarm?"
+	UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"Proximity Alarm", @"alarm title")
+													   message:NSLocalizedString(@"Cancel proximity alarm?", @"alarm button text")
 													  delegate:self
-											 cancelButtonTitle:@"Cancel"
-											 otherButtonTitles:@"Keep", nil] autorelease]; 
+											 cancelButtonTitle:NSLocalizedString(@"Cancel", @"button text")
+											 otherButtonTitles:NSLocalizedString(@"Keep", @"button text to not cancel alarm"), nil] autorelease];
 	[alert show];
 }
 
@@ -425,24 +413,24 @@
 {
 	if (self.locationManager.location!=nil)
 	{
-		TriMetTimesAppDelegate *appDelegate = [TriMetTimesAppDelegate getSingleton];
+		TriMetTimesAppDelegate *app = [TriMetTimesAppDelegate getSingleton];
 		MapViewController *mapPage = [[MapViewController alloc] init];
 		NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
 		[dateFormatter setDateStyle:NSDateFormatterMediumStyle];
 		[dateFormatter setTimeStyle:NSDateFormatterLongStyle];
         
         
-		mapPage.title = @"Stop Proximity";
+		mapPage.title = NSLocalizedString(@"Stop Proximity", @"map title");
 		[mapPage addPin:self];
 		
 		SimpleAnnotation *currentLocation = [[[SimpleAnnotation alloc] init] autorelease];
 		currentLocation.pinColor		= MKPinAnnotationColorPurple;
-		currentLocation.pinTitle		= @"Current Location";
+		currentLocation.pinTitle		= NSLocalizedString(@"Current Location", @"map pin text");
 		[currentLocation setCoord:		self.locationManager.location.coordinate];
-		currentLocation.pinSubtitle		= [NSString stringWithFormat:@"as of %@", [dateFormatter stringFromDate:self.locationManager.location.timestamp]];
+		currentLocation.pinSubtitle		= [NSString stringWithFormat:NSLocalizedString(@"as of %@", @"shows the date"), [dateFormatter stringFromDate:self.locationManager.location.timestamp]];
 		[mapPage addPin:currentLocation];
 		
-		[[appDelegate.rootViewController navigationController] pushViewController:mapPage animated:YES];
+		[[app.rootViewController navigationController] pushViewController:mapPage animated:YES];
 		[mapPage release];
 	}
 }
@@ -469,7 +457,7 @@
 
 - (NSString *)subtitle
 {
-	return [NSString stringWithFormat:@"Stop ID %@", self.stopId];
+	return [NSString stringWithFormat:NSLocalizedString(@"Stop ID %@", @"TriMet Stop identifer <number>"), self.stopId];
 }
 
 - (NSString *) mapStopId
@@ -492,29 +480,29 @@
 	
     if (self.alarmState == AlarmFired)
     {
-        accuracy = @"Final distance:";
+        accuracy = NSLocalizedString(@"Final distance:", @"final distance that triggered alarm");
         
     }
     else if (self.locationManager.location.horizontalAccuracy > 200 || self.alarmState != AlarmStateAccurateLocationNeeded)
 	{
-		accuracy = @"Approx distance:";
+		accuracy = NSLocalizedString(@"Approx distance:", @"distance to alarm");
 	}
 	else {
-		accuracy = @"Distance:";
+		accuracy = NSLocalizedString(@"Distance:", @"distance to alarm");
 	}
 
 	if (distance <=0)
 	{
-		str = [NSString stringWithFormat:@"Near by"];
+		str = [NSString stringWithFormat:NSLocalizedString(@"Near by", @"final stop is very close")];
 	}
 	else if (distance < 500)
 	{
-		str = [NSString stringWithFormat:@"%@ %d ft (%d meters)", accuracy, (int)(distance * 3.2808398950131235),
+		str = [NSString stringWithFormat:NSLocalizedString(@"%@ %d ft (%d meters)", @"distance in feet then metres"), accuracy, (int)(distance * 3.2808398950131235),
 			   (int)(distance) ];
 	}
 	else
 	{
-		str = [NSString stringWithFormat:@"%@ %.2f miles (%.2f km)", accuracy, (float)(distance / 1609.344),
+		str = [NSString stringWithFormat:NSLocalizedString(@"%@ %.2f miles (%.2f km)", @"distance in miles then kms"), accuracy, (float)(distance / 1609.344),
 			   (float)(distance / 1000) ];
 	}	
 	
@@ -553,9 +541,9 @@
     
     SimpleAnnotation *currentLocation = [[[SimpleAnnotation alloc] init] autorelease];
     currentLocation.pinColor		= MKPinAnnotationColorPurple;
-    currentLocation.pinTitle		= @"Current Location";
+    currentLocation.pinTitle		= NSLocalizedString(@"Current Location", @"map pin text");
     [currentLocation setCoord:		self.locationManager.location.coordinate];
-    currentLocation.pinSubtitle		= [NSString stringWithFormat:@"as of %@", [dateFormatter stringFromDate:self.locationManager.location.timestamp]];
+    currentLocation.pinSubtitle		= [NSString stringWithFormat:NSLocalizedString(@"as of %@", @"shows the date"), [dateFormatter stringFromDate:self.locationManager.location.timestamp]];
     [mapPage addPin:currentLocation];
     
     [navController pushViewController:mapPage animated:YES];

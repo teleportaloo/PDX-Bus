@@ -3,31 +3,17 @@
 //  TriMetTimes
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 #import "TableViewWithToolbar.h"
 #import "WebViewController.h"
 #import "FlashViewController.h"
 #import "NetworkTestView.h"
-#import "TriMetTimesAppDelegate.h"
-#import "AppDelegateMethods.h"
 #import "FindByLocationView.h"
 #import "SearchFilter.h"
 #import <UIKit/UISearchDisplayController.h>
@@ -149,7 +135,7 @@
 
 - (UIColor *)lighterColorForColor:(UIColor *)c
 {
-    float r, g, b, a;
+    CGFloat r, g, b, a;
     if ([c getRed:&r green:&g blue:&b alpha:&a])
         return [UIColor colorWithRed:MIN(r + 0.2, 1.0)
                                green:MIN(g + 0.2, 1.0)
@@ -494,7 +480,7 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 
 
 
-- (void)notRailAwareButton:(int)button
+- (void)notRailAwareButton:(NSInteger)button
 {
 	[super notRailAwareButton:button];
 	
@@ -775,6 +761,43 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 {
 	
 	[self reloadData];
+}
+
+- (void)iOS7workaroundPromptGap
+{
+    // This is a workaround for the prompt leaving a gap. Not sure why I need it here especially and not in other windows.
+    // Based on this answer:  http://stackoverflow.com/questions/19372024/navigation-bar-with-prompt-appears-over-the-view-with-new-ios7-sdk
+    if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1) {
+        CGRect nbFrame = self.navigationController.navigationBar.frame;
+        __block CGRect vFrame = self.view.frame;
+        __block CGFloat diff = nbFrame.size.height + nbFrame.origin.y - vFrame.origin.y;
+        if (diff != 0.0) {
+            __block CGSize size = self.table.contentSize;
+            [UIView animateWithDuration:UINavigationControllerHideShowBarDuration
+                                  delay:0.0
+                                options: UIViewAnimationOptionCurveEaseOut
+                             animations:^{
+                                 vFrame.origin.y += diff;
+                                 vFrame.size.height -= diff;
+                                 self.view.frame = vFrame;
+                                 
+                                 size.height -= diff;
+                                 self.table.contentSize = size;
+                             }
+                             completion:^(BOOL finished){
+                                 DEBUG_LOG(@"Animation!");
+                             }];
+        }
+    }
+}
+
+- (void)deselectItemCallback
+{
+    NSIndexPath *ip = [self.table indexPathForSelectedRow];
+    if (ip!=nil)
+    {
+        [self.table deselectRowAtIndexPath:ip animated:YES];
+    }
 }
 
 

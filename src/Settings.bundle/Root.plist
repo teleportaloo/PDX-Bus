@@ -25,6 +25,26 @@
 			<string>PSToggleSwitchSpecifier</string>
 		</dict>
 		<dict>
+			<key>Title</key>
+			<string>On the main screen show:</string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<string>NO</string>
+			<key>FalseValue</key>
+			<string>NO</string>
+			<key>Key</key>
+			<string>bookmarks_at_the_top</string>
+			<key>Title</key>
+			<string>Bookmarks at the top</string>
+			<key>TrueValue</key>
+			<string>YES</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+		<dict>
 			<key>Type</key>
 			<string>PSGroupSpecifier</string>
 			<key>Title</key>
@@ -116,7 +136,6 @@
 				<string>Standard</string>
 				<string>Blue</string>
 				<string>Green</string>
-				<string>Black</string>
 				<string>Brown</string>
 				<string>Orange</string>
 				<string>Red</string>
@@ -131,7 +150,6 @@
 				<integer>16777215</integer>
 				<integer>609678</integer>
 				<integer>6397028</integer>
-				<integer>0</integer>
 				<integer>6042391</integer>
 				<integer>16750848</integer>
 				<integer>11141120</integer>
@@ -230,34 +248,6 @@
 				<integer>10</integer>
 				<integer>15</integer>
 				<integer>20</integer>
-			</array>
-		</dict>
-		<dict>
-			<key>Title</key>
-			<string>PDX Bus can look up the closest address when using the GPS.  There are several different services that provide this information:</string>
-			<key>Type</key>
-			<string>PSGroupSpecifier</string>
-		</dict>
-		<dict>
-			<key>DefaultValue</key>
-			<integer>1</integer>
-			<key>Key</key>
-			<string>geocode_provider</string>
-			<key>Title</key>
-			<string>Service:</string>
-			<key>Titles</key>
-			<array>
-				<string>None</string>
-				<string>Address from GeoNames.org</string>
-				<string>Neighborhood from GeoNames.org</string>
-			</array>
-			<key>Type</key>
-			<string>PSMultiValueSpecifier</string>
-			<key>Values</key>
-			<array>
-				<integer>0</integer>
-				<integer>2</integer>
-				<integer>3</integer>
 			</array>
 		</dict>
 		<dict>

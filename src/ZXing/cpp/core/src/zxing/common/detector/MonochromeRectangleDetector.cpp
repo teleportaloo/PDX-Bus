@@ -26,8 +26,8 @@ namespace zxing {
 using namespace std;
 
 std::vector<Ref<ResultPoint> > MonochromeRectangleDetector::detect() {
-    int height = image_->getHeight();
-    int width = image_->getWidth();
+    int height = (int) image_->getHeight();
+    int width = (int)image_->getWidth();
     int halfHeight = height >> 1;
     int halfWidth = width >> 1;
     int deltaY = max(1, height / (MAX_MODULES << 3));

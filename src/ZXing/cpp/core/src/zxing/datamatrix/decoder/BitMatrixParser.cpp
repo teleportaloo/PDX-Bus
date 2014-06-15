@@ -47,8 +47,8 @@ Ref<Version> BitMatrixParser::readVersion(Ref<BitMatrix> bitMatrix) {
     return parsedVersion_;
   }
 
-  int numRows = bitMatrix->getHeight();//getDimension();
-  int numColumns = bitMatrix->getWidth();//numRows;
+  int numRows = (int)bitMatrix->getHeight();//getDimension();
+  int numColumns = (int)bitMatrix->getWidth();//numRows;
 
   Ref<Version> version = parsedVersion_->getVersionForDimensions(numRows, numColumns);
   if (version != 0) {
@@ -63,8 +63,8 @@ ArrayRef<unsigned char> BitMatrixParser::readCodewords() {
     int row = 4;
     int column = 0;
 
-    int numRows = bitMatrix_->getHeight();
-    int numColumns = bitMatrix_->getWidth();
+    int numRows = (int)bitMatrix_->getHeight();
+    int numColumns = (int)bitMatrix_->getWidth();
 
     bool corner1Read = false;
     bool corner2Read = false;

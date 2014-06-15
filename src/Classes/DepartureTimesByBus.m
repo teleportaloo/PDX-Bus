@@ -5,24 +5,12 @@
 //  Created by Andrew Wallace on 10/2/09.
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 #import "DepartureTimesByBus.h"
 #import "Departure.h"
@@ -48,11 +36,11 @@
 
 #pragma mark Data Accessors
 
-- (Departure *)DTDataGetDeparture:(int)i
+- (Departure *)DTDataGetDeparture:(NSInteger)i
 {
 	return [self.departureItems objectAtIndex:i];
 }
-- (int)DTDataGetSafeItemCount
+- (NSInteger)DTDataGetSafeItemCount
 {
 	if (self.departureItems == nil)
 	{
@@ -79,9 +67,9 @@
 	Departure *d = [self DTDataGetDeparture:0];
 	if (d.block != nil)
 	{
-		return [NSString stringWithFormat:@"(Trip ID %@) ", d.block];
+		return [NSString stringWithFormat:NSLocalizedString(@"(Trip ID %@) ", @"trip info small text"), d.block];
 	}
-	return @"(Trip ID unavailable)";
+	return NSLocalizedString(@"(Trip ID unavailable)", @"error text");
 }
 
 - (StopDistance*)DTDataDistance
@@ -141,11 +129,5 @@
 {
 	return nil;
 }
-
-- (BOOL) DTDataStreetcarException
-{
-    return NO;
-}
-
 
 @end

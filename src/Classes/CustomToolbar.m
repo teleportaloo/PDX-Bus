@@ -5,24 +5,12 @@
 //  Created by Andrew Wallace on 6/22/09.
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 #import "CustomToolbar.h"
 #import "TableViewWithToolbar.h"
@@ -49,7 +37,7 @@
 {
 	// create the system-defined "OK or Done" button
 	UIBarButtonItem *button = [[[UIBarButtonItem alloc]
-							   initWithTitle:@"Device sleep disabled!" style:UIBarButtonItemStylePlain
+							   initWithTitle:NSLocalizedString(@"Device sleep disabled!", @"warning") style:UIBarButtonItemStylePlain
 							   target:target action:action] autorelease];
 	return button;
 	
@@ -67,7 +55,7 @@
 							 target:target action:action] autorelease];
 	
 	mag.style = UIBarButtonItemStylePlain;
-	mag.accessibilityLabel = @"Large bus line identifier";
+	mag.accessibilityLabel = NSLocalizedString(@"Large bus line identifier", @"accessibility text");
 	return mag;
 }
 
@@ -81,7 +69,7 @@
 							 target:target action:action] autorelease];
 
 	map.style = UIBarButtonItemStylePlain;
-	map.accessibilityLabel = @"Show Map";
+	map.accessibilityLabel = NSLocalizedString(@"Show Map", @"accessibility text");
 	
 	return map;
 }
@@ -95,7 +83,7 @@
 							 target:target action:action] autorelease];
 	
 	flash.style = UIBarButtonItemStylePlain;
-	flash.accessibilityLabel = @"Flash Screen";
+	flash.accessibilityLabel = NSLocalizedString(@"Flash Screen",@"accessibility text");
 	return flash;
 	
 }
@@ -110,7 +98,7 @@
 	
 	
 	back.style = UIBarButtonItemStylePlain;
-    back.accessibilityLabel = @"Home";
+    back.accessibilityLabel = NSLocalizedString(@"Home",@"accessibility text");
 	back.accessibilityHint = nil;
 	
 	return back;
@@ -126,7 +114,7 @@
 	
 	
 	back.style = UIBarButtonItemStylePlain;
-	back.accessibilityLabel = @"Redo";	
+	back.accessibilityLabel = NSLocalizedString(@"Redo",@"accessibility text");
 	return back;
 }
 
@@ -140,7 +128,7 @@
 	
 	
 	back.style = UIBarButtonItemStylePlain;
-	back.accessibilityLabel = @"Commuter Bookmark";
+	back.accessibilityLabel = NSLocalizedString(@"Commuter Bookmark", @"acessibility text");
 	return back;
 	
 }
@@ -154,7 +142,7 @@
 	
 	
 	back.style = UIBarButtonItemStylePlain;
-	back.accessibilityLabel = @"Locate Stops";
+	back.accessibilityLabel = NSLocalizedString(@"Locate Stops",@"acessibility text");
 	return back;
 	
 }
@@ -168,7 +156,7 @@
 	
 	
 	back.style = UIBarButtonItemStylePlain;
-	back.accessibilityLabel = @"QR Scanner";
+	back.accessibilityLabel = NSLocalizedString(@"QR Scanner",@"acessibility text");
 	return back;
 	
 }

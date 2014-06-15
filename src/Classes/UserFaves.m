@@ -6,8 +6,15 @@
 //  Copyright 2010. All rights reserved.
 //
 
+
+
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+
 #import "UserFaves.h"
-#import "debug.h"
+#import "DebugLogging.h"
 #import "StopLocations.h"
 
 
@@ -27,7 +34,33 @@
 
 - (void)dealloc
 {
+    self.appData = nil;
 	[super dealloc];
+}
+
+- (void)memoryWarning
+{
+    DEBUG_LOG(@"Clearing app data %p\n", self.appData);
+    [self cacheAppData];
+    self.appData = nil;
+}
+
+- (void)load
+{
+    if (self.appData == nil)
+    {
+        self.appData = [[[NSMutableDictionary alloc] initWithContentsOfFile:self.pathToUserCopyOfPlist] autorelease];
+    
+        NSMutableArray *recentTrips = [self.appData objectForKey:kRecentTrips];
+    
+        if (recentTrips == nil)
+        {
+            recentTrips = [[[NSMutableArray alloc] init] autorelease];
+        
+            [self.appData setObject:recentTrips forKey:kRecentTrips];
+            [self cacheAppData];
+        }
+    }
 }
 
 - (id)init {
@@ -44,17 +77,6 @@
 				NSAssert1(0, @"Failed to copy data with error message '%@'.", [error localizedDescription]);
 			}
 		}
-		self.appData = [[[NSMutableDictionary alloc] initWithContentsOfFile:self.pathToUserCopyOfPlist] autorelease];
-		
-		NSMutableArray *recentTrips = [self.appData objectForKey:kRecentTrips];
-		
-		if (recentTrips == nil)
-		{
-			recentTrips = [[[NSMutableArray alloc] init] autorelease];
-			
-			[self.appData setObject:recentTrips forKey:kRecentTrips];
-			[self cacheAppData];
-		}
 	}
 	return self;
 }
@@ -66,6 +88,7 @@
 	if (singleton == nil)
 	{
 		singleton = [[SafeUserData alloc] init];
+        [MemoryCaches addCache:singleton];
 	}
 	return [[singleton retain] autorelease];
 }
@@ -74,7 +97,30 @@
 {
 	@synchronized (self)
 	{
-		[self.appData writeToFile:self.pathToUserCopyOfPlist atomically:YES];
+        if (self.appData)
+        {
+            bool written = false;
+            @try {
+               written = [self.appData writeToFile:self.pathToUserCopyOfPlist atomically:YES];
+            }
+            @catch (NSException *exception)
+            {
+                NSLog(@"writeToFile exception: %@ %@\n", exception.name, exception.reason );
+            }
+            
+            if (!written)
+            {
+                UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"Internal error"
+                                                                   message:@"Could not write bookmarks to file."
+                                                                  delegate:nil
+                                                         cancelButtonTitle:@"OK"
+                                                         otherButtonTitles:nil] autorelease];
+                [alert show];
+                
+                NSLog(@"Failed to write app date to file %@\n", self.pathToUserCopyOfPlist);
+            }
+            
+        }
 	}
 }
 
@@ -82,6 +128,7 @@
 {
 	@synchronized (self)
 	{
+        [self load];
 		[self.appData setObject:@"" forKey:kLast];	
 		[self.appData removeObjectForKey:kLastNames];
 	}
@@ -91,6 +138,7 @@
 {
 	@synchronized (self)
 	{
+        [self load];
 		[self.appData setObject:locations forKey:kLast];
 	
 		DEBUG_PRINTF("setLastArrivals %s\n", [locations cStringUsingEncoding:NSUTF8StringEncoding]);
@@ -102,6 +150,7 @@
 {
 	@synchronized (self)
 	{
+        [self load];
 		if (names != nil)
 		{
 			[self.appData setObject:names forKey:kLastNames];
@@ -118,6 +167,7 @@
 {
     @synchronized (self)
 	{
+        [self load];
 		NSMutableDictionary *takeMeHome   = [self.appData objectForKey:kTakeMeHome];
 		
 		return takeMeHome;
@@ -128,6 +178,7 @@
 {
     @synchronized (self)
 	{
+        [self load];
         [self.appData setObject:userRequest forKey:kTakeMeHome];
         
         [self cacheAppData];
@@ -138,6 +189,8 @@
 {
 	@synchronized (self)
 	{
+        [self load];
+        
 		NSMutableArray *recentTrips   = [self.appData objectForKey:kRecentTrips];
 		
 		if (recentTrips == nil)
@@ -173,6 +226,8 @@
 {
 	@synchronized (self)
 	{
+        [self load];
+        
 		// NSMutableArray *userFaves = [self.favesAndRecents objectForKey:kFaves];
 		NSMutableArray *recents   = [self.appData objectForKey:kRecents];
 		
@@ -227,6 +282,7 @@
 {
 	@synchronized (self)
 	{
+        [self load];
 		return [self.appData objectForKey:kFaves];
 	}
 }
@@ -235,6 +291,7 @@
 {
 	@synchronized (self)
 	{
+        [self load];
 		return [self.appData objectForKey:kRecents];
 	}
 }
@@ -243,6 +300,7 @@
 {
 	@synchronized (self)
 	{
+        [self load];
 		return [self.appData objectForKey:kRecentTrips];
 	}
 }
@@ -251,6 +309,7 @@
 {
 	@synchronized (self)
 	{
+        [self load];
 		return [self.appData objectForKey:kLast];
 	}
 }
@@ -259,6 +318,7 @@
 {
 	@synchronized (self)
 	{
+        [self load];
 		return [self.appData objectForKey:kLastNames];
 	}
 }
@@ -267,6 +327,7 @@
 {
 	@synchronized (self)
 	{
+        [self load];
 		if (last!=nil)
 		{
 			[self.appData setObject:last forKey:kLastRun];
@@ -283,6 +344,7 @@
 {
 	@synchronized (self)
 	{
+        [self load];
 		return [self.appData objectForKey:kLastRun];
 	}	
 }
@@ -291,6 +353,7 @@
 {
 	@synchronized (self)
 	{
+        [self load];
 		return [self.appData objectForKey:kLastTrip];
 	}
 }
@@ -299,6 +362,7 @@
 {
 	@synchronized (self)
 	{
+        [self load];
 		[self.appData setObject:dict forKey:kLastTrip];
 	}
 	
@@ -311,6 +375,7 @@
 {
 	@synchronized (self)
 	{
+        [self load];
 		return [self.appData objectForKey:kLastLocate];
 	}
 }
@@ -319,6 +384,7 @@
 {
 	@synchronized (self)
 	{
+        [self load];
 		[self.appData setObject:dict forKey:kLastLocate];
 	}
 	
@@ -332,6 +398,7 @@
 {
 	@synchronized (self)
 	{
+        [self load];
 		[self.appData setObject:date  forKey:@"LocationDatabaseDate"]; 
 	
 		[self cacheAppData];
@@ -343,12 +410,14 @@
 {
 	@synchronized (self)
 	{
+        [self load];
 		return [self.appData objectForKey:@"LocationDatabaseDate"];
 	}
 }
 
 - (NSTimeInterval)getLocationDatabaseAge
 {
+    [self load];
 	NSString *dateStr =  [self getLocationDatabaseDateString];
 	
 	if (dateStr == nil || [dateStr isEqualToString:kUnknownDate] || [dateStr isEqualToString:kIncompleteDatabase])

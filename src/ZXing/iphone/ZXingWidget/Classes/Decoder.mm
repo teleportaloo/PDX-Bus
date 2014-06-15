@@ -160,7 +160,7 @@ ZXingWidgetControllerCallback(Decoder* _decoder) : decoder(_decoder) {}
     //NSSet *formatReaders = [FormatReader formatReaders];
     NSSet *formatReaders = self.readers;
     Ref<LuminanceSource> source 
-      (new GreyscaleLuminanceSource(subsetData, subsetBytesPerRow, subsetHeight, 0, 0, subsetWidth, subsetHeight));
+      (new GreyscaleLuminanceSource(subsetData, (int)subsetBytesPerRow, (int)subsetHeight, 0, 0, (int)subsetWidth, (int)subsetHeight));
 
     Ref<Binarizer> binarizer (new HybridBinarizer(source));
     source = 0;

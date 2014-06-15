@@ -52,7 +52,7 @@ namespace zxing {
 
     Ref<Result> MultiFormatUPCEANReader::decodeRow(int rowNumber, Ref<BitArray> row) {
       // Compute this location once and reuse it on multiple implementations
-      int size = readers.size();
+      int size = (int)readers.size();
       for (int i = 0; i < size; i++) {
         Ref<OneDReader> reader = readers[i];
         Ref<Result> result = reader->decodeRow(rowNumber, row);

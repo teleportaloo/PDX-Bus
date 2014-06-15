@@ -93,14 +93,14 @@ bool FinderPatternFinder::foundPatternCross(int* stateCount) {
 
 float FinderPatternFinder::crossCheckVertical(size_t startI, size_t centerJ, int maxCount, int originalStateCountTotal) {
 
-  int maxI = image_->getHeight();
+  int maxI = (int)image_->getHeight();
   int stateCount[5];
   for (int i = 0; i < 5; i++)
     stateCount[i] = 0;
 
 
   // Start counting up from center
-  int i = startI;
+  int i = (int)startI;
   while (i >= 0 && image_->get(centerJ, i)) {
     stateCount[2]++;
     i--;
@@ -125,7 +125,7 @@ float FinderPatternFinder::crossCheckVertical(size_t startI, size_t centerJ, int
   }
 
   // Now also count down from center
-  i = startI + 1;
+  i = (int)(startI + 1);
   while (i < maxI && image_->get(centerJ, i)) {
     stateCount[2]++;
     i++;
@@ -161,12 +161,12 @@ float FinderPatternFinder::crossCheckVertical(size_t startI, size_t centerJ, int
 float FinderPatternFinder::crossCheckHorizontal(size_t startJ, size_t centerI, int maxCount,
     int originalStateCountTotal) {
 
-  int maxJ = image_->getWidth();
+  int maxJ = (int)image_->getWidth();
   int stateCount[5];
   for (int i = 0; i < 5; i++)
     stateCount[i] = 0;
 
-  int j = startJ;
+  int j = (int)startJ;
   while (j >= 0 && image_->get(j, centerI)) {
     stateCount[2]++;
     j--;
@@ -189,7 +189,7 @@ float FinderPatternFinder::crossCheckHorizontal(size_t startJ, size_t centerI, i
     return NAN;
   }
 
-  j = startJ + 1;
+  j = (int)(startJ + 1);
   while (j < maxJ && image_->get(j, centerI)) {
     stateCount[2]++;
     j++;
@@ -225,7 +225,7 @@ float FinderPatternFinder::crossCheckHorizontal(size_t startJ, size_t centerI, i
 bool FinderPatternFinder::handlePossibleCenter(int* stateCount, size_t i, size_t j) {
 #ifndef __clang_analyzer__
   int stateCountTotal = stateCount[0] + stateCount[1] + stateCount[2] + stateCount[3] + stateCount[4];
-  float centerJ = centerFromEnd(stateCount, j);
+  float centerJ = centerFromEnd(stateCount, (int)j);
   float centerI = crossCheckVertical(i, (size_t)centerJ, stateCount[2], stateCountTotal);
   if (!isnan(centerI)) {
     // Re-cross check
@@ -442,7 +442,7 @@ Ref<FinderPatternInfo> FinderPatternFinder::find(DecodeHints const& hints) {
   // modules in size. This gives the smallest number of pixels the center
   // could be, so skip this often. When trying harder, look for all
   // QR versions regardless of how dense they are.
-  int iSkip = (3 * maxI) / (4 * MAX_MODULES);
+  int iSkip = (int)((3 * maxI) / (4 * MAX_MODULES));
   if (iSkip < MIN_SKIP || tryHarder) {
       iSkip = MIN_SKIP;
   }

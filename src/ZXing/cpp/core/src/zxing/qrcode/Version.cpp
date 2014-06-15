@@ -152,7 +152,7 @@ Version *Version::decodeVersionInformation(unsigned int versionBits) {
   // We can tolerate up to 3 bits of error since no two version info codewords will
   // differ in less than 4 bits.
   if (bestDifference <= 3) {
-    return getVersionForNumber(bestVersion);
+    return getVersionForNumber((int)bestVersion);
   }
   // If we didn't find a close enough match, fail
   return 0;
@@ -551,7 +551,7 @@ int Version::buildVersions() {
                                                new ECB(34, 25)),
                                   new ECBlocks(30, new ECB(20, 15),
                                                new ECB(61, 16)))));
-  return VERSIONS.size();
+  return (int)VERSIONS.size();
 }
 }
 }

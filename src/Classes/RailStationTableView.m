@@ -5,24 +5,12 @@
 //  Created by Andrew Wallace on 10/8/09.
 //
 
-/*
 
-``The contents of this file are subject to the Mozilla Public License
-     Version 1.1 (the "License"); you may not use this file except in
-     compliance with the License. You may obtain a copy of the License at
-     http://www.mozilla.org/MPL/
 
-     Software distributed under the License is distributed on an "AS IS"
-     basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-     License for the specific language governing rights and limitations
-     under the License.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-     The Original Code is PDXBus.
-
-     The Initial Developer of the Original Code is Andrew Wallace.
-     Copyright (c) 2008-2011 Andrew Wallace.  All Rights Reserved.''
-
- */
 
 #import "RailStationTableView.h"
 #import "DepartureTimesView.h"
@@ -35,6 +23,7 @@
 #import "DirectionView.h"
 #import "AlarmTaskList.h"
 #import "TripPlannerSummaryView.h"
+#import "FindByLocationView.h"
 
 
 
@@ -80,9 +69,9 @@
 	{
 		self.title = @"Station Details";
 		
-		rowNearby = -1;
-		rowShowAll = -1;
-		rowOffset = 0;
+		_rowNearby = -1;
+		_rowShowAll = -1;
+		_rowOffset = 0;
 	}
 	return self;
 }
@@ -118,7 +107,7 @@
 {
 	AlarmTaskList *taskList = [AlarmTaskList getSingleton];
 	NSString *stopId = [self.station.locList objectAtIndex:0];
-	CLLocation *here = [self.locationsDb getLocaction:stopId];
+	CLLocation *here = [self.locationsDb getLocation:stopId];
 	
 	
 	
@@ -198,7 +187,7 @@
 		
 		for (i=0; i< [self.station.locList count];  i++)
 		{
-			here = [self.locationsDb getLocaction:[self.station.locList objectAtIndex:i]];
+			here = [self.locationsDb getLocation:[self.station.locList objectAtIndex:i]];
 			
 			if (here)
 			{
@@ -303,26 +292,24 @@
 		case kProximitySection:
 			return 1;
 		case kStops:
-			rows = [self.station.locList count];
-			if (rows > 1 && self.callback == nil)
+			_rows = [self.station.locList count];
+			if (_rows > 1 && self.callback == nil)
 			{
-				rowShowAll = 0;
-				rowOffset = 1;
-				rows++;
+				_rowShowAll = 0;
+				_rowOffset = 1;
+				_rows++;
 			}
 			else {
-				rowOffset = 0;
+				_rowOffset = 0;
 			}
 
 			
 			if (self.callback == nil)
 			{
-				rowNearby = rows;
-				rows++;
-				rowRail = rows;
-				rows++;
+				_rowNearby = _rows;
+				_rows++;
 			}
-			return rows;
+			return _rows;
 		case kWikiLink:
 			if (self.station.wikiLink != nil)
 			{
@@ -392,7 +379,7 @@
             break;
             
 		case kStops:
-			if (indexPath.row == rowShowAll)
+			if (indexPath.row == _rowShowAll)
 			{
 				cell = [self plainCell:tableView];
 				cell.textLabel.text = @"All arrivals";
@@ -400,13 +387,13 @@
 				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 				cell.imageView.image = [self getActionIcon:kIconRecent];
 			}
-			else if ((indexPath.row-rowOffset) < [self.station.dirList count])
+			else if ((indexPath.row-_rowOffset) < [self.station.dirList count])
 			{
 				cell = [self plainCell:tableView];
 				// cell = [self directionCellWithReuseIdentifier:@"dcell"];
 				
-				cell.textLabel.text = [NSString stringWithFormat:@"%@ (ID %@)", [self.station.dirList objectAtIndex:indexPath.row-rowOffset]
-									   ,[self.station.locList objectAtIndex:indexPath.row-rowOffset]];
+				cell.textLabel.text = [NSString stringWithFormat:@"%@ (ID %@)", [self.station.dirList objectAtIndex:indexPath.row-_rowOffset]
+									   ,[self.station.locList objectAtIndex:indexPath.row-_rowOffset]];
 				
 				
 				
@@ -414,25 +401,15 @@
 				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 				cell.imageView.image = [self getActionIcon:kIconRecent];
 			}
-			else if (indexPath.row == rowNearby)
+			else if (indexPath.row == _rowNearby)
 			{
 				cell = [self plainCell:tableView];
-				cell.textLabel.text = @"Nearby stops (1/2 mile)";
+				cell.textLabel.text = @"Nearby stops";
 				cell.selectionStyle = UITableViewCellSelectionStyleBlue;
 				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 				cell.imageView.image = [self getActionIcon7:kIconLocate7 old:kIconLocate];
 
-			}
-			else if (indexPath.row == rowRail)
-			{
-				cell = [self plainCell:tableView];
-				cell.textLabel.text = @"Nearest rail stations";
-				cell.selectionStyle = UITableViewCellSelectionStyleBlue;
-				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-				cell.imageView.image = [self getActionIcon7:kIconLocate7 old:kIconLocate];
-				
-			}
-
+            }
 			break;
 		case kWikiLink:
 			switch (indexPath.row)
@@ -542,7 +519,7 @@
 
 				}
 			}
-			else if (indexPath.row == rowShowAll)
+			else if (indexPath.row == _rowShowAll)
 			{
 				DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
 				
@@ -560,61 +537,26 @@
 				[departureViewController fetchTimesForLocationInBackground:self.backgroundTask loc:locs];
 				[departureViewController release];
 			}
-			else if ((indexPath.row-rowOffset) < [self.station.locList count])
+			else if ((indexPath.row-_rowOffset) < [self.station.locList count])
 			{
 				DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
 				
-				[departureViewController fetchTimesForLocationInBackground:self.backgroundTask loc:[self.station.locList objectAtIndex:indexPath.row-rowOffset]];
+				[departureViewController fetchTimesForLocationInBackground:self.backgroundTask loc:[self.station.locList objectAtIndex:indexPath.row-_rowOffset]];
 				[departureViewController release];
 			}
 			
-			else if (indexPath.row == rowNearby || indexPath.row == rowRail)
+			else if (indexPath.row == _rowNearby)
 			{
-				CLLocation *here = [self.locationsDb getLocaction:[self.station.locList objectAtIndex:0]];
+				CLLocation *here = [self.locationsDb getLocation:[self.station.locList objectAtIndex:0]];
 				
 				if (here !=nil)
-				{
-					DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
-					
-					departureViewController.callback = self.callback;
-					
-					if (indexPath.row == rowNearby)
-					{
-						[departureViewController fetchTimesForNearestStopsInBackground:self.backgroundTask location:here maxToFind:kMaxStops minDistance:kDistHalfMile mode:TripModeAll];
-					}
-					else 
-					{
-						[departureViewController fetchTimesForNearestStopsInBackground:self.backgroundTask location:here maxToFind:kMaxStops minDistance:kDistMax mode:TripModeTrainOnly];
-					}
-					
-					
-					//	[departureViewController fetchTimesForLocationsInBackground:self.backgroundTask stops:self.locationsDb.nearestStops];
-					
-					[departureViewController release];
-			
-					
-			/*
-					if ([self.locationsDb.nearestStops count] > 0)
-					{
-						DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
-				
-						departureViewController.callback = self.callback;
-				
-						[departureViewController fetchTimesForLocationsInBackground:self.backgroundTask stops:self.locationsDb.nearestStops];
-				
-						[departureViewController release];
-					}
-					else
-					{
-						UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"Nearby stops"
-																   message:@"No stops were found"
-																  delegate:nil
-														 cancelButtonTitle:@"OK"
-														 otherButtonTitles:nil] autorelease];
-						[alert show];
-					}
-			*/
-				}
+				{                    
+                    FindByLocationView *find = [[FindByLocationView alloc] initWithLocation:here description:self.station.station];
+                    
+                    [[self navigationController] pushViewController:find animated:YES];
+                    
+                    [find release];
+                }
 				else 
 				{
 					UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"Nearby stops"
@@ -636,8 +578,7 @@
 					WebViewController *webPage = [[WebViewController alloc] init];
 					
 					[webPage setURLmobile:[NSString stringWithFormat:@"http://en.m.wikipedia.org/wiki/%@", self.station.wikiLink ] 
-									 full:[NSString stringWithFormat:@"http://en.wikipedia.org/wiki/%@", self.station.wikiLink ]
-									title:@"Wikipedia"];
+									 full:[NSString stringWithFormat:@"http://en.wikipedia.org/wiki/%@", self.station.wikiLink ]];
 					
 					
 					if (self.callback)
@@ -645,7 +586,7 @@
 						webPage.whenDone = [self.callback getController];
 					}
                     
-                    [webPage displayPage:[self navigationController] animated:YES tableToDeselect:self.table];
+                    [webPage displayPage:[self navigationController] animated:YES itemToDeselect:self];
 					
 					[webPage release];
 					break;

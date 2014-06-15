@@ -37,7 +37,7 @@ Decoder::Decoder() :
 }
 
 void Decoder::correctErrors(ArrayRef<unsigned char> codewordBytes, int numDataCodewords) {
-  int numCodewords = codewordBytes->size();
+  int numCodewords = (int)codewordBytes->size();
   ArrayRef<int> codewordInts(numCodewords);
   for (int i = 0; i < numCodewords; i++) {
     codewordInts[i] = codewordBytes[i] & 0xff;
