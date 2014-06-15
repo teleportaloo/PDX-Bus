@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<array>
+	<dict>
+		<key>Title</key>
+		<string>Thanks for the civic app award</string>
+		<key>Icon</key>
+		<string>Award.png</string>
+		<key>LinkM</key>
+		<string>http://civicapps.org/news/announcing-best-apps-winners-and-runners</string>
+	</dict>
+	<dict>
+		<key>Title</key>
+		<string>App icon by Rob Alan</string>
+		<key>Icon</key>
+		<string>ActionIcon.png</string>
+		<key>LinkM</key>
+		<string>http://robalan.com</string>
+	</dict>
+	<dict>
+		<key>Title</key>
+		<string>Some icons from Oxygen Icons</string>
+		<key>Icon</key>
+		<string>Brush.png</string>
+		<key>LinkM</key>
+		<string>http://openiconlibrary.sourceforge.net/</string>
+	</dict>
+	<dict>
+		<key>Title</key>
+		<string>Icons by Joseph Wain / glyphish.com</string>
+		<key>Icon</key>
+		<string>Brush.png</string>
+		<key>LinkM</key>
+		<string>http://glyphish.com/</string>
+	</dict>
+	<dict>
+		<key>Title</key>
+		<string>Some toolbar icons by TWG</string>
+		<key>Icon</key>
+		<string>Brush.png</string>
+		<key>LinkM</key>
+		<string>http://blog.twg.ca/2009/09/free-iphone-toolbar-icons/</string>
+	</dict>
+	<dict>
+		<key>Title</key>
+		<string>Open in Chrome from Google</string>
+		<key>Icon</key>
+		<string>Source.png</string>
+		<key>LinkM</key>
+		<string>https://github.com/GoogleChrome/OpenInChrome</string>
+	</dict>
+	<dict>
+		<key>Title</key>
+		<string>Inf Color Picker by InfinitApps</string>
+		<key>Icon</key>
+		<string>Source.png</string>
+		<key>LinkM</key>
+		<string>https://github.com/InfinitApps/InfColorPicker</string>
+	</dict>
+	<dict>
+		<key>Title</key>
+		<string>Uses code from www.inappsettingskit.com</string>
+		<key>Icon</key>
+		<string>Source.png</string>
+		<key>LinkM</key>
+		<string>http://www.inappsettingskit.com/</string>
+	</dict>
+	<dict>
+		<key>Title</key>
+		<string>Polygon code (c) 1970-2003, Wm. Randolph Franklin</string>
+		<key>Icon</key>
+		<string>Source.png</string>
+		<key>LinkM</key>
+		<string>http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html</string>
+	</dict>
+	<dict>
+		<key>Title</key>
+		<string>Some icons by Aha-Soft</string>
+		<key>Icon</key>
+		<string>Brush.png</string>
+		<key>LinkM</key>
+		<string>http://www.small-icons.com/icons.htm</string>
+	</dict>
+	<dict>
+		<key>Title</key>
+		<string>Pull to Refresh (c) 2010 Leah Culver</string>
+		<key>Icon</key>
+		<string>Source.png</string>
+		<key>LinkM</key>
+		<string>https://github.com/leah/PullToRefresh</string>
+	</dict>
+	<dict>
+		<key>Title</key>
+		<string>QR Scanning from ZXing library</string>
+		<key>Icon</key>
+		<string>Source.png</string>
+		<key>LinkM</key>
+		<string>http://github.com/zxing/zxing</string>
+	</dict>
+	<dict>
+		<key>Title</key>
+		<string>Some icons by Gentleface</string>
+		<key>Icon</key>
+		<string>Brush.png</string>
+		<key>LinkM</key>
+		<string>http://gentleface.com/free_icon_set.html</string>
+	</dict>
+	<dict>
+		<key>Title</key>
+		<string>PDX Bus Source Code</string>
+		<key>Icon</key>
+		<string>Source.png</string>
+		<key>LinkM</key>
+		<string>https://github.com/teleportaloo/PDX-Bus</string>
+	</dict>
+</array>
+</plist>

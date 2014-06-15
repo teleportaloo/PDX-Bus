@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<array>
+	<dict>
+		<key>Title</key>
+		<string>About TriMet&apos;s Transit Tracker</string>
+		<key>Icon</key>
+		<string>Globe.png</string>
+		<key>LinkM</key>
+		<string>http://trimet.org/transittracker/about.htm</string>
+	</dict>
+	<dict>
+		<key>Title</key>
+		<string>About Stop IDs</string>
+		<key>Icon</key>
+		<string>Globe.png</string>
+		<key>LinkM</key>
+		<string>http://trimet.org/transittracker/stopidnumbers.htm</string>
+	</dict>
+	<dict>
+		<key>Title</key>
+		<string>PDX Bus web site &amp; Support</string>
+		<key>Icon</key>
+		<string>Blog.png</string>
+		<key>LinkM</key>
+		<string>http:/pdxbus.teleportaloo.org</string>
+	</dict>
+	<dict>
+		<key>Title</key>
+		<string>TriMet.org</string>
+		<key>Icon</key>
+		<string>visittrimeticon.gif</string>
+		<key>LinkM</key>
+		<string>http://m.trimet.org/</string>
+		<key>LinkF</key>
+		<string>http://www.trimet.org/</string>
+	</dict>
+	<dict>
+		<key>Title</key>
+		<string>Portland Transport Blog</string>
+		<key>Icon</key>
+		<string>Globe.png</string>
+		<key>LinkM</key>
+		<string>http://portlandtransport.com</string>
+	</dict>
+</array>
+</plist>
