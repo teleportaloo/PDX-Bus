@@ -20,7 +20,7 @@ Features include:
 
 Route and arrival data provided by permission of TriMet.
 
-PDX Bus 7.1 sources
+PDX Bus 7.2 sources
 ===================
 
 I am making the sources to PDX Bus version 7.1 available as part of the
@@ -182,6 +182,15 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Change log
 ----------
+### Version 7.2 (December 2014)
+* Updated for iOS 8.
+* Native support for iPhone 6 + 6 Plus screen sizes
+* New MAX and WES map.
+* Updated disclaimer for maps.
+* Added text to explain the different colors used for the arrival times.
+* Removed streetcar data tables;  streetcar data is fetched via TriMet feed now except for location data.
+* Changed the keyboard type to allow emoji again.
+
 ### Version 7.1 (February 2014)
 * Fix for Streetcar API changes
 * Added back 'Bookmarks at the top' setting.
@@ -204,6 +213,8 @@ Change log
 * Moved streetcar data into a singleton instread of it being with the app object; removed streetcar exception code.
 * Fixed circular references in the RailMapView - this caused a memory leak that was not spotted by static analyis or Instruments.
 * Nearby stops now uses the FindByLocationView to show all the possible options.
+* Re-allowed emoji keyboard for bookmark names
+* Fixed iOS7 text height calculations.
 
 
 ### Version 7.0 (January 2014)
