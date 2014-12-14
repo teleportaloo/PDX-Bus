@@ -66,8 +66,6 @@
 
 - (BOOL)getDeparturesForLocation:(NSString *)location  parseError:(NSError **)error;
 - (BOOL)getDeparturesForLocation:(NSString *)location  block:(NSString*)block parseError:(NSError **)error;
-- (void)addStreetcarArrivalsForLocation:(NSString *)location;
-- (void)mergeStreetcarArrivals:(XMLStreetcarPredictions*)streetcars;
 - (void)reload;
 - (double)getLat;
 - (double)getLng;

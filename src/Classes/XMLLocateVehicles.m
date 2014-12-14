@@ -19,7 +19,6 @@
 #import <MapKit/MKGeometry.h>
 #import "BackgroundTaskContainer.h"
 #import "XMLStreetcarLocations.h"
-#import "StreetcarConversions.h"
 
 #define MetersInAMile 1609.344
 
@@ -69,33 +68,6 @@
 	
     
 	bool res =  [self startParsing:query parseError:&error cacheAction:TriMetXMLNoCaching];
-    
-    
-    if (self.gotData && self.dist < 1.0)
-    {
-        NSDictionary *routes = [StreetcarConversions getStreetcarRoutes];
-        
-        for (NSString *key in routes)
-        {
-            XMLStreetcarLocations * loc = [XMLStreetcarLocations getSingletonForRoute:key];
-            
-            [loc getLocations:nil];
-            
-            if (loc.locations)
-            {
-            
-                for (NSString *block in loc.locations)
-                {
-                    Vehicle *car = [loc.locations objectForKey:block];
-                    
-                    car.distance = [self.location distanceFromLocation:car.location];
-                    
-                    [_itemArray addObject:car];
-
-                }
-            }
-        }
-    }
     
     if (self.gotData)
     {

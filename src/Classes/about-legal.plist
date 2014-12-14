@@ -114,5 +114,21 @@
 		<key>LinkM</key>
 		<string>https://github.com/teleportaloo/PDX-Bus</string>
 	</dict>
+	<dict>
+		<key>Title</key>
+		<string>Max map is courtesy of TriMet and may change without notice</string>
+		<key>Icon</key>
+		<string>Brush.png</string>
+		<key>LinkM</key>
+		<string>http://www.trimet.org/pdfs/maps/railsystem.pdf</string>
+	</dict>
+	<dict>
+		<key>Title</key>
+		<string>Streetcar map is courtesy of Portland Streetcar and may change without notice</string>
+		<key>Icon</key>
+		<string>Brush.png</string>
+		<key>LinkM</key>
+		<string>http://portlandstreetcar.org/node/4</string>
+	</dict>
 </array>
 </plist>

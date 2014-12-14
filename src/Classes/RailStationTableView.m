@@ -125,11 +125,6 @@
 	// Release any cached data, images, etc that aren't in use.
 }
 
-- (void)viewDidUnload {
-	// Release any retained subviews of the main view.
-	// e.g. self.myOutlet = nil;
-}
-
 - (void)addLineToRoutes:(RAILLINES)line
 {
 	if (self.station.line & line) 
@@ -153,6 +148,13 @@
 	[self addLineToRoutes:kStreetcarNsLine];
     [self addLineToRoutes:kStreetcarClLine];
 	[self addLineToRoutes:kWesLine];
+    
+    if (self.callback)
+    {
+        self.title = @"Choose a stop below:";
+    }
+    
+    [super viewDidLoad];
 }
 
 #pragma mark UI helper functions
@@ -238,7 +240,7 @@
 			
 			if (self.callback)
 			{
-				return @"Stops";
+				return @"Choose from one of these stop(s):";
 			}
 			return @"Arrivals";
 		case kWikiLink:
@@ -398,7 +400,12 @@
 				
 				
 				cell.selectionStyle = UITableViewCellSelectionStyleBlue;
-				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+                
+                
+                if (self.callback==nil)
+                {
+                    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+                }
 				cell.imageView.image = [self getActionIcon:kIconRecent];
 			}
 			else if (indexPath.row == _rowNearby)

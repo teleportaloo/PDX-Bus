@@ -80,7 +80,7 @@
 	{
 		CGRect bounds = [[UIScreen mainScreen] bounds];
 		
-		if (bounds.size.width <= kSmallestSmallScreenDimension)
+		if (bounds.size.width <= MaxiPhoneWidth)
 		{
 			font = [UIFont fontWithName:kFontName size:kTextViewFontSize];
 		}
@@ -100,7 +100,7 @@
 	{
 		CGRect bounds = [[UIScreen mainScreen] bounds];
 		
-		if (bounds.size.width <= kSmallestSmallScreenDimension)
+		if (bounds.size.width <= MaxiPhoneWidth)
 		{
 			font = [UIFont fontWithName:kBoldFontName size:kTextViewFontSize];
 		}
@@ -116,15 +116,22 @@
 {
 	CGFloat cellWidth = 0;
 	
-	switch(screenWidth)
+    
+    cellWidth = screenWidth - ScaleFromiPhone(127, screenWidth);
+	
+    /*
+    switch(screenWidth)
 	{
         default:
 		case WidthiPhoneNarrow:
 			cellWidth = 193;  // 212;
 			break;
+        case WidthiPhone6Narrow:
+            cellWidth = 243;
 			//case WidthiPhoneWide:
 			//	cellWidth = 370.0;
 			//	break;
+            break;
 		case WidthiPadNarrow:
 			cellWidth = 545;
 			break;
@@ -132,6 +139,7 @@
 			cellWidth = 805; // 800.0; //730.0;
 			break;
 	}
+    */
 	
 	return cellWidth;
 }
@@ -140,23 +148,14 @@
 {
 	CGFloat width = 0;
 	
-	switch(screenWidth)
-	{
-        default:
-		case WidthiPhoneNarrow:
-			width = 75;  // 212;
-			break;
-			//case WidthiPhoneWide:
-			//	cellWidth = 370.0;
-			//	break;
-		case WidthiPadNarrow:
-			width = 100; // 520.0; //480
-			break;
-		case WidthiPadWide:
-			width = 100; // 800.0; //730.0;
-			break;
-	}
-	
+    if (LargeScreenStyle(screenWidth))
+    {
+        width = 100;
+    }
+    else
+    {
+        width = 75;
+    }
 	return width;
 }
 

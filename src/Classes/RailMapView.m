@@ -35,7 +35,7 @@ int nHotSpots = 0;
 
 static RAILMAP railmaps[] = 
 {
-    {@"MAX & WES Map", @"MAXWESMap",   { 3000, 1185 }, 0, 0, 30, 3, 0, { 0, 0 } },
+    {@"MAX & WES Map", @"MAXWESMap",   { 3000, 1691 }, 0, 0, 30, 3, 0, { 0, 0 } },
     {@"Streetcar Map", @"StreetcarMap",{ 1500, 2075 }, 0, 0, 4, 20, 0, { 0, 0 } },
     {nil,   0, 0}
 };
@@ -82,7 +82,7 @@ static RAILMAP railmaps[] =
 
 - (CGFloat) heightOffset
 {
-    if (self.iOS7style && ((([self screenWidth] & WidthiPad) ==0) || (self.screenWidth == WidthiPadNarrow)))
+    if (self.iOS7style && (SmallScreenStyle([self screenWidth]) || (self.screenWidth == WidthiPadNarrow)))
     {
         return -[UIApplication sharedApplication].statusBarFrame.size.height;
     }
@@ -669,6 +669,7 @@ static RAILMAP railmaps[] =
         [self   processHotSpot:[NSString stringWithUTF8String:hotSpotRegions[selectedItem].action] item:selectedItem];
         self.showNextOnAppearance = NO;
     }
+    [super viewDidAppear:animated];
 }
 
 - (void) selectedHotspot:(NSTimer*)theTimer

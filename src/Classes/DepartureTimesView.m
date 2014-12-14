@@ -149,7 +149,7 @@ static int depthCount = 0;
 
 - (CGFloat) heightOffset
 {
-    if (self.iOS7style && ((([self screenWidth] & WidthiPad) ==0) || (self.screenWidth == WidthiPadNarrow)))
+    if (self.iOS7style && (LargeScreenStyle([self screenWidth]) || (self.screenWidth >= WidthiPhone6)))
     {
         return -[UIApplication sharedApplication].statusBarFrame.size.height;
     }
@@ -450,7 +450,9 @@ static int depthCount = 0;
 	}
 	
 	SECTIONROWS *sr = _sectionRows + section;
-		
+#ifndef __clang_analyzer__
+    // The analyiser can't tell that this is a static variable that is initialized once.
+    
 	if (sr->row[0] == kSectionRowInit)
 	{
 		bool expanded = !_blockSort && _sectionExpanded[section];
@@ -561,14 +563,17 @@ static int depthCount = 0;
 		sr->row[kSectionsPerStop] = next;
 		
 		
-	}	
+	}
+    
+#endif
 	return sr;
 }
 
 - (NSIndexPath *)subsection:(NSIndexPath*)indexPath;
 {
 	NSIndexPath *newIndexPath = nil;
-	
+
+#ifndef __clang_analyzer__
 	int prevrow = 0;
 	SECTIONROWS *sr = [self calcSubsections: (int)indexPath.section];
 	
@@ -585,7 +590,7 @@ static int depthCount = 0;
 		prevrow = sr->row[i];
 	}
 //	printf("Old %d %d new %d %d\n",(int)indexPath.section,(int)indexPath.row, (int)newIndexPath.section, (int)newIndexPath.row);
-	
+#endif
 	return newIndexPath;
 }
 
@@ -1796,7 +1801,7 @@ static int depthCount = 0;
 			}
 			else
 			{
-				if (([self screenWidth] & WidthiPad) !=0)
+				if ((LargeScreenStyle([self screenWidth])) !=0)
 				{
 					result = kWideDepartureCellHeight;
 				}
@@ -1847,6 +1852,7 @@ static int depthCount = 0;
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section 
 {
+#ifndef __clang_analyzer__
 	SECTIONROWS *sr = [self calcSubsections:section];
 	
 	if ([self validStop:section])
@@ -1863,6 +1869,7 @@ static int depthCount = 0;
 
 	
 	return sr->row[kSectionsPerStop-1];
+#endif
 }
 
 
@@ -1966,12 +1973,9 @@ static int depthCount = 0;
 				cell = [tableView dequeueReusableCellWithIdentifier:cellId];
 				
 				if (cell == nil) {
-					cell = [departure tableviewCellWithReuseIdentifier:cellId 
-																   big:YES 
-													   spaceToDecorate:YES
-																 width:[self screenWidth]];
+					cell = [departure bigTableviewCellWithReuseIdentifier:cellId width:[self screenWidth]];
 				}
-				[dd DTDataPopulateCell:departure cell:cell decorate:YES big:YES wide:[self screenWidth]!=WidthiPhoneNarrow];
+				[dd DTDataPopulateCell:departure cell:cell decorate:YES big:YES wide:LargeScreenStyle([self screenWidth])];
 				// [departure populateCell:cell decorate:YES big:YES];
 				
 			}

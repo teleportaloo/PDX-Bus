@@ -18,6 +18,7 @@
 #import "AboutView.h"
 #import "BlockColorDb.h"
 #import "BlockColorViewController.h"
+#import "DebugLogging.h"
 
 #define kSectionSupport			0
 #define kSectionTips			1
@@ -227,7 +228,8 @@
 				
 				cell.view.font =  [self getParagraphFont];
 				cell.view.text =  supportText;
-				// printf("width:  %f\n", cell.view.bounds.size.width);
+				DEBUG_LOG(@"width:  %f\n", cell.view.bounds.size.width);
+    
 				cell.selectionStyle = UITableViewCellSelectionStyleNone;
 				[self updateAccessibility:cell indexPath:indexPath text:supportText alwaysSaySection:YES];
 				// cell.backgroundView = [self clearView];

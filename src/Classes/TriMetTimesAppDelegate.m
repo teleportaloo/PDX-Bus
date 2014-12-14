@@ -30,7 +30,6 @@
 
 @implementation TriMetTimesAppDelegate
 
-
 @synthesize window;
 @synthesize navigationController;
 
@@ -46,7 +45,8 @@
 	//	[userFaves release];
     [window release];
 	self.pathToCleanExit = nil;
-
+    
+    [rootViewController release];
 	[super dealloc];
 }
 
@@ -156,6 +156,8 @@
 - (void)applicationDidFinishLaunching:(UIApplication *)application {
     DEBUG_LOG(@"applicationDidFinishLaunching\n");
     
+   // [actualRootViewController initRootWindow];
+    
 	// Check for data in Documents directory. Copy default appData.plist to Documents if not found.
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
@@ -198,7 +200,7 @@
     
     // Configure and show the window
     
-    // self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    self.window = [[[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]] autorelease];
     
     [self.window setRootViewController:self.rootViewController];
     

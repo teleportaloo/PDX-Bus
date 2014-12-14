@@ -58,7 +58,7 @@
 
 - (CGFloat)getTimeHeight:(ScreenType)width
 {
-	if (width & WidthiPad)
+	if (LargeScreenStyle(width))
 	{
 		return 24.0;
 	}
@@ -82,7 +82,7 @@
 //	CGFloat VGAP					    = 4.0;
 	CGFloat COL_WIDTH					= 280;
 		
-	if (width & WidthiPad)
+	if (LargeScreenStyle(width))
 	{
 		TIME_FONT_SIZE = 22.0;
 	}

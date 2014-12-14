@@ -42,6 +42,8 @@ void BitArray::setBulk(size_t i, unsigned int newBits) {
   bits_[i >> logBits_] = newBits;
 }
 
+#ifndef __clang_analyzer__
+    
 void BitArray::setRange(int start, int end) {
   if (end < start) {
     throw IllegalArgumentException("invalid call to BitArray::setRange");
@@ -67,6 +69,8 @@ void BitArray::setRange(int start, int end) {
     bits_[i] |= mask;
   }
 }
+    
+#endif
 
 void BitArray::clear() {
   size_t max = bits_.size();
@@ -74,6 +78,8 @@ void BitArray::clear() {
     bits_[i] = 0;
   }
 }
+    
+#ifndef __clang_analyzer__
 
 bool BitArray::isRange(size_t start, size_t end, bool value) {
   if (end < start) {
@@ -110,6 +116,8 @@ bool BitArray::isRange(size_t start, size_t end, bool value) {
   }
   return true;
 }
+    
+#endif
 
 vector<unsigned int>& BitArray::getBitArray() {
   return bits_;

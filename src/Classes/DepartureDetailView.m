@@ -58,6 +58,11 @@
 
 #define kDestAlarm					0
 
+#define kRouteName                  0
+#define kRouteColor                 1
+#define kRouteRows                  2
+
+
 @implementation DepartureDetailView
 
 @synthesize departure = _departure;
@@ -96,14 +101,15 @@
 		items++;
 	}
 	
-	if (self.departure.streetcar && self.allDepartures!=nil)
+	if (self.departure.nextBusFeedInTriMetData && self.allDepartures!=nil && self.departure.status == kStatusEstimated)
 	{
 		streetcarRoutes = [XMLStreetcarLocations getStreetcarRoutesInDepartureArray:self.allDepartures];
-        items += streetcarRoutes.count;
+        items += streetcarRoutes.count * 2;
 	}
 	
 	[self.backgroundTask.callbackWhenFetching backgroundStart:items title:NSLocalizedString(@"getting details", @"Progress indication")];
-	items = 0;
+	
+    items = 0;
     
 	if (self.departure.detour)
 	{
@@ -115,14 +121,41 @@
 		[self.backgroundTask.callbackWhenFetching backgroundItemsDone:items];
         
 	}
-    
-    
 	
-	if (self.departure.streetcar && self.departure.blockPositionLat == nil)
+	if (self.departure.nextBusFeedInTriMetData && self.departure.blockPositionLat == nil && self.departure.status == kStatusEstimated)
 	{
         for (NSString *route in streetcarRoutes)
         {
             NSError *parseError = nil;
+            
+            if (self.departure.streetcarId == nil)
+            {
+            
+                // First get the arrivals via next bus to see if we can get the correct vehicle ID
+                XMLStreetcarPredictions *streetcarArrivals = [[XMLStreetcarPredictions alloc] init];
+            
+                NSError *error = nil;
+            
+                [streetcarArrivals getDeparturesForLocation:[NSString stringWithFormat:@"predictions&a=portland-sc&r=%@&stopId=%@", route,self.departure.locid]
+                                     parseError:&error];
+            
+                for (NSInteger i=0; i< streetcarArrivals.safeItemCount; i++)
+                {
+                    Departure *vehicle = [streetcarArrivals itemAtIndex:i];
+                
+                    if ([vehicle.block isEqualToString:self.departure.block])
+                    {
+                        self.departure.streetcarId = vehicle.streetcarId;
+                        break;
+                    }
+                }
+            
+                [streetcarArrivals release];
+            }
+            
+            items++;
+            [self.backgroundTask.callbackWhenFetching backgroundItemsDone:items];
+            
             XMLStreetcarLocations *locs = [XMLStreetcarLocations getSingletonForRoute:route];
             [locs getLocations:&parseError];
             
@@ -328,7 +361,7 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 	if (section == kRouteSection)
 	{
-		return 1;
+		return kRouteRows;
 	}
 	
 	if (section == locationSection)
@@ -396,25 +429,58 @@
     }
 }
 
+static NSString *detourId = @"detour";
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	
 	if (indexPath.section == kRouteSection)
 	{
-		UITableViewCell *cell = nil;
-		NSString *cellId = [self.departure cellReuseIdentifier:kDepartureCellId width:[self screenWidth]];
-		cell = [tableView dequeueReusableCellWithIdentifier: cellId];
-		if (cell == nil) {
-			cell = [self.departure tableviewCellWithReuseIdentifier:cellId 
-																big:NO 
-													spaceToDecorate:NO
-															  width:[self screenWidth]];
-		}
-		[self.departure populateCell:cell decorate:NO big:NO busName:YES wide:NO];
-		
-		
-		//NSString *newVoiceOver = [NSString stringWithFormat:@"%@, %@", self.departure.locationDesc, [cell accessibilityLabel]];
-		//[cell setAccessibilityLabel:newVoiceOver];
-		
+        UITableViewCell *cell = nil;
+        
+        switch (indexPath.row)
+        {
+            case kRouteName:
+            {
+                
+                NSString *cellId = [self.departure cellReuseIdentifier:kDepartureCellId width:[self screenWidth]];
+                cell = [tableView dequeueReusableCellWithIdentifier: cellId];
+                if (cell == nil) {
+                    cell = [self.departure tableviewCellWithReuseIdentifier:cellId
+                                                            spaceToDecorate:NO
+                                                                      width:[self screenWidth]];
+                }
+                [self.departure populateCell:cell decorate:NO big:NO busName:YES wide:NO];
+                
+                
+                //NSString *newVoiceOver = [NSString stringWithFormat:@"%@, %@", self.departure.locationDesc, [cell accessibilityLabel]];
+                //[cell setAccessibilityLabel:newVoiceOver];
+                return cell;
+                break;
+            }
+            case kRouteColor:
+            {
+                CellLabel *labelCell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:detourId];
+                if (labelCell == nil) {
+                    labelCell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:detourId] autorelease];
+                    labelCell.view = [Detour create_UITextView:[self getParagraphFont]];
+                    
+                }
+                NSString *details = nil;
+                UIColor *color = nil;
+                
+                [self.departure getExplaination:&color details:&details];
+                
+                labelCell.view.text = details;
+                labelCell.view.textColor = color;
+                
+                [labelCell setAccessibilityLabel:details];
+                
+                labelCell.selectionStyle = UITableViewCellSelectionStyleNone;
+                
+                cell = labelCell;
+                break;
+            }
+        }
 		return cell;
 	}
 	else if (indexPath.section == locationSection)
@@ -426,7 +492,6 @@
 		
         if (cell == nil) {
             cell = [self.departure tableviewCellWithReuseIdentifier:cellId
-                                                                big:NO
                                                     spaceToDecorate:YES
                                                               width:[self screenWidth]];
         }
@@ -478,7 +543,7 @@
 	}
 	else if (indexPath.section == detourSection)
 	{
-		static NSString *detourId = @"detour";
+		
 		CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:detourId];
 		if (cell == nil) {
 			cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:detourId] autorelease];
@@ -518,7 +583,7 @@
 		UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier: cellId];
 		
 		if (cell == nil) {
-			cell = [self.departure tableviewCellWithReuseIdentifier:cellId big:NO spaceToDecorate:NO
+			cell = [self.departure tableviewCellWithReuseIdentifier:cellId spaceToDecorate:NO
 															  width:[self screenWidth]];
 		}
 		[self.departure populateTripCell:cell item:indexPath.row];
@@ -782,9 +847,9 @@
 	{
 		return 35.0;
 	}
-	else if (indexPath.section == kRouteSection || indexPath.section == tripSection || indexPath.section == locationSection)
+	else if ((indexPath.section == kRouteSection && indexPath.row == kRouteName) || indexPath.section == tripSection || indexPath.section == locationSection)
 	{
-		if (([self screenWidth] & WidthiPad) !=0)
+		if (LargeScreenStyle([self screenWidth]))
 		{
 			return kWideDepartureCellHeight;
 		}
@@ -792,7 +857,17 @@
 			return kDepartureCellHeight;
 		}
 	}
-	else if (indexPath.section == detourSection)
+    else if (indexPath.section == kRouteSection && indexPath.row == kRouteColor)
+    {
+        NSString *details = nil;
+        UIColor *color = nil;
+        
+        [self.departure getExplaination:&color details:&details];
+        
+        return [self getTextHeight:details font:[self getParagraphFont]];
+
+    }
+    else if (indexPath.section == detourSection)
 	{		
 		Detour *det = [self.detourData itemAtIndex:indexPath.row];
 		return [self getTextHeight:[self detourText:det] font:[self getParagraphFont]];
@@ -824,12 +899,6 @@
 - (void)viewDidAppear:(BOOL)animated {
 	[super viewDidAppear:animated];
 	[self reloadData];
-}
-
-- (void)viewWillDisappear:(BOOL)animated {
-}
-
-- (void)viewDidDisappear:(BOOL)animated {
 }
 
 - (void)didReceiveMemoryWarning {

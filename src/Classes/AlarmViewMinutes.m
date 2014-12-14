@@ -15,6 +15,7 @@
 
 #import "AlarmViewMinutes.h"
 #import "AlarmTaskList.h"
+#import "InterfaceOrientation.h"
 
 #define kAlertViewSections		 1
 #define kAlertViewRowsPerSection 3
@@ -63,9 +64,12 @@
 {
 	CGRect screenRect = [[UIScreen mainScreen] applicationFrame];
 	
-	
-	if (self.interfaceOrientation == UIInterfaceOrientationLandscapeLeft ||
-		self.interfaceOrientation == UIInterfaceOrientationLandscapeRight)
+        NSLog(@"%@", (self.view.frame.size.width == ([[UIScreen mainScreen] bounds].size.width*([[UIScreen mainScreen] bounds].size.width<[[UIScreen mainScreen] bounds].size.height))+([[UIScreen mainScreen] bounds].size.height*([[UIScreen mainScreen] bounds].size.width>[[UIScreen mainScreen] bounds].size.height))) ? @"Portrait" : @"Landscape");
+
+
+    
+    if ([InterfaceOrientation getInterfaceOrientation:self]  == UIInterfaceOrientationLandscapeLeft ||
+		[InterfaceOrientation getInterfaceOrientation:self] == UIInterfaceOrientationLandscapeRight)
 	{
 		CGFloat temp = screenRect.size.height;
 		screenRect.size.height = screenRect.size.width;
@@ -254,6 +258,7 @@
 	 [self.view addSubview:self.datePickerView];
 	 */
 	
+    [super viewDidAppear:animated];
 	[self reloadData];
 }
 

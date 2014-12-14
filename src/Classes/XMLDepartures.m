@@ -13,11 +13,10 @@
 #import "XMLDepartures.h"
 #import "DepartureTimesView.h"
 #import "Departure.h"
-#import "StreetcarConversions.h"
 #import "trip.h"
 #import "XMLDetour.h"
 
-static NSString *departuresURLString = @"arrivals/locIDs/%@";
+static NSString *departuresURLString = @"arrivals/locIDs/%@/streetcar/true";
 
 
 @implementation XMLDepartures
@@ -129,7 +128,7 @@ static NSString *departuresURLString = @"arrivals/locIDs/%@";
 	int nStops = 0;
 	while ([idScanner scanUpToString:@"," intoString:&nextStop] && ![thread isCancelled])
 	{
-		[self addStreetcarArrivalsForLocation:nextStop];
+		// [self addStreetcarArrivalsForLocation:nextStop];
 		nStops++;
 		
 		if (![idScanner isAtEnd])
@@ -216,7 +215,9 @@ static NSString *departuresURLString = @"arrivals/locIDs/%@";
 		{
         
 			self.currentDepartureObject = [[[Departure alloc] init] autorelease];
-			self.currentDepartureObject.hasBlock = false;
+            
+            // Streetcar arrivals have an implicit block
+			self.currentDepartureObject.hasBlock = [self getBoolFromAttribute:attributeDict valueForKey:@"streetCar"];
 			
             self.currentDepartureObject.cacheTime = self.cacheTime;
             
@@ -263,8 +264,11 @@ static NSString *departuresURLString = @"arrivals/locIDs/%@";
 				}
 			}
 			self.currentDepartureObject.scheduledTime = [self getTimeFromAttribute:attributeDict valueForKey:@"scheduled"];	
-			self.currentDepartureObject.detour = [[self safeValueFromDict:attributeDict valueForKey:@"detour"] isEqualToString:@"true"];
-			self.currentDepartureObject.nextBusFeedInTriMetData = [[self safeValueFromDict:attributeDict valueForKey:@"nextBusFeed"] isEqualToString:@"true"];
+            self.currentDepartureObject.detour =  [self getBoolFromAttribute:attributeDict valueForKey:@"detour"];
+			self.currentDepartureObject.nextBusFeedInTriMetData = [self getBoolFromAttribute:attributeDict valueForKey:@"nextBusFeed"];
+            self.currentDepartureObject.streetcar = [self getBoolFromAttribute:attributeDict valueForKey:@"streetCar"];
+            
+            
             DEBUG_LOG(@"Nextbusfeed:%d %@\n", self.currentDepartureObject.nextBusFeedInTriMetData, [self safeValueFromDict:attributeDict valueForKey:@"nextbusfeed"])	;
             // [self dumpDict:attributeDict];
         }
@@ -373,194 +377,6 @@ static NSMutableDictionary *cachedDetours = nil;
 	
 	hasDetour = ([detour safeItemCount] > 0);
 	return hasDetour;
-}
-
-#pragma mark Streetcar data 
-
-- (void)mergeStreetcarArrivals:(XMLStreetcarPredictions*)streetcars
-{
-	bool detour = NO;
-    NSString *triMetRoute = nil;
-    
-    DEBUG_LOG(@"###############################################\n");
-    DEBUG_LOG(@"ID        :%@\n", self.locid);
-    DEBUG_LOG(@"Streetcar :%@\n", streetcars.stopTitle);
-    DEBUG_LOG(@"TriMet    :%@\n", self.locDesc);
-    DEBUG_LOG(@"Direction :%@\n", self.locDir);
-    
-    if (streetcars.nextBusRouteId!=nil)
-    {
-        triMetRoute = [[StreetcarConversions getStreetcarRoutes] objectForKey:streetcars.nextBusRouteId];
-        
-        if (triMetRoute)
-        {
-              detour = [self checkForDetour:triMetRoute];
-        }
-    }
-	
-	int i;
-	for (i=0; i < [streetcars safeItemCount]; i++)
-	{
-        Departure *dep = [streetcars itemAtIndex:i];
-        
-		self.currentDepartureObject = dep;
-		
-		// self.currentDepartureObject.fullSign = routeName;
-		// self.currentDepartureObject.routeName = routeName;
-		self.currentDepartureObject.departureTime = self.currentDepartureObject.nextBus * 60 * 1000 + self.queryTime;
-		// self.currentDepartureObject.status = kStatusEstimated;
-		self.currentDepartureObject.detour = detour;
-		self.currentDepartureObject.queryTime = self.queryTime;
-		// self.currentDepartureObject.hasBlock = false;
-		self.currentDepartureObject.route = triMetRoute;
-		self.currentDepartureObject.locid = self.locid;
-		self.currentDepartureObject.locationDesc = self.locDesc;
-		self.currentDepartureObject.stopLat = self.locLat;
-		self.currentDepartureObject.stopLng = self.locLng;
-			
-
-		int i;
-		Departure *item;
-        
-        // Look for any blocks that appear as scheduled that matches this one and merge
-        // As the TriMet data can contain scheduled times for the same block.
-        NSString *blockFormat = [[StreetcarConversions getStreetcarBlockMap] objectForKey:streetcars.nextBusRouteId];
-        
-        if (blockFormat !=nil && triMetRoute !=nil)
-        {
-            NSString *triMetBlock;
-            
-            if (dep.streecarBlock.length < 4)
-            {
-                triMetBlock = [NSString stringWithFormat:blockFormat, dep.streecarBlock];
-            }
-            else
-            {
-                triMetBlock = dep.streecarBlock;
-            }
-            
-            for (i=0; i< [self.itemArray count];)
-            {
-                item = [self.itemArray objectAtIndex:i];
-                
-                
-                if (item.block && [item.block isEqualToString:triMetBlock] && item.status == kStatusScheduled && [item.route isEqualToString:triMetRoute])
-                {
-                    if (dep.scheduledTime == 0)
-                    {
-                        dep.scheduledTime = item.scheduledTime;
-                    }
-                    [self.itemArray removeObjectAtIndex:i];
-                    
-                }
-                else if (item.block && [item.block isEqualToString:triMetBlock] && [item.route isEqualToString:triMetRoute])
-                {
-                    [self.itemArray removeObjectAtIndex:i];
-                }
-                else if (item.nextBusFeedInTriMetData)
-                {
-                     [self.itemArray removeObjectAtIndex:i];
-                }
-                else
-                {
-                    i++;
-                }
-            }
-        }
-        
-		
-		for (i=0; i< [self.itemArray count] && self.currentDepartureObject!=nil; i++)
-		{
-			item = [self.itemArray objectAtIndex:i];
-			
-			if ( [self.currentDepartureObject secondsToArrival] < [item secondsToArrival])
-			{
-				[self.itemArray insertObject:self.currentDepartureObject atIndex:i];
-				self.currentDepartureObject = nil;
-			}
-		}
-        
-		
-		if ( self.currentDepartureObject != nil)
-		{
-			[self.itemArray addObject:self.currentDepartureObject];
-			self.currentDepartureObject = nil;
-		}
-	}
-    
-    // Remove orphaned scheduled times
-    /*
-    for (i=0; i< [self.itemArray count] && triMetRoute!=nil;)
-    {
-		Departure *item;
-        
-        item = [self.itemArray objectAtIndex:i];
-        
-        if (item.status == kStatusScheduled && [item.route isEqualToString:triMetRoute])
-        {
-            [self.itemArray removeObjectAtIndex:i];
-        }
-        else
-        {
-            i++;
-        }
-    }
-    */
-}
-
-- (void)addStreetcarArrivalsForLocation:(NSString *)location
-{
-    NSString *route = nil;
-    self.streetcarData = [[[NSMutableData alloc] init] autorelease];
-    
-    NSDictionary *streetcarPlatforms = [StreetcarConversions getStreetcarPlatforms];
-    
-    for (route in streetcarPlatforms)
-    {
-        NSDictionary *platforms = [streetcarPlatforms objectForKey:route];
-        
-        NSObject *streetcarPlatformObj = [platforms objectForKey:location];
-        
-        if (streetcarPlatformObj != nil)
-        {
-            NSArray *streetcarItems = nil;
-            
-            if (streetcarPlatformObj !=nil && [streetcarPlatformObj isKindOfClass:[NSArray class]])
-            {
-                streetcarItems = (NSArray*)streetcarPlatformObj;
-            }
-            else if (streetcarPlatformObj !=nil && [streetcarPlatformObj isKindOfClass:[NSNumber class]])
-            {
-                streetcarItems = [NSArray arrayWithObject:streetcarPlatformObj];
-            }
-            
-            for (NSNumber *item in streetcarItems)
-            {
-                XMLStreetcarPredictions *streetcar = [[XMLStreetcarPredictions alloc] init];
-                
-                #pragma unused(item)
-                
-                streetcar.blockFilter = self.blockFilter;
-                streetcar.nextBusRouteId = route;
-            
-                NSError *error = nil;
-            
-                [streetcar getDeparturesForLocation:[NSString stringWithFormat:@"predictions&a=portland-sc&r=%@&stopId=%@", route,location]
-                                         parseError:&error];
-            
-                if ([streetcar gotData])
-                {
-                    [self mergeStreetcarArrivals:streetcar];
-                }
-            
-                if ([UserPrefs getSingleton].debugXML)
-                {
-                    [streetcar appendQueryAndData:self.streetcarData];
-                }
-                [streetcar release];
-            }
-        }
-    }
 }
 
 #pragma mark Data accessors

@@ -39,6 +39,7 @@ typedef enum  {
 - (TriMetTime)getTimeFromAttribute:(NSDictionary *)dict valueForKey:(NSString *)key;
 - (TriMetDistance)getDistanceFromAttribute:(NSDictionary *)dict valueForKey:(NSString *)key;
 - (double)getCoordFromAttribute:(NSDictionary *)dict valueForKey:(NSString *)key;
+- (bool)getBoolFromAttribute:(NSDictionary *)dict valueForKey:(NSString *)key;
 + (BOOL)isDataSourceAvailable:(BOOL)forceCheck;
 - (NSInteger)safeItemCount;
 - (id)itemAtIndex:(NSInteger)index;

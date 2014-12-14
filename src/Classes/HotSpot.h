@@ -15,7 +15,7 @@
 
 
 
-#define MAXHOTSPOTS 255
+#define MAXHOTSPOTS 275
 #define MAXSTRIPES   40
 
 #define kLinkTypeHttp	'h'

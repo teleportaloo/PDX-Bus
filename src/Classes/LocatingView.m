@@ -63,6 +63,12 @@
 	{
 		self.locationManager = [[[CLLocationManager alloc] init] autorelease];
 		self.locationManager.delegate = self; // Tells the location manager to send updates to this object
+        
+        if ([self.locationManager respondsToSelector:@selector(requestWhenInUseAuthorization)])
+        {
+            [self.locationManager requestWhenInUseAuthorization];
+        }
+        
 		_failed = false;
         _waitingForLocation = YES;
         self.title = @"Locator";
@@ -122,11 +128,6 @@
     [super didReceiveMemoryWarning];
 	
 	// Release any cached data, images, etc that aren't in use.
-}
-
-- (void)viewDidUnload {
-	// Release any retained subviews of the main view.
-	// e.g. self.myOutlet = nil;
 }
 
 - (void)startLocating

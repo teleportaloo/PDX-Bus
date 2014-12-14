@@ -128,12 +128,14 @@
 	[[self navigationController] setToolbarHidden:NO animated:NO];
 		
 	[UIApplication sharedApplication].idleTimerDisabled = YES;
+    [super viewWillAppear:animated];
 	
 }
 
 - (void)viewWillDisappear:(BOOL)animated
 {
 	[UIApplication sharedApplication].idleTimerDisabled = NO;
+    [super viewWillDisappear:animated];
     
 }
 

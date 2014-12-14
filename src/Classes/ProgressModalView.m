@@ -80,6 +80,11 @@ CGPathRef CreatePathWithRoundRect(CGRect rect, CGFloat cornerRadius);
     return [[UIDevice currentDevice].systemVersion floatValue] >= 7.0;
 }
 
++ (bool)iOS8style
+{
+    return [[UIDevice currentDevice].systemVersion floatValue] >= 8.0;
+}
+
 + (ProgressModalView *)initWithSuper:(UIView *)back items:(int)items title:(NSString *)title delegate:(id<ProgressDelegate>)delegate
 						 orientation:(UIInterfaceOrientation)orientation
 {	
@@ -88,21 +93,26 @@ CGPathRef CreatePathWithRoundRect(CGRect rect, CGFloat cornerRadius);
 	CGRect backFrame = [back frame];
 	CGFloat quarterTurns = 0;
 	
-	switch (orientation)
-	{
-		case UIInterfaceOrientationLandscapeLeft:
-			quarterTurns = 3;
-			break;
-		case UIInterfaceOrientationLandscapeRight:
-			quarterTurns = 1;
-			break;
-		case UIInterfaceOrientationPortrait:
-			quarterTurns = 0;
-			break;
-		case UIInterfaceOrientationPortraitUpsideDown:
-			quarterTurns = 2;
-			break;
-	}
+    // We don't have to do this in OS 8.  Whatever.
+    if (![ProgressModalView iOS8style])
+        {
+            switch (orientation)
+            {
+                case UIInterfaceOrientationLandscapeLeft:
+                    quarterTurns = 3;
+                    break;
+                case UIInterfaceOrientationLandscapeRight:
+                    quarterTurns = 1;
+                    break;
+                case UIInterfaceOrientationUnknown:
+                case UIInterfaceOrientationPortrait:
+                    quarterTurns = 0;
+                    break;
+                case UIInterfaceOrientationPortraitUpsideDown:
+                    quarterTurns = 2;
+                    break;
+            }
+    }
 	
 	DEBUG_LOG(@"Quarter turns %f\n", quarterTurns);
 

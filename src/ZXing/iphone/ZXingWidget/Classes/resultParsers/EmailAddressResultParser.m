@@ -115,7 +115,7 @@
     // Set of non-alphanumeric characters allowed by rfc2822.
     NSString *allowedChars = @"!#$%&'*+-/=?^_`{}|~.";
     NSMutableCharacterSet *allowedSet =
-        [NSCharacterSet characterSetWithCharactersInString:allowedChars];
+        [NSMutableCharacterSet characterSetWithCharactersInString:allowedChars];
     [allowedSet formUnionWithCharacterSet:
         [NSCharacterSet alphanumericCharacterSet]];
     NSCharacterSet *bogusSet = [allowedSet invertedSet];

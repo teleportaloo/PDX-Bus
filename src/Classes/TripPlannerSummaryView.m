@@ -111,6 +111,7 @@
 - (void)viewWillDisappear:(BOOL)animated
 {
 	_userData.lastTrip = [self.tripQuery.userRequest toDictionary];
+    [super viewWillDisappear:animated];
 
 }
 

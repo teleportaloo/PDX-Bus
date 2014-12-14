@@ -21,14 +21,11 @@
 	NSMutableDictionary *_locations;
 	TriMetTime _lastTime;
     NSString *_route;
-    
-    NSString *_trimetRoute;
 }
  
 
 @property (nonatomic, retain) NSMutableDictionary *locations;
 @property (nonatomic, retain) NSString *route;
-@property (nonatomic, retain) NSString *trimetRoute;
 
 
 - (BOOL)getLocations:(NSError **)error;

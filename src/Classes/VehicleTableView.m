@@ -140,7 +140,7 @@
 	switch (indexPath.section)
 	{
 		case kSectionVehicles:
-			return [self basicRowHeight];
+			return [self basicRowHeight] * 1.5;
 		case kSectionDisclaimer:
 			return kDisclaimerCellHeight;
 	}
@@ -172,7 +172,7 @@
 			// Configure the cell
 			Vehicle *vehicle = [self.locator itemAtIndex:indexPath.row];
 			
-            if (LARGE_SCREEN(self.screenWidth))
+            if (LargeScreenStyle(self.screenWidth))
             {
                 cell.textLabel.text = vehicle.signMessageLong;
             }
@@ -232,11 +232,6 @@
 }
 
 #pragma mark View methods
-
-
-- (void)viewDidDisappear:(BOOL)animated {
-}
-
 
 - (void)viewDidLoad {
 	[super viewDidLoad];

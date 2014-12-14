@@ -99,7 +99,7 @@ static bool bigScreen;
 		bounds = [[UIScreen mainScreen] bounds];
 		
 		// Small devices do not need to orient
-		if (bounds.size.width <= kSmallestSmallScreenDimension)
+		if (bounds.size.width <= MaxiPhoneWidth)
 		{
 			bigScreen = false;
 		}

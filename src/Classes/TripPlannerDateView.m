@@ -300,8 +300,10 @@
 	[self createDatePicker];
 	[self.view addSubview:self.datePickerView];
 	*/
-	 
+
+    [super viewDidAppear:animated];
 	[self reloadData];
+
 }
 
 

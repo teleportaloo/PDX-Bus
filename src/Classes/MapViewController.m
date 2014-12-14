@@ -597,7 +597,7 @@
 		
 		[annot release];
 	}
-	else if (self.lines) { // overlays!
+	else if (self.lines && self.lineCoords.count > 0) { // overlays!
         
 		CLLocationCoordinate2D *coords = malloc(sizeof(CLLocationCoordinate2D) * self.lineCoords.count);
 		self.routePolyLines = [[[NSMutableArray alloc] init] autorelease];
@@ -720,12 +720,8 @@
     {
         mapView.userTrackingMode = MKUserTrackingModeFollow;
     }
-}
-
-
-- (void)viewDidUnload {
-	// Release any retained subviews of the main view.
-	// e.g. self.myOutlet = nil;
+    
+    [super viewDidDisappear:animated];
 }
 
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration

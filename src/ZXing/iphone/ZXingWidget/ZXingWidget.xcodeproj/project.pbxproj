@@ -1234,7 +1234,7 @@
 			name = ZXingTests;
 			productName = ZXingTests;
 			productReference = 1D60398D13DF7CAD006F4B51 /* ZXingTests.octest */;
-			productType = "com.apple.product-type.bundle";
+			productType = "com.apple.product-type.bundle.ocunit-test";
 		};
 		D2AAC07D0554694100DB518D /* ZXingWidget */ = {
 			isa = PBXNativeTarget;
@@ -1259,7 +1259,7 @@
 		0867D690FE84028FC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0500;
+				LastUpgradeCheck = 0610;
 			};
 			buildConfigurationList = 1DEB922208733DC00010E9CD /* Build configuration list for PBXProject "ZXingWidget" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -1532,11 +1532,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				ARCHS = (
-					"$(ARCHS_STANDARD)",
-					armv7,
-					armv7s,
-				);
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
 				EXPORTED_SYMBOLS_FILE = exportList;
@@ -1570,11 +1565,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = (
-					"$(ARCHS_STANDARD)",
-					armv7,
-					armv7s,
-				);
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = ZXingWidget_Prefix.pch;

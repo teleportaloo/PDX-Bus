@@ -50,10 +50,10 @@
 
 - (void)infoAction:(id)sender
 {
-	UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"Info"
-													   message:@"This flashing screen is intended to be used to catch the attention of a bus operator at night.\n\nNote: the screen will not dim while this is displayed, so this will drain the battery quicker."
+    UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"Info", @"Alert title")
+                                                       message:NSLocalizedString(@"This flashing screen is intended to be used to catch the attention of a bus operator at night.\n\nNote: the screen will not dim while this is displayed, so this will drain the battery quicker.", @"Warning text")
 													  delegate:nil
-											 cancelButtonTitle:@"OK"
+											 cancelButtonTitle:NSLocalizedString(@"OK", @"Button text")
 											 otherButtonTitles:nil ] autorelease];
 	[alert show];
 }
@@ -99,17 +99,17 @@
 	self.flashTimer = [[[NSTimer alloc] initWithFireDate:oneSecondFromNow interval:0.25 target:self selector:@selector(changeColor:) userInfo:nil repeats:YES] autorelease];
 
     [[NSRunLoop currentRunLoop] addTimer:self.flashTimer forMode:NSDefaultRunLoopMode];
-	self.title = @"Flashing Light";
+    self.title = NSLocalizedString(@"Flashing Light", @"Screen title");
 	
 	UIBarButtonItem *info = [[[UIBarButtonItem alloc]
-							  initWithTitle:@"info"
+                              initWithTitle:NSLocalizedString(@"info", @"Button text")
 							  style:UIBarButtonItemStyleBordered
 							  target:self action:@selector(infoAction:)] autorelease];
 	
 	
 	self.navigationItem.rightBarButtonItem = info;
 	
-	[[self navigationController] setToolbarHidden:YES animated:YES];
+	//[[self navigationController] setToolbarHidden:YES animated:YES];
 
 	[UIApplication sharedApplication].idleTimerDisabled = YES;
 	
@@ -133,7 +133,7 @@
 	label.backgroundColor = [UIColor clearColor];
 	label.autoresizingMask = UIViewAutoresizingFlexibleWidth;
 	[self.view addSubview:label];
-	label.text = @"Device sleep disabled!";
+    label.text = NSLocalizedString(@"Device sleep disabled!", @"Button warning");
 	[label release];
     
     if (_torch)
@@ -158,6 +158,7 @@
     {
         [_torch off];
     }
+    [super viewWillDisappear:animated];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -191,7 +192,11 @@
         // add a segmented control to the button bar
         UISegmentedControl	*buttonBarSegmentedControl;
         buttonBarSegmentedControl = [[UISegmentedControl alloc] initWithItems:
-								 [NSArray arrayWithObjects:@"Flash LED", @"LED Off", nil]];
+								 [NSArray arrayWithObjects:
+                                        NSLocalizedString(@"Flash LED", @"Short segment button text"),
+                                        NSLocalizedString(@"LED Off",   @"Short segment button text"),
+                                            nil]
+                                    ];
         [buttonBarSegmentedControl addTarget:self action:@selector(toggleLed:) forControlEvents:UIControlEventValueChanged];
     
         if ([UserPrefs getSingleton].flashLed)

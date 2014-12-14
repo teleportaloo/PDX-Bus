@@ -27,6 +27,8 @@
 #include <cstdlib>
 #include <algorithm>
 
+#ifndef __clang_analyzer__
+
 namespace zxing {
 namespace qrcode {
 
@@ -366,9 +368,9 @@ vector<Ref<FinderPattern> > FinderPatternFinder::selectBestPatterns() {
   result[2] = possibleCenters_[2];
   return result;
 }
-
-vector<Ref<FinderPattern> > FinderPatternFinder::orderBestPatterns(vector<Ref<FinderPattern> > patterns) {
 #ifndef __clang_analyzer__
+vector<Ref<FinderPattern> > FinderPatternFinder::orderBestPatterns(vector<Ref<FinderPattern> > patterns) {
+
   // Find distances between pattern centers
   float abDistance = distance(patterns[0], patterns[1]);
   float bcDistance = distance(patterns[1], patterns[2]);
@@ -401,7 +403,7 @@ vector<Ref<FinderPattern> > FinderPatternFinder::orderBestPatterns(vector<Ref<Fi
     Ref<FinderPattern> temp = topRight;
     topRight = bottomLeft;
     bottomLeft = temp;
-#endif
+
   }
 
   vector<Ref<FinderPattern> > results(3);
@@ -410,7 +412,8 @@ vector<Ref<FinderPattern> > FinderPatternFinder::orderBestPatterns(vector<Ref<Fi
   results[2] = topRight;
   return results;
 }
-
+#endif
+    
 float FinderPatternFinder::distance(Ref<ResultPoint> p1, Ref<ResultPoint> p2) {
   float dx = p1->getX() - p2->getX();
   float dy = p1->getY() - p2->getY();
@@ -554,3 +557,5 @@ std::vector<Ref<FinderPattern> >& FinderPatternFinder::getPossibleCenters() {
 
 }
 }
+
+#endif

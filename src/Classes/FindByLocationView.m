@@ -405,15 +405,15 @@
 	switch (_sections[section])
 	{
 		case kDistanceSection:
-			return @"Search radius:";
+            return NSLocalizedString(@"Search radius:", @"Section title");
 		case kModeSection:
-			return @"Mode of travel:";
+            return NSLocalizedString(@"Mode of travel:", @"Section title");
 		case kShowSection:
-			return @"Show:";
+            return NSLocalizedString(@"Show:",  @"Section title");
         case kNoteSection:
-            return @"Note: This page is always shown when 'Locate nearby stops' is selected from the main list.";
+            return NSLocalizedString(@"Note: This page is always shown when 'Locate nearby stops' is selected from the main list.", @"Page note");
         case kAutoSection:
-			return @"Locate toolbar button behavior:";
+            return NSLocalizedString(@"Locate toolbar button behavior:", @"Section title");
 		case kGpsLocateSection:
 			return nil; // [NSString stringWithFormat:@"Choosing 'Arrivals' will show a maximum of %d stops.", kMaxStops];
         case kNoGpsLocateSection:
@@ -507,7 +507,12 @@
 			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:segmentId];
 			if (cell == nil) {
 				cell = [self segCell:segmentId 
-							   items:[NSArray arrayWithObjects:@"Closest", @"½ mile", @"1 mile", @"3 miles", nil]
+							   items:[NSArray arrayWithObjects:
+                                                    NSLocalizedString(@"Closest",   @"Short segment button text"),
+                                                    NSLocalizedString(@"½ mile",    @"Short segment button text"),
+                                                    NSLocalizedString(@"1 mile",    @"Short segment button text"),
+                                                    NSLocalizedString(@"3 miles",   @"Short segment button text"),
+                                                                      nil]
 							  action:@selector(distSegmentChanged:)];
 			}	
 			
@@ -520,7 +525,11 @@
 			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:segmentId];
 			if (cell == nil) {
 				cell = [self segCell:segmentId 
-							   items:[NSArray arrayWithObjects:@"Arrivals", @"Map", @"Routes", nil]
+							   items:[NSArray arrayWithObjects:
+                                                    NSLocalizedString(@"Arrivals",  @"Short segment button text"),
+                                                    NSLocalizedString(@"Map",       @"Short segment button text"),
+                                                    NSLocalizedString(@"Routes",    @"Short segment button text"),
+                                                            nil]
 							  action:@selector(showSegmentChanged:)];
 			}	
 			
@@ -533,7 +542,11 @@
 			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:segmentId];
 			if (cell == nil) {
 				cell = [self segCell:segmentId 
-							   items:[NSArray arrayWithObjects:@"Bus only", @"Rail only", @"Bus or Rail", nil]
+							   items:[NSArray arrayWithObjects:
+                                                        NSLocalizedString(@"Bus only",          @"Short segment button text"),
+                                                        NSLocalizedString(@"Rail only",         @"Short segment button text"),
+                                                        NSLocalizedString(@"Bus or Rail",       @"Short segment button text"),
+                                                            nil]
 							  action:@selector(modeSegmentChanged:)];
 			}	
 			
@@ -546,7 +559,10 @@
 			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:segmentId];
 			if (cell == nil) {
 				cell = [self segCell:segmentId
-							   items:[NSArray arrayWithObjects:@"Show this page", @"Show results", nil]
+							   items:[NSArray arrayWithObjects:
+                                        NSLocalizedString(@"Show this page",@"Short segment button text"),
+                                        NSLocalizedString(@"Show results", @"Short segment button text"),
+                                            nil]
 							  action:@selector(autoSegmentChanged:)];
 			}
 			
@@ -567,7 +583,7 @@
 			if (cell == nil) {
 				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kGoCellId] autorelease];
 			}
-			cell.textLabel.text = @"Start locating";
+            cell.textLabel.text = NSLocalizedString(@"Start locating", @"Button text");
 			cell.textLabel.textAlignment = UITextAlignmentCenter;
 			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 			cell.textLabel.font = [self getBasicFont];
@@ -581,8 +597,8 @@
 			if (cell == nil) {
 				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kGoCellId] autorelease];
 			}
-			cell.textLabel.text = @"Find nearby stops";
-			cell.textLabel.textAlignment = UITextAlignmentCenter;
+            cell.textLabel.text = NSLocalizedString(@"Find nearby stops", @"Button text");
+            cell.textLabel.textAlignment = UITextAlignmentCenter;
 			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 			cell.textLabel.font = [self getBasicFont];
 			
@@ -638,6 +654,7 @@
 	
         _userData.lastLocate = self.lastLocate;
     }
+    [super viewWillDisappear:animated];
 }
 
 

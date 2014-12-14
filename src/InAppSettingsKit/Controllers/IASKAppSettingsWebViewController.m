@@ -47,6 +47,7 @@
 
 - (void)viewWillAppear:(BOOL)animated {  
 	[webView loadRequest:[NSURLRequest requestWithURL:self.url]];
+    [super viewWillAppear:animated];
 }
 
 - (void)viewDidUnload {

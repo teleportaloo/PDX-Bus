@@ -25,6 +25,8 @@
 #include <zxing/common/reedsolomon/GenericGF.h>
 #include <zxing/common/IllegalArgumentException.h>
 
+#ifndef __clang_analyzer__
+
 using zxing::GenericGFPoly;
 using zxing::ArrayRef;
 using zxing::Ref;
@@ -104,7 +106,7 @@ Ref<GenericGFPoly> GenericGFPoly::addOrSubtract(Ref<zxing::GenericGFPoly> other)
     return Ref<GenericGFPoly>(this);
   }
     
-#ifndef __clang_analyzer__
+
   ArrayRef<int> smallerCoefficients = coefficients_;
   ArrayRef<int> largerCoefficients = other->getCoefficients();
   if (smallerCoefficients.size() > largerCoefficients.size()) {
@@ -119,7 +121,7 @@ Ref<GenericGFPoly> GenericGFPoly::addOrSubtract(Ref<zxing::GenericGFPoly> other)
   for (int i = 0; i < lengthDiff && largerCoefficients.array_!=0; i++) {
     sumDiff[i] = largerCoefficients[i];
   }
-#endif
+
     
   for (int i = lengthDiff; i < (int)largerCoefficients.size() && smallerCoefficients.array_!=0
                             && largerCoefficients.array_!=0; i++) {
@@ -217,3 +219,5 @@ std::vector<Ref<GenericGFPoly> > GenericGFPoly::divide(Ref<GenericGFPoly> other)
   returnValue[1] = remainder;
   return returnValue;
 }
+
+#endif

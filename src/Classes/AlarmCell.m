@@ -113,7 +113,9 @@
 	switch (width)
 	{
         default:
-		case WidthiPhoneNarrow:
+		case WidthiPhone:
+        case WidthiPhone6:
+        case WidthiPhone6Plus:
 			break;
 		case WidthiPadWide:
 		case WidthiPadNarrow:
@@ -191,7 +193,7 @@
 
 + (CGFloat)rowHeight:(ScreenType)width
 {
-	if (SMALL_SCREEN(width))
+	if (SmallScreenStyle(width))
 	{
 		return 40.0 * 1.4;
 	}

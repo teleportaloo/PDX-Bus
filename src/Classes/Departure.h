@@ -60,7 +60,6 @@ typedef enum {
 	NSString *			_copyright;
     NSString *          _streetcarBlock;
     bool                _nextBusFeedInTriMetData;
-    NSString *          _nextBusRouteId;
 }
 
 // MKAnnotation
@@ -73,8 +72,12 @@ typedef enum {
 
 // Rest
 - (NSString *)cellReuseIdentifier:(NSString *)identifier width:(ScreenType)width;
-- (UITableViewCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier big:(bool)big spaceToDecorate:(bool)spaceToDecorate width:(ScreenType)width;
+- (UITableViewCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier spaceToDecorate:(bool)spaceToDecorate width:(ScreenType)width;
+- (UITableViewCell *)bigTableviewCellWithReuseIdentifier:(NSString *)identifier width:(ScreenType)width;
+
 - (void)populateCell:(UITableViewCell *)cell decorate:(BOOL)decorate big:(BOOL)big busName:(BOOL)busName wide:(BOOL)wide;
+- (void)populateCellAndGetExplaination:(UITableViewCell *)cell decorate:(BOOL)decorate big:(BOOL)big busName:(BOOL)busName wide:(BOOL)wide color:(UIColor **)color details:(NSString **)details;
+- (void)getExplaination:(UIColor**)color details:(NSString **)details;
 - (void)populateTripCell:(UITableViewCell *)cell item:(NSInteger)item;
 - (void)populateCellGeneric:(UITableViewCell *)cell first:(NSString *)first second:(NSString *)second col1:(UIColor *)col1 col2:(UIColor *)col2;
 -(id)init;
@@ -111,8 +114,7 @@ typedef enum {
 @property (nonatomic, retain) NSString *stopLng;
 @property (nonatomic, retain) NSString *copyright;
 @property (nonatomic, retain) NSDate *cacheTime;
-@property (nonatomic, retain) NSString *streecarBlock;
-@property (nonatomic, retain) NSString *nextBusRouteId;
+@property (nonatomic, retain) NSString *streetcarId;
 @property (nonatomic) bool nextBusFeedInTriMetData;
 
 

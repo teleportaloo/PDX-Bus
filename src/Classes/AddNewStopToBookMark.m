@@ -77,6 +77,7 @@
 
 - (void)viewWillAppear:(BOOL)animated {
 	[self.editWindow becomeFirstResponder];
+    [super viewWillAppear:animated];
 }
 
 #pragma mark TableView methods

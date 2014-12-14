@@ -14,15 +14,14 @@
 #import "TriMetTypes.h"
 #import "UserPrefs.h"
 
-
 @class RootViewController;
 @class Departure;
 
 @interface TriMetTimesAppDelegate : NSObject <UIApplicationDelegate,UIAlertViewDelegate> {	
 	IBOutlet UIWindow *window;
 	IBOutlet UINavigationController *navigationController;
-	IBOutlet RootViewController *rootViewController;
-
+    IBOutlet RootViewController *rootViewController;
+    
 	NSString *_pathToCleanExit;
 	bool     _cleanExitLastTime;
 }
@@ -32,7 +31,7 @@
 @property (nonatomic, retain) NSString *pathToCleanExit;
 @property (nonatomic, retain) UIWindow *window;
 @property (nonatomic, retain) IBOutlet UINavigationController *navigationController;
-@property (nonatomic, retain) IBOutlet RootViewController *rootViewController;
+@property (nonatomic, retain) RootViewController *rootViewController;
 
 
 @end

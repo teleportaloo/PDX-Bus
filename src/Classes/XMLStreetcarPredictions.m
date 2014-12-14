@@ -13,7 +13,6 @@
 
 
 #import "XMLStreetcarPredictions.h"
-#import "StreetcarConversions.h"
 
 @implementation XMLStreetcarPredictions
 
@@ -96,43 +95,25 @@
     if ([elementName isEqualToString:@"prediction"])
 	{
         // Note - the vehicle is the block - I put the block into the streetcar block!
-		NSString *block = [self safeValueFromDict:attributeDict valueForKey:@"vehicle"];
+		NSString *block = [self safeValueFromDict:attributeDict valueForKey:@"block"];
 		if ((self.blockFilter==nil) || ([self.blockFilter isEqualToString:block]))
 		{
 			NSString *name = [NSString stringWithFormat:@"%@ %@", self.routeTitle, self.directionTitle];
-			
-			NSString *shortName = [[StreetcarConversions getStreetcarShortNames] objectForKey:name];
-			
-			if (shortName==nil) 
-			{
-				shortName = name;
-			}
             
             // There are some bugs in the streetcar feed (e.g. Cl instead of CL)
-            
-            NSDictionary *subs = [StreetcarConversions getSubstitutions];
-            
-            for (NSString *key in subs)
-            {
-                shortName  = [shortName stringByReplacingOccurrencesOfString:key withString:[subs objectForKey:key]];
-                name  =      [name stringByReplacingOccurrencesOfString:key withString:[subs objectForKey:key]];
-                
-        
-            }
 			
 			self.currentDepartureObject = [[[Departure alloc] init] autorelease];
 			self.currentDepartureObject.hasBlock       = true;
 			self.currentDepartureObject.route          = nil;
 			self.currentDepartureObject.fullSign       = name;
-			self.currentDepartureObject.routeName      = shortName;
+			self.currentDepartureObject.routeName      = name;
 			self.currentDepartureObject.block          = block;
 			self.currentDepartureObject.status         = kStatusEstimated;
 			self.currentDepartureObject.nextBus        = [self getTimeFromAttribute:attributeDict valueForKey:@"minutes"];
 			self.currentDepartureObject.streetcar      = true;
-			self.currentDepartureObject.dir            = [[StreetcarConversions getStreetcarDirections] objectForKey:[self safeValueFromDict:attributeDict valueForKey:@"dirTag"]];
+            self.currentDepartureObject.dir            = nil;
 			self.currentDepartureObject.copyright      = self.copyright;
-            self.currentDepartureObject.streecarBlock  = [self safeValueFromDict:attributeDict valueForKey:@"block"];
-			self.currentDepartureObject.nextBusRouteId = self.nextBusRouteId;
+            self.currentDepartureObject.streetcarId    = [self safeValueFromDict:attributeDict valueForKey:@"vehicle"];
 			
 			/*
 			[[self safeValueFromDict:attributeDict valueForKey:@"dirTag"] isEqualToString:@"t5"]

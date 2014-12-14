@@ -107,7 +107,7 @@
 	switch (width)
 	{
         default:
-		case WidthiPhoneNarrow:
+		case WidthiPhone:
 			break;
 			//case WidthiPhoneWide:
 			//		MINS_LEFT					= 400.0;

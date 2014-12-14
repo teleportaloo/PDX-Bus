@@ -1163,6 +1163,8 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 	}
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    
+    [super viewDidDisappear:animated];
 }
 
 - (void)didReceiveMemoryWarning {

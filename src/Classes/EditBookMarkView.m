@@ -407,7 +407,7 @@
     returnTextField.backgroundColor = [UIColor whiteColor];
 	returnTextField.autocorrectionType = UITextAutocorrectionTypeNo;	// no auto correction support
 	
-	returnTextField.keyboardType = UIKeyboardTypeASCIICapable;
+	returnTextField.keyboardType = UIKeyboardTypeDefault;
 	returnTextField.returnKeyType = UIReturnKeyDone;
 	
 	returnTextField.clearButtonMode = UITextFieldViewModeWhileEditing;	// has a clear 'x' button to the right
@@ -1027,6 +1027,7 @@
 	// self.navigationItem.rightBarButtonItem = self.editButtonItem;
 	self.table.editing = YES;
 	_userData.favesChanged = YES;
+    [super viewDidLoad];
 	
 }
 
@@ -1050,14 +1051,6 @@
 		[self reloadData];
 		_reloadArrival = FALSE;
 	}
-}
-
-- (void)viewWillDisappear:(BOOL)animated {
-		
-}
-
-- (void)viewDidDisappear:(BOOL)animated {
-	
 }
 
 - (void)loadView
@@ -1116,7 +1109,7 @@
 
 - (NSString *)actionText
 {
-	return @"Add stop to bookmark";
+    return NSLocalizedString(@"Add stop to bookmark", @"Button text");
 }
 
 -(void) selectedStop:(NSString *)stopId

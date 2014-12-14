@@ -24,6 +24,7 @@
 		A10CCD071037B72E00328A94 /* TripPlannerOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = A10CCD061037B72E00328A94 /* TripPlannerOptions.m */; };
 		A1125EAE16223F5A00C647A4 /* SupportView.h in Resources */ = {isa = PBXBuildFile; fileRef = A1125EAD16223F5A00C647A4 /* SupportView.h */; };
 		A115587E1925B21300B1BF71 /* CanceledBusOverlay.m in Sources */ = {isa = PBXBuildFile; fileRef = A115587D1925B21300B1BF71 /* CanceledBusOverlay.m */; };
+		A1189FE319D763C100657FC0 /* InterfaceOrientation.m in Sources */ = {isa = PBXBuildFile; fileRef = A1189FE219D763C100657FC0 /* InterfaceOrientation.m */; };
 		A119A7FC17403CDD006D5CB6 /* OpenInChromeController.m in Sources */ = {isa = PBXBuildFile; fileRef = A119A7FB17403CDD006D5CB6 /* OpenInChromeController.m */; };
 		A11AD1000F34D188002FBC8A /* FlashViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A11AD0FF0F34D188002FBC8A /* FlashViewController.m */; };
 		A11C8FB91244756A001DDAC5 /* WhatsNewView.m in Sources */ = {isa = PBXBuildFile; fileRef = A11C8FB71244756A001DDAC5 /* WhatsNewView.m */; };
@@ -131,6 +132,7 @@
 		A183528A1044F93E00311468 /* NetworkTestView.m in Sources */ = {isa = PBXBuildFile; fileRef = A18352891044F93E00311468 /* NetworkTestView.m */; };
 		A186564E18C986670023DA6E /* MapViewWithStops.m in Sources */ = {isa = PBXBuildFile; fileRef = A186564D18C986670023DA6E /* MapViewWithStops.m */; };
 		A186978D108A6E5E0013794C /* DepartureSortTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = A186978C108A6E5E0013794C /* DepartureSortTableView.m */; };
+		A1899B4119F371A600985C11 /* Launch Screen.xib in Resources */ = {isa = PBXBuildFile; fileRef = A1899B4019F371A600985C11 /* Launch Screen.xib */; };
 		A18E373715B66FA10097CCE2 /* ProcessQRCodeString.m in Sources */ = {isa = PBXBuildFile; fileRef = A18E373615B66FA10097CCE2 /* ProcessQRCodeString.m */; };
 		A18E373915B8F2970097CCE2 /* 86-camera.png in Resources */ = {isa = PBXBuildFile; fileRef = A18E373815B8F2970097CCE2 /* 86-camera.png */; };
 		A18E8585128EFE14002FEB6B /* XMLLocateStops.m in Sources */ = {isa = PBXBuildFile; fileRef = A18E8584128EFE14002FEB6B /* XMLLocateStops.m */; };
@@ -179,6 +181,7 @@
 		A19574BC0E88803400493326 /* StopDistance.m in Sources */ = {isa = PBXBuildFile; fileRef = A19574BB0E88803400493326 /* StopDistance.m */; };
 		A1973B4012F4DCED00C1CEBF /* AlarmFetchArrivalsTask.m in Sources */ = {isa = PBXBuildFile; fileRef = A1973B3F12F4DCED00C1CEBF /* AlarmFetchArrivalsTask.m */; };
 		A1973B6012F4E5D300C1CEBF /* AlarmTaskList.m in Sources */ = {isa = PBXBuildFile; fileRef = A1973B5F12F4E5D300C1CEBF /* AlarmTaskList.m */; };
+		A1977CE219F48C15001F532C /* NewLaunch.png in Resources */ = {isa = PBXBuildFile; fileRef = A1977CE119F48C15001F532C /* NewLaunch.png */; };
 		A199A17212A0C88B00A8BC8A /* BigRouteView.m in Sources */ = {isa = PBXBuildFile; fileRef = A199A17112A0C88B00A8BC8A /* BigRouteView.m */; };
 		A199A2D912A0F7E900A8BC8A /* icon_arrow_down@x2.png in Resources */ = {isa = PBXBuildFile; fileRef = A199A2D312A0F7E900A8BC8A /* icon_arrow_down@x2.png */; };
 		A199A2DA12A0F7E900A8BC8A /* icon_arrow_left@x2.png in Resources */ = {isa = PBXBuildFile; fileRef = A199A2D412A0F7E900A8BC8A /* icon_arrow_left@x2.png */; };
@@ -224,7 +227,6 @@
 		A1BDAADC11695E2E009ECEB3 /* RssXML.m in Sources */ = {isa = PBXBuildFile; fileRef = A1BDAADB11695E2E009ECEB3 /* RssXML.m */; };
 		A1BDAAE111695F64009ECEB3 /* RssLink.m in Sources */ = {isa = PBXBuildFile; fileRef = A1BDAAE011695F64009ECEB3 /* RssLink.m */; };
 		A1BDAAF4116965C2009ECEB3 /* RssView.m in Sources */ = {isa = PBXBuildFile; fileRef = A1BDAAF3116965C2009ECEB3 /* RssView.m */; };
-		A1C03DB60E80A5CE005B8E07 /* PortlandStreetcar.plist in Resources */ = {isa = PBXBuildFile; fileRef = A1C03DB50E80A5CE005B8E07 /* PortlandStreetcar.plist */; };
 		A1C1142E0E5BBF200010DC01 /* CellTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C114290E5BBF200010DC01 /* CellTextField.m */; };
 		A1C1142F0E5BBF200010DC01 /* CellTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C1142B0E5BBF200010DC01 /* CellTextView.m */; };
 		A1C114300E5BBF200010DC01 /* EditableTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C1142D0E5BBF200010DC01 /* EditableTableViewCell.m */; };
@@ -255,6 +257,7 @@
 		A1CA04460E6515A9006EFB6E /* TableViewWithToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = A1CA04450E6515A9006EFB6E /* TableViewWithToolbar.m */; };
 		A1CA90A517DD675000BE12ED /* 74-locationa.png in Resources */ = {isa = PBXBuildFile; fileRef = A1CA90A417DD675000BE12ED /* 74-locationa.png */; };
 		A1D05BA919033BED003E9B76 /* MemoryCaches.m in Sources */ = {isa = PBXBuildFile; fileRef = A1D05BA819033BED003E9B76 /* MemoryCaches.m */; };
+		A1D1428619C5699500BB6EE3 /* AppIcon60x60@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = A1D1428519C5699500BB6EE3 /* AppIcon60x60@3x.png */; };
 		A1D19DAB16954C8300D2EBD9 /* 11-clock.png in Resources */ = {isa = PBXBuildFile; fileRef = A1D19DAA16954C8300D2EBD9 /* 11-clock.png */; };
 		A1D38BD018C2490C002A6EEE /* Alarm clock.png in Resources */ = {isa = PBXBuildFile; fileRef = A1D38BCE18C2490C002A6EEE /* Alarm clock.png */; };
 		A1D38BD118C2490C002A6EEE /* Alarm clock@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A1D38BCF18C2490C002A6EEE /* Alarm clock@2x.png */; };
@@ -315,7 +318,6 @@
 		A1F151F51183B34400121292 /* 05-shuffle.png in Resources */ = {isa = PBXBuildFile; fileRef = A1F151F01183B34400121292 /* 05-shuffle.png */; };
 		A1F151F81183B43D00121292 /* visittrimeticon.gif in Resources */ = {isa = PBXBuildFile; fileRef = A1F151F61183B43D00121292 /* visittrimeticon.gif */; };
 		A1F152041183B5A900121292 /* WebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F152021183B5A900121292 /* WebViewController.m */; };
-		A1F3D2FB18FB4F4B00CC101F /* StreetcarConversions.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F3D2FA18FB4F4B00CC101F /* StreetcarConversions.m */; };
 		A1F61CA81246982D0040BA96 /* UserPrefs.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F61CA71246982D0040BA96 /* UserPrefs.m */; };
 		A1F9227D189DC210006BFCB6 /* AlignedBarItemButton.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F9227C189DC20F006BFCB6 /* AlignedBarItemButton.m */; };
 		A1F92284189F0678006BFCB6 /* ReverseGeoLocator.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F92283189F0678006BFCB6 /* ReverseGeoLocator.m */; };
@@ -374,6 +376,8 @@
 		A1125EAD16223F5A00C647A4 /* SupportView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SupportView.h; sourceTree = "<group>"; };
 		A115587C1925B21300B1BF71 /* CanceledBusOverlay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CanceledBusOverlay.h; sourceTree = "<group>"; };
 		A115587D1925B21300B1BF71 /* CanceledBusOverlay.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CanceledBusOverlay.m; sourceTree = "<group>"; };
+		A1189FE219D763C100657FC0 /* InterfaceOrientation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InterfaceOrientation.m; sourceTree = "<group>"; };
+		A1189FE519D763E500657FC0 /* InterfaceOrientation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InterfaceOrientation.h; sourceTree = "<group>"; };
 		A119A7FA17403CDD006D5CB6 /* OpenInChromeController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OpenInChromeController.h; path = Classes/OpenInChromeController.h; sourceTree = "<group>"; };
 		A119A7FB17403CDD006D5CB6 /* OpenInChromeController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = OpenInChromeController.m; path = Classes/OpenInChromeController.m; sourceTree = "<group>"; };
 		A11AD0FE0F34D188002FBC8A /* FlashViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlashViewController.h; sourceTree = "<group>"; };
@@ -575,6 +579,7 @@
 		A186564D18C986670023DA6E /* MapViewWithStops.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapViewWithStops.m; sourceTree = "<group>"; };
 		A186978B108A6E5E0013794C /* DepartureSortTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DepartureSortTableView.h; sourceTree = "<group>"; };
 		A186978C108A6E5E0013794C /* DepartureSortTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = DepartureSortTableView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		A1899B4019F371A600985C11 /* Launch Screen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = "Launch Screen.xib"; sourceTree = "<group>"; };
 		A18E373515B66FA10097CCE2 /* ProcessQRCodeString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProcessQRCodeString.h; sourceTree = "<group>"; };
 		A18E373615B66FA10097CCE2 /* ProcessQRCodeString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProcessQRCodeString.m; sourceTree = "<group>"; };
 		A18E373815B8F2970097CCE2 /* 86-camera.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "86-camera.png"; path = "Glyphish/86-camera.png"; sourceTree = "<group>"; };
@@ -640,6 +645,7 @@
 		A1973B3F12F4DCED00C1CEBF /* AlarmFetchArrivalsTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = AlarmFetchArrivalsTask.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A1973B5E12F4E5D300C1CEBF /* AlarmTaskList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AlarmTaskList.h; sourceTree = "<group>"; };
 		A1973B5F12F4E5D300C1CEBF /* AlarmTaskList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = AlarmTaskList.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		A1977CE119F48C15001F532C /* NewLaunch.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = NewLaunch.png; path = RobAlan/NewLaunch.png; sourceTree = "<group>"; };
 		A199A17012A0C88B00A8BC8A /* BigRouteView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BigRouteView.h; sourceTree = "<group>"; };
 		A199A17112A0C88B00A8BC8A /* BigRouteView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BigRouteView.m; sourceTree = "<group>"; };
 		A199A2D312A0F7E900A8BC8A /* icon_arrow_down@x2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon_arrow_down@x2.png"; path = "TWG/icon_arrow_down@x2.png"; sourceTree = "<group>"; };
@@ -727,7 +733,6 @@
 		A1BDAAE011695F64009ECEB3 /* RssLink.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = RssLink.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A1BDAAF2116965C2009ECEB3 /* RssView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RssView.h; sourceTree = "<group>"; };
 		A1BDAAF3116965C2009ECEB3 /* RssView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RssView.m; sourceTree = "<group>"; };
-		A1C03DB50E80A5CE005B8E07 /* PortlandStreetcar.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = PortlandStreetcar.plist; sourceTree = "<group>"; };
 		A1C114280E5BBF200010DC01 /* CellTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CellTextField.h; sourceTree = "<group>"; };
 		A1C114290E5BBF200010DC01 /* CellTextField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CellTextField.m; sourceTree = "<group>"; };
 		A1C1142A0E5BBF200010DC01 /* CellTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CellTextView.h; sourceTree = "<group>"; };
@@ -789,6 +794,7 @@
 		A1CA90A617DD676600BE12ED /* 74-locationa@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "74-locationa@2x.png"; path = "Glyphish@2x/74-locationa@2x.png"; sourceTree = "<group>"; };
 		A1D05BA719033BED003E9B76 /* MemoryCaches.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MemoryCaches.h; sourceTree = "<group>"; };
 		A1D05BA819033BED003E9B76 /* MemoryCaches.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MemoryCaches.m; sourceTree = "<group>"; };
+		A1D1428519C5699500BB6EE3 /* AppIcon60x60@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "AppIcon60x60@3x.png"; path = "RobAlan/AppIcon60x60@3x.png"; sourceTree = "<group>"; };
 		A1D189AB17FBB36400AEC5F2 /* 714-camera.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "714-camera.png"; path = "Glyphish 6/714-camera.png"; sourceTree = "<group>"; };
 		A1D189AC17FBB36400AEC5F2 /* 714-camera@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "714-camera@2x.png"; path = "Glyphish 6/714-camera@2x.png"; sourceTree = "<group>"; };
 		A1D189AD17FBB36400AEC5F2 /* 724-info.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "724-info.png"; path = "Glyphish 6/724-info.png"; sourceTree = "<group>"; };
@@ -905,8 +911,6 @@
 		A1F152021183B5A900121292 /* WebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = WebViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A1F152031183B5A900121292 /* WebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebViewController.h; sourceTree = "<group>"; };
 		A1F1E8FC15E17C1300C43B41 /* TriMet.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = TriMet.geojson; path = Routing/TriMet.geojson; sourceTree = "<group>"; };
-		A1F3D2F918FB4F4B00CC101F /* StreetcarConversions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StreetcarConversions.h; sourceTree = "<group>"; };
-		A1F3D2FA18FB4F4B00CC101F /* StreetcarConversions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StreetcarConversions.m; sourceTree = "<group>"; };
 		A1F61CA61246982D0040BA96 /* UserPrefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserPrefs.h; sourceTree = "<group>"; };
 		A1F61CA71246982D0040BA96 /* UserPrefs.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = UserPrefs.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A1F9227B189DC20F006BFCB6 /* AlignedBarItemButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AlignedBarItemButton.h; sourceTree = "<group>"; };
@@ -1120,10 +1124,12 @@
 				A1E6FA6A1801433200CB9E1C /* AppIcon40x40@2x.png */,
 				A1E6FA6B1801433200CB9E1C /* AppIcon60x60.png */,
 				A1E6FA6C1801433200CB9E1C /* AppIcon60x60@2x.png */,
+				A1D1428519C5699500BB6EE3 /* AppIcon60x60@3x.png */,
 				A1E6FA6D1801433200CB9E1C /* AppIcon76x76.png */,
 				A1E6FA6E1801433200CB9E1C /* AppIcon76x76@2x.png */,
 				A1E6FA711801433200CB9E1C /* Promotional-large.png */,
 				A1E6FA721801433200CB9E1C /* Promotional-small.png */,
+				A1977CE119F48C15001F532C /* NewLaunch.png */,
 			);
 			name = RobAlan;
 			sourceTree = "<group>";
@@ -1394,6 +1400,8 @@
 				A1D05BA819033BED003E9B76 /* MemoryCaches.m */,
 				A115587C1925B21300B1BF71 /* CanceledBusOverlay.h */,
 				A115587D1925B21300B1BF71 /* CanceledBusOverlay.m */,
+				A1189FE519D763E500657FC0 /* InterfaceOrientation.h */,
+				A1189FE219D763C100657FC0 /* InterfaceOrientation.m */,
 			);
 			name = "Basic UI";
 			sourceTree = "<group>";
@@ -1557,8 +1565,6 @@
 				A1C146AA144B621000148EEB /* QueryCacheManager.m */,
 				A18E373515B66FA10097CCE2 /* ProcessQRCodeString.h */,
 				A18E373615B66FA10097CCE2 /* ProcessQRCodeString.m */,
-				A1F3D2F918FB4F4B00CC101F /* StreetcarConversions.h */,
-				A1F3D2FA18FB4F4B00CC101F /* StreetcarConversions.m */,
 			);
 			name = XML;
 			sourceTree = "<group>";
@@ -1992,6 +1998,7 @@
 			children = (
 				2899E55F0DE3E45000AC0155 /* RootViewController.xib */,
 				28AD735F0D9D9599002E5188 /* MainWindow.xib */,
+				A1899B4019F371A600985C11 /* Launch Screen.xib */,
 			);
 			name = "Resources-iPhone";
 			sourceTree = "<group>";
@@ -1999,7 +2006,6 @@
 		A1F3D31318FB69E600CC101F /* Rail data */ = {
 			isa = PBXGroup;
 			children = (
-				A1C03DB50E80A5CE005B8E07 /* PortlandStreetcar.plist */,
 				A1D74FFC0E89485200E38DC3 /* blank.sql */,
 				A18E86E5128F4EF0002FEB6B /* railLocations.sql */,
 			);
@@ -2042,7 +2048,7 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0510;
+				LastUpgradeCheck = 0600;
 				ORGANIZATIONNAME = Teleportaloo;
 				TargetAttributes = {
 					1D6058900D05DD3D006BFB54 = {
@@ -2106,7 +2112,6 @@
 				28AD73600D9D9599002E5188 /* MainWindow.xib in Resources */,
 				2899E5600DE3E45000AC0155 /* RootViewController.xib in Resources */,
 				A14D86070E578CFB008A11AF /* appData.plist in Resources */,
-				A1C03DB60E80A5CE005B8E07 /* PortlandStreetcar.plist in Resources */,
 				A1D74FFD0E89485200E38DC3 /* blank.sql in Resources */,
 				A107A6250F2D0E9600C20017 /* Settings.bundle in Resources */,
 				A13F6B2C1166E96E004960BD /* MainWindow-iPad.xib in Resources */,
@@ -2211,6 +2216,7 @@
 				A199A2DC12A0F7E900A8BC8A /* icon_arrow_up@x2.png in Resources */,
 				A199A2DD12A0F7E900A8BC8A /* magnifier.png in Resources */,
 				A199A2DE12A0F7E900A8BC8A /* magnifier@x2.png in Resources */,
+				A1899B4119F371A600985C11 /* Launch Screen.xib in Resources */,
 				A146EFBB12F6123D0039AC8C /* Alarm.png in Resources */,
 				A146EFCA12F612870039AC8C /* Alarm@2x.png in Resources */,
 				A1FD6725130A4EA20091666E /* Downdate.png in Resources */,
@@ -2222,6 +2228,7 @@
 				A1564467137F3AE50050345B /* IASKAppSettingsView.xib in Resources */,
 				A1564468137F3AE50050345B /* IASKAppSettingsWebView.xib in Resources */,
 				A1564469137F3AE50050345B /* IASKPSSliderSpecifierViewCell.xib in Resources */,
+				A1977CE219F48C15001F532C /* NewLaunch.png in Resources */,
 				A156446A137F3AE50050345B /* IASKPSTextFieldSpecifierViewCell.xib in Resources */,
 				A156446B137F3AE50050345B /* IASKPSToggleSwitchSpecifierViewCell.xib in Resources */,
 				A156446C137F3AE50050345B /* IASKSpecifierValuesView.xib in Resources */,
@@ -2249,6 +2256,7 @@
 				A1DB5C6516BF83B300679BEC /* Pager Beeps-SoundBible.com-260751720.aiff in Resources */,
 				A1909FE616D03DCC004D14EF /* default_sound.wav in Resources */,
 				A1C4F3A217517FCB008B1803 /* InfColorPickerView.xib in Resources */,
+				A1D1428619C5699500BB6EE3 /* AppIcon60x60@3x.png in Resources */,
 				A1E6FA761801433200CB9E1C /* AppIcon40x40@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2294,6 +2302,7 @@
 				A1D750060E8948DD00E38DC3 /* StopLocations.m in Sources */,
 				A107A84B0F2D389700C20017 /* EditBookMarkView.m in Sources */,
 				A107AD4A0F2D667800C20017 /* AddNewStopToBookMark.m in Sources */,
+				A1189FE319D763C100657FC0 /* InterfaceOrientation.m in Sources */,
 				A11AD1000F34D188002FBC8A /* FlashViewController.m in Sources */,
 				A1C3F3660FC0B434007B69E7 /* MapViewController.m in Sources */,
 				A17ED2D9182F4DFA008883D5 /* VehicleLocatingTableView.m in Sources */,
@@ -2322,7 +2331,6 @@
 				A1C910BE11322D2A00100030 /* ViewControllerBase.m in Sources */,
 				A13AFF4311587A1600E967EE /* XMLStreetcarPredictions.m in Sources */,
 				A13AFFCA1159C8BC00E967EE /* XMLStreetcarLocations.m in Sources */,
-				A1F3D2FB18FB4F4B00CC101F /* StreetcarConversions.m in Sources */,
 				A1340EC111604E8D0037B7E5 /* NextBusXML.m in Sources */,
 				A1BDAADC11695E2E009ECEB3 /* RssXML.m in Sources */,
 				A1BDAAE111695F64009ECEB3 /* RssLink.m in Sources */,
@@ -2425,6 +2433,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -2460,6 +2469,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -2502,7 +2512,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
 				PRODUCT_NAME = PDXBus;
 				PROVISIONING_PROFILE = "235F1E60-9C76-482C-9216-E57923C23E1B";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "235F1E60-9C76-482C-9216-E57923C23E1B";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "1ff967eb-2cb9-4250-abac-4a99267d666b";
 				SDKROOT = iphoneos;
 				VALID_ARCHS = "armv7 armv7s arm64";
 			};
@@ -2512,9 +2522,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Andrew Wallace (84N3M6433V)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -2536,7 +2547,7 @@
 				);
 				PRODUCT_NAME = PDXBus;
 				PROVISIONING_PROFILE = "";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "235F1E60-9C76-482C-9216-E57923C23E1B";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "1ff967eb-2cb9-4250-abac-4a99267d666b";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -2566,6 +2577,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -2620,10 +2632,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = (
-					armv7s,
-					armv7,
-				);
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -2676,6 +2685,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";

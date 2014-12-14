@@ -30,6 +30,7 @@
 
 #import "CustomToolbar.h"
 #import "FlashViewController.h"
+#import "InterfaceOrientation.h"
 
 // static const CGFloat KEYBOARD_ANIMATION_DURATION = 0.3;
 // static const CGFloat MINIMUM_SCROLL_FRACTION = 0.2;
@@ -135,6 +136,7 @@ CGRect IASKCGRectSwap(CGRect rect);
 	// e.g. self.myOutlet = nil;
 	self.tableView = nil;
 	[_viewList release], _viewList = nil;
+    [super viewDidUnload];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -803,11 +805,11 @@ CGRect IASKCGRectSwap(CGRect rect);
 		
 		// Reduce the tableView height by the part of the keyboard that actually covers the tableView
 		CGRect windowRect = [[UIApplication sharedApplication] keyWindow].bounds;
-		if (UIInterfaceOrientationLandscapeLeft == self.interfaceOrientation ||UIInterfaceOrientationLandscapeRight == self.interfaceOrientation ) {
+		if (UIInterfaceOrientationLandscapeLeft == [InterfaceOrientation getInterfaceOrientation:self] ||UIInterfaceOrientationLandscapeRight == [InterfaceOrientation getInterfaceOrientation:self] ) {
 			windowRect = IASKCGRectSwap(windowRect);
 		}
 		CGRect viewRectAbsolute = [_tableView convertRect:_tableView.bounds toView:[[UIApplication sharedApplication] keyWindow]];
-		if (UIInterfaceOrientationLandscapeLeft == self.interfaceOrientation ||UIInterfaceOrientationLandscapeRight == self.interfaceOrientation ) {
+		if (UIInterfaceOrientationLandscapeLeft == [InterfaceOrientation getInterfaceOrientation:self]||UIInterfaceOrientationLandscapeRight == [InterfaceOrientation getInterfaceOrientation:self] ) {
 			viewRectAbsolute = IASKCGRectSwap(viewRectAbsolute);
 		}
 		CGRect frame = _tableView.frame;

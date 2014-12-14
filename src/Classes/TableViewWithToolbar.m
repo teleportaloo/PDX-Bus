@@ -277,45 +277,15 @@
 {
 	CGFloat width = 0.0;
 	
-	if ([self getStyle] == UITableViewStylePlain)
+	if ([self getStyle] == UITableViewStylePlain || [self iOS7style])
 	{
-
-		switch ([self screenWidth])
-		{
-		case WidthiPadNarrow:
-			width = 700.0 - font.pointSize;
-			break;
-		case WidthiPadWide:
-			width = 1000.0 - font.pointSize;
-			break;
-		case WidthiPhoneNarrow:
-			width = 300.0 - font.pointSize;
-			break;
-        default:
-		//case WidthiPhoneWide:
-		//	width = 460.0 - font.pointSize;
-			break;
-		}
+        width = [self screenWidth] - 20 - font.pointSize;
 	}
 	else 
     {
-		switch ([self screenWidth])
-		{
-		case WidthiPadNarrow:
-            width = 662.0; //  - font.pointSize;
-			break;
-		case WidthiPadWide:
-            width = 918.0; // - font.pointSize;
-			break;
-		case WidthiPhoneNarrow:
-			width = 280.0 - font.pointSize;
-			break;
-        default:
-		//case WidthiPhoneWide:
-		//	width = 440.0 - font.pointSize;
-            break;
-		}
+        width = [self screenWidth] - 100 - font.pointSize;
 	}
+    DEBUG_LOG(@"Width for text %f\n", width);
 	CGSize rect = CGSizeMake(width, MAXFLOAT);
 	CGSize sz = [text sizeWithFont:font constrainedToSize:rect lineBreakMode:UILineBreakModeWordWrap];
 	return sz.height + font.pointSize + (self.iOS7style ? font.pointSize : 0);
@@ -516,9 +486,18 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
             bold = FALSE;
         }
         
-		if (SMALL_SCREEN(self.screenWidth))
+        
+        
+		if (SmallScreenStyle(self.screenWidth))
 		{
-            _basicFont =[[self systemFontBold:bold size:18.0] retain];
+            if (self.screenWidth >= WidthiPhone6)
+            {
+                _basicFont =[[self systemFontBold:bold size:20.0] retain];
+            }
+            else
+            {
+                _basicFont =[[self systemFontBold:bold size:18.0] retain];
+            }
 
 		}
 		else 
@@ -539,9 +518,16 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
             bold = FALSE;
         }
         
-		if  (SMALL_SCREEN(self.screenWidth))
+		if  (SmallScreenStyle(self.screenWidth))
 		{
-            _smallFont =[[self systemFontBold:bold size:14.0] retain];
+            if (self.screenWidth >= WidthiPhone6)
+            {
+                _smallFont =[[self systemFontBold:bold size:16.0] retain];
+            }
+            else
+            {
+                _smallFont =[[self systemFontBold:bold size:14.0] retain];
+            }
 		}
 		else 
 		{
@@ -555,9 +541,16 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 {
 	if (_paragraphFont == nil)
 	{
-		if (SMALL_SCREEN(self.screenWidth))
+		if (SmallScreenStyle(self.screenWidth))
 		{
-			_paragraphFont =[[UIFont systemFontOfSize:14.0] retain];
+            if (self.screenWidth >= WidthiPhone6)
+            {
+                _paragraphFont =[[UIFont systemFontOfSize:16.0] retain];
+            }
+            else
+            {
+                _paragraphFont =[[UIFont systemFontOfSize:14.0] retain];
+            }
 		}
 		else {
 			_paragraphFont = [[UIFont systemFontOfSize:22.0] retain];
@@ -570,7 +563,7 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 
 - (CGFloat)basicRowHeight
 {
-	if (SMALL_SCREEN(self.screenWidth))
+	if (SmallScreenStyle(self.screenWidth))
 	{
 		return 40.0;
 	}
@@ -579,7 +572,7 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 
 - (CGFloat)narrowRowHeight
 {
-	if (SMALL_SCREEN(self.screenWidth) !=0)
+	if (SmallScreenStyle(self.screenWidth) !=0)
 	{
 		return 35.0;
 	}

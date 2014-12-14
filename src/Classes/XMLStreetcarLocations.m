@@ -15,14 +15,12 @@
 #import "XMLStreetcarLocations.h"
 #import "XMLDepartures.h"
 #import "Vehicle.h"
-#import "StreetcarConversions.h"
 #import "DebugLogging.h"
 
 @implementation XMLStreetcarLocations
 
 @synthesize locations = _locations;
 @synthesize route = _route;
-@synthesize trimetRoute = _trimetRoute;
 
 static NSMutableDictionary *singleLocationsPerLine = nil;
 
@@ -30,7 +28,6 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
 {
 	self.locations = nil;
     self.route = nil;
-    self.trimetRoute = nil;
     
 	[super dealloc];
 }
@@ -40,8 +37,6 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
     if (self = [super init])
     {
         self.route = route;
-        
-        self.trimetRoute  = [[StreetcarConversions getStreetcarRoutes] objectForKey:route];
         
         [MemoryCaches addCache:self];
     }
@@ -78,7 +73,7 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
 		{
 			if (dd.streetcar)
 			{
-				[routes addObject:dd.nextBusRouteId];
+				[routes addObject:dd.route];
 			}
 		}
     }
@@ -94,7 +89,7 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
         {
             for (Departure *dd in dep.itemArray)
             {
-                if (dd.streetcar && [dd.nextBusRouteId isEqualToString:route])
+                if (dd.streetcar && [dd.route isEqualToString:route])
                 {
                     [locs insertLocation:dd];
                 }
@@ -139,7 +134,7 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
 	
     if ([elementName isEqualToString:@"vehicle"]) {
 		
-		NSString *block = [self safeValueFromDict:attributeDict valueForKey:@"id"];
+		NSString *strretcarId = [self safeValueFromDict:attributeDict valueForKey:@"id"];
 		
 		Vehicle *pos = [[ Vehicle alloc ] init];
 		
@@ -148,13 +143,13 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
 		
         pos.type = kVehicleTypeStreetcar;
         
-        pos.block = block;
-        pos.routeNumber = self.trimetRoute;
+        pos.block = strretcarId;
+        pos.routeNumber = self.route;
         pos.locationTime = UnixToTriMetTime([[NSDate date] timeIntervalSince1970] + [self getTimeFromAttribute:attributeDict valueForKey:@"secsSinceReport"]);
         
-        pos.direction = [[StreetcarConversions getStreetcarDirections] objectForKey:[self safeValueFromDict:attributeDict valueForKey:@"dirTag"]];
+        pos.direction = nil;
         
-		[self.locations setObject:pos forKey:block];
+		[self.locations setObject:pos forKey:strretcarId];
 		
 		[pos release];
 	
@@ -170,7 +165,7 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
 
 -(void)insertLocation:(Departure *)dep
 {
-	Vehicle *pos = [self.locations objectForKey:dep.block];
+	Vehicle *pos = [self.locations objectForKey:dep.streetcarId];
 	
 	if (pos !=nil)
 	{

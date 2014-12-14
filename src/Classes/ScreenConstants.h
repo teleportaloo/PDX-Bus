@@ -12,19 +12,35 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+/* Screen Widths of Devices
+ 
+ 
+ iPad 2                  768
+ iPad Air                768
+ iPad Retina             768
+ 
+ iPad Wide               1024
+ 
+ iPhone 4 / 4S           320
+ iPhone 5 / 5S           320
+ iPhone 6                375
+ iPhone 6 Plus           414
+
+*/
+
+
+
 
 typedef enum {
-	WidthiPhoneNarrow = 0x01,
-	//	WidthiPhoneWide   = 0x02,
-	WidthiPadNarrow	  = 0x04,
-	WidthiPadWide	  = 0x08,
-	WidthiPad		  = 0x0C,
-	WidthiPhone		  = 0x03,
-	WidthWide		  = 0x0A
+	WidthiPhone         = 320,
+    WidthiPhone6        = 375,
+    WidthiPhone6Plus    = 414,
+    MaxiPhoneWidth      = 414,
+	WidthiPadNarrow	    = 768,
+	WidthiPadWide	    = 1024,
 } ScreenType;
 
-#define kLargestSmallScreenDimension	480
-#define kSmallestSmallScreenDimension   320
 
-#define SMALL_SCREEN(X) (((X) & WidthiPhone) !=0)
-#define LARGE_SCREEN(X) (((X) & WidthiPad) !=0)
+#define SmallScreenStyle(X) (((X) <= MaxiPhoneWidth) !=0)
+#define LargeScreenStyle(X) (((X) >  MaxiPhoneWidth) !=0)
+#define ScaleFromiPhone(X, W) ((( (double)X) / (double)WidthiPhone) * (double)(W) )

@@ -36,11 +36,11 @@
         
         if ([UserPrefs getSingleton].flashingLightWarning)
         {
-            self.alert =  [[[ UIAlertView alloc ] initWithTitle:@"Flashing Light"
-                                                        message:@"If you have photosensitive epilepsy please be aware that you may be affected by the flashing light. Would you like to disable this feature?"
+            self.alert =  [[[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"Flashing Light", @"Alert title")
+                                                        message:NSLocalizedString(@"If you have photosensitive epilepsy please be aware that you may be affected by the flashing light. Would you like to disable this feature?", @"Warning text")
                                                        delegate:self
-                                              cancelButtonTitle:@"Disable"
-                                              otherButtonTitles:@"Continue", nil] autorelease];
+                                              cancelButtonTitle:NSLocalizedString(@"Disable", @"Button text")
+                                              otherButtonTitles:NSLocalizedString(@"Continue", @"Buttin text"), nil] autorelease];
             
             [self.alert show];
             

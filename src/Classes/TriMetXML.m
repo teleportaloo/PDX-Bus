@@ -194,6 +194,13 @@ static QueryCacheManager *shortTermCache = nil;
 	
 }
 
+- (bool)getBoolFromAttribute:(NSDictionary *)dict valueForKey:(NSString *)key
+{
+    NSString * val = [self safeValueFromDict:dict valueForKey:key];
+    return ([val compare:@"true" options:NSCaseInsensitiveSearch]==NSOrderedSame);
+}
+
+
 #pragma mark Parsing init
 
 - (NSString*)fullAddressForQuery:(NSString *)query

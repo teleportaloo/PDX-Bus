@@ -201,45 +201,13 @@
 	
 	if (rightMargin)
 	{
-		switch(screenWidth)
-		{
-            default:
-			case WidthiPhoneNarrow:
-				cellWidth = 285;  // 212;
-				break;
-			//case WidthiPhoneWide:
-			//	cellWidth = 370.0;
-			//	break;
-			case WidthiPadNarrow:
-				cellWidth = 720;
-				break;
-			case WidthiPadWide:
-				cellWidth = 980; // 800.0; //730.0;
-				break;
-		}
+        cellWidth = screenWidth - 35;
 	}
 	else 
 	{
-		switch(screenWidth)
-		{
-        default:
-		case WidthiPhoneNarrow:
-			cellWidth = 305;  // 212;
-			break;
-			//case WidthiPhoneWide:
-			//	cellWidth = 370.0;
-			//	break;
-		case WidthiPadNarrow:
-			cellWidth = 750;
-			break;
-		case WidthiPadWide:
-			cellWidth = 1010; // 800.0; //730.0;
-			break;
-		}
+        cellWidth = screenWidth - 15;
 	}
-
-	
-	
+    
 	CGRect rect;
 	
 	UITableViewCell *cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier] autorelease];

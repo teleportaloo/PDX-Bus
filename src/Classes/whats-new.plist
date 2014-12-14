@@ -2,6 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <array>
+	<string>.7.2 (iOS 8)</string>
+	<string>+http://www.trimet.org/pdfs/maps/railsystem.pdf New MAX &amp; WES map.</string>
+	<string>+http://en.wikipedia.org/wiki/IOS_8 Rebuilt for iOS 8 and iPhone 6 and iPhone 6 Plus.</string>
+	<string>Added text to explain the different colors used for the arrival times.</string>
+	<string>Fixed issues with Streetcar arrivals by switching over to the TriMet feed for streetcar data.</string>
+	<string>Re-allowed emoji keyboard for bookmark names.</string>
 	<string>.7.1 - Bug fixes</string>
 	<string>!Fix for all Streetcar arrivals - the data provider changed the data without any warning (the data doesn&apos;t come from TriMet).</string>
 	<string>#settings Added back &apos;Bookmarks at the top&apos; setting.</string>

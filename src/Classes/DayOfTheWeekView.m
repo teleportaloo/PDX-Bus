@@ -166,6 +166,7 @@ static int daysInWeek[] = {
 - (void)viewDidLoad 
 {
     self.title = NSLocalizedString(@"Days of the week", @"screen title");
+    [super viewDidLoad];
 }
 
 

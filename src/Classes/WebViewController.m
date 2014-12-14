@@ -67,7 +67,7 @@
 
 - (void)setURLmobile:(NSString *)url full:(NSString *)full
 {
-	if (([self screenWidth] & WidthiPad) !=0 && full!=nil)
+	if (LargeScreenStyle([self screenWidth]) && full!=nil)
 	{
 		self.urlToDisplay = full;
 	}
@@ -320,7 +320,7 @@
 
 - (CGFloat) heightOffset
 {
-    if (self.iOS7style && ((([self screenWidth] & WidthiPad) ==0) || (self.screenWidth == WidthiPadNarrow)))
+    if (self.iOS7style && (LargeScreenStyle([self screenWidth]) || (self.screenWidth == WidthiPadNarrow)))
     {
         return -[UIApplication sharedApplication].statusBarFrame.size.height;
     }

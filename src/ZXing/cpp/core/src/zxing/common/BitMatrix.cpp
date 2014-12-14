@@ -89,6 +89,8 @@ void BitMatrix::setRegion(size_t left, size_t top, size_t width, size_t height) 
   }
 }
 
+#ifndef __clang_analyzer__
+
 Ref<BitArray> BitMatrix::getRow(int y, Ref<BitArray> row) {
   if (row.empty() || row->getSize() < width_) {
     row = new BitArray(width_);
@@ -121,6 +123,8 @@ Ref<BitArray> BitMatrix::getRow(int y, Ref<BitArray> row) {
   }
   return row;
 }
+
+#endif
 
 size_t BitMatrix::getWidth() const {
   return width_;

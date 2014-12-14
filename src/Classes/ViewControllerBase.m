@@ -24,6 +24,9 @@
 #import "TicketAlert.h"
 #import "UserPrefs.h"
 #import "MemoryCaches.h"
+#import "TriMetTimesAppDelegate.h"
+#import "AppDelegateMethods.h"
+#import "InterfaceOrientation.h"
 
 #define kTweetButtonList        1
 #define kTweetButtonTweet       2
@@ -217,14 +220,6 @@
  }
 
 
-- (void)viewDidUnload {
-	// Release any retained subviews of the main view.
-	// e.g. self.myOutlet = nil;
-    
-    
-}
- 
-
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -255,7 +250,7 @@
     CGRect bounds = [[UIScreen mainScreen] bounds];
 	
 	// Small devices do not need to orient
-	if (bounds.size.width <= kLargestSmallScreenDimension)
+	if (bounds.size.width <= MaxiPhoneWidth)
 	{
         return UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskPortraitUpsideDown;
 	}
@@ -295,13 +290,6 @@
      */
 }
 
-- (void)viewWillAppear:(BOOL)animated {
-	[[self navigationController] setToolbarHidden:NO animated:YES];
-	
-}
-
-
-
 #pragma mark View helper methods
 
 - (void)reloadData
@@ -312,15 +300,26 @@
 - (ScreenType)screenWidth
 {
 	CGRect bounds = [[UIScreen mainScreen] bounds];
+    
+    NSLog(@"Width %f\n", bounds.size.width);
 	
-	switch (self.interfaceOrientation)
+	switch ([InterfaceOrientation getInterfaceOrientation:self])
 	{
 		case UIInterfaceOrientationPortraitUpsideDown:	
 		case UIInterfaceOrientationPortrait:
-			if (bounds.size.width <= kSmallestSmallScreenDimension)
+        case UIInterfaceOrientationUnknown:
+			if (bounds.size.width <= WidthiPhone)
 			{
-				return WidthiPhoneNarrow;
+				return WidthiPhone;
 			}
+            else if (bounds.size.width <= WidthiPhone6)
+            {
+                return WidthiPhone6;
+            }
+            else if (bounds.size.width <= WidthiPhone6Plus)
+            {
+                return WidthiPhone6Plus;
+            }
 			return WidthiPadNarrow;
 		case	UIInterfaceOrientationLandscapeLeft:
 		case	UIInterfaceOrientationLandscapeRight:
@@ -731,8 +730,11 @@
 	}
 	else
 	{
-		[[self navigationController] popToRootViewControllerAnimated:YES];
-	}
+       // TriMetTimesAppDelegate *app = [TriMetTimesAppDelegate getSingleton];
+        
+       // [[self navigationController] popToViewController:(UIViewController*)app.rootViewController animated:YES];
+        [[ self navigationController] popToRootViewControllerAnimated:YES];
+    }
 }
 
 -(void)ticketButton:(id)sender
@@ -902,7 +904,7 @@
 
 - (UIInterfaceOrientation)BackgroundTaskOrientation
 {
-	return self.interfaceOrientation;	
+	return [InterfaceOrientation getInterfaceOrientation:self];
 }
 
 #pragma mark Standard Object methods

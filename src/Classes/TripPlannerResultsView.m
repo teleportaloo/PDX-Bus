@@ -294,11 +294,6 @@
 	// Release any cached data, images, etc that aren't in use.
 }
 
-- (void)viewDidUnload {
-	// Release any retained subviews of the main view.
-	// e.g. self.myOutlet = nil;
-}
-
 #pragma mark UI helpers
 
 - (NSInteger)sectionType:(NSInteger)section
@@ -996,9 +991,11 @@
     event.startDate = start;
     event.endDate   = end;
     
-    [event setCalendar:[eventStore defaultCalendarForNewEvents]];
+    EKCalendar *cal = [eventStore defaultCalendarForNewEvents];
+    
+    [event setCalendar:cal];
     NSError *err;
-    if ([eventStore saveEvent:event span:EKSpanThisEvent error:&err])
+    if (cal !=nil && [eventStore saveEvent:event span:EKSpanThisEvent error:&err])
     {
         // Upon selecting an event, create an EKEventViewController to display the event.
         EKEventViewController *detailViewController = [[EKEventViewController alloc] initWithNibName:nil bundle:nil];

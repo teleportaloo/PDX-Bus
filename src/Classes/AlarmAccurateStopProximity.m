@@ -60,6 +60,13 @@
 	{
 		self.locationManager = [[[CLLocationManager alloc] init] autorelease];
         
+        
+        if ([self.locationManager respondsToSelector:@selector(requestAlwaysAuthorization)])
+        {
+            [self.locationManager requestAlwaysAuthorization];
+        }
+        
+        
         // Temporary cleanup - regions last forever!
         /*
         NSSet *regions = self.locationManager.monitoredRegions;
