@@ -17,8 +17,8 @@
 #import "XMLLocateVehicles.h"
 #import "RouteColorBlobView.h"
 #import "DepartureTimesView.h"
-#import "Vehicle.h"
-
+#import "VehicleData.h"
+#import "VehicleUI.h"
 
 @implementation VehicleTableView
 
@@ -70,7 +70,7 @@
     
     if (_firstTime && self.locator.safeItemCount == 1)
     {
-        Vehicle *vehicle = [self.locator itemAtIndex:0];
+        VehicleUI *vehicle = [VehicleUI createFromData:[self.locator itemAtIndex:0]];
         
         [vehicle mapTapped:self.backgroundTask];
     }
@@ -170,7 +170,7 @@
 				
 			}
 			// Configure the cell
-			Vehicle *vehicle = [self.locator itemAtIndex:indexPath.row];
+			VehicleData *vehicle = [self.locator itemAtIndex:indexPath.row];
 			
             if (LargeScreenStyle(self.screenWidth))
             {
@@ -214,8 +214,8 @@
 	{
 		case kSectionVehicles:
 		{
-			Vehicle *vehicle = [self.locator itemAtIndex:indexPath.row];
-            
+            VehicleUI *vehicle = [VehicleUI createFromData:[self.locator itemAtIndex:indexPath.row]];
+			 
             [vehicle mapTapped:self.backgroundTask];
 			break;
 		}

@@ -16,6 +16,11 @@
 #import "AlarmTaskList.h"
 #import "AlarmAccurateStopProximity.h"
 #import "DebugLogging.h"
+#import <objc/runtime.h>
+
+#ifdef PEBBLE_SUPPORT
+#import "PebbleSportsDisplay.h"
+#endif
 
 #define kLoopTimeSecs 20
 
@@ -24,7 +29,6 @@
 @synthesize observer			= _observer;
 @synthesize backgroundThread	= _backgroundThread;
 
-
 -(void)dealloc
 {
 	[_backgroundTasks release];	
@@ -32,6 +36,8 @@
     [_newTaskKeys     release];
 	self.observer = nil;
 	self.backgroundThread = nil;
+    [_externalDisplays release];
+
 	[super dealloc];
 }
 
@@ -46,6 +52,7 @@
 	
 	return taskList;
 }
+
 
 + (bool)supported
 {
@@ -112,8 +119,15 @@
         _newTaskKeys        = [[NSMutableArray alloc] init];
         _taskId             = 0; // UIBackgroundTaskInvalid cannot be used in 3.2 OS
         _atomicTaskRunning  = NO;
-		
+        _externalDisplays = [[NSArray arrayWithObjects:
+#ifdef PEBBLE_SUPPORT
+                              [[[PebbleSportsDisplay alloc] init] autorelease],
+#endif
+                              nil] retain];
+        
 		[self updateBadge];
+        
+       
 	}
 	return self;
 }
@@ -133,6 +147,8 @@
 		if (task !=nil)
 		{
 			[task cancelTask];
+            
+            
 		}
 	}
 }
@@ -152,7 +168,7 @@
     
 }
 
-- (void)addTaskForDeparture:(Departure *)dep mins:(uint)mins
+- (void)addTaskForDeparture:(DepartureData *)dep mins:(uint)mins
 {
 	@synchronized(_backgroundTasks)
 	{
@@ -225,6 +241,9 @@
 		[(NSObject*)self.observer performSelectorOnMainThread:@selector(taskUpdate:) withObject:task waitUntilDone:NO];
 	}
     
+    
+    
+    
     AlarmTask *realTask = (AlarmTask *)task;
     
     if (realTask.alarmState == AlarmFired)
@@ -270,10 +289,17 @@
         [self removeTask:key fromArray:_newTaskKeys];
         [self removeTask:key fromArray:_orderedTaskKeys];
         
+        
+        
 		if (self.observer)
 		{
 			[(NSObject*)self.observer performSelectorOnMainThread:@selector(taskDone:) withObject:task waitUntilDone:NO];
 		}
+        
+        for (ExternalDisplayDevice *display in _externalDisplays)
+        {
+            [display displayEnded:task];
+        }
 	
 		[realTask release];
 		[self updateBadge];
@@ -357,6 +383,15 @@
     }
 }
 
+
+-(void)taskLoopEnded:(id)unused
+{
+    for (ExternalDisplayDevice *display in _externalDisplays)
+    {
+        [display displayEnded:nil];
+         display.delegate = nil;
+    }
+}
 
 - (void)addTaskForStopIdProximity:(NSString *)stopId 
 							  lat:(NSString *)lat 
@@ -471,7 +506,7 @@
 						if (task.nextFetch == nil || [task.nextFetch compare:[NSDate date]] != NSOrderedDescending)
 						{
 							// DEBUG_LOG(@"Fetching...");
-							task.nextFetch = [task fetch];
+                            task.nextFetch = [task fetch:self];
                             [self taskUpdate:task];
 						}
 						break;
@@ -505,6 +540,8 @@
 		
 		[pool release];
 	}
+    
+    [(NSObject*)self performSelectorOnMainThread:@selector(taskLoopEnded:) withObject:nil waitUntilDone:NO];
 	    
 	DEBUG_LOG(@"taskLoop done\n");
 }
@@ -521,12 +558,21 @@
 	[self runTask];
 }
 
+
+
 - (void)rawRunTask
 {
 	DEBUG_LOG(@"runTask\n");
 
 	UIApplication*    app = [UIApplication sharedApplication];
-	
+    
+    for (ExternalDisplayDevice *display in _externalDisplays)
+    {
+        display.delegate = self;
+        [display getSupportAndStartCallbacks];
+    }
+    
+   
 	_taskId = [app beginBackgroundTaskWithExpirationHandler:^{
 		DEBUG_LOG(@"Expiration Handler\n");
 		
@@ -550,6 +596,8 @@
 		[app endBackgroundTask:_taskId];
 		
 	}];
+    
+    
 	
 	// Start the long-running task and return immediately.
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -622,6 +670,57 @@
 	}
 	return false;
 }
+
+// External Display Delegate Methods
+- (void)displayAvailable:(ExternalDisplayDevice*)display
+{
+    
+}
+- (void)displayGone:(ExternalDisplayDevice*)display
+{
+    
+}
+
+- (void)updateSent:(ExternalDisplayDevice*)display
+{
+    NSString *key = display.taskKey;
+    
+    if (key)
+    {
+        AlarmTask *task =  [self taskForKey:key];
+        
+        [self taskUpdate:task];
+        
+    }
+}
+
+- (bool)updateAllExternalDisplays:(AlarmFetchArrivalsTask *)task
+{
+    bool externalDisplay = NO;
+
+    for (ExternalDisplayDevice *display in _externalDisplays)
+    {
+        [display updateDisplay:task];
+    
+        externalDisplay |= [display running];
+    }
+    return externalDisplay;
+    
+}
+
+- (void)endExternalDisplayForTask:(AlarmFetchArrivalsTask *)task
+{
+    for (ExternalDisplayDevice *display in _externalDisplays)
+    {
+        [display displayEnded:task];
+    }
+}
+
+//NSDictionary *myPebbleDict = @{ PBSportsTimeKey : [PBSportsUpdate timeStringFromFloat:self.lastFetched.minsToArrival],
+//            PBSportsDistanceKey : [NSString stringWithFormat:@"%2.02f", busDistanceMiles],
+//            PBSportsDataKey :[NSString stringWithFormat:@"%.0f", [self.lastFetched.route floatValue]],
+//            };
+
 
 
 @end

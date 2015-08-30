@@ -26,7 +26,7 @@
 #define kCacheWarning NSLocalizedString(@"WARNING: No network - extrapolated times", @"error message")
 
 @class XMLDepartures;
-@class Departure;
+@class DepartureData;
 
 
 typedef struct {

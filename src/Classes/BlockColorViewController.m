@@ -100,7 +100,7 @@
     textView.textColor = [UIColor blackColor];
     textView.font = font;
     textView.backgroundColor = [UIColor whiteColor];
-	textView.lineBreakMode =   UILineBreakModeWordWrap;
+	textView.lineBreakMode =   NSLineBreakByWordWrapping;
 	textView.adjustsFontSizeToFitWidth = YES;
 	textView.numberOfLines = 0;
     
@@ -250,7 +250,7 @@
     [_db addColor:controller.resultColor
          forBlock:_changingColor
       description:desc];
-    [controller dismissModalViewControllerAnimated:YES];
+    [controller dismissViewControllerAnimated:YES completion:nil];
     
     [_changingColor release];
     _changingColor = nil;

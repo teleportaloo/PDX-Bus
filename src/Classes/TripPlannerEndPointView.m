@@ -644,7 +644,7 @@
 			[cell setAccessibilityLabel:[NSString stringWithFormat:@"Max walking distance: %@ miles, Travel by: %@, Show me the:%@", 
 										 walk,
 										 [self.tripQuery.userRequest getMode], [self.tripQuery.userRequest getMin]]];
-			cell.textLabel.lineBreakMode = UILineBreakModeWordWrap;
+			cell.textLabel.lineBreakMode = NSLineBreakByWordWrapping;
 			cell.textLabel.numberOfLines = 0;
 			cell.textLabel.font = [self getBasicFont];;
 		
@@ -714,7 +714,7 @@
 			
 					contactPicker.displayedProperties = [[[NSArray alloc] initWithObjects:[NSNumber numberWithInt:kABPersonAddressProperty], nil] autorelease];
 			
-					[self presentModalViewController:contactPicker animated:YES];
+                    [self presentViewController:contactPicker animated:YES completion:nil];
 					[contactPicker release];
 					break;
 				}
@@ -833,7 +833,7 @@
 
 - (void)peoplePickerNavigationControllerDidCancel:(ABPeoplePickerNavigationController *)peoplePicker
 {
-	[self dismissModalViewControllerAnimated:YES];
+	[self dismissViewControllerAnimated:YES completion:nil];
 }
 
 
@@ -924,7 +924,7 @@
 		 [item release];
 		 }
 		 */
-		[self dismissModalViewControllerAnimated:YES];
+		[self dismissViewControllerAnimated:YES completion:nil];
 		
 #ifdef ORIGINAL_IPHONE
         NSDate *soon = [[NSDate date] addTimeInterval:0.1];

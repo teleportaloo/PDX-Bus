@@ -52,6 +52,8 @@ typedef enum AlarmStateTag {
 
 @end
 
+@class AlarmTaskList;
+
 @interface AlarmTask : NSObject   {
 
 	NSString *					_desc;
@@ -88,7 +90,7 @@ typedef enum AlarmStateTag {
 - (void)startTask;
 - (int)internalDataItems;
 - (NSString *)internalData:(int)item;
-- (NSDate *)fetch;
+- (NSDate *)fetch:(AlarmTaskList*)parent;
 
 - (void)locationManager:(CLLocationManager *)manager
     didUpdateToLocation:(CLLocation *)newLocation

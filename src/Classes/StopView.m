@@ -14,7 +14,7 @@
 #import "Stop.h"
 #import "DepartureTimesView.h"
 #import "XMLStops.h"
-#import "Departure.h"
+#import "DepartureData.h"
 #import "MapViewController.h"
 #import "RailStation.h"
 #import "TriMetRouteColors.h"
@@ -93,7 +93,7 @@
 
 #pragma mark Data fetchers
 
-- (void)fetchDestinations:(Departure*) dep
+- (void)fetchDestinations:(DepartureData*) dep
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	[self.backgroundTask.callbackWhenFetching backgroundThread:[NSThread currentThread]];
@@ -109,7 +109,7 @@
 	[pool release];
 }
 
-- (void)fetchDestinationsInBackground:(id<BackgroundTaskProgress>) callback dep:(Departure*) dep
+- (void)fetchDestinationsInBackground:(id<BackgroundTaskProgress>) callback dep:(DepartureData *) dep
 {
 	
 	self.backgroundTask.callbackWhenFetching = callback;

@@ -20,6 +20,7 @@
 #import "IASKAppSettingsViewController.h"
 #import "ZXingWidgetController.h"
 #import "ProgressModalView.h"
+#import  <CoreLocation/CoreLocation.h>
 
 #define kRootMaxSections 7
 #define kVersion		@"Version"

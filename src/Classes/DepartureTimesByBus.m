@@ -13,7 +13,8 @@
 
 
 #import "DepartureTimesByBus.h"
-#import "Departure.h"
+#import "DepartureData.h"
+#import "DepartureUI.h"
 
 
 @implementation DepartureTimesByBus
@@ -36,7 +37,7 @@
 
 #pragma mark Data Accessors
 
-- (Departure *)DTDataGetDeparture:(NSInteger)i
+- (DepartureData *)DTDataGetDeparture:(NSInteger)i
 {
 	return [self.departureItems objectAtIndex:i];
 }
@@ -57,14 +58,14 @@
 	return nil;
 }
 
-- (void)DTDataPopulateCell:(Departure *)dd cell:(UITableViewCell *)cell decorate:(BOOL)decorate big:(BOOL)big wide:(BOOL)wide
+- (void)DTDataPopulateCell:(DepartureUI *)dd cell:(UITableViewCell *)cell decorate:(BOOL)decorate big:(BOOL)big wide:(BOOL)wide
 {
 	[dd populateCell:cell decorate:decorate big:big busName:NO wide:wide];	
 }
 
 - (NSString *)DTDataStaticText
 {
-	Departure *d = [self DTDataGetDeparture:0];
+	DepartureData *d = [self DTDataGetDeparture:0];
 	if (d.block != nil)
 	{
 		return [NSString stringWithFormat:NSLocalizedString(@"(Trip ID %@) ", @"trip info small text"), d.block];
@@ -91,7 +92,7 @@
 }
 - (NSString *)DTDataLocDesc
 {
-	Departure *dep = [self DTDataGetDeparture:0];
+	DepartureData *dep = [self DTDataGetDeparture:0];
 	return dep.locationDesc;
 }
 

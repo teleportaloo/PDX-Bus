@@ -15,8 +15,9 @@
 
 #import <Foundation/Foundation.h>
 #import "AlarmFetchArrivalsTask.h"
-#import "Departure.h"
+#import "DepartureData.h"
 #import <CoreLocation/CoreLocation.h>
+#import "ExternalDisplayDevice.h"
 
 
 #define kMileProximity			(1609.344)
@@ -26,8 +27,10 @@
 #define kBadAccuracy			(800.0)
 #define kUserDistanceProximity  NSLocalizedString(@"1/3 mile", @"proximity alarm distance")
 #define kUserProximityCellText  NSLocalizedString(@"Proximity alarm (1/3 mile)",@"proximity alarm distance")
+#define kUserProximityDeniedCellText NSLocalizedString(@"Proximity alarm (not authorized)",@"proximity alarm error")
 
-@interface AlarmTaskList : NSObject <AlarmObserver>
+
+@interface AlarmTaskList : NSObject <AlarmObserver, ExternalDisplayDeviceDelegate>
 {
 	NSMutableDictionary *_backgroundTasks;
     NSMutableArray *_orderedTaskKeys;
@@ -37,9 +40,10 @@
 	NSThread *_backgroundThread;
 	bool _batchUpdate;
     bool _atomicTaskRunning;
+    
+    NSArray *_externalDisplays;
 }
 
-// @property (nonatomic, retain) NSMutableDictionary *backgroundTasks;
 @property (nonatomic, retain) id<AlarmObserver> observer;
 @property (retain) NSThread *backgroundThread;
 
@@ -47,7 +51,7 @@
 + (AlarmTaskList*)getSingleton;
 + (bool)supported;
 + (bool)proximitySupported;
-- (void)addTaskForDeparture:(Departure *)dep mins:(uint)mins;
+- (void)addTaskForDeparture:(DepartureData *)dep mins:(uint)mins;
 - (bool)hasTaskForStopId:(NSString *)stopId block:(NSString *)block;
 - (int)minsForTaskWithStopId:(NSString *)stopId block:(NSString *)block;
 - (void)cancelTaskForKey:(NSString *)key;
@@ -74,5 +78,10 @@
 - (void)resumeOnActivate;
 - (void)checkForLongAlarms;
 - (void)updateBadge;
+
+- (bool)updateAllExternalDisplays:(AlarmFetchArrivalsTask *)task;
+- (void)endExternalDisplayForTask:(AlarmFetchArrivalsTask *)task;
+
+
 
 @end

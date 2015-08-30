@@ -352,7 +352,7 @@ static const CGFloat kPadding = 10;
     CGSize constraint = CGSizeMake(rect.size.width  - 2 * kTextMargin, cropRect.origin.y);
     CGSize displaySize = [self.displayedMessage sizeWithFont:font constrainedToSize:constraint];
     CGRect displayRect = CGRectMake((rect.size.width - displaySize.width) / 2 , cropRect.origin.y - displaySize.height, displaySize.width, displaySize.height);
-    [self.displayedMessage drawInRect:displayRect withFont:font lineBreakMode:UILineBreakModeWordWrap alignment:UITextAlignmentCenter];
+    [self.displayedMessage drawInRect:displayRect withFont:font lineBreakMode:UILineBreakModeWordWrap alignment:NSTextAlignmentCenter];
 	}
 	CGContextRestoreGState(c);
 	int offset = rect.size.width / 2;

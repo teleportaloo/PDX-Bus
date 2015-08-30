@@ -119,7 +119,7 @@
     refreshLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, _width, REFRESH_HEADER_HEIGHT)];
     refreshLabel.backgroundColor = [UIColor clearColor];
     refreshLabel.font = [UIFont boldSystemFontOfSize:16.0];
-    refreshLabel.textAlignment = UITextAlignmentCenter;
+    refreshLabel.textAlignment = NSTextAlignmentCenter;
     refreshLabel.textColor = [UIColor darkGrayColor];
     refreshLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     refreshLabel.numberOfLines = 2;

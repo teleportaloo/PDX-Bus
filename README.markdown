@@ -20,10 +20,10 @@ Features include:
 
 Route and arrival data provided by permission of TriMet.
 
-PDX Bus 7.2 sources
+PDX Bus 7.9 sources
 ===================
 
-I am making the sources to PDX Bus version 7.1 available as part of the
+I am making the sources to PDX Bus version 7.9 available as part of the
 [Civic Apps](http://www.civicapps.org) competition.  These
 sources were developed by me from Apple samples and documentation, except 
 where explicitly mentioned in the code.  
@@ -66,7 +66,7 @@ Links
 
 Things to know before building
 ------------------------------
-* PDX Bus is built with iPhone SDK 7.0 and Xcode 5.1.1 - available free
+* PDX Bus is built with iPhone SDK 8.3 and Xcode 6.3.1 - available free
 from [Apple](http://developer.apple.com) in their Mac App store.
 * Before building this code you will need to register with TriMet 
 to get a free "AppID" from [TriMet](http://developer.trimet.org/registration/),
@@ -182,6 +182,17 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Change log
 ----------
+### Version 7.9 (August 2015)
+* Refactored code into a framework to allow for an extension - refactored other code to separate out the UI from data.
+* Added Apple Watch app with simple arrivals and locate nearby stops.
+* Fixed Arrival table size for older iPhones.
+* Added better support for localization authorization.
+* Fixed date and time screen on iPads when rotated.
+* Fixed Streetcat typo
+* Merged Pebble support into mainline code
+* Dropped support for iOS 5 and updated deprecated items.
+
+
 ### Version 7.2 (December 2014)
 * Updated for iOS 8.
 * Native support for iPhone 6 + 6 Plus screen sizes
@@ -372,4 +383,4 @@ First Open Source Version.
 
 HAVE FUN!
 
-Andrew Wallace, April 2014.
+Andrew Wallace, August 2015.

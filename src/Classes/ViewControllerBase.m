@@ -19,7 +19,7 @@
 #import "WebViewController.h"
 #import "NetworkTestView.h"
 #import "RssView.h"
-#import <Twitter/TWTweetComposeViewController.h>
+#import <Social/Social.h>
 #import "OpenInChromeController.h"
 #import "TicketAlert.h"
 #import "UserPrefs.h"
@@ -27,6 +27,7 @@
 #import "TriMetTimesAppDelegate.h"
 #import "AppDelegateMethods.h"
 #import "InterfaceOrientation.h"
+
 
 #define kTweetButtonList        1
 #define kTweetButtonTweet       2
@@ -150,6 +151,12 @@
 - (bool)iOS7style
 {
     return ([self respondsToSelector:@selector(setEdgesForExtendedLayout:)]);
+}
+
+
+- (bool)iOS8style
+{
+    return [[UIDevice currentDevice].systemVersion floatValue] >= 8.0;
 }
 
 + (bool)iOS7style
@@ -301,8 +308,6 @@
 {
 	CGRect bounds = [[UIScreen mainScreen] bounds];
     
-    NSLog(@"Width %f\n", bounds.size.width);
-	
 	switch ([InterfaceOrientation getInterfaceOrientation:self])
 	{
 		case UIInterfaceOrientationPortraitUpsideDown:	
@@ -786,7 +791,26 @@
     {
         AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
         
-        if (device != nil)
+        if (device == nil)
+        {
+            return NO;
+        }
+        
+        if ([[AVCaptureDevice class] respondsToSelector:@selector(authorizationStatusForMediaType:)])
+        {
+            AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+            
+            switch (authStatus)
+            {
+                case AVAuthorizationStatusAuthorized:
+                case AVAuthorizationStatusNotDetermined:
+                    return YES;
+                case AVAuthorizationStatusDenied:
+                case AVAuthorizationStatusRestricted:
+                    return NO;
+            }
+        }
+        else
         {
             return YES;
         }
@@ -794,6 +818,7 @@
     
     return NO ;
 }
+
 
 - (void)showRouteAlerts:(NSString *)route fullSign:(NSString *)fullSign
 {
@@ -880,7 +905,7 @@
 		textView.backgroundColor = backgroundColor;
 		
 	}
-	textView.lineBreakMode =   UILineBreakModeWordWrap;
+	textView.lineBreakMode =   NSLineBreakByWordWrapping;
 	textView.adjustsFontSizeToFitWidth = YES;
 	textView.numberOfLines = 0;
 	
@@ -1120,18 +1145,16 @@
             
         case kTweetButtonTweet:
         {
-            TWTweetComposeViewController *picker = [[TWTweetComposeViewController alloc] init];
+            SLComposeViewController *picker = [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeTwitter];
             [picker setInitialText:self.initTweet];
             
             picker.completionHandler =
-            ^(TWTweetComposeViewControllerResult result) {
+            ^(SLComposeViewControllerResult result) {
                 [self clearSelection];
-                [self dismissModalViewControllerAnimated:YES];
             };
             
-            [self presentModalViewController:picker animated:YES];
+            [self presentViewController:picker animated:YES completion:nil];
             
-            [picker release];
             break;
         }
     }

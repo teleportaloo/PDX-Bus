@@ -172,7 +172,7 @@ static NSString *itemId = @"item";
 				cell.textLabel.font =  [self getBasicFont]; //  [UIFont fontWithName:@"Ariel" size:14];
 				cell.textLabel.adjustsFontSizeToFitWidth = YES;
 				cell.textLabel.text = @"Back to PDX Bus";
-				cell.textLabel.textAlignment = UITextAlignmentCenter;
+				cell.textLabel.textAlignment = NSTextAlignmentCenter;
 			}
 			return cell;
 			break;

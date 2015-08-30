@@ -22,8 +22,6 @@
 #import "AlarmCell.h"
 #import "ViewControllerBase.h"
 
-
-
 @implementation AlarmTask
 
 @synthesize desc                    = _desc;
@@ -250,7 +248,7 @@
 	return nil;
 }
 
-- (NSDate *)fetch
+- (NSDate *)fetch:(AlarmTaskList *)parent;
 {
 	return nil;
 }

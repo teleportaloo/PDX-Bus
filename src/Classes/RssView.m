@@ -91,7 +91,7 @@
 	//    textView.delegate = self;
 	//	textView.editable = NO;
     textView.backgroundColor = [UIColor whiteColor];
-	textView.lineBreakMode =   UILineBreakModeWordWrap;
+	textView.lineBreakMode =   NSLineBreakByWordWrapping;
 	textView.adjustsFontSizeToFitWidth = YES;
 	textView.numberOfLines = 0;
 	

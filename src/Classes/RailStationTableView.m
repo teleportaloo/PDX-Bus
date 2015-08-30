@@ -355,7 +355,7 @@
 			cell.selectionStyle = UITableViewCellSelectionStyleNone;
 			cell.accessoryType = UITableViewCellAccessoryNone;
 			cell.imageView.image = nil;
-			//cell.textLabel.textAlignment = UITextAlignmentCenter;
+			//cell.textLabel.textAlignment = NSTextAlignmentCenter;
 			
 			
 			[RailStation populateCell:cell 
@@ -461,7 +461,7 @@
 			//cell.textLabel.text =  self.station.station;
 			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 			cell.imageView.image = nil;
-			//cell.textLabel.textAlignment = UITextAlignmentCenter;
+			//cell.textLabel.textAlignment = NSTextAlignmentCenter;
 			
 			
 			[RailStation populateCell:cell 

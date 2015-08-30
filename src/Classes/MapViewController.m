@@ -15,17 +15,18 @@
 #import "MapViewController.h"
 #import <MapKit/MapKit.h>
 #import <MapKit/MkAnnotation.h>
-#import "Departure.h"
+#import "DepartureData.h"
 #import "XMLDepartures.h"
 #import "MapPinColor.h"
 #import "DepartureTimesView.h"
 #import "DepartureDetailView.h"
 #import "QuartzCore/QuartzCore.h"
+#import "DepartureUI.h"
 
-#define kPrev @"Prev"
+#define kPrev  @"Prev"
 #define kStart @"Start"
-#define kNext @"Next"
-#define kEnd @"End"
+#define kNext  @"Next"
+#define kEnd   @"End"
 
 #define kNoButton -1
 
@@ -283,11 +284,11 @@
 		}
 		else if ([self.tappedAnnot respondsToSelector: @selector(mapDeparture)])
 		{
-			Departure *departure = [self.tappedAnnot mapDeparture];
+			DepartureUI *departureUI = [self.tappedAnnot mapDeparture];
 			DepartureDetailView *departureDetailView = [[DepartureDetailView alloc] init];
 			departureDetailView.callback = self.callback;
 			
-			[departureDetailView fetchDepartureInBackground:self.backgroundTask dep:departure allDepartures:nil   allowDestination:NO];
+			[departureDetailView fetchDepartureInBackground:self.backgroundTask dep:departureUI.data allDepartures:nil   allowDestination:NO];
 			[departureDetailView release];	
 		}
 	}

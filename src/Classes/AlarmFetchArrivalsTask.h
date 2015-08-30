@@ -17,9 +17,6 @@
 #import "XMLDepartures.h"
 #import "AlarmTask.h"
 
-// @interface AlarmFetchArrivalsTask;
-
-
 #define DEBUG_BACKGROUND_FETCH
 
 
@@ -30,8 +27,9 @@
 	
 	
 	XMLDepartures *_departures;
-	Departure	  *_lastFetched;
+	DepartureData *_lastFetched;
 	TriMetTime _queryTime;
+    NSString    *_display;
 	
 	uint _minsToAlert;	
 }
@@ -40,7 +38,8 @@
 @property (nonatomic, retain) NSString * block;
 @property (nonatomic, retain) XMLDepartures * departures;
 @property (nonatomic) uint minsToAlert;
-@property (retain) Departure	  *lastFetched;
+@property (retain) DepartureData *lastFetched;
+@property (nonatomic, retain) NSString *display;
 
 - (void) startTask;
 

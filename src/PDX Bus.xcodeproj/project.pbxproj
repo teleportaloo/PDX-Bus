@@ -9,20 +9,21 @@
 /* Begin PBXBuildFile section */
 		1D3623260D0F684500981E51 /* TriMetTimesAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D3623250D0F684500981E51 /* TriMetTimesAppDelegate.m */; };
 		1D60589B0D05DD56006BFB54 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
-		1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
-		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
-		2892E4100DC94CBA00A64D0F /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2892E40F0DC94CBA00A64D0F /* CoreGraphics.framework */; };
 		2899E5600DE3E45000AC0155 /* RootViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2899E55F0DE3E45000AC0155 /* RootViewController.xib */; };
 		28AD73600D9D9599002E5188 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD735F0D9D9599002E5188 /* MainWindow.xib */; };
 		A1003E9F144E7BF60086E120 /* arrow.png in Resources */ = {isa = PBXBuildFile; fileRef = A1003E9D144E7BF60086E120 /* arrow.png */; };
 		A100B3081268095B00BAA288 /* RailStations.png in Resources */ = {isa = PBXBuildFile; fileRef = A100B3071268095B00BAA288 /* RailStations.png */; };
-		A100B74F126B9CD500BAA288 /* UserFaves.m in Sources */ = {isa = PBXBuildFile; fileRef = A100B74E126B9CD500BAA288 /* UserFaves.m */; };
+		A1028E751B12A3B3002924BE /* WatchBookmarksContext.m in Sources */ = {isa = PBXBuildFile; fileRef = A1028E741B12A3B3002924BE /* WatchBookmarksContext.m */; };
 		A107A6250F2D0E9600C20017 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = A107A6240F2D0E9600C20017 /* Settings.bundle */; };
 		A107A84B0F2D389700C20017 /* EditBookMarkView.m in Sources */ = {isa = PBXBuildFile; fileRef = A107A84A0F2D389700C20017 /* EditBookMarkView.m */; };
 		A107AD4A0F2D667800C20017 /* AddNewStopToBookMark.m in Sources */ = {isa = PBXBuildFile; fileRef = A107AD490F2D667800C20017 /* AddNewStopToBookMark.m */; };
+		A10946B31A463FDF00356E8D /* Social.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A10946B21A463FDF00356E8D /* Social.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		A109801B1612CE600036D8C9 /* v2AppIcon50x50@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A125BD3D161161FB0079274B /* v2AppIcon50x50@2x.png */; };
 		A10CCD071037B72E00328A94 /* TripPlannerOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = A10CCD061037B72E00328A94 /* TripPlannerOptions.m */; };
 		A1125EAE16223F5A00C647A4 /* SupportView.h in Resources */ = {isa = PBXBuildFile; fileRef = A1125EAD16223F5A00C647A4 /* SupportView.h */; };
+		A112D0E11A469DA40023C947 /* watch.png in Resources */ = {isa = PBXBuildFile; fileRef = A112D0E01A469DA40023C947 /* watch.png */; };
+		A112D0EC1A521C830023C947 /* ExternalDisplayDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = A112D0EB1A521C830023C947 /* ExternalDisplayDevice.m */; };
+		A112D0EF1A521CFB0023C947 /* PebbleSportsDisplay.m in Sources */ = {isa = PBXBuildFile; fileRef = A112D0EE1A521CFB0023C947 /* PebbleSportsDisplay.m */; };
 		A115587E1925B21300B1BF71 /* CanceledBusOverlay.m in Sources */ = {isa = PBXBuildFile; fileRef = A115587D1925B21300B1BF71 /* CanceledBusOverlay.m */; };
 		A1189FE319D763C100657FC0 /* InterfaceOrientation.m in Sources */ = {isa = PBXBuildFile; fileRef = A1189FE219D763C100657FC0 /* InterfaceOrientation.m */; };
 		A119A7FC17403CDD006D5CB6 /* OpenInChromeController.m in Sources */ = {isa = PBXBuildFile; fileRef = A119A7FB17403CDD006D5CB6 /* OpenInChromeController.m */; };
@@ -33,20 +34,19 @@
 		A11C91DF12451757001DDAC5 /* icon_arrow_left.png in Resources */ = {isa = PBXBuildFile; fileRef = A11C91DA12451757001DDAC5 /* icon_arrow_left.png */; };
 		A11C91E012451757001DDAC5 /* icon_arrow_down.png in Resources */ = {isa = PBXBuildFile; fileRef = A11C91DB12451757001DDAC5 /* icon_arrow_down.png */; };
 		A11E467E194CD39800D2D5E8 /* WhatsNewHighlight.m in Sources */ = {isa = PBXBuildFile; fileRef = A11E467D194CD39800D2D5E8 /* WhatsNewHighlight.m */; };
+		A125FF7B1B1E12E0002C9899 /* Settings-Watch.bundle in Resources */ = {isa = PBXBuildFile; fileRef = A125FF7A1B1E12E0002C9899 /* Settings-Watch.bundle */; };
 		A12DF5B615BB055E00C3F038 /* info_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = A12DF5B315BB055E00C3F038 /* info_icon.png */; };
 		A12DF5B715BB055E00C3F038 /* info_icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A12DF5B415BB055E00C3F038 /* info_icon@2x.png */; };
+		A12F8BD81B0A615200252C0A /* appData.plist in Resources */ = {isa = PBXBuildFile; fileRef = A14D86060E578CFB008A11AF /* appData.plist */; };
+		A12F8BDD1B0A666400252C0A /* WatchNoArrivals.m in Sources */ = {isa = PBXBuildFile; fileRef = A12F8BDC1B0A666400252C0A /* WatchNoArrivals.m */; };
 		A1317ECD11F7E0DA001C91F3 /* v2AppIcon29x29.png in Resources */ = {isa = PBXBuildFile; fileRef = A1317EC711F7E0DA001C91F3 /* v2AppIcon29x29.png */; };
 		A1317ECE11F7E0DA001C91F3 /* v2AppIcon50x50.png in Resources */ = {isa = PBXBuildFile; fileRef = A1317EC811F7E0DA001C91F3 /* v2AppIcon50x50.png */; };
 		A1317ED111F7E0DA001C91F3 /* v2AppIcon72x72.png in Resources */ = {isa = PBXBuildFile; fileRef = A1317ECB11F7E0DA001C91F3 /* v2AppIcon72x72.png */; };
 		A1317ED211F7E0DA001C91F3 /* v2AppIcon57x57@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A1317ECC11F7E0DA001C91F3 /* v2AppIcon57x57@2x.png */; };
-		A1340EC111604E8D0037B7E5 /* NextBusXML.m in Sources */ = {isa = PBXBuildFile; fileRef = A1340EC011604E8D0037B7E5 /* NextBusXML.m */; };
 		A1363C800FF071B6008AEE05 /* CustomToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = A1363C7F0FF071B6008AEE05 /* CustomToolbar.m */; };
-		A137B02E0E5FDC3700C18602 /* XMLDetour.m in Sources */ = {isa = PBXBuildFile; fileRef = A137B02D0E5FDC3700C18602 /* XMLDetour.m */; };
 		A137B0400E5FE1FC00C18602 /* DepartureDetailView.m in Sources */ = {isa = PBXBuildFile; fileRef = A137B03F0E5FE1FC00C18602 /* DepartureDetailView.m */; };
 		A138B0710E5D1A2000483634 /* XMLRoutes.m in Sources */ = {isa = PBXBuildFile; fileRef = A138B0700E5D1A2000483634 /* XMLRoutes.m */; };
 		A138B0760E5D1F5300483634 /* Route.m in Sources */ = {isa = PBXBuildFile; fileRef = A138B0750E5D1F5300483634 /* Route.m */; };
-		A13AFF4311587A1600E967EE /* XMLStreetcarPredictions.m in Sources */ = {isa = PBXBuildFile; fileRef = A13AFF4211587A1600E967EE /* XMLStreetcarPredictions.m */; };
-		A13AFFCA1159C8BC00E967EE /* XMLStreetcarLocations.m in Sources */ = {isa = PBXBuildFile; fileRef = A13AFFC91159C8BC00E967EE /* XMLStreetcarLocations.m */; };
 		A13D2AFE123DD56A0041FB4E /* Mobile-phone.png in Resources */ = {isa = PBXBuildFile; fileRef = A13D2AFD123DD56A0041FB4E /* Mobile-phone.png */; };
 		A13D2DF31241C4C20041FB4E /* DepartureHistoryView.m in Sources */ = {isa = PBXBuildFile; fileRef = A13D2DF21241C4C20041FB4E /* DepartureHistoryView.m */; };
 		A13D605B0FF6F38200C949AE /* TripPlannerEndPointView.m in Sources */ = {isa = PBXBuildFile; fileRef = A13D605A0FF6F38200C949AE /* TripPlannerEndPointView.m */; };
@@ -60,12 +60,13 @@
 		A146EFCA12F612870039AC8C /* Alarm@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A146EFC912F612870039AC8C /* Alarm@2x.png */; };
 		A146F08212F64EAC0039AC8C /* AlarmTask.m in Sources */ = {isa = PBXBuildFile; fileRef = A146F08112F64EAC0039AC8C /* AlarmTask.m */; };
 		A146F30212F7B3FF0039AC8C /* LocationServicesDebugView.m in Sources */ = {isa = PBXBuildFile; fileRef = A146F30112F7B3FF0039AC8C /* LocationServicesDebugView.m */; };
+		A14A05F51B07E6C9002929FF /* WatchBookmark.m in Sources */ = {isa = PBXBuildFile; fileRef = A14A05F41B07E6C9002929FF /* WatchBookmark.m */; };
 		A14C447416223FC5008BC198 /* SupportView.m in Sources */ = {isa = PBXBuildFile; fileRef = A14C447316223FC5008BC198 /* SupportView.m */; };
 		A14D86070E578CFB008A11AF /* appData.plist in Resources */ = {isa = PBXBuildFile; fileRef = A14D86060E578CFB008A11AF /* appData.plist */; };
 		A14D893D0E57DE4F008A11AF /* DepartureTimesView.m in Sources */ = {isa = PBXBuildFile; fileRef = A14D893C0E57DE4F008A11AF /* DepartureTimesView.m */; };
 		A14D89630E57E1F7008A11AF /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A14D89620E57E1F7008A11AF /* SystemConfiguration.framework */; };
-		A14D89780E57E383008A11AF /* XMLDepartures.m in Sources */ = {isa = PBXBuildFile; fileRef = A14D89770E57E383008A11AF /* XMLDepartures.m */; };
-		A14D897B0E57E40B008A11AF /* Departure.m in Sources */ = {isa = PBXBuildFile; fileRef = A14D897A0E57E40B008A11AF /* Departure.m */; };
+		A14DA40B1B182D4B001F34DE /* InterfaceControllerWithBackgroundThread.m in Sources */ = {isa = PBXBuildFile; fileRef = A14DA40A1B182D4B001F34DE /* InterfaceControllerWithBackgroundThread.m */; };
+		A14DB8C41B13E151007F46FA /* WatchDetour.m in Sources */ = {isa = PBXBuildFile; fileRef = A14DB8C31B13E151007F46FA /* WatchDetour.m */; };
 		A14F0D10145DD333009BE614 /* TorchController.m in Sources */ = {isa = PBXBuildFile; fileRef = A14F0D0F145DD332009BE614 /* TorchController.m */; };
 		A14F0D12145DDB75009BE614 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A14F0D11145DDB75009BE614 /* AVFoundation.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		A14F96BD0E5E6ECD006EAEDE /* RouteView.m in Sources */ = {isa = PBXBuildFile; fileRef = A14F96BC0E5E6ECD006EAEDE /* RouteView.m */; };
@@ -103,7 +104,6 @@
 		A15644841380B53B0050345B /* Settings.png in Resources */ = {isa = PBXBuildFile; fileRef = A15644831380B5310050345B /* Settings.png */; };
 		A156449F1389CF770050345B /* AppSettingsCustomController.m in Sources */ = {isa = PBXBuildFile; fileRef = A156449E1389CF460050345B /* AppSettingsCustomController.m */; };
 		A159DCDA17F8CE6500E7A532 /* RootViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = A159DCD917F8CE6500E7A532 /* RootViewController.mm */; };
-		A15CF8F70E6B5FBD008EB672 /* Trip.m in Sources */ = {isa = PBXBuildFile; fileRef = A15CF8F60E6B5FBD008EB672 /* Trip.m */; };
 		A160C2391319C5B8004EC76D /* DayOfTheWeekView.m in Sources */ = {isa = PBXBuildFile; fileRef = A160C2381319C5B8004EC76D /* DayOfTheWeekView.m */; };
 		A160C39E131A0B56004EC76D /* Moon.png in Resources */ = {isa = PBXBuildFile; fileRef = A160C39C131A0B56004EC76D /* Moon.png */; };
 		A160C39F131A0B56004EC76D /* Moon@2xpng.png in Resources */ = {isa = PBXBuildFile; fileRef = A160C39D131A0B56004EC76D /* Moon@2xpng.png */; };
@@ -117,25 +117,26 @@
 		A17254D2125AD75F007EE22D /* RailStation.m in Sources */ = {isa = PBXBuildFile; fileRef = A17254D1125AD75F007EE22D /* RailStation.m */; };
 		A1725643125C1FAE007EE22D /* AllRailStationView.m in Sources */ = {isa = PBXBuildFile; fileRef = A1725642125C1FAE007EE22D /* AllRailStationView.m */; };
 		A1725948125D6CB7007EE22D /* RouteColorBlobView.m in Sources */ = {isa = PBXBuildFile; fileRef = A1725947125D6CB7007EE22D /* RouteColorBlobView.m */; };
+		A1790E571B0964E700179EC5 /* WatchArrivalDetailsInterfaceController.m in Sources */ = {isa = PBXBuildFile; fileRef = A1790E561B0964E700179EC5 /* WatchArrivalDetailsInterfaceController.m */; };
 		A17ED2CE182F0A32008883D5 /* XMLLocateVehicles.m in Sources */ = {isa = PBXBuildFile; fileRef = A17ED2CD182F0A32008883D5 /* XMLLocateVehicles.m */; };
-		A17ED2D3182F0AE7008883D5 /* Vehicle.m in Sources */ = {isa = PBXBuildFile; fileRef = A17ED2D2182F0AE7008883D5 /* Vehicle.m */; };
 		A17ED2D6182F1CA6008883D5 /* NearestVehiclesMap.m in Sources */ = {isa = PBXBuildFile; fileRef = A17ED2D5182F1CA6008883D5 /* NearestVehiclesMap.m */; };
 		A17ED2D9182F4DFA008883D5 /* VehicleLocatingTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = A17ED2D8182F4DFA008883D5 /* VehicleLocatingTableView.m */; };
 		A17ED2DC182F5033008883D5 /* VehicleTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = A17ED2DB182F5033008883D5 /* VehicleTableView.m */; };
 		A17ED2E218304971008883D5 /* FindByLocationView.m in Sources */ = {isa = PBXBuildFile; fileRef = A17ED2E118304971008883D5 /* FindByLocationView.m */; };
 		A17ED2E518307C5F008883D5 /* LocatingView.m in Sources */ = {isa = PBXBuildFile; fileRef = A17ED2E418307C5F008883D5 /* LocatingView.m */; };
-		A17F6C7911B46C51007DE9F7 /* StoppableFetcher.m in Sources */ = {isa = PBXBuildFile; fileRef = A17F6C7811B46C51007DE9F7 /* StoppableFetcher.m */; };
 		A17F6C8211B46EB7007DE9F7 /* LegShapeParser.m in Sources */ = {isa = PBXBuildFile; fileRef = A17F6C8111B46EB7007DE9F7 /* LegShapeParser.m */; };
 		A17F6D5C11B48D2B007DE9F7 /* TripPlannerMap.m in Sources */ = {isa = PBXBuildFile; fileRef = A17F6D5B11B48D2B007DE9F7 /* TripPlannerMap.m */; };
 		A180EC6A129EEB41000AACFA /* Facebook.png in Resources */ = {isa = PBXBuildFile; fileRef = A180EC68129EEB41000AACFA /* Facebook.png */; };
 		A180EC6B129EEB41000AACFA /* Facebook@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A180EC69129EEB41000AACFA /* Facebook@2x.png */; };
+		A1833CDE1B092D5800670E34 /* WatchNearbyInterfaceController.m in Sources */ = {isa = PBXBuildFile; fileRef = A1833CDD1B092D5800670E34 /* WatchNearbyInterfaceController.m */; };
+		A1833CEA1B09436B00670E34 /* WatchStop.m in Sources */ = {isa = PBXBuildFile; fileRef = A1833CE91B09436B00670E34 /* WatchStop.m */; };
 		A183528A1044F93E00311468 /* NetworkTestView.m in Sources */ = {isa = PBXBuildFile; fileRef = A18352891044F93E00311468 /* NetworkTestView.m */; };
 		A186564E18C986670023DA6E /* MapViewWithStops.m in Sources */ = {isa = PBXBuildFile; fileRef = A186564D18C986670023DA6E /* MapViewWithStops.m */; };
 		A186978D108A6E5E0013794C /* DepartureSortTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = A186978C108A6E5E0013794C /* DepartureSortTableView.m */; };
 		A1899B4119F371A600985C11 /* Launch Screen.xib in Resources */ = {isa = PBXBuildFile; fileRef = A1899B4019F371A600985C11 /* Launch Screen.xib */; };
 		A18E373715B66FA10097CCE2 /* ProcessQRCodeString.m in Sources */ = {isa = PBXBuildFile; fileRef = A18E373615B66FA10097CCE2 /* ProcessQRCodeString.m */; };
 		A18E373915B8F2970097CCE2 /* 86-camera.png in Resources */ = {isa = PBXBuildFile; fileRef = A18E373815B8F2970097CCE2 /* 86-camera.png */; };
-		A18E8585128EFE14002FEB6B /* XMLLocateStops.m in Sources */ = {isa = PBXBuildFile; fileRef = A18E8584128EFE14002FEB6B /* XMLLocateStops.m */; };
+		A18E8585128EFE14002FEB6B /* XMLLocateStopsUI.m in Sources */ = {isa = PBXBuildFile; fileRef = A18E8584128EFE14002FEB6B /* XMLLocateStopsUI.m */; };
 		A18E86E6128F4EF0002FEB6B /* railLocations.sql in Resources */ = {isa = PBXBuildFile; fileRef = A18E86E5128F4EF0002FEB6B /* railLocations.sql */; };
 		A18E87D5128F64F1002FEB6B /* Calendar@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A18E87D4128F64F1002FEB6B /* Calendar@2x.png */; };
 		A18E87E2128F680D002FEB6B /* Mobile-phone@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A18E87E1128F680D002FEB6B /* Mobile-phone@2x.png */; };
@@ -178,7 +179,6 @@
 		A1917B8813065981008E3026 /* AlarmAccurateStopProximity.m in Sources */ = {isa = PBXBuildFile; fileRef = A1917B8713065981008E3026 /* AlarmAccurateStopProximity.m */; };
 		A195730A0E885DB900493326 /* XMLAllStops.m in Sources */ = {isa = PBXBuildFile; fileRef = A19573090E885DB900493326 /* XMLAllStops.m */; };
 		A19574A90E887E3600493326 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A19574A80E887E3600493326 /* CoreLocation.framework */; };
-		A19574BC0E88803400493326 /* StopDistance.m in Sources */ = {isa = PBXBuildFile; fileRef = A19574BB0E88803400493326 /* StopDistance.m */; };
 		A1973B4012F4DCED00C1CEBF /* AlarmFetchArrivalsTask.m in Sources */ = {isa = PBXBuildFile; fileRef = A1973B3F12F4DCED00C1CEBF /* AlarmFetchArrivalsTask.m */; };
 		A1973B6012F4E5D300C1CEBF /* AlarmTaskList.m in Sources */ = {isa = PBXBuildFile; fileRef = A1973B5F12F4E5D300C1CEBF /* AlarmTaskList.m */; };
 		A1977CE219F48C15001F532C /* NewLaunch.png in Resources */ = {isa = PBXBuildFile; fileRef = A1977CE119F48C15001F532C /* NewLaunch.png */; };
@@ -190,7 +190,8 @@
 		A199A2DD12A0F7E900A8BC8A /* magnifier.png in Resources */ = {isa = PBXBuildFile; fileRef = A199A2D712A0F7E900A8BC8A /* magnifier.png */; };
 		A199A2DE12A0F7E900A8BC8A /* magnifier@x2.png in Resources */ = {isa = PBXBuildFile; fileRef = A199A2D812A0F7E900A8BC8A /* magnifier@x2.png */; };
 		A199A5D712A75F7D00A8BC8A /* NearestStopsMap.m in Sources */ = {isa = PBXBuildFile; fileRef = A199A5D612A75F7D00A8BC8A /* NearestStopsMap.m */; };
-		A19CC72D12558C96002EBF63 /* TriMetRouteColors.m in Sources */ = {isa = PBXBuildFile; fileRef = A19CC72C12558C96002EBF63 /* TriMetRouteColors.m */; };
+		A19A6D801B0A85FA0002B1D9 /* WatchInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = A19A6D7F1B0A85FA0002B1D9 /* WatchInfo.m */; };
+		A19A6D851B0A90E70002B1D9 /* WatchNoBookmarks.m in Sources */ = {isa = PBXBuildFile; fileRef = A19A6D841B0A90E70002B1D9 /* WatchNoBookmarks.m */; };
 		A19CC7C1125599D5002EBF63 /* TripPlannerSummaryView.m in Sources */ = {isa = PBXBuildFile; fileRef = A19CC7C0125599D5002EBF63 /* TripPlannerSummaryView.m */; };
 		A19FA74614524119008BE90F /* AlertViewCancelsTask.m in Sources */ = {isa = PBXBuildFile; fileRef = A19FA74514524119008BE90F /* AlertViewCancelsTask.m */; };
 		A1A6EB0513A58B430000E7C0 /* Train_Honk_Horn_2x-Mike_Koenig-157974048.aif in Resources */ = {isa = PBXBuildFile; fileRef = A1A6EB0413A58B430000E7C0 /* Train_Honk_Horn_2x-Mike_Koenig-157974048.aif */; };
@@ -199,9 +200,18 @@
 		A1ABB17D1763E3CD00BED1C0 /* TripEndPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = A1ABB17C1763E3CC00BED1C0 /* TripEndPoint.m */; };
 		A1ABB1801763E70A00BED1C0 /* TripItinerary.m in Sources */ = {isa = PBXBuildFile; fileRef = A1ABB17F1763E70900BED1C0 /* TripItinerary.m */; };
 		A1ABB1831763E82C00BED1C0 /* TripUserRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = A1ABB1821763E82B00BED1C0 /* TripUserRequest.m */; };
+		A1AC79851ADAE69A00A1E96F /* DepartureUI.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AC79841ADAE69A00A1E96F /* DepartureUI.m */; };
+		A1AC79891ADAF42B00A1E96F /* VehicleUI.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AC79881ADAF42B00A1E96F /* VehicleUI.m */; };
+		A1AC79931ADAFED300A1E96F /* XMLDeparturesUI.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AC79921ADAFED300A1E96F /* XMLDeparturesUI.m */; };
+		A1AC79951ADB511600A1E96F /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1AC79941ADB511600A1E96F /* Security.framework */; };
+		A1AC79961ADB511F00A1E96F /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A14D89620E57E1F7008A11AF /* SystemConfiguration.framework */; };
+		A1AC799A1ADB62FC00A1E96F /* WatchDepartureUI.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AC79991ADB62FC00A1E96F /* WatchDepartureUI.m */; };
 		A1B3B8ED15CDF30E00E8F974 /* 110-bug.png in Resources */ = {isa = PBXBuildFile; fileRef = A1B3B8EC15CDF30E00E8F974 /* 110-bug.png */; };
 		A1B3B8EF15CE2D5A00E8F974 /* Twitter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B3B8EE15CE2D5800E8F974 /* Twitter.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		A1B3CAEF10793D3200702634 /* RailMapView.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B3CAEE10793D3200702634 /* RailMapView.m */; };
+		A1B4A2D91B12282D00FA0A47 /* WatchArrivalInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B4A2D81B12282D00FA0A47 /* WatchArrivalInfo.m */; };
+		A1B4A2DE1B124E2100FA0A47 /* WatchMapHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B4A2DD1B124E2100FA0A47 /* WatchMapHelper.m */; };
+		A1B4A2E11B12515700FA0A47 /* WatchArrivalsContext.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B4A2E01B12515700FA0A47 /* WatchArrivalsContext.m */; };
 		A1B72A9012F63E070074240A /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B72A8F12F63E070074240A /* AudioToolbox.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		A1B795041183B9480047F83C /* wiki.png in Resources */ = {isa = PBXBuildFile; fileRef = A1B794FF1183B9480047F83C /* wiki.png */; };
 		A1B795051183B9480047F83C /* RailSystem.png in Resources */ = {isa = PBXBuildFile; fileRef = A1B795001183B9480047F83C /* RailSystem.png */; };
@@ -213,15 +223,11 @@
 		A1BB470C16169F3D00634B2F /* This Folder from Portland Streetcar.markdown in Resources */ = {isa = PBXBuildFile; fileRef = A1BB470B16169F3D00634B2F /* This Folder from Portland Streetcar.markdown */; };
 		A1BB470F1616B95500634B2F /* MAXWESMap_Placeholder.gif in Resources */ = {isa = PBXBuildFile; fileRef = A1BB470D1616B95500634B2F /* MAXWESMap_Placeholder.gif */; };
 		A1BB47131616BAED00634B2F /* StreetcarMap_Placeholder.gif in Resources */ = {isa = PBXBuildFile; fileRef = A1BB47111616BAED00634B2F /* StreetcarMap_Placeholder.gif */; };
-		A1BC00660FFD6AF300454CF3 /* AddressBookUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1BC00650FFD6AF300454CF3 /* AddressBookUI.framework */; settings = {ATTRIBUTES = (Required, ); }; };
-		A1BC00D10FFD72FD00454CF3 /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1BC00D00FFD72FD00454CF3 /* AddressBook.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		A1BC02160FFD9F6800454CF3 /* TripPlannerDateView.m in Sources */ = {isa = PBXBuildFile; fileRef = A1BC02150FFD9F6800454CF3 /* TripPlannerDateView.m */; };
 		A1BC052D0FFE6E2800454CF3 /* MapLinesView.m in Sources */ = {isa = PBXBuildFile; fileRef = A1BC052C0FFE6E2800454CF3 /* MapLinesView.m */; };
 		A1BC07250FFEA13100454CF3 /* TripPlannerBookmarkView.m in Sources */ = {isa = PBXBuildFile; fileRef = A1BC07240FFEA13100454CF3 /* TripPlannerBookmarkView.m */; };
 		A1BC08E70FFFC1F900454CF3 /* TripPlannerLocatingView.m in Sources */ = {isa = PBXBuildFile; fileRef = A1BC08E60FFFC1F900454CF3 /* TripPlannerLocatingView.m */; };
 		A1BCEC6812FBD01600228745 /* AlarmNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = A1BCEC6712FBD01600228745 /* AlarmNotification.m */; };
-		A1BCFEE20FFD45EC00454CF3 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1BCFEE10FFD45EC00454CF3 /* MessageUI.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
-		A1BD28700E7C69FB00B59713 /* Detour.m in Sources */ = {isa = PBXBuildFile; fileRef = A1BD286C0E7C69FB00B59713 /* Detour.m */; };
 		A1BD28710E7C69FB00B59713 /* DetoursView.m in Sources */ = {isa = PBXBuildFile; fileRef = A1BD286F0E7C69FB00B59713 /* DetoursView.m */; };
 		A1BD28890E7C70E400B59713 /* CellLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = A1BD28880E7C70E400B59713 /* CellLabel.m */; };
 		A1BDAADC11695E2E009ECEB3 /* RssXML.m in Sources */ = {isa = PBXBuildFile; fileRef = A1BDAADB11695E2E009ECEB3 /* RssXML.m */; };
@@ -230,10 +236,7 @@
 		A1C1142E0E5BBF200010DC01 /* CellTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C114290E5BBF200010DC01 /* CellTextField.m */; };
 		A1C1142F0E5BBF200010DC01 /* CellTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C1142B0E5BBF200010DC01 /* CellTextView.m */; };
 		A1C114300E5BBF200010DC01 /* EditableTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C1142D0E5BBF200010DC01 /* EditableTableViewCell.m */; };
-		A1C146AB144B621000148EEB /* QueryCacheManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C146AA144B621000148EEB /* QueryCacheManager.m */; };
 		A1C3F3660FC0B434007B69E7 /* MapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C3F3650FC0B434007B69E7 /* MapViewController.m */; };
-		A1C3F49F0FC0C6D6007B69E7 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C3F49E0FC0C6D6007B69E7 /* MapKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
-		A1C4F38B17516CBE008B1803 /* BlockColorDb.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C4F38A17516CBE008B1803 /* BlockColorDb.m */; };
 		A1C4F39F17517FCB008B1803 /* InfColorBarPicker.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C4F39217517FCB008B1803 /* InfColorBarPicker.m */; };
 		A1C4F3A017517FCB008B1803 /* InfColorIndicatorView.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C4F39417517FCB008B1803 /* InfColorIndicatorView.m */; };
 		A1C4F3A117517FCB008B1803 /* InfColorPickerController.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C4F39717517FCB008B1803 /* InfColorPickerController.m */; };
@@ -246,29 +249,48 @@
 		A1C54F5D144D43ED00429617 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C54F5B144D439A00429617 /* QuartzCore.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		A1C61E3E15B4F955000CC92B /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C61E3D15B4F955000CC92B /* CoreVideo.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		A1C61E4015B4F96F000CC92B /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C61E3F15B4F96F000CC92B /* CoreMedia.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
-		A1C61E4215B4F99B000CC92B /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C61E4115B4F99B000CC92B /* libiconv.dylib */; settings = {ATTRIBUTES = (Weak, ); }; };
 		A1C61E4315B500F2000CC92B /* libZXingWidget.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C61E2B15B4EC1B000CC92B /* libZXingWidget.a */; };
 		A1C6C58B107DA29A00787C5B /* TapDetectingImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C6C58A107DA29A00787C5B /* TapDetectingImageView.m */; };
 		A1C6C681107ECA6E00787C5B /* RailStationTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C6C680107ECA6E00787C5B /* RailStationTableView.m */; };
+		A1C755B71AD9E17800236776 /* libPDXBusCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C7559A1AD9DD0B00236776 /* libPDXBusCore.a */; };
+		A1C756241AD9E9BB00236776 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1C756231AD9E9BB00236776 /* Images.xcassets */; };
+		A1C756281AD9E9BB00236776 /* PDX Bus WatchKit App.app in Resources */ = {isa = PBXBuildFile; fileRef = A1C756271AD9E9BB00236776 /* PDX Bus WatchKit App.app */; };
+		A1C756301AD9E9BB00236776 /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A1C7562E1AD9E9BB00236776 /* Interface.storyboard */; };
+		A1C756321AD9E9BB00236776 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1C756311AD9E9BB00236776 /* Images.xcassets */; };
+		A1C756351AD9E9BB00236776 /* PDX Bus WatchKit Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = A1C7561C1AD9E9BB00236776 /* PDX Bus WatchKit Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		A1C756471AD9E9FE00236776 /* libPDXBusCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C7559A1AD9DD0B00236776 /* libPDXBusCore.a */; };
 		A1C7F24C15B51AB3001FCD6C /* beep-beep.aiff in Resources */ = {isa = PBXBuildFile; fileRef = A1C7F24B15B51AB3001FCD6C /* beep-beep.aiff */; };
 		A1C907B1112FC56200100030 /* ProgressModalView.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C907B0112FC56200100030 /* ProgressModalView.m */; };
 		A1C90B12113076D700100030 /* BackgroundTaskContainer.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C90B11113076D700100030 /* BackgroundTaskContainer.m */; };
 		A1C910BE11322D2A00100030 /* ViewControllerBase.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C910BD11322D2A00100030 /* ViewControllerBase.m */; };
+		A1C998C61A3E638E00FD95BF /* ExternalAccessory.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C998C51A3E638E00FD95BF /* ExternalAccessory.framework */; settings = {ATTRIBUTES = (Required, ); }; };
+		A1C998C81A3E63CD00FD95BF /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C998C71A3E63CD00FD95BF /* libz.dylib */; };
+		A1C998CA1A3E63E000FD95BF /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C998C91A3E63E000FD95BF /* CoreBluetooth.framework */; };
+		A1C998CC1A3E63EA00FD95BF /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C998CB1A3E63EA00FD95BF /* CoreMotion.framework */; };
+		A1C998CE1A3E63F900FD95BF /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C998CD1A3E63F900FD95BF /* CFNetwork.framework */; };
+		A1C998D21A3E6E6D00FD95BF /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C998D11A3E6E6D00FD95BF /* MessageUI.framework */; };
+		A1C998D81A3E848F00FD95BF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C998D71A3E848F00FD95BF /* Foundation.framework */; };
+		A1C998DA1A3E899100FD95BF /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C998D91A3E899100FD95BF /* libiconv.dylib */; };
+		A1C998DC1A3E8E7400FD95BF /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C998DB1A3E8E7400FD95BF /* UIKit.framework */; };
+		A1C998DE1A3E8E8800FD95BF /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C998DD1A3E8E8800FD95BF /* CoreGraphics.framework */; };
+		A1C998E01A3E8E9B00FD95BF /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C998DF1A3E8E9B00FD95BF /* MapKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		A1C998E21A3E8EAF00FD95BF /* AddressBookUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C998E11A3E8EAF00FD95BF /* AddressBookUI.framework */; };
+		A1C998E41A3E8EBA00FD95BF /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C998E31A3E8EBA00FD95BF /* AddressBook.framework */; };
 		A1CA04460E6515A9006EFB6E /* TableViewWithToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = A1CA04450E6515A9006EFB6E /* TableViewWithToolbar.m */; };
 		A1CA90A517DD675000BE12ED /* 74-locationa.png in Resources */ = {isa = PBXBuildFile; fileRef = A1CA90A417DD675000BE12ED /* 74-locationa.png */; };
-		A1D05BA919033BED003E9B76 /* MemoryCaches.m in Sources */ = {isa = PBXBuildFile; fileRef = A1D05BA819033BED003E9B76 /* MemoryCaches.m */; };
 		A1D1428619C5699500BB6EE3 /* AppIcon60x60@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = A1D1428519C5699500BB6EE3 /* AppIcon60x60@3x.png */; };
 		A1D19DAB16954C8300D2EBD9 /* 11-clock.png in Resources */ = {isa = PBXBuildFile; fileRef = A1D19DAA16954C8300D2EBD9 /* 11-clock.png */; };
 		A1D38BD018C2490C002A6EEE /* Alarm clock.png in Resources */ = {isa = PBXBuildFile; fileRef = A1D38BCE18C2490C002A6EEE /* Alarm clock.png */; };
 		A1D38BD118C2490C002A6EEE /* Alarm clock@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A1D38BCF18C2490C002A6EEE /* Alarm clock@2x.png */; };
 		A1D454E71842BD9F0094467D /* TicketAlert.m in Sources */ = {isa = PBXBuildFile; fileRef = A1D454E61842BD9F0094467D /* TicketAlert.m */; };
-		A1D6A0CB0E639C5E0092CE22 /* TriMetXML.m in Sources */ = {isa = PBXBuildFile; fileRef = A1D6A0CA0E639C5E0092CE22 /* TriMetXML.m */; };
-		A1D6BDBF12DAB145001F84E7 /* RouteDistance.m in Sources */ = {isa = PBXBuildFile; fileRef = A1D6BDBE12DAB145001F84E7 /* RouteDistance.m */; };
+		A1D6BDBF12DAB145001F84E7 /* RouteDistanceUI.m in Sources */ = {isa = PBXBuildFile; fileRef = A1D6BDBE12DAB145001F84E7 /* RouteDistanceUI.m */; };
 		A1D6BDEB12DABAC8001F84E7 /* NearestRoutesView.m in Sources */ = {isa = PBXBuildFile; fileRef = A1D6BDEA12DABAC8001F84E7 /* NearestRoutesView.m */; };
 		A1D74FFD0E89485200E38DC3 /* blank.sql in Resources */ = {isa = PBXBuildFile; fileRef = A1D74FFC0E89485200E38DC3 /* blank.sql */; };
 		A1D750010E8948BE00E38DC3 /* libsqlite3.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A1D750000E8948BE00E38DC3 /* libsqlite3.0.dylib */; settings = {ATTRIBUTES = (Required, ); }; };
-		A1D750060E8948DD00E38DC3 /* StopLocations.m in Sources */ = {isa = PBXBuildFile; fileRef = A1D750050E8948DD00E38DC3 /* StopLocations.m */; };
 		A1DB5C6516BF83B300679BEC /* Pager Beeps-SoundBible.com-260751720.aiff in Resources */ = {isa = PBXBuildFile; fileRef = A1DB5C6416BF83B300679BEC /* Pager Beeps-SoundBible.com-260751720.aiff */; };
+		A1DF42291B08123C00F5D837 /* WatchArrivalsInterfaceController.m in Sources */ = {isa = PBXBuildFile; fileRef = A1DF42281B08123C00F5D837 /* WatchArrivalsInterfaceController.m */; };
+		A1DF422C1B0813C400F5D837 /* WatchArrival.m in Sources */ = {isa = PBXBuildFile; fileRef = A1DF422B1B0813C400F5D837 /* WatchArrival.m */; };
+		A1E0F3CF1AE321410055C6FB /* WatchBookmarksInterfaceController.m in Sources */ = {isa = PBXBuildFile; fileRef = A1E0F3CE1AE321410055C6FB /* WatchBookmarksInterfaceController.m */; };
 		A1E37A8113DCD9F500310E2E /* pnpoly.mm in Sources */ = {isa = PBXBuildFile; fileRef = A1E37A8013DCD9F500310E2E /* pnpoly.mm */; };
 		A1E6FA731801433200CB9E1C /* AppIcon29x29.png in Resources */ = {isa = PBXBuildFile; fileRef = A1E6FA671801433200CB9E1C /* AppIcon29x29.png */; };
 		A1E6FA741801433200CB9E1C /* AppIcon29x29@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A1E6FA681801433200CB9E1C /* AppIcon29x29@2x.png */; };
@@ -318,7 +340,6 @@
 		A1F151F51183B34400121292 /* 05-shuffle.png in Resources */ = {isa = PBXBuildFile; fileRef = A1F151F01183B34400121292 /* 05-shuffle.png */; };
 		A1F151F81183B43D00121292 /* visittrimeticon.gif in Resources */ = {isa = PBXBuildFile; fileRef = A1F151F61183B43D00121292 /* visittrimeticon.gif */; };
 		A1F152041183B5A900121292 /* WebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F152021183B5A900121292 /* WebViewController.m */; };
-		A1F61CA81246982D0040BA96 /* UserPrefs.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F61CA71246982D0040BA96 /* UserPrefs.m */; };
 		A1F9227D189DC210006BFCB6 /* AlignedBarItemButton.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F9227C189DC20F006BFCB6 /* AlignedBarItemButton.m */; };
 		A1F92284189F0678006BFCB6 /* ReverseGeoLocator.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F92283189F0678006BFCB6 /* ReverseGeoLocator.m */; };
 		A1FD6725130A4EA20091666E /* Downdate.png in Resources */ = {isa = PBXBuildFile; fileRef = A1FD6723130A4EA20091666E /* Downdate.png */; };
@@ -347,15 +368,47 @@
 			remoteGlobalIDString = D2AAC07D0554694100DB518D;
 			remoteInfo = ZXingWidget;
 		};
+		A1C755991AD9DD0B00236776 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A1C755941AD9DD0A00236776 /* PDXBusCore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A1C7557A1AD9DD0A00236776;
+			remoteInfo = PDXBusCore;
+		};
+		A1C756291AD9E9BB00236776 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A1C756261AD9E9BB00236776;
+			remoteInfo = "PDX Bus WatchKit App";
+		};
+		A1C756331AD9E9BB00236776 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A1C7561B1AD9E9BB00236776;
+			remoteInfo = "PDX Bus WatchKit Extension";
+		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		A1C756461AD9E9BC00236776 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				A1C756351AD9E9BB00236776 /* PDX Bus WatchKit Extension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
-		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS3.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		1D3623240D0F684500981E51 /* TriMetTimesAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TriMetTimesAppDelegate.h; sourceTree = "<group>"; };
 		1D3623250D0F684500981E51 /* TriMetTimesAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = TriMetTimesAppDelegate.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		1D6058910D05DD3D006BFB54 /* PDXBus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PDXBus.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS3.0.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
-		2892E40F0DC94CBA00A64D0F /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS3.0.sdk/System/Library/Frameworks/CoreGraphics.framework; sourceTree = DEVELOPER_DIR; };
 		2899E55F0DE3E45000AC0155 /* RootViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = RootViewController.xib; sourceTree = "<group>"; };
 		28A0AAE50D9B0CCF005BE974 /* TriMetTimes_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TriMetTimes_Prefix.pch; sourceTree = "<group>"; };
 		28AD735F0D9D9599002E5188 /* MainWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow.xib; sourceTree = "<group>"; };
@@ -364,16 +417,24 @@
 		A1003E9D144E7BF60086E120 /* arrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = arrow.png; path = PullToRefresh/arrow.png; sourceTree = "<group>"; };
 		A1003E9E144E7BF60086E120 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LICENSE; path = PullToRefresh/LICENSE; sourceTree = "<group>"; };
 		A100B3071268095B00BAA288 /* RailStations.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = RailStations.png; path = "PDX Bus/RailStations.png"; sourceTree = "<group>"; };
-		A100B74E126B9CD500BAA288 /* UserFaves.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = UserFaves.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		A1028E731B12A3B3002924BE /* WatchBookmarksContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WatchBookmarksContext.h; sourceTree = "<group>"; };
+		A1028E741B12A3B3002924BE /* WatchBookmarksContext.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WatchBookmarksContext.m; sourceTree = "<group>"; };
 		A107A6240F2D0E9600C20017 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		A107A8490F2D389700C20017 /* EditBookMarkView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditBookMarkView.h; sourceTree = "<group>"; };
 		A107A84A0F2D389700C20017 /* EditBookMarkView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = EditBookMarkView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A107AD480F2D667800C20017 /* AddNewStopToBookMark.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddNewStopToBookMark.h; sourceTree = "<group>"; };
 		A107AD490F2D667800C20017 /* AddNewStopToBookMark.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AddNewStopToBookMark.m; sourceTree = "<group>"; };
 		A107AD7A0F2D6C7300C20017 /* ReturnStopId.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReturnStopId.h; sourceTree = "<group>"; };
+		A10946B21A463FDF00356E8D /* Social.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Social.framework; path = System/Library/Frameworks/Social.framework; sourceTree = SDKROOT; };
 		A10CCD051037B72E00328A94 /* TripPlannerOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TripPlannerOptions.h; sourceTree = "<group>"; };
 		A10CCD061037B72E00328A94 /* TripPlannerOptions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = TripPlannerOptions.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A1125EAD16223F5A00C647A4 /* SupportView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SupportView.h; sourceTree = "<group>"; };
+		A1126A041B0693FD00E76977 /* PDX Bus WatchKit Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "PDX Bus WatchKit Extension.entitlements"; sourceTree = "<group>"; };
+		A112D0E01A469DA40023C947 /* watch.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = watch.png; path = "Public Domain/watch.png"; sourceTree = "<group>"; };
+		A112D0EA1A521C830023C947 /* ExternalDisplayDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExternalDisplayDevice.h; sourceTree = "<group>"; };
+		A112D0EB1A521C830023C947 /* ExternalDisplayDevice.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExternalDisplayDevice.m; sourceTree = "<group>"; };
+		A112D0ED1A521CFB0023C947 /* PebbleSportsDisplay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PebbleSportsDisplay.h; sourceTree = "<group>"; };
+		A112D0EE1A521CFB0023C947 /* PebbleSportsDisplay.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PebbleSportsDisplay.m; sourceTree = "<group>"; };
 		A115587C1925B21300B1BF71 /* CanceledBusOverlay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CanceledBusOverlay.h; sourceTree = "<group>"; };
 		A115587D1925B21300B1BF71 /* CanceledBusOverlay.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CanceledBusOverlay.m; sourceTree = "<group>"; };
 		A1189FE219D763C100657FC0 /* InterfaceOrientation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InterfaceOrientation.m; sourceTree = "<group>"; };
@@ -393,20 +454,19 @@
 		A11E467D194CD39800D2D5E8 /* WhatsNewHighlight.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WhatsNewHighlight.m; sourceTree = "<group>"; };
 		A12548641409EF9800A62BFC /* README.markdown */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = README.markdown; path = ../README.markdown; sourceTree = "<group>"; };
 		A125BD3D161161FB0079274B /* v2AppIcon50x50@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "v2AppIcon50x50@2x.png"; path = "RobAlan/v2AppIcon50x50@2x.png"; sourceTree = "<group>"; };
+		A125FF7A1B1E12E0002C9899 /* Settings-Watch.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = "Settings-Watch.bundle"; sourceTree = "<group>"; };
 		A12DF5B215BB055E00C3F038 /* This Folder Creative Commons.markdown */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "This Folder Creative Commons.markdown"; path = "Gentleface/This Folder Creative Commons.markdown"; sourceTree = "<group>"; };
 		A12DF5B315BB055E00C3F038 /* info_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = info_icon.png; path = Gentleface/info_icon.png; sourceTree = "<group>"; };
 		A12DF5B415BB055E00C3F038 /* info_icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "info_icon@2x.png"; path = "Gentleface/info_icon@2x.png"; sourceTree = "<group>"; };
+		A12F8BDB1B0A666400252C0A /* WatchNoArrivals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WatchNoArrivals.h; sourceTree = "<group>"; };
+		A12F8BDC1B0A666400252C0A /* WatchNoArrivals.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WatchNoArrivals.m; sourceTree = "<group>"; };
 		A1317EC711F7E0DA001C91F3 /* v2AppIcon29x29.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = v2AppIcon29x29.png; path = RobAlan/v2AppIcon29x29.png; sourceTree = "<group>"; };
 		A1317EC811F7E0DA001C91F3 /* v2AppIcon50x50.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = v2AppIcon50x50.png; path = RobAlan/v2AppIcon50x50.png; sourceTree = "<group>"; };
 		A1317EC911F7E0DA001C91F3 /* v2AppIcon57x57.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = v2AppIcon57x57.png; path = RobAlan/v2AppIcon57x57.png; sourceTree = "<group>"; };
 		A1317ECB11F7E0DA001C91F3 /* v2AppIcon72x72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = v2AppIcon72x72.png; path = RobAlan/v2AppIcon72x72.png; sourceTree = "<group>"; };
 		A1317ECC11F7E0DA001C91F3 /* v2AppIcon57x57@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "v2AppIcon57x57@2x.png"; path = "RobAlan/v2AppIcon57x57@2x.png"; sourceTree = "<group>"; };
-		A1340EBF11604E8D0037B7E5 /* NextBusXML.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NextBusXML.h; sourceTree = "<group>"; };
-		A1340EC011604E8D0037B7E5 /* NextBusXML.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NextBusXML.m; sourceTree = "<group>"; };
 		A1363C7E0FF071B6008AEE05 /* CustomToolbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomToolbar.h; sourceTree = "<group>"; };
 		A1363C7F0FF071B6008AEE05 /* CustomToolbar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomToolbar.m; sourceTree = "<group>"; };
-		A137B02C0E5FDC3700C18602 /* XMLDetour.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLDetour.h; sourceTree = "<group>"; };
-		A137B02D0E5FDC3700C18602 /* XMLDetour.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XMLDetour.m; sourceTree = "<group>"; };
 		A137B03E0E5FE1FC00C18602 /* DepartureDetailView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DepartureDetailView.h; sourceTree = "<group>"; };
 		A137B03F0E5FE1FC00C18602 /* DepartureDetailView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = DepartureDetailView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A138B06F0E5D1A2000483634 /* XMLRoutes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLRoutes.h; sourceTree = "<group>"; };
@@ -414,10 +474,6 @@
 		A138B0740E5D1F5300483634 /* Route.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Route.h; sourceTree = "<group>"; };
 		A138B0750E5D1F5300483634 /* Route.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = Route.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A138EE2F16D3206E00568D8C /* This Folder from ZXing.markdown */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "This Folder from ZXing.markdown"; path = "ZXing/This Folder from ZXing.markdown"; sourceTree = "<group>"; };
-		A13AFF4111587A1600E967EE /* XMLStreetcarPredictions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLStreetcarPredictions.h; sourceTree = "<group>"; };
-		A13AFF4211587A1600E967EE /* XMLStreetcarPredictions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XMLStreetcarPredictions.m; sourceTree = "<group>"; };
-		A13AFFC81159C8BC00E967EE /* XMLStreetcarLocations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLStreetcarLocations.h; sourceTree = "<group>"; };
-		A13AFFC91159C8BC00E967EE /* XMLStreetcarLocations.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XMLStreetcarLocations.m; sourceTree = "<group>"; };
 		A13D2AFD123DD56A0041FB4E /* Mobile-phone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Mobile-phone.png"; path = "Aha-Soft/Mobile-phone.png"; sourceTree = "<group>"; };
 		A13D2DF11241C4C20041FB4E /* DepartureHistoryView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DepartureHistoryView.h; sourceTree = "<group>"; };
 		A13D2DF21241C4C20041FB4E /* DepartureHistoryView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DepartureHistoryView.m; sourceTree = "<group>"; };
@@ -440,16 +496,17 @@
 		A146F08112F64EAC0039AC8C /* AlarmTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = AlarmTask.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A146F30012F7B3FE0039AC8C /* LocationServicesDebugView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocationServicesDebugView.h; sourceTree = "<group>"; };
 		A146F30112F7B3FF0039AC8C /* LocationServicesDebugView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = LocationServicesDebugView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		A14949E510C216810020D493 /* DebugLogging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DebugLogging.h; sourceTree = "<group>"; };
+		A14A05F31B07E6C9002929FF /* WatchBookmark.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WatchBookmark.h; sourceTree = "<group>"; };
+		A14A05F41B07E6C9002929FF /* WatchBookmark.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WatchBookmark.m; sourceTree = "<group>"; };
 		A14C447316223FC5008BC198 /* SupportView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SupportView.m; sourceTree = "<group>"; };
 		A14D86060E578CFB008A11AF /* appData.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = appData.plist; sourceTree = "<group>"; };
 		A14D893B0E57DE4F008A11AF /* DepartureTimesView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DepartureTimesView.h; sourceTree = "<group>"; };
 		A14D893C0E57DE4F008A11AF /* DepartureTimesView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = DepartureTimesView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A14D89620E57E1F7008A11AF /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
-		A14D89760E57E383008A11AF /* XMLDepartures.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLDepartures.h; sourceTree = "<group>"; };
-		A14D89770E57E383008A11AF /* XMLDepartures.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XMLDepartures.m; sourceTree = "<group>"; };
-		A14D89790E57E40B008A11AF /* Departure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Departure.h; sourceTree = "<group>"; };
-		A14D897A0E57E40B008A11AF /* Departure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = Departure.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		A14DA4091B182D4B001F34DE /* InterfaceControllerWithBackgroundThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InterfaceControllerWithBackgroundThread.h; sourceTree = "<group>"; };
+		A14DA40A1B182D4B001F34DE /* InterfaceControllerWithBackgroundThread.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InterfaceControllerWithBackgroundThread.m; sourceTree = "<group>"; };
+		A14DB8C21B13E151007F46FA /* WatchDetour.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WatchDetour.h; sourceTree = "<group>"; };
+		A14DB8C31B13E151007F46FA /* WatchDetour.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WatchDetour.m; sourceTree = "<group>"; };
 		A14F0D0E145DD332009BE614 /* TorchController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TorchController.h; sourceTree = "<group>"; };
 		A14F0D0F145DD332009BE614 /* TorchController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TorchController.m; sourceTree = "<group>"; };
 		A14F0D11145DDB75009BE614 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
@@ -513,9 +570,6 @@
 		A156449E1389CF460050345B /* AppSettingsCustomController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppSettingsCustomController.m; sourceTree = "<group>"; };
 		A159DCD817F8CE6500E7A532 /* RootViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootViewController.h; sourceTree = "<group>"; };
 		A159DCD917F8CE6500E7A532 /* RootViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RootViewController.mm; sourceTree = "<group>"; };
-		A15CF8F40E6B5FBD008EB672 /* TriMetTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TriMetTypes.h; sourceTree = "<group>"; };
-		A15CF8F50E6B5FBD008EB672 /* Trip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Trip.h; sourceTree = "<group>"; };
-		A15CF8F60E6B5FBD008EB672 /* Trip.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = Trip.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A15FB4D10E58AF5B00BF9B1C /* AppDelegateMethods.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegateMethods.h; sourceTree = "<group>"; };
 		A160C2371319C5B8004EC76D /* DayOfTheWeekView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DayOfTheWeekView.h; sourceTree = "<group>"; };
 		A160C2381319C5B8004EC76D /* DayOfTheWeekView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DayOfTheWeekView.m; sourceTree = "<group>"; };
@@ -525,8 +579,6 @@
 		A160C3A1131A0B71004EC76D /* Sun@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Sun@2x.png"; path = "Aha-Soft/Sun@2x.png"; sourceTree = "<group>"; };
 		A160C4A0131AE729004EC76D /* SegmentCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SegmentCell.h; sourceTree = "<group>"; };
 		A160C4A1131AE729004EC76D /* SegmentCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SegmentCell.m; sourceTree = "<group>"; };
-		A161484A119789C5006EA864 /* ScreenConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenConstants.h; sourceTree = "<group>"; };
-		A1671DD51076B7C00054174C /* DepartureTimesDataProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DepartureTimesDataProvider.h; sourceTree = "<group>"; };
 		A1671E1A1076C9FA0054174C /* DepartureTimesByBus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DepartureTimesByBus.h; sourceTree = "<group>"; };
 		A1671E1B1076C9FA0054174C /* DepartureTimesByBus.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = DepartureTimesByBus.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A167CAF1175268CD00567D02 /* BlockColorViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlockColorViewController.h; sourceTree = "<group>"; };
@@ -543,18 +595,17 @@
 		A171CE7B18F2402A004CCCE8 /* StreetcarHotSpotTiles.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = StreetcarHotSpotTiles.txt; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A17254D0125AD75F007EE22D /* RailStation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RailStation.h; sourceTree = "<group>"; };
 		A17254D1125AD75F007EE22D /* RailStation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = RailStation.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		A17254D3125AD7C7007EE22D /* HotSpot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HotSpot.h; sourceTree = "<group>"; };
 		A1725641125C1FAE007EE22D /* AllRailStationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AllRailStationView.h; sourceTree = "<group>"; };
 		A1725642125C1FAE007EE22D /* AllRailStationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = AllRailStationView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A1725946125D6CB7007EE22D /* RouteColorBlobView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RouteColorBlobView.h; sourceTree = "<group>"; };
 		A1725947125D6CB7007EE22D /* RouteColorBlobView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RouteColorBlobView.m; sourceTree = "<group>"; };
 		A176AB6D126402940037DF61 /* SearchFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SearchFilter.h; sourceTree = "<group>"; };
+		A1790E551B0964E700179EC5 /* WatchArrivalDetailsInterfaceController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WatchArrivalDetailsInterfaceController.h; sourceTree = "<group>"; };
+		A1790E561B0964E700179EC5 /* WatchArrivalDetailsInterfaceController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WatchArrivalDetailsInterfaceController.m; sourceTree = "<group>"; };
 		A17A6C69160C28F00082F97E /* StreetcarMap.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = StreetcarMap.gif; path = "Portland Streetcar/StreetcarMap.gif"; sourceTree = "<group>"; };
 		A17A6C6F160C355C0082F97E /* streetcar.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = streetcar.html; path = HTML/streetcar.html; sourceTree = "<group>"; };
 		A17ED2CC182F0A32008883D5 /* XMLLocateVehicles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLLocateVehicles.h; sourceTree = "<group>"; };
 		A17ED2CD182F0A32008883D5 /* XMLLocateVehicles.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XMLLocateVehicles.m; sourceTree = "<group>"; };
-		A17ED2D1182F0AE7008883D5 /* Vehicle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vehicle.h; sourceTree = "<group>"; };
-		A17ED2D2182F0AE7008883D5 /* Vehicle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Vehicle.m; sourceTree = "<group>"; };
 		A17ED2D4182F1CA6008883D5 /* NearestVehiclesMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NearestVehiclesMap.h; sourceTree = "<group>"; };
 		A17ED2D5182F1CA6008883D5 /* NearestVehiclesMap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NearestVehiclesMap.m; sourceTree = "<group>"; };
 		A17ED2D7182F4DFA008883D5 /* VehicleLocatingTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VehicleLocatingTableView.h; sourceTree = "<group>"; };
@@ -565,14 +616,16 @@
 		A17ED2E118304971008883D5 /* FindByLocationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FindByLocationView.m; sourceTree = "<group>"; };
 		A17ED2E318307C5F008883D5 /* LocatingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocatingView.h; sourceTree = "<group>"; };
 		A17ED2E418307C5F008883D5 /* LocatingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocatingView.m; sourceTree = "<group>"; };
-		A17F6C7711B46C51007DE9F7 /* StoppableFetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StoppableFetcher.h; sourceTree = "<group>"; };
-		A17F6C7811B46C51007DE9F7 /* StoppableFetcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = StoppableFetcher.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A17F6C8011B46EB7007DE9F7 /* LegShapeParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LegShapeParser.h; sourceTree = "<group>"; };
 		A17F6C8111B46EB7007DE9F7 /* LegShapeParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = LegShapeParser.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A17F6D5A11B48D2B007DE9F7 /* TripPlannerMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TripPlannerMap.h; sourceTree = "<group>"; };
 		A17F6D5B11B48D2B007DE9F7 /* TripPlannerMap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TripPlannerMap.m; sourceTree = "<group>"; };
 		A180EC68129EEB41000AACFA /* Facebook.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Facebook.png; path = Facebook/Facebook.png; sourceTree = "<group>"; };
 		A180EC69129EEB41000AACFA /* Facebook@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Facebook@2x.png"; path = "Facebook/Facebook@2x.png"; sourceTree = "<group>"; };
+		A1833CDC1B092D5800670E34 /* WatchNearbyInterfaceController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WatchNearbyInterfaceController.h; sourceTree = "<group>"; };
+		A1833CDD1B092D5800670E34 /* WatchNearbyInterfaceController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WatchNearbyInterfaceController.m; sourceTree = "<group>"; };
+		A1833CE81B09436B00670E34 /* WatchStop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WatchStop.h; sourceTree = "<group>"; };
+		A1833CE91B09436B00670E34 /* WatchStop.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WatchStop.m; sourceTree = "<group>"; };
 		A18352881044F93E00311468 /* NetworkTestView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkTestView.h; sourceTree = "<group>"; };
 		A18352891044F93E00311468 /* NetworkTestView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = NetworkTestView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A186564C18C986670023DA6E /* MapViewWithStops.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapViewWithStops.h; sourceTree = "<group>"; };
@@ -584,8 +637,8 @@
 		A18E373615B66FA10097CCE2 /* ProcessQRCodeString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProcessQRCodeString.m; sourceTree = "<group>"; };
 		A18E373815B8F2970097CCE2 /* 86-camera.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "86-camera.png"; path = "Glyphish/86-camera.png"; sourceTree = "<group>"; };
 		A18E373A15B8F2E50097CCE2 /* 86-camera@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "86-camera@2x.png"; path = "Glyphish@2x/86-camera@2x.png"; sourceTree = "<group>"; };
-		A18E8583128EFE14002FEB6B /* XMLLocateStops.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLLocateStops.h; sourceTree = "<group>"; };
-		A18E8584128EFE14002FEB6B /* XMLLocateStops.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XMLLocateStops.m; sourceTree = "<group>"; };
+		A18E8583128EFE14002FEB6B /* XMLLocateStopsUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLLocateStopsUI.h; sourceTree = "<group>"; };
+		A18E8584128EFE14002FEB6B /* XMLLocateStopsUI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XMLLocateStopsUI.m; sourceTree = "<group>"; };
 		A18E86E5128F4EF0002FEB6B /* railLocations.sql */ = {isa = PBXFileReference; lastKnownFileType = file; path = railLocations.sql; sourceTree = "<group>"; };
 		A18E87D4128F64F1002FEB6B /* Calendar@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Calendar@2x.png"; path = "Aha-Soft/Calendar@2x.png"; sourceTree = "<group>"; };
 		A18E87E1128F680D002FEB6B /* Mobile-phone@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Mobile-phone@2x.png"; path = "Aha-Soft/Mobile-phone@2x.png"; sourceTree = "<group>"; };
@@ -639,8 +692,6 @@
 		A19573080E885DB900493326 /* XMLAllStops.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLAllStops.h; sourceTree = "<group>"; };
 		A19573090E885DB900493326 /* XMLAllStops.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XMLAllStops.m; sourceTree = "<group>"; };
 		A19574A80E887E3600493326 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
-		A19574BA0E88803400493326 /* StopDistance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StopDistance.h; sourceTree = "<group>"; };
-		A19574BB0E88803400493326 /* StopDistance.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = StopDistance.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A1973B3E12F4DCED00C1CEBF /* AlarmFetchArrivalsTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AlarmFetchArrivalsTask.h; sourceTree = "<group>"; };
 		A1973B3F12F4DCED00C1CEBF /* AlarmFetchArrivalsTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = AlarmFetchArrivalsTask.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A1973B5E12F4E5D300C1CEBF /* AlarmTaskList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AlarmTaskList.h; sourceTree = "<group>"; };
@@ -656,8 +707,10 @@
 		A199A2D812A0F7E900A8BC8A /* magnifier@x2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "magnifier@x2.png"; path = "TWG/magnifier@x2.png"; sourceTree = "<group>"; };
 		A199A5D512A75F7D00A8BC8A /* NearestStopsMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NearestStopsMap.h; sourceTree = "<group>"; };
 		A199A5D612A75F7D00A8BC8A /* NearestStopsMap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NearestStopsMap.m; sourceTree = "<group>"; };
-		A19CC72B12558C96002EBF63 /* TriMetRouteColors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TriMetRouteColors.h; sourceTree = "<group>"; };
-		A19CC72C12558C96002EBF63 /* TriMetRouteColors.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TriMetRouteColors.m; sourceTree = "<group>"; };
+		A19A6D7E1B0A85FA0002B1D9 /* WatchInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WatchInfo.h; sourceTree = "<group>"; };
+		A19A6D7F1B0A85FA0002B1D9 /* WatchInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WatchInfo.m; sourceTree = "<group>"; };
+		A19A6D831B0A90E70002B1D9 /* WatchNoBookmarks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WatchNoBookmarks.h; sourceTree = "<group>"; };
+		A19A6D841B0A90E70002B1D9 /* WatchNoBookmarks.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WatchNoBookmarks.m; sourceTree = "<group>"; };
 		A19CC7BF125599D5002EBF63 /* TripPlannerSummaryView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TripPlannerSummaryView.h; sourceTree = "<group>"; };
 		A19CC7C0125599D5002EBF63 /* TripPlannerSummaryView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = TripPlannerSummaryView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A19FA74414524119008BE90F /* AlertViewCancelsTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AlertViewCancelsTask.h; sourceTree = "<group>"; };
@@ -681,6 +734,15 @@
 		A1ABB18C1764257300BED1C0 /* 32-iphone@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "32-iphone@2x.png"; path = "Glyphish@2x/32-iphone@2x.png"; sourceTree = "<group>"; };
 		A1ABB1911764504200BED1C0 /* 12-eye@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "12-eye@2x.png"; path = "Glyphish@2x/12-eye@2x.png"; sourceTree = "<group>"; };
 		A1ABB19B17654C5A00BED1C0 /* 83-calendar@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "83-calendar@2x.png"; path = "Glyphish@2x/83-calendar@2x.png"; sourceTree = "<group>"; };
+		A1AC79841ADAE69A00A1E96F /* DepartureUI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DepartureUI.m; sourceTree = "<group>"; };
+		A1AC79861ADAE6A900A1E96F /* DepartureUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DepartureUI.h; sourceTree = "<group>"; };
+		A1AC79871ADAF42B00A1E96F /* VehicleUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VehicleUI.h; sourceTree = "<group>"; };
+		A1AC79881ADAF42B00A1E96F /* VehicleUI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VehicleUI.m; sourceTree = "<group>"; };
+		A1AC79911ADAFED300A1E96F /* XMLDeparturesUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLDeparturesUI.h; sourceTree = "<group>"; };
+		A1AC79921ADAFED300A1E96F /* XMLDeparturesUI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XMLDeparturesUI.m; sourceTree = "<group>"; };
+		A1AC79941ADB511600A1E96F /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		A1AC79981ADB62FC00A1E96F /* WatchDepartureUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WatchDepartureUI.h; sourceTree = "<group>"; };
+		A1AC79991ADB62FC00A1E96F /* WatchDepartureUI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WatchDepartureUI.m; sourceTree = "<group>"; };
 		A1AEF9B915E1974D00C998C3 /* Test Location Data.gpx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Test Location Data.gpx"; path = "Routing/Test Location Data.gpx"; sourceTree = "<group>"; };
 		A1AEF9BB15E19ABD00C998C3 /* about routing.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = "about routing.txt"; path = "Routing/about routing.txt"; sourceTree = "<group>"; };
 		A1B3B8EA15CDF2FE00E8F974 /* 110-bug@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "110-bug@2x.png"; path = "Glyphish@2x/110-bug@2x.png"; sourceTree = "<group>"; };
@@ -688,6 +750,12 @@
 		A1B3B8EE15CE2D5800E8F974 /* Twitter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Twitter.framework; path = System/Library/Frameworks/Twitter.framework; sourceTree = SDKROOT; };
 		A1B3CAED10793D3200702634 /* RailMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RailMapView.h; sourceTree = "<group>"; };
 		A1B3CAEE10793D3200702634 /* RailMapView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = RailMapView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		A1B4A2D71B12282D00FA0A47 /* WatchArrivalInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WatchArrivalInfo.h; sourceTree = "<group>"; };
+		A1B4A2D81B12282D00FA0A47 /* WatchArrivalInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WatchArrivalInfo.m; sourceTree = "<group>"; };
+		A1B4A2DC1B124E2100FA0A47 /* WatchMapHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WatchMapHelper.h; sourceTree = "<group>"; };
+		A1B4A2DD1B124E2100FA0A47 /* WatchMapHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WatchMapHelper.m; sourceTree = "<group>"; };
+		A1B4A2DF1B12515700FA0A47 /* WatchArrivalsContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WatchArrivalsContext.h; sourceTree = "<group>"; };
+		A1B4A2E01B12515700FA0A47 /* WatchArrivalsContext.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WatchArrivalsContext.m; sourceTree = "<group>"; };
 		A1B72A8F12F63E070074240A /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		A1B72AC712F642B60074240A /* This Folder Creative Commons.markdown */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "This Folder Creative Commons.markdown"; path = "soundbible.com/This Folder Creative Commons.markdown"; sourceTree = "<group>"; };
 		A1B794FF1183B9480047F83C /* wiki.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wiki.png; path = "PDX Bus/wiki.png"; sourceTree = "<group>"; };
@@ -708,8 +776,6 @@
 		A1BB470E1616B95500634B2F /* tile.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = tile.sh; path = TriMet/tile.sh; sourceTree = "<group>"; };
 		A1BB47111616BAED00634B2F /* StreetcarMap_Placeholder.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = StreetcarMap_Placeholder.gif; path = "Portland Streetcar/StreetcarMap_Placeholder.gif"; sourceTree = "<group>"; };
 		A1BB47121616BAED00634B2F /* tile.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = tile.sh; path = "Portland Streetcar/tile.sh"; sourceTree = "<group>"; };
-		A1BC00650FFD6AF300454CF3 /* AddressBookUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBookUI.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS3.0.sdk/System/Library/Frameworks/AddressBookUI.framework; sourceTree = DEVELOPER_DIR; };
-		A1BC00D00FFD72FD00454CF3 /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS3.0.sdk/System/Library/Frameworks/AddressBook.framework; sourceTree = DEVELOPER_DIR; };
 		A1BC02140FFD9F6800454CF3 /* TripPlannerDateView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TripPlannerDateView.h; sourceTree = "<group>"; };
 		A1BC02150FFD9F6800454CF3 /* TripPlannerDateView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = TripPlannerDateView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A1BC052B0FFE6E2800454CF3 /* MapLinesView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapLinesView.h; sourceTree = "<group>"; };
@@ -720,9 +786,6 @@
 		A1BC08E60FFFC1F900454CF3 /* TripPlannerLocatingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = TripPlannerLocatingView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A1BCEC6612FBD01600228745 /* AlarmNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AlarmNotification.h; sourceTree = "<group>"; };
 		A1BCEC6712FBD01600228745 /* AlarmNotification.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = AlarmNotification.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		A1BCFEE10FFD45EC00454CF3 /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS3.0.sdk/System/Library/Frameworks/MessageUI.framework; sourceTree = DEVELOPER_DIR; };
-		A1BD286C0E7C69FB00B59713 /* Detour.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Detour.m; sourceTree = "<group>"; };
-		A1BD286D0E7C69FB00B59713 /* Detour.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Detour.h; sourceTree = "<group>"; };
 		A1BD286E0E7C69FB00B59713 /* DetoursView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DetoursView.h; sourceTree = "<group>"; };
 		A1BD286F0E7C69FB00B59713 /* DetoursView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DetoursView.m; sourceTree = "<group>"; };
 		A1BD28870E7C70E400B59713 /* CellLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CellLabel.h; sourceTree = "<group>"; };
@@ -739,15 +802,9 @@
 		A1C1142B0E5BBF200010DC01 /* CellTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CellTextView.m; sourceTree = "<group>"; };
 		A1C1142C0E5BBF200010DC01 /* EditableTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditableTableViewCell.h; sourceTree = "<group>"; };
 		A1C1142D0E5BBF200010DC01 /* EditableTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EditableTableViewCell.m; sourceTree = "<group>"; };
-		A1C146A9144B621000148EEB /* QueryCacheManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QueryCacheManager.h; sourceTree = "<group>"; };
-		A1C146AA144B621000148EEB /* QueryCacheManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QueryCacheManager.m; sourceTree = "<group>"; };
 		A1C3F3640FC0B434007B69E7 /* MapViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapViewController.h; sourceTree = "<group>"; };
 		A1C3F3650FC0B434007B69E7 /* MapViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = MapViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		A1C3F49E0FC0C6D6007B69E7 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS3.0.sdk/System/Library/Frameworks/MapKit.framework; sourceTree = DEVELOPER_DIR; };
-		A1C3F5BC0FC0E336007B69E7 /* MapPinColor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = MapPinColor.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		A1C4F38217500B6F008B1803 /* PDXBus.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = PDXBus.entitlements; path = "PDX Bus/PDXBus.entitlements"; sourceTree = "<group>"; };
-		A1C4F38917516CBE008B1803 /* BlockColorDb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlockColorDb.h; sourceTree = "<group>"; };
-		A1C4F38A17516CBE008B1803 /* BlockColorDb.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BlockColorDb.m; sourceTree = "<group>"; };
 		A1C4F39117517FCB008B1803 /* InfColorBarPicker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InfColorBarPicker.h; sourceTree = "<group>"; };
 		A1C4F39217517FCB008B1803 /* InfColorBarPicker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InfColorBarPicker.m; sourceTree = "<group>"; };
 		A1C4F39317517FCB008B1803 /* InfColorIndicatorView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InfColorIndicatorView.h; sourceTree = "<group>"; };
@@ -770,11 +827,18 @@
 		A1C61E2215B4EC1A000CC92B /* ZXingWidget.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ZXingWidget.xcodeproj; path = ZXing/iphone/ZXingWidget/ZXingWidget.xcodeproj; sourceTree = "<group>"; };
 		A1C61E3D15B4F955000CC92B /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		A1C61E3F15B4F96F000CC92B /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
-		A1C61E4115B4F99B000CC92B /* libiconv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.dylib; path = usr/lib/libiconv.dylib; sourceTree = SDKROOT; };
 		A1C6C589107DA29A00787C5B /* TapDetectingImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TapDetectingImageView.h; sourceTree = "<group>"; };
 		A1C6C58A107DA29A00787C5B /* TapDetectingImageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TapDetectingImageView.m; sourceTree = "<group>"; };
 		A1C6C67F107ECA6E00787C5B /* RailStationTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RailStationTableView.h; sourceTree = "<group>"; };
 		A1C6C680107ECA6E00787C5B /* RailStationTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = RailStationTableView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		A1C755941AD9DD0A00236776 /* PDXBusCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = PDXBusCore.xcodeproj; path = PDXBusCore/PDXBusCore.xcodeproj; sourceTree = "<group>"; };
+		A1C7561C1AD9E9BB00236776 /* PDX Bus WatchKit Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "PDX Bus WatchKit Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1C7561F1AD9E9BB00236776 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A1C756231AD9E9BB00236776 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		A1C756271AD9E9BB00236776 /* PDX Bus WatchKit App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "PDX Bus WatchKit App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1C7562D1AD9E9BB00236776 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A1C7562F1AD9E9BB00236776 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Interface.storyboard; sourceTree = "<group>"; };
+		A1C756311AD9E9BB00236776 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		A1C79D6511FD1F6F00B31CE7 /* This Folder Creative Commons.markdown */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "This Folder Creative Commons.markdown"; path = "Aha-Soft/This Folder Creative Commons.markdown"; sourceTree = "<group>"; };
 		A1C79D7F11FD24BC00B31CE7 /* This Folder Creative Commons.markdown */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "This Folder Creative Commons.markdown"; path = "Glyphish/This Folder Creative Commons.markdown"; sourceTree = "<group>"; };
 		A1C79D8311FD261700B31CE7 /* This Folder Creative Commons.markdown */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "This Folder Creative Commons.markdown"; path = "RobAlan/This Folder Creative Commons.markdown"; sourceTree = "<group>"; };
@@ -788,12 +852,23 @@
 		A1C90B11113076D700100030 /* BackgroundTaskContainer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = BackgroundTaskContainer.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A1C910BC11322D2A00100030 /* ViewControllerBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewControllerBase.h; sourceTree = "<group>"; };
 		A1C910BD11322D2A00100030 /* ViewControllerBase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = ViewControllerBase.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		A1C998C51A3E638E00FD95BF /* ExternalAccessory.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ExternalAccessory.framework; path = System/Library/Frameworks/ExternalAccessory.framework; sourceTree = SDKROOT; };
+		A1C998C71A3E63CD00FD95BF /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
+		A1C998C91A3E63E000FD95BF /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
+		A1C998CB1A3E63EA00FD95BF /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
+		A1C998CD1A3E63F900FD95BF /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
+		A1C998D11A3E6E6D00FD95BF /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
+		A1C998D71A3E848F00FD95BF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		A1C998D91A3E899100FD95BF /* libiconv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.dylib; path = usr/lib/libiconv.dylib; sourceTree = SDKROOT; };
+		A1C998DB1A3E8E7400FD95BF /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		A1C998DD1A3E8E8800FD95BF /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		A1C998DF1A3E8E9B00FD95BF /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
+		A1C998E11A3E8EAF00FD95BF /* AddressBookUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBookUI.framework; path = System/Library/Frameworks/AddressBookUI.framework; sourceTree = SDKROOT; };
+		A1C998E31A3E8EBA00FD95BF /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = System/Library/Frameworks/AddressBook.framework; sourceTree = SDKROOT; };
 		A1CA04440E6515A9006EFB6E /* TableViewWithToolbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TableViewWithToolbar.h; sourceTree = "<group>"; };
 		A1CA04450E6515A9006EFB6E /* TableViewWithToolbar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = TableViewWithToolbar.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A1CA90A417DD675000BE12ED /* 74-locationa.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "74-locationa.png"; path = "Glyphish/74-locationa.png"; sourceTree = "<group>"; };
 		A1CA90A617DD676600BE12ED /* 74-locationa@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "74-locationa@2x.png"; path = "Glyphish@2x/74-locationa@2x.png"; sourceTree = "<group>"; };
-		A1D05BA719033BED003E9B76 /* MemoryCaches.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MemoryCaches.h; sourceTree = "<group>"; };
-		A1D05BA819033BED003E9B76 /* MemoryCaches.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MemoryCaches.m; sourceTree = "<group>"; };
 		A1D1428519C5699500BB6EE3 /* AppIcon60x60@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "AppIcon60x60@3x.png"; path = "RobAlan/AppIcon60x60@3x.png"; sourceTree = "<group>"; };
 		A1D189AB17FBB36400AEC5F2 /* 714-camera.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "714-camera.png"; path = "Glyphish 6/714-camera.png"; sourceTree = "<group>"; };
 		A1D189AC17FBB36400AEC5F2 /* 714-camera@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "714-camera@2x.png"; path = "Glyphish 6/714-camera@2x.png"; sourceTree = "<group>"; };
@@ -838,18 +913,20 @@
 		A1D454E31842BB380094467D /* Ticket24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Ticket24@2x.png"; path = "CustomIconDesign.com/Ticket24@2x.png"; sourceTree = "<group>"; };
 		A1D454E51842BD9F0094467D /* TicketAlert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TicketAlert.h; sourceTree = "<group>"; };
 		A1D454E61842BD9F0094467D /* TicketAlert.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TicketAlert.m; sourceTree = "<group>"; };
-		A1D6A0C90E639C5E0092CE22 /* TriMetXML.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TriMetXML.h; sourceTree = "<group>"; };
-		A1D6A0CA0E639C5E0092CE22 /* TriMetXML.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TriMetXML.m; sourceTree = "<group>"; };
-		A1D6BDBD12DAB145001F84E7 /* RouteDistance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RouteDistance.h; sourceTree = "<group>"; };
-		A1D6BDBE12DAB145001F84E7 /* RouteDistance.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = RouteDistance.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		A1D6BDBD12DAB145001F84E7 /* RouteDistanceUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RouteDistanceUI.h; sourceTree = "<group>"; };
+		A1D6BDBE12DAB145001F84E7 /* RouteDistanceUI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = RouteDistanceUI.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A1D6BDE912DABAC8001F84E7 /* NearestRoutesView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NearestRoutesView.h; sourceTree = "<group>"; };
 		A1D6BDEA12DABAC8001F84E7 /* NearestRoutesView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = NearestRoutesView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A1D74FFC0E89485200E38DC3 /* blank.sql */ = {isa = PBXFileReference; lastKnownFileType = file; path = blank.sql; sourceTree = "<group>"; };
 		A1D750000E8948BE00E38DC3 /* libsqlite3.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.0.dylib; path = usr/lib/libsqlite3.0.dylib; sourceTree = SDKROOT; };
-		A1D750040E8948DD00E38DC3 /* StopLocations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StopLocations.h; sourceTree = "<group>"; };
-		A1D750050E8948DD00E38DC3 /* StopLocations.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = StopLocations.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A1DAAFE618667AEF002A33DF /* NW Marshall & 23rd.gpx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "NW Marshall & 23rd.gpx"; path = "Routing/NW Marshall & 23rd.gpx"; sourceTree = "<group>"; };
 		A1DB5C6416BF83B300679BEC /* Pager Beeps-SoundBible.com-260751720.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; name = "Pager Beeps-SoundBible.com-260751720.aiff"; path = "soundbible.com/Pager Beeps-SoundBible.com-260751720.aiff"; sourceTree = "<group>"; };
+		A1DF42271B08123C00F5D837 /* WatchArrivalsInterfaceController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WatchArrivalsInterfaceController.h; sourceTree = "<group>"; };
+		A1DF42281B08123C00F5D837 /* WatchArrivalsInterfaceController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WatchArrivalsInterfaceController.m; sourceTree = "<group>"; };
+		A1DF422A1B0813C400F5D837 /* WatchArrival.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WatchArrival.h; sourceTree = "<group>"; };
+		A1DF422B1B0813C400F5D837 /* WatchArrival.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WatchArrival.m; sourceTree = "<group>"; };
+		A1E0F3CD1AE321400055C6FB /* WatchBookmarksInterfaceController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WatchBookmarksInterfaceController.h; sourceTree = "<group>"; };
+		A1E0F3CE1AE321410055C6FB /* WatchBookmarksInterfaceController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WatchBookmarksInterfaceController.m; sourceTree = "<group>"; };
 		A1E37A8013DCD9F500310E2E /* pnpoly.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = pnpoly.mm; path = Classes/pnpoly.mm; sourceTree = "<group>"; };
 		A1E6FA671801433200CB9E1C /* AppIcon29x29.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = AppIcon29x29.png; path = RobAlan/AppIcon29x29.png; sourceTree = "<group>"; };
 		A1E6FA681801433200CB9E1C /* AppIcon29x29@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "AppIcon29x29@2x.png"; path = "RobAlan/AppIcon29x29@2x.png"; sourceTree = "<group>"; };
@@ -877,7 +954,6 @@
 		A1E8BA4019020F63007122A8 /* WhatsNewStopIDs.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WhatsNewStopIDs.m; sourceTree = "<group>"; };
 		A1E8BA4219020FF4007122A8 /* WhatsNewWeb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhatsNewWeb.h; sourceTree = "<group>"; };
 		A1E8BA4319020FF4007122A8 /* WhatsNewWeb.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WhatsNewWeb.m; sourceTree = "<group>"; };
-		A1E9C08D0E60B17F00938356 /* UserFaves.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserFaves.h; sourceTree = "<group>"; };
 		A1E9C24C0E60C5F300938356 /* AboutView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AboutView.h; sourceTree = "<group>"; };
 		A1E9C24D0E60C5F300938356 /* AboutView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = AboutView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A1EC51161846619800A7E321 /* FlashWarning.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlashWarning.h; sourceTree = "<group>"; };
@@ -911,8 +987,6 @@
 		A1F152021183B5A900121292 /* WebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = WebViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A1F152031183B5A900121292 /* WebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebViewController.h; sourceTree = "<group>"; };
 		A1F1E8FC15E17C1300C43B41 /* TriMet.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = TriMet.geojson; path = Routing/TriMet.geojson; sourceTree = "<group>"; };
-		A1F61CA61246982D0040BA96 /* UserPrefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserPrefs.h; sourceTree = "<group>"; };
-		A1F61CA71246982D0040BA96 /* UserPrefs.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = UserPrefs.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A1F9227B189DC20F006BFCB6 /* AlignedBarItemButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AlignedBarItemButton.h; sourceTree = "<group>"; };
 		A1F9227C189DC20F006BFCB6 /* AlignedBarItemButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AlignedBarItemButton.m; sourceTree = "<group>"; };
 		A1F92282189F0678006BFCB6 /* ReverseGeoLocator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReverseGeoLocator.h; sourceTree = "<group>"; };
@@ -926,26 +1000,43 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1C755B71AD9E17800236776 /* libPDXBusCore.a in Frameworks */,
+				A10946B31A463FDF00356E8D /* Social.framework in Frameworks */,
+				A1C998E41A3E8EBA00FD95BF /* AddressBook.framework in Frameworks */,
+				A1C998E21A3E8EAF00FD95BF /* AddressBookUI.framework in Frameworks */,
+				A1C998E01A3E8E9B00FD95BF /* MapKit.framework in Frameworks */,
+				A1C998DE1A3E8E8800FD95BF /* CoreGraphics.framework in Frameworks */,
+				A1C998CE1A3E63F900FD95BF /* CFNetwork.framework in Frameworks */,
+				A1C998D21A3E6E6D00FD95BF /* MessageUI.framework in Frameworks */,
+				A1C998CC1A3E63EA00FD95BF /* CoreMotion.framework in Frameworks */,
+				A1C998CA1A3E63E000FD95BF /* CoreBluetooth.framework in Frameworks */,
+				A1C998C81A3E63CD00FD95BF /* libz.dylib in Frameworks */,
+				A1C998DA1A3E899100FD95BF /* libiconv.dylib in Frameworks */,
+				A1C998C61A3E638E00FD95BF /* ExternalAccessory.framework in Frameworks */,
+				A1C998DC1A3E8E7400FD95BF /* UIKit.framework in Frameworks */,
+				A1C998D81A3E848F00FD95BF /* Foundation.framework in Frameworks */,
 				A1B3B8EF15CE2D5A00E8F974 /* Twitter.framework in Frameworks */,
 				A1C61E4315B500F2000CC92B /* libZXingWidget.a in Frameworks */,
-				A1C61E4215B4F99B000CC92B /* libiconv.dylib in Frameworks */,
 				A1C61E4015B4F96F000CC92B /* CoreMedia.framework in Frameworks */,
 				A1C61E3E15B4F955000CC92B /* CoreVideo.framework in Frameworks */,
 				A14F0D12145DDB75009BE614 /* AVFoundation.framework in Frameworks */,
-				1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */,
-				1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */,
-				2892E4100DC94CBA00A64D0F /* CoreGraphics.framework in Frameworks */,
 				A14D89630E57E1F7008A11AF /* SystemConfiguration.framework in Frameworks */,
 				A19574A90E887E3600493326 /* CoreLocation.framework in Frameworks */,
 				A1D750010E8948BE00E38DC3 /* libsqlite3.0.dylib in Frameworks */,
-				A1C3F49F0FC0C6D6007B69E7 /* MapKit.framework in Frameworks */,
-				A1BCFEE20FFD45EC00454CF3 /* MessageUI.framework in Frameworks */,
-				A1BC00660FFD6AF300454CF3 /* AddressBookUI.framework in Frameworks */,
-				A1BC00D10FFD72FD00454CF3 /* AddressBook.framework in Frameworks */,
 				A155A8661251943B00696B76 /* EventKitUI.framework in Frameworks */,
 				A155A86C1251944B00696B76 /* EventKit.framework in Frameworks */,
 				A1B72A9012F63E070074240A /* AudioToolbox.framework in Frameworks */,
 				A1C54F5D144D43ED00429617 /* QuartzCore.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A1C756191AD9E9BB00236776 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1AC79961ADB511F00A1E96F /* SystemConfiguration.framework in Frameworks */,
+				A1AC79951ADB511600A1E96F /* Security.framework in Frameworks */,
+				A1C756471AD9E9FE00236776 /* libPDXBusCore.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -980,6 +1071,8 @@
 			isa = PBXGroup;
 			children = (
 				1D6058910D05DD3D006BFB54 /* PDXBus.app */,
+				A1C7561C1AD9E9BB00236776 /* PDX Bus WatchKit Extension.appex */,
+				A1C756271AD9E9BB00236776 /* PDX Bus WatchKit App.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -987,14 +1080,17 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				A1C755941AD9DD0A00236776 /* PDXBusCore.xcodeproj */,
 				A12548641409EF9800A62BFC /* README.markdown */,
 				080E96DDFE201D6D7F000001 /* Classes */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
 				A167CAF41752AEC000567D02 /* Third-Party Code */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
-				19C28FACFE9D520D11CA2CBB /* Products */,
 				A138EE2E16D31E3300568D8C /* Sources not in Target */,
+				19C28FACFE9D520D11CA2CBB /* Products */,
+				A1C7561D1AD9E9BB00236776 /* PDX Bus WatchKit Extension */,
+				A1C7562B1AD9E9BB00236776 /* PDX Bus WatchKit App */,
 			);
 			name = CustomTemplate;
 			sourceTree = "<group>";
@@ -1043,23 +1139,30 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A1AC79941ADB511600A1E96F /* Security.framework */,
+				A1C998C51A3E638E00FD95BF /* ExternalAccessory.framework */,
+				A10946B21A463FDF00356E8D /* Social.framework */,
+				A1C998E31A3E8EBA00FD95BF /* AddressBook.framework */,
+				A1C998E11A3E8EAF00FD95BF /* AddressBookUI.framework */,
+				A1C998DF1A3E8E9B00FD95BF /* MapKit.framework */,
+				A1C998DD1A3E8E8800FD95BF /* CoreGraphics.framework */,
+				A1C998DB1A3E8E7400FD95BF /* UIKit.framework */,
+				A1C998D91A3E899100FD95BF /* libiconv.dylib */,
+				A1C998D71A3E848F00FD95BF /* Foundation.framework */,
+				A1C998CD1A3E63F900FD95BF /* CFNetwork.framework */,
+				A1C998D11A3E6E6D00FD95BF /* MessageUI.framework */,
+				A1C998CB1A3E63EA00FD95BF /* CoreMotion.framework */,
+				A1C998C91A3E63E000FD95BF /* CoreBluetooth.framework */,
+				A1C998C71A3E63CD00FD95BF /* libz.dylib */,
 				A1B3B8EE15CE2D5800E8F974 /* Twitter.framework */,
-				A1C61E4115B4F99B000CC92B /* libiconv.dylib */,
 				A1C61E3F15B4F96F000CC92B /* CoreMedia.framework */,
 				A1C61E3D15B4F955000CC92B /* CoreVideo.framework */,
 				A14F0D11145DDB75009BE614 /* AVFoundation.framework */,
 				A1C54F5B144D439A00429617 /* QuartzCore.framework */,
 				A1B72A8F12F63E070074240A /* AudioToolbox.framework */,
-				A1BC00D00FFD72FD00454CF3 /* AddressBook.framework */,
-				A1BC00650FFD6AF300454CF3 /* AddressBookUI.framework */,
-				A1BCFEE10FFD45EC00454CF3 /* MessageUI.framework */,
-				A1C3F49E0FC0C6D6007B69E7 /* MapKit.framework */,
 				A1D750000E8948BE00E38DC3 /* libsqlite3.0.dylib */,
 				A19574A80E887E3600493326 /* CoreLocation.framework */,
 				A14D89620E57E1F7008A11AF /* SystemConfiguration.framework */,
-				2892E40F0DC94CBA00A64D0F /* CoreGraphics.framework */,
-				1DF5F4DF0D08C38300B7A737 /* UIKit.framework */,
-				1D30AB110D05D00D00671497 /* Foundation.framework */,
 				A155A8651251943B00696B76 /* EventKitUI.framework */,
 				A155A86B1251944B00696B76 /* EventKit.framework */,
 			);
@@ -1149,6 +1252,15 @@
 				A13F6B2B1166E96E004960BD /* MainWindow-iPad.xib */,
 			);
 			name = "Resources-iPad";
+			sourceTree = "<group>";
+		};
+		A14DA4061B182195001F34DE /* Networking Background Task */ = {
+			isa = PBXGroup;
+			children = (
+				A14DA4091B182D4B001F34DE /* InterfaceControllerWithBackgroundThread.h */,
+				A14DA40A1B182D4B001F34DE /* InterfaceControllerWithBackgroundThread.m */,
+			);
+			name = "Networking Background Task";
 			sourceTree = "<group>";
 		};
 		A156443E137F3AB00050345B /* InAppSettings */ = {
@@ -1292,6 +1404,21 @@
 			name = Facebook;
 			sourceTree = "<group>";
 		};
+		A1833CD91B092D2B00670E34 /* Nearby */ = {
+			isa = PBXGroup;
+			children = (
+				A1833CDC1B092D5800670E34 /* WatchNearbyInterfaceController.h */,
+				A1833CDD1B092D5800670E34 /* WatchNearbyInterfaceController.m */,
+				A1833CE81B09436B00670E34 /* WatchStop.h */,
+				A1833CE91B09436B00670E34 /* WatchStop.m */,
+				A19A6D7E1B0A85FA0002B1D9 /* WatchInfo.h */,
+				A19A6D7F1B0A85FA0002B1D9 /* WatchInfo.m */,
+				A1B4A2DC1B124E2100FA0A47 /* WatchMapHelper.h */,
+				A1B4A2DD1B124E2100FA0A47 /* WatchMapHelper.m */,
+			);
+			name = Nearby;
+			sourceTree = "<group>";
+		};
 		A1869A9D108BCF540013794C /* Trip Planner */ = {
 			isa = PBXGroup;
 			children = (
@@ -1355,7 +1482,6 @@
 				A1C6C58A107DA29A00787C5B /* TapDetectingImageView.m */,
 				A17254D0125AD75F007EE22D /* RailStation.h */,
 				A17254D1125AD75F007EE22D /* RailStation.m */,
-				A17254D3125AD7C7007EE22D /* HotSpot.h */,
 				A1725641125C1FAE007EE22D /* AllRailStationView.h */,
 				A1725642125C1FAE007EE22D /* AllRailStationView.m */,
 				A1D38BD318C24F21002A6EEE /* StaticStationData.m */,
@@ -1366,6 +1492,8 @@
 		A1869AA9108BCFA70013794C /* Basic UI */ = {
 			isa = PBXGroup;
 			children = (
+				A1AC79871ADAF42B00A1E96F /* VehicleUI.h */,
+				A1AC79881ADAF42B00A1E96F /* VehicleUI.m */,
 				A1C910BC11322D2A00100030 /* ViewControllerBase.h */,
 				A1C910BD11322D2A00100030 /* ViewControllerBase.m */,
 				A1CA04440E6515A9006EFB6E /* TableViewWithToolbar.h */,
@@ -1380,11 +1508,6 @@
 				A1C1142B0E5BBF200010DC01 /* CellTextView.m */,
 				A1C1142C0E5BBF200010DC01 /* EditableTableViewCell.h */,
 				A1C1142D0E5BBF200010DC01 /* EditableTableViewCell.m */,
-				A161484A119789C5006EA864 /* ScreenConstants.h */,
-				A1F61CA61246982D0040BA96 /* UserPrefs.h */,
-				A1F61CA71246982D0040BA96 /* UserPrefs.m */,
-				A19CC72B12558C96002EBF63 /* TriMetRouteColors.h */,
-				A19CC72C12558C96002EBF63 /* TriMetRouteColors.m */,
 				A1725946125D6CB7007EE22D /* RouteColorBlobView.h */,
 				A1725947125D6CB7007EE22D /* RouteColorBlobView.m */,
 				A176AB6D126402940037DF61 /* SearchFilter.h */,
@@ -1396,8 +1519,6 @@
 				A1D454E61842BD9F0094467D /* TicketAlert.m */,
 				A1F9227B189DC20F006BFCB6 /* AlignedBarItemButton.h */,
 				A1F9227C189DC20F006BFCB6 /* AlignedBarItemButton.m */,
-				A1D05BA719033BED003E9B76 /* MemoryCaches.h */,
-				A1D05BA819033BED003E9B76 /* MemoryCaches.m */,
 				A115587C1925B21300B1BF71 /* CanceledBusOverlay.h */,
 				A115587D1925B21300B1BF71 /* CanceledBusOverlay.m */,
 				A1189FE519D763E500657FC0 /* InterfaceOrientation.h */,
@@ -1409,7 +1530,6 @@
 		A1869AAA108BCFD20013794C /* Maps */ = {
 			isa = PBXGroup;
 			children = (
-				A1C3F5BC0FC0E336007B69E7 /* MapPinColor.h */,
 				A16DDA0C0FF313D1006D4D5F /* SimpleAnnotation.h */,
 				A16DDA0D0FF313D1006D4D5F /* SimpleAnnotation.m */,
 				A1C3F3640FC0B434007B69E7 /* MapViewController.h */,
@@ -1423,10 +1543,6 @@
 		A1869AAB108BD0010013794C /* Detours */ = {
 			isa = PBXGroup;
 			children = (
-				A137B02C0E5FDC3700C18602 /* XMLDetour.h */,
-				A137B02D0E5FDC3700C18602 /* XMLDetour.m */,
-				A1BD286C0E7C69FB00B59713 /* Detour.m */,
-				A1BD286D0E7C69FB00B59713 /* Detour.h */,
 				A1BD286E0E7C69FB00B59713 /* DetoursView.h */,
 				A1BD286F0E7C69FB00B59713 /* DetoursView.m */,
 			);
@@ -1436,6 +1552,8 @@
 		A1869AAC108BD0120013794C /* Departures */ = {
 			isa = PBXGroup;
 			children = (
+				A1AC79861ADAE6A900A1E96F /* DepartureUI.h */,
+				A1AC79841ADAE69A00A1E96F /* DepartureUI.m */,
 				A186564C18C986670023DA6E /* MapViewWithStops.h */,
 				A186564D18C986670023DA6E /* MapViewWithStops.m */,
 				A137B03E0E5FE1FC00C18602 /* DepartureDetailView.h */,
@@ -1444,27 +1562,14 @@
 				A186978C108A6E5E0013794C /* DepartureSortTableView.m */,
 				A14D893B0E57DE4F008A11AF /* DepartureTimesView.h */,
 				A14D893C0E57DE4F008A11AF /* DepartureTimesView.m */,
-				A14D89760E57E383008A11AF /* XMLDepartures.h */,
-				A14D89770E57E383008A11AF /* XMLDepartures.m */,
-				A14D89790E57E40B008A11AF /* Departure.h */,
-				A14D897A0E57E40B008A11AF /* Departure.m */,
-				A15CF8F50E6B5FBD008EB672 /* Trip.h */,
-				A15CF8F60E6B5FBD008EB672 /* Trip.m */,
-				A1671DD51076B7C00054174C /* DepartureTimesDataProvider.h */,
 				A1671E1A1076C9FA0054174C /* DepartureTimesByBus.h */,
 				A1671E1B1076C9FA0054174C /* DepartureTimesByBus.m */,
-				A13AFF4111587A1600E967EE /* XMLStreetcarPredictions.h */,
-				A13AFF4211587A1600E967EE /* XMLStreetcarPredictions.m */,
-				A13AFFC81159C8BC00E967EE /* XMLStreetcarLocations.h */,
-				A13AFFC91159C8BC00E967EE /* XMLStreetcarLocations.m */,
 				A13D2DF11241C4C20041FB4E /* DepartureHistoryView.h */,
 				A13D2DF21241C4C20041FB4E /* DepartureHistoryView.m */,
 				A199A17012A0C88B00A8BC8A /* BigRouteView.h */,
 				A199A17112A0C88B00A8BC8A /* BigRouteView.m */,
 				A19FA74414524119008BE90F /* AlertViewCancelsTask.h */,
 				A19FA74514524119008BE90F /* AlertViewCancelsTask.m */,
-				A1C4F38917516CBE008B1803 /* BlockColorDb.h */,
-				A1C4F38A17516CBE008B1803 /* BlockColorDb.m */,
 				A167CAF1175268CD00567D02 /* BlockColorViewController.h */,
 				A167CAF2175268CD00567D02 /* BlockColorViewController.m */,
 			);
@@ -1493,8 +1598,6 @@
 				A107A84A0F2D389700C20017 /* EditBookMarkView.m */,
 				A107AD480F2D667800C20017 /* AddNewStopToBookMark.h */,
 				A107AD490F2D667800C20017 /* AddNewStopToBookMark.m */,
-				A1E9C08D0E60B17F00938356 /* UserFaves.h */,
-				A100B74E126B9CD500BAA288 /* UserFaves.m */,
 				A160C2371319C5B8004EC76D /* DayOfTheWeekView.h */,
 				A160C2381319C5B8004EC76D /* DayOfTheWeekView.m */,
 			);
@@ -1546,7 +1649,6 @@
 				1D3623240D0F684500981E51 /* TriMetTimesAppDelegate.h */,
 				1D3623250D0F684500981E51 /* TriMetTimesAppDelegate.m */,
 				A15FB4D10E58AF5B00BF9B1C /* AppDelegateMethods.h */,
-				A14949E510C216810020D493 /* DebugLogging.h */,
 			);
 			name = App;
 			sourceTree = "<group>";
@@ -1554,15 +1656,8 @@
 		A1869AB2108BD1440013794C /* XML */ = {
 			isa = PBXGroup;
 			children = (
-				A15CF8F40E6B5FBD008EB672 /* TriMetTypes.h */,
-				A1D6A0C90E639C5E0092CE22 /* TriMetXML.h */,
-				A1D6A0CA0E639C5E0092CE22 /* TriMetXML.m */,
-				A1340EBF11604E8D0037B7E5 /* NextBusXML.h */,
-				A1340EC011604E8D0037B7E5 /* NextBusXML.m */,
-				A17F6C7711B46C51007DE9F7 /* StoppableFetcher.h */,
-				A17F6C7811B46C51007DE9F7 /* StoppableFetcher.m */,
-				A1C146A9144B621000148EEB /* QueryCacheManager.h */,
-				A1C146AA144B621000148EEB /* QueryCacheManager.m */,
+				A1AC79911ADAFED300A1E96F /* XMLDeparturesUI.h */,
+				A1AC79921ADAFED300A1E96F /* XMLDeparturesUI.m */,
 				A18E373515B66FA10097CCE2 /* ProcessQRCodeString.h */,
 				A18E373615B66FA10097CCE2 /* ProcessQRCodeString.m */,
 			);
@@ -1598,22 +1693,16 @@
 				A17ED2E118304971008883D5 /* FindByLocationView.m */,
 				A19573080E885DB900493326 /* XMLAllStops.h */,
 				A19573090E885DB900493326 /* XMLAllStops.m */,
-				A19574BA0E88803400493326 /* StopDistance.h */,
-				A19574BB0E88803400493326 /* StopDistance.m */,
-				A1D750040E8948DD00E38DC3 /* StopLocations.h */,
-				A1D750050E8948DD00E38DC3 /* StopLocations.m */,
-				A18E8583128EFE14002FEB6B /* XMLLocateStops.h */,
-				A18E8584128EFE14002FEB6B /* XMLLocateStops.m */,
+				A18E8583128EFE14002FEB6B /* XMLLocateStopsUI.h */,
+				A18E8584128EFE14002FEB6B /* XMLLocateStopsUI.m */,
 				A199A5D512A75F7D00A8BC8A /* NearestStopsMap.h */,
 				A199A5D612A75F7D00A8BC8A /* NearestStopsMap.m */,
-				A1D6BDBD12DAB145001F84E7 /* RouteDistance.h */,
-				A1D6BDBE12DAB145001F84E7 /* RouteDistance.m */,
+				A1D6BDBD12DAB145001F84E7 /* RouteDistanceUI.h */,
+				A1D6BDBE12DAB145001F84E7 /* RouteDistanceUI.m */,
 				A1D6BDE912DABAC8001F84E7 /* NearestRoutesView.h */,
 				A1D6BDEA12DABAC8001F84E7 /* NearestRoutesView.m */,
 				A17ED2CC182F0A32008883D5 /* XMLLocateVehicles.h */,
 				A17ED2CD182F0A32008883D5 /* XMLLocateVehicles.m */,
-				A17ED2D1182F0AE7008883D5 /* Vehicle.h */,
-				A17ED2D2182F0AE7008883D5 /* Vehicle.m */,
 				A17ED2D4182F1CA6008883D5 /* NearestVehiclesMap.h */,
 				A17ED2D5182F1CA6008883D5 /* NearestVehiclesMap.m */,
 				A17ED2D7182F4DFA008883D5 /* VehicleLocatingTableView.h */,
@@ -1670,6 +1759,7 @@
 			children = (
 				A18E88C9128F8BA2002FEB6B /* This folder Public Domain.markdown */,
 				A15644811380B5140050345B /* Settings@2x.png */,
+				A112D0E01A469DA40023C947 /* watch.png */,
 				A18E893B12904422002FEB6B /* Address book@2x.png */,
 				A18E893712904333002FEB6B /* Find@2x.png */,
 				A18E88B6128F892C002FEB6B /* Warning@2x.png */,
@@ -1727,6 +1817,10 @@
 				A1BCEC6712FBD01600228745 /* AlarmNotification.m */,
 				A1917B8613065981008E3026 /* AlarmAccurateStopProximity.h */,
 				A1917B8713065981008E3026 /* AlarmAccurateStopProximity.m */,
+				A112D0EA1A521C830023C947 /* ExternalDisplayDevice.h */,
+				A112D0EB1A521C830023C947 /* ExternalDisplayDevice.m */,
+				A112D0ED1A521CFB0023C947 /* PebbleSportsDisplay.h */,
+				A112D0EE1A521CFB0023C947 /* PebbleSportsDisplay.m */,
 			);
 			name = Alarms;
 			sourceTree = "<group>";
@@ -1783,6 +1877,54 @@
 				A1B7DF2018F1E5D000BAF9F6 /* prefix.txt */,
 			);
 			name = "Map Templates";
+			sourceTree = "<group>";
+		};
+		A1C755951AD9DD0A00236776 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A1C7559A1AD9DD0B00236776 /* libPDXBusCore.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A1C7561D1AD9E9BB00236776 /* PDX Bus WatchKit Extension */ = {
+			isa = PBXGroup;
+			children = (
+				A14DA4061B182195001F34DE /* Networking Background Task */,
+				A1833CD91B092D2B00670E34 /* Nearby */,
+				A1DF422E1B081BCB00F5D837 /* Bookmarks */,
+				A1DF422D1B0813DA00F5D837 /* Arrivals */,
+				A1126A041B0693FD00E76977 /* PDX Bus WatchKit Extension.entitlements */,
+				A1C756231AD9E9BB00236776 /* Images.xcassets */,
+				A1C7561E1AD9E9BB00236776 /* Supporting Files */,
+			);
+			path = "PDX Bus WatchKit Extension";
+			sourceTree = "<group>";
+		};
+		A1C7561E1AD9E9BB00236776 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				A1C7561F1AD9E9BB00236776 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		A1C7562B1AD9E9BB00236776 /* PDX Bus WatchKit App */ = {
+			isa = PBXGroup;
+			children = (
+				A1C7562E1AD9E9BB00236776 /* Interface.storyboard */,
+				A1C756311AD9E9BB00236776 /* Images.xcassets */,
+				A1C7562C1AD9E9BB00236776 /* Supporting Files */,
+			);
+			path = "PDX Bus WatchKit App";
+			sourceTree = "<group>";
+		};
+		A1C7562C1AD9E9BB00236776 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				A1C7562D1AD9E9BB00236776 /* Info.plist */,
+			);
+			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
 		A1C7F24815B50590001FCD6C /* ZXing */ = {
@@ -1860,6 +2002,44 @@
 				A1D454E01842BB2D0094467D /* Ticket24.png */,
 			);
 			name = CustomIconDesign;
+			sourceTree = "<group>";
+		};
+		A1DF422D1B0813DA00F5D837 /* Arrivals */ = {
+			isa = PBXGroup;
+			children = (
+				A1DF42271B08123C00F5D837 /* WatchArrivalsInterfaceController.h */,
+				A1DF42281B08123C00F5D837 /* WatchArrivalsInterfaceController.m */,
+				A1DF422A1B0813C400F5D837 /* WatchArrival.h */,
+				A1DF422B1B0813C400F5D837 /* WatchArrival.m */,
+				A1AC79981ADB62FC00A1E96F /* WatchDepartureUI.h */,
+				A1AC79991ADB62FC00A1E96F /* WatchDepartureUI.m */,
+				A1790E551B0964E700179EC5 /* WatchArrivalDetailsInterfaceController.h */,
+				A1790E561B0964E700179EC5 /* WatchArrivalDetailsInterfaceController.m */,
+				A12F8BDB1B0A666400252C0A /* WatchNoArrivals.h */,
+				A12F8BDC1B0A666400252C0A /* WatchNoArrivals.m */,
+				A1B4A2D71B12282D00FA0A47 /* WatchArrivalInfo.h */,
+				A1B4A2D81B12282D00FA0A47 /* WatchArrivalInfo.m */,
+				A1B4A2DF1B12515700FA0A47 /* WatchArrivalsContext.h */,
+				A1B4A2E01B12515700FA0A47 /* WatchArrivalsContext.m */,
+				A14DB8C21B13E151007F46FA /* WatchDetour.h */,
+				A14DB8C31B13E151007F46FA /* WatchDetour.m */,
+			);
+			name = Arrivals;
+			sourceTree = "<group>";
+		};
+		A1DF422E1B081BCB00F5D837 /* Bookmarks */ = {
+			isa = PBXGroup;
+			children = (
+				A1E0F3CD1AE321400055C6FB /* WatchBookmarksInterfaceController.h */,
+				A1E0F3CE1AE321410055C6FB /* WatchBookmarksInterfaceController.m */,
+				A14A05F31B07E6C9002929FF /* WatchBookmark.h */,
+				A14A05F41B07E6C9002929FF /* WatchBookmark.m */,
+				A19A6D831B0A90E70002B1D9 /* WatchNoBookmarks.h */,
+				A19A6D841B0A90E70002B1D9 /* WatchNoBookmarks.m */,
+				A1028E731B12A3B3002924BE /* WatchBookmarksContext.h */,
+				A1028E741B12A3B3002924BE /* WatchBookmarksContext.m */,
+			);
+			name = Bookmarks;
 			sourceTree = "<group>";
 		};
 		A1F151881183A6E500121292 /* Aha-Soft */ = {
@@ -1989,6 +2169,7 @@
 			children = (
 				A14D86060E578CFB008A11AF /* appData.plist */,
 				A107A6240F2D0E9600C20017 /* Settings.bundle */,
+				A125FF7A1B1E12E0002C9899 /* Settings-Watch.bundle */,
 			);
 			name = "Default Settings & Data";
 			sourceTree = "<group>";
@@ -2031,16 +2212,51 @@
 				1D60588D0D05DD3D006BFB54 /* Resources */,
 				1D60588E0D05DD3D006BFB54 /* Sources */,
 				1D60588F0D05DD3D006BFB54 /* Frameworks */,
+				A1C756461AD9E9BC00236776 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				A1C61E3015B4ECCB000CC92B /* PBXTargetDependency */,
+				A1C756341AD9E9BB00236776 /* PBXTargetDependency */,
 			);
 			name = "PDX Bus";
 			productName = PDXBus;
 			productReference = 1D6058910D05DD3D006BFB54 /* PDXBus.app */;
 			productType = "com.apple.product-type.application";
+		};
+		A1C7561B1AD9E9BB00236776 /* PDX Bus WatchKit Extension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A1C756451AD9E9BC00236776 /* Build configuration list for PBXNativeTarget "PDX Bus WatchKit Extension" */;
+			buildPhases = (
+				A1C756181AD9E9BB00236776 /* Sources */,
+				A1C756191AD9E9BB00236776 /* Frameworks */,
+				A1C7561A1AD9E9BB00236776 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A1C7562A1AD9E9BB00236776 /* PBXTargetDependency */,
+			);
+			name = "PDX Bus WatchKit Extension";
+			productName = "PDX Bus WatchKit Extension";
+			productReference = A1C7561C1AD9E9BB00236776 /* PDX Bus WatchKit Extension.appex */;
+			productType = "com.apple.product-type.watchkit-extension";
+		};
+		A1C756261AD9E9BB00236776 /* PDX Bus WatchKit App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A1C756441AD9E9BC00236776 /* Build configuration list for PBXNativeTarget "PDX Bus WatchKit App" */;
+			buildPhases = (
+				A1C756251AD9E9BB00236776 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "PDX Bus WatchKit App";
+			productName = "PDX Bus WatchKit App";
+			productReference = A1C756271AD9E9BB00236776 /* PDX Bus WatchKit App.app */;
+			productType = "com.apple.product-type.application.watchapp";
 		};
 /* End PBXNativeTarget section */
 
@@ -2054,10 +2270,26 @@
 					1D6058900D05DD3D006BFB54 = {
 						DevelopmentTeam = 995PKK348R;
 						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
 							com.apple.Keychain = {
 								enabled = 0;
 							};
 						};
+					};
+					A1C7561B1AD9E9BB00236776 = {
+						CreatedOnToolsVersion = 6.2;
+						DevelopmentTeam = 995PKK348R;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
+						};
+					};
+					A1C756261AD9E9BB00236776 = {
+						CreatedOnToolsVersion = 6.2;
+						DevelopmentTeam = 995PKK348R;
 					};
 				};
 			};
@@ -2071,10 +2303,15 @@
 				French,
 				German,
 				en,
+				Base,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* CustomTemplate */;
 			projectDirPath = "";
 			projectReferences = (
+				{
+					ProductGroup = A1C755951AD9DD0A00236776 /* Products */;
+					ProjectRef = A1C755941AD9DD0A00236776 /* PDXBusCore.xcodeproj */;
+				},
 				{
 					ProductGroup = A1C61E2315B4EC1A000CC92B /* Products */;
 					ProjectRef = A1C61E2215B4EC1A000CC92B /* ZXingWidget.xcodeproj */;
@@ -2083,6 +2320,8 @@
 			projectRoot = "";
 			targets = (
 				1D6058900D05DD3D006BFB54 /* PDX Bus */,
+				A1C7561B1AD9E9BB00236776 /* PDX Bus WatchKit Extension */,
+				A1C756261AD9E9BB00236776 /* PDX Bus WatchKit App */,
 			);
 		};
 /* End PBXProject section */
@@ -2100,6 +2339,13 @@
 			fileType = wrapper.cfbundle;
 			path = ZXingTests.octest;
 			remoteRef = A1C61E2C15B4EC1B000CC92B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		A1C7559A1AD9DD0B00236776 /* libPDXBusCore.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libPDXBusCore.a;
+			remoteRef = A1C755991AD9DD0B00236776 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -2128,6 +2374,7 @@
 				A1F151DB1183B26A00121292 /* List.png in Resources */,
 				A1F151DC1183B26A00121292 /* Info.png in Resources */,
 				A1F151DD1183B26A00121292 /* Globe.png in Resources */,
+				A112D0E11A469DA40023C947 /* watch.png in Resources */,
 				A1F151DE1183B26A00121292 /* Find.png in Resources */,
 				A1F151E01183B26A00121292 /* Erase.png in Resources */,
 				A1F151E31183B26A00121292 /* Cut.png in Resources */,
@@ -2146,6 +2393,7 @@
 				A1B8599911CF1142003F2FEC /* 02-redo.png in Resources */,
 				A1E6FA731801433200CB9E1C /* AppIcon29x29.png in Resources */,
 				A1317ECD11F7E0DA001C91F3 /* v2AppIcon29x29.png in Resources */,
+				A125FF7B1B1E12E0002C9899 /* Settings-Watch.bundle in Resources */,
 				A1317ECE11F7E0DA001C91F3 /* v2AppIcon50x50.png in Resources */,
 				A1E6FA771801433200CB9E1C /* AppIcon60x60.png in Resources */,
 				A1317ED111F7E0DA001C91F3 /* v2AppIcon72x72.png in Resources */,
@@ -2261,6 +2509,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A1C7561A1AD9E9BB00236776 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1C756241AD9E9BB00236776 /* Images.xcassets in Resources */,
+				A12F8BD81B0A615200252C0A /* appData.plist in Resources */,
+				A1C756281AD9E9BB00236776 /* PDX Bus WatchKit App.app in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A1C756251AD9E9BB00236776 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1C756301AD9E9BB00236776 /* Interface.storyboard in Resources */,
+				A1C756321AD9E9BB00236776 /* Images.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -2272,9 +2539,7 @@
 				1D3623260D0F684500981E51 /* TriMetTimesAppDelegate.m in Sources */,
 				A14D893D0E57DE4F008A11AF /* DepartureTimesView.m in Sources */,
 				A1E8BA3B19020D80007122A8 /* WhatsNewHeader.m in Sources */,
-				A14D89780E57E383008A11AF /* XMLDepartures.m in Sources */,
 				A159DCDA17F8CE6500E7A532 /* RootViewController.mm in Sources */,
-				A14D897B0E57E40B008A11AF /* Departure.m in Sources */,
 				A1C1142E0E5BBF200010DC01 /* CellTextField.m in Sources */,
 				A1EC51181846619800A7E321 /* FlashWarning.m in Sources */,
 				A1C1142F0E5BBF200010DC01 /* CellTextView.m in Sources */,
@@ -2287,19 +2552,14 @@
 				A1553FA60E5FAA9C000D494B /* Stop.m in Sources */,
 				A1553FBB0E5FB425000D494B /* StopView.m in Sources */,
 				A115587E1925B21300B1BF71 /* CanceledBusOverlay.m in Sources */,
-				A137B02E0E5FDC3700C18602 /* XMLDetour.m in Sources */,
+				A112D0EC1A521C830023C947 /* ExternalDisplayDevice.m in Sources */,
 				A137B0400E5FE1FC00C18602 /* DepartureDetailView.m in Sources */,
 				A1E9C24E0E60C5F300938356 /* AboutView.m in Sources */,
-				A1D6A0CB0E639C5E0092CE22 /* TriMetXML.m in Sources */,
 				A1E8BA3E19020DE9007122A8 /* WhatsNewSelector.m in Sources */,
 				A1CA04460E6515A9006EFB6E /* TableViewWithToolbar.m in Sources */,
-				A15CF8F70E6B5FBD008EB672 /* Trip.m in Sources */,
-				A1BD28700E7C69FB00B59713 /* Detour.m in Sources */,
 				A1BD28710E7C69FB00B59713 /* DetoursView.m in Sources */,
 				A1BD28890E7C70E400B59713 /* CellLabel.m in Sources */,
 				A195730A0E885DB900493326 /* XMLAllStops.m in Sources */,
-				A19574BC0E88803400493326 /* StopDistance.m in Sources */,
-				A1D750060E8948DD00E38DC3 /* StopLocations.m in Sources */,
 				A107A84B0F2D389700C20017 /* EditBookMarkView.m in Sources */,
 				A107AD4A0F2D667800C20017 /* AddNewStopToBookMark.m in Sources */,
 				A1189FE319D763C100657FC0 /* InterfaceOrientation.m in Sources */,
@@ -2329,35 +2589,27 @@
 				A1C907B1112FC56200100030 /* ProgressModalView.m in Sources */,
 				A1C90B12113076D700100030 /* BackgroundTaskContainer.m in Sources */,
 				A1C910BE11322D2A00100030 /* ViewControllerBase.m in Sources */,
-				A13AFF4311587A1600E967EE /* XMLStreetcarPredictions.m in Sources */,
-				A13AFFCA1159C8BC00E967EE /* XMLStreetcarLocations.m in Sources */,
-				A1340EC111604E8D0037B7E5 /* NextBusXML.m in Sources */,
 				A1BDAADC11695E2E009ECEB3 /* RssXML.m in Sources */,
 				A1BDAAE111695F64009ECEB3 /* RssLink.m in Sources */,
 				A1BDAAF4116965C2009ECEB3 /* RssView.m in Sources */,
 				A1D454E71842BD9F0094467D /* TicketAlert.m in Sources */,
 				A1F152041183B5A900121292 /* WebViewController.m in Sources */,
-				A17F6C7911B46C51007DE9F7 /* StoppableFetcher.m in Sources */,
 				A17F6C8211B46EB7007DE9F7 /* LegShapeParser.m in Sources */,
 				A17F6D5C11B48D2B007DE9F7 /* TripPlannerMap.m in Sources */,
 				A1BAACFB123CB91500D4E397 /* TripPlannerCacheView.m in Sources */,
 				A1554DCA123D8A5500E89581 /* TripPlannerBaseView.m in Sources */,
 				A13D2DF31241C4C20041FB4E /* DepartureHistoryView.m in Sources */,
 				A11C8FB91244756A001DDAC5 /* WhatsNewView.m in Sources */,
-				A1F61CA81246982D0040BA96 /* UserPrefs.m in Sources */,
-				A19CC72D12558C96002EBF63 /* TriMetRouteColors.m in Sources */,
 				A19CC7C1125599D5002EBF63 /* TripPlannerSummaryView.m in Sources */,
 				A17ED2E218304971008883D5 /* FindByLocationView.m in Sources */,
-				A1D05BA919033BED003E9B76 /* MemoryCaches.m in Sources */,
 				A17254D2125AD75F007EE22D /* RailStation.m in Sources */,
 				A1725643125C1FAE007EE22D /* AllRailStationView.m in Sources */,
 				A1725948125D6CB7007EE22D /* RouteColorBlobView.m in Sources */,
-				A100B74F126B9CD500BAA288 /* UserFaves.m in Sources */,
-				A18E8585128EFE14002FEB6B /* XMLLocateStops.m in Sources */,
+				A18E8585128EFE14002FEB6B /* XMLLocateStopsUI.m in Sources */,
 				A186564E18C986670023DA6E /* MapViewWithStops.m in Sources */,
 				A199A17212A0C88B00A8BC8A /* BigRouteView.m in Sources */,
 				A199A5D712A75F7D00A8BC8A /* NearestStopsMap.m in Sources */,
-				A1D6BDBF12DAB145001F84E7 /* RouteDistance.m in Sources */,
+				A1D6BDBF12DAB145001F84E7 /* RouteDistanceUI.m in Sources */,
 				A1D6BDEB12DABAC8001F84E7 /* NearestRoutesView.m in Sources */,
 				A1973B4012F4DCED00C1CEBF /* AlarmFetchArrivalsTask.m in Sources */,
 				A1973B6012F4E5D300C1CEBF /* AlarmTaskList.m in Sources */,
@@ -2371,12 +2623,14 @@
 				A160C2391319C5B8004EC76D /* DayOfTheWeekView.m in Sources */,
 				A160C4A2131AE729004EC76D /* SegmentCell.m in Sources */,
 				A156446D137F3AE50050345B /* IASKPSSliderSpecifierViewCell.m in Sources */,
+				A1AC79931ADAFED300A1E96F /* XMLDeparturesUI.m in Sources */,
 				A156446E137F3AE50050345B /* IASKPSTextFieldSpecifierViewCell.m in Sources */,
 				A156446F137F3AE50050345B /* IASKPSTitleValueSpecifierViewCell.m in Sources */,
 				A1564470137F3AE50050345B /* IASKPSToggleSwitchSpecifierViewCell.m in Sources */,
 				A17ED2DC182F5033008883D5 /* VehicleTableView.m in Sources */,
 				A1564471137F3AE50050345B /* IASKSlider.m in Sources */,
 				A1564472137F3AE50050345B /* IASKSwitch.m in Sources */,
+				A1AC79891ADAF42B00A1E96F /* VehicleUI.m in Sources */,
 				A1564473137F3AE50050345B /* IASKTextField.m in Sources */,
 				A1564474137F3AE50050345B /* IASKSettingsReader.m in Sources */,
 				A1564475137F3AE50050345B /* IASKSettingsStore.m in Sources */,
@@ -2387,9 +2641,7 @@
 				A156447A137F3AE50050345B /* IASKAppSettingsWebViewController.m in Sources */,
 				A156447B137F3AE50050345B /* IASKSpecifierValuesViewController.m in Sources */,
 				A156449F1389CF770050345B /* AppSettingsCustomController.m in Sources */,
-				A17ED2D3182F0AE7008883D5 /* Vehicle.m in Sources */,
 				A1E37A8113DCD9F500310E2E /* pnpoly.mm in Sources */,
-				A1C146AB144B621000148EEB /* QueryCacheManager.m in Sources */,
 				A1C54F58144D3EB500429617 /* PullRefreshTableViewController.m in Sources */,
 				A19FA74614524119008BE90F /* AlertViewCancelsTask.m in Sources */,
 				A14F0D10145DD333009BE614 /* TorchController.m in Sources */,
@@ -2398,11 +2650,11 @@
 				A14C447416223FC5008BC198 /* SupportView.m in Sources */,
 				A17ED2E518307C5F008883D5 /* LocatingView.m in Sources */,
 				A119A7FC17403CDD006D5CB6 /* OpenInChromeController.m in Sources */,
-				A1C4F38B17516CBE008B1803 /* BlockColorDb.m in Sources */,
 				A1C4F39F17517FCB008B1803 /* InfColorBarPicker.m in Sources */,
 				A1C4F3A017517FCB008B1803 /* InfColorIndicatorView.m in Sources */,
 				A1C4F3A117517FCB008B1803 /* InfColorPickerController.m in Sources */,
 				A17ED2D6182F1CA6008883D5 /* NearestVehiclesMap.m in Sources */,
+				A1AC79851ADAE69A00A1E96F /* DepartureUI.m in Sources */,
 				A17ED2CE182F0A32008883D5 /* XMLLocateVehicles.m in Sources */,
 				A1C4F3A317517FCB008B1803 /* InfColorSquarePicker.m in Sources */,
 				A1C4F3A417517FCB008B1803 /* InfHSBSupport.m in Sources */,
@@ -2413,8 +2665,33 @@
 				A1ABB17D1763E3CD00BED1C0 /* TripEndPoint.m in Sources */,
 				A1E8BA4419020FF4007122A8 /* WhatsNewWeb.m in Sources */,
 				A1ABB1801763E70A00BED1C0 /* TripItinerary.m in Sources */,
+				A112D0EF1A521CFB0023C947 /* PebbleSportsDisplay.m in Sources */,
 				A1ABB1831763E82C00BED1C0 /* TripUserRequest.m in Sources */,
 				A1E8BA381902020D007122A8 /* WhatsNewBasicAction.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A1C756181AD9E9BB00236776 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1B4A2DE1B124E2100FA0A47 /* WatchMapHelper.m in Sources */,
+				A1B4A2D91B12282D00FA0A47 /* WatchArrivalInfo.m in Sources */,
+				A1DF42291B08123C00F5D837 /* WatchArrivalsInterfaceController.m in Sources */,
+				A14DA40B1B182D4B001F34DE /* InterfaceControllerWithBackgroundThread.m in Sources */,
+				A1AC799A1ADB62FC00A1E96F /* WatchDepartureUI.m in Sources */,
+				A1DF422C1B0813C400F5D837 /* WatchArrival.m in Sources */,
+				A1833CEA1B09436B00670E34 /* WatchStop.m in Sources */,
+				A1028E751B12A3B3002924BE /* WatchBookmarksContext.m in Sources */,
+				A14DB8C41B13E151007F46FA /* WatchDetour.m in Sources */,
+				A12F8BDD1B0A666400252C0A /* WatchNoArrivals.m in Sources */,
+				A19A6D851B0A90E70002B1D9 /* WatchNoBookmarks.m in Sources */,
+				A14A05F51B07E6C9002929FF /* WatchBookmark.m in Sources */,
+				A19A6D801B0A85FA0002B1D9 /* WatchInfo.m in Sources */,
+				A1B4A2E11B12515700FA0A47 /* WatchArrivalsContext.m in Sources */,
+				A1833CDE1B092D5800670E34 /* WatchNearbyInterfaceController.m in Sources */,
+				A1790E571B0964E700179EC5 /* WatchArrivalDetailsInterfaceController.m in Sources */,
+				A1E0F3CF1AE321410055C6FB /* WatchBookmarksInterfaceController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2426,7 +2703,28 @@
 			name = ZXingWidget;
 			targetProxy = A1C61E2F15B4ECCB000CC92B /* PBXContainerItemProxy */;
 		};
+		A1C7562A1AD9E9BB00236776 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A1C756261AD9E9BB00236776 /* PDX Bus WatchKit App */;
+			targetProxy = A1C756291AD9E9BB00236776 /* PBXContainerItemProxy */;
+		};
+		A1C756341AD9E9BB00236776 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A1C7561B1AD9E9BB00236776 /* PDX Bus WatchKit Extension */;
+			targetProxy = A1C756331AD9E9BB00236776 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		A1C7562E1AD9E9BB00236776 /* Interface.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				A1C7562F1AD9E9BB00236776 /* Base */,
+			);
+			name = Interface.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		1D6058940D05DD3E006BFB54 /* Debug */ = {
@@ -2435,10 +2733,15 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_ENTITLEMENTS = "PDX Bus/PDXBus.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+					"/Users/andy/Documents/github/pebble-ios-sdk",
+				);
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -2449,14 +2752,29 @@
 					ZXing/iphone/ZXingWidget/Classes,
 					ZXing/cpp/core/src,
 					AQGridView/Classes,
+					PDXBusCore/src,
 				);
 				INFOPLIST_FILE = Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "-ObjC";
 				"OTHER_LDFLAGS[sdk=iphoneos*][arch=*]" = (
 					"-weak_library",
 					/usr/lib/libSystem.B.dylib,
+					"-lz",
+					"-ObjC",
+					"-framework",
+					PebbleKit,
+					"-framework",
+					PebbleVendor,
+					"-weak_framework",
+					CoreBluetooth,
+					"-weak_framework",
+					CoreMotion,
+					"-weak_framework",
+					ExternalAccessory,
+					"-weak_framework",
+					MessageUI,
 				);
 				PRODUCT_NAME = PDXBus;
 				PROVISIONING_PROFILE = "";
@@ -2471,10 +2789,15 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_ENTITLEMENTS = "PDX Bus/PDXBus.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				COPY_PHASE_STRIP = YES;
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+					"/Users/andy/Documents/github/pebble-ios-sdk",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = TriMetTimes_Prefix.pch;
 				GCC_THUMB_SUPPORT = NO;
@@ -2483,14 +2806,29 @@
 					ZXing/iphone/ZXingWidget/Classes,
 					ZXing/cpp/core/src,
 					AQGridView/Classes,
+					PDXBusCore/src,
 				);
 				INFOPLIST_FILE = Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "-ObjC";
 				"OTHER_LDFLAGS[sdk=iphoneos*][arch=*]" = (
 					"-weak_library",
 					/usr/lib/libSystem.B.dylib,
+					"-lz",
+					"-ObjC",
+					"-framework",
+					PebbleKit,
+					"-framework",
+					PebbleVendor,
+					"-weak_framework",
+					CoreBluetooth,
+					"-weak_framework",
+					CoreMotion,
+					"-weak_framework",
+					ExternalAccessory,
+					"-weak_framework",
+					MessageUI,
 				);
 				PRODUCT_NAME = PDXBus;
 				PROVISIONING_PROFILE = "";
@@ -2509,7 +2847,7 @@
 				GCC_THUMB_SUPPORT = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				PRODUCT_NAME = PDXBus;
 				PROVISIONING_PROFILE = "235F1E60-9C76-482C-9216-E57923C23E1B";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "1ff967eb-2cb9-4250-abac-4a99267d666b";
@@ -2524,10 +2862,15 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_ENTITLEMENTS = "PDX Bus/PDXBus.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+					"/Users/andy/Documents/github/pebble-ios-sdk",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = TriMetTimes_Prefix.pch;
 				GCC_THUMB_SUPPORT = NO;
@@ -2536,14 +2879,29 @@
 					ZXing/iphone/ZXingWidget/Classes,
 					ZXing/cpp/core/src,
 					AQGridView/Classes,
+					PDXBusCore/src,
 				);
 				INFOPLIST_FILE = Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "-ObjC";
 				"OTHER_LDFLAGS[sdk=iphoneos*][arch=*]" = (
 					"-weak_library",
 					/usr/lib/libSystem.B.dylib,
+					"-lz",
+					"-ObjC",
+					"-framework",
+					PebbleKit,
+					"-framework",
+					PebbleVendor,
+					"-weak_framework",
+					CoreBluetooth,
+					"-weak_framework",
+					CoreMotion,
+					"-weak_framework",
+					ExternalAccessory,
+					"-weak_framework",
+					MessageUI,
 				);
 				PRODUCT_NAME = PDXBus;
 				PROVISIONING_PROFILE = "";
@@ -2563,8 +2921,8 @@
 				GCC_THUMB_SUPPORT = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
-				ONLY_ACTIVE_ARCH = NO;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = PDXBus;
 				PROVISIONING_PROFILE = "45E31EEA-5D3F-463B-A906-BFCC37A56E6B";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
@@ -2579,10 +2937,15 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_ENTITLEMENTS = "PDX Bus/PDXBus.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+					"/Users/andy/Documents/github/pebble-ios-sdk",
+				);
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -2594,15 +2957,13 @@
 					ZXing/iphone/ZXingWidget/Classes,
 					ZXing/cpp/core/src,
 					AQGridView/Classes,
+					PDXBusCore/src,
 				);
 				INFOPLIST_FILE = Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "-ObjC";
-				"OTHER_LDFLAGS[sdk=iphoneos*][arch=*]" = (
-					"-weak_library",
-					/usr/lib/libSystem.B.dylib,
-				);
+				"OTHER_LDFLAG_LDFLAGS[sdk=iphoneos*][arch=*]" = "-weak_library /usr/lib/libSystem.B.dylib -lz -ObjC -framework PebbleKit -framework PebbleVendor -weak_framework CoreBluetooth -weak_framework CoreMotion -weak_framework ExternalAccessory -weak_framework MessageUI";
 				PRODUCT_NAME = PDXBus;
 				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos;
@@ -2619,7 +2980,7 @@
 				GCC_THUMB_SUPPORT = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				PRODUCT_NAME = PDXBus;
 				PROVISIONING_PROFILE = "45E31EEA-5D3F-463B-A906-BFCC37A56E6B";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
@@ -2634,10 +2995,15 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_ENTITLEMENTS = "PDX Bus/PDXBus.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+					"/Users/andy/Documents/github/pebble-ios-sdk",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = TriMetTimes_Prefix.pch;
 				GCC_THUMB_SUPPORT = NO;
@@ -2646,15 +3012,13 @@
 					ZXing/iphone/ZXingWidget/Classes,
 					ZXing/cpp/core/src,
 					AQGridView/Classes,
+					PDXBusCore/src,
 				);
 				INFOPLIST_FILE = Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
-				ONLY_ACTIVE_ARCH = NO;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-ObjC";
-				"OTHER_LDFLAGS[sdk=iphoneos*][arch=*]" = (
-					"-weak_library",
-					/usr/lib/libSystem.B.dylib,
-				);
+				"OTHER_LDFLAG_LDFLAGS[sdk=iphoneos*][arch=*]" = "-weak_library /usr/lib/libSystem.B.dylib -lz -ObjC -framework PebbleKit -framework PebbleVendor -weak_framework CoreBluetooth -weak_framework CoreMotion -weak_framework ExternalAccessory -weak_framework MessageUI";
 				PRODUCT_NAME = PDXBus;
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
@@ -2662,6 +3026,538 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = "32-bit only";
+		};
+		A1C756361AD9E9BC00236776 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_ENTITLEMENTS = "PDX Bus WatchKit Extension/PDX Bus WatchKit Extension.entitlements";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					PDXBusCore/src,
+				);
+				INFOPLIST_FILE = "PDX Bus WatchKit Extension/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_NAME = "${TARGET_NAME}";
+				PROVISIONING_PROFILE = "";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		A1C756371AD9E9BC00236776 /* Create Max Code */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_ENTITLEMENTS = "PDX Bus WatchKit Extension/PDX Bus WatchKit Extension.entitlements";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					PDXBusCore/src,
+				);
+				INFOPLIST_FILE = "PDX Bus WatchKit Extension/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "${TARGET_NAME}";
+				PROVISIONING_PROFILE = "";
+				SKIP_INSTALL = YES;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = "Create Max Code";
+		};
+		A1C756381AD9E9BC00236776 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_ENTITLEMENTS = "PDX Bus WatchKit Extension/PDX Bus WatchKit Extension.entitlements";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					PDXBusCore/src,
+				);
+				INFOPLIST_FILE = "PDX Bus WatchKit Extension/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "${TARGET_NAME}";
+				PROVISIONING_PROFILE = "";
+				SKIP_INSTALL = YES;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A1C756391AD9E9BC00236776 /* 32-bit only */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_ENTITLEMENTS = "PDX Bus WatchKit Extension/PDX Bus WatchKit Extension.entitlements";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					PDXBusCore/src,
+				);
+				INFOPLIST_FILE = "PDX Bus WatchKit Extension/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "${TARGET_NAME}";
+				PROVISIONING_PROFILE = "";
+				SKIP_INSTALL = YES;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = "32-bit only";
+		};
+		A1C7563A1AD9E9BC00236776 /* Distribution */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_ENTITLEMENTS = "PDX Bus WatchKit Extension/PDX Bus WatchKit Extension.entitlements";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					PDXBusCore/src,
+				);
+				INFOPLIST_FILE = "PDX Bus WatchKit Extension/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "${TARGET_NAME}";
+				PROVISIONING_PROFILE = "";
+				SKIP_INSTALL = YES;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Distribution;
+		};
+		A1C7563B1AD9E9BC00236776 /* Ad-hoc Dist */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_ENTITLEMENTS = "PDX Bus WatchKit Extension/PDX Bus WatchKit Extension.entitlements";
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					PDXBusCore/src,
+				);
+				INFOPLIST_FILE = "PDX Bus WatchKit Extension/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "${TARGET_NAME}";
+				PROVISIONING_PROFILE = "";
+				SKIP_INSTALL = YES;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = "Ad-hoc Dist";
+		};
+		A1C7563C1AD9E9BC00236776 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				IBSC_MODULE = PDX_Bus_WatchKit_Extension;
+				INFOPLIST_FILE = "PDX Bus WatchKit App/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				"TARGETED_DEVICE_FAMILY[sdk=iphonesimulator*]" = "1,4";
+			};
+			name = Debug;
+		};
+		A1C7563D1AD9E9BC00236776 /* Create Max Code */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				IBSC_MODULE = PDX_Bus_WatchKit_Extension;
+				INFOPLIST_FILE = "PDX Bus WatchKit App/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				"TARGETED_DEVICE_FAMILY[sdk=iphonesimulator*]" = "1,4";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = "Create Max Code";
+		};
+		A1C7563E1AD9E9BC00236776 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				IBSC_MODULE = PDX_Bus_WatchKit_Extension;
+				INFOPLIST_FILE = "PDX Bus WatchKit App/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				"TARGETED_DEVICE_FAMILY[sdk=iphonesimulator*]" = "1,4";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A1C7563F1AD9E9BC00236776 /* 32-bit only */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				IBSC_MODULE = PDX_Bus_WatchKit_Extension;
+				INFOPLIST_FILE = "PDX Bus WatchKit App/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				"TARGETED_DEVICE_FAMILY[sdk=iphonesimulator*]" = "1,4";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = "32-bit only";
+		};
+		A1C756401AD9E9BC00236776 /* Distribution */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				IBSC_MODULE = PDX_Bus_WatchKit_Extension;
+				INFOPLIST_FILE = "PDX Bus WatchKit App/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				"TARGETED_DEVICE_FAMILY[sdk=iphonesimulator*]" = "1,4";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Distribution;
+		};
+		A1C756411AD9E9BC00236776 /* Ad-hoc Dist */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Andrew Wallace (995PKK348R)";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				IBSC_MODULE = PDX_Bus_WatchKit_Extension;
+				INFOPLIST_FILE = "PDX Bus WatchKit App/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				"TARGETED_DEVICE_FAMILY[sdk=iphonesimulator*]" = "1,4";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = "Ad-hoc Dist";
 		};
 		A1E9297E0E68F9F2006F34B3 /* Distribution */ = {
 			isa = XCBuildConfiguration;
@@ -2672,7 +3568,7 @@
 				GCC_THUMB_SUPPORT = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				PRODUCT_NAME = PDXBus;
 				PROVISIONING_PROFILE = "45E31EEA-5D3F-463B-A906-BFCC37A56E6B";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "45E31EEA-5D3F-463B-A906-BFCC37A56E6B";
@@ -2687,10 +3583,15 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_ENTITLEMENTS = "PDX Bus/PDXBus.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				COPY_PHASE_STRIP = YES;
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+					"/Users/andy/Documents/github/pebble-ios-sdk",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = TriMetTimes_Prefix.pch;
 				GCC_THUMB_SUPPORT = NO;
@@ -2699,15 +3600,13 @@
 					ZXing/iphone/ZXingWidget/Classes,
 					ZXing/cpp/core/src,
 					AQGridView/Classes,
+					PDXBusCore/src,
 				);
 				INFOPLIST_FILE = Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "-ObjC";
-				"OTHER_LDFLAGS[sdk=iphoneos*][arch=*]" = (
-					"-weak_library",
-					/usr/lib/libSystem.B.dylib,
-				);
+				"OTHER_LDFLAG_LDFLAGS[sdk=iphoneos*][arch=*]" = "-weak_library /usr/lib/libSystem.B.dylib -lz -ObjC -framework PebbleKit -framework PebbleVendor -weak_framework CoreBluetooth -weak_framework CoreMotion -weak_framework ExternalAccessory -weak_framework MessageUI";
 				PRODUCT_NAME = PDXBus;
 				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos;
@@ -2725,7 +3624,7 @@
 				GCC_THUMB_SUPPORT = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = PDXBus;
 				PROVISIONING_PROFILE = "235F1E60-9C76-482C-9216-E57923C23E1B";
@@ -2744,7 +3643,7 @@
 				GCC_THUMB_SUPPORT = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				PRODUCT_NAME = PDXBus;
 				PROVISIONING_PROFILE = "235F1E60-9C76-482C-9216-E57923C23E1B";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
@@ -2765,6 +3664,32 @@
 				A1B7DF1F18F1E03600BAF9F6 /* 32-bit only */,
 				A1E9297F0E68F9F2006F34B3 /* Distribution */,
 				A17B03C50E72E36E00B4FBF6 /* Ad-hoc Dist */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A1C756441AD9E9BC00236776 /* Build configuration list for PBXNativeTarget "PDX Bus WatchKit App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1C7563C1AD9E9BC00236776 /* Debug */,
+				A1C7563D1AD9E9BC00236776 /* Create Max Code */,
+				A1C7563E1AD9E9BC00236776 /* Release */,
+				A1C7563F1AD9E9BC00236776 /* 32-bit only */,
+				A1C756401AD9E9BC00236776 /* Distribution */,
+				A1C756411AD9E9BC00236776 /* Ad-hoc Dist */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A1C756451AD9E9BC00236776 /* Build configuration list for PBXNativeTarget "PDX Bus WatchKit Extension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1C756361AD9E9BC00236776 /* Debug */,
+				A1C756371AD9E9BC00236776 /* Create Max Code */,
+				A1C756381AD9E9BC00236776 /* Release */,
+				A1C756391AD9E9BC00236776 /* 32-bit only */,
+				A1C7563A1AD9E9BC00236776 /* Distribution */,
+				A1C7563B1AD9E9BC00236776 /* Ad-hoc Dist */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

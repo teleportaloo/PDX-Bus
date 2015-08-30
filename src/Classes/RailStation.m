@@ -234,7 +234,7 @@
 	label.adjustsFontSizeToFitWidth = YES;
 	[cell.contentView addSubview:label];
 	label.highlightedTextColor = [UIColor whiteColor];
-	label.textAlignment = UITextAlignmentLeft;
+	label.textAlignment = NSTextAlignmentLeft;
 	// label.lineBreakMode = UILineBreakModeWordWrap; 
 	// label.adjustsFontSizeToFitWidth = YES;
 	label.numberOfLines = 1;

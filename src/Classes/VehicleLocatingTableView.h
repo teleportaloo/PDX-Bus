@@ -14,7 +14,7 @@
 
 
 #import "LocatingView.h"
-#import "Vehicle.h"
+#import "VehicleData.h"
 
 #ifdef VEHICLE_TEST
 #define kVehicleDistance 0

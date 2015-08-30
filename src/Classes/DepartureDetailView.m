@@ -11,7 +11,7 @@
 
 
 #import "DepartureDetailView.h"
-#import "Departure.h"
+#import "DepartureUI.h"
 #import "CellTextView.h"
 #import "XMLDetour.h"
 #import "WebViewController.h"
@@ -141,7 +141,7 @@
             
                 for (NSInteger i=0; i< streetcarArrivals.safeItemCount; i++)
                 {
-                    Departure *vehicle = [streetcarArrivals itemAtIndex:i];
+                    DepartureData *vehicle = [streetcarArrivals itemAtIndex:i];
                 
                     if ([vehicle.block isEqualToString:self.departure.block])
                     {
@@ -175,7 +175,7 @@
 	[pool release];
 }
 
-- (void)fetchDepartureInBackground:(id<BackgroundTaskProgress>) callback dep:(Departure *)dep allDepartures:(NSArray*)deps allowDestination:(BOOL)allowDest
+- (void)fetchDepartureInBackground:(id<BackgroundTaskProgress>) callback dep:(DepartureData *)dep allDepartures:(NSArray*)deps allowDestination:(BOOL)allowDest
 {
 	self.departure = dep;
 	self.allDepartures = deps;
@@ -280,7 +280,7 @@
     [[BlockColorDb getSingleton] addColor:controller.resultColor
                                  forBlock:self.departure.block
                               description:self.departure.description];
-    [controller dismissModalViewControllerAnimated:YES];
+    [controller dismissViewControllerAnimated:YES completion:nil];
     
     if (_delegate)
     {
@@ -441,15 +441,16 @@ static NSString *detourId = @"detour";
         {
             case kRouteName:
             {
+                DepartureUI *departureUI = [DepartureUI createFromData:self.departure];
                 
-                NSString *cellId = [self.departure cellReuseIdentifier:kDepartureCellId width:[self screenWidth]];
+                NSString *cellId = [departureUI cellReuseIdentifier:kDepartureCellId width:[self screenWidth]];
                 cell = [tableView dequeueReusableCellWithIdentifier: cellId];
                 if (cell == nil) {
-                    cell = [self.departure tableviewCellWithReuseIdentifier:cellId
+                    cell = [departureUI tableviewCellWithReuseIdentifier:cellId
                                                             spaceToDecorate:NO
                                                                       width:[self screenWidth]];
                 }
-                [self.departure populateCell:cell decorate:NO big:NO busName:YES wide:NO];
+                [departureUI populateCell:cell decorate:NO big:NO busName:YES wide:NO];
                 
                 
                 //NSString *newVoiceOver = [NSString stringWithFormat:@"%@, %@", self.departure.locationDesc, [cell accessibilityLabel]];
@@ -468,7 +469,9 @@ static NSString *detourId = @"detour";
                 NSString *details = nil;
                 UIColor *color = nil;
                 
-                [self.departure getExplaination:&color details:&details];
+                DepartureUI *departureUI = [DepartureUI createFromData:self.departure];
+                
+                [departureUI getExplaination:&color details:&details];
                 
                 labelCell.view.text = details;
                 labelCell.view.textColor = color;
@@ -486,12 +489,13 @@ static NSString *detourId = @"detour";
 	else if (indexPath.section == locationSection)
 	{
         UITableViewCell *cell = nil;
+        DepartureUI * departureUI = [DepartureUI createFromData:self.departure];
 		
-        NSString *cellId = [self.departure cellReuseIdentifier:kLocationId width:[self screenWidth]];
+        NSString *cellId = [departureUI cellReuseIdentifier:kLocationId width:[self screenWidth]];
         cell = [tableView dequeueReusableCellWithIdentifier: cellId];
 		
         if (cell == nil) {
-            cell = [self.departure tableviewCellWithReuseIdentifier:cellId
+            cell = [departureUI tableviewCellWithReuseIdentifier:cellId
                                                     spaceToDecorate:YES
                                                               width:[self screenWidth]];
         }
@@ -501,7 +505,7 @@ static NSString *detourId = @"detour";
         [dateFormatter setTimeStyle:NSDateFormatterMediumStyle];
         NSDate *lastPosition = [NSDate dateWithTimeIntervalSince1970: self.departure.blockPositionAt / 1000];
 		
-        [self.departure populateCellGeneric:cell
+        [departureUI    populateCellGeneric:cell
                                       first:[NSString stringWithFormat:NSLocalizedString(@"Last known location at %@", @"the time of the vehicle location"), [dateFormatter stringFromDate:lastPosition]]
                                      second:[NSString stringWithFormat:NSLocalizedString(@"%@ away", @"distance that the vehicle is away"),[self.departure formatDistance:self.departure.blockPositionFeet]]
                                        col1:[UIColor blueColor]
@@ -579,14 +583,16 @@ static NSString *detourId = @"detour";
 	}
 	else if (indexPath.section == tripSection)
 	{
-		NSString *cellId = [self.departure cellReuseIdentifier:kDepartureCellId width:[self screenWidth]];
+        DepartureUI * departureUI = [DepartureUI createFromData:self.departure];
+        
+		NSString *cellId = [departureUI cellReuseIdentifier:kDepartureCellId width:[self screenWidth]];
 		UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier: cellId];
 		
 		if (cell == nil) {
-			cell = [self.departure tableviewCellWithReuseIdentifier:cellId spaceToDecorate:NO
+			cell = [departureUI tableviewCellWithReuseIdentifier:cellId spaceToDecorate:NO
 															  width:[self screenWidth]];
 		}
-		[self.departure populateTripCell:cell item:indexPath.row];
+		[departureUI populateTripCell:cell item:indexPath.row];
 		[self maybeAddSectionToAccessibility:cell indexPath:indexPath alwaysSaySection:YES];
 		return cell;
 	}
@@ -862,7 +868,7 @@ static NSString *detourId = @"detour";
         NSString *details = nil;
         UIColor *color = nil;
         
-        [self.departure getExplaination:&color details:&details];
+        [[DepartureUI createFromData:self.departure] getExplaination:&color details:&details];
         
         return [self getTextHeight:details font:[self getParagraphFont]];
 

@@ -287,7 +287,7 @@
 	}
     DEBUG_LOG(@"Width for text %f\n", width);
 	CGSize rect = CGSizeMake(width, MAXFLOAT);
-	CGSize sz = [text sizeWithFont:font constrainedToSize:rect lineBreakMode:UILineBreakModeWordWrap];
+	CGSize sz = [text sizeWithFont:font constrainedToSize:rect lineBreakMode:NSLineBreakByWordWrapping];
 	return sz.height + font.pointSize + (self.iOS7style ? font.pointSize : 0);
 }
 

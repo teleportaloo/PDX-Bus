@@ -90,6 +90,7 @@
 - (void)facebook;
 - (void)facebookTriMet;
 - (bool)iOS7style;
+- (bool)iOS8style;
 + (bool)iOS7style;
 - (bool)ZXingSupported;
 - (void)setSegColor:(UISegmentedControl*)seg;

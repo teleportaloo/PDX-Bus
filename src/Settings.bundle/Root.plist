@@ -561,7 +561,7 @@
 			<key>Type</key>
 			<string>PSToggleSwitchSpecifier</string>
 			<key>Title</key>
-			<string>Streetcat map first</string>
+			<string>Streetcar map first</string>
 			<key>Key</key>
 			<string>streetcar_map_first</string>
 			<key>DefaultValue</key>

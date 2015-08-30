@@ -2,13 +2,17 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <array>
-	<string>.7.2 (iOS 8)</string>
+	<string>.7.9 (August 2015)</string>
+	<string>Added Apple Watch app that supports arrivals for bookmarks, recent stops and nearby stops.</string>
+	<string>Fixed some issues with authorization of localization services and camera;  added diagnostics to the support page.</string>
+	<string>UI fixes: Fixed issues when rotating trip planner on iPad, and removed a small gap in the arrivals screen on older phones.</string>
+	<string>.7.2 (iOS 8) (December 2014)</string>
 	<string>+http://www.trimet.org/pdfs/maps/railsystem.pdf New MAX &amp; WES map.</string>
 	<string>+http://en.wikipedia.org/wiki/IOS_8 Rebuilt for iOS 8 and iPhone 6 and iPhone 6 Plus.</string>
 	<string>Added text to explain the different colors used for the arrival times.</string>
 	<string>Fixed issues with Streetcar arrivals by switching over to the TriMet feed for streetcar data.</string>
 	<string>Re-allowed emoji keyboard for bookmark names.</string>
-	<string>.7.1 - Bug fixes</string>
+	<string>.7.1 - Bug fixes (February 2014)</string>
 	<string>!Fix for all Streetcar arrivals - the data provider changed the data without any warning (the data doesn&apos;t come from TriMet).</string>
 	<string>#settings Added back &apos;Bookmarks at the top&apos; setting.</string>
 	<string>iOS 7: Fixed refresh timer button so it doesn&apos;t flash.</string>
@@ -27,7 +31,7 @@
 	<string>#railMap Improved responsiveness, memory usage and display of MAX &amp; Streetcar maps.</string>
 	<string>#stations Minor fixes to station search.</string>
 	<string>The &quot;Nearby stops&quot; option for arrivals has been updated to to show maps, routes or arrivals.</string>
-	<string>.7.0 - iOS 7 updates</string>
+	<string>.7.0 - iOS 7 updates (January 2014)</string>
 	<string>Updated user interface for iOS 7</string>
 	<string>+http://robalan.com New icon from Rob Alan.</string>
 	<string>#showHighlights Added vehicle color &apos;tags&apos;.</string>
@@ -41,23 +45,5 @@
 	<string>Disabled screen rotation on old iPads as it did not fully work</string>
 	<string>#stations Added rail map toolbar button to station list screen.</string>
 	<string>-12380,12381,12382 Fixed streetcar arrivals on Harrison.</string>
-	<string>.6.7 - Mostly bug fixes</string>
-	<string>-9600 Bug fix - added Streetcar CL line to stop ID 9600 (SW 11th &amp; Alder).</string>
-	<string>Added new options when pins on a map are selected - app can now open an external map app and display the location. Supported map apps include Google map app, Waze, MotionX-GPS, and Apple maps.</string>
-	<string>Several map fixes including: Maps can track with location and rotate with compass heading (iOS 5 &amp; above); updated maps button to only show stops (and not arrivals) when there are multiple stops.</string>
-	<string>Updated Commuter toolbar icon.</string>
-	<string>Rationalized locate options; added setting to change toolbar locate button behavior, made locate icon the same.</string>
-	<string>User is now warned that the alarm will not sound if the device is muted (the app cannot detect if it is actually muted or not). This is to stop me sleeping through stops by accident.</string>
-	<string>Added a new longer, more annoying sound that can be used for alarms (see settings to change the sound).</string>
-	<string>Fixed keyboard not being displayed the first time user tries to enter a stop ID.</string>
-	<string>Added option to open Google Chrome app instead of Safari.</string>
-	<string>+https://github.com/teleportaloo/PDX-Bus/wiki/URL-Scheme Updated URL scheme to add parameters for nearby command.</string>
-	<string>.6.6 - Mostly bug fixes</string>
-	<string>-13604 Fixed stop ID 13604 - added NS Line arrivals.</string>
-	<string>#railMap Optimized rail maps to use &quot;tiles&quot; - reducing crashes due to memory issues.</string>
-	<string>Added additional informational hotspots to streetcar map.</string>
-	<string>Trip planner min walk distances now match web site (1/10, 1/4, 1/2, 3/4, 1 &amp; 2 miles).</string>
-	<string>Commuter bookmarks fixed (startup sequence is different in iOS6).</string>
-	<string>Separated support page from about page.</string>
 </array>
 </plist>

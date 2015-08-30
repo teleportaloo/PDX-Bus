@@ -20,11 +20,11 @@
 @interface AlarmViewMinutes : TableViewWithToolbar <UIPickerViewDelegate, UIPickerViewDataSource> {
 	UIPickerView *_pickerView;
 	
-	Departure *_dep;
+	DepartureData *_dep;
 }
 
 @property (nonatomic, retain) UIPickerView *pickerView;
-@property (nonatomic, retain) Departure *dep;
+@property (nonatomic, retain) DepartureData *dep;
 
 - (CGRect)pickerFrameWithSize:(CGSize)size;
 

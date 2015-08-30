@@ -118,7 +118,7 @@
 	label.tag = TEXT_TAG;
 	label.font = font;
 	label.adjustsFontSizeToFitWidth = NO;
-	label.lineBreakMode = UILineBreakModeWordWrap;
+	label.lineBreakMode = NSLineBreakByWordWrapping;
 	[cell.contentView addSubview:label];
 	label.highlightedTextColor = [UIColor whiteColor];
 	label.textColor = [UIColor blackColor];

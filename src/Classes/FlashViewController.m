@@ -126,7 +126,7 @@
 	label.font = [UIFont boldSystemFontOfSize:20];
 	label.adjustsFontSizeToFitWidth = YES;
 	label.numberOfLines = 1;
-	label.textAlignment = UITextAlignmentCenter;
+	label.textAlignment = NSTextAlignmentCenter;
 	label.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
 	label.highlightedTextColor = [UIColor redColor];
 	label.textColor = [UIColor redColor];

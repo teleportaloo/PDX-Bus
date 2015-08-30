@@ -1116,7 +1116,7 @@
 			
 			picker.body = [self plainText:it];
 			
-			[self presentModalViewController:picker animated:YES];
+			[self presentViewController:picker animated:YES completion:nil];
 			[picker release];
 			break;
 		}
@@ -1221,7 +1221,7 @@
 			
 			[email setMessageBody:trip isHTML:YES];
 			
-			[self presentModalViewController:email animated:YES];
+			[self presentViewController:email animated:YES completion:nil];
 			[email release];
 
 			
@@ -1385,14 +1385,14 @@
 // Dismisses the email composition interface when users tap Cancel or Send. Proceeds to update the message field with the result of the operation.
 - (void)mailComposeController:(MFMailComposeViewController*)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError*)error 
 {	
-	[self dismissModalViewControllerAnimated:YES];
+	[self dismissViewControllerAnimated:YES completion:nil];
 }
 
 #pragma mark SMS composer delegate
 
 - (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult)result
 {
-	[self dismissModalViewControllerAnimated:YES];
+	[self dismissViewControllerAnimated:YES completion:nil];
 }
 
 #pragma mark -
@@ -1422,7 +1422,7 @@
 			break;
 	}
 	// Dismiss the modal view controller
-	[controller dismissModalViewControllerAnimated:YES];
+	[controller dismissViewControllerAnimated:YES completion:nil];
 	
 }
 

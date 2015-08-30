@@ -62,5 +62,7 @@
 - (void)refreshAction:(id)sender;
 - (void)startLocating;
 - (void)stopLocating;
++ (bool)locationAuthorizedOrNotDeterminedShowMsg:(bool)msg;
+
 
 @end

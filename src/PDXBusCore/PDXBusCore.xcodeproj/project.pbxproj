@@ -1,0 +1,462 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A1126A071B06AD0600E76977 /* SharedFile.m in Sources */ = {isa = PBXBuildFile; fileRef = A1126A061B06AD0600E76977 /* SharedFile.m */; };
+		A1833CD81B0833BE00670E34 /* StopNameCacheManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A1833CD71B0833BE00670E34 /* StopNameCacheManager.m */; };
+		A1833CE11B0932A800670E34 /* XMLLocateStops.m in Sources */ = {isa = PBXBuildFile; fileRef = A1833CE01B0932A800670E34 /* XMLLocateStops.m */; };
+		A1833CE41B09341800670E34 /* RouteDistanceData.m in Sources */ = {isa = PBXBuildFile; fileRef = A1833CE31B09341800670E34 /* RouteDistanceData.m */; };
+		A19A6D881B0A9F270002B1D9 /* BlockColorDb.m in Sources */ = {isa = PBXBuildFile; fileRef = A19A6D871B0A9F270002B1D9 /* BlockColorDb.m */; };
+		A1AC796B1ADA03D000A1E96F /* DepartureData.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AC79621ADA03D000A1E96F /* DepartureData.m */; };
+		A1AC796C1ADA03D000A1E96F /* DepartureTrip.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AC79641ADA03D000A1E96F /* DepartureTrip.m */; };
+		A1AC796D1ADA03D000A1E96F /* XMLDepartures.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AC79661ADA03D000A1E96F /* XMLDepartures.m */; };
+		A1AC796E1ADA03D000A1E96F /* XMLStreetcarLocations.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AC79681ADA03D000A1E96F /* XMLStreetcarLocations.m */; };
+		A1AC796F1ADA03D000A1E96F /* XMLStreetcarPredictions.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AC796A1ADA03D000A1E96F /* XMLStreetcarPredictions.m */; };
+		A1AC797B1ADA058A00A1E96F /* StopDistance.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AC797A1ADA058A00A1E96F /* StopDistance.m */; };
+		A1AC797F1ADA060300A1E96F /* VehicleData.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AC797E1ADA060300A1E96F /* VehicleData.m */; };
+		A1AC79831ADA06B600A1E96F /* TriMetRouteColors.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AC79821ADA06B600A1E96F /* TriMetRouteColors.m */; };
+		A1AC798D1ADAF64800A1E96F /* XMLDetour.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AC798C1ADAF64800A1E96F /* XMLDetour.m */; };
+		A1AC79901ADAF6B300A1E96F /* Detour.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AC798F1ADAF6B300A1E96F /* Detour.m */; };
+		A1C755AC1AD9DE7600236776 /* MemoryCaches.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C755A01AD9DE7600236776 /* MemoryCaches.m */; };
+		A1C755AD1AD9DE7600236776 /* NextBusXML.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C755A21AD9DE7600236776 /* NextBusXML.m */; };
+		A1C755AE1AD9DE7600236776 /* QueryCacheManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C755A41AD9DE7600236776 /* QueryCacheManager.m */; };
+		A1C755AF1AD9DE7600236776 /* StoppableFetcher.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C755A61AD9DE7600236776 /* StoppableFetcher.m */; };
+		A1C755B01AD9DE7600236776 /* TriMetXML.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C755A91AD9DE7600236776 /* TriMetXML.m */; };
+		A1C755B11AD9DE7600236776 /* UserPrefs.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C755AB1AD9DE7600236776 /* UserPrefs.m */; };
+		A1C755B51AD9DEC000236776 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C755B41AD9DEC000236776 /* UIKit.framework */; };
+		A1E0F3D41AE322F50055C6FB /* UserFaves.m in Sources */ = {isa = PBXBuildFile; fileRef = A1E0F3D31AE322F50055C6FB /* UserFaves.m */; };
+		A1E0F3D71AE323C20055C6FB /* StopLocations.m in Sources */ = {isa = PBXBuildFile; fileRef = A1E0F3D61AE323C20055C6FB /* StopLocations.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		A1C755781AD9DD0A00236776 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		A1126A051B06AD0600E76977 /* SharedFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SharedFile.h; path = src/SharedFile.h; sourceTree = SOURCE_ROOT; };
+		A1126A061B06AD0600E76977 /* SharedFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SharedFile.m; path = src/SharedFile.m; sourceTree = SOURCE_ROOT; };
+		A1833CD61B0833BE00670E34 /* StopNameCacheManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StopNameCacheManager.h; path = src/StopNameCacheManager.h; sourceTree = SOURCE_ROOT; };
+		A1833CD71B0833BE00670E34 /* StopNameCacheManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = StopNameCacheManager.m; path = src/StopNameCacheManager.m; sourceTree = SOURCE_ROOT; };
+		A1833CDF1B0932A800670E34 /* XMLLocateStops.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XMLLocateStops.h; path = src/XMLLocateStops.h; sourceTree = SOURCE_ROOT; };
+		A1833CE01B0932A800670E34 /* XMLLocateStops.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = XMLLocateStops.m; path = src/XMLLocateStops.m; sourceTree = SOURCE_ROOT; };
+		A1833CE21B09341800670E34 /* RouteDistanceData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RouteDistanceData.h; path = src/RouteDistanceData.h; sourceTree = SOURCE_ROOT; };
+		A1833CE31B09341800670E34 /* RouteDistanceData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RouteDistanceData.m; path = src/RouteDistanceData.m; sourceTree = SOURCE_ROOT; };
+		A19A6D861B0A9F270002B1D9 /* BlockColorDb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BlockColorDb.h; path = src/BlockColorDb.h; sourceTree = SOURCE_ROOT; };
+		A19A6D871B0A9F270002B1D9 /* BlockColorDb.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BlockColorDb.m; path = src/BlockColorDb.m; sourceTree = SOURCE_ROOT; };
+		A1AC79611ADA03D000A1E96F /* DepartureData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DepartureData.h; path = src/DepartureData.h; sourceTree = SOURCE_ROOT; };
+		A1AC79621ADA03D000A1E96F /* DepartureData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DepartureData.m; path = src/DepartureData.m; sourceTree = SOURCE_ROOT; };
+		A1AC79631ADA03D000A1E96F /* DepartureTrip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DepartureTrip.h; path = src/DepartureTrip.h; sourceTree = SOURCE_ROOT; };
+		A1AC79641ADA03D000A1E96F /* DepartureTrip.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DepartureTrip.m; path = src/DepartureTrip.m; sourceTree = SOURCE_ROOT; };
+		A1AC79651ADA03D000A1E96F /* XMLDepartures.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XMLDepartures.h; path = src/XMLDepartures.h; sourceTree = SOURCE_ROOT; };
+		A1AC79661ADA03D000A1E96F /* XMLDepartures.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = XMLDepartures.m; path = src/XMLDepartures.m; sourceTree = SOURCE_ROOT; };
+		A1AC79671ADA03D000A1E96F /* XMLStreetcarLocations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XMLStreetcarLocations.h; path = src/XMLStreetcarLocations.h; sourceTree = SOURCE_ROOT; };
+		A1AC79681ADA03D000A1E96F /* XMLStreetcarLocations.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = XMLStreetcarLocations.m; path = src/XMLStreetcarLocations.m; sourceTree = SOURCE_ROOT; };
+		A1AC79691ADA03D000A1E96F /* XMLStreetcarPredictions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XMLStreetcarPredictions.h; path = src/XMLStreetcarPredictions.h; sourceTree = SOURCE_ROOT; };
+		A1AC796A1ADA03D000A1E96F /* XMLStreetcarPredictions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = XMLStreetcarPredictions.m; path = src/XMLStreetcarPredictions.m; sourceTree = SOURCE_ROOT; };
+		A1AC79761ADA051000A1E96F /* MapPinColor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MapPinColor.h; path = src/MapPinColor.h; sourceTree = SOURCE_ROOT; };
+		A1AC79771ADA051D00A1E96F /* ScreenConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ScreenConstants.h; path = src/ScreenConstants.h; sourceTree = SOURCE_ROOT; };
+		A1AC79791ADA058A00A1E96F /* StopDistance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StopDistance.h; path = src/StopDistance.h; sourceTree = SOURCE_ROOT; };
+		A1AC797A1ADA058A00A1E96F /* StopDistance.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = StopDistance.m; path = src/StopDistance.m; sourceTree = SOURCE_ROOT; };
+		A1AC797C1ADA05C200A1E96F /* DepartureTimesDataProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DepartureTimesDataProvider.h; path = src/DepartureTimesDataProvider.h; sourceTree = SOURCE_ROOT; };
+		A1AC797D1ADA060300A1E96F /* VehicleData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VehicleData.h; path = src/VehicleData.h; sourceTree = SOURCE_ROOT; };
+		A1AC797E1ADA060300A1E96F /* VehicleData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = VehicleData.m; path = src/VehicleData.m; sourceTree = SOURCE_ROOT; };
+		A1AC79801ADA06A600A1E96F /* HotSpot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HotSpot.h; path = src/HotSpot.h; sourceTree = SOURCE_ROOT; };
+		A1AC79811ADA06B600A1E96F /* TriMetRouteColors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TriMetRouteColors.h; path = src/TriMetRouteColors.h; sourceTree = SOURCE_ROOT; };
+		A1AC79821ADA06B600A1E96F /* TriMetRouteColors.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TriMetRouteColors.m; path = src/TriMetRouteColors.m; sourceTree = SOURCE_ROOT; };
+		A1AC798B1ADAF64800A1E96F /* XMLDetour.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XMLDetour.h; path = src/XMLDetour.h; sourceTree = SOURCE_ROOT; };
+		A1AC798C1ADAF64800A1E96F /* XMLDetour.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = XMLDetour.m; path = src/XMLDetour.m; sourceTree = SOURCE_ROOT; };
+		A1AC798E1ADAF6B300A1E96F /* Detour.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Detour.h; path = src/Detour.h; sourceTree = SOURCE_ROOT; };
+		A1AC798F1ADAF6B300A1E96F /* Detour.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Detour.m; path = src/Detour.m; sourceTree = SOURCE_ROOT; };
+		A1C7557A1AD9DD0A00236776 /* libPDXBusCore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPDXBusCore.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1C7559F1AD9DE7600236776 /* MemoryCaches.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MemoryCaches.h; path = src/MemoryCaches.h; sourceTree = SOURCE_ROOT; };
+		A1C755A01AD9DE7600236776 /* MemoryCaches.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MemoryCaches.m; path = src/MemoryCaches.m; sourceTree = SOURCE_ROOT; };
+		A1C755A11AD9DE7600236776 /* NextBusXML.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NextBusXML.h; path = src/NextBusXML.h; sourceTree = SOURCE_ROOT; };
+		A1C755A21AD9DE7600236776 /* NextBusXML.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NextBusXML.m; path = src/NextBusXML.m; sourceTree = SOURCE_ROOT; };
+		A1C755A31AD9DE7600236776 /* QueryCacheManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = QueryCacheManager.h; path = src/QueryCacheManager.h; sourceTree = SOURCE_ROOT; };
+		A1C755A41AD9DE7600236776 /* QueryCacheManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = QueryCacheManager.m; path = src/QueryCacheManager.m; sourceTree = SOURCE_ROOT; };
+		A1C755A51AD9DE7600236776 /* StoppableFetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StoppableFetcher.h; path = src/StoppableFetcher.h; sourceTree = SOURCE_ROOT; };
+		A1C755A61AD9DE7600236776 /* StoppableFetcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = StoppableFetcher.m; path = src/StoppableFetcher.m; sourceTree = SOURCE_ROOT; };
+		A1C755A71AD9DE7600236776 /* TriMetTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TriMetTypes.h; path = src/TriMetTypes.h; sourceTree = SOURCE_ROOT; };
+		A1C755A81AD9DE7600236776 /* TriMetXML.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TriMetXML.h; path = src/TriMetXML.h; sourceTree = SOURCE_ROOT; };
+		A1C755A91AD9DE7600236776 /* TriMetXML.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TriMetXML.m; path = src/TriMetXML.m; sourceTree = SOURCE_ROOT; };
+		A1C755AA1AD9DE7600236776 /* UserPrefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UserPrefs.h; path = src/UserPrefs.h; sourceTree = SOURCE_ROOT; };
+		A1C755AB1AD9DE7600236776 /* UserPrefs.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = UserPrefs.m; path = src/UserPrefs.m; sourceTree = SOURCE_ROOT; };
+		A1C755B41AD9DEC000236776 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+		A1C755B61AD9DF3A00236776 /* DebugLogging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DebugLogging.h; path = src/DebugLogging.h; sourceTree = SOURCE_ROOT; };
+		A1E0F3D21AE322F50055C6FB /* UserFaves.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UserFaves.h; path = src/UserFaves.h; sourceTree = SOURCE_ROOT; };
+		A1E0F3D31AE322F50055C6FB /* UserFaves.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = UserFaves.m; path = src/UserFaves.m; sourceTree = SOURCE_ROOT; };
+		A1E0F3D51AE323C20055C6FB /* StopLocations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StopLocations.h; path = src/StopLocations.h; sourceTree = SOURCE_ROOT; };
+		A1E0F3D61AE323C20055C6FB /* StopLocations.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = StopLocations.m; path = src/StopLocations.m; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A1C755771AD9DD0A00236776 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1C755B51AD9DEC000236776 /* UIKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A1AC79701ADA03DB00A1E96F /* Departures */ = {
+			isa = PBXGroup;
+			children = (
+				A1AC797C1ADA05C200A1E96F /* DepartureTimesDataProvider.h */,
+				A1AC79611ADA03D000A1E96F /* DepartureData.h */,
+				A1AC79621ADA03D000A1E96F /* DepartureData.m */,
+				A1AC79631ADA03D000A1E96F /* DepartureTrip.h */,
+				A1AC79641ADA03D000A1E96F /* DepartureTrip.m */,
+				A1AC79651ADA03D000A1E96F /* XMLDepartures.h */,
+				A1AC79661ADA03D000A1E96F /* XMLDepartures.m */,
+				A1AC79671ADA03D000A1E96F /* XMLStreetcarLocations.h */,
+				A1AC79681ADA03D000A1E96F /* XMLStreetcarLocations.m */,
+				A1AC79691ADA03D000A1E96F /* XMLStreetcarPredictions.h */,
+				A1AC796A1ADA03D000A1E96F /* XMLStreetcarPredictions.m */,
+			);
+			name = Departures;
+			sourceTree = "<group>";
+		};
+		A1AC79711ADA03F400A1E96F /* XML */ = {
+			isa = PBXGroup;
+			children = (
+				A1C755A71AD9DE7600236776 /* TriMetTypes.h */,
+				A1C755A81AD9DE7600236776 /* TriMetXML.h */,
+				A1C755A91AD9DE7600236776 /* TriMetXML.m */,
+				A1C7559F1AD9DE7600236776 /* MemoryCaches.h */,
+				A1C755A01AD9DE7600236776 /* MemoryCaches.m */,
+				A1C755A11AD9DE7600236776 /* NextBusXML.h */,
+				A1C755A21AD9DE7600236776 /* NextBusXML.m */,
+				A1C755A31AD9DE7600236776 /* QueryCacheManager.h */,
+				A1C755A41AD9DE7600236776 /* QueryCacheManager.m */,
+				A1C755A51AD9DE7600236776 /* StoppableFetcher.h */,
+				A1C755A61AD9DE7600236776 /* StoppableFetcher.m */,
+				A1833CD61B0833BE00670E34 /* StopNameCacheManager.h */,
+				A1833CD71B0833BE00670E34 /* StopNameCacheManager.m */,
+			);
+			name = XML;
+			sourceTree = "<group>";
+		};
+		A1AC79721ADA040800A1E96F /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				A19A6D861B0A9F270002B1D9 /* BlockColorDb.h */,
+				A19A6D871B0A9F270002B1D9 /* BlockColorDb.m */,
+				A1E0F3D21AE322F50055C6FB /* UserFaves.h */,
+				A1E0F3D31AE322F50055C6FB /* UserFaves.m */,
+				A1AC79811ADA06B600A1E96F /* TriMetRouteColors.h */,
+				A1AC79821ADA06B600A1E96F /* TriMetRouteColors.m */,
+				A1AC79771ADA051D00A1E96F /* ScreenConstants.h */,
+				A1C755B61AD9DF3A00236776 /* DebugLogging.h */,
+				A1C755AA1AD9DE7600236776 /* UserPrefs.h */,
+				A1C755AB1AD9DE7600236776 /* UserPrefs.m */,
+				A1126A051B06AD0600E76977 /* SharedFile.h */,
+				A1126A061B06AD0600E76977 /* SharedFile.m */,
+			);
+			name = Core;
+			sourceTree = "<group>";
+		};
+		A1AC79751ADA04EC00A1E96F /* Maps */ = {
+			isa = PBXGroup;
+			children = (
+				A1AC79801ADA06A600A1E96F /* HotSpot.h */,
+				A1AC79761ADA051000A1E96F /* MapPinColor.h */,
+			);
+			name = Maps;
+			sourceTree = "<group>";
+		};
+		A1AC79781ADA057500A1E96F /* Location and Distance */ = {
+			isa = PBXGroup;
+			children = (
+				A1833CE21B09341800670E34 /* RouteDistanceData.h */,
+				A1833CE31B09341800670E34 /* RouteDistanceData.m */,
+				A1833CDF1B0932A800670E34 /* XMLLocateStops.h */,
+				A1833CE01B0932A800670E34 /* XMLLocateStops.m */,
+				A1E0F3D51AE323C20055C6FB /* StopLocations.h */,
+				A1E0F3D61AE323C20055C6FB /* StopLocations.m */,
+				A1AC797D1ADA060300A1E96F /* VehicleData.h */,
+				A1AC797E1ADA060300A1E96F /* VehicleData.m */,
+				A1AC79791ADA058A00A1E96F /* StopDistance.h */,
+				A1AC797A1ADA058A00A1E96F /* StopDistance.m */,
+			);
+			name = "Location and Distance";
+			sourceTree = "<group>";
+		};
+		A1AC798A1ADAF63300A1E96F /* Detours */ = {
+			isa = PBXGroup;
+			children = (
+				A1AC798E1ADAF6B300A1E96F /* Detour.h */,
+				A1AC798F1ADAF6B300A1E96F /* Detour.m */,
+				A1AC798B1ADAF64800A1E96F /* XMLDetour.h */,
+				A1AC798C1ADAF64800A1E96F /* XMLDetour.m */,
+			);
+			name = Detours;
+			sourceTree = "<group>";
+		};
+		A1C755711AD9DD0A00236776 = {
+			isa = PBXGroup;
+			children = (
+				A1C755B31AD9DE9C00236776 /* Frameworks */,
+				A1C7557C1AD9DD0A00236776 /* PDXBusCore */,
+				A1C7557B1AD9DD0A00236776 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A1C7557B1AD9DD0A00236776 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A1C7557A1AD9DD0A00236776 /* libPDXBusCore.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A1C7557C1AD9DD0A00236776 /* PDXBusCore */ = {
+			isa = PBXGroup;
+			children = (
+				A1AC798A1ADAF63300A1E96F /* Detours */,
+				A1AC79781ADA057500A1E96F /* Location and Distance */,
+				A1AC79751ADA04EC00A1E96F /* Maps */,
+				A1AC79721ADA040800A1E96F /* Core */,
+				A1AC79711ADA03F400A1E96F /* XML */,
+				A1AC79701ADA03DB00A1E96F /* Departures */,
+			);
+			path = PDXBusCore;
+			sourceTree = "<group>";
+		};
+		A1C755B31AD9DE9C00236776 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A1C755B41AD9DEC000236776 /* UIKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A1C755791AD9DD0A00236776 /* PDXBusCore */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A1C7558E1AD9DD0A00236776 /* Build configuration list for PBXNativeTarget "PDXBusCore" */;
+			buildPhases = (
+				A1C755761AD9DD0A00236776 /* Sources */,
+				A1C755771AD9DD0A00236776 /* Frameworks */,
+				A1C755781AD9DD0A00236776 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PDXBusCore;
+			productName = PDXBusCore;
+			productReference = A1C7557A1AD9DD0A00236776 /* libPDXBusCore.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A1C755721AD9DD0A00236776 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0630;
+				ORGANIZATIONNAME = Teleportaloo;
+				TargetAttributes = {
+					A1C755791AD9DD0A00236776 = {
+						CreatedOnToolsVersion = 6.2;
+					};
+				};
+			};
+			buildConfigurationList = A1C755751AD9DD0A00236776 /* Build configuration list for PBXProject "PDXBusCore" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = A1C755711AD9DD0A00236776;
+			productRefGroup = A1C7557B1AD9DD0A00236776 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A1C755791AD9DD0A00236776 /* PDXBusCore */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A1C755761AD9DD0A00236776 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A19A6D881B0A9F270002B1D9 /* BlockColorDb.m in Sources */,
+				A1AC796C1ADA03D000A1E96F /* DepartureTrip.m in Sources */,
+				A1C755AF1AD9DE7600236776 /* StoppableFetcher.m in Sources */,
+				A1AC796E1ADA03D000A1E96F /* XMLStreetcarLocations.m in Sources */,
+				A1126A071B06AD0600E76977 /* SharedFile.m in Sources */,
+				A1C755AC1AD9DE7600236776 /* MemoryCaches.m in Sources */,
+				A1E0F3D41AE322F50055C6FB /* UserFaves.m in Sources */,
+				A1C755AD1AD9DE7600236776 /* NextBusXML.m in Sources */,
+				A1C755AE1AD9DE7600236776 /* QueryCacheManager.m in Sources */,
+				A1AC79901ADAF6B300A1E96F /* Detour.m in Sources */,
+				A1AC797B1ADA058A00A1E96F /* StopDistance.m in Sources */,
+				A1AC797F1ADA060300A1E96F /* VehicleData.m in Sources */,
+				A1AC79831ADA06B600A1E96F /* TriMetRouteColors.m in Sources */,
+				A1C755B01AD9DE7600236776 /* TriMetXML.m in Sources */,
+				A1AC796F1ADA03D000A1E96F /* XMLStreetcarPredictions.m in Sources */,
+				A1833CE41B09341800670E34 /* RouteDistanceData.m in Sources */,
+				A1AC796B1ADA03D000A1E96F /* DepartureData.m in Sources */,
+				A1833CD81B0833BE00670E34 /* StopNameCacheManager.m in Sources */,
+				A1833CE11B0932A800670E34 /* XMLLocateStops.m in Sources */,
+				A1E0F3D71AE323C20055C6FB /* StopLocations.m in Sources */,
+				A1AC798D1ADAF64800A1E96F /* XMLDetour.m in Sources */,
+				A1AC796D1ADA03D000A1E96F /* XMLDepartures.m in Sources */,
+				A1C755B11AD9DE7600236776 /* UserPrefs.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		A1C7558C1AD9DD0A00236776 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+					"DEBUGLOGGING=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		A1C7558D1AD9DD0A00236776 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				ONLY_ACTIVE_ARCH = NO;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A1C7558F1AD9DD0A00236776 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(DEVELOPER_DIR)/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks",
+				);
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		A1C755901AD9DD0A00236776 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(DEVELOPER_DIR)/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks",
+				);
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A1C755751AD9DD0A00236776 /* Build configuration list for PBXProject "PDXBusCore" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1C7558C1AD9DD0A00236776 /* Debug */,
+				A1C7558D1AD9DD0A00236776 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A1C7558E1AD9DD0A00236776 /* Build configuration list for PBXNativeTarget "PDXBusCore" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1C7558F1AD9DD0A00236776 /* Debug */,
+				A1C755901AD9DD0A00236776 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A1C755721AD9DD0A00236776 /* Project object */;
+}

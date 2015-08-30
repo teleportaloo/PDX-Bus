@@ -26,7 +26,7 @@
 {
     cell.view.backgroundColor   = [UIColor clearColor];
     cell.accessoryType          = UITableViewCellAccessoryDisclosureIndicator;
-    cell.view.textAlignment     = UITextAlignmentLeft;
+    cell.view.textAlignment     = NSTextAlignmentLeft;
     cell.selectionStyle         = UITableViewCellSelectionStyleBlue;
 }
 

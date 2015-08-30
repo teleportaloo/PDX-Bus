@@ -258,7 +258,7 @@
 	
 	// Set up the cell...
 	cell.textLabel.adjustsFontSizeToFitWidth = YES;
-	cell.textLabel.textAlignment = UITextAlignmentCenter;
+	cell.textLabel.textAlignment = NSTextAlignmentCenter;
 	cell.textLabel.font = [self getBasicFont];
 	cell.selectionStyle = UITableViewCellSelectionStyleNone;
 	return cell;

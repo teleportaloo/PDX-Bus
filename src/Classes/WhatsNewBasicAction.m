@@ -35,7 +35,7 @@
 - (void)updateCell:(CellLabel *)cell tableView:(UITableView *)tableView
 {
     cell.view.backgroundColor = [UIColor clearColor];
-    cell.view.textAlignment   = UITextAlignmentLeft;
+    cell.view.textAlignment   = NSTextAlignmentLeft;
     cell.accessoryType        = UITableViewCellAccessoryNone;
     cell.selectionStyle       = UITableViewCellSelectionStyleNone;
 }

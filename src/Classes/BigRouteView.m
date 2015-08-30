@@ -14,7 +14,7 @@
 
 
 #import "BigRouteView.h"
-#import "Departure.h"
+#import "DepartureData.h"
 #import "TriMetRouteColors.h"
 
 @implementation BigRouteView
@@ -69,7 +69,7 @@
 	label.font = [UIFont boldSystemFontOfSize:260];
 	label.adjustsFontSizeToFitWidth = YES;
 	label.numberOfLines = 1;
-	label.textAlignment = UITextAlignmentCenter;
+	label.textAlignment = NSTextAlignmentCenter;
 	label.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
 	label.highlightedTextColor = [UIColor whiteColor];
 	label.textColor = [UIColor whiteColor];

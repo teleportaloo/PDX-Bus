@@ -91,20 +91,33 @@
 	CGRect screenRect = [[UIScreen mainScreen] applicationFrame];
 	
 	
-	if (self.interfaceOrientation == UIInterfaceOrientationLandscapeLeft ||
-		self.interfaceOrientation == UIInterfaceOrientationLandscapeRight)
-	{
-		CGFloat temp = screenRect.size.height;
-		screenRect.size.height = screenRect.size.width;
-		screenRect.size.width = temp;
-	}
-	
+    // This seems so iOS version specific not sure why!
+    
     float offset = 20.0;
+    
+    if (!self.iOS8style)
+    {
+        if (self.interfaceOrientation == UIInterfaceOrientationLandscapeLeft ||
+            self.interfaceOrientation == UIInterfaceOrientationLandscapeRight)
+        {
+            CGFloat temp = screenRect.size.height;
+            screenRect.size.height = screenRect.size.width;
+            screenRect.size.width = temp;
+            
+            if (self.iOS7style)
+            {
+                offset = 21;
+            }
+        }
+    }
+	
+    
     
     if (!self.iOS7style)
     {
         offset = 84.0;
     }
+    
 	
     
 	CGRect pickerRect = CGRectMake(	0.0,

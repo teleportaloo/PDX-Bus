@@ -18,12 +18,6 @@
 #import "TriMetTypes.h"
 
 typedef enum {
-	TripMinQuickestTrip,
-    TripMinFewestTransfers,
-    TripMinShortestWalk
-} TripMin;
-
-typedef enum {
 	TripAskForTime,
 	TripDepartAfterTime,
 	TripArriveBeforeTime

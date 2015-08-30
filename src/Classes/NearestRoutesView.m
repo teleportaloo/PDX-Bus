@@ -15,7 +15,7 @@
 
 
 #import "NearestRoutesView.h"
-#import "RouteDistance.h"
+#import "RouteDistanceUI.h"
 #import "DepartureTimesView.h"
 
 #define kRouteSections		2
@@ -61,7 +61,7 @@
 #pragma mark -
 #pragma mark Fetch data
 
-- (void)fetchNearestRoutes:(XMLLocateStops*) locator
+- (void)fetchNearestRoutes:(XMLLocateStopsUI*) locator
 {
 	
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
@@ -95,7 +95,7 @@
 {
 	self.backgroundTask.callbackWhenFetching = background;
 	
-	self.routeData = [[[XMLLocateStops alloc] init] autorelease];
+	self.routeData = [[[XMLLocateStopsUI alloc] init] autorelease];
 	
 	self.routeData.maxToFind = max;
 	self.routeData.location = here;
@@ -184,7 +184,7 @@
 	
 	for (int i=0; i<[self.routeData safeItemCount]; i++)
 	{
-		RouteDistance *rd = [self.routeData itemAtIndex:i];
+		RouteDistanceData *rd = [self.routeData itemAtIndex:i];
 		
 		if (_checked[i])
 		{
@@ -271,13 +271,14 @@
 	{
 		case kSectionRoutes:
 		{
-			RouteDistance *rd = [self.routeData itemAtIndex:indexPath.row];
-			NSString *cellId = [rd cellReuseIdentifier:@"route" width:[self screenWidth]];
+			RouteDistanceData *rd = [self.routeData itemAtIndex:indexPath.row];
+            RouteDistanceUI *routeUI = [RouteDistanceUI createFromData:rd];
+			NSString *cellId = [routeUI cellReuseIdentifier:@"route" width:[self screenWidth]];
 			cell = [tableView dequeueReusableCellWithIdentifier: cellId];
 			if (cell == nil) {
-				cell = [rd tableviewCellWithReuseIdentifier:cellId width:[self screenWidth]];
+				cell = [routeUI tableviewCellWithReuseIdentifier:cellId width:[self screenWidth]];
 			}
-			[rd populateCell:cell wide:[self screenWidth]];
+			[routeUI populateCell:cell wide:[self screenWidth]];
 			
 			if (_checked[indexPath.row])
 			{

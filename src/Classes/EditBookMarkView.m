@@ -725,7 +725,7 @@
 			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kCancelId];
 			if (cell == nil) {
 				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kCancelId] autorelease];
-				cell.textLabel.textAlignment = UITextAlignmentLeft;
+				cell.textLabel.textAlignment = NSTextAlignmentLeft;
 				cell.textLabel.textColor = [UIColor redColor];
 				cell.textLabel.font = [self getBasicFont];
 			}
@@ -752,7 +752,7 @@
 			cell.editingAccessoryType = UITableViewCellAccessoryDisclosureIndicator ;
 			
 			cell.textLabel.numberOfLines = 2;
-			cell.textLabel.lineBreakMode = UILineBreakModeWordWrap;
+			cell.textLabel.lineBreakMode = NSLineBreakByWordWrapping;
 			
 			cell.textLabel.text = [NSString stringWithFormat:@"%@%@%@", 
 										[self dayPrefix], 

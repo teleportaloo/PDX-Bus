@@ -129,7 +129,7 @@
 			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kDoneId];
 			if (cell == nil) {
 				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kDoneId] autorelease];
-				cell.textLabel.textAlignment = UITextAlignmentLeft;
+				cell.textLabel.textAlignment = NSTextAlignmentLeft;
 			}
 			
 			// Set up the cell

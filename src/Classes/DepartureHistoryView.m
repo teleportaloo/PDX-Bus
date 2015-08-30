@@ -132,10 +132,12 @@
 	{
 		if (editingStyle == UITableViewCellEditingStyleDelete) {
 			[_userData.recents removeObjectAtIndex:indexPath.section];
+            _userData.favesChanged = YES;
+            [_userData cacheAppData];
+            
 			[tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:YES];
 		
-			_userData.favesChanged = YES;
-			[_userData cacheAppData];
+			
 		}
 	}	
 	

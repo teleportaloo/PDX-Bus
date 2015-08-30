@@ -14,13 +14,13 @@
 
 
 #import "NearestStopsMap.h"
-#import "XMLLocateStops.h"
+#import "XMLLocateStopsUI.h"
 
 
 @implementation NearestStopsMap
 
 
-- (void)fetchNearestStops:(XMLLocateStops*) locator
+- (void)fetchNearestStops:(XMLLocateStopsUI*) locator
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
@@ -50,7 +50,7 @@
 {
 	self.backgroundTask.callbackWhenFetching = background;
 	
-	XMLLocateStops *locator = [[[XMLLocateStops alloc] init] autorelease];
+	XMLLocateStopsUI *locator = [[[XMLLocateStopsUI alloc] init] autorelease];
 	
 	locator.maxToFind = max;
 	locator.location = here;

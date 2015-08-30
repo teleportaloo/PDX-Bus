@@ -54,11 +54,15 @@
 	[super dealloc];
 }
 
+
+
 - (id)initWithAccuracy:(bool)accurate
 {
 	if ((self = [super init]))
 	{
 		self.locationManager = [[[CLLocationManager alloc] init] autorelease];
+        
+        self.locationManager.delegate = self;
         
         
         if ([self.locationManager respondsToSelector:@selector(requestAlwaysAuthorization)])
@@ -87,10 +91,14 @@
 		{
 			self.alarmState = AlarmStateAccurateInitiallyThenInaccurate;
 		}
-		self.locationManager.delegate = self;
+		
         _updating       = NO;
         _significant    = NO;
-		[self startUpdatingLocation];
+        
+        if ([AlarmAccurateStopProximity backgroundLocationAuthorizedOrNotDeterminedShowMsg:NO])
+        {
+            [self startUpdatingLocation];
+        }
 		// self.locationManager.distanceFilter = 250.0;
 		
 #ifdef DEBUG_ALARMS
@@ -98,6 +106,67 @@
 #endif
 	}
 	return self;
+}
+
++ (bool)backgroundLocationAuthorizedOrNotDeterminedShowMsg:(bool)msg
+{
+    CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
+    
+    NSString *reason = nil;
+    
+    switch (status)
+    {
+        default:
+            // User has granted authorization to use their location at any time,
+            // including monitoring for regions, visits, or significant location changes.
+        case kCLAuthorizationStatusAuthorizedAlways:
+            // User has not yet made a choice with regards to this application
+        case kCLAuthorizationStatusNotDetermined:
+            
+            // IT'S ALL GOOD SO FAR
+            return YES;
+            break;
+            // This application is not authorized to use location services.  Due
+            // to active restrictions on location services, the user cannot change
+            // this status, and may not have personally denied authorization
+        case kCLAuthorizationStatusRestricted:
+            reason = @"as access is restricted";
+            break;
+            
+            // User has explicitly denied authorization for this application, or
+            // location services are disabled in Settings.
+        case kCLAuthorizationStatusDenied:
+            reason = @"as access is denied";
+            break;
+            
+            // User has granted authorization to use their location only when your app
+            // is visible to them (it will be made visible to them if you continue to
+            // receive location updates while in the background).  Authorization to use
+            // launch APIs has not been granted.
+        case kCLAuthorizationStatusAuthorizedWhenInUse:
+            reason = @"as 'always' access is not granted";
+            break;
+            
+    }
+    
+    if (msg && reason != nil)
+    {
+        
+        UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"Proximity Alarm",@"alarm pop-up title")
+                                                           message:[NSString stringWithFormat:NSLocalizedString(@"PDX Bus is not authorized to get location information in the background, %@. Go to the settings app and select PDX Bus to re-enable location services.", @"alarm warning"), reason]
+                                                          delegate:nil
+                                                 cancelButtonTitle:NSLocalizedString(@"OK",@"OK button")
+                                                 otherButtonTitles:nil] autorelease];
+        [alert show];
+        return NO;
+    }
+    else if (reason != nil)
+    {
+        return NO;
+    }
+    
+    
+    return YES;
 }
 
 - (void)startUpdatingLocation
@@ -115,7 +184,7 @@
     {
         _updating = NO;
         [self.locationManager stopUpdatingLocation];
-    } 
+    }
 }
 - (void)startMonitoringSignificantLocationChanges
 {
@@ -500,7 +569,7 @@
 
 	if (distance <=0)
 	{
-		str = [NSString stringWithFormat:NSLocalizedString(@"Near by", @"final stop is very close")];
+        str = NSLocalizedString(@"Near by", @"final stop is very close");
 	}
 	else if (distance < 500)
 	{
@@ -556,6 +625,11 @@
     [navController pushViewController:mapPage animated:YES];
 	[mapPage release];	
 #endif
+}
+
+- (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
+{
+    [AlarmAccurateStopProximity backgroundLocationAuthorizedOrNotDeterminedShowMsg:YES];
 }
 
 @end

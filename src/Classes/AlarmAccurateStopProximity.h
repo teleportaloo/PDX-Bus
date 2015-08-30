@@ -40,6 +40,7 @@
 - (void)stopUpdatingLocation;
 - (void)startMonitoringSignificantLocationChanges;
 - (void)stopMonitoringSignificantLocationChanges;
++ (bool)backgroundLocationAuthorizedOrNotDeterminedShowMsg:(bool)msg;
 
 
 @end

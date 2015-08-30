@@ -201,8 +201,8 @@
 	label.adjustsFontSizeToFitWidth = YES;
 	[cell.contentView addSubview:label];
 	label.highlightedTextColor = [UIColor whiteColor];
-	label.textAlignment = UITextAlignmentCenter;
-	label.lineBreakMode = UILineBreakModeWordWrap;
+	label.textAlignment = NSTextAlignmentCenter;
+	label.lineBreakMode = NSLineBreakByWordWrapping;
 	label.numberOfLines = 0;
 	label.backgroundColor = [UIColor clearColor];
 	[label release];
@@ -212,8 +212,8 @@
 	label.tag = BODY_TAG;
 	label.font = [TripLeg getBodyFont];
 	label.adjustsFontSizeToFitWidth = NO;
-	label.lineBreakMode = UILineBreakModeWordWrap;
-	label.textAlignment = UITextAlignmentLeft;
+	label.lineBreakMode = NSLineBreakByWordWrapping;
+	label.textAlignment = NSTextAlignmentLeft;
 	label.numberOfLines = 0;
 	label.backgroundColor = [UIColor clearColor];
 	
@@ -233,7 +233,7 @@
 + (CGFloat)getTextHeight:(NSString *)text width:(CGFloat)width
 {
 	CGSize rect = CGSizeMake(width, MAXFLOAT);
-	CGSize sz = [text sizeWithFont:[TripLeg getBodyFont] constrainedToSize:rect lineBreakMode:UILineBreakModeWordWrap];
+	CGSize sz = [text sizeWithFont:[TripLeg getBodyFont] constrainedToSize:rect lineBreakMode:NSLineBreakByWordWrapping];
 	
 	//CGSize sz = [text sizeWithFont:[TripLeg getBodyFont] forWidth:width lineBreakMode:UILineBreakModeWordWrap];
 	

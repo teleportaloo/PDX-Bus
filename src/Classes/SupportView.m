@@ -19,6 +19,8 @@
 #import "BlockColorDb.h"
 #import "BlockColorViewController.h"
 #import "DebugLogging.h"
+#import <CoreLocation/CoreLocation.h>
+#import <AVFoundation/AVFoundation.h>
 
 #define kSectionSupport			0
 #define kSectionTips			1
@@ -26,8 +28,9 @@
 #define kSectionNetwork			3
 #define kSectionCache           4
 #define kSectionHighlights      5
+#define kSectionPrivacy         6
 
-#define kSections               6
+#define kSections               7
 
 #define kLinkRows				3
 			
@@ -42,13 +45,25 @@
 #define kSectionLinkFacebook    2
 #define kSectionLinkGitHub      3
 
+#define kSectionPrivacyRows     2
+#define kSectionPrivacyRowLocation 0
+#define kSectionPrivacyRowCamera   1
+
+
+
 @implementation SupportView
 
 @synthesize hideButton = _hideButton;
+@synthesize locMan     = _locMan;
+@synthesize locationText = _locationText;
+@synthesize cameraText = _cameraText;
 
 - (void)dealloc {
 	[supportText release];
     [tipText release];
+    self.locMan = nil;
+    self.locationText = nil;
+    self.cameraText = nil;
 	[super dealloc];
 }
 
@@ -62,11 +77,128 @@
 #pragma mark Table view methods
 
 
+- (bool)canOpenSettings
+{
+    return([[UIDevice currentDevice].systemVersion floatValue] >= 8.0);
+}
+
+- (void)initCameraText
+{
+    _cameraGoesToSettings = NO;
+    if ([[AVCaptureDevice class] respondsToSelector:@selector(authorizationStatusForMediaType:)])
+    {
+        AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+        
+        switch (authStatus)
+        {
+            default:
+            case AVAuthorizationStatusAuthorized:
+                if ([self canOpenSettings])
+                {
+                    self.cameraText = @"Camera access is authorized. Touch here to check settings.";
+                    _cameraGoesToSettings = YES;
+                }
+                else
+                {
+                    self.cameraText = @"Camera access is authorized.";
+                }
+                break;
+            case AVAuthorizationStatusNotDetermined:
+                self.cameraText = @"Camera access has not been set up by the user. Touch here to set this up.";
+                break;
+            case AVAuthorizationStatusDenied:
+                if ([self canOpenSettings])
+                {
+                    self.cameraText = @"Camera access has been denied by the user. Touch here to go to the settings app re-enable Camera access.";
+                    _cameraGoesToSettings = YES;
+                }
+                else
+                {
+                   self.cameraText = @"Camera access has been denied by the user. Go to the settings app and select PDX Bus to re-enable Camera access.";
+                }
+                break;
+            case AVAuthorizationStatusRestricted:
+                self.cameraText = @"Camea access has been restricted. Check the restrictions section in the Setttings app under 'General->Restrictions' to change this.";
+                break;
+        }
+    }
+    else
+    {
+        self.cameraText = @"Camera access can not be determined on this version of iOS.";
+    }
+}
+
+- (void)initLocationText
+{
+    _locationGoesToSettings = NO;
+    switch ([CLLocationManager authorizationStatus])
+    {
+            // User has not yet made a choice with regards to this application
+        default:
+        case kCLAuthorizationStatusNotDetermined:
+            self.locationText = @"Location Services: Authorization has not been set by the user. Touch here to set this up.";
+            break;
+            
+            // This application is not authorized to use location services.  Due
+            // to active restrictions on location services, the user cannot change
+            // this status, and may not have personally denied authorization
+        case kCLAuthorizationStatusRestricted:
+            self.locationText = @"Location Services: Authorization has been restricted. Check the restrictions section in the Setttings app under 'General->Restrictions' to change this.";
+            break;
+            
+            // User has explicitly denied authorization for this application, or
+            // location services are disabled in Settings.
+        case kCLAuthorizationStatusDenied:
+            if (self.canOpenSettings)
+            {
+                _locationGoesToSettings = YES;
+                self.locationText = @"Location Services: Authorization has been denied. Touch here to go to the settings app to re-enable location services.";
+            }
+            else
+            {
+                self.locationText = @"Location Services: Authorization has been denied. Go to the settings app and select PDX Bus to re-enable location services.";
+            }
+            break;
+            
+            // User has granted authorization to use their location at any time,
+            // including monitoring for regions, visits, or significant location changes.
+        case kCLAuthorizationStatusAuthorizedAlways:
+            if (self.canOpenSettings)
+            {
+                self.locationText = @"Location Services: Authorization has been granted for use in the background for the alarms. Touch here to check settings.";
+                _locationGoesToSettings = YES;
+
+            }
+            else
+            {
+                self.locationText = @"Location Services: Authorization has been granted for use in the background for the alarms.";
+
+            }
+            break;
+            
+            // User has granted authorization to use their location only when your app
+            // is visible to them (it will be made visible to them if you continue to
+            // receive location updates while in the background).  Authorization to use
+            // launch APIs has not been granted.
+        case kCLAuthorizationStatusAuthorizedWhenInUse:
+            if (self.canOpenSettings)
+            {
+                self.locationText = @"Location Services: Authorization has been granted for use only when PDX Bus is being used, which means the proximity alarms will not work in iOS 8. Touch here to change this to allow alarms to work - choose 'Always' for location.";
+                _locationGoesToSettings = YES;
+            }
+            else
+            {
+                self.locationText = @"Location Services: Authorization has been granted for use only when PDX Bus is being used, which means the proximity alarms will not work in iOS 8. To change this to allow alarms to work go to the Settings app and select PDX Bus  - choose 'Always' for location.";
+            }
+            break;
+    }
+}
+
 - (id)init {
 	if ((self = [super init]))
 	{
-		self.title = @"Support";
-            
+		self.title = @"Help and Support";
+        
 		supportText = @"One developer writes PDX Bus as a volunteer effort, with a little help from friends and the local community. He has no affiliation with TriMet, but he happens to ride TriMet on most days. "
                     "\n\nThe arrival data is provided by TriMet and Portland Streetcar and should be same as the transit tracker data. "
                     "Please contact TriMet for issues about late busses or other transit issues as he cannot help. "
@@ -76,15 +208,29 @@
         
         tipText = [[NSArray alloc] initWithObjects:
                    @"There are LOTS of settings for PDXBus - take a look at the settings on the front screen to change colors, move the bookmarks to the top of the screen or change other options.",
+                   @"When the time is shown in red the vehicle will depart in 5 minutes or less.",
+                   @"When the time is shown in blue the vehicle will depart in more than 5 minutes.",
+                   @"When the time is shown in gray no location infomation is available - the scheduled time is shown.",
+                   @"When the time is shown in orange and crossed out the vehicle was canceled.  The original scheduled time is shown for reference.",
+                   @"Sometimes the scheduled time is also shown in gray when the vehicle is not running to schedule.",
                    @"Shake the device to refresh the arrival times.",
                    @"Backup your bookmarks by emailing them to yourself.",
                    @"Keep an eye on the toolbar at the bottom - there are maps, options, and other features to explore.",
                    @"At night, TriMet recommends holding up a cell phone or flashing light so the driver can see you.",
                    @"Many issues can be solved by deleting the app and reinstalling - be sure to email the bookmarks to yourself first so you can restore them.",
                    nil];
+    
+        [self initLocationText];
+        [self initCameraText];
         
-        _hideButton = NO;
-
+        self.locMan = [[[CLLocationManager alloc] init] autorelease];
+        
+        if ([self.locMan respondsToSelector:@selector(requestAlwaysAuthorization)])
+        {
+            [self.locMan requestAlwaysAuthorization];
+            
+            self.locMan.delegate = self;
+        }
 	}
 	return self;
 }
@@ -126,6 +272,8 @@
 			return @"App Support Links";
         case kSectionNetwork:
 			return @"Network & Server Connectivity";
+        case kSectionPrivacy:
+            return @"Privacy";
 		case kSectionCache:
 			return @"Route and Stop Data Cache";
         case kSectionHighlights:
@@ -149,7 +297,9 @@
         case kSectionNetwork:
 		case kSectionCache:
         case kSectionHighlights:
-			return 1;
+            return 1;
+        case kSectionPrivacy:
+            return kSectionPrivacyRows;
         case kSectionTips:
 			return [tipText count];
 	}
@@ -191,7 +341,7 @@
 				cell.textLabel.font =  [self getBasicFont]; //  [UIFont fontWithName:@"Ariel" size:14];
 				cell.textLabel.adjustsFontSizeToFitWidth = YES;
 				cell.textLabel.text = @"Delete Cached Routes and Stops";
-				cell.textLabel.textAlignment = UITextAlignmentLeft;
+				cell.textLabel.textAlignment = NSTextAlignmentLeft;
 				cell.imageView.image = [self getActionIcon:kIconDelete];
 			}
 			return cell;
@@ -208,7 +358,7 @@
 				cell.textLabel.font =  [self getBasicFont]; //  [UIFont fontWithName:@"Ariel" size:14];
 				cell.textLabel.adjustsFontSizeToFitWidth = YES;
 				cell.textLabel.text = @"Show vehicle color tags";
-				cell.textLabel.textAlignment = UITextAlignmentLeft;
+				cell.textLabel.textAlignment = NSTextAlignmentLeft;
 				cell.imageView.image = [BlockColorDb imageWithColor:[UIColor redColor]];
 			}
 			return cell;
@@ -323,6 +473,31 @@
 			return cell;
 			break;
 		}
+        case kSectionPrivacy:
+        {
+            static NSString *tipsId = @"tips";
+            CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:tipsId];
+            if (cell == nil) {
+                cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:tipsId] autorelease];
+                cell.view = [self create_UITextView:nil font:[self getParagraphFont]];
+            }
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            
+            cell.view.font =  [self getParagraphFont];
+            
+            if (indexPath.row == kSectionPrivacyRowLocation)
+            {
+                cell.view.text = self.locationText;
+                [self updateAccessibility:cell indexPath:indexPath text:self.locationText alwaysSaySection:YES];
+            }
+            else
+            {
+                cell.view.text = self.cameraText;
+                [self updateAccessibility:cell indexPath:indexPath text:self.cameraText alwaysSaySection:YES];
+            }
+            return cell;
+            break;
+        }
 		default:
 			break;
 	}
@@ -341,7 +516,15 @@
 			break;
         case kSectionTips:
 			return [self getTextHeight:[tipText objectAtIndex:indexPath.row] font:[self getParagraphFont]];
-			break;
+        case kSectionPrivacy:
+            if (indexPath.row == kSectionPrivacyRowLocation)
+            {
+                return [self getTextHeight:self.locationText font:[self getParagraphFont]];
+            }
+            else
+            {
+                return [self getTextHeight:self.cameraText font:[self getParagraphFont]];
+            }
 		default:
 			break;
 	}
@@ -427,8 +610,59 @@
 				[whatsNew release];
 			}
 			break;
+        case kSectionPrivacy:
+        {
+            if (indexPath.row == kSectionPrivacyRowLocation)
+            {
+                if (_locationGoesToSettings)
+                {
+                    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+                }
+                else
+                {
+                    self.locMan = [[[CLLocationManager alloc] init] autorelease];
+            
+                    if ([self.locMan respondsToSelector:@selector(requestAlwaysAuthorization)])
+                    {
+                        [self.locMan requestAlwaysAuthorization];
+                
+                        self.locMan.delegate = self;
+                    }
+                }
+            }
+            else
+            {
+                if (_cameraGoesToSettings)
+                {
+                    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+                }
+                else if (  [[AVCaptureDevice class] respondsToSelector:@selector(requestAccessForMediaType:completionHandler:)])
+                {
+                    [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+                        if(granted){
+                            NSLog(@"Granted access to %@", AVMediaTypeVideo);
+                        } else {
+                            NSLog(@"Not granted access to %@", AVMediaTypeVideo);
+                        }
+                        [self initCameraText];
+                        [self reloadData];
+                    }
+                     ];
+                }
+            }
+            break;
+        }
 	}
 }
+
+- (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
+{
+    [self initLocationText];
+    [self reloadData];
+}
+
+
+
 
 @end
 

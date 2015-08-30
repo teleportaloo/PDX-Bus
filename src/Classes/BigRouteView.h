@@ -15,14 +15,14 @@
 
 #import <UIKit/UIKit.h>
 #import "ViewControllerBase.h"
-#import "Departure.h"
+#import "DepartureData.h"
 
 
 @interface BigRouteView : ViewControllerBase {
-	Departure *_departure;
+	DepartureData *_departure;
 	UIView *_textView;	}
 
-@property (nonatomic, retain) Departure *departure;
+@property (nonatomic, retain) DepartureData *departure;
 @property (nonatomic, retain) UIView *textView;
 
 @end

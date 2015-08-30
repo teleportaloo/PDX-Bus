@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="7706" systemVersion="14E46" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="dfG-2e-wGV">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="7701"/>
+    </dependencies>
+    <scenes>
+        <!--Arrivals-->
+        <scene sceneID="aou-V4-d1y">
+            <objects>
+                <controller identifier="Arrivals" title="Arrivals" id="AgC-eL-Hgc" customClass="WatchArrivalsInterfaceController">
+                    <items>
+                        <label alignment="left" hidden="YES" text="Description" textAlignment="left" numberOfLines="3" id="THm-Pg-UOG">
+                            <fontDescription key="font" type="system" pointSize="13"/>
+                        </label>
+                        <label width="1" alignment="left" hidden="YES" text="Distance" minimumScaleFactor="0.10000000000000001" id="n3w-p8-oDj"/>
+                        <label width="1" alignment="left" hidden="YES" text="Refreshing" textAlignment="center" numberOfLines="2" minimumScaleFactor="0.10000000000000001" id="CdM-RQ-Vg4" colorLabel="IBBuiltInLabel-Red">
+                            <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            <fontDescription key="font" style="UICTFontTextStyleBody"/>
+                        </label>
+                        <table alignment="left" id="4zg-1C-Dxb">
+                            <items>
+                                <tableRow identifier="Arrival" id="7YU-Hh-HGA" userLabel="Arrival" customClass="WatchArrival">
+                                    <group key="rootItem" width="1" height="0.0" alignment="left" spacing="0.0" id="7fM-Y5-Ijw">
+                                        <items>
+                                            <imageView width="2" height="40" alignment="left" verticalAlignment="center" id="5TT-cH-KW7" userLabel="Spacer"/>
+                                            <imageView width="10" height="10" alignment="left" verticalAlignment="center" id="j3u-LY-2xn" userLabel="Line Color"/>
+                                            <label alignment="left" verticalAlignment="center" text="Train Heading Long text" textAlignment="left" numberOfLines="6" minimumScaleFactor="0.20000000000000001" id="WaE-Ko-hLi">
+                                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                                <fontDescription key="font" type="system" weight="semibold" pointSize="15"/>
+                                            </label>
+                                            <group width="25" alignment="right" verticalAlignment="center" layout="vertical" spacing="0.0" id="tsl-RZ-J0j">
+                                                <items>
+                                                    <label width="25" alignment="right" verticalAlignment="center" text="88" textAlignment="center" minimumScaleFactor="0.20000000000000001" id="0Dj-6A-gs4" userLabel="Minutes">
+                                                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                                        <fontDescription key="font" type="boldSystem" pointSize="20"/>
+                                                    </label>
+                                                    <label alignment="center" verticalAlignment="bottom" hidden="YES" text="!" textAlignment="center" id="VIo-SE-oTO" userLabel="Exception">
+                                                        <color key="textColor" red="1" green="0.027785594090000001" blue="0.1083390843" alpha="1" colorSpace="calibratedRGB"/>
+                                                        <fontDescription key="font" type="system" pointSize="12"/>
+                                                    </label>
+                                                </items>
+                                            </group>
+                                            <imageView width="2" height="1" alignment="right" id="Ng2-Mz-rh5" userLabel="Block Color"/>
+                                        </items>
+                                        <color key="backgroundColor" red="0.98387513826350592" green="1" blue="0.98595916549955653" alpha="1" colorSpace="calibratedRGB"/>
+                                        <edgeInsets key="margins" left="0.0" right="3" top="0.0" bottom="0.0"/>
+                                    </group>
+                                    <connections>
+                                        <outlet property="blockColor" destination="Ng2-Mz-rh5" id="Tnd-wz-jrr"/>
+                                        <outlet property="exception" destination="VIo-SE-oTO" id="HNS-4b-klt"/>
+                                        <outlet property="heading" destination="WaE-Ko-hLi" id="CSM-Il-Y5Q"/>
+                                        <outlet property="lineColor" destination="j3u-LY-2xn" id="B7J-wQ-DVJ"/>
+                                        <outlet property="mins" destination="0Dj-6A-gs4" id="J9F-c3-gfL"/>
+                                    </connections>
+                                </tableRow>
+                                <tableRow identifier="No arrivals" id="A0F-1Z-cDh" userLabel="No arrivals" customClass="WatchNoArrivals">
+                                    <group key="rootItem" width="1" alignment="left" id="ZUJ-uT-RmS">
+                                        <items>
+                                            <label width="1" height="1" alignment="left" text="No arrivals" textAlignment="center" minimumScaleFactor="0.5" id="Ghu-0M-BJP">
+                                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                                <fontDescription key="font" type="boldSystem" pointSize="16"/>
+                                            </label>
+                                        </items>
+                                        <color key="backgroundColor" red="0.98387513826350592" green="1" blue="0.98595916549955653" alpha="1" colorSpace="calibratedRGB"/>
+                                    </group>
+                                    <connections>
+                                        <outlet property="errorMsg" destination="Ghu-0M-BJP" id="OPs-ys-rkx"/>
+                                    </connections>
+                                </tableRow>
+                                <tableRow identifier="Static Info" selectable="NO" id="CDV-ri-dlT" userLabel="Static Info" customClass="WatchArrivalInfo">
+                                    <group key="rootItem" width="1" height="0.0" alignment="left" id="POi-uW-o4R">
+                                        <items>
+                                            <label width="1" alignment="left" text="Info" textAlignment="left" numberOfLines="3" minimumScaleFactor="0.5" id="DoX-BK-7VG">
+                                                <fontDescription key="font" type="system" pointSize="11"/>
+                                            </label>
+                                        </items>
+                                    </group>
+                                    <connections>
+                                        <outlet property="arrivalInfoText" destination="DoX-BK-7VG" id="8nn-LJ-4EU"/>
+                                    </connections>
+                                </tableRow>
+                            </items>
+                        </table>
+                        <map height="100" alignment="left" hidden="YES" id="60Z-uQ-s3i"/>
+                    </items>
+                    <menu key="menu" id="225-fd-WD6">
+                        <items>
+                            <menuItem title="Home" image="750-home" id="zD1-7E-I4i">
+                                <connections>
+                                    <action selector="menuItemHome" destination="AgC-eL-Hgc" id="0AD-Is-2Vy"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Refresh" icon="repeat" id="WXp-2h-kz8">
+                                <connections>
+                                    <action selector="doRefreshMenuItem" destination="AgC-eL-Hgc" id="4bD-Zj-g6c"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Stops near this stop" image="845-location-targeta" id="0BT-rK-TVB">
+                                <connections>
+                                    <action selector="menuItemNearby" destination="AgC-eL-Hgc" id="WSk-9C-PMh"/>
+                                </connections>
+                            </menuItem>
+                        </items>
+                    </menu>
+                    <edgeInsets key="margins" left="0.0" right="0.0" top="0.0" bottom="0.0"/>
+                    <connections>
+                        <outlet property="arrivalsTable" destination="4zg-1C-Dxb" id="dOj-ni-spg"/>
+                        <outlet property="distanceLabel" destination="n3w-p8-oDj" id="jef-pb-06Z"/>
+                        <outlet property="labelRefreshing" destination="CdM-RQ-Vg4" id="otP-lZ-Gx7"/>
+                        <outlet property="map" destination="60Z-uQ-s3i" id="7aK-Qd-9zT"/>
+                        <outlet property="stopDescription" destination="THm-Pg-UOG" id="AEt-gM-Z5U"/>
+                    </connections>
+                </controller>
+            </objects>
+            <point key="canvasLocation" x="623" y="45"/>
+        </scene>
+        <!--Nearby-->
+        <scene sceneID="KMG-D3-FkS">
+            <objects>
+                <controller identifier="Nearby" title="Nearby" id="a7b-HT-MQ9" customClass="WatchNearbyInterfaceController">
+                    <items>
+                        <map height="100" alignment="left" id="nRp-ot-zCs"/>
+                        <table alignment="left" id="tQC-Gk-mRt">
+                            <items>
+                                <tableRow identifier="Stop" id="Ct3-1q-jzd" userLabel="Stop" customClass="WatchStop">
+                                    <group key="rootItem" width="1" alignment="left" id="Zcz-nU-v9W">
+                                        <items>
+                                            <label width="1" height="1" alignment="left" numberOfLines="3" id="7tm-j6-QVP">
+                                                <fontDescription key="font" style="UICTFontTextStyleFootnote"/>
+                                            </label>
+                                        </items>
+                                    </group>
+                                    <connections>
+                                        <outlet property="stopName" destination="7tm-j6-QVP" id="bhd-6V-s8m"/>
+                                    </connections>
+                                </tableRow>
+                                <tableRow identifier="Info" selectable="NO" id="yyP-Dw-hrp" userLabel="Info" customClass="WatchInfo">
+                                    <group key="rootItem" width="1" alignment="left" id="tMY-Lg-ZKV">
+                                        <items>
+                                            <label width="1" height="1" alignment="left" textAlignment="center" numberOfLines="3" id="zK5-zZ-Twj">
+                                                <fontDescription key="font" style="UICTFontTextStyleFootnote"/>
+                                            </label>
+                                        </items>
+                                    </group>
+                                    <connections>
+                                        <outlet property="infoText" destination="zK5-zZ-Twj" id="mC8-th-TaI"/>
+                                    </connections>
+                                </tableRow>
+                            </items>
+                        </table>
+                        <label width="1" alignment="left" hidden="YES" text="Location" textAlignment="center" numberOfLines="10" id="Y0y-Pk-iKr">
+                            <fontDescription key="font" type="system" pointSize="12"/>
+                        </label>
+                    </items>
+                    <menu key="menu" id="LdX-zd-zLR">
+                        <items>
+                            <menuItem title="Home" image="750-home" id="Uzn-bg-0NQ" userLabel="Home">
+                                <connections>
+                                    <action selector="menuItemHome" destination="a7b-HT-MQ9" id="83h-IO-3xU"/>
+                                </connections>
+                            </menuItem>
+                        </items>
+                    </menu>
+                    <connections>
+                        <outlet property="locationStatusLabel" destination="Y0y-Pk-iKr" id="bG5-OS-lDb"/>
+                        <outlet property="map" destination="nRp-ot-zCs" id="ZsG-Zd-IRX"/>
+                        <outlet property="stopTable" destination="tQC-Gk-mRt" id="kid-as-TK4"/>
+                    </connections>
+                </controller>
+            </objects>
+            <point key="canvasLocation" x="90" y="387"/>
+        </scene>
+        <!--Details-->
+        <scene sceneID="TUg-I4-0C2">
+            <objects>
+                <controller identifier="Arrival Details" title="Details" id="aiE-2z-FSj" customClass="WatchArrivalDetailsInterfaceController">
+                    <items>
+                        <map height="100" alignment="left" id="xjF-Kk-FSS"/>
+                        <label width="1" alignment="left" text="Schedule" textAlignment="left" numberOfLines="40" id="klx-We-Ekd">
+                            <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                            <fontDescription key="font" type="system" pointSize="15"/>
+                        </label>
+                        <table alignment="left" id="xHN-SY-e6D">
+                            <items>
+                                <tableRow identifier="Detour" selectable="NO" id="B6D-gT-Zls" customClass="WatchDetour">
+                                    <group key="rootItem" width="1" height="0.0" alignment="left" id="j6x-XV-pDD">
+                                        <items>
+                                            <label alignment="left" text="Detour" textAlignment="left" numberOfLines="100" id="4Be-2p-hrL">
+                                                <color key="textColor" red="1" green="0.50196078431372548" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                            </label>
+                                        </items>
+                                    </group>
+                                    <connections>
+                                        <outlet property="detourText" destination="4Be-2p-hrL" id="3Bc-5K-6C1"/>
+                                    </connections>
+                                </tableRow>
+                            </items>
+                        </table>
+                    </items>
+                    <menu key="menu" id="Udk-6q-smY">
+                        <items>
+                            <menuItem title="Home" image="750-home" id="zyR-z2-16F" userLabel="Home">
+                                <connections>
+                                    <action selector="menuItemHome" destination="aiE-2z-FSj" id="XNR-j2-rxZ"/>
+                                </connections>
+                            </menuItem>
+                        </items>
+                    </menu>
+                    <connections>
+                        <outlet property="detourTable" destination="xHN-SY-e6D" id="UmR-Qh-1UF"/>
+                        <outlet property="labelScheduleInfo" destination="klx-We-Ekd" id="IFi-Xt-fm1"/>
+                        <outlet property="map" destination="xjF-Kk-FSS" id="JoN-OS-Ghp"/>
+                    </connections>
+                </controller>
+            </objects>
+            <point key="canvasLocation" x="359" y="371"/>
+        </scene>
+        <!--Bookmarks-->
+        <scene sceneID="Gi3-ve-gsW">
+            <objects>
+                <controller identifier="Bookmarks" spacing="0.0" id="dfG-2e-wGV" customClass="WatchBookmarksInterfaceController">
+                    <items>
+                        <group width="1" alignment="left" id="DVq-zt-JpJ">
+                            <items>
+                                <button width="0.5" alignment="left" title="Recent Stops" id="fti-Ms-HLM">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="backgroundColor" white="0.25" alpha="1" colorSpace="calibratedWhite"/>
+                                    <connections>
+                                        <action selector="topRecentStops" destination="dfG-2e-wGV" id="swV-N5-Wtt"/>
+                                    </connections>
+                                </button>
+                                <button width="0.5" alignment="left" title="Locate Stops" id="sis-up-c3O">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="backgroundColor" white="0.25" alpha="1" colorSpace="calibratedWhite"/>
+                                    <connections>
+                                        <action selector="topLocateStops" destination="dfG-2e-wGV" id="pT9-zT-wmb"/>
+                                    </connections>
+                                </button>
+                            </items>
+                        </group>
+                        <label width="1" alignment="left" hidden="YES" text="Bookmarks:" textAlignment="left" id="NDe-Ka-05t">
+                            <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                        </label>
+                        <table alignment="left" id="cLB-Zb-uri">
+                            <items>
+                                <tableRow identifier="Bookmark" id="8fd-C6-XDH" userLabel="Bookmark" customClass="WatchBookmark">
+                                    <group key="rootItem" width="1" height="0.0" alignment="left" id="hUv-r0-Oo9">
+                                        <items>
+                                            <imageView width="2" height="35" alignment="left" id="mLC-rq-CrA" userLabel="Spacer"/>
+                                            <label width="1" alignment="left" verticalAlignment="center" text="Bookmark" textAlignment="left" numberOfLines="4" minimumScaleFactor="0.10000000000000001" id="gfM-qe-XiI" userLabel="BookmarkName">
+                                                <fontDescription key="font" style="UICTFontTextStyleBody"/>
+                                            </label>
+                                        </items>
+                                        <edgeInsets key="margins" left="0.0" right="0.0" top="0.0" bottom="0.0"/>
+                                    </group>
+                                    <connections>
+                                        <outlet property="bookmarkName" destination="gfM-qe-XiI" id="TLM-Lb-8VS"/>
+                                    </connections>
+                                </tableRow>
+                                <tableRow identifier="No bookmarks" selectable="NO" id="9wa-ud-5sf" userLabel="No bookmarks" customClass="WatchNoBookmarks">
+                                    <group key="rootItem" width="1" alignment="left" id="apd-LE-iF4">
+                                        <items>
+                                            <label width="1" height="1" alignment="left" text="No bookmarks. Configure on iPhone." textAlignment="center" numberOfLines="3" id="cKg-N5-fy4">
+                                                <fontDescription key="font" type="system" pointSize="12"/>
+                                            </label>
+                                        </items>
+                                    </group>
+                                </tableRow>
+                                <tableRow identifier="No recents" id="fFy-vz-fG7" userLabel="No recents">
+                                    <group key="rootItem" width="1" alignment="left" id="knd-gB-Fk4">
+                                        <items>
+                                            <label alignment="left" verticalAlignment="center" text="No recent stops." id="pmL-CW-4oa" userLabel="No recent stops."/>
+                                        </items>
+                                    </group>
+                                </tableRow>
+                            </items>
+                        </table>
+                        <group width="1" alignment="left" id="Zx4-FL-Lpe">
+                            <items>
+                                <button width="0.5" alignment="left" title="Recent Stops" id="0sK-RF-Grr">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="backgroundColor" white="0.25" alpha="1" colorSpace="calibratedWhite"/>
+                                    <connections>
+                                        <action selector="bottomRecentStops" destination="dfG-2e-wGV" id="aGq-f0-OuR"/>
+                                    </connections>
+                                </button>
+                                <button width="0.5" alignment="left" title="Locate Stops" id="DFB-Tk-tZZ">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="backgroundColor" white="0.25" alpha="1" colorSpace="calibratedWhite"/>
+                                    <connections>
+                                        <action selector="bottomLocateStops" destination="dfG-2e-wGV" id="XKW-GW-coE"/>
+                                    </connections>
+                                </button>
+                            </items>
+                        </group>
+                        <label width="1" alignment="left" text="Note: Set up bookmarks in the iPhone app." textAlignment="center" numberOfLines="4" id="ccv-of-0aE">
+                            <fontDescription key="font" type="system" pointSize="12"/>
+                        </label>
+                    </items>
+                    <menu key="menu" id="4VP-I7-nTd">
+                        <items>
+                            <menuItem title="Home" image="750-home" id="Ld5-c2-Pi1" userLabel="Home">
+                                <connections>
+                                    <action selector="menuItemHome" destination="dfG-2e-wGV" id="fUm-Ax-Mqh"/>
+                                </connections>
+                            </menuItem>
+                        </items>
+                    </menu>
+                    <connections>
+                        <outlet property="bookmarkLabel" destination="NDe-Ka-05t" id="W3c-pq-cFS"/>
+                        <outlet property="bookmarkTable" destination="cLB-Zb-uri" id="XW4-h4-44e"/>
+                        <outlet property="bottomGroup" destination="Zx4-FL-Lpe" id="9wK-QQ-BhY"/>
+                        <outlet property="mainTextLabel" destination="ccv-of-0aE" id="mUl-ks-k8v"/>
+                        <outlet property="topGroup" destination="DVq-zt-JpJ" id="l06-Qe-NSN"/>
+                    </connections>
+                </controller>
+            </objects>
+            <point key="canvasLocation" x="359" y="45"/>
+        </scene>
+    </scenes>
+    <color key="tintColor" red="0.51233841661442159" green="0.75400234875706706" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+</document>

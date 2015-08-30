@@ -584,7 +584,7 @@
 				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kGoCellId] autorelease];
 			}
             cell.textLabel.text = NSLocalizedString(@"Start locating", @"Button text");
-			cell.textLabel.textAlignment = UITextAlignmentCenter;
+			cell.textLabel.textAlignment = NSTextAlignmentCenter;
 			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 			cell.textLabel.font = [self getBasicFont];
 			
@@ -598,7 +598,7 @@
 				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kGoCellId] autorelease];
 			}
             cell.textLabel.text = NSLocalizedString(@"Find nearby stops", @"Button text");
-            cell.textLabel.textAlignment = UITextAlignmentCenter;
+            cell.textLabel.textAlignment = NSTextAlignmentCenter;
 			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 			cell.textLabel.font = [self getBasicFont];
 			

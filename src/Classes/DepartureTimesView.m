@@ -1,5 +1,5 @@
 //
-//  DepartureTimes.m
+//  DepartureTimesView.m
 //  TriMetTimes
 //
 
@@ -11,7 +11,7 @@
 
 
 #import "DepartureTimesView.h"
-#import "Departure.h"
+#import "DepartureUI.h"
 #import "XMLDepartures.h"
 #import "DepartureDetailView.h"
 #import "EditBookMarkView.h"
@@ -23,15 +23,17 @@
 #import "DepartureTimesByBus.h"
 #import "DepartureSortTableView.h"
 #import "UserFaves.h"
-#import "XMLLocateStops.h"
+#import "XMLLocateStopsUI.h"
 #import "AlarmTaskList.h"
 #import "TripPlannerSummaryView.h"
 #import "ProcessQRCodeString.h"
 #import "DebugLogging.h"
 #import "XMLStops.h"
-#import "Vehicle.h"
+// #import "Vehicle.h"
 #import "AlignedBarItemButton.h"
 #import "FindByLocationView.h"
+#import "XMLDeparturesUI.h"
+#import "AlarmAccurateStopProximity.h"
 
 
 #define kSectionDistance	0
@@ -139,7 +141,7 @@ static int depthCount = 0;
 		_sectionExpanded = nil;
 		self.title = @"Arrivals";
 		self.originalDataArray = [[[NSMutableArray alloc] init] autorelease];
-		self.visibleDataArray = self.originalDataArray;
+		[self sortByStop];
 		self.locationsDb = [StopLocations getDatabase];
 		depthCount++;
         _timerPaused = NO;
@@ -149,7 +151,8 @@ static int depthCount = 0;
 
 - (CGFloat) heightOffset
 {
-    if (self.iOS7style && (LargeScreenStyle([self screenWidth]) || (self.screenWidth >= WidthiPhone6)))
+    // if (self.iOS7style && (LargeScreenStyle([self screenWidth]) || (self.screenWidth >= WidthiPhone6)))
+    if (self.iOS7style)
     {
         return -[UIApplication sharedApplication].statusBarFrame.size.height;
     }
@@ -171,6 +174,18 @@ static int depthCount = 0;
 				 ||  ([dd DTDataGetSafeItemCount] > 0 && [[dd DTDataGetDeparture:0] errorMessage]==nil)));
 }
 
+- (void)sortByStop
+{
+    NSMutableArray *uiArray = [[[NSMutableArray alloc] init] autorelease];
+    
+    for (XMLDepartures *dd in self.originalDataArray)
+    {
+        [uiArray addObject:[XMLDeparturesUI createFromData:dd]];
+    }
+    
+    self.visibleDataArray = uiArray;
+}
+
 - (void)sortByBus
 {
 	if ([self.originalDataArray count] == 0)
@@ -180,7 +195,7 @@ static int depthCount = 0;
 	
 	if (!self.blockSort)
 	{
-		self.visibleDataArray = self.originalDataArray;
+        [self sortByStop];
 		return;
 	}
 	
@@ -191,9 +206,9 @@ static int depthCount = 0;
 	int search;
 	int insert;
 	BOOL found;
-	Departure *itemToInsert;
-	Departure *firstItemForBus;
-	Departure *existingItem;
+	DepartureData *itemToInsert;
+	DepartureData *firstItemForBus;
+	DepartureData *existingItem;
 	DepartureTimesByBus *busRoute;
 	XMLDepartures *dd;
 	
@@ -257,7 +272,7 @@ static int depthCount = 0;
 	}
 	else {
 		self.blockSort = NO;
-		self.visibleDataArray = self.originalDataArray;
+        [self sortByStop];
 	}
 	
 	[self clearSections];
@@ -294,7 +309,7 @@ static int depthCount = 0;
             self.navigationItem.prompt = nil;
         }
         
-        XMLDepartures *item0 = [self.originalDataArray objectAtIndex:0];
+        XMLDeparturesUI *item0 = [XMLDeparturesUI createFromData:[self.originalDataArray objectAtIndex:0]];
         
         if (item0 && [item0 DTDataQueryTime] > 0)
         {
@@ -775,7 +790,7 @@ static int depthCount = 0;
 
 
 
-- (void)fetchTimesForNearestStops:(XMLLocateStops*) locator
+- (void)fetchTimesForNearestStops:(XMLLocateStopsUI*) locator
 {
 	
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
@@ -1288,7 +1303,7 @@ static int depthCount = 0;
 {
 	self.backgroundTask.callbackWhenFetching = background;
 	
-	XMLLocateStops *locator = [[[XMLLocateStops alloc] init] autorelease];
+	XMLLocateStopsUI *locator = [[[XMLLocateStopsUI alloc] init] autorelease];
 	
 	locator.maxToFind = max;
 	locator.location = here;
@@ -1535,7 +1550,8 @@ static int depthCount = 0;
     
 	for (i=[self.originalDataArray count]-1; i>=0 ; i--)
 	{
-		XMLDepartures * dep = [self.originalDataArray objectAtIndex:i];
+        XMLDepartures   * dep   = [self.originalDataArray objectAtIndex:i];
+		XMLDeparturesUI * depUI = [XMLDeparturesUI createFromData:dep];
         
         if (_singleMapItem!=nil && dep !=_singleMapItem)
         {
@@ -1544,18 +1560,18 @@ static int depthCount = 0;
 		
 		if (dep.locLat !=nil)
 		{
-			[mapPage addPin:dep];
+			[mapPage addPin:depUI];
             
             if (_blockFilter || _singleMapItem!=nil)
             {
 			
                 for (j=0; j< [dep safeItemCount]; j++)
                 {
-                    Departure *dd = [dep itemAtIndex:j];
+                    DepartureData *dd = [dep itemAtIndex:j];
 				
                     if (dd.hasBlock && ![blocks containsObject:dd.block])
                     {
-                        [mapPage addPin:dd];
+                        [mapPage addPin:[DepartureUI createFromData:dd]];
                         [blocks addObject:dd.block];
                     }
                 }
@@ -1577,7 +1593,7 @@ static int depthCount = 0;
     {
         for (int j=0; j< [dep safeItemCount]; j++)
         {
-            Departure *dd = [dep itemAtIndex:j];
+            DepartureData *dd = [dep itemAtIndex:j];
             
             if (dd.streetcar && dd.blockPositionLat == nil)
             {
@@ -1953,7 +1969,7 @@ static int depthCount = 0;
 					cell.textLabel.text = NSLocalizedString(@"No arrival data for that particular trip.", @"error message");
 					cell.textLabel.adjustsFontSizeToFitWidth = NO;
 					cell.textLabel.numberOfLines = 0;
-					cell.textLabel.lineBreakMode = UILineBreakModeWordWrap;
+                    cell.textLabel.lineBreakMode = NSLineBreakByWordWrapping;
 					cell.textLabel.font = [self getParagraphFont];
 					
 				}
@@ -1968,14 +1984,15 @@ static int depthCount = 0;
 			}
 			else
 			{
-				Departure *departure = [dd DTDataGetDeparture:newIndexPath.row];
-				NSString *cellId = [departure cellReuseIdentifier:kBigDepartureId width:[self screenWidth]];
+				DepartureData *departure = [dd DTDataGetDeparture:newIndexPath.row];
+                DepartureUI *departureUI = [DepartureUI createFromData:departure];
+				NSString *cellId = [departureUI cellReuseIdentifier:kBigDepartureId width:[self screenWidth]];
 				cell = [tableView dequeueReusableCellWithIdentifier:cellId];
 				
 				if (cell == nil) {
-					cell = [departure bigTableviewCellWithReuseIdentifier:cellId width:[self screenWidth]];
+					cell = [departureUI bigTableviewCellWithReuseIdentifier:cellId width:[self screenWidth]];
 				}
-				[dd DTDataPopulateCell:departure cell:cell decorate:YES big:YES wide:LargeScreenStyle([self screenWidth])];
+				[dd DTDataPopulateCell:departureUI cell:cell decorate:YES big:YES wide:LargeScreenStyle([self screenWidth])];
 				// [departure populateCell:cell decorate:YES big:YES];
 				
 			}
@@ -2042,7 +2059,7 @@ static int depthCount = 0;
 				}
 				
 				// Check disclaimers
-				Departure *dep = nil;
+				DepartureData *dep = nil;
 				NSString *streetcarDisclaimer = nil;
 				
 				for (int i=0; i< [dd DTDataGetSafeItemCount] && streetcarDisclaimer==nil; i++)
@@ -2107,7 +2124,7 @@ static int depthCount = 0;
 			if (cell == nil) {
 				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kActionCellId] autorelease];
 			}
-			cell.textLabel.text = [NSString stringWithFormat:NSLocalizedString(@"Show map of arrivals", @"button text")];
+			cell.textLabel.text = NSLocalizedString(@"Show map of arrivals", @"button text");
 			cell.textLabel.textColor = [ UIColor darkGrayColor];
 			cell.textLabel.font = [self getBasicFont];
 			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
@@ -2148,10 +2165,14 @@ static int depthCount = 0;
 			{
 				cell.textLabel.text = NSLocalizedString(@"Cancel proximity alarm", @"button text");
 			}
-			else 
+			else if ([AlarmAccurateStopProximity backgroundLocationAuthorizedOrNotDeterminedShowMsg:NO])
 			{
 				cell.textLabel.text = kUserProximityCellText;
 			}
+            else
+            {
+                cell.textLabel.text = kUserProximityDeniedCellText;
+            }
 
 			cell.textLabel.textColor = [ UIColor darkGrayColor];
 			cell.textLabel.font = [self getBasicFont]; 
@@ -2244,7 +2265,7 @@ static int depthCount = 0;
 		{
 			if ([dd DTDataGetSafeItemCount]!=0 && newIndexPath.row < [dd DTDataGetSafeItemCount])
 			{
-				Departure *departure = [dd DTDataGetDeparture:newIndexPath.row];
+				DepartureData *departure = [dd DTDataGetDeparture:newIndexPath.row];
 		
 				// if (departure.hasBlock || departure.detour)
 				{
@@ -2306,11 +2327,15 @@ static int depthCount = 0;
 			{
 				[taskList cancelTaskForStopIdProximity:dd.DTDataLocID];
 			}
-			else 
+            else if ([AlarmAccurateStopProximity backgroundLocationAuthorizedOrNotDeterminedShowMsg:NO])
 			{
 				self.actionItem = indexPath;
 				[taskList userAlertForProximity:self];
 			}
+            else
+            {
+                [AlarmAccurateStopProximity backgroundLocationAuthorizedOrNotDeterminedShowMsg:YES];
+            }
 			[self reloadData];
 			break;
 		}
@@ -2565,7 +2590,7 @@ static int depthCount = 0;
     
         self.refreshText = [[[UILabel alloc] initWithFrame:buttonRect] autorelease];
         self.refreshText.backgroundColor = [UIColor clearColor];
-        self.refreshText.textAlignment = UITextAlignmentRight;
+        self.refreshText.textAlignment = NSTextAlignmentRight;
     
         UIButton *button = [AlignedBarItemButton suitableButtonRight:YES];
     
@@ -2594,7 +2619,7 @@ static int depthCount = 0;
 	[super viewWillAppear:animated];
 	//Configure and enable the accelerometer
 	
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleChangeInUserSettings:) name:NSUserDefaultsDidChangeNotification object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleChangeInUserSettings:) name:NSUserDefaultsDidChangeNotification object:[NSUserDefaults standardUserDefaults]];
 	
 	[self startTimer];
     
@@ -2706,9 +2731,9 @@ static int depthCount = 0;
 
 - (void) handleChangeInUserSettings:(id)obj
 {
-	[self reloadData];
-	[self stopTimer];
-	[self startTimer];
+    [self reloadData];
+    [self stopTimer];
+    [self startTimer];
 }
 
 #pragma mark BackgroundTask methods

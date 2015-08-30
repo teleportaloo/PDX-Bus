@@ -64,9 +64,9 @@
 		self.locationManager = [[[CLLocationManager alloc] init] autorelease];
 		self.locationManager.delegate = self; // Tells the location manager to send updates to this object
         
-        if ([self.locationManager respondsToSelector:@selector(requestWhenInUseAuthorization)])
+        if ([self.locationManager respondsToSelector:@selector(requestAlwaysAuthorization)])
         {
-            [self.locationManager requestWhenInUseAuthorization];
+            [self.locationManager requestAlwaysAuthorization];
         }
         
 		_failed = false;
@@ -128,6 +128,63 @@
     [super didReceiveMemoryWarning];
 	
 	// Release any cached data, images, etc that aren't in use.
+}
+
++ (bool)locationAuthorizedOrNotDeterminedShowMsg:(bool)msg
+{
+    CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
+    
+    NSString *reason = nil;
+    
+    switch (status)
+    {
+        default:
+            // User has granted authorization to use their location at any time,
+            // including monitoring for regions, visits, or significant location changes.
+        case kCLAuthorizationStatusAuthorizedAlways:
+            // User has not yet made a choice with regards to this application
+        case kCLAuthorizationStatusNotDetermined:
+            // User has granted authorization to use their location only when your app
+            // is visible to them (it will be made visible to them if you continue to
+            // receive location updates while in the background).  Authorization to use
+            // launch APIs has not been granted.
+        case kCLAuthorizationStatusAuthorizedWhenInUse:
+            
+            // IT'S ALL GOOD SO FAR
+            break;
+            // This application is not authorized to use location services.  Due
+            // to active restrictions on location services, the user cannot change
+            // this status, and may not have personally denied authorization
+        case kCLAuthorizationStatusRestricted:
+            reason = @"as access is restricted";
+            break;
+            
+            // User has explicitly denied authorization for this application, or
+            // location services are disabled in Settings.
+        case kCLAuthorizationStatusDenied:
+            reason = @"as access is denied";
+            break;
+    }
+    
+    
+    if (msg && reason != nil)
+    {
+        
+        UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"Location Services",@"location pop-up title")
+                                                           message:[NSString stringWithFormat:NSLocalizedString(@"PDX Bus is not authorized to get location information, %@. Go to the settings app and select PDX Bus to re-enable location services.", @"location warning"), reason]
+                                                              delegate:nil
+                                                     cancelButtonTitle:NSLocalizedString(@"OK",@"OK button")
+                                                     otherButtonTitles:nil] autorelease];
+        [alert show];
+        return NO;
+    }
+    else if (reason !=nil)
+    {
+        return NO;
+    }
+  
+    
+    return YES;
 }
 
 - (void)startLocating
@@ -251,7 +308,7 @@
 	label.font = [UIFont boldSystemFontOfSize:MAIN_FONT_SIZE];
 	label.adjustsFontSizeToFitWidth = NO;
 	label.numberOfLines = 0;
-	label.lineBreakMode = UILineBreakModeWordWrap;
+	label.lineBreakMode = NSLineBreakByWordWrapping;
 	[cell.contentView addSubview:label];
 	label.highlightedTextColor = [UIColor whiteColor];
 	label.textColor  = [UIColor blackColor];
@@ -425,7 +482,7 @@
             {
                 cell.textLabel.text =@"Done";
             }
-            cell.textLabel.textAlignment = UITextAlignmentCenter;
+            cell.textLabel.textAlignment = NSTextAlignmentCenter;
             cell.accessoryType = UITableViewCellAccessoryNone;
             // cell.imageView.image = [self getActionIcon:kIconCancel];
             cell.textLabel.font = [self getBasicFont];
@@ -502,6 +559,11 @@
     }
 }
 */
+
+- (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
+{
+    [LocatingView locationAuthorizedOrNotDeterminedShowMsg:YES];
+}
 
 
 @end

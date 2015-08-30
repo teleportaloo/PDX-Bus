@@ -100,7 +100,7 @@
 				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellId] autorelease];
 				cell.textLabel.font =  [self getBasicFont]; //  [UIFont fontWithName:@"Ariel" size:14];
 				cell.textLabel.adjustsFontSizeToFitWidth = YES;
-				cell.textLabel.textAlignment = UITextAlignmentCenter;
+				cell.textLabel.textAlignment = NSTextAlignmentCenter;
 			}
 			
 			switch (indexPath.row)

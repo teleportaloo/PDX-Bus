@@ -361,7 +361,7 @@ CGRect IASKCGRectSwap(CGRect rect);
 	if ((title = [self tableView:tableView titleForHeaderInSection:section])) {
 		CGSize size = [title sizeWithFont:[UIFont boldSystemFontOfSize:[UIFont labelFontSize]] 
 						constrainedToSize:CGSizeMake(tableView.frame.size.width - 2*kIASKHorizontalPaddingGroupTitles, INFINITY)
-							lineBreakMode:UILineBreakModeWordWrap];
+							lineBreakMode:NSLineBreakByWordWrapping];
 		return size.height+kIASKVerticalPaddingGroupTitles;
 	}
 	return 0;
@@ -463,7 +463,7 @@ CGRect IASKCGRectSwap(CGRect rect);
                                                                                       owner:self 
                                                                                     options:nil] objectAtIndex:0];
 
-            cell.textField.textAlignment = UITextAlignmentLeft;
+            cell.textField.textAlignment = NSTextAlignmentLeft;
             cell.textField.returnKeyType = UIReturnKeyDone;
             cell.accessoryType = UITableViewCellAccessoryNone;
         }
@@ -540,7 +540,7 @@ CGRect IASKCGRectSwap(CGRect rect);
             cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:[specifier type]] autorelease];
         }
         cell.textLabel.text = [specifier title];
-        cell.textLabel.textAlignment = UITextAlignmentCenter;
+        cell.textLabel.textAlignment = NSTextAlignmentCenter;
         return cell;
     } else if ([[specifier type] isEqualToString:kIASKMailComposeSpecifier]) {
         UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:[specifier type]];
@@ -727,7 +727,7 @@ CGRect IASKCGRectSwap(CGRect rect);
             }
             
             mailViewController.mailComposeDelegate = vc;
-            [vc presentModalViewController:mailViewController animated:YES];
+            [vc presentViewController:mailViewController animated:YES completion:nil];
             [mailViewController release];
         } else {
             UIAlertView *alert = [[UIAlertView alloc]
@@ -751,7 +751,7 @@ CGRect IASKCGRectSwap(CGRect rect);
 
 -(void)mailComposeController:(MFMailComposeViewController*)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError*)error {
     // NOTE: No error handling is done here
-    [self dismissModalViewControllerAnimated:YES];
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 #pragma mark -
@@ -767,7 +767,7 @@ CGRect IASKCGRectSwap(CGRect rect);
 }
 
 - (BOOL)textFieldShouldBeginEditing:(UITextField *)textField {
-	[textField setTextAlignment:UITextAlignmentLeft];
+	[textField setTextAlignment:NSTextAlignmentLeft];
 	self.currentFirstResponder = textField;
     return YES;
 }

@@ -16,7 +16,8 @@
 #import <Foundation/Foundation.h>
 #import "TriMetXML.h"
 #import <CoreLocation/CoreLocation.h>
-#import "Vehicle.h"
+#import "VehicleData.h"
+#import "BackgroundTaskProgress.h"
 
 @interface XMLLocateVehicles : TriMetXML
 {

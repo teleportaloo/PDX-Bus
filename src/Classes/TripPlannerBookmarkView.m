@@ -14,11 +14,12 @@
 
 #import "TripPlannerBookmarkView.h"
 #import "XMLDepartures.h"
-
+#import "StopNameCacheManager.h"
 
 @implementation TripPlannerBookmarkView
 @synthesize locList = _locList;
 @synthesize from = _from;
+
 
 - (void)dealloc {
 	self.locList = nil;
@@ -39,7 +40,6 @@
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
 	[UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
-	NSError *parseError = nil;	
 	
 	NSScanner *scanner = [NSScanner scannerWithString:loc];
 	NSCharacterSet *comma = [NSCharacterSet characterSetWithCharactersInString:@","];
@@ -65,18 +65,19 @@
 	[scanner setScanLocation:0];
 	
 	items = 0;
+    
+    StopNameCacheManager *stopNameCache = [TriMetXML getStopNameCacheManager];
 	
 	while ([scanner scanUpToCharactersFromSet:comma intoString:&aLoc])
-	{	
-		XMLDepartures *deps = [[ XMLDepartures alloc ] init];
-		[self.locList addObject:deps];
-		[deps getDeparturesForLocation:aLoc parseError:&parseError];
+	{
+        
+        NSArray *stopName = [stopNameCache getStopNameAndCache:aLoc];
+		[self.locList addObject:stopName];
 		
 		if (![scanner isAtEnd])
 		{
 			scanner.scanLocation++;
 		}
-		[deps release];
 		items++;
 		[self.backgroundTask.callbackWhenFetching backgroundItemsDone:items];
 		
@@ -153,17 +154,11 @@
     }
     
     // Set up the cell...
-	XMLDepartures *dep = [self.locList objectAtIndex:indexPath.row];
+	NSArray *stopName = [self.locList objectAtIndex:indexPath.row];
 	
 	// cell.textLabel.text = dep.locDesc;
-	if (dep.locDesc !=nil)
-	{
-		cell.textLabel.text = [NSString stringWithFormat:@"%@ - %@", dep.locDesc, dep.locDir];
-	}
-	else {
-		cell.textLabel.text = [NSString stringWithFormat:@"Stop ID - %@", dep.locid];
-	}
-
+    cell.textLabel.text = [stopName objectAtIndex:kStopNameCacheLongDescription];
+	
 	cell.textLabel.adjustsFontSizeToFitWidth = true;
 	cell.textLabel.font = [self getBasicFont];
 	
@@ -171,21 +166,7 @@
 	{
 		cell.accessoryType = UITableViewCellAccessoryNone;
 	}
-	else
-	{
-		if (dep.itemArray != nil)
-		{
-			cell.accessoryType = UITableViewCellAccessoryNone;
-			cell.textLabel.text = @"Unknown location";
-		}
-		else
-		{
-			cell.textLabel.text = dep.locid;
-			cell.accessoryType = UITableViewCellAccessoryNone;
-		}
-		
-	}
-		
+    
 	[self maybeAddSectionToAccessibility:cell indexPath:indexPath alwaysSaySection:YES];
     return cell;
 }
@@ -197,7 +178,7 @@
 	// [self.navigationController pushViewController:anotherViewController];
 	// [anotherViewController release];
 	
-	XMLDepartures *dep = [self.locList objectAtIndex:indexPath.row];
+	NSArray *stopName = [self.locList objectAtIndex:indexPath.row];
 	
 /*	if ([self.callback getController] != nil)
 	{
@@ -208,19 +189,11 @@
 	{
 		
 		// cell.textLabel.text = dep.locDesc;
-		if (dep.locDesc !=nil)
-		{
-			
-			[self.callback selectedStop:dep.locid desc:[NSString stringWithFormat:@"%@ - %@", dep.locDesc, dep.locDir]];
-		}
-		else
-		{
-			[self.callback selectedStop:dep.locid desc:nil];
-		}
+		[self.callback selectedStop:[stopName objectAtIndex:kStopNameCacheLocation] desc:[stopName objectAtIndex:kStopNameCacheLongDescription]];
 	}
 	else 
 	{
-		[self.callback selectedStop:dep.locid];
+		[self.callback selectedStop:[stopName objectAtIndex:kStopNameCacheLocation]];
 	}
 	
 }

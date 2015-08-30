@@ -51,6 +51,7 @@
 
 #import "AddressBook/AddressBook.h"
 #import <AddressBook/ABPerson.h>
+#import <CoreLocation/CoreLocation.h>
 
 #define kTableSectionStopId		0
 #define kTableSectionFaves		1
@@ -150,6 +151,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
     self.initialActionArgs  = nil;
     self.goButton           = nil;
     self.helpButton         = nil;
+
 
 	[super dealloc];
 }
@@ -282,7 +284,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
     NSBundle *mainBundle = [NSBundle mainBundle];
     widController.soundToPlay =
         [NSURL fileURLWithPath:[mainBundle pathForResource:@"beep-beep" ofType:@"aiff"] isDirectory:NO];
-    [self presentModalViewController:widController animated:YES];
+    [self presentViewController:widController animated:YES completion:nil];
     [widController release];   
 }
 
@@ -1081,6 +1083,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 	
 }
 
+
 - (void)viewDidLoad {
 #ifndef LOADINGSCREEN
 	self.navigationItem.leftBarButtonItem = self.editButtonItem;    
@@ -1097,6 +1100,8 @@ static NSString *callString = @"tel:1-503-238-RIDE";
         [self executeInitialAction];
         self.delayedInitialAction = NO;
     }
+    
+
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -1113,7 +1118,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 
 - (void) handleChangeInUserSettings:(id)obj
 {
-	[self reloadData];
+    [self reloadData];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -1149,7 +1154,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
     [self updateToolbar];
 	showingLast = false;
 	
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleChangeInUserSettings:) name:NSUserDefaultsDidChangeNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleChangeInUserSettings:) name:NSUserDefaultsDidChangeNotification object:[NSUserDefaults standardUserDefaults]];
     
     
     [self iOS7workaroundPromptGap];
@@ -2184,12 +2189,19 @@ static NSString *callString = @"tel:1-503-238-RIDE";
             switch (row.intValue)
             {
                 case kTableAboutSettings:
-                {				
-                    self.settingsView = [[[IASKAppSettingsViewController alloc] init] autorelease];
+                {
+                    if ([[UIDevice currentDevice].systemVersion floatValue] >= 8.0)
+                    {
+                        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+                    }
+                    else
+                    {
+                        self.settingsView = [[[IASKAppSettingsViewController alloc] init] autorelease];
                     
-                    self.settingsView.showDoneButton = NO;
-                    // Push the detail view controller
-                    [[self navigationController] pushViewController:self.settingsView animated:YES];
+                        self.settingsView.showDoneButton = NO;
+                        // Push the detail view controller
+                        [[self navigationController] pushViewController:self.settingsView animated:YES];
+                    }
                     
                     break;
                 }	    
@@ -2288,7 +2300,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
                         
                         [email setMessageBody:body isHTML:YES];
                         
-                        [self presentModalViewController:email animated:YES];
+                        [self presentViewController:email animated:YES completion:nil];
                         [email release];
                         
                         DEBUG_LOG(@"BODY\n%@\n", body);
@@ -2576,7 +2588,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 // Dismisses the email composition interface when users tap Cancel or Send. Proceeds to update the message field with the result of the operation.
 - (void)mailComposeController:(MFMailComposeViewController*)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError*)error 
 {	
-	[self dismissModalViewControllerAnimated:YES];
+	[self dismissViewControllerAnimated:YES completion:nil];
 }
 
 #pragma mark Alarm tasks callbacks
@@ -2638,7 +2650,26 @@ static NSString *callString = @"tel:1-503-238-RIDE";
     {
         AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
         
-        if (device != nil)
+        if (device == nil)
+        {
+            return NO;
+        }
+        
+        if ([[AVCaptureDevice class] respondsToSelector:@selector(authorizationStatusForMediaType:)])
+        {
+            AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+            
+            switch (authStatus)
+            {
+                case AVAuthorizationStatusAuthorized:
+                case AVAuthorizationStatusNotDetermined:
+                    return YES;
+                case AVAuthorizationStatusDenied:
+                case AVAuthorizationStatusRestricted:
+                    return NO;
+            }
+        }
+        else
         {
             return YES;
         }
@@ -2649,7 +2680,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 
 
 - (void)zxingController:(ZXingWidgetController*)controller didScanResult:(NSString *)result {
-    [self dismissModalViewControllerAnimated:YES];
+    [self dismissViewControllerAnimated:YES completion:nil];
     
     /*
     UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"QR Code read"
@@ -2668,7 +2699,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 - (void)zxingControllerDidCancel:(ZXingWidgetController*)controller {
     [self.progressView removeFromSuperview];
     self.progressView= nil;
-    [self dismissModalViewControllerAnimated:YES];
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)zxingControllerDidDisplay:(ZXingWidgetController *)controller
@@ -2681,7 +2712,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 {
     [self.progressView removeFromSuperview];
     self.progressView= nil;
-    [self dismissModalViewControllerAnimated:YES];  
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 

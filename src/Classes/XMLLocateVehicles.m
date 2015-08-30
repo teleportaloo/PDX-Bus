@@ -14,7 +14,7 @@
 
 
 #import "XMLLocateVehicles.h"
-#import "Vehicle.h"
+#import "VehicleData.h"
 #import <MapKit/MapKit.h>
 #import <MapKit/MKGeometry.h>
 #import "BackgroundTaskContainer.h"
@@ -104,7 +104,7 @@
 	}
 	
     if ([elementName isEqualToString:@"vehicle"]) {
-        Vehicle *currentVehicle = [[Vehicle alloc] init];
+        VehicleData *currentVehicle = [[VehicleData alloc] init];
     
 		currentVehicle.block           = [self safeValueFromDict:attributeDict valueForKey:@"blockID"];
 		currentVehicle.nextLocID       = [self safeValueFromDict:attributeDict valueForKey:@"nextLocID"];

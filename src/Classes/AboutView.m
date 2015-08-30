@@ -70,10 +70,11 @@
                                         "...to http://www.portlandtransport.com for help and advice;\n\n"
                                         "...to Scott, Tim and Mike for beta testing and suggestions;\n\n"
                                         "...to Scott (again) for lending me his brand new iPad;\n\n"
+                                        "...to Scott (again 😃) for feedback on the watch app;\n\n"
                                         "...to Rob Alan for the stylish icon; and\n\n"
                                         "...to CivicApps.org for Awarding PDX Bus the \"Most Appealing\" and \"Best in Show\" awards in July 2010.\n\n"
                                         "Special thanks to Ken for putting up with all this.\n\n"
-                                        "\nCopyright (c) 2008-2014\nAndrew Wallace\n(See legal section above for other copyright owners and attrbutions).",
+                                        "\nCopyright (c) 2008-2015\nAndrew Wallace\n(See legal section above for other copyright owners and attrbutions).",
                                         @"Dedication text"),
                       
                       [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"],
