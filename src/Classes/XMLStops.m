@@ -21,6 +21,7 @@ static NSString *stopsURLString = @"routeConfig/route/%@/dir/%@/stops/true";
 @synthesize direction			= _direction;
 @synthesize routeDescription	= _routeDescription;
 @synthesize afterStop			= _afterStop;
+@synthesize staticQuery         = _staticQuery;
 
 - (void)dealloc
 {
@@ -29,6 +30,7 @@ static NSString *stopsURLString = @"routeConfig/route/%@/dir/%@/stops/true";
 	self.routeId = nil;
 	self.routeDescription = nil;
 	self.afterStop = nil;
+    self.staticQuery = nil;
 	[super dealloc];
 	
 }
@@ -65,6 +67,22 @@ static NSString *stopsURLString = @"routeConfig/route/%@/dir/%@/stops/true";
     
 }
 
+- (NSString*)fullAddressForQuery:(NSString *)query
+{
+    NSString *str = nil;
+    
+    if (self.staticQuery !=nil)
+    {
+        str = self.staticQuery;
+    }
+    else
+    {
+        str = [super fullAddressForQuery:query];
+    }
+    
+    return str;
+    
+}
 
 
 - (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict

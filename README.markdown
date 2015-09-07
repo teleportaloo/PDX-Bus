@@ -20,7 +20,7 @@ Features include:
 
 Route and arrival data provided by permission of TriMet.
 
-PDX Bus 7.9 sources
+PDX Bus 7.11 sources
 ===================
 
 I am making the sources to PDX Bus version 7.9 available as part of the
@@ -182,6 +182,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Change log
 ----------
+### Version 7.11 (September 2015)
+* Added Orange line support including new color and updated MAX and WES MAP
+* Added A Loop and B Loop colors and new streetcar map
+* TriMet API now uses HTTPS.
+
+
 ### Version 7.9 (August 2015)
 * Refactored code into a framework to allow for an extension - refactored other code to separate out the UI from data.
 * Added Apple Watch app with simple arrivals and locate nearby stops.

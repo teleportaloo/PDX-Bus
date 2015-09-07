@@ -34,6 +34,8 @@ typedef enum  {
     NSString *_fullQuery;
 }
 
+
+
 - (NSString *)safeValueFromDict:(NSDictionary *)dict valueForKey:(NSString *)key;
 - (BOOL)startParsing:(NSString *)query parseError:(NSError **)error;
 - (BOOL)startParsing:(NSString *)query parseError:(NSError **)error cacheAction:(CacheAction)cacheAction;
@@ -57,6 +59,7 @@ typedef enum  {
 - (bool)parseRawData:(NSError **)error;
 - (void)appendQueryAndData:(NSMutableData *)buffer;
 + (StopNameCacheManager *)getStopNameCacheManager;
+- (NSString*)fullAddressForQuery:(NSString *)query;
 
 
 

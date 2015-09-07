@@ -429,11 +429,12 @@ static RAILLINES railLines2[MAXHOTSPOTS];
 
 #ifdef CREATE_MAX_ARRAYS
 
-- (void)addLine:(RAILLINES)line route:(NSString*)route direction:(NSString*)direction stations:(NSArray *)stations
+- (void)addLine:(RAILLINES)line route:(NSString*)route direction:(NSString*)direction stations:(NSArray *)stations query:(NSString *)query
 {
 	int i,j,k;
 	
 	XMLStops *xml = [[[XMLStops alloc] init] autorelease];
+    xml.staticQuery = query;
 	
 	NSError *error = nil;
 	
@@ -594,30 +595,33 @@ static RAILLINES railLines2[MAXHOTSPOTS];
 	
 	CODE_LOG(@"\n--------\nStation Names in Alphabetical Order\n--------\n%@\n\n", res);
 	
-	StopLocations *db = [StopLocations getDatabase];
+	StopLocations *db = [StopLocations getWritableDatabase];
 	
 	[db clear];
 	
-	[self addLine:kRedLine route:@"90" direction:@"0" stations:stations];
-	[self addLine:kRedLine route:@"90" direction:@"1" stations:stations];
+	[self addLine:kRedLine route:@"90" direction:@"0" stations:stations query:nil];
+	[self addLine:kRedLine route:@"90" direction:@"1" stations:stations query:nil];
 	
-	[self addLine:kBlueLine route:@"100" direction:@"0" stations:stations];
-	[self addLine:kBlueLine route:@"100" direction:@"1" stations:stations];
+	[self addLine:kBlueLine route:@"100" direction:@"0" stations:stations query:nil];
+	[self addLine:kBlueLine route:@"100" direction:@"1" stations:stations query:nil];
 	
-	[self addLine:kYellowLine route:@"190" direction:@"0" stations:stations];
-	[self addLine:kYellowLine route:@"190" direction:@"1" stations:stations];
+	[self addLine:kYellowLine route:@"190" direction:@"0" stations:stations query:nil];
+	[self addLine:kYellowLine route:@"190" direction:@"1" stations:stations query:nil];
 	
-	[self addLine:kGreenLine route:@"200" direction:@"0" stations:stations];
-	[self addLine:kGreenLine route:@"200" direction:@"1" stations:stations];
+	[self addLine:kGreenLine route:@"200" direction:@"0" stations:stations query:nil];
+	[self addLine:kGreenLine route:@"200" direction:@"1" stations:stations query:nil];
 	
-	[self addLine:kWesLine route:@"203" direction:@"0" stations:stations];
-	[self addLine:kWesLine route:@"203" direction:@"1" stations:stations];
+	[self addLine:kWesLine route:@"203" direction:@"0" stations:stations query:nil];
+	[self addLine:kWesLine route:@"203" direction:@"1" stations:stations query:nil];
 	
-	[self addLine:kStreetcarNsLine route:@"193" direction:@"0" stations:stations];
-	[self addLine:kStreetcarNsLine route:@"193" direction:@"1" stations:stations];
+	[self addLine:kStreetcarNsLine route:@"193" direction:@"0" stations:stations query:nil];
+	[self addLine:kStreetcarNsLine route:@"193" direction:@"1" stations:stations query:nil];
     
-    [self addLine:kStreetcarClLine route:@"194" direction:@"0" stations:stations];
-	[self addLine:kStreetcarClLine route:@"194" direction:@"1" stations:stations];
+    [self addLine:kStreetcarALoop  route:@"194" direction:@"0" stations:stations query:nil];
+	[self addLine:kStreetcarBLoop  route:@"195" direction:@"0" stations:stations query:nil];
+    
+    [self addLine:kOrangeLine route:@"290" direction:@"0" stations:stations query:nil];
+    [self addLine:kOrangeLine route:@"290" direction:@"1" stations:stations query:nil];
 	
 	// Civic Drive is a special case - add it now by hand - when I made the 
 	// stop location database it had been removed from the lines
@@ -629,7 +633,7 @@ static RAILLINES railLines2[MAXHOTSPOTS];
 	[res1 appendString:@"\nstatic RAILLINES railLines[]={\n"];
 	for (i=0; i<nHotSpots; i++)
 	{
-		[res1 appendFormat:@"\t0x%02x,\t", railLines2[i]];
+		[res1 appendFormat:@"\t0x%04x,\t", railLines2[i]];
 		for (RailStation *r in stations)
 		{
 			if (r.index == i)

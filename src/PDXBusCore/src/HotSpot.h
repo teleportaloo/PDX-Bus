@@ -17,7 +17,7 @@
 #import <UIKit/UIKit.h>
 
 
-#define MAXHOTSPOTS 275
+#define MAXHOTSPOTS 278
 #define MAXSTRIPES   40
 
 #define kLinkTypeHttp	'h'
@@ -51,14 +51,17 @@ typedef struct hotspot_struct
 #define kBlueLine   0x0002
 #define kGreenLine  0x0004
 #define kYellowLine 0x0008
-#define kWesLine    0x0010
-#define kStreetcarNsLine	0x0020
-#define kStreetcarClLine	0x0040
+#define kOrangeLine 0x0010
+#define kWesLine    0x0020
+
+#define kStreetcarALoop     0x0040
+#define kStreetcarBLoop     0x0080
+#define kStreetcarNsLine	0x0100
 
 #define MAP_LAST_INDEX 0xFF
 
 
-typedef int RAILLINES;
+typedef unsigned int RAILLINES;
 
 typedef struct alpha_section_struct
 {

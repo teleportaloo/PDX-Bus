@@ -145,9 +145,12 @@
 	[self addLineToRoutes:kRedLine];
 	[self addLineToRoutes:kGreenLine];
 	[self addLineToRoutes:kYellowLine];
-	[self addLineToRoutes:kStreetcarNsLine];
-    [self addLineToRoutes:kStreetcarClLine];
+	[self addLineToRoutes:kStreetcarALoop];
+    [self addLineToRoutes:kStreetcarBLoop];
+    [self addLineToRoutes:kStreetcarNsLine];
 	[self addLineToRoutes:kWesLine];
+    [self addLineToRoutes:kOrangeLine];
+    
     
     if (self.callback)
     {

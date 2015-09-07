@@ -291,8 +291,10 @@
 	tag = [RailStation addLine:cell tag:tag line:kYellowLine        lines:lines];
 	tag = [RailStation addLine:cell tag:tag line:kGreenLine         lines:lines];
 	tag = [RailStation addLine:cell tag:tag line:kWesLine           lines:lines];
-	tag = [RailStation addLine:cell tag:tag line:kStreetcarNsLine   lines:lines];
-    tag = [RailStation addLine:cell tag:tag line:kStreetcarClLine   lines:lines];
+	tag = [RailStation addLine:cell tag:tag line:kStreetcarALoop    lines:lines];
+    tag = [RailStation addLine:cell tag:tag line:kStreetcarBLoop    lines:lines];
+    tag = [RailStation addLine:cell tag:tag line:kStreetcarNsLine   lines:lines];
+    tag = [RailStation addLine:cell tag:tag line:kOrangeLine        lines:lines];
 	
 	for (; tag < MAX_TAG + MAX_LINES; tag++)
 	{

@@ -2,6 +2,9 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <array>
+	<string>.7.11 (September 2015)</string>
+	<string>Added Orange Line stations and updated the map and MAX colors.</string>
+	<string>Updated streetcar colors and map for A Loop and B Loop.</string>
 	<string>.7.9 (August 2015)</string>
 	<string>Added Apple Watch app that supports arrivals for bookmarks, recent stops and nearby stops.</string>
 	<string>Fixed some issues with authorization of localization services and camera;  added diagnostics to the support page.</string>

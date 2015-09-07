@@ -19,6 +19,11 @@
 			<key>orderHint</key>
 			<integer>3</integer>
 		</dict>
+		<key>PDX Bus Create Data.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>8</integer>
+		</dict>
 		<key>PDX Bus Debug.xcscheme</key>
 		<dict>
 			<key>orderHint</key>

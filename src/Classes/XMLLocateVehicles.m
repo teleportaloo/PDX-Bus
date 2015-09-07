@@ -82,7 +82,7 @@
 {
 	NSString *str = nil;
 	
-    str = [NSString stringWithFormat:@"http://developer.trimet.org/beta/v2/%@/appID/%@", query, TRIMET_APP_ID];
+    str = [NSString stringWithFormat:@"https://developer.trimet.org/beta/v2/%@/appID/%@", query, TRIMET_APP_ID];
 	
 	return str;
 	

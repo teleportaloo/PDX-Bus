@@ -35,8 +35,8 @@ int nHotSpots = 0;
 
 static RAILMAP railmaps[] = 
 {
-    {@"MAX & WES Map", @"MAXWESMap",   { 3000, 1691 }, 0, 0, 30, 3, 0, { 0, 0 } },
-    {@"Streetcar Map", @"StreetcarMap",{ 1500, 2075 }, 0, 0, 4, 20, 0, { 0, 0 } },
+    {@"MAX & WES Map", @"MAXWESMap",   { 3000, 1700 }, 0, 0, 30, 3, 0, { 0, 0 } },
+    {@"Streetcar Map", @"StreetcarMap",{ 1500, 2091 }, 0, 0, 4, 20, 0, { 0, 0 } },
     {nil,   0, 0}
 };
 

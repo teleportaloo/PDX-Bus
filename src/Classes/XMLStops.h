@@ -21,6 +21,7 @@
 	NSString		*_routeId;
 	NSString		*_routeDescription;
 	NSString		*_afterStop;
+    NSString        *_staticQuery;
 }
 
 @property (nonatomic, retain) Stop *currentStopObject;
@@ -28,6 +29,7 @@
 @property (nonatomic, retain) NSString *routeId;
 @property (nonatomic, retain) NSString *routeDescription;
 @property (nonatomic, retain) NSString *afterStop;
+@property (nonatomic, retain) NSString *staticQuery;
 
 - (BOOL)getStopsForRoute:(NSString *)route direction:(NSString *)dir 
 			 description:(NSString *)desc parseError:(NSError **)error cacheAction:(CacheAction)cacheAction;

@@ -44,6 +44,7 @@
 	sqlite3_stmt *insert_statement;
 	sqlite3_stmt *select_statement;
 	sqlite3_stmt *replace_statement;
+    bool _writable;
 }
 
 
@@ -52,6 +53,7 @@
 @property (nonatomic, readonly) bool isEmpty;
 
 + (StopLocations*)getDatabase;
++ (StopLocations*)getWritableDatabase;
 + (void)quit;
 
 - (BOOL)insert:(int) locid lat:(double)lat lng:(double)lng rail:(bool)rail;

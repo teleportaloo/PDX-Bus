@@ -226,11 +226,11 @@ static StopNameCacheManager *stopNameCache = nil;
 	
 	if ([query characterAtIndex:[query length]-1] == '&')
 	{
-		str = [NSString stringWithFormat:@"http://developer.trimet.org/ws/V1/%@&appID=%@", query, TRIMET_APP_ID];
+		str = [NSString stringWithFormat:@"https://developer.trimet.org/ws/V1/%@&appID=%@", query, TRIMET_APP_ID];
 	}
 	else
 	{
-		str = [NSString stringWithFormat:@"http://developer.trimet.org/ws/V1/%@/appID/%@", query, TRIMET_APP_ID];
+		str = [NSString stringWithFormat:@"https://developer.trimet.org/ws/V1/%@/appID/%@", query, TRIMET_APP_ID];
 	}
 	
 	return str;
