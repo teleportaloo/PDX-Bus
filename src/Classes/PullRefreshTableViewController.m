@@ -88,24 +88,9 @@
 
 - (CGFloat)widthNow
 {
-    CGRect bounds = [[UIScreen mainScreen] bounds];
+    CGRect bounds = [[[[UIApplication sharedApplication] delegate] window] bounds];
     
-    CGFloat width;
-	
-	switch (self.interfaceOrientation)
-	{
-		case UIInterfaceOrientationPortraitUpsideDown:	
-		case UIInterfaceOrientationPortrait:
-			width = bounds.size.width;
-            break;
-        default:
-		case	UIInterfaceOrientationLandscapeLeft:
-		case	UIInterfaceOrientationLandscapeRight:
-			width = bounds.size.height;
-            break;
-	}
-    
-    return width;
+    return bounds.size.width;
 }
 
 - (void)addPullToRefreshHeader {

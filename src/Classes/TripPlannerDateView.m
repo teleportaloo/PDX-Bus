@@ -56,21 +56,31 @@
 
 - (void)initializeFromBookmark:(TripUserRequest *)req
 {
-	self.tripQuery = [[[XMLTrips alloc] init] autorelease];
-	self.tripQuery.userRequest = req;
-	
-	req.dateAndTime = nil;
-	
-	// Force a getting of the current location
-	if (req.fromPoint.useCurrentLocation)
-	{
-		req.fromPoint.coordinates = nil;
-	}
-	
-	if (req.toPoint.useCurrentLocation)
-	{
-		req.toPoint.coordinates = nil;
-	}
+    self.tripQuery = [[[XMLTrips alloc] init] autorelease];
+    self.tripQuery.userRequest = req;
+    
+    if (!req.historical)
+    {
+    
+        req.dateAndTime = nil;
+    
+        // Force a getting of the current location
+        if (req.fromPoint.useCurrentLocation)
+        {
+            req.fromPoint.coordinates = nil;
+            req.fromPoint.additionalInfo = nil;
+            req.fromPoint.locationDesc = nil;
+        }
+    
+        if (req.toPoint.useCurrentLocation)
+        {
+            req.toPoint.coordinates = nil;
+            req.toPoint.additionalInfo = nil;
+            req.toPoint.locationDesc = nil;
+        }
+    }
+    
+    
 }
 
 #pragma mark TableViewWithToolbar methods
@@ -260,8 +270,11 @@
 	else 
 	{
 		self.tripQuery.userRequest.arrivalTime = (self.tripQuery.userRequest.timeChoice == TripArriveBeforeTime);
-		self.tripQuery.userRequest.dateAndTime = [NSDate date];
 		
+        if (!self.tripQuery.userRequest.historical)
+        {
+            self.tripQuery.userRequest.dateAndTime = [NSDate date];
+        }
 		TripPlannerLocatingView * locView = [[ TripPlannerLocatingView alloc ] init];
 		
 		locView.tripQuery = self.tripQuery;

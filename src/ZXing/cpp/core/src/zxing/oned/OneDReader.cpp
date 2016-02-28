@@ -62,7 +62,7 @@ namespace zxing {
       }
       return result;
     }
-
+#ifndef __clang_analyzer__
     Ref<Result> OneDReader::doDecode(Ref<BinaryBitmap> image, DecodeHints hints) {
       int width = image->getWidth();
       int height = image->getHeight();
@@ -133,6 +133,7 @@ namespace zxing {
       }
       return Ref<Result>();
     }
+#endif
 
     unsigned int OneDReader::patternMatchVariance(int counters[], int countersSize,
         const int pattern[], int maxIndividualVariance) {

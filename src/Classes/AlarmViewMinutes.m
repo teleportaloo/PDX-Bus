@@ -64,7 +64,7 @@
 {
 	CGRect screenRect = [[UIScreen mainScreen] applicationFrame];
 	
-        NSLog(@"%@", (self.view.frame.size.width == ([[UIScreen mainScreen] bounds].size.width*([[UIScreen mainScreen] bounds].size.width<[[UIScreen mainScreen] bounds].size.height))+([[UIScreen mainScreen] bounds].size.height*([[UIScreen mainScreen] bounds].size.width>[[UIScreen mainScreen] bounds].size.height))) ? @"Portrait" : @"Landscape");
+    DEBUG_LOG(@"%@", (self.view.frame.size.width == ([[UIScreen mainScreen] bounds].size.width*([[UIScreen mainScreen] bounds].size.width<[[UIScreen mainScreen] bounds].size.height))+([[UIScreen mainScreen] bounds].size.height*([[UIScreen mainScreen] bounds].size.width>[[UIScreen mainScreen] bounds].size.height))) ? @"Portrait" : @"Landscape");
 
 
     
@@ -133,7 +133,7 @@
 {
 	if (indexPath.row == kAlertViewSectionTitle)
 	{
-		return [AlarmCell rowHeight:[self screenWidth]];
+		return [AlarmCell rowHeight:self.screenInfo.screenWidth];
 	}
 	return [self basicRowHeight];
 }
@@ -146,13 +146,11 @@
 	
 	if (indexPath.row == kAlertViewSectionTitle)
 	{
-		static NSString *CellIdentifier = @"block";
-		
-		AlarmCell *alarmCell = (AlarmCell *)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+		AlarmCell *alarmCell = (AlarmCell *)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kAlertViewSectionTitle)];
 		if (alarmCell == nil) {
-			alarmCell = [AlarmCell tableviewCellWithReuseIdentifier:CellIdentifier 
-															  width:self.screenWidth
-															 height:[AlarmCell rowHeight:self.screenWidth]];
+			alarmCell = [AlarmCell tableviewCellWithReuseIdentifier:MakeCellId(kAlertViewSectionTitle)
+															  width:self.screenInfo.screenWidth
+															 height:[AlarmCell rowHeight:self.screenInfo.screenWidth]];
 		}
 		
 		[alarmCell populateCellLine1:self.dep.locationDesc line2:self.dep.routeName line2col:[UIColor blueColor]];
@@ -164,11 +162,9 @@
 	}
 	else 
 	{
-		static NSString *CellIdentifier = @"DateType";
-		
-		cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+		cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kAlertViewSectionAlert)];
 		if (cell == nil) {
-			cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+			cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kAlertViewSectionAlert)] autorelease];
 		}
 		
 		switch (indexPath.row)

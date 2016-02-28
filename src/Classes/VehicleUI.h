@@ -48,7 +48,8 @@
 - (MKPinAnnotationColor) getPinColor;
 - (bool) showActionMenu;
 - (bool) mapTapped:(id<BackgroundTaskProgress>) progress;
-- (NSString *) tapActionText;
+- (NSString *)tapActionText;
+
 
 
 

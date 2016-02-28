@@ -40,10 +40,6 @@
 #define kHistorySectionRows         1
 
 
-#define kTripOptions @"option cell"
-#define kTripId      @"trip id"
-
-
 @implementation TripPlannerSummaryView
 
 
@@ -190,19 +186,19 @@
 	{
 	case kTripSectionRowOptions:
 		result = [TripLeg getTextHeight:[self.tripQuery.userRequest optionsDisplayText] 
-								  width:[TripLeg bodyTextWidthForScreenWidth:[self screenWidth]]];
+								  width:[TripLeg bodyTextWidth:self.screenInfo]];
 		break;
 	case kTripSectionRowTo:
 		result = [TripLeg getTextHeight:[self.tripQuery.userRequest.toPoint userInputDisplayText] 
-								  width:[TripLeg bodyTextWidthForScreenWidth:[self screenWidth]]];
+								  width:[TripLeg bodyTextWidth:self.screenInfo]];
 		break;
 	case kTripSectionRowFrom:
 		result = [TripLeg getTextHeight:[self.tripQuery.userRequest.fromPoint userInputDisplayText] 
-								  width:[TripLeg bodyTextWidthForScreenWidth:[self screenWidth]]];
+								  width:[TripLeg bodyTextWidth:self.screenInfo]];
 		break;
 	case kTripSectionRowTime:
 			result = [TripLeg getTextHeight:[self.tripQuery.userRequest getDateAndTime] 
-									  width:[TripLeg bodyTextWidthForScreenWidth:[self screenWidth]]];
+									  width:[TripLeg bodyTextWidth:self.screenInfo]];
 		break;
 	case kTripSectionRowPlan:
     case kTripSectionRowHistory:
@@ -217,7 +213,7 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	
 	CGFloat h = [self tableView:[self table] heightForRowAtIndexPath:indexPath];
-	NSString *cellIdentifier = [NSString stringWithFormat:@"TripLeg%f+%d", h,[self screenWidth]];
+	NSString *cellIdentifier = [NSString stringWithFormat:@"TripLeg%f+%f", h, self.screenInfo.appWinWidth];
 	
 	switch([self rowType:indexPath])
 	{
@@ -227,9 +223,9 @@
 			UITableViewCell *cell = (UITableViewCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
 			if (cell == nil) 
 			{
-				cell = [TripLeg tableviewCellWithReuseIdentifier:cellIdentifier 
-													   rowHeight: h 
-													 screenWidth: [self screenWidth]];
+				cell = [TripLeg tableviewCellWithReuseIdentifier:cellIdentifier
+													   rowHeight:h
+                                                      screenInfo:self.screenInfo];
 			}
 			
 			cell.accessoryType = UITableViewCellAccessoryNone;	
@@ -256,12 +252,13 @@
 		}
 		case kTripSectionRowOptions:
 		{
-			UITableViewCell *cell = (UITableViewCell *)[tableView dequeueReusableCellWithIdentifier:kTripOptions];
+            NSString *cellId = MakeCellIdW(kTripSectionRowOptions, self.screenInfo.appWinWidth);
+			UITableViewCell *cell = (UITableViewCell *)[tableView dequeueReusableCellWithIdentifier:cellId];
 			if (cell == nil) 
 			{
-				cell = [TripLeg tableviewCellWithReuseIdentifier:kTripOptions 
-													   rowHeight: h 
-													 screenWidth: [self screenWidth]];
+				cell = [TripLeg tableviewCellWithReuseIdentifier:cellId
+													   rowHeight:h
+													  screenInfo:self.screenInfo];
 			}
 			
 			cell.accessoryType = UITableViewCellAccessoryNone;	
@@ -274,12 +271,14 @@
 			
 		case kTripSectionRowTime:
 		{
-			UITableViewCell *cell = (UITableViewCell *)[tableView dequeueReusableCellWithIdentifier:kTripOptions];
+            NSString *cellId = MakeCellIdW(kTripSectionRowTime, self.screenInfo.appWinWidth);
+			UITableViewCell *cell = (UITableViewCell *)[tableView dequeueReusableCellWithIdentifier:cellId];
 			if (cell == nil) 
 			{
-				cell = [TripLeg tableviewCellWithReuseIdentifier:kTripOptions 
-													   rowHeight: h 
-													 screenWidth: [self screenWidth]];			}
+				cell = [TripLeg tableviewCellWithReuseIdentifier:cellId
+													   rowHeight:h
+													  screenInfo:self.screenInfo];
+            }
 			
 			[TripLeg populateCell:cell body:[self.tripQuery.userRequest getDateAndTime] 
 							 mode:[self.tripQuery.userRequest getTimeType] 
@@ -292,9 +291,9 @@
 		}
 		case kTripSectionRowPlan:
 		{
-			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kTripId];
+			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kTripSectionRowPlan)];
 			if (cell == nil) {
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kTripId] autorelease];
+				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kTripSectionRowPlan)] autorelease];
 			}
 			
 			// Set up the cell
@@ -306,9 +305,9 @@
 		}
         case kTripSectionRowHistory:
 		{
-			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kTripId];
+			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kTripSectionRowHistory)];
 			if (cell == nil) {
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kTripId] autorelease];
+				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kTripSectionRowHistory)] autorelease];
 			}
 			
 			// Set up the cell

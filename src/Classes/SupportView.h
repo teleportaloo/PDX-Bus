@@ -18,15 +18,13 @@
 #define kTips					2
 
 @interface SupportView : TableViewWithToolbar  <CLLocationManagerDelegate> {
-	NSString *supportText;
+	NSAttributedString *supportText;
     NSArray *tipText;
     NSString *_locationText;
     NSString *_cameraText;
     CLLocationManager *_locMan;
     bool _cameraGoesToSettings;
     bool _locationGoesToSettings;
-    
-    
     bool _hideButton;
 }
 

@@ -37,6 +37,6 @@
 @property (nonatomic, retain) NSString *stopTitle;
 
 
-- (BOOL)getDeparturesForLocation:(NSString *)location parseError:(NSError **)error;
+- (BOOL)getDeparturesForLocation:(NSString *)location;
 
 @end

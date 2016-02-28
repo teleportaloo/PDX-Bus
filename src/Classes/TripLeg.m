@@ -16,6 +16,7 @@
 #import "TripLeg.h"
 #import "RouteColorBlobView.h"
 #import "DebugLogging.h"
+#import "FormatDistance.h"
 
 #define kTextViewFontSize		15.0
 #define kTextViewLargeFontSize  20.0
@@ -43,6 +44,7 @@
 
 - (void)dealloc {
 	self.mode		= nil;
+    self.order      = nil;
 	self.xdate		= nil;
 	self.xstartTime	= nil;
 	self.xendTime	= nil;
@@ -74,77 +76,57 @@
 
 + (UIFont*) getBodyFont
 {
-	static UIFont *font = nil;
-	
-	if (font == nil)
-	{
-		CGRect bounds = [[UIScreen mainScreen] bounds];
-		
-		if (bounds.size.width <= MaxiPhoneWidth)
-		{
-			font = [UIFont fontWithName:kFontName size:kTextViewFontSize];
-		}
-		else {
-			font = [UIFont fontWithName:kFontName size:kTextViewLargeFontSize];
-		}
-	}
-	
-	return font;
+    UIFont *font = nil;
+    
+    CGRect bounds = [[[[UIApplication sharedApplication] delegate] window] bounds];
+    
+    if (bounds.size.width <= MaxiPhoneWidth)
+    {
+        font = [UIFont fontWithName:kFontName size:kTextViewFontSize];
+    }
+    else {
+        font = [UIFont fontWithName:kFontName size:kTextViewLargeFontSize];
+    }
+    
+    
+    return font;
 }
 
 + (UIFont*) getBoldBodyFont
 {
-	static UIFont *font = nil;
-	
-	if (font == nil)
-	{
-		CGRect bounds = [[UIScreen mainScreen] bounds];
-		
-		if (bounds.size.width <= MaxiPhoneWidth)
-		{
-			font = [UIFont fontWithName:kBoldFontName size:kTextViewFontSize];
-		}
-		else {
-			font = [UIFont fontWithName:kBoldFontName size:kTextViewLargeFontSize];
-		}
-	}
-	
-	return font;
-}
-
-+ (CGFloat)bodyTextWidthForScreenWidth:(ScreenType)screenWidth
-{
-	CGFloat cellWidth = 0;
-	
+    UIFont *font = nil;
     
-    cellWidth = screenWidth - ScaleFromiPhone(127, screenWidth);
-	
-    /*
-    switch(screenWidth)
-	{
-        default:
-		case WidthiPhoneNarrow:
-			cellWidth = 193;  // 212;
-			break;
-        case WidthiPhone6Narrow:
-            cellWidth = 243;
-			//case WidthiPhoneWide:
-			//	cellWidth = 370.0;
-			//	break;
-            break;
-		case WidthiPadNarrow:
-			cellWidth = 545;
-			break;
-		case WidthiPadWide:
-			cellWidth = 805; // 800.0; //730.0;
-			break;
-	}
-    */
-	
-	return cellWidth;
+    
+    CGRect bounds = [[[[UIApplication sharedApplication] delegate] window] bounds];
+    
+    if (bounds.size.width <= MaxiPhoneWidth)
+    {
+        font = [UIFont fontWithName:kBoldFontName size:kTextViewFontSize];
+    }
+    else {
+        font = [UIFont fontWithName:kBoldFontName size:kTextViewLargeFontSize];
+    }
+    
+    
+    return font;
 }
 
-+ (CGFloat)modeTextWidthForScreenWidth:(ScreenType)screenWidth
+#define LEFT_COLUMN_OFFSET  10.0
+#define MODE_HEIGHT         24.0
+#define MIN_LEFT_V_GAP      5.0
+#define MIN_LEFT_V_MID      5.0
+#define LEFT_V_GAP ((height - MODE_HEIGHT - TIME_HEIGHT) / 3.0)
+#define COLUMN_GAP          3.0
+#define MODE_FONT_SIZE      16.0
+#define RIGHT_COLUMN_OFFSET 5.0
+#define RIGHT_MARGIN        20.0
+
++ (CGFloat)bodyTextWidth:(ScreenInfo)screen
+{
+	return screen.appWinWidth - ([TripLeg modeTextWidthForScreenWidth:screen.screenWidth]+LEFT_COLUMN_OFFSET + COLUMN_GAP + RIGHT_MARGIN);
+}
+
++ (CGFloat)modeTextWidthForScreenWidth:(ScreenWidth)screenWidth
 {
 	CGFloat width = 0;
 	
@@ -160,32 +142,16 @@
 }
 
 
-+ (UITableViewCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier rowHeight:(CGFloat)height screenWidth:(ScreenType)screenWidth
++ (UITableViewCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier rowHeight:(CGFloat)height screenInfo:(ScreenInfo)screen
 {
     
-	CGFloat width = [TripLeg bodyTextWidthForScreenWidth:screenWidth];
+	CGFloat rightColumnWidth = [TripLeg bodyTextWidth:screen];
 	CGRect rect;
 	
 	UITableViewCell *cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier] autorelease];
 	
-#define LEFT_COLUMN_OFFSET 10.0
 	
-	int LEFT_COLUMN_WIDTH  = [TripLeg modeTextWidthForScreenWidth:screenWidth];
-    // #define RIGHT_COLUMN_WIDTH 200.0 with disclosure
-#define RIGHT_COLUMN_WIDTH (width)
-    
-    
-#define MODE_HEIGHT		24.0
-#define MIN_LEFT_V_GAP  5.0
-#define MIN_LEFT_V_MID	5.0
-	
-#define LEFT_V_GAP ((height - MODE_HEIGHT - TIME_HEIGHT) / 3.0)
-#define COLUMN_GAP	3.0
-    
-#define MODE_FONT_SIZE 16.0
-	
-#define RIGHT_COLUMN_OFFSET 5.0
-	
+	int leftColumnWidth  = [TripLeg modeTextWidthForScreenWidth:screen.screenWidth];
     
 	
 	/*
@@ -193,7 +159,7 @@
 	 */
 	UILabel *label;
 	
-	rect = CGRectMake(LEFT_COLUMN_OFFSET, MIN_LEFT_V_MID   , LEFT_COLUMN_WIDTH, height- RIGHT_COLUMN_OFFSET * 2);
+	rect = CGRectMake(LEFT_COLUMN_OFFSET, MIN_LEFT_V_MID   , leftColumnWidth, height- RIGHT_COLUMN_OFFSET * 2);
     
 	label = [[UILabel alloc] initWithFrame:rect];
 	label.tag = MODE_TAG;
@@ -207,7 +173,7 @@
 	label.backgroundColor = [UIColor clearColor];
 	[label release];
 	
-	rect = CGRectMake(LEFT_COLUMN_WIDTH+LEFT_COLUMN_OFFSET + COLUMN_GAP, RIGHT_COLUMN_OFFSET, RIGHT_COLUMN_WIDTH, height - RIGHT_COLUMN_OFFSET * 2);
+	rect = CGRectMake(leftColumnWidth+LEFT_COLUMN_OFFSET + COLUMN_GAP, RIGHT_COLUMN_OFFSET, rightColumnWidth, height - RIGHT_COLUMN_OFFSET * 2);
 	label = [[UILabel alloc] initWithFrame:rect];
 	label.tag = BODY_TAG;
 	label.font = [TripLeg getBodyFont];
@@ -318,36 +284,7 @@ static strmap dirmap [] =
 			lat, lng, desc];
 }
 
-- (NSString *)miles:(NSString *)miles
-{
-	float dist = [miles floatValue];
-	NSString *english = nil;
-	
-	
-	if (dist > 0.5)
-	{
-		english = [NSString stringWithFormat:@"%@ miles", miles];
-	}
-	else {
-		english = [NSString stringWithFormat:@"%d yards", (int)((dist * (float)1760.0)+0.5)];
-	}
-    
-    
-	NSString *metric = nil;
-	
-	dist = dist * 1609.344;
-	
-	if (dist >= 1000.0)
-	{
-		metric = [NSString stringWithFormat:@"%.2f km", dist/1000];
-	}
-	else
-	{
-		metric = [NSString stringWithFormat:@"%.0f meters", dist+0.5];
-	}
-	
-	return [NSString stringWithFormat:@"%@ (%@)", english, metric];
-}
+
 
 - (NSString*)createFromText:(bool)first textType:(TripTextType)type;
 {
@@ -381,13 +318,28 @@ static strmap dirmap [] =
 				{
 					self.from.displayModeText = self.xnumber;
 				}
-				[text appendFormat:				@"Board %@",self.xname];
-				
-				
+                
+                if (self.from.thruRoute)
+                {
+                    self.from.displayModeText = @"Stay on board";
+                    self.from.leftColor = [UIColor blackColor];
+                    [text appendFormat:	@"Stay on board at %@, route changes to '%@'", self.from.xdescription, self.xname];
+                }
+                else
+                {
+                    [text appendFormat:				@"Board %@",self.xname];
+                }
 			}
 			else
 			{
-				[text appendFormat:				@"%@ Board %@",			self.xstartTime, self.xname];
+                if (self.from.thruRoute)
+                {
+                    [text appendFormat:				@"%@ Stay on board %@,  route changes to '%@'", self.xstartTime,	self.from.xdescription, self.xname];
+                }
+                else
+                {
+                    [text appendFormat:				@"%@ Board %@",			self.xstartTime, self.xname];
+                }
 			}
 		}
 		else if (type == TripTextTypeMap)
@@ -396,7 +348,7 @@ static strmap dirmap [] =
 			
 			if (mins > 0)
 			{
-				[text appendFormat:@"Walk %@ %@ ", [self miles:self.xdistance], [self direction:self.xdirection]];
+				[text appendFormat:@"Walk %@ %@ ", [FormatDistance formatMiles:[self.xdistance doubleValue]], [self direction:self.xdirection]];
 			}
 			else
 			{
@@ -428,7 +380,7 @@ static strmap dirmap [] =
 		{
 			[text appendString:@"<br><br>"];
 		}
-		else
+		else if (type == TripTextTypeClip)
 		{
 			[text appendString:@"\n"];
 		}
@@ -482,7 +434,7 @@ static strmap dirmap [] =
                 
 				if (mins > 0)
 				{
-					[text appendFormat:@"Walk %@ %@ ", [self miles:self.xdistance], [self direction:self.xdirection]];
+                    [text appendFormat:@"Walk %@ %@ ", [FormatDistance formatMiles:[self.xdistance doubleValue]], [self direction:self.xdirection]];
 				}
 				else // multiple mins
 				{
@@ -533,13 +485,23 @@ static strmap dirmap [] =
 					break;
 				case TripTextTypeHTML:
 				case TripTextTypeClip:
-					[text appendFormat:	@"%@ get off at %@", self.xendTime, [self mapLink:self.to.xdescription lat:self.to.xlat lng:self.to.xlon textType:type]];
-					break;
+                    if (self.to.thruRoute)
+                    {
+                        [text appendFormat:	@"%@ stay on board at %@", self.xendTime, [self mapLink:self.to.xdescription lat:self.to.xlat lng:self.to.xlon textType:type]];
+                    }
+                    else
+                    {
+                        [text appendFormat:	@"%@ get off at %@", self.xendTime, [self mapLink:self.to.xdescription lat:self.to.xlat lng:self.to.xlon textType:type]];
+                    }
+                    break;
 				case TripTextTypeUI:
 					self.to.displayTimeText = self.xendTime;
-					self.to.displayModeText = @"Deboard";
-					self.to.leftColor = [UIColor redColor];
-					[text appendFormat:	@"Get off at %@", self.to.xdescription];
+                    if (!self.to.thruRoute)
+                    {
+                        self.to.displayModeText = @"Deboard";
+                        self.to.leftColor = [UIColor redColor];
+                        [text appendFormat:	@"Get off at %@", self.to.xdescription];
+                    }
 					break;
 			}
 		}
@@ -568,7 +530,15 @@ static strmap dirmap [] =
 	switch (type)
 	{
         case TripTextTypeHTML:
-            [text appendFormat:				@"<br><br>"];
+            if (!self.to.thruRoute)
+            {
+                [text appendFormat:				@"<br><br>"];
+
+            }
+            else
+            {
+                text = [[[NSMutableString alloc] init] autorelease];
+            }
             break;
         case TripTextTypeMap:
             if ([text length] != 0)
@@ -576,10 +546,14 @@ static strmap dirmap [] =
                 self.to.mapText = text;
             }
             break;
-        case TripTextTypeUI:
+        
         case TripTextTypeClip:
             [text appendFormat:				@"\n"];
-            self.to.displayText = text;
+        case TripTextTypeUI:
+            if (!self.to.thruRoute)
+            {
+                self.to.displayText = text;
+            }
             break;
 	}
 	return text;

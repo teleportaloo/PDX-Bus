@@ -2,6 +2,22 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <array>
+	<string>.8.0 (February 2016)</string>
+	<string>Fixed notifications so #Ralarms#0 will #iactually#i work, added single button to add alarms for planned trips.</string>
+	<string>Updates for #biOS 9#b including searchable bookmarks, stations and routes. The first 4 bookmarks appear as Quick Actions on the home screen for iPhone 6S.</string>
+	<string>$railMap Updated #b#BTriMet#b#0 MAX map - they changed it again to include the new streetcar route names and colors.</string>
+	<string>Using Handoff, arrival screens and trip results can be passed between devices.</string>
+	<string>#BWatch:#0 Improved navigation though lists of stops on the watch by adding a &quot;Next stop&quot; button where appropriate.</string>
+	<string>#BWatch:#0 Added automatic commuter bookmark to the watch.</string>
+	<string>Arrival detail screen is now auto-refreshed; added a map so now you watch watch the bus or train get closer as you wait.</string>
+	<string>Added support for iPad split view and overlay;  updated for iPad Pro screen size.</string>
+	<string>Maps that show routes and stops now also show vehicle locations for that route.</string>
+	<string>$vehicles Maps now show buses &amp; trains as arrows pointing in the direction of travel and using the route color.</string>
+	<string>Trip planner now correctly says to stay on the train if the route color changes (e.g. #OOrange#0 trains change to #YYellow#0).</string>
+	<string>All distances are now given in tenths of a mile or feet if shorter than 0.1 miles.  Metric distances remain the same.</string>
+	<string>For arrivals, added ability to find the nearest stops going in the other direction.</string>
+	<string>Updated help screen with more infomation and #bf#b#io#i#Rr#Gm#Ya#0t#O#bt#b#Ai#On#0g.</string>
+	<string>Bug fixes and stability improvements.</string>
 	<string>.7.11 (September 2015)</string>
 	<string>Added Orange Line stations and updated the map and MAX colors.</string>
 	<string>Updated streetcar colors and map for A Loop and B Loop.</string>
@@ -10,17 +26,17 @@
 	<string>Fixed some issues with authorization of localization services and camera;  added diagnostics to the support page.</string>
 	<string>UI fixes: Fixed issues when rotating trip planner on iPad, and removed a small gap in the arrivals screen on older phones.</string>
 	<string>.7.2 (iOS 8) (December 2014)</string>
-	<string>+http://www.trimet.org/pdfs/maps/railsystem.pdf New MAX &amp; WES map.</string>
-	<string>+http://en.wikipedia.org/wiki/IOS_8 Rebuilt for iOS 8 and iPhone 6 and iPhone 6 Plus.</string>
+	<string>+https://www.trimet.org/pdfs/maps/railsystem.pdf New MAX &amp; WES map.</string>
+	<string>+https://en.wikipedia.org/wiki/IOS_8 Rebuilt for iOS 8 and iPhone 6 and iPhone 6 Plus.</string>
 	<string>Added text to explain the different colors used for the arrival times.</string>
 	<string>Fixed issues with Streetcar arrivals by switching over to the TriMet feed for streetcar data.</string>
 	<string>Re-allowed emoji keyboard for bookmark names.</string>
 	<string>.7.1 - Bug fixes (February 2014)</string>
 	<string>!Fix for all Streetcar arrivals - the data provider changed the data without any warning (the data doesn&apos;t come from TriMet).</string>
-	<string>#settings Added back &apos;Bookmarks at the top&apos; setting.</string>
+	<string>$settings Added back &apos;Bookmarks at the top&apos; setting.</string>
 	<string>iOS 7: Fixed refresh timer button so it doesn&apos;t flash.</string>
 	<string>iOS 7: Fixed some graphics glitches.</string>
-	<string>Canceled busses show the time crossed out.</string>
+	<string>Canceled buses show the time crossed out.</string>
 	<string>Fixed app store link from main screen.</string>
 	<string>Now uses Apple&apos;s geocoder for getting addresses from GPS locations.</string>
 	<string>Fixed issues when GPS is used for destination in Trip Planner.</string>
@@ -31,22 +47,8 @@
 	<string>Toolbar map icon now behaves consistantly &amp; added new menu item to map arrivals</string>
 	<string>+https://github.com/teleportaloo/PDX-Bus/wiki/URL-Scheme Added new URL scheme to allow other apps to launch PDX Bus&apos;s trip planner.</string>
 	<string>+http://robalan.com Icon has been tweaked.</string>
-	<string>#railMap Improved responsiveness, memory usage and display of MAX &amp; Streetcar maps.</string>
-	<string>#stations Minor fixes to station search.</string>
+	<string>$railMap Improved responsiveness, memory usage and display of MAX &amp; Streetcar maps.</string>
+	<string>$stations Minor fixes to station search.</string>
 	<string>The &quot;Nearby stops&quot; option for arrivals has been updated to to show maps, routes or arrivals.</string>
-	<string>.7.0 - iOS 7 updates (January 2014)</string>
-	<string>Updated user interface for iOS 7</string>
-	<string>+http://robalan.com New icon from Rob Alan.</string>
-	<string>#showHighlights Added vehicle color &apos;tags&apos;.</string>
-	<string>#fbTriMet Added TriMet Facebook page.</string>
-	<string>#ticketApp Added support to launch TriMet Tickets App.</string>
-	<string>#flashWarning Added warning for flashing light.</string>
-	<string>#settings Many toolbar icons are now optional - see settings.</string>
-	<string>Fixed location search so that stops that are both bus and rail stops are correctly filtered.</string>
-	<string>Fixed locator screen flow.</string>
-	<string>Large bus line identifier now rotates on iPhone.</string>
-	<string>Disabled screen rotation on old iPads as it did not fully work</string>
-	<string>#stations Added rail map toolbar button to station list screen.</string>
-	<string>-12380,12381,12382 Fixed streetcar arrivals on Harrison.</string>
 </array>
 </plist>

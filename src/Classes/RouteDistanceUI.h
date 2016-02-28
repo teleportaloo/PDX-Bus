@@ -28,8 +28,8 @@
 
 
 + (RouteDistanceUI*)createFromData:(RouteDistanceData*)data;
-- (NSString *)cellReuseIdentifier:(NSString *)identifier width:(ScreenType)width;
-- (UITableViewCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier width:(ScreenType)width;
+- (NSString *)cellReuseIdentifier:(NSString *)identifier width:(ScreenWidth)width;
+- (UITableViewCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier width:(ScreenWidth)width;
 - (void)populateCell:(UITableViewCell *)cell wide:(BOOL)wide;
 
 @property (nonatomic, retain) RouteDistanceData *data;

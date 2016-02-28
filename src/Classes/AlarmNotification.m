@@ -204,5 +204,14 @@
 	return [self.notification.userInfo objectForKey:kStopIdNotification];
 }
 
+- (UIColor *)getPinTint
+{
+    return nil;
+}
+
+- (bool)hasBearing
+{
+    return NO;
+}
 
 @end

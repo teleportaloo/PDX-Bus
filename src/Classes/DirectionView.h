@@ -16,6 +16,7 @@
 #import "ReturnStopId.h"
 #import "XMLRoutes.h"
 
+#define kSearchItemRoute @"org.teleportaloo.pdxbus.route"
 
 @interface DirectionView : TableViewWithToolbar {
 	Route *_route;

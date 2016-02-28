@@ -65,12 +65,7 @@
 {
 	
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	
-	NSThread *thread = [NSThread currentThread];
-	
-	[self.backgroundTask.callbackWhenFetching backgroundThread:thread];
-	
-	
+		
 	[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:@"getting routes"];
 	
 	[locator findNearestRoutes];
@@ -198,7 +193,7 @@
 	NSMutableArray *uniqueStops = [[[NSMutableArray alloc] init] autorelease];
 
 	NSString *lastStop = nil;
-	for (StopDistance *sd in multipleStops)
+	for (StopDistanceData *sd in multipleStops)
 	{
 		if (lastStop == nil || ![sd.locid isEqualToString:lastStop])
 		{
@@ -230,7 +225,7 @@
 	switch (indexPath.section)
 	{
 		case kSectionRoutes:
-			if (LargeScreenStyle([self screenWidth]))
+			if (LargeScreenStyle(self.screenInfo.screenWidth))
 			{
 				return kRouteWideCellHeight;
 			}
@@ -273,12 +268,12 @@
 		{
 			RouteDistanceData *rd = [self.routeData itemAtIndex:indexPath.row];
             RouteDistanceUI *routeUI = [RouteDistanceUI createFromData:rd];
-			NSString *cellId = [routeUI cellReuseIdentifier:@"route" width:[self screenWidth]];
+			NSString *cellId = [routeUI cellReuseIdentifier:@"route" width:self.screenInfo.screenWidth];
 			cell = [tableView dequeueReusableCellWithIdentifier: cellId];
 			if (cell == nil) {
-				cell = [routeUI tableviewCellWithReuseIdentifier:cellId width:[self screenWidth]];
+				cell = [routeUI tableviewCellWithReuseIdentifier:cellId width:self.screenInfo.screenWidth];
 			}
-			[routeUI populateCell:cell wide:[self screenWidth]];
+			[routeUI populateCell:cell wide:self.screenInfo.screenWidth];
 			
 			if (_checked[indexPath.row])
 			{

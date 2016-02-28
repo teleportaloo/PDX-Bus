@@ -54,7 +54,7 @@
 	NSDate *future = [NSDate dateWithTimeIntervalSinceNow:pollingTime];
 	NSThread *thisThread = [NSThread currentThread];
 	
-	DEBUG_LOG(@"Query %@\n", query);
+	// DEBUG_LOG(@"Query: %@\n", query);
 	
 	self.rawData = nil; 
 	
@@ -110,7 +110,7 @@
 		}
 	}
 	
-	DEBUG_LOG(@"Polling count %d\n", pollingCount);
+	// DEBUG_LOG(@"Polling count %d\n", pollingCount);
 		
 	if (!networkActivityIndicatorVisible)
 	{
@@ -120,7 +120,7 @@
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
 {
-	DEBUG_LOG(@"Expected length: %lld\n", response.expectedContentLength);
+	// DEBUG_LOG(@"Expected length: %lld\n", response.expectedContentLength);
 	
 	// Don't pre-allocate more than 32K - seems like it could be a mistake if we need 32K!
 	if (response.expectedContentLength !=-1 && response.expectedContentLength < (32 * 1024))
@@ -136,7 +136,7 @@
 {
 	if (self.rawData !=nil)
 	{
-		DEBUG_LOG(@"Data %lu\n", (unsigned long)[data length]);
+		// DEBUG_LOG(@"Data %lu\n", (unsigned long)[data length]);
 		[self.rawData appendData:data];
 	}
 }
@@ -146,7 +146,7 @@
 	self.rawData = nil;
 	self.dataComplete = YES;
 	self.errorMsg = [error localizedDescription];
-	DEBUG_LOG(@"Error %@ %@\n", [error localizedDescription], [error localizedFailureReason]);
+	ERROR_LOG(@"Connection error %@\n", [error localizedDescription]);
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)theConnection

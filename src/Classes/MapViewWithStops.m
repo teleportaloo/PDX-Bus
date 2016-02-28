@@ -6,7 +6,15 @@
 //  Copyright (c) 2014 Teleportaloo. All rights reserved.
 //
 
+
+
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+
 #import "MapViewWithStops.h"
+#import "DebugLogging.h"
 
 #define kGettingStops @"getting stops"
 
@@ -50,7 +58,6 @@
 - (void)fetchStops:(NSArray*) args
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	[self.backgroundTask.callbackWhenFetching backgroundThread:[NSThread currentThread]];
 	[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:kGettingStops];
     
 	
@@ -58,15 +65,11 @@
 	NSString *dir               = [args objectAtIndex:1];
     id<ReturnStop> returnStop   = [args objectAtIndex:2];
 	
-	NSError *parseError = nil;
-	
 	[self.stopData getStopsForRoute:routeid
 						  direction:dir
 						description:@""
-						 parseError:&parseError
-						cacheAction:TriMetXMLUpdateCache];
+						cacheAction:TriMetXMLForceFetchAndUpdateCache];
 	
-    
     [self addStops:returnStop];
     
     [self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
@@ -81,12 +84,10 @@
 	self.backgroundTask.callbackWhenFetching = callback;
 	self.stopData = [[[XMLStops alloc] init] autorelease];
 	
-	NSError *parseError = nil;
 	if (!self.backgroundRefresh && [self.stopData getStopsForRoute:routeid
 														 direction:dir
 													   description:@""
-														parseError:&parseError
-													   cacheAction:TriMetXMLOnlyReadFromCache])
+													   cacheAction:TriMetXMLCheckCache])
 	{
         [self addStops:returnStop];
 		[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
@@ -100,7 +101,6 @@
 							   withObject:[NSArray arrayWithObjects:args count:sizeof(args)/sizeof(id)]];
         
 	}
-	
 }
 
 

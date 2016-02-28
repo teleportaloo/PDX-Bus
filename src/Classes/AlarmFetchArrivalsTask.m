@@ -22,8 +22,6 @@
 
 #define kTolerance	30
 
-
-
 @implementation AlarmFetchArrivalsTask
 
 @synthesize block		= _block;
@@ -58,13 +56,12 @@
 
 - (NSDate *)fetch:(AlarmTaskList*)parent
 {
-    NSError *error			= nil;
     bool taskDone			= NO;
     NSDate *departureDate	= nil;
     NSTimeInterval waitTime;
     NSDate *	next		= nil;
     
-    [self.departures getDeparturesForLocation:self.stopId block:self.block parseError:&error];
+    [self.departures getDeparturesForLocation:self.stopId block:self.block];
     
     if ([self.departures gotData] && self.departures.safeItemCount >0)
     {
@@ -85,7 +82,7 @@
     }
     else
     {
-        departureDate = [NSDate dateWithTimeIntervalSince1970: TriMetToUnixTime(self.lastFetched.departureTime)];
+        departureDate = TriMetToNSDate(self.lastFetched.departureTime);
         
         
         // No new data here - the bus has probably come by this point.  If it has then this is the time to stop.
@@ -97,7 +94,7 @@
     
     if (!taskDone)
     {
-        departureDate	= [NSDate dateWithTimeIntervalSince1970: TriMetToUnixTime(self.lastFetched.departureTime)];
+        departureDate	= TriMetToNSDate(self.lastFetched.departureTime);
         waitTime		= [departureDate timeIntervalSinceNow];
         
 #ifdef DEBUG_ALARMS
@@ -237,9 +234,11 @@
 
 - (void)cancelTask
 {
+    [self retain];
     [self cancelNotification];
     [self.observer taskDone:self];
     self.observer = nil;
+    [self release];
 }
 
 #ifdef DEBUG_ALARMS
@@ -272,10 +271,9 @@
         [str appendFormat:@"mins %d\n", dep.minsToArrival];
         [str appendFormat:@"secs %d\n", dep.secondsToArrival];
         
-        [str appendFormat:@"QT %@\n", [dateFormatter stringFromDate:
-                                       [NSDate dateWithTimeIntervalSince1970: TriMetToUnixTime(dep.queryTime)]]];
+        [str appendFormat:@"QT %@\n", [dateFormatter stringFromDate:TriMetToNSDate(dep.queryTime)]];
         
-        NSDate *departureDate	= [NSDate dateWithTimeIntervalSince1970: TriMetToUnixTime(dep.departureTime)];
+        NSDate *departureDate	= TriMetToNSDate(dep.departureTime);
         NSDate *alarmTime = [departureDate dateByAddingTimeInterval:(NSTimeInterval)(-(NSTimeInterval)(self.minsToAlert * 60.0 + 30.0))];
         
         [str appendFormat:@"DT %@\n", [dateFormatter stringFromDate: departureDate ]];
@@ -306,23 +304,34 @@
             NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
             [dateFormatter setDateStyle:NSDateFormatterNoStyle];
             [dateFormatter setTimeStyle:NSDateFormatterShortStyle];
-            NSDate *departureDate = [NSDate dateWithTimeIntervalSince1970: TriMetToUnixTime(self.lastFetched.departureTime)];
+            NSDate *departureDate = TriMetToNSDate(self.lastFetched.departureTime);
             
             NSTimeInterval secs = ((double)self.minsToAlert * (-60.0));
             
             NSDate *alarmDate = [NSDate dateWithTimeInterval:secs sinceDate:departureDate];
             if (self.alarmState == AlarmFired)
             {
-                str = [NSString stringWithFormat:NSLocalizedString(@"Alarm done: %@", @"Alarm was done at time {time}"), [dateFormatter stringFromDate: alarmDate]];
-            }
-            else if (self.display)
-            {
-                str = [NSString stringWithFormat:NSLocalizedString(@"Alarm due: %@ (%@)", @"Alarm wil be done at time {time} sent to display"), [dateFormatter stringFromDate: alarmDate], self.display];
+                str = [NSString stringWithFormat:NSLocalizedString(@"Alarm sounded at %@", @"Alarm was done at time {time}"), [dateFormatter stringFromDate: alarmDate]];
             }
             else
             {
-                str = [NSString stringWithFormat:NSLocalizedString(@"Alarm due: %@", @"Alarm wil be done at time {time}"), [dateFormatter stringFromDate: alarmDate]];
-
+                switch (self.minsToAlert)
+                {
+                    case 0:
+                        str = [NSString stringWithFormat:NSLocalizedString(@"Arrival at %@", @"Alarm will be done at time {time}"), [dateFormatter stringFromDate: departureDate]];
+                        break;
+                    case 1:
+                        str = [NSString stringWithFormat:NSLocalizedString(@"1 min before arrival at %@", @"Alarm will be done at time {time}"), [dateFormatter stringFromDate: departureDate], self.display];
+                        break;
+                    default:
+                        str = [NSString stringWithFormat:NSLocalizedString(@"%d mins before arrival at %@", @"Alarm will be done at time {time}"), self.minsToAlert, [dateFormatter stringFromDate: departureDate]];
+                        break;
+                }
+                
+                if (self.display)
+                {
+                    str = [str stringByAppendingFormat:@" (%@)", self.display];
+                }
             }
         }
     }

@@ -10,10 +10,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import "StopDistance.h"
+#import "StopDistanceData.h"
 
 
-@implementation StopDistance
+@implementation StopDistanceData
 
 @synthesize distance    = _distance;
 @synthesize accuracy    = _accuracy;
@@ -44,7 +44,7 @@
 	return self;
 }
 
--(NSComparisonResult)compareUsingDistance:(StopDistance*)inStop
+-(NSComparisonResult)compareUsingDistance:(StopDistanceData*)inStop
 {
 	if (self.distance < inStop.distance)
 	{
@@ -59,6 +59,7 @@
 	return [self.locid compare:inStop.locid];
 }
 
+/*
 - (MKPinAnnotationColor) getPinColor
 {
 	return MKPinAnnotationColorGreen;
@@ -96,6 +97,17 @@
 {
 	return self.locid;
 }
+
+- (UIColor *)getPinTint
+{
+    return nil;
+}
+
+- (bool)hasBearing
+{
+    return NO;
+}
+*/
 
 
 @end

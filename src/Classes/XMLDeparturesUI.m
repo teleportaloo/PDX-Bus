@@ -60,11 +60,7 @@
 // MK Annotate
 - (CLLocationCoordinate2D)coordinate
 {
-	CLLocationCoordinate2D pos;
-	
-	pos.latitude = [_data.locLat doubleValue];
-	pos.longitude = [_data.locLng doubleValue];
-	return pos;
+	return _data.loc.coordinate;
 }
 
 - (NSString *)title
@@ -95,16 +91,20 @@
 }
 - (NSString *)DTDataGetSectionHeader
 {
-	return _data.locDesc;
+    if (_data.locDir!=nil && _data.locDir.length!=0)
+    {
+        return [NSString stringWithFormat:@"%@ (%@)", _data.locDesc, _data.locDir];
+    }
+    return _data.locDesc;
 }
 - (NSString *)DTDataGetSectionTitle
 {
 	return _data.sectionTitle;
 }
 
-- (void)DTDataPopulateCell:(DepartureUI *)dd cell:(UITableViewCell *)cell decorate:(BOOL)decorate big:(BOOL)big wide:(BOOL)wide
+- (void)DTDataPopulateCell:(DepartureUI *)dd cell:(UITableViewCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide
 {
-	[dd populateCell:cell decorate:decorate big:big busName:YES wide:wide];
+	[dd populateCell:cell decorate:decorate busName:YES wide:wide];
 }
 - (NSString *)DTDataStaticText
 {
@@ -113,7 +113,7 @@
 			_data.locDir];
 }
 
-- (StopDistance*)DTDataDistance
+- (StopDistanceData*)DTDataDistance
 {
 	return _data.distance;
 }
@@ -123,22 +123,14 @@
 	return _data.queryTime;
 }
 
-- (NSString *)DTDataLocLat
+- (CLLocation *)DTDataLoc
 {
-	return _data.locLat;
+	return _data.loc;
 }
-- (NSString *)DTDataLocLng
-{
-	return _data.locLng;
-}
+
 - (NSString *)DTDataLocDesc
 {
 	return _data.locDesc;
-}
-
-- (id<MapPinColor>)DTDatagetPin
-{
-	return self;
 }
 
 - (NSString *)DTDataLocID
@@ -169,6 +161,16 @@
 - (NSData *) DTDataHtmlError
 {
 	return _data.htmlError;
+}
+
+- (UIColor *)getPinTint
+{
+    return nil;
+}
+
+- (bool)hasBearing
+{
+    return NO;
 }
 
 

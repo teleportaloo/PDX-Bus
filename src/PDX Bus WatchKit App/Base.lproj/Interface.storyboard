@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="7706" systemVersion="14E46" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="dfG-2e-wGV">
+<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="9060" systemVersion="14F1021" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="dfG-2e-wGV">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="7701"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9051"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="9019"/>
     </dependencies>
     <scenes>
         <!--Arrivals-->
@@ -18,6 +18,17 @@
                             <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             <fontDescription key="font" style="UICTFontTextStyleBody"/>
                         </label>
+                        <group width="1" alignment="left" hidden="YES" id="O5g-9C-ceF" userLabel="Navigation Group">
+                            <items>
+                                <button width="1" height="35" alignment="left" title="Next in bookmark" id="lfz-OV-KHP">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="backgroundColor" white="0.25" alpha="1" colorSpace="calibratedWhite"/>
+                                    <connections>
+                                        <action selector="nextButtonTapped" destination="AgC-eL-Hgc" id="ET9-BN-cqO"/>
+                                    </connections>
+                                </button>
+                            </items>
+                        </group>
                         <table alignment="left" id="4zg-1C-Dxb">
                             <items>
                                 <tableRow identifier="Arrival" id="7YU-Hh-HGA" userLabel="Arrival" customClass="WatchArrival">
@@ -68,21 +79,53 @@
                                         <outlet property="errorMsg" destination="Ghu-0M-BJP" id="OPs-ys-rkx"/>
                                     </connections>
                                 </tableRow>
-                                <tableRow identifier="Static Info" selectable="NO" id="CDV-ri-dlT" userLabel="Static Info" customClass="WatchArrivalInfo">
-                                    <group key="rootItem" width="1" height="0.0" alignment="left" id="POi-uW-o4R">
+                                <tableRow identifier="Detour" selectable="NO" id="lOE-ne-l4s" customClass="WatchDetour">
+                                    <group key="rootItem" width="1" height="0.0" alignment="left" id="Wjr-gv-RTK">
                                         <items>
-                                            <label width="1" alignment="left" text="Info" textAlignment="left" numberOfLines="3" minimumScaleFactor="0.5" id="DoX-BK-7VG">
-                                                <fontDescription key="font" type="system" pointSize="11"/>
+                                            <label alignment="left" text="Detour" textAlignment="left" numberOfLines="100" id="vTj-OL-POd">
+                                                <color key="textColor" red="1" green="0.50196078430000002" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                             </label>
                                         </items>
                                     </group>
                                     <connections>
-                                        <outlet property="arrivalInfoText" destination="DoX-BK-7VG" id="8nn-LJ-4EU"/>
+                                        <outlet property="detourText" destination="vTj-OL-POd" id="oqQ-jp-WV8"/>
+                                    </connections>
+                                </tableRow>
+                                <tableRow identifier="Schedule Info" selectable="NO" id="kvO-KK-a6x" customClass="WatchArrivalScheduleInfo">
+                                    <group key="rootItem" width="1" height="0.0" alignment="left" id="quf-AI-9wF">
+                                        <items>
+                                            <label alignment="left" text="Schedule Info Text" textAlignment="left" numberOfLines="100" id="qZQ-BL-0Cv">
+                                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                            </label>
+                                        </items>
+                                    </group>
+                                    <connections>
+                                        <outlet property="scheduleInfoText" destination="qZQ-BL-0Cv" id="9fI-lK-s07"/>
+                                    </connections>
+                                </tableRow>
+                                <tableRow identifier="Map" selectable="NO" id="yPP-IK-8Bj" customClass="WatchArrivalMap">
+                                    <group key="rootItem" width="1" height="0.0" alignment="left" id="Irp-uN-5Op">
+                                        <items>
+                                            <map height="100" alignment="left" id="3xl-Gh-qIa"/>
+                                        </items>
+                                        <edgeInsets key="margins" left="0.0" right="0.0" top="0.0" bottom="0.0"/>
+                                    </group>
+                                    <connections>
+                                        <outlet property="map" destination="3xl-Gh-qIa" id="oYL-h1-uZc"/>
+                                    </connections>
+                                </tableRow>
+                                <tableRow identifier="Static Info" selectable="NO" id="CDV-ri-dlT" userLabel="Static Info" customClass="WatchArrivalInfo">
+                                    <group key="rootItem" width="1" height="0.0" alignment="left" id="POi-uW-o4R">
+                                        <items>
+                                            <label alignment="left" text="Arrival Info" numberOfLines="3" id="pdX-6j-hud"/>
+                                        </items>
+                                    </group>
+                                    <connections>
+                                        <outlet property="arrivalInfoText" destination="pdX-6j-hud" id="gho-uY-thF"/>
                                     </connections>
                                 </tableRow>
                             </items>
                         </table>
-                        <map height="100" alignment="left" hidden="YES" id="60Z-uQ-s3i"/>
                     </items>
                     <menu key="menu" id="225-fd-WD6">
                         <items>
@@ -101,6 +144,11 @@
                                     <action selector="menuItemNearby" destination="AgC-eL-Hgc" id="WSk-9C-PMh"/>
                                 </connections>
                             </menuItem>
+                            <menuItem title="Commuter bookmark" image="780-building.png" id="1CV-IA-Ool">
+                                <connections>
+                                    <action selector="menuItemCommute" destination="AgC-eL-Hgc" id="bpQ-ir-Rpu"/>
+                                </connections>
+                            </menuItem>
                         </items>
                     </menu>
                     <edgeInsets key="margins" left="0.0" right="0.0" top="0.0" bottom="0.0"/>
@@ -108,12 +156,13 @@
                         <outlet property="arrivalsTable" destination="4zg-1C-Dxb" id="dOj-ni-spg"/>
                         <outlet property="distanceLabel" destination="n3w-p8-oDj" id="jef-pb-06Z"/>
                         <outlet property="labelRefreshing" destination="CdM-RQ-Vg4" id="otP-lZ-Gx7"/>
-                        <outlet property="map" destination="60Z-uQ-s3i" id="7aK-Qd-9zT"/>
+                        <outlet property="navGroup" destination="O5g-9C-ceF" id="MD1-ka-nSV"/>
+                        <outlet property="nextButton" destination="lfz-OV-KHP" id="gEX-7D-pBu"/>
                         <outlet property="stopDescription" destination="THm-Pg-UOG" id="AEt-gM-Z5U"/>
                     </connections>
                 </controller>
             </objects>
-            <point key="canvasLocation" x="623" y="45"/>
+            <point key="canvasLocation" x="525" y="61"/>
         </scene>
         <!--Nearby-->
         <scene sceneID="KMG-D3-FkS">
@@ -160,6 +209,11 @@
                                     <action selector="menuItemHome" destination="a7b-HT-MQ9" id="83h-IO-3xU"/>
                                 </connections>
                             </menuItem>
+                            <menuItem title="Commuter bookmark" image="780-building.png" id="1MC-eW-deh">
+                                <connections>
+                                    <action selector="menuItemCommute" destination="a7b-HT-MQ9" id="kmg-5l-kAE"/>
+                                </connections>
+                            </menuItem>
                         </items>
                     </menu>
                     <connections>
@@ -169,52 +223,35 @@
                     </connections>
                 </controller>
             </objects>
-            <point key="canvasLocation" x="90" y="387"/>
+            <point key="canvasLocation" x="700" y="23"/>
         </scene>
-        <!--Details-->
-        <scene sceneID="TUg-I4-0C2">
+        <!--Information-->
+        <scene sceneID="IWl-GJ-UEN">
             <objects>
-                <controller identifier="Arrival Details" title="Details" id="aiE-2z-FSj" customClass="WatchArrivalDetailsInterfaceController">
+                <controller identifier="Alert" title="Information" id="ed0-6G-j56" customClass="AlertInterfaceController">
                     <items>
-                        <map height="100" alignment="left" id="xjF-Kk-FSS"/>
-                        <label width="1" alignment="left" text="Schedule" textAlignment="left" numberOfLines="40" id="klx-We-Ekd">
-                            <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                            <fontDescription key="font" type="system" pointSize="15"/>
-                        </label>
-                        <table alignment="left" id="xHN-SY-e6D">
-                            <items>
-                                <tableRow identifier="Detour" selectable="NO" id="B6D-gT-Zls" customClass="WatchDetour">
-                                    <group key="rootItem" width="1" height="0.0" alignment="left" id="j6x-XV-pDD">
-                                        <items>
-                                            <label alignment="left" text="Detour" textAlignment="left" numberOfLines="100" id="4Be-2p-hrL">
-                                                <color key="textColor" red="1" green="0.50196078431372548" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                            </label>
-                                        </items>
-                                    </group>
-                                    <connections>
-                                        <outlet property="detourText" destination="4Be-2p-hrL" id="3Bc-5K-6C1"/>
-                                    </connections>
-                                </tableRow>
-                            </items>
-                        </table>
+                        <label alignment="left" textAlignment="left" numberOfLines="0" id="e7g-QK-das"/>
+                        <button width="1" alignment="left" title="OK" id="RHV-US-EhN">
+                            <connections>
+                                <action selector="okButtonTapped" destination="ed0-6G-j56" id="31Z-KN-rFA"/>
+                            </connections>
+                        </button>
                     </items>
-                    <menu key="menu" id="Udk-6q-smY">
+                    <menu key="menu" id="PA7-2y-lM5">
                         <items>
-                            <menuItem title="Home" image="750-home" id="zyR-z2-16F" userLabel="Home">
+                            <menuItem title="Home" image="750-home" id="zfQ-FG-6Ef">
                                 <connections>
-                                    <action selector="menuItemHome" destination="aiE-2z-FSj" id="XNR-j2-rxZ"/>
+                                    <action selector="menuItemHome" destination="ed0-6G-j56" id="OSt-oP-HhN"/>
                                 </connections>
                             </menuItem>
                         </items>
                     </menu>
                     <connections>
-                        <outlet property="detourTable" destination="xHN-SY-e6D" id="UmR-Qh-1UF"/>
-                        <outlet property="labelScheduleInfo" destination="klx-We-Ekd" id="IFi-Xt-fm1"/>
-                        <outlet property="map" destination="xjF-Kk-FSS" id="JoN-OS-Ghp"/>
+                        <outlet property="alertLabel" destination="e7g-QK-das" id="8Fz-jk-GJm"/>
                     </connections>
                 </controller>
             </objects>
-            <point key="canvasLocation" x="359" y="371"/>
+            <point key="canvasLocation" x="708" y="-219"/>
         </scene>
         <!--Bookmarks-->
         <scene sceneID="Gi3-ve-gsW">
@@ -305,6 +342,11 @@
                                     <action selector="menuItemHome" destination="dfG-2e-wGV" id="fUm-Ax-Mqh"/>
                                 </connections>
                             </menuItem>
+                            <menuItem title="Commuter bookmark" image="780-building.png" id="blE-J5-fi1">
+                                <connections>
+                                    <action selector="menuItemCommute" destination="dfG-2e-wGV" id="irX-fF-GxH"/>
+                                </connections>
+                            </menuItem>
                         </items>
                     </menu>
                     <connections>
@@ -316,7 +358,7 @@
                     </connections>
                 </controller>
             </objects>
-            <point key="canvasLocation" x="359" y="45"/>
+            <point key="canvasLocation" x="351" y="54"/>
         </scene>
     </scenes>
     <color key="tintColor" red="0.51233841661442159" green="0.75400234875706706" blue="1" alpha="1" colorSpace="calibratedRGB"/>

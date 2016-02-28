@@ -6,7 +6,12 @@
 //  Copyright (c) 2015 Teleportaloo. All rights reserved.
 //
 
-/* INSERT_LICENSE */
+
+
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 
 #import "WatchNearbyInterfaceController.h"
 #import "StopLocations.h"
@@ -15,7 +20,10 @@
 #import "WatchStop.h"
 #import "StopNameCacheManager.h"
 #import "WatchMapHelper.h"
-#import "WatchArrivalsContext.h"
+#import "WatchArrivalsContextNearby.h"
+#import "UserFaves.h"
+#import "StringHelper.h"
+#import "FormatDistance.h"
 
 #define MAX_AGE					-30.0
 
@@ -153,6 +161,8 @@
 - (void)willActivate {
     // This method is called when watch view controller is about to be visible to user
     [super willActivate];
+    
+    [self autoCommuteAlreadyHome:NO];
 }
 
 - (void)didDeactivate {
@@ -164,12 +174,8 @@
     [self popToRootController];
 }
 
-- (IBAction)doShowListAction {
-
-    if (!_waitingForLocation && self.stops!=nil && self.stops.safeItemCount > 0)
-    {
-        [self pushControllerWithName:@"Stop List" context:self.stops];
-    }
+- (IBAction)menuItemCommute {
+    [self forceCommuteAlreadyHome:NO];
 }
 
 - (void)stopLocating
@@ -183,7 +189,7 @@
     
 }
 
-- (NSString *)stopName:(StopDistance*)item
+- (NSString *)stopName:(StopDistanceData*)item
 {
     NSString *dir = @"";
     
@@ -207,23 +213,30 @@
     
     [self.stopTable setNumberOfRows:self.stops.safeItemCount withRowType:@"Stop"];
     
+    NSMutableString *locs = [StringHelper commaSeparatedStringFromEnumerator:self.stops.itemArray selector:@selector(locid)];
+    
     for (NSInteger i = 0; i < self.stopTable.numberOfRows; i++) {
         
         WatchStop *row = [self.stopTable rowControllerAtIndex:i];
         
-        StopDistance *item = [self.stops itemAtIndex:i];
+        StopDistanceData *item = [self.stops itemAtIndex:i];
     
-        
         row.stopName.text = [self stopName:item];
     }
+    
+    NSMutableDictionary *info = [[[NSMutableDictionary alloc] init] autorelease];
+    
+    [info setObject:@"Nearby" forKey:kUserFavesChosenName];
+    [info setObject:locs forKey:kUserFavesLocation];
+    
+    [self updateUserActivity:kHandoffUserActivityBookmark userInfo:info webpageURL:nil];
 }
 
 - (void)table:(WKInterfaceTable *)table didSelectRowAtIndex:(NSInteger)rowIndex
 {
     if ([[self.stopTable rowControllerAtIndex:rowIndex] isKindOfClass: [WatchStop class]])
     {
-        StopDistance *item = [self.stops itemAtIndex:rowIndex];
-        [self pushControllerWithName:@"Arrivals" context:[WatchArrivalsContext contextWithLocation:item.locid distance:item.distance stopDesc:[self stopName:item]]];
+        [[WatchArrivalsContextNearby contextFromNearbyStops:self.stops index:rowIndex] pushFrom:self];
     }
 }
 
@@ -233,13 +246,20 @@
     
     for(int i = 0; i < self.stops.safeItemCount && i < 6; i++)
     {
-        StopDistance *sd = [self.stops itemAtIndex:i];
+        StopDistanceData *sd = [self.stops itemAtIndex:i];
         
-        [redPins addObject:sd.location];
+        SimpleWatchPin *pin = [[SimpleWatchPin alloc] init];
+        
+        pin.simplePinColor = WKInterfaceMapPinColorRed;
+        pin.simpleCoord    = sd.location.coordinate;
+        
+        [redPins addObject:pin];
+        
+        [pin release];
         
     }
     
-    [WatchMapHelper displayMap:self.map purplePin:self.lastLocation redPins:redPins];    
+    [WatchMapHelper displayMap:self.map purplePin:self.lastLocation otherPins:redPins];
 }
 
 -(id)backgroundTask
@@ -310,7 +330,7 @@
     if (newLocation.horizontalAccuracy > 300)
     {
         // Not acurrate enough!
-        self.buttonText = [NSString stringWithFormat:@"Getting closer %.2f ft", newLocation.horizontalAccuracy * 3.2808398950131235];
+        self.buttonText = [NSString stringWithFormat:@"Getting closer %.2f ft", newLocation.horizontalAccuracy * kFeetInAMetre];
         return;
     }
     

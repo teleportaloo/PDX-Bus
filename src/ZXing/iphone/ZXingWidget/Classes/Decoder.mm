@@ -152,6 +152,7 @@ ZXingWidgetControllerCallback(Decoder* _decoder) : decoder(_decoder) {}
 #endif
 }  
 
+#ifndef __clang_analyzer__
 - (BOOL)decode {
   NSAutoreleasePool* mainpool = [[NSAutoreleasePool alloc] init];
   TwoDDecoderResult *decoderResult = nil;
@@ -255,7 +256,7 @@ ZXingWidgetControllerCallback(Decoder* _decoder) : decoder(_decoder) {}
                           waitUntilDone:NO];
     }
   }
-  
+
   
 #ifdef DEBUG
   NSLog(@"finished decoding.");
@@ -264,10 +265,13 @@ ZXingWidgetControllerCallback(Decoder* _decoder) : decoder(_decoder) {}
 
   return returnCode;
 }
+#endif
 
+#ifndef __clang_analyzer__
 - (BOOL) decodeImage:(UIImage *)i {
   return [self decodeImage:i cropRect:CGRectMake(0.0f, 0.0f, i.size.width, i.size.height)];
 }
+#endif
 
 - (BOOL) decodeImage:(UIImage *)i cropRect:(CGRect)cr {
   self.image = i;

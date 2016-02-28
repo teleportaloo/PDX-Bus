@@ -15,8 +15,9 @@
 #import "XMLRoutes.h"
 #import "DirectionView.h"
 #import "RouteColorBlobView.h"
-
-#define kRouteCellId @"RouteCell"
+#import <CoreSpotlight/CoreSpotlight.h>
+#import <MobileCoreServices/MobileCoreServices.h> 
+#import "DebugLogging.h"
 
 @implementation RouteView
 
@@ -48,13 +49,12 @@
 - (void)fetchRoutes:(id)arg
 {	
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	[self.backgroundTask.callbackWhenFetching backgroundThread:[NSThread currentThread]];
 	[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:@"getting routes"];
 	
-	NSError *parseError = nil;
-	
-	[self.routeData getRoutes:&parseError cacheAction:TriMetXMLUpdateCache];
-													   
+	[self.routeData getRoutesCacheAction:TriMetXMLForceFetchAndUpdateCache];
+    
+    [self indexRoutes];
+    
 	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
 	[pool release];
 }
@@ -64,8 +64,7 @@
 	self.backgroundTask.callbackWhenFetching = callback;
 	self.routeData = [[[XMLRoutes alloc] init] autorelease];
 
-	NSError *parseError = nil;
-	if (!self.backgroundRefresh && [self.routeData getRoutes:&parseError cacheAction:TriMetXMLOnlyReadFromCache])
+	if (!self.backgroundRefresh && [self.routeData getRoutesCacheAction:TriMetXMLCheckCache])
 	{
 		[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
 	}
@@ -73,6 +72,7 @@
 	{
 		[NSThread detachNewThreadSelector:@selector(fetchRoutes:) toTarget:self withObject:nil];
 	}
+ 
 }
 
 #pragma mark Table View methods
@@ -120,9 +120,9 @@
 	{
 	case kSectionRoutes:
 		{		
-			cell = [tableView dequeueReusableCellWithIdentifier:kRouteCellId];
+			cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionRoutes)];
 			if (cell == nil) {
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kRouteCellId] autorelease];
+				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionRoutes)] autorelease];
 				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 				CGRect rect = CGRectMake(0, 0, COLOR_STRIPE_WIDTH, [self tableView:tableView heightForRowAtIndexPath:indexPath]);
 				
@@ -204,6 +204,59 @@
 }
 
 
+- (void)indexRoutes
+{
+    Class searchClass = (NSClassFromString(@"CSSearchableIndex"));
+    
+    if (searchClass == nil || ![CSSearchableIndex isIndexingAvailable])
+    {
+        return;
+    }
+    
+    CSSearchableIndex * searchableIndex = [CSSearchableIndex defaultSearchableIndex];
+    
+    
+    [searchableIndex deleteSearchableItemsWithDomainIdentifiers:[NSArray arrayWithObjects:@"route", nil] completionHandler:^(NSError * __nullable error) {
+        if (error != nil)
+        {
+            ERROR_LOG(@"Failed to delete route index %@\n", error.description);
+        }
+        
+        if ([UserPrefs getSingleton].searchRoutes)
+        {
+            NSMutableArray *index = [[[NSMutableArray alloc] init] autorelease];
+            
+            for (int i=0; i< self.routeData.safeItemCount;  i++)
+            {
+                // Configure the cell
+                Route *route = [self.routeData itemAtIndex:i];
+                
+                CSSearchableItemAttributeSet * attributeSet = [[CSSearchableItemAttributeSet alloc] initWithItemContentType:(NSString*)kUTTypeText];
+                attributeSet.title = route.desc;
+                
+                attributeSet.contentDescription = @"TriMet route";
+                
+                NSString *uniqueId = [NSString stringWithFormat:@"%@:%@", kSearchItemRoute, route.route];
+                
+                CSSearchableItem * item = [[CSSearchableItem alloc] initWithUniqueIdentifier:uniqueId domainIdentifier:@"route" attributeSet:attributeSet];
+                
+                [index addObject:item];
+                
+                [item release];
+                [attributeSet release];
+            }
+            
+            [[CSSearchableIndex defaultSearchableIndex] indexSearchableItems:index completionHandler: ^(NSError * __nullable error) {
+                if (error != nil)
+                {
+                    ERROR_LOG(@"Failed to create route index %@\n", error.description);
+                }
+            }];
+        }
+        
+    }];
+}
+
 - (void)viewDidLoad {
 	[super viewDidLoad];
 	// Add the following line if you want the list to be editable
@@ -228,8 +281,6 @@
 						  atScrollPosition:UITableViewScrollPositionTop 
 								  animated:NO];
 	}
-
-	
 }
 
 #pragma mark UI callbacks

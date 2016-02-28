@@ -14,10 +14,10 @@
 
 
 #import "RouteDistanceUI.h"
-#import "StopDistance.h"
+#import "StopDistanceData.h"
 #import "ScreenConstants.h"
 #import "RouteColorBlobView.h"
-
+#import "FormatDistance.h"
 
 @implementation RouteDistanceUI
 
@@ -56,12 +56,12 @@
 	return ((UILabel*)[cell.contentView viewWithTag:tag]);
 }
 
-- (NSString *)cellReuseIdentifier:(NSString *)identifier width:(ScreenType)width
+- (NSString *)cellReuseIdentifier:(NSString *)identifier width:(ScreenWidth)width
 {
 	return [NSString stringWithFormat:@"%@-%d", identifier, width];
 }
 
-- (UITableViewCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier width:(ScreenType)width
+- (UITableViewCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier width:(ScreenWidth)width
 {
 	CGFloat LEFT_COLUMN_OFFSET			= 11.0;
 	CGFloat LEFT_COLUMN_WIDTH			= 280.0;
@@ -83,7 +83,7 @@
 			//		SHORT_LEFT_COLUMN_WIDTH     = 390.0;
 			//		break;
 		case WidthiPadWide:
-		case WidthiPadNarrow:
+        case WidthBigVariable:
 			LEFT_COLUMN_OFFSET		= 16.0;
 			LEFT_COLUMN_WIDTH		= 560.0;
 			MAIN_FONT_SIZE			= 32.0;
@@ -138,23 +138,6 @@
 	return cell;
 }
 
--(NSString *)formatDistance:(double)distance
-{
-	NSString *str = nil;
-	if (distance < 500)
-	{
-		str = [NSString stringWithFormat:@"Distance: %d ft (%d meters)", (int)(distance * 3.2808398950131235),
-			   (int)(distance) ];
-	}
-	else
-	{
-		str = [NSString stringWithFormat:@"Distance: %.2f miles (%.2f km)", (float)(distance / 1609.344),
-			   (float)(distance / 1000) ];
-	}	
-	return str;
-}
-
-
 - (void)populateCell:(UITableViewCell *)cell wide:(BOOL)wide;
 {
 	cell.textLabel.text = nil;
@@ -170,7 +153,7 @@
 	[self label:cell tag:TIME_TAG			].hidden = NO;
 	[self label:cell tag:ROUTE_TAG			].hidden = NO;
 	timeLabel = [self label:cell tag:TIME_TAG   ];
-	timeLabel.text = [self formatDistance:((StopDistance*)[self.data.stops objectAtIndex:0]).distance];
+	timeLabel.text = [FormatDistance formatMetres:((StopDistanceData*)[self.data.stops objectAtIndex:0]).distance];
 	
 	routeLabel.text = self.data.desc;
 	

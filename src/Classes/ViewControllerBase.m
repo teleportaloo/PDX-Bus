@@ -154,6 +154,12 @@
 }
 
 
+- (bool)iOS9style
+{
+    return [[UIDevice currentDevice].systemVersion floatValue] >= 9.0;
+}
+
+
 - (bool)iOS8style
 {
     return [[UIDevice currentDevice].systemVersion floatValue] >= 8.0;
@@ -253,7 +259,7 @@
 
 }
 
-- (NSUInteger)supportedInterfaceOrientations {
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
     CGRect bounds = [[UIScreen mainScreen] bounds];
 	
 	// Small devices do not need to orient
@@ -304,34 +310,73 @@
 
 }
 
-- (ScreenType)screenWidth
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
 {
-	CGRect bounds = [[UIScreen mainScreen] bounds];
+    if (self.backgroundTask.backgroundThread ==nil)
+    {
+        [self reloadData];
+    }
+}
+
+- (ScreenInfo)screenInfo
+{
+    ScreenInfo res;
     
-	switch ([InterfaceOrientation getInterfaceOrientation:self])
+    CGRect bounds = [[[[UIApplication sharedApplication] delegate] window] bounds];
+
+    res.appWinWidth = bounds.size.width;
+    
+    CGRect deviceBounds = [[UIScreen mainScreen] bounds];
+    
+    UIInterfaceOrientation orientation = [InterfaceOrientation getInterfaceOrientation:self];
+    
+    if (bounds.size.width < deviceBounds.size.width)
+    {
+        orientation = UIInterfaceOrientationPortrait;
+    }
+    
+	switch (orientation)
 	{
 		case UIInterfaceOrientationPortraitUpsideDown:	
 		case UIInterfaceOrientationPortrait:
         case UIInterfaceOrientationUnknown:
 			if (bounds.size.width <= WidthiPhone)
 			{
-				return WidthiPhone;
+				res.screenWidth = WidthiPhone;
 			}
             else if (bounds.size.width <= WidthiPhone6)
             {
-                return WidthiPhone6;
+                res.screenWidth = WidthiPhone6;
             }
             else if (bounds.size.width <= WidthiPhone6Plus)
             {
-                return WidthiPhone6Plus;
+                res.screenWidth = WidthiPhone6Plus;
             }
-			return WidthiPadNarrow;
+            else if (bounds.size.width <= WidthBigVariable)
+            {
+                res.screenWidth = WidthBigVariable;
+            }
+            else
+            {
+                res.screenWidth = WidthBigVariable;
+            }
+            break;
 		case	UIInterfaceOrientationLandscapeLeft:
 		case	UIInterfaceOrientationLandscapeRight:
-			return WidthiPadWide;
+            if (bounds.size.width <= WidthiPadWide)
+            {
+                res.screenWidth = WidthiPadWide;
+            }
+            else
+            {
+                res.screenWidth = WidthBigVariable;
+            }
+            break;
+        default:
+            res.screenWidth = WidthiPadWide;
 	}
 
-	return WidthiPadWide;
+	return res;
 }
 
 - (CGFloat) heightOffset
@@ -352,11 +397,13 @@
     {
         tableViewRect.size.width = [[UIScreen mainScreen] applicationFrame].size.width;
     }
-    DEBUG_LOG(@"Table Width %f\n",tableViewRect.size.width);
+    
     
 	tableViewRect.size.height = [[UIScreen mainScreen] applicationFrame].size.height-[self heightOffset];
 	tableViewRect.origin.x = 0;
 	tableViewRect.origin.y = 0;
+    
+    DEBUG_LOGR(tableViewRect);
 	return tableViewRect;
 }
 
@@ -774,7 +821,7 @@
 	
 	webPage.whenDone = [self.callback getController];
 	[self padRoute:route padding:&padding];
-	[webPage setURLmobile: [NSString stringWithFormat:@"http://www.trimet.org/schedules/r%@.htm",padding]
+	[webPage setURLmobile: [NSString stringWithFormat:@"https://www.trimet.org/schedules/r%@.htm",padding]
 					 full:nil]; 
 	[webPage displayPage:[self navigationController] animated:YES itemToDeselect:nil];
 	[webPage release];
@@ -784,10 +831,23 @@
 
 #pragma mark Common actions
 
+- (bool)fullScreen
+{
+    CGRect myBounds = [[[[UIApplication sharedApplication] delegate] window] bounds];
+    CGRect fullScreen = [[UIScreen mainScreen] bounds];
+    
+    if (fullScreen.size.width == myBounds.size.width)
+    {
+        return YES;
+    }
+    
+    return NO;
+}
+
 - (bool)ZXingSupported
 {
     Class captureDeviceClass = NSClassFromString(@"AVCaptureDevice");
-    if (captureDeviceClass != nil)
+    if (self.fullScreen && captureDeviceClass != nil)
     {
         AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
         
@@ -849,7 +909,7 @@
 	
 	rssPage.callback = self.callback;
 	
-	[rssPage fetchRssInBackground:self.backgroundTask url:[NSString stringWithFormat:@"http://service.govdelivery.com/service/rss/item_updates.rss?code=ORTRIMET_%@", padding]];
+	[rssPage fetchRssInBackground:self.backgroundTask url:[NSString stringWithFormat:@"https://service.govdelivery.com/service/rss/item_updates.rss?code=ORTRIMET_%@", padding]];
 	 
 
 	[rssPage release];
@@ -1073,7 +1133,7 @@
 - (void)facebookTriMet
 {
     static NSString *fbid=@"fb://profile/270344585472";
-    static NSString *fbpath = @"http://m.facebook.com/TriMet";
+    static NSString *fbpath = @"https://m.facebook.com/TriMet";
     
     [self facebookWithId:fbid path:fbpath];
 }
@@ -1081,7 +1141,7 @@
 - (void)facebook
 {
     static NSString *fbid=@"fb://profile/218101161593";
-    static NSString *fbpath = @"http://m.facebook.com/PDXBus";
+    static NSString *fbpath = @"https://m.facebook.com/PDXBus";
     
     [self facebookWithId:fbid path:fbpath];
 }
@@ -1139,7 +1199,7 @@
             
             rss.gotoOriginalArticle = YES;
             
-            [rss fetchRssInBackground:self.backgroundTask url:[NSString stringWithFormat:@"http://api.twitter.com/1/statuses/user_timeline.rss?screen_name=%@", self.tweetAt]];
+            [rss fetchRssInBackground:self.backgroundTask url:[NSString stringWithFormat:@"https://api.twitter.com/1/statuses/user_timeline.rss?screen_name=%@", self.tweetAt]];
             break;
         }
             

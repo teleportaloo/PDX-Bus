@@ -131,7 +131,7 @@
 	@synchronized (_userData)
 	{
 		if (editingStyle == UITableViewCellEditingStyleDelete) {
-			[_userData.recents removeObjectAtIndex:indexPath.section];
+			[_userData.recents removeObjectAtIndex:indexPath.row];
             _userData.favesChanged = YES;
             [_userData cacheAppData];
             

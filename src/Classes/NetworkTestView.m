@@ -53,7 +53,6 @@
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
-	[self.backgroundTask.callbackWhenFetching backgroundThread:[NSThread currentThread]];
 	[self.backgroundTask.callbackWhenFetching backgroundStart:5 title:@"checking network"];
 	
 	self.internetConnectionStatus = [TriMetXML isDataSourceAvailable:YES];
@@ -62,9 +61,7 @@
 	
 	XMLDetour *detours = [[ XMLDetour alloc] init];
 	
-	NSError *error = nil;
-	
-	[detours getDetours:&error];
+	[detours getDetours];
 	
 	self.trimetQueryStatus = [detours gotData];
 	
@@ -87,7 +84,7 @@
 	
 	XMLStreetcarLocations *locations = [XMLStreetcarLocations getSingletonForRoute:@"streetcar"];
 	
-	[locations getLocations:&error];
+	[locations getLocations];
 	
 	self.nextbusQueryStatus = [locations gotData];
 	
@@ -250,10 +247,9 @@
 
 - (UITableViewCell *)networkStatusCell
 {
-	static NSString *CellIdentifier = @"networkstatus";
-	UITableViewCell *cell = [self.table dequeueReusableCellWithIdentifier:CellIdentifier];
+    UITableViewCell *cell = [self.table dequeueReusableCellWithIdentifier:MakeCellId(networkStatusCell)];
 	if (cell == nil) {
-		cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+		cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(networkStatusCell)] autorelease];
 	}
 	
 	// Set up the cell...
@@ -443,7 +439,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 	if ([self adjustSectionNumber:indexPath.section] == kSectionDiagnose)
 	{
-		[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"http://www.trimet.org"]];
+		[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://www.trimet.org"]];
 	}
 }
 

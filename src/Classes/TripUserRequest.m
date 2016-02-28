@@ -27,6 +27,7 @@
 #define kDictUserRequestArrivalTime		@"arrivalTime"
 #define kDictUserRequestTimeChoice		@"timeChoice"
 
+
 @implementation TripUserRequest
 
 @synthesize fromPoint		= _fromPoint;
@@ -39,6 +40,7 @@
 @synthesize arrivalTime		= _arrivalTime;
 @synthesize timeChoice	    = _timeChoice;
 @synthesize takeMeHome      = _takeMeHome;
+@synthesize historical      = _historical;
 
 - (void)dealloc {
 	self.fromPoint = nil;
@@ -261,6 +263,11 @@
 	}
 	
 	self.dateAndTime = [self forceNSDate:[dict objectForKey:kDictUserRequestDateAndTime]];
+    
+    if ([dict objectForKey:kDictUserRequestHistorical])
+    {
+        self.historical = YES;
+    }
     
 	
 	return YES;

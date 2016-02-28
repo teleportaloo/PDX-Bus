@@ -17,6 +17,9 @@
 #import "TripEndPoint.h"
 #import "TriMetTypes.h"
 
+
+#define kDictUserRequestHistorical @"historical"
+
 typedef enum {
 	TripAskForTime,
 	TripDepartAfterTime,
@@ -36,6 +39,7 @@ typedef enum {
 	bool			_arrivalTime;
 	TripTimeChoice  _timeChoice;
     bool            _takeMeHome;
+    bool            _historical;
 }
 
 @property (nonatomic, retain) TripEndPoint	*fromPoint;
@@ -48,6 +52,7 @@ typedef enum {
 @property (nonatomic, retain) NSDate		*dateAndTime;
 @property (nonatomic)		  TripTimeChoice timeChoice;
 @property (nonatomic)         bool          takeMeHome;
+@property (nonatomic)         bool          historical;
 
 - (NSString *)getMode;
 - (NSString *)getMin;

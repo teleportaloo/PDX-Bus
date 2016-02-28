@@ -6,11 +6,20 @@
 //  Copyright (c) 2015 Teleportaloo. All rights reserved.
 //
 
+
+
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+
 #import "WatchMapHelper.h"
+#import "WatchPinColor.h"
+#import "MapAnnotationImage.h"
 
 @implementation WatchMapHelper
 
-+ (void)displayMap:(WKInterfaceMap*)map purplePin:(CLLocation*)purplePin redPins:(NSArray*)redPins
++ (void)displayMap:(WKInterfaceMap*)map purplePin:(CLLocation*)purplePin otherPins:(NSArray*)otherPins
 {
     CLLocationCoordinate2D topLeftCoord;
     topLeftCoord.latitude = -90;
@@ -19,6 +28,13 @@
     CLLocationCoordinate2D bottomRightCoord;
     bottomRightCoord.latitude = 90;
     bottomRightCoord.longitude = -180;
+    
+    MapAnnotationImage *mapAnnotionImage = [MapAnnotationImage getSingleton];
+    
+    
+    mapAnnotionImage.forceRetinaImage = YES;
+    
+    [map removeAllAnnotations];
     
     if (purplePin!=nil)
     {
@@ -31,19 +47,42 @@
         bottomRightCoord.latitude   = fmin(bottomRightCoord.latitude,  purplePin.coordinate.latitude);
     }
     
-    if (redPins!=nil)
+    if (otherPins!=nil)
     {
-        for(NSInteger i = 0; i < redPins.count && i < 6; i++)
+        for(NSInteger i = 0; i < otherPins.count && i < 6; i++)
         {
-            CLLocation *loc = [redPins objectAtIndex:i];
+            id<WatchPinColor> pin = [otherPins objectAtIndex:i];
+            
+            CLLocationCoordinate2D loc = pin.coord;
         
-            topLeftCoord.longitude      = fmin(topLeftCoord.longitude, loc.coordinate.longitude);
-            topLeftCoord.latitude       = fmax(topLeftCoord.latitude,  loc.coordinate.latitude);
+            topLeftCoord.longitude      = fmin(topLeftCoord.longitude, loc.longitude);
+            topLeftCoord.latitude       = fmax(topLeftCoord.latitude,  loc.latitude);
         
-            bottomRightCoord.longitude  = fmax(bottomRightCoord.longitude, loc.coordinate.longitude);
-            bottomRightCoord.latitude   = fmin(bottomRightCoord.latitude, loc.coordinate.latitude);
-        
-            [map addAnnotation:loc.coordinate withPinColor:WKInterfaceMapPinColorRed];
+            bottomRightCoord.longitude  = fmax(bottomRightCoord.longitude, loc.longitude);
+            bottomRightCoord.latitude   = fmin(bottomRightCoord.latitude,  loc.latitude);
+            
+            if (pin.getPinTint==nil)
+            {
+                [map addAnnotation:loc withPinColor:pin.getPinColor];
+            }
+            else if (pin.hasBearing)
+            {
+                
+                bool bus =  [pin.getPinTint isEqual:kMapAnnotationBusColor];
+                UIImage *plainImage  = [mapAnnotionImage getImage:pin.bearing mapRotation:0.0 bus:bus];
+                
+                if (!bus || mapAnnotionImage.tintableImage)
+                {
+                    UIImage *tintedImage = [mapAnnotionImage tintImage:plainImage color:pin.getPinTint];
+                    [map addAnnotation:loc withImage:tintedImage centerOffset:CGPointZero];
+                }
+                else
+                {
+                    [map addAnnotation:loc withImage:plainImage centerOffset:CGPointZero];
+                }
+                
+                
+            }
         }
     }
     
@@ -63,5 +102,6 @@
     [map setRegion:region];
     map.hidden = NO;
 }
+
 
 @end

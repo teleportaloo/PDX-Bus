@@ -153,8 +153,7 @@ static StopNameCacheManager *stopNameCache = nil;
 
 - (NSString *)displayTriMetDate:(TriMetTime)time
 {
-	NSDate *queryTime = [NSDate dateWithTimeIntervalSince1970: TriMetToUnixTime(time)]; 
-	return [self displayDate:queryTime];
+	return [self displayDate:TriMetToNSDate(time)];
 }
 
 - (NSString *)displayDate:(NSDate *)queryTime
@@ -191,6 +190,17 @@ static StopNameCacheManager *stopNameCache = nil;
 	return qT;
 }
 
+- (NSInteger)getNSIntegerFromAttribute:(NSDictionary *)dict valueForKey:(NSString *)key
+{
+    NSInteger n = 0;
+    NSString * val = [self safeValueFromDict:dict valueForKey:key];
+    if (val)
+    {
+        NSScanner *scanner = [NSScanner scannerWithString:val];
+        [scanner scanInteger: &n];
+    }
+    return n;
+}
 
 - (TriMetDistance)getDistanceFromAttribute:(NSDictionary *)dict valueForKey:(NSString *)key
 {
@@ -237,14 +247,15 @@ static StopNameCacheManager *stopNameCache = nil;
 	
 }
 
-- (BOOL)startParsing:(NSString *)query parseError:(NSError **)error
+- (BOOL)startParsing:(NSString *)query
 {
-	return [self startParsing:query parseError:error cacheAction:TriMetXMLNoCaching];
+	return [self startParsing:query cacheAction:TriMetXMLNoCaching];
 }
 
-- (BOOL)startParsing:(NSString *)query parseError:(NSError **)error cacheAction:(CacheAction)cacheAction
+- (BOOL)startParsing:(NSString *)query cacheAction:(CacheAction)cacheAction
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    NSError *parseError = nil;
 	int tries = 2;
 	BOOL succeeded = NO;
     self.itemFromCache = NO;
@@ -265,7 +276,7 @@ static StopNameCacheManager *stopNameCache = nil;
         self.fullQuery = str;
     }
 	
-	if (cacheAction == TriMetXMLOnlyReadFromCache)
+	if (cacheAction == TriMetXMLCheckCache)
 	{
 		tries = 1;
 	}
@@ -276,7 +287,7 @@ static StopNameCacheManager *stopNameCache = nil;
 		if ([TriMetXML isDataSourceAvailable:NO] == YES && ![NSThread currentThread].isCancelled) 
 		{
 			self.rawData = nil;
-			if (cacheAction != TriMetXMLNoCaching && cacheAction != TriMetXMLUseShortCache)
+			if (cacheAction != TriMetXMLNoCaching && cacheAction != TriMetXMLUseShortTermCache)
 			{
 				
                 NSArray *cachedArray = [routeCache getCachedQuery:cacheKey];
@@ -288,6 +299,17 @@ static StopNameCacheManager *stopNameCache = nil;
 					int units = NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit | NSWeekCalendarUnit;
 					NSDateComponents *itemDateComponents = [cal components:units fromDate:itemDate];
 					NSDateComponents *nowDateComponents =  [cal components:units fromDate:[NSDate date]];
+                    
+#define DEBUG_DATE(X) DEBUG_LOG(@"%@ %ld %ld\n", @#X,(long)itemDateComponents.X,(long)nowDateComponents.X)
+                    
+                    DEBUG_DATE(year);
+                    DEBUG_DATE(month);
+                    DEBUG_DATE(day);
+                    DEBUG_DATE(week);
+                    
+                    
+                    
+                     
 					
 					/* This code is just to confirm that weeks change on Sunday! */
 					/*
@@ -324,7 +346,7 @@ static StopNameCacheManager *stopNameCache = nil;
 					//
 					
 					if (
-						cacheAction != TriMetXMLUpdateCache
+						(cacheAction != TriMetXMLForceFetchAndUpdateCache)
 						&&
 						 (
 							(days == 1 && (		itemDateComponents.year  == nowDateComponents.year 
@@ -348,7 +370,7 @@ static StopNameCacheManager *stopNameCache = nil;
 					}
 				}
 				
-				if (self.rawData == nil && cacheAction!=TriMetXMLOnlyReadFromCache)
+				if (self.rawData == nil && cacheAction!=TriMetXMLCheckCache)
 				{
 					self.cacheTime = [NSDate date];
 					[self fetchDataByPolling:str];
@@ -362,13 +384,14 @@ static StopNameCacheManager *stopNameCache = nil;
 
 			if (self.rawData !=nil)
 			{
-				succeeded = [self parseRawData:error];
+				succeeded = [self parseRawData:&parseError];
+                LOG_PARSE_ERROR(parseError);
 			}
 		}
 		tries --;
 	}
     
-    if (!hasData && cacheAction == TriMetXMLUseShortCache)
+    if (!hasData && cacheAction == TriMetXMLUseShortTermCache)
     {
         NSArray *cachedArray = [shortTermCache getCachedQuery:cacheKey];
         
@@ -383,7 +406,8 @@ static StopNameCacheManager *stopNameCache = nil;
                 self.rawData	= [cachedArray objectAtIndex:kCacheData];
                 self.itemFromCache	= YES;
                 self.cacheTime	= itemDate;
-                succeeded       = [self parseRawData:error];
+                succeeded       = [self parseRawData:&parseError];
+                LOG_PARSE_ERROR(parseError);
             }
             else
             {
@@ -407,7 +431,7 @@ static StopNameCacheManager *stopNameCache = nil;
 	}
 	else if (![NSThread currentThread].isCancelled && cacheAction != TriMetXMLNoCaching && !self.itemFromCache)
 	{
-        if (cacheAction == TriMetXMLUseShortCache)
+        if (cacheAction == TriMetXMLUseShortTermCache)
         {
             [shortTermCache addToCache:cacheKey item:self.rawData write:YES];
         }
@@ -601,12 +625,12 @@ static XMLreplacementsNSStrings *replacementsNsString = nil;
 
 - (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict
 {
-#ifdef DEBUGLOGGING
+#ifdef XMLLOGGING
     if (qName) {
         elementName = qName;
     }
     
-    DEBUG_LOG(@"Element: %@\n", elementName);
+    DEBUG_LOG_RAW(@"XML: %@",elementName);
     
     NSEnumerator *i = attributeDict.keyEnumerator;
     NSString *key = nil;
@@ -614,14 +638,14 @@ static XMLreplacementsNSStrings *replacementsNsString = nil;
     
     while ((key = i.nextObject))
     {
-        DEBUG_LOG(@"  %@ = %@\n", key, [attributeDict objectForKey:key]);
+        DEBUG_LOG_RAW(@"XML:  %@ = %@\n", key, [attributeDict objectForKey:key]);
     }
 #endif
 }
 
 - (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName
 {
-#ifdef DEBUGLOGGING
+#ifdef XMLLOGGING
     if (self.contentOfCurrentProperty != nil)
     {
         DEBUG_LOG(@"  Content: %@\n", self.contentOfCurrentProperty);

@@ -20,20 +20,16 @@
 @synthesize pinColor = _pinColor;
 @synthesize pinSubtitle = _pinSubtitle;
 @synthesize pinTitle = _pinTitle;
+@synthesize pinTint = _pinTint;
 
 - (void)dealloc {
 	self.pinSubtitle = nil;
 	self.pinTitle = nil;
+    self.pinTint = nil;
 	[super dealloc];
 }
 
 #pragma mark Setters
-
-- (void)setCoordinateLat:(NSString *)lat lng:(NSString *)lng
-{
-	coord.latitude = 	[lat doubleValue];
-	coord.longitude =  [lng doubleValue];
-}
 
 
 - (void)setCoord:(CLLocationCoordinate2D)value
@@ -64,6 +60,27 @@
 - (bool) showActionMenu
 {
 	return false;
+}
+
+- (UIColor *)getPinTint
+{
+    return self.pinTint;
+}
+
+- (bool)hasBearing
+{
+    return _hasBearing;
+}
+
+- (void)setBearing:(double)bearing
+{
+    _bearing = bearing;
+    _hasBearing = YES;
+}
+
+- (double)bearing
+{
+    return _bearing;
 }
 
 

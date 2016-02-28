@@ -120,10 +120,9 @@
 	{
 		case kSectionSeg:
 		{
-			static NSString *segmentId = @"segment";
-			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:segmentId];
+			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionSeg)];
 			if (cell == nil) {
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:segmentId] autorelease];
+				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionSeg)] autorelease];
 				self.sortSegment = [self createSegmentedControl:
 								   [NSArray arrayWithObjects:
                                                 NSLocalizedString(@"Group by stop", @"button text"),
@@ -144,10 +143,9 @@
 		break;
 		case kSectionInfo:
 		{
-			static NSString *infoId = @"info";
-			CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:infoId];
+			CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionInfo)];
 			if (cell == nil) {
-				cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:infoId] autorelease];
+				cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionInfo)] autorelease];
 				cell.view = [self create_UITextView:[UIColor clearColor] font:TableViewBackFont];
 			}
 			

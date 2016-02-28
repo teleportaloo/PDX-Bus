@@ -17,8 +17,8 @@
 #import "VehicleData.h"
 #import <MapKit/MapKit.h>
 #import <MapKit/MKGeometry.h>
-#import "BackgroundTaskContainer.h"
 #import "XMLStreetcarLocations.h"
+#import "StringHelper.h"
 
 #define MetersInAMile 1609.344
 
@@ -26,10 +26,13 @@
 
 @synthesize location = _location;
 @synthesize dist   = _dist;
+@synthesize direction = _direction;
+@synthesize noErrorAlerts = _noErrorAlerts;
 
 - (void)dealloc
 {
     self.location = nil;
+    self.direction = nil;
     
     [super dealloc];
 }
@@ -38,9 +41,35 @@
 #define min(A,B) ((A) < (B) ? (A) : (B))
 #define max(A,B) ((A) > (B) ? (A) : (B))
 
-- (BOOL)findNearestVehicles
+- (BOOL)findNearestVehicles:(NSSet *)routes direction:(NSString *)direction blocks:(NSSet *)blocks
 {
     NSString *query = nil;
+    
+    NSMutableString *routeIDs = [[[NSMutableString alloc] init] autorelease];
+    NSMutableString *blockQuery   = [[[NSMutableString alloc] init] autorelease];
+    
+    if (routes)
+    {
+        routeIDs = [StringHelper commaSeparatedStringFromEnumerator:routes selector:@selector(self)];
+        
+        [routeIDs insertString:@"/routes/" atIndex:0];
+    }
+    
+    if (blocks)
+    {
+        for (NSString *block in blocks)
+        {
+            if (blockQuery.length > 0)
+            {
+                [blockQuery appendFormat:@","];
+            }
+            
+            [blockQuery appendString:block];
+        }
+        
+        [routeIDs insertString:@"/blocks/" atIndex:0];
+    }
+    
     
     if (self.dist > 1.0)
     {
@@ -56,22 +85,22 @@
         double lonmax = max(northWestCorner.longitude, southEastCorner.longitude);
         double latmax = max(northWestCorner.latitude,  southEastCorner.latitude);
     
-        query = [NSString stringWithFormat:@"vehicles/bbox/%f,%f,%f,%f/xml/true/onRouteOnly/false",
-   					   lonmin,latmin, lonmax, latmax];
+        query = [NSString stringWithFormat:@"vehicles/bbox/%f,%f,%f,%f/xml/true/onRouteOnly/true%@%@",
+   					   lonmin,latmin, lonmax, latmax, routeIDs, blockQuery];
     }
     else
     {
-        query = [NSString stringWithFormat:@"vehicles/xml/true/onRouteOnly/false"];
+        query = [NSString stringWithFormat:@"vehicles/xml/true/onRouteOnly/true%@%@", routeIDs, blockQuery];
     }
     
-	NSError *error = nil;
+    self.direction = direction;
 	
     
-	bool res =  [self startParsing:query parseError:&error cacheAction:TriMetXMLNoCaching];
+	bool res =  [self startParsing:query cacheAction:TriMetXMLNoCaching];
     
     if (self.gotData)
     {
-        [_itemArray sortUsingSelector:@selector(compareUsingDistance:)];
+        [_itemArray sortUsingSelector:NSSelectorFromString(@"compareUsingDistance:")];
     }
 
 	
@@ -82,7 +111,7 @@
 {
 	NSString *str = nil;
 	
-    str = [NSString stringWithFormat:@"https://developer.trimet.org/beta/v2/%@/appID/%@", query, TRIMET_APP_ID];
+    str = [NSString stringWithFormat:@"https://developer.trimet.org/ws/v2/%@/appID/%@", query, TRIMET_APP_ID];
 	
 	return str;
 	
@@ -104,40 +133,52 @@
 	}
 	
     if ([elementName isEqualToString:@"vehicle"]) {
-        VehicleData *currentVehicle = [[VehicleData alloc] init];
+        
+        NSString *dir = [self safeValueFromDict:attributeDict valueForKey:@"direction"];
+        
+        if (self.direction == nil || [self.direction isEqualToString:dir])
+        {
+        
+            VehicleData *currentVehicle = [[VehicleData alloc] init];
     
-		currentVehicle.block           = [self safeValueFromDict:attributeDict valueForKey:@"blockID"];
-		currentVehicle.nextLocID       = [self safeValueFromDict:attributeDict valueForKey:@"nextLocID"];
-        currentVehicle.lastLocID       = [self safeValueFromDict:attributeDict valueForKey:@"nextLocID"];
-        currentVehicle.routeNumber     = [self safeValueFromDict:attributeDict valueForKey:@"routeNumber"];
-        currentVehicle.direction       = [self safeValueFromDict:attributeDict valueForKey:@"direction"];
-        currentVehicle.signMessage     = [attributeDict objectForKey:@"signMessage"];
-        currentVehicle.signMessageLong = [self safeValueFromDict:attributeDict valueForKey:@"signMessageLong"];
-        currentVehicle.type            = [self safeValueFromDict:attributeDict valueForKey:@"type"];
-        currentVehicle.locationTime    = [self getTimeFromAttribute:attributeDict valueForKey:@"time"];
-        currentVehicle.garage          = [self safeValueFromDict:attributeDict valueForKey:@"garage"];
+            currentVehicle.block           = [self safeValueFromDict:attributeDict valueForKey:@"blockID"];
+            currentVehicle.nextLocID       = [self safeValueFromDict:attributeDict valueForKey:@"nextLocID"];
+            currentVehicle.lastLocID       = [self safeValueFromDict:attributeDict valueForKey:@"nextLocID"];
+            currentVehicle.routeNumber     = [self safeValueFromDict:attributeDict valueForKey:@"routeNumber"];
+            currentVehicle.direction       = dir;
+            currentVehicle.signMessage     = [attributeDict objectForKey:@"signMessage"];
+            currentVehicle.signMessageLong = [self safeValueFromDict:attributeDict valueForKey:@"signMessageLong"];
+            currentVehicle.type            = [self safeValueFromDict:attributeDict valueForKey:@"type"];
+            currentVehicle.locationTime    = [self getTimeFromAttribute:attributeDict valueForKey:@"time"];
+            currentVehicle.garage          = [self safeValueFromDict:attributeDict valueForKey:@"garage"];
+            currentVehicle.bearing         = [self safeValueFromDict:attributeDict valueForKey:@"bearing"];
 
-		currentVehicle.location = [[[CLLocation alloc] initWithLatitude:[self getCoordFromAttribute:attributeDict valueForKey:@"latitude"]
+            currentVehicle.location = [[[CLLocation alloc] initWithLatitude:[self getCoordFromAttribute:attributeDict valueForKey:@"latitude"]
                                                                    longitude:[self getCoordFromAttribute:attributeDict valueForKey:@"longitude"] ] autorelease];
         
-        if (self.location != nil)
-        {
-            currentVehicle.distance = [currentVehicle.location distanceFromLocation:self.location];
+            if (self.location != nil)
+            {
+                currentVehicle.distance = [currentVehicle.location distanceFromLocation:self.location];
+            }
+        
+        
+            [self addItem:currentVehicle];
+        
+            [currentVehicle release];
         }
-        
-        
-        [self addItem:currentVehicle];
-        
-        [currentVehicle release];
-		
 	}
 }
 
-
+/*
 
 - (bool)displayErrorIfNoneFound:(id<BackgroundTaskProgress>)progress
 {
 	NSThread *thread = [NSThread currentThread];
+    
+    if (self.noErrorAlerts)
+    {
+        return false;
+    }
 	
 	if ([self safeItemCount] == 0 && ![self gotData])
 	{
@@ -184,6 +225,6 @@
 	return false;
 	
 }
-
+*/
 
 @end

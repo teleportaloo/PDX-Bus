@@ -23,6 +23,8 @@
 #import "DebugLogging.h"
 #import "HotSpot.h"
 #import "RailStation.h"
+#import "NearestVehiclesMap.h"
+#import "AllRailStationView.h"
 
 
 static HOTSPOT hotSpotRegions[MAXHOTSPOTS];
@@ -82,7 +84,7 @@ static RAILMAP railmaps[] =
 
 - (CGFloat) heightOffset
 {
-    if (self.iOS7style && (SmallScreenStyle([self screenWidth]) || (self.screenWidth == WidthiPadNarrow)))
+    if (self.iOS7style && (SmallScreenStyle(self.screenInfo.screenWidth) || (self.screenInfo.screenWidth == WidthBigVariable)))
     {
         return -[UIApplication sharedApplication].statusBarFrame.size.height;
     }
@@ -197,7 +199,20 @@ static RAILMAP railmaps[] =
 	int i,j;
 	CLLocation *here;
 	
-	MapViewController *mapPage = [[MapViewController alloc] init];
+    NearestVehiclesMap *mapPage = [[[NearestVehiclesMap alloc] init] autorelease];
+    
+    if (_railMapIndex == kRailMapPdxStreetcar)
+    {
+        mapPage.streetcarRoutes = nil;
+        mapPage.trimetRoutes = [NSSet set];
+        mapPage.title = @"Portland Streetcar";
+    }
+    else
+    {
+        mapPage.streetcarRoutes = [NSSet set];
+        mapPage.trimetRoutes = [TriMetRouteColors triMetRoutes];
+        mapPage.title = @"MAX & WES";
+    }
 	
 	for (i=_railMap->firstHotspot; i<= _railMap->lastHotspot;  i++)
 	{
@@ -236,9 +251,8 @@ static RAILMAP railmaps[] =
 	
 	mapPage.callback = self.callback;
 	
-	[[self navigationController] pushViewController:mapPage animated:YES];
-	[mapPage release];	
-	
+    [mapPage fetchNearestVehiclesInBackground:self.backgroundTask];
+
 }
 
 - (void)toggleMap:(UISegmentedControl*)seg
@@ -654,6 +668,14 @@ static RAILMAP railmaps[] =
 
 #pragma mark TapDetectingImageViewDelegate methods
 
+- (void)listAction:(id)arg
+{
+    AllRailStationView *allRail = [[AllRailStationView alloc] init];
+    allRail.callback = self.callback;
+    [[self navigationController] pushViewController:allRail animated:YES];
+    [allRail release];
+}
+
 - (void)viewDidAppear:(BOOL)animated
 {
     if (self.showNextOnAppearance)
@@ -669,6 +691,15 @@ static RAILMAP railmaps[] =
         [self   processHotSpot:[NSString stringWithUTF8String:hotSpotRegions[selectedItem].action] item:selectedItem];
         self.showNextOnAppearance = NO;
     }
+    
+    UIBarButtonItem *list = [[[UIBarButtonItem alloc]
+                              initWithTitle:NSLocalizedString(@"List", @"List button")
+                              style:UIBarButtonItemStyleBordered
+                              target:self action:@selector(listAction:)] autorelease];
+    
+    
+    self.navigationItem.rightBarButtonItem = list;
+    
     [super viewDidAppear:animated];
 }
 

@@ -80,7 +80,7 @@ static NSNumber *syncObject;
 	}
 	else 
 	{
-		self.progressModal.items = [num intValue];
+		self.progressModal.totalItems = [num intValue];
 	}
 }
 
@@ -99,12 +99,16 @@ static NSNumber *syncObject;
 	{
 		taskCount++;
 	
-		DEBUG_LOG(@"Task count: %d\n", taskCount);
+        DEBUG_LOGLU(taskCount);
 		// Cancel this immediately if there is one already running
 		if (taskCount > 1)
 		{
 			[[NSThread currentThread] cancel];
 		}
+        else
+        {
+            self.backgroundThread = [NSThread currentThread];
+        }
 	}
 	
 	[self performSelectorOnMainThread:@selector(BackgroundStartMainThread:) withObject:[NSNumber numberWithInt:items] waitUntilDone:YES];
@@ -125,7 +129,7 @@ static NSNumber *syncObject;
 	
 }
 
--(void)BackgroundItemsMainThread:(NSNumber*)itemsDone
+-(void)BackgroundItemsDoneMainThread:(NSNumber*)itemsDone
 {
 	[self.progressModal itemsDone:[itemsDone intValue]];
 }
@@ -134,8 +138,21 @@ static NSNumber *syncObject;
 -(void)backgroundItemsDone:(int)itemsDone
 {
 	NSNumber *num = [NSNumber numberWithInt:itemsDone];
-	[self performSelectorOnMainThread:@selector(BackgroundItemsMainThread:) withObject:num waitUntilDone:YES];	
+	[self performSelectorOnMainThread:@selector(BackgroundItemsDoneMainThread:) withObject:num waitUntilDone:YES];
 }
+
+-(void)BackgroundTotalItemsMainThread:(NSNumber*)totalItems
+{
+    [self.progressModal totalItems:[totalItems intValue]];
+}
+
+-(void)backgroundItems:(int)totalItems
+{
+    NSNumber *num = [NSNumber numberWithInt:totalItems];
+    [self performSelectorOnMainThread:@selector(BackgroundTotalItemsMainThread:) withObject:num waitUntilDone:YES];
+    
+}
+
 
 -(void)finish
 {
@@ -188,14 +205,8 @@ static NSNumber *syncObject;
 }
 
 
-- (void)backgroundThread:(NSThread *)thread
-{
-	self.backgroundThread = thread;	
-}
-
 -(void)backgroundCompleted:(UIViewController *)viewController
 {
-	
 	[self performSelectorOnMainThread:@selector(BackgroundCompletedMainThread:) withObject:viewController waitUntilDone:YES];	
 }
 

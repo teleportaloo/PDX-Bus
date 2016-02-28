@@ -8,11 +8,41 @@
 			<key>Type</key>
 			<string>PSToggleSwitchSpecifier</string>
 			<key>Title</key>
+			<string>Display stop list for bookmarks</string>
+			<key>Key</key>
+			<string>watch_bookmarks_display_stop_list</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
 			<string>Bookmarks at the top</string>
 			<key>Key</key>
 			<string>watch_bookmarks_at_the_stop</string>
 			<key>DefaultValue</key>
 			<false/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Use beta vehicle locator</string>
+			<key>Key</key>
+			<string>watch_use_beta_vehicle_locator</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<string>YES</string>
+			<key>Key</key>
+			<string>watch_auto_commute</string>
+			<key>Title</key>
+			<string>Auto Commuter bookmark</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
 		</dict>
 	</array>
 	<key>StringsTable</key>

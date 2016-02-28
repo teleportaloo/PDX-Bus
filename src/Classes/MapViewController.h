@@ -42,7 +42,7 @@
 @end
 
 @interface MapViewController : ViewControllerBase <MKMapViewDelegate, UIActionSheetDelegate, BackgroundTaskDone> {
-	MKMapView *mapView;
+	MKMapView *_mapView;
 	NSMutableArray *_annotations;
 	NSMutableArray *_lineCoords;
 	NSMutableArray *_routePolyLines;
@@ -53,6 +53,7 @@
 	MapLinesView *_linesView;
 	id<MapPinColor> _tappedAnnot;
     NSInteger _actionMapButtonIndex;
+    NSInteger _stopIdMapButtonIndex;
 	NSInteger _appleMapButtonIndex;
     NSInteger _ios5MapButtonIndex;
 	NSInteger _cancelButtonIndex;
@@ -64,10 +65,13 @@
 	UISegmentedControl *_segPrevNext;
     UIBarButtonItem *_compassButton;
     CGRect _portraitMapRect;
+    CLLocationDirection _previousHeading;
+    CADisplayLink *_displayLink;
     
     bool _backgroundRefresh;
 }
 
+@property (nonatomic, retain) MKMapView *mapView;
 @property (nonatomic, retain) NSMutableArray *routePolyLines;
 @property (nonatomic, retain) id<MapPinColor> tappedAnnot;
 @property (nonatomic, retain) NSMutableArray *annotations;
@@ -79,11 +83,14 @@
 @property (atomic)            bool animating;
 @property (nonatomic)         bool backgroundRefresh;
 @property (readonly)          bool hasXML;
+@property (nonatomic) CLLocationDirection previousHeading;
+@property (nonatomic, strong) CADisplayLink *displayLink;
 
 // - (void)setMapLocationLat:(NSString *)lat lng:(NSString *)lng title:(NSString *)title;
 - (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation;
 - (void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)view calloutAccessoryControlTapped:(UIControl *)control;
 - (void)addPin:(id<MapPinColor>) pin;
 - (BOOL)supportsOverlays;
+- (void)removeAnnotations;
 
 @end

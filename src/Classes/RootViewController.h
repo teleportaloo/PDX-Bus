@@ -35,7 +35,9 @@ typedef enum InitialAction_tag
     InitialAction_Commute,
     InitialAction_TripPlanner,
     InitialAction_QRCode,
-    InitialAction_BookmarkIndex
+    InitialAction_BookmarkIndex,
+    InitialAction_UserActivityBookmark,
+    InitialAction_UserActivitySearch
 } InitialAction;
 
 
@@ -49,17 +51,11 @@ typedef enum InitialAction_tag
 	NSArray *_lastArrivalNames;
 	NSDictionary *_commuterBookmark;
 	UITextField *_editWindow;	
-	uint sectionMap[kRootMaxSections];
-	uint sections;
-	uint faveSection;
-	uint editSection;
+	NSInteger faveSection;
+	NSInteger editSection;
 	AlarmTaskList *_taskList;
 	NSArray *_alarmKeys;
-    NSArray *_triMetRows;
-    NSArray *_aboutRows;
-    NSArray *_arrivalRows;
-   
-	
+    
 	CellTextField *_editCell;
 	bool keyboardUp;
 	bool showingLast;
@@ -85,7 +81,6 @@ typedef enum InitialAction_tag
 - (void)postEditingAction:(UITextView *)textView;
 - (void)commuteAction:(id)sender;
 - (void)tripPlanner:(bool)animated;
-- (bool)ZXingSupported;
 - (void)launchFromURL;
 - (void)executeInitialAction;
 - (void)openFave:(int)index allowEdit:(bool)allowEdit;
@@ -100,9 +95,6 @@ typedef enum InitialAction_tag
 @property (nonatomic, retain) NSDictionary *commuterBookmark;
 @property (nonatomic, retain) IASKAppSettingsViewController *settingsView;
 @property (nonatomic, retain) ProgressModalView *progressView;
-@property (nonatomic, retain) NSArray *triMetRows;
-@property (nonatomic, retain) NSArray *aboutRows;
-@property (nonatomic, retain) NSArray *arrivalRows;
 @property (nonatomic, retain) NSString *launchStops;
 @property (nonatomic, retain) NSURL *routingURL;
 @property (nonatomic)         bool delayedInitialAction;

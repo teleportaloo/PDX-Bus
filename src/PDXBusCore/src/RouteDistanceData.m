@@ -14,7 +14,7 @@
 
 
 #import "RouteDistanceData.h"
-#import "StopDistance.h"
+#import "StopDistanceData.h"
 
 @implementation RouteDistanceData
 
@@ -51,8 +51,8 @@
 
 -(NSComparisonResult)compareUsingDistance:(RouteDistanceData*)inRoute
 {
-	StopDistance *stop =   [self.stops objectAtIndex:0];
-	StopDistance *inStop = [inRoute.stops objectAtIndex:0];
+	StopDistanceData *stop =   [self.stops objectAtIndex:0];
+	StopDistanceData *inStop = [inRoute.stops objectAtIndex:0];
 	
 	
 	if (stop.distance < inStop.distance)

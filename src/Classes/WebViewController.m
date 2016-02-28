@@ -67,7 +67,7 @@
 
 - (void)setURLmobile:(NSString *)url full:(NSString *)full
 {
-	if (LargeScreenStyle([self screenWidth]) && full!=nil)
+	if (LargeScreenStyle(self.screenInfo.screenWidth) && full!=nil)
 	{
 		self.urlToDisplay = full;
 	}
@@ -138,7 +138,7 @@
 	"</body>"
 	"</html>",lat, lng];
 	
-	self.urlToDisplay = [NSString stringWithFormat:@"http://map.google.com/?q=location@%@,%@",  
+	self.urlToDisplay = [NSString stringWithFormat:@"https://map.google.com/?q=location@%@,%@",  
 						 lat, lng];
 	map = true;
 }
@@ -320,7 +320,7 @@
 
 - (CGFloat) heightOffset
 {
-    if (self.iOS7style && (LargeScreenStyle([self screenWidth]) || (self.screenWidth == WidthiPadNarrow)))
+    if (self.iOS7style && (LargeScreenStyle(self.screenInfo.screenWidth) || (self.screenInfo.screenWidth == WidthBigVariable)))
     {
         return -[UIApplication sharedApplication].statusBarFrame.size.height;
     }
@@ -526,6 +526,15 @@
         [[OpenInChromeController sharedInstance] openInChrome:[NSURL URLWithString:self.urlToDisplay]
                                               withCallbackURL:[NSURL URLWithString:@"pdxbus:"]
                                                  createNewTab:NO];
+        
+        if (deselect)
+        {
+            [deselect deselectItemCallback];
+        }
+    }
+    else if ([self iOS9style])
+    {
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:self.urlToDisplay]];
         
         if (deselect)
         {

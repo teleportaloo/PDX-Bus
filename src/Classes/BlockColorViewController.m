@@ -20,6 +20,10 @@
 
 @end
 
+#define kSectionData        0
+#define kSectionNoData      1
+#define kSections           2
+
 @implementation BlockColorViewController
 
 
@@ -83,13 +87,20 @@
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
     // Return the number of sections.
-    return 1;
+    return kSections;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
-    return  (_keys.count> 0 ? _keys.count : 1);
+    switch (section)
+    {
+        case kSectionData:
+            return _keys.count;
+        case kSectionNoData:
+            return (_keys.count> 0 ? 0 : 1);
+    }
+    return 0;
 }
 
 -(UILabel *)create_UITextView:(UIFont *)font
@@ -109,13 +120,13 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (_keys.count > 0)
+    if (indexPath.section == kSectionData)
     {
-        static NSString *CellIdentifier = @"Cell";
-        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+
+        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionData)];
         
         if (cell == nil) {
-            cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CellIdentifier] autorelease];
+            cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:MakeCellId(kSectionData)] autorelease];
         }
         
         // Configure the cell...
@@ -200,7 +211,7 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (_keys.count > 0)
+    if (indexPath.section == kSectionData)
     {
         _changingColor = [[_keys objectAtIndex:indexPath.row] retain];
         
@@ -219,22 +230,36 @@
 
 // Override if you support editing the list
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-	if (editingStyle == UITableViewCellEditingStyleDelete) {
-        
-        NSString *block = [_keys objectAtIndex:indexPath.row];
-               
-        [_db addColor:nil forBlock:block description:nil];
-        [_keys release];
-        _keys = [[_db keys] retain];
-        
-        [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:YES];
-
+    
+    if (indexPath.section == kSectionData)
+    {
+        if (editingStyle == UITableViewCellEditingStyleDelete) {
+            
+            NSString *block = [_keys objectAtIndex:indexPath.row];
+            
+            [_db addColor:nil forBlock:block description:nil];
+            [_keys release];
+            _keys = [[_db keys] retain];
+            
+            [tableView beginUpdates];
+            
+            [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:YES];
+            
+            if (_keys.count == 0)
+            {
+                NSIndexPath *ip = [NSIndexPath indexPathForRow:0 inSection:kSectionNoData] ;
+                [tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:ip] withRowAnimation:YES];
+            }
+            
+            [tableView endUpdates];
+            
+        }
     }
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (_keys.count == 0)
+    if (indexPath.section == kSectionNoData)
     {
         return [self getTextHeight:_helpText font:[self getParagraphFont]];
     }

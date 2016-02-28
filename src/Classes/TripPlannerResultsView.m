@@ -31,6 +31,9 @@
 #import <EventKitUI/EventKitUI.h>
 #import "TripPlannerSummaryView.h"
 #import "DetoursView.h"
+#import "AlarmTaskList.h"
+#import "AlarmAccurateStopProximity.h"
+#import "LocationAuthorization.h"
 
 #define kRowTypeLeg			0
 #define kRowTypeDuration	1
@@ -40,13 +43,13 @@
 #define kRowTypeSMS			5
 #define kRowTypeCal         6
 #define kRowTypeClipboard	7
-#define kRowTypeArrivals	8
-#define kRowTypeDetours		9
-#define kRowAdditionalRows  8
+#define kRowTypeAlarms      8
+#define kRowTypeArrivals	9
+#define kRowTypeDetours		10
+#define kRowAdditionalRows  9
 
-#define kRowTypeError		10
-#define kRowTypeReverse		11
-#define kRowTypeDisclaimer  12
+#define kRowTypeError		11
+#define kRowTypeReverse		12
 #define kRowTypeFrom		13
 #define kRowTypeTo			14
 #define kRowTypeOptions		15
@@ -55,7 +58,6 @@
 
 #define kSectionTypeEndPoints	0
 #define kSectionTypeOptions		1
-#define kSectionTypeDisclaimer	2
 
 #define kDefaultRowHeight		40.0
 #define kRowsInDisclaimerSection 2
@@ -71,6 +73,13 @@
 - (void)dealloc {
 	self.tripQuery = nil;
 	self.calendarItinerary = nil;
+    
+    if (self.userActivity)
+    {
+        [self.userActivity invalidate];
+        self.userActivity = nil;
+    }
+    
 	[super dealloc];
 }
 
@@ -79,6 +88,7 @@
 	if ((self = [super init]))
 	{
 		_recentTripItem = -1;
+        _alarmItem      = -1;
 	}
 	
 	return self;
@@ -94,25 +104,35 @@
 	
 	return self;
 }
+
+
+- (void)setItemFromArchive:(NSDictionary *)archive
+{
+    self.tripQuery = [[[XMLTrips alloc] init] autorelease];
+    
+    
+    self.tripQuery.userRequest = [[[TripUserRequest alloc] initFromDict:[archive objectForKey:kUserFavesTrip]] autorelease];
+    // trips.rawData     = [trip objectForKey:kUserFavesTripResults];
+    
+    [self.tripQuery addStopsFromUserFaves:_userData.faves];
+    
+    
+    [self.tripQuery fetchItineraries:[archive objectForKey:kUserFavesTripResults]];
+}
+
 - (void)setItemFromHistory:(int)item
 {
 	NSDictionary *trip = nil;
 	@synchronized (_userData)
 	{
 		trip = [_userData.recentTrips objectAtIndex:item];
+        
+        _recentTripItem = item;
 	
-		self.tripQuery = [[[XMLTrips alloc] init] autorelease];
-	
-	
-		self.tripQuery.userRequest = [[[TripUserRequest alloc] initFromDict:[trip objectForKey:kUserFavesTrip]] autorelease];
-		// trips.rawData     = [trip objectForKey:kUserFavesTripResults];
-	
-
-		[self.tripQuery addStopsFromUserFaves:_userData.faves];
+        [self setItemFromArchive:trip];
+        
 	}
-	[self.tripQuery fetchItineraries:[trip objectForKey:kUserFavesTripResults]];
-	
-	_recentTripItem = item;
+
 }
 
 #pragma mark TableViewWithToolbar methods
@@ -306,7 +326,7 @@
 	{
 		return kSectionTypeOptions;
 	}
-	return kSectionTypeDisclaimer;
+	return kSectionRowDisclaimerType;
 }
 
 - (TripItinerary *)getSafeItinerary:(NSInteger)section
@@ -365,17 +385,17 @@
 				return row;
 			}
 		}
-		case kSectionTypeDisclaimer:
-			if (self.tripQuery.reversed)
+		case kSectionRowDisclaimerType:
+			if (self.tripQuery.reversed || indexPath.row > 0)
 			{
-				return kRowTypeDisclaimer;
+				return kSectionRowDisclaimerType;
 			}
 			else
 			{
-				return kRowTypeReverse + indexPath.row;
+				return kRowTypeReverse;
 			}
 	}
-	return kRowTypeDisclaimer;
+	return kSectionRowDisclaimerType;
 }
 
 
@@ -445,7 +465,7 @@
 		MapViewController *mapPage = [[MapViewController alloc] init];
 		SimpleAnnotation *pin = [[[SimpleAnnotation alloc] init] autorelease];
 		mapPage.callback = self.callback;
-		[pin setCoordinateLat:leg.xlat lng:leg.xlon ];
+		[pin setCoord:leg.loc.coordinate];
 		pin.pinTitle = leg.xdescription;
 		pin.pinColor = MKPinAnnotationColorPurple;
 		
@@ -515,8 +535,8 @@
 // Called when a button is clicked. The view will be automatically dismissed after this call returns
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-	if (_bookmarkItem == kNoBookmark)
-	{
+   if (_bookmarkItem == kNoBookmark)
+   {
 		if (buttonIndex == 0)
 		{
 			EditBookMarkView *edit = [[EditBookMarkView alloc] init];
@@ -592,7 +612,7 @@
 				return [self legRows:it] + kRowAdditionalRows - ([it hasFare] ? 0 : 1) -1 + _smsRows + _calRows;
 			}
 			return 1;
-		case kSectionTypeDisclaimer:
+		case kSectionRowDisclaimerType:
 			if (self.tripQuery.reversed)
 			{
 				return 1;
@@ -626,7 +646,7 @@
 				return @"No route was found:";
 			}
 		}
-	case kSectionTypeDisclaimer:
+	case kSectionRowDisclaimerType:
 		// return @"Other options";
 		break;
 	}
@@ -653,16 +673,16 @@
 		{
 			CGFloat h = [self tableView:[self table] heightForRowAtIndexPath:indexPath];
 
-			NSString *cellIdentifier = [NSString stringWithFormat:@"TripLeg%f+%d", h,[self screenWidth]];
+			NSString *cellIdentifier = [NSString stringWithFormat:@"TripLeg%f+%f", h,self.screenInfo.appWinWidth];
 			TripItinerary *it = [self getSafeItinerary:indexPath.section];
 	
 			UITableViewCell *cell = (UITableViewCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
 			if (cell == nil) {
 				
 				
-				cell = [TripLeg tableviewCellWithReuseIdentifier: cellIdentifier 
-													   rowHeight: h 
-													 screenWidth: [self screenWidth]];
+				cell = [TripLeg tableviewCellWithReuseIdentifier:cellIdentifier
+													   rowHeight:h
+													  screenInfo:self.screenInfo];
 			}
 	
 			cell.selectionStyle = UITableViewCellSelectionStyleNone;
@@ -755,7 +775,7 @@
 			[self maybeAddSectionToAccessibility:cell indexPath:indexPath alwaysSaySection:NO];
 			return cell;
 		}
-		case kRowTypeDisclaimer:
+		case kSectionRowDisclaimerType:
 		{
 			UITableViewCell *cell  = [tableView dequeueReusableCellWithIdentifier:kDisclaimerCellId];
 			if (cell == nil) {
@@ -778,6 +798,7 @@
 		case kRowTypeReverse:
 		case kRowTypeArrivals:
 		case kRowTypeDetours:
+        case kRowTypeAlarms:
 		{
 			static NSString *CellIdentifier = @"TripAction";
 			
@@ -826,8 +847,12 @@
 					cell.textLabel.text = @"Arrivals for all stops";
 					cell.imageView.image = [self getActionIcon:kIconArrivals];
 					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+                    break;
+                case kRowTypeAlarms:
+                    cell.textLabel.text = @"Set deboard alarms";
+                    cell.imageView.image = [self getActionIcon:kIconAlarm];
+                    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 					break;
-
 			}
 			cell.textLabel.textColor = [ UIColor grayColor];
 			cell.selectionStyle = UITableViewCellSelectionStyleBlue;
@@ -842,7 +867,7 @@
 
 - (CGFloat)fieldWidth
 {
-	return [TripLeg bodyTextWidthForScreenWidth:[self screenWidth]];
+    return [TripLeg bodyTextWidth:self.screenInfo];
 }
 
 
@@ -873,6 +898,7 @@
 			break;
 		case kRowTypeEmail:
 		case kRowTypeClipboard:
+        case kRowTypeAlarms:
 		case kRowTypeMap:
 		case kRowTypeReverse:
 		case kRowTypeArrivals:
@@ -1015,7 +1041,24 @@
 	
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex;
 {
-	if (buttonIndex == 0)
+    if (_alarmItem != kNoBookmark)
+    {
+        TripItinerary *it = [self getSafeItinerary:_alarmItem];
+        AlarmTaskList *taskList = [AlarmTaskList getSingleton];
+        
+        for (TripLegEndPoint *leg in it.displayEndPoints)
+        {
+            if (leg.deboard)
+            {
+                if (![taskList hasTaskForStopIdProximity:leg.stopId])
+                {
+                    [taskList userAlertForProximityAction:(int)buttonIndex stopId:leg.xstopId loc:leg.loc desc:leg.xdescription];
+                }
+            }
+        }
+        _alarmItem = kNoBookmark;
+    }
+    else if (buttonIndex == 0)
 	{
 		NSIndexPath *ip = [self.table indexPathForSelectedRow];
 		if (ip!=nil)
@@ -1097,7 +1140,7 @@
 			
 			break;
 		case kRowTypeDuration:
-		case kRowTypeDisclaimer:
+		case kSectionRowDisclaimerType:
 		case kRowTypeFare:
 			break;
 		case kRowTypeClipboard:
@@ -1108,6 +1151,23 @@
 			pasteboard.string = [self plainText:it];
 			break;
 		}
+        case kRowTypeAlarms:
+        {
+            AlarmTaskList *taskList = [AlarmTaskList getSingleton];
+            
+            if ([LocationAuthorization locationAuthorizedOrNotDeterminedShowMsg:NO backgroundRequired:YES])
+            {
+                _alarmItem = (int)indexPath.section;
+                [taskList userAlertForProximity:self];
+            }
+            else
+            {
+                [LocationAuthorization locationAuthorizedOrNotDeterminedShowMsg:YES backgroundRequired:YES];
+            }
+            [self.table deselectRowAtIndexPath:indexPath animated:YES];
+            break;
+            
+        }
 		case kRowTypeSMS:
 		{
 			TripItinerary *it = [self getSafeItinerary:indexPath.section];
@@ -1424,6 +1484,51 @@
 	// Dismiss the modal view controller
 	[controller dismissViewControllerAnimated:YES completion:nil];
 	
+}
+
+- (void) viewWillDisappear:(BOOL)animated
+{
+    if (self.userActivity!=nil)
+    {
+        [self.userActivity invalidate];
+        self.userActivity = nil;
+    }
+    
+    [super viewWillDisappear:animated];
+}
+
+-(void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
+    Class userActivityClass = (NSClassFromString(@"NSUserActivity"));
+    
+    if (userActivityClass !=nil)
+    {
+        
+        if (self.userActivity != nil)
+        {
+            [self.userActivity invalidate];
+            self.userActivity = nil;
+        }
+        
+        NSDictionary *tripItem = [self.tripQuery.userRequest toDictionary];
+        
+        [tripItem setValue:@"yes" forKey:kDictUserRequestHistorical];
+        
+        if (tripItem)
+        {
+            self.userActivity = [[[NSUserActivity alloc] initWithActivityType:kHandoffUserActivityBookmark] autorelease];
+            NSMutableDictionary *info = [[[NSMutableDictionary alloc] init] autorelease];
+            
+            [info setObject:tripItem forKey:kUserFavesTrip];
+            
+           //  [info setObject:tripItem forKey:kUserFavesTrip];
+            self.userActivity.userInfo = info;
+            [self.userActivity becomeCurrent];
+        }
+        
+    }
+    
 }
 
 

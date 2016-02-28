@@ -13,14 +13,10 @@
 		<dict>
 			<key>DefaultValue</key>
 			<string>YES</string>
-			<key>FalseValue</key>
-			<string>NO</string>
 			<key>Key</key>
 			<string>auto_commute</string>
 			<key>Title</key>
 			<string>Auto Commuter bookmark</string>
-			<key>TrueValue</key>
-			<string>YES</string>
 			<key>Type</key>
 			<string>PSToggleSwitchSpecifier</string>
 		</dict>
@@ -33,14 +29,10 @@
 		<dict>
 			<key>DefaultValue</key>
 			<string>NO</string>
-			<key>FalseValue</key>
-			<string>NO</string>
 			<key>Key</key>
 			<string>bookmarks_at_the_top</string>
 			<key>Title</key>
 			<string>Bookmarks at the top</string>
-			<key>TrueValue</key>
-			<string>YES</string>
 			<key>Type</key>
 			<string>PSToggleSwitchSpecifier</string>
 		</dict>
@@ -73,14 +65,10 @@
 		<dict>
 			<key>DefaultValue</key>
 			<string>YES</string>
-			<key>FalseValue</key>
-			<string>NO</string>
 			<key>Key</key>
 			<string>commute_button</string>
 			<key>Title</key>
 			<string>Auto Commute bookmark icon</string>
-			<key>TrueValue</key>
-			<string>YES</string>
 			<key>Type</key>
 			<string>PSToggleSwitchSpecifier</string>
 		</dict>
@@ -113,14 +101,10 @@
 		<dict>
 			<key>DefaultValue</key>
 			<string>YES</string>
-			<key>FalseValue</key>
-			<string>NO</string>
 			<key>Key</key>
 			<string>action_icons</string>
 			<key>Title</key>
 			<string>Show colorful icons</string>
-			<key>TrueValue</key>
-			<string>YES</string>
 			<key>Type</key>
 			<string>PSToggleSwitchSpecifier</string>
 		</dict>
@@ -161,14 +145,10 @@
 		<dict>
 			<key>DefaultValue</key>
 			<string>NO</string>
-			<key>FalseValue</key>
-			<string>NO</string>
 			<key>Key</key>
 			<string>flash_led</string>
 			<key>Title</key>
 			<string>Flash LED for Visibility</string>
-			<key>TrueValue</key>
-			<string>YES</string>
 			<key>Type</key>
 			<string>PSToggleSwitchSpecifier</string>
 		</dict>
@@ -266,28 +246,20 @@
 		<dict>
 			<key>DefaultValue</key>
 			<string>YES</string>
-			<key>FalseValue</key>
-			<string>NO</string>
 			<key>Key</key>
 			<string>auto_refresh</string>
 			<key>Title</key>
 			<string>Auto refresh</string>
-			<key>TrueValue</key>
-			<string>YES</string>
 			<key>Type</key>
 			<string>PSToggleSwitchSpecifier</string>
 		</dict>
 		<dict>
 			<key>DefaultValue</key>
 			<string>YES</string>
-			<key>FalseValue</key>
-			<string>NO</string>
 			<key>Key</key>
 			<string>shake_to_refresh</string>
 			<key>Title</key>
 			<string>Shake to refresh</string>
-			<key>TrueValue</key>
-			<string>YES</string>
 			<key>Type</key>
 			<string>PSToggleSwitchSpecifier</string>
 		</dict>
@@ -521,6 +493,26 @@
 		</dict>
 		<dict>
 			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Use beta vehicle locator</string>
+			<key>Key</key>
+			<string>use_beta_vehicle_locator</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Show trips in details</string>
+			<key>Key</key>
+			<string>show_trips</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>Type</key>
 			<string>PSGroupSpecifier</string>
 			<key>Title</key>
 			<string>The vehicle locator is an experimental feature that will try to find which vehicle you are currently on. The distance may need tuning - if it is too big it will find too many vehicles close by, but too small and it won&apos;t find the one you are on.</string>
@@ -602,6 +594,42 @@
 			<string>chrome</string>
 			<key>DefaultValue</key>
 			<false/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Search Options</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Add station names to search</string>
+			<key>Key</key>
+			<string>search_stations</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Add bookmarks to search</string>
+			<key>Key</key>
+			<string>search_bookmarks</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Add routes to search</string>
+			<key>Key</key>
+			<string>search_routes</string>
+			<key>DefaultValue</key>
+			<true/>
 		</dict>
 	</array>
 	<key>StringsTable</key>

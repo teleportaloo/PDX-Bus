@@ -38,26 +38,26 @@ static NSString *stopsURLString = @"routeConfig/route/%@/dir/%@/stops/true";
 #pragma mark Data fetchers
 
 - (BOOL)getStopsAfterLocation:(NSString *)locid route:(NSString *)route direction:(NSString *)dir 
-				  description:(NSString *)desc parseError:(NSError **)error cacheAction:(CacheAction)cacheAction
+				  description:(NSString *)desc cacheAction:(CacheAction)cacheAction
 {
 	self.routeId = route;
 	self.direction = dir;
 	self.routeDescription = desc;
 	self.afterStop = locid;
 	
-	return [self startParsing:[NSString stringWithFormat:stopsURLString, route, dir] parseError:error cacheAction:cacheAction];
+	return [self startParsing:[NSString stringWithFormat:stopsURLString, route, dir] cacheAction:cacheAction];
 	
 }
 
 - (BOOL)getStopsForRoute:(NSString *)route direction:(NSString *)dir 
-			 description:(NSString *)desc parseError:(NSError **)error cacheAction:(CacheAction)cacheAction
+			 description:(NSString *)desc cacheAction:(CacheAction)cacheAction
 {	
 	self.routeId = route;
 	self.direction = dir;
 	self.routeDescription = desc;
 	self.afterStop = nil;
 	
-	return [self startParsing:[NSString stringWithFormat:stopsURLString, route, dir] parseError:error cacheAction:cacheAction];
+	return [self startParsing:[NSString stringWithFormat:stopsURLString, route, dir] cacheAction:cacheAction];
 }
 
 #pragma mark Parser callbacks

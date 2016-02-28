@@ -21,6 +21,8 @@
 #import "DebugLogging.h"
 #import <CoreLocation/CoreLocation.h>
 #import <AVFoundation/AVFoundation.h>
+#import "NearestVehiclesMap.h"
+#import "StringHelper.h"
 
 #define kSectionSupport			0
 #define kSectionTips			1
@@ -28,9 +30,10 @@
 #define kSectionNetwork			3
 #define kSectionCache           4
 #define kSectionHighlights      5
-#define kSectionPrivacy         6
+#define kSectionLocations       6
+#define kSectionPrivacy         7
 
-#define kSections               7
+#define kSections               8
 
 #define kLinkRows				3
 			
@@ -199,25 +202,42 @@
 	{
 		self.title = @"Help and Support";
         
-		supportText = @"One developer writes PDX Bus as a volunteer effort, with a little help from friends and the local community. He has no affiliation with TriMet, but he happens to ride TriMet on most days. "
-                    "\n\nThe arrival data is provided by TriMet and Portland Streetcar and should be same as the transit tracker data. "
-                    "Please contact TriMet for issues about late busses or other transit issues as he cannot help. "
-                    "\n\nFor app support or feature requests please leave a comment on the blog; alternatively use twitter, Facebook or Github. He is not able to respond to app store reviews, "
-                    "so do not use these for support or feature requests. "
-                    "He cannot provide an email address for support because of privacy reasons, both yours and his.";
+#define ATTR(X) [StringHelper formatAttributedString:X font:[self getParagraphFont]]
+        
+        supportText = ATTR(
+                       NSLocalizedString(
+                          @"#bPDX Bus#b uses real-time tracking information from #bTriMet#b to display bus, MAX, WES and streetcar times for the Portland, Oregon, metro area.\n\n"
+                          "Every #bTriMet#b bus stop and rail station has its own unique #iStop ID#i number, up to five digits. Enter the #iStop ID#i to get the arrivals for that stop.\n\n"
+                          "#bPDX Bus#b offers several ways to discover #iStop IDs#i:\n"
+                          "- Browse a list of routes and stops;\n"
+                          "- Use the #bGPS#b to locate nearby stops;\n"
+                          "- Search though the rail stations;\n"
+                          "- Use the maps of the rail systems;\n"
+                          "- or scan a #bQR code#b (found at some stops).\n\n"
+                          "One you have found your stops - #ibookmark#i them to use them again later.\n\n"
+                          "The #iTrip Planner#i feature uses #ischeduled times#i to arrange a journey with several transfers, always check the #bcurrent arrivals#b.\n\n"
+                          "See below for other tips and links, touch here to start using #bPDX Bus#b."
+                          "\n\nThe arrival data is provided by #bTriMet#b and #bPortland Streetcar#b and is the same as the transit tracker data. "
+                          "#b#RPlease contact TriMet for issues about late buses or other transit issues as the app developer cannot help.#b#0"
+                          "\n\nFor app support or feature requests please leave a comment on the blog; alternatively use twitter, Facebook or Github. The app developer is not able to respond to app store reviews, "
+                          "so please do not use these for support or feature requests. ", @"Main help description")).retain;
+                       
         
         tipText = [[NSArray alloc] initWithObjects:
-                   @"There are LOTS of settings for PDXBus - take a look at the settings on the front screen to change colors, move the bookmarks to the top of the screen or change other options.",
-                   @"When the time is shown in red the vehicle will depart in 5 minutes or less.",
-                   @"When the time is shown in blue the vehicle will depart in more than 5 minutes.",
-                   @"When the time is shown in gray no location infomation is available - the scheduled time is shown.",
-                   @"When the time is shown in orange and crossed out the vehicle was canceled.  The original scheduled time is shown for reference.",
-                   @"Sometimes the scheduled time is also shown in gray when the vehicle is not running to schedule.",
-                   @"Shake the device to refresh the arrival times.",
-                   @"Backup your bookmarks by emailing them to yourself.",
-                   @"Keep an eye on the toolbar at the bottom - there are maps, options, and other features to explore.",
-                   @"At night, TriMet recommends holding up a cell phone or flashing light so the driver can see you.",
-                   @"Many issues can be solved by deleting the app and reinstalling - be sure to email the bookmarks to yourself first so you can restore them.",
+                   ATTR(@"There are #bLOTS#b of settings for #bPDX Bus#b - take a look at the settings on the home screen to change colors, move the #ibookmarks#i to the top of the screen or change other options."),
+                   ATTR(@"Use the top-left #bEdit#b button on the home screen to re-order or modify the #ibookmarks#i.  #iBookmarks#i can be re-ordered, they can also include multiple stops and can be made to show themselves automatically in the morning or evening."),
+                   ATTR(@"When the time is shown in #Rred#0 the vehicle will depart in 5 minutes or less."),
+                   ATTR(@"When the time is shown in #Bblue#0 the vehicle will depart in more than 5 minutes."),
+                   ATTR(@"When the time is shown in #Agray#0 no location infomation is available - the scheduled time is shown."),
+                   ATTR(@"When the time is shown in #Oorange#0 and crossed out the vehicle was canceled.  The original scheduled time is shown for reference."),
+                   ATTR(@"Sometimes the scheduled time is also shown in #Agray#0 when the vehicle is not running to schedule."),
+                   ATTR(@"Shake the device to #brefresh#b the arrival times."),
+                   ATTR(@"Backup your bookmarks by #iemailing#i them to yourself."),
+                   ATTR(@"Keep an eye on the #btoolbar#b at the bottom - there are maps, options, and other features to explore."),
+                   ATTR(@"At night, #bTriMet#b recommends holding up a cell phone or flashing light so the driver can see you."),
+                   ATTR(@"Many issues can be solved by deleting the app and reinstalling - be sure to #iemail the bookmarks to yourself#i first so you can restore them."),
+                   // ATTR(@"Bad escape#"),
+                   // ATTR(@"## started ## pound"),
                    nil];
     
         [self initLocationText];
@@ -269,7 +289,7 @@
         case kSectionTips:
 			return @"Tips";
 		case kSectionLinks:
-			return @"App Support Links";
+			return @"App Support Links (not TriMet!)";
         case kSectionNetwork:
 			return @"Network & Server Connectivity";
         case kSectionPrivacy:
@@ -278,6 +298,8 @@
 			return @"Route and Stop Data Cache";
         case kSectionHighlights:
 			return @"Vehicle highlights";
+        case kSectionLocations:
+            return @"Vehicle locations";
 
 	}
 	return nil;
@@ -297,6 +319,7 @@
         case kSectionNetwork:
 		case kSectionCache:
         case kSectionHighlights:
+        case kSectionLocations:
             return 1;
         case kSectionPrivacy:
             return kSectionPrivacyRows;
@@ -311,18 +334,13 @@
 	
 	switch (indexPath.section) {
 		case kSectionNetwork:
-		{
-			static NSString *networkId = @"network";
-			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:networkId];
+        {
+			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionNetwork)];
 			if (cell == nil) {
 				
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:networkId] autorelease];
+				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionNetwork)] autorelease];
 				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-				/*
-				 [self newLabelWithPrimaryColor:[UIColor blueColor] selectedColor:[UIColor cyanColor] fontSize:14 bold:YES parentView:[cell contentView]];
-				 */
-				
-				cell.textLabel.font =  [self getBasicFont]; //  [UIFont fontWithName:@"Ariel" size:14];
+                cell.textLabel.font =  [self getBasicFont]; //  [UIFont fontWithName:@"Ariel" size:14];
 				cell.textLabel.adjustsFontSizeToFitWidth = YES;
 				cell.textLabel.text = @"Check Network Connection";
 				cell.imageView.image = [self getActionIcon:kIconNetwork];
@@ -333,11 +351,10 @@
 		}
 		case kSectionCache:
 		{
-			static NSString *cacheId = @"cache";
-			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cacheId];
+			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionCache)];
 			if (cell == nil) {
 				
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cacheId] autorelease];
+				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionCache)] autorelease];
 				cell.textLabel.font =  [self getBasicFont]; //  [UIFont fontWithName:@"Ariel" size:14];
 				cell.textLabel.adjustsFontSizeToFitWidth = YES;
 				cell.textLabel.text = @"Delete Cached Routes and Stops";
@@ -350,11 +367,10 @@
             
         case kSectionHighlights:
 		{
-			static NSString *cacheId = @"high";
-			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cacheId];
+			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionHighlights)];
 			if (cell == nil) {
 				
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cacheId] autorelease];
+				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionHighlights)] autorelease];
 				cell.textLabel.font =  [self getBasicFont]; //  [UIFont fontWithName:@"Ariel" size:14];
 				cell.textLabel.adjustsFontSizeToFitWidth = YES;
 				cell.textLabel.text = @"Show vehicle color tags";
@@ -364,33 +380,48 @@
 			return cell;
 			break;
 		}
+            
+        case kSectionLocations:
+        {
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionLocations)];
+            if (cell == nil) {
+                
+                cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionLocations)] autorelease];
+                cell.textLabel.font =  [self getBasicFont]; //  [UIFont fontWithName:@"Ariel" size:14];
+                cell.textLabel.adjustsFontSizeToFitWidth = YES;
+                cell.textLabel.text = @"Show vehicle locations";
+                cell.textLabel.textAlignment = NSTextAlignmentLeft;
+                cell.imageView.image = [self getActionIcon:kIconMap];
+                cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            }
+            return cell;
+            break;
+        }
 			
 		case kSectionSupport:
 		{
 			if (indexPath.row == kSectionSupportRowSupport)
 			{
-				static NSString *aboutId = @"about";
-				CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:aboutId];
+				CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionSupportRowSupport)];
 				if (cell == nil) {
-					cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:aboutId] autorelease];
+					cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionSupportRowSupport)] autorelease];
 					cell.view = [self create_UITextView:nil font:[self getParagraphFont]];
 				}
 				
 				cell.view.font =  [self getParagraphFont];
-				cell.view.text =  supportText;
+				cell.view.attributedText =  supportText;
 				DEBUG_LOG(@"width:  %f\n", cell.view.bounds.size.width);
     
 				cell.selectionStyle = UITableViewCellSelectionStyleNone;
-				[self updateAccessibility:cell indexPath:indexPath text:supportText alwaysSaySection:YES];
+				[self updateAccessibility:cell indexPath:indexPath text:supportText.string alwaysSaySection:YES];
 				// cell.backgroundView = [self clearView];
 				return cell;
 			}
 			else {
-				static NSString *newId = @"newid";
-				UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:newId];
+				UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionSupportRowNew)];
 				if (cell == nil) {
 					
-					cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:newId] autorelease];
+					cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionSupportRowNew)] autorelease];
 					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 					/*
 					 [self newLabelWithPrimaryColor:[UIColor blueColor] selectedColor:[UIColor cyanColor] fontSize:14 bold:YES parentView:[cell contentView]];
@@ -418,11 +449,10 @@
 		}
 		case kSectionLinks:
 		{
-			static NSString *linkId = @"pdxbuslink";
-			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:linkId];
+			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionLinks)];
 			if (cell == nil) {
 				
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:linkId] autorelease];
+				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionLinks)] autorelease];
 				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 				/*
 				 [self newLabelWithPrimaryColor:[UIColor blueColor] selectedColor:[UIColor cyanColor] fontSize:14 bold:YES parentView:[cell contentView]];
@@ -449,7 +479,7 @@
                 cell.imageView.image = [self getActionIcon:kIconSrc];
                 break;
             case kSectionLinkFacebook:
-                cell.textLabel.text = @"Facebook page";
+                cell.textLabel.text = @"PDX Bus Facebook page";
                 cell.imageView.image = [self getActionIcon:kIconFacebook];
                 break;
             }
@@ -459,26 +489,25 @@
 		}
         case kSectionTips:
 		{
-			static NSString *tipsId = @"tips";
-			CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:tipsId];
+			CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionTips)];
 			if (cell == nil) {
-				cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:tipsId] autorelease];
+				cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionTips)] autorelease];
 				cell.view = [self create_UITextView:nil font:[self getParagraphFont]];
 			}
 			
 			cell.view.font =  [self getParagraphFont];
-			cell.view.text = [tipText objectAtIndex:indexPath.row];
+			cell.view.attributedText = [tipText objectAtIndex:indexPath.row];
 			cell.selectionStyle = UITableViewCellSelectionStyleNone;
-			[self updateAccessibility:cell indexPath:indexPath text:[tipText objectAtIndex:indexPath.row] alwaysSaySection:YES];
+            NSAttributedString *tip = [tipText objectAtIndex:indexPath.row];
+			[self updateAccessibility:cell indexPath:indexPath text:tip.string alwaysSaySection:YES];
 			return cell;
 			break;
 		}
         case kSectionPrivacy:
         {
-            static NSString *tipsId = @"tips";
-            CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:tipsId];
+            CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionPrivacy)];
             if (cell == nil) {
-                cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:tipsId] autorelease];
+                cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionPrivacy)] autorelease];
                 cell.view = [self create_UITextView:nil font:[self getParagraphFont]];
             }
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
@@ -511,11 +540,14 @@
 		case kSectionSupport:
 			if (indexPath.row == kSectionSupportRowSupport)
 			{
-				return [self getTextHeight:supportText font:[self getParagraphFont]];
+				return [self getTextHeight:supportText.string font:[self getParagraphFont]];
 			}
 			break;
         case kSectionTips:
-			return [self getTextHeight:[tipText objectAtIndex:indexPath.row] font:[self getParagraphFont]];
+        {
+            NSAttributedString *tip = [tipText objectAtIndex:indexPath.row];
+			return [self getTextHeight:tip.string font:[self getParagraphFont]];
+        }
         case kSectionPrivacy:
             if (indexPath.row == kSectionPrivacyRowLocation)
             {
@@ -545,7 +577,7 @@
                     [webPage displayPage:[self navigationController] animated:YES itemToDeselect:self];
 					break;
                 case kSectionLinkGitHub:
-					[webPage setURLmobile:@"http:/github.com/teleportaloo/PDX-Bus" full:nil];
+					[webPage setURLmobile:@"https:/github.com/teleportaloo/PDX-Bus" full:nil];
                     [webPage displayPage:[self navigationController] animated:YES itemToDeselect:self];
 					break;
                 case kSectionLinkTwitter:
@@ -591,6 +623,15 @@
 			*/
             break;
 		}
+        case kSectionLocations:
+        {
+            NearestVehiclesMap *mapView = [[NearestVehiclesMap alloc] init];
+            mapView.alwaysFetch = YES;
+            [mapView fetchNearestVehiclesInBackground:self.backgroundTask];
+            
+            [mapView release];
+            break;
+        }
 		case kSectionSupport:
 			if (indexPath.row == kSectionSupportRowSupport)
 			{
@@ -599,7 +640,7 @@
 			else if (indexPath.row == kSectionSupportHowToRide)
             {
                 WebViewController *webPage = [[WebViewController alloc] init];
-                [webPage setURLmobile:@"http://trimet.org/howtoride/index.htm" full:nil]; 
+                [webPage setURLmobile:@"https://trimet.org/howtoride/index.htm" full:nil]; 
                 [webPage displayPage:[self navigationController] animated:YES itemToDeselect:self];
                 [webPage release];
             }
@@ -640,9 +681,9 @@
                 {
                     [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
                         if(granted){
-                            NSLog(@"Granted access to %@", AVMediaTypeVideo);
+                            DEBUG_LOG(@"Granted access to %@", AVMediaTypeVideo);
                         } else {
-                            NSLog(@"Not granted access to %@", AVMediaTypeVideo);
+                            DEBUG_LOG(@"Not granted access to %@", AVMediaTypeVideo);
                         }
                         [self initCameraText];
                         [self reloadData];

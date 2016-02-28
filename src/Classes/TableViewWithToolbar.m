@@ -17,6 +17,7 @@
 #import "FindByLocationView.h"
 #import "SearchFilter.h"
 #import <UIKit/UISearchDisplayController.h>
+#import <MapKit/MapKit.h>
 
 
 @implementation TableViewWithToolbar
@@ -30,10 +31,31 @@
 @synthesize searchableItems = _searchableItems;
 @synthesize filtered = _filtered;
 @synthesize searchController = _searchController;
+@synthesize sectionTypes = _sectionTypes;
+@synthesize perSectionRowTypes = _perSectionRowTypes;
+@synthesize mapView = _mapView;
 
 #define DISCLAIMER_TAG 1
 #define UPDATE_TAG	   2
 #define STREETCAR_TAG  3
+#define MAP_TAG        4
+
+-(void)finishWithMapView
+{
+    if (self.mapView)
+    {
+        self.mapView.delegate = nil;
+        [self.mapView removeAnnotations:self.mapView.annotations];
+        self.mapView.showsUserLocation=FALSE;
+        [self.mapView removeFromSuperview];
+        
+        // only cleans up properly if animations are complete
+        MKMapView *finalOne = self.mapView.retain;
+        [finalOne performSelector:@selector(release) withObject:nil afterDelay:(NSTimeInterval)4.0];
+        
+        self.mapView = nil;
+    }
+}
 
 
 - (void)dealloc {
@@ -60,6 +82,11 @@
 	[_smallFont release];
 	[_paragraphFont release];
 	[_filteredItems release];
+    
+    self.sectionTypes = nil;
+    self.perSectionRowTypes = nil;
+    
+    [self finishWithMapView];
 	
 	[super dealloc];
 }
@@ -90,8 +117,11 @@
 	self.table = [[[UITableView alloc] initWithFrame:tableViewRect	style:self.getStyle] autorelease];
 	// set the autoresizing mask so that the table will always fill the view
 	self.table.autoresizingMask = (UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight);
-	
-	
+    
+    if ([self.table respondsToSelector:@selector(setCellLayoutMarginsFollowReadableWidth:)])
+    {
+        self.table.cellLayoutMarginsFollowReadableWidth = NO;
+    }
 	// set the tableview delegate to this object
 	self.table.delegate = self;	
 	
@@ -208,12 +238,27 @@
 	
 }
 
+- (void)viewWillDisappear:(BOOL)animated
+{
+    if (self.mapView)
+    {
+        self.mapView.showsUserLocation = NO;
+    }
+    
+    [super viewWillDisappear:animated];
+}
+
 
 
 - (void)viewDidAppear:(BOOL)animated {
 	[super viewDidAppear:animated];
 	
-	
+	if (self.mapView)
+    {
+        self.mapView.showsUserLocation = _mapShowsUserLocation;
+    }
+    
+    
 	NSIndexPath *ip = [self.table indexPathForSelectedRow];
 	if (ip!=nil)
 	{
@@ -279,11 +324,11 @@
 	
 	if ([self getStyle] == UITableViewStylePlain || [self iOS7style])
 	{
-        width = [self screenWidth] - 20 - font.pointSize;
+        width = self.screenInfo.appWinWidth - 20 - font.pointSize;
 	}
 	else 
     {
-        width = [self screenWidth] - 100 - font.pointSize;
+        width = self.screenInfo.appWinWidth - 100 - font.pointSize;
 	}
     DEBUG_LOG(@"Width for text %f\n", width);
 	CGSize rect = CGSizeMake(width, MAXFLOAT);
@@ -488,9 +533,9 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
         
         
         
-		if (SmallScreenStyle(self.screenWidth))
+		if (SmallScreenStyle(self.screenInfo.screenWidth))
 		{
-            if (self.screenWidth >= WidthiPhone6)
+            if (self.screenInfo.screenWidth >= WidthiPhone6)
             {
                 _basicFont =[[self systemFontBold:bold size:20.0] retain];
             }
@@ -518,9 +563,9 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
             bold = FALSE;
         }
         
-		if  (SmallScreenStyle(self.screenWidth))
+		if  (SmallScreenStyle(self.screenInfo.screenWidth))
 		{
-            if (self.screenWidth >= WidthiPhone6)
+            if (self.screenInfo.screenWidth >= WidthiPhone6)
             {
                 _smallFont =[[self systemFontBold:bold size:16.0] retain];
             }
@@ -541,9 +586,9 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 {
 	if (_paragraphFont == nil)
 	{
-		if (SmallScreenStyle(self.screenWidth))
+		if (SmallScreenStyle(self.screenInfo.screenWidth))
 		{
-            if (self.screenWidth >= WidthiPhone6)
+            if (self.screenInfo.screenWidth >= WidthiPhone6)
             {
                 _paragraphFont =[[UIFont systemFontOfSize:16.0] retain];
             }
@@ -563,7 +608,7 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 
 - (CGFloat)basicRowHeight
 {
-	if (SmallScreenStyle(self.screenWidth))
+	if (SmallScreenStyle(self.screenInfo.screenWidth))
 	{
 		return 40.0;
 	}
@@ -572,7 +617,7 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 
 - (CGFloat)narrowRowHeight
 {
-	if (SmallScreenStyle(self.screenWidth) !=0)
+	if (SmallScreenStyle(self.screenInfo.screenWidth) !=0)
 	{
 		return 35.0;
 	}
@@ -792,6 +837,226 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
         [self.table deselectRowAtIndexPath:ip animated:YES];
     }
 }
+
+
+- (void)clearSectionMaps
+{
+    self.sectionTypes       = [[[NSMutableArray alloc] init] autorelease];
+    self.perSectionRowTypes = [[[NSMutableArray alloc] init] autorelease];
+
+}
+
+
+- (NSInteger)firstSectionOfType:(NSInteger)type
+{
+    if (self.sectionTypes)
+    {
+        for (int section = 0; section < self.sectionTypes.count; section ++)
+        {
+            NSNumber *t = [self.sectionTypes objectAtIndex:section];
+            
+            if (t.integerValue == type)
+            {
+                return section;
+            }
+        }
+    }
+    
+    return  kNoRowSectionTypeFound;
+}
+
+- (NSInteger)firstRowOfType:(NSInteger)type inSection:(NSInteger)section
+{
+    if (section == kNoRowSectionTypeFound)
+    {
+        return kNoRowSectionTypeFound;
+    }
+    
+    if (self.perSectionRowTypes)
+    {
+        if (section < self.perSectionRowTypes.count)
+        {
+            NSArray *types = [self.perSectionRowTypes objectAtIndex:section];
+            
+            int row = 0;
+            
+            for (row = 0; row < types.count; row ++)
+            {
+                NSNumber *t = [types objectAtIndex:row];
+                
+                if (t.integerValue == type)
+                {
+                    return row;
+                }
+            }
+        }
+    }
+    
+    return kNoRowSectionTypeFound;
+}
+
+- (NSIndexPath*)firstIndexPathOfSectionType:(NSInteger)sectionType rowType:(NSInteger)rowType
+{
+    NSInteger section = [self firstSectionOfType:sectionType];
+    
+    NSInteger row = [self firstRowOfType:rowType inSection:section];
+        
+    if (row!=kNoRowSectionTypeFound)
+    {
+        return [NSIndexPath indexPathForRow:row inSection:section];
+    }
+
+    return nil;
+}
+
+
+- (NSInteger)sectionType:(NSInteger)section
+{
+    if (self.sectionTypes)
+    {
+        NSNumber *type = [self.sectionTypes objectAtIndex:section];
+        
+        if (type)
+        {
+            return type.integerValue;
+        }
+    }
+    
+    return kNoRowSectionTypeFound;
+}
+
+- (NSInteger)rowType:(NSIndexPath*)index
+{
+    if (self.perSectionRowTypes)
+    {
+        if (index.section < self.perSectionRowTypes.count)
+        {
+            NSArray *types = [self.perSectionRowTypes objectAtIndex:index.section];
+            
+            if (index.row < types.count)
+            {
+                NSNumber *val  =[types objectAtIndex:index.row];
+                
+                if (val)
+                {
+                    return val.integerValue;
+                }
+            }
+        }
+    }
+    
+    return kNoRowSectionTypeFound;
+}
+
+- (NSInteger)addSectionType:(NSInteger)type
+{
+    [self.sectionTypes       addObject:[NSNumber numberWithInteger:type]];
+    [self.perSectionRowTypes addObject:[[[NSMutableArray alloc] init] autorelease]];
+    
+    return self.sectionTypes.count - 1;
+}
+
+- (NSInteger)addRowType:(NSInteger)type
+{
+    NSMutableArray *types = [self.perSectionRowTypes lastObject];
+    
+    [types addObject:[NSNumber numberWithInteger:type]];
+    
+    return types.count - 1;
+}
+
+- (NSInteger)rowsInSection:(NSInteger)section
+{
+    if (section < self.perSectionRowTypes.count)
+    {
+        NSArray *types = [self.perSectionRowTypes objectAtIndex:section];
+        return types.count;
+    }
+    return 0;
+}
+
+
+
+- (NSInteger)sections
+{
+     if (self.sectionTypes == nil)
+     {
+         return 0;
+     }
+    
+    return self.sectionTypes.count;
+}
+
+- (CGFloat)mapCellHeight
+{
+    if (SmallScreenStyle(self.screenInfo.screenWidth))
+    {
+        return 150.0;
+    }
+    
+    return 250.0;
+}
+
+- (UITableViewCell*)getMapCell:(NSString*)id withUserLocation:(bool)userLocation
+{
+    CGRect middleRect = [self getMiddleWindowRect];
+    
+    CGRect mapRect = CGRectMake(0,0, middleRect.size.width, [self mapCellHeight]);
+    
+    
+    
+    UITableViewCell *cell  = [self.table dequeueReusableCellWithIdentifier:MakeCellId(kRowMap)];
+    
+    if (cell == nil)
+    {
+        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kRowMap)] autorelease];
+    }
+    
+    MKMapView *map = (MKMapView*)[cell viewWithTag:MAP_TAG];
+    
+    if (map == nil)
+    {
+        [self finishWithMapView];
+        
+        map = [[[MKMapView alloc] initWithFrame:mapRect] autorelease];
+        map.tag = MAP_TAG;
+        _mapShowsUserLocation = userLocation;
+        map.showsUserLocation = userLocation;
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        [cell addSubview:map];
+        
+        self.mapView = map;
+        
+        map.userInteractionEnabled = YES;
+        map.scrollEnabled = FALSE;
+        map.zoomEnabled = FALSE;
+        map.pitchEnabled = FALSE;
+        map.rotateEnabled = FALSE;
+        
+        UITapGestureRecognizer* tapRec = [[UITapGestureRecognizer alloc]
+                                          initWithTarget:self action:@selector(didTapMap:)];
+        [map addGestureRecognizer:tapRec];
+        [tapRec release];
+        
+    }
+    else
+    {
+        [map setFrame:mapRect];
+        [map removeAnnotations:map.annotations];
+    }
+    
+    self.mapView = map;
+
+    return cell;
+    
+}
+
+- (void)didTapMap:(id)sender
+{
+    
+}
+
+
 
 
 @end

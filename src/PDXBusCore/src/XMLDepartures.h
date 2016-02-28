@@ -12,7 +12,7 @@
 
 #import "TriMetXML.h"
 #import "DepartureTrip.h"
-#import "StopDistance.h"
+#import "StopDistanceData.h"
 // #import <MapKit/MkAnnotation.h>
 // #import "MapPinColor.h"
 #import "DepartureTimesDataProvider.h"
@@ -36,17 +36,16 @@
 	NSString *_blockFilter;
 	NSString *_sectionTitle;
 	
-	StopDistance *_distance;
+	StopDistanceData *_distance;
     NSMutableData *_streetcarData;
     bool _firstOnly;
 }
 
-@property (nonatomic, retain) StopDistance *distance;
+@property (nonatomic, retain) StopDistanceData *distance;
 @property (nonatomic, retain) NSString *locDesc;
 @property (nonatomic, retain) NSString *locid;
-@property (nonatomic, retain) NSString *locLat;
+@property (nonatomic, retain) CLLocation *loc;
 @property (nonatomic, retain) NSString *locDir;
-@property (nonatomic, retain) NSString *locLng;
 @property (nonatomic, retain) NSString *blockFilter;
 @property (nonatomic, retain) NSString *sectionTitle;
 @property (nonatomic)         TriMetTime queryTime;
@@ -56,12 +55,9 @@
 @property (nonatomic)         bool firstOnly;
 
 
-- (BOOL)getDeparturesForLocation:(NSString *)location  parseError:(NSError **)error;
-- (BOOL)getDeparturesForLocation:(NSString *)location  block:(NSString*)block parseError:(NSError **)error;
+- (BOOL)getDeparturesForLocation:(NSString *)location;
+- (BOOL)getDeparturesForLocation:(NSString *)location block:(NSString*)block;
 - (void)reload;
-- (double)getLat;
-- (double)getLng;
 + (void)clearCache;
-- (CLLocation *)getLocation;
 
 @end

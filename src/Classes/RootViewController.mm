@@ -42,6 +42,7 @@
 #import "AlarmAccurateStopProximity.h"
 #import "LocationServicesDebugView.h"
 #import "VehicleLocatingTableView.h"
+#import "DirectionView.h"
 
 #import "TripPlannerLocatingView.h"
 
@@ -52,6 +53,9 @@
 #import "AddressBook/AddressBook.h"
 #import <AddressBook/ABPerson.h>
 #import <CoreLocation/CoreLocation.h>
+#import <CoreSpotlight/CoreSpotlight.h>
+#import "RailStationTableView.h"
+#import <MobileCoreServices/MobileCoreServices.h>
 
 #define kTableSectionStopId		0
 #define kTableSectionFaves		1
@@ -106,6 +110,8 @@
 
 static NSString *callString = @"tel:1-503-238-RIDE";
 
+#define kSearchItemBookmark @"org.teleportaloo.pdxbus.bookmark"
+
 // #define LOADINGSCREEN
 
 
@@ -118,9 +124,6 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 @synthesize commuterBookmark	= _commuterBookmark;
 @synthesize settingsView        = _settingsView;
 @synthesize progressView        = _progressView;
-@synthesize triMetRows          = _triMetRows;
-@synthesize aboutRows           = _aboutRows;
-@synthesize arrivalRows         = _arrivalRows;
 @synthesize launchStops         = _launchStops;
 @synthesize routingURL          = _routingURL;
 @synthesize delayedInitialAction = _delayedInitialAction;
@@ -141,11 +144,8 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 	self.commuterBookmark   = nil;
     self.settingsView       = nil;
     self.progressView       = nil;
-    self.triMetRows         = nil;
-    self.aboutRows          = nil;
     self.tweetAt            = nil;
     self.initTweet          = nil;
-    self.arrivalRows        = nil;
     self.launchStops        = nil;
     self.routingURL         = nil;
     self.initialActionArgs  = nil;
@@ -284,7 +284,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
     NSBundle *mainBundle = [NSBundle mainBundle];
     widController.soundToPlay =
         [NSURL fileURLWithPath:[mainBundle pathForResource:@"beep-beep" ofType:@"aiff"] isDirectory:NO];
-    [self presentViewController:widController animated:YES completion:nil];
+    [self presentViewController:widController animated:YES completion:NULL];
     [widController release];   
 }
 
@@ -712,9 +712,8 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 
 - (void)commuteAction:(id)sender
 {
-	TriMetTimesAppDelegate *app = [TriMetTimesAppDelegate getSingleton];
 	
-	NSDictionary *commuteBookmark = [app checkForCommuterBookmarkShowOnlyOnce:NO];
+	NSDictionary *commuteBookmark = [[SafeUserData getSingleton] checkForCommuterBookmarkShowOnlyOnce:NO];
 	
 	if (commuteBookmark!=nil)
 	{
@@ -755,25 +754,44 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 
 - (void)executeInitialAction
 {
-	DEBUG_PRINTF("Last arrivals: %s", [self.lastArrivalsShown cStringUsingEncoding:NSUTF8StringEncoding]);
+	// DEBUG_PRINTF("Last arrivals: %s", [self.lastArrivalsShown cStringUsingEncoding:NSUTF8StringEncoding]);
 	
     if (!self.viewLoaded)
     {
         self.delayedInitialAction = YES;
         return;
     }
+
+    NSDateComponents *nowDateComponents =  [[NSCalendar currentCalendar] components:(NSWeekOfYearCalendarUnit | NSYearCalendarUnit)
+                                                                           fromDate:[NSDate date]];
     
     
-    bool showAbout = [self newVersion:@"lastRun.plist" version:kAboutVersion];
+    bool showHelp = [self newVersion:@"lastRun.plist" version:kAboutVersion];
 	bool showWhatsNew = [self newVersion:@"whatsNew.plist" version:kWhatsNewVersion];
+    
+    // The stations need to be re-indexed every so often or they will exipire
+    // I'm making it so we do it every week
+    bool reIndexStations = [self newVersion:@"stationIndex.plist" version:
+                            [NSString stringWithFormat:@"%@ %d %d %d",
+                             kWhatsNewVersion,
+                             (int)[UserPrefs getSingleton].searchStations,
+                             (int)nowDateComponents.weekOfYear,
+                             (int)nowDateComponents.year]];
+    
+    if (reIndexStations)
+    {
+        AllRailStationView *allStations = [[[AllRailStationView alloc] init] autorelease];
+        
+        [allStations indexStations];
+    }
 	
-	if (showAbout)
+	if (showHelp)
 	{
-		AboutView *aboutView = [[AboutView alloc] init];
+		SupportView *helpView = [[SupportView alloc] init];
 		
 		// Push the detail view controller
-		[[self navigationController] pushViewController:aboutView animated:NO];
-		[aboutView release];
+		[[self navigationController] pushViewController:helpView animated:NO];
+		[helpView release];
 		
 	}
 	else  if (showWhatsNew)
@@ -781,6 +799,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 		WhatsNewView *whatsNew = [[WhatsNewView alloc] init];
 		[[self navigationController] pushViewController:whatsNew animated:NO];
 		[whatsNew release];
+       
 	}
 	else if (self.routingURL)
     {
@@ -829,6 +848,17 @@ static NSString *callString = @"tel:1-503-238-RIDE";
     {
         [self openFave:self.initialBookmarkIndex allowEdit:NO];
     }
+    else if (self.initialAction == InitialAction_UserActivityBookmark)
+    {
+        [self openUserActivityBookmark:self.initialActionArgs];
+        self.initialActionArgs = nil;
+    }
+    else if (self.initialAction == InitialAction_UserActivitySearch)
+    {
+        [self openSearchItem:self.initialActionArgs];
+        self.initialActionArgs = nil;
+    }
+    
     else if (self.initialBookmarkName != nil)
     {
         bool found = NO;
@@ -958,51 +988,95 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 
 #pragma mark View methods
 
+
+- (void)addStopIdRows
+{
+    [self addRowType:kTableFindRowId];
+    [self addRowType:kTableFindRowBrowse];
+    [self addRowType:kTableFindRowLocate];
+    
+    if ([UserPrefs getSingleton].vehicleLocations)
+    {
+        [self addRowType:kTableFindRowVehicle];
+    }
+    
+    if ([RailMapView RailMapSupported])
+    {
+        [self addRowType:kTableFindRowRailMap];
+    }
+    else
+    {
+        [self addRowType:kTableFindRowRailStops];
+    }
+    
+    if (self.ZXingSupported)
+    {
+        [self addRowType:kTableFindRowQR];
+    }
+    
+    if ([UserPrefs getSingleton].maxRecentStops != 0)
+    {
+        [self addRowType:kTableFindRowHistory];
+    }
+}
+
 - (void)mapSections
 {
-	if (_taskList)
-	{
-		self.alarmKeys = _taskList.taskKeys;
-	}
-	if ([UserPrefs getSingleton].bookmarksAtTheTop)
-	{
-		sections = 0;
-		if (self.alarmKeys!=nil && self.alarmKeys.count>0)
-		{
-			sectionMap[sections++] = kTableSectionAlarms;
-		}
-		
-		faveSection = sections;
-		sectionMap[sections++] = kTableSectionFaves;
-		editSection = sections;
-		sectionMap[sections++] = kTableSectionStopId;
-		sectionMap[sections++] = kTableSectionPlanner;
-		
-	}
-	else
-	{
-		sections = 0;
-		if (_taskList!=nil && _taskList.taskCount>0)
-		{
-			sectionMap[sections++] = kTableSectionAlarms;
-		}
-		
-		editSection = sections;
-		sectionMap[sections++] = kTableSectionStopId;
-		
-				
-		sectionMap[sections++] = kTableSectionPlanner;
-		
-		faveSection = sections;
-		sectionMap[sections++] = kTableSectionFaves;
-		
-		
-	}
-	
-    sectionMap[sections++] = kTableSectionTriMet;
+    [self clearSectionMaps];
     
-	sectionMap[sections++] = kTableSectionAbout;
-	
+    if (_taskList)
+    {
+        self.alarmKeys = _taskList.taskKeys;
+    }
+    
+    if ([UserPrefs getSingleton].bookmarksAtTheTop)
+    {
+        
+        if (self.alarmKeys!=nil && self.alarmKeys.count>0)
+        {
+            [self addSectionType:kTableSectionAlarms];
+        }
+        
+        faveSection = [self addSectionType:kTableSectionFaves];
+        editSection = [self addSectionType:kTableSectionStopId];
+        [self addStopIdRows];
+        [self addSectionType:kTableSectionPlanner];
+        
+    }
+    else
+    {
+        if (_taskList!=nil && _taskList.taskCount>0)
+        {
+            [self addSectionType:kTableSectionAlarms];
+        }
+        editSection = [self addSectionType:kTableSectionStopId];
+        [self addStopIdRows];
+        [self addSectionType:kTableSectionPlanner];
+        faveSection = [self addSectionType:kTableSectionFaves];
+    }
+    
+    [self addSectionType:kTableSectionTriMet];
+    [self addRowType:kTableTriMetDetours];
+    [self addRowType:kTableTriMetAlerts];
+    [self addRowType:kTableTriMetTweet];
+    [self addRowType:kTableStreetcarTweet];
+    [self addRowType:kTableTriMetFacebook];
+    [self addRowType:kTableTriMetTicketApp];
+    [self addRowType:kTableTriMetLink];
+    
+    if ([self canMakePhoneCall])
+    {
+        [self addRowType:kTableTriMetCall];
+    }
+    
+    [self addSectionType:kTableSectionAbout];
+    [self addRowType:kTableAboutSettings];
+    [self addRowType:kTableAboutRowAbout];
+    [self addRowType:kTableAboutSupport];
+    [self addRowType:kTableAboutFacebook];
+    [self addRowType:kTableAboutRate];
+    [self addRowType:kTableAboutRowEmail];
+    
 }
 
 
@@ -1017,11 +1091,115 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 	return result;
 }
 
+- (void)indexBookmarks
+{
+    Class searchClass = (NSClassFromString(@"CSSearchableIndex"));
+    
+    if (searchClass == nil || ![CSSearchableIndex isIndexingAvailable])
+    {
+        return;
+    }
+    
+    CSSearchableIndex * searchableIndex = [CSSearchableIndex defaultSearchableIndex];
+    [searchableIndex deleteSearchableItemsWithDomainIdentifiers:[NSArray arrayWithObjects:@"bookmark", nil] completionHandler:^(NSError * __nullable error) {
+        if (error != nil)
+        {
+            ERROR_LOG(@"Failed to delete bookmark index %@\n", error.description);
+        }
+        
+        if ([UserPrefs getSingleton].searchBookmarks)
+        {
+            NSDictionary *bookmark = nil;
+            NSMutableArray *index = [[[NSMutableArray alloc] init] autorelease];
+            int i;
+            for (i=0; i< [_userData.faves count]; i++)
+            {
+                bookmark = (NSDictionary *)[_userData.faves objectAtIndex:i];
+                
+                CSSearchableItemAttributeSet * attributeSet = [[CSSearchableItemAttributeSet alloc] initWithItemContentType:(NSString*)kUTTypeText];
+                attributeSet.title = [bookmark valueForKey:kUserFavesChosenName];
+                
+                
+                
+                if ([bookmark valueForKey:kUserFavesLocation] != nil)
+                {
+                    
+                    attributeSet.contentDescription = @"Arrival bookmark";
+                }
+                else
+                {
+                    
+                    attributeSet.contentDescription = @"Trip Planner bookmark";
+                    
+                }
+                
+                NSString *uniqueId = [NSString stringWithFormat:@"%@:%d", kSearchItemBookmark, i];
+                
+                CSSearchableItem * item = [[CSSearchableItem alloc] initWithUniqueIdentifier:uniqueId domainIdentifier:@"bookmark" attributeSet:attributeSet];
+                
+                [index addObject:item];
+                
+                [item release];
+                [attributeSet release];
+            }
+            
+            [[CSSearchableIndex defaultSearchableIndex] indexSearchableItems:index completionHandler: ^(NSError * __nullable error) {
+                if (error != nil)
+                {
+                    ERROR_LOG(@"Failed to create bookmark index %@\n", error.description);
+                }
+            }];
+        }
+        
+    }];
+    
+    
+    UIApplication *app = [UIApplication sharedApplication];
+    
+    if ([app respondsToSelector:@selector(setShortcutItems:)])
+    {
+        
+        NSMutableArray *shortCutItems = [[[NSMutableArray alloc] init] autorelease];
+        NSDictionary *bookmark = nil;
+        
+        int i;
+        for (i=0; i< [_userData.faves count] && i < 4; i++)
+        {
+            bookmark = (NSDictionary *)[_userData.faves objectAtIndex:i];
+            UIMutableApplicationShortcutItem *aMutableShortcutItem = [[UIMutableApplicationShortcutItem alloc] initWithType:@"bookmark" localizedTitle:[bookmark valueForKey:kUserFavesChosenName]];
+            
+            if ([bookmark valueForKey:kUserFavesLocation] != nil)
+            {
+                
+                aMutableShortcutItem.localizedSubtitle = @"Arrival bookmark";
+            }
+            else
+            {
+                
+                aMutableShortcutItem.localizedSubtitle = @"Trip Planner bookmark";
+                
+            }
+            
+            aMutableShortcutItem.userInfo = bookmark;
+            
+            
+            [shortCutItems addObject:aMutableShortcutItem];
+            
+            [aMutableShortcutItem release];
+            
+        }
+        
+        [[UIApplication sharedApplication] setShortcutItems: shortCutItems];
+        
+    }
+}
+
 - (void)reloadData
 {
 	[self mapSections];
 	[self setTheme];
 	[super reloadData];
+    [self indexBookmarks];
 }
 
 - (void)loadView
@@ -1041,12 +1219,12 @@ static NSString *callString = @"tel:1-503-238-RIDE";
     }
     @catch (NSException *exception)
     {
-        NSLog(@"Exception: %@ %@\n", exception.name, exception.reason );
+        ERROR_LOG(@"Exception: %@ %@\n", exception.name, exception.reason );
     }
     
     if (!written)
     {
-        NSLog(@"Failed to write to %@\n", lastRun);
+        ERROR_LOG(@"Failed to write to %@\n", lastRun);
     }
 }
 
@@ -1055,6 +1233,8 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 	NSFileManager *fileManager = [NSFileManager defaultManager];
 	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths objectAtIndex:0];
+    
+    DEBUG_LOGS(documentsDirectory);
 	
 	NSString *lastRun = [documentsDirectory stringByAppendingPathComponent:file];
     NSMutableDictionary *dict = nil;
@@ -1112,7 +1292,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 - (void)viewWillAppear:(BOOL)animated {
 	[super viewWillAppear:animated];
 	
-    DEBUG_LOG(@"RootViewController:viewDidAppear\n");
+    DEBUG_FUNC();
 
 }
 
@@ -1124,7 +1304,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 - (void)viewDidAppear:(BOOL)animated {
 	[super viewDidAppear:animated];
     
-    DEBUG_LOG(@"RootViewController:viewDidAppear\n");
+    DEBUG_FUNC();
 	
 	if (_taskList)
 	{
@@ -1249,55 +1429,23 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 #pragma mark TableView methods
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-	return sections;
+	return [self sections];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 	NSInteger rows = 0;
 	
-	switch (sectionMap[section])
+	switch ([self sectionType:section])
 	{
 	case kTableSectionStopId:
-        {
-            NSMutableArray *rowArray = [[[NSMutableArray alloc] init] autorelease];
-            
-            [rowArray addObject:[NSNumber numberWithInt:kTableFindRowId]];
-            [rowArray addObject:[NSNumber numberWithInt:kTableFindRowBrowse]];
-            [rowArray addObject:[NSNumber numberWithInt:kTableFindRowLocate]];
-            
-            if ([UserPrefs getSingleton].vehicleLocations)
-            {
-                [rowArray addObject:[NSNumber numberWithInt:kTableFindRowVehicle]];
-            }
-            
-            [rowArray addObject:[NSNumber numberWithInt:kTableFindRowRailStops]];
-            
-            if ([RailMapView RailMapSupported])
-            {
-                [rowArray addObject:[NSNumber numberWithInt:kTableFindRowRailMap]];
-            }
-            
-            if (self.ZXingSupported)
-            {
-                [rowArray addObject:[NSNumber numberWithInt:kTableFindRowQR]];
-            }
-            
-            if ([UserPrefs getSingleton].maxRecentStops != 0)
-            {
-                [rowArray addObject:[NSNumber numberWithInt:kTableFindRowHistory]];
-            }
-            
-			self.arrivalRows = rowArray;
-            rows = rowArray.count;
-
-			break;
-        }
+        rows = [self rowsInSection:section];
+        break;
 	case kTableSectionFaves:
 		{
 			NSInteger cnt = _userData.faves.count;
-			DEBUG_LOG(@"Cnt %ld Editing self %d tableview %d\n", (long)cnt, self.editing, tableView.editing);
+			// DEBUG_LOG(@"Cnt %ld Editing self %d tableview %d\n", (long)cnt, self.editing, tableView.editing);
 			rows = cnt + ((cnt==0 || self.editing) ? kTableFaveEditingRows : 0);
-			DEBUG_LOG(@"Rows %ld\n", (long)rows);
+			// DEBUG_LOG(@"Rows %ld\n", (long)rows);
 
 			break;
 		}
@@ -1310,42 +1458,10 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 			break;
 		}
     case kTableSectionAbout:
-        {
-            NSMutableArray *rowArray = [[[NSMutableArray alloc] init] autorelease];
-            
-            [rowArray addObject:[NSNumber numberWithInt:kTableAboutSettings]];
-            [rowArray addObject:[NSNumber numberWithInt:kTableAboutRowAbout]];
-            [rowArray addObject:[NSNumber numberWithInt:kTableAboutSupport]];
-            [rowArray addObject:[NSNumber numberWithInt:kTableAboutFacebook]];
-            [rowArray addObject:[NSNumber numberWithInt:kTableAboutRate]];
-            [rowArray addObject:[NSNumber numberWithInt:kTableAboutRowEmail]];
-            
-            
-            self.aboutRows = rowArray;
-            rows = rowArray.count;
-        }
+        rows = [self rowsInSection:section];
         break;
 	case kTableSectionTriMet:
-        {
-            NSMutableArray *rowArray = [[[NSMutableArray alloc] init] autorelease];
-                        
-            [rowArray addObject:[NSNumber numberWithInt:kTableTriMetDetours]];
-            [rowArray addObject:[NSNumber numberWithInt:kTableTriMetAlerts]];
-            [rowArray addObject:[NSNumber numberWithInt:kTableTriMetTweet]];
-            
-            [rowArray addObject:[NSNumber numberWithInt:kTableStreetcarTweet]];
-            [rowArray addObject:[NSNumber numberWithInt:kTableTriMetFacebook]];
-            [rowArray addObject:[NSNumber numberWithInt:kTableTriMetTicketApp]];
-            [rowArray addObject:[NSNumber numberWithInt:kTableTriMetLink]];
-            
-            if ([self canMakePhoneCall])
-			{
-                [rowArray addObject:[NSNumber numberWithInt:kTableTriMetCall]];
-            }
-            
-            self.triMetRows = rowArray;
-            rows = rowArray.count;
-        }
+        rows = [self rowsInSection:section];
         break;
 	case kTableSectionPlanner:
 			
@@ -1361,7 +1477,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-	switch (sectionMap[section])
+	switch ([self sectionType:section])
 	{
 		case kTableSectionStopId:
 			return @"Show arrivals for stop:";
@@ -1383,12 +1499,12 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 {
 	CGFloat result = 0.0;
 	
-	switch (sectionMap[indexPath.section])
+	switch ([self sectionType:indexPath.section])
 	{
 		case kTableSectionStopId:
         {
-            NSNumber *row = [self.arrivalRows objectAtIndex:indexPath.row];
-			if (row.intValue == kTableFindRowId)
+            NSInteger rowType = [self rowType:indexPath];
+			if (rowType == kTableFindRowId)
 			{
 				result = [CellTextField cellHeight];
 			}
@@ -1409,7 +1525,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 			break;
 
 		case kTableSectionAlarms:
-			result = [AlarmCell rowHeight:[self screenWidth]];
+			result = [AlarmCell rowHeight:self.screenInfo.screenWidth];
 
 			break;
 	}
@@ -1419,7 +1535,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 - (void)tableView: (UITableView*)tableView willDisplayCell: (UITableViewCell*)cell forRowAtIndexPath: (NSIndexPath*)indexPath
 {
     
-    switch(sectionMap[indexPath.section])
+    switch([self sectionType:indexPath.section])
 	{
 		case kTableSectionAlarms:
             if (indexPath.row < self.alarmKeys.count)
@@ -1449,12 +1565,12 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 	// DEBUG_LOG(@"cellForRowAtIndexPath %d %d\n", indexPath.section, indexPath.row);
 	// [self dumpPath:@"cellForRowAtIndexPath" path:indexPath];
 	
-	switch(sectionMap[indexPath.section])
+	switch([self sectionType:indexPath.section])
 	{
 		case kTableSectionStopId:
 		{
-            NSNumber *row = [self.arrivalRows objectAtIndex:indexPath.row];
-			switch (row.intValue)
+            NSInteger rowType = [self rowType:indexPath];
+			switch (rowType)
 			{
 				case kTableFindRowId:
 				{
@@ -1502,7 +1618,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 					}
 					
 					// Set up the cell
-					cell.textLabel.text = @"Choose from rail maps";
+					cell.textLabel.text = @"Choose from rail maps or list";
 					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 					[self maybeAddSectionToAccessibility:cell indexPath:indexPath alwaysSaySection:YES];
 					cell.imageView.image = [self getActionIcon:kIconMaxMap];
@@ -1678,11 +1794,11 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kAboutId] autorelease];
 			}
 			
-			NSNumber *row = [self.triMetRows objectAtIndex:indexPath.row];
+            NSInteger rowType = [self rowType:indexPath];
 			
             cell.textLabel.adjustsFontSizeToFitWidth = NO;
 			
-			switch (row.intValue)
+			switch (rowType)
 			{
 				
 				case kTableTriMetCall:
@@ -1737,11 +1853,11 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kAboutId] autorelease];
 			}
             
-            NSNumber *row = [self.aboutRows objectAtIndex:indexPath.row];
+            NSInteger rowType = [self rowType:indexPath];
 			
             cell.textLabel.adjustsFontSizeToFitWidth = NO;
             
-			switch (row.intValue)
+			switch (rowType)
 			{
                 case kTableAboutSettings:
 					cell.textLabel.text = @"Settings";
@@ -1788,12 +1904,12 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 			
 				if (task!=nil)
 				{
-					NSString *cellId = [task cellReuseIdentifier:kAlarmCellId width:[self screenWidth]];
+					NSString *cellId = [task cellReuseIdentifier:kAlarmCellId width:self.screenInfo.screenWidth];
 					cell = [tableView dequeueReusableCellWithIdentifier:cellId];
 					if (cell == nil)
 					{
 						cell = [AlarmCell tableviewCellWithReuseIdentifier:cellId 
-																width:[self screenWidth] 
+																width:self.screenInfo.screenWidth 
 															   height:[self tableView:tableView heightForRowAtIndexPath:indexPath]];
 					
 					}
@@ -1886,6 +2002,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 	return nil;
 }
 
+
 - (void)openFave:(int)index allowEdit:(bool)allowEdit
 {
     NSMutableDictionary *item = nil;
@@ -1965,7 +2082,101 @@ static NSString *callString = @"tel:1-503-238-RIDE";
         [tripDate release];
         
     }
+    
+}
 
+- (void)openSearchItem:(NSDictionary *)item
+{
+    NSString *uniqueId = [item objectForKey:CSSearchableItemActivityIdentifier];
+    
+    NSScanner *scanner = [NSScanner scannerWithString:uniqueId];
+    NSCharacterSet *colon = [NSCharacterSet characterSetWithCharactersInString:@":"];
+    NSString *prefix = nil;
+    
+    if ([scanner scanUpToCharactersFromSet:colon intoString:&prefix])
+    {
+        int arg = -1;
+        
+        if (![scanner isAtEnd])
+        {
+            scanner.scanLocation++;
+        }
+        
+        if ([scanner scanInt:&arg])
+        {
+            if ([prefix isEqualToString:kSearchItemStation])
+            {
+                HOTSPOT *hotSpots = [RailMapView hotspots];
+                [RailMapView initHotspotData];
+                
+                RailStation *station = [[[RailStation alloc] initFromHotSpot:hotSpots+arg index:arg] autorelease];
+                RailStationTableView *railView = [[RailStationTableView alloc] init];
+                railView.station = station;
+                railView.locationsDb = [StopLocations getDatabase];
+                [[self navigationController] popToRootViewControllerAnimated:NO];
+                [[self navigationController] pushViewController:railView animated:YES];
+                [railView release];
+            } else if ([prefix isEqualToString:kSearchItemBookmark])
+            {
+                [[self navigationController] popToRootViewControllerAnimated:NO];
+                [self openFave:arg allowEdit:NO];
+            }
+            else if ([prefix isEqualToString:kSearchItemRoute])
+            {
+                [[self navigationController] popToRootViewControllerAnimated:NO];
+                DirectionView *directionViewController = [[DirectionView alloc] init];
+                
+                // directionViewController.route = [detour route];
+                [directionViewController fetchDirectionsInBackground:self.backgroundTask route:[NSString stringWithFormat:@"%d", arg]];
+                [directionViewController release];
+            }
+        }
+
+    }
+}
+
+- (void)openUserActivityBookmark:(NSDictionary *)item
+{
+    NSString *location = [item valueForKey:kUserFavesLocation];
+    NSMutableDictionary *tripItem = [item valueForKey:kUserFavesTrip];;
+    NSString *block = [item valueForKey:kUserFavesBlock];
+    
+    if (location !=nil && block!=nil)
+    {
+        DepartureDetailView *departureDetailViewController = [[DepartureDetailView alloc] init];
+        
+        [departureDetailViewController fetchDepartureInBackground:self.backgroundTask location:location block:block];
+    
+        [departureDetailViewController release];
+    }
+    else if (location !=nil)
+    {
+        DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
+        
+        
+        [departureViewController fetchTimesForLocationInBackground:self.backgroundTask
+                                                               loc:location
+                                                             title:[item valueForKey:kUserFavesChosenName]];
+        [departureViewController release];
+    }
+    else
+    {
+        TripUserRequest *req = [[[TripUserRequest alloc] initFromDict:tripItem] autorelease];
+        
+        TripPlannerDateView *tripDate = [[TripPlannerDateView alloc] init];
+        
+        [tripDate initializeFromBookmark:req];
+        @synchronized (_userData)
+        {
+            [tripDate.tripQuery addStopsFromUserFaves:_userData.faves];
+        }
+        
+        // Push the detail view controller
+        [tripDate nextScreen:[self navigationController] taskContainer:self.backgroundTask];
+        [tripDate release];
+        
+    }
+    
 }
 
 
@@ -1976,12 +2187,12 @@ static NSString *callString = @"tel:1-503-238-RIDE";
         [self.editWindow resignFirstResponder];
     }
 	
-    switch(sectionMap[indexPath.section])
+    switch([self sectionType:indexPath.section])
     {
         case kTableSectionStopId:
         {
-            NSNumber *row = [self.arrivalRows objectAtIndex:indexPath.row];
-            switch (row.intValue)
+            NSInteger rowType = [self rowType:indexPath];
+            switch (rowType)
             {
                 case kTableFindRowId:
                 {
@@ -2097,9 +2308,9 @@ static NSString *callString = @"tel:1-503-238-RIDE";
         }
         case kTableSectionTriMet:
         {
-			NSNumber *row = [self.triMetRows objectAtIndex:indexPath.row];
+            NSInteger rowType = [self rowType:indexPath];
             
-			switch (row.intValue)
+			switch (rowType)
             {
                 case kTableStreetcarTweet:
                 {
@@ -2135,7 +2346,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
                 case kTableTriMetLink:
                 {
                     WebViewController *webPage = [[WebViewController alloc] init];
-                    [webPage setURLmobile:@"http://trimet.org" full:nil];
+                    [webPage setURLmobile:@"https://trimet.org" full:nil];
                     [webPage displayPage:[self navigationController] animated:YES itemToDeselect:self];
                     [webPage release];
                     break;
@@ -2143,7 +2354,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
                 case kTableTriMetAlerts:
                 {
                     WebViewController *webPage = [[WebViewController alloc] init];
-                    [webPage setURLmobile:@"http://trimet.org/m/alerts" full:nil]; 
+                    [webPage setURLmobile:@"https://trimet.org/m/alerts" full:nil];
                     [webPage displayPage:[self navigationController] animated:YES itemToDeselect:self];
                     [webPage release];
                     break;
@@ -2184,9 +2395,9 @@ static NSString *callString = @"tel:1-503-238-RIDE";
         case kTableSectionAbout:
         {
             
-            NSNumber *row = [self.aboutRows objectAtIndex:indexPath.row];
+            NSInteger rowType = [self rowType:indexPath];
             
-            switch (row.intValue)
+            switch (rowType)
             {
                 case kTableAboutSettings:
                 {
@@ -2336,7 +2547,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 	if (editingStyle == UITableViewCellEditingStyleDelete) {
 		// Delete the row from the data source
 //		[self.table beginUpdates];
-		switch (sectionMap[indexPath.section])
+		switch ([self sectionType:indexPath.section])
 		{
 			case kTableSectionFaves:
 				@synchronized(_userData)
@@ -2385,7 +2596,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 
 // The editing style for a row is the kind of button displayed to the left of the cell when in editing mode.
 - (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath {
-	switch (sectionMap[indexPath.section])
+	switch ([self sectionType:indexPath.section])
 	{
 		case kTableSectionFaves:
 			switch (indexPath.row - _userData.faves.count)
@@ -2410,7 +2621,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
 	// Return NO if you do not want the specified item to be editable.
 	
-	switch(sectionMap[indexPath.section])
+	switch([self sectionType:indexPath.section])
 	{
 		case kTableSectionStopId:
 			return NO;
@@ -2428,7 +2639,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 - (NSIndexPath *)tableView:(UITableView *)tableView targetIndexPathForMoveFromRowAtIndexPath:(NSIndexPath *)sourceIndexPath toProposedIndexPath:(NSIndexPath *)proposedDestinationIndexPath
 {
 	// printf("********HERE\n");
-	uint srcSection = sectionMap[sourceIndexPath.section];
+	NSInteger srcSection = [self sectionType:sourceIndexPath.section];
 	
 	int sectionMax=1;
 	
@@ -2477,11 +2688,11 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 //	[self dumpPath:@"moveRowAtIndexPath from" path:fromIndexPath];
 //	[self dumpPath:@"moveRowAtIndexPath to  " path:toIndexPath];
 	
-	switch (sectionMap[fromIndexPath.section])
+	switch ([self sectionType:fromIndexPath.section])
 	{
 		case kTableSectionFaves:
 		{
-			if (sectionMap[toIndexPath.section] == kTableSectionFaves)
+			if ([self sectionType:toIndexPath.section] == kTableSectionFaves)
 			{
 				@synchronized (_userData)
 				{
@@ -2514,7 +2725,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
  // Override if you support conditional rearranging of the list
 - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
 	// Return NO if you do not want the item to be re-orderable.
-	switch (sectionMap[indexPath.section]) {
+	switch ([self sectionType:indexPath.section]) {
 		case kTableSectionFaves:
 			if (indexPath.row < _userData.faves.count)
 			{
@@ -2530,7 +2741,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
 {
-	switch(sectionMap[indexPath.section])
+	switch([self sectionType:indexPath.section])
 	{
 		case kTableSectionAlarms:
 		{
@@ -2600,9 +2811,9 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 	int i=0;
 	
 	// Find the alarm section
-	for (i=0; i<sections; i++)
+	for (i=0; i<[self sections]; i++)
 	{
-		if (sectionMap[i] == kTableSectionAlarms)
+		if ([self sectionType:i] == kTableSectionAlarms)
 		{
 			alarmSection = i;
 			break;
@@ -2616,9 +2827,17 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 		{
 			if ([key isEqualToString:[realTask key]])
 			{
-				[self.table reloadRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:i
-																							   inSection:alarmSection]] 
-								  withRowAnimation:UITableViewRowAnimationNone];
+                NSIndexPath *cellIndex = [NSIndexPath indexPathForRow:i
+                                                            inSection:alarmSection];
+                
+                
+                UITableViewCell *cell = [self.table cellForRowAtIndexPath:cellIndex];
+                
+                if (!cell.showingDeleteConfirmation && !cell.editing)
+                {
+                    [self.table reloadRowsAtIndexPaths:[NSArray arrayWithObject:cellIndex]
+                                      withRowAnimation:UITableViewRowAnimationNone];
+                }
 				
 			}
 			i++;
@@ -2641,42 +2860,6 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 
 #pragma mark -
 #pragma mark ZXingDelegateMethods
-
-
-- (bool)ZXingSupported
-{
-    Class captureDeviceClass = NSClassFromString(@"AVCaptureDevice");
-    if (captureDeviceClass != nil)
-    {
-        AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-        
-        if (device == nil)
-        {
-            return NO;
-        }
-        
-        if ([[AVCaptureDevice class] respondsToSelector:@selector(authorizationStatusForMediaType:)])
-        {
-            AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
-            
-            switch (authStatus)
-            {
-                case AVAuthorizationStatusAuthorized:
-                case AVAuthorizationStatusNotDetermined:
-                    return YES;
-                case AVAuthorizationStatusDenied:
-                case AVAuthorizationStatusRestricted:
-                    return NO;
-            }
-        }
-        else
-        {
-            return YES;
-        }
-    }
-    
-    return NO ;
-}
 
 
 - (void)zxingController:(ZXingWidgetController*)controller didScanResult:(NSString *)result {

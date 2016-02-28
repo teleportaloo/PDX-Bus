@@ -27,10 +27,12 @@
 	id<ProgressDelegate> _progressDelegate;
 	UILabel *_subText;
     UILabel *_helpText;
-   	int _items;
+   	int _totalItems;
+    int _itemsDone;
 }
 
 - (void) itemsDone:(int)itemsDone;
+- (void) totalItems:(int)total;
 + (ProgressModalView *)initWithSuper:(UIView *)back items:(int)items title:(NSString *)title delegate:(id<ProgressDelegate>)delegate
 						 orientation:(UIInterfaceOrientation)orientation;
 - (void) addSubtext:(NSString *)subtext;
@@ -38,7 +40,8 @@
 
 
 @property (nonatomic, assign) id<ProgressDelegate> progressDelegate;
-@property (nonatomic) int items;
+@property (nonatomic) int totalItems;
+@property (nonatomic) int itemsDone;
 @property (nonatomic, retain) UIActivityIndicatorView *whirly;
 @property (nonatomic, retain) UIProgressView *progress;
 @property (nonatomic, retain) UILabel *subText;

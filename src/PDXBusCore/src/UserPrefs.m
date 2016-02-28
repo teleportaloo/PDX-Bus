@@ -210,6 +210,12 @@ static bool useWatchSettings = NO;
 	return [self getBoolFromDefaultsForKey:@"auto_commute"				ifMissing:YES writeToShared:NO];
 }
 
+- (bool) watchAutoCommute
+{
+    return [self getBoolFromDefaultsForKey:@"watch_auto_commute"		ifMissing:YES writeToShared:NO];
+}
+
+
 - (bool) commuteButton
 {
 	return [self getBoolFromDefaultsForKey:@"commute_button"			ifMissing:YES writeToShared:NO];
@@ -425,9 +431,71 @@ static bool useWatchSettings = NO;
     return fileName;
 }
 
+- (bool)watchBookmarksDisplayStopList
+{
+    return [self getBoolFromDefaultsForKey:@"watch_bookmarks_display_stop_list"     ifMissing:YES writeToShared:NO];
+}
+
 - (bool)watchBookmarksAtTheTop
 {
     return [self getBoolFromDefaultsForKey:@"watch_bookmarks_at_the_stop"     ifMissing:NO writeToShared:NO];
+}
+
+- (bool)searchBookmarks
+{
+    return [self getBoolFromDefaultsForKey:@"search_bookmarks"      ifMissing:YES writeToShared:NO];
+}
+
+- (bool)searchRoutes
+{
+    return [self getBoolFromDefaultsForKey:@"search_routes"         ifMissing:YES writeToShared:NO];
+}
+
+- (bool)searchStations
+{
+    return [self getBoolFromDefaultsForKey:@"search_stations"       ifMissing:YES writeToShared:NO];
+}
+
+- (bool)watchUseBetaVehicleLocator
+{
+    return [self getBoolFromDefaultsForKey:@"watch_use_beta_vehicle_locator" ifMissing:YES writeToShared:NO];
+}
+
+- (bool)useBetaVehicleLocator
+{
+    return [self getBoolFromDefaultsForKey:@"use_beta_vehicle_locator" ifMissing:YES writeToShared:NO];
+}
+
+- (bool)showTrips
+{
+    return [self getBoolFromDefaultsForKey:@"show_trips" ifMissing:NO writeToShared:NO];
+}
+
+- (NSString*)busIcon
+{
+    //  Currently this feature is disabled - so I return a default value.
+    
+    return @"icon_arrow_up.png";
+    
+    /*
+     
+    NSString *fileName = nil;
+    
+    if (useWatchSettings)
+    {
+        fileName = [self getStringFromDefaultsForKey:@"watch_bus_icon"   ifMissing:@"icon_arrow_up.png"];
+
+    }
+    else
+    {
+        fileName = [self getStringFromDefaultsForKey:@"bus_icon"   ifMissing:@"icon_arrow_up.png"];
+    }
+    
+    
+    DEBUG_LOG(@"bus icon %@\n", fileName);
+    return fileName;
+     
+     */
 }
 
 

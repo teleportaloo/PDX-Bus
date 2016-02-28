@@ -56,7 +56,7 @@
 - (int)minsForTaskWithStopId:(NSString *)stopId block:(NSString *)block;
 - (void)cancelTaskForKey:(NSString *)key;
 - (void)cancelTaskForStopId:(NSString *)stopId block:(NSString *)block;
-- (void)addTaskForStopIdProximity:(NSString *)stopId lat:(NSString *)lat lng:(NSString *)lng desc:(NSString *)desc 
+- (void)addTaskForStopIdProximity:(NSString *)stopId loc:(CLLocation *)loc desc:(NSString *)desc
 						 accurate:(bool)accurate;
 - (bool)hasTaskForStopIdProximity:(NSString *)stopId;
 - (void)cancelTaskForStopIdProximity:(NSString*)stopId;
@@ -71,8 +71,7 @@
 - (void)userAlertForProximity:(id<UIAlertViewDelegate>) delegate;
 - (bool)userAlertForProximityAction:(NSInteger)button
 							 stopId:(NSString *)stopId 
-								lat:(NSString *)lat 
-								lng:(NSString *)lng 
+								loc:(CLLocation *)loc
 							   desc:(NSString *)desc;
 
 - (void)resumeOnActivate;

@@ -12,8 +12,10 @@
 
 #import <Foundation/Foundation.h>
 #import "TriMetTypes.h"
+#import <CoreLocation/CoreLocation.h>
 
 @class XMLDepartures;
+@class VehicleData;
 
 typedef enum {
 	kStatusEstimated =0,
@@ -36,8 +38,9 @@ typedef enum {
 	bool				_detour;
 	TriMetDistance		_blockPositionFeet;
 	TriMetTime			_blockPositionAt;
-	NSString *			_blockPositionLat;
-	NSString *			_blockPositionLng;
+    CLLocation          *_blockPosition;
+    CLLocation          *_stopLocation;
+    NSString *			_blockPositionHeading;
 	NSString *			_locationDesc;
 	NSString *			_locationDir;
 	bool				_hasBlock;
@@ -47,16 +50,15 @@ typedef enum {
 	bool				_streetcar;
 	NSMutableArray *	_trips;
 	
-	NSString *			_stopLat;
-	NSString *			_stopLng;
+
 	NSString *			_copyright;
     NSString *          _streetcarBlock;
     bool                _nextBusFeedInTriMetData;
     NSTimeInterval      _timeAdjustment;
+    bool                _invalidated;
 }
 
 -(id)init;
--(NSString *)formatDistance:(TriMetDistance)distance;
 -(NSString *)formatLayoverTime:(TriMetTime)t;
 -(TriMetTime)secondsToArrival;
 -(int)minsToArrival;
@@ -65,7 +67,9 @@ typedef enum {
 - (bool)needToFetchStreetcarLocation;
 - (void)makeTimeAdjustment:(NSTimeInterval)interval;
 - (void)extrapolateFromNow;
-
+- (void)makeInvalid:(TriMetTime)querytime;
+- (void)insertLocation:(VehicleData *)data;
+- (NSString *)descAndDir;
 
 @property (nonatomic, retain) NSString *locid;
 @property (nonatomic, retain) NSString *block;
@@ -75,8 +79,8 @@ typedef enum {
 @property (nonatomic) TriMetTime queryTime;
 @property (nonatomic) TriMetDistance blockPositionFeet;
 @property (nonatomic) TriMetTime blockPositionAt;
-@property (nonatomic, retain) NSString *blockPositionLat;
-@property (nonatomic, retain) NSString *blockPositionLng;
+@property (nonatomic, retain) CLLocation *blockPosition;
+@property (nonatomic, retain) NSString *blockPositionHeading;
 @property (nonatomic, retain) NSString *errorMessage;
 @property (nonatomic, retain) NSString *routeName;
 @property (nonatomic, retain) NSString *route;
@@ -89,12 +93,12 @@ typedef enum {
 @property (nonatomic) bool detour;
 @property (nonatomic) bool streetcar;
 @property (nonatomic) TriMetTime nextBus;
-@property (nonatomic, retain) NSString *stopLat;
-@property (nonatomic, retain) NSString *stopLng;
+@property (nonatomic, retain) CLLocation *stopLocation;
 @property (nonatomic, retain) NSString *copyright;
 @property (nonatomic, retain) NSDate *cacheTime;
 @property (nonatomic, retain) NSString *streetcarId;
 @property (nonatomic) bool nextBusFeedInTriMetData;
 @property (nonatomic) NSTimeInterval timeAdjustment;
+@property (nonatomic) bool invalidated;
 
 @end

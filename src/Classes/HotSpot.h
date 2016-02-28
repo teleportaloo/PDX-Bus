@@ -15,6 +15,7 @@
 
 
 #import <UIKit/UIKit.h>
+#import "TriMetRouteColors.h"
 
 
 #define MAXHOTSPOTS 278
@@ -46,22 +47,8 @@ typedef struct hotspot_struct
 #define HOTSPOT_IS_RECT(X) ((X)->isRect==1)
 #define HOTSPOT_IS_POLY(X) ((X)->isRect==0)
 
-
-#define kRedLine    0x0001
-#define kBlueLine   0x0002
-#define kGreenLine  0x0004
-#define kYellowLine 0x0008
-#define kOrangeLine 0x0010
-#define kWesLine    0x0020
-
-#define kStreetcarALoop     0x0040
-#define kStreetcarBLoop     0x0080
-#define kStreetcarNsLine	0x0100
-
 #define MAP_LAST_INDEX 0xFF
 
-
-typedef unsigned int RAILLINES;
 
 typedef struct alpha_section_struct
 {

@@ -18,6 +18,7 @@
 #import "MapViewController.h"
 #import "RailStation.h"
 #import "TriMetRouteColors.h"
+#import "NearestVehiclesMap.h"
 
 
 #define kGettingStops @"getting stops"
@@ -96,12 +97,10 @@
 - (void)fetchDestinations:(DepartureData*) dep
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	[self.backgroundTask.callbackWhenFetching backgroundThread:[NSThread currentThread]];
 	[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:kGettingStops];
 	
-	NSError *parseError = nil;
 	[self.stopData getStopsAfterLocation:dep.locid route:dep.route direction:dep.dir 
-							 description:dep.routeName parseError:&parseError cacheAction:TriMetXMLUpdateCache];	
+							 description:dep.routeName cacheAction:TriMetXMLForceFetchAndUpdateCache];
 	self.departure = dep;
 	self.title = @"Destinations";
 	
@@ -116,10 +115,8 @@
 	
 	self.stopData = [[[XMLStops alloc] init] autorelease];
 
-	
-	NSError *parseError = nil;
 	if (!self.backgroundRefresh && [self.stopData getStopsAfterLocation:dep.locid route:dep.route direction:dep.dir 
-															description:dep.routeName parseError:&parseError cacheAction:TriMetXMLOnlyReadFromCache])
+															description:dep.routeName cacheAction:TriMetXMLCheckCache])
 	{
 		self.departure = dep;
 		self.title = @"Destinations";
@@ -130,29 +127,22 @@
 	{
 		[NSThread detachNewThreadSelector:@selector(fetchDestinations:) toTarget:self withObject:dep];
 	}
-	
-	
 }
 
 - (void)fetchStops:(NSArray*) args
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	[self.backgroundTask.callbackWhenFetching backgroundThread:[NSThread currentThread]];
 	[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:kGettingStops];
 
 	
     NSString *routeid = [args objectAtIndex:0];
 	NSString *dir     = [args objectAtIndex:1];
 	NSString *desc    = [args objectAtIndex:2];
-	
-	
-	NSError *parseError = nil;
-	
+		
 	[self.stopData getStopsForRoute:routeid 
 						  direction:dir 
-						description:desc 
-						 parseError:&parseError 
-						cacheAction:TriMetXMLUpdateCache];	
+						description:desc
+						cacheAction:TriMetXMLForceFetchAndUpdateCache];
 	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
 
 	[pool release];
@@ -166,12 +156,10 @@
 	self.stopData = [[[XMLStops alloc] init] autorelease];
 	self.directionName = dirName;
 	
-	NSError *parseError = nil;
 	if (!self.backgroundRefresh && [self.stopData getStopsForRoute:routeid 
 														 direction:dir 
-													   description:desc 
-														parseError:&parseError 
-													   cacheAction:TriMetXMLOnlyReadFromCache])
+													   description:desc
+													   cacheAction:TriMetXMLCheckCache])
 	{
 		[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
 	}
@@ -184,7 +172,6 @@
 							   withObject:[NSArray arrayWithObjects:args count:sizeof(args)/sizeof(id)]];
 
 	}
-	
 }
 
 
@@ -242,14 +229,14 @@
 	{
 		case kRouteNameSection:
 		{
-			NSString *stopId = [NSString stringWithFormat:@"stop%d", [self screenWidth]];
+			NSString *stopId = [NSString stringWithFormat:@"stop%d", self.screenInfo.screenWidth];
 			
 			cell = [tableView dequeueReusableCellWithIdentifier:stopId];
 			if (cell == nil) {
 				
 				cell = [RailStation tableviewCellWithReuseIdentifier:stopId 
 														   rowHeight:[self tableView:tableView heightForRowAtIndexPath:indexPath] 
-														 screenWidth:[self screenWidth]
+														 screenWidth:self.screenInfo.screenWidth
 														 rightMargin:NO
 																font:[self getBasicFont]];
 				
@@ -540,8 +527,8 @@
 
 -(void)showMap:(id)sender
 {
-	NSMutableArray *items = [self topViewData];
-	MapViewController *mapPage = [[MapViewController alloc] init];
+	NSMutableArray *items = [NSMutableArray arrayWithArray:self.topViewData];
+	NearestVehiclesMap *mapPage = [[NearestVehiclesMap alloc] init];
 	mapPage.callback = self.callback;
 	mapPage.annotations = items;
 	mapPage.title = self.stopData.routeDescription;
@@ -553,8 +540,25 @@
 		
 		p.callback = self;
 	}
+    
+    NSSet *streetcarRoutes = [TriMetRouteColors streetcarRoutes];
+    
+    mapPage.direction = self.stopData.direction;
+
+    if ([streetcarRoutes containsObject:self.stopData.routeId])
+    {
+        mapPage.streetcarRoutes = [NSSet setWithObject:self.stopData.routeId];
+        mapPage.trimetRoutes = [NSSet set];
+       
+    }
+    else
+    {
+        mapPage.trimetRoutes = [NSSet setWithObject:self.stopData.routeId];
+        mapPage.streetcarRoutes = [NSSet set];
+    }
 	
-	[[self navigationController] pushViewController:mapPage animated:YES];
+    [mapPage fetchNearestVehiclesInBackground:self.backgroundTask];
+    
 	[mapPage release];
 }
 

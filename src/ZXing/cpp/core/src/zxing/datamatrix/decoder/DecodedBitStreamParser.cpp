@@ -161,10 +161,12 @@ void DecodedBitStreamParser::decodeC40Segment(Ref<BitSource> bits, ostringstream
   do {
     // If there is only one byte left then it will be encoded as ASCII
     if (bits->available() == 8) {
+      delete[] cValues;
       return;
     }
     int firstByte = bits->readBits(8);
     if (firstByte == 254) {  // Unlatch codeword
+      delete[] cValues;
       return;
     }
 
@@ -225,6 +227,7 @@ void DecodedBitStreamParser::decodeC40Segment(Ref<BitSource> bits, ostringstream
       }
     }
   } while (bits->available() > 0);
+  delete[] cValues;
 }
 
 void DecodedBitStreamParser::decodeTextSegment(Ref<BitSource> bits, ostringstream & result) {
@@ -238,10 +241,12 @@ void DecodedBitStreamParser::decodeTextSegment(Ref<BitSource> bits, ostringstrea
   do {
     // If there is only one byte left then it will be encoded as ASCII
     if (bits->available() == 8) {
+      delete[] cValues;
       return;
     }
     int firstByte = bits->readBits(8);
     if (firstByte == 254) {  // Unlatch codeword
+      delete[] cValues;
       return;
     }
 
@@ -303,6 +308,7 @@ void DecodedBitStreamParser::decodeTextSegment(Ref<BitSource> bits, ostringstrea
       }
     }
   } while (bits->available() > 0);
+  delete[] cValues;
 }
 
 void DecodedBitStreamParser::decodeAnsiX12Segment(Ref<BitSource> bits, ostringstream & result) {
@@ -313,10 +319,12 @@ void DecodedBitStreamParser::decodeAnsiX12Segment(Ref<BitSource> bits, ostringst
   do {
     // If there is only one byte left then it will be encoded as ASCII
     if (bits->available() == 8) {
+      delete[] cValues;
       return;
     }
     int firstByte = bits->readBits(8);
     if (firstByte == 254) {  // Unlatch codeword
+      delete[] cValues;
       return;
     }
 
@@ -341,6 +349,7 @@ void DecodedBitStreamParser::decodeAnsiX12Segment(Ref<BitSource> bits, ostringst
       }
     }
   } while (bits->available() > 0);
+  delete[] cValues;
 }
 
 void DecodedBitStreamParser::parseTwoBytes(int firstByte, int secondByte, int*& result) {
@@ -410,6 +419,8 @@ void DecodedBitStreamParser::decodeBase256Segment(Ref<BitSource> bits, ostringst
     byteSegments.push_back(bytes[i]);
     result << (char)bytes[i];
   }
+  delete[] bytes;
+
 }
 }
 }

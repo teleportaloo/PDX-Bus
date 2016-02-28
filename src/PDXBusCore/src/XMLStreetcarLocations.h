@@ -28,7 +28,7 @@
 @property (nonatomic, retain) NSString *route;
 
 
-- (BOOL)getLocations:(NSError **)error;
+- (BOOL)getLocations;
 - (void)insertLocation:(DepartureData *)dep;
 - (id) initWithRoute:(NSString *)route;
 

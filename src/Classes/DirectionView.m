@@ -16,6 +16,7 @@
 #import "RailStation.h"
 #import "TriMetRouteColors.h"
 #import "WebViewController.h"
+#import "DebugLogging.h"
 
 @implementation DirectionView
 
@@ -54,13 +55,10 @@
 {	
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	self.routeId = route;
-	[self.backgroundTask.callbackWhenFetching backgroundThread:[NSThread currentThread]];
-	[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:NSLocalizedString(@"getting directions", @"progress message")];
+    [self.backgroundTask.callbackWhenFetching backgroundStart:1 title:NSLocalizedString(@"getting directions", @"progress message")];
 	
-	NSError *parseError = nil;
-    
-	[self.directionData getDirections:route error:&parseError cacheAction:TriMetXMLUpdateCache];
-	
+	[self.directionData getDirections:route cacheAction:TriMetXMLForceFetchAndUpdateCache];
+ 	
 	if ([self.directionData safeItemCount] > 0)
 	{
 		self.route = [self.directionData itemAtIndex:0];
@@ -75,8 +73,7 @@
 	
 	self.directionData = [[[XMLRoutes alloc] init] autorelease];
 	
-	NSError *parseError = nil;
-	if (!self.backgroundRefresh && [self.directionData getDirections:route error:&parseError cacheAction:TriMetXMLOnlyReadFromCache])
+	if (!self.backgroundRefresh && [self.directionData getDirections:route cacheAction:TriMetXMLCheckCache])
 	{
 		if ([self.directionData safeItemCount] > 0)
 		{
@@ -163,14 +160,14 @@
 	{
 		case kSectionName:
 		{
-			NSString *stopId = [NSString stringWithFormat:@"stop%d", [self screenWidth]];
+			NSString *stopId = [NSString stringWithFormat:@"stop%d", self.screenInfo.screenWidth];
 			
 			cell = [tableView dequeueReusableCellWithIdentifier:stopId];
 			if (cell == nil) {
 				
 				cell = [RailStation tableviewCellWithReuseIdentifier:stopId 
 														   rowHeight:[self tableView:tableView heightForRowAtIndexPath:indexPath] 
-														 screenWidth:[self screenWidth]
+														 screenWidth:self.screenInfo.screenWidth
 														 rightMargin:NO
 																font:[self getBasicFont]];
 				
@@ -287,8 +284,8 @@
 					
 					NSString *wiki = [TriMetRouteColors rawColorForRoute:self.route.route]->wiki;
 					
-					[webPage setURLmobile:[NSString stringWithFormat:@"http://en.m.wikipedia.org/wiki/%@", wiki ] 
-									 full:[NSString stringWithFormat:@"http://en.wikipedia.org/wiki/%@", wiki ]];
+					[webPage setURLmobile:[NSString stringWithFormat:@"https://en.m.wikipedia.org/wiki/%@", wiki ]
+									 full:[NSString stringWithFormat:@"https://en.wikipedia.org/wiki/%@", wiki ]];
 					
 					if (self.callback)
 					{

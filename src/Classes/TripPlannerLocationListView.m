@@ -121,8 +121,7 @@ static int depthCount = 0;
 	if (self.from)
 	{
 		self.tripQuery.userRequest.fromPoint.locationDesc = endpoint.xdescription;
-		self.tripQuery.userRequest.fromPoint.coordinates  = [[[CLLocation alloc] initWithLatitude:[endpoint.xlat doubleValue] longitude:[endpoint.xlon doubleValue]]
-                                                                    autorelease];
+        self.tripQuery.userRequest.fromPoint.coordinates  = endpoint.loc;
 		
 		if (self.tripQuery.toList && !self.tripQuery.userRequest.toPoint.useCurrentLocation)
 		{
@@ -140,8 +139,7 @@ static int depthCount = 0;
 	else
 	{
 		self.tripQuery.userRequest.toPoint.locationDesc = endpoint.xdescription;
-		self.tripQuery.userRequest.toPoint.coordinates  = [[[CLLocation alloc] initWithLatitude:[endpoint.xlat doubleValue] longitude:[endpoint.xlon doubleValue]]
-                                                                autorelease];
+        self.tripQuery.userRequest.toPoint.coordinates  = endpoint.loc;
 	}
 	
 	

@@ -15,9 +15,9 @@
 #import <Foundation/Foundation.h>
 
 @protocol BackgroundTaskProgress <NSObject>
-	-(void)backgroundThread:(NSThread *)thread;
 	-(void)backgroundStart:(int)items title:(NSString *)title;
 	-(void)backgroundItemsDone:(int)itemsDone;
+    -(void)backgroundItems:(int)totalItems;
 	-(void)backgroundSubtext:(NSString *)subtext;
 	-(void)backgroundCompleted:(UIViewController*)viewController;
     -(void)backgroundSetErrorMsg:(NSString *)errMsg;

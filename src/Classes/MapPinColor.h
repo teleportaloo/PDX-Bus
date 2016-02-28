@@ -13,13 +13,17 @@
 
 @protocol MapPinColor <MKAnnotation>
 
-- (MKPinAnnotationColor) getPinColor;
-- (bool) showActionMenu;
+- (MKPinAnnotationColor)getPinColor;
+- (UIColor*)getPinTint;
+- (bool)showActionMenu;
+- (bool)hasBearing;
 
 @optional
 
-- (NSString *) mapStopId;
-- (DepartureUI *) mapDeparture;
-- (bool) mapTapped:(id<BackgroundTaskProgress>) progress;
-- (NSString *) tapActionText;
+- (double)bearing;
+- (NSString *)mapStopId;
+- (NSString *)mapStopIdText;
+- (DepartureUI *)mapDeparture;
+- (bool)mapTapped:(id<BackgroundTaskProgress>) progress;
+- (NSString *)tapActionText;
 @end

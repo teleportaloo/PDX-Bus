@@ -6,9 +6,17 @@
 //  Copyright (c) 2015 Teleportaloo. All rights reserved.
 //
 
+
+
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+
 #import "WatchDepartureUI.h"
 #import "TriMetRouteColors.h"
 #import "BlockColorDb.h"
+#import "MapAnnotationImage.h"
 
 @implementation WatchDepartureUI
 
@@ -156,7 +164,7 @@
         image = UIGraphicsGetImageFromCurrentImageContext();
         UIGraphicsEndImageContext();
         
-        [imageCache setObject:imageCache forKey:color];
+        [imageCache setObject:image forKey:color];
     }
         
     return image;
@@ -168,7 +176,7 @@
     {
         return @"❌";
     }
-    else if (self.data.minsToArrival < 0)
+    else if (self.data.minsToArrival < 0 || self.data.invalidated)
     {
         return @"-";
     }
@@ -250,6 +258,35 @@
     }
     
     return result;
+}
+
+
+- (WKInterfaceMapPinColor)getPinColor
+{
+    return WKInterfaceMapPinColorRed;
+}
+- (UIColor*)getPinTint
+{
+    UIColor *ret = [TriMetRouteColors colorForRoute:self.data.route];
+    
+    if (ret == nil)
+    {
+        ret = kMapAnnotationBusColor;
+    }
+    return ret;
+}
+- (bool)hasBearing
+{
+    return self.data.blockPositionHeading!=nil;
+}
+- (double)bearing
+{
+    return self.data.blockPositionHeading.doubleValue;
+}
+
+- (CLLocationCoordinate2D)coord
+{
+    return self.data.blockPosition.coordinate;
 }
 
 @end

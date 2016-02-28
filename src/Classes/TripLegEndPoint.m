@@ -29,6 +29,7 @@
 @synthesize displayTimeText = _displayTimeText;
 @synthesize leftColor       = _leftColor;
 @synthesize xnumber			= _xnumber;
+@synthesize thruRoute       = _thruRoute;
 
 - (void)dealloc {
 	
@@ -137,6 +138,26 @@
 		return [NSString stringWithFormat:@"%d: %@", self.index, self.mapText];
 	}
 	return nil;
+}
+
+- (UIColor *)getPinTint
+{
+    return nil;
+}
+
+- (bool)hasBearing
+{
+    return NO;
+}
+
+- (CLLocation *)loc
+{
+    if (self.xlat!=nil && self.xlon!=nil)
+    {
+        return [[[CLLocation alloc] initWithLatitude:self.xlat.doubleValue longitude:self.xlon.doubleValue] autorelease];
+    }
+    
+    return nil;
 }
 
 

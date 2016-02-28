@@ -20,10 +20,6 @@
 
 #define kDepartureCellHeight        55
 #define kWideDepartureCellHeight    85
-#define kDepartureCellId            @"DepartureTime"
-#define kBigDepartureId             @"BigDeparture"
-
-
 
 @interface DepartureUI : NSObject <MapPinColor> {
     DepartureData *_data;
@@ -41,18 +37,18 @@
 
 // Rest
 - (id)initWithData:(DepartureData *)data;
-- (NSString *)cellReuseIdentifier:(NSString *)identifier width:(ScreenType)width;
-- (UITableViewCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier spaceToDecorate:(bool)spaceToDecorate width:(ScreenType)width;
-- (UITableViewCell *)bigTableviewCellWithReuseIdentifier:(NSString *)identifier width:(ScreenType)width;
+- (NSString *)cellReuseIdentifier:(NSString *)identifier width:(CGFloat)width;
+- (UITableViewCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier spaceToDecorate:(bool)spaceToDecorate width:(ScreenWidth)width;
+- (UITableViewCell *)bigTableviewCellWithReuseIdentifier:(NSString *)identifier width:(ScreenWidth)width;
 
-- (void)populateCell:(UITableViewCell *)cell decorate:(BOOL)decorate big:(BOOL)big busName:(BOOL)busName wide:(BOOL)wide;
-- (void)populateCellAndGetExplaination:(UITableViewCell *)cell decorate:(BOOL)decorate big:(BOOL)big busName:(BOOL)busName wide:(BOOL)wide color:(UIColor **)color details:(NSString **)details;
+- (void)populateCell:(UITableViewCell *)cell decorate:(BOOL)decorate busName:(BOOL)busName wide:(BOOL)wide;
+- (void)populateCellAndGetExplaination:(UITableViewCell *)cell decorate:(BOOL)decorate busName:(BOOL)busName wide:(BOOL)wide color:(UIColor **)color details:(NSString **)details;
 - (void)getExplaination:(UIColor**)color details:(NSString **)details;
 - (void)populateTripCell:(UITableViewCell *)cell item:(NSInteger)item;
 - (void)populateCellGeneric:(UITableViewCell *)cell first:(NSString *)first second:(NSString *)second col1:(UIColor *)col1 col2:(UIColor *)col2;
 
 
-+ (DepartureUI*) createFromData:(DepartureData *)data;
++ (DepartureUI*)createFromData:(DepartureData *)data;
 
 
 @end

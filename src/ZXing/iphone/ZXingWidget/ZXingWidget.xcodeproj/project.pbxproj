@@ -1259,7 +1259,7 @@
 		0867D690FE84028FC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0610;
+				LastUpgradeCheck = 0710;
 			};
 			buildConfigurationList = 1DEB922208733DC00010E9CD /* Build configuration list for PBXProject "ZXingWidget" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -1495,6 +1495,7 @@
 					"-framework",
 					UIKit,
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = "org.zxing.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = ZXingTests;
 				WRAPPER_EXTENSION = octest;
 			};
@@ -1522,6 +1523,7 @@
 					"-framework",
 					UIKit,
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = "org.zxing.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = ZXingTests;
 				WRAPPER_EXTENSION = octest;
 				ZERO_LINK = NO;
@@ -1583,6 +1585,7 @@
 		1DEB922308733DC00010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_THUMB_SUPPORT = NO;

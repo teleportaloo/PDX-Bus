@@ -12,6 +12,7 @@
 
 #import "XMLDetour.h"
 #import "Detour.h"
+#import "StringHelper.h"
 
 static NSString *detourURLString = @"detours/route/%@";
 static NSString *allDetoursURLString = @"detours";
@@ -30,36 +31,27 @@ static NSString *allDetoursURLString = @"detours";
 
 #pragma mark Initialize parsing
 
-- (BOOL)getDetourForRoute:(NSString *)route parseError:(NSError **)error
+- (BOOL)getDetourForRoute:(NSString *)route
 {	
 	self.route = route;
-	BOOL ret = [self startParsing:[NSString stringWithFormat:detourURLString, route] parseError:error];	
+	BOOL ret = [self startParsing:[NSString stringWithFormat:detourURLString, route]];
 	self.route = nil;
 	return ret;
 }
 
 
-- (BOOL)getDetourForRoutes:(NSArray *)routes parseError:(NSError **)error
+- (BOOL)getDetourForRoutes:(NSArray *)routes
 {	
-	NSMutableString *commaSeparated = [[[NSMutableString alloc] init] autorelease];
+    NSMutableString *commaSeparated = [StringHelper commaSeparatedStringFromEnumerator:routes selector:@selector(self)];
 	
-	for (NSString *route in routes)
-	{
-		if (commaSeparated.length > 0)
-		{
-			[commaSeparated appendString:@","];
-		}
-		[commaSeparated appendString:route];
-	}
-	
-	BOOL ret = [self startParsing:[NSString stringWithFormat:detourURLString, commaSeparated] parseError:error];	
+	BOOL ret = [self startParsing:[NSString stringWithFormat:detourURLString, commaSeparated]];
 	self.route = nil;
 	return ret;
 }
 
-- (BOOL)getDetours:(NSError **)error
+- (BOOL)getDetours
 {	
-	return [self startParsing:allDetoursURLString parseError:error];	
+	return [self startParsing:allDetoursURLString];
 }
 
 #pragma mark Parser callbacks

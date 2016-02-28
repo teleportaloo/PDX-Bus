@@ -6,14 +6,22 @@
 //  Copyright (c) 2015 Teleportaloo. All rights reserved.
 //
 
-/* INSERT_LICENSE */
+
+
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 
 #import "WatchBookmarksInterfaceController.h"
 #import "UserFaves.h"
 #import "WatchBookmark.h"
 #import "TriMetXML.h"
 #import "StopNameCacheManager.h"
-#import "WatchArrivalsContext.h"
+#import "WatchArrivalsContextBookmark.h"
+#import "StringHelper.h"
+#import "DebugLogging.h"
+#import "WatchNearbyInterfaceController.h"
 
 
 @interface WatchBookmarksInterfaceController()
@@ -23,13 +31,13 @@
 
 @implementation WatchBookmarksInterfaceController
 
-@synthesize faves               = _faves;
+
 @synthesize bookmarksContext    = _bookmarksContext;
 @synthesize displayedItems      = _displayedItems;
 
+
 - (void)dealloc
 {
-    self.faves              = nil;
     self.bookmarksContext   = nil;
     self.displayedItems     = nil;
     [super dealloc];
@@ -60,10 +68,15 @@
         WatchBookmark *row = [self.bookmarkTable rowControllerAtIndex:i];
         NSArray *stopName = [stopNameCache getStopNameAndCache:[self.displayedItems objectAtIndex:i]];
         
-        
         [row.bookmarkName setText:[stopName objectAtIndex:kStopNameCacheShortDescription]];
     }
     
+    if (self.bookmarksContext.oneTimeShowFirst)
+    {
+        self.bookmarksContext.oneTimeShowFirst = NO;
+        
+        [[WatchArrivalsContextBookmark contextFromBookmark:self.bookmarksContext index:0] delayedPushFrom:self];
+    }
 }
 
 - (void)setupButtonsAndTextTopHidden:(bool)top bottomHidden:(bool)bottom textHidden:(bool)text
@@ -164,28 +177,80 @@
             NSString *location = [selectedItem valueForKey:kUserFavesLocation];
             NSString *title    = [selectedItem valueForKey:kUserFavesChosenName];
         
-            NSArray *stops = [self.faves arrayFromCommaSeparatedString:location];
-        
+            NSArray *stops = [StringHelper arrayFromCommaSeparatedString:location];
+
+            
             if (stops.count > 1)
             {
-                [self pushControllerWithName:@"Bookmarks" context:[WatchBookmarksContext contextWithBookmark:stops title:title]];
+                WatchBookmarksContext * context = [WatchBookmarksContext contextWithBookmark:stops title:title locationString:location];
+                
+                if (![UserPrefs getSingleton].watchBookmarksDisplayStopList && self.bookmarksContext == nil)
+                {
+                    context.oneTimeShowFirst = YES;
+                }
+                
+                [context pushFrom:self];
+                
             }
-            else
+            else if (stops.count !=0)
             {
-                [self pushControllerWithName:@"Arrivals" context:[WatchArrivalsContext contextWithLocation:location]];
+                if (self.bookmarksContext.recents)
+                {
+                    NSMutableArray *recentStops = [[[NSMutableArray alloc] init] autorelease];
+                    
+                    for (NSDictionary *item in self.displayedItems)
+                    {
+                        [recentStops addObject:[item valueForKey:kUserFavesLocation]];
+                    }
+                    
+                    [[WatchArrivalsContextBookmark contextFromRecents:
+                      [WatchBookmarksContext contextWithBookmark:recentStops
+                                                           title:title
+                                                  locationString:location] index:rowIndex] pushFrom:self];
+                    
+
+                }
+                else
+                {
+                    [[WatchArrivalsContextBookmark contextWithLocation:location] pushFrom:self];
+                }
             }
         }
     }
     else
     {
-        [self pushControllerWithName:@"Arrivals" context:[WatchArrivalsContext contextWithLocation:[self.displayedItems objectAtIndex:rowIndex]]];
+        [[WatchArrivalsContextBookmark contextFromBookmark:self.bookmarksContext index:rowIndex] pushFrom:self];
     }
     
 }
 
 - (void)willActivate {
     // This method is called when watch view controller is about to be visible to user
-    [self reloadData];
+    
+    bool pushedCommuterBookmark = NO;
+    [SafeUserData getSingleton].lastRunKey = kLastRunWatch;
+    
+    
+    // If we are the root display the bookmark
+    if (self.bookmarksContext == nil )
+    {
+        pushedCommuterBookmark = [self maybeDisplayCommuterBookmark];
+        DEBUG_LOG(@"Root - did  I push? %d", pushedCommuterBookmark);
+    }
+    
+    if (!pushedCommuterBookmark)
+    {
+        pushedCommuterBookmark = [self autoCommuteAlreadyHome:(self.bookmarksContext == nil) ];
+        DEBUG_LOG(@"Auto-commute? %d", pushedCommuterBookmark);
+    }
+    
+    if (!pushedCommuterBookmark)
+    {
+        [self reloadData];
+        
+        [self.bookmarksContext updateUserActivity:self];
+    }
+    
     [super willActivate];
 }
 
@@ -197,20 +262,24 @@
 - (IBAction)menuItemHome {
     [self popToRootController];
 }
+
+- (IBAction)menuItemCommute {
+    [self forceCommuteAlreadyHome:(self.bookmarksContext == nil)];
+}
 - (IBAction)topRecentStops {
-    [self pushControllerWithName:@"Bookmarks" context:[WatchBookmarksContext contextForRecents]];
+    [[WatchBookmarksContext contextForRecents] pushFrom:self];
 }
 
 - (IBAction)topLocateStops {
-    [self pushControllerWithName:@"Nearby" context:nil];
+    [self pushControllerWithName:kNearbyScene context:nil];
 }
 
 - (IBAction)bottomRecentStops {
-    [self pushControllerWithName:@"Bookmarks" context:[WatchBookmarksContext contextForRecents]];
+    [[WatchBookmarksContext contextForRecents] pushFrom:self];
 }
 
 - (IBAction)bottomLocateStops {
-    [self pushControllerWithName:@"Nearby" context:nil];
+    [self pushControllerWithName:kNearbyScene context:nil];
 }
 
 

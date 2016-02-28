@@ -25,6 +25,8 @@
 #import "MapViewController.h"
 #import "DebugLogging.h"
 #import "RailMapView.h"
+#import <CoreSpotlight/CoreSpotlight.h>
+#import <MobileCoreServices/MobileCoreServices.h>
 
 #define kSearchDataSection 0
 #define kSearchDisclaimerSection 1
@@ -66,40 +68,97 @@ static RAILLINES railLines2[MAXHOTSPOTS];
 	return self;
 }
 
+- (void)addLineToDescription:(NSMutableString *)desc line:(RAILLINES)line station:(RAILLINES)station name:(NSString *)name
+{
+    if ((station & line) !=0)
+    {
+        if (desc.length >0)
+        {
+            [desc appendString:@", "];
+        }
+        
+        [desc appendString:name];
+    }
+}
+
+- (void)indexStations
+{
+    Class searchClass = (NSClassFromString(@"CSSearchableIndex"));
+    
+    if (searchClass == nil || ![CSSearchableIndex isIndexingAvailable])
+    {
+        return;
+    }
+    
+    CSSearchableIndex * searchableIndex = [CSSearchableIndex defaultSearchableIndex];
+    
+    
+    [searchableIndex deleteSearchableItemsWithDomainIdentifiers:[NSArray arrayWithObjects:@"station", nil] completionHandler:^(NSError * __nullable error)
+     {
+         if (error != nil)
+         {
+             ERROR_LOG(@"Failed to delete station index %@\n", error.description);
+         }
+         
+         if ([UserPrefs getSingleton].searchStations)
+         {
+             NSMutableArray *index = [[[NSMutableArray alloc] init] autorelease];
+             for (int i=0; i< sizeof(stationsAlpha)/sizeof(int);  i++)
+             {
+                 RailStation *station = [[RailStation alloc] initFromHotSpot:_hotSpots+stationsAlpha[i] index:stationsAlpha[i]];
+                 RAILLINES lines = railLines[stationsAlpha[i]];
+                 
+                 
+                 CSSearchableItemAttributeSet * attributeSet = [[CSSearchableItemAttributeSet alloc] initWithItemContentType:(NSString*)kUTTypeText];
+                 attributeSet.title = station.station;
+                 
+                 NSMutableString *desc = [[[NSMutableString alloc] init] autorelease];
+                 
+                 [self addLineToDescription:desc line:kBlueLine          station:lines name:@"MAX Blue Line"];
+                 [self addLineToDescription:desc line:kRedLine           station:lines name:@"MAX Red Line"];
+                 [self addLineToDescription:desc line:kGreenLine         station:lines name:@"MAX Green Line"];
+                 [self addLineToDescription:desc line:kYellowLine        station:lines name:@"MAX Yellow Line"];
+                 [self addLineToDescription:desc line:kStreetcarALoop    station:lines name:@"Streetcar A Loop"];
+                 [self addLineToDescription:desc line:kStreetcarBLoop    station:lines name:@"Streetcar B Loop"];
+                 [self addLineToDescription:desc line:kStreetcarNsLine   station:lines name:@"Streetcar NS Line"];
+                 [self addLineToDescription:desc line:kWesLine           station:lines name:@"WES"];
+                 [self addLineToDescription:desc line:kOrangeLine        station:lines name:@"MAX Orange Line"];
+                 
+                 
+                 attributeSet.contentDescription = [NSString stringWithFormat:@"TriMet station serving %@", desc];
+                 
+                 NSString *uniqueId = [NSString stringWithFormat:@"%@:%d", kSearchItemStation, stationsAlpha[i]];
+                 
+                 CSSearchableItem * item = [[CSSearchableItem alloc] initWithUniqueIdentifier:uniqueId domainIdentifier:@"station" attributeSet:attributeSet];
+                 
+                 [index addObject:item];
+                 
+                 [item release];
+                 [attributeSet release];
+                 [station release];
+             }
+             
+             [[CSSearchableIndex defaultSearchableIndex] indexSearchableItems:index completionHandler: ^(NSError * __nullable error) {
+                 if (error != nil)
+                 {
+                     ERROR_LOG(@"Failed to index stations %@\n", error.description);
+                 }
+             }];
+         }
+         
+     }];
+
+}
+
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
 {
 	[self reloadData];
 }
 
-- (void)showRailMap:(id)sender
-{
-    RailMapView *webPage = [[RailMapView alloc] init];
-    [[self navigationController] pushViewController:webPage animated:YES];
-    [webPage release];
-}
 
 - (void)updateToolbarItems:(NSMutableArray *)toolbarItems
 {
 	[toolbarItems addObject:[CustomToolbar autoMapButtonWithTarget:self action:@selector(showMap:)]];
-    
-    
-    if ([RailMapView RailMapSupported])
-    {
-        [toolbarItems addObject:[CustomToolbar autoFlexSpace]];
-    
-        UIBarButtonItem *stations = [[[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Rail map", @"button text")
-                                                                      style:UIBarButtonItemStylePlain
-                                                                     target:self
-                                                                     action:@selector(showRailMap:)] autorelease];
-    
-        stations.style = UIBarButtonItemStylePlain;
-        stations.accessibilityLabel = NSLocalizedString(@"Show Rail Map", @"accessibility text");
-        
-        [toolbarItems addObject:stations];
-    }
-    
-    
-    
 	[self maybeAddFlashButtonWithSpace:YES buttons:toolbarItems big:NO];
 }
 
@@ -169,9 +228,6 @@ static RAILLINES railLines2[MAXHOTSPOTS];
 
 #define kAlphaSection      0
 #define kFilterSection     1
-#define kDisclaimerSection 2
-
-
 
 - (int)sectionType:(UITableView *)tableView section:(NSInteger)section
 {
@@ -181,14 +237,14 @@ static RAILLINES railLines2[MAXHOTSPOTS];
 		{
 			return kAlphaSection;
 		}
-		return kDisclaimerSection;
+		return kSectionRowDisclaimerType;
 	}
 	
 	if (section == 0)
 	{
 		return kFilterSection;
 	}
-	return kDisclaimerSection;
+	return kSectionRowDisclaimerType;
 	
 }
 
@@ -248,7 +304,7 @@ static RAILLINES railLines2[MAXHOTSPOTS];
 	{
 		case kAlphaSection:
 			return [self basicRowHeight];
-		case kDisclaimerSection:
+		case kSectionRowDisclaimerType:
 			return kDisclaimerCellHeight;
 		case kFilterSection:
 			return [self basicRowHeight];
@@ -262,7 +318,7 @@ static RAILLINES railLines2[MAXHOTSPOTS];
 	{
 		case kAlphaSection:
 			return alphaSections[section].items;
-		case kDisclaimerSection:
+		case kSectionRowDisclaimerType:
 			return 1;
 		case kFilterSection:
 			return [self filteredData:tableView].count;
@@ -282,7 +338,7 @@ static RAILLINES railLines2[MAXHOTSPOTS];
 				station = [self.searchableItems objectAtIndex:offset];
 			}		
 			break;
-		case kDisclaimerSection:
+		case kSectionRowDisclaimerType:
 			break;
 		case kFilterSection:
 		{
@@ -308,14 +364,14 @@ static RAILLINES railLines2[MAXHOTSPOTS];
 		case kFilterSection:
 		{
 			RailStation * station = [self stationForIndex:indexPath tableView:tableView];
-			NSString *stopId = [NSString stringWithFormat:@"stop%d", [self screenWidth]];
+			NSString *stopId = [NSString stringWithFormat:@"stop%f", self.screenInfo.appWinWidth];
 				
 			cell = [tableView dequeueReusableCellWithIdentifier:stopId];
 			if (cell == nil) {
 					
 				cell = [RailStation tableviewCellWithReuseIdentifier:stopId 
 															rowHeight:[self tableView:tableView heightForRowAtIndexPath:indexPath] 
-														 screenWidth:[self screenWidth]
+														 screenWidth:self.screenInfo.screenWidth
 														 rightMargin:(sectionType == kAlphaSection)
 																font:[self getBasicFont]];
 					
@@ -329,8 +385,7 @@ static RAILLINES railLines2[MAXHOTSPOTS];
 			break;
 		}
 			
-			
-		case kDisclaimerSection:
+		case kSectionRowDisclaimerType:
 			cell = [tableView dequeueReusableCellWithIdentifier:kDisclaimerCellId];
 			if (cell == nil) {
 				cell = [self disclaimerCellWithReuseIdentifier:kDisclaimerCellId];
@@ -347,7 +402,7 @@ static RAILLINES railLines2[MAXHOTSPOTS];
 			return [NSString stringWithFormat:@"%s", alphaSections[section].title];
 		case kFilterSection:
 			return nil;
-		case kDisclaimerSection:
+		case kSectionRowDisclaimerType:
 			return nil;
 	}
 	
@@ -380,7 +435,7 @@ static RAILLINES railLines2[MAXHOTSPOTS];
 			[railView release];
 		}	
 		
-		case kDisclaimerSection:
+		case kSectionRowDisclaimerType:
 			break;
 	}
 }
@@ -440,8 +495,8 @@ static RAILLINES railLines2[MAXHOTSPOTS];
 	
 	[xml getStopsForRoute:route direction:direction  
 			  description:@"" parseError:&error cacheAction:TriMetXMLNoCaching];
-	
-	StopLocations *db = [StopLocations getDatabase];
+    
+ 	StopLocations *db = [StopLocations getDatabase];
 	
 	for (i=0; i< xml.itemArray.count; i++)
 	{
@@ -474,7 +529,7 @@ static RAILLINES railLines2[MAXHOTSPOTS];
 	NSError *error = nil;
 	
 	[dep getDeparturesForLocation:stop parseError:&error];
-	
+    
 	return dep.locDir;
 }
 
@@ -486,7 +541,7 @@ static RAILLINES railLines2[MAXHOTSPOTS];
 	
 	[xml getStopsForRoute:route direction:direction  
 			  description:@"" parseError:&error cacheAction:TriMetXMLNoCaching];
-	
+    
 	for (Stop *stop in xml.itemArray)
 	{
 		RailStation *found = nil;

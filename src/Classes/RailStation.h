@@ -38,7 +38,7 @@
 - (NSComparisonResult)compareUsingStation:(RailStation*)inStation;
 + (NSString *)nameFromHotspot:(HOTSPOT *)hotspot;
 + (UITableViewCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier rowHeight:(CGFloat)height 
-										  screenWidth:(ScreenType)screenWidth 
+										  screenWidth:(ScreenWidth)screenWidth 
 										  rightMargin:(BOOL)rightMargin
 												 font:(UIFont*)font;
 + (void)populateCell:(UITableViewCell*)cell station:(NSString *)station lines:(RAILLINES)lines;

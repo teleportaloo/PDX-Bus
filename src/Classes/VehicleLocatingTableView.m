@@ -48,7 +48,11 @@
 - (void)showMap:(id)arg
 {
     NearestVehiclesMap *mapView = [[NearestVehiclesMap alloc] init];
-    [mapView fetchNearestVehiclesInBackground:self.backgroundTask location:self.locationManager.location maxDistance:0.0];
+    mapView.trimetRoutes    = nil;
+    mapView.streetcarRoutes = [NSSet set];
+    mapView.title = @"Nearest Vehicles";
+    
+    [mapView fetchNearestVehiclesInBackground:self.backgroundTask];
     
     [mapView release];
 }

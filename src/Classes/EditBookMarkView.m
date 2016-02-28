@@ -26,35 +26,25 @@
 #import "AllRailStationView.h"
 #import "DayOfTheWeekView.h"
 #import "SegmentCell.h"
+#import "StringHelper.h"
 
-#define kTableSectionNone		-1
-#define kTableSectionName		 0
-#define kTableSectionStops		 1
-#define kTableSectionTrip		 2
-#define kTableSectionDelete		 3
-#define kTableSectionRun		 4
-#define kTableSectionCommute	 5
-#define kTableSubSectionStopsStop   0
-#define kTableSubSectionStopsId		1
-#define kTableSubSectionStopsBrowse 2 
-#define kTableSubSectionStopsRailMap 4
-#define kTableSubSectionStopsRailStations 3
-
-#define kRowsInTripSection			4
-#define kTripSectionRowFrom			0
-#define kTripSectionRowTo			1
-#define kTripSectionRowOptions		2
-#define kTripSectionRowTime			3
+#define kTableName              0
+#define kTableStops             1
+#define kTableSectionTrip		2
+#define kTableDelete            3
+#define kTableRun               4
+#define kTableCommute           5
+#define kTableRowStopId         6
+#define kTableRowStopBrowse     7
+#define kTableRowRailMap        8
+#define kTableRowRailStations   9
+#define kTableTripRowFrom		10
+#define kTableTripRowTo			11
+#define kTableTripRowOptions    12
+#define kTableRowTime			13
 
 #define kUIEditHeight			55.0
 #define kUIRowHeight			40.0
-
-#define kTextFieldId	@"TextField"
-#define kAboutId		@"About"
-#define kPlainId		@"Plain"
-#define kTripId			@"trip"
-#define kCancelId		@"Cancel"
-#define kDayOfWeekId	@"DayOfWeek"
 
 @implementation EditBookMarkView
 
@@ -91,22 +81,50 @@
 
 -(void) setupArrivalSections
 {
-	_sectionMap[0] = kTableSectionName;
-	_sectionMap[1] = kTableSectionStops;
-	_sectionMap[2] = kTableSectionCommute;
-	_sectionMap[3] = kTableSectionDelete;
-	_sections = 4;
-
-	_stopSection   = 1;
+    [self clearSectionMaps];
+    
+    [self addSectionType:kTableName];
+    [self addRowType:kTableName];
+    
+    _stopSection = [self addSectionType:kTableStops];
+    
+    for (int i=0; i<self.stops.count; i++)
+    {
+        [self addRowType:kTableStops];
+    }
+    
+    [self addRowType:kTableRowStopId];
+    [self addRowType:kTableRowStopBrowse];
+    [self addRowType:kTableRowRailMap];
+    [self addRowType:kTableRowRailStations];
+    
+    [self addSectionType:kTableCommute];
+    [self addRowType:kTableCommute];
+    
+    [self addSectionType:kTableDelete];
+    [self addRowType:kTableDelete];
 }
+
 -(void) setupTripSections
 {
-	_sectionMap[0] = kTableSectionName;
-	_sectionMap[1] = kTableSectionTrip;
-	_sectionMap[2] = kTableSectionRun;
-	_sectionMap[3] = kTableSectionDelete;
-	_sections = 4;
-	_stopSection   = -1;
+    [self clearSectionMaps];
+    
+    [self addSectionType:kTableName];
+    [self addRowType:kTableName];
+    
+    [self addSectionType:kTableSectionTrip];
+    [self addRowType:kTableTripRowFrom];
+    [self addRowType:kTableTripRowTo];
+    [self addRowType:kTableTripRowOptions];
+    [self addRowType:kTableRowTime];
+    
+    [self addSectionType:kTableRun];
+    [self addRowType:kTableRun];
+    
+    [self addSectionType:kTableDelete];
+    [self addRowType:kTableDelete];
+    
+	_stopSection   = kNoRowSectionTypeFound;
 }
 
 #pragma mark Commuter Helper functions
@@ -313,24 +331,7 @@
 
 -(void)processStops:(NSString *)locs
 {
-
-	self.stops = [[[NSMutableArray alloc] init] autorelease];
-
-	
-	NSScanner *scanner = [NSScanner scannerWithString:locs];
-	NSCharacterSet *comma = [NSCharacterSet characterSetWithCharactersInString:@","];
-	NSString *aLoc;
-	
-	while ([scanner scanUpToCharactersFromSet:comma intoString:&aLoc])
-	{	
-		[self.stops addObject:aLoc];
-		
-		if (![scanner isAtEnd])
-		{
-			scanner.scanLocation++;
-		}
-	}	
-	
+    self.stops = [StringHelper arrayFromCommaSeparatedString:locs];
 }
 
 -(void) addBookMarkFromStop:(NSString *)desc location:(NSString *)locid
@@ -384,17 +385,6 @@
 	self.title = NSLocalizedString(@"Edit bookmark", @"screen title");
 }
 
-- (NSInteger) getStopsSubsection:(NSInteger)row
-{	
-	if (row < [self.stops count])
-	{
-		return kTableSubSectionStopsStop;
-	}
-	
-	return row - [self.stops count] + 1;
-
-}
-
 - (UITextField *)createTextField_Rounded
 {
 	CGRect frame = CGRectMake(0.0, 0.0, 100.0, [CellTextField editHeight]);
@@ -425,6 +415,8 @@
 	// Push the detail view controller
 	[[self navigationController] pushViewController:rmView animated:YES];
 	[rmView release];
+    
+    _reloadArrival = YES;
 }
 
 - (void) selectFromRailStations
@@ -436,6 +428,8 @@
 	// Push the detail view controller
 	[[self navigationController] pushViewController:rmView animated:YES];
 	[rmView release];
+    
+    _reloadArrival = YES;
 }
 
 - (void) browseForStop
@@ -446,6 +440,8 @@
 	
 	[routeViewController fetchRoutesInBackground:self.backgroundTask];
 	[routeViewController release];
+    
+    _reloadArrival = YES;
 }
 
 - (void) enterStopId
@@ -457,6 +453,8 @@
 	// Push the detail view controller
 	[[self navigationController] pushViewController:add animated:YES];
 	[add release];
+    
+    _reloadArrival = YES;
 }
 
 - (BOOL) updateStopsInFave
@@ -486,39 +484,25 @@
 #pragma mark TableView methods
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-	return _sections;
+	return [self sections];
 }
 
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-	switch (_sectionMap[section])
-	{
-		case kTableSectionName:
-			return 1;
-		case kTableSectionDelete:
-			return 1;
-		case kTableSectionStops:
-			return [self.stops count]+4;
-		case kTableSectionTrip:
-			return kRowsInTripSection;
-		case kTableSectionRun:
-			return 1;
-		case kTableSectionCommute:
-			return 1;
-	}
-	return 0;
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return [self rowsInSection:section];
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-	switch (_sectionMap[section])
+	switch ([self sectionType:section])
 	{
-		case kTableSectionName:
+		case kTableName:
 			return NSLocalizedString(@"Bookmark name:", @"section header");
-		case kTableSectionStops:
+		case kTableStops:
 			return NSLocalizedString(@"Add stop ids in the desired order:", @"section header");
 		case kTableSectionTrip:
 			return NSLocalizedString(@"Trip:", @"section header");
-		case kTableSectionCommute:
+		case kTableCommute:
 			return NSLocalizedString(@"For commuters, PDX Bus can automatically show this bookmark the first time the app starts in the morning or afternoon:", @"section header");
 	}
 	return nil;
@@ -527,380 +511,356 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	CGFloat result = 0.0;
-	
-	switch (_sectionMap[indexPath.section])
-	{
-		case kTableSectionName:
-			result = [CellTextField cellHeight];
-			break;
-		case kTableSectionTrip:
-			switch (indexPath.row)
-			{
-			case kTripSectionRowOptions:
-				result = [TripLeg getTextHeight:[self.userRequest optionsDisplayText] 
-										  width:[TripLeg bodyTextWidthForScreenWidth:[self screenWidth]]];
-				break;
-			case kTripSectionRowTo:
-				result = [TripLeg getTextHeight:[self.userRequest.toPoint userInputDisplayText] 
-										  width:[TripLeg bodyTextWidthForScreenWidth:[self screenWidth]]];
-				break;
-			case kTripSectionRowFrom:
-				result = [TripLeg getTextHeight:[self.userRequest.fromPoint userInputDisplayText] 
-										  width:[TripLeg bodyTextWidthForScreenWidth:[self screenWidth]]];
-				break;
-			case kTripSectionRowTime:
-				result = [SegmentCell segmentCellHeight];
-				break;
-			}
-			break;
-		case kTableSectionRun:
-		case kTableSectionStops:
-		case kTableSectionDelete:
-			result = [self basicRowHeight];
-			break;
-		case kTableSectionCommute:
-			return [self basicRowHeight] * 1.4;
-			break;
-	}
-	
-	return result;
+    CGFloat result = 0.0;
+    
+    switch ([self rowType:indexPath])
+    {
+        case kTableName:
+            result = [CellTextField cellHeight];
+            break;
+        case kTableTripRowOptions:
+            result = [TripLeg getTextHeight:[self.userRequest optionsDisplayText]
+                                      width:[TripLeg bodyTextWidth:self.screenInfo]];
+            break;
+        case kTableTripRowTo:
+            result = [TripLeg getTextHeight:[self.userRequest.toPoint userInputDisplayText]
+                                      width:[TripLeg bodyTextWidth:self.screenInfo]];
+            break;
+        case kTableTripRowFrom:
+            result = [TripLeg getTextHeight:[self.userRequest.fromPoint userInputDisplayText]
+                                      width:[TripLeg bodyTextWidth:self.screenInfo]];
+            break;
+        case kTableRowTime:
+            result = [SegmentCell segmentCellHeight];
+            break;
+        case kTableRun:
+        case kTableStops:
+        case kTableDelete:
+        case kTableRowStopId:
+        case kTableRowStopBrowse:
+        case kTableRowRailMap:
+        case kTableRowRailStations:
+            result = [self basicRowHeight];
+            break;
+        case kTableCommute:
+            return [self basicRowHeight] * 1.4;
+            break;
+    }
+    
+    return result;
+}
+
+- (UITableViewCell *)plainCell:(UITableView *)tableView text:(NSString *)text indexPath:(NSIndexPath*)indexPath
+{
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(plainCell)];
+    if (cell == nil)
+    {
+        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(plainCell)] autorelease];
+    }
+    
+    // Set up the cell
+    cell.accessoryType = UITableViewCellAccessoryNone ;
+    cell.editingAccessoryType = UITableViewCellAccessoryDisclosureIndicator ;
+    cell.textLabel.text = text;
+    
+    [self maybeAddSectionToAccessibility:cell indexPath:indexPath alwaysSaySection:YES];
+    cell.textLabel.font = [self getBasicFont];
+    cell.textLabel.adjustsFontSizeToFitWidth = YES;
+    return cell;
+
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	
 	
-	switch(_sectionMap[indexPath.section])
-	{
-		case kTableSectionName:
-		{
-			if (self.editCell == nil)
-			{
-				self.editCell = [[[CellTextField alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kTextFieldId]
-								 autorelease];
-				self.editCell.view = [self createTextField_Rounded];
-				self.editCell.delegate = self;
-			}
-			self.editCell.view.text = [self.originalFave objectForKey:kUserFavesChosenName];
-			return self.editCell;
-		}
-		case kTableSectionStops:
-		{
-			
-			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kPlainId];
-			if (cell == nil) 
-			{
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kPlainId] autorelease];
-			}
-			
-			// Set up the cell
-			cell.accessoryType = UITableViewCellAccessoryNone ;
-			cell.editingAccessoryType = UITableViewCellAccessoryDisclosureIndicator ;
-			
-			switch ([self getStopsSubsection:indexPath.row])
-			{
-				case kTableSubSectionStopsStop:	
-					cell.textLabel.text = [self.stops objectAtIndex:indexPath.row];
-					break;
-				case kTableSubSectionStopsId:
-					cell.textLabel.text = NSLocalizedString(@"Add new stop ID", @"button text");
-					break;
-				case kTableSubSectionStopsBrowse:
-					cell.textLabel.text = NSLocalizedString(@"Browse routes for stop", @"button text)");
-					break;
-				case kTableSubSectionStopsRailMap:
-					cell.textLabel.text = NSLocalizedString(@"Select stop from rail maps", @"button text");
-					break;
-				case kTableSubSectionStopsRailStations:
-					cell.textLabel.text = NSLocalizedString(@"Search rail stations for stop", @"button text");
-					break;
-			}
-			[self maybeAddSectionToAccessibility:cell indexPath:indexPath alwaysSaySection:YES];
-			cell.textLabel.font = [self getBasicFont];
-			cell.textLabel.adjustsFontSizeToFitWidth = YES;
-			return cell;
-		}
-			
-		case kTableSectionRun:
-		{
-			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kTripId];
-			if (cell == nil) {
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kTripId] autorelease];
-			}
-			
-			// Set up the cell
-			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-			cell.editingAccessoryType = UITableViewCellAccessoryDisclosureIndicator ;
-			cell.textLabel.text = NSLocalizedString(@"Show trip", @"button text");
-			cell.imageView.image = [self getActionIcon:kIconTripPlanner];
-			return cell;
-			
-		}
-		case kTableSectionTrip:
-		{
-			CGFloat h = [self tableView:[self table] heightForRowAtIndexPath:indexPath];
-			CGFloat w = [TripLeg bodyTextWidthForScreenWidth:[self screenWidth]];
-			NSString *cellIdentifier = [NSString stringWithFormat:@"TripLeg%f+%f", h,w];
-			
-			switch (indexPath.row)
-			{
-					
-				case kTripSectionRowFrom:
-				case kTripSectionRowTo:
-				{
-					UITableViewCell *cell = (UITableViewCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
-					if (cell == nil) 
-					{
-						
-						
-						cell = [TripLeg tableviewCellWithReuseIdentifier:cellIdentifier 
-															   rowHeight: h 
-															 screenWidth:[self screenWidth]];
-					}
-					
-					cell.accessoryType = UITableViewCellAccessoryNone;	
-					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-					cell.imageView.image = nil;
-					
-					NSString *text;
-					NSString *dir;
-					
-					if (indexPath.row == kTripSectionRowFrom)
-					{
-						text = [self.userRequest.fromPoint userInputDisplayText];
-						dir = NSLocalizedString(@"From", @"trip starting from");
-						
-					}
-					else {
-						text = [self.userRequest.toPoint userInputDisplayText];
-						dir = NSLocalizedString(@"To", @"trip ending at");
-					}
-					
-					[TripLeg populateCell:cell body:text mode:dir time:nil leftColor:nil route:nil];
-					return cell;
-					
-				}
-				case kTripSectionRowOptions:
-				{
-					UITableViewCell *cell = (UITableViewCell *)[tableView dequeueReusableCellWithIdentifier:kTripId];
-					if (cell == nil) 
-					{
-						
-						
-						cell = [TripLeg tableviewCellWithReuseIdentifier:kTripId 
-															   rowHeight:h 
-															 screenWidth:[self screenWidth]];
-					}
-					
-					cell.accessoryType = UITableViewCellAccessoryNone;	
-					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-					cell.imageView.image = nil;
-					
-					[TripLeg populateCell:cell body:[self.userRequest optionsDisplayText] mode:NSLocalizedString(@"Options", @"trip options") time:nil leftColor:nil route:nil];
-					return cell;
-				}
-					
-				case kTripSectionRowTime:
-				{
-					static NSString *segmentId2 = @"timeseg";
-					SegmentCell *cell = (SegmentCell*)[tableView dequeueReusableCellWithIdentifier:segmentId2];
-					if (cell == nil) {
-						cell = [[[SegmentCell alloc] initWithStyle:UITableViewCellStyleDefault 
-													reuseIdentifier:segmentId2] autorelease];
-						
-						[cell createSegmentWithContent:[NSArray arrayWithObjects:
-                                                            NSLocalizedString(@"Ask for Time",@"trip time in bookmark"),
-                                                            NSLocalizedString(@"Depart Now",@"trip time in bookmark"),  nil]
-												target:self
-												action:@selector(timeSegmentChanged:)];
-						cell.isAccessibilityElement = NO;
-					}	
-					cell.segment.selectedSegmentIndex = self.userRequest.timeChoice;
-					return cell;	
-				}
-			}
-		}
-		case kTableSectionDelete:
-		{
-			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kCancelId];
-			if (cell == nil) {
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kCancelId] autorelease];
-				cell.textLabel.textAlignment = NSTextAlignmentLeft;
-				cell.textLabel.textColor = [UIColor redColor];
-				cell.textLabel.font = [self getBasicFont];
-			}
-			
-			// Set up the cell
-			
-			
-			cell.textLabel.text = NSLocalizedString(@"Delete bookmark", @"button text");
-			cell.imageView.image = [self getActionIcon:kIconDelete];
-			[self maybeAddSectionToAccessibility:cell indexPath:indexPath alwaysSaySection:YES];
-			return cell;
-			
-			break;
-		}
-		case kTableSectionCommute:
-		{
-			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kDayOfWeekId];
-			if (cell == nil) {
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kDayOfWeekId] autorelease];
-			}
-			
-			// Set up the cell
-			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-			cell.editingAccessoryType = UITableViewCellAccessoryDisclosureIndicator ;
-			
-			cell.textLabel.numberOfLines = 2;
-			cell.textLabel.lineBreakMode = NSLineBreakByWordWrapping;
-			
-			cell.textLabel.text = [NSString stringWithFormat:@"%@%@%@", 
-										[self dayPrefix], 
-										[self daysString],
-										[self daysPostfix] ];
-			
-			if ([self autoCommuteEnabled])
-			{
-				if ([self autoCommuteMorning])
-				{
-					cell.imageView.image = [self getFaveIcon:kIconMorning]; 
-				}
-				else 
-				{
-					cell.imageView.image = [self getFaveIcon:kIconEvening]; 
-				}
-			}
-			else 
-			{
-				cell.imageView.image = [self getFaveIcon:kIconArrivals];
-			}
-
-			
-			return cell;	
-		}
-			
-			
-	}
+	switch([self rowType:indexPath])
+    {
+        case kTableName:
+        {
+            if (self.editCell == nil)
+            {
+                self.editCell = [[[CellTextField alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kTableName)]
+                                 autorelease];
+                self.editCell.view = [self createTextField_Rounded];
+                self.editCell.delegate = self;
+            }
+            self.editCell.view.text = [self.originalFave objectForKey:kUserFavesChosenName];
+            return self.editCell;
+        }
+        case kTableStops:
+            return [self plainCell:tableView text:[self.stops objectAtIndex:indexPath.row] indexPath:indexPath];
+        case kTableRowStopId:
+            return [self plainCell:tableView text: NSLocalizedString(@"Add new stop ID", @"button text") indexPath:indexPath];
+        case kTableRowStopBrowse:
+            return [self plainCell:tableView text: NSLocalizedString(@"Browse routes for stop", @"button text)") indexPath:indexPath];
+        case kTableRowRailMap:
+            return [self plainCell:tableView text: NSLocalizedString(@"Select stop from rail maps", @"button text") indexPath:indexPath];
+        case kTableRowRailStations:
+            return [self plainCell:tableView text: NSLocalizedString(@"Search rail stations for stop", @"button text") indexPath:indexPath];
+            
+        case kTableRun:
+        {
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kTableRun)];
+            if (cell == nil) {
+                cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kTableRun)] autorelease];
+            }
+            
+            // Set up the cell
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            cell.editingAccessoryType = UITableViewCellAccessoryDisclosureIndicator ;
+            cell.textLabel.text = NSLocalizedString(@"Show trip", @"button text");
+            cell.imageView.image = [self getActionIcon:kIconTripPlanner];
+            return cell;
+            
+        }
+            
+        case kTableTripRowFrom:
+        case kTableTripRowTo:
+        {
+            CGFloat h = [self tableView:[self table] heightForRowAtIndexPath:indexPath];
+            CGFloat w = [TripLeg bodyTextWidth:self.screenInfo];
+            NSString *cellIdentifier = [NSString stringWithFormat:@"TripLeg%f+%f", h,w];
+            
+            UITableViewCell *cell = (UITableViewCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+            if (cell == nil)
+            {
+                
+                
+                cell = [TripLeg tableviewCellWithReuseIdentifier:cellIdentifier
+                                                       rowHeight:h
+                                                      screenInfo:self.screenInfo];
+                        
+            }
+            
+            cell.accessoryType = UITableViewCellAccessoryNone;
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            cell.imageView.image = nil;
+            
+            NSString *text;
+            NSString *dir;
+            
+            if ([self rowType:indexPath] == kTableTripRowFrom)
+            {
+                text = [self.userRequest.fromPoint userInputDisplayText];
+                dir = NSLocalizedString(@"From", @"trip starting from");
+                
+            }
+            else {
+                text = [self.userRequest.toPoint userInputDisplayText];
+                dir = NSLocalizedString(@"To", @"trip ending at");
+            }
+            
+            [TripLeg populateCell:cell body:text mode:dir time:nil leftColor:nil route:nil];
+            return cell;
+            
+        }
+        case kTableTripRowOptions:
+        {
+            NSString *cellId = MakeCellIdW(kTableTripRowOptions, self.screenInfo.appWinWidth);
+            UITableViewCell *cell = (UITableViewCell *)[tableView dequeueReusableCellWithIdentifier:cellId];
+            if (cell == nil)
+            {
+                CGFloat h = [self tableView:[self table] heightForRowAtIndexPath:indexPath];
+                
+                cell = [TripLeg tableviewCellWithReuseIdentifier:cellId
+                                                       rowHeight:h
+                                                      screenInfo:self.screenInfo];
+            }
+            
+            cell.accessoryType = UITableViewCellAccessoryNone;
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            cell.imageView.image = nil;
+            
+            [TripLeg populateCell:cell body:[self.userRequest optionsDisplayText] mode:NSLocalizedString(@"Options", @"trip options") time:nil leftColor:nil route:nil];
+            return cell;
+        }
+            
+        case kTableRowTime:
+        {
+            SegmentCell *cell = (SegmentCell*)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kTableRowTime)];
+            if (cell == nil) {
+                cell = [[[SegmentCell alloc] initWithStyle:UITableViewCellStyleDefault
+                                           reuseIdentifier:MakeCellId(kTableRowTime)] autorelease];
+                
+                [cell createSegmentWithContent:[NSArray arrayWithObjects:
+                                                NSLocalizedString(@"Ask for Time",@"trip time in bookmark"),
+                                                NSLocalizedString(@"Depart Now",@"trip time in bookmark"),  nil]
+                                        target:self
+                                        action:@selector(timeSegmentChanged:)];
+                cell.isAccessibilityElement = NO;
+            }
+            cell.segment.selectedSegmentIndex = self.userRequest.timeChoice;
+            return cell;
+        }
+            
+            
+        case kTableDelete:
+        {
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kTableDelete)];
+            if (cell == nil) {
+                cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kTableDelete)] autorelease];
+                cell.textLabel.textAlignment = NSTextAlignmentLeft;
+                cell.textLabel.textColor = [UIColor redColor];
+                cell.textLabel.font = [self getBasicFont];
+            }
+            
+            // Set up the cell
+            
+            
+            cell.textLabel.text = NSLocalizedString(@"Delete bookmark", @"button text");
+            cell.imageView.image = [self getActionIcon:kIconDelete];
+            [self maybeAddSectionToAccessibility:cell indexPath:indexPath alwaysSaySection:YES];
+            return cell;
+            
+            break;
+        }
+        case kTableCommute:
+        {
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kTableCommute)];
+            if (cell == nil) {
+                cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kTableCommute)] autorelease];
+            }
+            
+            // Set up the cell
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            cell.editingAccessoryType = UITableViewCellAccessoryDisclosureIndicator ;
+            
+            cell.textLabel.numberOfLines = 2;
+            cell.textLabel.lineBreakMode = NSLineBreakByWordWrapping;
+            
+            cell.textLabel.text = [NSString stringWithFormat:@"%@%@%@", 
+                                   [self dayPrefix], 
+                                   [self daysString],
+                                   [self daysPostfix] ];
+            
+            if ([self autoCommuteEnabled])
+            {
+                if ([self autoCommuteMorning])
+                {
+                    cell.imageView.image = [self getFaveIcon:kIconMorning]; 
+                }
+                else 
+                {
+                    cell.imageView.image = [self getFaveIcon:kIconEvening]; 
+                }
+            }
+            else 
+            {
+                cell.imageView.image = [self getFaveIcon:kIconArrivals];
+            }
+            
+            
+            return cell;	
+        }
+            
+            
+    }
 	
 	return nil;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-	switch(_sectionMap[indexPath.section])
-	{
-		case kTableSectionStops:
-		{
-			switch ([self getStopsSubsection:indexPath.row])
-			{
-				case kTableSubSectionStopsStop:
-				{
-					DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
-					departureViewController.callback = self;
-					[departureViewController fetchTimesForLocationInBackground:self.backgroundTask 
-																		   loc:[self.stops objectAtIndex:indexPath.row]
-																		 title:[self.originalFave objectForKey:kUserFavesChosenName]];
-					[departureViewController release];
-					break;
-				}
-				case kTableSubSectionStopsBrowse:
-					[self browseForStop];
-					break;
-				case kTableSubSectionStopsRailMap:
-					[self selectFromRailMap];
-					break;
-				case kTableSubSectionStopsRailStations:
-					[self selectFromRailStations];
-					break;	
-				case kTableSubSectionStopsId:
-					[self enterStopId];
-					break;
-			}
-			break;
-		}
-		case kTableSectionTrip:
-			switch (indexPath.row)
-			{
-				case kTripSectionRowFrom:
-				case kTripSectionRowTo:
-				{
-					TripPlannerEndPointView *tripEnd = [[TripPlannerEndPointView alloc] init];
-				
-
-					tripEnd.from = (indexPath.row != kTripSectionRowTo) ;
-					tripEnd.tripQuery = [[[XMLTrips alloc] init] autorelease];
-					tripEnd.tripQuery.userRequest = self.userRequest;
-					@synchronized (_userData)
-					{
-						[tripEnd.tripQuery addStopsFromUserFaves:_userData.faves];
-					}
-					tripEnd.popBackTo = self;
-										
-					// Push the detail view controller
-					[[self navigationController] pushViewController:tripEnd animated:YES];
-					[tripEnd release];
-					_reloadTrip = YES;
-					
-					break;
-				}
-				case kTripSectionRowOptions:
-				{
-					TripPlannerOptions * options = [[ TripPlannerOptions alloc ] init];
-					
-					options.tripQuery = [[[XMLTrips alloc] init] autorelease];
-					options.tripQuery.userRequest = self.userRequest;
-					
-					[[self navigationController] pushViewController:options animated:YES];
-					
-					
-					[options release];
-					_reloadTrip = YES;
-					break;
-					
-				}
-			}
-			break;
-		case kTableSectionRun:
-		{
-			
-			TripPlannerDateView *tripDate = [[TripPlannerDateView alloc] init];
-			
-			[tripDate initializeFromBookmark:self.userRequest];
-			
-			@synchronized (_userData)
-			{
-				[tripDate.tripQuery addStopsFromUserFaves:_userData.faves];
-			}
-			
-			
-			// Push the detail view controller
-			[tripDate nextScreen:[self navigationController] taskContainer:self.backgroundTask];
-			[tripDate release];
-			
-			break;
-		}
-			
-			
-		case kTableSectionDelete:
-		{
-			@synchronized (_userData)
-			{
-				[_userData.faves removeObjectAtIndex:self.item];
-			
-				[[self navigationController] popViewControllerAnimated:YES];
-				break;
-			}
-		}
-			
-		case kTableSectionCommute:
-		{
-			_reloadArrival = YES;
-			DayOfTheWeekView *dow = [[DayOfTheWeekView alloc] init];
-			dow.originalFave = self.originalFave;
-			[[self navigationController] pushViewController:dow animated:YES];
-			[dow release];
-			break;
-		}
-	}
+	switch([self rowType:indexPath])
+    {
+            
+        case kTableStops:
+        {
+            DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
+            departureViewController.callback = self;
+            [departureViewController fetchTimesForLocationInBackground:self.backgroundTask
+                                                                   loc:[self.stops objectAtIndex:indexPath.row]
+                                                                 title:[self.originalFave objectForKey:kUserFavesChosenName]];
+            [departureViewController release];
+            break;
+        }
+        case kTableRowStopBrowse:
+            [self browseForStop];
+            break;
+        case kTableRowRailMap:
+            [self selectFromRailMap];
+            break;
+        case kTableRowRailStations:
+            [self selectFromRailStations];
+            break;
+        case kTableRowStopId:
+            [self enterStopId];
+            break;
+        case kTableTripRowFrom:
+        case kTableTripRowTo:
+        {
+            TripPlannerEndPointView *tripEnd = [[TripPlannerEndPointView alloc] init];
+            
+            
+            tripEnd.from = ([self rowType:indexPath]== kTableTripRowFrom) ;
+            tripEnd.tripQuery = [[[XMLTrips alloc] init] autorelease];
+            tripEnd.tripQuery.userRequest = self.userRequest;
+            @synchronized (_userData)
+            {
+                [tripEnd.tripQuery addStopsFromUserFaves:_userData.faves];
+            }
+            tripEnd.popBackTo = self;
+            
+            // Push the detail view controller
+            [[self navigationController] pushViewController:tripEnd animated:YES];
+            [tripEnd release];
+            _reloadTrip = YES;
+            
+            break;
+        }
+        case kTableTripRowOptions:
+        {
+            TripPlannerOptions * options = [[ TripPlannerOptions alloc ] init];
+            
+            options.tripQuery = [[[XMLTrips alloc] init] autorelease];
+            options.tripQuery.userRequest = self.userRequest;
+            
+            [[self navigationController] pushViewController:options animated:YES];
+            
+            
+            [options release];
+            _reloadTrip = YES;
+            break;
+            
+        }
+        case kTableRun:
+        {
+            
+            TripPlannerDateView *tripDate = [[TripPlannerDateView alloc] init];
+            
+            [tripDate initializeFromBookmark:self.userRequest];
+            
+            @synchronized (_userData)
+            {
+                [tripDate.tripQuery addStopsFromUserFaves:_userData.faves];
+            }
+            
+            
+            // Push the detail view controller
+            [tripDate nextScreen:[self navigationController] taskContainer:self.backgroundTask];
+            [tripDate release];
+            
+            break;
+        }
+        case kTableDelete:
+        {
+            @synchronized (_userData)
+            {
+                [_userData.faves removeObjectAtIndex:self.item];
+                
+                [[self navigationController] popViewControllerAnimated:YES];
+                break;
+            }
+        }
+        case kTableCommute:
+        {
+            _reloadArrival = YES;
+            DayOfTheWeekView *dow = [[DayOfTheWeekView alloc] init];
+            dow.originalFave = self.originalFave;
+            [[self navigationController] pushViewController:dow animated:YES];
+            [dow release];
+            break;
+        }
+    }
 }
 
 
@@ -909,19 +869,22 @@
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
 	
 	if (editingStyle == UITableViewCellEditingStyleDelete) {
+        [tableView beginUpdates];
 		[self.stops removeObjectAtIndex:indexPath.row];
 		[tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:YES];
 		[self updateStopsInFave];
+        [self setupArrivalSections];
+        [tableView endUpdates];
 	}	
 	if (editingStyle == UITableViewCellEditingStyleInsert) {
 		// Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
 		
-		switch ([self getStopsSubsection:indexPath.row])
+        switch ([self rowType:indexPath])
 		{
-			case kTableSubSectionStopsBrowse:
+			case kTableRowStopBrowse:
 				[self browseForStop];
 				break;
-			case kTableSubSectionStopsId:
+			case kTableRowStopId:
 				[self enterStopId];
 				break;
 		}
@@ -930,7 +893,7 @@
 
 // The editing style for a row is the kind of button displayed to the left of the cell when in editing mode.
 - (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath {
-	if (_sectionMap[indexPath.section] == kTableSectionStops)
+	if ([self sectionType:indexPath.section] == kTableStops)
 	{
 		if ( indexPath.row < [self.stops count])
 		{
@@ -946,15 +909,15 @@
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
 	// Return NO if you do not want the specified item to be editable.
 	
-	switch(_sectionMap[indexPath.section])
+	switch([self sectionType:indexPath.section])
 	{
-		case kTableSectionStops:
+		case kTableStops:
 			return YES;
 		case kTableSectionTrip:
-		case kTableSectionName:
-		case kTableSectionDelete:
-		case kTableSectionRun:
-		case kTableSectionCommute:
+		case kTableName:
+		case kTableDelete:
+		case kTableRun:
+		case kTableCommute:
 			
 			return NO;
 	}	
@@ -963,7 +926,7 @@
 
 - (NSIndexPath *)tableView:(UITableView *)tableView targetIndexPathForMoveFromRowAtIndexPath:(NSIndexPath *)sourceIndexPath toProposedIndexPath:(NSIndexPath *)proposedDestinationIndexPath
 {
-	if (_sectionMap[proposedDestinationIndexPath.section] != kTableSectionStops)
+	if ([self sectionType:proposedDestinationIndexPath.section] != kTableStops)
 	{
 		return [NSIndexPath 
 				indexPathForRow:0
@@ -991,7 +954,7 @@
 // Override if you support rearranging the list
 - (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath {
 	
-	if (_sectionMap[fromIndexPath.section] == kTableSectionStops && _sectionMap[toIndexPath.section] == kTableSectionStops)
+    if ([self sectionType:fromIndexPath.section] == kTableStops && [self sectionType:toIndexPath.section] == kTableStops)
 	{
 		NSString *move = [[self.stops objectAtIndex:fromIndexPath.row] retain];
 		
@@ -1013,7 +976,7 @@
 // Override if you support conditional rearranging of the list
 - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
 	// Return NO if you do not want the item to be re-orderable.
-	if (_sectionMap[indexPath.section] == kTableSectionStops && indexPath.row < [self.stops count])
+    if ([self rowType:indexPath] == kTableStops)
 	{
 		return YES;
 	}
@@ -1048,6 +1011,7 @@
 	
 	if (_reloadArrival)
 	{
+        [self setupArrivalSections];
 		[self reloadData];
 		_reloadArrival = FALSE;
 	}
@@ -1077,7 +1041,7 @@
 	self.navigationItem.rightBarButtonItem = cancelButton;
 	
 	[self.table scrollToRowAtIndexPath:[NSIndexPath 
-										indexPathForRow:kTableSectionName
+										indexPathForRow:0
 										inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:YES];
 	
 	

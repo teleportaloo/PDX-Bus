@@ -18,10 +18,11 @@
 @class StopNameCacheManager;
 
 typedef enum  {
-	TriMetXMLOnlyReadFromCache,
-	TriMetXMLUpdateCache,
+	TriMetXMLCheckCache,
+	TriMetXMLForceFetchAndUpdateCache,
+    TrIMetXMLCacheReadOrFetch,
 	TriMetXMLNoCaching,
-    TriMetXMLUseShortCache
+    TriMetXMLUseShortTermCache
 } CacheAction;
 
 @interface TriMetXML : StoppableFetcher <NSXMLParserDelegate> {
@@ -37,9 +38,10 @@ typedef enum  {
 
 
 - (NSString *)safeValueFromDict:(NSDictionary *)dict valueForKey:(NSString *)key;
-- (BOOL)startParsing:(NSString *)query parseError:(NSError **)error;
-- (BOOL)startParsing:(NSString *)query parseError:(NSError **)error cacheAction:(CacheAction)cacheAction;
+- (BOOL)startParsing:(NSString *)query;
+- (BOOL)startParsing:(NSString *)query cacheAction:(CacheAction)cacheAction;
 - (TriMetTime)getTimeFromAttribute:(NSDictionary *)dict valueForKey:(NSString *)key;
+- (NSInteger)getNSIntegerFromAttribute:(NSDictionary *)dict valueForKey:(NSString *)key;
 - (TriMetDistance)getDistanceFromAttribute:(NSDictionary *)dict valueForKey:(NSString *)key;
 - (double)getCoordFromAttribute:(NSDictionary *)dict valueForKey:(NSString *)key;
 - (bool)getBoolFromAttribute:(NSDictionary *)dict valueForKey:(NSString *)key;

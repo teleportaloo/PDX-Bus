@@ -55,7 +55,7 @@
 {
     if (_data.signMessage)
     {
-        DEBUG_LOG(@"Sign Message %@ b %@\n", _data.signMessage, _data.block);
+        DEBUG_LOG(@"Sign Message %@ b %@ %f %f\n", _data.signMessage, _data.block, _data.location.coordinate.latitude, _data.location.coordinate.latitude);
         return _data.signMessage;
     }
     
@@ -75,33 +75,31 @@
         return [NSString stringWithFormat:@"Garage %@", _data.garage];
     }
     
-    return @"";
+    return @"no title";
 }
+
 
 - (NSString*)subtitle
 {
-    NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
-    [dateFormatter setTimeStyle:NSDateFormatterLongStyle];
-    
-    return [NSString stringWithFormat:@"Seen at %@", [dateFormatter stringFromDate:[NSDate dateWithTimeIntervalSince1970:TriMetToUnixTime(_data.locationTime)]]];
+    return [VehicleData locatedSomeTimeAgo:TriMetToNSDate(_data.locationTime)];
 }
 
 // From MapPinColor
 - (MKPinAnnotationColor) getPinColor
 {
-    if ([_data.type isEqualToString:kVehicleTypeBus])
-    {
+        if ([_data.type isEqualToString:kVehicleTypeBus])
+        {
+            return MKPinAnnotationColorPurple;
+        }
+        
+        if ([_data.type isEqualToString:kVehicleTypeStreetcar])
+        {
+            return MKPinAnnotationColorGreen;
+        }
+        
         return MKPinAnnotationColorRed;
-    }
-    
-    if ([_data.type isEqualToString:kVehicleTypeStreetcar])
-    {
-        return MKPinAnnotationColorPurple;
-    }
-    
-    return MKPinAnnotationColorGreen;
 }
-- (bool) showActionMenu
+- (bool)showActionMenu
 {
     if (_data.lastLocID)
     {
@@ -109,7 +107,8 @@
     }
     return NO;
 }
-- (bool) mapTapped:(id<BackgroundTaskProgress>) progress
+
+- (bool)mapTapped:(id<BackgroundTaskProgress>) progress
 {
     DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
     [departureViewController fetchTimesForVehicleInBackground:progress route:_data.routeNumber direction:_data.direction nextLoc:_data.lastLocID block:_data.block];
@@ -118,9 +117,40 @@
     return true;
 }
 
-- (NSString *) tapActionText
+- (NSString *)mapStopId
+{
+    return _data.nextLocID;
+}
+
+- (NSString *)mapStopIdText
+{
+    return [NSString stringWithFormat:@"Arrivals at next stop - ID %@", _data.nextLocID];
+}
+
+
+
+- (NSString *)tapActionText
 {
     return @"Show next stops";
+}
+
+- (UIColor *)getPinTint
+{
+    return [TriMetRouteColors colorForRoute:_data.routeNumber];
+}
+
+- (bool)hasBearing
+{
+    return self.data.bearing != nil;
+}
+
+- (double)bearing
+{
+    if (self.data.bearing)
+    {
+        return [self.data.bearing doubleValue];
+    }
+    return 0;
 }
 
 @end

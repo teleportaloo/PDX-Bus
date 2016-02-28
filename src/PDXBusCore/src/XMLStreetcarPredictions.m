@@ -38,11 +38,11 @@
 
 #pragma mark Initiate Parsing
 
-- (BOOL)getDeparturesForLocation:(NSString *)location parseError:(NSError **)error;
+- (BOOL)getDeparturesForLocation:(NSString *)location;
 
 {	
    
-	[self startParsing:location parseError:error cacheAction:TriMetXMLUseShortCache];
+	[self startParsing:location cacheAction:TriMetXMLUseShortTermCache];
 	return true;
 }
 

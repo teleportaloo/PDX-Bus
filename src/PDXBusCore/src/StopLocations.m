@@ -11,7 +11,7 @@
 
 
 #import "StopLocations.h"
-#import "StopDistance.h"
+#import "StopDistanceData.h"
 #import "UserFaves.h"
 #import "DebugLogging.h"
 
@@ -252,16 +252,8 @@ static StopLocations *singleton;
 	NSDictionary *fileAttributes = nil;
 	
 	// This allows this to run on a 3.0 iPhone but makes the warning go away
-#ifdef __IPHONE_4_0
-	if ([fileManager respondsToSelector:@selector(attributesOfItemAtPath:error:)])
-	{
-		fileAttributes = [fileManager attributesOfItemAtPath:self.path error:nil];
-	}
-	else
-#endif
-	{
-		fileAttributes = [(id)fileManager fileAttributesAtPath:self.path traverseLink:NO];
-	}
+
+    fileAttributes = [fileManager attributesOfItemAtPath:self.path error:nil];
 		
 	if (fileAttributes != nil) {
 		NSNumber *fileSize;
@@ -405,8 +397,8 @@ static StopLocations *singleton;
 	self.nearestStops = [[[NSMutableArray alloc] init] autorelease];
 	CLLocationDistance curDist;
 	int i;
-	StopDistance *stopDistance;
-	StopDistance *newDistance;
+	StopDistanceData *stopDistance;
+	StopDistanceData *newDistance;
 	
 	const char *sql;
 	
@@ -432,17 +424,8 @@ static StopLocations *singleton;
 			lng = sqlite3_column_double(statement, 2);
 			
 			stopLocation = [[CLLocation alloc] initWithLatitude:lat longitude:lng];
-#ifdef __IPHONE_3_2
-			if ([here respondsToSelector:@selector(distanceFromLocation:)])
-			{
-				curDist = [here distanceFromLocation:stopLocation];
-			}
-			else
-#endif
-			{
-				// Cast avoids pragma warning
-				curDist = [(id)here getDistanceFrom:stopLocation];
-			}
+
+            curDist = [here distanceFromLocation:stopLocation];
 			[stopLocation release];
 			
 			if (min == 0.0  || curDist < min)
@@ -459,7 +442,7 @@ static StopLocations *singleton;
 				
 				if ( i < [self.nearestStops count])
 				{
-					newDistance = [[StopDistance alloc] initWithLocId:locid distance:curDist accuracy:here.horizontalAccuracy];
+					newDistance = [[StopDistanceData alloc] initWithLocId:locid distance:curDist accuracy:here.horizontalAccuracy];
 					[self.nearestStops insertObject:newDistance atIndex:i]; 
 					[newDistance release];
 					
@@ -470,7 +453,7 @@ static StopLocations *singleton;
 				}
 				else if ([self.nearestStops count] < max)
 				{
-					newDistance = [[StopDistance alloc] initWithLocId:locid distance:curDist accuracy:here.horizontalAccuracy];
+					newDistance = [[StopDistanceData alloc] initWithLocId:locid distance:curDist accuracy:here.horizontalAccuracy];
 					[self.nearestStops addObject:newDistance]; 
 					[newDistance release];
 				}

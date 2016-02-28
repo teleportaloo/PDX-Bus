@@ -18,6 +18,7 @@
 #import <MessageUI/MFMailComposeViewController.h>
 #import <MessageUI/MFMessageComposeViewController.h>
 
+
 @interface TripPlannerResultsView : TableViewWithToolbar <MFMessageComposeViewControllerDelegate, MFMailComposeViewControllerDelegate, UIActionSheetDelegate,
 											UIAlertViewDelegate> {
 	XMLTrips *_tripQuery;
@@ -26,11 +27,14 @@
 	int _smsRows;
 	int _calRows;
 	int _recentTripItem;
+    int _alarmItem;
 	TripItinerary *_calendarItinerary;
+    NSUserActivity *_userActivity;
 }
 
 @property (nonatomic, retain) XMLTrips *tripQuery;
 @property (nonatomic, retain) TripItinerary *calendarItinerary;
+@property (nonatomic, retain) NSUserActivity *userActivity;
 
 - (NSString *)getTextForLeg:(NSIndexPath *)indexPath;
 - (NSInteger)rowType:(NSIndexPath*)indexPath;
@@ -43,5 +47,7 @@
 - (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult)result;
 - (id)initWithHistoryItem:(int)item;
 - (void)setItemFromHistory:(int)item;
+- (void)setItemFromArchive:(NSDictionary *)archive;
+
 
 @end

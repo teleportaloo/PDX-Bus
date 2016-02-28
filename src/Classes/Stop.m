@@ -38,7 +38,12 @@
 
 - (MKPinAnnotationColor) getPinColor
 {
-	return MKPinAnnotationColorGreen;
+	return MKPinAnnotationColorPurple;
+}
+
+-(bool)hasBearing
+{
+    return NO;
 }
 
 - (bool) showActionMenu
@@ -105,6 +110,11 @@
 -(NSString*)stringToFilter
 {
 	return self.desc;
+}
+
+- (UIColor *)getPinTint
+{
+    return nil;
 }
 
 

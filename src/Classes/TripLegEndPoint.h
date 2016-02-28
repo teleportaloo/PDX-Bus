@@ -46,12 +46,15 @@
 @property (nonatomic, retain) UIColor       *leftColor;
 @property (nonatomic, retain) NSString      *xnumber;
 @property (nonatomic) int index;
+@property (nonatomic)         bool          thruRoute;
+@property (nonatomic)         bool          deboard;
 
 - (NSString*)stopId;
 - (MKPinAnnotationColor) getPinColor;
 - (NSString *)mapStopId;
 - (bool)mapTapped:(id<BackgroundTaskProgress>) progress;
 - (id)copyWithZone:(NSZone *)zone;
+- (CLLocation *)loc;
 
 
 @end

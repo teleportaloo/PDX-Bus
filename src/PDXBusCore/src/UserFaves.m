@@ -32,11 +32,13 @@
 @dynamic lastRun;
 @synthesize favesChanged = _favesChanged;
 @synthesize sharedUserCopyOfPlist = _sharedUserCopyOfPlist;
+@synthesize lastRunKey = _lastRunKey;
 
 - (void)dealloc
 {
     self.appData = nil;
     self.sharedUserCopyOfPlist = nil;
+    self.lastRunKey = nil;
 	[super dealloc];
 }
 
@@ -78,6 +80,7 @@
 	{
         self.sharedUserCopyOfPlist = [[[SharedFile alloc] initWithFileName:@"appData.plist" initFromBundle:YES] autorelease];
         self.readOnly = FALSE;
+        self.lastRunKey = kLastRunApp;
         [self load];
 	}
 	return self;
@@ -167,6 +170,19 @@
     }
 }
 
+
+- (NSDictionary *)tripArchive:(NSDictionary *)userRequest description:(NSString *)desc blob:(NSData *)blob
+{
+    NSMutableDictionary *newItem = [[[NSMutableDictionary alloc] init] autorelease];
+    
+    [newItem setObject:userRequest forKey:kUserFavesTrip];
+    [newItem setObject:blob forKey:kUserFavesTripResults];
+    [newItem setObject:desc forKey:kUserFavesChosenName];
+    
+    return newItem;
+
+}
+
 - (void)addToRecentTripsWithUserRequest:(NSDictionary*)userRequest description:(NSString *)desc blob:(NSData *)blob
 {
 	@synchronized (self)
@@ -174,16 +190,11 @@
         [self load];
         
         NSMutableArray *recentTrips   =  [self getOrInitRecentTrips];
-		NSMutableDictionary *newItem = [[NSMutableDictionary alloc] init];
-		
-		[newItem setObject:userRequest forKey:kUserFavesTrip];
-		[newItem setObject:blob forKey:kUserFavesTripResults];
-		[newItem setObject:desc forKey:kUserFavesChosenName];
-		
+        NSDictionary *newItem = [self tripArchive:userRequest description:desc blob:blob];
+    
 		[recentTrips insertObject:newItem atIndex:0];
 		
-		[newItem release];
-		
+	
 		
 		int maxRecents = [UserPrefs getSingleton].maxRecentTrips;
 		
@@ -332,11 +343,12 @@
         [self load];
 		if (last!=nil)
 		{
-			[self.appData setObject:last forKey:kLastRun];
+			[self.appData setObject:last forKey:self.lastRunKey];
 		}
 		else
 		{
-			[self.appData removeObjectForKey:kLastRun];
+			[self.appData removeObjectForKey:kLastRunWatch];
+            [self.appData removeObjectForKey:kLastRunApp];
 		}
 	}
 	[self cacheAppData];
@@ -346,8 +358,9 @@
 {
 	@synchronized (self)
 	{
+        self.appData = nil;
         [self load];
-		return [self.appData objectForKey:kLastRun];
+		return [self.appData objectForKey:self.lastRunKey];
 	}	
 }
 
@@ -461,29 +474,68 @@
 	
 }
 
+#define IS_MORNING(hour) (hour<12)
 
-- (NSArray *)arrayFromCommaSeparatedString:(NSString *)string
+- (NSDictionary *)checkForCommuterBookmarkShowOnlyOnce:(bool)onlyOnce
 {
-    NSMutableArray *result = [[[NSMutableArray alloc] init] autorelease];
+    [self load];
+    NSDate *lastRun					 = [self.lastRun retain];
+    NSDate *now						 = [NSDate date];
     
+    bool readOnly = self.readOnly;
     
-    NSScanner *scanner = [NSScanner scannerWithString:string];
-    NSCharacterSet *comma = [NSCharacterSet characterSetWithCharactersInString:@","];
-    NSString *item = nil;
+    self.readOnly = FALSE;
+    self.lastRun                     = now;
+    self.readOnly = readOnly;
+    bool firstRunInPeriod			 = YES;
+    unsigned unitFlags				 = NSYearCalendarUnit | NSMonthCalendarUnit |  NSDayCalendarUnit | kCFCalendarUnitHour | kCFCalendarUnitWeekday;
+    NSCalendar       *cal			 = [NSCalendar currentCalendar];
+    NSDateComponents *nowComponents  = [cal components:(NSUInteger)unitFlags fromDate:now];
     
-    while ([scanner scanUpToCharactersFromSet:comma intoString:&item])
+    if (lastRun != nil)
     {
-        [result addObject:item];
+        NSDateComponents *lastComponents = [cal components:(NSUInteger)unitFlags fromDate:lastRun];
         
-        if (![scanner isAtEnd])
+        if (
+            lastComponents.year  == nowComponents.year
+            &&	lastComponents.month == nowComponents.month
+            &&  lastComponents.day	 == nowComponents.day
+            &&  IS_MORNING(lastComponents.hour) == IS_MORNING(nowComponents.hour) )
         {
-            scanner.scanLocation++;
+            firstRunInPeriod = NO;
         }
+        [lastRun release];
     }
     
-    return result;
+    if (!onlyOnce || firstRunInPeriod)
+    {
+        int todayBit = (0x1 << nowComponents.weekday);
+        
+        NSArray *faves = [self faves];
+        for (NSDictionary * fave in faves)
+        {
+            NSNumber *dow = [fave objectForKey:kUserFavesDayOfWeek];
+            NSNumber *am  = [fave objectForKey:kUserFavesMorning];
+            if (dow && [fave objectForKey:kUserFavesLocation]!=nil)
+            {
+                // does the day of week match our day of week?
+                if (([dow intValue] & todayBit) !=0)
+                {
+                    // Does AM match or PM match?
+                    if ((   (am == nil ||  [am boolValue]) &&  IS_MORNING(nowComponents.hour))
+                        || (am != nil && ![am boolValue]  && !IS_MORNING(nowComponents.hour)))
+                    {
+                        return [[fave retain] autorelease];
+                    }
+                }
+            }
+        }
+        
+        // Didn't find anything - set this to nil just in case the user sets one up 
+        self.lastRun = nil;
+    }
+    return nil;
 }
-
 
 
 

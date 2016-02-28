@@ -19,6 +19,7 @@
 #import <objc/runtime.h>
 #import "DebugLogging.h"
 #import "AlarmFetchArrivalsTask.h"
+#include "DebugLogging.h"
 
 @implementation PebbleSportsDisplay
 
@@ -67,9 +68,9 @@
                 int i=0;
                 unsigned int mc = 0;
                 Method * mlist = class_copyMethodList([watch class], &mc);
-                NSLog(@"%d methods", mc);
+                DEBUG_LOG(@"%d methods", mc);
                 for(i=0;i<mc;i++)
-                    NSLog(@"Method no #%d: %s", i, sel_getName(method_getName(mlist[i])));
+                    DEBUG_LOG(@"Method no #%d: %s", i, sel_getName(method_getName(mlist[i])));
                 
                 self.watchAppState = WatchApp_NotRunning;
                 

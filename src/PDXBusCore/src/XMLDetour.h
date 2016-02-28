@@ -21,9 +21,9 @@
 
 @property (nonatomic, retain) NSString *detour;
 @property (nonatomic, retain) NSString *route;
-- (BOOL)getDetourForRoute:(NSString *)route parseError:(NSError **)error;
-- (BOOL)getDetourForRoutes:(NSArray *)routes parseError:(NSError **)error;
-- (BOOL)getDetours:(NSError **)error;
+- (BOOL)getDetourForRoute:(NSString *)route;
+- (BOOL)getDetourForRoutes:(NSArray *)routes;
+- (BOOL)getDetours;
 
 
 @end

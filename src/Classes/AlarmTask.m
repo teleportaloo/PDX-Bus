@@ -292,7 +292,7 @@
 	
 }
 
-- (NSString *)cellReuseIdentifier:(NSString *)identifier width:(ScreenType)width
+- (NSString *)cellReuseIdentifier:(NSString *)identifier width:(ScreenWidth)width
 {
 	return [NSString stringWithFormat:@"%@-%d", identifier, width];
 }

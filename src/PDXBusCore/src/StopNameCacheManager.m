@@ -91,9 +91,8 @@
     
     if (cachedData == nil || (result && result.count < (kStopNameCacheArraySizeWithShortDescription)))
     {
-        NSError *parseError = nil;
         XMLDepartures *dep = [[[ XMLDepartures alloc ] init] autorelease];
-        [dep getDeparturesForLocation:stopId parseError:&parseError];
+        [dep getDeparturesForLocation:stopId];
         
         NSString *longDesc = nil;
         NSString *shortDesc = nil;
@@ -107,7 +106,7 @@
             if (dep.locDir.length > 0)
             {
             
-                longDesc = [NSString stringWithFormat:@"%@ - %@", dep.locDesc, dep.locDir];
+                longDesc = [NSString stringWithFormat:@"%@ (%@)", dep.locDesc, dep.locDir];
                 shortDesc = [NSString stringWithFormat:@"%@: %@", [StopNameCacheManager shortDirection:dep.locDir], dep.locDesc];
             }
             else

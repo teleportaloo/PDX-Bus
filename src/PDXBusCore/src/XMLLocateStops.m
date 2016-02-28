@@ -46,11 +46,8 @@
 					   self.location.coordinate.longitude, self.location.coordinate.latitude,  
 					   (self.minDistance > 0.0 ? [NSString stringWithFormat:@"/meters/%f", self.minDistance] : @""), 
 					   (self.mode!=TripModeAll ? @"/showRoutes/true": @"")];
-	
-	NSError *error = nil;
-	
-					   
-	bool res =  [self startParsing:query parseError:&error cacheAction:TriMetXMLNoCaching];
+		   
+	bool res =  [self startParsing:query cacheAction:TriMetXMLNoCaching];
 	
 	if (hasData)
 	{
@@ -68,11 +65,10 @@
 					   (self.minDistance > 0.0 ? [NSString stringWithFormat:@"/meters/%f", self.minDistance] : @""), 
 					   @"/showRoutes/true"];
 	
-	NSError *error = nil;
 	self.routes = [[[NSMutableDictionary alloc] init] autorelease];
 	
 	
-	bool res =  [self startParsing:query parseError:&error cacheAction:TriMetXMLNoCaching];
+	bool res =  [self startParsing:query cacheAction:TriMetXMLNoCaching];
 	
 	if (hasData)
 	{
@@ -141,7 +137,7 @@
 	}
 	
     if ([elementName isEqualToString:@"location"]) {
-        self.currentStop = [[[StopDistance alloc] init] autorelease];
+        self.currentStop = [[[StopDistanceData alloc] init] autorelease];
 		_currentMode = TripModeNone;
 		
 		self.currentStop.locid = [self safeValueFromDict:attributeDict valueForKey:@"locid"];
@@ -150,18 +146,9 @@
 		
 		self.currentStop.location = [[[CLLocation alloc] initWithLatitude:[self getCoordFromAttribute:attributeDict valueForKey:@"lat"] 
 															   longitude:[self getCoordFromAttribute:attributeDict valueForKey:@"lng"] ] autorelease];
-		
-#ifdef __IPHONE_3_2
-		if ([self.location respondsToSelector:@selector(distanceFromLocation:)])
-		{
-			self.currentStop.distance = [self.location distanceFromLocation:self.currentStop.location];
-		}
-		else
-#endif
-		{
-			// Cast avoids pragma warning
-			self.currentStop.distance = [(id)self.location getDistanceFrom:self.currentStop.location];
-		}
+    
+        self.currentStop.distance = [self.location distanceFromLocation:self.currentStop.location];
+
 		
     }
 	

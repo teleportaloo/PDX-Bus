@@ -33,14 +33,12 @@
 @property (nonatomic, retain)	CLLocation *destination;
 @property (retain)				CLLocationManager *locationManager;
 	  
-- (void)setStop:(NSString *)stopId lat:(NSString *)lat lng:(NSString *)lng desc:(NSString *)desc;
+- (void)setStop:(NSString *)stopId loc:(CLLocation *)loc desc:(NSString *)desc;
 - (void)cancelAlert;
 - (id)initWithAccuracy:(bool)accurate;
 - (void)startUpdatingLocation;
 - (void)stopUpdatingLocation;
 - (void)startMonitoringSignificantLocationChanges;
 - (void)stopMonitoringSignificantLocationChanges;
-+ (bool)backgroundLocationAuthorizedOrNotDeterminedShowMsg:(bool)msg;
-
 
 @end

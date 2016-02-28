@@ -38,6 +38,7 @@
     NSString *_signMessageLong;
     NSString *_type;
     NSString *_garage;
+    NSString *_bearing;
     double   _distance;
     TriMetTime  _locationTime;
 }
@@ -54,6 +55,11 @@
 @property (nonatomic)         double   distance;
 @property (nonatomic)         TriMetTime locationTime;
 @property (nonatomic, retain) NSString *garage;
+@property (nonatomic, retain) NSString *bearing;
+
+- (bool)typeMatchesMode:(TripMode)mode;
++ (NSString *)locatedSomeTimeAgo:(NSDate *)date;
+
 
 
 

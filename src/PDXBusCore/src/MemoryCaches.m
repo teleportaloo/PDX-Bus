@@ -6,6 +6,7 @@
 //  Copyright (c) 2014 Teleportaloo. All rights reserved.
 //
 
+#include "DebugLogging.h"
 
 
 
@@ -46,7 +47,7 @@
 
 + (void)memoryWarning
 {
-    NSLog(@"Clearing caches\n");
+    DEBUG_LOG(@"Clearing caches\n");
     MemoryCaches *caches = [MemoryCaches getSingleton];
     
     for (id<ClearableCache> cache in caches->_caches)

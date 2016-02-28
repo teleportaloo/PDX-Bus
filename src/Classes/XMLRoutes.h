@@ -19,8 +19,8 @@
 	Route *_currentRouteObject;
 }
 
-- (BOOL)getRoutes:(NSError **)error cacheAction:(CacheAction)cacheAction;
-- (BOOL)getDirections:(NSString *)route error:(NSError **)error cacheAction:(CacheAction)cacheAction;
+- (BOOL)getRoutesCacheAction:(CacheAction)cacheAction;
+- (BOOL)getDirections:(NSString *)route cacheAction:(CacheAction)cacheAction;
 
 @property (nonatomic, retain) Route *currentRouteObject;
 

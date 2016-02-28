@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		A1126A071B06AD0600E76977 /* SharedFile.m in Sources */ = {isa = PBXBuildFile; fileRef = A1126A061B06AD0600E76977 /* SharedFile.m */; };
+		A1246E101BD70ACB00395325 /* MapAnnotationImage.m in Sources */ = {isa = PBXBuildFile; fileRef = A1246E0F1BD70ACB00395325 /* MapAnnotationImage.m */; };
+		A14D1DC31BEE477300F46126 /* StringHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A14D1DC21BEE477300F46126 /* StringHelper.m */; };
+		A152F5E11BE338E200FB9D19 /* XMLLocateVehicles.m in Sources */ = {isa = PBXBuildFile; fileRef = A152F5E01BE338E200FB9D19 /* XMLLocateVehicles.m */; };
+		A17DA1FE1BE5EA6A006BB884 /* FormatDistance.m in Sources */ = {isa = PBXBuildFile; fileRef = A17DA1FD1BE5EA6A006BB884 /* FormatDistance.m */; };
 		A1833CD81B0833BE00670E34 /* StopNameCacheManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A1833CD71B0833BE00670E34 /* StopNameCacheManager.m */; };
 		A1833CE11B0932A800670E34 /* XMLLocateStops.m in Sources */ = {isa = PBXBuildFile; fileRef = A1833CE01B0932A800670E34 /* XMLLocateStops.m */; };
 		A1833CE41B09341800670E34 /* RouteDistanceData.m in Sources */ = {isa = PBXBuildFile; fileRef = A1833CE31B09341800670E34 /* RouteDistanceData.m */; };
@@ -17,7 +21,7 @@
 		A1AC796D1ADA03D000A1E96F /* XMLDepartures.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AC79661ADA03D000A1E96F /* XMLDepartures.m */; };
 		A1AC796E1ADA03D000A1E96F /* XMLStreetcarLocations.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AC79681ADA03D000A1E96F /* XMLStreetcarLocations.m */; };
 		A1AC796F1ADA03D000A1E96F /* XMLStreetcarPredictions.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AC796A1ADA03D000A1E96F /* XMLStreetcarPredictions.m */; };
-		A1AC797B1ADA058A00A1E96F /* StopDistance.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AC797A1ADA058A00A1E96F /* StopDistance.m */; };
+		A1AC797B1ADA058A00A1E96F /* StopDistanceData.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AC797A1ADA058A00A1E96F /* StopDistanceData.m */; };
 		A1AC797F1ADA060300A1E96F /* VehicleData.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AC797E1ADA060300A1E96F /* VehicleData.m */; };
 		A1AC79831ADA06B600A1E96F /* TriMetRouteColors.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AC79821ADA06B600A1E96F /* TriMetRouteColors.m */; };
 		A1AC798D1ADAF64800A1E96F /* XMLDetour.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AC798C1ADAF64800A1E96F /* XMLDetour.m */; };
@@ -48,6 +52,14 @@
 /* Begin PBXFileReference section */
 		A1126A051B06AD0600E76977 /* SharedFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SharedFile.h; path = src/SharedFile.h; sourceTree = SOURCE_ROOT; };
 		A1126A061B06AD0600E76977 /* SharedFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SharedFile.m; path = src/SharedFile.m; sourceTree = SOURCE_ROOT; };
+		A1246E0E1BD70ACB00395325 /* MapAnnotationImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MapAnnotationImage.h; path = src/MapAnnotationImage.h; sourceTree = SOURCE_ROOT; };
+		A1246E0F1BD70ACB00395325 /* MapAnnotationImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MapAnnotationImage.m; path = src/MapAnnotationImage.m; sourceTree = SOURCE_ROOT; };
+		A14D1DC11BEE477300F46126 /* StringHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StringHelper.h; path = src/StringHelper.h; sourceTree = SOURCE_ROOT; };
+		A14D1DC21BEE477300F46126 /* StringHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = StringHelper.m; path = src/StringHelper.m; sourceTree = SOURCE_ROOT; };
+		A152F5DF1BE338E200FB9D19 /* XMLLocateVehicles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XMLLocateVehicles.h; path = src/XMLLocateVehicles.h; sourceTree = SOURCE_ROOT; };
+		A152F5E01BE338E200FB9D19 /* XMLLocateVehicles.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = XMLLocateVehicles.m; path = src/XMLLocateVehicles.m; sourceTree = SOURCE_ROOT; };
+		A17DA1FC1BE5EA6A006BB884 /* FormatDistance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FormatDistance.h; path = src/FormatDistance.h; sourceTree = SOURCE_ROOT; };
+		A17DA1FD1BE5EA6A006BB884 /* FormatDistance.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FormatDistance.m; path = src/FormatDistance.m; sourceTree = SOURCE_ROOT; };
 		A1833CD61B0833BE00670E34 /* StopNameCacheManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StopNameCacheManager.h; path = src/StopNameCacheManager.h; sourceTree = SOURCE_ROOT; };
 		A1833CD71B0833BE00670E34 /* StopNameCacheManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = StopNameCacheManager.m; path = src/StopNameCacheManager.m; sourceTree = SOURCE_ROOT; };
 		A1833CDF1B0932A800670E34 /* XMLLocateStops.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XMLLocateStops.h; path = src/XMLLocateStops.h; sourceTree = SOURCE_ROOT; };
@@ -66,14 +78,12 @@
 		A1AC79681ADA03D000A1E96F /* XMLStreetcarLocations.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = XMLStreetcarLocations.m; path = src/XMLStreetcarLocations.m; sourceTree = SOURCE_ROOT; };
 		A1AC79691ADA03D000A1E96F /* XMLStreetcarPredictions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XMLStreetcarPredictions.h; path = src/XMLStreetcarPredictions.h; sourceTree = SOURCE_ROOT; };
 		A1AC796A1ADA03D000A1E96F /* XMLStreetcarPredictions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = XMLStreetcarPredictions.m; path = src/XMLStreetcarPredictions.m; sourceTree = SOURCE_ROOT; };
-		A1AC79761ADA051000A1E96F /* MapPinColor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MapPinColor.h; path = src/MapPinColor.h; sourceTree = SOURCE_ROOT; };
 		A1AC79771ADA051D00A1E96F /* ScreenConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ScreenConstants.h; path = src/ScreenConstants.h; sourceTree = SOURCE_ROOT; };
-		A1AC79791ADA058A00A1E96F /* StopDistance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StopDistance.h; path = src/StopDistance.h; sourceTree = SOURCE_ROOT; };
-		A1AC797A1ADA058A00A1E96F /* StopDistance.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = StopDistance.m; path = src/StopDistance.m; sourceTree = SOURCE_ROOT; };
+		A1AC79791ADA058A00A1E96F /* StopDistanceData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StopDistanceData.h; path = src/StopDistanceData.h; sourceTree = SOURCE_ROOT; };
+		A1AC797A1ADA058A00A1E96F /* StopDistanceData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = StopDistanceData.m; path = src/StopDistanceData.m; sourceTree = SOURCE_ROOT; };
 		A1AC797C1ADA05C200A1E96F /* DepartureTimesDataProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DepartureTimesDataProvider.h; path = src/DepartureTimesDataProvider.h; sourceTree = SOURCE_ROOT; };
 		A1AC797D1ADA060300A1E96F /* VehicleData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VehicleData.h; path = src/VehicleData.h; sourceTree = SOURCE_ROOT; };
 		A1AC797E1ADA060300A1E96F /* VehicleData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = VehicleData.m; path = src/VehicleData.m; sourceTree = SOURCE_ROOT; };
-		A1AC79801ADA06A600A1E96F /* HotSpot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HotSpot.h; path = src/HotSpot.h; sourceTree = SOURCE_ROOT; };
 		A1AC79811ADA06B600A1E96F /* TriMetRouteColors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TriMetRouteColors.h; path = src/TriMetRouteColors.h; sourceTree = SOURCE_ROOT; };
 		A1AC79821ADA06B600A1E96F /* TriMetRouteColors.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TriMetRouteColors.m; path = src/TriMetRouteColors.m; sourceTree = SOURCE_ROOT; };
 		A1AC798B1ADAF64800A1E96F /* XMLDetour.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XMLDetour.h; path = src/XMLDetour.h; sourceTree = SOURCE_ROOT; };
@@ -155,6 +165,8 @@
 		A1AC79721ADA040800A1E96F /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				A14D1DC11BEE477300F46126 /* StringHelper.h */,
+				A14D1DC21BEE477300F46126 /* StringHelper.m */,
 				A19A6D861B0A9F270002B1D9 /* BlockColorDb.h */,
 				A19A6D871B0A9F270002B1D9 /* BlockColorDb.m */,
 				A1E0F3D21AE322F50055C6FB /* UserFaves.h */,
@@ -167,22 +179,17 @@
 				A1C755AB1AD9DE7600236776 /* UserPrefs.m */,
 				A1126A051B06AD0600E76977 /* SharedFile.h */,
 				A1126A061B06AD0600E76977 /* SharedFile.m */,
+				A1246E0E1BD70ACB00395325 /* MapAnnotationImage.h */,
+				A1246E0F1BD70ACB00395325 /* MapAnnotationImage.m */,
 			);
 			name = Core;
-			sourceTree = "<group>";
-		};
-		A1AC79751ADA04EC00A1E96F /* Maps */ = {
-			isa = PBXGroup;
-			children = (
-				A1AC79801ADA06A600A1E96F /* HotSpot.h */,
-				A1AC79761ADA051000A1E96F /* MapPinColor.h */,
-			);
-			name = Maps;
 			sourceTree = "<group>";
 		};
 		A1AC79781ADA057500A1E96F /* Location and Distance */ = {
 			isa = PBXGroup;
 			children = (
+				A152F5DF1BE338E200FB9D19 /* XMLLocateVehicles.h */,
+				A152F5E01BE338E200FB9D19 /* XMLLocateVehicles.m */,
 				A1833CE21B09341800670E34 /* RouteDistanceData.h */,
 				A1833CE31B09341800670E34 /* RouteDistanceData.m */,
 				A1833CDF1B0932A800670E34 /* XMLLocateStops.h */,
@@ -191,8 +198,10 @@
 				A1E0F3D61AE323C20055C6FB /* StopLocations.m */,
 				A1AC797D1ADA060300A1E96F /* VehicleData.h */,
 				A1AC797E1ADA060300A1E96F /* VehicleData.m */,
-				A1AC79791ADA058A00A1E96F /* StopDistance.h */,
-				A1AC797A1ADA058A00A1E96F /* StopDistance.m */,
+				A1AC79791ADA058A00A1E96F /* StopDistanceData.h */,
+				A1AC797A1ADA058A00A1E96F /* StopDistanceData.m */,
+				A17DA1FC1BE5EA6A006BB884 /* FormatDistance.h */,
+				A17DA1FD1BE5EA6A006BB884 /* FormatDistance.m */,
 			);
 			name = "Location and Distance";
 			sourceTree = "<group>";
@@ -228,10 +237,9 @@
 		A1C7557C1AD9DD0A00236776 /* PDXBusCore */ = {
 			isa = PBXGroup;
 			children = (
+				A1AC79721ADA040800A1E96F /* Core */,
 				A1AC798A1ADAF63300A1E96F /* Detours */,
 				A1AC79781ADA057500A1E96F /* Location and Distance */,
-				A1AC79751ADA04EC00A1E96F /* Maps */,
-				A1AC79721ADA040800A1E96F /* Core */,
 				A1AC79711ADA03F400A1E96F /* XML */,
 				A1AC79701ADA03DB00A1E96F /* Departures */,
 			);
@@ -312,7 +320,9 @@
 				A1C755AD1AD9DE7600236776 /* NextBusXML.m in Sources */,
 				A1C755AE1AD9DE7600236776 /* QueryCacheManager.m in Sources */,
 				A1AC79901ADAF6B300A1E96F /* Detour.m in Sources */,
-				A1AC797B1ADA058A00A1E96F /* StopDistance.m in Sources */,
+				A152F5E11BE338E200FB9D19 /* XMLLocateVehicles.m in Sources */,
+				A17DA1FE1BE5EA6A006BB884 /* FormatDistance.m in Sources */,
+				A1AC797B1ADA058A00A1E96F /* StopDistanceData.m in Sources */,
 				A1AC797F1ADA060300A1E96F /* VehicleData.m in Sources */,
 				A1AC79831ADA06B600A1E96F /* TriMetRouteColors.m in Sources */,
 				A1C755B01AD9DE7600236776 /* TriMetXML.m in Sources */,
@@ -321,9 +331,11 @@
 				A1AC796B1ADA03D000A1E96F /* DepartureData.m in Sources */,
 				A1833CD81B0833BE00670E34 /* StopNameCacheManager.m in Sources */,
 				A1833CE11B0932A800670E34 /* XMLLocateStops.m in Sources */,
+				A1246E101BD70ACB00395325 /* MapAnnotationImage.m in Sources */,
 				A1E0F3D71AE323C20055C6FB /* StopLocations.m in Sources */,
 				A1AC798D1ADAF64800A1E96F /* XMLDetour.m in Sources */,
 				A1AC796D1ADA03D000A1E96F /* XMLDepartures.m in Sources */,
+				A14D1DC31BEE477300F46126 /* StringHelper.m in Sources */,
 				A1C755B11AD9DE7600236776 /* UserPrefs.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

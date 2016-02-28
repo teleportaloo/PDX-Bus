@@ -16,6 +16,7 @@
 
 #import "XMLLocateStopsUI.h"
 #import "RouteDistanceData.h"
+#import "FormatDistance.h"
 
 
 @implementation XMLLocateStopsUI
@@ -56,9 +57,9 @@
             
             NSArray *modes = [NSArray arrayWithObjects:@"bus stops", @"train stops", @"bus or train stops", nil];
         
-            [progress backgroundSetErrorMsg:[NSString stringWithFormat:@"No %@ were found within %0.1f miles.",
+            [progress backgroundSetErrorMsg:[NSString stringWithFormat:@"No %@ were found within %@.",
                                         [modes objectAtIndex:_mode],
-                                        self.minDistance / 1609.344]];
+                                             [FormatDistance formatMetres:self.minDistance]]];
 			//UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"Nearby stops"
 			//												   message:[NSString stringWithFormat:@"No stops were found within %0.1f miles",
 			//															self.minDistance / 1609.344]

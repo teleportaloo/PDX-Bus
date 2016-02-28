@@ -78,7 +78,7 @@
 - (void)backButton:(id)sender;
 - (CGFloat) heightOffset;
 - (CGRect)getMiddleWindowRect;
-- (ScreenType)screenWidth;
+- (ScreenInfo)screenInfo;
 - (void)reloadData;
 + (UIColor*)htmlColor:(int)val;
 - (void)appendXmlData:(NSMutableData *)buffer;
@@ -92,9 +92,11 @@
 - (bool)iOS7style;
 - (bool)iOS8style;
 + (bool)iOS7style;
+- (bool)iOS9style;
 - (bool)ZXingSupported;
 - (void)setSegColor:(UISegmentedControl*)seg;
 - (bool)ticketApp;
+- (bool)fullScreen;
 
 @property (nonatomic, retain) UIBarButtonItem *xmlButton;
 @property (nonatomic, retain) BackgroundTaskContainer *backgroundTask;
@@ -122,7 +124,7 @@
 #define kIconAlerts			 @"Warning.png"
 #define kIconBlog			 @"Blog.png"
 #define kIconLink			 @"Globe.png"
-#define kIconTriMetLink		 @"visittrimeticon.gif"
+#define kIconTriMetLink		 @"TriMet.png"
 #define kIconHome			 @"53-house.png"
 #define kIconHome7           @"750-home.png"
 #define kIconRedo			 @"02-redo.png"
@@ -144,6 +146,7 @@
 #define kIconForward		 @"icon_arrow_right.png"
 #define kIconForward7		 @"766-arrow-right.png"
 #define kIconUp				 @"icon_arrow_up.png"
+#define kIconLargeUp		 @"arrow_up_64.png"
 #define kIconUp7             @"763-arrow-up.png"
 #define kIconDown			 @"icon_arrow_down.png"
 #define kIconDown7           @"764-arrow-down.png"
@@ -192,6 +195,7 @@
 #define kIconLocation        @"Location.png"
 #define kIconLocationHeading @"LocationHeading.png"
 #define kIconAppIconAction   @"ActionIcon.png"
+#define kIconEye             @"751-eye.png"
 
 
 #define TableViewBasicFont	[UIFont systemFontOfSize:kBasicTextViewFontSize]

@@ -27,6 +27,7 @@
 @interface TripLeg: NSObject
 {
 	NSString *_mode;
+    NSString *_order;
 	NSString *_xdate;
 	NSString *_xstartTime;
 	NSString *_xendTime;
@@ -47,6 +48,7 @@
 }
 
 @property (nonatomic, retain) NSString		*mode;
+@property (nonatomic, retain) NSString      *order;
 @property (nonatomic, retain) NSString		*xdate;
 @property (nonatomic, retain) NSString		*xstartTime;
 @property (nonatomic, retain) NSString		*xendTime;
@@ -74,6 +76,6 @@ typedef enum {
 - (NSString*)createFromText:(bool)first textType:(TripTextType)type;
 - (NSString*)createToText:(bool)last textType:(TripTextType)type;
 - (NSString *)direction:(NSString *)dir;
-+ (UITableViewCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier rowHeight:(CGFloat)height screenWidth:(ScreenType)screenWidth;
-+ (CGFloat)bodyTextWidthForScreenWidth:(ScreenType)screenWidth;
++ (CGFloat)bodyTextWidth:(ScreenInfo)screen;
++ (UITableViewCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier rowHeight:(CGFloat)height screenInfo:(ScreenInfo)screen;
 @end

@@ -213,12 +213,13 @@ static NSString *tripURLString = @"trips/tripplanner?%@&%@&Date=%@&Time=%@&Arr=%
 	
 	if (oldRawData == nil)
 	{
-		[self startParsing:finalTripURLString parseError:&parseError];
+		[self startParsing:finalTripURLString];
 	}
 	else {
 		self.rawData = oldRawData;
 		
 		[self parseRawData:&parseError];
+        LOG_PARSE_ERROR(parseError);
 	}
 
 	
@@ -226,8 +227,8 @@ static NSString *tripURLString = @"trips/tripplanner?%@&%@&Date=%@&Time=%@&Arr=%
 	int l;
 	TripItinerary *it;
 	TripLeg		  *leg;
-	
-		
+    TripLeg		  *previous;
+
 	for (i=0; i< [self safeItemCount]; i++)
 	{
 		it = [self itemAtIndex:i];
@@ -243,6 +244,21 @@ static NSString *tripURLString = @"trips/tripplanner?%@&%@&Date=%@&Time=%@&Arr=%
 		{
 			[it.displayEndPoints addObject:it.startPoint];
 		}
+        
+        // Fix the thru-routes
+        if (it.legs != nil)
+        {
+            for (l = 1; l < it.legs.count; l++)
+            {
+                leg = [it.legs objectAtIndex:l];
+                
+                if (leg.from.thruRoute)
+                {
+                    previous = [it.legs objectAtIndex:l-1];
+                    previous.to.thruRoute = YES;
+                }
+            }
+        }
 		
 		if (it.legs != nil)
 		{
@@ -251,8 +267,7 @@ static NSString *tripURLString = @"trips/tripplanner?%@&%@&Date=%@&Time=%@&Arr=%
 				leg = [it.legs objectAtIndex:l];
                 
                 [self addGeocodedDescriptionToLeg:leg];
-                    
-
+                
 				[leg createFromText:(l==0) textType:TripTextTypeUI];
 				leg.to.xnumber = leg.xinternalNumber;
                 
@@ -266,6 +281,10 @@ static NSString *tripURLString = @"trips/tripplanner?%@&%@&Date=%@&Time=%@&Arr=%
 				
 				if (leg.to && leg.to.displayText != nil)
 				{
+                    if (![leg.mode isEqualToString:kModeWalk])
+                    {
+                        leg.to.deboard = YES;
+                    }
 					[it.displayEndPoints addObject:leg.to];
 				}
 			}
@@ -340,11 +359,17 @@ static NSString *tripURLString = @"trips/tripplanner?%@&%@&Date=%@&Time=%@&Arr=%
 		[self.currentItinerary.legs addObject:self.currentLeg];
 		self.currentObject = self.currentLeg;
 		self.currentLeg.mode = [self safeValueFromDict:attributeDict valueForKey:@"mode"];
+        self.currentLeg.order = [self safeValueFromDict:attributeDict valueForKey:@"order"];
 	} 
 	else if ([elementName isEqualToString:@"from"] && self.currentLeg !=nil)
 	{
 		self.currentLeg.from = [[[TripLegEndPoint alloc] init] autorelease];
 		self.currentObject = self.currentLeg.from;
+        
+        if ([self.currentLeg.order caseInsensitiveCompare:@"thru-route"]==NSOrderedSame)
+        {
+            self.currentLeg.from.thruRoute = YES;
+        }
 	}
 	else if ([elementName isEqualToString:@"to"] && self.currentLeg !=nil)
 	{

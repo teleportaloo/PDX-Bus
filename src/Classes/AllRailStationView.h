@@ -23,6 +23,7 @@
 #import "Hotspot.h"
 
 
+#define kSearchItemStation  @"org.teleportaloo.pdxbus.station"
 
 @interface AllRailStationView : TableViewWithToolbar <ReturnStop> {
 	HOTSPOT *_hotSpots;
@@ -30,5 +31,6 @@
 
 - (void)generateArrays;
 + (RAILLINES)railLines:(int)index;
+- (void)indexStations;
 
 @end

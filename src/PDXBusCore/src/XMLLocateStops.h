@@ -15,10 +15,10 @@
 
 #import <Foundation/Foundation.h>
 #import "TriMetXML.h"
-#import "StopDistance.h"
+#import "StopDistanceData.h"
 
-@interface XMLLocateStops : TriMetXML <UIAlertViewDelegate> {
-	StopDistance *_currentStop;
+@interface XMLLocateStops : TriMetXML {
+	StopDistanceData *_currentStop;
 	CLLocation *_location;
 	
 	NSMutableDictionary *_routes;
@@ -32,7 +32,7 @@
 }
 
 @property (nonatomic, retain) NSMutableDictionary *routes;
-@property (nonatomic, retain) StopDistance *currentStop;
+@property (nonatomic, retain) StopDistanceData *currentStop;
 @property (nonatomic, retain) CLLocation *location;
 @property (nonatomic) TripMode mode;
 @property (nonatomic) int maxToFind;

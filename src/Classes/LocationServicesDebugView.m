@@ -75,10 +75,9 @@
 	{
 		case kSectionText:
 		{
-			static NSString *newId = @"about";
-			CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:newId];
+			CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionText)];
 			if (cell == nil) {
-				cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:newId] autorelease];
+				cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionText)] autorelease];
 				cell.view = [self create_UITextView:nil font:[self getParagraphFont]];
 			}
 			
@@ -93,11 +92,10 @@
 		}
 		case kSectionMap:
 		{
-			static NSString *cellId = @"done";
-			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellId];
+			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionMap)];
 			if (cell == nil) {
 				
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellId] autorelease];
+				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionMap)] autorelease];
 				cell.textLabel.font =  [self getBasicFont]; //  [UIFont fontWithName:@"Ariel" size:14];
 				cell.textLabel.adjustsFontSizeToFitWidth = YES;
 				cell.textLabel.textAlignment = NSTextAlignmentCenter;

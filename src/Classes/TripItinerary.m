@@ -224,9 +224,9 @@
 				self.startPoint.mapText = text;
 			}
 			break;
-		case TripTextTypeUI:
 		case TripTextTypeClip:
 			[text appendFormat:				@"\n"];
+        case TripTextTypeUI:
 			self.startPoint.displayText = text;
 			break;
 	}

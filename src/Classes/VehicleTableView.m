@@ -19,6 +19,7 @@
 #import "DepartureTimesView.h"
 #import "VehicleData.h"
 #import "VehicleUI.h"
+#import "FormatDistance.h"
 
 @implementation VehicleTableView
 
@@ -26,11 +27,10 @@
 #define kSectionDisclaimer 1
 #define kSections		   2
 
-#define kRouteCellId @"route"
 #define COLOR_STRIPE_TAG 1
 
-
 @synthesize locator = _locator;
+
 - (void) dealloc
 {
     self.locator = nil;
@@ -86,12 +86,9 @@
 	
 	NSThread *thread = [NSThread currentThread];
 	
-	[self.backgroundTask.callbackWhenFetching backgroundThread:thread];
-	
-    
 	[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:@"getting vehicles"];
     
-	[self.locator findNearestVehicles];
+    [self.locator findNearestVehicles:nil direction:nil blocks:nil];
     
     if (self.locator.safeItemCount == 0)
     {
@@ -156,9 +153,9 @@
 	{
         case kSectionVehicles:
 		{
-			cell = [tableView dequeueReusableCellWithIdentifier:kRouteCellId];
+			cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionVehicles)];
 			if (cell == nil) {
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:kRouteCellId] autorelease];
+				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:MakeCellId(kSectionVehicles)] autorelease];
 				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 				
                 CGRect rect = CGRectMake(0, 0, COLOR_STRIPE_WIDTH, [self tableView:tableView heightForRowAtIndexPath:indexPath]);
@@ -172,7 +169,7 @@
 			// Configure the cell
 			VehicleData *vehicle = [self.locator itemAtIndex:indexPath.row];
 			
-            if (LargeScreenStyle(self.screenWidth))
+            if (LargeScreenStyle(self.screenInfo.screenWidth))
             {
                 cell.textLabel.text = vehicle.signMessageLong;
             }
@@ -182,8 +179,9 @@
             }
 			cell.textLabel.font = [self getBasicFont];
 			cell.textLabel.adjustsFontSizeToFitWidth = YES;
-            cell.detailTextLabel.text = [NSString stringWithFormat:@"Distance %.0f yards (%.0f meters)", vehicle.distance * 1.09361,  vehicle.distance];
-			RouteColorBlobView *colorStripe = (RouteColorBlobView*)[cell.contentView viewWithTag:COLOR_STRIPE_TAG];
+            
+            cell.detailTextLabel.text = [NSString stringWithFormat:@"Distance %@", [FormatDistance formatMetres:vehicle.distance ]];
+            RouteColorBlobView *colorStripe = (RouteColorBlobView*)[cell.contentView viewWithTag:COLOR_STRIPE_TAG];
 			[colorStripe setRouteColor:vehicle.routeNumber];
 		}
             break;

@@ -28,14 +28,14 @@ static NSString *oneRouteURLString = @"routeConfig/route/%@/dir/true";
 
 #pragma mark Data fetchers
 
-- (BOOL)getRoutes:(NSError **)error cacheAction:(CacheAction)cacheAction;
+- (BOOL)getRoutesCacheAction:(CacheAction)cacheAction;
 {	
-	return [self startParsing:routesURLString parseError:error cacheAction:cacheAction];	
+	return [self startParsing:routesURLString cacheAction:cacheAction];
 }
 
-- (BOOL)getDirections:(NSString *)route error:(NSError **)error cacheAction:(CacheAction)cacheAction
+- (BOOL)getDirections:(NSString *)route cacheAction:(CacheAction)cacheAction
 {	
-	return [self startParsing:[NSString stringWithFormat:oneRouteURLString, route] parseError:error cacheAction:cacheAction];	
+	return [self startParsing:[NSString stringWithFormat:oneRouteURLString, route] cacheAction:cacheAction];
 }
 
 #pragma mark Parser callbacks

@@ -6,14 +6,21 @@
 //  Copyright (c) 2015 Teleportaloo. All rights reserved.
 //
 
-/* INSERT_LICENSE */
+
+
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 
 #import <WatchKit/WatchKit.h>
 #import <Foundation/Foundation.h>
 #import "XMLLocateStops.h"
-#import "InterfaceControllerWithBackgroundThread.h"
+#import "InterfaceControllerWithCommuterBookmark.h"
 
-@interface WatchNearbyInterfaceController : InterfaceControllerWithBackgroundThread <CLLocationManagerDelegate>
+#define kNearbyScene @"Nearby"
+
+@interface WatchNearbyInterfaceController : InterfaceControllerWithCommuterBookmark <CLLocationManagerDelegate>
 {
     CLLocationManager *			_locationManager;
     NSDate *					_timeStamp;
@@ -28,10 +35,7 @@
 @property (nonatomic, retain) CLLocation *lastLocation;
 @property (nonatomic, retain) XMLLocateStops *stops;
 - (IBAction)menuItemHome;
+- (IBAction)menuItemCommute;
 @property (strong, nonatomic) IBOutlet WKInterfaceLabel *locationStatusLabel;
-
-
-
-- (IBAction)doShowListAction;
 
 @end

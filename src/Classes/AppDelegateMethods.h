@@ -19,7 +19,6 @@
 - (BOOL)processStopFromURL:(NSString *)stop;
 - (BOOL)processCommandFromURL:(NSString *)command;
 + (TriMetTimesAppDelegate*)getSingleton;
-- (NSDictionary *)checkForCommuterBookmarkShowOnlyOnce:(bool)onlyOnce;
 
 @end
 

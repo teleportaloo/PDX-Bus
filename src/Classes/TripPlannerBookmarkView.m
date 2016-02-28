@@ -15,6 +15,7 @@
 #import "TripPlannerBookmarkView.h"
 #import "XMLDepartures.h"
 #import "StopNameCacheManager.h"
+#import "StringHelper.h"
 
 @implementation TripPlannerBookmarkView
 @synthesize locList = _locList;
@@ -41,45 +42,28 @@
 	
 	[UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
 	
-	NSScanner *scanner = [NSScanner scannerWithString:loc];
-	NSCharacterSet *comma = [NSCharacterSet characterSetWithCharactersInString:@","];
 	NSString *aLoc;
 	
-	self.locList = [[[NSMutableArray alloc] init] autorelease];
+    self.locList = [[[NSMutableArray alloc] init] autorelease];
+    
+    NSArray *idList  = [StringHelper arrayFromCommaSeparatedString:loc];
 	
-	int items = 0;
+    int items = (int)idList.count;
 	
-	while ([scanner scanUpToCharactersFromSet:comma intoString:&aLoc])
-	{	
-		items++;
-		
-		if (![scanner isAtEnd])
-		{
-			scanner.scanLocation++;
-		}
-	}
-	
-	[self.backgroundTask.callbackWhenFetching backgroundThread:[NSThread currentThread]];
 	[self.backgroundTask.callbackWhenFetching backgroundStart:items title:@"getting stop names"];
 	
-	[scanner setScanLocation:0];
 	
 	items = 0;
     
     StopNameCacheManager *stopNameCache = [TriMetXML getStopNameCacheManager];
 	
-	while ([scanner scanUpToCharactersFromSet:comma intoString:&aLoc])
+    for (int i=0; i<idList.count; i++)
 	{
-        
+        aLoc = [idList objectAtIndex:i];
         NSArray *stopName = [stopNameCache getStopNameAndCache:aLoc];
 		[self.locList addObject:stopName];
 		
-		if (![scanner isAtEnd])
-		{
-			scanner.scanLocation++;
-		}
-		items++;
-		[self.backgroundTask.callbackWhenFetching backgroundItemsDone:items];
+        [self.backgroundTask.callbackWhenFetching backgroundItemsDone:items];
 		
 	}
 	[UIApplication sharedApplication].networkActivityIndicatorVisible = NO;

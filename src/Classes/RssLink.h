@@ -31,9 +31,9 @@
 @property (nonatomic, retain) NSString *dateString;
 @property (nonatomic, retain) NSDate *date;
 
-- (NSString *)cellReuseIdentifier:(NSString *)identifier width:(ScreenType)width;
-- (UITableViewCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier width:(ScreenType)width font:(UIFont*)font;
+- (NSString *)cellReuseIdentifier:(NSString *)identifier width:(ScreenWidth)width;
+- (UITableViewCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier width:(ScreenWidth)width font:(UIFont*)font;
 - (void)populateCell:(UITableViewCell *)cell;
-- (CGFloat)getTimeHeight:(ScreenType)width;
+- (CGFloat)getTimeHeight:(ScreenWidth)width;
 
 @end

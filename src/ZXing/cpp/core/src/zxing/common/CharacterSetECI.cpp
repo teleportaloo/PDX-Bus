@@ -88,9 +88,11 @@ int CharacterSetECI::getValue() const {
   return values_[0];
 }
 
+#ifndef __clang_analyzer__
 void CharacterSetECI::addCharacterSet(int const* values, char const* const* names) {
   new CharacterSetECI(values, names);
 }
+#endif
 
 CharacterSetECI* CharacterSetECI::getCharacterSetECIByValue(int value) {
   if (value < 0 || value >= 900) {

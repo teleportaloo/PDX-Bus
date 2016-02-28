@@ -17,6 +17,7 @@
 #import "WhatsNewView.h"
 #import "SupportView.h"
 #import "DebugLogging.h"
+#import "StringHelper.h"
 
 
 #define kSectionHelp			0
@@ -59,35 +60,36 @@
 
 - (id)init {
 	if ((self = [super init]))
-	{
-		self.title = NSLocalizedString(@"About", @"About screen title");
-		aboutText = [[NSString stringWithFormat:
-                      NSLocalizedString(
-                                        @"Version %@ (%d-bit)\n\n"
-                                        "Route and arrival data provided by permission of TriMet.\n\n"
-                                        "This app was developed as a volunteer effort to provide a service for TriMet riders. The developer has no affiliation with TriMet, AT&T or Apple.\n\n"
-                                        "Lots of thanks...\n\n"
-                                        "...to http://www.portlandtransport.com for help and advice;\n\n"
-                                        "...to Scott, Tim and Mike for beta testing and suggestions;\n\n"
-                                        "...to Scott (again) for lending me his brand new iPad;\n\n"
-                                        "...to Scott (again 😃) for feedback on the watch app;\n\n"
-                                        "...to Rob Alan for the stylish icon; and\n\n"
-                                        "...to CivicApps.org for Awarding PDX Bus the \"Most Appealing\" and \"Best in Show\" awards in July 2010.\n\n"
-                                        "Special thanks to Ken for putting up with all this.\n\n"
-                                        "\nCopyright (c) 2008-2015\nAndrew Wallace\n(See legal section above for other copyright owners and attrbutions).",
-                                        @"Dedication text"),
-                      
-                      [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"],
-                      sizeof(NSInteger) * 8
-                      ] retain];
-		
-		helpText =
-        NSLocalizedString(
-                          @"PDX Bus uses real-time tracking information from TriMet to display bus, MAX, WES and streetcar times for the Portland, Oregon, metro area.\n\n"
-                          "Every TriMet bus stop and rail station has its own unique Stop ID number, up to five digits.\n\n"
-                          "Enter the Stop ID to get the arrivals for that stop. You may also scan a QR code (found at some stops), or browse & search the routes to find a stop, or use a "
-                          "map of the rail system. The Trip Planner feature uses scheduled times to arrange a journey with several transfers.\n\n"
-                          "See below for other tips and links, touch here to start using PDX Bus.", @"Main help description");
+    {
+        self.title = NSLocalizedString(@"About", @"About screen title");
+        
+#define ATTR(X) [StringHelper formatAttributedString:X font:[self getParagraphFont]]
+        
+        NSString *text = [NSString stringWithFormat:
+                          NSLocalizedString(
+                                            @"#bVersion %@ (%d-bit) %@#b\n\n"
+                                            "Route and arrival data provided by permission of #B#bTriMet#b#0.\n\n"
+                                            "This app was developed as a volunteer effort to provide a service for #B#bTriMet#b#0 riders. The developer has no affiliation with #B#bTriMet#b#0, or Apple.\n\n"
+                                            "Lots of #ithanks#i...\n\n"
+                                            "...to #ihttp://www.portlandtransport.com#i for help and advice;\n\n"
+                                            "...to #iScott#i, #iTim#i and #iMike#i for beta testing and suggestions;\n\n"
+                                            "...to #iScott#i (again) for lending me his brand new iPad;\n\n"
+                                            "...to #iScott#i (again 😃) for feedback on the watch app;\n\n"
+                                            "...to #iRob Alan#i for the stylish icon; and\n\n"
+                                            "...to #iCivicApps.org#i for Awarding PDX Bus the #i#bMost Appealing#b#i and #b#iBest in Show#b#i awards in July 2010.\n\n"
+                                            "Special thanks to #R#b#iKen#i#b#0 for putting up with all this.\n\n"
+                                            "\nCopyright (c) 2008-2016\nAndrew Wallace\n(See legal section above for other copyright owners and attrbutions).",
+                                            @"Dedication text"),
+                          
+                          [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"],
+                          sizeof(NSInteger) * 8,
+                          DEBUG_MODE
+                          ];
+        
+        aboutText = ATTR(text).retain;
+        
+        helpText = ATTR(@"One developer writes #bPDX Bus#b as a #ivolunteer effort#i, with a little help from friends and the local community. He has no affiliation with #b#BTriMet#b#0, but he happens to ride buses and MAX on most days.\n\n"
+                        "This is free because I do it for fun. #i#b#GReally#i#b#0.").retain;
         
         
         links = [[NSArray alloc] initWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"about-links" ofType:@"plist"]];
@@ -196,27 +198,26 @@
 		{
 			if (indexPath.row == kSectionHelpRowHelp)
 			{
-				static NSString *aboutId = @"about";
-				CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:aboutId];
+				CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionHelpRowHelp)];
 				if (cell == nil) {
-					cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:aboutId] autorelease];
+					cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionHelpRowHelp)] autorelease];
 					cell.view = [self create_UITextView:nil font:[self getParagraphFont]];
 				}
 				
 				cell.view.font =  [self getParagraphFont];
-				cell.view.text = (indexPath.section == kSectionAbout) ? aboutText : helpText;
+				cell.view.attributedText = (indexPath.section == kSectionAbout) ? aboutText : helpText;
 				DEBUG_LOG(@"help width:  %f\n", cell.view.bounds.size.width);
 				cell.selectionStyle = UITableViewCellSelectionStyleNone;
-				[self updateAccessibility:cell indexPath:indexPath text:((indexPath.section == kSectionAbout) ? aboutText : helpText) alwaysSaySection:YES];
+				[self updateAccessibility:cell indexPath:indexPath text:cell.view.attributedText.string alwaysSaySection:YES];
 				// cell.backgroundView = [self clearView];
 				return cell;
 			}
-			else {
-				static NSString *newId = @"newid";
-				UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:newId];
+			else
+            {
+				UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionHelpRowNew)];
 				if (cell == nil) {
 					
-					cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:newId] autorelease];
+					cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionHelpRowNew)] autorelease];
 					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 					/*
 					 [self newLabelWithPrimaryColor:[UIColor blueColor] selectedColor:[UIColor cyanColor] fontSize:14 bold:YES parentView:[cell contentView]];
@@ -265,12 +266,12 @@
 {
 	switch (indexPath.section) {
 		case kSectionAbout:
-			return [self getTextHeight:aboutText font:[self getParagraphFont]];
+			return [self getTextHeight:aboutText.string font:[self getParagraphFont]];
 			break;
 		case kSectionHelp:
 			if (indexPath.row == kSectionHelpRowHelp)
 			{
-				return [self getTextHeight:helpText font:[self getParagraphFont]];
+				return [self getTextHeight:helpText.string font:[self getParagraphFont]];
 			}
 			break;
 		case kSectionWeb:
@@ -314,7 +315,7 @@
 			else if (indexPath.row == kSectionHelpHowToRide)
             {
                 WebViewController *webPage = [[WebViewController alloc] init];
-                [webPage setURLmobile:NSLocalizedString(@"http://trimet.org/howtoride/index.htm", @"how to ride site") full:nil];
+                [webPage setURLmobile:NSLocalizedString(@"https://trimet.org/howtoride/index.htm", @"how to ride site") full:nil];
                 [webPage displayPage:[self navigationController] animated:YES itemToDeselect:self];
                 [webPage release];
             }

@@ -17,20 +17,22 @@
 #import "TriMetXML.h"
 #import <CoreLocation/CoreLocation.h>
 #import "VehicleData.h"
-#import "BackgroundTaskProgress.h"
 
 @interface XMLLocateVehicles : TriMetXML
 {
     CLLocation *_location;
     double     _dist;
+    bool _noErrorAlerts;
 
 }
 
 @property (nonatomic, retain) CLLocation *location;
 @property (nonatomic)         double     dist;
+@property (nonatomic, retain) NSString  *direction;
+@property (nonatomic)         bool noErrorAlerts;
 
-- (BOOL)findNearestVehicles;
-- (bool)displayErrorIfNoneFound:(id<BackgroundTaskProgress>)progress;
+- (BOOL)findNearestVehicles:(NSSet *)routes direction:(NSString *)direction blocks:(NSSet *)blocks;
+// - (bool)displayErrorIfNoneFound:(id<BackgroundTaskProgress>)progress;
 @end
 
 

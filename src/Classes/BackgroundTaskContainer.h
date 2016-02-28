@@ -42,7 +42,6 @@
 }
 
 + (BackgroundTaskContainer*) create:(id<BackgroundTaskDone>) done;
-- (void)backgroundThread:(NSThread *)thread;
 - (void)backgroundStart:(int)items title:(NSString *)title;
 - (void)backgroundItemsDone:(int)itemsDone;
 - (void)backgroundCompleted:(UIViewController*)viewController;

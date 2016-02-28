@@ -7,11 +7,11 @@
 
 
 #import "TriMetTypes.h"
-#import "MapPinColor.h"
 
 @class DepartureData;
 @class DepartureUI;
-@class StopDistance;
+@class StopDistanceData;
+@class CLLocation;
 
 @protocol DepartureTimesDataProvider <NSObject>
 
@@ -19,16 +19,14 @@
 - (NSInteger)DTDataGetSafeItemCount;
 - (NSString *)DTDataGetSectionHeader;
 - (NSString *)DTDataGetSectionTitle;
-- (void)DTDataPopulateCell:(DepartureUI *)dd cell:(UITableViewCell *)cell decorate:(BOOL)decorate big:(BOOL)big wide:(BOOL)wide;
+- (void)DTDataPopulateCell:(DepartureUI *)dd cell:(UITableViewCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide;
 - (NSString *)DTDataStaticText;
 - (NSString *)DTDataDir;
-- (StopDistance*)DTDataDistance;
+- (StopDistanceData*)DTDataDistance;
 - (TriMetTime) DTDataQueryTime;
-- (NSString *)DTDataLocLat;
-- (NSString *)DTDataLocLng;
+- (CLLocation *)DTDataLoc;
 - (NSString *)DTDataLocDesc;
 - (NSString *)DTDataLocID;
-- (id<MapPinColor>)DTDatagetPin;
 - (BOOL) DTDataHasDetails;
 - (BOOL) DTDataNetworkError;
 - (NSString *)DTDataNetworkErrorMsg;

@@ -22,6 +22,7 @@
 #import "DepartureDetailView.h"
 #import "QuartzCore/QuartzCore.h"
 #import "DepartureUI.h"
+#import "BearingAnnotationView.h"
 
 #define kPrev  @"Prev"
 #define kStart @"Start"
@@ -68,23 +69,34 @@
 @synthesize circle = _circle;
 @synthesize compassButton = _compassButton;
 @synthesize animating = _animating;
+@synthesize previousHeading = _previousHeading;
+@synthesize displayLink = _displayLink;
+@synthesize mapView = _mapView;
 
 - (void)dealloc {
 	self.annotations = nil;
-	mapView.delegate = nil;
-	mapView.showsUserLocation=FALSE;
+	self.mapView.delegate = nil;
+	self.mapView.showsUserLocation=FALSE;
 	self.routePolyLines = nil;
-	[mapView removeAnnotations:mapView.annotations];
+	[self.mapView removeAnnotations:self.mapView.annotations];
 	self.linesView = nil;
 	self.tappedAnnot = nil;
 	self.lineCoords = nil;
 	self.circle = nil;
     self.compassButton = nil;
+    
+    if (self.displayLink)
+    {
+        [self.displayLink invalidate];
+    }
+    self.displayLink = nil;
    
 	[_segPrevNext release];
 	// A bug in the SDK means that releasing a mapview can cause a crash as it may be animating
 	// we delay 4 seconds for the release.
-	[mapView performSelector:@selector(release) withObject:nil afterDelay:(NSTimeInterval)4.0];
+    [_mapView retain];
+	[_mapView performSelector:@selector(release) withObject:nil afterDelay:(NSTimeInterval)4.0];
+    self.mapView = nil;
 	[super dealloc];
 }
 
@@ -157,8 +169,8 @@
 	
 	[self setSegText:segControl];
     
-    [mapView deselectAnnotation:[self.annotations objectAtIndex:_selectedAnnotation] animated:NO];
-    [mapView selectAnnotation:[self.annotations objectAtIndex:_selectedAnnotation] animated:YES];
+    [self.mapView deselectAnnotation:[self.annotations objectAtIndex:_selectedAnnotation] animated:NO];
+    [self.mapView selectAnnotation:[self.annotations objectAtIndex:_selectedAnnotation] animated:YES];
 }
 
 
@@ -171,12 +183,12 @@
 	{
 		case 0:	// UIPickerView
 		{
-			mapView.mapType = MKMapTypeStandard;
+			self.mapView.mapType = MKMapTypeStandard;
 			break;
 		}
 		case 1:	// UIPickerView
 		{
-			mapView.mapType = MKMapTypeHybrid;
+			self.mapView.mapType = MKMapTypeHybrid;
 			break;
 		}
 	}
@@ -273,27 +285,29 @@
 		{
 			return;
 		}
-		else if ([self.tappedAnnot respondsToSelector: @selector(mapStopId)])
-		{
-			DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
-			
-			departureViewController.callback = self.callback;
-			
-			[departureViewController fetchTimesForLocationInBackground:self.backgroundTask loc:[self.tappedAnnot mapStopId]];
-			[departureViewController release];
-		}
 		else if ([self.tappedAnnot respondsToSelector: @selector(mapDeparture)])
 		{
 			DepartureUI *departureUI = [self.tappedAnnot mapDeparture];
 			DepartureDetailView *departureDetailView = [[DepartureDetailView alloc] init];
 			departureDetailView.callback = self.callback;
 			
-			[departureDetailView fetchDepartureInBackground:self.backgroundTask dep:departureUI.data allDepartures:nil   allowDestination:NO];
+			[departureDetailView fetchDepartureInBackground:self.backgroundTask dep:departureUI.data allDepartures:nil];
 			[departureDetailView release];	
 		}
 	}
+    else if (buttonIndex == _stopIdMapButtonIndex)
+    {
+        if ([self.tappedAnnot respondsToSelector: @selector(mapStopId)])
+        {
+            DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
+            
+            departureViewController.callback = self.callback;
+            
+            [departureViewController fetchTimesForLocationInBackground:self.backgroundTask loc:[self.tappedAnnot mapStopId]];
+            [departureViewController release];
+        }
+    }
 }
-
 
 
 #pragma mark ViewControllerBase methods
@@ -323,21 +337,30 @@
 	
     [self setSegColor:buttonBarSegmentedControl];
     
-    UIBarButtonItem *segItem = [[UIBarButtonItem alloc] initWithCustomView:buttonBarSegmentedControl];
-
     
+    UIBarButtonItem *zoom = [[[UIBarButtonItem alloc]
+                              initWithImage:[TableViewWithToolbar getToolbarIcon:kIconEye]
+                               style:UIBarButtonItemStylePlain
+                               target:self action:@selector(fitToViewAction:)] autorelease];
+    
+	
+    
+    [toolbarItems addObjectsFromArray:[NSArray arrayWithObjects: [CustomToolbar autoFlexSpace],  zoom, [CustomToolbar autoFlexSpace],
+                                       nil]];
+
     if ([MKMapView instancesRespondToSelector:@selector(setUserTrackingMode:animated:)])
     {
-        self.compassButton = [[[MKUserTrackingBarButtonItem alloc] initWithMapView:mapView] autorelease];
+        self.compassButton = [[[MKUserTrackingBarButtonItem alloc] initWithMapView:self.mapView] autorelease];
     }
-	
     
     if (self.compassButton)
     {
         [toolbarItems addObjectsFromArray:[NSArray arrayWithObjects: self.compassButton, [CustomToolbar autoFlexSpace], nil]];
     }
     
-    [toolbarItems addObject:segItem] ;
+    UIBarButtonItem *segItem = [[UIBarButtonItem alloc] initWithCustomView:buttonBarSegmentedControl];
+    
+    [toolbarItems addObject:segItem];
     
     if (self.lines)
     {
@@ -371,31 +394,181 @@
 	return [MKMapView instancesRespondToSelector:@selector(addOverlays:)];
 }
 
+- (void)removeAnnotations
+{
+    NSArray *oldAnnotations = [self.mapView.annotations retain];
+    
+    if (oldAnnotations !=nil && oldAnnotations.count >0)
+    {
+        [self.mapView removeAnnotations:oldAnnotations];
+    }
+    
+     [oldAnnotations release];
+}
 
 #pragma mark View functions
+
+- (void)fitToViewAction:(id)arg
+{
+    [self fitToView];
+}
+
+- (void)fitToView
+{
+    if (self.annotations !=nil && [self.annotations count] < 2)
+    {
+        
+        /*Region and Zoom*/
+        MKCoordinateRegion region;
+        region.center.latitude = 0.0;
+        region.center.longitude = 0.0;
+        MKCoordinateSpan span;
+        span.latitudeDelta=0.005;
+        span.longitudeDelta=0.005;
+        
+        region.span=span;
+        
+        if (self.annotations != nil && [self.annotations count] > 0)
+        {
+            region.center = ((id<MKAnnotation>)[self.annotations objectAtIndex:0]).coordinate;
+        }
+        
+        
+        
+        // MKPinAnnotationView * pin = [[[MKPinAnnotationView alloc] initWithAnnotation:pinPos reuseIdentifier:@"mainPin"] autorelease];
+        
+        // pin.pinColor = MKPinAnnotationColorRed;
+        // pin.animatesDrop = YES;
+        
+        
+        [self.mapView regionThatFits:region];
+        [self.mapView setRegion:region animated:TRUE];
+    }
+    else if (self.annotations !=nil && [self.annotations count] >= 2 && _overlaysSupported)
+    {
+        // Walk the list of overlays and annotations and create a MKMapRect that
+        // bounds all of them and store it into flyTo.
+        MKMapRect flyTo = MKMapRectNull;
+        
+        for(int i = 0; i < self.annotations.count; i++)
+        {
+            id<MapPinColor> pin = [self.annotations objectAtIndex:i];
+            
+            DEBUG_LOG(@"Coords %f %f %@\n", pin.coordinate.latitude, pin.coordinate.longitude, [pin title]);
+            MKMapPoint annotationPoint = MKMapPointForCoordinate(pin.coordinate);
+            MKMapRect pointRect = MakeMapRectWithPointAtCenter(annotationPoint.x, annotationPoint.y, 300, 1000);
+            flyTo = MKMapRectUnion(flyTo, pointRect);
+        }
+        
+        if (self.lines && self.lineCoords != nil)
+        {
+            for(int i = 0; i < self.lineCoords.count; i++)
+            {
+                ShapeCoord * coord = [self.lineCoords objectAtIndex:i];
+                
+                if (coord.end)
+                {
+                    continue;
+                }
+                
+                MKMapPoint annotationPoint = MKMapPointForCoordinate(coord.coord);
+                MKMapRect pointRect = MakeMapRectWithPointAtCenter(annotationPoint.x, annotationPoint.y, 300, 1000);
+                flyTo = MKMapRectUnion(flyTo, pointRect);
+            }
+            
+        }
+        
+        UIEdgeInsets insets = {
+            100, 30,
+            60, 30
+        };
+        
+        [self.mapView setVisibleMapRect:[self.mapView mapRectThatFits:flyTo edgePadding:insets] animated:YES];
+    }
+    else if (self.annotations !=nil && [self.annotations count] >= 2)
+    {
+        CLLocationDegrees maxLat = -90;
+        CLLocationDegrees maxLon = -180;
+        CLLocationDegrees minLat = 90;
+        CLLocationDegrees minLon = 180;
+        
+        for(int i = 0; i < self.annotations.count; i++)
+        {
+            id<MapPinColor> pin = [self.annotations objectAtIndex:i];
+            CLLocationCoordinate2D coord = pin.coordinate;
+            if(coord.latitude > maxLat)
+            {
+                maxLat = coord.latitude;
+            }
+            if(coord.latitude < minLat)
+            {
+                minLat = coord.latitude;
+            }
+            if(coord.longitude > maxLon)
+            {
+                maxLon = coord.longitude;
+            }
+            if(coord.longitude < minLon)
+            {
+                minLon = coord.longitude;
+            }
+        }
+        
+        if (self.lines && self.lineCoords != nil)
+        {
+            for(int i = 0; i < self.lineCoords.count; i++)
+            {
+                ShapeCoord * coord = [self.lineCoords objectAtIndex:i];
+                
+                if (coord.end)
+                {
+                    continue;
+                }
+                if(coord.latitude > maxLat)
+                {
+                    maxLat = coord.latitude;
+                }
+                if(coord.latitude < minLat)
+                {
+                    minLat = coord.latitude;
+                }
+                if(coord.longitude > maxLon)
+                {
+                    maxLon = coord.longitude;
+                }
+                if(coord.longitude < minLon)
+                {
+                    minLon = coord.longitude;
+                }
+            }
+            
+        } 
+        
+        MKCoordinateRegion region;
+        region.center.latitude     = (maxLat + minLat) / 2;
+        region.center.longitude    = (maxLon + minLon) / 2;
+        region.span.latitudeDelta  = maxLat - minLat + 0.001;
+        region.span.longitudeDelta = maxLon - minLon + 0.001;
+        
+        [self.mapView regionThatFits:region];
+        [self.mapView setRegion:region animated:TRUE];
+    }
+}
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)addDataToMap:(bool)zoom {
   
 	_overlaysSupported = [self supportsOverlays];
 
-    
-    NSArray *oldAnnotations = [mapView.annotations retain];
-    
-    if (oldAnnotations !=nil && oldAnnotations.count >0)
-    {
-        [mapView removeAnnotations:oldAnnotations];
-    }
-    
-    [oldAnnotations release];
+    [self removeAnnotations];
     
     if  (_overlaysSupported)
     {
-        NSArray *oldOverlays = [mapView.overlays retain];
+        NSArray *oldOverlays = [self.mapView.overlays retain];
         
         if (oldOverlays !=nil && oldOverlays.count >0)
         {
-            [mapView removeOverlays:oldOverlays];
+            [self.mapView removeOverlays:oldOverlays];
         }
         
         [oldOverlays release];
@@ -427,174 +600,25 @@
 		int i;
 		for (i=0; i< [self.annotations count]; i++)
 		{
-			[mapView addAnnotation:[self.annotations objectAtIndex:i]];
+			[self.mapView addAnnotation:[self.annotations objectAtIndex:i]];
 		}
 	}
 	
-	if (self.annotations !=nil && [self.annotations count] < 2 && zoom)
-	{
-		
-		/*Region and Zoom*/
-		MKCoordinateRegion region;
-		region.center.latitude = 0.0;
-		region.center.longitude = 0.0;
-		MKCoordinateSpan span;
-		span.latitudeDelta=0.005;
-		span.longitudeDelta=0.005;
-		
-		region.span=span;
-		
-		if (self.annotations != nil && [self.annotations count] > 0)
-		{
-			region.center = ((id<MKAnnotation>)[self.annotations objectAtIndex:0]).coordinate;
-		}
-		
-		
-		
-		// MKPinAnnotationView * pin = [[[MKPinAnnotationView alloc] initWithAnnotation:pinPos reuseIdentifier:@"mainPin"] autorelease];
-		
-		// pin.pinColor = MKPinAnnotationColorRed;
-		// pin.animatesDrop = YES;
-		
-		
-		[mapView regionThatFits:region];
-		[mapView setRegion:region animated:TRUE];
-	}
-	else if (self.annotations !=nil && [self.annotations count] >= 2 && _overlaysSupported && zoom)
-	{
-		// Walk the list of overlays and annotations and create a MKMapRect that
-		// bounds all of them and store it into flyTo.
-		MKMapRect flyTo = MKMapRectNull;
-		
-		for(int i = 0; i < self.annotations.count; i++)
-		{
-			id<MapPinColor> pin = [self.annotations objectAtIndex:i];
-			
-            DEBUG_LOG(@"Coords %f %f %@\n", pin.coordinate.latitude, pin.coordinate.longitude, [pin title]);
-			MKMapPoint annotationPoint = MKMapPointForCoordinate(pin.coordinate);
-			MKMapRect pointRect = MKMapRectMake(annotationPoint.x, annotationPoint.y, 0, 0);
-			
-			
-			if (MKMapRectIsNull(flyTo)) {
-				flyTo = pointRect;
-			} else {
-				flyTo = MKMapRectUnion(flyTo, pointRect);
-			}
-		}
-		
-		if (self.lines && self.lineCoords != nil)
-		{
-			for(int i = 0; i < self.lineCoords.count; i++)
-			{
-				ShapeCoord * coord = [self.lineCoords objectAtIndex:i];
-				
-				if (coord.end)
-				{
-					continue;
-				}
-				
-				
-				MKMapPoint annotationPoint = MKMapPointForCoordinate(coord.coord);
-				MKMapRect pointRect = MKMapRectMake(annotationPoint.x, annotationPoint.y, 0, 0);
-				
-				
-				if (MKMapRectIsNull(flyTo)) {
-					flyTo = pointRect;
-				} else {
-					flyTo = MKMapRectUnion(flyTo, pointRect);
-				}
-				
-			}
-			
-		}
-		
-		UIEdgeInsets insets = {
-            100,
-            30,
-            60,
-            30
-        };
-		mapView.visibleMapRect=[mapView mapRectThatFits:flyTo edgePadding:insets];
-	} 
-	else if (self.annotations !=nil && [self.annotations count] >= 2 && zoom)
-	{
-		CLLocationDegrees maxLat = -90;
-		CLLocationDegrees maxLon = -180;
-		CLLocationDegrees minLat = 90;
-		CLLocationDegrees minLon = 180;
-		
-		for(int i = 0; i < self.annotations.count; i++)
-		{
-			id<MapPinColor> pin = [self.annotations objectAtIndex:i];
-			CLLocationCoordinate2D coord = pin.coordinate;
-			if(coord.latitude > maxLat)
-			{
-				maxLat = coord.latitude;
-			}
-			if(coord.latitude < minLat)
-			{
-				minLat = coord.latitude;
-			}
-			if(coord.longitude > maxLon)
-			{
-				maxLon = coord.longitude;
-			}
-			if(coord.longitude < minLon)
-			{
-				minLon = coord.longitude;
-			}
-		}
-		
-		if (self.lines && self.lineCoords != nil)
-		{
-			for(int i = 0; i < self.lineCoords.count; i++)
-			{
-				ShapeCoord * coord = [self.lineCoords objectAtIndex:i];
-				
-				if (coord.end)
-				{
-					continue;
-				}
-				if(coord.latitude > maxLat)
-				{
-					maxLat = coord.latitude;
-				}
-				if(coord.latitude < minLat)
-				{
-					minLat = coord.latitude;
-				}
-				if(coord.longitude > maxLon)
-				{
-					maxLon = coord.longitude;
-				}
-				if(coord.longitude < minLon)
-				{
-					minLon = coord.longitude;
-				}
-			}
-			
-		} 
-		
-		MKCoordinateRegion region;
-		region.center.latitude     = (maxLat + minLat) / 2;
-		region.center.longitude    = (maxLon + minLon) / 2;
-		region.span.latitudeDelta  = maxLat - minLat + 0.001;
-		region.span.longitudeDelta = maxLon - minLon + 0.001;
-		
-		[mapView regionThatFits:region];
-		[mapView setRegion:region animated:TRUE];
-	} 
+    if (zoom)
+    {
+        [self fitToView];
+    }
 	
 	
 	if (self.lines && !_overlaysSupported)
 	{
-		self.linesView = [[[MapLinesView alloc] initWithAnnotations:self.lineCoords mapView:mapView] autorelease];
+		self.linesView = [[[MapLinesView alloc] initWithAnnotations:self.lineCoords mapView:self.mapView] autorelease];
 		self.title = @"Trip Map";
 		
 		LinesAnnotation *annot = [[LinesAnnotation alloc] init];
-		annot.middle = mapView.region.center;
+		annot.middle = self.mapView.region.center;
 		
-		[mapView addAnnotation:annot];
+		[self.mapView addAnnotation:annot];
 		
 		[annot release];
 	}
@@ -604,10 +628,8 @@
 		self.routePolyLines = [[[NSMutableArray alloc] init] autorelease];
 		
 		int j = 0;
-		for (int i=0; i < self.lineCoords.count; i++)
+		for (ShapeCoord *coord in self.lineCoords)
 		{
-			ShapeCoord *coord = [self.lineCoords objectAtIndex:i];
-			
 			if (coord.end)
 			{
 				[self.routePolyLines addObject:
@@ -625,12 +647,12 @@
 				 
 		free(coords);
 	
-		[mapView addOverlays:self.routePolyLines];
+		[self.mapView addOverlays:self.routePolyLines];
 	}
 	
 	if (self.circle && _overlaysSupported)
 	{
-		[mapView addOverlay:self.circle];
+		[self.mapView addOverlay:self.circle];
 		
 	}
 	
@@ -655,15 +677,15 @@
     //}
     
     
-	mapView=[[MKMapView alloc] initWithFrame:mapViewRect];
-	mapView.showsUserLocation=TRUE;
-	mapView.mapType=MKMapTypeStandard;
-	mapView.delegate=self;
-	mapView.autoresizingMask = (UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight);
+    self.mapView=[[[MKMapView alloc] initWithFrame:mapViewRect] autorelease];
+	self.mapView.showsUserLocation=TRUE;
+	self.mapView.mapType=MKMapTypeStandard;
+	self.mapView.delegate=self;
+	self.mapView.autoresizingMask = (UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight);
     
     [self addDataToMap:YES];
     
-    [self.view insertSubview:mapView atIndex:0];
+    [self.view insertSubview:self.mapView atIndex:0];
 }
 
 
@@ -709,18 +731,24 @@
 	
 	if (self.linesView !=nil)
 	{
-		[mapView setNeedsDisplay];
+		[self.mapView setNeedsDisplay];
 		// [self.linesView regionChanged];
 	}
+    
+    self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkFired:)];
+    [self.displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
 }
 
 -(void)viewDidDisappear:(BOOL)animated
 {
     // Drop the heading part if the view disappears, but keep the tracking part
-    if (self.compassButton && mapView.userTrackingMode != MKUserTrackingModeNone)
+    if (self.compassButton && self.mapView.userTrackingMode != MKUserTrackingModeNone)
     {
-        mapView.userTrackingMode = MKUserTrackingModeFollow;
+        self.mapView.userTrackingMode = MKUserTrackingModeFollow;
     }
+    
+    [self.displayLink invalidate];
+    self.displayLink = nil;
     
     [super viewDidDisappear:animated];
 }
@@ -730,13 +758,15 @@
     // [self checkRotation:YES newOrientation:toInterfaceOrientation];
 }
 
+
+
 #pragma mark MapView functions
 
 - (MKAnnotationView *)mapView:(MKMapView *)mv viewForAnnotation:(id <MKAnnotation>)annotation
 {
 	MKAnnotationView *retView = nil;
 	
-	if (annotation == mapView.userLocation)
+	if (annotation == self.mapView.userLocation)
 	{
 		return nil;
 	}
@@ -749,31 +779,21 @@
 	}
 	else
 	{
-		MKPinAnnotationView *view = (MKPinAnnotationView*)[mv dequeueReusableAnnotationViewWithIdentifier: @"bus"];
-		
-		if (view == nil)
+		if ([annotation conformsToProtocol:@protocol(MapPinColor)])
 		{
-			view=[[[MKPinAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:@"bus"] autorelease];
-		}
+            retView = [BearingAnnotationView viewForPin:(id<MapPinColor>)annotation mapView:self.mapView];
+        }
+        
+        if ( [ DepartureTimesView canGoDeeper ] ) // && [pin showActionMenu])
+        {
+            retView.rightCalloutAccessoryView = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
+        }
+        else
+        {
+            retView.rightCalloutAccessoryView = nil;
+        }
 		
-		if ([annotation conformsToProtocol:@protocol(MapPinColor)]) 
-		{
-			id<MapPinColor> pin = (id<MapPinColor>)annotation;
-			view.pinColor = [pin getPinColor];
-			
-			if ( [ DepartureTimesView canGoDeeper ] ) // && [pin showActionMenu])
-			{
-				view.rightCalloutAccessoryView = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
-			} 
-			else
-			{
-				view.rightCalloutAccessoryView = nil;
-			}
-		}
-		
-		view.annotation = annotation;
-		view.canShowCallout = YES;
-		retView = view;
+		retView.canShowCallout = YES;
 
 	}
 	return retView;
@@ -801,10 +821,11 @@
 	self.tappedAnnot = (id<MapPinColor>)view.annotation;
 	
     NSString *action = nil;
+    NSString *stopIdAction = nil;
 	
 	if ([self.tappedAnnot showActionMenu])
 	{
-		action = @"Show details";
+		// action = @"Show details";
 		if ([self.tappedAnnot respondsToSelector: @selector(mapTapped:)]) //  && [self.tappedAnnot mapTapped])
 		{
 			action = nil;
@@ -818,14 +839,23 @@
 				action = @"Choose this stop";
 			}
 		}
-		else if ([self.tappedAnnot respondsToSelector: @selector(mapStopId)])
-		{
-			action = @"Show arrivals";
-		}
 		else if ([self.tappedAnnot respondsToSelector: @selector(mapDeparture)])
 		{
 			action = @"Show details";
 		}
+        
+        
+        if ([self.tappedAnnot respondsToSelector: @selector(mapStopId)])
+        {
+            if ([self.tappedAnnot respondsToSelector: @selector(mapStopIdText)])
+            {
+                stopIdAction = [self.tappedAnnot mapStopIdText];
+            }
+            else
+            {
+                stopIdAction = @"Show arrivals";
+            }
+        }
     }
     
     
@@ -835,6 +865,9 @@
                                                destructiveButtonTitle:nil
                                                     otherButtonTitles:nil];
     
+    _stopIdMapButtonIndex = stopIdAction != nil
+        ? [actionSheet addButtonWithTitle:stopIdAction]
+        : kNoButton;
     
     _actionMapButtonIndex = action != nil
         ? [actionSheet addButtonWithTitle:action]
@@ -925,6 +958,37 @@
 - (UIInterfaceOrientation)BackgroundTaskOrientation
 {
 	return self.interfaceOrientation;
+}
+
+
+
+- (void)updateAnnotations
+{
+    for (id <MKAnnotation> annotation in self.mapView.annotations)
+    {
+         MKAnnotationView *av = [self.mapView viewForAnnotation:annotation];
+        
+        if (av && [av isKindOfClass:[BearingAnnotationView class]])
+        {
+            BearingAnnotationView *bv = (BearingAnnotationView*)av;
+            
+            [bv updateDirectionalAnnotationView:self.mapView];
+            
+        }
+        
+    }
+}
+
+- (void)displayLinkFired:(id)sender
+{
+    double difference = ABS(self.previousHeading - self.mapView.camera.heading);
+    
+    if (difference < .001)
+        return;
+    
+    self.previousHeading = self.mapView.camera.heading;
+    
+    [self updateAnnotations];
 }
 
 @end

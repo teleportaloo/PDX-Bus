@@ -18,17 +18,28 @@
 #import "ProgressModalView.h"
 #import "BackgroundTaskContainer.h"
 
-#define kDisclaimerCellHeight	55.0
-#define kDisclaimerCellId		@"Disclaimer"
-#define kExceptionCellId		@"Exception"
+#define kDisclaimerCellHeight       55.0
+#define kSectionRowDisclaimerType   0xFFFFFF
+#define kDisclaimerCellId           MakeCellId(kSectionRowDisclaimerType)
+#define kExceptionCellId            @"Exception"
 
 #define kNoNetwork				@"%@: touch here for info"
 #define kNoNetworkErrorID		@"(ID %@) %@: touch here for info"
 #define kNoNetworkID			@"(ID %@) No Network: touch here for info"
 #define kNetworkMsg				@"Network error: touch here for info"
+
+
+#define MakeCellId(X) @#X
+#define MakeCellIdW(X,W) [NSString stringWithFormat:@"%@+%f", @#X, (float)W]
+
+#define MakeMapRectWithPointAtCenter(X,Y,W,H) MKMapRectMake((X)-(W)/2, (Y)-(H)/2, W, H)
+
 // #define kBasicTextViewFontSize	14.0
 
+#define kNoRowSectionTypeFound  (-1)
+
 @protocol UIAlertViewDelegate;
+@class MKMapView;
 
 @interface TableViewWithToolbar : ViewControllerBase <UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate, UISearchDisplayDelegate, DeselectItemDelegate> {
 	UITableView *_tableView;
@@ -41,6 +52,10 @@
 	NSMutableArray *_filteredItems;
 	NSMutableArray *_searchableItems;
 	UISearchDisplayController *_searchController;
+    NSMutableArray *_sectionTypes;
+    NSMutableArray *_perSectionRowTypes;
+    MKMapView   *_mapView;
+    bool        _mapShowsUserLocation;
 }
 
 - (void)addStreetcarTextToDisclaimerCell:(UITableViewCell *)cell text:(NSString *)text trimetDisclaimer:(bool)trimetDisclaimer;
@@ -68,6 +83,28 @@
 - (UIColor*)greyBackground;
 - (void)iOS7workaroundPromptGap;
 
+
+// Methods for storing an integer type for each row and section
+// These can be used by tables to simplify the calculation of the structure of
+// the table.   Not all tables need to use this but refactoring will make it
+// simpler.
+
+
+- (void)clearSectionMaps;
+- (NSInteger)sectionType:(NSInteger)section;
+- (NSInteger)rowType:(NSIndexPath*)index;
+- (NSInteger)addSectionType:(NSInteger)type;
+- (NSInteger)addRowType:(NSInteger)type;
+- (NSInteger)sections;
+- (NSInteger)rowsInSection:(NSInteger)section;
+- (NSInteger)firstSectionOfType:(NSInteger)type;
+- (NSInteger)firstRowOfType:(NSInteger)type inSection:(NSInteger)section;
+- (NSIndexPath*)firstIndexPathOfSectionType:(NSInteger)sectionType rowType:(NSInteger)rowType;
+
+- (CGFloat)mapCellHeight;
+- (void)finishWithMapView;
+- (UITableViewCell*)getMapCell:(NSString*)id withUserLocation:(bool)userLocation;
+
 @property (nonatomic, retain) UITableView *table;
 @property bool backgroundRefresh;
 @property bool enableSearch;
@@ -75,6 +112,10 @@
 @property (nonatomic, retain) NSMutableArray *searchableItems;
 @property (readonly) bool filtered;
 @property (nonatomic, retain) UISearchDisplayController *searchController;
+@property (nonatomic, retain) NSMutableArray *sectionTypes;
+@property (nonatomic, retain) NSMutableArray *perSectionRowTypes;
+@property (nonatomic, retain) MKMapView *mapView;
+
 
 
 @end

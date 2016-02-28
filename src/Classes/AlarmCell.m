@@ -14,6 +14,7 @@
 
 
 #import "AlarmCell.h"
+#import "DebugLogging.h"
 
 #define ALARM_NAME_TAG	1
 #define ALARM_TOGO_TAG	2
@@ -55,19 +56,19 @@
 
 - (void)updateState:(UITableViewCellStateMask)state
 {
-	CGRect cellRect = self.frame;
-	double newMargin = 40.0;
+	double newMargin = 0;
 	
 	if (state & UITableViewCellStateShowingEditControlMask)
 	{
 		newMargin += 30;
 	}
 	
-	if (state & UITableViewCellStateShowingDeleteConfirmationMask)
-	{
-		newMargin += 60;
-	}
-    else if (self.fired && !(state & UITableViewCellStateShowingEditControlMask))
+	// if (state & UITableViewCellStateShowingDeleteConfirmationMask)
+	//{
+	//	newMargin += 60;
+	//}
+    // else
+    if (self.fired && !(state & UITableViewCellStateShowingEditControlMask))
     {
         newMargin += 20;
     }
@@ -75,12 +76,16 @@
 	// Adjust the size of the labels to be the same width as the original, just in case the delete button etc.
 	UILabel *label = ((UILabel*)[self.contentView viewWithTag:ALARM_NAME_TAG]);
 	CGRect newFrame = label.frame;
-	newFrame.size.width = cellRect.size.width - newFrame.origin.x - newMargin;
+    
+	newFrame.size.width = _originalTextWidth - newMargin;
+    
+    DEBUG_LOGR(newFrame);
+    
 	label.frame = newFrame;
 	
 	label = ((UILabel*)[self.contentView viewWithTag:ALARM_TOGO_TAG]);
 	newFrame = label.frame;
-	newFrame.size.width = cellRect.size.width - newFrame.origin.x - newMargin;
+	newFrame.size.width = _originalTextWidth - newMargin;
 	label.frame = newFrame;
     _state = state;
 }
@@ -103,78 +108,96 @@
 	[self  updateState:state];
 }
 
-+ (AlarmCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier width:(ScreenType)width height:(CGFloat)height
+- (void)setUpViews:(ScreenWidth)width height:(CGFloat)height
 {
-	CGFloat textOffset				= 45.0;
-	CGFloat textWidth				= 230.0;
-	CGFloat textHeight				= 20.0;
-	CGFloat fontSize				= 18.0;
-	
-	switch (width)
-	{
+    
+    CGFloat textOffset				= 45.0;
+    _originalTextWidth              = 230.0;
+    CGFloat textHeight				= 20.0;
+    CGFloat fontSize				= 18.0;
+    
+    switch (width)
+    {
         default:
-		case WidthiPhone:
+        case WidthiPhone:
         case WidthiPhone6:
         case WidthiPhone6Plus:
-			break;
-		case WidthiPadWide:
-		case WidthiPadNarrow:
-			textOffset				= 40.0;
-			textHeight				= 20.0;
-			
-			if (width == WidthiPadWide)
-			{
-				textWidth	= 900.0;
-				
-			}
-			else
-			{
-				textWidth	= 640.0;
-			}
-			
-			// fontSize = 32.0;
-			break;
-	}
+            break;
+        case WidthiPadWide:
+        case WidthBigVariable:
+            textOffset				= 40.0;
+            textHeight				= 20.0;
+            
+            if (width == WidthiPadWide)
+            {
+                _originalTextWidth	= 900.0;
+                
+            }
+            else
+            {
+                CGRect bounds = [[[[UIApplication sharedApplication] delegate] window] bounds];
+                
+                // 1024 for iPad Pro Portrait
+                // 1366 for iPad Pro Landscape
+                //  768 for iPad Portrait
+                // 1024 for iPad Landscape
+                
+                _originalTextWidth = bounds.size.width - (768.0-640.0);
+            }
+            
+            // fontSize = 32.0;
+            break;
+    }
+    
+    DEBUG_LOGF(_originalTextWidth);
+    
+    /*
+     Create an instance of UITableViewCell and add tagged subviews for the name, local time, and quarter image of the time zone.
+     */
+    CGRect rect;
+    
+    CGFloat yGap = (height - (textHeight * 2)) / 3;
+    
+    
+    /*
+     Create labels for the text fields; set the highlight color so that when the cell is selected it changes appropriately.
+     */
+    UILabel *label;
+    
+    
+    rect =	CGRectMake(textOffset, yGap, _originalTextWidth, textHeight);
+    label								= [[UILabel alloc] initWithFrame:rect];
+    label.tag							= ALARM_NAME_TAG;
+    label.font							= [UIFont boldSystemFontOfSize:fontSize];
+    label.adjustsFontSizeToFitWidth		= YES;
+    label.highlightedTextColor			= [UIColor whiteColor];
+    label.textColor						= [UIColor blackColor];
+    label.backgroundColor				= [UIColor clearColor];
+    [self.contentView addSubview:label];
+    [label release];
+    
+    rect =	CGRectMake(textOffset, yGap+textHeight+yGap, _originalTextWidth, textHeight);
+    label								=[[UILabel alloc] initWithFrame:rect];
+    label.tag							= ALARM_TOGO_TAG;
+    label.font							= [UIFont boldSystemFontOfSize:fontSize];
+    label.adjustsFontSizeToFitWidth		= YES;
+    label.highlightedTextColor			= [UIColor whiteColor];
+    label.textColor						= [UIColor blueColor];
+    label.backgroundColor				= [UIColor clearColor];
+    [self.contentView addSubview:label];
+    [label release];
+    
+    [self resetState];
+}
+
+
++ (AlarmCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier width:(ScreenWidth)width height:(CGFloat)height
+{
 	
-	/*
-	 Create an instance of UITableViewCell and add tagged subviews for the name, local time, and quarter image of the time zone.
-	 */
-	CGRect rect;
-	
-	CGFloat yGap = (height - (textHeight * 2)) / 3;
 	
 	AlarmCell *cell = [[[AlarmCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier] autorelease];
 	
-	
-	
-	/*
-	 Create labels for the text fields; set the highlight color so that when the cell is selected it changes appropriately.
-	 */
-	UILabel *label;
-	
-	
-	rect =	CGRectMake(textOffset, yGap, textWidth, textHeight);
-	label								= [[UILabel alloc] initWithFrame:rect];
-	label.tag							= ALARM_NAME_TAG;
-	label.font							= [UIFont boldSystemFontOfSize:fontSize];
-	label.adjustsFontSizeToFitWidth		= YES;
-	label.highlightedTextColor			= [UIColor whiteColor];
-	label.textColor						= [UIColor blackColor];
-	label.backgroundColor				= [UIColor clearColor];
-	[cell.contentView addSubview:label];
-	[label release];
-	
-	rect =	CGRectMake(textOffset, yGap+textHeight+yGap, textWidth, textHeight);
-	label								=[[UILabel alloc] initWithFrame:rect];
-	label.tag							= ALARM_TOGO_TAG;
-	label.font							= [UIFont boldSystemFontOfSize:fontSize];
-	label.adjustsFontSizeToFitWidth		= YES;
-	label.highlightedTextColor			= [UIColor whiteColor];
-	label.textColor						= [UIColor blueColor];
-	label.backgroundColor				= [UIColor clearColor];
-	[cell.contentView addSubview:label];
-	[label release];	
-	
+    [cell setUpViews:width height:height];
 	
 	return cell;
 }
@@ -191,7 +214,7 @@
 	label.textColor =col;
 }
 
-+ (CGFloat)rowHeight:(ScreenType)width
++ (CGFloat)rowHeight:(ScreenWidth)width
 {
 	if (SmallScreenStyle(width))
 	{

@@ -27,6 +27,8 @@
 #import "WhatsNewStopIDs.h"
 #import "WhatsNewWeb.h"
 #import "WhatsNewHighlight.h"
+#import "NearestVehiclesMap.h"
+#import "StringHelper.h"
 
 
 @implementation WhatsNewView
@@ -116,9 +118,6 @@
 	return kDoneRows;
 }
 
-static NSString *itemId = @"item";
-
-
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     [super tableView:tableView willDisplayCell:cell forRowAtIndexPath:indexPath];
@@ -136,39 +135,37 @@ static NSString *itemId = @"item";
 	{
 		case kSectionText:
 		{
-            
             NSString * fullText = [_newTextArray objectAtIndex:indexPath.row];
             
             id<WhatsNewSpecialAction> action = [self getAction:fullText];
             
-            NSString *text = [action displayText:fullText];
-            NSString *cellId = itemId;
+            NSAttributedString *text = [StringHelper formatAttributedString: [action displayText:fullText] font:[self getParagraphFont]];
             
-            CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:cellId];
+            [action displayText:fullText];
+            
+            CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionText)];
 			if (cell == nil) {
-				cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellId] autorelease];
+				cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionText)] autorelease];
 				cell.view = [self create_UITextView:nil font:[self getParagraphFont]];
 			}
 			
 			cell.view.font =  [self getParagraphFont];
-			cell.view.text =  text;
+			cell.view.attributedText =  text;
             cell.view.backgroundColor = [UIColor clearColor];
 			
             [action updateCell:cell tableView:tableView];
             
-			[self updateAccessibility:cell indexPath:indexPath text:text alwaysSaySection:YES];
-
+			[self updateAccessibility:cell indexPath:indexPath text:text.string alwaysSaySection:YES];
            
 			return cell;
 			break;
 		}
 		case kSectionDone:
 		{
-			static NSString *cellId = @"done";
-			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellId];
-			if (cell == nil) {
-				
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellId] autorelease];
+			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionDone)];
+			if (cell == nil)
+            {
+				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionDone)] autorelease];
 				cell.textLabel.font =  [self getBasicFont]; //  [UIFont fontWithName:@"Ariel" size:14];
 				cell.textLabel.adjustsFontSizeToFitWidth = YES;
 				cell.textLabel.text = @"Back to PDX Bus";
@@ -222,6 +219,16 @@ static NSString *itemId = @"item";
         [[self navigationController] pushViewController:webPage animated:YES];
         [webPage release];
     }
+}
+
+
+- (void)vehicles
+{
+    NearestVehiclesMap *mapView = [[NearestVehiclesMap alloc] init];
+    mapView.title = @"All Vehicles";
+    [mapView fetchNearestVehiclesInBackground:self.backgroundTask];
+    
+    [mapView release];
 }
 
 

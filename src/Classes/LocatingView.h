@@ -15,6 +15,7 @@
 
 #import "TableViewWithToolbar.h"
 #import "CoreLocation/CoreLocation.h"
+#import <MapKit/MapKit.h>
 
 @class LocatingView;
 
@@ -38,6 +39,7 @@
     bool                        _cancelled;
     
     id<LocatingViewDelegate>    _delegate;
+    id<MKAnnotation>            _anotation;
 }
 
 @property (nonatomic, retain) UIActivityIndicatorView * progressInd;
@@ -49,20 +51,18 @@
 @property (nonatomic)         bool                      cancelled;
 @property (nonatomic)         double                    accuracy;
 @property (nonatomic, retain) id<LocatingViewDelegate>  delegate;
+@property (nonatomic, retain) id<MKAnnotation>          annotation;
 
 
 
 - (UITableViewCell *)accuracyCellWithReuseIdentifier:(NSString *)identifier;
 - (int)LocationTextTag;
 - (void)located;
-- (NSString *)formatDistance:(double)distance;
 - (void)reinit;
 - (void)failedToLocate;
 - (bool)checkLocation;
 - (void)refreshAction:(id)sender;
 - (void)startLocating;
 - (void)stopLocating;
-+ (bool)locationAuthorizedOrNotDeterminedShowMsg:(bool)msg;
-
 
 @end

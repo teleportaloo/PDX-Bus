@@ -22,13 +22,14 @@ CGPathRef CreatePathWithRoundRect(CGRect rect, CGFloat cornerRadius);
 
 @implementation ProgressModalView
 
-@synthesize items				= _items;
+@synthesize totalItems			=  totalItems;
 @synthesize whirly				= _whirly;
 @synthesize progress			= _progress;
 @synthesize progressDelegate	= _progressDelegate;
 @synthesize subText				= _subText;
 @synthesize helpText            = _helpText;
 @synthesize helpFrame           = _helpFrame;
+@synthesize itemsDone           = _itemsDone;
 
 - (void)dealloc {
 	self.whirly = nil;
@@ -222,22 +223,25 @@ CGPathRef CreatePathWithRoundRect(CGRect rect, CGFloat cornerRadius);
 	
 	[frontWin addSubview:subtextView];
 	
-	top.items = items;
-	
-	if (items > 1)
-	{
-		CGRect frame = CGRectMake((kActivityViewWidth-kBarWidth)/2, 
-								  (kActivityViewHeight - kBarHeight-kBarGap) , 
-								  kBarWidth, 
-								  kBarHeight);
-		top.progress = [[[UIProgressView alloc] initWithFrame:frame] autorelease];
-		top.progress.progressViewStyle = UIProgressViewStyleDefault;
-		top.progress.progress = 0.0;
-		
-		[frontWin addSubview:top.progress];
-	}
-	
-	[frontWin autorelease];
+    top.totalItems = items;
+    
+    CGRect frame = CGRectMake((kActivityViewWidth-kBarWidth)/2,
+                              (kActivityViewHeight - kBarHeight-kBarGap) ,
+                              kBarWidth,
+                              kBarHeight);
+    top.progress = [[[UIProgressView alloc] initWithFrame:frame] autorelease];
+    top.progress.progressViewStyle = UIProgressViewStyleDefault;
+    top.progress.progress = 0.0;
+    
+    if (items == 1)
+    {
+        top.progress.hidden = YES;
+    }
+    
+    [frontWin addSubview:top.progress];
+    
+    
+    [frontWin autorelease];
 	
 	if (delegate)
 	{
@@ -356,11 +360,31 @@ CGPathRef CreatePathWithRoundRect(CGRect rect, CGFloat cornerRadius);
 
 }
 
-
+- (void)totalItems:(int)total
+{
+    self.totalItems = total;
+    
+    if (total == 0)
+    {
+        self.totalItems = 1;
+    }
+    
+    if (self.totalItems > 1)
+    {
+        self.progress.hidden = NO;
+    }
+    else
+    {
+        self.progress.hidden = YES;
+    }
+    
+    [self itemsDone:self.itemsDone];
+}
 
 - (void) itemsDone:(int)done
 {
-	self.progress.progress = (float)done/(float)self.items;
+    self.itemsDone = done;
+	self.progress.progress = (float)done/(float)self.totalItems;
 }
 
 

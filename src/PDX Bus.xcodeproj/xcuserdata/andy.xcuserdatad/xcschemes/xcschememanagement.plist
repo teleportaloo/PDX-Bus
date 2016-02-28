@@ -22,7 +22,7 @@
 		<key>PDX Bus Create Data.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>8</integer>
+			<integer>7</integer>
 		</dict>
 		<key>PDX Bus Debug.xcscheme</key>
 		<dict>
@@ -39,10 +39,25 @@
 			<key>orderHint</key>
 			<integer>5</integer>
 		</dict>
+		<key>PDX Bus Widget.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>8</integer>
+		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
 		<key>1D6058900D05DD3D006BFB54</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>A18751AC1BD444E100A7B856</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>A18751CC1BD44DF000A7B856</key>
 		<dict>
 			<key>primary</key>
 			<true/>

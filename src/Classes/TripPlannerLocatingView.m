@@ -20,6 +20,7 @@
 #import <AddressBook/ABPerson.h>
 #import "DebugLogging.h"
 #import "ReverseGeoLocator.h"
+#import "GeoLocator.h"
 
 @implementation TripPlannerLocatingView
 
@@ -89,92 +90,118 @@
 
 - (void)fetchItineraries:(id)arg
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	[self.backgroundTask.callbackWhenFetching backgroundThread:[NSThread currentThread]];
-	
-    NSMutableArray *geoNamesRequired = [[[NSMutableArray alloc] init] autorelease];
-	
-    bool canReverseGeocode = [ReverseGeoLocator supported];
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     
-	if (canReverseGeocode && (self.tripQuery.userRequest.toPoint.useCurrentLocation || self.tripQuery.userRequest.toPoint.coordinates!=nil) && self.tripQuery.userRequest.toPoint.locationDesc == nil)
-	{
-		[geoNamesRequired addObject:self.tripQuery.userRequest.toPoint];
-	}
-	
-	if (canReverseGeocode && (self.tripQuery.userRequest.fromPoint.useCurrentLocation || self.tripQuery.userRequest.fromPoint.coordinates!=nil) && self.tripQuery.userRequest.fromPoint.locationDesc == nil)
-	{
-		[geoNamesRequired addObject:self.tripQuery.userRequest.fromPoint];
-	}
-		
-	if (geoNamesRequired.count > 0 && canReverseGeocode)
-	{
-		[self.backgroundTask.callbackWhenFetching backgroundStart:1+(int)geoNamesRequired.count title:@"getting trip"];
-		[self.backgroundTask.callbackWhenFetching backgroundSubtext:@"geolocating"];
-		
+    NSMutableArray *geoNamesRequired  = [[[NSMutableArray alloc] init] autorelease];
+    NSMutableArray *geoCoordsRequired = [[[NSMutableArray alloc] init] autorelease];
+    
+    
+    bool canReverseGeocode = [ReverseGeoLocator supported];
+    bool canGeocode        = [GeoLocator supported];
+    
+    if (canReverseGeocode && (self.tripQuery.userRequest.toPoint.useCurrentLocation || self.tripQuery.userRequest.toPoint.coordinates!=nil) && self.tripQuery.userRequest.toPoint.locationDesc == nil)
+    {
+        [geoNamesRequired addObject:self.tripQuery.userRequest.toPoint];
+    }
+    
+    if (canReverseGeocode && (self.tripQuery.userRequest.fromPoint.useCurrentLocation || self.tripQuery.userRequest.fromPoint.coordinates!=nil) && self.tripQuery.userRequest.fromPoint.locationDesc == nil)
+    {
+        [geoNamesRequired addObject:self.tripQuery.userRequest.fromPoint];
+    }
+    
+    if (canGeocode && [GeoLocator addressNeedsCoords:self.tripQuery.userRequest.toPoint.locationDesc])
+    {
+        [geoCoordsRequired addObject:self.tripQuery.userRequest.toPoint];
+    }
+    
+    if (canGeocode && [GeoLocator addressNeedsCoords:self.tripQuery.userRequest.fromPoint.locationDesc])
+    {
+        [geoCoordsRequired addObject:self.tripQuery.userRequest.fromPoint];
+    }
+    
+    if (geoNamesRequired.count > 0 || geoCoordsRequired.count > 0 )
+    {
+        [self.backgroundTask.callbackWhenFetching backgroundStart:1+(int)geoNamesRequired.count+(int)geoCoordsRequired.count title:@"getting trip"];
+        [self.backgroundTask.callbackWhenFetching backgroundSubtext:@"geolocating"];
+        
         int taskCounter = 0;
         for (TripEndPoint *point in geoNamesRequired)
         {
             ReverseGeoLocator *geocoder = [[[ReverseGeoLocator alloc] init] autorelease];
-        
+            
             if ([geocoder fetchAddress:point.coordinates])
             {
                 point.locationDesc = geocoder.result;
             }
-		
+            
             taskCounter++;
             [self.backgroundTask.callbackWhenFetching backgroundItemsDone:taskCounter];
         }
-		[self.backgroundTask.callbackWhenFetching backgroundSubtext:@"planning trip"];
-		
-		[self.tripQuery fetchItineraries:nil];
-		
-		[self.backgroundTask.callbackWhenFetching backgroundItemsDone:2];
-	}
-	else {
-		[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:@"getting trip"];
-		[self.tripQuery fetchItineraries:nil];
-	}
-
-	// Here we should create the objects and not do it in our own background task complete
-	
-	if (self.tripQuery.fromList != nil && !self.backgroundTaskForceResults && !self.tripQuery.userRequest.fromPoint.useCurrentLocation)
-	{
-		TripPlannerLocationListView *locView = [[TripPlannerLocationListView alloc] init];
-		
-		locView.tripQuery = self.tripQuery;
-		locView.from = true;
-		
-		// Push the detail view controller
-		[self.backgroundTask.callbackWhenFetching backgroundCompleted:locView];
-		[locView release];
-	}
-	else if (self.tripQuery.toList != nil && !self.backgroundTaskForceResults && !self.tripQuery.userRequest.toPoint.useCurrentLocation)
-	{
-		TripPlannerLocationListView *locView = [[TripPlannerLocationListView alloc] init];
-		
-		locView.tripQuery = self.tripQuery;
-		locView.from = false;
-		
-		// Push the detail view controller
-		[self.backgroundTask.callbackWhenFetching backgroundCompleted:locView];
-		[locView release];
-	}
-	else
-	{
-		TripPlannerResultsView *tripResults = [[TripPlannerResultsView alloc] init];
-		
-		tripResults.tripQuery = self.tripQuery;
-		
-		[tripResults.tripQuery saveTrip];
-		
-		
-		// Push the detail view controller
-		[self.backgroundTask.callbackWhenFetching backgroundCompleted:tripResults];
-		[tripResults release];
-	}
-
-	[pool release];
-	
+        
+        for (TripEndPoint *point in geoCoordsRequired)
+        {
+            GeoLocator *geoLocator = [[[GeoLocator alloc] init] autorelease];
+            
+            if ([geoLocator fetchCoordinates:point.locationDesc])
+            {
+                point.coordinates = geoLocator.result;
+            }
+            
+            taskCounter++;
+            [self.backgroundTask.callbackWhenFetching backgroundItemsDone:taskCounter];
+        }
+        
+        [self.backgroundTask.callbackWhenFetching backgroundSubtext:@"planning trip"];
+        
+        [self.tripQuery fetchItineraries:nil];
+        
+        [self.backgroundTask.callbackWhenFetching backgroundItemsDone:2];
+    }
+    else {
+        [self.backgroundTask.callbackWhenFetching backgroundStart:1 title:@"getting trip"];
+        [self.tripQuery fetchItineraries:nil];
+    }
+    
+    // Here we should create the objects and not do it in our own background task complete
+    
+    if (self.tripQuery.fromList != nil && !self.backgroundTaskForceResults && !self.tripQuery.userRequest.fromPoint.useCurrentLocation)
+    {
+        TripPlannerLocationListView *locView = [[TripPlannerLocationListView alloc] init];
+        
+        locView.tripQuery = self.tripQuery;
+        locView.from = true;
+        
+        // Push the detail view controller
+        [self.backgroundTask.callbackWhenFetching backgroundCompleted:locView];
+        [locView release];
+    }
+    else if (self.tripQuery.toList != nil && !self.backgroundTaskForceResults && !self.tripQuery.userRequest.toPoint.useCurrentLocation)
+    {
+        TripPlannerLocationListView *locView = [[TripPlannerLocationListView alloc] init];
+        
+        locView.tripQuery = self.tripQuery;
+        locView.from = false;
+        
+        // Push the detail view controller
+        [self.backgroundTask.callbackWhenFetching backgroundCompleted:locView];
+        [locView release];
+    }
+    else
+    {
+        TripPlannerResultsView *tripResults = [[TripPlannerResultsView alloc] init];
+        
+        tripResults.tripQuery = self.tripQuery;
+        
+        [tripResults.tripQuery saveTrip];
+        
+        
+        // Push the detail view controller
+        [self.backgroundTask.callbackWhenFetching backgroundCompleted:tripResults];
+        [tripResults release];
+    }
+    
+    [pool release];
+    
 }
 
 -(void)fetchAndDisplay:(UINavigationController *)controller forceResults:(bool)forceResults

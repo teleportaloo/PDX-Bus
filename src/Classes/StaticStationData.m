@@ -80,9 +80,9 @@ int stationsAlpha[]={
     0x05e, 	/* NE 82nd Ave */
     0x0a4, 	/* NE Broadway & 2nd (Streetcar) */
     0x0a2, 	/* NE Grand & Broadway */
+    0x09e, 	/* NE Grand & Holladay */
     0x09c, 	/* NE Grand & Hoyt */
     0x0a1, 	/* NE Grand & Multnomah */
-    0x09e, 	/* NE Grand & Pacific */
     0x09a, 	/* NE M L King & E Burnside */
     0x09b, 	/* NE M L King & Hoyt */
     0x09d, 	/* NE Oregon & Grand */
@@ -223,7 +223,7 @@ static RAILLINES railLines[]={
     0x0010,	/* OMSI/SE Water MAX Station */
     0x0010,	/* South Waterfront/SW Moody MAX Station */
     0x0010,	/* Lincoln St/SW 3rd Ave MAX Station */
-    0x001c,	/* PSU South/SW 5th & Jackson */
+    0x0014,	/* PSU South/SW 5th & Jackson */
     0x000c,	/* PSU South/SW 6th & College */
     0x0002,	/* Hatfield Government Center */
     0x0002,	/* Hillsboro Central/SE 3rd TC */
@@ -268,13 +268,13 @@ static RAILLINES railLines[]={
     0x000c,	/* SW 6th & Pine St */
     0x0000,
     0x001c,	/* Union Station/NW 5th & Glisan St */
-    0x001c,	/* NW 5th & Couch St */
-    0x001c,	/* Pioneer Place/SW 5th Ave */
-    0x001c,	/* SW 5th & Oak St */
+    0x0014,	/* NW 5th & Couch St */
+    0x0014,	/* Pioneer Place/SW 5th Ave */
+    0x0014,	/* SW 5th & Oak St */
     0x0003,	/* Mall/SW 5th Ave */
     0x0003,	/* Morrison/SW 3rd Ave */
-    0x001c,	/* PSU/SW 5th & Mill St */
-    0x001c,	/* City Hall/SW 5th & Jefferson St */
+    0x0014,	/* PSU/SW 5th & Mill St */
+    0x0014,	/* City Hall/SW 5th & Jefferson St */
     0x0003,	/* Mall/SW 4th Ave */
     0x0003,	/* Yamhill District */
     0x0003,	/* Old Town/Chinatown */
@@ -360,7 +360,7 @@ static RAILLINES railLines[]={
     0x0040,	/* NE M L King & Hoyt */
     0x0080,	/* NE Grand & Hoyt */
     0x0040,	/* NE Oregon & Grand */
-    0x0080,	/* NE Grand & Pacific */
+    0x0080,	/* NE Grand & Holladay */
     0x0040,	/* NE 7th & Holladay */
     0x0040,	/* NE 7th & Halsey */
     0x0080,	/* NE Grand & Multnomah */

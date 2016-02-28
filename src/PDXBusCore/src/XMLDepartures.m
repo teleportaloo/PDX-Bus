@@ -16,6 +16,7 @@
 #import "XMLDetour.h"
 #import "DebugLogging.h"
 #import "DepartureData.h"
+#import "StringHelper.h"
 
 static NSString *departuresURLString = @"arrivals/locIDs/%@/streetcar/true";
 
@@ -27,8 +28,7 @@ static NSString *departuresURLString = @"arrivals/locIDs/%@/streetcar/true";
 @synthesize queryTime = _queryTime;
 @synthesize locDesc = _locDesc;
 @synthesize locid = _locid;
-@synthesize locLat = _locLat;
-@synthesize locLng = _locLng;
+@synthesize loc = _loc;
 @synthesize locDir = _locDir;
 @synthesize currentDepartureObject = _currentDepartureObject;
 @synthesize currentTrip = _currentTrip;
@@ -43,8 +43,7 @@ static NSString *departuresURLString = @"arrivals/locIDs/%@/streetcar/true";
     
 	
 	self.locDesc = nil;
-	self.locLat = nil;
-	self.locLng = nil;
+	self.loc = nil;
 	self.locid = nil;
 	self.blockFilter = nil;
 	
@@ -57,39 +56,6 @@ static NSString *departuresURLString = @"arrivals/locIDs/%@/streetcar/true";
 }
 
 
-#pragma mark Map Pin callbacks
-
-- (NSString *)mapStopId
-{
-	return self.locid;
-}
-
-- (bool)showActionMenu
-{
-	return YES;
-}
-
-// MK Annotate
-- (CLLocationCoordinate2D)coordinate
-{
-	CLLocationCoordinate2D pos;
-	
-	pos.latitude = [self.locLat doubleValue];
-	pos.longitude = [self.locLng doubleValue];
-	return pos;
-}
-
-- (NSString *)title
-{
-	return self.locDesc;
-}
-
-- (MKPinAnnotationColor) getPinColor
-{
-	return MKPinAnnotationColorGreen;
-}
-
-
 - (double)getDouble:(NSString *)str
 {
 	double d = 0.0;
@@ -98,15 +64,6 @@ static NSString *departuresURLString = @"arrivals/locIDs/%@/streetcar/true";
 	return d;
 }
 
-- (double)getLat
-{
-	return [self getDouble:self.locLat];
-}
-
-- (double)getLng
-{
-	return [self getDouble:self.locLng];
-}
 
 - (void)parserDidStartDocument:(NSXMLParser *)parser
 {
@@ -117,32 +74,17 @@ static NSString *departuresURLString = @"arrivals/locIDs/%@/streetcar/true";
 
 - (void)reload
 {
-	NSError *error = nil;
-    
-	[self startParsing:[NSString stringWithFormat:departuresURLString, self.locid] parseError:&error
-        cacheAction:TriMetXMLUseShortCache];
+	[self startParsing:[NSString stringWithFormat:departuresURLString, self.locid]
+        cacheAction:TriMetXMLUseShortTermCache];
 		
-	NSScanner *idScanner =  [NSScanner scannerWithString:self.locid];
-	NSString *nextStop;
-	NSThread *thread = [NSThread currentThread];
+    NSMutableArray *locs = [StringHelper arrayFromCommaSeparatedString:self.locid];
 	
-	int nStops = 0;
-	while ([idScanner scanUpToString:@"," intoString:&nextStop] && ![thread isCancelled])
-	{
-		// [self addStreetcarArrivalsForLocation:nextStop];
-		nStops++;
-		
-		if (![idScanner isAtEnd])
-		{
-			idScanner.scanLocation++;
-		}
-	}
+    int nStops = (int)locs.count;
 	
 	if (nStops > 1)
 	{
 		self.locDesc = [ NSString stringWithFormat:@"Stop Ids:%@", self.locid];
-		self.locLat = nil;
-		self.locLng = nil;
+		self.loc = nil;
 	}
     
     NSArray *sorted = [self.itemArray sortedArrayUsingSelector:@selector(compareUsingTime:)];
@@ -152,7 +94,7 @@ static NSString *departuresURLString = @"arrivals/locIDs/%@/streetcar/true";
 	
 }
 
-- (BOOL)getDeparturesForLocation:(NSString *)location parseError:(NSError **)error
+- (BOOL)getDeparturesForLocation:(NSString *)location
 {	
 	self.distance = nil;
 	self.locid = location;
@@ -160,7 +102,7 @@ static NSString *departuresURLString = @"arrivals/locIDs/%@/streetcar/true";
 	return YES;
 }
 
-- (BOOL)getDeparturesForLocation:(NSString *)location block:(NSString*)block parseError:(NSError **)error
+- (BOOL)getDeparturesForLocation:(NSString *)location block:(NSString*)block
 {	
 	self.distance = nil;
 	self.locid = location;
@@ -202,9 +144,15 @@ static NSString *departuresURLString = @"arrivals/locIDs/%@/streetcar/true";
 	}
 	
 	if ([elementName isEqualToString:@"location"] && self.locDesc == nil) {
-		self.locDesc = [self safeValueFromDict:attributeDict valueForKey:@"desc"];	
-		self.locLat  = [self safeValueFromDict:attributeDict valueForKey:@"lat"];
-		self.locLng  = [self safeValueFromDict:attributeDict valueForKey:@"lng"];
+		self.locDesc = [self safeValueFromDict:attributeDict valueForKey:@"desc"];
+        
+        NSString *lat = [attributeDict valueForKey:@"lat"];
+        NSString *lng = [attributeDict valueForKey:@"lng"];
+        
+        if (lat!=nil && lng!=nil)
+        {
+            self.loc = [[[CLLocation alloc] initWithLatitude:lat.doubleValue longitude:lng.doubleValue] autorelease];
+        }
 		self.locDir  = [self safeValueFromDict:attributeDict valueForKey:@"dir"];
 	}
 	
@@ -244,8 +192,7 @@ static NSString *departuresURLString = @"arrivals/locIDs/%@/streetcar/true";
 			self.currentDepartureObject.locationDesc =	self.locDesc;
 			self.currentDepartureObject.locid		 =  self.locid;
 			self.currentDepartureObject.locationDir  =  self.locDir;
-			self.currentDepartureObject.stopLat		 =  self.locLat;
-			self.currentDepartureObject.stopLng		 =  self.locLng;
+			self.currentDepartureObject.stopLocation =  self.loc;
 			
 			NSString *status = [self safeValueFromDict:attributeDict valueForKey:@"status"];
 			
@@ -278,7 +225,7 @@ static NSString *departuresURLString = @"arrivals/locIDs/%@/streetcar/true";
             self.currentDepartureObject.streetcar = [self getBoolFromAttribute:attributeDict valueForKey:@"streetCar"];
             
             
-            DEBUG_LOG(@"Nextbusfeed:%d %@\n", self.currentDepartureObject.nextBusFeedInTriMetData, [self safeValueFromDict:attributeDict valueForKey:@"nextbusfeed"])	;
+            // DEBUG_LOG(@"Nextbusfeed:%d %@\n", self.currentDepartureObject.nextBusFeedInTriMetData, [self safeValueFromDict:attributeDict valueForKey:@"nextbusfeed"])	;
             // [self dumpDict:attributeDict];
         }
 		else
@@ -288,10 +235,19 @@ static NSString *departuresURLString = @"arrivals/locIDs/%@/streetcar/true";
     }
 	
 	if ([elementName isEqualToString:@"blockPosition"] && self.currentDepartureObject!=nil) {
-		self.currentDepartureObject.blockPositionAt =  [self getTimeFromAttribute:attributeDict valueForKey:@"at"];	
-		self.currentDepartureObject.blockPositionLat = [self safeValueFromDict:attributeDict valueForKey:@"lat"];
-		self.currentDepartureObject.blockPositionLng = [self safeValueFromDict:attributeDict valueForKey:@"lng"];
-		self.currentDepartureObject.blockPositionFeet = [self getDistanceFromAttribute:attributeDict valueForKey:@"feet"];
+		self.currentDepartureObject.blockPositionAt     = [self getTimeFromAttribute:attributeDict valueForKey:@"at"];
+
+        NSString *lat = [attributeDict valueForKey:@"lat"];
+        NSString *lng = [attributeDict valueForKey:@"lng"];
+        
+        if (lat !=nil && lng!=nil)
+        {
+            self.currentDepartureObject.blockPosition = [[[CLLocation alloc] initWithLatitude:lat.doubleValue longitude:lng.doubleValue] autorelease];
+        }
+        
+		self.currentDepartureObject.blockPositionFeet   = [self getDistanceFromAttribute:attributeDict valueForKey:@"feet"];
+        self.currentDepartureObject.blockPositionHeading= [self safeValueFromDict:attributeDict valueForKey:@"heading"];
+        
 		self.currentDepartureObject.hasBlock = true;
 	}
 	
@@ -378,8 +334,7 @@ static NSMutableDictionary *cachedDetours = nil;
 	if (detour == nil)
 	{
 		detour = [[XMLDetour alloc] init];
-		NSError *parseError = nil;
-		[detour getDetourForRoute:route parseError:&parseError];
+		[detour getDetourForRoute:route];
 		[cachedDetours setObject:detour forKey:route];
 		[detour release];
 	}
@@ -388,10 +343,7 @@ static NSMutableDictionary *cachedDetours = nil;
 	return hasDetour;
 }
 
-- (CLLocation *)getLocation
-{
-    return [[[CLLocation alloc] initWithLatitude:[self getLat] longitude:[self getLng]] autorelease];
-}
+
 
 
 @end

@@ -47,7 +47,7 @@
 
 - (void)memoryWarning
 {
-    DEBUG_LOG(@"Releasing color map %p\n", _colorMap);
+    DEBUG_LOG(@"Releasing color map %p\n", (id)_colorMap);
     [_colorMap release];
     _colorMap = nil;
 }

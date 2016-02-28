@@ -105,7 +105,7 @@ typedef enum AlarmStateTag {
 - (void)showToUser:(BackgroundTaskContainer *)backgroundTask;
 - (NSString *)icon;
 - (UIColor *)color;
-- (NSString *)cellReuseIdentifier:(NSString *)identifier width:(ScreenType)width;
+- (NSString *)cellReuseIdentifier:(NSString *)identifier width:(ScreenWidth)width;
 - (void)populateCell:(AlarmCell *)cell;
 - (NSDate*)earlierAlert:(NSDate *)alert;
 - (NSString*)appState;

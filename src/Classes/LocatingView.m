@@ -16,6 +16,11 @@
 #import "LocatingView.h"
 #import "RootViewController.h"
 #import "DebugLogging.h"
+#import "FormatDistance.h"
+#import <MapKit/MapKit.h>
+#import "SimpleAnnotation.h"
+#import "BearingAnnotationView.h"
+#import "LocationAuthorization.h"
 
 #define kLocatingRowHeight		60.0
 #define MAX_AGE					-30.0
@@ -24,14 +29,10 @@
 
 #define kLocatingAccuracy	0
 #define kLocatingStop		1
+#define kLocatingMap        2
 
 #define kSectionButtons     0
 #define kSectionText        1
-
-
-
-#define kCancelId @"cancel"
-
 
 
 @implementation LocatingView
@@ -44,15 +45,21 @@
 @synthesize failed              = _failed;
 @synthesize accuracy            = _accuracy;
 @synthesize delegate            = _delegate;
+@synthesize annotation          = _anotation;
 
 - (void)dealloc {
-	self.locationManager.delegate	= nil;
+    if (self.locationManager)
+    {
+        [self.locationManager stopUpdatingLocation];
+        self.locationManager.delegate	= nil;
+    }
 	self.locationManager			= nil;
 	self.progressInd				= nil;
 	self.lastLocation				= nil;
 	self.progressCell				= nil;
 	self.timeStamp					= nil;
     self.delegate                   = nil;
+    self.annotation                 = nil;
 	
     [super dealloc];
 }
@@ -68,7 +75,7 @@
         {
             [self.locationManager requestAlwaysAuthorization];
         }
-        
+
 		_failed = false;
         _waitingForLocation = YES;
         self.title = @"Locator";
@@ -81,7 +88,7 @@
 - (bool)checkLocation
 {
 	
-    DEBUG_LOG(@"Timeinterval %f\n",[self.timeStamp timeIntervalSinceNow] );
+    DEBUG_LOGF([self.timeStamp timeIntervalSinceNow] );
     // This line may be confusing - MAX_AGE is negative, so something older is even more negative
 	if (self.timeStamp == nil || [self.timeStamp timeIntervalSinceNow] < MAX_AGE)
 	{
@@ -130,69 +137,13 @@
 	// Release any cached data, images, etc that aren't in use.
 }
 
-+ (bool)locationAuthorizedOrNotDeterminedShowMsg:(bool)msg
-{
-    CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
-    
-    NSString *reason = nil;
-    
-    switch (status)
-    {
-        default:
-            // User has granted authorization to use their location at any time,
-            // including monitoring for regions, visits, or significant location changes.
-        case kCLAuthorizationStatusAuthorizedAlways:
-            // User has not yet made a choice with regards to this application
-        case kCLAuthorizationStatusNotDetermined:
-            // User has granted authorization to use their location only when your app
-            // is visible to them (it will be made visible to them if you continue to
-            // receive location updates while in the background).  Authorization to use
-            // launch APIs has not been granted.
-        case kCLAuthorizationStatusAuthorizedWhenInUse:
-            
-            // IT'S ALL GOOD SO FAR
-            break;
-            // This application is not authorized to use location services.  Due
-            // to active restrictions on location services, the user cannot change
-            // this status, and may not have personally denied authorization
-        case kCLAuthorizationStatusRestricted:
-            reason = @"as access is restricted";
-            break;
-            
-            // User has explicitly denied authorization for this application, or
-            // location services are disabled in Settings.
-        case kCLAuthorizationStatusDenied:
-            reason = @"as access is denied";
-            break;
-    }
-    
-    
-    if (msg && reason != nil)
-    {
-        
-        UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"Location Services",@"location pop-up title")
-                                                           message:[NSString stringWithFormat:NSLocalizedString(@"PDX Bus is not authorized to get location information, %@. Go to the settings app and select PDX Bus to re-enable location services.", @"location warning"), reason]
-                                                              delegate:nil
-                                                     cancelButtonTitle:NSLocalizedString(@"OK",@"OK button")
-                                                     otherButtonTitles:nil] autorelease];
-        [alert show];
-        return NO;
-    }
-    else if (reason !=nil)
-    {
-        return NO;
-    }
-  
-    
-    return YES;
-}
-
 - (void)startLocating
 {
     [self.locationManager startUpdatingLocation];
 	[self.progressInd startAnimating];
 	
 	_waitingForLocation = true;
+    _failed = false;
     
     self.navigationItem.rightBarButtonItem = nil;
     
@@ -223,6 +174,20 @@
     [self reloadData];
 }
 
+- (void)loadView
+{
+    [self clearSectionMaps];
+    [self addSectionType:kSectionButtons];
+    [self addRowType:kLocatingAccuracy];
+    [self addRowType:kLocatingMap];
+    
+    [self addSectionType:kSectionText];
+    [self addRowType:kLocatingStop];
+    
+    
+    [super loadView];
+}
+
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
 
@@ -250,22 +215,6 @@
 - (int)LocationTextTag
 {
 	return TEXT_TAG;
-}
-
--(NSString *)formatDistance:(double)distance
-{
-	NSString *str = nil;
-	if (distance < 500)
-	{
-		str = [NSString stringWithFormat:@"%d ft (%d meters)", (int)(distance * 3.2808398950131235),
-			   (int)(distance) ];
-	}
-	else
-	{
-		str = [NSString stringWithFormat:@"%.2f miles (%.2f km)", (float)(distance / 1609.344),
-			   (float)(distance / 1000) ];
-	}
-	return str;
 }
 
 - (UITableViewCell *)accuracyCellWithReuseIdentifier:(NSString *)identifier {
@@ -328,6 +277,47 @@
 	[self located];
 }
 
+-(void)updateMap
+{
+    if (self.lastLocation != nil)
+    {
+        self.mapView.hidden = NO;
+        if (self.annotation != nil)
+        {
+            [self.mapView removeAnnotation:self.annotation];
+        }
+    
+    
+        SimpleAnnotation *annotLoc = [[[SimpleAnnotation alloc] init] autorelease];
+    
+        annotLoc.pinTitle = @"Here!";
+        annotLoc.pinColor = MKPinAnnotationColorRed;
+        [annotLoc setCoord:self.lastLocation.coordinate];
+    
+        [self.mapView addAnnotation:annotLoc];
+    
+        self.annotation = annotLoc;
+    
+        MKMapPoint annotationPoint = MKMapPointForCoordinate(self.lastLocation.coordinate);
+    
+        MKMapRect busRect = MakeMapRectWithPointAtCenter(annotationPoint.x, annotationPoint.y, 300, 2000);
+    
+        UIEdgeInsets insets = {
+            30,
+            10,
+            10,
+            20
+        };
+    
+        [self.mapView setVisibleMapRect:[self.mapView mapRectThatFits:busRect edgePadding:insets] animated:YES];
+    }
+    else
+    {
+        self.mapView.hidden = YES;
+    }
+
+}
+
 
 #pragma mark Location Manager callbacks
 
@@ -350,7 +340,8 @@
 	{
 		return;
 	}
-	
+    
+   	[self updateMap];
 	[self checkLocation];
 }
 
@@ -383,21 +374,25 @@
 #pragma mark Table view methods
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return 2;
+    return self.sections;
 }
 
 // Customize the number of rows in the table view.
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    if (section == kSectionButtons)
-    {
-        return 2;
-    }
-    return 0;
+    
+    return [self rowsInSection:section];
     
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    switch ([self rowType:indexPath])
+    {
+        case kLocatingMap:
+            return [self mapCellHeight];
+        default:
+            break;
+    }
 	return kLocatingRowHeight;
 }
 
@@ -405,7 +400,7 @@
 {
     [super tableView:tableView willDisplayCell:cell forRowAtIndexPath:indexPath];
     
-    if ([cell.reuseIdentifier isEqualToString:kCancelId])
+    if ([cell.reuseIdentifier isEqualToString:MakeCellId(kLocatingStop)])
 	{
         if (_waitingForLocation)
         {
@@ -417,19 +412,14 @@
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 
-    if (indexPath.section != kSectionButtons)
-    {
-        return nil;
-    }
-    
-    switch (indexPath.row)
+
+    switch ([self rowType:indexPath])
     {
         case kLocatingAccuracy:
         {
-            static NSString *locSecid = @"LocatingSection";
-            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:locSecid];
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kLocatingAccuracy)];
             if (cell == nil) {
-                cell = [self accuracyCellWithReuseIdentifier:locSecid];
+                cell = [self accuracyCellWithReuseIdentifier:MakeCellId(kLocatingAccuracy)];
             }
             
             UILabel* text = (UILabel *)[cell.contentView viewWithTag:[self LocationTextTag]];
@@ -448,7 +438,7 @@
             if (self.lastLocation != nil)
             {
                 text.text = [NSString stringWithFormat:@"Accuracy acquired:\n+/- %@",
-                             [self formatDistance:self.lastLocation.horizontalAccuracy]];
+                             [FormatDistance formatMetres:self.lastLocation.horizontalAccuracy]];
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                 [cell setAccessibilityHint:@"Double-tap for arrivals"];
             }
@@ -470,9 +460,9 @@
         }
         case kLocatingStop:
         {
-            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kCancelId];
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kLocatingStop)];
             if (cell == nil) {
-                cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kCancelId] autorelease];
+                cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kLocatingStop)] autorelease];
             }
             if (_waitingForLocation)
             {
@@ -489,7 +479,17 @@
             
             [self updateAccessibility:cell indexPath:indexPath text:cell.textLabel.text alwaysSaySection:YES];
             return cell;
-        }	
+        }
+        case kLocatingMap:
+        {
+            UITableViewCell *cell = [self  getMapCell:MakeCellId(kLocatingMap) withUserLocation:YES];
+            
+            self.mapView.showsUserLocation = NO;
+            // self.mapView.userTrackingMode = MKUserTrackingModeFollow;
+            [self updateMap];
+            
+            return cell;
+        }
     }
     
     return nil;
@@ -497,18 +497,24 @@
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-	if (section == kSectionText)
+    switch ([self sectionType:section])
     {
-        if (_waitingForLocation)
+        case kSectionButtons:
+            return @"Location information:";
+            
+        case kSectionText:
         {
-            return [NSString stringWithFormat:@"Acquiring location. Accuracy will improve momentarily; search will start when accuracy is sufficient or whenever you choose."];
+            if (_waitingForLocation)
+            {
+                return [NSString stringWithFormat:@"Acquiring location. Accuracy will improve momentarily; search will start when accuracy is sufficient or whenever you choose."];
+            }
+            
+            if (_failed)
+            {
+                return @"Failed to find location.  Check that Location Services are enabled.";
+            }
+            return @"Location acquired. Select 'Refresh' to re-acquire current location.";
         }
-        
-        if (_failed)
-        {
-            return @"Failed to find location.  Check that Location Services are enabled.";
-        }
-        return @"Location acquired. Select 'Refresh' to re-acquire current location.";
     }
     return nil;
 }
@@ -562,8 +568,12 @@
 
 - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
 {
-    [LocatingView locationAuthorizedOrNotDeterminedShowMsg:YES];
+    [LocationAuthorization locationAuthorizedOrNotDeterminedShowMsg:YES backgroundRequired:NO];
 }
 
+- (void)didTapMap:(id)sender
+{
+    [self refreshAction:nil];
+}
 
 @end

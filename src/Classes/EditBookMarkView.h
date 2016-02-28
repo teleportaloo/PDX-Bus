@@ -21,8 +21,6 @@
 #import "TripReturnUserRequest.h"
 #import "UserFaves.h"
 
-#define kEditBookMarkMaxSections	6
-
 @interface EditBookMarkView : TableViewWithToolbar <EditableTableViewCellDelegate, ReturnStopId, TripReturnUserRequest> {
 	NSMutableDictionary *_originalFave;
 	NSMutableArray *_stops;
@@ -31,9 +29,7 @@
 	CellTextField *_editCell;
 	bool _reloadTrip;
 	bool _reloadArrival;
-	int _sectionMap[kEditBookMarkMaxSections];
 	NSInteger _stopSection;
-	int _sections;
 	TripUserRequest * _userReq;
 }
 

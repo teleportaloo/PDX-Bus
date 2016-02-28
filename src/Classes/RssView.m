@@ -34,14 +34,12 @@
 - (void)fetchRss:(id) arg
 {	
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	[self.backgroundTask.callbackWhenFetching backgroundThread:[NSThread currentThread]];
 	[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:kGettingRss];
 	
-	NSError *parseError = nil;
     self.rssData = [[[RssXML alloc] init] autorelease];
-	[self.rssData startParsing:self.rssUrl parseError:&parseError];
-	
-	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
+	[self.rssData startParsing:self.rssUrl];
+
+    [self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
 	[pool release];
 }
 
@@ -123,7 +121,7 @@
 	{
 		RssLink *link = [self.rssData itemAtIndex:indexPath.row];
 		
-		return [link getTimeHeight:self.screenWidth] + 3 * VGAP +[self getTextHeight:link.title font:[self getParagraphFont]];
+		return [link getTimeHeight:self.screenInfo.screenWidth] + 3 * VGAP +[self getTextHeight:link.title font:[self getParagraphFont]];
 	}
 	
 	return [self getTextHeight:[self.rssData fullErrorMsg] font:[self getParagraphFont]];
@@ -137,11 +135,11 @@
 	
 		NSString *MyIdentifier = [link cellReuseIdentifier:[NSString stringWithFormat:@"RssLabel%f", [self getTextHeight:link.title 
 																													font:[self getParagraphFont]]] 
-													 width:self.screenWidth];
+													 width:self.screenInfo.screenWidth];
 		
 		UITableViewCell *cell = (UITableViewCell *)[tableView dequeueReusableCellWithIdentifier:MyIdentifier];
 		if (cell == nil) {
-			cell = [link tableviewCellWithReuseIdentifier:MyIdentifier width:[self screenWidth] font:[self getParagraphFont]];
+			cell = [link tableviewCellWithReuseIdentifier:MyIdentifier width:self.screenInfo.screenWidth font:[self getParagraphFont]];
 			
 			cell.selectionStyle = UITableViewCellSelectionStyleBlue;
 			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;

@@ -20,7 +20,7 @@ Features include:
 
 Route and arrival data provided by permission of TriMet.
 
-PDX Bus 7.11 sources
+PDX Bus 8.0 sources
 ===================
 
 I am making the sources to PDX Bus version 7.9 available as part of the
@@ -66,7 +66,7 @@ Links
 
 Things to know before building
 ------------------------------
-* PDX Bus is built with iPhone SDK 8.3 and Xcode 6.3.1 - available free
+* PDX Bus is built with iPhone SDK 9.2 and Xcode 7.2 - available free
 from [Apple](http://developer.apple.com) in their Mac App store.
 * Before building this code you will need to register with TriMet 
 to get a free "AppID" from [TriMet](http://developer.trimet.org/registration/),
@@ -81,6 +81,9 @@ folders for the particular licenses used.
 * The data feed from [Next Bus](http://www.civicapps.org/datasets/portland-streetcar-routes-arrivals) 
 has terms and conditions (including a non-commercial clause) but does 
 not need an application ID.
+* This builds with one warning - "All interface orientations must be supported 
+unless the app requires full screen". This is because on the iPhone we don't 
+want the app to go into landscape mode.
 
 
 Graphics
@@ -182,6 +185,35 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Change log
 ----------
+### Version 8.0 (January 2016)
+* Updated for iOS9.
+* Added search.
+* Fixed notifications
+* Updated TriMet map to include correct streetcar colors
+* Added 3D Touch menu to the main screen
+* Fixed orientation issues.
+* Added Handoff to watch and app.
+* Fixed block colors on watch.
+* Fixed problem with streetcar locations being missing when user shows "Map of arrivals" as it was not getting the nextbus data for locations.
+* Improved navigation through lists of stops on the watch
+* Added pull to refresh on the arrival details.
+* Arrival details now refreshable and uses the same arrival large mins; added a map.
+* Added arrows to the maps using the bearing.
+* Refactored some of the core library to remove more UI stuff.
+* Fixed the trip planner instructions when a vehicle changes route.
+* Centralized distance formatting and changed to be tenths of a mile.
+* Added reverse direction lookup.
+* Added commuter bookmark to watch.
+* Added handoff for trip planned to phone app.
+* Fixed bug when deleting recent trips or arrivals;  it would delete the first one.
+* Fixed iPad Pro formatting and iPad split screen / overlay multi-tasking.
+* Fixed location services in the background for iOS9 - proximity alarms will now work.
+* Added alarms for deboardings
+* Updated location authorization dialogs to go directly to the settings page
+* Updated logging.
+* Added formatting to the help screen.
+
+
 ### Version 7.11 (September 2015)
 * Added Orange line support including new color and updated MAX and WES MAP
 * Added A Loop and B Loop colors and new streetcar map
@@ -211,7 +243,7 @@ Change log
 ### Version 7.1 (February 2014)
 * Fix for Streetcar API changes
 * Added back 'Bookmarks at the top' setting.
-* Added Cross for canceled busses.
+* Added Cross for canceled buses.
 * Fixed refresh timer button so it doesn't flash.
 * Fixed app store link from main screen.
 * Fixed table alignment when using prompts on navigator bar in iOS7.
@@ -378,7 +410,7 @@ Change log
 ### Version 4.2
 * Support for iOS4 and fast switching between apps. Regular features are designed to work on all models of iPhone, iPad and iPod touch running OS version 3.0 and above.
 * The current location "blue dot" is now shown on all maps.
-* The tip planner map now shows the actual route of the busses and trains.
+* The tip planner map now shows the actual route of the buses and trains.
 * Fixed usability issue with bookmarks - the bookmark icon can be used to edit or delete an existing bookmark was well as to add one.
 * Routes, directions and stop names are cached until the end of each day (or optionally until the end of the week).  (TriMet tells me that routes only change at midnight - mostly they change weekly on Sunday but occasionally they change mid-week).
 * Multiple bug fixes and tweaks (e.g.  fixed iPhone font issues introduced when adding iPad support, fixed different behavior of home button).

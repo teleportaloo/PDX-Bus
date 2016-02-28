@@ -126,7 +126,7 @@
 	@synchronized (_userData)
 	{
 		if (editingStyle == UITableViewCellEditingStyleDelete) {
-			[_userData.recentTrips removeObjectAtIndex:indexPath.section];
+			[_userData.recentTrips removeObjectAtIndex:indexPath.row];
 			[tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:YES];
 			
 			_userData.favesChanged = YES;

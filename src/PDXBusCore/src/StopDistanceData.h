@@ -1,5 +1,5 @@
 //
-//  StopDistance.h
+//  StopDistanceData.h
 //  PDX Bus
 //
 
@@ -12,10 +12,9 @@
 
 #import <UIKit/UIKit.h>
 #import <CoreLocation/CoreLocation.h>
-#import "MapPinColor.h"
 
 
-@interface StopDistance : NSObject <MapPinColor> {
+@interface StopDistanceData : NSObject {
 	NSString *          _locid;
 	CLLocationDistance  _distance;
 	CLLocationAccuracy  _accuracy;
@@ -26,7 +25,7 @@
 
 -(id)initWithLocId:(int)locid distance:(CLLocationDistance)dist accuracy:(CLLocationAccuracy)acc;
 
--(NSComparisonResult)compareUsingDistance:(StopDistance*)inStop;
+-(NSComparisonResult)compareUsingDistance:(StopDistanceData*)inStop;
 
 
 @property (nonatomic, retain) NSString *locid;

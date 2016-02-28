@@ -23,11 +23,7 @@
 - (void)fetchShape:(void *)arg
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	
-	NSThread *thread = [NSThread currentThread];
-	
-	[self.backgroundTask.callbackWhenFetching backgroundThread:thread];
-	
+			
 	[UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
 		
 	[self.backgroundTask.callbackWhenFetching backgroundStart:(int)[self.it legCount] title:kBusyText];

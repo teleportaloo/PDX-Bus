@@ -32,9 +32,9 @@
 @property (nonatomic, retain) NSString *staticQuery;
 
 - (BOOL)getStopsForRoute:(NSString *)route direction:(NSString *)dir 
-			 description:(NSString *)desc parseError:(NSError **)error cacheAction:(CacheAction)cacheAction;
+			 description:(NSString *)desc cacheAction:(CacheAction)cacheAction;
 - (BOOL)getStopsAfterLocation:(NSString *)locid route:(NSString *)route direction:(NSString *)dir 
-				  description:(NSString *)desc parseError:(NSError **)error cacheAction:(CacheAction)cacheAction;
+				  description:(NSString *)desc cacheAction:(CacheAction)cacheAction;
 
 
 @end

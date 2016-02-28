@@ -30,7 +30,7 @@
 		<key>Title</key>
 		<string>TriMet.org</string>
 		<key>Icon</key>
-		<string>visittrimeticon.gif</string>
+		<string>TriMet.png</string>
 		<key>LinkM</key>
 		<string>http://m.trimet.org/</string>
 		<key>LinkF</key>

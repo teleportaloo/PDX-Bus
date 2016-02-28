@@ -26,12 +26,9 @@
 	RailMapView *_map;
 	bool _from;
 	StopLocations *_locationsDb;
-	NSInteger _rowShowAll;
-	NSInteger _rowOffset;
-	NSInteger _rowNearby;
-	NSInteger _rows;
-	NSMutableArray *_routes;
-    NSMutableArray *_sectionMap;
+	
+    NSMutableArray *_routes;
+    NSInteger       _firstLocationRow;
 }
 
 @property (nonatomic, retain) RailMapView *map;

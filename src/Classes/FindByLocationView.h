@@ -15,9 +15,10 @@
 #import "XMLAllStops.h"
 #import "LocatingView.h"
 #import "TriMetTypes.h"
+#import "MapKit/Mapkit.h"
 
 
-@interface FindByLocationView : TableViewWithToolbar<LocatingViewDelegate>  {
+@interface FindByLocationView : TableViewWithToolbar<LocatingViewDelegate,MKMapViewDelegate>  {
 	int                     _maxToFind;
 	TripMode                _mode;
 	int                     _show;
@@ -30,10 +31,11 @@
     int                     _autoLaunch;
     NSDictionary *          _launchArgs;
     int                     _firstDisplay;
-    NSInteger               *_sections;
-    size_t                  _nSections;
     NSString                *_startingLocationName;
     CLLocation              *_startingLocation;
+    MKCircle                *_circle;
+    NSTimer                 *_mapUpdateTimer;
+    bool                    _locationAuthorized;
 }
 
 - (id) initWithLocation:(CLLocation*)location description:(NSString*)locationName;
@@ -46,7 +48,8 @@
 @property (nonatomic)         int autoLaunch;
 @property (nonatomic, retain) NSString *startingLocationName;
 @property (nonatomic, retain) CLLocation *startingLocation;
-
+@property (nonatomic, retain) MKCircle *circle;
+@property (nonatomic, retain) NSTimer *mapUpdateTimer;
 
 
 - (void)distSegmentChanged:(id)sender;

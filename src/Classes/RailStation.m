@@ -192,12 +192,18 @@
 
 + (UITableViewCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier 
 											rowHeight:(CGFloat)height 
-										  screenWidth:(ScreenType)screenWidth 
+										  screenWidth:(ScreenWidth)screenWidth 
 										  rightMargin:(BOOL)rightMargin
 												 font:(UIFont*)font
 {
 	
 	CGFloat cellWidth = 0;
+    
+    if (screenWidth == WidthBigVariable || screenWidth == WidthSmallVariable)
+    {
+        CGRect bounds = [[[[UIApplication sharedApplication] delegate] window] bounds];
+        screenWidth = bounds.size.width;
+    }
 	
 	if (rightMargin)
 	{

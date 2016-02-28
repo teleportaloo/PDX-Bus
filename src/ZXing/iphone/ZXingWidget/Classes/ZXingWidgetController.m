@@ -57,15 +57,16 @@
 @synthesize oneDMode, showCancel, showLicense, isStatusBarHidden;
 @synthesize readers;
 
+
 - (BOOL)shouldAutorotate
 {
     //returns true if want to allow orientation change
-    return FALSE;
+    return YES;
     
     
 }
 
-- (NSUInteger)supportedInterfaceOrientations
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations
 {
     //decide number of origination tob supported by Viewcontroller.
     return UIInterfaceOrientationPortrait | UIInterfaceOrientationPortraitUpsideDown;
@@ -146,6 +147,9 @@
 - (void)viewWillAppear:(BOOL)animated {
   [super viewWillAppear:animated];
   self.wantsFullScreenLayout = YES;
+    
+  [[UIApplication sharedApplication] setStatusBarOrientation:UIDeviceOrientationPortrait animated:NO];
+    
   if ([self soundToPlay] != nil) {
     OSStatus error = AudioServicesCreateSystemSoundID((CFURLRef)[self soundToPlay], &beepSound);
     if (error != kAudioServicesNoError) {
@@ -156,6 +160,9 @@
 
 - (void)viewDidAppear:(BOOL)animated {
   [super viewDidAppear:animated];
+   
+  [[UIApplication sharedApplication] setStatusBarOrientation:UIDeviceOrientationPortrait animated:NO];
+    
   self.isStatusBarHidden = [[UIApplication sharedApplication] isStatusBarHidden];
   if (!isStatusBarHidden)
     [[UIApplication sharedApplication] setStatusBarHidden:YES];

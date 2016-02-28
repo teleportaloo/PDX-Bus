@@ -23,6 +23,8 @@
 #import "SimpleAnnotation.h"
 #import "DebugLogging.h"
 #import "MapViewController.h"
+#import "FormatDistance.h"
+#import "LocationAuthorization.h"
 
 #ifdef DEBUG_ALARMS
 #define kDataDictLoc        @"loc"
@@ -30,21 +32,31 @@
 #define kDataDictAppState   @"appstate"
 #endif
 
+
 @implementation AlarmAccurateStopProximity
 
 @synthesize destination		= _destination;
 @synthesize locationManager = _locationManager;
 
+- (void)deleteLocationManager
+{
+    if (self.locationManager!=nil)
+    {
+        if ([self.locationManager respondsToSelector:@selector(setAllowsBackgroundLocationUpdates:)]) {
+            [self.locationManager setAllowsBackgroundLocationUpdates:NO];
+        }
+        
+        [self stopUpdatingLocation];
+        [self stopMonitoringSignificantLocationChanges];
+        
+        self.locationManager.delegate = nil;
+        self.locationManager = nil;
+    }
+}
+
 - (void)dealloc
 {
-	if (self.locationManager !=nil)
-	{
-		[self stopUpdatingLocation];
-		[self stopMonitoringSignificantLocationChanges];
-	
-		self.locationManager.delegate = nil;
-		self.locationManager = nil;
-	}
+    [self deleteLocationManager];
     
 #ifdef DEBUG_ALARMS
     self.dataReceived = nil;
@@ -68,6 +80,10 @@
         if ([self.locationManager respondsToSelector:@selector(requestAlwaysAuthorization)])
         {
             [self.locationManager requestAlwaysAuthorization];
+        }
+        
+        if ([self.locationManager respondsToSelector:@selector(setAllowsBackgroundLocationUpdates:)]) {
+            [self.locationManager setAllowsBackgroundLocationUpdates:YES];
         }
         
         
@@ -95,7 +111,7 @@
         _updating       = NO;
         _significant    = NO;
         
-        if ([AlarmAccurateStopProximity backgroundLocationAuthorizedOrNotDeterminedShowMsg:NO])
+        if ([LocationAuthorization locationAuthorizedOrNotDeterminedShowMsg:NO backgroundRequired:YES])
         {
             [self startUpdatingLocation];
         }
@@ -106,67 +122,6 @@
 #endif
 	}
 	return self;
-}
-
-+ (bool)backgroundLocationAuthorizedOrNotDeterminedShowMsg:(bool)msg
-{
-    CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
-    
-    NSString *reason = nil;
-    
-    switch (status)
-    {
-        default:
-            // User has granted authorization to use their location at any time,
-            // including monitoring for regions, visits, or significant location changes.
-        case kCLAuthorizationStatusAuthorizedAlways:
-            // User has not yet made a choice with regards to this application
-        case kCLAuthorizationStatusNotDetermined:
-            
-            // IT'S ALL GOOD SO FAR
-            return YES;
-            break;
-            // This application is not authorized to use location services.  Due
-            // to active restrictions on location services, the user cannot change
-            // this status, and may not have personally denied authorization
-        case kCLAuthorizationStatusRestricted:
-            reason = @"as access is restricted";
-            break;
-            
-            // User has explicitly denied authorization for this application, or
-            // location services are disabled in Settings.
-        case kCLAuthorizationStatusDenied:
-            reason = @"as access is denied";
-            break;
-            
-            // User has granted authorization to use their location only when your app
-            // is visible to them (it will be made visible to them if you continue to
-            // receive location updates while in the background).  Authorization to use
-            // launch APIs has not been granted.
-        case kCLAuthorizationStatusAuthorizedWhenInUse:
-            reason = @"as 'always' access is not granted";
-            break;
-            
-    }
-    
-    if (msg && reason != nil)
-    {
-        
-        UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"Proximity Alarm",@"alarm pop-up title")
-                                                           message:[NSString stringWithFormat:NSLocalizedString(@"PDX Bus is not authorized to get location information in the background, %@. Go to the settings app and select PDX Bus to re-enable location services.", @"alarm warning"), reason]
-                                                          delegate:nil
-                                                 cancelButtonTitle:NSLocalizedString(@"OK",@"OK button")
-                                                 otherButtonTitles:nil] autorelease];
-        [alert show];
-        return NO;
-    }
-    else if (reason != nil)
-    {
-        return NO;
-    }
-    
-    
-    return YES;
 }
 
 - (void)startUpdatingLocation
@@ -203,13 +158,12 @@
     }
 }
 
-- (void)setStop:(NSString *)stopId lat:(NSString *)lat lng:(NSString *)lng desc:(NSString *)desc
+- (void)setStop:(NSString *)stopId loc:(CLLocation *)loc desc:(NSString *)desc
 {
 	self.desc = desc;
 	self.stopId = stopId;
 	
-	self.destination = [[[CLLocation alloc] initWithLatitude:[lat doubleValue] 
-												   longitude:[lng doubleValue]] autorelease];
+    self.destination = loc;
 }
 
 
@@ -253,6 +207,8 @@
 	
 	[self.dataReceived addObject:dict];
 #endif	
+    
+    DEBUG_LOGO(newLocation);
 	
 	double becomeAccurate = [UserPrefs getSingleton].useGpsWithin;
 	
@@ -336,6 +292,11 @@
 		case AlarmFired:
 			[self stopUpdatingLocation];
 			[self stopMonitoringSignificantLocationChanges];
+            
+            if ([self.locationManager respondsToSelector:@selector(setAllowsBackgroundLocationUpdates:)]) {
+                [self.locationManager setAllowsBackgroundLocationUpdates:NO];
+            }
+            
 			NSTimer *timer = [[[NSTimer alloc] initWithFireDate:[NSDate dateWithTimeIntervalSinceNow:0.5]
 													   interval:0.1 
 														 target:[self retain]
@@ -376,11 +337,7 @@
                userInfo:nil
            defaultSound:YES];
             
-            [self stopUpdatingLocation];
-            [self stopMonitoringSignificantLocationChanges];
-            self.locationManager.delegate = nil;
-            self.locationManager = nil;
-            
+            [self deleteLocationManager];
             [self cancelTask];
             break;
         default:
@@ -571,16 +528,10 @@
 	{
         str = NSLocalizedString(@"Near by", @"final stop is very close");
 	}
-	else if (distance < 500)
-	{
-		str = [NSString stringWithFormat:NSLocalizedString(@"%@ %d ft (%d meters)", @"distance in feet then metres"), accuracy, (int)(distance * 3.2808398950131235),
-			   (int)(distance) ];
-	}
 	else
 	{
-		str = [NSString stringWithFormat:NSLocalizedString(@"%@ %.2f miles (%.2f km)", @"distance in miles then kms"), accuracy, (float)(distance / 1609.344),
-			   (float)(distance / 1000) ];
-	}	
+        str = [NSString stringWithFormat:@"%@ %@", accuracy, [FormatDistance formatMetres:distance]];
+    }
 	
 	return str;
 }
@@ -629,7 +580,17 @@
 
 - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
 {
-    [AlarmAccurateStopProximity backgroundLocationAuthorizedOrNotDeterminedShowMsg:YES];
+    [LocationAuthorization locationAuthorizedOrNotDeterminedShowMsg:YES backgroundRequired:YES];
+}
+
+- (UIColor *)getPinTint
+{
+    return nil;
+}
+
+- (bool)hasBearing
+{
+    return NO;
 }
 
 @end

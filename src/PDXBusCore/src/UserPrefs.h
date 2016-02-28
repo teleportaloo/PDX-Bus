@@ -29,6 +29,7 @@
 
 @property (nonatomic, readonly)  bool  bookmarksAtTheTop;
 @property (nonatomic, readonly)  bool  autoCommute;
+@property (nonatomic, readonly)  bool  watchAutoCommute;
 @property (nonatomic, readonly)  bool  shakeToRefresh;
 @property (nonatomic, readonly)  int   maxRecentStops;
 @property (nonatomic, readonly)  int   maxRecentTrips;
@@ -61,6 +62,14 @@
 @property (nonatomic, readonly)  bool qrCodeScannerIcon;
 @property (nonatomic)            bool flashingLightWarning;
 @property (nonatomic)            bool watchSettings;
-@property (nonatomic, readonly)  bool watchBookmarksAtTheTop; 
+@property (nonatomic, readonly)  bool watchBookmarksAtTheTop;
+@property (nonatomic, readonly)  bool watchBookmarksDisplayStopList;
+@property (nonatomic, readonly)  bool searchRoutes;
+@property (nonatomic, readonly)  bool searchBookmarks;
+@property (nonatomic, readonly)  bool searchStations;
+@property (nonatomic, readonly)  bool useBetaVehicleLocator;
+@property (nonatomic, readonly)  bool watchUseBetaVehicleLocator;
+@property (nonatomic, readonly)  NSString *busIcon;
+@property (nonatomic, readonly)  bool showTrips;
 
 @end

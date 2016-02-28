@@ -439,7 +439,8 @@ Ref<BitArray> Detector::sampleLine(Ref<zxing::aztec::Point> p1, Ref<zxing::aztec
             
   return res;
 }
-        
+
+#ifndef __clang_analyzer__
 bool Detector::isWhiteOrBlackRectangle(Ref<zxing::aztec::Point> p1,
                                        Ref<zxing::aztec::Point> p2,
                                        Ref<zxing::aztec::Point> p3,
@@ -512,6 +513,7 @@ int Detector::getColor(Ref<zxing::aztec::Point> p1, Ref<zxing::aztec::Point> p2)
     return colorModel?-1:1;
   }
 }
+#endif
         
 Ref<Point> Detector::getFirstDifferent(Ref<zxing::aztec::Point> init, bool color, int dx, int dy) {
   int x = init->x + dx;

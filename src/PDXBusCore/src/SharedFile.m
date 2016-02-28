@@ -70,7 +70,7 @@
                     }
                     @catch (NSException *exception)
                     {
-                        NSLog(@"moveItemAtURL exception: %@ %@\n", exception.name, exception.reason );
+                        ERROR_LOG(@"moveItemAtURL exception: %@ %@\n", exception.name, exception.reason );
                     }
                 }
             }
@@ -134,7 +134,7 @@
     }
     @catch (NSException *exception)
     {
-        NSLog(@"writeToURL exception: %@ %@\n", exception.name, exception.reason );
+        ERROR_LOG(@"writeToURL exception: %@ %@\n", exception.name, exception.reason );
     }
     
     if (!written)
@@ -146,7 +146,7 @@
                                                  otherButtonTitles:nil] autorelease];
         [alert show];
         
-        NSLog(@"Failed to write the cache %@\n", [self.urlToSharedFile absoluteString]);
+        ERROR_LOG(@"Failed to write the cache %@\n", [self.urlToSharedFile absoluteString]);
         // clear the local cache, as I assume it is corrupted.
         [self deleteFile];
     }

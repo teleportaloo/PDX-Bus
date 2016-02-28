@@ -14,6 +14,7 @@
 
 
 #import "TriMetRouteColors.h"
+#import <UIKit/UIKit.h>
 
 
 @implementation TriMetRouteColors
@@ -31,10 +32,10 @@ static ROUTE_COL routeColours[] =
 	{ @"90",	kRedLine,           RGB(211, 31, 67),   RGB_WHITE,  @"MAX_Red_Line",				@"MAX Red Line",                @"MAX",       NO},		// Red line
 	{ @"190",	kYellowLine,        RGB(255,197, 36),   RGB_RED,    @"MAX_Yellow_Line",				@"MAX Yellow Line",             @"MAX",       NO},		// Yellow line
 	{ @"203",	kWesLine,           RGB(  0,  0,  0),   RGB_WHITE,  @"Westside_Express_Service",	@"WES Commuter Rail",           @"WES",       NO},		// WES Black
-	{ @"193",	kStreetcarNsLine,	RGB(140,198, 63),	RGB_RED,    @"Portland_Streetcar",			@"Portland Streetcar - NS Line",@"NS Line",   YES},     // Streetcar Green
-    { @"194",	kStreetcarALoop,	RGB(224, 29,144),	RGB_RED,    @"Portland_Streetcar",			@"Portland Streetcar - A Loop", @"A Loop",    YES},     // Streetcar Blue
-    { @"290",	kOrangeLine,        RGB(209, 95, 39),	RGB_RED,    @"MAX_Orange_Line",			    @"MAX Orange Line",             @"MAX",       NO},      // MAX Orange
-    { @"195",   kStreetcarBLoop,    RGB(0,  169,204),	RGB_RED,    @"Portland_Streetcar",          @"Portland Streetcar - B Loop", @"B Loop",    YES},     // Streetcar Pink
+	{ @"193",	kStreetcarNsLine,	RGB(140,198, 63),	RGB_WHITE,  @"Portland_Streetcar",			@"Portland Streetcar - NS Line",@"NS Line",   YES},     // Streetcar Green
+    { @"194",	kStreetcarALoop,	RGB(224, 29,144),	RGB_WHITE,  @"Portland_Streetcar",			@"Portland Streetcar - A Loop", @"A Loop",    YES},     // Streetcar Blue
+    { @"290",	kOrangeLine,        RGB(209, 95, 39),	RGB_WHITE,  @"MAX_Orange_Line",			    @"MAX Orange Line",             @"MAX",       NO},      // MAX Orange
+    { @"195",   kStreetcarBLoop,    RGB(0,  169,204),	RGB_WHITE,  @"Portland_Streetcar",          @"Portland Streetcar - B Loop", @"B Loop",    YES},     // Streetcar Pink
 	{ nil,		0,				0,	0,	0,	0, 0, 0, nil,							nil}
 };
 
@@ -85,6 +86,43 @@ static ROUTE_COL routeColours[] =
 	
 	ROUTE_COL *col = [TriMetRouteColors rawColorForLine:line];
 	return [UIColor colorWithRed:col->r green:col->g blue:col->b alpha:1.0];
+}
+
+
++ (NSSet *)streetcarRoutes
+{
+    NSMutableSet *routes = [[[NSMutableSet alloc] init] autorelease];
+    
+    ROUTE_COL *col;
+    
+    for (col = routeColours; col->route!=nil; col++)
+    {
+        if (col->square)
+        {
+            [routes addObject:col->route];
+        }
+    }
+    
+    return routes;
+    
+}
+
++ (NSSet *)triMetRoutes
+{
+    NSMutableSet *routes = [[[NSMutableSet alloc] init] autorelease];
+    
+    ROUTE_COL *col;
+    
+    for (col = routeColours; col->route!=nil; col++)
+    {
+        if (!col->square)
+        {
+            [routes addObject:col->route];
+        }
+    }
+    
+    return routes;
+    
 }
 
 @end

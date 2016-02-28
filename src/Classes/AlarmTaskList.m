@@ -17,6 +17,9 @@
 #import "AlarmAccurateStopProximity.h"
 #import "DebugLogging.h"
 #import <objc/runtime.h>
+#import "TriMetTimesAppDelegate.h"
+#import "AppDelegateMethods.h"
+
 
 #ifdef PEBBLE_SUPPORT
 #import "PebbleSportsDisplay.h"
@@ -75,6 +78,49 @@
 						&& [locManClass significantLocationChangeMonitoringAvailable];
 }
 
+
+#define SYSTEM_VERSION_LESS_THAN(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
+
+
+- (BOOL)checkNotificationType:(UIUserNotificationType)type
+{
+    UIUserNotificationSettings *currentSettings = [[UIApplication sharedApplication] currentUserNotificationSettings];
+    
+    return (currentSettings.types & type);
+}
+
+
+- (void)setApplicationBadgeNumber:(NSInteger)badgeNumber
+{
+    UIApplication *application = [UIApplication sharedApplication];
+    
+    if (application == nil)
+    {
+        DEBUG_LOG(@"failed to get app");
+
+    }
+    else if(SYSTEM_VERSION_LESS_THAN(@"8.0"))
+    {
+        application.applicationIconBadgeNumber = badgeNumber;
+    }
+    else
+    {
+        if ([self checkNotificationType:UIUserNotificationTypeBadge])
+        {
+            DEBUG_LOG(@"badge number changed to %d", (int)badgeNumber);
+            application.applicationIconBadgeNumber = badgeNumber;
+        }
+        else
+        {
+            DEBUG_LOG(@"access denied for UIUserNotificationTypeBadge");
+        }
+    }
+
+}
+
+
+
+
 - (void)updateBadge
 {
 	@synchronized(_backgroundTasks)
@@ -93,7 +139,9 @@
             }
         }
         
-		[UIApplication sharedApplication].applicationIconBadgeNumber = count;
+        [self setApplicationBadgeNumber:count];
+        
+		// [UIApplication sharedApplication].applicationIconBadgeNumber = count;
 	}
 }
 
@@ -119,12 +167,15 @@
         _newTaskKeys        = [[NSMutableArray alloc] init];
         _taskId             = 0; // UIBackgroundTaskInvalid cannot be used in 3.2 OS
         _atomicTaskRunning  = NO;
-        _externalDisplays = [[NSArray arrayWithObjects:
+        _externalDisplays =
 #ifdef PEBBLE_SUPPORT
+                            [[NSArray arrayWithObjects:
                               [[[PebbleSportsDisplay alloc] init] autorelease],
-#endif
                               nil] retain];
+#else
+                            [[NSArray alloc] init];
         
+#endif
 		[self updateBadge];
         
        
@@ -178,19 +229,7 @@
 		newTask.block  = dep.block;
 		newTask.minsToAlert = mins;
 		newTask.observer = self;
-		
-		if (mins ==0)
-		{
-			newTask.desc = [NSString stringWithFormat:@"%@", dep.routeName];
-		}
-		else if (mins == 1)
-		{
-			newTask.desc = [NSString stringWithFormat:NSLocalizedString(@"1 min before %@", @"single minute alarm description"),  dep.routeName];
-		}
-		else 
-		{
-			newTask.desc = [NSString stringWithFormat:NSLocalizedString(@"%d mins before %@", @"plural minyes alarm description"), mins, dep.routeName];
-		}
+        newTask.desc = dep.routeName;
 		newTask.lastFetched = dep;
         
         [self checkForMute];
@@ -394,8 +433,7 @@
 }
 
 - (void)addTaskForStopIdProximity:(NSString *)stopId 
-							  lat:(NSString *)lat 
-							  lng:(NSString *)lng 
+							  loc:(CLLocation *)loc
 							 desc:(NSString *)desc
 						 accurate:(bool)accurate
 {
@@ -403,7 +441,7 @@
 	{
 		AlarmAccurateStopProximity *newTask = [[[AlarmAccurateStopProximity alloc] initWithAccuracy:accurate] autorelease];
 	
-		[newTask setStop:stopId lat:lat lng:lng desc:desc];
+		[newTask setStop:stopId loc:loc desc:desc];
 		newTask.observer = self;
 	
         [self checkForMute];
@@ -432,7 +470,7 @@
 
 - (void)taskLoop
 {
-	DEBUG_LOG(@"taskLoop\n");
+    DEBUG_FUNC();
 	// NSRunLoop* runLoop		= [NSRunLoop currentRunLoop];
 	self.backgroundThread	= [NSThread currentThread];
 	
@@ -543,7 +581,7 @@
     
     [(NSObject*)self performSelectorOnMainThread:@selector(taskLoopEnded:) withObject:nil waitUntilDone:NO];
 	    
-	DEBUG_LOG(@"taskLoop done\n");
+    DEBUG_FUNCEX();
 }
 
 
@@ -562,7 +600,7 @@
 
 - (void)rawRunTask
 {
-	DEBUG_LOG(@"runTask\n");
+    DEBUG_FUNC();
 
 	UIApplication*    app = [UIApplication sharedApplication];
     
@@ -604,7 +642,7 @@
 		[self taskLoop];
         [app endBackgroundTask:_taskId];
 	});
-	DEBUG_LOG(@"runTask done\n");
+	DEBUG_FUNCEX();
 }
 
 - (void)runTask
@@ -659,13 +697,13 @@
 	[alert show];
 }
 
-- (bool)userAlertForProximityAction:(NSInteger)button stopId:(NSString *)stopId lat:(NSString *)lat lng:(NSString *)lng desc:(NSString *)desc
+- (bool)userAlertForProximityAction:(NSInteger)button stopId:(NSString *)stopId loc:(CLLocation *)loc desc:(NSString *)desc
 {
 	if (button != 0)
 	{
 		AlarmTaskList *taskList = [AlarmTaskList getSingleton];
 		
-		[taskList addTaskForStopIdProximity:stopId lat:lat lng:lng desc:desc accurate:button==1];
+		[taskList addTaskForStopIdProximity:stopId loc:loc desc:desc accurate:button==1];
 		return true;
 	}
 	return false;
@@ -715,12 +753,5 @@
         [display displayEnded:task];
     }
 }
-
-//NSDictionary *myPebbleDict = @{ PBSportsTimeKey : [PBSportsUpdate timeStringFromFloat:self.lastFetched.minsToArrival],
-//            PBSportsDistanceKey : [NSString stringWithFormat:@"%2.02f", busDistanceMiles],
-//            PBSportsDataKey :[NSString stringWithFormat:@"%.0f", [self.lastFetched.route floatValue]],
-//            };
-
-
 
 @end

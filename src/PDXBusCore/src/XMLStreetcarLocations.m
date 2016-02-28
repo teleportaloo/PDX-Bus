@@ -16,6 +16,7 @@
 #import "XMLDepartures.h"
 #import "VehicleData.h"
 #import "DebugLogging.h"
+#import "FormatDistance.h"
 
 @implementation XMLStreetcarLocations
 
@@ -101,10 +102,10 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
 
 #pragma mark Initiate Parsing
 
-- (BOOL)getLocations:(NSError **)error
+- (BOOL)getLocations
 {
 	hasData = false;
-	[self startParsing:[NSString stringWithFormat:@"vehicleLocations&a=portland-sc&r=%@&t=%qu", self.route, _lastTime] parseError:error];
+	[self startParsing:[NSString stringWithFormat:@"vehicleLocations&a=portland-sc&r=%@&t=%qu", self.route, _lastTime]];
 	return true;	
 }
 
@@ -145,9 +146,36 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
         
         pos.block = strretcarId;
         pos.routeNumber = self.route;
-        pos.locationTime = UnixToTriMetTime([[NSDate date] timeIntervalSince1970] + [self getTimeFromAttribute:attributeDict valueForKey:@"secsSinceReport"]);
+        NSInteger secs = [self getNSIntegerFromAttribute:attributeDict valueForKey:@"secsSinceReport"];
         
-        pos.direction = nil;
+        // Weird issue - just reversing the sign is something to do with the weird data.
+        if (secs < 0)
+        {
+            secs = -secs;
+        }
+    
+        pos.locationTime = UnixToTriMetTime([[NSDate date] timeIntervalSince1970] - secs);
+        pos.bearing = [self safeValueFromDict:attributeDict valueForKey:@"heading"];
+        
+        NSString *dirTag = [self safeValueFromDict:attributeDict valueForKey:@"dirTag"];
+        
+        NSScanner *scanner = [NSScanner scannerWithString:dirTag];
+        NSCharacterSet *underscore = [NSCharacterSet characterSetWithCharactersInString:@"_"];
+        NSString *aLoc;
+        
+        [scanner scanUpToCharactersFromSet:underscore intoString:&aLoc];
+        
+        if (!scanner.isAtEnd)
+        {
+            scanner.scanLocation++;
+            
+            if (!scanner.isAtEnd)
+            {
+                [scanner scanUpToCharactersFromSet:underscore intoString:&aLoc];
+                pos.direction = aLoc;
+            }
+            
+        }
         
 		[self.locations setObject:pos forKey:strretcarId];
 		
@@ -169,25 +197,11 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
 	
 	if (pos !=nil)
 	{
-		dep.blockPositionLat = [NSString stringWithFormat:@"%f", pos.location.coordinate.latitude];
-		dep.blockPositionLng = [NSString stringWithFormat:@"%f", pos.location.coordinate.longitude];
-		
-		CLLocation *stopLocation = [[CLLocation alloc] initWithLatitude:[dep.stopLat doubleValue] longitude:[dep.stopLng doubleValue]];
+        dep.blockPosition = pos.location;
 		
 		// This allows this to run on a 3.0 iPhone but makes the warning go away
-#ifdef __IPHONE_3_2
-		if ([stopLocation respondsToSelector:@selector(distanceFromLocation:)])
-		{
-			dep.blockPositionFeet = [stopLocation distanceFromLocation:pos.location] / 3.2808399; // convert meters to feet
-		}
-		else
-#endif
-		{
-			dep.blockPositionFeet = [(id)stopLocation getDistanceFrom:pos.location] / 3.2808399; // convert meters to feet
-		}
-		
-		[stopLocation release];
-
+        dep.blockPositionFeet = [dep.stopLocation distanceFromLocation:pos.location] * kFeetInAMetre; // convert meters to feet
+        dep.blockPositionHeading = pos.bearing;
 		dep.blockPositionAt = _lastTime;
 	}
 }

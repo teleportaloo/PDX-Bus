@@ -23,7 +23,8 @@
 #define kUserFavesTripResults	@"TripResults"
 #define kUserFavesDayOfWeek     @"DayOfWeek"
 #define kUserFavesMorning		@"AM"
-#define kMaxFaves				25
+#define kUserFavesBlock         @"Block"
+#define kMaxFaves				30
 #define kNoBookmark				-1
 #define kDayNever				0
 #define kDaySun					(0x1 << 1)
@@ -45,7 +46,8 @@
 #define kLast					@"last"
 #define kLastTrip				@"last_trip"
 #define kLastNames				@"last_names"
-#define kLastRun				@"last_run"
+#define kLastRunApp				@"last_run"
+#define kLastRunWatch			@"last_run_watch"
 #define kTakeMeHome             @"take_me_home"
 
 #define kLastLocate				@"last_locate"
@@ -62,6 +64,7 @@
 
 #import "UserPrefs.h"
 
+#define kHandoffUserActivityBookmark @"org.teleportaloo.pdxbus.bookmark"
 
 @interface SafeUserData : NSObject <ClearableCache>
 {
@@ -69,6 +72,7 @@
 	bool                                _favesChanged;
     SharedFile *                        _sharedUserCopyOfPlist;
     bool                                _readOnly;
+    NSString *                          _lastRunKey;
 }
 
 @property (retain)   NSMutableDictionary *      appData;
@@ -84,10 +88,12 @@
 @property (assign)	 NSDate *                   lastRun;
 @property (retain)   SharedFile *               sharedUserCopyOfPlist;
 @property            bool                       readOnly;
+@property (retain, nonatomic) NSString *        lastRunKey;
 
 + (SafeUserData *)getSingleton;
 - (void)addToRecentsWithLocation:(NSString *)locid description:(NSString *)desc;
 - (void)addToRecentTripsWithUserRequest:(NSDictionary *)userRequest description:(NSString *)desc blob:(NSData *)blob;
+- (NSDictionary *)tripArchive:(NSDictionary *)userRequest description:(NSString *)desc blob:(NSData *)blob;
 - (NSDictionary *)getTakeMeHomeUserRequest;
 - (void)saveTakeMeHomeUserRequest:(NSDictionary *)userReqest;
 - (void)clearLastArrivals;
@@ -97,7 +103,7 @@
 - (void)setLocationDatabaseDate:(NSString *)date;
 - (NSString*)getLocationDatabaseDateString;
 - (NSTimeInterval)getLocationDatabaseAge;
-- (NSArray*)arrayFromCommaSeparatedString:(NSString *)string;
+- (NSDictionary *)checkForCommuterBookmarkShowOnlyOnce:(bool)onlyOnce;
 
 
 

@@ -58,9 +58,9 @@
 	return nil;
 }
 
-- (void)DTDataPopulateCell:(DepartureUI *)dd cell:(UITableViewCell *)cell decorate:(BOOL)decorate big:(BOOL)big wide:(BOOL)wide
+- (void)DTDataPopulateCell:(DepartureUI *)dd cell:(UITableViewCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide
 {
-	[dd populateCell:cell decorate:decorate big:big busName:NO wide:wide];	
+	[dd populateCell:cell decorate:decorate busName:NO wide:wide];	
 }
 
 - (NSString *)DTDataStaticText
@@ -73,7 +73,7 @@
 	return NSLocalizedString(@"(Trip ID unavailable)", @"error text");
 }
 
-- (StopDistance*)DTDataDistance
+- (StopDistanceData*)DTDataDistance
 {
 	return nil;
 }
@@ -82,14 +82,11 @@
 	return [self DTDataGetDeparture:0].queryTime;
 }
 
-- (NSString *)DTDataLocLat
+- (NSString *)DTDataLoc
 {
 	return nil;
 }
-- (NSString *)DTDataLocLng
-{
-	return nil;
-}
+
 - (NSString *)DTDataLocDesc
 {
 	DepartureData *dep = [self DTDataGetDeparture:0];
@@ -104,11 +101,6 @@
 - (NSString *)DTDataDir
 {
 	return [self DTDataGetDeparture:0].locationDir;
-}
-
-- (id<MapPinColor>)DTDatagetPin
-{
-	return nil;
 }
 
 - (BOOL) DTDataHasDetails

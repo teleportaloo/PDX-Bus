@@ -14,6 +14,7 @@
 #import "Detour.h"
 #import "CellLabel.h"
 #import "DirectionView.h"
+#import "DebugLogging.h"
 
 #define kGettingDetours NSLocalizedString(@"getting detours", @"progress message")
 
@@ -31,20 +32,19 @@
 - (void)fetchDetours:(id) arg
 {	
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	[self.backgroundTask.callbackWhenFetching backgroundThread:[NSThread currentThread]];
-	[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:kGettingDetours];
+
+    [self.backgroundTask.callbackWhenFetching backgroundStart:1 title:kGettingDetours];
 	
-	NSError *parseError = nil;
     self.detourData = [[[XMLDetour alloc] init] autorelease];
 	
 	if (arg == nil)
 	{
-		[self.detourData getDetours:&parseError];
+		[self.detourData getDetours];
 	}
 	else 
 	{
-		[self.detourData getDetourForRoutes:(NSArray*)arg parseError:&parseError];
-	}
+		[self.detourData getDetourForRoutes:(NSArray*)arg];
+ 	}
 
 	disclaimerSection = [self.detourData safeItemCount];
 	
@@ -70,13 +70,11 @@
 - (void)fetchDetoursForRoute:(NSString *)route
 {	
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	[self.backgroundTask.callbackWhenFetching backgroundThread:[NSThread currentThread]];
 	[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:kGettingDetours];
 	
-	NSError *parseError = nil;
     self.detourData = [[[XMLDetour alloc] init] autorelease];
-	[self.detourData getDetourForRoute:route parseError:&parseError];
-
+	[self.detourData getDetourForRoute:route];
+ 
 	disclaimerSection = [self.detourData safeItemCount];
 	
 	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];

@@ -128,15 +128,13 @@
 
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-	/* TODO accessibility:  say the section header, but how? */
-    switch (indexPath.section)
+	switch (indexPath.section)
 	{
 		case kSectionWalk:
 		{
-			static NSString *segmentId1 = @"segment1";
-			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:segmentId1];
+			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionWalk)];
 			if (cell == nil) {
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:segmentId1] autorelease];
+				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionWalk)] autorelease];
 				self.walkSegment = [self createSegmentedControl:[XMLTrips distanceMapSingleton]
                                                          parent:cell.contentView
                                                          action:@selector(walkSegmentChanged:)];
@@ -157,10 +155,9 @@
 		}
 		case kSectionMode:
 		{
-			static NSString *segmentId2 = @"segment2";
-			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:segmentId2];
+			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionMode)];
 			if (cell == nil) {
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:segmentId2] autorelease];
+				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionMode)] autorelease];
 				self.modeSegment = [self createSegmentedControl:
 									[NSArray arrayWithObjects: @"Bus only", @"Rail only", @"Bus or Rail", nil] 
 														 parent:cell.contentView action:@selector(modeSegmentChanged:)];
@@ -180,10 +177,9 @@
 			{
 			case kMinRowSeg:
 				{
-					static NSString *segmentId3 = @"segment3";
-					UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:segmentId3];
+					UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kMinRowSeg)];
 					if (cell == nil) {
-						cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:segmentId3] autorelease];
+						cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kMinRowSeg)] autorelease];
 						self.minSegment = [self createSegmentedControl:
 									[NSArray arrayWithObjects: @"Quickest trip", @"Fewest transfers", @"Shortest walk", nil] 
 														 parent:cell.contentView action:@selector(minSegmentChanged:)];
@@ -199,10 +195,9 @@
 				break;
 			case kMinRowInfo:
 				{
-					static NSString *infoId = @"info";
-					CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:infoId];
+					CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kMinRowInfo)];
 					if (cell == nil) {
-						cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:infoId] autorelease];
+						cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kMinRowInfo)] autorelease];
 						cell.view = [self create_UITextView:[UIColor clearColor] font:TableViewBackFont];
 					}
 					

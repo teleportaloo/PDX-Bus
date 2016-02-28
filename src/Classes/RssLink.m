@@ -56,7 +56,7 @@
 
 #pragma mark UI helpers
 
-- (CGFloat)getTimeHeight:(ScreenType)width
+- (CGFloat)getTimeHeight:(ScreenWidth)width
 {
 	if (LargeScreenStyle(width))
 	{
@@ -66,13 +66,13 @@
 	return 16.0;
 }
 
-- (NSString *)cellReuseIdentifier:(NSString *)identifier width:(ScreenType)width
+- (NSString *)cellReuseIdentifier:(NSString *)identifier width:(ScreenWidth)width
 {
 	return [NSString stringWithFormat:@"%@-%d", identifier, width];
 }
 
 
-- (UITableViewCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier width:(ScreenType)width font:(UIFont*)font
+- (UITableViewCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier width:(ScreenWidth)width font:(UIFont*)font
 {
 	CGFloat TIME_FONT_SIZE				= 14.0;	
 	CGFloat TIME_HEIGHT					= [self getTimeHeight:width];

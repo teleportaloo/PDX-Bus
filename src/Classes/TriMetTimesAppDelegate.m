@@ -27,6 +27,7 @@
 #import "AlarmTaskList.h"
 #import <Twitter/TWTweetComposeViewController.h>
 #import "WebViewController.h"
+#import <CoreSpotlight/CoreSpotlight.h>
 
 @implementation TriMetTimesAppDelegate
 
@@ -67,7 +68,7 @@
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
-    DEBUG_LOG(@"applicationDidBecomeActive\n");
+    DEBUG_FUNC();
     bool newWindow = NO;
     
     [self cleanStart];
@@ -80,7 +81,7 @@
     
     if ([UserPrefs getSingleton].autoCommute)
 	{
-        rootViewController.commuterBookmark  = [self checkForCommuterBookmarkShowOnlyOnce:YES];
+        rootViewController.commuterBookmark  = [[SafeUserData getSingleton] checkForCommuterBookmarkShowOnlyOnce:YES];
 	}
     
     [rootViewController executeInitialAction];
@@ -154,8 +155,7 @@
 
 
 - (void)applicationDidFinishLaunching:(UIApplication *)application {
-    DEBUG_LOG(@"applicationDidFinishLaunching\n");
-    
+    DEBUG_FUNC();
    // [actualRootViewController initRootWindow];
     
 	// Check for data in Documents directory. Copy default appData.plist to Documents if not found.
@@ -186,6 +186,16 @@
 	DEBUG_PRINTF("Last arrivals %s clean %d\n", [rootViewController.lastArrivalsShown cStringUsingEncoding:NSUTF8StringEncoding],
 				 self.cleanExitLastTime);
     
+    
+    if ([application respondsToSelector:@selector(registerUserNotificationSettings:)]) {
+
+        UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:(UIUserNotificationTypeAlert
+                                                                                             | UIUserNotificationTypeBadge
+                                                                                             | UIUserNotificationTypeSound) categories:nil];
+        [application registerUserNotificationSettings:settings];
+    }
+    
+    
     rootViewController.lastArrivalsShown = [SafeUserData getSingleton].last;
 	rootViewController.lastArrivalNames  = [SafeUserData getSingleton].lastNames;
     
@@ -209,6 +219,15 @@
     
     window.rootViewController = self.navigationController ;
     
+    NSArray *windows = [[UIApplication sharedApplication] windows];
+    for(UIWindow *win in windows) {
+        DEBUG_LOG(@"window: %@",win.description);
+        if(win.rootViewController == nil){
+            UIViewController* vc = [[UIViewController alloc]initWithNibName:nil bundle:nil];
+            win.rootViewController = vc;
+        }
+    }
+    
    	[window makeKeyAndVisible];
 		
 #if defined(MAXCOLORS) && defined(CREATE_MAX_ARRAYS)
@@ -223,6 +242,64 @@
     [self cleanExit];
 	[StopLocations quit];
 }
+
+- (BOOL)application:(UIApplication *)application willContinueUserActivityWithType:(NSString *)userActivityType
+{
+    return YES;
+}
+
+- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void(^)(NSArray * __nullable restorableObjects))restorationHandler
+{
+    DEBUG_FUNC();
+    
+    if ([userActivity.activityType isEqualToString:CSSearchableItemActionType])
+    {
+        self.rootViewController.initialActionArgs = userActivity.userInfo;
+        
+        self.rootViewController.initialAction = InitialAction_UserActivitySearch;
+        
+        if (rootViewController != nil)
+        {
+            [rootViewController executeInitialAction];
+        }
+    }
+    else if ([userActivity.activityType isEqualToString:kHandoffUserActivityBookmark])
+    {
+    
+        self.rootViewController.initialActionArgs = userActivity.userInfo;
+    
+        self.rootViewController.initialAction = InitialAction_UserActivityBookmark;
+    
+        if (rootViewController != nil)
+        {
+            [rootViewController executeInitialAction];
+        }
+    }
+    
+    return YES;
+}
+
+- (void)application:(UIApplication *)application didFailToContinueUserActivityWithType:(NSString *)userActivityType error:(NSError *)error
+{
+    
+}
+
+- (void)application:(UIApplication *)application
+performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
+  completionHandler:(void (^)(BOOL succeeded))completionHandler
+{
+    self.rootViewController.initialActionArgs = shortcutItem.userInfo;
+    
+    self.rootViewController.initialAction = InitialAction_UserActivityBookmark;
+    
+    if (rootViewController != nil)
+    {
+        [rootViewController executeInitialAction];
+    }
+    
+    completionHandler(YES);
+}
+
 
 - (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url
 {	
@@ -443,7 +520,7 @@
 
 - (BOOL)processStopFromURL:(NSString *)stops
 {
-    DEBUG_LOG(@"processStopFromURL\n");
+    DEBUG_FUNC();
 	if ([stops length] == 0)
 	{
 		return YES;
@@ -559,9 +636,12 @@
 				[newFave setObject:stops forKey:kUserFavesLocation];
 				[userData.faves addObject:newFave];
 				[newFave release];
+                
 			}
 		}
 	}
+    
+    [userData cacheAppData];
 	
 	return YES;
 }
@@ -584,63 +664,8 @@
 	return (TriMetTimesAppDelegate *)[[UIApplication sharedApplication] delegate];
 }
 
-#define IS_MORNING(hour) (hour<12)
 
-- (NSDictionary *)checkForCommuterBookmarkShowOnlyOnce:(bool)onlyOnce
-{
-	SafeUserData *userData			 = [SafeUserData getSingleton];
-	NSDate *lastRun					 = [userData.lastRun retain];
-	NSDate *now						 = [NSDate date];
-	userData.lastRun				 = now;
-	bool firstRunInPeriod			 = YES;
-	unsigned unitFlags				 = NSYearCalendarUnit | NSMonthCalendarUnit |  NSDayCalendarUnit | kCFCalendarUnitHour | kCFCalendarUnitWeekday;
-	NSCalendar       *cal			 = [NSCalendar currentCalendar];
-	NSDateComponents *nowComponents  = [cal components:(NSUInteger)unitFlags fromDate:now];
-	
-	if (lastRun != nil)
-	{
-		NSDateComponents *lastComponents = [cal components:(NSUInteger)unitFlags fromDate:lastRun];
-	
-		if (
-				lastComponents.year  == nowComponents.year 
-			&&	lastComponents.month == nowComponents.month
-			&&  lastComponents.day	 == nowComponents.day
-			&&  IS_MORNING(lastComponents.hour) == IS_MORNING(nowComponents.hour) )
-		{
-			firstRunInPeriod = NO;
-		}
-		[lastRun release];
-	}
-	
-	if (!onlyOnce || firstRunInPeriod)
-	{		
-		int todayBit = (0x1 << nowComponents.weekday);
-		
-		NSArray *faves = [userData faves];
-		for (NSDictionary * fave in faves)
-		{
-			NSNumber *dow = [fave objectForKey:kUserFavesDayOfWeek];
-			NSNumber *am  = [fave objectForKey:kUserFavesMorning];
-			if (dow && [fave objectForKey:kUserFavesLocation]!=nil)
-			{
-				// does the day of week match our day of week?
-				if (([dow intValue] & todayBit) !=0)
-				{
-					// Does AM match or PM match?
-					if ((   (am == nil ||  [am boolValue]) &&  IS_MORNING(nowComponents.hour))
-						 || (am != nil && ![am boolValue]  && !IS_MORNING(nowComponents.hour)))
-					{
-						return [[fave retain] autorelease];
-					}
-				}
-			}
-		}
-		
-		// Didn't find anything - set this to nil just in case the user sets one up 
-		userData.lastRun = nil;
-	}
-	return nil;
-}
+
 
 
 @end

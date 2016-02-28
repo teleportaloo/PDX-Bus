@@ -21,18 +21,22 @@
 	NSString *_pinSubtitle;
 	MKPinAnnotationColor _pinColor;
 	CLLocationCoordinate2D coord;
+    UIColor *_pinTint;
+    double _bearing;
+    bool _hasBearing;
 }
 
 - (NSString *)title;
 - (NSString *)subtitle;
 - (MKPinAnnotationColor) getPinColor;
-- (void)setCoordinateLat:(NSString *)lat lng:(NSString *)lng;
 - (void)setCoord:(CLLocationCoordinate2D)value;
-- (bool) showActionMenu;
+- (bool)showActionMenu;
+- (void)setBearing:(double)bearing;
 
 @property (nonatomic,retain) NSString *pinTitle;
 @property (nonatomic,retain) NSString *pinSubtitle;
 @property (nonatomic) MKPinAnnotationColor pinColor;
+@property (nonatomic, retain) UIColor *pinTint;
 
 
 @end
