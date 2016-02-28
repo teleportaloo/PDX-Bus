@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>files</key>
+	<dict>
+		<key>Info.plist</key>
+		<data>
+		5kr3abtVLPCr6bhgEbs7ATQFDyo=
+		</data>
+		<key>PDX Bus WatchKit App.app/AppIcon24x24@2x.png</key>
+		<data>
+		3IzQEyoPCpBgCsMsYKMJ3Sm1vao=
+		</data>
+		<key>PDX Bus WatchKit App.app/AppIcon27.5x27.5@2x.png</key>
+		<data>
+		mIeW+NkTZmWy+PYvsyFN+3I1Q2U=
+		</data>
+		<key>PDX Bus WatchKit App.app/AppIcon29x29@2x.png</key>
+		<data>
+		8i7gmtG/DF9xdglSfKmT8VHWpf0=
+		</data>
+		<key>PDX Bus WatchKit App.app/AppIcon29x29@3x.png</key>
+		<data>
+		bHABh2sYdEXf0tzuQEJNUvX5pAQ=
+		</data>
+		<key>PDX Bus WatchKit App.app/AppIcon40x40@2x.png</key>
+		<data>
+		/zj93SEfVPDZXouBXTwrlbGYvqY=
+		</data>
+		<key>PDX Bus WatchKit App.app/AppIcon44x44@2x.png</key>
+		<data>
+		hpEUidqrntzFciMfGM6ynP/zVf0=
+		</data>
+		<key>PDX Bus WatchKit App.app/AppIcon86x86@2x.png</key>
+		<data>
+		rFKZy7SI2DRNbOMl6qNrMIuYrTM=
+		</data>
+		<key>PDX Bus WatchKit App.app/AppIcon98x98@2x.png</key>
+		<data>
+		p2ePRkt4B4qLsFUuV4B9Zof6jGg=
+		</data>
+		<key>PDX Bus WatchKit App.app/Assets.car</key>
+		<data>
+		5O5cRYIcLB5YvreSK8FCjZYp35M=
+		</data>
+		<key>PDX Bus WatchKit App.app/Base.lproj/Interface.plist</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			t5/tV7LbLfsODLqEqn1FCwOzGTo=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
+		<key>PDX Bus WatchKit App.app/Info.plist</key>
+		<data>
+		S2tBpZ34aXapOhAzOisJbfMrC78=
+		</data>
+		<key>PDX Bus WatchKit App.app/PDX Bus WatchKit App</key>
+		<data>
+		OYrTRBPIKsXrgCS87eRhawrkX1Q=
+		</data>
+		<key>PDX Bus WatchKit App.app/PkgInfo</key>
+		<data>
+		n57qDP4tZfLD1rCS43W0B4LQjzE=
+		</data>
+		<key>PDX Bus WatchKit App.app/_CodeSignature/CodeResources</key>
+		<data>
+		MJkYQmwadMBUwg2INYtpw174HMQ=
+		</data>
+		<key>PDX Bus WatchKit App.app/_WatchKitStub/WK</key>
+		<data>
+		3u1pnzoZehfA0rR0gs7VcaaFjCI=
+		</data>
+		<key>PDX Bus WatchKit App.app/embedded.mobileprovision</key>
+		<data>
+		bY1pPeM5t7LKE5JuU8mA3nLaLys=
+		</data>
+		<key>appData.plist</key>
+		<data>
+		5E11Ts6qKFAYcr+z3IsyxzSHmug=
+		</data>
+		<key>embedded.mobileprovision</key>
+		<data>
+		x2IrEGZ20ACJpPJrsmF2oy0DnUw=
+		</data>
+		<key>icon_arrow_up.png</key>
+		<data>
+		qxLlAC/TMSp2E5FTHdVNXl9j6jw=
+		</data>
+		<key>icon_arrow_up@2x.png</key>
+		<data>
+		R3K+FowUO2YpvN/ehAGViohGqxI=
+		</data>
+	</dict>
+	<key>files2</key>
+	<dict>
+		<key>PDX Bus WatchKit App.app/AppIcon24x24@2x.png</key>
+		<data>
+		3IzQEyoPCpBgCsMsYKMJ3Sm1vao=
+		</data>
+		<key>PDX Bus WatchKit App.app/AppIcon27.5x27.5@2x.png</key>
+		<data>
+		mIeW+NkTZmWy+PYvsyFN+3I1Q2U=
+		</data>
+		<key>PDX Bus WatchKit App.app/AppIcon29x29@2x.png</key>
+		<data>
+		8i7gmtG/DF9xdglSfKmT8VHWpf0=
+		</data>
+		<key>PDX Bus WatchKit App.app/AppIcon29x29@3x.png</key>
+		<data>
+		bHABh2sYdEXf0tzuQEJNUvX5pAQ=
+		</data>
+		<key>PDX Bus WatchKit App.app/AppIcon40x40@2x.png</key>
+		<data>
+		/zj93SEfVPDZXouBXTwrlbGYvqY=
+		</data>
+		<key>PDX Bus WatchKit App.app/AppIcon44x44@2x.png</key>
+		<data>
+		hpEUidqrntzFciMfGM6ynP/zVf0=
+		</data>
+		<key>PDX Bus WatchKit App.app/AppIcon86x86@2x.png</key>
+		<data>
+		rFKZy7SI2DRNbOMl6qNrMIuYrTM=
+		</data>
+		<key>PDX Bus WatchKit App.app/AppIcon98x98@2x.png</key>
+		<data>
+		p2ePRkt4B4qLsFUuV4B9Zof6jGg=
+		</data>
+		<key>PDX Bus WatchKit App.app/Assets.car</key>
+		<data>
+		5O5cRYIcLB5YvreSK8FCjZYp35M=
+		</data>
+		<key>PDX Bus WatchKit App.app/Base.lproj/Interface.plist</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			t5/tV7LbLfsODLqEqn1FCwOzGTo=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
+		<key>PDX Bus WatchKit App.app/Info.plist</key>
+		<data>
+		S2tBpZ34aXapOhAzOisJbfMrC78=
+		</data>
+		<key>PDX Bus WatchKit App.app/PDX Bus WatchKit App</key>
+		<data>
+		OYrTRBPIKsXrgCS87eRhawrkX1Q=
+		</data>
+		<key>PDX Bus WatchKit App.app/PkgInfo</key>
+		<data>
+		n57qDP4tZfLD1rCS43W0B4LQjzE=
+		</data>
+		<key>PDX Bus WatchKit App.app/_CodeSignature/CodeResources</key>
+		<data>
+		MJkYQmwadMBUwg2INYtpw174HMQ=
+		</data>
+		<key>PDX Bus WatchKit App.app/_WatchKitStub/WK</key>
+		<data>
+		3u1pnzoZehfA0rR0gs7VcaaFjCI=
+		</data>
+		<key>PDX Bus WatchKit App.app/embedded.mobileprovision</key>
+		<data>
+		bY1pPeM5t7LKE5JuU8mA3nLaLys=
+		</data>
+		<key>appData.plist</key>
+		<data>
+		5E11Ts6qKFAYcr+z3IsyxzSHmug=
+		</data>
+		<key>embedded.mobileprovision</key>
+		<data>
+		x2IrEGZ20ACJpPJrsmF2oy0DnUw=
+		</data>
+		<key>icon_arrow_up.png</key>
+		<data>
+		qxLlAC/TMSp2E5FTHdVNXl9j6jw=
+		</data>
+		<key>icon_arrow_up@2x.png</key>
+		<data>
+		R3K+FowUO2YpvN/ehAGViohGqxI=
+		</data>
+	</dict>
+	<key>rules</key>
+	<dict>
+		<key>^</key>
+		<true/>
+		<key>^.*\.lproj/</key>
+		<dict>
+			<key>optional</key>
+			<true/>
+			<key>weight</key>
+			<real>1000</real>
+		</dict>
+		<key>^.*\.lproj/locversion.plist$</key>
+		<dict>
+			<key>omit</key>
+			<true/>
+			<key>weight</key>
+			<real>1100</real>
+		</dict>
+		<key>^version.plist$</key>
+		<true/>
+	</dict>
+	<key>rules2</key>
+	<dict>
+		<key>.*\.dSYM($|/)</key>
+		<dict>
+			<key>weight</key>
+			<real>11</real>
+		</dict>
+		<key>^</key>
+		<dict>
+			<key>weight</key>
+			<real>20</real>
+		</dict>
+		<key>^(.*/)?\.DS_Store$</key>
+		<dict>
+			<key>omit</key>
+			<true/>
+			<key>weight</key>
+			<real>2000</real>
+		</dict>
+		<key>^(Frameworks|SharedFrameworks|PlugIns|Plug-ins|XPCServices|Helpers|MacOS|Library/(Automator|Spotlight|LoginItems))/</key>
+		<dict>
+			<key>nested</key>
+			<true/>
+			<key>weight</key>
+			<real>10</real>
+		</dict>
+		<key>^.*</key>
+		<true/>
+		<key>^.*\.lproj/</key>
+		<dict>
+			<key>optional</key>
+			<true/>
+			<key>weight</key>
+			<real>1000</real>
+		</dict>
+		<key>^.*\.lproj/locversion.plist$</key>
+		<dict>
+			<key>omit</key>
+			<true/>
+			<key>weight</key>
+			<real>1100</real>
+		</dict>
+		<key>^Info\.plist$</key>
+		<dict>
+			<key>omit</key>
+			<true/>
+			<key>weight</key>
+			<real>20</real>
+		</dict>
+		<key>^PkgInfo$</key>
+		<dict>
+			<key>omit</key>
+			<true/>
+			<key>weight</key>
+			<real>20</real>
+		</dict>
+		<key>^[^/]+$</key>
+		<dict>
+			<key>nested</key>
+			<true/>
+			<key>weight</key>
+			<real>10</real>
+		</dict>
+		<key>^embedded\.provisionprofile$</key>
+		<dict>
+			<key>weight</key>
+			<real>20</real>
+		</dict>
+		<key>^version\.plist$</key>
+		<dict>
+			<key>weight</key>
+			<real>20</real>
+		</dict>
+	</dict>
+</dict>
+</plist>

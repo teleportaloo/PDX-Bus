@@ -1,0 +1,640 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PreferenceSpecifiers</key>
+	<array>
+		<dict>
+			<key>Title</key>
+			<string>On startup show:</string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<string>YES</string>
+			<key>Key</key>
+			<string>auto_commute</string>
+			<key>Title</key>
+			<string>Auto Commuter bookmark</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+		<dict>
+			<key>Title</key>
+			<string>On the main screen show:</string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<string>NO</string>
+			<key>Key</key>
+			<string>bookmarks_at_the_top</string>
+			<key>Title</key>
+			<string>Bookmarks at the top</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Optional Toolbar Icons</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Locate icon</string>
+			<key>Key</key>
+			<string>locate_toolbar_icon</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>QR code scanner icon</string>
+			<key>Key</key>
+			<string>qr_code_scanner_icon</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<string>YES</string>
+			<key>Key</key>
+			<string>commute_button</string>
+			<key>Title</key>
+			<string>Auto Commute bookmark icon</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>TriMet Tickets App icon</string>
+			<key>Key</key>
+			<string>ticket_app_icon</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Flashing Light icon</string>
+			<key>Key</key>
+			<string>flashing_light_icon</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>Title</key>
+			<string>Look and feel:</string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<string>YES</string>
+			<key>Key</key>
+			<string>action_icons</string>
+			<key>Title</key>
+			<string>Show colorful icons</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<integer>609678</integer>
+			<key>Key</key>
+			<string>toolbar_colors</string>
+			<key>Title</key>
+			<string>Color theme</string>
+			<key>Titles</key>
+			<array>
+				<string>Standard</string>
+				<string>Blue</string>
+				<string>Green</string>
+				<string>Brown</string>
+				<string>Orange</string>
+				<string>Red</string>
+				<string>Purple</string>
+				<string>Salmon</string>
+				<string>Gold</string>
+			</array>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Values</key>
+			<array>
+				<integer>16777215</integer>
+				<integer>609678</integer>
+				<integer>6397028</integer>
+				<integer>6042391</integer>
+				<integer>16750848</integer>
+				<integer>11141120</integer>
+				<integer>6684723</integer>
+				<integer>14781291</integer>
+				<integer>16494871</integer>
+			</array>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<string>NO</string>
+			<key>Key</key>
+			<string>flash_led</string>
+			<key>Title</key>
+			<string>Flash LED for Visibility</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Warnings</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Show Flashing Light warning</string>
+			<key>Key</key>
+			<string>flashing_light_warning</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>Title</key>
+			<string>Recent History:</string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<integer>10</integer>
+			<key>Key</key>
+			<string>recent_stops</string>
+			<key>Title</key>
+			<string>Number of recent stops</string>
+			<key>Titles</key>
+			<array>
+				<string>None</string>
+				<string>1</string>
+				<string>5</string>
+				<string>10</string>
+				<string>15</string>
+				<string>20</string>
+			</array>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Values</key>
+			<array>
+				<integer>0</integer>
+				<integer>1</integer>
+				<integer>5</integer>
+				<integer>10</integer>
+				<integer>15</integer>
+				<integer>20</integer>
+			</array>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<integer>10</integer>
+			<key>Key</key>
+			<string>trip_history</string>
+			<key>Title</key>
+			<string>Number of recent trips</string>
+			<key>Titles</key>
+			<array>
+				<string>None</string>
+				<string>1</string>
+				<string>5</string>
+				<string>10</string>
+				<string>15</string>
+				<string>20</string>
+			</array>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Values</key>
+			<array>
+				<integer>0</integer>
+				<integer>1</integer>
+				<integer>5</integer>
+				<integer>10</integer>
+				<integer>15</integer>
+				<integer>20</integer>
+			</array>
+		</dict>
+		<dict>
+			<key>New item</key>
+			<dict>
+				<key>Title</key>
+				<string>Arrivals screen:</string>
+				<key>Type</key>
+				<string>PSGroupSpecifier</string>
+			</dict>
+			<key>Title</key>
+			<string>Arrivals screen:</string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<string>YES</string>
+			<key>Key</key>
+			<string>auto_refresh</string>
+			<key>Title</key>
+			<string>Auto refresh</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<string>YES</string>
+			<key>Key</key>
+			<string>shake_to_refresh</string>
+			<key>Title</key>
+			<string>Shake to refresh</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Group by Arrivals icon</string>
+			<key>Key</key>
+			<string>group_by_arrivals_icon</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>Title</key>
+			<string>Route &amp; Stop Data Cache:</string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<integer>1</integer>
+			<key>Key</key>
+			<string>route_cache</string>
+			<key>Title</key>
+			<string>Keep data until</string>
+			<key>Titles</key>
+			<array>
+				<string>app quits</string>
+				<string>end of day</string>
+				<string>end of week</string>
+			</array>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Values</key>
+			<array>
+				<integer>0</integer>
+				<integer>1</integer>
+				<integer>7</integer>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Stop Locator Toolbar behavior:</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Always show options</string>
+			<key>Key</key>
+			<string>auto_locate_show_options</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>Title</key>
+			<string>Default Trip Planner Options:</string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<real>0.5</real>
+			<key>Key</key>
+			<string>max_walking_distance</string>
+			<key>Title</key>
+			<string>Max walking distance</string>
+			<key>Titles</key>
+			<array>
+				<string>1/10 mile</string>
+				<string>1/4 mile</string>
+				<string>1/2 mile</string>
+				<string>3/4 mile</string>
+				<string>1 mile</string>
+				<string>2 miles</string>
+			</array>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Values</key>
+			<array>
+				<real>0.1</real>
+				<real>0.25</real>
+				<real>0.5</real>
+				<real>0.75</real>
+				<integer>1</integer>
+				<real>2</real>
+			</array>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<integer>2</integer>
+			<key>Key</key>
+			<string>travel_by</string>
+			<key>Title</key>
+			<string>Travel by</string>
+			<key>Titles</key>
+			<array>
+				<string>Bus only</string>
+				<string>Train only</string>
+				<string>Bus or train</string>
+			</array>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Values</key>
+			<array>
+				<integer>0</integer>
+				<integer>1</integer>
+				<integer>2</integer>
+			</array>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<integer>0</integer>
+			<key>Key</key>
+			<string>min</string>
+			<key>Title</key>
+			<string>Show me the</string>
+			<key>Titles</key>
+			<array>
+				<string>Quickest Trip</string>
+				<string>Fewest Transfers</string>
+				<string>Shortest Walk</string>
+			</array>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Values</key>
+			<array>
+				<integer>0</integer>
+				<integer>1</integer>
+				<integer>2</integer>
+			</array>
+		</dict>
+		<dict>
+			<key>Title</key>
+			<string>The proximity alarm initially uses cell-towers to locate the device, this is less accurate but does use low power.  As you get close to your stop, PDX Bus will switch to using GPS which is accurate but uses more power. </string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<real>4828.032</real>
+			<key>Key</key>
+			<string>proximity_gps</string>
+			<key>Title</key>
+			<string>Use GPS within</string>
+			<key>Titles</key>
+			<array>
+				<string>1 mile</string>
+				<string>2 miles</string>
+				<string>3 miles</string>
+				<string>4 miles</string>
+				<string>5 miles</string>
+			</array>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Values</key>
+			<array>
+				<real>1609.344</real>
+				<real>3218.688</real>
+				<real>4828.032</real>
+				<real>6437.376</real>
+				<real>8046.72</real>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Alarm Warnings</string>
+		</dict>
+		<dict>
+			<key>Values</key>
+			<array>
+				<string>default_sound.wav</string>
+				<string>Train_Honk_Horn_2x-Mike_Koenig-157974048.aif</string>
+				<string>Pager Beeps-SoundBible.com-260751720.aiff</string>
+			</array>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Alarm Sound</string>
+			<key>Key</key>
+			<string>alarm_sound</string>
+			<key>Titles</key>
+			<array>
+				<string>Default Notification Sound</string>
+				<string>Train Honk</string>
+				<string>Pager Sound</string>
+			</array>
+			<key>DefaultValue</key>
+			<string>Train_Honk_Horn_2x-Mike_Koenig-157974048.aif</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Initial 10 min warning</string>
+			<key>Key</key>
+			<string>alarm_initial_10_min_warning</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>Title</key>
+			<string>Debugging options:</string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Cache data</string>
+			<key>Key</key>
+			<string>use_caching</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Debug raw XML data</string>
+			<key>Key</key>
+			<string>debug_xml</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Use beta vehicle locator</string>
+			<key>Key</key>
+			<string>use_beta_vehicle_locator</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Show trips in details</string>
+			<key>Key</key>
+			<string>show_trips</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>The vehicle locator is an experimental feature that will try to find which vehicle you are currently on. The distance may need tuning - if it is too big it will find too many vehicles close by, but too small and it won&apos;t find the one you are on.</string>
+		</dict>
+		<dict>
+			<key>Values</key>
+			<array>
+				<integer>0</integer>
+				<integer>200</integer>
+				<real>400</real>
+				<real>600</real>
+				<integer>800</integer>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>OFF</string>
+				<string>200 meters</string>
+				<string>400 meters</string>
+				<string>600 meters</string>
+				<string>800 meters</string>
+			</array>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Vehicle Locator</string>
+			<key>Key</key>
+			<string>vehicle_locator_distance</string>
+			<key>DefaultValue</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>Title</key>
+			<string>Show Streetcar Map initially instead of the MAX map.</string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Streetcar map first</string>
+			<key>Key</key>
+			<string>streetcar_map_first</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>Title</key>
+			<string>Show a link to TriMet&apos;s Transit Tracker for each stop:</string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<string>NO</string>
+			<key>FalseValue</key>
+			<string>NO</string>
+			<key>Key</key>
+			<string>show_transit_tracker</string>
+			<key>Title</key>
+			<string>Tracker link</string>
+			<key>TrueValue</key>
+			<string>YES</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Use Google Chrome instead of Safari embedded inside the app - this will take you outside of the app but you can navigate quickly back.</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Use Chrome</string>
+			<key>Key</key>
+			<string>chrome</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Search Options</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Add station names to search</string>
+			<key>Key</key>
+			<string>search_stations</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Add bookmarks to search</string>
+			<key>Key</key>
+			<string>search_bookmarks</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Add routes to search</string>
+			<key>Key</key>
+			<string>search_routes</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
+	</array>
+	<key>StringsTable</key>
+	<string>Root</string>
+	<key>Title</key>
+	<string>PDX Bus</string>
+</dict>
+</plist>
