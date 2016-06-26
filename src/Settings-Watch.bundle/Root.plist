@@ -36,7 +36,7 @@
 		</dict>
 		<dict>
 			<key>DefaultValue</key>
-			<string>YES</string>
+			<true/>
 			<key>Key</key>
 			<string>watch_auto_commute</string>
 			<key>Title</key>

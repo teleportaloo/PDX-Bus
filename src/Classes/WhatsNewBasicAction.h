@@ -19,5 +19,8 @@
 @interface WhatsNewBasicAction : NSObject <WhatsNewSpecialAction>
 
 - (NSString*)prefix:(NSString *)item restOfText:(NSString**)rest;
+- (NSString*)plainTextIndented:(NSString *)fullText;
+- (NSString*)plainTextNormal:(NSString *)fullText;
+
 
 @end

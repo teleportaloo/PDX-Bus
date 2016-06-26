@@ -28,6 +28,7 @@
 @property (retain, nonatomic) WatchBookmarksContext *bookmarksContext;
 @property (retain, nonatomic) NSArray *displayedItems;
 - (IBAction)menuItemHome;
+- (IBAction)enterStopId;
 - (IBAction)menuItemCommute;
 @property (strong, nonatomic) IBOutlet WKInterfaceGroup *topGroup;
 @property (strong, nonatomic) IBOutlet WKInterfaceGroup *bottomGroup;

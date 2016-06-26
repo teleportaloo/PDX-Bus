@@ -20,6 +20,7 @@
 		A10946B31A463FDF00356E8D /* Social.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A10946B21A463FDF00356E8D /* Social.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		A109801B1612CE600036D8C9 /* v2AppIcon50x50@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A125BD3D161161FB0079274B /* v2AppIcon50x50@2x.png */; };
 		A10CCD071037B72E00328A94 /* TripPlannerOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = A10CCD061037B72E00328A94 /* TripPlannerOptions.m */; };
+		A11225831C9F4F1C00910D30 /* NumberPadInterfaceController.m in Sources */ = {isa = PBXBuildFile; fileRef = A11225821C9F4F1C00910D30 /* NumberPadInterfaceController.m */; };
 		A1124BE81BCB0EC600F3D3A3 /* GeoLocator.m in Sources */ = {isa = PBXBuildFile; fileRef = A1124BE71BCB0EC600F3D3A3 /* GeoLocator.m */; };
 		A1125EAE16223F5A00C647A4 /* SupportView.h in Resources */ = {isa = PBXBuildFile; fileRef = A1125EAD16223F5A00C647A4 /* SupportView.h */; };
 		A112D0E11A469DA40023C947 /* watch.png in Resources */ = {isa = PBXBuildFile; fileRef = A112D0E01A469DA40023C947 /* watch.png */; };
@@ -131,6 +132,7 @@
 		A17254D2125AD75F007EE22D /* RailStation.m in Sources */ = {isa = PBXBuildFile; fileRef = A17254D1125AD75F007EE22D /* RailStation.m */; };
 		A1725643125C1FAE007EE22D /* AllRailStationView.m in Sources */ = {isa = PBXBuildFile; fileRef = A1725642125C1FAE007EE22D /* AllRailStationView.m */; };
 		A1725948125D6CB7007EE22D /* RouteColorBlobView.m in Sources */ = {isa = PBXBuildFile; fileRef = A1725947125D6CB7007EE22D /* RouteColorBlobView.m */; };
+		A17841591CA7562E00E470F8 /* mic-128-000000.png in Resources */ = {isa = PBXBuildFile; fileRef = A17841551CA7557800E470F8 /* mic-128-000000.png */; };
 		A17ED2D6182F1CA6008883D5 /* NearestVehiclesMap.m in Sources */ = {isa = PBXBuildFile; fileRef = A17ED2D5182F1CA6008883D5 /* NearestVehiclesMap.m */; };
 		A17ED2D9182F4DFA008883D5 /* VehicleLocatingTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = A17ED2D8182F4DFA008883D5 /* VehicleLocatingTableView.m */; };
 		A17ED2DC182F5033008883D5 /* VehicleTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = A17ED2DB182F5033008883D5 /* VehicleTableView.m */; };
@@ -206,6 +208,7 @@
 		A19CC7C1125599D5002EBF63 /* TripPlannerSummaryView.m in Sources */ = {isa = PBXBuildFile; fileRef = A19CC7C0125599D5002EBF63 /* TripPlannerSummaryView.m */; };
 		A19FA74614524119008BE90F /* AlertViewCancelsTask.m in Sources */ = {isa = PBXBuildFile; fileRef = A19FA74514524119008BE90F /* AlertViewCancelsTask.m */; };
 		A1A6EB0513A58B430000E7C0 /* Train_Honk_Horn_2x-Mike_Koenig-157974048.aif in Resources */ = {isa = PBXBuildFile; fileRef = A1A6EB0413A58B430000E7C0 /* Train_Honk_Horn_2x-Mike_Koenig-157974048.aif */; };
+		A1A7EDCC1CB96E96003B66DF /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1A7EDCB1CB96E96003B66DF /* SafariServices.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		A1ABB1771763E1BB00BED1C0 /* TripLegEndPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = A1ABB1761763E1BB00BED1C0 /* TripLegEndPoint.m */; };
 		A1ABB17A1763E32D00BED1C0 /* TripLeg.m in Sources */ = {isa = PBXBuildFile; fileRef = A1ABB1791763E32C00BED1C0 /* TripLeg.m */; };
 		A1ABB17D1763E3CD00BED1C0 /* TripEndPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = A1ABB17C1763E3CC00BED1C0 /* TripEndPoint.m */; };
@@ -443,6 +446,8 @@
 		A10946B21A463FDF00356E8D /* Social.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Social.framework; path = System/Library/Frameworks/Social.framework; sourceTree = SDKROOT; };
 		A10CCD051037B72E00328A94 /* TripPlannerOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TripPlannerOptions.h; sourceTree = "<group>"; };
 		A10CCD061037B72E00328A94 /* TripPlannerOptions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = TripPlannerOptions.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		A11225811C9F4F1C00910D30 /* NumberPadInterfaceController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NumberPadInterfaceController.h; sourceTree = "<group>"; };
+		A11225821C9F4F1C00910D30 /* NumberPadInterfaceController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NumberPadInterfaceController.m; sourceTree = "<group>"; };
 		A1124BE61BCB0EC600F3D3A3 /* GeoLocator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoLocator.h; sourceTree = "<group>"; };
 		A1124BE71BCB0EC600F3D3A3 /* GeoLocator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeoLocator.m; sourceTree = "<group>"; };
 		A1125EAD16223F5A00C647A4 /* SupportView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SupportView.h; sourceTree = "<group>"; };
@@ -637,6 +642,8 @@
 		A1725946125D6CB7007EE22D /* RouteColorBlobView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RouteColorBlobView.h; sourceTree = "<group>"; };
 		A1725947125D6CB7007EE22D /* RouteColorBlobView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RouteColorBlobView.m; sourceTree = "<group>"; };
 		A176AB6D126402940037DF61 /* SearchFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SearchFilter.h; sourceTree = "<group>"; };
+		A17841551CA7557800E470F8 /* mic-128-000000.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "mic-128-000000.png"; path = "uxrepo.com/mic-128-000000.png"; sourceTree = "<group>"; };
+		A17841571CA7562000E470F8 /* This Folder Creative Commons.markdown */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = "This Folder Creative Commons.markdown"; path = "uxrepo.com/This Folder Creative Commons.markdown"; sourceTree = "<group>"; };
 		A17A6C69160C28F00082F97E /* StreetcarMap.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = StreetcarMap.gif; path = "Portland Streetcar/StreetcarMap.gif"; sourceTree = "<group>"; };
 		A17A6C6F160C355C0082F97E /* streetcar.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = streetcar.html; path = HTML/streetcar.html; sourceTree = "<group>"; };
 		A17ED2D4182F1CA6008883D5 /* NearestVehiclesMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NearestVehiclesMap.h; sourceTree = "<group>"; };
@@ -747,6 +754,7 @@
 		A19FA74414524119008BE90F /* AlertViewCancelsTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AlertViewCancelsTask.h; sourceTree = "<group>"; };
 		A19FA74514524119008BE90F /* AlertViewCancelsTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AlertViewCancelsTask.m; sourceTree = "<group>"; };
 		A1A6EB0413A58B430000E7C0 /* Train_Honk_Horn_2x-Mike_Koenig-157974048.aif */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Train_Honk_Horn_2x-Mike_Koenig-157974048.aif"; path = "soundbible.com/Train_Honk_Horn_2x-Mike_Koenig-157974048.aif"; sourceTree = "<group>"; };
+		A1A7EDCB1CB96E96003B66DF /* SafariServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SafariServices.framework; path = System/Library/Frameworks/SafariServices.framework; sourceTree = SDKROOT; };
 		A1ABB17317617B6C00BED1C0 /* 19-gear@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "19-gear@2x.png"; path = "Glyphish@2x/19-gear@2x.png"; sourceTree = "<group>"; };
 		A1ABB1751763E1BB00BED1C0 /* TripLegEndPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TripLegEndPoint.h; sourceTree = "<group>"; };
 		A1ABB1761763E1BB00BED1C0 /* TripLegEndPoint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TripLegEndPoint.m; sourceTree = "<group>"; };
@@ -963,10 +971,12 @@
 		A1D94C921BEE7B9200544B62 /* AlertInterfaceController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AlertInterfaceController.m; sourceTree = "<group>"; };
 		A1DAAFE618667AEF002A33DF /* NW Marshall & 23rd.gpx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "NW Marshall & 23rd.gpx"; path = "Routing/NW Marshall & 23rd.gpx"; sourceTree = "<group>"; };
 		A1DB5C6416BF83B300679BEC /* Pager Beeps-SoundBible.com-260751720.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; name = "Pager Beeps-SoundBible.com-260751720.aiff"; path = "soundbible.com/Pager Beeps-SoundBible.com-260751720.aiff"; sourceTree = "<group>"; };
+		A1DE13A91CA10DAA00B7E2C3 /* 825-microphone-white.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "825-microphone-white.png"; path = "Glyphish 6/825-microphone-white.png"; sourceTree = "<group>"; };
 		A1DF42271B08123C00F5D837 /* WatchArrivalsInterfaceController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WatchArrivalsInterfaceController.h; sourceTree = "<group>"; };
 		A1DF42281B08123C00F5D837 /* WatchArrivalsInterfaceController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WatchArrivalsInterfaceController.m; sourceTree = "<group>"; };
 		A1DF422A1B0813C400F5D837 /* WatchArrival.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WatchArrival.h; sourceTree = "<group>"; };
 		A1DF422B1B0813C400F5D837 /* WatchArrival.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WatchArrival.m; sourceTree = "<group>"; };
+		A1DF56341C8D2E1B00E6FEF6 /* 825-microphone@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "825-microphone@2x.png"; path = "Glyphish 6/825-microphone@2x.png"; sourceTree = "<group>"; };
 		A1E0F3CD1AE321400055C6FB /* WatchBookmarksInterfaceController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WatchBookmarksInterfaceController.h; sourceTree = "<group>"; };
 		A1E0F3CE1AE321410055C6FB /* WatchBookmarksInterfaceController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WatchBookmarksInterfaceController.m; sourceTree = "<group>"; };
 		A1E37A8013DCD9F500310E2E /* pnpoly.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = pnpoly.mm; path = Classes/pnpoly.mm; sourceTree = "<group>"; };
@@ -1044,6 +1054,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1A7EDCC1CB96E96003B66DF /* SafariServices.framework in Frameworks */,
 				A13292F71BB39BE7006AE419 /* MobileCoreServices.framework in Frameworks */,
 				A13292F51BB39BB9006AE419 /* CoreSpotlight.framework in Frameworks */,
 				A1C755B71AD9E17800236776 /* libPDXBusCore.a in Frameworks */,
@@ -1159,6 +1170,7 @@
 				A1F1518E1183A75E00121292 /* TriMet */,
 				A17A6C66160C279A0082F97E /* Portland Streetcar */,
 				A12DF5B115BB051C00C3F038 /* Gentleface */,
+				A17841521CA7556B00E470F8 /* uxrepo.com */,
 				A1C7F24A15B519F8001FCD6C /* ZXing */,
 				A1003E9C144E7BC00086E120 /* PullToRefresh */,
 				A1909FE116D03CF9004D14EF /* iPhone Sounds */,
@@ -1181,6 +1193,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A1A7EDCB1CB96E96003B66DF /* SafariServices.framework */,
 				A13292F61BB39BE7006AE419 /* MobileCoreServices.framework */,
 				A13292F41BB39BB9006AE419 /* CoreSpotlight.framework */,
 				A1AC79941ADB511600A1E96F /* Security.framework */,
@@ -1440,6 +1453,15 @@
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 			);
 			name = "PDX Bus main app";
+			sourceTree = "<group>";
+		};
+		A17841521CA7556B00E470F8 /* uxrepo.com */ = {
+			isa = PBXGroup;
+			children = (
+				A17841571CA7562000E470F8 /* This Folder Creative Commons.markdown */,
+				A17841551CA7557800E470F8 /* mic-128-000000.png */,
+			);
+			name = uxrepo.com;
 			sourceTree = "<group>";
 		};
 		A17A6C66160C279A0082F97E /* Portland Streetcar */ = {
@@ -2033,6 +2055,7 @@
 			isa = PBXGroup;
 			children = (
 				A1D189EB17FBC71000AEC5F2 /* This Folder from Glyphish.markdown */,
+				A1DE13A91CA10DAA00B7E2C3 /* 825-microphone-white.png */,
 				A1AE40131C55827600F6D838 /* 751-eye.png */,
 				A1AE40141C55827600F6D838 /* 751-eye@2x.png */,
 				A1D189E717FBC68C00AEC5F2 /* 714-cameraa.png */,
@@ -2057,6 +2080,7 @@
 				A1D189B617FBB36400AEC5F2 /* 766-arrow-right@2x.png */,
 				A1D189B717FBB36400AEC5F2 /* 780-building.png */,
 				A1D189B817FBB36400AEC5F2 /* 780-building@2x.png */,
+				A1DF56341C8D2E1B00E6FEF6 /* 825-microphone@2x.png */,
 				A1D189B917FBB36400AEC5F2 /* 845-location-target.png */,
 				A1D189BA17FBB36500AEC5F2 /* 845-location-target@2x.png */,
 				A1D189BB17FBB36500AEC5F2 /* 852-map.png */,
@@ -2126,6 +2150,8 @@
 				A19A6D841B0A90E70002B1D9 /* WatchNoBookmarks.m */,
 				A1028E731B12A3B3002924BE /* WatchBookmarksContext.h */,
 				A1028E741B12A3B3002924BE /* WatchBookmarksContext.m */,
+				A11225811C9F4F1C00910D30 /* NumberPadInterfaceController.h */,
+				A11225821C9F4F1C00910D30 /* NumberPadInterfaceController.m */,
 			);
 			name = Bookmarks;
 			sourceTree = "<group>";
@@ -2618,6 +2644,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A1C756301AD9E9BB00236776 /* Interface.storyboard in Resources */,
+				A17841591CA7562E00E470F8 /* mic-128-000000.png in Resources */,
 				A1C756321AD9E9BB00236776 /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2796,6 +2823,7 @@
 				A1E0F3CF1AE321410055C6FB /* WatchBookmarksInterfaceController.m in Sources */,
 				A146D5D31BC9C75300DC80D2 /* WatchArrivalsContextNearby.m in Sources */,
 				A1D94C931BEE7B9200544B62 /* AlertInterfaceController.m in Sources */,
+				A11225831C9F4F1C00910D30 /* NumberPadInterfaceController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

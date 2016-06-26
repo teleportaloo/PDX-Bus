@@ -37,10 +37,11 @@
 
 #define kLinkRows				3
 			
-#define kSectionSupportRows		3
+
 #define kSectionSupportRowSupport 0
 #define kSectionSupportRowNew	 1
 #define kSectionSupportHowToRide 2
+#define kSectionSupportRows		 3
 
 #define kSectionLinkRows        4
 #define kSectionLinkBlog        0
@@ -410,9 +411,11 @@
 				
 				cell.view.font =  [self getParagraphFont];
 				cell.view.attributedText =  supportText;
+                [cell.view setAdjustsFontSizeToFitWidth:NO];
 				DEBUG_LOG(@"width:  %f\n", cell.view.bounds.size.width);
     
 				cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                
 				[self updateAccessibility:cell indexPath:indexPath text:supportText.string alwaysSaySection:YES];
 				// cell.backgroundView = [self clearView];
 				return cell;
@@ -432,15 +435,16 @@
 					cell.selectionStyle = UITableViewCellSelectionStyleBlue;
 				}
                 
-                if (indexPath.row == kSectionSupportHowToRide)
+                switch (indexPath.row)
                 {
-                    cell.textLabel.text = @"How to ride";
-                    cell.imageView.image = [self getActionIcon:kIconAbout];
-                }
-                else 
-                {
-                    cell.textLabel.text = @"What's new?";
-                    cell.imageView.image = [self getActionIcon:kIconAppIconAction];
+                    case kSectionSupportHowToRide:
+                        cell.textLabel.text = @"How to ride";
+                        cell.imageView.image = [self getActionIcon:kIconTriMetLink];
+                        break;
+                    case kSectionSupportRowNew:
+                        cell.textLabel.text = @"What's new?";
+                        cell.imageView.image = [self getActionIcon:kIconAppIconAction];
+                        break;
                 }
 				return cell;
 			}
@@ -497,6 +501,7 @@
 			
 			cell.view.font =  [self getParagraphFont];
 			cell.view.attributedText = [tipText objectAtIndex:indexPath.row];
+            [cell.view setAdjustsFontSizeToFitWidth:NO];
 			cell.selectionStyle = UITableViewCellSelectionStyleNone;
             NSAttributedString *tip = [tipText objectAtIndex:indexPath.row];
 			[self updateAccessibility:cell indexPath:indexPath text:tip.string alwaysSaySection:YES];
@@ -540,13 +545,13 @@
 		case kSectionSupport:
 			if (indexPath.row == kSectionSupportRowSupport)
 			{
-				return [self getTextHeight:supportText.string font:[self getParagraphFont]];
+                return [self getAtrributedTextHeight:supportText] + 20;;
 			}
 			break;
         case kSectionTips:
         {
             NSAttributedString *tip = [tipText objectAtIndex:indexPath.row];
-			return [self getTextHeight:tip.string font:[self getParagraphFont]];
+			return [self getAtrributedTextHeight:tip] + 20;
         }
         case kSectionPrivacy:
             if (indexPath.row == kSectionPrivacyRowLocation)
@@ -564,6 +569,15 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    UITableViewCell * cell = [self.table cellForRowAtIndexPath:indexPath];
+    
+    if (cell.textLabel != nil)
+    {
+        DEBUG_LOGR(cell.frame);
+        DEBUG_LOGR(cell.textLabel.frame);
+        
+    }
 	switch (indexPath.section)
 	{
 		case kSectionLinks:
@@ -633,23 +647,26 @@
             break;
         }
 		case kSectionSupport:
-			if (indexPath.row == kSectionSupportRowSupport)
-			{
-				[[self navigationController] popViewControllerAnimated:YES];
-			}
-			else if (indexPath.row == kSectionSupportHowToRide)
+            switch (indexPath.row)
             {
-                WebViewController *webPage = [[WebViewController alloc] init];
-                [webPage setURLmobile:@"https://trimet.org/howtoride/index.htm" full:nil]; 
-                [webPage displayPage:[self navigationController] animated:YES itemToDeselect:self];
-                [webPage release];
+                case kSectionSupportRowSupport:
+                    [[self navigationController] popViewControllerAnimated:YES];
+                    break;
+                case kSectionSupportHowToRide:
+                    [WebViewController displayPage:@"https://trimet.org/howtoride/index.htm"
+                                              full:nil
+                                         navigator:self.navigationController
+                                    itemToDeselect:self
+                                          whenDone:self.callbackWhenDone];
+                    break;
+                case kSectionSupportRowNew:
+                {
+                    WhatsNewView *whatsNew = [[WhatsNewView alloc] init];
+                    [[self navigationController] pushViewController:whatsNew animated:YES];
+                    [whatsNew release];
+                    break;
+                }
             }
-            else
-			{
-				WhatsNewView *whatsNew = [[WhatsNewView alloc] init];
-				[[self navigationController] pushViewController:whatsNew animated:YES];
-				[whatsNew release];
-			}
 			break;
         case kSectionPrivacy:
         {

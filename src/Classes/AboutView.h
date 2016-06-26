@@ -17,8 +17,8 @@
 #define kTips					2
 
 @interface AboutView : TableViewWithToolbar {
-	NSAttributedString *aboutText;
-	NSAttributedString *helpText;
+	NSAttributedString *thanksText;
+	NSAttributedString *introText;
     NSArray *links;
     NSArray *legal;
     

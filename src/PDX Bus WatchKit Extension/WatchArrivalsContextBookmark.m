@@ -29,7 +29,15 @@
         context.bookmarksContext = bookmarksContext;
         context.index            = index;
         
-        context.navText          = @"Next in bookmark";
+        if (bookmarksContext.dictated)
+        {
+            context.navText          = @"Next dictated";
+
+        }
+        else
+        {
+            context.navText          = @"Next in bookmark";
+        }
         
         return context;
     }

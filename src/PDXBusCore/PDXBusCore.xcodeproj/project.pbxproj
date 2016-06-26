@@ -56,6 +56,7 @@
 		A1246E0F1BD70ACB00395325 /* MapAnnotationImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MapAnnotationImage.m; path = src/MapAnnotationImage.m; sourceTree = SOURCE_ROOT; };
 		A14D1DC11BEE477300F46126 /* StringHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StringHelper.h; path = src/StringHelper.h; sourceTree = SOURCE_ROOT; };
 		A14D1DC21BEE477300F46126 /* StringHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = StringHelper.m; path = src/StringHelper.m; sourceTree = SOURCE_ROOT; };
+		A14D387B1C855802006A960B /* iOSCompat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iOSCompat.h; path = src/iOSCompat.h; sourceTree = SOURCE_ROOT; };
 		A152F5DF1BE338E200FB9D19 /* XMLLocateVehicles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XMLLocateVehicles.h; path = src/XMLLocateVehicles.h; sourceTree = SOURCE_ROOT; };
 		A152F5E01BE338E200FB9D19 /* XMLLocateVehicles.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = XMLLocateVehicles.m; path = src/XMLLocateVehicles.m; sourceTree = SOURCE_ROOT; };
 		A17DA1FC1BE5EA6A006BB884 /* FormatDistance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FormatDistance.h; path = src/FormatDistance.h; sourceTree = SOURCE_ROOT; };
@@ -165,6 +166,7 @@
 		A1AC79721ADA040800A1E96F /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				A14D387B1C855802006A960B /* iOSCompat.h */,
 				A14D1DC11BEE477300F46126 /* StringHelper.h */,
 				A14D1DC21BEE477300F46126 /* StringHelper.m */,
 				A19A6D861B0A9F270002B1D9 /* BlockColorDb.h */,

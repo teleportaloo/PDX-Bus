@@ -20,8 +20,8 @@ Features include:
 
 Route and arrival data provided by permission of TriMet.
 
-PDX Bus 8.0 sources
-===================
+PDX Bus 8.1 sources
+====================
 
 I am making the sources to PDX Bus version 7.9 available as part of the
 [Civic Apps](http://www.civicapps.org) competition.  These
@@ -185,6 +185,16 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Change log
 ----------
+### Version 8.1 (June 2016)
+* iOS 6 fixed
+* Added debug option to turn off HTTPS for trimet queries.  This caused a user some issues with a VPN.
+* Added dictations to Watch (hard press from home).
+* Added keypay to Watch (hard press from home)
+* Fixed crash when unknown stop is entered.
+* Uses the Safari Services web viewer when available.
+* Fixed some default settings that were booleans but had string defaults.
+* Removed ability to launch ticket app - removed link until resolved.
+
 ### Version 8.0 (January 2016)
 * Updated for iOS9.
 * Added search.

@@ -19,6 +19,7 @@
 #import <MapKit/MKGeometry.h>
 #import "XMLStreetcarLocations.h"
 #import "StringHelper.h"
+#import "UserPrefs.h"
 
 #define MetersInAMile 1609.344
 
@@ -111,7 +112,9 @@
 {
 	NSString *str = nil;
 	
-    str = [NSString stringWithFormat:@"https://developer.trimet.org/ws/v2/%@/appID/%@", query, TRIMET_APP_ID];
+    str = [NSString stringWithFormat:@"%@://developer.trimet.org/ws/v2/%@/appID/%@",
+                [UserPrefs getSingleton].triMetProtocol,
+                query, TRIMET_APP_ID];
 	
 	return str;
 	

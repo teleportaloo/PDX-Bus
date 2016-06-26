@@ -14,6 +14,7 @@
 
 
 #import "WhatsNewBasicAction.h"
+#import "StringHelper.h"
 
 @implementation WhatsNewBasicAction
 
@@ -67,5 +68,26 @@
 {
     return fullText;
 }
+
+- (NSString*)plainTextNormal:(NSString*)fullText
+{
+    NSAttributedString *text = [StringHelper formatAttributedString:[self displayText:fullText] font:[UIFont systemFontOfSize:14]];
+    
+    return text.string;
+}
+
+- (NSString*)plainTextIndented:(NSString*)fullText
+{
+    NSAttributedString *text = [StringHelper formatAttributedString:[self displayText:fullText] font:[UIFont systemFontOfSize:14]];
+    
+    return [NSString stringWithFormat:@"- %@",text.string];
+}
+
+- (NSString*)plainText:(NSString*)fullText
+{
+    return [self plainTextIndented:fullText];
+}
+
+
 
 @end

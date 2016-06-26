@@ -21,7 +21,7 @@
 #import <UIKit/UIKit.h>
 #import "TableViewWithToolbar.h"
 
-#define kWhatsNewVersion @"8.0"
+#define kWhatsNewVersion @"8.1"
 
 @protocol WhatsNewSpecialAction <NSObject>
 
@@ -30,6 +30,7 @@
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell text:(NSString*)text;
 - (void)updateCell:(CellLabel *)cell tableView:(UITableView *)tableView;
 - (NSString*)displayText:(NSString *)fullText;
+- (NSString*)plainText:(NSString *)fullText;
 
 @end
 	

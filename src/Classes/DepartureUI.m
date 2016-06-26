@@ -62,15 +62,18 @@
 
 #pragma mark User Interface
 
-#define ROUTE_TAG 1
-#define TIME_TAG  2
-#define BIG_MINS_TAG  3
-#define BIG_UNIT_TAG 4
-#define COLOR_STRIPE_TAG 5
-#define SCHEDULED_TAG 6
-#define DETOUR_TAG 7
-#define BLOCK_COLOR_TAG 8
-#define CANCELED_OVERLAY 9
+enum VIEW_TAGS
+{
+    ROUTE_TAG = 1,
+    TIME_TAG,
+    BIG_MINS_TAG,
+    BIG_UNIT_TAG,
+    COLOR_STRIPE_TAG,
+    SCHEDULED_TAG,
+    DETOUR_TAG,
+    BLOCK_COLOR_TAG,
+    CANCELED_OVERLAY
+};
 
 - (UILabel*)label:(UITableViewCell*)cell tag:(NSInteger)tag
 {
@@ -416,6 +419,10 @@ typedef struct _DepartureCellAttributes
             [self label:cell tag:TIME_TAG].text = nil;
             [self label:cell tag:BIG_MINS_TAG].hidden = YES;
             [self label:cell tag:BIG_UNIT_TAG].hidden = YES;
+            
+            RouteColorBlobView *colorStripe = (RouteColorBlobView*)[cell.contentView viewWithTag:COLOR_STRIPE_TAG];
+            [colorStripe setRouteColor:nil];
+            
         }
         
         if (details != nil)

@@ -18,25 +18,35 @@
 @implementation WatchArrival
 
 -(void)displayDepature:(WatchDepartureUI *)dep
-{    
-    [self.heading setAttributedText:[dep headingWithStatus]];
-
-    [self.mins    setText:dep.minsToArrival];
-    [self.mins    setTextColor:[dep getFontColor]];
-    [self.lineColor setImage:[dep getRouteColorImage]];
-
-    self.blockColor.image = [dep getBlockImageColor];
-    
-    NSString *exception = dep.exception;
-    
-    if (exception)
+{
+    if (dep.data.errorMessage)
     {
-        self.exception.text = exception;
-        self.exception.hidden = NO;
+        [self.heading setText:dep.data.errorMessage];
+        self.exception.hidden = YES;
+        self.blockColor.image = nil;
+        [self.mins setText:nil];
     }
     else
     {
-        self.exception.hidden = YES;
+        [self.heading setAttributedText:[dep headingWithStatus]];
+
+        [self.mins    setText:dep.minsToArrival];
+        [self.mins    setTextColor:[dep getFontColor]];
+        [self.lineColor setImage:[dep getRouteColorImage]];
+
+        self.blockColor.image = [dep getBlockImageColor];
+    
+        NSString *exception = dep.exception;
+    
+        if (exception)
+        {
+            self.exception.text = exception;
+            self.exception.hidden = NO;
+        }
+        else
+        {
+            self.exception.hidden = YES;
+        }
     }
 }
 

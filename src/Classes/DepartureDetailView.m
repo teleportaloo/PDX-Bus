@@ -42,26 +42,29 @@
 #define kBlockRowFeet				0
 #define kCellIdSimple               @"Simple"
 
-#define kSectionRoute               0
-#define kSectionTrips               1
-#define kSectionInfo                2
+enum SECTIONS_AND_ROWS
+{
+    kSectionRoute,
+    kSectionTrips,
+    kSectionInfo,
 
-#define kRowFullSign                0
-#define kRowRouteName               1
-#define kRowRouteTimeInfo           2
-#define kRowDetour                  3
-#define kRowLocation                4
-#define kRowMap                     5
-#define kRowTag                     6
-#define kRowAlarm                   7
-#define kRowDestArrival             8
-#define kRowOneStop                 9
-#define kRowMapAndSchedule          10
-#define kRowBrowse                  11
-#define kRowMapWithStops            12
-#define kRowTrip                    13
-#define kRowOpposite                14
-#define kRowNoDeeper                15
+    kRowFullSign,
+    kRowRouteName,
+    kRowRouteTimeInfo,
+    kRowDetour,
+    kRowLocation,
+    kRowMap,
+    kRowTag,
+    kRowAlarm,
+    kRowDestArrival,
+    kRowOneStop,
+    kRowMapAndSchedule,
+    kRowBrowse,
+    kRowMapWithStops,
+    kRowTrip,
+    kRowOpposite,
+    kRowNoDeeper
+};
 
 @implementation DepartureDetailView
 
@@ -1197,7 +1200,7 @@
 
 - (void)displayLinkFired:(id)sender
 {
-    if (self.mapView)
+    if (self.mapView && [self.mapView respondsToSelector:@selector(camera)])
     {
     
         double difference = ABS(self.previousHeading - self.mapView.camera.heading);

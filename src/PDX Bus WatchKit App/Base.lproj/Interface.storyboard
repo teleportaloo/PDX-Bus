@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="9060" systemVersion="14F1021" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="dfG-2e-wGV">
+<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="10116" systemVersion="15D21" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="dfG-2e-wGV">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9051"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="9019"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="10032"/>
     </dependencies>
     <scenes>
         <!--Arrivals-->
@@ -162,7 +162,7 @@
                     </connections>
                 </controller>
             </objects>
-            <point key="canvasLocation" x="525" y="61"/>
+            <point key="canvasLocation" x="475" y="60.5"/>
         </scene>
         <!--Nearby-->
         <scene sceneID="KMG-D3-FkS">
@@ -251,7 +251,7 @@
                     </connections>
                 </controller>
             </objects>
-            <point key="canvasLocation" x="708" y="-219"/>
+            <point key="canvasLocation" x="700" y="-266"/>
         </scene>
         <!--Bookmarks-->
         <scene sceneID="Gi3-ve-gsW">
@@ -347,6 +347,11 @@
                                     <action selector="menuItemCommute" destination="dfG-2e-wGV" id="irX-fF-GxH"/>
                                 </connections>
                             </menuItem>
+                            <menuItem title="Enter stop ID" icon="more" id="8fu-B7-alm">
+                                <connections>
+                                    <action selector="enterStopId" destination="dfG-2e-wGV" id="69Z-pb-Akr"/>
+                                </connections>
+                            </menuItem>
                         </items>
                     </menu>
                     <connections>
@@ -358,7 +363,133 @@
                     </connections>
                 </controller>
             </objects>
-            <point key="canvasLocation" x="351" y="54"/>
+            <point key="canvasLocation" x="264" y="54.5"/>
+        </scene>
+        <!--Enter Stop ID-->
+        <scene sceneID="Gf9-rl-YAa">
+            <objects>
+                <controller identifier="Number Pad" title="Enter Stop ID" id="B0Z-YD-ji3" customClass="NumberPadInterfaceController">
+                    <items>
+                        <group width="1" height="1" alignment="left" layout="vertical" id="eSq-wg-NY4">
+                            <items>
+                                <group width="1" height="0.20000000000000001" alignment="left" id="L7F-PJ-BIz">
+                                    <items>
+                                        <group width="0.33000000000000002" alignment="left" id="QFO-r3-4iL">
+                                            <items>
+                                                <button width="22" height="60" alignment="center" verticalAlignment="center" backgroundImage="mic-128-000000.png" id="ren-nO-NJ3">
+                                                    <connections>
+                                                        <action selector="sayStopId" destination="B0Z-YD-ji3" id="KbL-g0-QUQ"/>
+                                                    </connections>
+                                                </button>
+                                            </items>
+                                        </group>
+                                        <button width="0.66000000000000003" height="1" alignment="right" title="&lt;stop id&gt;" id="rbF-7Z-ywT">
+                                            <color key="titleColor" white="0.62801513180000001" alpha="1" colorSpace="calibratedWhite"/>
+                                            <color key="backgroundColor" red="0.0" green="0.01035292832" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                            <connections>
+                                                <action selector="buttonGo" destination="B0Z-YD-ji3" id="1zK-mK-FIe"/>
+                                            </connections>
+                                        </button>
+                                    </items>
+                                </group>
+                                <group width="1" height="0.20000000000000001" alignment="left" id="X7B-7s-vB1">
+                                    <items>
+                                        <button width="0.33300000000000002" height="1" alignment="left" title="1" id="iem-tQ-HqW">
+                                            <connections>
+                                                <action selector="button1" destination="B0Z-YD-ji3" id="L1Z-tH-83B"/>
+                                            </connections>
+                                        </button>
+                                        <button width="0.33300000000000002" height="1" alignment="center" title="2" id="uV1-cC-bCB">
+                                            <connections>
+                                                <action selector="button2" destination="B0Z-YD-ji3" id="vgd-6D-DOJ"/>
+                                            </connections>
+                                        </button>
+                                        <button width="0.33300000000000002" height="1" alignment="right" title="3" id="7dr-Dq-CIg">
+                                            <connections>
+                                                <action selector="button3" destination="B0Z-YD-ji3" id="zxu-o6-hA2"/>
+                                            </connections>
+                                        </button>
+                                    </items>
+                                </group>
+                                <group width="1" height="0.20000000000000001" alignment="left" id="trW-Dz-c4V">
+                                    <items>
+                                        <button width="0.33300000000000002" height="1" alignment="left" title="4" id="jAb-2l-Muq">
+                                            <connections>
+                                                <action selector="button4" destination="B0Z-YD-ji3" id="D1r-VO-3nC"/>
+                                            </connections>
+                                        </button>
+                                        <button width="0.33300000000000002" height="1" alignment="left" title="5" id="NH6-9F-nvq">
+                                            <connections>
+                                                <action selector="button5" destination="B0Z-YD-ji3" id="1ui-WO-uWe"/>
+                                            </connections>
+                                        </button>
+                                        <button width="0.33300000000000002" height="1" alignment="left" title="6" id="0YD-Tb-5in">
+                                            <connections>
+                                                <action selector="button6" destination="B0Z-YD-ji3" id="u3g-Iz-ccs"/>
+                                            </connections>
+                                        </button>
+                                    </items>
+                                </group>
+                                <group width="1" height="0.20000000000000001" alignment="left" id="x4e-zv-6jv">
+                                    <items>
+                                        <button width="0.33300000000000002" height="1" alignment="left" title="7" id="dP3-ZG-59g">
+                                            <connections>
+                                                <action selector="button7" destination="B0Z-YD-ji3" id="LtS-kT-CXW"/>
+                                            </connections>
+                                        </button>
+                                        <button width="0.33300000000000002" height="1" alignment="left" title="8" id="vMo-O6-gwE">
+                                            <connections>
+                                                <action selector="button8" destination="B0Z-YD-ji3" id="52X-3K-fgA"/>
+                                            </connections>
+                                        </button>
+                                        <button width="0.33300000000000002" height="1" alignment="left" title="9" id="RWS-lu-QWI">
+                                            <connections>
+                                                <action selector="button9" destination="B0Z-YD-ji3" id="pBA-1S-Ubv"/>
+                                            </connections>
+                                        </button>
+                                    </items>
+                                </group>
+                                <group width="1" height="0.20000000000000001" alignment="left" id="pRs-VV-6Y7">
+                                    <items>
+                                        <button width="0.33300000000000002" height="1" alignment="left" title="&lt;-" id="Mro-1N-4g2">
+                                            <color key="titleColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                            <color key="backgroundColor" red="1" green="0.50196078430000002" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                            <connections>
+                                                <action selector="buttonBack" destination="B0Z-YD-ji3" id="pgW-fl-Bo2"/>
+                                            </connections>
+                                        </button>
+                                        <button width="0.33300000000000002" height="1" alignment="left" title="0" id="6nj-jh-hOu">
+                                            <connections>
+                                                <action selector="button0" destination="B0Z-YD-ji3" id="uvj-9s-YLE"/>
+                                            </connections>
+                                        </button>
+                                        <button width="0.33300000000000002" height="1" alignment="left" title="GO" id="8gp-mg-bQc">
+                                            <color key="titleColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                            <color key="backgroundColor" red="0.1640763495" green="1" blue="0.34283108919999999" alpha="1" colorSpace="calibratedRGB"/>
+                                            <connections>
+                                                <action selector="buttonGo" destination="B0Z-YD-ji3" id="GgZ-Ta-BCh"/>
+                                            </connections>
+                                        </button>
+                                    </items>
+                                </group>
+                            </items>
+                        </group>
+                    </items>
+                    <menu key="menu" id="luv-qQ-5Xu">
+                        <items>
+                            <menuItem title="Clear" icon="trash" id="Cel-UF-a7E">
+                                <connections>
+                                    <action selector="menuClear" destination="B0Z-YD-ji3" id="gwG-rP-ZFv"/>
+                                </connections>
+                            </menuItem>
+                        </items>
+                    </menu>
+                    <connections>
+                        <outlet property="buttonStopId" destination="rbF-7Z-ywT" id="MNX-Dl-uGj"/>
+                    </connections>
+                </controller>
+            </objects>
+            <point key="canvasLocation" x="700" y="327"/>
         </scene>
     </scenes>
     <color key="tintColor" red="0.51233841661442159" green="0.75400234875706706" blue="1" alpha="1" colorSpace="calibratedRGB"/>

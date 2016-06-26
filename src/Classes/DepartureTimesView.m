@@ -2568,11 +2568,14 @@ static int depthCount = 0;
 		{
 			NSString *url = [NSString stringWithFormat:@"https://trimet.org/go/cgi-bin/cstops.pl?action=entry&resptype=U&lang=pdaen&noCat=Landmark&Loc=%@",
 							 [dd DTDataLocID]];
-			WebViewController *webPage = [[WebViewController alloc] init];
-			[webPage setURLmobile:url full:url];
-			webPage.showErrors = NO;
-			[webPage displayPage:[self navigationController] animated:YES itemToDeselect:self];
-			[webPage release];
+            
+            
+            [WebViewController displayPage:url
+                                      full:url
+                                 navigator:self.navigationController
+                            itemToDeselect:self
+                                  whenDone:nil];
+
 			break;
 		}
             
@@ -2601,11 +2604,14 @@ static int depthCount = 0;
 		{
 			NSString *url = [NSString stringWithFormat:@"https://trimet.org/arrivals/small/tracker?locationID=%@",
 							 [dd DTDataLocID]];
-			WebViewController *webPage = [[WebViewController alloc] init];
-			[webPage setURLmobile:url full:url]; 
-			webPage.showErrors = NO;
-			[webPage displayPage:[self navigationController] animated:YES itemToDeselect:self];
-			[webPage release];
+            
+            
+            [WebViewController displayPage:url
+                                      full:url
+                                 navigator:self.navigationController
+                            itemToDeselect:self
+                                  whenDone:nil];
+            
 			break;
 		}
         case kSectionXML:
@@ -2906,7 +2912,7 @@ static int depthCount = 0;
             self.userActivity.webpageURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://trimet.org/arrivals/small/tracker?locationID=%@", dep.locid]];
         
             
-            if (self.originalDataArray.count == 1)
+            if (self.originalDataArray.count == 1 && dep.locDesc != nil)
             {
                 [info setObject:dep.locDesc forKey:kUserFavesChosenName];
             }

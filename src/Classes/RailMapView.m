@@ -512,17 +512,12 @@ static RAILMAP railmaps[] =
 		case kLinkType2:
 		case kLinkType3:
 			{
-				WebViewController *webPage = [[WebViewController alloc] init];
-				[webPage setURLmobile:@"http://www.teleportaloo.org/pdxbus/easteregg/"
-								 full:nil];
-				
-				if (self.callback)
-				{
-					webPage.whenDone = [self.callback getController];
-				}
-				[webPage displayPage:[self navigationController] animated:YES itemToDeselect:self];
-				[webPage release];
-				
+                [WebViewController displayPage:@"http://www.teleportaloo.org/pdxbus/easteregg/"
+                                          full:nil
+                                     navigator:self.navigationController
+                                itemToDeselect:self
+                                      whenDone:self.callbackWhenDone];
+                
 				easterEgg = EasterEggStart;
 			}
 			break;
@@ -536,19 +531,12 @@ static RAILMAP railmaps[] =
 		
 			wikiLink = [url substringFromIndex:[scanner scanLocation]];
 		
-			WebViewController *webPage = [[WebViewController alloc] init];
+            [WebViewController displayPage:[NSString stringWithFormat:@"http://en.m.wikipedia.org/wiki/%@", [wikiLink stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] ]
+                                      full:[NSString stringWithFormat:@"http://en.wikipedia.org/wiki/%@", [wikiLink stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding]]
+                                 navigator:self.navigationController
+                            itemToDeselect:self
+                                  whenDone:self.callbackWhenDone];
 			
-			
-			[webPage setURLmobile:[NSString stringWithFormat:@"http://en.m.wikipedia.org/wiki/%@", [wikiLink stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] ] 
-	
-							 full:[NSString stringWithFormat:@"http://en.wikipedia.org/wiki/%@", [wikiLink stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding]]];
-			
-			if (self.callback)
-			{
-				webPage.whenDone = [self.callback getController];
-			}
-			[webPage displayPage:[self navigationController] animated:YES itemToDeselect:self];
-			[webPage release];
 			break;
 		}
 		case kLinkTypeHttp:
@@ -556,18 +544,13 @@ static RAILMAP railmaps[] =
 			easterEgg = EasterEggStart;
 			
 			//[self.hotSpots selectItem:i];
+            
+            [WebViewController displayPage:url
+                                      full:nil
+                                 navigator:self.navigationController
+                            itemToDeselect:self
+                                  whenDone:self.callbackWhenDone];
 		
-			WebViewController *webPage = [[WebViewController alloc] init];
-			[webPage setURLmobile:url 
-							 full:nil];
-		
-			if (self.callback)
-			{
-				webPage.whenDone = [self.callback getController];
-			}
-		
-			[webPage displayPage:[self navigationController] animated:YES itemToDeselect:self];
-			[webPage release];
 			break;
 		}
 		case kLinkTypeDir:

@@ -280,20 +280,16 @@
 			{
 				case kOtherRowWiki:
 				{
-					WebViewController *webPage = [[WebViewController alloc] init];
-					
 					NSString *wiki = [TriMetRouteColors rawColorForRoute:self.route.route]->wiki;
-					
-					[webPage setURLmobile:[NSString stringWithFormat:@"https://en.m.wikipedia.org/wiki/%@", wiki ]
-									 full:[NSString stringWithFormat:@"https://en.wikipedia.org/wiki/%@", wiki ]];
-					
-					if (self.callback)
-					{
-						webPage.whenDone = [self.callback getController];
-					}
-					[webPage displayPage:[self navigationController] animated:YES itemToDeselect:self];
-					[webPage release];
-					break;
+                    
+                    [WebViewController displayPage:[NSString stringWithFormat:@"https://en.m.wikipedia.org/wiki/%@", wiki]
+                                              full:[NSString stringWithFormat:@"https://en.wikipedia.org/wiki/%@", wiki ]
+                                         navigator:self.navigationController
+                                    itemToDeselect:self
+                                          whenDone:self.callbackWhenDone];
+                    
+        
+                    break;
 				}
 				case kOtherRowMap:
 					[self showRouteSchedule:[self.route route]];

@@ -57,47 +57,56 @@
 #import "RailStationTableView.h"
 #import <MobileCoreServices/MobileCoreServices.h>
 
-#define kTableSectionStopId		0
-#define kTableSectionFaves		1
-#define kTableSectionAbout		2
-#define kTableSectionPlanner    3
-#define kTableSectionAlarms     4
-#define kTableSectionTriMet     5
+enum SECTIONS_AND_ROWS
+{
+    kTableSectionStopId,
+    kTableSectionFaves,
+    kTableSectionAbout,
+    kTableSectionPlanner,
+    kTableSectionAlarms,
+    kTableSectionTriMet,
+    
+    kTableTriMetDetours,
+    kTableTriMetAlerts,
+    kTableTriMetLink,
+    kTableTriMetFacebook,
+    kTableTriMetCall,
+    kTableTriMetTweet,
+    kTableTriMetTicketApp,
+    kTableStreetcarTweet,
+    
+    kTableAboutSettings,
+    kTableAboutRowAbout,
+    kTableAboutSupport,
+    kTableAboutFacebook,
+    kTableAboutRate,
+    kTableAboutRowEmail,
+    
+    kTableFindRowId,
+    kTableFindRowBrowse,
+    kTableFindRowLocate,
+    kTableFindRowRailStops,
+    kTableFindRowRailMap,
+    kTableFindRowQR,
+    kTableFindRowHistory,
+    kTableFindRowVehicle,
+    
 
-#define kTableFaveAdd			0
-#define kTableFaveTrip			1
-#define kTableFaveEditingRows	2
+};
 
-#define kTableTriMetDetours		0
-#define kTableTriMetAlerts		1
-#define kTableTriMetLink        2
-#define kTableTriMetFacebook    3
-#define kTableTriMetCall		4
-#define kTableTriMetTweet		5
-#define kTableTriMetTicketApp   6
-#define kTableStreetcarTweet	7
+enum ADDITIONAL_FAVE_ROWS
+{
+    kTableFaveAdd,
+    kTableFaveTrip,
+    kTableFaveEditingRows
+};
 
-
-#define kTableAboutSettings     0
-#define kTableAboutRowAbout     1
-#define kTableAboutSupport      3
-#define kTableAboutFacebook		4
-#define kTableAboutRate         5
-#define kTableAboutRowEmail     6
-
-#define kTableFindRowId			0
-#define kTableFindRowBrowse		1
-#define kTableFindRowLocate		2
-#define kTableFindRowRailStops	3
-#define kTableFindRowRailMap    4
-#define kTableFindRowQR         5
-#define kTableFindRowHistory	6
-#define kTableFindRowVehicle	7
-
-
-#define kTableTripRowPlanner    0
-#define kTableTripRowCache      1
-#define kTableTripRows          2
+enum TRIP_ROWS
+{
+    kTableTripRowPlanner,
+    kTableTripRowCache,
+    kTableTripRows
+};
 
 #define kUIEditHeight			50.0
 #define kUIRowHeight			40.0
@@ -977,9 +986,10 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 	
 	self.navigationItem.leftBarButtonItem = cancelButton;
 	self.navigationItem.rightBarButtonItem = self.goButton;
+    
 	
 	[self.table scrollToRowAtIndexPath:[NSIndexPath 
-										indexPathForRow:kTableFindRowId
+										indexPathForRow:[self firstRowOfType:kTableFindRowId inSection:editSection]
 										inSection:editSection] atScrollPosition:UITableViewScrollPositionTop animated:YES];
 	
 	
@@ -1061,7 +1071,11 @@ static NSString *callString = @"tel:1-503-238-RIDE";
     [self addRowType:kTableTriMetTweet];
     [self addRowType:kTableStreetcarTweet];
     [self addRowType:kTableTriMetFacebook];
-    [self addRowType:kTableTriMetTicketApp];
+    
+    if ([UserPrefs getSingleton].ticketAppIcon)
+    {
+        [self addRowType:kTableTriMetTicketApp];
+    }
     [self addRowType:kTableTriMetLink];
     
     if ([self canMakePhoneCall])
@@ -2345,35 +2359,21 @@ static NSString *callString = @"tel:1-503-238-RIDE";
                 }
                 case kTableTriMetLink:
                 {
-                    WebViewController *webPage = [[WebViewController alloc] init];
-                    [webPage setURLmobile:@"https://trimet.org" full:nil];
-                    [webPage displayPage:[self navigationController] animated:YES itemToDeselect:self];
-                    [webPage release];
+                    [WebViewController displayPage:@"https://trimet.org"
+                                              full:nil
+                                         navigator:self.navigationController
+                                    itemToDeselect:self
+                                          whenDone:self.callbackWhenDone];
                     break;
                 }
                 case kTableTriMetAlerts:
                 {
-                    WebViewController *webPage = [[WebViewController alloc] init];
-                    [webPage setURLmobile:@"https://trimet.org/m/alerts" full:nil];
-                    [webPage displayPage:[self navigationController] animated:YES itemToDeselect:self];
-                    [webPage release];
+                    [WebViewController displayPage:@"https://trimet.org/#alerts"
+                                              full:nil
+                                         navigator:self.navigationController
+                                    itemToDeselect:self
+                                          whenDone:self.callbackWhenDone];
                     break;
-                    
-                    /*
-                    RssView *rss = [[RssView alloc] init];
-                    [rss fetchRssInBackground:self.backgroundTask url:@"http://service.govdelivery.com/service/rss/item_updates.rss?code=ORTRIMET_24"];
-                    [rss release];
-                     */
-                    
-                    /*
-                     WebViewController *webPage = [[WebViewController alloc] init];
-                     [webPage setURL:@"http://trimet.org/alerts/small/index.htm"  title:@"Rider Alerts"]; 
-                     [[self navigationController] pushViewController:webPage animated:YES];
-                     [webPage release];
-                     */ 
-                    
-                    break;
-                    
                 }
                 case kTableTriMetDetours:
                 {

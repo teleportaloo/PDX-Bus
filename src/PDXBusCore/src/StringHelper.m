@@ -116,7 +116,9 @@
                                     [UIColor grayColor],     @"A",
                                     [UIColor redColor],      @"R",
                                     [UIColor blueColor],     @"B",
-                                    [UIColor yellowColor],   @"Y", nil];
+                                    [UIColor yellowColor],   @"Y",
+                                    [UIColor whiteColor],    @"W",
+                                    nil];
 
     bool boldText   = NO;
     bool italicText = NO;

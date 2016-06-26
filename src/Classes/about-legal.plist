@@ -44,6 +44,14 @@
 	</dict>
 	<dict>
 		<key>Title</key>
+		<string>One icon from uxrepo.com</string>
+		<key>Icon</key>
+		<string>Brush.png</string>
+		<key>LinkM</key>
+		<string>http://uxrepo.com/icon/mic-by-mfg-labs</string>
+	</dict>
+	<dict>
+		<key>Title</key>
 		<string>Open in Chrome from Google</string>
 		<key>Icon</key>
 		<string>Source.png</string>

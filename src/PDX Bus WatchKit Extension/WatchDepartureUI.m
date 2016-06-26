@@ -217,9 +217,12 @@
          statusColor = [UIColor grayColor];
     }
     
-    NSDictionary *attributes = [NSDictionary dictionaryWithObject:statusColor forKey:NSForegroundColorAttributeName];
-    NSAttributedString *subString = [[[NSAttributedString alloc] initWithString:self.data.routeName attributes:attributes] autorelease];
-    [string appendAttributedString:subString];
+    if (self.data.routeName!=nil)
+    {
+        NSDictionary *attributes = [NSDictionary dictionaryWithObject:statusColor forKey:NSForegroundColorAttributeName];
+        NSAttributedString *subString = [[[NSAttributedString alloc] initWithString:self.data.routeName attributes:attributes] autorelease];
+        [string appendAttributedString:subString];
+    }
 
 /*
     if (self.data.status == kStatusCancelled)

@@ -12,14 +12,6 @@
 	</dict>
 	<dict>
 		<key>Title</key>
-		<string>About Stop IDs</string>
-		<key>Icon</key>
-		<string>Globe.png</string>
-		<key>LinkM</key>
-		<string>http://trimet.org/transittracker/stopidnumbers.htm</string>
-	</dict>
-	<dict>
-		<key>Title</key>
 		<string>PDX Bus web site &amp; Support</string>
 		<key>Icon</key>
 		<string>Blog.png</string>

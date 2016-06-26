@@ -981,14 +981,17 @@
 
 - (void)displayLinkFired:(id)sender
 {
-    double difference = ABS(self.previousHeading - self.mapView.camera.heading);
+    if (self.mapView && [self.mapView respondsToSelector:@selector(camera)])
+    {
+        double difference = ABS(self.previousHeading - self.mapView.camera.heading);
     
-    if (difference < .001)
-        return;
+        if (difference < .001)
+            return;
     
-    self.previousHeading = self.mapView.camera.heading;
+        self.previousHeading = self.mapView.camera.heading;
     
-    [self updateAnnotations];
+        [self updateAnnotations];
+    }
 }
 
 @end

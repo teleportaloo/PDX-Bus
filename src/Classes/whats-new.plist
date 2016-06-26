@@ -2,6 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <array>
+	<string>.8.1 (June 2016)</string>
+	<string>Bug fixes, incuding crash when entering unknown stop ID.</string>
+	<string>Bug fixes to stop iOS 6 crashes (this is the last iOS6 version).</string>
+	<string>#BWatch:#0 Added dictation and keypad (hard press from home screen)</string>
+	<string>+https://trimet.org/#alerts Updated link to #b#BTriMet#b#0 alert page and changed all web pages to use internal browser.</string>
+	<string>Removed link to TriMet Ticket app, as it no longer launches (their app changed - will restore this when they fix it)</string>
 	<string>.8.0 (February 2016)</string>
 	<string>Fixed notifications so #Ralarms#0 will #iactually#i work, added single button to add alarms for planned trips.</string>
 	<string>Updates for #biOS 9#b including searchable bookmarks, stations and routes. The first 4 bookmarks appear as Quick Actions on the home screen for iPhone 6S.</string>

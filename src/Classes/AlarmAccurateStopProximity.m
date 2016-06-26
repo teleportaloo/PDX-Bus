@@ -25,6 +25,7 @@
 #import "MapViewController.h"
 #import "FormatDistance.h"
 #import "LocationAuthorization.h"
+#include "iOSCompat.h"
 
 #ifdef DEBUG_ALARMS
 #define kDataDictLoc        @"loc"
@@ -42,9 +43,7 @@
 {
     if (self.locationManager!=nil)
     {
-        if ([self.locationManager respondsToSelector:@selector(setAllowsBackgroundLocationUpdates:)]) {
-            [self.locationManager setAllowsBackgroundLocationUpdates:NO];
-        }
+        compatSetIfExists(self.locationManager, setAllowsBackgroundLocationUpdates:, NO);
         
         [self stopUpdatingLocation];
         [self stopMonitoringSignificantLocationChanges];
@@ -77,14 +76,8 @@
         self.locationManager.delegate = self;
         
         
-        if ([self.locationManager respondsToSelector:@selector(requestAlwaysAuthorization)])
-        {
-            [self.locationManager requestAlwaysAuthorization];
-        }
-        
-        if ([self.locationManager respondsToSelector:@selector(setAllowsBackgroundLocationUpdates:)]) {
-            [self.locationManager setAllowsBackgroundLocationUpdates:YES];
-        }
+        compatCallIfExists(self.locationManager , requestAlwaysAuthorization);
+        compatSetIfExists(self.locationManager, setAllowsBackgroundLocationUpdates:, YES);
         
         
         // Temporary cleanup - regions last forever!
@@ -293,9 +286,7 @@
 			[self stopUpdatingLocation];
 			[self stopMonitoringSignificantLocationChanges];
             
-            if ([self.locationManager respondsToSelector:@selector(setAllowsBackgroundLocationUpdates:)]) {
-                [self.locationManager setAllowsBackgroundLocationUpdates:NO];
-            }
+            compatSetIfExists(self.locationManager, setAllowsBackgroundLocationUpdates:, NO);
             
 			NSTimer *timer = [[[NSTimer alloc] initWithFireDate:[NSDate dateWithTimeIntervalSinceNow:0.5]
 													   interval:0.1 

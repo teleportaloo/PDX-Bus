@@ -97,6 +97,9 @@
 - (void)setSegColor:(UISegmentedControl*)seg;
 - (bool)ticketApp;
 - (bool)fullScreen;
+- (bool)openSafariFrom:(UIViewController *)view path:(NSString *)path;
+- (bool)openBrowserFrom:(UIViewController *)view path:(NSString *)path;  // May open chrome
+- (UIViewController*)callbackWhenDone;
 
 @property (nonatomic, retain) UIBarButtonItem *xmlButton;
 @property (nonatomic, retain) BackgroundTaskContainer *backgroundTask;

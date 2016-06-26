@@ -9,6 +9,11 @@
 			<key>orderHint</key>
 			<integer>6</integer>
 		</dict>
+		<key>Notification - PDX Bus Watchkit App.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>11</integer>
+		</dict>
 		<key>PDX Bus Ad-Hoc.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
@@ -39,6 +44,11 @@
 			<key>orderHint</key>
 			<integer>5</integer>
 		</dict>
+		<key>PDX Bus Watchkit App.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>10</integer>
+		</dict>
 		<key>PDX Bus Widget.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
@@ -63,6 +73,11 @@
 			<true/>
 		</dict>
 		<key>A18EB8C71ABE9D4B001BD4A9</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>A1B5E2F91CA0D703002E2653</key>
 		<dict>
 			<key>primary</key>
 			<true/>

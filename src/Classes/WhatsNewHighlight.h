@@ -17,5 +17,7 @@
 
 @interface WhatsNewHighlight : WhatsNewBasicAction
 
+
+
 @end
 

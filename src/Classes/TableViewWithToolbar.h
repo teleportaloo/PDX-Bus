@@ -41,6 +41,8 @@
 @protocol UIAlertViewDelegate;
 @class MKMapView;
 
+#define kCellLabelTotalYInset 20
+
 @interface TableViewWithToolbar : ViewControllerBase <UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate, UISearchDisplayDelegate, DeselectItemDelegate> {
 	UITableView *_tableView;
 	bool _backgroundRefresh;
@@ -69,6 +71,8 @@
 - (void)updateAccessibility:(UITableViewCell *)cell indexPath:(NSIndexPath *)indexPath text:(NSString *)str alwaysSaySection:(BOOL)alwaysSaySection;
 - (UITableViewStyle) getStyle;
 - (CGFloat)getTextHeight:(NSString *)text font:(UIFont *)font;
+- (CGFloat)getAtrributedTextHeight:(NSAttributedString *)text;
+
 - (UIFont*)getBasicFont;
 - (UIFont*)getSmallFont;
 - (UIFont*)getParagraphFont;

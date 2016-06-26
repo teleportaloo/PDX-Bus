@@ -28,11 +28,13 @@
 {
     NSString *url = [self prefix:text restOfText:nil];
     
-    WebViewController *webPage = [[WebViewController alloc] init];
-    [webPage setURLmobile:url full:nil];
-    [webPage displayPage:[parent navigationController] animated:YES itemToDeselect:nil];
-    [webPage release];
+    [WebViewController displayPage:url
+                              full:nil
+                         navigator:parent.navigationController
+                    itemToDeselect:nil
+                          whenDone:nil];
     
 }
+
 
 @end

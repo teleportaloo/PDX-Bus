@@ -12,7 +12,7 @@
 		</dict>
 		<dict>
 			<key>DefaultValue</key>
-			<string>YES</string>
+			<true/>
 			<key>Key</key>
 			<string>auto_commute</string>
 			<key>Title</key>
@@ -28,7 +28,7 @@
 		</dict>
 		<dict>
 			<key>DefaultValue</key>
-			<string>NO</string>
+			<false/>
 			<key>Key</key>
 			<string>bookmarks_at_the_top</string>
 			<key>Title</key>
@@ -64,23 +64,13 @@
 		</dict>
 		<dict>
 			<key>DefaultValue</key>
-			<string>YES</string>
+			<true/>
 			<key>Key</key>
 			<string>commute_button</string>
 			<key>Title</key>
 			<string>Auto Commute bookmark icon</string>
 			<key>Type</key>
 			<string>PSToggleSwitchSpecifier</string>
-		</dict>
-		<dict>
-			<key>Type</key>
-			<string>PSToggleSwitchSpecifier</string>
-			<key>Title</key>
-			<string>TriMet Tickets App icon</string>
-			<key>Key</key>
-			<string>ticket_app_icon</string>
-			<key>DefaultValue</key>
-			<true/>
 		</dict>
 		<dict>
 			<key>Type</key>
@@ -100,7 +90,7 @@
 		</dict>
 		<dict>
 			<key>DefaultValue</key>
-			<string>YES</string>
+			<true/>
 			<key>Key</key>
 			<string>action_icons</string>
 			<key>Title</key>
@@ -144,7 +134,7 @@
 		</dict>
 		<dict>
 			<key>DefaultValue</key>
-			<string>NO</string>
+			<false/>
 			<key>Key</key>
 			<string>flash_led</string>
 			<key>Title</key>
@@ -245,7 +235,7 @@
 		</dict>
 		<dict>
 			<key>DefaultValue</key>
-			<string>YES</string>
+			<true/>
 			<key>Key</key>
 			<string>auto_refresh</string>
 			<key>Title</key>
@@ -255,7 +245,7 @@
 		</dict>
 		<dict>
 			<key>DefaultValue</key>
-			<string>YES</string>
+			<true/>
 			<key>Key</key>
 			<string>shake_to_refresh</string>
 			<key>Title</key>
@@ -513,6 +503,16 @@
 		</dict>
 		<dict>
 			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Use https for TriMet queries</string>
+			<key>Key</key>
+			<string>trimet_https</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>Type</key>
 			<string>PSGroupSpecifier</string>
 			<key>Title</key>
 			<string>The vehicle locator is an experimental feature that will try to find which vehicle you are currently on. The distance may need tuning - if it is too big it will find too many vehicles close by, but too small and it won&apos;t find the one you are on.</string>
@@ -567,7 +567,7 @@
 		</dict>
 		<dict>
 			<key>DefaultValue</key>
-			<string>NO</string>
+			<false/>
 			<key>FalseValue</key>
 			<string>NO</string>
 			<key>Key</key>

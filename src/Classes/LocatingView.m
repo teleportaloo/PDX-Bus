@@ -21,19 +21,21 @@
 #import "SimpleAnnotation.h"
 #import "BearingAnnotationView.h"
 #import "LocationAuthorization.h"
+#include "iOSCompat.h"
 
 #define kLocatingRowHeight		60.0
 #define MAX_AGE					-30.0
 #define TEXT_TAG 1
 #define PROGRESS_TAG 2
 
-#define kLocatingAccuracy	0
-#define kLocatingStop		1
-#define kLocatingMap        2
-
-#define kSectionButtons     0
-#define kSectionText        1
-
+enum SECTIONS_AND_ROWS
+{
+    kLocatingAccuracy,
+    kLocatingStop,
+    kLocatingMap,
+    kSectionButtons,
+    kSectionText
+};
 
 @implementation LocatingView
 
@@ -71,11 +73,8 @@
 		self.locationManager = [[[CLLocationManager alloc] init] autorelease];
 		self.locationManager.delegate = self; // Tells the location manager to send updates to this object
         
-        if ([self.locationManager respondsToSelector:@selector(requestAlwaysAuthorization)])
-        {
-            [self.locationManager requestAlwaysAuthorization];
-        }
-
+        compatCallIfExists(self.locationManager, requestAlwaysAuthorization);
+        
 		_failed = false;
         _waitingForLocation = YES;
         self.title = @"Locator";

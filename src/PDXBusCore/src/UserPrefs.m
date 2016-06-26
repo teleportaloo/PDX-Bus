@@ -306,7 +306,9 @@ static bool useWatchSettings = NO;
 
 - (bool) ticketAppIcon
 {
-	return [self getBoolFromDefaultsForKey:@"ticket_app_icon"           ifMissing:YES writeToShared:NO];
+    return NO;
+    
+	// return [self getBoolFromDefaultsForKey:@"ticket_app_icon"           ifMissing:YES writeToShared:NO];
     
 }
 
@@ -469,6 +471,14 @@ static bool useWatchSettings = NO;
 - (bool)showTrips
 {
     return [self getBoolFromDefaultsForKey:@"show_trips" ifMissing:NO writeToShared:NO];
+}
+
+
+- (NSString *) triMetProtocol
+{
+    bool https = [self getBoolFromDefaultsForKey:@"trimet_https"	ifMissing:YES writeToShared:YES];
+    
+    return https ? @"https" : @"http";
 }
 
 - (NSString*)busIcon

@@ -258,8 +258,8 @@
     }
     else if (extraploate)
     {
-        self.labelRefreshing.hidden = NO;
-        self.labelRefreshing.text = @"Updating stale times";
+        // self.labelRefreshing.hidden = NO;
+        // self.labelRefreshing.text = @"Updating stale times";
     }
     else
     {
@@ -442,7 +442,14 @@
         userData.readOnly = TRUE;
     }
     
-    [self resetTitle];
+    if (!extraploate)
+    {
+        [self resetTitle];
+    }
+    else
+    {
+        self.title = @"Stale - Refreshing";
+    }
 }
 
 
@@ -623,12 +630,16 @@
     
     if (arg==nil || ([arg isKindOfClass:[NSNumber class]] && ![(NSNumber *)arg boolValue]))
     {
-        self.title = @"Refreshing";
+        
         
         if (self.diff > kStaleTime)
         {
             
             [self loadTableWithDepartures:nil detour:nil];
+        }
+        else
+        {
+            self.title = @"Refreshing";
         }
     }
     else

@@ -27,14 +27,14 @@
 #import "TriMetTimesAppDelegate.h"
 #import "AppDelegateMethods.h"
 #import "InterfaceOrientation.h"
+#import "SafariServices/SafariServices.h"
 
 
 #define kTweetButtonList        1
 #define kTweetButtonTweet       2
 #define kTweetButtonApp         3
 #define kTweetButtonWeb         4
-#define kTweetButtonChrome      5
-#define kTweetButtonCancel      6
+#define kTweetButtonCancel      5
 
 
 @implementation UINavigationController (Rotation_IOS6)
@@ -816,16 +816,19 @@
 
 - (void)showRouteSchedule:(NSString *)route
 {
-	WebViewController *webPage = [[WebViewController alloc] init];
-	NSMutableString *padding = [[NSMutableString alloc] init];
 	
-	webPage.whenDone = [self.callback getController];
+	NSMutableString *padding = [[NSMutableString alloc] init];
+    
 	[self padRoute:route padding:&padding];
-	[webPage setURLmobile: [NSString stringWithFormat:@"https://www.trimet.org/schedules/r%@.htm",padding]
-					 full:nil]; 
-	[webPage displayPage:[self navigationController] animated:YES itemToDeselect:nil];
-	[webPage release];
-	[padding release];
+    
+    [WebViewController displayPage:[NSString stringWithFormat:@"https://www.trimet.org/schedules/r%@.htm",padding]
+                              full:nil
+                         navigator:self.navigationController
+                    itemToDeselect:nil
+                          whenDone:self.callbackWhenDone];
+    
+    
+    [padding release];
 	
 }
 
@@ -1068,12 +1071,9 @@
     {
         _tweetButtons[ [self.tweetAlert addButtonWithTitle:@"Show in Twitter app"] ] = kTweetButtonApp;
     }
-    
-    _tweetButtons[ [self.tweetAlert addButtonWithTitle:@"Show in Safari"] ] = kTweetButtonWeb;
-    
-    if ([OpenInChromeController sharedInstance].isChromeInstalled)
+    else
     {
-        _tweetButtons[ [self.tweetAlert addButtonWithTitle:@"Show in Chrome"] ] = kTweetButtonChrome;
+         _tweetButtons[ [self.tweetAlert addButtonWithTitle:@"Show in browser"] ] = kTweetButtonWeb;
     }
     
     // _tweetButtons[[sheet addButtonWithTitle:@"Recent tweets"] ] = kTweetButtonList;
@@ -1091,6 +1091,58 @@
     
 }
 
+- (UIViewController*)callbackWhenDone
+{
+    if (self.callback)
+    {
+        return [self.callback getController];
+    }
+    
+    return nil;
+}
+
+
+- (bool)openBrowserFrom:(UIViewController *)view path:(NSString *)path
+{
+    if ([UserPrefs getSingleton].useChrome && [ OpenInChromeController sharedInstance].isChromeInstalled)
+    {
+        if ([[OpenInChromeController sharedInstance] openInChrome:[NSURL URLWithString:path]
+                                              withCallbackURL:[NSURL URLWithString:@"pdxbus:"]
+                                                 createNewTab:NO])
+        {
+            return YES;
+        }
+    }
+    
+    return [self openSafariFrom:self path:path];
+}
+
+- (bool)openSafariFrom:(UIViewController *)view path:(NSString *)path
+{
+    Class safariClass = (NSClassFromString(@"SFSafariViewController"));
+    
+    NSURL *url = [NSURL URLWithString:path];
+    
+    if (safariClass!=nil)
+    {
+        SFSafariViewController *vc = [[SFSafariViewController alloc] initWithURL:url];
+        
+        // vc.delegate = self
+        [view presentViewController:vc animated:YES completion:^{}];
+        return TRUE;
+    }
+    else
+    {
+        if ([[UIApplication sharedApplication] canOpenURL:url])
+        {
+            [[UIApplication sharedApplication] openURL:url];
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+
 
 - (void)facebookWithId:(NSString*)fbid path:(NSString*)fbpath
 {
@@ -1098,15 +1150,9 @@
     {
         [[UIApplication sharedApplication] openURL:[NSURL URLWithString:fbid]];
     }
-    else if ([ OpenInChromeController sharedInstance].isChromeInstalled)
-    {
-        [[OpenInChromeController sharedInstance] openInChrome:[NSURL URLWithString:fbpath]
-                                              withCallbackURL:[NSURL URLWithString:@"pdxbus:"]
-                                                 createNewTab:NO];
-    }
     else
     {
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:fbpath]];
+        [self openBrowserFrom:self path:fbpath];
     }
     [self clearSelection];
 }
@@ -1173,16 +1219,7 @@
         case kTweetButtonWeb:
         {
             NSString *twitter=[NSString stringWithFormat:@"https://mobile.twitter.com/%@", self.tweetAt];
-            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:twitter]];
-            [self clearSelection];
-            break;
-        }
-        case kTweetButtonChrome:
-        {
-            NSString *twitter=[NSString stringWithFormat:@"https://mobile.twitter.com/%@", self.tweetAt];
-            [[OpenInChromeController sharedInstance] openInChrome:[NSURL URLWithString:twitter]
-                                                  withCallbackURL:[NSURL URLWithString:@"pdxbus:"]
-                                                     createNewTab:NO];
+            [self openBrowserFrom:self path:twitter];
             [self clearSelection];
             break;
         }

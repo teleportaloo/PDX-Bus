@@ -38,6 +38,13 @@
 - (void)setRawData:(NSData *)rawData title:(NSString *)title;
 - (void)setMapLocationLat:(NSString *)lat lng:(NSString *)lng title:(NSString *)title;
 - (void)displayPage:(UINavigationController *)nav animated:(BOOL)animated itemToDeselect:(id<DeselectItemDelegate>)deselect;
++ (void)displayPage:(NSString *)url
+               full:(NSString*)full
+          navigator:(UINavigationController *)nav
+     itemToDeselect:(id<DeselectItemDelegate>)deselect
+           whenDone:(UIViewController*)whenDone;
+
+
 
 @property (nonatomic, retain) NSData *rawDataToDisplay;
 @property (nonatomic, retain) NSString *urlToDisplay;

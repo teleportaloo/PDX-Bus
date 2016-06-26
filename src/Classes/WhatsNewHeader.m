@@ -49,4 +49,9 @@
     return [fullText substringFromIndex:1];
 }
 
+- (NSString*)plainText:(NSString*)fullText
+{
+    return [self plainTextNormal:fullText];
+}
+
 @end

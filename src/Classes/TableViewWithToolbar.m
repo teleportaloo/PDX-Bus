@@ -18,6 +18,7 @@
 #import "SearchFilter.h"
 #import <UIKit/UISearchDisplayController.h>
 #import <MapKit/MapKit.h>
+#include "iOSCompat.h"
 
 
 @implementation TableViewWithToolbar
@@ -118,10 +119,8 @@
 	// set the autoresizing mask so that the table will always fill the view
 	self.table.autoresizingMask = (UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight);
     
-    if ([self.table respondsToSelector:@selector(setCellLayoutMarginsFollowReadableWidth:)])
-    {
-        self.table.cellLayoutMarginsFollowReadableWidth = NO;
-    }
+    compatSetIfExists(self.table, setCellLayoutMarginsFollowReadableWidth:, NO);
+
 	// set the tableview delegate to this object
 	self.table.delegate = self;	
 	
@@ -316,6 +315,28 @@
     {
         [self.table deselectRowAtIndexPath:ip animated:YES];
     }
+}
+
+- (CGFloat)getAtrributedTextHeight:(NSAttributedString *)text
+{
+    CGFloat width = 0.0;
+    
+    if ([self getStyle] == UITableViewStylePlain || [self iOS7style])
+    {
+        width = self.screenInfo.appWinWidth - 20;
+    }
+    else
+    {
+        width = self.screenInfo.appWinWidth - 50;
+    }
+    DEBUG_LOG(@"Width for text %f\n", width);
+
+    
+    CGRect rect = [text boundingRectWithSize:CGSizeMake(width, MAXFLOAT)
+                                     options:NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading
+                                     context:nil];
+    
+    return rect.size.height;
 }
 
 - (CGFloat)getTextHeight:(NSString *)text font:(UIFont *)font;
@@ -1030,8 +1051,9 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
         map.userInteractionEnabled = YES;
         map.scrollEnabled = FALSE;
         map.zoomEnabled = FALSE;
-        map.pitchEnabled = FALSE;
-        map.rotateEnabled = FALSE;
+        
+        compatSetIfExists(map, setPitchEnabled:, FALSE);
+        compatSetIfExists(map, setRotateEnabled:, FALSE);
         
         UITapGestureRecognizer* tapRec = [[UITapGestureRecognizer alloc]
                                           initWithTarget:self action:@selector(didTapMap:)];

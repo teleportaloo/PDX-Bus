@@ -29,6 +29,7 @@
 #import "WhatsNewHighlight.h"
 #import "NearestVehiclesMap.h"
 #import "StringHelper.h"
+#import "DebugLogging.h"
 
 
 @implementation WhatsNewView
@@ -60,6 +61,20 @@
 #pragma mark Table view methods
 
 
+- (id<WhatsNewSpecialAction>)getAction:(NSString*)fullText
+{
+    NSNumber *key = [NSNumber numberWithChar:[fullText characterAtIndex:0]];
+    
+    id<WhatsNewSpecialAction> action = [_specialActions objectForKey:key];
+    
+    if (action == nil)
+    {
+        action = _basicAction;
+    }
+    
+    return action;
+}
+
 - (id)init {
 	if ((self = [super init]))
 	{
@@ -76,23 +91,25 @@
                                 [[WhatsNewHighlight alloc] autorelease],[WhatsNewHighlight getPrefix],
                            
                            nil];
+#ifdef DEBUGLOGGING
+        NSMutableString *output = [NSMutableString alloc].init.autorelease;
+        
+        [output appendString:@"\n"];
+        
+        for (NSString * fullText in _newTextArray)
+        {
+            id<WhatsNewSpecialAction> action = [self getAction:fullText];
+
+            [output appendFormat:@"%@\n", [action plainText:fullText]];
+
+        }
+        NSLog(@"%@\n", output);
+#endif
     }
+
 	return self;
 }
 
-- (id<WhatsNewSpecialAction>)getAction:(NSString*)fullText
-{
-    NSNumber *key = [NSNumber numberWithChar:[fullText characterAtIndex:0]];
-    
-    id<WhatsNewSpecialAction> action = [_specialActions objectForKey:key];
-    
-    if (action == nil)
-    {
-        action = _basicAction;
-    }
-    
-    return action;
-}
 
 
 
@@ -141,8 +158,6 @@
             
             NSAttributedString *text = [StringHelper formatAttributedString: [action displayText:fullText] font:[self getParagraphFont]];
             
-            [action displayText:fullText];
-            
             CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionText)];
 			if (cell == nil) {
 				cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionText)] autorelease];
@@ -151,6 +166,7 @@
 			
 			cell.view.font =  [self getParagraphFont];
 			cell.view.attributedText =  text;
+            [cell.view setAdjustsFontSizeToFitWidth:NO];
             cell.view.backgroundColor = [UIColor clearColor];
 			
             [action updateCell:cell tableView:tableView];
@@ -183,12 +199,12 @@
 	if (indexPath.section == kSectionText)
 	{
         NSString * fullText = [_newTextArray objectAtIndex:indexPath.row];
-        
+    
         id<WhatsNewSpecialAction> action = [self getAction:fullText];
         
-        NSString *text = [action displayText:fullText];
+        NSAttributedString *text = [StringHelper formatAttributedString: [action displayText:fullText] font:[self getParagraphFont]];
         
-		return [self getTextHeight:text font:[self getParagraphFont]];
+		return [self getAtrributedTextHeight:text] + kCellLabelTotalYInset;
 	}
 	return [self basicRowHeight];
 }

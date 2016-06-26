@@ -25,18 +25,18 @@
 #import "BearingAnnotationView.h"
 #import "LocationAuthorization.h"
 
+enum SECTIONS_AND_ROWS
+{
+    kGpsLocateSection,
+    kNoGpsLocateSection,
+    kDistanceSection,
+    kModeSection,
+    kShowSection,
+    kAutoSection,
+    kNoteSection,
+    kMapSection
+};
 
-#define kGpsLocateSection	0
-#define kNoGpsLocateSection 1
-#define kDistanceSection	2
-#define kModeSection		3
-#define kShowSection        4
-#define kAutoSection        5
-#define kNoteSection        6
-#define kMapSection         7
-
-#define kLocatingAccuracy	0
-#define kLocatingStop		1
 
 #define kShowArrivals		0
 #define kShowMap			1

@@ -16,6 +16,7 @@
 #import "LegShapeParser.h"
 #import "DebugLogging.h"
 #import "math.h"
+#import "UserPrefs.h"
 
 #define END_LAT 2000
 
@@ -104,7 +105,8 @@
 
 	[query deleteCharactersInRange:NSMakeRange(0,9)];  // /transweb is 9 characters
 	
-	[self fetchDataByPolling:[[NSString stringWithFormat:@"https://developer.trimet.org%@", query] 
+	[self fetchDataByPolling:[[NSString stringWithFormat:@"%@://developer.trimet.org%@",
+                                                [UserPrefs getSingleton].triMetProtocol, query]
 										stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
 	
 	if (self.dataComplete && self.rawData)

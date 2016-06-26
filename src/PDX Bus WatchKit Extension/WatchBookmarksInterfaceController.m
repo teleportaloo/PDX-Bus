@@ -22,6 +22,8 @@
 #import "StringHelper.h"
 #import "DebugLogging.h"
 #import "WatchNearbyInterfaceController.h"
+#import "NumberPadInterfaceController.h"
+#import "AlertInterfaceController.h"
 
 
 @interface WatchBookmarksInterfaceController()
@@ -261,6 +263,10 @@
 
 - (IBAction)menuItemHome {
     [self popToRootController];
+}
+
+- (IBAction)enterStopId {
+    [self pushControllerWithName:@"Number Pad" context:nil];
 }
 
 - (IBAction)menuItemCommute {

@@ -35,30 +35,29 @@
 @synthesize map				= _map;
 @synthesize routes			= _routes;
 
-
-#define kSectionStation			0
-#define kSectionArrivals        1
-#define kSectionTripPlanner     2
-#define kSectionRoute			3
-#define kSectionWikiLink		4
-#define kSectionAlarm           5
-#define kSectionMap             6
+enum SECTIONS_AND_ROWS {
+    kSectionStation,
+    kSectionArrivals,
+    kSectionTripPlanner,
+    kSectionRoute,
+    kSectionWikiLink,
+    kSectionAlarm,
+    kSectionMap,
+    kRowStation,
+    kRowAllArrivals,
+    kRowLocationArrival,
+    kRowNearbyStops,
+    kRowWikiLink,
+    kRowTripToHere,
+    kRowTripFromHere,
+    kRowProximityAlarm,
+    kRowRoute,
+    kRowMap
+};
 
 #define kDirectionCellHeight	45.0
 #define DIRECTION_TAG			1
 #define ID_TAG					2
-
-#define kRowStation             0
-#define kRowAllArrivals         1
-#define kRowLocationArrival     2
-#define kRowNearbyStops         3
-#define kRowWikiLink			4
-#define kRowTripToHere          5
-#define kRowTripFromHere        6
-#define kRowProximityAlarm      7
-#define kRowRoute               8
-#define kRowMap                 9
-
 
 
 - (void)dealloc {
@@ -605,20 +604,11 @@
         }
         case kRowWikiLink:
         {
-            WebViewController *webPage = [[WebViewController alloc] init];
-            
-            [webPage setURLmobile:[NSString stringWithFormat:@"https://en.m.wikipedia.org/wiki/%@", self.station.wikiLink ]
-                             full:[NSString stringWithFormat:@"https://en.wikipedia.org/wiki/%@", self.station.wikiLink ]];
-            
-            
-            if (self.callback)
-            {
-                webPage.whenDone = [self.callback getController];
-            }
-            
-            [webPage displayPage:[self navigationController] animated:YES itemToDeselect:self];
-            
-            [webPage release];
+            [WebViewController displayPage:[NSString stringWithFormat:@"https://en.m.wikipedia.org/wiki/%@", self.station.wikiLink ]
+                                      full:[NSString stringWithFormat:@"https://en.wikipedia.org/wiki/%@", self.station.wikiLink ]
+                                 navigator:self.navigationController
+                            itemToDeselect:self
+                                  whenDone:self.callbackWhenDone];
             break;
         }
         case kRowProximityAlarm:

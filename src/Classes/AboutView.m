@@ -20,16 +20,19 @@
 #import "StringHelper.h"
 
 
-#define kSectionHelp			0
-#define kSectionWeb				1
-#define kSectionLegal			2
-#define kSectionAbout			3
-#define kSections				4
+enum SECTIONS {
+    kSectionIntro,
+    kSectionWeb,
+    kSectionLegal,
+    kSectionThanks,
+    kSections
+};
 			
-#define kSectionHelpRows		3
-#define kSectionHelpRowHelp		0
-#define kSectionHelpRowNew		1
-#define kSectionHelpHowToRide   2
+enum INTRO_ROWS {
+    kSectionIntroRowIntro,
+    kSectionIntroRowNew,
+    kSectionIntroRows
+};
 
 #define kLinkFull   @"LinkF"
 #define kLinkMobile @"LinkM"
@@ -41,8 +44,8 @@
 @synthesize hideButton = _hideButton;
 
 - (void)dealloc {
-	[aboutText release];
-	[helpText release];
+	[thanksText release];
+	[introText release];
     [links release];
     [legal release];
 	[super dealloc];
@@ -86,11 +89,10 @@
                           DEBUG_MODE
                           ];
         
-        aboutText = ATTR(text).retain;
+        thanksText = ATTR(text).retain;
         
-        helpText = ATTR(@"One developer writes #bPDX Bus#b as a #ivolunteer effort#i, with a little help from friends and the local community. He has no affiliation with #b#BTriMet#b#0, but he happens to ride buses and MAX on most days.\n\n"
+        introText = ATTR(@"One developer writes #bPDX Bus#b as a #ivolunteer effort#i, with a little help from friends and the local community. He has no affiliation with #b#BTriMet#b#0, but he happens to ride buses and MAX on most days.\n\n"
                         "This is free because I do it for fun. #i#b#GReally#i#b#0.").retain;
-        
         
         links = [[NSArray alloc] initWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"about-links" ofType:@"plist"]];
         legal = [[NSArray alloc] initWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"about-legal" ofType:@"plist"]];
@@ -131,13 +133,13 @@
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
 	switch (section) {
-		case kSectionAbout:
+		case kSectionThanks:
 			return NSLocalizedString(@"Thanks!", @"Thanks section header");
 		case kSectionWeb:
 			return NSLocalizedString(@"Links", @"Link section header");
 		case kSectionLegal:
 			return NSLocalizedString(@"Attributions and Legal", @"Section header");
-		case kSectionHelp:
+		case kSectionIntro:
 			return NSLocalizedString(@"Welcome to PDX Bus!", @"Section header");
 			
 	}
@@ -151,10 +153,10 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 	switch (section) {
-		case kSectionAbout:
+		case kSectionThanks:
 			return 1;
-		case kSectionHelp:
-			return kSectionHelpRows;
+		case kSectionIntro:
+			return kSectionIntroRows;
 		case kSectionWeb:
 			return links.count;
 		case kSectionLegal:
@@ -193,10 +195,10 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	
 	switch (indexPath.section) {
-		case kSectionAbout:
-		case kSectionHelp:
+		case kSectionThanks:
+		case kSectionIntro:
 		{
-			if (indexPath.row == kSectionHelpRowHelp)
+			if (indexPath.row == kSectionIntroRowIntro)
 			{
 				CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionHelpRowHelp)];
 				if (cell == nil) {
@@ -205,7 +207,8 @@
 				}
 				
 				cell.view.font =  [self getParagraphFont];
-				cell.view.attributedText = (indexPath.section == kSectionAbout) ? aboutText : helpText;
+				cell.view.attributedText = (indexPath.section == kSectionThanks) ? thanksText : introText;
+                [cell.view setAdjustsFontSizeToFitWidth:NO];
 				DEBUG_LOG(@"help width:  %f\n", cell.view.bounds.size.width);
 				cell.selectionStyle = UITableViewCellSelectionStyleNone;
 				[self updateAccessibility:cell indexPath:indexPath text:cell.view.attributedText.string alwaysSaySection:YES];
@@ -228,12 +231,6 @@
 					cell.selectionStyle = UITableViewCellSelectionStyleBlue;
 				}
                 
-                if (indexPath.row == kSectionHelpHowToRide)
-                {
-                    cell.textLabel.text = NSLocalizedString(@"How to ride", @"Link to page");
-                    cell.imageView.image = [self getActionIcon:kIconAbout];
-                }
-                else 
                 {
                     cell.textLabel.text = NSLocalizedString(@"What's new?", @"Link to what's new");
                     cell.imageView.image = [self getActionIcon:kIconAppIconAction];
@@ -265,13 +262,13 @@
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
 	switch (indexPath.section) {
-		case kSectionAbout:
-			return [self getTextHeight:aboutText.string font:[self getParagraphFont]];
+		case kSectionThanks:
+            return [self getAtrributedTextHeight:thanksText] + kCellLabelTotalYInset;
 			break;
-		case kSectionHelp:
-			if (indexPath.row == kSectionHelpRowHelp)
+		case kSectionIntro:
+			if (indexPath.row == kSectionIntroRowIntro)
 			{
-				return [self getTextHeight:helpText.string font:[self getParagraphFont]];
+				return [self getAtrributedTextHeight:introText] + kCellLabelTotalYInset;
 			}
 			break;
 		case kSectionWeb:
@@ -285,13 +282,11 @@
 
 - (void)gotoDict:(NSDictionary*)dict
 {
-    WebViewController *webPage = [[WebViewController alloc] init];
-    
-    [webPage setURLmobile:[dict objectForKey:kLinkMobile]
-                     full:[dict objectForKey:kLinkFull]];
-
-    [webPage displayPage:[self navigationController] animated:YES itemToDeselect:self];
-    [webPage release];
+    [WebViewController displayPage:[dict objectForKey:kLinkMobile]
+                              full:[dict objectForKey:kLinkFull]
+                         navigator:self.navigationController
+                    itemToDeselect:self
+                          whenDone:nil];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -307,18 +302,11 @@
             [self gotoDict:[legal objectAtIndex:indexPath.row]];
             break;
 		}
-		case kSectionHelp:
-			if (indexPath.row == kSectionHelpRowHelp)
+		case kSectionIntro:
+			if (indexPath.row == kSectionIntroRowIntro)
 			{
 				[[self navigationController] popViewControllerAnimated:YES];
 			}
-			else if (indexPath.row == kSectionHelpHowToRide)
-            {
-                WebViewController *webPage = [[WebViewController alloc] init];
-                [webPage setURLmobile:NSLocalizedString(@"https://trimet.org/howtoride/index.htm", @"how to ride site") full:nil];
-                [webPage displayPage:[self navigationController] animated:YES itemToDeselect:self];
-                [webPage release];
-            }
             else
 			{
 				WhatsNewView *whatsNew = [[WhatsNewView alloc] init];

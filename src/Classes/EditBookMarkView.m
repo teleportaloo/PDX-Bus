@@ -28,20 +28,23 @@
 #import "SegmentCell.h"
 #import "StringHelper.h"
 
-#define kTableName              0
-#define kTableStops             1
-#define kTableSectionTrip		2
-#define kTableDelete            3
-#define kTableRun               4
-#define kTableCommute           5
-#define kTableRowStopId         6
-#define kTableRowStopBrowse     7
-#define kTableRowRailMap        8
-#define kTableRowRailStations   9
-#define kTableTripRowFrom		10
-#define kTableTripRowTo			11
-#define kTableTripRowOptions    12
-#define kTableRowTime			13
+enum SECTIONS_AND_ROWS
+{
+    kTableName,
+    kTableStops,
+    kTableSectionTrip,
+    kTableDelete,
+    kTableRun,
+    kTableCommute,
+    kTableRowStopId,
+    kTableRowStopBrowse,
+    kTableRowRailMap,
+    kTableRowRailStations,
+    kTableTripRowFrom,
+    kTableTripRowTo,
+    kTableTripRowOptions,
+    kTableRowTime
+} ;
 
 #define kUIEditHeight			55.0
 #define kUIRowHeight			40.0

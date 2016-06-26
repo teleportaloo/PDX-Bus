@@ -71,5 +71,6 @@
 @property (nonatomic, readonly)  bool watchUseBetaVehicleLocator;
 @property (nonatomic, readonly)  NSString *busIcon;
 @property (nonatomic, readonly)  bool showTrips;
+@property (nonatomic, readonly)  NSString *triMetProtocol;
 
 @end

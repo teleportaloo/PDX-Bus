@@ -40,5 +40,6 @@
     return [fullText substringFromIndex:1];
 }
 
+
 @end
 

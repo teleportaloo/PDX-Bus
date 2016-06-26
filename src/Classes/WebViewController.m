@@ -15,6 +15,9 @@
 #include "DebugLogging.h"
 #include "TriMetTypes.h"
 #include "OpenInChromeController.h"
+#import "SafariServices/SafariServices.h"
+
+
 
 @implementation WebViewController
 
@@ -518,9 +521,39 @@
 
 }
 
+- (bool)openSafariFrom:(UIViewController *)view path:(NSString *)path
+{
+    if ( [self iOS9style] )
+    {
+        return [super openSafariFrom:view path:path];
+    }
+    
+    return FALSE;
+}
+
++ (void)displayPage:(NSString *)mobile
+               full:(NSString*)full
+          navigator:(UINavigationController *)nav
+     itemToDeselect:(id<DeselectItemDelegate>)deselect
+           whenDone:(UIViewController*)whenDone
+{
+    
+    WebViewController *webPage = [[WebViewController alloc] init];
+    
+    [webPage setURLmobile:mobile full:full];
+    
+    webPage.whenDone = whenDone;
+    webPage.showErrors = NO;
+    
+    [webPage displayPage:nav animated:YES itemToDeselect:deselect];
+    
+    [webPage release];
+}
+
 
 - (void)displayPage:(UINavigationController *)nav animated:(BOOL)animated itemToDeselect:(id<DeselectItemDelegate>)deselect
 {
+
     if ([UserPrefs getSingleton].useChrome && [OpenInChromeController sharedInstance].isChromeInstalled && self.urlToDisplay!=nil)
     {
         [[OpenInChromeController sharedInstance] openInChrome:[NSURL URLWithString:self.urlToDisplay]
@@ -531,11 +564,8 @@
         {
             [deselect deselectItemCallback];
         }
-    }
-    else if ([self iOS9style])
+    } else if ([self openSafariFrom:nav path:self.urlToDisplay])
     {
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:self.urlToDisplay]];
-        
         if (deselect)
         {
             [deselect deselectItemCallback];
