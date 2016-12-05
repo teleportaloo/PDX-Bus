@@ -15,17 +15,18 @@
 
 #import <UIKit/UIKit.h>
 #import "TableViewWithToolbar.h"
-#import "XMLLocateStopsUI.h"
+#import "XMLLocateStops+iOSUI.h"
 
 @interface NearestRoutesView : TableViewWithToolbar {
-	XMLLocateStopsUI *_routeData;
-	bool *_checked;
+	XMLLocateStops *            _routeData;
+	NSMutableArray<NSNumber*> * _checked;
 }
 
-@property (nonatomic, retain) XMLLocateStopsUI *routeData;
+@property (nonatomic, retain) XMLLocateStops *routeData;
+@property (nonatomic, retain) NSMutableArray<NSNumber*> *checked;
 
 - (void)showArrivalsAction:(id)sender;
-- (void)fetchNearestRoutesInBackground:(id<BackgroundTaskProgress>)background location:(CLLocation *)here maxToFind:(int)max minDistance:(double)min mode:(TripMode)mode;
+- (void)fetchNearestRoutesAsync:(id<BackgroundTaskProgress>)background location:(CLLocation *)here maxToFind:(int)max minDistance:(double)min mode:(TripMode)mode;
 
 
 

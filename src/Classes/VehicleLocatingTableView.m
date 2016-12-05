@@ -45,21 +45,19 @@
 }
 
 
-- (void)showMap:(id)arg
+- (void)showMap:(id)unused
 {
-    NearestVehiclesMap *mapView = [[NearestVehiclesMap alloc] init];
+    NearestVehiclesMap *mapView = [NearestVehiclesMap viewController];
     mapView.trimetRoutes    = nil;
     mapView.streetcarRoutes = [NSSet set];
-    mapView.title = @"Nearest Vehicles";
+    mapView.title = NSLocalizedString(@"Nearest Vehicles", @"page title");
     
-    [mapView fetchNearestVehiclesInBackground:self.backgroundTask];
-    
-    [mapView release];
+    [mapView fetchNearestVehiclesAsync:self.backgroundTask];
 }
 
 - (void)updateToolbarItems:(NSMutableArray *)toolbarItems
 {
-	[toolbarItems addObject:[CustomToolbar autoMapButtonWithTarget:self action:@selector(showMap:)]];
+	[toolbarItems addObject:[UIToolbar autoMapButtonWithTarget:self action:@selector(showMap:)]];
     [self maybeAddFlashButtonWithSpace:YES buttons:toolbarItems big:NO];
 }
 
@@ -71,12 +69,10 @@
     
     if (!locatingView.failed && !locatingView.cancelled)
     {
-        VehicleTableView *listView = [[VehicleTableView alloc] init];
+        [[VehicleTableView viewController] fetchNearestVehiclesAsync:locatingView.backgroundTask
+                                                                  location:self.locationManager.location
+                                                               maxDistance:[UserPrefs singleton].vehicleLocatorDistance];
     
-        [listView fetchNearestVehiclesInBackground:locatingView.backgroundTask location:self.locationManager.location
-                                       maxDistance:[UserPrefs getSingleton].vehicleLocatorDistance];
-    
-        [listView release];
     }
     else if (locatingView.cancelled)
     {

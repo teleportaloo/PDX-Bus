@@ -39,7 +39,6 @@
 @synthesize dateAndTime		= _dateAndTime;
 @synthesize arrivalTime		= _arrivalTime;
 @synthesize timeChoice	    = _timeChoice;
-@synthesize takeMeHome      = _takeMeHome;
 @synthesize historical      = _historical;
 
 - (void)dealloc {
@@ -117,72 +116,57 @@
 
 - (NSMutableDictionary *)toDictionary
 {
-	NSMutableDictionary *dict = [[[NSMutableDictionary alloc] init] autorelease];
+    NSMutableDictionary *dict = [NSMutableDictionary dictionary];
 	
 	if (self.fromPoint)
 	{
-		[dict setObject:[self.fromPoint toDictionary]
-				 forKey:kDictUserRequestFromPoint];
+		dict[kDictUserRequestFromPoint] = self.fromPoint.toDictionary;
 	}
 	
 	if (self.toPoint)
 	{
-		[dict setObject:[self.toPoint toDictionary]
-				 forKey:kDictUserRequestToPoint];
+		dict[kDictUserRequestToPoint] = self.toPoint.toDictionary;
 	}
 	
-	[dict setObject:[[[NSNumber alloc] initWithInt:self.tripMode] autorelease]
-			 forKey:kDictUserRequestTripMode];
-	
-	[dict setObject:[[[NSNumber alloc] initWithInt:self.tripMin] autorelease]
-			 forKey:kDictUserRequestTripMin];
-	
-	[dict setObject:[[[NSNumber alloc] initWithInt:self.maxItineraries] autorelease]
-			 forKey:kDictUserRequestMaxItineraries];
-	
-	[dict setObject:[[[NSNumber alloc] initWithFloat:self.walk] autorelease]
-			 forKey:kDictUserRequestWalk];
+	dict[kDictUserRequestTripMode]       = @(self.tripMode);
+	dict[kDictUserRequestTripMin]        = @(self.tripMin);
+	dict[kDictUserRequestMaxItineraries] = @(self.maxItineraries);
+	dict[kDictUserRequestWalk]           = @(self.walk);
 	
 	if (self.dateAndTime)
 	{
-		[dict setObject:[[[NSNumber alloc] initWithBool:self.arrivalTime] autorelease]
-                 forKey:kDictUserRequestArrivalTime];
-        
-		[dict setObject:self.dateAndTime
-                 forKey:kDictUserRequestDateAndTime];
+		dict[kDictUserRequestArrivalTime] = @(self.arrivalTime);
+		dict[kDictUserRequestDateAndTime] = self.dateAndTime;
 	}
-	
-	[dict setObject:[[[NSNumber alloc] initWithFloat:self.timeChoice] autorelease]
-			 forKey:kDictUserRequestTimeChoice];
-	
+    
+	dict[kDictUserRequestTimeChoice] = @(self.timeChoice);
 	
 	return dict;
 }
 
-- (id) init
+- (instancetype) init
 {
 	if ((self = [super init]))
 	{
-		self.walk =             [UserPrefs getSingleton].maxWalkingDistance;
-		self.tripMode =         [UserPrefs getSingleton].travelBy;
-		self.tripMin =          [UserPrefs getSingleton].tripMin;
+		self.walk =             [UserPrefs singleton].maxWalkingDistance;
+		self.tripMode =         [UserPrefs singleton].travelBy;
+		self.tripMin =          [UserPrefs singleton].tripMin;
 		self.maxItineraries =   6;
-		self.toPoint =          [[[TripEndPoint alloc] init] autorelease];
-		self.fromPoint =        [[[TripEndPoint alloc] init] autorelease];
+        self.toPoint =          [TripEndPoint data];
+        self.fromPoint =        [TripEndPoint data];
 	}
 	return self;
 }
 
-- (id)initFromDict:(NSDictionary *)dict
++ (instancetype)fromDictionary:(NSDictionary *)dict
 {
-	if ((self = [super init]))
-	{
-		[self fromDictionary:dict];
-	}
-	return self;
-	
+    id item = [[[[self class] alloc] init] autorelease];
+    if (dict!=nil && [item readDictionary:dict])
+    {
+        return item;
+    }
+    return nil;
 }
-
 
 - (NSNumber *)forceNSNumber:(NSObject*)obj
 {
@@ -226,45 +210,45 @@
 }
 
 
-- (bool)fromDictionary:(NSDictionary *)dict
+- (bool)readDictionary:(NSDictionary *)dict
 {
-	self.fromPoint = [[[TripEndPoint alloc] initFromDict:[self forceNSDictionary:[dict objectForKey:kDictUserRequestFromPoint]]] autorelease];
-	self.toPoint   = [[[TripEndPoint alloc] initFromDict:[self forceNSDictionary:[dict objectForKey:kDictUserRequestToPoint  ]]] autorelease];
+	self.fromPoint = [TripEndPoint fromDictionary:[self forceNSDictionary:dict[kDictUserRequestFromPoint]]];
+    self.toPoint   = [TripEndPoint fromDictionary:[self forceNSDictionary:dict[kDictUserRequestToPoint  ]]];
 	
-	NSNumber *tripMode = [self forceNSNumber:[dict objectForKey:kDictUserRequestTripMode]];
+	NSNumber *tripMode = [self forceNSNumber:dict[kDictUserRequestTripMode]];
 	
-	self.tripMode = tripMode	? [tripMode intValue]
-    : [UserPrefs getSingleton].travelBy;
+	self.tripMode = tripMode	? tripMode.intValue
+                                : [UserPrefs singleton].travelBy;
     
     
 	
-	NSNumber *tripMin = [self forceNSNumber:[dict objectForKey:kDictUserRequestTripMin]];
-	self.tripMin = tripMin	? [tripMin intValue]
-    : [UserPrefs getSingleton].tripMin;
+	NSNumber *tripMin = [self forceNSNumber:dict[kDictUserRequestTripMin]];
+	self.tripMin = tripMin	? tripMin.intValue
+                            : [UserPrefs singleton].tripMin;
 	
-	NSNumber *maxItineraries = [self forceNSNumber:[dict objectForKey:kDictUserRequestMaxItineraries]];
-	self.maxItineraries =  maxItineraries ? [maxItineraries intValue]
-    : 6;
+	NSNumber *maxItineraries = [self forceNSNumber:dict[kDictUserRequestMaxItineraries]];
+	self.maxItineraries =  maxItineraries ? maxItineraries.intValue
+                                          : 6;
 	
-	NSNumber *walk = [self forceNSNumber:[dict objectForKey:kDictUserRequestWalk]];
-	self.walk = walk	? [walk floatValue]
-    : [UserPrefs getSingleton].maxWalkingDistance;
+	NSNumber *walk = [self forceNSNumber:dict[kDictUserRequestWalk]];
+	self.walk = walk	? walk.floatValue
+                        : [UserPrefs singleton].maxWalkingDistance;
     
 	
-	NSNumber *arrivalTime = [self forceNSNumber:[dict objectForKey:kDictUserRequestArrivalTime]];
-	self.arrivalTime = arrivalTime	? [arrivalTime boolValue]
-    : false;
+	NSNumber *arrivalTime = [self forceNSNumber:dict[kDictUserRequestArrivalTime]];
+	self.arrivalTime = arrivalTime	? arrivalTime.boolValue
+                                    : false;
 	
 	
-	NSNumber *timeChoice  = [self forceNSNumber:[dict objectForKey:kDictUserRequestTimeChoice]];
+	NSNumber *timeChoice  = [self forceNSNumber:dict[kDictUserRequestTimeChoice]];
 	if (timeChoice)
 	{
-		self.timeChoice = [timeChoice intValue];
+		self.timeChoice = timeChoice.intValue;
 	}
 	
-	self.dateAndTime = [self forceNSDate:[dict objectForKey:kDictUserRequestDateAndTime]];
+	self.dateAndTime = [self forceNSDate:dict[kDictUserRequestDateAndTime]];
     
-    if ([dict objectForKey:kDictUserRequestHistorical])
+    if (dict[kDictUserRequestHistorical])
     {
         self.historical = YES;
     }
@@ -288,20 +272,10 @@
 	{
 		return @"Now";
 	}
-    
-	NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
-	// [dateFormatter setDateFormat:@"MM-dd-yy"];
-	
-	[dateFormatter setDateStyle:kCFDateFormatterShortStyle];
-	[dateFormatter setTimeStyle:kCFDateFormatterShortStyle];
-	// NSDateFormatter *timeFormatter = [[[NSDateFormatter alloc] init] autorelease];
-	// [timeFormatter setDateFormat:@"hh:mm'%20'aa"];
-	
-	
-	return [NSString stringWithFormat:@"%@",
-			[dateFormatter stringFromDate:self.dateAndTime]];
-	
-	
+
+    return [NSDateFormatter localizedStringFromDate:self.dateAndTime
+                                          dateStyle:NSDateFormatterShortStyle
+                                          timeStyle:NSDateFormatterShortStyle];
 }
 
 - (NSString *)tripName
@@ -341,8 +315,7 @@
 - (NSString *)optionsAccessability
 {
     NSString *walk =
-    [[XMLTrips distanceMapSingleton] objectAtIndex:
-     [XMLTrips distanceToIndex:self.walk]];
+    [XMLTrips distanceMapSingleton][[XMLTrips distanceToIndex:self.walk]];
     
 	return [NSString stringWithFormat:@"Options, Maximum walking distance %@ miles, Travel by %@, Show the %@",
 			walk, [self getMode], [self getMin]];
@@ -352,8 +325,7 @@
 - (NSString*)optionsDisplayText
 {
     NSString *walk =
-    [[XMLTrips distanceMapSingleton] objectAtIndex:
-     [XMLTrips distanceToIndex:self.walk]];
+    [XMLTrips distanceMapSingleton][[XMLTrips distanceToIndex:self.walk]];
     
 	return [NSString stringWithFormat:@"Max walk: %@ miles\nTravel by: %@\nShow the: %@", walk,
 			[self getMode], [self getMin]];

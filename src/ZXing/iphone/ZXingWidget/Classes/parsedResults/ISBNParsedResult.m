@@ -25,6 +25,12 @@
 
 @synthesize value;
 
+- (void)dealloc
+{
+    [value release];
+    [super dealloc];
+}
+
 - (NSString *)stringForDisplay {
     return value;
 }

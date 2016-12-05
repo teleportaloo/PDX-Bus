@@ -27,7 +27,7 @@
   NSString *text;
 }
 
-@property (nonatomic, retain) NSString *text;
+@property (nonatomic, copy)   NSString *text;
 
 - (id)initWithString:(NSString *)s;
 

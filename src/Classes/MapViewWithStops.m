@@ -55,15 +55,15 @@
     }
 }
 
-- (void)fetchStops:(NSArray*) args
+- (void)workerToFetchStops:(NSArray*) args
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:kGettingStops];
     
 	
-    NSString *routeid           = [args objectAtIndex:0];
-	NSString *dir               = [args objectAtIndex:1];
-    id<ReturnStop> returnStop   = [args objectAtIndex:2];
+    NSString *routeid           = args[0];
+	NSString *dir               = args[1];
+    id<ReturnStop> returnStop   = args[2];
 	
 	[self.stopData getStopsForRoute:routeid
 						  direction:dir
@@ -78,11 +78,11 @@
 }
 
 
-- (void)fetchStopsInBackground:(id<BackgroundTaskProgress>) callback route:(NSString*)routeid direction:(NSString*)dir
+- (void)fetchStopsAsync:(id<BackgroundTaskProgress>) callback route:(NSString*)routeid direction:(NSString*)dir
                     returnStop:(id<ReturnStop>)returnStop
 {
 	self.backgroundTask.callbackWhenFetching = callback;
-	self.stopData = [[[XMLStops alloc] init] autorelease];
+    self.stopData = [XMLStops xml];
 	
 	if (!self.backgroundRefresh && [self.stopData getStopsForRoute:routeid
 														 direction:dir
@@ -94,12 +94,9 @@
 	}
 	else
 	{
-		id args[] = {routeid, dir, returnStop };
-		
-		[NSThread detachNewThreadSelector:@selector(fetchStops:)
+		[NSThread detachNewThreadSelector:@selector(workerToFetchStops:)
 								 toTarget:self
-							   withObject:[NSArray arrayWithObjects:args count:sizeof(args)/sizeof(id)]];
-        
+							   withObject:@[routeid, dir, returnStop]];
 	}
 }
 

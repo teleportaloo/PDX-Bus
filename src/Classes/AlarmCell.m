@@ -24,7 +24,7 @@
 
 @dynamic fired;
 
-- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
     
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
@@ -135,7 +135,7 @@
             }
             else
             {
-                CGRect bounds = [[[[UIApplication sharedApplication] delegate] window] bounds];
+                CGRect bounds = [UIApplication sharedApplication].delegate.window.bounds;
                 
                 // 1024 for iPad Pro Portrait
                 // 1366 for iPad Pro Landscape
@@ -214,9 +214,9 @@
 	label.textColor =col;
 }
 
-+ (CGFloat)rowHeight:(ScreenWidth)width
++ (CGFloat)rowHeight
 {
-	if (SmallScreenStyle(width))
+	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
 	{
 		return 40.0 * 1.4;
 	}

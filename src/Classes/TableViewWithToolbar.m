@@ -28,13 +28,16 @@
 
 
 @synthesize enableSearch = _enableSearch;
-@synthesize searchBar = _searchBar;
 @synthesize searchableItems = _searchableItems;
 @synthesize filtered = _filtered;
 @synthesize searchController = _searchController;
 @synthesize sectionTypes = _sectionTypes;
 @synthesize perSectionRowTypes = _perSectionRowTypes;
 @synthesize mapView = _mapView;
+@dynamic paragraphFont;
+@dynamic basicFont;
+@dynamic smallFont;
+
 
 #define DISCLAIMER_TAG 1
 #define UPDATE_TAG	   2
@@ -67,16 +70,10 @@
     if (self.searchController)
     {
         self.searchController.delegate = nil;
-		self.searchController.searchResultsDataSource = nil;
-		self.searchController.searchResultsDelegate = nil;
+        self.searchController.searchBar.delegate = nil;
     }
 	self.searchController = nil;
-    if (self.searchBar)
-    {
-        [self.searchBar removeFromSuperview];
-        self.searchBar.delegate = nil;
-    }
-	self.searchBar		= nil;
+    
 	self.searchableItems= nil;
    
 	[_basicFont release];
@@ -94,13 +91,14 @@
 
 #pragma mark View overridden methods
 
-- (id)init {
+- (instancetype)init {
 	if ((self = [super init]))
 	{
 		
 	}
 	return self;
 }
+
 
 -(void)recreateNewTable
 {
@@ -119,7 +117,7 @@
 	// set the autoresizing mask so that the table will always fill the view
 	self.table.autoresizingMask = (UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight);
     
-    compatSetIfExists(self.table, setCellLayoutMarginsFollowReadableWidth:, NO);
+    compatSetIfExists(self.table, setCellLayoutMarginsFollowReadableWidth:, NO);  // iOS9
 
 	// set the tableview delegate to this object
 	self.table.delegate = self;	
@@ -129,24 +127,21 @@
 	
 	if (self.enableSearch)
 	{
-		CGRect rect;
-		
-		rect = CGRectMake(0.0, 0.0, 320.0, [self searchRowHeight]);
-		
-		self.searchBar = [[[UISearchBar alloc] initWithFrame:rect] autorelease];
-		
-		self.searchBar.delegate = self;
-		self.searchBar.autoresizingMask =  UIViewAutoresizingFlexibleWidth;
-		
-		self.searchController = [[[UISearchDisplayController alloc]
-								 initWithSearchBar:self.searchBar contentsController:self] autorelease];
-		
-		self.searchController.delegate = self;
-		self.searchController.searchResultsDataSource = self;
-		self.searchController.searchResultsDelegate = self;
+        // The TableViewController used to display the results of a search
+        UITableViewController *searchResultsController = [[[UITableViewController alloc] initWithStyle:UITableViewStylePlain] autorelease];
+        // searchResultsController.automaticallyAdjustsScrollViewInsets = NO; // Remove table view insets
+        searchResultsController.tableView.dataSource = self;
+        searchResultsController.tableView.delegate = self;
+        
+        self.searchController = [[[UISearchController alloc] initWithSearchResultsController:searchResultsController] autorelease];
+        self.searchController.searchBar.scopeButtonTitles = [NSArray array];
+        self.searchController.searchResultsUpdater = self;
+        self.searchController.dimsBackgroundDuringPresentation = YES;
+        self.searchController.hidesNavigationBarDuringPresentation = NO;
+        // self.searchController.searchBar.delegate = self;
 
-		
 		self.table.tableHeaderView = self.searchController.searchBar;
+        self.definesPresentationContext = YES;
 		// self.tableHeaderHeight = [self searchRowHeight];
 	}
     
@@ -184,9 +179,9 @@
 	{
 		NSString *searchText = nil;
 		
-		if (self.searchBar != nil)
+		if (self.searchController != nil)
 		{
-			searchText = self.searchBar.text;
+			searchText = self.searchController.searchBar.text;
 		}
 		
 		if (searchText == nil || searchText.length == 0)
@@ -216,7 +211,8 @@
 		
 	if (self.searchController !=nil && self.searchController.isActive)
 	{
-		[self.searchController.searchResultsTableView reloadData];
+        UITableViewController *searchView = (UITableViewController *)self.searchController.searchResultsController;
+		[searchView.tableView reloadData];
 	}
 	
 	[self.table reloadData];
@@ -258,7 +254,7 @@
     }
     
     
-	NSIndexPath *ip = [self.table indexPathForSelectedRow];
+	NSIndexPath *ip = self.table.indexPathForSelectedRow;
 	if (ip!=nil)
 	{
 		[self.table deselectRowAtIndexPath:ip animated:YES];
@@ -286,7 +282,15 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	return nil;
+    static NSString *defaultId = @"default";
+    
+    ERROR_LOG(@"Unexpected default cell used.");
+    
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:defaultId];
+    if (cell == nil) {
+        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:defaultId] autorelease];
+    }
+	return cell;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section 
@@ -310,7 +314,7 @@
 
 - (void)clearSelection
 {
-    NSIndexPath *ip = [self.table indexPathForSelectedRow];
+    NSIndexPath *ip = self.table.indexPathForSelectedRow;
     if (ip!=nil)
     {
         [self.table deselectRowAtIndexPath:ip animated:YES];
@@ -321,14 +325,7 @@
 {
     CGFloat width = 0.0;
     
-    if ([self getStyle] == UITableViewStylePlain || [self iOS7style])
-    {
-        width = self.screenInfo.appWinWidth - 20;
-    }
-    else
-    {
-        width = self.screenInfo.appWinWidth - 50;
-    }
+    width = self.screenInfo.appWinWidth - 20;
     DEBUG_LOG(@"Width for text %f\n", width);
 
     
@@ -342,24 +339,24 @@
 - (CGFloat)getTextHeight:(NSString *)text font:(UIFont *)font;
 {
 	CGFloat width = 0.0;
+    width = self.screenInfo.appWinWidth - 20 - font.pointSize;
+	DEBUG_LOG(@"Width for text %f\n", width);
 	
-	if ([self getStyle] == UITableViewStylePlain || [self iOS7style])
-	{
-        width = self.screenInfo.appWinWidth - 20 - font.pointSize;
-	}
-	else 
-    {
-        width = self.screenInfo.appWinWidth - 100 - font.pointSize;
-	}
-    DEBUG_LOG(@"Width for text %f\n", width);
-	CGSize rect = CGSizeMake(width, MAXFLOAT);
-	CGSize sz = [text sizeWithFont:font constrainedToSize:rect lineBreakMode:NSLineBreakByWordWrapping];
-	return sz.height + font.pointSize + (self.iOS7style ? font.pointSize : 0);
+    NSStringDrawingOptions options = NSStringDrawingTruncatesLastVisibleLine |
+        NSStringDrawingUsesLineFragmentOrigin;
+    
+    NSDictionary *attr = @{NSFontAttributeName: font};
+    CGRect bounds = [text boundingRectWithSize:CGSizeMake(width, MAXFLOAT)
+                                              options:options
+                                           attributes:attr
+                                              context:nil];
+    
+	return bounds.size.height + font.pointSize + font.pointSize;
 }
 
 - (void)updateAccessibility:(UITableViewCell *)cell indexPath:(NSIndexPath *)indexPath text:(NSString *)str alwaysSaySection:(BOOL)alwaysSaySection
 {
-	[cell setAccessibilityLabel:str];
+	cell.accessibilityLabel = str;
 	[self maybeAddSectionToAccessibility:cell indexPath:indexPath alwaysSaySection:alwaysSaySection];
 }
 
@@ -448,7 +445,7 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 	label.text = trimetDisclaimerText;
 	
 	cell.selectionStyle = UITableViewCellSelectionStyleNone;
-	[cell setAccessibilityLabel:label.text];
+	cell.accessibilityLabel = label.text;
 	
 	return cell;
 }
@@ -504,7 +501,7 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 		label.text = @"";
 	}
 
-	[cell setAccessibilityLabel:[NSString stringWithFormat:@"%@, %@", text, [cell accessibilityLabel]]];
+	cell.accessibilityLabel = [NSString stringWithFormat:@"%@, %@", text, cell.accessibilityLabel];
 	
 }
 
@@ -522,7 +519,7 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 	
 	if (button != kRailAwareReloadButton)
 	{
-		NSIndexPath *ip = [self.table indexPathForSelectedRow];
+		NSIndexPath *ip = self.table.indexPathForSelectedRow;
 		if (ip!=nil)
 		{
 			[self.table deselectRowAtIndexPath:ip animated:YES];
@@ -542,72 +539,58 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 
 }
 
-- (UIFont*)getBasicFont
+- (UIFont*)basicFont
 {
 	if (_basicFont == nil)
 	{
-        bool bold = TRUE;
-        if ([self respondsToSelector:@selector(setEdgesForExtendedLayout:)])
-        {
-            bold = FALSE;
-        }
-        
-        
-        
-		if (SmallScreenStyle(self.screenInfo.screenWidth))
+		if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
 		{
             if (self.screenInfo.screenWidth >= WidthiPhone6)
             {
-                _basicFont =[[self systemFontBold:bold size:20.0] retain];
+                _basicFont =[[self systemFontBold:NO size:20.0] retain];
             }
             else
             {
-                _basicFont =[[self systemFontBold:bold size:18.0] retain];
+                _basicFont =[[self systemFontBold:NO size:18.0] retain];
             }
 
 		}
 		else 
 		{
-            _basicFont = [[self systemFontBold:bold size:22.0] retain];
+            _basicFont = [[self systemFontBold:NO size:22.0] retain];
 		}
 	}
 	return _basicFont;
 }
 
-- (UIFont*)getSmallFont
+- (UIFont*)smallFont
 {
 	if (_smallFont == nil)
 	{
-        bool bold = TRUE;
-        if ([self respondsToSelector:@selector(setEdgesForExtendedLayout:)])
-        {
-            bold = FALSE;
-        }
-        
-		if  (SmallScreenStyle(self.screenInfo.screenWidth))
+		if  (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
 		{
             if (self.screenInfo.screenWidth >= WidthiPhone6)
             {
-                _smallFont =[[self systemFontBold:bold size:16.0] retain];
+                _smallFont =[[self systemFontBold:NO size:16.0] retain];
             }
             else
             {
-                _smallFont =[[self systemFontBold:bold size:14.0] retain];
+                _smallFont =[[self systemFontBold:NO size:14.0] retain];
             }
 		}
 		else 
 		{
-			_smallFont = [[self systemFontBold:bold size:22.0] retain];
+			_smallFont = [[self systemFontBold:NO size:22.0] retain];
 		}		
 	}
 	return _smallFont;
 }
 
-- (UIFont*)getParagraphFont
+- (UIFont*)paragraphFont
 {
 	if (_paragraphFont == nil)
 	{
-		if (SmallScreenStyle(self.screenInfo.screenWidth))
+		if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
 		{
             if (self.screenInfo.screenWidth >= WidthiPhone6)
             {
@@ -629,7 +612,7 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 
 - (CGFloat)basicRowHeight
 {
-	if (SmallScreenStyle(self.screenInfo.screenWidth))
+	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
 	{
 		return 40.0;
 	}
@@ -638,7 +621,7 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 
 - (CGFloat)narrowRowHeight
 {
-	if (SmallScreenStyle(self.screenInfo.screenWidth) !=0)
+	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
 	{
 		return 35.0;
 	}
@@ -672,7 +655,7 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 			[self.navigationController pushViewController:viewController animated:YES];
 		}
 		else {
-			NSIndexPath *ip = [self.table indexPathForSelectedRow];
+			NSIndexPath *ip = self.table.indexPathForSelectedRow;
 			if (ip!=nil)
 			{
 				[self.table deselectRowAtIndexPath:ip animated:YES];
@@ -684,9 +667,9 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 
 -(void)backgroundTaskStarted
 {
-	if (self.searchBar)
+	if (self.searchController)
 	{
-		[self.searchBar resignFirstResponder];
+		[self.searchController.searchBar resignFirstResponder];
 	}
 }
 
@@ -720,20 +703,24 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 		return cell;
 	}
 		
-	CGRect rect;
-		
-	rect = CGRectMake(0.0, 0.0, 320.0, [self searchRowHeight]);
-		
 	cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellId] autorelease];
 		
+#if 0
 	self.searchBar = [[[UISearchBar alloc] initWithFrame:rect] autorelease];
 	
 	self.searchBar.delegate = self;
 	// self.searchBar.showsCancelButton = YES;
 	[cell addSubview:self.searchBar];
-	
+#endif
 	return cell;
 }
+
+- (void)updateSearchResultsForSearchController:(UISearchController *)searchController
+{
+    [self reloadData];
+}
+
+#if 0
 
 // called when keyboard search button pressed
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
@@ -744,20 +731,24 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 // called when cancel button pressed
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar
 {
-	[self.searchBar resignFirstResponder];
+	[self.searchController.searchBar resignFirstResponder];
 	[self reloadData];
 }
 
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText   // called when text changes (including clear)
-{}
+{
+    [self reloadData];
+}
 
 - (BOOL)searchBarShouldBeginEditing:(UISearchBar *)searchBar
 {
 	if (!self.searchController.isActive)
 	{
 	
-		
-		[self.searchController setActive:YES animated:YES];
+		[self.searchController.searchBar sizeToFit];
+        [self.searchController setActive:YES];
+        // [self.searchController.searchBar becomeFirstResponder];
+		// [self.searchController setActive:YES animated:YES];
 
 	}
 	// [self reloadData];
@@ -774,12 +765,15 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 }
 */
 
+#endif
+
 - (NSMutableArray *)topViewData
 {
 	NSMutableArray *items = nil;
 	if (self.searchController !=nil && self.searchController.isActive)
 	{
-		items = [self filteredData:self.searchController.searchResultsTableView];
+        UITableViewController *searchView = (UITableViewController *)self.searchController.searchResultsController;
+		items = [self filteredData:searchView.tableView];
 	}
 	else
 	{
@@ -801,6 +795,8 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 #pragma mark -
 #pragma mark UISearchDisplayDelegate Methods
 
+#if 0
+
 - (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
 {
 	[self filterItems];
@@ -821,6 +817,10 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 	
 	[self reloadData];
 }
+
+#endif
+
+
 
 - (void)iOS7workaroundPromptGap
 {
@@ -852,7 +852,7 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 
 - (void)deselectItemCallback
 {
-    NSIndexPath *ip = [self.table indexPathForSelectedRow];
+    NSIndexPath *ip = self.table.indexPathForSelectedRow;
     if (ip!=nil)
     {
         [self.table deselectRowAtIndexPath:ip animated:YES];
@@ -862,9 +862,8 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 
 - (void)clearSectionMaps
 {
-    self.sectionTypes       = [[[NSMutableArray alloc] init] autorelease];
-    self.perSectionRowTypes = [[[NSMutableArray alloc] init] autorelease];
-
+    self.sectionTypes       = [NSMutableArray array];
+    self.perSectionRowTypes = [NSMutableArray array];
 }
 
 
@@ -874,7 +873,7 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
     {
         for (int section = 0; section < self.sectionTypes.count; section ++)
         {
-            NSNumber *t = [self.sectionTypes objectAtIndex:section];
+            NSNumber *t = self.sectionTypes[section];
             
             if (t.integerValue == type)
             {
@@ -897,13 +896,13 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
     {
         if (section < self.perSectionRowTypes.count)
         {
-            NSArray *types = [self.perSectionRowTypes objectAtIndex:section];
+            NSArray *types = self.perSectionRowTypes[section];
             
             int row = 0;
             
             for (row = 0; row < types.count; row ++)
             {
-                NSNumber *t = [types objectAtIndex:row];
+                NSNumber *t = types[row];
                 
                 if (t.integerValue == type)
                 {
@@ -935,7 +934,7 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 {
     if (self.sectionTypes)
     {
-        NSNumber *type = [self.sectionTypes objectAtIndex:section];
+        NSNumber *type = self.sectionTypes[section];
         
         if (type)
         {
@@ -946,17 +945,32 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
     return kNoRowSectionTypeFound;
 }
 
+- (void)clearSection:(NSInteger)section
+{
+    [self.perSectionRowTypes setObject:[NSMutableArray array] atIndexedSubscript:section];
+}
+- (NSInteger)addRowType:(NSInteger)type forSectionType:(NSInteger)sectionType
+{
+    NSInteger section = [self firstSectionOfType:sectionType];
+    
+    NSMutableArray *types = self.perSectionRowTypes[section];
+    
+    [types addObject:@(type)];
+    
+    return types.count - 1;
+}
+
 - (NSInteger)rowType:(NSIndexPath*)index
 {
     if (self.perSectionRowTypes)
     {
         if (index.section < self.perSectionRowTypes.count)
         {
-            NSArray *types = [self.perSectionRowTypes objectAtIndex:index.section];
+            NSArray *types = self.perSectionRowTypes[index.section];
             
             if (index.row < types.count)
             {
-                NSNumber *val  =[types objectAtIndex:index.row];
+                NSNumber *val = types[index.row];
                 
                 if (val)
                 {
@@ -971,17 +985,17 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 
 - (NSInteger)addSectionType:(NSInteger)type
 {
-    [self.sectionTypes       addObject:[NSNumber numberWithInteger:type]];
-    [self.perSectionRowTypes addObject:[[[NSMutableArray alloc] init] autorelease]];
+    [self.sectionTypes       addObject:@(type)];
+    [self.perSectionRowTypes addObject:[NSMutableArray<NSNumber*> array]];
     
     return self.sectionTypes.count - 1;
 }
 
 - (NSInteger)addRowType:(NSInteger)type
 {
-    NSMutableArray *types = [self.perSectionRowTypes lastObject];
+    NSMutableArray *types = self.perSectionRowTypes.lastObject;
     
-    [types addObject:[NSNumber numberWithInteger:type]];
+    [types addObject:@(type)];
     
     return types.count - 1;
 }
@@ -990,8 +1004,7 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 {
     if (section < self.perSectionRowTypes.count)
     {
-        NSArray *types = [self.perSectionRowTypes objectAtIndex:section];
-        return types.count;
+        return self.perSectionRowTypes[section].count;
     }
     return 0;
 }
@@ -1010,7 +1023,7 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 
 - (CGFloat)mapCellHeight
 {
-    if (SmallScreenStyle(self.screenInfo.screenWidth))
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
     {
         return 150.0;
     }
@@ -1051,9 +1064,8 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
         map.userInteractionEnabled = YES;
         map.scrollEnabled = FALSE;
         map.zoomEnabled = FALSE;
-        
-        compatSetIfExists(map, setPitchEnabled:, FALSE);
-        compatSetIfExists(map, setRotateEnabled:, FALSE);
+        map.pitchEnabled = FALSE;
+        map.rotateEnabled = FALSE;
         
         UITapGestureRecognizer* tapRec = [[UITapGestureRecognizer alloc]
                                           initWithTarget:self action:@selector(didTapMap:)];
@@ -1063,7 +1075,7 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
     }
     else
     {
-        [map setFrame:mapRect];
+        map.frame = mapRect;
         [map removeAnnotations:map.annotations];
     }
     

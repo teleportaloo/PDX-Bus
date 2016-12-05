@@ -26,6 +26,7 @@
 #import "FormatDistance.h"
 #import "LocationAuthorization.h"
 #include "iOSCompat.h"
+#include "RootViewController.h"
 
 #ifdef DEBUG_ALARMS
 #define kDataDictLoc        @"loc"
@@ -43,7 +44,7 @@
 {
     if (self.locationManager!=nil)
     {
-        compatSetIfExists(self.locationManager, setAllowsBackgroundLocationUpdates:, NO);
+        compatSetIfExists(self.locationManager, setAllowsBackgroundLocationUpdates:, NO);  //  iOS9
         
         [self stopUpdatingLocation];
         [self stopMonitoringSignificantLocationChanges];
@@ -67,17 +68,16 @@
 
 
 
-- (id)initWithAccuracy:(bool)accurate
+- (instancetype)initWithAccuracy:(bool)accurate
 {
 	if ((self = [super init]))
 	{
-		self.locationManager = [[[CLLocationManager alloc] init] autorelease];
+		self.locationManager = [CLLocationManager alloc].init.autorelease;
         
         self.locationManager.delegate = self;
+        [self.locationManager requestAlwaysAuthorization];
         
-        
-        compatCallIfExists(self.locationManager , requestAlwaysAuthorization);
-        compatSetIfExists(self.locationManager, setAllowsBackgroundLocationUpdates:, YES);
+        compatSetIfExists(self.locationManager, setAllowsBackgroundLocationUpdates:, YES); // iOS9
         
         
         // Temporary cleanup - regions last forever!
@@ -172,7 +172,7 @@
 	return 	dist;
 }
 
--(void)delayedDelete:(id)arg
+-(void)delayedDelete:(id)unused
 {		
 	[self release];
 }
@@ -190,12 +190,11 @@
 	}
         
 
-    NSDictionary *dict = [ NSDictionary dictionaryWithObjectsAndKeys:  
-                                    newLocation,                              kDataDictLoc,
-                                    [NSNumber numberWithInt:self.alarmState], kDataDictState,
-                                    [self appState],        kDataDictAppState, 
-                                     nil];
-                          
+    NSDictionary *dict = @{
+                           kDataDictLoc      : newLocation,
+                           kDataDictState    : @(self.alarmState),
+                           kDataDictAppState : self.appState };
+    
     AlarmLocationNeeded previousState = self.alarmState;
 	
 	[self.dataReceived addObject:dict];
@@ -203,11 +202,11 @@
     
     DEBUG_LOGO(newLocation);
 	
-	double becomeAccurate = [UserPrefs getSingleton].useGpsWithin;
+	double becomeAccurate = [UserPrefs singleton].useGpsWithin;
 	
 	
 	
-	if ([newLocation.timestamp timeIntervalSinceNow] < -5*60 || self.alarmState == AlarmFired)
+	if (newLocation.timestamp.timeIntervalSinceNow < -5*60 || self.alarmState == AlarmFired)
 	{
 		// too old
 		return;
@@ -237,23 +236,22 @@
 	}
 	else if (minPossibleDist < (double)kProximity)
 	{
-		NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
-		[dateFormatter setDateStyle:NSDateFormatterMediumStyle];
-		[dateFormatter setTimeStyle:NSDateFormatterLongStyle];
-		
 		[self alert:[NSString stringWithFormat:NSLocalizedString(@"You are within %@ of %@", @"gives a distance to a stop"), kUserDistanceProximity, self.desc]
 		   fireDate:nil
 			 button:NSLocalizedString(@"Show map", @"map alert button text")
-		   userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
-									self.stopId,														kStopIdNotification,
-									self.desc,															kStopMapDescription,
-									[NSNumber numberWithDouble:self.destination.coordinate.latitude],	kStopMapLat,
-									[NSNumber numberWithDouble:self.destination.coordinate.longitude],	kStopMapLng,
-									[NSNumber numberWithDouble:newLocation.coordinate.latitude],		kCurrLocLat,
-									[NSNumber numberWithDouble:newLocation.coordinate.longitude],		kCurrLocLng,
-									[dateFormatter stringFromDate:newLocation.timestamp],				kCurrTimestamp,
-									nil
-									]
+           userInfo:@{
+                      kStopIdNotification       : self.stopId,
+                      kStopMapDescription       : self.desc,
+                      kStopMapLat               : @(self.destination.coordinate.latitude),
+                      kStopMapLng               : @(self.destination.coordinate.longitude),
+                      kCurrLocLat               : @(newLocation.coordinate.latitude),
+                      kCurrLocLng               : @(newLocation.coordinate.longitude),
+                      kCurrTimestamp            : [NSDateFormatter localizedStringFromDate:newLocation.timestamp
+                                                                                 dateStyle:NSDateFormatterMediumStyle
+                                                                                 timeStyle:NSDateFormatterLongStyle]
+                }
+         
+
 	   defaultSound:NO];
 		
 #ifdef DEBUG_ALARMS
@@ -286,7 +284,7 @@
 			[self stopUpdatingLocation];
 			[self stopMonitoringSignificantLocationChanges];
             
-            compatSetIfExists(self.locationManager, setAllowsBackgroundLocationUpdates:, NO);
+            compatSetIfExists(self.locationManager, setAllowsBackgroundLocationUpdates:, NO);  // iOS9
             
 			NSTimer *timer = [[[NSTimer alloc] initWithFireDate:[NSDate dateWithTimeIntervalSinceNow:0.5]
 													   interval:0.1 
@@ -304,9 +302,7 @@
 #ifdef DEBUG_ALARMS
     if (previousState != self.alarmState)
     {
-        NSDictionary *dict2 = [NSDictionary dictionaryWithObjectsAndKeys:  
-                               [NSNumber numberWithInt:self.alarmState], kDataDictState,
-                                nil];
+        NSDictionary *dict2 = @{kDataDictState : @(self.alarmState)};
         [self.dataReceived addObject:dict2];
     }
 #endif
@@ -322,7 +318,7 @@
         case kCLErrorLocationUnknown:
             break;
         case kCLErrorDenied:
-            [self alert:[NSString stringWithFormat:NSLocalizedString(@"Unable to acquire location - proximity alarm cancelled %@", @"location error with alarm name"), [error localizedDescription]]
+            [self alert:[NSString stringWithFormat:NSLocalizedString(@"Unable to acquire location - proximity alarm cancelled %@", @"location error with alarm name"), error.localizedDescription]
                fireDate:nil 
                  button:nil 
                userInfo:nil
@@ -377,7 +373,7 @@
 - (int)internalDataItems
 {
 #ifdef DEBUG_ALARMS
-	return self.dataReceived.count;
+	return (int)self.dataReceived.count;
 #else
 	return 0;
 #endif
@@ -386,11 +382,11 @@
 - (NSString *)internalData:(int)item
 {
 #ifdef DEBUG_ALARMS
-	NSMutableString *str = [[[NSMutableString alloc] init] autorelease];
+	NSMutableString *str = [NSMutableString string];
     
-    NSDictionary *dict = [self.dataReceived objectAtIndex:item];
+    NSDictionary *dict = self.dataReceived[item];
     
-	CLLocation *loc = [dict objectForKey:kDataDictLoc];
+	CLLocation *loc = dict[kDataDictLoc];
     
     if (loc!=nil)
     {
@@ -398,16 +394,15 @@
         [str appendFormat:@"dist: %f\n", [self distanceFromLocation:loc]];
         [str appendFormat:@"accuracy: %f\n", loc.horizontalAccuracy];
 		
-        NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
-        [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
-        [dateFormatter setTimeStyle:NSDateFormatterLongStyle];
 		
-        [str appendFormat:@"%@\n", [dateFormatter stringFromDate:loc.timestamp]];
+        [str appendFormat:@"%@\n", [NSDateFormatter localizedStringFromDate:loc.timestamp
+                                    dateStyle:NSDateFormatterMediumStyle
+                                    timeStyle:NSDateFormatterMediumStyle]];
     }
     
-    [str appendFormat:@"%@\n", [dict objectForKey:kDataDictAppState]];     
+    [str appendFormat:@"%@\n", dict[kDataDictAppState]];
 #define CASE_ENUM_TO_STR(X)  case X: [str appendFormat:@"%s\n", #X]; break
-    NSNumber *taskState = [ dict objectForKey:kDataDictState];
+    NSNumber *taskState = dict[kDataDictState];
     
     if (taskState!=nil)
     {
@@ -436,30 +431,28 @@
 - (void)showToUser:(BackgroundTaskContainer *)backgroundTask
 {
 	if (self.locationManager.location!=nil)
-	{
-		TriMetTimesAppDelegate *app = [TriMetTimesAppDelegate getSingleton];
-		MapViewController *mapPage = [[MapViewController alloc] init];
-		NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
-		[dateFormatter setDateStyle:NSDateFormatterMediumStyle];
-		[dateFormatter setTimeStyle:NSDateFormatterLongStyle];
+    {
+        TriMetTimesAppDelegate *app = [TriMetTimesAppDelegate singleton];
+        MapViewController *mapPage = [MapViewController viewController];
         
+        mapPage.title = NSLocalizedString(@"Stop Proximity", @"map title");
+        [mapPage addPin:self];
         
-		mapPage.title = NSLocalizedString(@"Stop Proximity", @"map title");
-		[mapPage addPin:self];
-		
-		SimpleAnnotation *currentLocation = [[[SimpleAnnotation alloc] init] autorelease];
-		currentLocation.pinColor		= MKPinAnnotationColorPurple;
-		currentLocation.pinTitle		= NSLocalizedString(@"Current Location", @"map pin text");
-		[currentLocation setCoord:		self.locationManager.location.coordinate];
-		currentLocation.pinSubtitle		= [NSString stringWithFormat:NSLocalizedString(@"as of %@", @"shows the date"), [dateFormatter stringFromDate:self.locationManager.location.timestamp]];
-		[mapPage addPin:currentLocation];
-		
-		[[app.rootViewController navigationController] pushViewController:mapPage animated:YES];
-		[mapPage release];
-	}
+        SimpleAnnotation *currentLocation = [SimpleAnnotation annotation];
+        currentLocation.pinColor		= MKPinAnnotationColorPurple;
+        currentLocation.pinTitle		= NSLocalizedString(@"Current Location", @"map pin text");
+        currentLocation.coordinate		= self.locationManager.location.coordinate;
+        currentLocation.pinSubtitle		= [NSString stringWithFormat:NSLocalizedString(@"as of %@", @"shows the date"),
+                                           [NSDateFormatter localizedStringFromDate:self.locationManager.location.timestamp
+                                                                          dateStyle:NSDateFormatterMediumStyle
+                                                                          timeStyle:NSDateFormatterLongStyle]];
+        [mapPage addPin:currentLocation];
+        
+        [app.rootViewController.navigationController pushViewController:mapPage animated:YES];
+    }
 }
 
-- (MKPinAnnotationColor) getPinColor
+- (MKPinAnnotationColor) pinColor
 {
 	return MKPinAnnotationColorGreen;
 }
@@ -530,15 +523,15 @@
 - (void)showMap:(UINavigationController *)navController
 {
 #ifdef DEBUG_ALARMS
-    MapViewController *mapPage = [[MapViewController alloc] init];
+    MapViewController *mapPage = [MapViewController viewController];
     
     mapPage.lines = YES;
     
-    mapPage.lineCoords = [[[NSMutableArray alloc] init] autorelease];
+    mapPage.lineCoords = [NSMutableArray array];
     
     for (NSDictionary *dict in self.dataReceived)
     {
-        CLLocation *loc = [dict objectForKey:kDataDictLoc];
+        CLLocation *loc = dict[kDataDictLoc];
         ShapeCoord *shape = [[ShapeCoord alloc] init];
         
         [shape setLatitude: loc.coordinate.latitude];
@@ -549,7 +542,7 @@
         [shape release];
     }
     
-    [mapPage.lineCoords addObject:[ShapeCoord makeEnd]];
+    [mapPage.lineCoords addObject:[ShapeCoordEnd data]];
     
     NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
     [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
@@ -557,15 +550,14 @@
     
     [mapPage addPin:self];
     
-    SimpleAnnotation *currentLocation = [[[SimpleAnnotation alloc] init] autorelease];
+    SimpleAnnotation *currentLocation = [SimpleAnnotation annotation];
     currentLocation.pinColor		= MKPinAnnotationColorPurple;
     currentLocation.pinTitle		= NSLocalizedString(@"Current Location", @"map pin text");
-    [currentLocation setCoord:		self.locationManager.location.coordinate];
+    currentLocation.coordinate      = self.locationManager.location.coordinate;
     currentLocation.pinSubtitle		= [NSString stringWithFormat:NSLocalizedString(@"as of %@", @"shows the date"), [dateFormatter stringFromDate:self.locationManager.location.timestamp]];
     [mapPage addPin:currentLocation];
     
-    [navController pushViewController:mapPage animated:YES];
-	[mapPage release];	
+    [navController pushViewController:mapPage animated:YES];	
 #endif
 }
 
@@ -574,7 +566,7 @@
     [LocationAuthorization locationAuthorizedOrNotDeterminedShowMsg:YES backgroundRequired:YES];
 }
 
-- (UIColor *)getPinTint
+- (UIColor *)pinTint
 {
     return nil;
 }

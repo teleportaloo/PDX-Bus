@@ -21,21 +21,23 @@
 @synthesize pinSubtitle = _pinSubtitle;
 @synthesize pinTitle = _pinTitle;
 @synthesize pinTint = _pinTint;
+@synthesize pinSubTint = _pinSubTint;
+@synthesize coordinate = _coordinate;
 
 - (void)dealloc {
 	self.pinSubtitle = nil;
 	self.pinTitle = nil;
     self.pinTint = nil;
+    self.pinSubTint  = nil;
 	[super dealloc];
 }
 
-#pragma mark Setters
-
-
-- (void)setCoord:(CLLocationCoordinate2D)value
++ (instancetype)annotation
 {
-	coord=value;
+    return [[[[self class] alloc] init] autorelease];
 }
+
+#pragma mark Setters
 
 #pragma mark Getters
 
@@ -47,24 +49,10 @@
 {
 	return self.pinSubtitle;
 }
-- (MKPinAnnotationColor) getPinColor
-{
-	return self.pinColor;
-}
-
-- (CLLocationCoordinate2D)coordinate
-{
-	return coord;
-}
 
 - (bool) showActionMenu
 {
 	return false;
-}
-
-- (UIColor *)getPinTint
-{
-    return self.pinTint;
 }
 
 - (bool)hasBearing
@@ -72,13 +60,13 @@
     return _hasBearing;
 }
 
-- (void)setBearing:(double)bearing
+- (void)setDoubleBearing:(double)bearing
 {
     _bearing = bearing;
     _hasBearing = YES;
 }
 
-- (double)bearing
+- (double)doubleBearing
 {
     return _bearing;
 }

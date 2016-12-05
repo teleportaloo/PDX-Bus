@@ -27,7 +27,7 @@
 @property (nonatomic, retain) UIAlertView        *alert;
 @property (nonatomic, retain) ViewControllerBase *parentBase;
 
-- (id)initWithNav:(UINavigationController *)newNav;
+- (instancetype)initWithNav:(UINavigationController *)newNav;
 
 
 

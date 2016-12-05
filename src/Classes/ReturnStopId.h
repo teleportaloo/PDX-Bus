@@ -16,8 +16,8 @@
 
 /* if returns YES then also pop */
 -(void) selectedStop:(NSString *)stopId;
--(UIViewController*) getController;
--(NSString *)actionText;
+@property (nonatomic, getter=getController, readonly, strong) UIViewController *controller;
+@property (nonatomic, readonly, copy) NSString *actionText;
 
 @optional
 -(void) selectedStop:(NSString *)stopId desc:(NSString *)desc;

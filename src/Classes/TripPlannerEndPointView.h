@@ -22,16 +22,16 @@
 #import "CellTextView.h"
 #import "TripReturnUserRequest.h"
 #import "TripPlannerBaseView.h"
+#import <ContactsUI/ContactsUI.h>
 
 
-@interface TripPlannerEndPointView: TripPlannerBaseView <EditableTableViewCellDelegate, ReturnStopId, ABPeoplePickerNavigationControllerDelegate> {
+@interface TripPlannerEndPointView: TripPlannerBaseView <EditableTableViewCellDelegate, ReturnStopId, ABPeoplePickerNavigationControllerDelegate, CNContactPickerDelegate> {
 	
 	bool                _from;
 	UITextField *       _placeNameField;
-	bool                keyboardUp;
+	bool                _keyboardUp;
 	CellTextField *     _editCell;
 	UIViewController *  _popBackTo;
-	
 }
 
 @property (nonatomic) bool from;
@@ -40,18 +40,16 @@
 @property (nonatomic, retain) UIViewController *popBackTo;
 
 
-- (UITextField *)createTextField_Rounded;
+@property (nonatomic, readonly, strong) UITextField *createTextField_Rounded;
 - (void)cellDidEndEditing:(EditableTableViewCell *)cell;
 - (void) browseForStop;
 - (void) selectFromRailMap;
 - (void) selectedStop:(NSString *)stopId;
-- (UIViewController*) getController;
+@property (nonatomic, getter=getController, readonly, strong) UIViewController *controller;
 - (void)gotPlace:(NSString *)place setUiText:(bool)setText additionalInfo:(NSString *)info;
 - (void)cancelAction:(id)sender;
-- (TripEndPoint *)endPoint;
+@property (nonatomic, readonly, strong) TripEndPoint *endPoint;
 - (void)initEndPoint;
 - (void)nextScreen;
-- (void)initTakMeHome:(TripUserRequest *)req;
-
 
 @end

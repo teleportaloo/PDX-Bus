@@ -19,7 +19,7 @@
 
 @implementation MemoryCaches
 
-- (id)init {
+- (instancetype)init {
 	if ((self = [super init]))
 	{
 		_caches = [[NSMutableSet alloc] init];
@@ -34,21 +34,21 @@
 	
 }
 
-+ (MemoryCaches*)getSingleton
++ (MemoryCaches*)singleton
 {
     static MemoryCaches *caches = nil;
     
-    if (caches == nil)
-    {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
         caches = [[MemoryCaches alloc] init];
-    }
+    });
     return caches;
 }
 
 + (void)memoryWarning
 {
     DEBUG_LOG(@"Clearing caches\n");
-    MemoryCaches *caches = [MemoryCaches getSingleton];
+    MemoryCaches *caches = [MemoryCaches singleton];
     
     for (id<ClearableCache> cache in caches->_caches)
     {
@@ -58,7 +58,7 @@
 
 + (void)addCache:(id<ClearableCache>)cache
 {
-    MemoryCaches *caches = [MemoryCaches getSingleton];
+    MemoryCaches *caches = [MemoryCaches singleton];
     
     [caches->_caches addObject:cache];
     
@@ -66,7 +66,7 @@
 
 + (void)removeCache:(id<ClearableCache>)cache
 {
-    MemoryCaches *caches = [MemoryCaches getSingleton];
+    MemoryCaches *caches = [MemoryCaches singleton];
     
     [caches->_caches removeObject:cache];
 }

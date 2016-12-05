@@ -21,39 +21,32 @@
 #import "TripPlannerLocatingView.h"
 #import "TripPlannerCacheView.h"
 
-#define kRowsInTripSection			4
-#define kTripSectionRowFrom			0
-#define kTripSectionRowTo			1
-#define kTripSectionRowOptions		2
-#define kTripSectionRowTime			3
-#define kTripSectionRowPlan			4
-#define kTripSectionRowHistory		5
-
-
-#define kSections					3
-#define kSectionUserRequest			0
-#define kSectionPlanTrip			1
-#define kSectionHistory             2
-
-
-#define kPlanTripSectionRows		1
-#define kHistorySectionRows         1
+enum
+{
+    kSectionUserRequest,
+    kTripSectionRowFrom,
+    kTripSectionRowTo,
+    kTripSectionRowOptions,
+    kTripSectionRowTime,
+    kTripSectionRowPlan,
+    kTripSectionRowHistory
+};
 
 
 @implementation TripPlannerSummaryView
 
 
-- (id)init
+- (instancetype)init
 {
 	if ((self = [super init]))
 	{
-		self.tripQuery = [[[XMLTrips alloc] init] autorelease];
+        self.tripQuery = [XMLTrips xml];
 		
 		NSDictionary *lastTrip = _userData.lastTrip;
 		
 		if (lastTrip !=nil)
 		{
-			TripUserRequest *req = [[TripUserRequest alloc] initFromDict:lastTrip];
+			TripUserRequest *req = [TripUserRequest fromDictionary:lastTrip];
 			req.dateAndTime = nil;
 			req.arrivalTime = NO;
 			req.fromPoint.coordinates   = nil;
@@ -62,10 +55,28 @@
             [req clearGpsNames];
            
 			self.tripQuery.userRequest = req;
-            [req release];
 		}
+        
+        [self makeSummaryRows];
 	}
 	return self;
+}
+
+- (void)makeSummaryRows
+{
+    [self clearSectionMaps];
+    
+    [self addSectionType:kSectionUserRequest];
+    [self addRowType:kTripSectionRowFrom];
+    [self addRowType:kTripSectionRowTo];
+    [self addRowType:kTripSectionRowOptions];
+    [self addRowType:kTripSectionRowTime];
+    
+    [self addSectionType:kTripSectionRowPlan];
+    [self addRowType:kTripSectionRowPlan];
+    
+    [self addSectionType:kTripSectionRowHistory];
+    [self addRowType:kTripSectionRowHistory];
 }
 
 - (void)initQuery
@@ -77,7 +88,7 @@
 - (void)resetAction:(id)sender
 {
 	
-	self.tripQuery = [[[XMLTrips alloc] init] autorelease];
+    self.tripQuery = [XMLTrips xml];
 	[self reloadData];
 }
 
@@ -93,11 +104,11 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-	self.title = @"Trip Planner";
+    self.title = NSLocalizedString(@"Trip Planner", @"page title");
 	
 	UIBarButtonItem *resetButton = [[UIBarButtonItem alloc]
-									  initWithTitle:NSLocalizedString(@"Reset", @"")
-									  style:UIBarButtonItemStyleBordered
+									  initWithTitle:NSLocalizedString(@"Reset", @"button text")
+									  style:UIBarButtonItemStylePlain
 									  target:self
 									  action:@selector(resetAction:)];
 	self.navigationItem.rightBarButtonItem = resetButton;
@@ -117,43 +128,21 @@
 	[self reloadData];
 }
 	
-- (NSInteger)rowType:(NSIndexPath *)path
-{
-    switch (path.section)
-    {
-        case kSectionUserRequest:
-            return path.row;
-        case kSectionPlanTrip:
-            return kTripSectionRowPlan;
-        case kSectionHistory:
-            return kTripSectionRowHistory;
-    }
-    return 0;
-}
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-	return kSections;
+    return self.sections;
 }
 	
 	
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-	switch (section)
-	{
-		case kSectionUserRequest:
-			return kRowsInTripSection;
-		case kSectionPlanTrip:
-			return kPlanTripSectionRows;
-        case kSectionHistory:
-			return kHistorySectionRows;
-
-	}
-	return 0;
+    return [self rowsInSection:section];
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-	if (section == kSectionUserRequest)
+    
+	if ([self sectionType:section] == kSectionUserRequest)
 	{
-		return @"Enter trip details:";
+		return NSLocalizedString(@"Enter trip details:", @"section header");
 	}
 	return nil;
 }
@@ -168,9 +157,9 @@
 - (void)updateToolbarItems:(NSMutableArray *)toolbarItems
 {	
 	// create the system-defined "OK or Done" button
-	UIBarButtonItem *reverse = [[[UIBarButtonItem alloc]
-							   initWithTitle:@"Reverse trip" style:UIBarButtonItemStyleBordered
-							   target:self action:@selector(reverseAction:)] autorelease];
+	UIBarButtonItem *reverse = [[[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Reverse trip", @"button text")
+                                                                 style:UIBarButtonItemStylePlain
+                                                                target:self action:@selector(reverseAction:)] autorelease];
 	
 	
 	 [toolbarItems addObject:reverse];
@@ -212,10 +201,12 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	
-	CGFloat h = [self tableView:[self table] heightForRowAtIndexPath:indexPath];
+	CGFloat h = [self tableView:self.table heightForRowAtIndexPath:indexPath];
 	NSString *cellIdentifier = [NSString stringWithFormat:@"TripLeg%f+%f", h, self.screenInfo.appWinWidth];
+    
+    NSInteger rowType = [self rowType:indexPath];
 	
-	switch([self rowType:indexPath])
+	switch(rowType)
 	{
 		case kTripSectionRowFrom:
 		case kTripSectionRowTo:
@@ -235,7 +226,7 @@
 			NSString *text;
 			NSString *dir;
 			
-			if (indexPath.row == kTripSectionRowFrom)
+			if (rowType == kTripSectionRowFrom)
 			{
 				text = [self.tripQuery.userRequest.fromPoint userInputDisplayText];
 				dir = @"From";
@@ -280,7 +271,7 @@
 													  screenInfo:self.screenInfo];
             }
 			
-			[TripLeg populateCell:cell body:[self.tripQuery.userRequest getDateAndTime] 
+			[TripLeg populateCell:cell body:[self.tripQuery.userRequest getDateAndTime]
 							 mode:[self.tripQuery.userRequest getTimeType] 
 							 time:nil 
 						leftColor:nil
@@ -299,7 +290,7 @@
 			// Set up the cell
 			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 			cell.editingAccessoryType = UITableViewCellAccessoryDisclosureIndicator ;
-			cell.textLabel.text = @"Show trip";
+            cell.textLabel.text = NSLocalizedString(@"Show trip", @"main menu item");
 			cell.imageView.image = [self getActionIcon:kIconTripPlanner];
 			return cell;
 		}
@@ -313,26 +304,29 @@
 			// Set up the cell
 			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 			cell.editingAccessoryType = UITableViewCellAccessoryDisclosureIndicator ;
-			cell.textLabel.text = @"Recent trips";
+            cell.textLabel.text = NSLocalizedString(@"Recent trips", @"main menu item");
 			cell.imageView.image = [self getActionIcon:kIconRecent];
 			return cell;
 		}
 
 	}
-	return nil;
+	return [super tableView:tableView cellForRowAtIndexPath:indexPath];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-	switch([self rowType:indexPath])
+    
+    NSInteger rowType = [self rowType:indexPath];
+    
+	switch(rowType)
 	{		
 		case kTripSectionRowFrom:
 		case kTripSectionRowTo:
 		{
-			TripPlannerEndPointView *tripEnd = [[TripPlannerEndPointView alloc] init];
+            TripPlannerEndPointView *tripEnd = [TripPlannerEndPointView viewController];
 			
 			
-			tripEnd.from = (indexPath.row != kTripSectionRowTo) ;
-			tripEnd.tripQuery = [[[XMLTrips alloc] init] autorelease];
+			tripEnd.from = (rowType != kTripSectionRowTo) ;
+			tripEnd.tripQuery = [XMLTrips xml];
 			tripEnd.tripQuery.userRequest = self.tripQuery.userRequest;
 			@synchronized (_userData)
 			{
@@ -343,36 +337,30 @@
 			
 			
 			// Push the detail view controller
-			[[self navigationController] pushViewController:tripEnd animated:YES];
-			[tripEnd release];
-			
+			[self.navigationController pushViewController:tripEnd animated:YES];
 			break;
 		}
 		case kTripSectionRowOptions:
 		{
-			TripPlannerOptions * options = [[ TripPlannerOptions alloc ] init];
+			TripPlannerOptions * options = [TripPlannerOptions viewController];
 			
-			options.tripQuery = [[[XMLTrips alloc] init] autorelease];
+			options.tripQuery = [XMLTrips xml];
 			options.tripQuery.userRequest = self.tripQuery.userRequest;
 			// options.userRequestCallback = self;
 			
-			[[self navigationController] pushViewController:options animated:YES];
-			
-			
-			[options release];
+			[self.navigationController pushViewController:options animated:YES];
 			// _reloadTrip = YES;
 			break;
 			
 		}
 		case kTripSectionRowTime:
 		{
-			TripPlannerDateView * date = [[ TripPlannerDateView alloc ] init];
-			date.tripQuery  = [[[XMLTrips alloc] init] autorelease];
+            TripPlannerDateView * date = [TripPlannerDateView viewController];
+			date.tripQuery  = [XMLTrips xml];
 			date.tripQuery.userRequest = self.tripQuery.userRequest;
 			date.popBack = YES;
 			
-			[[self navigationController] pushViewController:date animated:YES];
-			[date release];
+			[self.navigationController pushViewController:date animated:YES];
 			break;
 
 		}
@@ -384,22 +372,20 @@
 			{
 				_userData.lastTrip  = [self.tripQuery.userRequest toDictionary];
 			
-				TripPlannerLocatingView * locView = [[ TripPlannerLocatingView alloc ] init];
+                TripPlannerLocatingView * locView = [TripPlannerLocatingView viewController];
 			
 				locView.tripQuery = self.tripQuery;
 			
-				[locView nextScreen:[self navigationController] forceResults:NO postQuery:NO orientation:self.interfaceOrientation
+				[locView nextScreen:self.navigationController forceResults:NO postQuery:NO orientation:[UIApplication sharedApplication].statusBarOrientation
 					  taskContainer:self.backgroundTask];
-			
-				[locView release];
 			}
 			else {
 				[self.table deselectRowAtIndexPath:indexPath animated:YES];
 				
-				UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"Cannot continue"
-																   message:@"Select a start and destination to plan a trip."
+				UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"Cannot continue", @"alert title")
+																   message:NSLocalizedString(@"Select a start and destination to plan a trip.", @"alert message")
 																  delegate:nil
-														 cancelButtonTitle:@"OK"
+                                                         cancelButtonTitle:NSLocalizedString(@"OK", @"button text")
 														 otherButtonTitles:nil ] autorelease];
 				[alert show];
 			}
@@ -408,10 +394,7 @@
 		}
         case kTripSectionRowHistory:
 		{
-            TripPlannerCacheView *tripCache = [[TripPlannerCacheView alloc] init];
-            // Push the detail view controller
-            [[self navigationController] pushViewController:tripCache animated:YES];
-            [tripCache release];
+            [self.navigationController pushViewController:[TripPlannerCacheView viewController] animated:YES];
         }
         break;
 	}

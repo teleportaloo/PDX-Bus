@@ -37,9 +37,9 @@
 	bool						_failed;
 	double						_accuracy;
     bool                        _cancelled;
-    
     id<LocatingViewDelegate>    _delegate;
     id<MKAnnotation>            _anotation;
+    bool                        _triedToAuthorize;
 }
 
 @property (nonatomic, retain) UIActivityIndicatorView * progressInd;
@@ -56,13 +56,15 @@
 
 
 - (UITableViewCell *)accuracyCellWithReuseIdentifier:(NSString *)identifier;
-- (int)LocationTextTag;
+@property (nonatomic, readonly) int LocationTextTag;
 - (void)located;
 - (void)reinit;
 - (void)failedToLocate;
-- (bool)checkLocation;
+@property (nonatomic, readonly) bool checkLocation;
 - (void)refreshAction:(id)sender;
 - (void)startLocating;
 - (void)stopLocating;
+- (void)authorize;
+
 
 @end

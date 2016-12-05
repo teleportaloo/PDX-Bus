@@ -15,21 +15,21 @@
 #import "TriMetXML.h"
 
 
-@interface XMLStops : TriMetXML {
-	Stop			*_currentStopObject;
-	NSString		*_direction;
-	NSString		*_routeId;
-	NSString		*_routeDescription;
-	NSString		*_afterStop;
-    NSString        *_staticQuery;
+@interface XMLStops : TriMetXML<Stop*> {
+	Stop *              _currentStopObject;
+	NSString *          _direction;
+	NSString *          _routeId;
+	NSString *          _routeDescription;
+	NSString *          _afterStop;
+    NSString *          _staticQuery;
 }
 
 @property (nonatomic, retain) Stop *currentStopObject;
-@property (nonatomic, retain) NSString *direction;
-@property (nonatomic, retain) NSString *routeId;
-@property (nonatomic, retain) NSString *routeDescription;
-@property (nonatomic, retain) NSString *afterStop;
-@property (nonatomic, retain) NSString *staticQuery;
+@property (nonatomic, copy)   NSString *direction;
+@property (nonatomic, copy)   NSString *routeId;
+@property (nonatomic, copy)   NSString *routeDescription;
+@property (nonatomic, copy)   NSString *afterStop;
+@property (nonatomic, copy)   NSString *staticQuery;
 
 - (BOOL)getStopsForRoute:(NSString *)route direction:(NSString *)dir 
 			 description:(NSString *)desc cacheAction:(CacheAction)cacheAction;

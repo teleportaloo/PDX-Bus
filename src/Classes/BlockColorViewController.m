@@ -27,12 +27,12 @@
 @implementation BlockColorViewController
 
 
-- (id)init
+- (instancetype)init
 {
 	if ((self = [super init]))
 	{
 		self.title = NSLocalizedString(@"Vehicle Color Tags", @"screen text");
-        _db = [[BlockColorDb getSingleton] retain];
+        _db = [[BlockColorDb singleton] retain];
         _keys = [[_db keys] retain];
         self.table.allowsSelectionDuringEditing = YES;
         _helpText = NSLocalizedString(@"Vehicle color tags can be set to highlight a bus or train so that you can follow its progress through several stops. "
@@ -130,39 +130,32 @@
         }
         
         // Configure the cell...
-        NSString *key = [_keys objectAtIndex:indexPath.row];
-        UIColor *col = [_db colorForBlock:key];
+        NSString *key = _keys[indexPath.row];
+        UIColor *col  = [_db colorForBlock:key];
         
         cell.imageView.image = [BlockColorDb imageWithColor:col];
         cell.textLabel.text  =  [_db descForBlock:key];
-        
-        
-        NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
-        [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
-        [dateFormatter setTimeStyle:kCFDateFormatterNoStyle];
-        [dateFormatter setTimeStyle:NSDateFormatterShortStyle];
-        
-        
+    
         cell.detailTextLabel.text = [NSString stringWithFormat:@"ID %@ - %@", key,
-                                     [dateFormatter stringFromDate:[_db timeForBlock:key]]];
+                                     [NSDateFormatter localizedStringFromDate:[_db timeForBlock:key] dateStyle:NSDateFormatterMediumStyle timeStyle:NSDateFormatterShortStyle]];
         
         
         return cell;
     }
     else
     {
-		NSString *MyIdentifier = [NSString stringWithFormat:@"CellLabel%f", [self getTextHeight:_helpText font:[self getParagraphFont]]];
+		NSString *MyIdentifier = [NSString stringWithFormat:@"CellLabel%f", [self getTextHeight:_helpText font:self.paragraphFont]];
 		
 		CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:MyIdentifier];
 		if (cell == nil) {
 			cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MyIdentifier] autorelease];
-			cell.view = [self create_UITextView:[self getParagraphFont]];
+			cell.view = [self create_UITextView:self.paragraphFont];
 		}
 		
 		cell.view.text = _helpText;
 		cell.selectionStyle = UITableViewCellSelectionStyleNone;
 		
-		[cell setAccessibilityLabel:_helpText];
+		cell.accessibilityLabel = _helpText;
         
 		return cell;
     }
@@ -213,7 +206,7 @@
 {
     if (indexPath.section == kSectionData)
     {
-        _changingColor = [[_keys objectAtIndex:indexPath.row] retain];
+        _changingColor = [_keys[indexPath.row] retain];
         
         InfColorPickerController* picker = [ InfColorPickerController colorPickerViewController ];
         
@@ -235,7 +228,7 @@
     {
         if (editingStyle == UITableViewCellEditingStyleDelete) {
             
-            NSString *block = [_keys objectAtIndex:indexPath.row];
+            NSString *block = _keys[indexPath.row];
             
             [_db addColor:nil forBlock:block description:nil];
             [_keys release];
@@ -243,12 +236,12 @@
             
             [tableView beginUpdates];
             
-            [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:YES];
+            [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:YES];
             
             if (_keys.count == 0)
             {
                 NSIndexPath *ip = [NSIndexPath indexPathForRow:0 inSection:kSectionNoData] ;
-                [tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:ip] withRowAnimation:YES];
+                [tableView insertRowsAtIndexPaths:@[ip] withRowAnimation:YES];
             }
             
             [tableView endUpdates];
@@ -261,7 +254,7 @@
 {
     if (indexPath.section == kSectionNoData)
     {
-        return [self getTextHeight:_helpText font:[self getParagraphFont]];
+        return [self getTextHeight:_helpText font:self.paragraphFont];
     }
     return tableView.rowHeight;
 

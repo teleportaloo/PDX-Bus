@@ -31,7 +31,6 @@
 @synthesize rawDataToDisplay = _rawDataToDisplay;
 @synthesize safari			= _safari;
 @synthesize localURL		= localURL;
-@synthesize rssLinks		= _rssLinks;
 @synthesize rssLinkItem		= _rssLinkItem;
 
 - (void)dealloc {
@@ -45,12 +44,12 @@
 	self.dataToDisplay = nil;
 	self.whenDone = nil;
 	self.localURL = nil;
-	self.rssLinks = nil;
 	self.rawDataToDisplay = nil;
+    self.safari = nil;
 	[super dealloc];
 }
 
-- (id)init {
+- (instancetype)init {
 	if ((self = [super init]))
 	{
 		self.showErrors = NO;// NO;
@@ -65,12 +64,11 @@
 {	
 	self.rawDataToDisplay = rawData;
 	self.title = title;
-	map = false;
 }
 
 - (void)setURLmobile:(NSString *)url full:(NSString *)full
 {
-	if (LargeScreenStyle(self.screenInfo.screenWidth) && full!=nil)
+	if ((UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) && full!=nil)
 	{
 		self.urlToDisplay = full;
 	}
@@ -80,70 +78,6 @@
 	}
 
 	self.title = NSLocalizedString(@"Loading page...", @"Initial web page title");
-	map = false;
-}
-
-
-- (void)setRssItem:(RssLink *)rss title:(NSString *)title
-{
-	if (title == nil)
-	{
-		title = self.title;
-	}
-	self.dataToDisplay = [NSString stringWithFormat:
-							  @"<html><head><title>%@</title></title>"
-							  "<meta name=\"viewport\" content=\"user-scalable=yes, width=device-width\" />"
-							  "<body>"					
-							  "<b>%@</b>"		  
-							  //"<div style=\"font-family:Helvetica; font-size:40px;\">"
-							  "<div style=\"color:blue\"><b>%@</b></div>"
-							  // "<br><div style=\"font-size:48px\"><b>%@</b></div>"
-							  "<br>%@</br>"
-							  //"<hr><div style=\"font-size:40px\"><br>%@<br>"
-							  "<a href=\"%@\">Original article</a></div></div></body></html>",
-							  title, rss.dateString, rss.title, rss.description, rss.link];
-
-	map = false;
-}
-
-- (void)setMapLocationLat:(NSString *)lat lng:(NSString *)lng title:(NSString *)title
-{
-	self.title = title;
-	self.dataToDisplay = [NSString stringWithFormat:
-
-	@"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\""
-    "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">"
-	"<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\">"
-	"<head>"
-    "<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\"/>"
-	"<meta name=\"viewport\" content=\"width=320\" />"
-    "<title>Google Maps JavaScript API Example: Simple Map</title>"
-    "<script src=\"http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=false&amp;key=ABQIAAAAq1xdzF_EwAwcKpHZKuXgbBQDwXD5r-eygncUTK_xh7woMivbuRQhVUe2iZwzc3GcAxdUkMjKTTqMcg\""
-	"type=\"text/javascript\"></script>"
-    "<script type=\"text/javascript\">"
-	""
-    "function initialize() {"
-	"	if (GBrowserIsCompatible()) {"
-	"		var map = new GMap2(document.getElementById(\"map_canvas\"));"
-	"		var point = new  GLatLng(%@, %@);"
-	"		map.setCenter(point, 15);"
-	"		map.addOverlay(new GMarker(point));"
-	"		map.addControl(new GMapTypeControl());"
-	"		map.addControl(new GSmallMapControl());"
-	"	}"
-    "}"
-	""
-    "</script>"
-	"</head>"
-	""
-	"<body onload=\"initialize()\" onunload=\"GUnload()\">"
-    "<div id=\"map_canvas\" style=\"width: 305px; height: 360px\"></div>"
-	"</body>"
-	"</html>",lat, lng];
-	
-	self.urlToDisplay = [NSString stringWithFormat:@"https://map.google.com/?q=location@%@,%@",  
-						 lat, lng];
-	map = true;
 }
 
 #pragma mark ViewControllerBase methods
@@ -182,11 +116,11 @@
 	{
 
         [toolbarItems addObject:self.webBack];
-        [toolbarItems addObject:[CustomToolbar autoFlexSpace]];
+        [toolbarItems addObject:[UIToolbar autoFlexSpace]];
         [toolbarItems addObject:self.webForward];
-        [toolbarItems addObject:[CustomToolbar autoFlexSpace]];
+        [toolbarItems addObject:[UIToolbar autoFlexSpace]];
         [toolbarItems addObject:self.safari];
-        [toolbarItems addObject:[CustomToolbar autoFlexSpace]];
+        [toolbarItems addObject:[UIToolbar autoFlexSpace]];
     }
         
     
@@ -218,33 +152,21 @@
 
 -(void)safariButton:(id)sender
 {
-	
-	if (map)
-	{
-		UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:@"Exit to Google Maps"
-																 delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil
-														otherButtonTitles:@"Show on Google Maps", nil];
-		actionSheet.actionSheetStyle = UIActionSheetStyleDefault;
-		[actionSheet showFromToolbar:self.navigationController.toolbar]; // show from our table view (pops up in the middle of the table)
-		[actionSheet release];
-	}
-	else
-	{
-		UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:@"Safari"
-															 delegate:self cancelButtonTitle:nil destructiveButtonTitle:nil
-													otherButtonTitles:@"Show in Safari", nil];
-        
-        if ([OpenInChromeController sharedInstance].isChromeInstalled)
-        {
-            [actionSheet addButtonWithTitle:@"Show in Chrome"];
-        }
-        
-        actionSheet.cancelButtonIndex  = [actionSheet addButtonWithTitle:@"Cancel"];
-		actionSheet.actionSheetStyle = UIActionSheetStyleDefault;
-		[actionSheet showFromToolbar:self.navigationController.toolbar]; // show from our table view (pops up in the middle of the table)
-		[actionSheet release];
-	}
-	
+    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:NSLocalizedString(@"Safari", @"alert title")
+                                                             delegate:self
+                                                    cancelButtonTitle:nil
+                                               destructiveButtonTitle:nil
+                                                    otherButtonTitles:NSLocalizedString(@"Show in Safari", @"button text"), nil];
+    
+    if ([OpenInChromeController sharedInstance].isChromeInstalled)
+    {
+        [actionSheet addButtonWithTitle:NSLocalizedString(@"Show in Chrome", @"button text")];
+    }
+    
+    actionSheet.cancelButtonIndex  = [actionSheet addButtonWithTitle:NSLocalizedString(@"Cancel", @"button text")];
+    actionSheet.actionSheetStyle = UIActionSheetStyleDefault;
+    [actionSheet showFromToolbar:self.navigationController.toolbar]; // show from our table view (pops up in the middle of the table)
+    [actionSheet release];
 }
 
 -(void)webForwardButton:(id)sender
@@ -270,49 +192,10 @@
 	}
 	else
 	{
-		[[self navigationController] popViewControllerAnimated:YES];
+		[self.navigationController popViewControllerAnimated:YES];
 	}
 }
 
-#pragma mark Up down arrow
-
-- (void)enableArrows:(UISegmentedControl*)seg
-{
-	[seg setEnabled:(_rssLinkItem > 0) forSegmentAtIndex:0];
-	
-	[seg setEnabled:(_rssLinkItem < (self.rssLinks.count-1)) forSegmentAtIndex:1];
-	
-}
-
-- (void)upDown:(id)sender
-{
-	UISegmentedControl *segControl = sender;
-	switch (segControl.selectedSegmentIndex)
-	{
-		case 0:	// UIPickerView
-		{
-			// Up
-			if (_rssLinkItem > 0)
-			{
-				[self setRssItem:[self.rssLinks objectAtIndex:_rssLinkItem-1] title:nil];
-				 _rssLinkItem--;
-			}
-			break;
-		}
-		case 1:	// UIPickerView
-		{
-			if (_rssLinkItem < (self.rssLinks.count-1) )
-			{
-				[self setRssItem:[self.rssLinks objectAtIndex:_rssLinkItem+1] title:nil];
-				_rssLinkItem++;
-			}
-			break;
-		}
-	}
-	[self.webView loadHTMLString:self.dataToDisplay baseURL:nil];
-	[self enableArrows:segControl];
-	
-}
 
 #pragma mark View methods
 
@@ -323,7 +206,7 @@
 
 - (CGFloat) heightOffset
 {
-    if (self.iOS7style && (LargeScreenStyle(self.screenInfo.screenWidth) || (self.screenInfo.screenWidth == WidthBigVariable)))
+    if ((UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) || (self.screenInfo.screenWidth == WidthBigVariable))
     {
         return -[UIApplication sharedApplication].statusBarFrame.size.height;
     }
@@ -360,7 +243,7 @@
 	
 	if (self.rawDataToDisplay !=nil)
 	{
-		NSString *path = [[NSBundle mainBundle] bundlePath];
+		NSString *path = [NSBundle mainBundle].bundlePath;
 		NSURL *baseURL = [NSURL fileURLWithPath:path];
 		
 		// Remove the apps ID from the data
@@ -369,7 +252,7 @@
 		[stringData replaceOccurrencesOfString:TRIMET_APP_ID 
 									withString:@"[hidden application ID]" 
 									   options:NSCaseInsensitiveSearch 
-										 range:NSMakeRange(0, [stringData length])];
+										 range:NSMakeRange(0, stringData.length)];
 
 		
 		// [self.webView loadData:self.rawDataToDisplay MIMEType:@"text/html" textEncodingName:@"UTF-8" baseURL:baseURL];
@@ -390,25 +273,6 @@
 		[self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:self.urlToDisplay]]];
 	}
 	
-	
-		
-	if (self.rssLinks != nil)
-	{
-		UISegmentedControl *seg = [[UISegmentedControl alloc] initWithItems:[NSArray arrayWithObjects: 
-																			 [TableViewWithToolbar getToolbarIcon7:kIconUp7 old:kIconUp],
-																			 [TableViewWithToolbar getToolbarIcon7:kIconDown7 old:kIconDown], nil] ];
-		seg.frame = CGRectMake(0, 0, 60, 30.0);
-		seg.segmentedControlStyle = UISegmentedControlStyleBar;
-		seg.momentary = YES;
-		[seg addTarget:self action:@selector(upDown:) forControlEvents:UIControlEventValueChanged];
-		
-		self.navigationItem.rightBarButtonItem = [[[UIBarButtonItem alloc] initWithCustomView: seg]
-                                                    autorelease];
-		
-		[self enableArrows:seg];
-		[seg release];
-		
-	}
 }
 
 
@@ -499,7 +363,7 @@
 	[UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
 	
 	
-	if ([self showErrors])
+	if (self.showErrors)
 	{
 		// report the error inside the webview
 		NSString* errorString = [NSString stringWithFormat:
@@ -510,10 +374,10 @@
 	else {
 		if (!([error.domain isEqualToString:@"NSURLErrorDomain"] && error.code==-999))
 		{
-			UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"Web Page Error"
+            UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"Web Page Error", @"page title")
 														   message:error.localizedDescription
 														  delegate:nil
-												 cancelButtonTitle:@"OK"
+												 cancelButtonTitle:NSLocalizedString(@"OK", @"button text")
 												 otherButtonTitles:nil ] autorelease];
 			[alert show];
 		}
@@ -538,7 +402,7 @@
            whenDone:(UIViewController*)whenDone
 {
     
-    WebViewController *webPage = [[WebViewController alloc] init];
+    WebViewController *webPage = [WebViewController viewController];
     
     [webPage setURLmobile:mobile full:full];
     
@@ -546,15 +410,12 @@
     webPage.showErrors = NO;
     
     [webPage displayPage:nav animated:YES itemToDeselect:deselect];
-    
-    [webPage release];
 }
 
 
 - (void)displayPage:(UINavigationController *)nav animated:(BOOL)animated itemToDeselect:(id<DeselectItemDelegate>)deselect
 {
-
-    if ([UserPrefs getSingleton].useChrome && [OpenInChromeController sharedInstance].isChromeInstalled && self.urlToDisplay!=nil)
+    if ([UserPrefs singleton].useChrome && [OpenInChromeController sharedInstance].isChromeInstalled && self.urlToDisplay!=nil)
     {
         [[OpenInChromeController sharedInstance] openInChrome:[NSURL URLWithString:self.urlToDisplay]
                                               withCallbackURL:[NSURL URLWithString:@"pdxbus:"]

@@ -40,10 +40,10 @@
 	
 }
 
-- (id)init {
+- (instancetype)init {
 	if ((self = [super init]))
 	{
-		self.title = @"Date and Time";
+        self.title = NSLocalizedString(@"Date and Time", @"page title");
 	}
 	return self;
 }
@@ -56,7 +56,7 @@
 
 - (void)initializeFromBookmark:(TripUserRequest *)req
 {
-    self.tripQuery = [[[XMLTrips alloc] init] autorelease];
+    self.tripQuery = [XMLTrips xml];
     self.tripQuery.userRequest = req;
     
     if (!req.historical)
@@ -98,7 +98,7 @@
 // return the picker frame based on its size, positioned at the bottom of the page
 - (CGRect)pickerFrameWithSize:(CGSize)size
 {
-	CGRect screenRect = [[UIScreen mainScreen] applicationFrame];
+	CGRect screenRect = [UIScreen mainScreen].applicationFrame;
 	
 	
     // This seems so iOS version specific not sure why!
@@ -107,29 +107,18 @@
     
     if (!self.iOS8style)
     {
-        if (self.interfaceOrientation == UIInterfaceOrientationLandscapeLeft ||
-            self.interfaceOrientation == UIInterfaceOrientationLandscapeRight)
+        if ([UIApplication sharedApplication].statusBarOrientation == UIInterfaceOrientationLandscapeLeft ||
+            [UIApplication sharedApplication].statusBarOrientation == UIInterfaceOrientationLandscapeRight)
         {
             CGFloat temp = screenRect.size.height;
             screenRect.size.height = screenRect.size.width;
             screenRect.size.width = temp;
             
-            if (self.iOS7style)
-            {
-                offset = 21;
-            }
+            offset = 21;
+
         }
     }
 	
-    
-    
-    if (!self.iOS7style)
-    {
-        offset = 84.0;
-    }
-    
-	
-    
 	CGRect pickerRect = CGRectMake(	0.0,
 								   screenRect.size.height - size.height - offset,
 								   screenRect.size.width,
@@ -165,14 +154,11 @@
 
 -(void)showOptions:(id)sender
 {
-	TripPlannerOptions * options = [[ TripPlannerOptions alloc ] init];
+    TripPlannerOptions * options = [TripPlannerOptions viewController];
 	
 	options.tripQuery = self.tripQuery;
 	
-	[[self navigationController] pushViewController:options animated:YES];
-	
-	
-	[options release];
+	[self.navigationController pushViewController:options animated:YES];
 }
 
 
@@ -205,17 +191,17 @@
 	switch (indexPath.row)
 	{
 		case kSectionDateDepartNow:
-			cell.textLabel.text = @"Depart now";
+            cell.textLabel.text = NSLocalizedString(@"Depart now", @"button text");
 			break;
 		case kSectionDateDeparture:
-			cell.textLabel.text = @"Depart after the time below";
+			cell.textLabel.text = NSLocalizedString(@"Depart after the time below", @"button text");
 			break;
 		case kSectionDateArrival:
-			cell.textLabel.text = @"Arrive by the time below";
+            cell.textLabel.text = NSLocalizedString(@"Arrive by the time below", @"button text");
 			break;			
 	}
 	
-	cell.textLabel.font = [self getBasicFont];
+	cell.textLabel.font = self.basicFont;
 	cell.accessoryType = self.popBack ? UITableViewCellAccessoryNone  : UITableViewCellAccessoryDisclosureIndicator;
     return cell;
 }
@@ -249,15 +235,13 @@
 	}
 	else
 	{	
-		TripPlannerLocatingView * locView = [[ TripPlannerLocatingView alloc ] init];
+        TripPlannerLocatingView * locView = [TripPlannerLocatingView viewController];
 	
 		locView.tripQuery = self.tripQuery;
 	
-		[locView nextScreen:[self navigationController] forceResults:NO postQuery:NO 
-				orientation:self.interfaceOrientation
+		[locView nextScreen:self.navigationController forceResults:NO postQuery:NO 
+				orientation:[UIApplication sharedApplication].statusBarOrientation
 			  taskContainer:self.backgroundTask];
-	
-		[locView release];
 	}
 }
 
@@ -275,13 +259,11 @@
         {
             self.tripQuery.userRequest.dateAndTime = [NSDate date];
         }
-		TripPlannerLocatingView * locView = [[ TripPlannerLocatingView alloc ] init];
+        TripPlannerLocatingView * locView = [TripPlannerLocatingView viewController];
 		
 		locView.tripQuery = self.tripQuery;
 		
-		[locView nextScreen:controller forceResults:NO postQuery:NO orientation:self.interfaceOrientation taskContainer:taskContainer];
-		
-		[locView release];
+		[locView nextScreen:controller forceResults:NO postQuery:NO orientation:[UIApplication sharedApplication].statusBarOrientation taskContainer:taskContainer];
 	}
 }
 
@@ -338,7 +320,7 @@
 	
 	if (self.tripQuery == nil)
 	{
-		self.tripQuery = [[[XMLTrips alloc] init] autorelease];
+        self.tripQuery = [XMLTrips xml];
 		self.tripQuery.userFaves = self.userFaves;
 	}
 	

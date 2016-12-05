@@ -78,7 +78,7 @@
 {
     UIFont *font = nil;
     
-    CGRect bounds = [[[[UIApplication sharedApplication] delegate] window] bounds];
+    CGRect bounds = [UIApplication sharedApplication].delegate.window.bounds;
     
     if (bounds.size.width <= MaxiPhoneWidth)
     {
@@ -97,7 +97,7 @@
     UIFont *font = nil;
     
     
-    CGRect bounds = [[[[UIApplication sharedApplication] delegate] window] bounds];
+    CGRect bounds = [UIApplication sharedApplication].delegate.window.bounds;
     
     if (bounds.size.width <= MaxiPhoneWidth)
     {
@@ -123,14 +123,14 @@
 
 + (CGFloat)bodyTextWidth:(ScreenInfo)screen
 {
-	return screen.appWinWidth - ([TripLeg modeTextWidthForScreenWidth:screen.screenWidth]+LEFT_COLUMN_OFFSET + COLUMN_GAP + RIGHT_MARGIN);
+	return screen.appWinWidth - ([TripLeg modeTextWidthForScreenWidth]+LEFT_COLUMN_OFFSET + COLUMN_GAP + RIGHT_MARGIN);
 }
 
-+ (CGFloat)modeTextWidthForScreenWidth:(ScreenWidth)screenWidth
++ (CGFloat)modeTextWidthForScreenWidth
 {
 	CGFloat width = 0;
 	
-    if (LargeScreenStyle(screenWidth))
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
     {
         width = 100;
     }
@@ -151,7 +151,7 @@
 	UITableViewCell *cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier] autorelease];
 	
 	
-	int leftColumnWidth  = [TripLeg modeTextWidthForScreenWidth:screen.screenWidth];
+	int leftColumnWidth  = [TripLeg modeTextWidthForScreenWidth];
     
 	
 	/*
@@ -198,13 +198,17 @@
 
 + (CGFloat)getTextHeight:(NSString *)text width:(CGFloat)width
 {
-	CGSize rect = CGSizeMake(width, MAXFLOAT);
-	CGSize sz = [text sizeWithFont:[TripLeg getBodyFont] constrainedToSize:rect lineBreakMode:NSLineBreakByWordWrapping];
-	
-	//CGSize sz = [text sizeWithFont:[TripLeg getBodyFont] forWidth:width lineBreakMode:UILineBreakModeWordWrap];
-	
-	DEBUG_LOG(@"Text: %@ height: %f width %f return %f\n", text, sz.height, width, MAX( sz.height +RIGHT_COLUMN_OFFSET * 2,  24.0 * 2 + 10));
-	return MAX( sz.height +RIGHT_COLUMN_OFFSET * 2,  24.0 * 2 + 10);
+    NSStringDrawingOptions options = NSStringDrawingTruncatesLastVisibleLine |
+        NSStringDrawingUsesLineFragmentOrigin;
+    
+    NSDictionary *attr = @{NSFontAttributeName: [TripLeg getBodyFont]};
+    CGRect rect = [text boundingRectWithSize:CGSizeMake(width, MAXFLOAT)
+                                           options:options
+                                        attributes:attr
+                                           context:nil];
+
+	DEBUG_LOG(@"Text: %@ height: %f width %f return %f\n", text, rect.size.height, width, MAX( rect.size.height +RIGHT_COLUMN_OFFSET * 2,  24.0 * 2 + 10));
+	return MAX( rect.size.height +RIGHT_COLUMN_OFFSET * 2,  24.0 * 2 + 10);
 }
 
 + (void)populateCell:(UITableViewCell*)cell
@@ -232,7 +236,7 @@
 	DEBUG_LOG(@"Width: %f\n", [self label:cell tag:BODY_TAG].bounds.size.width);
 	DEBUG_LOG(@"Text: %@\n", body);
 	
-	[cell setAccessibilityLabel:[NSString stringWithFormat:@"%@, %@", [self label:cell tag:MODE_TAG].text, body]];
+	cell.accessibilityLabel = [NSString stringWithFormat:@"%@, %@", [self label:cell tag:MODE_TAG].text, body];
     
 	RouteColorBlobView *colorStripe = (RouteColorBlobView*)[cell.contentView viewWithTag:COLOR_STRIPE_TAG];
 	[colorStripe setRouteColor:route];
@@ -241,37 +245,30 @@
 	
 }
 
-
-
-typedef struct strmap {
-	NSString *shortname;
-	NSString *longname;
-} strmap;
-
-static strmap dirmap [] =
-{
-    { @"n", @"north" },
-    { @"s", @"south" },
-    { @"e", @"east"  },
-    { @"w", @"west"  },
-    { @"ne", @"northeast" },
-    { @"se", @"southeast" },
-    { @"sw", @"southwest" },
-    { @"nw", @"northwest" },
-    { nil, nil },
-    { nil, nil } };
-
-
 - (NSString *)direction:(NSString *)dir
 {
-	for (strmap *i = dirmap; i->shortname!=nil ; i++)
-	{
-		if ([i->shortname isEqualToString:dir])
-		{
-			return i->longname;
-		}
-	}
-	return dir;
+    static NSDictionary *strmap = nil;
+    
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        strmap = @{ @"n" : @"north",
+                    @"s" : @"south" ,
+                    @"e" : @"east"  ,
+                    @"w" : @"west"  ,
+                    @"ne": @"northeast",
+                    @"se": @"southeast",
+                    @"sw": @"southwest",
+                    @"nw": @"northwest"}.retain;
+    });
+    
+    NSString *ret = strmap[dir];
+    
+    if (ret == nil)
+    {
+        ret = dir;
+    }
+    
+    return ret;
 }
 
 - (NSString*)mapLink:(NSString *)desc lat:(NSString *)lat lng:(NSString *)lng textType:(TripTextType)type
@@ -288,7 +285,7 @@ static strmap dirmap [] =
 
 - (NSString*)createFromText:(bool)first textType:(TripTextType)type;
 {
-	NSMutableString * text  = [[[ NSMutableString alloc] init] autorelease];
+    NSMutableString * text  = [NSMutableString string];
 	
 	if (self.from !=nil)
 	{
@@ -344,11 +341,11 @@ static strmap dirmap [] =
 		}
 		else if (type == TripTextTypeMap)
 		{
-			int mins = [self.xduration intValue];
+			int mins = self.xduration.intValue;
 			
 			if (mins > 0)
 			{
-				[text appendFormat:@"Walk %@ %@ ", [FormatDistance formatMiles:[self.xdistance doubleValue]], [self direction:self.xdirection]];
+				[text appendFormat:@"Walk %@ %@ ", [FormatDistance formatMiles:self.xdistance.doubleValue], [self direction:self.xdirection]];
 			}
 			else
 			{
@@ -369,12 +366,12 @@ static strmap dirmap [] =
 	while ([text replaceOccurrencesOfString:@"  "
 								 withString:@" "
 									options:NSLiteralSearch
-									  range:NSMakeRange(0, [text length])] > 0)
+									  range:NSMakeRange(0, text.length)] > 0)
 	{
 		;
 	}
 	
-	if ([text length] !=0)
+	if (text.length !=0)
 	{
 		if (type == TripTextTypeHTML)
 		{
@@ -392,13 +389,13 @@ static strmap dirmap [] =
 		case TripTextTypeHTML:
 			break;
 		case TripTextTypeMap:
-			if ([text length] != 0)
+			if (text.length != 0)
 			{
 				self.from.mapText = text;
 			}
 			break;
 		case TripTextTypeUI:
-			if ([text length] != 0)
+			if (text.length != 0)
 			{
 				self.from.displayText = text;
 			}
@@ -411,7 +408,7 @@ static strmap dirmap [] =
 
 - (NSString *)createToText:(bool)last textType:(TripTextType)type;
 {
-	NSMutableString * text  = [[[ NSMutableString alloc] init] autorelease];
+    NSMutableString * text  = [NSMutableString string];
 	if (self.to!=nil)
 	{
 		if ([self.mode isEqualToString:kModeWalk])
@@ -430,11 +427,11 @@ static strmap dirmap [] =
 					self.to.displayModeText = self.mode;
 					self.to.leftColor = [UIColor purpleColor];
 				}
-				int mins = [self.xduration intValue];
+				int mins = self.xduration.intValue;
                 
 				if (mins > 0)
 				{
-                    [text appendFormat:@"Walk %@ %@ ", [FormatDistance formatMiles:[self.xdistance doubleValue]], [self direction:self.xdirection]];
+                    [text appendFormat:@"Walk %@ %@ ", [FormatDistance formatMiles:self.xdistance.doubleValue], [self direction:self.xdirection]];
 				}
 				else // multiple mins
 				{
@@ -537,11 +534,11 @@ static strmap dirmap [] =
             }
             else
             {
-                text = [[[NSMutableString alloc] init] autorelease];
+                text = [NSMutableString string];
             }
             break;
         case TripTextTypeMap:
-            if ([text length] != 0)
+            if (text.length != 0)
             {
                 self.to.mapText = text;
             }

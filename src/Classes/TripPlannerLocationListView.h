@@ -17,9 +17,9 @@
 #import "TableViewWithToolbar.h"
 
 @interface TripPlannerLocationListView : TableViewWithToolbar <ReturnTripLegEndPoint> {
-	XMLTrips *_tripQuery;
-	bool	_from;
-	NSMutableArray *_locList;
+	XMLTrips *          _tripQuery;
+	bool                _from;
+	NSMutableArray *    _locList;
 }
 
 @property (nonatomic, retain) XMLTrips *tripQuery;

@@ -21,6 +21,7 @@
 #import "ReturnStopId.h"
 #import "Stop.h"
 #import "Hotspot.h"
+#import "RailStation.h"
 
 
 #define kSearchItemStation  @"org.teleportaloo.pdxbus.station"
@@ -32,5 +33,6 @@
 - (void)generateArrays;
 + (RAILLINES)railLines:(int)index;
 - (void)indexStations;
++ (RailStation *)railstationFromStopId:(NSString *)stopId;
 
 @end

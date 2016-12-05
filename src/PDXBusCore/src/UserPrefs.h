@@ -24,12 +24,10 @@
 - (BOOL) getBoolFromDefaultsForKey:(NSString*)key ifMissing:(BOOL)missing writeToShared:(BOOL)writeToShared;
 - (float)getFloatFromDefaultsForKey:(NSString*)key ifMissing:(float)missing max:(float)max min:(float)min writeToShared:(BOOL)writeToShared;
 - (int)  getIntFromDefaultsForKey:(NSString*)key ifMissing:(int)missing max:(int)max min:(int)min writeToShared:(BOOL)writeToShared;
-+ (UserPrefs*) getSingleton;
-+ (void)useWatchSettings;
++ (UserPrefs*) singleton;
 
 @property (nonatomic, readonly)  bool  bookmarksAtTheTop;
 @property (nonatomic, readonly)  bool  autoCommute;
-@property (nonatomic, readonly)  bool  watchAutoCommute;
 @property (nonatomic, readonly)  bool  shakeToRefresh;
 @property (nonatomic, readonly)  int   maxRecentStops;
 @property (nonatomic, readonly)  int   maxRecentTrips;
@@ -62,13 +60,10 @@
 @property (nonatomic, readonly)  bool qrCodeScannerIcon;
 @property (nonatomic)            bool flashingLightWarning;
 @property (nonatomic)            bool watchSettings;
-@property (nonatomic, readonly)  bool watchBookmarksAtTheTop;
-@property (nonatomic, readonly)  bool watchBookmarksDisplayStopList;
 @property (nonatomic, readonly)  bool searchRoutes;
 @property (nonatomic, readonly)  bool searchBookmarks;
 @property (nonatomic, readonly)  bool searchStations;
 @property (nonatomic, readonly)  bool useBetaVehicleLocator;
-@property (nonatomic, readonly)  bool watchUseBetaVehicleLocator;
 @property (nonatomic, readonly)  NSString *busIcon;
 @property (nonatomic, readonly)  bool showTrips;
 @property (nonatomic, readonly)  NSString *triMetProtocol;

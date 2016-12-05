@@ -19,18 +19,18 @@
 
 
 @interface StopView : TableViewWithToolbar <ReturnStop>{
-	XMLStops *_stopData;
-	DepartureData *_departure;
-	NSString *_directionName;
+	XMLStops *      _stopData;
+	DepartureData * _departure;
+	NSString *      _directionName;
 }
 
 @property (nonatomic, retain) XMLStops *stopData;
 @property (nonatomic, retain) DepartureData *departure;
-@property (nonatomic, retain) NSString *directionName;
+@property (nonatomic, copy)   NSString *directionName;
 - (void)refreshAction:(id)sender;
-- (void)fetchStopsInBackground:(id<BackgroundTaskProgress>) callback route:(NSString*)routeid direction:(NSString*)dir description:(NSString *)desc
+- (void)fetchStopsAsync:(id<BackgroundTaskProgress>) callback route:(NSString*)routeid direction:(NSString*)dir description:(NSString *)desc
 				 directionName:(NSString *)dirName;
-- (void)fetchDestinationsInBackground:(id<BackgroundTaskProgress>) callback dep:(DepartureData *)dep;
+- (void)fetchDestinationsAsync:(id<BackgroundTaskProgress>) callback dep:(DepartureData *)dep;
 
 
 @end

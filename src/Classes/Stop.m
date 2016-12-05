@@ -23,6 +23,7 @@
 @synthesize callback = _callback; 
 @synthesize dir		 = _dir;
 @synthesize index	 = _index;
+@dynamic  pinTint;
 
 - (void) dealloc
 {
@@ -30,13 +31,14 @@
 	self.locid	= nil;
 	self.tp		= nil;
 	self.lat    = nil;
-	self.lat    = nil;
+	self.lng    = nil;
 	self.dir    = nil;
+    self.callback = nil;
 	
 	[super dealloc];
 }
 
-- (MKPinAnnotationColor) getPinColor
+- (MKPinAnnotationColor)pinColor
 {
 	return MKPinAnnotationColorPurple;
 }
@@ -67,8 +69,8 @@
 {
 	CLLocationCoordinate2D pos;
 	
-	pos.latitude = [self.lat doubleValue];
-	pos.longitude = [self.lng doubleValue];
+	pos.latitude =  self.lat.doubleValue;
+	pos.longitude = self.lng.doubleValue;
 	return pos;
 }
 
@@ -112,7 +114,7 @@
 	return self.desc;
 }
 
-- (UIColor *)getPinTint
+- (UIColor *)pinTint
 {
     return nil;
 }

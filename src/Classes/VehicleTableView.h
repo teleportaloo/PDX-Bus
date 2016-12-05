@@ -18,12 +18,12 @@
 
 @interface VehicleTableView : TableViewWithToolbar
 {
-    XMLLocateVehicles *_locator;
-    bool _firstTime;
+    XMLLocateVehicles * _locator;
+    bool                _firstTime;
 }
 
 @property (nonatomic, retain) XMLLocateVehicles *locator;
 
-- (void)fetchNearestVehiclesInBackground:(id<BackgroundTaskProgress>)background location:(CLLocation *)here maxDistance:(double)dist;
+- (void)fetchNearestVehiclesAsync:(id<BackgroundTaskProgress>)background location:(CLLocation *)here maxDistance:(double)dist;
 
 @end

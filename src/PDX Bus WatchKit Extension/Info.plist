@@ -17,25 +17,25 @@
 	<key>CFBundlePackageType</key>
 	<string>XPC!</string>
 	<key>CFBundleShortVersionString</key>
-	<string>8.1</string>
+	<string>9.0</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>8.1</string>
+	<string>9.0.2</string>
 	<key>LSApplicationCategoryType</key>
 	<string></string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSExceptionDomains</key>
 		<dict>
-			<key>trimet.org</key>
+			<key>nextbus.com</key>
 			<dict>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
 				<true/>
 				<key>NSIncludesSubdomains</key>
 				<true/>
 			</dict>
-			<key>nextbus.com</key>
+			<key>trimet.org</key>
 			<dict>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
 				<true/>
@@ -58,7 +58,9 @@
 	<array>
 		<string>org.teleportaloo.pdxbus.bookmark</string>
 	</array>
-	<key>RemoteInterfacePrincipalClass</key>
-	<string>InterfaceController</string>
+	<key>WKExtensionDelegateClassName</key>
+	<string>ExtensionDelegate</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Locate nearby stops.</string>
 </dict>
 </plist>

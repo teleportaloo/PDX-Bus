@@ -17,21 +17,24 @@
 
 @class UIColor;
 
-#define kRedLine    0x0001
-#define kBlueLine   0x0002
-#define kGreenLine  0x0004
-#define kYellowLine 0x0008
-#define kOrangeLine 0x0010
-#define kWesLine    0x0020
+// These must be in route number order for fast lookup
+#define kRedLine            0x0001 // 90
+#define kBlueLine           0x0002 // 100
+#define kYellowLine         0x0004 // 190
+#define kStreetcarNsLine	0x0008 // 193
+#define kStreetcarALoop     0x0010 // 194
+#define kStreetcarBLoop     0x0020 // 195
+#define kGreenLine          0x0040 // 200
+#define kWesLine            0x0080 // 203
+#define kOrangeLine         0x0100 // 290
+#define kNoLine             0x0000
 
-#define kStreetcarALoop     0x0040
-#define kStreetcarBLoop     0x0080
-#define kStreetcarNsLine	0x0100
+#define kNoRoute            0
 
 typedef unsigned int RAILLINES;
 
 typedef struct route_cols { 
-	NSString *route;
+	NSInteger route;
 	RAILLINES line;
 	float r;
 	float g;
@@ -50,9 +53,10 @@ typedef struct route_cols {
 }
 
 + (UIColor*)colorForRoute:(NSString *)route;
-+ (ROUTE_COL *)rawColorForLine:(RAILLINES)line;
-+ (ROUTE_COL *)rawColorForRoute:(NSString *)route;
++ (const ROUTE_COL *)rawColorForLine:(RAILLINES)line;
++ (const ROUTE_COL *)rawColorForRoute:(NSString *)route;
 + (NSSet *)streetcarRoutes;
 + (NSSet *)triMetRoutes;
++ (NSString*)routeString:(const ROUTE_COL*)col;
 
 @end

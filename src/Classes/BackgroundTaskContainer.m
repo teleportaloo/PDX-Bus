@@ -39,6 +39,7 @@ static NSNumber *syncObject;
     self.errMsg           = nil;
     self.controllerToPop  = nil;
     self.help             = nil;
+    self.title            = nil;
     [super dealloc];
 }
 
@@ -56,10 +57,9 @@ static NSNumber *syncObject;
 	[self.backgroundThread cancel];
 }
 
--(void)BackgroundStartMainThread:(id)arg
+-(void)BackgroundStartMainThread:(NSNumber *)items
 {
-	NSNumber *num = arg;
-	TriMetTimesAppDelegate *app = [TriMetTimesAppDelegate getSingleton];
+	TriMetTimesAppDelegate *app = [TriMetTimesAppDelegate singleton];
 	
 	if (self.progressModal == nil)
 	{
@@ -69,7 +69,7 @@ static NSNumber *syncObject;
 			[self.callbackComplete backgroundTaskStarted];
 		}
 		
-		self.progressModal = [ProgressModalView initWithSuper:app.window items:[num intValue]
+		self.progressModal = [ProgressModalView initWithSuper:app.window items:items.intValue
 														title:self.title
 													 delegate:(self.backgroundThread!=nil?self:nil)
 												  orientation:[self.callbackComplete BackgroundTaskOrientation]];
@@ -80,7 +80,7 @@ static NSNumber *syncObject;
 	}
 	else 
 	{
-		self.progressModal.totalItems = [num intValue];
+		self.progressModal.totalItems = items.intValue;
 	}
 }
 
@@ -111,7 +111,7 @@ static NSNumber *syncObject;
         }
 	}
 	
-	[self performSelectorOnMainThread:@selector(BackgroundStartMainThread:) withObject:[NSNumber numberWithInt:items] waitUntilDone:YES];
+	[self performSelectorOnMainThread:@selector(BackgroundStartMainThread:) withObject:@(items) waitUntilDone:YES];
 	
 	if ([self.callbackComplete respondsToSelector:@selector(backgroundTaskWait)])
 	{
@@ -131,32 +131,29 @@ static NSNumber *syncObject;
 
 -(void)BackgroundItemsDoneMainThread:(NSNumber*)itemsDone
 {
-	[self.progressModal itemsDone:[itemsDone intValue]];
+	[self.progressModal itemsDone:itemsDone.intValue];
 }
 
 
 -(void)backgroundItemsDone:(int)itemsDone
 {
-	NSNumber *num = [NSNumber numberWithInt:itemsDone];
-	[self performSelectorOnMainThread:@selector(BackgroundItemsDoneMainThread:) withObject:num waitUntilDone:YES];
+	[self performSelectorOnMainThread:@selector(BackgroundItemsDoneMainThread:) withObject:@(itemsDone) waitUntilDone:YES];
 }
 
 -(void)BackgroundTotalItemsMainThread:(NSNumber*)totalItems
 {
-    [self.progressModal totalItems:[totalItems intValue]];
+    [self.progressModal totalItems:totalItems.intValue];
 }
 
 -(void)backgroundItems:(int)totalItems
 {
-    NSNumber *num = [NSNumber numberWithInt:totalItems];
-    [self performSelectorOnMainThread:@selector(BackgroundTotalItemsMainThread:) withObject:num waitUntilDone:YES];
-    
+    [self performSelectorOnMainThread:@selector(BackgroundTotalItemsMainThread:) withObject:@(totalItems) waitUntilDone:YES];
 }
 
 
 -(void)finish
 {
-    bool cancelled = (self.backgroundThread !=nil && [self.backgroundThread isCancelled]);
+    bool cancelled = (self.backgroundThread !=nil && self.backgroundThread.cancelled);
     [self.callbackComplete BackgroundTaskDone:self.controllerToPop cancelled:cancelled];
     self.controllerToPop = nil;
     self.backgroundThread = nil;

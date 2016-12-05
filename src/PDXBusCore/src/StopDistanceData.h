@@ -12,9 +12,9 @@
 
 #import <UIKit/UIKit.h>
 #import <CoreLocation/CoreLocation.h>
+#import "DataFactory.h"
 
-
-@interface StopDistanceData : NSObject {
+@interface StopDistanceData : DataFactory {
 	NSString *          _locid;
 	CLLocationDistance  _distance;
 	CLLocationAccuracy  _accuracy;
@@ -23,14 +23,14 @@
     NSString *          _dir;
 }
 
--(id)initWithLocId:(int)locid distance:(CLLocationDistance)dist accuracy:(CLLocationAccuracy)acc;
+-(instancetype)initWithLocId:(int)locid distance:(CLLocationDistance)dist accuracy:(CLLocationAccuracy)acc;
 
 -(NSComparisonResult)compareUsingDistance:(StopDistanceData*)inStop;
 
 
-@property (nonatomic, retain) NSString *locid;
-@property (nonatomic, retain) NSString *desc;
-@property (nonatomic, retain) NSString *dir;
+@property (nonatomic, copy)   NSString *locid;
+@property (nonatomic, copy)   NSString *desc;
+@property (nonatomic, copy)   NSString *dir;
 @property (nonatomic) CLLocationDistance distance;
 @property (nonatomic) CLLocationAccuracy accuracy;
 @property (nonatomic, retain) CLLocation *location;

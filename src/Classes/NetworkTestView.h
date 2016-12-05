@@ -31,11 +31,11 @@
 	NSString *_diagnosticText;
 }
 
-- (void)fetchNetworkStatusInBackground:(id<BackgroundTaskProgress>)background;
+- (void)fetchNetworkStatusAsync:(id<BackgroundTaskProgress>)background;
 
-@property (nonatomic, retain) NSString *diagnosticText;
-@property (nonatomic, retain) NSString *reverseGeoCodeService;
-@property (nonatomic, retain) NSString *networkErrorFromQuery;
+@property (nonatomic, copy)   NSString *diagnosticText;
+@property (nonatomic, copy)   NSString *reverseGeoCodeService;
+@property (nonatomic, copy)   NSString *networkErrorFromQuery;
 
 @property bool trimetQueryStatus;
 @property bool nextbusQueryStatus;

@@ -40,7 +40,7 @@ static CGImageRef createContentImage()
 	if( image ) {
 		CGContextRef context = UIGraphicsGetCurrentContext();
 		
-		CGContextDrawImage( context, [ self bounds ], image );
+		CGContextDrawImage( context, self.bounds , image );
 	
 		CGImageRelease( image );
 	}

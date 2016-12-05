@@ -13,6 +13,7 @@
 #import <UIKit/UIKit.h>
 #import "MapPinColor.h"
 #import "SearchFilter.h"
+#import "DataFactory.h"
 
 
 @protocol ReturnStop;
@@ -20,35 +21,35 @@
 
 
 
-@interface Stop : NSObject <MapPinColor, SearchFilter> {
-	NSString		*_locid;
+@interface Stop : DataFactory <MapPinColor, SearchFilter> {
+	NSString *      _locid;
 	bool			_tp;
-	NSString		*_desc;
-	NSString		*_lat;
-	NSString		*_lng;
-	id<ReturnStop> _callback;
-	NSString        *_dir;
-	int			    index;
+	NSString *      _desc;
+	NSString *      _lat;
+	NSString *      _lng;
+	id<ReturnStop>  _callback;
+	NSString *      _dir;
+	int			    _index;
 }
 
-@property (nonatomic, retain) NSString *locid;
-@property (nonatomic, retain) NSString *desc;
-@property (nonatomic, retain) NSString *dir;
-@property (nonatomic) bool tp;
-@property (nonatomic, retain) NSString *lat;
-@property (nonatomic, retain) NSString *lng;
+@property (nonatomic, copy)   NSString *locid;
+@property (nonatomic, copy)   NSString *desc;
+@property (nonatomic, copy)   NSString *dir;
+@property (nonatomic)         bool tp;
+@property (nonatomic, copy)   NSString *lat;
+@property (nonatomic, copy)   NSString *lng;
 @property (nonatomic, retain) id<ReturnStop> callback;
-@property (nonatomic) int index;
+@property (nonatomic)         int index;
 
-- (MKPinAnnotationColor) getPinColor;
-- (bool) showActionMenu;
+@property (nonatomic)           MKPinAnnotationColor pinColor;
+@property (nonatomic, readonly) bool showActionMenu;
 - (bool) mapTapped:(id<BackgroundTaskProgress>) progress;
-- (NSString*)stringToFilter;
+@property (nonatomic, readonly, copy) NSString *stringToFilter;
 
 @end
 
 @protocol ReturnStop
 - (void) chosenStop:(Stop *)stop progress:(id<BackgroundTaskProgress>) progress;
-- (NSString *)actionText;
+@property (nonatomic, readonly, copy) NSString *actionText;
 @end
 

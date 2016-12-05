@@ -17,6 +17,7 @@
 #import "TripLegEndPoint.h"
 #import "LegShapeParser.h"
 #import "ScreenConstants.h"
+#import "DataFactory.h"
 
 #define kNearTo   @"Near "
 #define kModeWalk @"Walk"
@@ -24,27 +25,24 @@
 #define kModeMax  @"Light Rail"
 #define kModeSc   @"Streetcar"
 
-@interface TripLeg: NSObject
+@interface TripLeg: DataFactory
 {
-	NSString *_mode;
-    NSString *_order;
-	NSString *_xdate;
-	NSString *_xstartTime;
-	NSString *_xendTime;
-	NSString *_xduration;
-	NSString *_xdistance;
-    
-	TripLegEndPoint *_from;
-	TripLegEndPoint *_to;
-	
-	NSString *_xnumber;
-	NSString *_xinternalNumber;
-	NSString *_xname;
-	NSString *_xkey;
-	NSString *_xdirection;
-	NSString *_xblock;
-	
-	LegShapeParser *_legShape;
+	NSString *          _mode;
+    NSString *          _order;
+	NSString *          _xdate;
+	NSString *          _xstartTime;
+	NSString *          _xendTime;
+	NSString *          _xduration;
+	NSString *          _xdistance;
+	TripLegEndPoint *   _from;
+	TripLegEndPoint *   _to;
+	NSString *          _xnumber;
+	NSString *          _xinternalNumber;
+	NSString *          _xname;
+	NSString *          _xkey;
+	NSString *          _xdirection;
+	NSString *          _xblock;
+	LegShapeParser *    _legShape;
 }
 
 @property (nonatomic, retain) NSString		*mode;

@@ -38,7 +38,7 @@ typedef struct hotspot_struct
         const CGPoint *vertices;
         const CGRect  *rect;
     } coords;
-    const char *    action;
+    NSString *      action;
 	unsigned char   nVertices: 6;
     unsigned char   touched  : 1;
     unsigned char   isRect   : 1;
@@ -52,12 +52,19 @@ typedef struct hotspot_struct
 
 typedef struct alpha_section_struct
 {
-	char *title;
+	const char *title;
 	int offset;
 	int items;
 } ALPHA_SECTIONS;
 
-typedef unsigned char HOTSPOT_INDEX;
+typedef const unsigned char HOTSPOT_INDEX;
+
+
+typedef struct stoptohotspot
+{
+    unsigned long stopId;
+    int hotspot;
+} STOP_TO_HOTSPOT;
 
 typedef struct tile_array
 {

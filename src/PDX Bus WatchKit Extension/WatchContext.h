@@ -18,7 +18,7 @@
 
 @interface WatchContext : NSObject
 
-@property (nonatomic, retain) NSString *sceneName;
+@property (nonatomic, copy)   NSString *sceneName;
 
 - (void)pushFrom:(WKInterfaceController *)parent;
 - (void)delayedPushFrom:(WKInterfaceController *)parent;

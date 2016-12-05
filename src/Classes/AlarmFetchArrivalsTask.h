@@ -23,23 +23,20 @@
 
 @interface AlarmFetchArrivalsTask : AlarmTask  {
 
-	NSString *_block;
-	
-	
-	XMLDepartures *_departures;
-	DepartureData *_lastFetched;
-	TriMetTime _queryTime;
-    NSString    *_display;
-	
-	uint _minsToAlert;	
+	NSString *      _block;
+	XMLDepartures * _departures;
+	DepartureData * _lastFetched;
+	TriMetTime      _queryTime;
+    NSString *      _display;
+	uint            _minsToAlert;	
 }
 
 
-@property (nonatomic, retain) NSString * block;
+@property (nonatomic, copy)   NSString * block;
 @property (nonatomic, retain) XMLDepartures * departures;
 @property (nonatomic) uint minsToAlert;
 @property (retain) DepartureData *lastFetched;
-@property (nonatomic, retain) NSString *display;
+@property (nonatomic, copy)   NSString *display;
 
 - (void) startTask;
 

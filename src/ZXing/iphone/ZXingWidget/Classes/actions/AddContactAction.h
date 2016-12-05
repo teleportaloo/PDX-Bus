@@ -36,14 +36,14 @@
   UIViewController *viewController;
 }
 
-@property (nonatomic, copy) NSString *name;
+@property (nonatomic, copy)   NSString *name;
 @property (nonatomic, retain) NSArray *phoneNumbers;
-@property (nonatomic, copy) NSString *note;
-@property (nonatomic, copy) NSString *email;
-@property (nonatomic, copy) NSString *urlString;
-@property (nonatomic, copy) NSString *address;
-@property (nonatomic, copy) NSString *organization;
-@property (nonatomic, copy) NSString *jobTitle;
+@property (nonatomic, copy)   NSString *note;
+@property (nonatomic, copy)   NSString *email;
+@property (nonatomic, copy)   NSString *urlString;
+@property (nonatomic, copy)   NSString *address;
+@property (nonatomic, copy)   NSString *organization;
+@property (nonatomic, copy)   NSString *jobTitle;
 
 + (id)actionWithName:(NSString *)n
         phoneNumbers:(NSArray *)nums

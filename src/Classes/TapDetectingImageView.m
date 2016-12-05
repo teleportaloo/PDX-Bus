@@ -30,14 +30,14 @@ CGPoint midpointBetweenPoints(CGPoint a, CGPoint b);
 	[super dealloc];
 }
 
-- (id)initWithImageName:(NSString *)image size:(CGSize)size
+- (instancetype)initWithImageName:(NSString *)image size:(CGSize)size
 {
     self = [super initWithImageName:image size:size];
     if (self) {
         [self setUserInteractionEnabled:YES];
         [self setMultipleTouchEnabled:YES];
-        twoFingerTapIsPossible = YES;
-        multipleTouches = NO;
+        _twoFingerTapIsPossible = YES;
+        _multipleTouches = NO;
     }
     return self;
 }
@@ -48,63 +48,63 @@ CGPoint midpointBetweenPoints(CGPoint a, CGPoint b);
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(handleSingleTap) object:nil];
     
     // update our touch state
-    if ([[event touchesForView:self] count] > 1)
-        multipleTouches = YES;
-    if ([[event touchesForView:self] count] > 2)
-        twoFingerTapIsPossible = NO;
+    if ([event touchesForView:self].count > 1)
+        _multipleTouches = YES;
+    if ([event touchesForView:self].count > 2)
+        _twoFingerTapIsPossible = NO;
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    BOOL allTouchesEnded = ([touches count] == [[event touchesForView:self] count]);
+    BOOL allTouchesEnded = (touches.count == [event touchesForView:self].count);
     
     // first check for plain single/double tap, which is only possible if we haven't seen multiple touches
-    if (!multipleTouches) {
+    if (!_multipleTouches) {
         UITouch *touch = [touches anyObject];
-        tapLocation = [touch locationInView:self];
+        _tapLocation = [touch locationInView:self];
         
-        if ([touch tapCount] == 1) {
+        if (touch.tapCount == 1) {
             [self performSelector:@selector(handleSingleTap) withObject:nil afterDelay:DOUBLE_TAP_DELAY];
-        } else if([touch tapCount] == 2) {
+        } else if(touch.tapCount == 2) {
             [self handleDoubleTap];
         }
     }    
     
     // check for 2-finger tap if we've seen multiple touches and haven't yet ruled out that possibility
-    else if (multipleTouches && twoFingerTapIsPossible) { 
+    else if (_multipleTouches && _twoFingerTapIsPossible) {
         
         // case 1: this is the end of both touches at once 
-        if ([touches count] == 2 && allTouchesEnded) {
+        if (touches.count == 2 && allTouchesEnded) {
             int i = 0; 
             int tapCounts[2]={0}; CGPoint tapLocations[2];
             for (UITouch *touch in touches) {
-                tapCounts[i]    = (int)[touch tapCount];
+                tapCounts[i]    = (int)touch.tapCount;
                 tapLocations[i] = [touch locationInView:self];
                 i++;
             }
             if (tapCounts[0] == 1 && tapCounts[1] == 1) { // it's a two-finger tap if they're both single taps
-                tapLocation = midpointBetweenPoints(tapLocations[0], tapLocations[1]);
+                _tapLocation = midpointBetweenPoints(tapLocations[0], tapLocations[1]);
                 [self handleTwoFingerTap];
             }
         }
         
         // case 2: this is the end of one touch, and the other hasn't ended yet
-        else if ([touches count] == 1 && !allTouchesEnded) {
+        else if (touches.count == 1 && !allTouchesEnded) {
             UITouch *touch = [touches anyObject];
-            if ([touch tapCount] == 1) {
+            if (touch.tapCount == 1) {
                 // if touch is a single tap, store its location so we can average it with the second touch location
-                tapLocation = [touch locationInView:self];
+                _tapLocation = [touch locationInView:self];
             } else {
-                twoFingerTapIsPossible = NO;
+                _twoFingerTapIsPossible = NO;
             }
         }
 
         // case 3: this is the end of the second of the two touches
-        else if ([touches count] == 1 && allTouchesEnded) {
+        else if (touches.count == 1 && allTouchesEnded) {
             UITouch *touch = [touches anyObject];
-            if ([touch tapCount] == 1) {
+            if (touch.tapCount == 1) {
                 // if the last touch up is a single tap, this was a 2-finger tap
-                tapLocation = midpointBetweenPoints(tapLocation, [touch locationInView:self]);
+                _tapLocation = midpointBetweenPoints(_tapLocation, [touch locationInView:self]);
                 [self handleTwoFingerTap];
             }
         }
@@ -112,29 +112,29 @@ CGPoint midpointBetweenPoints(CGPoint a, CGPoint b);
         
     // if all touches are up, reset touch monitoring state
     if (allTouchesEnded) {
-        twoFingerTapIsPossible = YES;
-        multipleTouches = NO;
+        _twoFingerTapIsPossible = YES;
+        _multipleTouches = NO;
     }
 }
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
-    twoFingerTapIsPossible = YES;
-    multipleTouches = NO;
+    _twoFingerTapIsPossible = YES;
+    _multipleTouches = NO;
 }
 
 - (void)handleSingleTap {
     if ([_delegate respondsToSelector:@selector(tapDetectingImageView:gotSingleTapAtPoint:)])
-        [_delegate tapDetectingImageView:self gotSingleTapAtPoint:tapLocation];
+        [_delegate tapDetectingImageView:self gotSingleTapAtPoint:_tapLocation];
 }
 
 - (void)handleDoubleTap {
     if ([_delegate respondsToSelector:@selector(tapDetectingImageView:gotDoubleTapAtPoint:)])
-        [_delegate tapDetectingImageView:self gotDoubleTapAtPoint:tapLocation];
+        [_delegate tapDetectingImageView:self gotDoubleTapAtPoint:_tapLocation];
 }
     
 - (void)handleTwoFingerTap {
     if ([_delegate respondsToSelector:@selector(tapDetectingImageView:gotTwoFingerTapAtPoint:)])
-        [_delegate tapDetectingImageView:self gotTwoFingerTapAtPoint:tapLocation];
+        [_delegate tapDetectingImageView:self gotTwoFingerTapAtPoint:_tapLocation];
 }
     
 @end

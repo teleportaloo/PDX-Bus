@@ -9,31 +9,31 @@
 #import "TriMetTypes.h"
 
 @class DepartureData;
-@class DepartureUI;
 @class StopDistanceData;
 @class CLLocation;
 
 @protocol DepartureTimesDataProvider <NSObject>
 
 - (DepartureData *)DTDataGetDeparture:(NSInteger)i;
-- (NSInteger)DTDataGetSafeItemCount;
-- (NSString *)DTDataGetSectionHeader;
-- (NSString *)DTDataGetSectionTitle;
-- (void)DTDataPopulateCell:(DepartureUI *)dd cell:(UITableViewCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide;
-- (NSString *)DTDataStaticText;
-- (NSString *)DTDataDir;
-- (StopDistanceData*)DTDataDistance;
-- (TriMetTime) DTDataQueryTime;
-- (CLLocation *)DTDataLoc;
-- (NSString *)DTDataLocDesc;
-- (NSString *)DTDataLocID;
-- (BOOL) DTDataHasDetails;
-- (BOOL) DTDataNetworkError;
-- (NSString *)DTDataNetworkErrorMsg;
-- (NSData *)DTDataHtmlError;
+@property (nonatomic, readonly) NSInteger DTDataGetSafeItemCount;
+@property (nonatomic, readonly, copy) NSString *DTDataGetSectionHeader;
+@property (nonatomic, readonly, copy) NSString *DTDataGetSectionTitle;
+- (void)DTDataPopulateCell:(DepartureData *)dd cell:(UITableViewCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide;
+@property (nonatomic, readonly, copy) NSString *DTDataStaticText;
+@property (nonatomic, readonly, copy) NSString *DTDataDir;
+@property (nonatomic, readonly, strong) StopDistanceData *DTDataDistance;
+@property (nonatomic, readonly) TriMetTime DTDataQueryTime;
+@property (nonatomic, readonly, copy) CLLocation *DTDataLoc;
+@property (nonatomic, readonly, copy) NSString *DTDataLocDesc;
+@property (nonatomic, readonly, copy) NSString *DTDataLocID;
+@property (nonatomic, readonly) BOOL DTDataHasDetails;
+@property (nonatomic, readonly) BOOL DTDataNetworkError;
+@property (nonatomic, readonly, copy) NSString *DTDataNetworkErrorMsg;
+@property (nonatomic, readonly, copy) NSData *DTDataHtmlError;
 
 @optional
 
-- (id)DTDataXML;
+@property (nonatomic, readonly, strong) id DTDataXML;
 
 @end
+

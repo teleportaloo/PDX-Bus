@@ -44,14 +44,14 @@
 	[super dealloc];
 }
 
-+ (AlarmTaskList*)getSingleton
++ (AlarmTaskList*)singleton
 {
 	static AlarmTaskList * taskList = nil;
-	
-	if (taskList == nil)
-	{
+    
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
 		taskList = [[AlarmTaskList alloc] init];
-	}
+    });
 	
 	return taskList;
 }
@@ -60,10 +60,7 @@
 + (bool)supported
 {
 	UIDevice* device = [UIDevice currentDevice];
-	BOOL backgroundSupported = NO;
-	if ([device respondsToSelector:@selector(isMultitaskingSupported)])
-		backgroundSupported = device.multitaskingSupported;
-	
+	BOOL backgroundSupported = device.multitaskingSupported;
 	return backgroundSupported;
 }
 
@@ -74,8 +71,7 @@
     
 	return [AlarmTaskList supported] 
 						&& locManClass!=nil 
-						&& [locManClass respondsToSelector:@selector(significantLocationChangeMonitoringAvailable)]
-						&& [locManClass significantLocationChangeMonitoringAvailable];
+                        && [locManClass significantLocationChangeMonitoringAvailable];
 }
 
 
@@ -84,7 +80,7 @@
 
 - (BOOL)checkNotificationType:(UIUserNotificationType)type
 {
-    UIUserNotificationSettings *currentSettings = [[UIApplication sharedApplication] currentUserNotificationSettings];
+    UIUserNotificationSettings *currentSettings = [UIApplication sharedApplication].currentUserNotificationSettings;
     
     return (currentSettings.types & type);
 }
@@ -149,7 +145,7 @@
 {
     for (int i=0; i < array.count; i++)
     {
-        NSString *arrayTaskKey = [array objectAtIndex:i];
+        NSString *arrayTaskKey = array[i];
         if ([arrayTaskKey isEqualToString:taskKey])
         {
             [array removeObjectAtIndex:i];
@@ -158,7 +154,7 @@
     }
 }
 
-- (id)init
+- (instancetype)init
 {
 	if ((self = [super init]))
 	{
@@ -193,7 +189,7 @@
 {
 	@synchronized(_backgroundTasks)
 	{
-		AlarmTask *task = [_backgroundTasks objectForKey:key];
+		AlarmTask *task = _backgroundTasks[key];
 	
 		if (task !=nil)
 		{
@@ -236,7 +232,7 @@
 
 		[self cancelTaskForKey:newTask.key];
 	
-		[_backgroundTasks setObject:newTask forKey:newTask.key];
+		_backgroundTasks[newTask.key] = newTask;
         [_orderedTaskKeys addObject:newTask.key];
         [_newTaskKeys     addObject:newTask.key];
 	 
@@ -248,7 +244,7 @@
 {
 	@synchronized(_backgroundTasks)
 	{
-		return [_backgroundTasks objectForKey:[self keyForStopId:stopId block:block]] != nil;
+		return _backgroundTasks[[self keyForStopId:stopId block:block]] != nil;
 	}
 }
 
@@ -256,7 +252,7 @@
 {
 	@synchronized(_backgroundTasks)
 	{
-		AlarmFetchArrivalsTask *task = [_backgroundTasks objectForKey:[self keyForStopId:stopId block:block]];
+		AlarmFetchArrivalsTask *task = _backgroundTasks [[self keyForStopId:stopId block:block]];
 	
 		if (task == nil)
 		{
@@ -355,7 +351,7 @@
             [_newTaskKeys removeAllObjects];
             for (NSString *taskKey in _backgroundTasks)
             {
-                AlarmTask *task = [_backgroundTasks objectForKey:taskKey];
+                AlarmTask *task = _backgroundTasks[taskKey];
                 switch (task.alarmState)
                 {
                     default:
@@ -384,7 +380,7 @@
         UIApplication *app = [UIApplication sharedApplication];
         NSTimeInterval remaining = app.backgroundTimeRemaining;
         bool alertRequired = NO;
-        if (_backgroundTasks.count > 0 && [UserPrefs getSingleton].alarmInitialWarning)
+        if (_backgroundTasks.count > 0 && [UserPrefs singleton].alarmInitialWarning)
         {
             NSArray *keys = [self taskKeys];
             
@@ -393,7 +389,7 @@
                 AlarmTask *task = [self taskForKey:key];
                 
                 if (task && task.alarm && task.alarm.fireDate != 0 && !task.alarmWarningDisplayed
-                    && [task.alarm.fireDate timeIntervalSinceNow] >= remaining)
+                    && task.alarm.fireDate.timeIntervalSinceNow >= remaining)
                 {
                         alertRequired              = YES;
                         task.alarmWarningDisplayed = YES;
@@ -403,12 +399,9 @@
             
             if (alertRequired)
             {
-                AlarmTask *alertTask = [[[AlarmTask alloc] init] autorelease];
+                AlarmTask *alertTask = [AlarmTask data];
                 
-                NSDictionary *ignore = [NSDictionary dictionaryWithObjectsAndKeys:
-                                        kDoNotDisplayIfActive, kDoNotDisplayIfActive,
-                                        nil];
-                
+                NSDictionary *ignore = @{kDoNotDisplayIfActive : kDoNotDisplayIfActive};
                 int mins = ((remaining + 30) / 60.0);
                 [alertTask alert:[NSString stringWithFormat:NSLocalizedString(@"PDX Bus checks arrivals in the background for only %d mins - then you will be alerted to restart PDX Bus.",
                                                                               @"alarm alert warning"),
@@ -449,7 +442,7 @@
 		[self cancelTaskForKey:newTask.key];
 	
 	
-		[_backgroundTasks setObject:newTask forKey:newTask.key];
+		_backgroundTasks[newTask.key] = newTask;
         [_orderedTaskKeys addObject:newTask.key];
 		
 		[newTask startTask];
@@ -460,7 +453,7 @@
 {
 	@synchronized (_backgroundTasks)
 	{
-		return [_backgroundTasks objectForKey:stopId] != nil;
+		return _backgroundTasks[stopId] != nil;
 	}
 }
 - (void)cancelTaskForStopIdProximity:(NSString*)stopId
@@ -477,8 +470,8 @@
 	bool		done		= false;
 	AlarmTask *	task		= nil;
 	NSDate    * nextAlert   = nil;
-    NSMutableArray *taskKeys = [[[NSMutableArray alloc] init]  autorelease];
-    NSMutableArray *doneTasks = [[[NSMutableArray alloc] init]  autorelease];
+    NSMutableArray *taskKeys  = [NSMutableArray array];
+    NSMutableArray *doneTasks = [NSMutableArray array];
 		
 	while (!done)
 	{
@@ -495,7 +488,7 @@
             // been cancelled by the user
             for (int i=0;  i<taskKeys.count; )
             {
-                if ([self taskForKey:[taskKeys objectAtIndex:i]]==nil)
+                if ([self taskForKey:taskKeys[i]]==nil)
                 {
                     [taskKeys removeObjectAtIndex:i];
                 }
@@ -505,7 +498,7 @@
                 }
             }
             
-            if (taskKeys.count == 0 || [self.backgroundThread isCancelled])
+            if (taskKeys.count == 0 || self.backgroundThread.cancelled)
             {
                 // Setting _atomicTaskRunning to NO will mean another thread can 
                 // start processing while we tidy up.
@@ -564,7 +557,7 @@
         
         [doneTasks removeAllObjects];
 	
-		if (!done && ![self.backgroundThread isCancelled] && taskKeys.count > 0)
+		if (!done && !self.backgroundThread.cancelled && taskKeys.count > 0)
 		{
 			NSDate *waitUntil = [NSDate dateWithTimeIntervalSinceNow:kLoopTimeSecs];
 						
@@ -585,7 +578,7 @@
 }
 
 
-- (void)scheduleAgain:(id)arg
+- (void)scheduleAgain:(id)unused
 {
 	DEBUG_LOG(@"scheduleAgain\n");
 	// NSDate *soon = [NSDate dateWithTimeIntervalSinceNow:5.0];
@@ -614,12 +607,9 @@
 	_taskId = [app beginBackgroundTaskWithExpirationHandler:^{
 		DEBUG_LOG(@"Expiration Handler\n");
 		
-		NSDictionary *ignore = [NSDictionary dictionaryWithObjectsAndKeys:
-								kDoNotDisplayIfActive, kDoNotDisplayIfActive,
-								nil];
+        NSDictionary *ignore = @{kDoNotDisplayIfActive :kDoNotDisplayIfActive};
 		
-		
-		AlarmTask *alertTask = [[[AlarmTask alloc] init] autorelease];
+        AlarmTask *alertTask = [AlarmTask data];
 		
 		[alertTask alert:NSLocalizedString(@"iOS has stopped PDX Bus from checking arrivals. "
                          @"Please restart PDX Bus so it can update the arrival alarms.", @"alarm alert")
@@ -677,7 +667,7 @@
 {
 	@synchronized (_backgroundTasks)
 	{
-		return [[[_backgroundTasks objectForKey:key] retain] autorelease];
+		return [[_backgroundTasks[key] retain] autorelease];
 	}
 }
 
@@ -701,7 +691,7 @@
 {
 	if (button != 0)
 	{
-		AlarmTaskList *taskList = [AlarmTaskList getSingleton];
+		AlarmTaskList *taskList = [AlarmTaskList singleton];
 		
 		[taskList addTaskForStopIdProximity:stopId loc:loc desc:desc accurate:button==1];
 		return true;

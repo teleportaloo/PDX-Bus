@@ -136,26 +136,26 @@
 			cell.textLabel.text = NSLocalizedString(@"Add this stop ID", @"action button");
 			cell.imageView.image = [self getActionIcon:kIconAdd];
 			// [self maybeAddSectionToAccessibility:cell indexPath:indexPath];
-			cell.textLabel.font = [self getBasicFont];
+			cell.textLabel.font = self.basicFont;
 			return cell;
 		}
 			
 	}
 		
-	return nil;
+    return [super tableView:tableView cellForRowAtIndexPath:indexPath];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 	UITextView *textView = (UITextView*)self.editWindow;
 	NSString *editText =[self justNumbers:textView.text];
 	
-	if (indexPath.row == kRowDone && [editText length] !=0)
+	if (indexPath.row == kRowDone && editText.length !=0)
 	{
 		[self.editWindow resignFirstResponder];
 	}
 	else
 	{
-		NSIndexPath *ip = [self.table indexPathForSelectedRow];
+		NSIndexPath *ip = self.table.indexPathForSelectedRow;
 		if (ip!=nil)
 		{
 			[self.table deselectRowAtIndexPath:ip animated:YES];
@@ -177,13 +177,13 @@
 - (void)cellDidEndEditing:(EditableTableViewCell *)cell
 {
 	
-	UITextView *textView = (UITextView*)[(CellTextField*)cell view];
+	UITextView *textView = (UITextView*)((CellTextField*)cell).view;
 	NSString *editText =[self justNumbers:textView.text];
 	if (editText.length !=0 && self.navigationItem.rightBarButtonItem != nil )
 	{
 		if ([self.callback getController] != nil)
 		{
-			[[self navigationController] popToViewController:[self.callback getController] animated:YES];
+			[self.navigationController popToViewController:[self.callback getController] animated:YES];
 		}
 		[self.callback selectedStop:editText];
 	}
@@ -195,7 +195,7 @@
 {
 	self.navigationItem.rightBarButtonItem = nil;
 	[self.editWindow resignFirstResponder];
-	[[self navigationController] popToViewController:[self.callback getController] animated:YES];
+	[self.navigationController popToViewController:[self.callback getController] animated:YES];
 }
 
 @end

@@ -49,7 +49,7 @@
 		   
 	bool res =  [self startParsing:query cacheAction:TriMetXMLNoCaching];
 	
-	if (hasData)
+	if (_hasData)
 	{
 		[_itemArray sortUsingSelector:@selector(compareUsingDistance:)];
 	}
@@ -65,19 +65,19 @@
 					   (self.minDistance > 0.0 ? [NSString stringWithFormat:@"/meters/%f", self.minDistance] : @""), 
 					   @"/showRoutes/true"];
 	
-	self.routes = [[[NSMutableDictionary alloc] init] autorelease];
+    self.routes = [NSMutableDictionary dictionary];
 	
 	
 	bool res =  [self startParsing:query cacheAction:TriMetXMLNoCaching];
 	
-	if (hasData)
+	if (_hasData)
 	{
 		// We don't care about the stops stored in the array! We ditch 'em and replace with 
 		// a sorted routes kinda thing.
 		
-		self.itemArray = [[[NSMutableArray alloc] init] autorelease];
+        self.itemArray = [NSMutableArray array];
 		
-		[_itemArray addObjectsFromArray:[self.routes allValues]];
+		[_itemArray addObjectsFromArray:self.routes.allValues];
 		
 		// We are done with this dictionary now may as well deference it.
 		self.routes = nil;
@@ -130,35 +130,35 @@
         elementName = qName;
     }
 	
-	if ([elementName isEqualToString:@"resultSet"]) {
+	if (ELTYPE(resultSet)) {
 		
 		[self initArray];
-		hasData = YES;
+		_hasData = YES;
 	}
 	
-    if ([elementName isEqualToString:@"location"]) {
+    if (ELTYPE(location)) {
         self.currentStop = [[[StopDistanceData alloc] init] autorelease];
 		_currentMode = TripModeNone;
 		
-		self.currentStop.locid = [self safeValueFromDict:attributeDict valueForKey:@"locid"];
-		self.currentStop.desc  = [self safeValueFromDict:attributeDict valueForKey:@"desc"];
-        self.currentStop.dir  = [self safeValueFromDict:attributeDict valueForKey:@"dir"];
+		self.currentStop.locid = ATRVAL(locid);
+		self.currentStop.desc  = ATRVAL(desc);
+        self.currentStop.dir   = ATRVAL(dir);
 		
-		self.currentStop.location = [[[CLLocation alloc] initWithLatitude:[self getCoordFromAttribute:attributeDict valueForKey:@"lat"] 
-															   longitude:[self getCoordFromAttribute:attributeDict valueForKey:@"lng"] ] autorelease];
+		self.currentStop.location = [[[CLLocation alloc] initWithLatitude:ATRCOORD(lat)
+															    longitude:ATRCOORD(lng) ] autorelease];
     
         self.currentStop.distance = [self.location distanceFromLocation:self.currentStop.location];
 
 		
     }
 	
-	if ([elementName isEqualToString:@"route"])
+	if (ELTYPE(route))
 	{
-		NSString *type = [self safeValueFromDict:attributeDict valueForKey:@"type"];
-        NSString *number = [self safeValueFromDict:attributeDict valueForKey:@"route"];
+		NSString *type   = ATRVAL(type);
+        NSString *number = ATRVAL(route);
         
         // Route 98 is the MAX Shuttle and makes all max trains look like bus stops
-        if ([number intValue]!=98)
+        if (number.intValue!=98)
         {
 		
             switch ([type characterAtIndex:0])
@@ -201,21 +201,20 @@
         }
 		if (self.routes != nil && [self modeMatch:_currentMode second:_mode])
 		{
-			NSString *xmlRoute = [self safeValueFromDict:attributeDict valueForKey:@"route"];
+			NSString *xmlRoute = ATRVAL(route);
 			
-			RouteDistanceData *rd = [self.routes objectForKey:xmlRoute];
+			RouteDistanceData *rd = self.routes[xmlRoute];
 			
 			if (rd == nil)
 			{
-				NSString *desc = [self safeValueFromDict:attributeDict valueForKey:@"desc"];
+				NSString *desc = ATRVAL(desc);
 				
-				rd = [[[RouteDistanceData alloc] init] autorelease];
-				
+                rd = [RouteDistanceData data];
 				rd.desc = desc;
 				rd.type = type;
 				rd.route = xmlRoute;
 				
-				[self.routes setObject:rd forKey:xmlRoute];
+				self.routes[xmlRoute] = rd;
 			}
 			
 			[rd.stops addObject:self.currentStop];
@@ -231,7 +230,7 @@
         elementName = qName;
     }
 	
-	if ([elementName isEqualToString:@"location"]) {
+	if (ELTYPE(location)) {
 		if ([self modeMatch:_currentMode second:_mode])
 		{
 			[self addItem:self.currentStop];

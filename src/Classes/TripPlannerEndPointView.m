@@ -26,37 +26,32 @@
 #import "RailMapView.h"
 #import "AllRailStationView.h"
 #import "TripPlannerLocatingView.h"
+#import <ContactsUI/ContactsUI.h>
 
-#define kTableSectionEnterDestination		 0
-#define kTableSectionLocate					 1
-#define kTableSectionFaves					 2
-#define kTableSectionWalk					 3
-
-#define kTableSections						 4
-
-#define kTableEnterRows						 5
-#define kTableEnterRowRailStations			 3
-#define kTableEnterRowRailMap				 4
-#define kTableEnterRowEnter				     0
-#define kTableEnterRowBrowse			     2
-#define kTableEnterRowContacts				 1
-
-#define kTableLocateRowHere					 0
-#define kTableLocateRows					 1
-
-
-#define kTableEnterRowText					 0
-
-#define kTableWalkRow						 0
+enum
+{
+    kTableSectionEnterDestination,
+    kTableSectionRowLocate,
+    kTableSectionRowFaves,
+    
+    kTableEnterRowRailStations,
+    kTableEnterRowRailMap,
+    kTableEnterRowEnter,
+    kTableEnterRowBrowse,
+    kTableEnterRowContacts,
+    
+    kTableLocateRowHere,
+    kTableLocateRows
+};
 
 
 #define kTextFieldId					@"destination"
 #define kPlainFieldId					@"triplocplain"
 #define kOptionsFieldId					@"options"
 
-#define kStartTextDescPlaceHolder		@"<starting place or ID>"
-#define kDestinationTextDescPlaceHolder @"<destination place or ID>"
-#define kTextGPSPlaceHolder				@"<using current location (GPS)>"
+#define kStartTextDescPlaceHolder		NSLocalizedString(@"<starting place or ID>",         @"input placeholder")
+#define kDestinationTextDescPlaceHolder NSLocalizedString(@"<destination place or ID>",      @"input placeholder")
+#define kTextGPSPlaceHolder				NSLocalizedString(@"<using current location (GPS)>", @"input placeholder")
 
 #define kUIEditHeight			50.0
 #define kUIRowHeight			40.0
@@ -84,31 +79,6 @@
 	[super dealloc];
 }
 
-
-- (void)initTakMeHome:(TripUserRequest *)req
-{
-    self.tripQuery = [[[XMLTrips alloc] init] autorelease];
-    
-    if (req == nil)
-    {
-        req = [[[TripUserRequest alloc] init] autorelease];
-
-    }
-    
-    self.tripQuery.userRequest = req;
-    
-    //Reset everything anyway!
-    self.tripQuery.userRequest.fromPoint.useCurrentLocation = YES;
-    self.tripQuery.userRequest.fromPoint.locationDesc = nil;
-    self.tripQuery.userRequest.timeChoice = TripDepartAfterTime;
-    self.tripQuery.userRequest.dateAndTime = [NSDate date];
-    [self.tripQuery addStopsFromUserFaves:_userData.faves];
-    self.tripQuery.userRequest.walk =             [UserPrefs getSingleton].maxWalkingDistance;
-    self.tripQuery.userRequest.tripMode =         [UserPrefs getSingleton].travelBy;
-    self.tripQuery.userRequest.tripMin =          [UserPrefs getSingleton].tripMin;
-    self.tripQuery.userRequest.takeMeHome = YES;
-}
-
 #pragma mark TableViewWithToolbar methods
 
 - (UITableViewStyle) getStyle
@@ -127,21 +97,37 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-	
-		
-	if (self.from)
-	{
-		self.title = @"Start"; // @"Start & Options";
-	}
-	else if (self.tripQuery.userRequest.takeMeHome)
+    
+    
+    if (self.from)
     {
-        self.title = @"Where is home?";
+        self.title = NSLocalizedString(@"Start", @"page title");
     }
     else
-	{
-		self.title = @"Destination";
-	}
-
+    {
+        self.title = NSLocalizedString(@"Destination", @"page title");
+    }
+    
+    [self clearSectionMaps];
+    
+    [self addSectionType:kTableSectionEnterDestination];
+    [self addRowType:kTableEnterRowEnter];
+    [self addRowType:kTableEnterRowContacts];
+    [self addRowType:kTableEnterRowBrowse];
+    [self addRowType:kTableEnterRowRailStations];
+    [self addRowType:kTableEnterRowRailMap];
+    
+    if ((self.from && !self.tripQuery.userRequest.toPoint.useCurrentLocation)
+        ||(!self.from && !self.tripQuery.userRequest.fromPoint.useCurrentLocation))
+    {
+        
+        [self addSectionType:kTableSectionRowLocate];
+        [self addRowType:kTableSectionRowLocate];
+    }
+    
+    [self addSectionType:kTableSectionRowFaves];
+    
+    
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
 }
@@ -181,10 +167,10 @@
 
 - (void)hideKeyboard
 {
-	if (keyboardUp)
+	if (_keyboardUp)
 	{
-		keyboardUp = false;
-		if ([self.placeNameField isFirstResponder] && [self.placeNameField canResignFirstResponder])
+		_keyboardUp = false;
+		if (self.placeNameField.isFirstResponder && self.placeNameField.canResignFirstResponder)
 		{
 			[self.placeNameField resignFirstResponder];
 		}
@@ -218,28 +204,13 @@
 
 - (void)nextScreen
 {
-    if (self.tripQuery.userRequest.takeMeHome)
-    {
-     
-        [_userData saveTakeMeHomeUserRequest:[self.tripQuery.userRequest toDictionary]];
-        
-        TripPlannerLocatingView * locView = [[ TripPlannerLocatingView alloc ] init];
-        
-		locView.tripQuery = self.tripQuery;
-        
-		[locView nextScreen:[self navigationController] forceResults:NO postQuery:NO
-				orientation:self.interfaceOrientation
-			  taskContainer:self.backgroundTask];
-        
-		[locView release];
-        
-    } else if (self.popBackTo)
+    if (self.popBackTo)
 	{
 		[self.navigationController popToViewController:self.popBackTo animated:YES];
 	}
 	else
 	{
-		[[self navigationController] popViewControllerAnimated:YES];
+		[self.navigationController popViewControllerAnimated:YES];
 	}
 }
 
@@ -300,23 +271,23 @@
 {
 	if (self.from) 
 	{
-		self.tripQuery.userRequest.fromPoint = [[[TripEndPoint alloc] init] autorelease];
+        self.tripQuery.userRequest.fromPoint = [TripEndPoint data];
 	}
 	else
 	{
-		self.tripQuery.userRequest.toPoint = [[[TripEndPoint alloc] init] autorelease];
+        self.tripQuery.userRequest.toPoint = [TripEndPoint data];
 	}
 }
 
 - (void)cellDidEndEditing:(EditableTableViewCell *)cell
 {
-	UITextView *textView = (UITextView*)[(CellTextField*)cell view];
+	UITextView *textView = (UITextView*)((CellTextField*)cell).view;
 	
-	if (keyboardUp)
+	if (_keyboardUp)
 	{
 		[self gotPlace:textView.text setUiText:NO additionalInfo:nil];
 		self.navigationItem.rightBarButtonItem = nil;
-		keyboardUp = NO;
+		_keyboardUp = NO;
 	}
 	else
 	{
@@ -333,120 +304,106 @@
 									  target:self
 									  action:@selector(cancelAction:)] autorelease];
 	self.navigationItem.rightBarButtonItem = cancelButton;
-	keyboardUp = true;
-	
-	[self.table scrollToRowAtIndexPath:[NSIndexPath 
-										indexPathForRow:kTableEnterRowEnter 
-										inSection:kTableSectionEnterDestination] atScrollPosition:UITableViewScrollPositionTop animated:YES];
+	_keyboardUp = true;
+    
+    
+	[self.table scrollToRowAtIndexPath:[self firstIndexPathOfSectionType:kTableSectionEnterDestination rowType:kTableEnterRowEnter]
+                      atScrollPosition:UITableViewScrollPositionTop animated:YES];
 	
 	return YES;
 }
 
 - (void) selectFromRailStations
 {
-	AllRailStationView *rmView = [[AllRailStationView alloc] init];
+    AllRailStationView *rmView = [AllRailStationView viewController];
 	
 	rmView.callback = self;
 	
 	// Push the detail view controller
-	[[self navigationController] pushViewController:rmView animated:YES];
-	[rmView release];
+	[self.navigationController pushViewController:rmView animated:YES];
 }
 
 
 - (void) selectFromRailMap
 {
-	RailMapView *railMapView = [[RailMapView alloc] init];
+    RailMapView *railMapView = [RailMapView viewController];
 	
 	railMapView.callback = self;
 	
 	railMapView.from = self.from;
 	
 	// Push the detail view controller
-	[[self navigationController] pushViewController:railMapView animated:YES];
-	[railMapView release];
+	[self.navigationController pushViewController:railMapView animated:YES];
 }
 
 - (void) browseForStop
 {
-	RouteView *routeViewController = [[RouteView alloc] init];
-	
+    RouteView *routeViewController = [RouteView viewController];
 	routeViewController.callback = self;
-	
-	[routeViewController fetchRoutesInBackground:self.backgroundTask];
-	[routeViewController release];
+	[routeViewController fetchRoutesAsync:self.backgroundTask];
 }
 
 #pragma mark Table view methods
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return kTableSections;
+    return self.sections;
+}
+
+- (NSInteger)rowsInSection:(NSInteger)section
+{
+    NSInteger sectionType = [self sectionType:section];
+    if (sectionType == kTableSectionRowFaves)
+    {
+        if (self.tripQuery.userFaves!=nil)
+        {
+            return self.tripQuery.userFaves.count;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+    
+    return [super rowsInSection:section];
 }
 
 
 // Customize the number of rows in the table view.
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    switch (section)
-	{
-		case kTableSectionWalk:
-			if (self.from)
-			{
-				// return 1;
-			}
-			return 0;
-		case kTableSectionLocate:
-			if ((self.from && !self.tripQuery.userRequest.toPoint.useCurrentLocation)
-                ||(!self.from && !self.tripQuery.userRequest.fromPoint.useCurrentLocation))
-			{
-				return kTableLocateRows;
-			}
-			return 0;
-		case kTableSectionEnterDestination:
-			return kTableEnterRows;
-		case kTableSectionFaves:
-			if (self.tripQuery.userFaves!=nil)
-			{
-				return [self.tripQuery.userFaves count];
-			}
-	}
-	return 0;
+    
+    return [self rowsInSection:section];
+    
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-	switch (section)
+    
+    NSInteger sectionType = [self sectionType:section];
+    
+	switch (sectionType)
 	{
 		case kTableSectionEnterDestination:
 			if (self.from)
 			{
-				return @"Choose starting address, or stop:";
+				return NSLocalizedString(@"Choose starting address, or stop:", @"section header");
 			}
-			else if (self.tripQuery.userRequest.takeMeHome)
-            {
-               return @"Choose home address, or stop:"; 
-            }
             else
 			{
-				return @"Choose destination, or stop:";
+				return NSLocalizedString(@"Choose destination, or stop:", @"section header");
 			}
-		case kTableSectionFaves:
-			if (self.tripQuery.userFaves!=nil && [self.tripQuery.userFaves count] > 0)
+		case kTableSectionRowFaves:
+			if (self.tripQuery.userFaves!=nil && self.tripQuery.userFaves.count > 0)
 			{
-				return @"Bookmarks:";
+				return NSLocalizedString(@"Bookmarks:", @"section header");
 			}
-		case kTableSectionWalk:
-			if (self.from)
-			{
-				// return @"Options:";
-			}
-			return nil;
+            break;
 	}
 	return nil;
 }
 
 -(bool)multipleStopsForFave:(NSInteger)index
 {
-	NSMutableDictionary * item = (NSMutableDictionary *)[self.tripQuery.userFaves objectAtIndex:index];
-	NSString *location = [item valueForKey:kUserFavesLocation];
+	NSMutableDictionary * item = (NSMutableDictionary *)(self.tripQuery.userFaves[index]);
+	NSString *location = item[kUserFavesLocation];
 	
 	NSCharacterSet *comma = [NSCharacterSet characterSetWithCharactersInString:@","];
 	NSRange commas = [location rangeOfCharacterFromSet:comma];
@@ -454,223 +411,203 @@
 	return (commas.location != NSNotFound);
 }
 
+- (NSInteger)rowType:(NSIndexPath *)indexPath
+{
+    NSInteger section = [self sectionType:indexPath.section];
+    
+    if (section == kTableSectionRowFaves)
+    {
+        return kTableSectionRowFaves;
+    }
+    return  [super rowType:indexPath];
+}
+
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    switch (indexPath.section)
-	{
-		case kTableSectionEnterDestination:
-		{
-			switch (indexPath.row)
-			{
-				case kTableEnterRowEnter:
-				{
-	
-					if (self.editCell == nil)
-					{
-						self.editCell =  [[[CellTextField alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kTextFieldId] autorelease];	
-						self.editCell.view = [self createTextField_Rounded];
-						self.editCell.delegate = self;
-						self.placeNameField = self.editCell.view;
-						// self.editCell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
-						self.editCell.imageView.image = [TableViewWithToolbar alwaysGetIcon:kIconEnterStopID]; 
-						self.editCell.cellLeftOffset = 40.0;
-						
-						if ([self endPoint].useCurrentLocation)
-						{
-							self.editCell.view.placeholder=kTextGPSPlaceHolder;
-						}
-						else
-						{
-							if (self.from)
-							{
-								self.editCell.view.placeholder=kStartTextDescPlaceHolder;
-							} else {
-								self.editCell.view.placeholder=kDestinationTextDescPlaceHolder;
-							}
-						}
-					}
-			
-					if ([self endPoint] != nil && [self endPoint].locationDesc!= nil && ![self endPoint].useCurrentLocation)
-					{
-						self.editCell.view.text = [self endPoint].locationDesc;
-					}
-					else
-					{
-						self.editCell.view.text = @"";
-					}
-					return self.editCell;
-				}
-				case kTableEnterRowBrowse:
-				{
-					UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kPlainFieldId];
-					if (cell == nil) {
-						cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kPlainFieldId] autorelease];
-					}
-					if (self.from)
-					{
-						cell.textLabel.text = @"Browse for starting stop";
-					}
-					else
-					{
-						cell.textLabel.text = @"Browse for destination stop";
-					}
-					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-					cell.imageView.image = [self getActionIcon:kIconBrowse]; 
-					cell.textLabel.font = [self getBasicFont];
-					cell.textLabel.adjustsFontSizeToFitWidth = YES;
-					
-					return cell;
-				}
-				case kTableEnterRowRailMap:
-				{
-					UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kPlainFieldId];
-					if (cell == nil) {
-						cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kPlainFieldId] autorelease];
-					}
-					if (self.from)
-					{
-						cell.textLabel.text = @"Select from rail maps";
-					}
-					else
-					{
-						cell.textLabel.text = @"Select from rail maps";
-					}
-					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-					cell.imageView.image = [self getActionIcon:kIconMaxMap];
-					cell.textLabel.font = [self getBasicFont];
-					
-					return cell;
-				}
-				case kTableEnterRowRailStations:
-				{
-					UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kPlainFieldId];
-					if (cell == nil) {
-						cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kPlainFieldId] autorelease];
-					}
-					cell.textLabel.text = @"Search rail stations";
-					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-					cell.imageView.image = [self getActionIcon:KIconRailStations]; 
-					cell.textLabel.font = [self getBasicFont];
-					
-					return cell;
-				}
-				case kTableEnterRowContacts:
-				{
-					UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kPlainFieldId];
-					if (cell == nil) {
-						cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kPlainFieldId] autorelease];
-					}	
-					cell.textLabel.text = @"Address from contacts";
-					
-					if (self.from)
-					{
-						[cell setAccessibilityLabel:@"Choose starting address from contacts"];
-					}
-					else
-					{
-						[cell setAccessibilityLabel:@"Choose destination address from contacts"];
-					}
-					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-					cell.imageView.image = [self getActionIcon:kIconContacts];
-					cell.textLabel.font = [self getBasicFont];
-					return cell;
-				}
-			}
-			break;
-		}
-		case kTableSectionFaves:
-		{	
-			static NSString *faveId = @"fave";
-			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:faveId];
-			if (cell == nil) {
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:faveId] autorelease];
-			}
-			
-			if ([self multipleStopsForFave:indexPath.row])
-			{
-				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-			}
-			else {
-				cell.accessoryType = UITableViewCellAccessoryNone;
-			}
+    
+    NSInteger rowType = [self rowType:indexPath];
+    
+    switch (rowType)
+    {
+        case kTableEnterRowEnter:
+        {
+            
+            if (self.editCell == nil)
+            {
+                self.editCell =  [[[CellTextField alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kTextFieldId] autorelease];
+                self.editCell.view = [self createTextField_Rounded];
+                self.editCell.delegate = self;
+                self.placeNameField = self.editCell.view;
+                // self.editCell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
+                self.editCell.imageView.image = [TableViewWithToolbar alwaysGetIcon:kIconEnterStopID];
+                self.editCell.cellLeftOffset = 40.0;
+                
+                if ([self endPoint].useCurrentLocation)
+                {
+                    self.editCell.view.placeholder=kTextGPSPlaceHolder;
+                }
+                else
+                {
+                    if (self.from)
+                    {
+                        self.editCell.view.placeholder=kStartTextDescPlaceHolder;
+                    } else {
+                        self.editCell.view.placeholder=kDestinationTextDescPlaceHolder;
+                    }
+                }
+            }
+            
+            if ([self endPoint] != nil && [self endPoint].locationDesc!= nil && ![self endPoint].useCurrentLocation)
+            {
+                self.editCell.view.text = [self endPoint].locationDesc;
+            }
+            else
+            {
+                self.editCell.view.text = @"";
+            }
+            return self.editCell;
+        }
+        case kTableEnterRowBrowse:
+        {
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kPlainFieldId];
+            if (cell == nil) {
+                cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kPlainFieldId] autorelease];
+            }
+            if (self.from)
+            {
+                cell.textLabel.text = NSLocalizedString(@"Browse for starting stop", @"main menu item");
+            }
+            else
+            {
+                cell.textLabel.text = NSLocalizedString(@"Browse for destination stop", @"main menu item");
+            }
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            cell.imageView.image = [self getActionIcon:kIconBrowse];
+            cell.textLabel.font = self.basicFont;
+            cell.textLabel.adjustsFontSizeToFitWidth = YES;
+            
+            return cell;
+        }
+        case kTableEnterRowRailMap:
+        {
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kPlainFieldId];
+            if (cell == nil) {
+                cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kPlainFieldId] autorelease];
+            }
+            if (self.from)
+            {
+                cell.textLabel.text = NSLocalizedString(@"Select from rail maps", @"main menu item");
+            }
+            else
+            {
+                cell.textLabel.text = NSLocalizedString(@"Select from rail maps",  @"main menu item");
+            }
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            cell.imageView.image = [self getActionIcon:kIconMaxMap];
+            cell.textLabel.font = self.basicFont;
+            
+            return cell;
+        }
+        case kTableEnterRowRailStations:
+        {
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kPlainFieldId];
+            if (cell == nil) {
+                cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kPlainFieldId] autorelease];
+            }
+            cell.textLabel.text = NSLocalizedString(@"Search rail stations", @"main menu item");
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            cell.imageView.image = [self getActionIcon:KIconRailStations];
+            cell.textLabel.font = self.basicFont;
+            
+            return cell;
+        }
+        case kTableEnterRowContacts:
+        {
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kPlainFieldId];
+            if (cell == nil) {
+                cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kPlainFieldId] autorelease];
+            }
+            cell.textLabel.text = NSLocalizedString(@"Address from contacts", @"main menu item");
+            
+            if (self.from)
+            {
+                [cell setAccessibilityLabel:NSLocalizedString(@"Choose starting address from contacts", @"main menu item")];
+            }
+            else
+            {
+                [cell setAccessibilityLabel:NSLocalizedString(@"Choose destination address from contacts", @"main menu item")];
+            }
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            cell.imageView.image = [self getActionIcon:kIconContacts];
+            cell.textLabel.font = self.basicFont;
+            return cell;
+        }
+        case kTableSectionRowFaves:
+        {
+            static NSString *faveId = @"fave";
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:faveId];
+            if (cell == nil) {
+                cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:faveId] autorelease];
+            }
+            
+            if ([self multipleStopsForFave:indexPath.row])
+            {
+                cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            }
+            else {
+                cell.accessoryType = UITableViewCellAccessoryNone;
+            }
+            
+            
+            // Set up the cell
+            NSDictionary *item = self.tripQuery.userFaves[indexPath.row];
+            // printf("item %p\n", item);
+            
+            cell.textLabel.text = item[kUserFavesChosenName];
+            cell.textLabel.font = self.basicFont;
+            [self updateAccessibility:cell indexPath:indexPath text:cell.textLabel.text alwaysSaySection:YES];
+            cell.imageView.image = [self getFaveIcon:kIconFave];
+            return cell;
+        }
+        case kTableSectionRowLocate:
+        {
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kPlainFieldId];
+            if (cell == nil) {
+                cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kPlainFieldId] autorelease];
+            }
+            
+            if (self.from)
+            {
+                cell.textLabel.text = NSLocalizedString(@"Start from current location (GPS)", @"main menu item");
+            }
+            else
+            {
+                cell.textLabel.text = NSLocalizedString(@"Go to current location (GPS)", @"main menu item");
+            }
+            cell.textLabel.font = self.basicFont;
+            cell.accessoryType = UITableViewCellAccessoryNone;
+            cell.imageView.image = [self getActionIcon7:kIconLocate7 old:kIconLocate];
+            cell.textLabel.adjustsFontSizeToFitWidth = YES;
+            return cell;
+        }
+    }
+    return [super tableView:tableView cellForRowAtIndexPath:indexPath];
 
-			
-			// Set up the cell
-			NSDictionary *item = (NSDictionary *)[self.tripQuery.userFaves objectAtIndex:indexPath.row];
-			// printf("item %p\n", item);
-			
-			cell.textLabel.text = [item valueForKey:kUserFavesChosenName];
-			cell.textLabel.font = [self getBasicFont];
-			[self updateAccessibility:cell indexPath:indexPath text:cell.textLabel.text alwaysSaySection:YES];
-			cell.imageView.image = [self getFaveIcon:kIconFave];
-			return cell;
-		}
-		case kTableSectionLocate:
-		{
-			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kPlainFieldId];
-			if (cell == nil) {
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kPlainFieldId] autorelease];
-			}
-			
-			if (self.from)
-			{
-				cell.textLabel.text = @"Start from current location (GPS)";
-			}
-			else
-			{
-				cell.textLabel.text = @"Go to current location (GPS)";
-			}
-			cell.textLabel.font = [self getBasicFont];
-			cell.accessoryType = UITableViewCellAccessoryNone;
-			cell.imageView.image = [self getActionIcon7:kIconLocate7 old:kIconLocate];
-			cell.textLabel.adjustsFontSizeToFitWidth = YES;
-			return cell;
-		}
-		case kTableSectionWalk:
-		{
-			
-			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kOptionsFieldId];
-			if (cell == nil) {
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kOptionsFieldId] autorelease];
-			}
-			
-            NSString *walk =
-                [[XMLTrips distanceMapSingleton] objectAtIndex:
-                 [XMLTrips distanceToIndex:self.tripQuery.userRequest.walk]];
-			
-			cell.textLabel.text = [NSString stringWithFormat:@"Max walking distance: %@ miles\nTravel by: %@\nShow me the: %@", 
-								   walk,
-								   [self.tripQuery.userRequest getMode], [self.tripQuery.userRequest getMin]];
-			[cell setAccessibilityLabel:[NSString stringWithFormat:@"Max walking distance: %@ miles, Travel by: %@, Show me the:%@", 
-										 walk,
-										 [self.tripQuery.userRequest getMode], [self.tripQuery.userRequest getMin]]];
-			cell.textLabel.lineBreakMode = NSLineBreakByWordWrapping;
-			cell.textLabel.numberOfLines = 0;
-			cell.textLabel.font = [self getBasicFont];;
-		
-			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-			return cell;
-		
-		}
-	}
-    return nil;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	switch (indexPath.section)
+    NSInteger rowType = [self rowType:indexPath];
+    
+	switch (rowType)
 	{
-		case kTableSectionEnterDestination:
-		{
-			switch (indexPath.row) {
-				case kTableEnterRowEnter:
-					return [CellTextField cellHeight];
-				default:
-					return [self basicRowHeight];
-			}
-		}
-		case kTableSectionWalk:
-			return kSegRowHeight;
+        case kTableEnterRowEnter:
+            return [CellTextField cellHeight];
+        case   kTableEnterRowRailStations:
+        case   kTableEnterRowRailMap:
+        case   kTableEnterRowBrowse:
+        case   kTableEnterRowContacts:
+            return [self basicRowHeight];
 		default:
 			break;
 				
@@ -682,97 +619,99 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     // Navigation logic may go here. Create and push another view controller.
-	// AnotherViewController *anotherViewController = [[AnotherViewController alloc] initWithNibName:@"AnotherView" bundle:nil];
-	// [self.navigationController pushViewController:anotherViewController];
-	// [anotherViewController release];
-	
-	[self hideKeyboard];
-	
-	switch (indexPath.section)
-	{
-		case kTableSectionEnterDestination:
-		{
-			switch (indexPath.row) {
-				case kTableEnterRowRailMap:
-					// self.navigationItem.rightBarButtonItem = nil;
-					[self selectFromRailMap];
-					break;
-				case kTableEnterRowRailStations:
-					// self.navigationItem.rightBarButtonItem = nil;
-					[self selectFromRailStations];
-					break;	
-				case kTableEnterRowBrowse:
-					// self.navigationItem.rightBarButtonItem = nil;
-					[self browseForStop];
-					break;
-				case kTableEnterRowContacts:
-				{					
-					// self.navigationItem.rightBarButtonItem = nil;
-					ABPeoplePickerNavigationController *contactPicker = [[ABPeoplePickerNavigationController alloc] init];
-			
-					contactPicker.peoplePickerDelegate = self;
-			
-					contactPicker.displayedProperties = [[[NSArray alloc] initWithObjects:[NSNumber numberWithInt:kABPersonAddressProperty], nil] autorelease];
-			
-                    [self presentViewController:contactPicker animated:YES completion:nil];
-					[contactPicker release];
-					break;
-				}
-			}
-			break;
-		}
-		case kTableSectionFaves:
-		{
-			
-			NSMutableDictionary * item = (NSMutableDictionary *)[self.tripQuery.userFaves objectAtIndex:indexPath.row];
-			NSString *location = [item valueForKey:kUserFavesLocation];
-			
-						
-			if (![self multipleStopsForFave:indexPath.row])
-			{
-				// Set up the cell
-				NSDictionary *item = (NSDictionary *)[self.tripQuery.userFaves objectAtIndex:indexPath.row];
-				// printf("item %p\n", item);
-				
-				[self gotPlace:location setUiText:YES additionalInfo:[item valueForKey:kUserFavesChosenName]];
-				
-			}
-			else
-			{
-				TripPlannerBookmarkView *bmView = [[TripPlannerBookmarkView alloc] init];
-				bmView.callback = self;
-				bmView.from = self.from;
-			
-				// bmView.displayName = [item valueForKey:kUserFavesOriginalName];
-				[bmView fetchNamesForLocationsInBackground:self.backgroundTask loc:location];
-				[bmView release];
-			}
-			break;
-		}
-		case kTableSectionLocate:
-		{
-			[self initEndPoint];
-			[self endPoint].useCurrentLocation = YES;
-			self.placeNameField.text =@"";
-			self.placeNameField.placeholder=kTextGPSPlaceHolder;
-			
-			[self nextScreen];
-			break;
-		}
-		case kTableSectionWalk:
-		{
-			TripPlannerOptions * options = [[ TripPlannerOptions alloc ] init];
-			
-			options.tripQuery = self.tripQuery;
-			
-			[[self navigationController] pushViewController:options animated:YES];
-
-			
-			[options release];
-			break;
-		}
-			
-	}
+    // AnotherViewController *anotherViewController = [[AnotherViewController alloc] initWithNibName:@"AnotherView" bundle:nil];
+    // [self.navigationController pushViewController:anotherViewController];
+    // [anotherViewController release];
+    
+    [self hideKeyboard];
+    
+    NSInteger rowType = [self rowType:indexPath];
+    
+    switch (rowType)
+    {
+        case kTableEnterRowRailMap:
+            // self.navigationItem.rightBarButtonItem = nil;
+            [self selectFromRailMap];
+            break;
+        case kTableEnterRowRailStations:
+            // self.navigationItem.rightBarButtonItem = nil;
+            [self selectFromRailStations];
+            break;
+        case kTableEnterRowBrowse:
+            // self.navigationItem.rightBarButtonItem = nil;
+            [self browseForStop];
+            break;
+        case kTableEnterRowContacts:
+        {
+            // self.navigationItem.rightBarButtonItem = nil;
+            
+            
+            if ([CNContactStore class])
+            {
+                CNContactPickerViewController * picker = [[CNContactPickerViewController alloc] init];
+                
+                picker.delegate = self;
+                picker.displayedPropertyKeys = [[[NSArray alloc] initWithObjects:CNContactPostalAddressesKey, nil] autorelease];;
+                picker.predicateForEnablingContact = [NSPredicate predicateWithFormat: @"postalAddresses.@count > 0"];
+                picker.predicateForSelectionOfContact = [NSPredicate predicateWithFormat:@"postalAddresses.@count == 1"];
+                
+                [self presentViewController:picker animated:YES completion:nil];
+                [picker release];
+            }
+            else
+            {
+                ABPeoplePickerNavigationController *contactPicker = [[ABPeoplePickerNavigationController alloc] init];
+                
+                contactPicker.peoplePickerDelegate = self;
+                
+                contactPicker.displayedProperties = [[[NSArray alloc] initWithObjects:@(kABPersonAddressProperty), nil] autorelease];
+                
+                [self presentViewController:contactPicker animated:YES completion:nil];
+                [contactPicker release];
+            }
+            
+            
+            
+            break;
+            
+        case kTableSectionRowFaves:
+            {
+                NSMutableDictionary * item = (NSMutableDictionary *)(self.tripQuery.userFaves[indexPath.row]);
+                NSString *location = item[kUserFavesLocation];
+                
+                
+                if (![self multipleStopsForFave:indexPath.row])
+                {
+                    // Set up the cell
+                    NSDictionary *item = self.tripQuery.userFaves[indexPath.row];
+                    // printf("item %p\n", item);
+                    
+                    [self gotPlace:location setUiText:YES additionalInfo:item[kUserFavesChosenName]];
+                    
+                }
+                else
+                {
+                    TripPlannerBookmarkView *bmView = [TripPlannerBookmarkView viewController];
+                    bmView.callback = self;
+                    bmView.from = self.from;
+                    
+                    // bmView.displayName = item[kUserFavesOriginalName];
+                    [bmView fetchNamesForLocationsAsync:self.backgroundTask loc:location];
+                }
+                break;
+            }
+        case kTableSectionRowLocate:
+            {
+                [self initEndPoint];
+                [self endPoint].useCurrentLocation = YES;
+                self.placeNameField.text =@"";
+                self.placeNameField.placeholder=kTextGPSPlaceHolder;
+                
+                [self nextScreen];
+                break;
+            }
+        }
+    }
 }
 
 
@@ -780,15 +719,15 @@
 
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
 {
-	UITextView *textView = (UITextView*)[self.editCell view];
+	UITextView *textView = (UITextView*)(self.editCell).view;
 	
-	if (keyboardUp)
+	if (_keyboardUp)
 	{
 		[self.placeNameField resignFirstResponder];
 	}
 	else
 	{
-		if ([textView.text length] == 0 && [self endPoint].useCurrentLocation)
+		if (textView.text.length == 0 && self.endPoint.useCurrentLocation)
 		{
 			[self nextScreen];
 		}
@@ -833,7 +772,128 @@
 
 - (void)peoplePickerNavigationControllerDidCancel:(ABPeoplePickerNavigationController *)peoplePicker
 {
-	[self dismissViewControllerAnimated:YES completion:nil];
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+-(void)addName:(NSMutableString**)fullName item:(NSString *)item
+{
+    NSMutableString *full = *fullName;
+    if (item == nil || item.length == 0)
+    {
+        return;
+    }
+    
+    if (full.length>0)
+    {
+        [full appendString:@" "];
+    }
+    
+    [full appendString:item];
+}
+
+
+- (NSString *)stringFromRecord:(ABRecordRef)record
+                    propertyID:(ABPropertyID)propertyID {
+    
+    CFStringRef refString = ABRecordCopyValue(record, propertyID);
+    if (refString) {
+        return [(NSString *)refString autorelease];
+    }
+    return nil;
+}
+
+- (BOOL)localPeoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker shouldContinueAfterSelectingPerson:(ABRecordRef)person property:(ABPropertyID)property identifier:(ABMultiValueIdentifier)identifier
+{
+    //[self dismissModalViewControllerAnimated:YES];
+    NSMutableString *address = [NSMutableString string];
+    NSMutableString *description = [NSMutableString string];
+    CFDictionaryRef dict     = nil;
+    
+    if (person != 0 && property != 0)
+    {
+        ABMutableMultiValueRef multiValue = ABRecordCopyValue(person, property);
+        
+        if (multiValue !=nil)
+        {
+            dict = ABMultiValueCopyValueAtIndex(multiValue, identifier);
+            CFRelease(multiValue);
+        }
+    }
+    
+    if (dict != nil)
+    {
+        [self addName:&description item:[self stringFromRecord:person  propertyID:kABPersonPrefixProperty]];
+        [self addName:&description item:[self stringFromRecord:person  propertyID:kABPersonFirstNameProperty]];
+        [self addName:&description item:[self stringFromRecord:person  propertyID:kABPersonMiddleNameProperty]];
+        [self addName:&description item:[self stringFromRecord:person  propertyID:kABPersonLastNameProperty]];
+        [self addName:&description item:[self stringFromRecord:person  propertyID:kABPersonSuffixProperty]];
+        
+        if (description.length==0)
+        {
+            [self addName:&description item:[self stringFromRecord:person  propertyID:kABPersonOrganizationProperty]];
+        }
+        
+        
+        NSString* item = (NSString *)CFDictionaryGetValue(dict, kABPersonAddressStreetKey);
+        
+        if (item && item.length > 0)
+        {
+            [address appendString:item];
+            
+            if (description.length ==0)
+            {
+                [description appendString: item];
+            }
+        }
+        
+        item = (NSString *)CFDictionaryGetValue(dict,  kABPersonAddressCityKey);
+        
+        if (item && item.length > 0)
+        {
+            if (address.length > 0)
+            {
+                [address appendString:@", "];
+            }
+            [address appendString:item];
+        }
+        /*
+         if (item)
+         {
+         [item release];
+         }
+         */
+        
+        item = (NSString *)CFDictionaryGetValue(dict, kABPersonAddressStateKey);
+        
+        if (item && item.length > 0)
+        {
+            if (address.length > 0)
+            {
+                [address appendString:@","];
+            }
+            [address appendString:item];
+        }
+        /*
+         if (item)
+         {
+         [item release];
+         }
+         */
+        [self dismissViewControllerAnimated:YES completion:nil];
+        
+        NSDate *soon = [[NSDate date] dateByAddingTimeInterval:0.1];
+        NSTimer *timer = [[[NSTimer alloc] initWithFireDate:soon
+                                                   interval:0.1
+                                                     target:self
+                                                   selector:@selector(delayedCompletion:)
+                                                   userInfo:@[address, description]
+                                                    repeats:NO] autorelease];
+        [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
+        
+        CFRelease(dict);
+    }
+    
+    return NO;
 }
 
 
@@ -841,7 +901,7 @@
 - (void)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker didSelectPerson:(ABRecordRef)person property:(ABPropertyID)property identifier:(ABMultiValueIdentifier)identifier
 
 {
-    [self peoplePickerNavigationController:peoplePicker shouldContinueAfterSelectingPerson:person property:property identifier:identifier];
+    [self localPeoplePickerNavigationController:peoplePicker shouldContinueAfterSelectingPerson:person property:property identifier:identifier];
     
 }
 
@@ -850,15 +910,15 @@
 // Return NO  to do nothing (the delegate is responsible for dismissing the peoplePicker).
 - (BOOL)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker shouldContinueAfterSelectingPerson:(ABRecordRef)person
 {
-//	[self dismissModalViewControllerAnimated:YES];
-	return YES;
+    //	[self dismissModalViewControllerAnimated:YES];
+    return YES;
 }
 
 - (void)delayedCompletion:(NSTimer *)timer
 {
-    NSString *address = (NSString *)[timer userInfo];
+    NSArray *info = (NSArray*)timer.userInfo;
     
-    [self gotPlace:address setUiText:YES additionalInfo:nil];
+    [self gotPlace:info.firstObject setUiText:YES additionalInfo:info[1]];
 }
 
 // Called after a value has been selected by the user.
@@ -866,79 +926,96 @@
 // Return NO to do nothing (the delegate is responsible for dismissing the peoplePicker).
 - (BOOL)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker shouldContinueAfterSelectingPerson:(ABRecordRef)person property:(ABPropertyID)property identifier:(ABMultiValueIdentifier)identifier
 {
-	//[self dismissModalViewControllerAnimated:YES];
-	NSMutableString *address = [[[NSMutableString alloc] init] autorelease];
-	CFDictionaryRef dict     = nil;
-	
-	if (person != 0 && property != 0)
-	{
-		ABMutableMultiValueRef multiValue = ABRecordCopyValue(person, property);
-	
-		if (multiValue !=nil)
-		{
-			dict = ABMultiValueCopyValueAtIndex(multiValue, identifier);
-			CFRelease(multiValue);
-		}
-	}
-	
-	if (dict != nil)
-	{
-
-		NSString* item = (NSString *)CFDictionaryGetValue(dict, kABPersonAddressStreetKey);
-		
-		if (item && [item length] > 0)
-		{
-			[address appendString:item];
-		}
-		
-		item = (NSString *)CFDictionaryGetValue(dict,  kABPersonAddressCityKey);
-		
-		if (item && [item length] > 0)
-		{
-			if ([address length] > 0)
-			{
-				[address appendString:@", "];
-			}
-			[address appendString:item];
-		}
-		/*
-		 if (item)
-		 {
-		 [item release];
-		 }
-		 */
-		
-		item = (NSString *)CFDictionaryGetValue(dict, kABPersonAddressStateKey);
-		
-		if (item && [item length] > 0)
-		{
-			if ([address length] > 0)
-			{
-				[address appendString:@","];
-			}
-			[address appendString:item];
-		}
-		/*
-		 if (item)
-		 {
-		 [item release];
-		 }
-		 */
-		[self dismissViewControllerAnimated:YES completion:nil];
-		
-#ifdef ORIGINAL_IPHONE
-        NSDate *soon = [[NSDate date] addTimeInterval:0.1];
-#else
-        NSDate *soon = [[NSDate date] dateByAddingTimeInterval:0.1];
-#endif
-        NSTimer *timer = [[[NSTimer alloc] initWithFireDate:soon interval:0.1 target:self selector:@selector(delayedCompletion:) userInfo:address repeats:NO] autorelease];
-        [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
-		
-		CFRelease(dict);
-	}
-
-	return NO;
+    return [self localPeoplePickerNavigationController:peoplePicker shouldContinueAfterSelectingPerson:person property:property identifier:identifier];
 }
+
+#pragma mark Contact Picker methods
+
+/*!
+ * @abstract Invoked when the picker is closed.
+ * @discussion The picker will be dismissed automatically after a contact or property is picked.
+ */
+- (void)contactPickerDidCancel:(CNContactPickerViewController *)picker
+{
+    
+}
+
+- (void)getAddress:(CNPostalAddress *)postalAddress description:(NSString *)description
+{
+    NSMutableString *address = [NSMutableString string];
+
+    
+    if (postalAddress.street)
+    {
+        [address appendString:postalAddress.street];
+        
+        if (description == nil)
+        {
+            description = postalAddress.street;
+        }
+    }
+    
+    if (postalAddress.city)
+    {
+        if (address.length > 0)
+        {
+            [address appendString:@", "];
+        }
+        
+        [address appendString:postalAddress.city];
+    }
+    
+    if (postalAddress.state)
+    {
+        if (address.length > 0)
+        {
+            [address appendString:@", "];
+        }
+        
+        [address appendString:postalAddress.state];
+    }
+    
+    [self gotPlace:address setUiText:YES additionalInfo:description];
+}
+
+
+/*!
+ * @abstract Singular delegate methods.
+ * @discussion These delegate methods will be invoked when the user selects a single contact or property.
+ */
+
+
+
+- (void)contactPicker:(CNContactPickerViewController *)picker didSelectContact:(CNContact *)contact
+{
+    CNLabeledValue *addressValue  = contact.postalAddresses.firstObject;
+    CNPostalAddress *postalAddress = addressValue.value;
+    
+    NSMutableString *fullName = [NSMutableString string];
+    
+    if (contact.contactType == CNContactTypePerson)
+    {
+        [self addName:&fullName item:contact.namePrefix];
+        [self addName:&fullName item:contact.givenName];
+        [self addName:&fullName item:contact.middleName];
+        [self addName:&fullName item:contact.familyName];
+        [self addName:&fullName item:contact.nameSuffix];
+    }
+    
+    if (contact.contactType == CNContactTypeOrganization)
+    {
+        [self addName:&fullName item:contact.organizationName];
+    }
+    
+    
+    [self getAddress:postalAddress description:fullName];
+}
+- (void)contactPicker:(CNContactPickerViewController *)picker didSelectContactProperty:(CNContactProperty *)contactProperty
+{
+    CNPostalAddress *postalAddress = contactProperty.value;
+    [self getAddress:postalAddress description:nil];
+}
+
 
 @end
 

@@ -18,9 +18,8 @@
 #import "XMLDepartures.h"
 
 @interface AlarmViewMinutes : TableViewWithToolbar <UIPickerViewDelegate, UIPickerViewDataSource> {
-	UIPickerView *_pickerView;
-	
-	DepartureData *_dep;
+	UIPickerView *  _pickerView;
+	DepartureData * _dep;
 }
 
 @property (nonatomic, retain) UIPickerView *pickerView;

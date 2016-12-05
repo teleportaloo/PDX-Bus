@@ -18,28 +18,25 @@
 
 @implementation WatchContext
 
-- (void)pushFrom:(WKInterfaceController *)parent
+- (void)dealloc
 {
-    [parent pushControllerWithName:self.sceneName context:self];
+    self.sceneName = nil;
+    [super dealloc];
 }
 
-- (void)delayedTimerFired:(NSTimer *)timer
+- (void)pushFrom:(WKInterfaceController *)parent
 {
-    WKInterfaceController *parent = timer.userInfo;
-    
-    DEBUG_LOG(@"delayedTimerFired: %@ parent\n%@\n", self.sceneName, parent.description);
-    
     [parent pushControllerWithName:self.sceneName context:self];
 }
 
 - (void)delayedPushFrom:(WKInterfaceController *)parent
 {
     DEBUG_LOG(@"delayedPushFrom: %@\n", self.sceneName);
-    [NSTimer scheduledTimerWithTimeInterval:0.3
-                                     target:self
-                                   selector:@selector(delayedTimerFired:)
-                                   userInfo:parent
-                                    repeats:NO];
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.4 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+       [parent pushControllerWithName:self.sceneName context:self];
+    });
+    
 }
 
 

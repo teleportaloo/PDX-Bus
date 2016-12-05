@@ -18,10 +18,16 @@
 
 @class UIFont;
 
-@interface StringHelper : NSObject
+@interface  NSString(PDXBus)
 
+@property (nonatomic, readonly) unichar firstUnichar;
+@property (nonatomic, readonly, copy) NSMutableAttributedString *mutableAttributedString;
+@property (nonatomic, readonly) NSString *stringWithTrailingSpacesRemoved;
+@property (nonatomic, readonly) NSMutableArray *arrayFromCommaSeparatedString;
+
+- (NSAttributedString*)formatAttributedStringWithFont:(UIFont *)regularFont;
+- (NSMutableArray *)arrayFromCommaSeparatedString;
 + (NSMutableString *)commaSeparatedStringFromEnumerator:(id<NSFastEnumeration>)container selector:(SEL)selector;
-+ (NSMutableArray *)arrayFromCommaSeparatedString:(NSString *)string;
-+ (NSAttributedString*)formatAttributedString:(NSString*)initialString font:(UIFont *)regularFont;
 
 @end
+

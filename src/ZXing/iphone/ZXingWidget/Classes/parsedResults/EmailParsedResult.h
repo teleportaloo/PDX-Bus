@@ -28,9 +28,9 @@
   NSString *body;
 }
 
-@property (nonatomic, copy) NSString *to;
-@property (nonatomic, copy) NSString *subject;
-@property (nonatomic, copy) NSString *body;
+@property (nonatomic, copy)   NSString *to;
+@property (nonatomic, copy)   NSString *subject;
+@property (nonatomic, copy)   NSString *body;
 
 + (bool) looksLikeAnEmailAddress:(NSString *)s;
 

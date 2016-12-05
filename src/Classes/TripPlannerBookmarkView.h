@@ -17,13 +17,13 @@
 
 
 @interface TripPlannerBookmarkView : TableViewWithToolbar {
-	NSMutableArray *_locList;
-	bool _from;
+	NSMutableArray *    _locList;
+	bool                _from;
 }
 
 @property (nonatomic, retain) NSMutableArray *locList;
 @property (nonatomic) bool from;
 
-- (void)fetchNamesForLocationsInBackground:(id<BackgroundTaskProgress>) callback loc:(NSString*) loc;
+- (void)fetchNamesForLocationsAsync:(id<BackgroundTaskProgress>) callback loc:(NSString*) loc;
 
 @end

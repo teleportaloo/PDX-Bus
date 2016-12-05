@@ -16,6 +16,7 @@
 #import "BlockColorDb.h"
 #import "DebugLogging.h"
 #import <CoreGraphics/CoreGraphics.h>
+#import "UserFaves.h"
 
 
 @implementation BlockColorDb
@@ -54,22 +55,21 @@
 
 - (void)readFromFile
 {
-    
     if (self.file.urlToSharedFile !=nil)
     {
-        self.colorMap = [[[NSMutableDictionary alloc] initWithContentsOfURL:self.file.urlToSharedFile] autorelease];
+        self.colorMap = [NSMutableDictionary dictionaryWithContentsOfURL:self.file.urlToSharedFile];
     }
     
     if (self.colorMap == nil)
     {
-        self.colorMap = [[[NSMutableDictionary alloc] init] autorelease];
+        self.colorMap = [NSMutableDictionary dictionary];
     }
 }
 
-- (id)init {
+- (instancetype)init {
 	if ((self = [super init]))
 	{
-        self.colorMap = [[[NSMutableDictionary alloc] init] autorelease];
+        self.colorMap = [NSMutableDictionary dictionary];
         
         self.file = [[[SharedFile alloc] initWithFileName:blockFile initFromBundle:NO] autorelease];
         
@@ -84,7 +84,9 @@
 {
     [_colorMap release];
      _colorMap = [[NSMutableDictionary alloc] init];
+    
     [self writeToFile];
+    [SafeUserData singleton].favesChanged = YES;
 }
 
 - (void)dealloc
@@ -97,22 +99,21 @@
     [super dealloc];
 }
 
-+ (BlockColorDb *)getSingleton
++ (BlockColorDb *)singleton
 {
     static BlockColorDb *singleton = nil;
     
-    if (singleton == nil)
-    {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
         singleton = [[BlockColorDb alloc] init];
-    }
+    });
     
     return [[singleton retain] autorelease];
 }
 
-- (CGFloat) getComponent:(NSString*)key fromDict:(NSDictionary *)dict
+- (CGFloat)getComponent:(NSString*)key fromDict:(NSDictionary *)dict
 {
-    [self openFile];
-    return (CGFloat) [(NSNumber*)[dict objectForKey:key] floatValue];
+    return (CGFloat)((NSNumber*)dict[key]).floatValue;
 }
 
 - (UIColor *) colorForBlock:(NSString *)block
@@ -124,7 +125,7 @@
         return [UIColor clearColor];
     }
     
-    NSDictionary *item = [_colorMap objectForKey:block];
+    NSDictionary *item =_colorMap[block];
     
     if (item == nil)
     {
@@ -156,50 +157,42 @@
     
     [color getRed:&red green:&green blue:&blue alpha:&alpha];
     
-    NSMutableDictionary *item = [[[NSMutableDictionary alloc] init] autorelease];
+    NSMutableDictionary *item = [NSMutableDictionary dictionaryWithDictionary:@{kKeyR : @(red),
+                                                                                kKeyG : @(green),
+                                                                                kKeyB : @(blue),
+                                                                                kKeyA : @(alpha),
+                                                                                kKeyD : desc }];
     
-    [item setObject:[NSNumber numberWithFloat:red]      forKey:kKeyR];
-    [item setObject:[NSNumber numberWithFloat:green]    forKey:kKeyG];
-    [item setObject:[NSNumber numberWithFloat:blue]     forKey:kKeyB];
-    [item setObject:[NSNumber numberWithFloat:alpha]    forKey:kKeyA];
-    [item setObject:desc forKey:kKeyD];
-    
-    NSMutableDictionary *oldItem = [_colorMap objectForKey:block];
+    NSMutableDictionary *oldItem = _colorMap[block];
     
     if (oldItem == nil)
     {
-    
-        [item setObject:[NSNumber numberWithDouble:[[NSDate date] timeIntervalSinceReferenceDate]]
-                                            forKey:kKeyT];
+        
+        item[kKeyT] = @([NSDate date].timeIntervalSinceReferenceDate);
     }
     else
     {
-        [item setObject:[oldItem objectForKey:kKeyT] forKey:kKeyT];
+        item[kKeyT] = oldItem[kKeyT];
     }
     
-
-    while (_colorMap.count > 20)
+    
+    while (_colorMap.count > 40)
     {
         // Find the oldest item
-        double oldestTime = MAXFLOAT;
-        NSString *oldestKey = nil;
+        __block double oldestTime = MAXFLOAT;
+        __block NSString *oldestKey = nil;
+        __block double time;
         
-        NSEnumerator *i = [_colorMap keyEnumerator];
-        NSString *key;
-        double time;
-        
-        for (key = i.nextObject; key!=nil; key = i.nextObject)
-        {
-            NSDictionary *dict = [_colorMap objectForKey:key];
-            
-            time = [(NSNumber*)[dict objectForKey:kKeyT] doubleValue];
-            
-            if (time <= oldestTime)
-            {
-                oldestTime = time;
-                oldestKey  = key;
-            }
-        }
+        [_colorMap enumerateKeysAndObjectsUsingBlock: ^void (NSString* key, NSDictionary* color, BOOL *stop)
+         {
+             time = ((NSNumber*)color[kKeyT]).doubleValue;
+             
+             if (time <= oldestTime)
+             {
+                 oldestTime = time;
+                 oldestKey  = key;
+             }
+         }];
         
         if (oldestKey == nil)
         {
@@ -209,59 +202,77 @@
         
         [_colorMap removeObjectForKey:oldestKey];
     }
-
     
-    [_colorMap setObject:item forKey:block];
+    
+    _colorMap[block] = item;
     
     
     [self writeToFile];
+    
+    [SafeUserData singleton].favesChanged = YES;
 }
 
 - (NSArray *)keys
 {
     [self openFile];
     
-    return [_colorMap allKeys];
+    return _colorMap.allKeys;
 }
 
 - (NSString *)descForBlock:(NSString *)block
 {
     [self openFile];
     
-    NSDictionary *item = [_colorMap objectForKey:block];
+    NSDictionary *item = _colorMap[block];
     
     if (item==nil)
     {
         return nil;
     }
     
-    return [item objectForKey:kKeyD];
+    return item[kKeyD];
+}
+
+
+- (NSDictionary*)getDB
+{
+    [self openFile];
+    
+    return _colorMap;
+}
+
+- (void)setDB:(NSDictionary*)db
+{
+    [self openFile];
+    
+    self.colorMap = [NSMutableDictionary dictionaryWithDictionary:db];
+    
+    [self writeToFile];
 }
 
 - (NSDate *)timeForBlock:(NSString *)block
 {
     [self openFile];
     
-    NSDictionary *item = [_colorMap objectForKey:block];
+    NSDictionary *item = _colorMap[block];
     
     if (item==nil)
     {
         return nil;
     }
     
-    NSNumber *time = [item objectForKey:kKeyT];
+    NSNumber *time = item[kKeyT];
     
-    return [NSDate dateWithTimeIntervalSinceReferenceDate:[time floatValue]];
+    return [NSDate dateWithTimeIntervalSinceReferenceDate:time.floatValue];
 
 }
 
-
 + (UIImage *)imageWithColor:(UIColor *)color {
     CGRect rect = CGRectMake(0.0f, 0.0f, 20.0f, 20.0f);
-    UIGraphicsBeginImageContext(rect.size);
+    UIGraphicsBeginImageContextWithOptions(rect.size, NO, 0.0);
     CGContextRef context = UIGraphicsGetCurrentContext();
     
-    CGContextSetFillColorWithColor(context, [color CGColor]);
+    CGContextSetFillColorWithColor(context, color.CGColor);
     CGContextFillRect(context, rect);
     
     UIImage *image = UIGraphicsGetImageFromCurrentImageContext();

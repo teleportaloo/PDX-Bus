@@ -13,7 +13,7 @@
 
 
 #import <UIKit/UIKit.h>
-#import "CustomToolbar.h"
+#import "UIToolbar+Auto.h"
 #import "ReturnStopId.h"
 #import "TableViewWithToolbar.h"
 #import "XMLTrips.h"
@@ -21,10 +21,10 @@
 
 
 @interface TripPlannerDateView : TripPlannerBaseView  {
-	UIDatePicker *_datePickerView;
-	UIPickerView *_pickerView;
-	NSArray *_userFaves;
-	bool _popBack;
+	UIDatePicker *  _datePickerView;
+	UIPickerView *  _pickerView;
+	NSArray *       _userFaves;
+	bool            _popBack;
 	
 }
 

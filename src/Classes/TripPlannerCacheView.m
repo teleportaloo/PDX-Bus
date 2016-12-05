@@ -19,6 +19,7 @@
 #import "UserFaves.h"
 #import "CellLabel.h"
 #import "Detour.h"
+#import "DetourData+iOSUI.h"
 
 @implementation TripPlannerCacheView
 
@@ -39,7 +40,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 	
-	self.title = @"Recent trips";
+    self.title = NSLocalizedString(@"Recent trips", @"page title");
 	// self.table.editing = YES;
 	self.table.allowsSelectionDuringEditing = YES;
 	self.navigationItem.rightBarButtonItem = self.editButtonItem;
@@ -60,10 +61,10 @@
 {
 	if (_userData.recentTrips.count == 0)
 	{
-		return @"No items in history";
+		return NSLocalizedString(@"No items in history", @"section header");
 	}
 	
-	return @"These previously planned trip results are cached and use saved locations, so they require no network access to review."; 
+	return NSLocalizedString(@"These previously planned trip results are cached and use saved locations, so they require no network access to review.", @"section header");
 }
 
 
@@ -74,34 +75,34 @@
 
 // Customize the number of rows in the table view.
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [_userData.recentTrips count];
+    return _userData.recentTrips.count;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	NSDictionary *trip = [_userData.recentTrips objectAtIndex:indexPath.row];
-	return [self getTextHeight:[trip valueForKey:kUserFavesChosenName] font:[self getParagraphFont]];
+	NSDictionary *trip = _userData.recentTrips[indexPath.row];
+	return [self getTextHeight:trip[kUserFavesChosenName] font:self.paragraphFont];
 }
 
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-	NSDictionary *trip = [_userData.recentTrips objectAtIndex:indexPath.row];
-	NSString *text = [trip valueForKey:kUserFavesChosenName];
+	NSDictionary *trip = _userData.recentTrips[indexPath.row];
+	NSString *text = trip[kUserFavesChosenName];
 	
-	NSString *MyIdentifier = [NSString stringWithFormat:@"DetourLabel%f", [self getTextHeight:text font:[self getParagraphFont]]];
+	NSString *MyIdentifier = [NSString stringWithFormat:@"DetourLabel%f", [self getTextHeight:text font:self.paragraphFont]];
 	
 	CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:MyIdentifier];
 	if (cell == nil) {
 		cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MyIdentifier] autorelease];
-		cell.view = [Detour create_UITextView:[self getParagraphFont]];
+		cell.view = [Detour create_UITextView:self.paragraphFont];
 	}
 	
 	cell.view.text = text;
 	cell.selectionStyle = UITableViewCellSelectionStyleBlue;
 	cell.backgroundColor = [UIColor whiteColor];
 	
-	[cell setAccessibilityLabel:text];
+	cell.accessibilityLabel = text;
 	
     return cell;
 }
@@ -112,11 +113,11 @@
 	// [self.navigationController pushViewController:anotherViewController];
 	// [anotherViewController release];
 	
-	// [self chosenEndpoint:[self.locList objectAtIndex:indexPath.row] ];
+	// [self chosenEndpoint:self.locList[indexPath.row] ];
 	TripPlannerResultsView *tripResults = [[TripPlannerResultsView alloc] initWithHistoryItem:(int)indexPath.row];
 	
 	// Push the detail view controller
-	[[self navigationController] pushViewController:tripResults animated:YES];
+	[self.navigationController pushViewController:tripResults animated:YES];
 	[tripResults release];
 	
 }
@@ -127,10 +128,15 @@
 	{
 		if (editingStyle == UITableViewCellEditingStyleDelete) {
 			[_userData.recentTrips removeObjectAtIndex:indexPath.row];
-			[tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:YES];
+			[tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:YES];
 			
-			_userData.favesChanged = YES;
+            [self favesChanged];
 			[_userData cacheAppData];
+            
+            if (_userData.recentTrips.count == 0)
+            {
+                [self reloadData];
+            }
 		}	
 	}
 }
@@ -149,7 +155,7 @@
 	//	[self dumpPath:@"moveRowAtIndexPath to  " path:toIndexPath];
 	@synchronized (_userData)
 	{
-		NSDictionary *move = [[_userData.recentTrips objectAtIndex:fromIndexPath.row] retain];
+		NSDictionary *move = [_userData.recentTrips[fromIndexPath.row] retain];
 		if (fromIndexPath.row < toIndexPath.row)
 		{
 			[_userData.recentTrips insertObject:move atIndex:toIndexPath.row+1];
@@ -161,7 +167,7 @@
 			[_userData.recentTrips insertObject:move atIndex:toIndexPath.row];
 		}
 		[move release];
-		_userData.favesChanged = YES;
+        [self favesChanged];
 		[_userData cacheAppData];
 	}
 }

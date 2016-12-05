@@ -88,12 +88,12 @@
 
 
 
-- (void)fetchItineraries:(id)arg
+- (void)workerToFetchItineraries:(id)unused
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     
-    NSMutableArray *geoNamesRequired  = [[[NSMutableArray alloc] init] autorelease];
-    NSMutableArray *geoCoordsRequired = [[[NSMutableArray alloc] init] autorelease];
+    NSMutableArray *geoNamesRequired  = [NSMutableArray array];
+    NSMutableArray *geoCoordsRequired = [NSMutableArray array];
     
     
     bool canReverseGeocode = [ReverseGeoLocator supported];
@@ -166,29 +166,27 @@
     
     if (self.tripQuery.fromList != nil && !self.backgroundTaskForceResults && !self.tripQuery.userRequest.fromPoint.useCurrentLocation)
     {
-        TripPlannerLocationListView *locView = [[TripPlannerLocationListView alloc] init];
+        TripPlannerLocationListView *locView = [TripPlannerLocationListView viewController];
         
         locView.tripQuery = self.tripQuery;
         locView.from = true;
         
         // Push the detail view controller
         [self.backgroundTask.callbackWhenFetching backgroundCompleted:locView];
-        [locView release];
     }
     else if (self.tripQuery.toList != nil && !self.backgroundTaskForceResults && !self.tripQuery.userRequest.toPoint.useCurrentLocation)
     {
-        TripPlannerLocationListView *locView = [[TripPlannerLocationListView alloc] init];
+        TripPlannerLocationListView *locView = [TripPlannerLocationListView viewController];
         
         locView.tripQuery = self.tripQuery;
         locView.from = false;
         
         // Push the detail view controller
         [self.backgroundTask.callbackWhenFetching backgroundCompleted:locView];
-        [locView release];
     }
     else
     {
-        TripPlannerResultsView *tripResults = [[TripPlannerResultsView alloc] init];
+        TripPlannerResultsView *tripResults = [TripPlannerResultsView viewController];
         
         tripResults.tripQuery = self.tripQuery;
         
@@ -197,7 +195,6 @@
         
         // Push the detail view controller
         [self.backgroundTask.callbackWhenFetching backgroundCompleted:tripResults];
-        [tripResults release];
     }
     
     [pool release];
@@ -211,7 +208,7 @@
 	self.backgroundTaskController = controller;
 	self.backgroundTaskForceResults = forceResults;
 	
-	[NSThread detachNewThreadSelector:@selector(fetchItineraries:) toTarget:self withObject:nil];
+	[NSThread detachNewThreadSelector:@selector(workerToFetchItineraries:) toTarget:self withObject:nil];
 }
 	
 #pragma mark Background task callbacks

@@ -20,19 +20,17 @@
 
 + (NSNumber*)getPrefix
 {
-    return [NSNumber numberWithChar:'-'];
+    return @'-';
 }
 
 - (void)processAction:(NSString *)text parent:(ViewControllerBase*)parent
 {
     NSString *ids = [self prefix:text restOfText:nil];
     
-    DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
+    DepartureTimesView *departureViewController = [DepartureTimesView viewController];
     
     departureViewController.displayName = @"";
-    [departureViewController fetchTimesForLocationInBackground:parent.backgroundTask loc:ids];
-    [departureViewController release];
-
+    [departureViewController fetchTimesForLocationAsync:parent.backgroundTask loc:ids];
 }
 
 

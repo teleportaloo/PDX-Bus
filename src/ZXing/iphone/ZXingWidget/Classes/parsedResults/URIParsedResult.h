@@ -38,8 +38,8 @@
 - (id)initWithURLString:(NSString *)s URL:(NSURL *)ur;
 - (id)initWithURLString:(NSString *)s;
 
-@property (nonatomic, copy) NSString *urlString;
-@property (nonatomic, copy) NSString *title;
+@property (nonatomic, copy)   NSString *urlString;
+@property (nonatomic, copy)   NSString *title;
 @property (nonatomic, copy) NSURL *URL;
 
 @end

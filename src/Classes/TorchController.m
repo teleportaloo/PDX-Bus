@@ -29,7 +29,7 @@
         {
             AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
             
-            if ([device hasTorch] && [device hasFlash])
+            if (device.hasTorch && device.hasFlash)
             {
                 supported = YES;
             }
@@ -39,7 +39,7 @@
     return supported;
 }
 
-- (id)init
+- (instancetype)init
 {
     if ((self = [super init]))
     {
@@ -53,14 +53,14 @@
 - (void)on
 {
     
-    if ([TorchController supported] && [UserPrefs getSingleton].flashLed) {
+    if ([TorchController supported] && [UserPrefs singleton].flashLed) {
         
         AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
         
         [device lockForConfiguration:nil];
         
-        [device setTorchMode:AVCaptureTorchModeOn];
-        [device setFlashMode:AVCaptureFlashModeOn];
+        device.torchMode = AVCaptureTorchModeOn;
+        device.flashMode = AVCaptureFlashModeOn;
         
         [device unlockForConfiguration];
         
@@ -76,8 +76,8 @@
         
         [device lockForConfiguration:nil];
         
-        [device setTorchMode:AVCaptureTorchModeOff];
-        [device setFlashMode:AVCaptureFlashModeOff];
+        device.torchMode = AVCaptureTorchModeOff;
+        device.flashMode = AVCaptureFlashModeOff;
         
         [device unlockForConfiguration];
         
@@ -92,15 +92,15 @@
         
         [device lockForConfiguration:nil];
         
-        if (device.torchMode != AVCaptureTorchModeOn && [UserPrefs getSingleton].flashLed)
+        if (device.torchMode != AVCaptureTorchModeOn && [UserPrefs singleton].flashLed)
         {
-            [device setTorchMode:AVCaptureTorchModeOn];
-            [device setFlashMode:AVCaptureFlashModeOn];            
+            device.torchMode = AVCaptureTorchModeOn;
+            device.flashMode = AVCaptureFlashModeOn;            
         }
         else
         {
-            [device setTorchMode:AVCaptureTorchModeOff];
-            [device setFlashMode:AVCaptureFlashModeOff];
+            device.torchMode = AVCaptureTorchModeOff;
+            device.flashMode = AVCaptureFlashModeOff;
  
         }
     }

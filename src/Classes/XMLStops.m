@@ -93,13 +93,13 @@ static NSString *stopsURLString = @"routeConfig/route/%@/dir/%@/stops/true";
         elementName = qName;
     }
 	
-	if ([elementName isEqualToString:@"resultSet"]) {
+	if (ELTYPE(resultSet)) {
 		[self initArray]; 
-		hasData = YES;
+		_hasData = YES;
 	}
 	
-    if ([elementName isEqualToString:@"stop"]) {
-		NSString *locid =	[self safeValueFromDict:attributeDict valueForKey:@"locid"];
+    if (ELTYPE(stop)) {
+		NSString *locid = ATRVAL(locid);
         
 		if (self.afterStop !=nil && [locid isEqualToString:self.afterStop])
 		{
@@ -108,13 +108,13 @@ static NSString *stopsURLString = @"routeConfig/route/%@/dir/%@/stops/true";
 		}
 		else if (self.afterStop == nil)
 		{
-			self.currentStopObject = [[[Stop alloc] init] autorelease];
+            self.currentStopObject = [Stop data];
 			
-			self.currentStopObject.locid =	[self safeValueFromDict:attributeDict valueForKey:@"locid"];
-			self.currentStopObject.desc =	[self safeValueFromDict:attributeDict valueForKey:@"desc"];		
-			self.currentStopObject.tp =		[[self safeValueFromDict:attributeDict valueForKey:@"tp"] isEqualToString:@"true"];
-			self.currentStopObject.lat =	[self safeValueFromDict:attributeDict valueForKey:@"lat"];
-			self.currentStopObject.lng =    [self safeValueFromDict:attributeDict valueForKey:@"lng"];
+			self.currentStopObject.locid =	ATRVAL(locid);
+			self.currentStopObject.desc =	ATRVAL(desc);
+			self.currentStopObject.tp =		ATRBOOL(tp);
+			self.currentStopObject.lat =	ATRVAL(lat);
+			self.currentStopObject.lng =    ATRVAL(lng);
 		}
         return;
     }
@@ -128,11 +128,11 @@ static NSString *stopsURLString = @"routeConfig/route/%@/dir/%@/stops/true";
         elementName = qName;
     }
 	
-	if ([elementName isEqualToString:@"stop"]) {
+	if (ELTYPE(stop)) {
 		if (self.currentStopObject !=nil)
 		{
 			[self addItem:self.currentStopObject ];
-			self.currentStopObject.index = (int)[self.itemArray count];
+			self.currentStopObject.index = (int)self.itemArray.count;
 			self.currentStopObject = nil;
 		}
 	}

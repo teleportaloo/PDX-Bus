@@ -19,6 +19,10 @@
 
 @synthesize stopId      = _stopId;
 
+- (void)dealloc {
+    self.stopId = nil;
+    [super dealloc];
+}
 
 
 // check that this is a good URL - the original URL may be completely different
@@ -69,16 +73,16 @@
         {
             return;
         }
-        else if ([scanner isAtEnd])
+        else if (scanner.atEnd)
         {
             return;
         }
         else
         {
             NSCharacterSet *slash = [NSCharacterSet characterSetWithCharactersInString:@"/"];
-            scanner.scanLocation = [scanner scanLocation]+[URL_TRIMET length];
+            scanner.scanLocation = scanner.scanLocation+URL_TRIMET.length;
             
-            while ([str characterAtIndex:[scanner scanLocation]]=='0')
+            while ([str characterAtIndex:scanner.scanLocation]=='0')
             {
                 scanner.scanLocation++;
             }
@@ -119,9 +123,6 @@
 }
 
 
-- (void)dealloc {
-	[super dealloc];
-}
 
 
 @end

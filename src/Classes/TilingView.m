@@ -50,8 +50,7 @@
 
 
 @implementation TilingView
-@synthesize annotates;
-
+@synthesize annotates = _annotates;
 @synthesize imageName = _imageName;
 
 - (void)dealloc
@@ -64,12 +63,12 @@
 	return [CATiledLayer class];
 }
 
-- (id)initWithImageName:(NSString *)name size:(CGSize)size
+- (instancetype)initWithImageName:(NSString *)name size:(CGSize)size
 {
     if ((self = [super initWithFrame:CGRectMake(0, 0, size.width, size.height)])) {
         self.imageName = name;
 
-        CATiledLayer *tiledLayer = (CATiledLayer *)[self layer];
+        CATiledLayer *tiledLayer = (CATiledLayer *)self.layer;
         tiledLayer.levelsOfDetail = 4;
     }
     return self;
@@ -82,7 +81,7 @@
 //
 - (void)setContentScaleFactor:(CGFloat)contentScaleFactor
 {
-    [super setContentScaleFactor:1.f];
+    super.contentScaleFactor = 1.f;
 }
 
 - (void)drawRect:(CGRect)rect
@@ -136,7 +135,7 @@
     CGFloat _scaleX = CGContextGetCTM(context).a;
     CGFloat _scaleY = CGContextGetCTM(context).d;
     
-    CATiledLayer *tiledLayer = (CATiledLayer *)[self layer];
+    CATiledLayer *tiledLayer = (CATiledLayer *)self.layer;
     CGSize tileSize = tiledLayer.tileSize;
     
     // Even at scales lower than 100%, we are drawing into a rect in the coordinate system of the full
@@ -170,7 +169,9 @@
             [tile drawInRect:tileRect];
             
             /// change this to yes to annotate
-            if (NO) {
+
+            if (self.annotates)
+            {
                 [[UIColor redColor] set];
                 CGContextSetLineWidth(context, 6.0 / _scaleX);
                 CGContextStrokeRect(context, tileRect);

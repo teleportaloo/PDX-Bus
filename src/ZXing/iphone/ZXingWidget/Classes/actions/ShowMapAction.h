@@ -26,7 +26,7 @@
   NSString *location;
 }
 
-@property (nonatomic, copy) NSString *location;
+@property (nonatomic, copy)   NSString *location;
 
 - (id)initWithLocation:(NSString *)location;
 + (id)actionWithLocation:(NSString *)location;

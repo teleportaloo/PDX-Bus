@@ -39,8 +39,7 @@
 
 - (NSString *)toQuery:(NSString *)toOrFrom
 {
-	NSMutableString *ret = [[[ NSMutableString alloc ] init] autorelease];
-	
+    NSMutableString *ret = [NSMutableString string];
     
 	NSString * desc = self.locationDesc;
     
@@ -49,7 +48,7 @@
 		desc = kAcquiredLocation;
 	}
     
-	NSMutableString *ms = [[NSMutableString alloc] init];
+    NSMutableString *ms = [NSMutableString string];
     
 	[ms appendString:[desc stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
     
@@ -57,16 +56,16 @@
 	[ms replaceOccurrencesOfString:@"/"
                         withString:@"%2F"
                            options:NSLiteralSearch
-                             range:NSMakeRange(0, [ms length])];
+                             range:NSMakeRange(0, ms.length)];
     
     
 	[ms replaceOccurrencesOfString:@"&"
                         withString:@"%26"
                            options:NSLiteralSearch
-                             range:NSMakeRange(0, [ms length])];
+                             range:NSMakeRange(0, ms.length)];
     
 	[ret appendFormat:@"%@Place=%@",toOrFrom, ms];
-	[ms release];
+
     
 	if (self.coordinates != nil)
 	{
@@ -80,28 +79,25 @@
 
 - (NSDictionary *)toDictionary
 {
-	NSMutableDictionary *dict = [[[NSMutableDictionary alloc] init] autorelease];
+    NSMutableDictionary *dict = [NSMutableDictionary dictionary];
 	
 	
-	[dict setObject:[[[NSNumber alloc] initWithBool:self.useCurrentLocation] autorelease]
-			 forKey:kDictEndPointUseCurrentLocation];
+    dict[kDictEndPointUseCurrentLocation] = @(self.useCurrentLocation);
 	
 	if (self.locationDesc != nil)
 	{
-		[dict setObject:self.locationDesc forKey:kDictEndPointLocationDec];
+		dict[kDictEndPointLocationDec] = self.locationDesc;
 	}
 	
 	if (self.additionalInfo != nil)
 	{
-		[dict setObject:self.additionalInfo forKey:kDictEndPointAddtionalInfo];
+		dict[kDictEndPointAddtionalInfo] = self.additionalInfo;
 	}
 	
 	if (self.coordinates!=nil)
 	{
-		[dict setObject:[[[NSNumber alloc] initWithDouble:self.coordinates.coordinate.latitude] autorelease]
-				 forKey:kDictEndPointLocationLat];
-		[dict setObject:[[[NSNumber alloc] initWithDouble:self.coordinates.coordinate.longitude] autorelease]
-				 forKey:kDictEndPointLocationLng];
+        dict[kDictEndPointLocationLat] = @(self.coordinates.coordinate.latitude);
+        dict[kDictEndPointLocationLng] = @(self.coordinates.coordinate.longitude);
 		
 	}
 	return dict;
@@ -128,7 +124,7 @@
 	return nil;
 	
 }
-- (bool)fromDictionary:(NSDictionary *)dict
+- (bool)readDictionary:(NSDictionary *)dict
 {
 	if (dict == nil)
 	{
@@ -136,26 +132,26 @@
 	}
 	
 	
-	NSNumber *useCurretLocation = [self forceNSNumber:[dict objectForKey:kDictEndPointUseCurrentLocation]];
+	NSNumber *useCurretLocation = [self forceNSNumber:dict[kDictEndPointUseCurrentLocation]];
 	
 	if (useCurretLocation)
 	{
-		self.useCurrentLocation = [useCurretLocation boolValue];
+		self.useCurrentLocation = useCurretLocation.boolValue;
 	}
 	else {
 		self.useCurrentLocation = false;
 	}
     
-	self.locationDesc = [self forceNSString:[dict objectForKey:kDictEndPointLocationDec]];
-	self.additionalInfo = [self forceNSString:[dict objectForKey:kDictEndPointAddtionalInfo]];
+	self.locationDesc = [self forceNSString:dict[kDictEndPointLocationDec]];
+	self.additionalInfo = [self forceNSString:dict[kDictEndPointAddtionalInfo]];
 	
 	
-	NSNumber *lat = [self forceNSNumber:[dict objectForKey:kDictEndPointLocationLat]];
-	NSNumber *lng = [self forceNSNumber:[dict objectForKey:kDictEndPointLocationLng]];
+	NSNumber *lat = [self forceNSNumber:dict[kDictEndPointLocationLat]];
+	NSNumber *lng = [self forceNSNumber:dict[kDictEndPointLocationLng]];
     
 	if (lat!=nil && lng!=nil)
 	{
-		self.coordinates = [[[CLLocation alloc] initWithLatitude:[lat doubleValue] longitude:[lng doubleValue]]
+		self.coordinates = [[[CLLocation alloc] initWithLatitude:lat.doubleValue longitude:lng.doubleValue]
                                 autorelease];
 	}
 	
@@ -171,14 +167,14 @@
         || (self.locationDesc != nil && [self.locationDesc isEqualToString:endPoint.locationDesc]));
 }
 
-- (id)initFromDict:(NSDictionary *)dict
++ (instancetype)fromDictionary:(NSDictionary *)dict
 {
-	if ((self = [super init]))
-	{
-		[self fromDictionary:dict];
-	}
-	return self;
-	
+    id item = [[[[self class] alloc] init] autorelease];
+    if ([item readDictionary:dict])
+    {
+        return item;
+    }
+    return nil;
 }
 
 - (NSString *)displayText

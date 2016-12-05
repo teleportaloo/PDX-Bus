@@ -15,8 +15,10 @@
 
 #import <Foundation/Foundation.h>
 #import <WatchKit/WatchKit.h>
-#import "WatchDepartureUI.h"
+#import "DepartureData+watchOSUI.h"
 #import "WatchContext.h"
+#import "XMLDepartures.h"
+#import "XMLDetours.h"
 
 #define kArrivalsScene @"Arrivals"
 
@@ -26,9 +28,12 @@
 @property (nonatomic)         bool     showMap;
 @property (nonatomic)         double   distance;
 @property (nonatomic)         bool     showDistance;
-@property (nonatomic, retain) NSString *stopDesc;
-@property (nonatomic, retain) NSString *navText;
-@property (nonatomic, retain) NSString *detailBlock;
+@property (nonatomic, copy)   NSString *stopDesc;
+@property (nonatomic, copy)   NSString *navText;
+@property (nonatomic, copy)   NSString *detailBlock;
+@property (nonatomic, retain) XMLDepartures *departures;
+@property (nonatomic, retain) XMLDetours *detours;
+
 
 + (WatchArrivalsContext*)contextWithLocation:(NSString *)location;
 + (WatchArrivalsContext*)contextWithLocation:(NSString *)location distance:(double)distance;
@@ -37,8 +42,9 @@
 - (void)updateUserActivity:(WKInterfaceController *)controller;
 
 
-- (bool)hasNext;
-- (WatchArrivalsContext *)getNext;
+@property (nonatomic, readonly) bool hasNext;
+@property (nonatomic, getter=getNext, readonly, strong) WatchArrivalsContext *next;
+@property (nonatomic, readonly, strong) WatchArrivalsContext *clone; 
 
 
 @end

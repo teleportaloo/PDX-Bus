@@ -23,8 +23,8 @@
 
 @property (retain) NSURL *urlToSharedFile;
 
-- (id)initWithFileName:(NSString *)shortFileNamem initFromBundle:(bool)initFromBundle;
-- (bool)canUseSharedFilePath;
+- (instancetype)initWithFileName:(NSString *)shortFileNamem initFromBundle:(bool)initFromBundle;
+@property (nonatomic, readonly) bool canUseSharedFilePath;
 - (void)writeDictionary:(NSDictionary *)dict;
 - (void)deleteFile;
 

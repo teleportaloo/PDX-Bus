@@ -244,6 +244,7 @@
   [urlString release];
   [address release];
   [organization release];
+  [jobTitle release];
   [super dealloc];
 }
 @end

@@ -34,8 +34,6 @@
 
 @implementation WhatsNewView
 
-@synthesize settingsView = _settingsView;
-
 #define kSectionText	    	0
 #define kSectionDone			1
 #define kSections				2
@@ -63,9 +61,9 @@
 
 - (id<WhatsNewSpecialAction>)getAction:(NSString*)fullText
 {
-    NSNumber *key = [NSNumber numberWithChar:[fullText characterAtIndex:0]];
+    NSNumber *key = @(fullText.firstUnichar);
     
-    id<WhatsNewSpecialAction> action = [_specialActions objectForKey:key];
+    id<WhatsNewSpecialAction> action = _specialActions[key];
     
     if (action == nil)
     {
@@ -75,24 +73,23 @@
     return action;
 }
 
-- (id)init {
+- (instancetype)init {
 	if ((self = [super init]))
 	{
-		self.title = @"What's new?";
+        self.title = NSLocalizedString(@"What's new?", @"page title");
 		_newTextArray = [[NSArray alloc] initWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"whats-new" ofType:@"plist"]];
         
         _basicAction = [[WhatsNewBasicAction alloc] init];
     
-        _specialActions = [[NSDictionary alloc] initWithObjectsAndKeys:
-                                [[WhatsNewHeader   alloc] autorelease], [WhatsNewHeader getPrefix],
-                                [[WhatsNewSelector alloc] autorelease], [WhatsNewSelector getPrefix],
-                                [[WhatsNewStopIDs   alloc] autorelease],[WhatsNewStopIDs getPrefix],
-                                [[WhatsNewWeb       alloc] autorelease],[WhatsNewWeb getPrefix],
-                                [[WhatsNewHighlight alloc] autorelease],[WhatsNewHighlight getPrefix],
-                           
-                           nil];
+        _specialActions = @{
+                            [WhatsNewHeader     getPrefix] : [WhatsNewHeader    alloc].autorelease,
+                            [WhatsNewSelector   getPrefix] : [WhatsNewSelector  alloc].autorelease,
+                            [WhatsNewStopIDs    getPrefix] : [WhatsNewStopIDs   alloc].autorelease,
+                            [WhatsNewWeb        getPrefix] : [WhatsNewWeb       alloc].autorelease,
+                            [WhatsNewHighlight  getPrefix] : [WhatsNewHighlight alloc].autorelease
+                           }.retain;
 #ifdef DEBUGLOGGING
-        NSMutableString *output = [NSMutableString alloc].init.autorelease;
+        NSMutableString *output = [NSMutableString string];
         
         [output appendString:@"\n"];
         
@@ -117,7 +114,7 @@
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
 	if (section == kSectionText)
 	{
-		return @"PDX Bus got an upgrade! Here's what's new in version " kWhatsNewVersion;
+		return NSLocalizedString(@"PDX Bus got an upgrade! Here's what's new in version " kWhatsNewVersion, @"section header");
 	}
 	return nil;
 }
@@ -130,7 +127,7 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 	if (section == kSectionText)
 	{
-		return [_newTextArray count];
+		return _newTextArray.count;
 	}
 	return kDoneRows;
 }
@@ -139,7 +136,7 @@
 {
     [super tableView:tableView willDisplayCell:cell forRowAtIndexPath:indexPath];
     
-    NSString * fullText = [_newTextArray objectAtIndex:indexPath.row];
+    NSString * fullText = _newTextArray[indexPath.row];
     
     id<WhatsNewSpecialAction> action = [self getAction:fullText];
     
@@ -152,19 +149,19 @@
 	{
 		case kSectionText:
 		{
-            NSString * fullText = [_newTextArray objectAtIndex:indexPath.row];
+            NSString * fullText = _newTextArray[indexPath.row];
             
             id<WhatsNewSpecialAction> action = [self getAction:fullText];
             
-            NSAttributedString *text = [StringHelper formatAttributedString: [action displayText:fullText] font:[self getParagraphFont]];
+            NSAttributedString *text = [[action displayText:fullText] formatAttributedStringWithFont:self.paragraphFont];
             
             CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionText)];
 			if (cell == nil) {
 				cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionText)] autorelease];
-				cell.view = [self create_UITextView:nil font:[self getParagraphFont]];
+				cell.view = [self create_UITextView:nil font:self.paragraphFont];
 			}
 			
-			cell.view.font =  [self getParagraphFont];
+			cell.view.font =  self.paragraphFont;
 			cell.view.attributedText =  text;
             [cell.view setAdjustsFontSizeToFitWidth:NO];
             cell.view.backgroundColor = [UIColor clearColor];
@@ -177,14 +174,15 @@
 			break;
 		}
 		case kSectionDone:
+        default:
 		{
 			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionDone)];
 			if (cell == nil)
             {
 				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionDone)] autorelease];
-				cell.textLabel.font =  [self getBasicFont]; //  [UIFont fontWithName:@"Ariel" size:14];
+				cell.textLabel.font =  self.basicFont; //  [UIFont fontWithName:@"Ariel" size:14];
 				cell.textLabel.adjustsFontSizeToFitWidth = YES;
-				cell.textLabel.text = @"Back to PDX Bus";
+                cell.textLabel.text = NSLocalizedString(@"Back to PDX Bus", @"button text");
 				cell.textLabel.textAlignment = NSTextAlignmentCenter;
 			}
 			return cell;
@@ -198,11 +196,11 @@
 {
 	if (indexPath.section == kSectionText)
 	{
-        NSString * fullText = [_newTextArray objectAtIndex:indexPath.row];
+        NSString * fullText = _newTextArray[indexPath.row];
     
         id<WhatsNewSpecialAction> action = [self getAction:fullText];
         
-        NSAttributedString *text = [StringHelper formatAttributedString: [action displayText:fullText] font:[self getParagraphFont]];
+        NSAttributedString *text = [[action displayText:fullText] formatAttributedStringWithFont:self.paragraphFont];
         
 		return [self getAtrributedTextHeight:text] + kCellLabelTotalYInset;
 	}
@@ -212,7 +210,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 	if (indexPath.section == kSectionText)
 	{
-        NSString * fullText = [_newTextArray objectAtIndex:indexPath.row];
+        NSString * fullText = _newTextArray[indexPath.row];
         
         id<WhatsNewSpecialAction> action = [self getAction:fullText];
         
@@ -220,7 +218,7 @@
         
     }
 	else {
-		[[self navigationController] popToRootViewControllerAnimated:YES];
+		[self.navigationController popToRootViewControllerAnimated:YES];
 	}
 
 }
@@ -229,30 +227,21 @@
 
 - (void)railMap
 {
-    if ([RailMapView RailMapSupported])
-    {
-        RailMapView *webPage = [[RailMapView alloc] init];
-        [[self navigationController] pushViewController:webPage animated:YES];
-        [webPage release];
-    }
+    [self.navigationController pushViewController:[RailMapView viewController] animated:YES];
 }
 
 
 - (void)vehicles
 {
-    NearestVehiclesMap *mapView = [[NearestVehiclesMap alloc] init];
-    mapView.title = @"All Vehicles";
-    [mapView fetchNearestVehiclesInBackground:self.backgroundTask];
-    
-    [mapView release];
+    NearestVehiclesMap *mapView = [NearestVehiclesMap viewController];
+    mapView.title = NSLocalizedString(@"All Vehicles", "page title");
+    [mapView fetchNearestVehiclesAsync:self.backgroundTask];
 }
 
 
 - (void)stations
 {
-    AllRailStationView *station = [[[AllRailStationView alloc] init] autorelease];
-    
-    [self.navigationController pushViewController:station animated:YES];
+    [self.navigationController pushViewController:[AllRailStationView viewController] animated:YES];
 }
 
 - (void)fbTriMet
@@ -262,9 +251,9 @@
 
 - (void)flashWarning
 {
-    [UserPrefs getSingleton].flashingLightWarning = YES;
+    [UserPrefs singleton].flashingLightWarning = YES;
     
-    FlashWarning *warning = [[FlashWarning alloc] initWithNav:[self navigationController]];
+    FlashWarning *warning = [[FlashWarning alloc] initWithNav:self.navigationController];
     
     warning.parentBase = self;
     
@@ -273,18 +262,12 @@
 
 - (void)settings
 {
-    self.settingsView = [[[IASKAppSettingsViewController alloc] init] autorelease];
-    
-    self.settingsView.showDoneButton = NO;
-    // Push the detail view controller
-    [[self navigationController] pushViewController:self.settingsView animated:YES];
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
 }
 
 -(void)showHighlights
 {
-    BlockColorViewController *blockTable = [[BlockColorViewController alloc] init];
-    [[self navigationController] pushViewController:blockTable animated:YES];
-    [blockTable release];
+    [self.navigationController pushViewController:[BlockColorViewController viewController] animated:YES];
 }
 
 @end

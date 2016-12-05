@@ -19,7 +19,7 @@
 
 + (NSNumber*)getPrefix
 {
-    return [NSNumber numberWithChar:'!'];
+    return @'!';
 }
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell text:(NSString*)text

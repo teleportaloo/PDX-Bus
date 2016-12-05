@@ -127,14 +127,14 @@
                 PBSportsDistanceKey : [NSString stringWithFormat:@"%2.02f", busDistanceMiles],
                 PBSportsDataKey :[NSString stringWithFormat:@"%.0f", [task.lastFetched.route floatValue]],
                 };
-#define LOG_ITEM(X) DEBUG_LOG(@"%s %@\n"," "#X, [myPebbleDict objectForKey:X]);
+#define LOG_ITEM(X) DEBUG_LOG(@"%s %@\n"," "#X, myPebbleDict[X]);
     LOG_ITEM(PBSportsTimeKey);
     LOG_ITEM(PBSportsDistanceKey);
     LOG_ITEM(PBSportsDataKey);
     
     
     
-    DEBUG_LOG(@"PBSportsTimeKey %@\n",[myPebbleDict objectForKey:PBSportsTimeKey]);
+    DEBUG_LOG(@"PBSportsTimeKey %@\n",myPebbleDict[PBSportsTimeKey]);
     
     // send data to the sportsApp
     [self.watch sportsAppUpdate:myPebbleDict onSent:^(PBWatch *watch, NSError *error) {

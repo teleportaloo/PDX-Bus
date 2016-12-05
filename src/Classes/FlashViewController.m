@@ -35,7 +35,7 @@
     [super dealloc];
 }
 
-- (id)init
+- (instancetype)init
 {
     if ((self = [super init]))
     {
@@ -59,7 +59,7 @@
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event { 
-	[[self navigationController] popViewControllerAnimated:YES];
+	[self.navigationController popViewControllerAnimated:YES];
 }
 
 - (void)changeColor:(NSTimer *)timer {
@@ -103,13 +103,13 @@
 	
 	UIBarButtonItem *info = [[[UIBarButtonItem alloc]
                               initWithTitle:NSLocalizedString(@"info", @"Button text")
-							  style:UIBarButtonItemStyleBordered
+							  style:UIBarButtonItemStylePlain
 							  target:self action:@selector(infoAction:)] autorelease];
 	
 	
 	self.navigationItem.rightBarButtonItem = info;
 	
-	//[[self navigationController] setToolbarHidden:YES animated:YES];
+	//[self.navigationController setToolbarHidden:YES animated:YES];
 
 	[UIApplication sharedApplication].idleTimerDisabled = YES;
 	
@@ -173,12 +173,12 @@
 	{
 		case 0:	
 		{
-            [UserPrefs getSingleton].flashLed = YES;
+            [UserPrefs singleton].flashLed = YES;
             break;
 		}
 		case 1:	
 		{
-			[UserPrefs getSingleton].flashLed = NO;
+			[UserPrefs singleton].flashLed = NO;
 			break;
 		}
 	}
@@ -191,15 +191,14 @@
     {
         // add a segmented control to the button bar
         UISegmentedControl	*buttonBarSegmentedControl;
-        buttonBarSegmentedControl = [[UISegmentedControl alloc] initWithItems:
-								 [NSArray arrayWithObjects:
-                                        NSLocalizedString(@"Flash LED", @"Short segment button text"),
-                                        NSLocalizedString(@"LED Off",   @"Short segment button text"),
-                                            nil]
-                                    ];
+        buttonBarSegmentedControl = [[UISegmentedControl alloc] initWithItems:@[
+                                                                                NSLocalizedString(@"Flash LED", @"Short segment button text"),
+                                                                                NSLocalizedString(@"LED Off",   @"Short segment button text")
+                                                                                ]
+                                     ];
         [buttonBarSegmentedControl addTarget:self action:@selector(toggleLed:) forControlEvents:UIControlEventValueChanged];
-    
-        if ([UserPrefs getSingleton].flashLed)
+        
+        if ([UserPrefs singleton].flashLed)
         {
             buttonBarSegmentedControl.selectedSegmentIndex = 0.0;	// start by showing the normal picker
         }
@@ -207,20 +206,17 @@
         {
             buttonBarSegmentedControl.selectedSegmentIndex = 1.0;
         }
-        buttonBarSegmentedControl.segmentedControlStyle = UISegmentedControlStyleBar;
         
-        [self setSegColor:buttonBarSegmentedControl];
+        UIBarButtonItem *segItem = [[UIBarButtonItem alloc] initWithCustomView:buttonBarSegmentedControl];
         
-        UIBarButtonItem *segItem = [[UIBarButtonItem alloc] initWithCustomView:buttonBarSegmentedControl];	
-	
         [toolbarItems addObject:segItem];
-        [toolbarItems addObject:[CustomToolbar autoFlexSpace]];
-       
+        [toolbarItems addObject:[UIToolbar autoFlexSpace]];
+        
         [segItem release];
         [buttonBarSegmentedControl release];
     }
     
-    if ([UserPrefs getSingleton].ticketAppIcon)
+    if ([UserPrefs singleton].ticketAppIcon)
     {
         [toolbarItems addObject:[self autoTicketAppButton]];
     }

@@ -14,7 +14,7 @@
 
 #import "DepartureTimesByBus.h"
 #import "DepartureData.h"
-#import "DepartureUI.h"
+#import "DepartureData+iOSUI.h"
 
 
 @implementation DepartureTimesByBus
@@ -27,10 +27,10 @@
 	[super dealloc];
 }
 
-- (id)init {
+- (instancetype)init {
 	if ((self = [super init]))
 	{
-		self.departureItems = [[[NSMutableArray alloc] init] autorelease];
+        self.departureItems = [NSMutableArray array];
 	}
 	return self;
 }
@@ -39,7 +39,7 @@
 
 - (DepartureData *)DTDataGetDeparture:(NSInteger)i
 {
-	return [self.departureItems objectAtIndex:i];
+	return self.departureItems[i];
 }
 - (NSInteger)DTDataGetSafeItemCount
 {
@@ -47,7 +47,7 @@
 	{
 		return 0;
 	}
-	return [self.departureItems count];
+	return self.departureItems.count;
 }
 - (NSString *)DTDataGetSectionHeader
 {
@@ -58,7 +58,7 @@
 	return nil;
 }
 
-- (void)DTDataPopulateCell:(DepartureUI *)dd cell:(UITableViewCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide
+- (void)DTDataPopulateCell:(DepartureData *)dd cell:(UITableViewCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide
 {
 	[dd populateCell:cell decorate:decorate busName:NO wide:wide];	
 }

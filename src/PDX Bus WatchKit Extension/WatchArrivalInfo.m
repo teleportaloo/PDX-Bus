@@ -17,4 +17,10 @@
 
 @implementation WatchArrivalInfo
 
+- (void)dealloc
+{
+    self.arrivalInfoText = nil;
+    [super dealloc];
+}
+
 @end

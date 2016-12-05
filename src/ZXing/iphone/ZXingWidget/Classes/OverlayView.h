@@ -36,12 +36,12 @@
 @property (nonatomic, assign) id<CancelDelegate> delegate;
 @property (nonatomic, assign) BOOL oneDMode;
 @property (nonatomic, assign) CGRect cropRect;
-@property (nonatomic, copy) NSString *displayedMessage;
+@property (nonatomic, copy)   NSString *displayedMessage;
 @property (nonatomic, retain) UIToolbar *toolbar;
 
 
-- (id)initWithFrame:(CGRect)theFrame cancelEnabled:(BOOL)isCancelEnabled oneDMode:(BOOL)isOneDModeEnabled showLicense:(BOOL)shouldShowLicense;
-- (id)initWithFrame:(CGRect)theFrame cancelEnabled:(BOOL)isCancelEnabled oneDMode:(BOOL)isOneDModeEnabled;
+- (instancetype)initWithFrame:(CGRect)theFrame cancelEnabled:(BOOL)isCancelEnabled oneDMode:(BOOL)isOneDModeEnabled showLicense:(BOOL)shouldShowLicense;
+- (instancetype)initWithFrame:(CGRect)theFrame cancelEnabled:(BOOL)isCancelEnabled oneDMode:(BOOL)isOneDModeEnabled;
 
 - (void)setPoint:(CGPoint)point;
 + (bool)torchSupported;

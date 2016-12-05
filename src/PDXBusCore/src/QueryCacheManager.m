@@ -37,30 +37,30 @@
 
 - (void)openCache
 {
-    if (self.cache == nil && [UserPrefs getSingleton].useCaching)
+    if (self.cache == nil && [UserPrefs singleton].useCaching)
     {
 
         if (self.sharedFile.urlToSharedFile !=nil)
         {
-            self.cache = [[[NSMutableDictionary alloc] initWithContentsOfURL:self.sharedFile.urlToSharedFile] autorelease];
+            self.cache = [NSMutableDictionary dictionaryWithContentsOfURL:self.sharedFile.urlToSharedFile];
         }
     
         if (self.cache == nil)
         {
-            self.cache = [[[NSMutableDictionary alloc] init] autorelease];
+            self.cache = [NSMutableDictionary dictionary];
         }
     }
 }
 
 - (void)writeCache
 {
-    if (self.cache!=nil && self.sharedFile.urlToSharedFile != nil && [UserPrefs getSingleton].useCaching)
+    if (self.cache!=nil && self.sharedFile.urlToSharedFile != nil && [UserPrefs singleton].useCaching)
     {
         [self.sharedFile writeDictionary:self.cache];
     }
 }
 
-- (id)initWithFileName:(NSString *)fileName
+- (instancetype)initWithFileName:(NSString *)fileName
 {
     if ((self = [super init]))
 	{
@@ -78,41 +78,41 @@
 {
    
     [self.sharedFile deleteFile];
-	self.cache = [[[NSMutableDictionary alloc] init] autorelease];
+    self.cache = [NSMutableDictionary dictionary];
 }
 
 + (NSString *)getCacheKey:(NSString *)query
 {
-    NSMutableString *cacheKey = [[[NSMutableString alloc] initWithString:query] autorelease];
+    NSMutableString *cacheKey = [query.mutableCopy autorelease];
     
     [cacheKey replaceOccurrencesOfString:TRIMET_APP_ID 
                               withString:@"" 
                                  options:NSCaseInsensitiveSearch 
-                                   range:NSMakeRange(0, [cacheKey length])]; 
+                                   range:NSMakeRange(0, cacheKey.length)]; 
     return cacheKey;
 }
 
 - (NSArray *)getCachedQuery:(NSString *)cacheQuery
 {
-    if ([UserPrefs getSingleton].useCaching)
+    if ([UserPrefs singleton].useCaching)
     {
         [self openCache];
-        return [self.cache objectForKey:cacheQuery];
+        return self.cache[cacheQuery];
     }
     return nil;
 }
 
 - (void)addToCache:(NSString *)cacheQuery item:(NSData *)item write:(bool)write
 {
-    if ([UserPrefs getSingleton].useCaching)
+    if ([UserPrefs singleton].useCaching)
     {
         [self openCache];
-        NSMutableArray *arrayToCache = [[[NSMutableArray alloc] init] autorelease];
+        NSMutableArray *arrayToCache = [NSMutableArray array];
     
         [arrayToCache insertObject:[NSDate date] atIndex:kCacheDateAndTime];
         [arrayToCache insertObject:item atIndex:kCacheData];
     
-        [self.cache setObject:arrayToCache forKey:cacheQuery]; 
+        (self.cache)[cacheQuery] = arrayToCache; 
     
         if (self.maxSize > 0 && self.cache.count > 1)
         {
@@ -124,8 +124,8 @@
             {
                 for (NSString *str in self.cache)
                 {
-                    NSArray *obj = [self.cache objectForKey:str];
-                    NSDate  *objDate = [obj objectAtIndex:kCacheDateAndTime];
+                    NSArray *obj = self.cache[str];
+                    NSDate  *objDate = obj[kCacheDateAndTime];
                     if (oldestKey == nil  || [oldestDate compare:objDate] == NSOrderedDescending)
                     {
                         oldestKey    = str;
@@ -148,7 +148,7 @@
 
 - (void)removeFromCache:(NSString *)cacheQuery
 {
-    if ([UserPrefs getSingleton].useCaching)
+    if ([UserPrefs singleton].useCaching)
     {
         [self openCache];
         [self.cache removeObjectForKey:cacheQuery]; 

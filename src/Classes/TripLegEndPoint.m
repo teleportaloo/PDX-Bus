@@ -30,6 +30,7 @@
 @synthesize leftColor       = _leftColor;
 @synthesize xnumber			= _xnumber;
 @synthesize thruRoute       = _thruRoute;
+@dynamic pinTint;
 
 - (void)dealloc {
 	
@@ -74,35 +75,13 @@
 {
 	if (self.xstopId)
 	{
-		return [NSString stringWithFormat:@"%d", [self.xstopId	intValue]];
+		return [NSString stringWithFormat:@"%d", self.xstopId.intValue];
 	}
 	return nil;
 }
 
-- (bool)mapTapped:(id<BackgroundTaskProgress>) progress
-{
-	if (self.callback != nil)
-	{
-		[self.callback chosenEndpoint:self];
-		
-		return YES;
-	}
-	return NO;
-}
 
-- (NSString *)tapActionText
-{
-	if (self.callback != nil)
-	{
-		return @"Choose this stop";
-	}
-	else {
-		return @"Show arrivals";
-	}
-    
-}
-
-- (MKPinAnnotationColor) getPinColor
+- (MKPinAnnotationColor) pinColor
 {
 	return MKPinAnnotationColorGreen;
 }
@@ -116,8 +95,8 @@
 {
 	CLLocationCoordinate2D pos;
 	
-	pos.latitude = [self.xlat doubleValue];
-	pos.longitude = [self.xlon doubleValue];
+	pos.latitude =  self.xlat.doubleValue;
+	pos.longitude = self.xlon.doubleValue;
 	return pos;
 }
 
@@ -140,7 +119,7 @@
 	return nil;
 }
 
-- (UIColor *)getPinTint
+- (UIColor *)pinTint
 {
     return nil;
 }

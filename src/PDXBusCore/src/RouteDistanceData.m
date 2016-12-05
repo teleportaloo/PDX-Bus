@@ -23,11 +23,11 @@
 @synthesize route = _route;
 @synthesize stops = _stops;
 
-- (id)init
+- (instancetype)init
 {
 	if ((self = [super init]))
 	{	
-		self.stops = [[[NSMutableArray alloc] init] autorelease];
+        self.stops = [NSMutableArray array];
 	}
 	return self;
 }
@@ -51,9 +51,8 @@
 
 -(NSComparisonResult)compareUsingDistance:(RouteDistanceData*)inRoute
 {
-	StopDistanceData *stop =   [self.stops objectAtIndex:0];
-	StopDistanceData *inStop = [inRoute.stops objectAtIndex:0];
-	
+    StopDistanceData *stop =   self.stops.firstObject;
+    StopDistanceData *inStop = inRoute.stops.firstObject;
 	
 	if (stop.distance < inStop.distance)
 	{

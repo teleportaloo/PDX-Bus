@@ -26,7 +26,7 @@
   NSString *body;
 }
 
-@property (nonatomic, copy) NSString *body;
+@property (nonatomic, copy)   NSString *body;
 
 + (id)actionWithNumber:(NSString *)number body:(NSString *)body;
 + (id)actionWithNumber:(NSString *)number;

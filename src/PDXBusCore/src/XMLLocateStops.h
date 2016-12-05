@@ -18,17 +18,13 @@
 #import "StopDistanceData.h"
 
 @interface XMLLocateStops : TriMetXML {
-	StopDistanceData *_currentStop;
-	CLLocation *_location;
-	
-	NSMutableDictionary *_routes;
-	
-	TripMode _mode;
-	int _maxToFind;
-	double _minDistance;
-	
-	
-	TripMode _currentMode;
+	StopDistanceData *      _currentStop;
+	CLLocation *            _location;
+	NSMutableDictionary *   _routes;
+	TripMode                _mode;
+	int                     _maxToFind;
+	double                  _minDistance;
+	TripMode                _currentMode;
 }
 
 @property (nonatomic, retain) NSMutableDictionary *routes;
@@ -38,7 +34,7 @@
 @property (nonatomic) int maxToFind;
 @property (nonatomic) double minDistance;
 
-- (BOOL)findNearestStops;
-- (BOOL)findNearestRoutes;
+@property (nonatomic, readonly) BOOL findNearestStops;
+@property (nonatomic, readonly) BOOL findNearestRoutes;
 
 @end

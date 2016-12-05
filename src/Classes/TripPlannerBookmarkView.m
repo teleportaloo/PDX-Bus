@@ -36,17 +36,15 @@
 
 #pragma mark Data fetchers
 
-- (void)fetchNamesForLocations:(NSString*) loc
+- (void)workerToFetchNamesForLocations:(NSString*) loc
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
 	[UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
 	
-	NSString *aLoc;
-	
-    self.locList = [[[NSMutableArray alloc] init] autorelease];
+    self.locList = [NSMutableArray array];
     
-    NSArray *idList  = [StringHelper arrayFromCommaSeparatedString:loc];
+    NSArray *idList  = loc.arrayFromCommaSeparatedString;
 	
     int items = (int)idList.count;
 	
@@ -57,10 +55,9 @@
     
     StopNameCacheManager *stopNameCache = [TriMetXML getStopNameCacheManager];
 	
-    for (int i=0; i<idList.count; i++)
+    for (NSString *aLoc in idList)
 	{
-        aLoc = [idList objectAtIndex:i];
-        NSArray *stopName = [stopNameCache getStopNameAndCache:aLoc];
+        NSArray *stopName = [stopNameCache getStopName:aLoc fetchAndCache:YES updated:nil];
 		[self.locList addObject:stopName];
 		
         [self.backgroundTask.callbackWhenFetching backgroundItemsDone:items];
@@ -75,11 +72,11 @@
 	
 }
 
-- (void)fetchNamesForLocationsInBackground:(id<BackgroundTaskProgress>)callback loc:(NSString*) loc
+- (void)fetchNamesForLocationsAsync:(id<BackgroundTaskProgress>)callback loc:(NSString*) loc
 {
 	self.backgroundTask.callbackWhenFetching = callback;
 	
-	[NSThread detachNewThreadSelector:@selector(fetchNamesForLocations:) toTarget:self withObject:loc];
+	[NSThread detachNewThreadSelector:@selector(workerToFetchNamesForLocations:) toTarget:self withObject:loc];
 }
 
 #pragma mark View methods
@@ -89,7 +86,7 @@
 	
 	if (self.title == nil)
 	{
-		self.title = @"Bookmarked stops";
+        self.title = NSLocalizedString(@"Bookmarked stops", @"page title");
 	}
 
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
@@ -114,9 +111,9 @@
 {
 	if (self.from)
 	{
-		return @"Choose a starting stop:";
+		return NSLocalizedString(@"Choose a starting stop:", @"section header");
 	}
-	return @"Choose a destination stop:";
+	return NSLocalizedString(@"Choose a destination stop:", @"section header");
 }
 
 
@@ -138,13 +135,13 @@
     }
     
     // Set up the cell...
-	NSArray *stopName = [self.locList objectAtIndex:indexPath.row];
+	NSArray *stopName = self.locList[indexPath.row];
 	
 	// cell.textLabel.text = dep.locDesc;
-    cell.textLabel.text = [stopName objectAtIndex:kStopNameCacheLongDescription];
+    cell.textLabel.text = stopName[kStopNameCacheLongDescription];
 	
 	cell.textLabel.adjustsFontSizeToFitWidth = true;
-	cell.textLabel.font = [self getBasicFont];
+	cell.textLabel.font = self.basicFont;
 	
 	if (cell.textLabel.text != nil)
 	{
@@ -162,22 +159,22 @@
 	// [self.navigationController pushViewController:anotherViewController];
 	// [anotherViewController release];
 	
-	NSArray *stopName = [self.locList objectAtIndex:indexPath.row];
+	NSArray *stopName = self.locList[indexPath.row];
 	
 /*	if ([self.callback getController] != nil)
 	{
-		[[self navigationController] popToViewController:[self.callback getController] animated:YES];
+		[self.navigationController popToViewController:[self.callback getController] animated:YES];
 	} */
 	
 	if ([self.callback respondsToSelector:@selector(selectedStop:desc:)])
 	{
 		
 		// cell.textLabel.text = dep.locDesc;
-		[self.callback selectedStop:[stopName objectAtIndex:kStopNameCacheLocation] desc:[stopName objectAtIndex:kStopNameCacheLongDescription]];
+		[self.callback selectedStop:stopName[kStopNameCacheLocation] desc:stopName[kStopNameCacheLongDescription]];
 	}
 	else 
 	{
-		[self.callback selectedStop:[stopName objectAtIndex:kStopNameCacheLocation]];
+		[self.callback selectedStop:stopName[kStopNameCacheLocation]];
 	}
 	
 }

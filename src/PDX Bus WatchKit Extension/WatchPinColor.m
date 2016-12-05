@@ -16,12 +16,12 @@
 
 @implementation SimpleWatchPin
 
-- (WKInterfaceMapPinColor)getPinColor
+- (WKInterfaceMapPinColor)pinColor
 {
     return self.simplePinColor;
 }
 
-- (UIColor*)getPinTint
+- (UIColor*)pinTint
 {
     return nil;
 }
@@ -29,7 +29,7 @@
 {
     return NO;
 }
-- (double)bearing
+- (double)doubleBearing
 {
     return 0.0;
 }

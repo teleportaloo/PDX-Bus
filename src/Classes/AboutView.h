@@ -19,8 +19,8 @@
 @interface AboutView : TableViewWithToolbar {
 	NSAttributedString *thanksText;
 	NSAttributedString *introText;
-    NSArray *links;
-    NSArray *legal;
+    NSArray<NSDictionary<NSString*, NSString*>*> *links;
+    NSArray<NSDictionary<NSString*, NSString*>*> *legal;
     
     
     bool _hideButton;

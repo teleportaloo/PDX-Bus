@@ -30,9 +30,9 @@ typedef enum _watch_app_state
 
 @interface PebbleSportsDisplay : ExternalDisplayDevice <PBWatchDelegate>
 {
-    PBWatch *_watch;
-    id      _watchCallback;
-    WATCH_APP_STATE    _watchAppState;
+    PBWatch *           _watch;
+    id                  _watchCallback;
+    WATCH_APP_STATE     _watchAppState;
 }
 
 @property (atomic)         WATCH_APP_STATE watchAppState;

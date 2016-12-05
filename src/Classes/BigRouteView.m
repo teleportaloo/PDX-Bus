@@ -77,7 +77,7 @@
 	label.autoresizingMask = UIViewAutoresizingFlexibleWidth;
 	[self.view addSubview:label];
 	
-	ROUTE_COL *col = [TriMetRouteColors rawColorForRoute:self.departure.route];
+	const ROUTE_COL *col = [TriMetRouteColors rawColorForRoute:self.departure.route];
 	
 	if (col == nil)
 	{
@@ -104,7 +104,7 @@
 	self.title = NSLocalizedString(@"Bus line identifier", @"screen title");
 	[self createTextView];
 
-    ROUTE_COL *col = [TriMetRouteColors rawColorForRoute:self.departure.route];
+    const ROUTE_COL *col = [TriMetRouteColors rawColorForRoute:self.departure.route];
 	
     
     if (col == nil)
@@ -120,12 +120,12 @@
 	
 	UIBarButtonItem *info = [[[UIBarButtonItem alloc]
 							  initWithTitle:NSLocalizedString(@"info", @"button text")
-							  style:UIBarButtonItemStyleBordered
+							  style:UIBarButtonItemStylePlain
 							  target:self action:@selector(infoAction:)] autorelease];
 	
 
 	self.navigationItem.rightBarButtonItem = info;
-	[[self navigationController] setToolbarHidden:NO animated:NO];
+	[self.navigationController setToolbarHidden:NO animated:NO];
 		
 	[UIApplication sharedApplication].idleTimerDisabled = YES;
     [super viewWillAppear:animated];
@@ -140,7 +140,7 @@
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event { 
-	[[self navigationController] popViewControllerAnimated:YES];
+	[self.navigationController popViewControllerAnimated:YES];
 }
 
 - (void)dealloc {
@@ -152,7 +152,7 @@
 
 - (void)updateToolbarItems:(NSMutableArray *)toolbarItems
 {
-    [toolbarItems addObject:[CustomToolbar autoNoSleepWithTarget:self action:@selector(infoAction:)]];
+    [toolbarItems addObject:[UIToolbar autoNoSleepWithTarget:self action:@selector(infoAction:)]];
     [self maybeAddFlashButtonWithSpace:YES buttons:toolbarItems big:NO];
 }
 

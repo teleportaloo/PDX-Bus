@@ -29,7 +29,7 @@
 	[ super drawRect: rect ];
 	
 	if( self.enabled && self.trackingInside ) {
-		CGRect bounds = [ self bounds ];
+		CGRect bounds = self.bounds ;
 		
 		[ [ UIColor whiteColor ] set ];
 		CGContextStrokeRectWithWidth( UIGraphicsGetCurrentContext(), 
@@ -74,7 +74,7 @@
 - (BOOL) continueTrackingWithTouch: (UITouch*) touch withEvent: (UIEvent*) event
 {
 	BOOL wasTrackingInside = self.trackingInside;
-	BOOL isTrackingInside = CGRectContainsPoint( [ self bounds ], [ touch locationInView: self ] );
+	BOOL isTrackingInside = CGRectContainsPoint( self.bounds , [ touch locationInView: self ] );
 	
 	self.trackingInside = isTrackingInside;
 	
@@ -100,7 +100,7 @@
 {
 	self.trackingInside = NO;
 
-	if( CGRectContainsPoint( [ self bounds ], [ touch locationInView: self ] ) ) {
+	if( CGRectContainsPoint( self.bounds , [ touch locationInView: self ] ) ) {
 		[ self sendActionsForControlEvents: UIControlEventTouchUpInside ];
 	}
 	else {

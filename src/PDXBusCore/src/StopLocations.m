@@ -58,27 +58,27 @@ static StopLocations *singleton;
 
 - (void)close
 {
-	if (database !=nil)
+	if (_database !=nil)
 	{
-		if (insert_statement !=nil)
+		if (_insert_statement !=nil)
 		{
-			sqlite3_finalize(insert_statement);
-			insert_statement = nil;
+			sqlite3_finalize(_insert_statement);
+			_insert_statement = nil;
 		}
 		
-		if (replace_statement !=nil)
+		if (_replace_statement !=nil)
 		{
-			sqlite3_finalize(replace_statement);
-			replace_statement = nil;
+			sqlite3_finalize(_replace_statement);
+			_replace_statement = nil;
 		}
 		
-		if (select_statement !=nil)
+		if (_select_statement !=nil)
 		{
-			sqlite3_finalize(select_statement);
-			select_statement = nil;
+			sqlite3_finalize(_select_statement);
+			_select_statement = nil;
 		}
-		sqlite3_close(database);
-		database = nil;
+		sqlite3_close(_database);
+		_database = nil;
         
         DEBUG_LOG(@"Database path:%@\n",self.path);
 	}
@@ -86,7 +86,7 @@ static StopLocations *singleton;
 
 - (void)open
 {	
-//	SafeUserData *userData = [SafeUserData getSingleton]; 
+//	SafeUserData *userData = [SafeUserData singleton]; 
 	
 	[self close];
 	
@@ -112,10 +112,10 @@ static StopLocations *singleton;
         options = SQLITE_OPEN_READONLY;
     }
 	
-	if (sqlite3_open_v2([self.path UTF8String], &database,options, NULL) != SQLITE_OK)
+	if (sqlite3_open_v2(self.path.UTF8String, &_database,options, NULL) != SQLITE_OK)
 	{
-		sqlite3_close(database);
-		NSAssert1(0, @"Failed to open database with message '%s'.", sqlite3_errmsg(database));
+		sqlite3_close(_database);
+		NSAssert1(0, @"Failed to open database with message '%s'.", sqlite3_errmsg(_database));
 	}
 
 }
@@ -126,7 +126,7 @@ static StopLocations *singleton;
     {
         NSFileManager *fileManager = [NSFileManager defaultManager];
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-        NSString *documentsDirectory = [paths objectAtIndex:0];
+        NSString *documentsDirectory = paths.firstObject;
         NSError *error = nil;
         self.path = [documentsDirectory stringByAppendingPathComponent:kRailOnlyDB];
         
@@ -140,12 +140,12 @@ static StopLocations *singleton;
     
     CODE_LOG(@"\n--------\nLocation DB file path\n--------\n%@\n", self.path);
     
-    database = nil;
+    _database = nil;
     
     [self open];
 }
 
-- (id) init
+- (instancetype) init
 {
 	if ((self = [super init]))
 	{
@@ -158,7 +158,7 @@ static StopLocations *singleton;
 }
 
 
-- (id) initWritable
+- (instancetype) initWritable
 {
     if ((self = [super init]))
     {
@@ -185,7 +185,7 @@ static StopLocations *singleton;
 	// shipped.
 	
 	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-	NSString *documentsDirectory = [paths objectAtIndex:0];
+    NSString *documentsDirectory = paths.firstObject;
 	self.path = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.%@", kRailOnlyDB, kSqlFile]];
 	
 	[fileManager removeItemAtPath:self.path error:&error];
@@ -196,7 +196,7 @@ static StopLocations *singleton;
 	
 	[self open];
 
-	[[SafeUserData getSingleton] setLocationDatabaseDate:kUnknownDate];
+	[[SafeUserData singleton] setLocationDatabaseDate:kUnknownDate];
 	
 	DEBUG_LOG(@"New location database path: %@\n", self.path);
 	
@@ -209,28 +209,28 @@ static StopLocations *singleton;
 	bool res = YES;
 	// Get the primary key for all books.
 	
-	if (database == nil)
+	if (_database == nil)
 	{
 		return YES;
 	}
 	
-	if (select_statement==nil)
+	if (_select_statement==nil)
 	{
 		static const char *sql = "SELECT locid FROM stops";
 		// Preparing a statement compiles the SQL query into a byte-code program in the SQLite library.
 		// The third parameter is either the length of the SQL string or -1 to read up to the first null terminator.        
-		if (sqlite3_prepare_v2(database, sql, -1, &select_statement, NULL) != SQLITE_OK) {
-			NSAssert1(0, @"Error: failed to prepare statement with message '%s'.", sqlite3_errmsg(database));
+		if (sqlite3_prepare_v2(_database, sql, -1, &_select_statement, NULL) != SQLITE_OK) {
+			NSAssert1(0, @"Error: failed to prepare statement with message '%s'.", sqlite3_errmsg(_database));
 		}
 	}
 	
 	// We "step" through the results - once for each row.
-	if (sqlite3_step(select_statement) == SQLITE_ROW)
+	if (sqlite3_step(_select_statement) == SQLITE_ROW)
 	{
 		res = FALSE;
 	}
 
-	sqlite3_reset(select_statement);
+	sqlite3_reset(_select_statement);
 	return res;
 }
 
@@ -257,8 +257,8 @@ static StopLocations *singleton;
 		
 	if (fileAttributes != nil) {
 		NSNumber *fileSize;
-		if ((fileSize = [fileAttributes objectForKey:NSFileSize])) {
-			return [fileSize unsignedLongLongValue];
+		if ((fileSize = fileAttributes[NSFileSize])) {
+			return fileSize.unsignedLongLongValue;
 		}
 	}
 	return 0;
@@ -268,8 +268,8 @@ static StopLocations *singleton;
 {
 	sqlite3_stmt *count_statement = nil;
 	static char *sql = "SELECT COUNT(*) FROM STOPS";
-	if (sqlite3_prepare_v2(database, sql, -1, &count_statement, NULL) != SQLITE_OK) {
-		NSAssert1(0, @"Error: failed to prepare statement with message '%s'.", sqlite3_errmsg(database));
+	if (sqlite3_prepare_v2(_database, sql, -1, &count_statement, NULL) != SQLITE_OK) {
+		NSAssert1(0, @"Error: failed to prepare statement with message '%s'.", sqlite3_errmsg(_database));
 		return 0;
 	}
 	sqlite3_step(count_statement);
@@ -283,20 +283,20 @@ static StopLocations *singleton;
 
 - (BOOL)insert:(int) locid lat:(double)lat lng:(double)lng rail:(bool)rail
 {
-	if (insert_statement == nil) 
+	if (_insert_statement == nil)
 	{
         static char *sql = "INSERT INTO stops (locid,lat,lng,rail) VALUES(?,?,?,?)";
-        if (sqlite3_prepare_v2(database, sql, -1, &insert_statement, NULL) != SQLITE_OK) {
-            NSAssert1(0, @"Error: failed to prepare statement with message '%s'.", sqlite3_errmsg(database));
+        if (sqlite3_prepare_v2(_database, sql, -1, &_insert_statement, NULL) != SQLITE_OK) {
+            NSAssert1(0, @"Error: failed to prepare statement with message '%s'.", sqlite3_errmsg(_database));
 			return FALSE;
         }
 	}
 	
-	if (replace_statement == nil) 
+	if (_replace_statement == nil)
 	{
         static char *sql = "REPLACE INTO stops (locid,lat,lng,rail) VALUES(?,?,?,?)";
-        if (sqlite3_prepare_v2(database, sql, -1, &replace_statement, NULL) != SQLITE_OK) {
-            NSAssert1(0, @"Error: failed to prepare statement with message '%s'.", sqlite3_errmsg(database));
+        if (sqlite3_prepare_v2(_database, sql, -1, &_replace_statement, NULL) != SQLITE_OK) {
+            NSAssert1(0, @"Error: failed to prepare statement with message '%s'.", sqlite3_errmsg(_database));
 			return FALSE;
         }
 	}
@@ -305,36 +305,36 @@ static StopLocations *singleton;
 	
 	if (rail)
 	{
-		insert_or_replace = replace_statement;
+		insert_or_replace = _replace_statement;
 	}
 	else {
-		insert_or_replace = insert_statement;
+		insert_or_replace = _insert_statement;
 	}
 
 	
 	if (sqlite3_bind_int(insert_or_replace, 1, locid) != SQLITE_OK)
 	{
-		NSAssert1(0, @"Error: failed to bind locid into the database with message '%s'.", sqlite3_errmsg(database));
+		NSAssert1(0, @"Error: failed to bind locid into the database with message '%s'.", sqlite3_errmsg(_database));
 		return FALSE;	
 	}
 	
 	
 	if (sqlite3_bind_double(insert_or_replace, 2, lat) != SQLITE_OK)
 	{
-		NSAssert1(0, @"Error: failed to bind lat into the database with message '%s'.", sqlite3_errmsg(database));
+		NSAssert1(0, @"Error: failed to bind lat into the database with message '%s'.", sqlite3_errmsg(_database));
 		return FALSE;	
 	}
 	
 	
 	if (sqlite3_bind_double(insert_or_replace, 3, lng) != SQLITE_OK)
 	{
-		NSAssert1(0, @"Error: failed to bind lng into the database with message '%s'.", sqlite3_errmsg(database));
+		NSAssert1(0, @"Error: failed to bind lng into the database with message '%s'.", sqlite3_errmsg(_database));
 		return FALSE;
 	}
 	
 	if (sqlite3_bind_int(insert_or_replace, 4, rail) != SQLITE_OK)
 	{
-		NSAssert1(0, @"Error: failed to bind lng into the database with message '%s'.", sqlite3_errmsg(database));
+		NSAssert1(0, @"Error: failed to bind lng into the database with message '%s'.", sqlite3_errmsg(_database));
 		return FALSE;
 	}
 	
@@ -342,8 +342,8 @@ static StopLocations *singleton;
 	sqlite3_step(insert_or_replace);
 	
     if (sqlite3_reset(insert_or_replace) != SQLITE_OK) {
-     printf("Error: failed to insert into the database with message '%s'.", sqlite3_errmsg(database));
-      NSAssert1(0, @"Error: failed to insert into the database with message '%s'.", sqlite3_errmsg(database));
+     printf("Error: failed to insert into the database with message '%s'.", sqlite3_errmsg(_database));
+      NSAssert1(0, @"Error: failed to insert into the database with message '%s'.", sqlite3_errmsg(_database));
 		return FALSE;
     }
 	// printf("Inserted %d\n", locid);
@@ -364,7 +364,7 @@ static StopLocations *singleton;
 	sqlite3_stmt *statement;
 	// Preparing a statement compiles the SQL query into a byte-code program in the SQLite library.
 	// The third parameter is either the length of the SQL string or -1 to read up to the first null terminator.        
-	if (sqlite3_prepare_v2(database, sql, -1, &statement, NULL) == SQLITE_OK) {
+	if (sqlite3_prepare_v2(_database, sql, -1, &statement, NULL) == SQLITE_OK) {
 		// We "step" through the results - once for each row.
 		while (sqlite3_step(statement) == SQLITE_ROW) {
 			
@@ -394,7 +394,7 @@ static StopLocations *singleton;
 	int locid;
 	double lat;
 	double lng;
-	self.nearestStops = [[[NSMutableArray alloc] init] autorelease];
+    self.nearestStops = [NSMutableArray array];
 	CLLocationDistance curDist;
 	int i;
 	StopDistanceData *stopDistance;
@@ -414,7 +414,7 @@ static StopLocations *singleton;
 	sqlite3_stmt *statement;
 	// Preparing a statement compiles the SQL query into a byte-code program in the SQLite library.
 	// The third parameter is either the length of the SQL string or -1 to read up to the first null terminator.        
-	if (sqlite3_prepare_v2(database, sql, -1, &statement, NULL) == SQLITE_OK) {
+	if (sqlite3_prepare_v2(_database, sql, -1, &statement, NULL) == SQLITE_OK) {
 		// We "step" through the results - once for each row.
 		while (sqlite3_step(statement) == SQLITE_ROW) {
 			
@@ -431,27 +431,27 @@ static StopLocations *singleton;
 			if (min == 0.0  || curDist < min)
 			{
 			
-				for (i=0; i < [self.nearestStops count]; i++)
+				for (i=0; i < self.nearestStops.count; i++)
 				{
-					stopDistance = [self.nearestStops objectAtIndex:i];
+					stopDistance = self.nearestStops[i];
 					if (stopDistance.distance > curDist )
 					{
 						break;
 					}
 				}
 				
-				if ( i < [self.nearestStops count])
+				if ( i < self.nearestStops.count)
 				{
 					newDistance = [[StopDistanceData alloc] initWithLocId:locid distance:curDist accuracy:here.horizontalAccuracy];
 					[self.nearestStops insertObject:newDistance atIndex:i]; 
 					[newDistance release];
 					
-					while ([self.nearestStops count] > max)
+					while (self.nearestStops.count > max)
 					{
-						[self.nearestStops removeObjectAtIndex:[self.nearestStops count]-1];
+						[self.nearestStops removeObjectAtIndex:self.nearestStops.count-1];
 					}
 				}
-				else if ([self.nearestStops count] < max)
+				else if (self.nearestStops.count < max)
 				{
 					newDistance = [[StopDistanceData alloc] initWithLocId:locid distance:curDist accuracy:here.horizontalAccuracy];
 					[self.nearestStops addObject:newDistance]; 

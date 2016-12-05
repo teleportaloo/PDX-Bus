@@ -51,13 +51,13 @@
 
 - (NSMutableArray*)getOrInitRecentTrips
 {
-    NSMutableArray *recentTrips = [self.appData objectForKey:kRecentTrips];
+    NSMutableArray *recentTrips = self.appData[kRecentTrips];
     
     if (recentTrips == nil)
     {
-        recentTrips = [[[NSMutableArray alloc] init] autorelease];
+        recentTrips = [NSMutableArray array];
         
-        [self.appData setObject:recentTrips forKey:kRecentTrips];
+        self.appData[kRecentTrips] = recentTrips;
         [self cacheAppData];
     }
     
@@ -68,14 +68,14 @@
 {
     if (self.appData == nil)
     {
-        self.appData = [[[NSMutableDictionary alloc] initWithContentsOfURL:self.sharedUserCopyOfPlist.urlToSharedFile] autorelease];
+        self.appData = [NSMutableDictionary dictionaryWithContentsOfURL:self.sharedUserCopyOfPlist.urlToSharedFile];
         
         [self getOrInitRecentTrips];
         
     }
 }
 
-- (id)init {
+- (instancetype)init {
 	if ((self = [super init]))
 	{
         self.sharedUserCopyOfPlist = [[[SharedFile alloc] initWithFileName:@"appData.plist" initFromBundle:YES] autorelease];
@@ -86,15 +86,15 @@
 	return self;
 }
 
-+ (SafeUserData *)getSingleton
++ (SafeUserData *)singleton
 {
 	static SafeUserData *singleton = nil;
 	
-	if (singleton == nil)
-	{
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
 		singleton = [[SafeUserData alloc] init];
         [MemoryCaches addCache:singleton];
-	}
+    });
 	return [[singleton retain] autorelease];
 }
 
@@ -102,7 +102,7 @@
 {
 	@synchronized (self)
 	{
-        if (self.appData && ! self.readOnly)
+        if (self.appData && !self.readOnly)
         {
             [self.sharedUserCopyOfPlist writeDictionary:self.appData];
         }
@@ -114,7 +114,7 @@
 	@synchronized (self)
 	{
         [self load];
-		[self.appData setObject:@"" forKey:kLast];	
+		self.appData[kLast] = @"";
 		[self.appData removeObjectForKey:kLastNames];
 	}
 }
@@ -124,7 +124,7 @@
 	@synchronized (self)
 	{
         [self load];
-		[self.appData setObject:locations forKey:kLast];
+		self.appData[kLast] = locations;
 	
 		DEBUG_PRINTF("setLastArrivals %s\n", [locations cStringUsingEncoding:NSUTF8StringEncoding]);
 		[self cacheAppData];
@@ -138,7 +138,7 @@
         [self load];
 		if (names != nil)
 		{
-			[self.appData setObject:names forKey:kLastNames];
+			self.appData[kLastNames] = names;
 		}
 		else {
 			[self.appData removeObjectForKey:kLastNames];
@@ -153,7 +153,7 @@
     @synchronized (self)
 	{
         [self load];
-		NSMutableDictionary *takeMeHome   = [self.appData objectForKey:kTakeMeHome];
+		NSMutableDictionary *takeMeHome   = self.appData[kTakeMeHome];
 		
 		return takeMeHome;
 	}
@@ -164,7 +164,7 @@
     @synchronized (self)
 	{
         [self load];
-        [self.appData setObject:userRequest forKey:kTakeMeHome];
+        self.appData[kTakeMeHome] = userRequest;
         
         [self cacheAppData];
     }
@@ -173,11 +173,11 @@
 
 - (NSDictionary *)tripArchive:(NSDictionary *)userRequest description:(NSString *)desc blob:(NSData *)blob
 {
-    NSMutableDictionary *newItem = [[[NSMutableDictionary alloc] init] autorelease];
+    NSMutableDictionary *newItem = [NSMutableDictionary dictionary];
     
-    [newItem setObject:userRequest forKey:kUserFavesTrip];
-    [newItem setObject:blob forKey:kUserFavesTripResults];
-    [newItem setObject:desc forKey:kUserFavesChosenName];
+    newItem[kUserFavesTrip] = userRequest;
+    newItem[kUserFavesTripResults] = blob;
+    newItem[kUserFavesChosenName] = desc;
     
     return newItem;
 
@@ -196,7 +196,7 @@
 		
 	
 		
-		int maxRecents = [UserPrefs getSingleton].maxRecentTrips;
+		int maxRecents = [UserPrefs singleton].maxRecentTrips;
 		
 		while (recentTrips.count > maxRecents)
 		{
@@ -208,14 +208,16 @@
 	}
 }
 
-- (void)addToRecentsWithLocation:(NSString *)locid description:(NSString *)desc
+- (NSDictionary *)addToRecentsWithLocation:(NSString *)locid description:(NSString *)desc
 {
 	@synchronized (self)
 	{
         [self load];
         
+        NSMutableDictionary *newItem = nil;
+        
 		// NSMutableArray *userFaves = [self.favesAndRecents objectForKey:kFaves];
-		NSMutableArray *recents   = [self.appData objectForKey:kRecents];
+		NSMutableArray *recents   = self.appData[kRecents];
 		
 		
 		/*
@@ -234,26 +236,25 @@
 		int j = 0;
 		
 		
-		for (j = 0; j < [recents count] ; j++)
+		for (j = 0; j < recents.count ; j++)
 		{
-			if ([[[recents objectAtIndex:j] objectForKey:kUserFavesLocation] isEqualToString:locid])
+			if ([recents[j][kUserFavesLocation] isEqualToString:locid])
 			{
 				[recents removeObjectAtIndex:j];
 				j--;
 			}	
 		}
 		
-		NSMutableDictionary *newItem = [[NSMutableDictionary alloc] init];
+        newItem = [NSMutableDictionary dictionary];
 		
-		[newItem setObject:locid forKey:kUserFavesLocation];
-		[newItem setObject:desc forKey:kUserFavesOriginalName];
-		[newItem setObject:desc forKey:kUserFavesChosenName];
+		newItem[kUserFavesLocation]     = locid;
+		newItem[kUserFavesOriginalName] = desc;
+		newItem[kUserFavesChosenName]   = desc;
 		
 		
 		[recents insertObject:newItem atIndex:0];
-		[newItem release];
 		
-		int maxRecents = [UserPrefs getSingleton].maxRecentStops;
+		int maxRecents = [UserPrefs singleton].maxRecentStops;
 		
 		while (recents.count > maxRecents)
 		{
@@ -262,6 +263,8 @@
 		
 		_favesChanged = true;
         [self cacheAppData];
+        
+        return newItem;
 	}
 }
 
@@ -270,7 +273,7 @@
 	@synchronized (self)
 	{
         [self load];
-		return [self.appData objectForKey:kFaves];
+		return self.appData[kFaves];
 	}
 }
 
@@ -280,7 +283,7 @@
     {
         [self load];
         
-        NSMutableArray *favesArrivalsOnly = [[[NSMutableArray alloc] init] autorelease];
+        NSMutableArray *favesArrivalsOnly = [NSMutableArray array];
         NSMutableArray *faves = self.faves;
         
         NSDictionary *item;
@@ -288,7 +291,7 @@
         
         for (item in faves)
         {
-            if ([item valueForKey:kUserFavesTrip] == nil)
+            if (item[kUserFavesTrip] == nil)
             {
                 [favesArrivalsOnly addObject:item];
             }
@@ -305,7 +308,7 @@
 	{
         self.appData = nil;
         [self load];
-		return [self.appData objectForKey:kRecents];
+		return self.appData[kRecents];
 	}
 }
 
@@ -314,7 +317,7 @@
 	@synchronized (self)
 	{
         [self load];
-		return [self.appData objectForKey:kRecentTrips];
+		return self.appData[kRecentTrips];
 	}
 }
 
@@ -323,7 +326,7 @@
 	@synchronized (self)
 	{
         [self load];
-		return [self.appData objectForKey:kLast];
+		return self.appData[kLast];
 	}
 }
 
@@ -332,7 +335,7 @@
 	@synchronized (self)
 	{
         [self load];
-		return [self.appData objectForKey:kLastNames];
+		return self.appData[kLastNames];
 	}
 }
 
@@ -343,7 +346,7 @@
         [self load];
 		if (last!=nil)
 		{
-			[self.appData setObject:last forKey:self.lastRunKey];
+			self.appData[self.lastRunKey] = last;
 		}
 		else
 		{
@@ -360,7 +363,7 @@
 	{
         self.appData = nil;
         [self load];
-		return [self.appData objectForKey:self.lastRunKey];
+		return self.appData[self.lastRunKey];
 	}	
 }
 
@@ -369,7 +372,7 @@
 	@synchronized (self)
 	{
         [self load];
-		return [self.appData objectForKey:kLastTrip];
+		return self.appData[kLastTrip];
 	}
 }
 
@@ -378,10 +381,10 @@
 	@synchronized (self)
 	{
         [self load];
-		[self.appData setObject:dict forKey:kLastTrip];
+		self.appData[kLastTrip] = dict;
 	}
 	
-	[self favesChanged];
+    self.favesChanged = YES;
 	[self cacheAppData];
 }
 
@@ -391,7 +394,7 @@
 	@synchronized (self)
 	{
         [self load];
-		return [self.appData objectForKey:kLastLocate];
+		return self.appData[kLastLocate];
 	}
 }
 
@@ -400,10 +403,10 @@
 	@synchronized (self)
 	{
         [self load];
-		[self.appData setObject:dict forKey:kLastLocate];
+		self.appData[kLastLocate] = dict;
 	}
 	
-	[self favesChanged];
+    self.favesChanged = YES;
 	[self cacheAppData];
 }
 
@@ -414,7 +417,7 @@
 	@synchronized (self)
 	{
         [self load];
-		[self.appData setObject:date  forKey:@"LocationDatabaseDate"]; 
+		self.appData[kLocateDate] = date;
 	
 		[self cacheAppData];
 	}
@@ -426,7 +429,7 @@
 	@synchronized (self)
 	{
         [self load];
-		return [self.appData objectForKey:@"LocationDatabaseDate"];
+		return self.appData[kLocateDate];
 	}
 }
 
@@ -461,14 +464,14 @@
 	
 	
 	NSDateComponents *comps = [[NSDateComponents alloc] init];
-	[comps setYear:year];
-	[comps setMonth:month];
-	[comps setDay:day];
+	comps.year = year;
+	comps.month = month;
+	comps.day = day;
 	
 	NSDate *databaseDate = [[NSCalendar currentCalendar] dateFromComponents:comps];
 	[comps release];
 	
-	NSTimeInterval age = -[databaseDate timeIntervalSinceNow];
+	NSTimeInterval age = -databaseDate.timeIntervalSinceNow;
 	
 	return age; 
 	
@@ -482,13 +485,29 @@
     NSDate *lastRun					 = [self.lastRun retain];
     NSDate *now						 = [NSDate date];
     
+// Text code forces the commuter bookmark every 30 seconds.
+//    if ([lastRun timeIntervalSinceNow] < -30)
+//    {
+//        [lastRun release];
+//        lastRun = nil;
+//    }
+    
     bool readOnly = self.readOnly;
     
     self.readOnly = FALSE;
-    self.lastRun                     = now;
+    
+    if (onlyOnce)
+    {
+        self.lastRun = now;
+    }
+    
     self.readOnly = readOnly;
     bool firstRunInPeriod			 = YES;
+#ifdef PDXBUS_WATCH
+    unsigned unitFlags				 = NSCalendarUnitYear | NSCalendarUnitMonth |  NSCalendarUnitDay | kCFCalendarUnitHour | kCFCalendarUnitWeekday;
+#else
     unsigned unitFlags				 = NSYearCalendarUnit | NSMonthCalendarUnit |  NSDayCalendarUnit | kCFCalendarUnitHour | kCFCalendarUnitWeekday;
+#endif
     NSCalendar       *cal			 = [NSCalendar currentCalendar];
     NSDateComponents *nowComponents  = [cal components:(NSUInteger)unitFlags fromDate:now];
     
@@ -511,19 +530,19 @@
     {
         int todayBit = (0x1 << nowComponents.weekday);
         
-        NSArray *faves = [self faves];
+        NSArray *faves = self.faves;
         for (NSDictionary * fave in faves)
         {
-            NSNumber *dow = [fave objectForKey:kUserFavesDayOfWeek];
-            NSNumber *am  = [fave objectForKey:kUserFavesMorning];
-            if (dow && [fave objectForKey:kUserFavesLocation]!=nil)
+            NSNumber *dow = fave[kUserFavesDayOfWeek];
+            NSNumber *am  = fave[kUserFavesMorning];
+            if (dow && fave[kUserFavesLocation]!=nil)
             {
                 // does the day of week match our day of week?
-                if (([dow intValue] & todayBit) !=0)
+                if ((dow.intValue & todayBit) !=0)
                 {
                     // Does AM match or PM match?
-                    if ((   (am == nil ||  [am boolValue]) &&  IS_MORNING(nowComponents.hour))
-                        || (am != nil && ![am boolValue]  && !IS_MORNING(nowComponents.hour)))
+                    if ((   (am == nil ||  am.boolValue) &&  IS_MORNING(nowComponents.hour))
+                         || (am != nil && !am.boolValue  && !IS_MORNING(nowComponents.hour)))
                     {
                         return [[fave retain] autorelease];
                     }

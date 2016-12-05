@@ -39,7 +39,7 @@
 @synthesize textPull, textRelease, textLoading, refreshHeaderView, refreshLabel, refreshArrow, refreshSpinner;
 @synthesize secondLine = _secondLine;
 
-- (id)initWithCoder:(NSCoder *)aDecoder {
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
     self = [super initWithCoder:aDecoder];
     if (self != nil) {
         [self setupStrings];
@@ -48,7 +48,7 @@
     return self;
 }
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+- (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self != nil) {
         [self setupStrings];
@@ -59,21 +59,13 @@
 
 - (CGFloat) heightOffset
 {
-    if ([self respondsToSelector:@selector(setEdgesForExtendedLayout:)])
-    {
-        return -20.0;
-    }
-    return 0.0;
+    return -20.0;
 }
 
 - (void)viewDidLoad {
     
     [self addPullToRefreshHeader];
-    
-    if ([self respondsToSelector:@selector(setEdgesForExtendedLayout:)])
-    {
-        [self setEdgesForExtendedLayout:UIRectEdgeNone];
-    }
+    self.edgesForExtendedLayout = UIRectEdgeNone;
     [super viewDidLoad];
 }
 
@@ -88,7 +80,7 @@
 
 - (CGFloat)widthNow
 {
-    CGRect bounds = [[[[UIApplication sharedApplication] delegate] window] bounds];
+    CGRect bounds = [UIApplication sharedApplication].delegate.window.bounds;
     
     return bounds.size.width;
 }
@@ -159,10 +151,10 @@
         if (scrollView.contentOffset.y < -REFRESH_HEADER_HEIGHT) {
             // User is scrolling above the header
             refreshLabel.text = [NSString stringWithFormat:@"%@\n%@", self.textRelease, self.secondLine];
-            [refreshArrow layer].transform = CATransform3DMakeRotation(M_PI, 0, 0, 1);
+            refreshArrow.layer.transform = CATransform3DMakeRotation(M_PI, 0, 0, 1);
         } else { // User is scrolling somewhere within the header
             refreshLabel.text = [NSString stringWithFormat:@"%@\n%@", self.textPull, self.secondLine];
-            [refreshArrow layer].transform = CATransform3DMakeRotation(M_PI * 2, 0, 0, 1);
+            refreshArrow.layer.transform = CATransform3DMakeRotation(M_PI * 2, 0, 0, 1);
         }
         [UIView commitAnimations];
     }
@@ -202,7 +194,7 @@
     [UIView setAnimationDuration:0.3];
     [UIView setAnimationDidStopSelector:@selector(stopLoadingComplete:finished:context:)];
     self.table.contentInset = UIEdgeInsetsZero;
-    [refreshArrow layer].transform = CATransform3DMakeRotation(M_PI * 2, 0, 0, 1);
+    refreshArrow.layer.transform = CATransform3DMakeRotation(M_PI * 2, 0, 0, 1);
     [UIView commitAnimations];
 }
 

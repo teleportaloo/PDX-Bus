@@ -78,14 +78,14 @@
 			CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionText)];
 			if (cell == nil) {
 				cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionText)] autorelease];
-				cell.view = [self create_UITextView:nil font:[self getParagraphFont]];
+				cell.view = [self create_UITextView:nil font:self.paragraphFont];
 			}
 			
-			cell.view.font =  [self getParagraphFont];
-			cell.view.text = [self.data internalData:indexPath.row];
+			cell.view.font =  self.paragraphFont;
+			cell.view.text = [self.data internalData:(int)indexPath.row];
 			// printf("width:  %f\n", cell.view.bounds.size.width);
 			cell.selectionStyle = UITableViewCellSelectionStyleNone;
-			[self updateAccessibility:cell indexPath:indexPath text:[self.data internalData:indexPath.row] alwaysSaySection:YES];
+			[self updateAccessibility:cell indexPath:indexPath text:[self.data internalData:(int)indexPath.row] alwaysSaySection:YES];
 			// cell.backgroundView = [self clearView];
 			return cell;
 			break;
@@ -96,7 +96,7 @@
 			if (cell == nil) {
 				
 				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionMap)] autorelease];
-				cell.textLabel.font =  [self getBasicFont]; //  [UIFont fontWithName:@"Ariel" size:14];
+				cell.textLabel.font =  self.basicFont; //  [UIFont fontWithName:@"Ariel" size:14];
 				cell.textLabel.adjustsFontSizeToFitWidth = YES;
 				cell.textLabel.textAlignment = NSTextAlignmentCenter;
 			}
@@ -117,7 +117,7 @@
 {
 	if (indexPath.section == kSectionText)
 	{
-		return [self getTextHeight:[self.data internalData:indexPath.row] font:[self getParagraphFont]];
+		return [self getTextHeight:[self.data internalData:(int)indexPath.row] font:self.paragraphFont];
 	}
 	return [self basicRowHeight];
 }
@@ -130,11 +130,11 @@
 			switch (indexPath.row)
 			{
 				case kMapRowMap:
-                    [self.data showMap:[self navigationController]];
+                    [self.data showMap:self.navigationController];
 					break;
 				case kMapRowCancel:
 					[self.data cancelTask];
-					[[self navigationController] popViewControllerAnimated:YES];
+					[self.navigationController popViewControllerAnimated:YES];
 					break;
 			}
 			break;

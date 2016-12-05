@@ -14,7 +14,7 @@
 
 #import "NetworkTestView.h"
 #import "CellLabel.h"
-#import "XMLDetour.h"
+#import "XMLDetours.h"
 #import "XMLTrips.h"
 #import "XMLStreetcarLocations.h"
 #import "ReverseGeoLocator.h"
@@ -49,7 +49,7 @@
 
 #pragma mark Data fetchers
 
-- (void)fetchData:(id)arg
+- (void)workerToFetchData:(id)unused
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
@@ -59,17 +59,16 @@
 	
 	[self.backgroundTask.callbackWhenFetching backgroundItemsDone:1];
 	
-	XMLDetour *detours = [[ XMLDetour alloc] init];
+    XMLDetours *detours = [XMLDetours xml];
 	
 	[detours getDetours];
 	
-	self.trimetQueryStatus = [detours gotData];
+	self.trimetQueryStatus = detours.gotData;
 	
-	[detours release];
 	
 	[self.backgroundTask.callbackWhenFetching backgroundItemsDone:2];
 	
-	XMLTrips *trips = [[[XMLTrips alloc] init] autorelease];
+    XMLTrips *trips = [XMLTrips xml];
 	trips.userRequest.dateAndTime = nil;
 	trips.userRequest.arrivalTime = NO;
 	trips.userRequest.timeChoice  = TripDepartAfterTime;
@@ -78,15 +77,15 @@
 	
 	[trips fetchItineraries:nil];
 	
-	self.trimetTripStatus = [trips gotData];
+	self.trimetTripStatus = trips.gotData;
 	
 	[self.backgroundTask.callbackWhenFetching backgroundItemsDone:3];
 	
-	XMLStreetcarLocations *locations = [XMLStreetcarLocations getSingletonForRoute:@"streetcar"];
+	XMLStreetcarLocations *locations = [XMLStreetcarLocations singletonForRoute:@"streetcar"];
 	
 	[locations getLocations];
 	
-	self.nextbusQueryStatus = [locations gotData];
+	self.nextbusQueryStatus = locations.gotData;
 	
 	[self.backgroundTask.callbackWhenFetching backgroundItemsDone:4];
     
@@ -108,7 +107,7 @@
 	
 	[self.backgroundTask.callbackWhenFetching backgroundItemsDone:5];
     
-	NSMutableString *diagnosticString = [[[NSMutableString alloc] init] autorelease];
+	NSMutableString *diagnosticString = [NSMutableString string];
 	
 	if (!self.internetConnectionStatus)
 	{
@@ -138,20 +137,20 @@
 	
 }
 
-- (void)fetchNetworkStatusInBackground:(id<BackgroundTaskProgress>)background
+- (void)fetchNetworkStatusAsync:(id<BackgroundTaskProgress>)background
 {
 	self.backgroundTask.callbackWhenFetching = background;
 	
-	[NSThread detachNewThreadSelector:@selector(fetchData:) toTarget:self withObject:nil];
+	[NSThread detachNewThreadSelector:@selector(workerToFetchData:) toTarget:self withObject:nil];
 	
 }
 
 #pragma mark View Methods
 
-- (id)init {
+- (instancetype)init {
 	if ((self = [super init]))
 	{
-		self.title = @"Network";
+        self.title = NSLocalizedString(@"Network", @"page title");
 	}
 	return self;
 }
@@ -183,7 +182,7 @@
     // add our custom add button as the nav bar's custom right view
     UIBarButtonItem *refreshButton = [[UIBarButtonItem alloc]
                                       initWithTitle:NSLocalizedString(@"Refresh", @"")
-                                      style:UIBarButtonItemStyleBordered
+                                      style:UIBarButtonItemStylePlain
                                       target:self
                                       action:@selector(refreshAction:)];
     self.navigationItem.rightBarButtonItem = refreshButton;
@@ -237,7 +236,7 @@
 {
 	self.backgroundRefresh		= YES;
 	self.networkErrorFromQuery	= nil;
-	[self fetchNetworkStatusInBackground:self.backgroundTask];
+	[self fetchNetworkStatusAsync:self.backgroundTask];
 }
 
 - (UITableViewStyle) getStyle
@@ -255,7 +254,7 @@
 	// Set up the cell...
 	cell.textLabel.adjustsFontSizeToFitWidth = YES;
 	cell.textLabel.textAlignment = NSTextAlignmentCenter;
-	cell.textLabel.font = [self getBasicFont];
+	cell.textLabel.font = self.basicFont;
 	cell.selectionStyle = UITableViewCellSelectionStyleNone;
 	return cell;
 }
@@ -287,22 +286,23 @@
 	
 	switch ([self adjustSectionNumber:indexPath.section])
 	{
+        default:
 		case kSectionInternet:
 			cell = [self networkStatusCell];
 			
 			if (!self.internetConnectionStatus)
 			{
-				cell.textLabel.text = @"Not able to access the Internet";
+                cell.textLabel.text = NSLocalizedString(@"Not able to access the Internet", @"network error");
 				cell.textLabel.textColor = [UIColor redColor];
 				cell.imageView.image = [TableViewWithToolbar alwaysGetIcon:kIconNetworkBad];
-				cell.textLabel.font = [self getBasicFont];
+				cell.textLabel.font = self.basicFont;
 			}
 			else
 			{
-				cell.textLabel.text = @"Internet access is available";
+				cell.textLabel.text = NSLocalizedString(@"Internet access is available", @"network error");
 				cell.imageView.image = [TableViewWithToolbar alwaysGetIcon:kIconNetworkOk];
 				cell.textLabel.textColor = [UIColor blackColor];
-				cell.textLabel.font = [self getBasicFont];
+				cell.textLabel.font = self.basicFont;
 			}
 			break;
 		case kSectionTriMet:
@@ -310,17 +310,17 @@
 			
 			if (!self.trimetQueryStatus)
 			{
-				cell.textLabel.text = @"Not able to access TriMet arrival servers";
+                cell.textLabel.text = NSLocalizedString(@"Not able to access TriMet arrival servers", @"network error");
 				cell.textLabel.textColor = [UIColor redColor];
 				cell.imageView.image = [TableViewWithToolbar alwaysGetIcon:kIconNetworkBad];
-				cell.textLabel.font = [self getBasicFont];
+				cell.textLabel.font = self.basicFont;
 			}
 			else
 			{
-				cell.textLabel.text = @"TriMet arrival servers are available";
+                cell.textLabel.text = NSLocalizedString(@"TriMet arrival servers are available", @"network errror");
 				cell.textLabel.textColor = [UIColor blackColor];
 				cell.imageView.image = [TableViewWithToolbar alwaysGetIcon:kIconNetworkOk];
-				cell.textLabel.font = [self getBasicFont];
+				cell.textLabel.font = self.basicFont;
 			}
 			break;
 		case kSectionTriMetTrip:
@@ -328,17 +328,18 @@
 			
 			if (!self.trimetTripStatus)
 			{
-				cell.textLabel.text = @"Not able to access TriMet trip servers";
+				cell.textLabel.text = NSLocalizedString(@"Not able to access TriMet trip servers", @"network errror");
 				cell.textLabel.textColor = [UIColor redColor];
 				cell.imageView.image = [TableViewWithToolbar alwaysGetIcon:kIconNetworkBad];
-				cell.textLabel.font = [self getBasicFont];
+				cell.textLabel.font = self.basicFont;
 			}
 			else
 			{
-				cell.textLabel.text = @"TriMet trip servers are available";
+                cell.textLabel.text = NSLocalizedString(@"TriMet trip servers are available", @"network errror");
+
 				cell.textLabel.textColor = [UIColor blackColor];
 				cell.imageView.image = [TableViewWithToolbar alwaysGetIcon:kIconNetworkOk];
-				cell.textLabel.font = [self getBasicFont];
+				cell.textLabel.font = self.basicFont;
 			}
 			break;
 		case kSectionNextBus:
@@ -346,17 +347,17 @@
 			
 			if (!self.nextbusQueryStatus)
 			{
-				cell.textLabel.text = @"Not able to access NextBus (Streetcar) servers";
+				cell.textLabel.text = NSLocalizedString(@"Not able to access NextBus (Streetcar) servers", @"network errror");
 				cell.textLabel.textColor = [UIColor redColor];
 				cell.imageView.image = [TableViewWithToolbar alwaysGetIcon:kIconNetworkBad];
-				cell.textLabel.font = [self getBasicFont];
+				cell.textLabel.font = self.basicFont;
 			}
 			else
 			{
-				cell.textLabel.text = @"NextBus (Streetcar) servers are available";
+                cell.textLabel.text = NSLocalizedString(@"NextBus (Streetcar) servers are available", @"network errror");
 				cell.textLabel.textColor = [UIColor blackColor];
 				cell.imageView.image = [TableViewWithToolbar alwaysGetIcon:kIconNetworkOk];
-				cell.textLabel.font = [self getBasicFont];
+				cell.textLabel.font = self.basicFont;
 			}
 			break;
 		case kSectionReverseGeoCode:
@@ -364,24 +365,24 @@
 			
 			if (self.reverseGeoCodeService == nil)
 			{
-				cell.textLabel.text = @"No Reverse GeoCoding service is not supported.";
+				cell.textLabel.text = NSLocalizedString(@"No Reverse GeoCoding service is not supported.", @"network errror");
 				cell.textLabel.textColor = [UIColor grayColor];
 				cell.imageView.image = [TableViewWithToolbar alwaysGetIcon:kIconNetworkOk];
-				cell.textLabel.font = [self getBasicFont];
+				cell.textLabel.font = self.basicFont;
 			}
 			else  if (!self.reverseGeoCodeStatus)
 			{
-				cell.textLabel.text = [NSString stringWithFormat:@"Not able to access Apple's Geocoding servers."];
+				cell.textLabel.text = NSLocalizedString(@"Not able to access Apple's Geocoding servers.", @"network errror");
 				cell.textLabel.textColor = [UIColor redColor];
 				cell.imageView.image = [TableViewWithToolbar alwaysGetIcon:kIconNetworkBad];
-				cell.textLabel.font = [self getBasicFont];
+				cell.textLabel.font = self.basicFont;
 			}
 			else
 			{
-				cell.textLabel.text = [NSString stringWithFormat:@"Apple's Geocoding servers are available."];
+				cell.textLabel.text = NSLocalizedString(@"Apple's Geocoding servers are available.", @"network errror");
 				cell.textLabel.textColor = [UIColor blackColor];
 				cell.imageView.image = [TableViewWithToolbar alwaysGetIcon:kIconNetworkOk];
-				cell.textLabel.font = [self getBasicFont];
+				cell.textLabel.font = self.basicFont;
 			}
 			break;
 		case kSectionDiagnose:
@@ -391,8 +392,8 @@
 			diagCell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:diagsId];
 			if (diagCell == nil) {
 				diagCell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:diagsId] autorelease];
-				diagCell.view = [self create_UITextView:nil font:[self getParagraphFont]];
-				diagCell.view.font =  [self getParagraphFont];
+				diagCell.view = [self create_UITextView:nil font:self.paragraphFont];
+				diagCell.view.font =  self.paragraphFont;
 				diagCell.selectionStyle = UITableViewCellSelectionStyleNone;
 			}
 			
@@ -407,8 +408,8 @@
 			diagCell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:diagsId];
 			if (diagCell == nil) {
 				diagCell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:diagsId] autorelease];
-				diagCell.view = [self create_UITextView:nil font:[self getParagraphFont]];
-				diagCell.view.font =  [self getParagraphFont];
+				diagCell.view = [self create_UITextView:nil font:self.paragraphFont];
+				diagCell.view.font =  self.paragraphFont;
 				diagCell.selectionStyle = UITableViewCellSelectionStyleNone;
 			}
 			
@@ -420,15 +421,16 @@
 	}
 	
     return cell;
+
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
 	switch ([self adjustSectionNumber:indexPath.section]) {
 		case KSectionMaybeError:
-			return [self getTextHeight:self.networkErrorFromQuery font:[self getParagraphFont]];
+			return [self getTextHeight:self.networkErrorFromQuery font:self.paragraphFont];
 		case kSectionDiagnose:
-			return [self getTextHeight:self.diagnosticText font:[self getParagraphFont]];
+			return [self getTextHeight:self.diagnosticText font:self.paragraphFont];
 		default:
 			return [self basicRowHeight];
 	}
@@ -447,7 +449,7 @@
 {
 	if ([self adjustSectionNumber:section] == KSectionMaybeError)
 	{
-		return @"There was a network problem:";
+        return NSLocalizedString(@"There was a network problem:", @"section title");
 	}
 	return nil;
 }

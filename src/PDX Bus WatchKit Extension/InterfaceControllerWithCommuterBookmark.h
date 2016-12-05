@@ -22,9 +22,9 @@
 }
 
 @property (retain, nonatomic) SafeUserData *faves;
-- (bool)runCommuterBookmarkOnlyOnce:(bool)onlyOnce alreadyHome:(bool)alreadyHome;
-- (bool)autoCommuteAlreadyHome:(bool)alreadyHome;
-- (void)forceCommuteAlreadyHome:(bool)alreadyHome;
-- (bool)maybeDisplayCommuterBookmark;
+- (bool)runCommuterBookmarkOnlyOnce:(bool)onlyOnce;
+@property (nonatomic, readonly) bool autoCommute;
+- (void)forceCommute;
+@property (nonatomic, readonly) bool delayedDisplayOfCommuterBookmark;
 
 @end

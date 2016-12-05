@@ -13,14 +13,12 @@
 
 
 #import <UIKit/UIKit.h>
-#import "CustomToolbar.h"
+#import "UIToolbar+Auto.h"
 #import "BackgroundTaskContainer.h"
 #import "ReturnStopId.h"
 #import "ScreenConstants.h"
 #import "UserPrefs.h"
 #import "UserFaves.h"
-
-#define kMaxTweetButtons        6
 
 @protocol DeselectItemDelegate <NSObject>
 
@@ -37,20 +35,19 @@
     
     NSString *                          _tweetAt;
     NSString *                          _initTweet;
-    
-    int                                 _tweetButtons[kMaxTweetButtons];
-    
+    NSMutableArray<NSNumber *> *        _tweetButtons;
     UIActionSheet *                     _tweetAlert;
 }
 
 - (bool)initMembers;
 - (void)setTheme;
-- (UIBarButtonItem *)autoFlashButton;
-- (UIBarButtonItem *)autoBigFlashButton;
-- (UIBarButtonItem *)autoDoneButton;
-- (UIBarButtonItem*)autoXmlButton;
-- (UIBarButtonItem *)autoTicketAppButton;
-- (bool)forceRedoButton;
+@property (nonatomic, readonly, strong) UIBarButtonItem *autoFlashButton;
+@property (nonatomic, readonly, strong) UIBarButtonItem *autoBigFlashButton;
+@property (nonatomic, readonly, strong) UIBarButtonItem *autoDoneButton;
+@property (nonatomic, readonly, strong) UIBarButtonItem *autoXmlButton;
+@property (nonatomic, readonly, strong) UIBarButtonItem *autoTicketAppButton;
+@property (nonatomic, retain) NSMutableArray<NSNumber *> *tweetButtons;
+@property (nonatomic, readonly) bool forceRedoButton;
 + (void)flashScreen:(UINavigationController *)nav;
 - (void)backToRootButtons:(NSMutableArray *)toolbarItems;
 - (void)updateToolbarItems:(NSMutableArray *)toolbarItems;
@@ -66,47 +63,44 @@
 + (UIImage *)getToolbarIcon:(NSString *)name;
 + (UIImage *)getToolbarIcon7:(NSString *)name old:(NSString *)old;
 - (UIImage *)getFaveIcon:(NSString *)name;
-- (UIView *)clearView;
+@property (nonatomic, readonly, strong) UIView *clearView;
 - (void)setBackfont:(UILabel *)label;
-- (void)notRailAwareAlert:(id<UIAlertViewDelegate>) delegate;
-- (void)noLocations:(NSString *)title delegate:(id<UIAlertViewDelegate>) delegate;
 - (void)notRailAwareButton:(NSInteger)button;
 - (NSString *)justNumbers:(NSString *)text;
 - (void)showRouteSchedule:(NSString *)route;
-- (void)showRouteAlerts:(NSString *)route fullSign:(NSString *)fullSign;
 - (void)padRoute:(NSString *)route padding:(NSMutableString **)padding;
 - (void)backButton:(id)sender;
-- (CGFloat) heightOffset;
-- (CGRect)getMiddleWindowRect;
-- (ScreenInfo)screenInfo;
+@property (nonatomic, readonly) CGFloat heightOffset;
+@property (nonatomic, getter=getMiddleWindowRect, readonly) CGRect middleWindowRect;
+@property (nonatomic, readonly) ScreenInfo screenInfo;
 - (void)reloadData;
 + (UIColor*)htmlColor:(int)val;
 - (void)appendXmlData:(NSMutableData *)buffer;
-- (void)xmlAction:(id)arg;
+- (void)xmlAction:(UIView *)button;
 - (void)updateToolbar;
 - (void)updateToolbarItemsWithXml:(NSMutableArray *)toolbarItems;
 - (void)tweet;
 - (void)clearSelection;
 - (void)facebook;
 - (void)facebookTriMet;
-- (bool)iOS7style;
-- (bool)iOS8style;
-+ (bool)iOS7style;
-- (bool)iOS9style;
-- (bool)ZXingSupported;
-- (void)setSegColor:(UISegmentedControl*)seg;
-- (bool)ticketApp;
-- (bool)fullScreen;
+@property (nonatomic, readonly) bool iOS8style;
+@property (nonatomic, readonly) bool iOS9style;
+@property (nonatomic, readonly) bool ZXingSupported;
+@property (nonatomic, readonly) bool ticketApp;
+@property (nonatomic, readonly) bool fullScreen;
 - (bool)openSafariFrom:(UIViewController *)view path:(NSString *)path;
 - (bool)openBrowserFrom:(UIViewController *)view path:(NSString *)path;  // May open chrome
-- (UIViewController*)callbackWhenDone;
+@property (nonatomic, readonly, strong) UIViewController *callbackWhenDone;
+- (void)updateWatch;
+- (void)favesChanged;
++ (instancetype)viewController;
 
 @property (nonatomic, retain) UIBarButtonItem *xmlButton;
 @property (nonatomic, retain) BackgroundTaskContainer *backgroundTask;
 @property (nonatomic, retain) id<ReturnStopId> callback;
 @property (nonatomic, retain) UIDocumentInteractionController *docMenu;
-@property (nonatomic, retain) NSString *tweetAt;
-@property (nonatomic, retain) NSString *initTweet;
+@property (nonatomic, copy)   NSString *tweetAt;
+@property (nonatomic, copy)   NSString *initTweet;
 @property (nonatomic, retain) UIActionSheet *tweetAlert;
 
 #define kRailAwareReloadButton 1

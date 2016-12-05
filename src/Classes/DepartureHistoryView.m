@@ -78,14 +78,14 @@
 
 // Customize the number of rows in the table view.
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [_userData.recents count];
+    return _userData.recents.count;
 }
 
 /*
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	NSDictionary *trip = [self.recentTrips objectAtIndex:indexPath.row];
-	return [self getTextHeight:[trip valueForKey:kUserFavesChosenName] font:[self getParagraphFont]];
+	NSDictionary *trip = self.recentTrips[indexPath.row];
+	return [self getTextHeight:[trip valueForKey:kUserFavesChosenName] font:self.paragraphFont];
 }
 */
 
@@ -99,9 +99,9 @@
 	cell.editingAccessoryType = UITableViewCellAccessoryNone;
 	cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 	// Set up the cell
-	NSDictionary *item = (NSDictionary *)[_userData.recents objectAtIndex:indexPath.row];
-	cell.textLabel.text = [item valueForKey:kUserFavesOriginalName];
-	cell.textLabel.font = [self getBasicFont];
+	NSDictionary *item = _userData.recents[indexPath.row];
+	cell.textLabel.text = item[kUserFavesOriginalName];
+	cell.textLabel.font = self.basicFont;
 	[self updateAccessibility:cell indexPath:indexPath text:cell.textLabel.text alwaysSaySection:NO];
 	cell.imageView.image = [self getFaveIcon:kIconRecent]; 
 	cell.textLabel.adjustsFontSizeToFitWidth = YES;
@@ -115,15 +115,13 @@
 	// [anotherViewController release];
 	
 	// [self chosenEndpoint:[self.locList objectAtIndex:indexPath.row] ];
-	DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
-	NSDictionary *item = (NSDictionary *)[_userData.recents objectAtIndex:indexPath.row];
+    DepartureTimesView *departureViewController = [DepartureTimesView viewController];
+	NSDictionary *item = _userData.recents[indexPath.row];
 	
-	departureViewController.displayName = [item valueForKey:kUserFavesOriginalName];
-	[departureViewController fetchTimesForLocationInBackground:self.backgroundTask 
-														   loc:[item valueForKey:kUserFavesLocation]
-														 title:[item valueForKey:kUserFavesOriginalName]];
-	[departureViewController release];
-	
+	departureViewController.displayName = item[kUserFavesOriginalName];
+	[departureViewController fetchTimesForLocationAsync:self.backgroundTask 
+                                                    loc:item[kUserFavesLocation]
+                                                  title:item[kUserFavesOriginalName]];	
 }
 
 // Override if you support editing the list
@@ -132,12 +130,15 @@
 	{
 		if (editingStyle == UITableViewCellEditingStyleDelete) {
 			[_userData.recents removeObjectAtIndex:indexPath.row];
-            _userData.favesChanged = YES;
+            [self favesChanged];
             [_userData cacheAppData];
             
-			[tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:YES];
+			[tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:YES];
 		
-			
+            if (_userData.recents.count==0)
+            {
+                [self reloadData];
+            }
 		}
 	}	
 	
@@ -156,24 +157,29 @@
 	//	[self dumpPath:@"moveRowAtIndexPath from" path:fromIndexPath];
 	//	[self dumpPath:@"moveRowAtIndexPath to  " path:toIndexPath];
 	
+    DEBUG_LOGIP(fromIndexPath);
+    DEBUG_LOGIP(toIndexPath);
+    
 	@synchronized (_userData)
 	{
-		NSDictionary *move = [[_userData.recents objectAtIndex:fromIndexPath.row] retain];
+        NSMutableArray *recents = _userData.recents;
+		NSDictionary *move = [recents[fromIndexPath.row] retain];
+      
 		if (fromIndexPath.row < toIndexPath.row)
 		{
-			[_userData.recents insertObject:move atIndex:toIndexPath.row+1];
-			[_userData.recents removeObjectAtIndex:fromIndexPath.row];
+			[recents insertObject:move atIndex:toIndexPath.row+1];
+			[recents removeObjectAtIndex:fromIndexPath.row];
 		}
 		else
 		{
-			[_userData.recents removeObjectAtIndex:fromIndexPath.row];
-			[_userData.recents insertObject:move atIndex:toIndexPath.row];
+			[recents removeObjectAtIndex:fromIndexPath.row];
+			[recents insertObject:move atIndex:toIndexPath.row];
 		}
 		[move release];
-		_userData.favesChanged = YES;
-		[_userData cacheAppData];
+        [_userData cacheAppData];
+        [self favesChanged];
 	}
-	
+    DEBUG_LOGLU(_userData.recents.count);
 }
 
 

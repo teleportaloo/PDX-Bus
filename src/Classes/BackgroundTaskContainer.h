@@ -19,12 +19,12 @@
 @protocol BackgroundTaskDone <NSObject>
 
 - (void)BackgroundTaskDone:(UIViewController*)viewController cancelled:(bool)cancelled;
-- (UIInterfaceOrientation)BackgroundTaskOrientation;
+@property (nonatomic, readonly) UIInterfaceOrientation BackgroundTaskOrientation;
 
 @optional
 
 - (void)backgroundTaskStarted;
-- (bool)backgroundTaskWait;
+@property (nonatomic, readonly) bool backgroundTaskWait;
 
 @end
 

@@ -17,7 +17,7 @@
 #import "DebugLogging.h"
 #import "DepartureTimesView.h"
 #import "AlarmTaskList.h"
-#import "DepartureUI.h"
+#import "DepartureData+iOSUI.h"
 
 
 #define kTolerance	30
@@ -42,7 +42,7 @@
     [super dealloc];
 }
 
-- (id)init
+- (instancetype)init
 {
     if ((self = [super init]))
     {
@@ -63,11 +63,11 @@
     
     [self.departures getDeparturesForLocation:self.stopId block:self.block];
     
-    if ([self.departures gotData] && self.departures.safeItemCount >0)
+    if (self.departures.gotData && self.departures.count >0)
     {
         @synchronized (self.lastFetched)
         {
-            self.lastFetched = [self.departures itemAtIndex:0];
+            self.lastFetched = self.departures[0];
         }
         _queryTime = self.departures.queryTime;
     }
@@ -95,14 +95,12 @@
     if (!taskDone)
     {
         departureDate	= TriMetToNSDate(self.lastFetched.departureTime);
-        waitTime		= [departureDate timeIntervalSinceNow];
+        waitTime		= departureDate.timeIntervalSinceNow;
         
 #ifdef DEBUG_ALARMS
-        NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
-        [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
-        [dateFormatter setTimeStyle:NSDateFormatterLongStyle];
-        
-        DEBUG_LOG(@"Dep time %@\n", [dateFormatter stringFromDate:departureDate]);
+        DEBUG_LOG(@"Dep time %@\n", [NSDateFormatter localizedStringFromDate:departureDate
+                                                                   dateStyle:NSDateFormatterMediumStyle
+                                                                   timeStyle:NSDateFormatterLongStyle]);
 #endif
         
         if (self.observer)
@@ -145,10 +143,9 @@
             [self alert:alertText
                fireDate:alarmTime
                  button:NSLocalizedString(@"Show arrivals", @"alert text")
-               userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
-                         self.stopId,							kStopIdNotification,
-                         self.block,							kAlarmBlock,
-                         nil]
+               userInfo:@{
+                          kStopIdNotification   : self.stopId,
+                          kAlarmBlock           : self.block }
            defaultSound:NO];
         }
         
@@ -203,11 +200,10 @@
 #define kLastFetched @"LF"
 #define kNextFetch @"NF"
 #define kAppState @"AppState"
-    NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:
-                          self.lastFetched, kLastFetched,
-                          (next ? next : [NSDate date]),   kNextFetch,
-                          [self appState],  kAppState,
-                          nil];
+    NSDictionary *dict = @{
+                           kLastFetched     : self.lastFetched,
+                           kNextFetch       : (next ? next : [NSDate date]),
+                           kAppState        : [self appState] };
     [self.dataReceived addObject:dict];
 #endif
     
@@ -217,7 +213,7 @@
 
 - (void)startTask
 {
-    self.departures = [[[XMLDepartures alloc] init] autorelease];
+    self.departures = [XMLDepartures xml];
     self.departures.giveUp = 30;  // the background task must never be blocked for more that 30 seconds.
     
     if (self.observer)
@@ -244,32 +240,31 @@
 #ifdef DEBUG_ALARMS
 - (int)internalDataItems
 {
-    return self.dataReceived.count+1;
+    return (int)self.dataReceived.count+1;
 }
 
 - (NSString *)internalData:(int)item
 {
-    NSMutableString *str = [[[NSMutableString alloc] init] autorelease];
+    NSMutableString *str = [NSMutableString string];
     
     
     if (item == 0)
     {
         UIApplication*    app = [UIApplication sharedApplication];
-        [str appendFormat:@"alerts: %d", app.scheduledLocalNotifications.count];
+        [str appendFormat:@"alerts: %u", (int)app.scheduledLocalNotifications.count];
     }
     else
     {
-        NSDictionary *dict = [self.dataReceived objectAtIndex:item-1];
-        DepartureData *dep = [dict objectForKey:kLastFetched];
+        NSDictionary *dict = self.dataReceived[item-1];
+        DepartureData *dep = dict[kLastFetched];
         
-        
-        NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
+        NSDateFormatter *dateFormatter = [NSDateFormatter alloc].init.autorelease;
         [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
         [dateFormatter setTimeStyle:NSDateFormatterLongStyle];
         
         [str appendFormat:@"%@\n", dep.routeName];
         [str appendFormat:@"mins %d\n", dep.minsToArrival];
-        [str appendFormat:@"secs %d\n", dep.secondsToArrival];
+        [str appendFormat:@"secs %lld\n", dep.secondsToArrival];
         
         [str appendFormat:@"QT %@\n", [dateFormatter stringFromDate:TriMetToNSDate(dep.queryTime)]];
         
@@ -278,8 +273,8 @@
         
         [str appendFormat:@"DT %@\n", [dateFormatter stringFromDate: departureDate ]];
         [str appendFormat:@"AT %@\n", [dateFormatter stringFromDate: alarmTime ]];
-        [str appendFormat:@"NF %@\n", [dateFormatter stringFromDate: [dict objectForKey:kNextFetch]]];
-        [str appendFormat:@"AS %@\n", [dict objectForKey:kAppState]];
+        [str appendFormat:@"NF %@\n", [dateFormatter stringFromDate: dict[kNextFetch]]];
+        [str appendFormat:@"AS %@\n", dict[kAppState]];
     }
     return str;
     
@@ -288,9 +283,7 @@
 
 - (void)showToUser:(BackgroundTaskContainer *)backgroundTask
 {
-    DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
-    [departureViewController fetchTimesForLocationInBackground:backgroundTask loc:self.stopId block:self.block];
-    [departureViewController release];
+    [[DepartureTimesView viewController] fetchTimesForLocationAsync:backgroundTask loc:self.stopId block:self.block];
 }
 
 - (NSString *)cellToGo
@@ -301,9 +294,9 @@
         
         if (self.lastFetched !=nil)
         {
-            NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
-            [dateFormatter setDateStyle:NSDateFormatterNoStyle];
-            [dateFormatter setTimeStyle:NSDateFormatterShortStyle];
+            NSDateFormatter *dateFormatter = [NSDateFormatter alloc].init.autorelease;
+            dateFormatter.dateStyle = NSDateFormatterNoStyle;
+            dateFormatter.timeStyle = NSDateFormatterShortStyle;
             NSDate *departureDate = TriMetToNSDate(self.lastFetched.departureTime);
             
             NSTimeInterval secs = ((double)self.minsToAlert * (-60.0));

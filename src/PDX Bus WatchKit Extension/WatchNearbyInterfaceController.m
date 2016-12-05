@@ -16,7 +16,6 @@
 #import "WatchNearbyInterfaceController.h"
 #import "StopLocations.h"
 #import "DebugLogging.h"
-#import "WatchInfo.h"
 #import "WatchStop.h"
 #import "StopNameCacheManager.h"
 #import "WatchMapHelper.h"
@@ -45,6 +44,11 @@
     self.timeStamp                  = nil;
     self.lastLocation               = nil;
     self.stops                      = nil;
+    self.loadingGroup               = nil;
+    self.loadingLabel               = nil;
+    self.locationStatusLabel        = nil;
+    self.map                        = nil;
+    self.stopTable                  = nil;
     
     [super dealloc];
 }
@@ -101,18 +105,21 @@
     
 }
 
-
-- (void)setButtonText:(NSString *)text
+-(void)setLoadingText:(NSString *)text
 {
-    if (self.stopTable.numberOfRows != 1 || ![[self.stopTable rowControllerAtIndex:0] isKindOfClass: [WatchInfo class]])
+    if (text == nil)
     {
-        [self.stopTable setRowTypes:[NSArray arrayWithObjects:@"Info", nil]];
+        self.stopTable.hidden = NO;
+        self.loadingGroup.hidden = YES;
     }
-    
-    WatchInfo *info = [self.stopTable rowControllerAtIndex:0];
-    
-    info.infoText.text = text;
+    else
+    {
+        self.loadingGroup.hidden = NO;
+        self.stopTable.hidden = YES;
+        [self.loadingLabel setText:text];
+    }
 }
+
 
 - (void)startLocating
 {
@@ -120,14 +127,16 @@
     
     if (status != kCLAuthorizationStatusAuthorizedAlways && status != kCLAuthorizationStatusAuthorizedWhenInUse )
     {
-        [self setButtonText:@"Location Services Not Enabled"];
+        [self setLoadingText:@"Location Services Not Enabled"];
     }
     else
     {
-        [self.locationManager startUpdatingLocation];
-    
+        self.locationManager.desiredAccuracy = kCLLocationAccuracyBest;
+        [self.locationManager requestWhenInUseAuthorization];
+        [self.locationManager requestLocation];
+        
         _waitingForLocation = true;
-        self.buttonText = @"Locating";
+        self.loadingText = @"Locating";
     }
 }
 
@@ -162,7 +171,7 @@
     // This method is called when watch view controller is about to be visible to user
     [super willActivate];
     
-    [self autoCommuteAlreadyHome:NO];
+    [self autoCommute];
 }
 
 - (void)didDeactivate {
@@ -175,7 +184,7 @@
 }
 
 - (IBAction)menuItemCommute {
-    [self forceCommuteAlreadyHome:NO];
+    [self forceCommute];
 }
 
 - (void)stopLocating
@@ -211,23 +220,23 @@
 - (void)displayStops
 {
     
-    [self.stopTable setNumberOfRows:self.stops.safeItemCount withRowType:@"Stop"];
+    [self.stopTable setNumberOfRows:self.stops.count withRowType:@"Stop"];
     
-    NSMutableString *locs = [StringHelper commaSeparatedStringFromEnumerator:self.stops.itemArray selector:@selector(locid)];
+    NSMutableString *locs = [NSString commaSeparatedStringFromEnumerator:self.stops.itemArray selector:@selector(locid)];
     
     for (NSInteger i = 0; i < self.stopTable.numberOfRows; i++) {
         
         WatchStop *row = [self.stopTable rowControllerAtIndex:i];
         
-        StopDistanceData *item = [self.stops itemAtIndex:i];
+        StopDistanceData *item = (StopDistanceData*)self.stops[i];
     
         row.stopName.text = [self stopName:item];
     }
     
-    NSMutableDictionary *info = [[[NSMutableDictionary alloc] init] autorelease];
+    NSMutableDictionary *info = [NSMutableDictionary dictionary];
     
-    [info setObject:@"Nearby" forKey:kUserFavesChosenName];
-    [info setObject:locs forKey:kUserFavesLocation];
+    info[kUserFavesChosenName] = @"Nearby";
+    info[kUserFavesLocation]   = locs;
     
     [self updateUserActivity:kHandoffUserActivityBookmark userInfo:info webpageURL:nil];
 }
@@ -242,11 +251,11 @@
 
 - (void)displayMap
 {
-    NSMutableArray *redPins = [[[NSMutableArray alloc] init] autorelease];
+    NSMutableArray *redPins = [NSMutableArray array];
     
-    for(int i = 0; i < self.stops.safeItemCount && i < 6; i++)
+    for(int i = 0; i < self.stops.count && i < 6; i++)
     {
-        StopDistanceData *sd = [self.stops itemAtIndex:i];
+        StopDistanceData *sd = (StopDistanceData*)self.stops[i];
         
         SimpleWatchPin *pin = [[SimpleWatchPin alloc] init];
         
@@ -264,41 +273,43 @@
 
 -(id)backgroundTask
 {
-    self.stops = [[[XMLLocateStops alloc] init] autorelease];
+    XMLLocateStops *stops = [XMLLocateStops xml];
     
-    self.stops.maxToFind   = 4;
-    self.stops.minDistance = kDistMile;
-    self.stops.mode        = TripModeAll;
-    self.stops.location    = self.lastLocation;
+    stops.maxToFind   = 4;
+    stops.minDistance = kDistMile;
+    stops.mode        = TripModeAll;
+    stops.location    = self.lastLocation;
     
-    [self.stops findNearestStops];
+    [stops findNearestStops];
     
-    
-    return nil;
+    return stops;
 }
 
-- (void)taskFinishedMainThread:(id)arg
+- (void)taskFinishedMainThread:(id)result
 {
+    self.stops = (XMLLocateStops *)result;
+    self.loadingText = nil;
+    
     [self.map addAnnotation:self.lastLocation.coordinate withPinColor:WKInterfaceMapPinColorPurple];
     
-    while (self.stops.safeItemCount > 10)
+    while (self.stops.count > 10)
     {
         [self.stops.itemArray removeLastObject];
     }
     
     [self displayMap];
     
-    if (self.stops.safeItemCount > 0)
+    if (self.stops.count > 0)
     {
         [self displayStops];
     }
     else if(self.stops.gotData)
     {
-        self.buttonText = @"No stops found";
+        self.loadingText = @"No stops found";
     }
     else
     {
-        self.buttonText = @"Network timeout";
+        self.loadingText = @"Network timeout";
     }
 }
 
@@ -306,20 +317,19 @@
 {
     [self stopLocating];
     
-    self.buttonText = @"Getting Stops";
+    self.loadingText = @"Getting\nstops";
     
     
     [self startBackgroundTask];    
 }
 
-
 - (void)locationManager:(CLLocationManager *)manager
-    didUpdateToLocation:(CLLocation *)newLocation
-           fromLocation:(CLLocation *)oldLocation
+     didUpdateLocations:(NSArray<CLLocation *> *)locations
 {
+
+    CLLocation *newLocation = locations.lastObject;
     
-    
-    if ([newLocation.timestamp timeIntervalSinceNow] < MAX_AGE)
+    if (newLocation.timestamp.timeIntervalSinceNow < MAX_AGE)
     {
         // too old!
         return;
@@ -327,12 +337,17 @@
     
     DEBUG_LOG(@"Accuracy %f\n", newLocation.horizontalAccuracy);
     
+    /*
     if (newLocation.horizontalAccuracy > 300)
     {
         // Not acurrate enough!
         self.buttonText = [NSString stringWithFormat:@"Getting closer %.2f ft", newLocation.horizontalAccuracy * kFeetInAMetre];
+        
+        [self.locationManager stopUpdatingLocation];
+        [self.locationManager requestLocation];
         return;
     }
+    */
     
     if (!_waitingForLocation)
     {
@@ -357,12 +372,12 @@
     {
         default:
         case kCLErrorLocationUnknown:
-            self.buttonText = @"Still locating";
+            self.loadingText = @"Failed to locate. :-(";
             break;
         case kCLErrorDenied:
             
             [self stopLocating];
-            self.buttonText = @"Denied Access";
+            self.loadingText = @"Denied Access";
             break;
     }
 }

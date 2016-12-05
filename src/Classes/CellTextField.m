@@ -33,7 +33,7 @@
 static CGRect bounds;
 static bool bigScreen;
 
-- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)identifier
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)identifier
 {
 	self = [super initWithStyle:style reuseIdentifier:identifier];
 	if (self)
@@ -69,7 +69,7 @@ static bool bigScreen;
 {
 	[super layoutSubviews];
 	
-	CGRect contentRect = [self.contentView bounds];
+	CGRect contentRect = self.contentView.bounds;
 	
 	CGRect frame = CGRectMake(	contentRect.origin.x + self.cellLeftOffset,
 								contentRect.origin.y + (([CellTextField cellHeight] - [CellTextField editHeight])/2),
@@ -96,7 +96,7 @@ static bool bigScreen;
 {
 	if (bounds.size.width == 0)
 	{
-		bounds = [[UIScreen mainScreen] bounds];
+		bounds = [UIScreen mainScreen].bounds;
 		
 		// Small devices do not need to orient
 		if (bounds.size.width <= MaxiPhoneWidth)

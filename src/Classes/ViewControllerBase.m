@@ -18,7 +18,6 @@
 #import "FlashViewController.h"
 #import "WebViewController.h"
 #import "NetworkTestView.h"
-#import "RssView.h"
 #import <Social/Social.h>
 #import "OpenInChromeController.h"
 #import "TicketAlert.h"
@@ -28,30 +27,34 @@
 #import "AppDelegateMethods.h"
 #import "InterfaceOrientation.h"
 #import "SafariServices/SafariServices.h"
+#import "RootViewController.h"
+#import "WatchAppContext.h"
+#import "TriMetRouteColors.h"
 
-
-#define kTweetButtonList        1
-#define kTweetButtonTweet       2
-#define kTweetButtonApp         3
-#define kTweetButtonWeb         4
-#define kTweetButtonCancel      5
-
+enum
+{
+    kTweetButtonTweet,
+    kTweetButtonApp,
+    kTweetButtonWeb,
+    kTweetButtonCancel
+};
+    
 
 @implementation UINavigationController (Rotation_IOS6)
 
 -(BOOL)shouldAutorotate
 {
-    return [[self.viewControllers lastObject] shouldAutorotate];
+    return self.viewControllers.lastObject.shouldAutorotate;
 }
 
 -(NSUInteger)supportedInterfaceOrientations
 {
-    return [[self.viewControllers lastObject] supportedInterfaceOrientations];
+    return self.viewControllers.lastObject.supportedInterfaceOrientations;
 }
 
 - (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation
 {
-    return [[self.viewControllers lastObject] preferredInterfaceOrientationForPresentation];
+    return self.viewControllers.lastObject.preferredInterfaceOrientationForPresentation;
 }
 
 @end
@@ -61,6 +64,13 @@
 @synthesize backgroundTask	 = _backgroundTask;
 @synthesize callback		 = _callback;
 @synthesize docMenu          = _docMenu;
+@synthesize tweetButtons     = _tweetButtons;
+
+
++ (instancetype)viewController
+{
+   return [[[[self class] alloc] init] autorelease]; 
+}
 
 - (void)dealloc {
     //
@@ -77,6 +87,8 @@
     self.tweetAlert       = nil;
     self.tweetAt          = nil;
     self.initTweet        = nil;
+    self.xmlButton        = nil;
+    self.tweetButtons     = nil;
     
 	[_userData release];
 	[super dealloc];
@@ -90,98 +102,49 @@
 
 }
 
-
-- (void)setSegColor:(UISegmentedControl*)seg
-{
-    int color = [UserPrefs getSingleton].toolbarColors;
-    
-    if (![self iOS7style])
-    {
-        if (color == 0xFFFFFF)
-        {
-            
-            seg.tintColor = [UIColor darkGrayColor];
-        }
-        else {
-            seg.tintColor = [ViewControllerBase htmlColor:color];
-        }
-        
-        seg.backgroundColor = [UIColor clearColor];
-	}
-}
-
 - (void)setTheme
 {
-	int color = [UserPrefs getSingleton].toolbarColors;
-	
-	if (color == 0xFFFFFF)
-	{
-        if ([self.navigationController.toolbar respondsToSelector:@selector(setBarTintColor:)])
-        {
-            self.navigationController.toolbar.barTintColor = nil;
-            self.navigationController.navigationBar.barTintColor = nil;
-            self.navigationController.toolbar.tintColor = nil;
-            self.navigationController.navigationBar.tintColor = nil;
-            
-        }
-        else
-        {
-            self.navigationController.toolbar.tintColor = nil;
-            self.navigationController.navigationBar.tintColor = nil;
-        }
-	}
-	else
-	{
-        if ([self.navigationController.toolbar respondsToSelector:@selector(setBarTintColor:)])
-        {
-            self.navigationController.toolbar.barTintColor = [ViewControllerBase htmlColor:color];
-            self.navigationController.navigationBar.barTintColor = [ViewControllerBase htmlColor:color];
-            self.navigationController.toolbar.tintColor = [UIColor whiteColor];
-            self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
-        }
-        else
-        {
-            self.navigationController.toolbar.tintColor = [ViewControllerBase htmlColor:color];
-            self.navigationController.navigationBar.tintColor = [ViewControllerBase htmlColor:color];
-        }
-        
-	}
+    int color = [UserPrefs singleton].toolbarColors;
+    
+    if (color == 0xFFFFFF)
+    {
+        self.navigationController.toolbar.barTintColor = nil;
+        self.navigationController.navigationBar.barTintColor = nil;
+        self.navigationController.toolbar.tintColor = nil;
+        self.navigationController.navigationBar.tintColor = nil;
+    }
+    else
+    {
+        self.navigationController.toolbar.barTintColor = [ViewControllerBase htmlColor:color];
+        self.navigationController.navigationBar.barTintColor = [ViewControllerBase htmlColor:color];
+        self.navigationController.toolbar.tintColor = [UIColor whiteColor];
+        self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
+    }
 }
-
-- (bool)iOS7style
-{
-    return ([self respondsToSelector:@selector(setEdgesForExtendedLayout:)]);
-}
-
 
 - (bool)iOS9style
 {
-    return [[UIDevice currentDevice].systemVersion floatValue] >= 9.0;
+    return [UIDevice currentDevice].systemVersion.floatValue >= 9.0;
 }
 
 
 - (bool)iOS8style
 {
-    return [[UIDevice currentDevice].systemVersion floatValue] >= 8.0;
-}
-
-+ (bool)iOS7style
-{
-    return [[UIDevice currentDevice].systemVersion floatValue] >= 7.0;
+    return [UIDevice currentDevice].systemVersion.floatValue >= 8.0;
 }
 
 - (bool)initMembers
 {
 	if (self.backgroundTask == nil)
 	{
-        _userData = [[SafeUserData getSingleton] retain];
+        _userData = [[SafeUserData singleton] retain];
 		self.backgroundTask = [BackgroundTaskContainer create:self];
 		return true;
 	}
 	return false;
 }
 
-- (id)initWithCoder:(NSCoder *)aDecoder
+- (instancetype)initWithCoder:(NSCoder *)aDecoder
 {
     if ((self = [super initWithCoder:aDecoder]))
 	{
@@ -190,7 +153,7 @@
 	return self;
 }
 
-- (id)init {
+- (instancetype)init {
 	if ((self = [super init]))
 	{
 		[self initMembers];
@@ -201,12 +164,12 @@
 - (void)backToRootButtons:(NSMutableArray *)toolbarItems
 {
     [toolbarItems addObject:[self autoDoneButton]];
-    [toolbarItems addObject:[CustomToolbar autoFlexSpace]];
+    [toolbarItems addObject:[UIToolbar autoFlexSpace]];
 }
 
 - (void)updateToolbar
 {
-    NSMutableArray *toolbarItems = [[[NSMutableArray alloc] init] autorelease];
+    NSMutableArray *toolbarItems = [NSMutableArray array];
     
     [self backToRootButtons:toolbarItems];
     
@@ -224,7 +187,7 @@
 	
 	[super loadView];
 	
-	[[self navigationController] setToolbarHidden:NO animated:NO];	 
+	[self.navigationController setToolbarHidden:NO animated:NO];	 
 	
 	[self setTheme];
 		
@@ -260,7 +223,7 @@
 }
 
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations {
-    CGRect bounds = [[UIScreen mainScreen] bounds];
+    CGRect bounds = [UIScreen mainScreen].bounds;
 	
 	// Small devices do not need to orient
 	if (bounds.size.width <= MaxiPhoneWidth)
@@ -322,11 +285,11 @@
 {
     ScreenInfo res;
     
-    CGRect bounds = [[[[UIApplication sharedApplication] delegate] window] bounds];
+    CGRect bounds = [UIApplication sharedApplication].delegate.window.bounds;
 
     res.appWinWidth = bounds.size.width;
     
-    CGRect deviceBounds = [[UIScreen mainScreen] bounds];
+    CGRect deviceBounds = [UIScreen mainScreen].bounds;
     
     UIInterfaceOrientation orientation = [InterfaceOrientation getInterfaceOrientation:self];
     
@@ -389,17 +352,9 @@
 {
 	CGRect tableViewRect;
     
-    if ([self iOS7style])
-    {
-        tableViewRect.size.width = self.navigationController.view.frame.size.width;
-    }
-    else
-    {
-        tableViewRect.size.width = [[UIScreen mainScreen] applicationFrame].size.width;
-    }
+    tableViewRect.size.width = self.navigationController.view.frame.size.width;
     
-    
-	tableViewRect.size.height = [[UIScreen mainScreen] applicationFrame].size.height-[self heightOffset];
+	tableViewRect.size.height = [UIScreen mainScreen].applicationFrame.size.height-[self heightOffset];
 	tableViewRect.origin.x = 0;
 	tableViewRect.origin.y = 0;
     
@@ -427,12 +382,12 @@
 
 - (NSString *)justNumbers:(NSString *)text
 {
-	NSMutableString *res = [[[NSMutableString alloc] init] autorelease];
+	NSMutableString *res = [NSMutableString string];
 	
 	int i=0;
 	unichar c;
 	
-	for (i=0; i< [text length]; i++)
+	for (i=0; i< text.length; i++)
 	{
 		c = [text characterAtIndex:i];
 		
@@ -451,43 +406,10 @@
 {
 	if (button == kRailAwareReloadButton)
 	{
-		FindByLocationView *findView = [[FindByLocationView alloc] init];
-		
 		// Push the detail view controller
-		[[self navigationController] pushViewController:findView animated:YES];
-		[findView release];
-		
+		[self.navigationController pushViewController:[FindByLocationView viewController] animated:YES];
 	}
 }
-
-- (void)noLocations:(NSString *)title delegate:(id<UIAlertViewDelegate>) delegate
-{
-	if (title == nil)
-	{
-		title = @"Nearby stops";
-	}
-	UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:title
-													   message:@"You must download the stop location database to be able to locate stops. Do you want to do that now?"
-													  delegate:delegate
-											 cancelButtonTitle:@"No"
-											 otherButtonTitles:@"Yes", nil ] autorelease];
-	[alert show];
-	
-	
-}
-
-- (void)notRailAwareAlert:(id<UIAlertViewDelegate>) delegate
-{
-	UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"Nearest Rail Stations"
-													   message:@"The stop location database is out-of-date as it does not contain rail specific information. You must update the database to be able to find rail stations. Do you want to do that now?"
-													  delegate:delegate
-											 cancelButtonTitle:@"No"
-											 otherButtonTitles:@"Yes", nil ] autorelease];
-	[alert show];
-	
-	
-}
-
 
 #pragma mark Icon methods
 
@@ -524,7 +446,7 @@
 
 - (UIImage *)getActionIcon:(NSString *)name
 {
-	if ([UserPrefs getSingleton].actionIcons)
+	if ([UserPrefs singleton].actionIcons)
 	{
 		return [self alwaysGetIcon:name];
 	}
@@ -533,7 +455,7 @@
 
 - (UIImage *)getActionIcon7:(NSString *)name old:(NSString *)old
 {
-	if ([UserPrefs getSingleton].actionIcons)
+	if ([UserPrefs singleton].actionIcons)
 	{
         return [self alwaysGetIcon7:name old:old];
     }
@@ -542,7 +464,7 @@
 
 - (UIImage *)getFaveIcon:(NSString *)name
 {
-	if ([UserPrefs getSingleton].actionIcons)
+	if ([UserPrefs singleton].actionIcons)
 	{
 		return [self alwaysGetIcon:name];
 	}
@@ -555,11 +477,11 @@
 {
 	if (self.callback !=nil && ([self.callback getController] !=nil || [self forceRedoButton]))
 	{
-		return [CustomToolbar autoRedoButtonWithTarget:self action:@selector(backButton:)]; 
+		return [UIToolbar autoRedoButtonWithTarget:self action:@selector(backButton:)];
 	}
 	else
 	{
-		return [CustomToolbar autoDoneButtonWithTarget:self action:@selector(backButton:)]; 
+		return [UIToolbar autoDoneButtonWithTarget:self action:@selector(backButton:)];
 	}
 
 }
@@ -571,12 +493,12 @@
 
 - (void)maybeAddFlashButtonWithSpace:(bool)space buttons:(NSMutableArray *)array big:(bool)big
 {
-    if ([UserPrefs getSingleton].flashingLightIcon)
+    if ([UserPrefs singleton].flashingLightIcon)
     {
         
         if (space)
         {
-            [array addObject:[CustomToolbar autoFlexSpace]];
+            [array addObject:[UIToolbar autoFlexSpace]];
         }
     
         if (big)
@@ -592,16 +514,16 @@
 
 - (UIBarButtonItem *)autoFlashButton
 {
-	return [CustomToolbar autoFlashButtonWithTarget:self action:@selector(flashButton:)]; 
+	return [UIToolbar autoFlashButtonWithTarget:self action:@selector(flashButton:)];
 }
 
 - (UIBarButtonItem *)autoBigFlashButton
 {
-    return [CustomToolbar autoFlashButtonWithTarget:self action:@selector(flashButton:)];
+    return [UIToolbar autoFlashButtonWithTarget:self action:@selector(flashButton:)];
 #if 0
 	// create the system-defined "OK or Done" button
 	UIBarButtonItem *flash = [[[UIBarButtonItem alloc]
-							   initWithTitle:@" Flash" style:UIBarButtonItemStyleBordered 
+							   initWithTitle:@" Flash" style:UIBarButtonItemStylePlain 
 							   target:self action:@selector(flashButton:)] autorelease];
 	return flash;
 #endif
@@ -633,32 +555,24 @@
 }
 
 
-- (void)xmlAction:(id)arg
+- (void)xmlAction:(UIView *)sender
 {
-    // This only for debugging so we can be a little bit slap dash.
     // We replace some items in the XML to hide it or to make the reader
     // happy when concatonating.  This was learnt by trial and error!
-    NSArray *finders = [NSArray arrayWithObjects:
-                        TRIMET_APP_ID,              // hide APP ID
-                        @"<?xml", @"?>",            // XML encoding gets in the way
-                        @"<--?xml", @"?-->",        // XML encoding gets in the way
-                        @"<body", @"body>",         // This keyword gets dropped
-                        nil];
     
-    NSArray *replacers = [NSArray arrayWithObjects:
-                          @"TRIMET_APP_ID",
-                          @"<!--", @"-->",
-                          @"<!--", @"-->",
-                          @"<wasbody", @"wasbody>",
-                          nil];
-
-
-  
+    NSDictionary *replacements = @{
+                                   TRIMET_APP_ID    : @"TRIMET_APP_ID",      // hide APP ID
+                                   @"<?xml"         : @"<!--",               // XML encoding gets in the way
+                                   @"?>"            : @"-->",
+                                   @"<--?xml"       : @"<!--",               // XML encoding gets in the way
+                                   @"?-->"          : @"-->",
+                                   @"<body"         : @"<wasbody",           // This keyword gets dropped
+                                   @"body>"         : @"wasbody>"
+                                  };
+    
     NSMutableData *buffer = [[NSMutableData alloc] init];
        
     [self appendXmlData:buffer];
-    
-    
     
     if (self.docMenu)
     {
@@ -670,7 +584,7 @@
     {
         // NSFileManager *fileManager = [NSFileManager defaultManager];
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-        NSString *documentsDirectory = [paths objectAtIndex:0];
+        NSString *documentsDirectory = paths.firstObject;
     
         NSString * filePath = [documentsDirectory stringByAppendingPathComponent:@"PDXBusData.xml"];
         
@@ -683,41 +597,47 @@
         
         [buffer release];
         
-        for (int i=0; i<finders.count; i++)
-        {
-            
-            [redactedData replaceOccurrencesOfString:[finders objectAtIndex:i]
-                                          withString:[replacers objectAtIndex:i]
+        
+        [replacements enumerateKeysAndObjectsUsingBlock: ^void (NSString* key, NSString* replacement, BOOL *stop)
+         {
+            [redactedData replaceOccurrencesOfString:key
+                                          withString:replacement
                                              options:NSCaseInsensitiveSearch
                                                range:NSMakeRange(0, redactedData.length)];
         
-        }
+         }];
         
         [redactedData insertString:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?><root>" atIndex:0];
         [redactedData appendString:@"</root>"];
         
         DEBUG_LOG(@"%@", redactedData);
-        if ([redactedData writeToFile:filePath atomically:FALSE encoding:NSUTF8StringEncoding error:nil])
+        if ([redactedData writeToFile:filePath atomically:YES encoding:NSUTF8StringEncoding error:nil])
         {
-    
-            self.docMenu = [UIDocumentInteractionController
-                            interactionControllerWithURL:[NSURL fileURLWithPath:filePath]];
+            self.docMenu = [UIDocumentInteractionController interactionControllerWithURL:[NSURL fileURLWithPath:filePath]];
             self.docMenu.delegate = self;
             self.docMenu.UTI = @"data.xml";
 
             if (self.xmlButton)
             {
-                [self.docMenu presentOpenInMenuFromBarButtonItem:self.xmlButton animated:YES];
+                if (![self.docMenu presentOpenInMenuFromBarButtonItem:self.xmlButton animated:YES])
+                {
+                    UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"Debug XML", @"DNL")
+                                                                       message:NSLocalizedString(@"No applications can read XML", @"DNL")
+                                                                      delegate:nil
+                                                             cancelButtonTitle:NSLocalizedString(@"OK", @"button text")
+                                                             otherButtonTitles:nil] autorelease];
+                    [alert show];
+                    self.docMenu = nil;
+                }
             }
             else
             {
                 UIView *view = self.navigationController.view;
                 CGRect rect = CGRectZero;
             
-                if (arg!=nil)
+                if (sender!=nil)
                 {
-                    UIView *button = arg;
-                    rect = [view convertRect:button.frame fromView:button.superview];
+                    rect = [view convertRect:sender.frame fromView:sender.superview];
                 }
                 [self.docMenu presentOpenInMenuFromRect:rect
                                                  inView:view
@@ -727,14 +647,14 @@
         }
         else
         {
-            UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"XML error"
-                                                               message:@"Could not write to file."
+            [redactedData release];
+            UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"XML error", @"DNL")
+                                                               message:NSLocalizedString(@"Could not write to file.", @"DNL")
                                                               delegate:nil
-                                                     cancelButtonTitle:@"OK"
+                                                     cancelButtonTitle:NSLocalizedString(@"OK", @"button text")
                                                      otherButtonTitles:nil] autorelease];
             [alert show];
         }
-        
         [redactedData release];
     }
 }
@@ -762,7 +682,7 @@
 
 - (void)updateToolbarItemsWithXml:(NSMutableArray *)toolbarItems
 {    
-    if ([UserPrefs getSingleton].debugXML)
+    if ([UserPrefs singleton].debugXML)
     {
         [toolbarItems addObject:[self autoXmlButton]];
         [self maybeAddFlashButtonWithSpace:YES buttons:toolbarItems big:NO];
@@ -778,14 +698,14 @@
 {
 	if (self.callback !=nil && [self.callback getController] !=nil)
 	{
-		[[self navigationController] popToViewController:[self.callback getController] animated:YES];
+		[self.navigationController popToViewController:[self.callback getController] animated:YES];
 	}
 	else
 	{
-       // TriMetTimesAppDelegate *app = [TriMetTimesAppDelegate getSingleton];
+       // TriMetTimesAppDelegate *app = [TriMetTimesAppDelegate singleton];
         
-       // [[self navigationController] popToViewController:(UIViewController*)app.rootViewController animated:YES];
-        [[ self navigationController] popToRootViewControllerAnimated:YES];
+       // [self.navigationController popToViewController:(UIViewController*)app.rootViewController animated:YES];
+        [ self.navigationController popToRootViewControllerAnimated:YES];
     }
 }
 
@@ -805,7 +725,7 @@
 
 -(void)flashButton:(id)sender
 {
-    FlashWarning *warning = [[FlashWarning alloc] initWithNav:[self navigationController]];
+    FlashWarning *warning = [[FlashWarning alloc] initWithNav:self.navigationController];
     
     warning.parentBase = self;
     
@@ -816,28 +736,36 @@
 
 - (void)showRouteSchedule:(NSString *)route
 {
-	
-	NSMutableString *padding = [[NSMutableString alloc] init];
-    
-	[self padRoute:route padding:&padding];
-    
-    [WebViewController displayPage:[NSString stringWithFormat:@"https://www.trimet.org/schedules/r%@.htm",padding]
-                              full:nil
-                         navigator:self.navigationController
-                    itemToDeselect:nil
-                          whenDone:self.callbackWhenDone];
-    
-    
-    [padding release];
-	
+    if ([[TriMetRouteColors streetcarRoutes] containsObject:route])
+    {
+        [WebViewController displayPage:[NSString stringWithFormat:@"https://portlandstreetcar.org"]
+                                  full:nil
+                             navigator:self.navigationController
+                        itemToDeselect:nil
+                              whenDone:self.callbackWhenDone];
+    }
+    else
+    {
+        
+        NSMutableString *padding = [NSMutableString string];
+        
+        [self padRoute:route padding:&padding];
+        
+        
+        [WebViewController displayPage:[NSString stringWithFormat:@"https://www.trimet.org/schedules/r%@.htm",padding]
+                                  full:nil
+                             navigator:self.navigationController
+                        itemToDeselect:nil
+                              whenDone:self.callbackWhenDone];
+    }
 }
 
 #pragma mark Common actions
 
 - (bool)fullScreen
 {
-    CGRect myBounds = [[[[UIApplication sharedApplication] delegate] window] bounds];
-    CGRect fullScreen = [[UIScreen mainScreen] bounds];
+    CGRect myBounds = [UIApplication sharedApplication].delegate.window.bounds;
+    CGRect fullScreen = [UIScreen mainScreen].bounds;
     
     if (fullScreen.size.width == myBounds.size.width)
     {
@@ -859,70 +787,26 @@
             return NO;
         }
         
-        if ([[AVCaptureDevice class] respondsToSelector:@selector(authorizationStatusForMediaType:)])
+        
+        AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+        
+        switch (authStatus)
         {
-            AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
-            
-            switch (authStatus)
-            {
-                case AVAuthorizationStatusAuthorized:
-                case AVAuthorizationStatusNotDetermined:
-                    return YES;
-                case AVAuthorizationStatusDenied:
-                case AVAuthorizationStatusRestricted:
-                    return NO;
-            }
-        }
-        else
-        {
-            return YES;
+            case AVAuthorizationStatusAuthorized:
+            case AVAuthorizationStatusNotDetermined:
+                return YES;
+            case AVAuthorizationStatusDenied:
+            case AVAuthorizationStatusRestricted:
+                return NO;
         }
     }
     
     return NO ;
 }
 
-
-- (void)showRouteAlerts:(NSString *)route fullSign:(NSString *)fullSign
-{
-	RssView *rssPage = [[RssView alloc] init];
-	
-	NSMutableString *padding = [[NSMutableString alloc] init];
-	
-	[self padRoute:route padding:&padding];
-	
-	// MAX Route Conversion
-	NSScanner *scanner = [NSScanner scannerWithString:fullSign];
-	
-	[scanner setCaseSensitive:YES];
-	
-	NSString *tmp = nil;
-	[scanner scanUpToString:@"MAX" intoString:&tmp];
-	
-	if (![scanner isAtEnd])
-	{
-		[padding setString:@"100"];
-	}
-	
-	// WES Route conversion
-	if ([route isEqualToString:@"203"])
-	{
-		[padding setString:@"40"];
-	}
-	
-	rssPage.callback = self.callback;
-	
-	[rssPage fetchRssInBackground:self.backgroundTask url:[NSString stringWithFormat:@"https://service.govdelivery.com/service/rss/item_updates.rss?code=ORTRIMET_%@", padding]];
-	 
-
-	[rssPage release];
-	[padding release];
-	
-}
-
 - (void) padRoute:(NSString *)route padding:(NSMutableString **)padding
 {
-	while ([route length] + [*padding length] < 3)
+	while (route.length + (*padding).length < 3)
 	{
 		[*padding appendString:@"0"];
 	}
@@ -934,16 +818,14 @@
 	
 	if (htmlError)
 	{
-		WebViewController *errorScreen = [[WebViewController alloc] init];
+        WebViewController *errorScreen = [WebViewController viewController];
 		[errorScreen setRawData:htmlError title:@"Error Message"];
-		[errorScreen displayPage:[self navigationController] animated:YES itemToDeselect:nil];
-		[errorScreen release];
+		[errorScreen displayPage:self.navigationController animated:YES itemToDeselect:nil];
 	}
 	else {
-		NetworkTestView *networkTest = [[NetworkTestView alloc] init];
+        NetworkTestView *networkTest = [NetworkTestView viewController];
 		networkTest.networkErrorFromQuery = networkError;
-		[networkTest fetchNetworkStatusInBackground:self.backgroundTask];
-		[networkTest release];
+		[networkTest fetchNetworkStatusAsync:self.backgroundTask];
 	}
 }
 
@@ -1001,7 +883,7 @@
 - (void)didReceiveMemoryWarning {
 	// Releases the view if it doesn't have a superview.
     
-    if ([self isViewLoaded] && [self.view window] == nil) {
+    if (self.viewLoaded && self.view.window == nil) {
         self.view = nil;
     }
     
@@ -1057,29 +939,26 @@
                                      destructiveButtonTitle:nil
                                           otherButtonTitles:nil] autorelease];
     
-    
+    self.tweetButtons = [NSMutableArray array];
     
     if ([self canTweet])
     {
-        _tweetButtons[ [self.tweetAlert addButtonWithTitle:@"Send tweet"] ] = kTweetButtonTweet;
+        self.tweetButtons[ [self.tweetAlert addButtonWithTitle:@"Send tweet"] ] = @(kTweetButtonTweet);
     }
-    
     
     NSString *twitter=[NSString stringWithFormat:@"twitter:"];
     
     if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:twitter]])
     {
-        _tweetButtons[ [self.tweetAlert addButtonWithTitle:@"Show in Twitter app"] ] = kTweetButtonApp;
+        self.tweetButtons[[self.tweetAlert addButtonWithTitle:NSLocalizedString(@"Show in Twitter app", @"button text")]] = @(kTweetButtonApp);
     }
     else
     {
-         _tweetButtons[ [self.tweetAlert addButtonWithTitle:@"Show in browser"] ] = kTweetButtonWeb;
+        self.tweetButtons[[self.tweetAlert addButtonWithTitle:NSLocalizedString(@"Show in browser", @"button text")]]     = @(kTweetButtonWeb);
     }
-    
-    // _tweetButtons[[sheet addButtonWithTitle:@"Recent tweets"] ] = kTweetButtonList;
-    
-    self.tweetAlert.cancelButtonIndex  = [self.tweetAlert addButtonWithTitle:@"Cancel"];
-    _tweetButtons[self.tweetAlert.cancelButtonIndex ] = kTweetButtonCancel;
+        
+    self.tweetAlert.cancelButtonIndex  = [self.tweetAlert addButtonWithTitle:NSLocalizedString(@"Cancel", @"button text")];
+    self.tweetButtons[self.tweetAlert.cancelButtonIndex] = @(kTweetButtonCancel);
     
     [self.tweetAlert showFromToolbar:self.navigationController.toolbar];
     
@@ -1104,11 +983,11 @@
 
 - (bool)openBrowserFrom:(UIViewController *)view path:(NSString *)path
 {
-    if ([UserPrefs getSingleton].useChrome && [ OpenInChromeController sharedInstance].isChromeInstalled)
+    if ([UserPrefs singleton].useChrome && [ OpenInChromeController sharedInstance].isChromeInstalled)
     {
         if ([[OpenInChromeController sharedInstance] openInChrome:[NSURL URLWithString:path]
-                                              withCallbackURL:[NSURL URLWithString:@"pdxbus:"]
-                                                 createNewTab:NO])
+                                                  withCallbackURL:[NSURL URLWithString:@"pdxbus:"]
+                                                     createNewTab:NO])
         {
             return YES;
         }
@@ -1202,7 +1081,7 @@
     {
         return;
     }
-    switch (_tweetButtons[buttonIndex])
+    switch (self.tweetButtons[buttonIndex].integerValue)
     {
         default:
         case kTweetButtonApp:
@@ -1229,16 +1108,6 @@
             [self clearSelection];
             break;
         }
-        case kTweetButtonList:
-        {
-            
-            RssView *rss = [[[RssView alloc] init] autorelease];
-            
-            rss.gotoOriginalArticle = YES;
-            
-            [rss fetchRssInBackground:self.backgroundTask url:[NSString stringWithFormat:@"https://api.twitter.com/1/statuses/user_timeline.rss?screen_name=%@", self.tweetAt]];
-            break;
-        }
             
         case kTweetButtonTweet:
         {
@@ -1255,8 +1124,28 @@
             break;
         }
     }
+    
+    self.tweetButtons = nil;
 }
 
+- (void)favesChanged
+{
+    _userData.favesChanged = YES;
+    [self updateWatch];
+}
+
+- (void)updateWatch
+{
+    
+    TriMetTimesAppDelegate *app = [TriMetTimesAppDelegate singleton];
+    RootViewController *root = (RootViewController*)app.rootViewController;
+    
+    if (root.session)
+    {
+        [WatchAppContext updateWatch:root.session];
+    }
+    
+}
 
 
 

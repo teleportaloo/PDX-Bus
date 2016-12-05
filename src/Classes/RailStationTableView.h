@@ -22,24 +22,23 @@
 
 
 @interface RailStationTableView : TableViewWithToolbar <UIAlertViewDelegate, ReturnStop> {
-	RailStation *_station;
-	RailMapView *_map;
-	bool _from;
-	StopLocations *_locationsDb;
-	
-    NSMutableArray *_routes;
-    NSInteger       _firstLocationRow;
+	RailStation *               _station;
+	RailMapView *               _map;
+	bool                        _from;
+	StopLocations *             _locationsDb;
+    NSMutableArray<NSNumber*> * _routes;
+    NSInteger                   _firstLocationRow;
 }
 
 @property (nonatomic, retain) RailMapView *map;
 @property (nonatomic, retain) RailStation *station;
 @property (nonatomic) bool from;
 @property (nonatomic, retain) StopLocations *locationsDb;
-@property (nonatomic, retain) NSMutableArray *routes;
+@property (nonatomic, retain) NSMutableArray<NSNumber*> *routes;
 
 
 - (void) chosenStop:(Stop *)stop progress:(id<BackgroundTaskProgress>) progress;
-- (NSString *)actionText;
+@property (nonatomic, readonly, copy) NSString *actionText;
 
 
 

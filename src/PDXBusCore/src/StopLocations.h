@@ -38,17 +38,17 @@
 // #define kAnyDist	  0.0
 
 @interface StopLocations : NSObject {
-	sqlite3 *database;
-	NSString *_path;
-	NSMutableArray *_nearestStops;
-	sqlite3_stmt *insert_statement;
-	sqlite3_stmt *select_statement;
-	sqlite3_stmt *replace_statement;
-    bool _writable;
+	sqlite3 *           _database;
+	NSString *          _path;
+	NSMutableArray *    _nearestStops;
+	sqlite3_stmt *      _insert_statement;
+	sqlite3_stmt *      _select_statement;
+	sqlite3_stmt *      _replace_statement;
+    bool                _writable;
 }
 
 
-@property (nonatomic, retain) NSString *path;
+@property (nonatomic, copy)   NSString *path;
 @property (nonatomic, retain) NSMutableArray *nearestStops;
 @property (nonatomic, readonly) bool isEmpty;
 
@@ -57,10 +57,10 @@
 + (void)quit;
 
 - (BOOL)insert:(int) locid lat:(double)lat lng:(double)lng rail:(bool)rail;
-- (BOOL)clear;
+@property (nonatomic, readonly) BOOL clear;
 - (void)close;
-- (int)getNumberOfStops;
-- (unsigned long long)getFileSize;
+@property (nonatomic, getter=getNumberOfStops, readonly) int numberOfStops;
+@property (nonatomic, getter=getFileSize, readonly) unsigned long long fileSize;
 
 
 // This function is deprecated for now as there is a TriMet call for this.

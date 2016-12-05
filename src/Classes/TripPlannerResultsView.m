@@ -34,6 +34,7 @@
 #import "AlarmTaskList.h"
 #import "AlarmAccurateStopProximity.h"
 #import "LocationAuthorization.h"
+#import "StringHelper.h"
 
 #define kRowTypeLeg			0
 #define kRowTypeDuration	1
@@ -83,19 +84,18 @@
 	[super dealloc];
 }
 
-- (id)init
+- (instancetype)init
 {
 	if ((self = [super init]))
 	{
 		_recentTripItem = -1;
-        _alarmItem      = -1;
 	}
 	
 	return self;
 	
 }
 
-- (id)initWithHistoryItem:(int)item
+- (instancetype)initWithHistoryItem:(int)item
 {
 	if ((self = [super init]))
 	{
@@ -108,16 +108,16 @@
 
 - (void)setItemFromArchive:(NSDictionary *)archive
 {
-    self.tripQuery = [[[XMLTrips alloc] init] autorelease];
+    self.tripQuery = [XMLTrips xml];
     
     
-    self.tripQuery.userRequest = [[[TripUserRequest alloc] initFromDict:[archive objectForKey:kUserFavesTrip]] autorelease];
-    // trips.rawData     = [trip objectForKey:kUserFavesTripResults];
+    self.tripQuery.userRequest = [TripUserRequest fromDictionary:archive[kUserFavesTrip]];
+    // trips.rawData     = trip[kUserFavesTripResults];
     
     [self.tripQuery addStopsFromUserFaves:_userData.faves];
     
     
-    [self.tripQuery fetchItineraries:[archive objectForKey:kUserFavesTripResults]];
+    [self.tripQuery fetchItineraries:archive[kUserFavesTripResults]];
 }
 
 - (void)setItemFromHistory:(int)item
@@ -125,7 +125,7 @@
 	NSDictionary *trip = nil;
 	@synchronized (_userData)
 	{
-		trip = [_userData.recentTrips objectAtIndex:item];
+		trip = _userData.recentTrips[item];
         
         _recentTripItem = item;
 	
@@ -158,8 +158,8 @@
 	bookmark.style = style;
 	
 	// create the system-defined "OK or Done" button
-    UIBarButtonItem *edit = [[UIBarButtonItem alloc] initWithTitle:@"Redo" 
-															 style:UIBarButtonItemStyleBordered 
+    UIBarButtonItem *edit = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Redo", @"button text")
+															 style:UIBarButtonItemStylePlain 
 															target:self 
 															action:@selector(showCopy:)];
 	
@@ -167,14 +167,14 @@
 
 
 	[toolbarItems addObject: bookmark];
-	[toolbarItems addObject: [CustomToolbar autoFlexSpace]];
+	[toolbarItems addObject: [UIToolbar autoFlexSpace]];
 	[toolbarItems addObject: edit];
-    [toolbarItems addObject: [CustomToolbar autoFlexSpace]];
+    [toolbarItems addObject: [UIToolbar autoFlexSpace]];
      
-    if ([UserPrefs getSingleton].debugXML)
+    if ([UserPrefs singleton].debugXML)
     {
         [toolbarItems addObject:[self autoXmlButton]];
-        [toolbarItems addObject:[CustomToolbar autoFlexSpace]];
+        [toolbarItems addObject:[UIToolbar autoFlexSpace]];
     }
     
     [self maybeAddFlashButtonWithSpace:NO buttons:toolbarItems big:NO];
@@ -197,19 +197,6 @@
 	
 	[seg setEnabled:(_recentTripItem < (_userData.recentTrips.count-1)) forSegmentAtIndex:1];
 
-}
-
-- (void)editHomeAction:(id)sender
-{
-	TripPlannerEndPointView *editHome = [[TripPlannerEndPointView alloc] init];
-    
-    [editHome initTakMeHome:self.tripQuery.userRequest];
-
-    UINavigationController * navigationController = self.navigationController;
-    [navigationController popToRootViewControllerAnimated:NO];
-    [navigationController pushViewController:editHome animated:YES];
-    
-    [editHome release];
 }
 
 
@@ -243,15 +230,18 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-	self.title = @"Trip";
+    self.title = NSLocalizedString(@"Trip",@"page title");
+    
+    _alarmItem      = -1;
+
 	
 	if (self.tripQuery.resultFrom != nil && self.tripQuery.resultTo != nil)
 	{
-		itinerarySectionOffset = 1; 
+		_itinerarySectionOffset = 1; 
 	}
 	else
 	{
-		itinerarySectionOffset = 0;
+		_itinerarySectionOffset = 0;
 	}
 	
 	Class messageClass = (NSClassFromString(@"MFMessageComposeViewController"));
@@ -277,11 +267,10 @@
 	
 	if (_recentTripItem >=0)
 	{
-		UISegmentedControl *seg = [[UISegmentedControl alloc] initWithItems:[NSArray arrayWithObjects: 
+		UISegmentedControl *seg = [[UISegmentedControl alloc] initWithItems:@[
                                             [TableViewWithToolbar getToolbarIcon7:kIconUp7      old:kIconUp],
-                                            [TableViewWithToolbar getToolbarIcon7:kIconDown7    old:kIconDown], nil] ];
+                                            [TableViewWithToolbar getToolbarIcon7:kIconDown7    old:kIconDown]] ];
 		seg.frame = CGRectMake(0, 0, 60, 30.0);
-		seg.segmentedControlStyle = UISegmentedControlStyleBar;
 		seg.momentary = YES;
 		[seg addTarget:self action:@selector(upDown:) forControlEvents:UIControlEventValueChanged];
 		
@@ -292,18 +281,6 @@
 		
 	}
     
-    if (self.tripQuery.userRequest.takeMeHome)
-    {
-        UIBarButtonItem *editHome = [[UIBarButtonItem alloc]
-                                     initWithTitle:NSLocalizedString(@"Edit Home", @"")
-                                     style:UIBarButtonItemStyleBordered
-                                     target:self
-                                     action:@selector(editHomeAction:)];
-        self.navigationItem.rightBarButtonItem = editHome;
-        
-        [editHome release];
-    }
-
 }
 
 
@@ -318,11 +295,11 @@
 
 - (NSInteger)sectionType:(NSInteger)section
 {
-	if (section < itinerarySectionOffset)	
+	if (section < _itinerarySectionOffset)	
 	{
 		return kSectionTypeEndPoints;
 	}
-	else if ((section - itinerarySectionOffset) < self.tripQuery.safeItemCount)
+	else if ((section - _itinerarySectionOffset) < self.tripQuery.count)
 	{
 		return kSectionTypeOptions;
 	}
@@ -333,14 +310,14 @@
 {
 	if ([self sectionType:section] ==  kSectionTypeOptions)
 	{
-		return [self.tripQuery itemAtIndex:section - itinerarySectionOffset]; 
+		return self.tripQuery[section - _itinerarySectionOffset]; 
 	}
 	return nil;
 }
 
 - (NSInteger)legRows:(TripItinerary *)it
 {
-	return [it.displayEndPoints count];
+	return it.displayEndPoints.count;
 }
 
 - (NSInteger)rowType:(NSIndexPath *)indexPath
@@ -405,7 +382,7 @@
 	
 	if (indexPath.row < [self legRows:it])
 	{
-		return ((TripLegEndPoint*)[it.displayEndPoints objectAtIndex:indexPath.row]).displayText;
+		return it.displayEndPoints[indexPath.row].displayText;
 	}
 	
 	return nil;
@@ -416,14 +393,11 @@
 {
 	XMLTrips * copy = [self.tripQuery createAuto];
 	
-	TripPlannerSummaryView *trip = [[TripPlannerSummaryView alloc] init];
+    TripPlannerSummaryView *trip = [TripPlannerSummaryView viewController];
 	trip.tripQuery = copy;
 	
 	// Push the detail view controller
-	[[self navigationController] pushViewController:trip animated:YES];
-	
-	[trip release];
-	
+	[self.navigationController pushViewController:trip animated:YES];
 }
 
 
@@ -454,26 +428,24 @@
 	
 	if (stopId != nil)
 	{
-		DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
+        DepartureTimesView *departureViewController = [DepartureTimesView viewController];
 		
 		departureViewController.displayName = @"";
-		[departureViewController fetchTimesForLocationInBackground:self.backgroundTask loc:stopId];
-		[departureViewController release];
+		[departureViewController fetchTimesForLocationAsync:self.backgroundTask loc:stopId];
 	}
 	else if (leg.xlat !=0 && leg.xlon !=0)
 	{
-		MapViewController *mapPage = [[MapViewController alloc] init];
-		SimpleAnnotation *pin = [[[SimpleAnnotation alloc] init] autorelease];
+        MapViewController *mapPage = [MapViewController viewController];
+        SimpleAnnotation *pin = [SimpleAnnotation annotation];
 		mapPage.callback = self.callback;
-		[pin setCoord:leg.loc.coordinate];
+		pin.coordinate =  leg.loc.coordinate;
 		pin.pinTitle = leg.xdescription;
 		pin.pinColor = MKPinAnnotationColorPurple;
 		
 		
 		[mapPage addPin:pin];
 		mapPage.title = leg.xdescription; 
-		[[self navigationController] pushViewController:mapPage animated:YES];
-		[mapPage release];	
+		[self.navigationController pushViewController:mapPage animated:YES];
 	}	
 	
 	
@@ -491,18 +463,18 @@
 		_bookmarkItem = kNoBookmark;
 		TripUserRequest * req = [[[TripUserRequest alloc] init] autorelease];
 	
-		for (i=0; _userData.faves!=nil &&  i< [_userData.faves count]; i++)
+		for (i=0; _userData.faves!=nil &&  i< _userData.faves.count; i++)
 		{
-			NSDictionary *bm = [_userData.faves objectAtIndex:i];
-			NSDictionary * faveTrip = (NSDictionary *)[bm objectForKey:kUserFavesTrip];
+			NSDictionary *bm = _userData.faves[i];
+			NSDictionary * faveTrip = (NSDictionary *)bm[kUserFavesTrip];
 		
 			if (bm!=nil && faveTrip != nil)
 			{
-				[req fromDictionary:faveTrip];
+				[req readDictionary:faveTrip];
 				if ([req equalsTripUserRequest:self.tripQuery.userRequest])
 				{
 					_bookmarkItem = i;
-					desc = [bm objectForKey:kUserFavesChosenName];
+					desc = bm[kUserFavesChosenName];
 					break;
 				}
 			}
@@ -512,11 +484,11 @@
 	
 	if (_bookmarkItem == kNoBookmark)
 	{
-		UIActionSheet *actionSheet = [[[ UIActionSheet alloc ] initWithTitle:@"Bookmark Trip"
+        UIActionSheet *actionSheet = [[[ UIActionSheet alloc ] initWithTitle:NSLocalizedString(@"Bookmark Trip",@"alert title")
 																	delegate:self
-														   cancelButtonTitle:@"Cancel" 
+														   cancelButtonTitle:NSLocalizedString(@"Cancel", @"button text")
 													  destructiveButtonTitle:nil
-														   otherButtonTitles:@"Add new bookmark", nil] autorelease];
+														   otherButtonTitles:NSLocalizedString(@"Add new bookmark", @"button text"), nil] autorelease];
 		actionSheet.actionSheetStyle = UIActionSheetStyleDefault;
 		[actionSheet showFromToolbar:self.navigationController.toolbar]; // show from our table view (pops up in the middle of the table)
 	}
@@ -539,12 +511,11 @@
    {
 		if (buttonIndex == 0)
 		{
-			EditBookMarkView *edit = [[EditBookMarkView alloc] init];
+            EditBookMarkView *edit = [EditBookMarkView viewController];
 			// [edit addBookMarkFromStop:self.bookmarkDesc location:self.bookmarkLoc];
 			[edit addBookMarkFromUserRequest:self.tripQuery];
 			// Push the detail view controller
-			[[self navigationController] pushViewController:edit animated:YES];
-			[edit release];
+			[self.navigationController pushViewController:edit animated:YES];
 		}
 	}	
 	else {
@@ -555,30 +526,28 @@
 				@synchronized (_userData)
 				{
 					[_userData.faves removeObjectAtIndex:_bookmarkItem];
-					_userData.favesChanged = YES;
+                    [self favesChanged];
 					[_userData cacheAppData];
 					break;
 				}
 			}
 			case 1:  // Edit this bookmark
 			{
-				EditBookMarkView *edit = [[EditBookMarkView alloc] init];
-				[edit editBookMark:[_userData.faves objectAtIndex:_bookmarkItem] item:_bookmarkItem];
+                EditBookMarkView *edit = [EditBookMarkView viewController];
+				[edit editBookMark:_userData.faves[_bookmarkItem] item:_bookmarkItem];
 				// Push the detail view controller
-				[[self navigationController] pushViewController:edit animated:YES];
-				[edit release];
+				[self.navigationController pushViewController:edit animated:YES];
 				break;
 				
 			}
 			case 2:  // Add new bookmark
 			{
-				EditBookMarkView *edit = [[EditBookMarkView alloc] init];
+                EditBookMarkView *edit = [EditBookMarkView viewController];
 				// [edit addBookMarkFromStop:self.bookmarkDesc location:self.bookmarkLoc];
 				[edit addBookMarkFromUserRequest:self.tripQuery];
 				
 				// Push the detail view controller
-				[[self navigationController] pushViewController:edit animated:YES];
-				[edit release];
+				[self.navigationController pushViewController:edit animated:YES];
 				break;
 			}
 			case 3:  // Cancel
@@ -593,7 +562,7 @@
 #pragma mark Table view methods
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return self.tripQuery.safeItemCount+1+itinerarySectionOffset;
+    return self.tripQuery.count+1+_itinerarySectionOffset;
 }
 
 
@@ -629,7 +598,7 @@
 	switch ([self sectionType:section])
 	{
 	case kSectionTypeEndPoints:	
-		return @"The trip planner shows scheduled service only. Check below to see how detours may affect your trip.\n\nYour trip:";
+		return NSLocalizedString(@"The trip planner shows scheduled service only. Check below to see how detours may affect your trip.\n\nYour trip:", @"section header");
 		break;
 	case kSectionTypeOptions:
 		{
@@ -639,11 +608,11 @@
 	
 			if (legs > 0)
 			{
-				return [NSString stringWithFormat:@"Option %ld - %@", (long)(section + 1 - itinerarySectionOffset), [it getShortTravelTime]];
+				return [NSString stringWithFormat:NSLocalizedString(@"Option %ld - %@", @"section header"), (long)(section + 1 - _itinerarySectionOffset), it.shortTravelTime];
 			}
 			else
 			{
-				return @"No route was found:";
+				return NSLocalizedString(@"No route was found:", @"section header");
 			}
 		}
 	case kSectionRowDisclaimerType:
@@ -671,7 +640,7 @@
 		case kRowTypeDateAndTime:
 		case kRowTypeOptions:
 		{
-			CGFloat h = [self tableView:[self table] heightForRowAtIndexPath:indexPath];
+			CGFloat h = [self tableView:self.table heightForRowAtIndexPath:indexPath];
 
 			NSString *cellIdentifier = [NSString stringWithFormat:@"TripLeg%f+%f", h,self.screenInfo.appWinWidth];
 			TripItinerary *it = [self getSafeItinerary:indexPath.section];
@@ -695,7 +664,7 @@
 					[TripLeg populateCell:cell body:it.xmessage mode:@"No" time:@"Route" leftColor:nil route:nil];
 					cell.selectionStyle = UITableViewCellSelectionStyleNone;
 					
-					if (![self.tripQuery gotData])
+					if (!self.tripQuery.gotData)
 					{
 						cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 					}
@@ -705,7 +674,7 @@
 					break;
 				case kRowTypeLeg:
 					{
-						TripLegEndPoint * ep = [it.displayEndPoints objectAtIndex:indexPath.row];
+						TripLegEndPoint * ep = it.displayEndPoints[indexPath.row];
 						[TripLeg populateCell:cell body:ep.displayText mode:ep.displayModeText time:ep.displayTimeText leftColor:ep.leftColor
 										route:ep.xnumber];
 						
@@ -730,13 +699,18 @@
 				//printf("width: %f\n", cell.view.frame.size.width);
 					break;
 				case kRowTypeDuration:
-					[TripLeg populateCell:cell body:[it getTravelTime] mode:@"Travel" time:@"time" leftColor:nil route:nil];
+					[TripLeg populateCell:cell body:it.travelTime mode:@"Travel" time:@"time" leftColor:nil route:nil];
 					cell.selectionStyle = UITableViewCellSelectionStyleNone;
 					cell.accessoryType = UITableViewCellAccessoryNone;
 					// justText = [it getTravelTime];
 					break;
 				case kRowTypeFare:
-					[TripLeg populateCell:cell body:it.fare mode:@"Fare" time:nil leftColor:nil route:nil];
+					[TripLeg populateCell:cell
+                                     body:it.fare.stringWithTrailingSpacesRemoved
+                                     mode:@"Fare"
+                                     time:nil
+                                leftColor:nil
+                                    route:nil];
 					cell.selectionStyle = UITableViewCellSelectionStyleNone;
 					cell.accessoryType = UITableViewCellAccessoryNone;
 					// justText = it.fare;
@@ -751,7 +725,7 @@
 								leftColor:nil
 									route:nil];
 					
-					[cell setAccessibilityLabel: [self.tripQuery.userRequest optionsAccessability]];
+					cell.accessibilityLabel = [self.tripQuery.userRequest optionsAccessability];
 					
 					cell.selectionStyle = UITableViewCellSelectionStyleNone;
 					cell.accessoryType = UITableViewCellAccessoryNone;
@@ -763,9 +737,11 @@
 					break;
 				
 				case kRowTypeDateAndTime:
-					[TripLeg populateCell:cell body:[self.tripQuery.userRequest getDateAndTime] 
+
+
+					[TripLeg populateCell:cell body:[self.tripQuery.userRequest getDateAndTime]
 									 mode:[self.tripQuery.userRequest getTimeType] 
-									 time:nil 
+									 time:nil
 								leftColor:nil
 									route:nil];
 					cell.selectionStyle = UITableViewCellSelectionStyleNone;
@@ -809,60 +785,60 @@
 			switch (rowType)
 			{
 				case kRowTypeDetours:
-					cell.textLabel.text = @"Check detours";
+                    cell.textLabel.text = NSLocalizedString(@"Check detours", @"main menu item");
 					cell.imageView.image = [self getActionIcon:kIconDetour];
 					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 					break;
 				case kRowTypeMap:
-					cell.textLabel.text = @"Show on map";
+                    cell.textLabel.text = NSLocalizedString(@"Show on map", @"main menu item");
 					cell.imageView.image = [self getActionIcon7:kIconMapAction7 old:kIconMapAction];
 					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 					break;
 				case kRowTypeEmail:
-					cell.textLabel.text = @"Send by email";
+                    cell.textLabel.text = NSLocalizedString(@"Send by email", @"main menu item");
 					cell.imageView.image = [self getActionIcon:kIconEmail];
 					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 					break;
 				case kRowTypeSMS:
-					cell.textLabel.text = @"Send by text message";
+                    cell.textLabel.text = NSLocalizedString(@"Send by text message", @"main menu item");
 					cell.imageView.image = [self getActionIcon:kIconCell];
 					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 					break;
 				case kRowTypeCal:
-					cell.textLabel.text = @"Add to calendar";
+                    cell.textLabel.text = NSLocalizedString(@"Add to calendar", @"main menu item");
 					cell.imageView.image = [self getActionIcon:kIconCal];
 					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 					break;
 				case kRowTypeClipboard:
-					cell.textLabel.text = @"Copy to clipboard";
+                    cell.textLabel.text = NSLocalizedString(@"Copy to clipboard", @"main menu item");
 					cell.imageView.image = [self getActionIcon:kIconCut];
 					cell.accessoryType = UITableViewCellAccessoryNone;
 					break;
 				case kRowTypeReverse:
-					cell.textLabel.text = @"Reverse trip";
+                    cell.textLabel.text = NSLocalizedString(@"Reverse trip", @"main menu item");
 					cell.imageView.image = [self getActionIcon:kIconReverse];
 					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 					break;
 				case kRowTypeArrivals:
-					cell.textLabel.text = @"Arrivals for all stops";
+                    cell.textLabel.text = NSLocalizedString(@"Arrivals for all stops", @"main menu item");
 					cell.imageView.image = [self getActionIcon:kIconArrivals];
 					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                     break;
                 case kRowTypeAlarms:
-                    cell.textLabel.text = @"Set deboard alarms";
+                    cell.textLabel.text = NSLocalizedString(@"Set deboard alarms", @"main menu item");
                     cell.imageView.image = [self getActionIcon:kIconAlarm];
                     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 					break;
 			}
 			cell.textLabel.textColor = [ UIColor grayColor];
 			cell.selectionStyle = UITableViewCellSelectionStyleBlue;
-			cell.textLabel.font = [self getBasicFont];
+			cell.textLabel.font = self.basicFont;
 			[self updateAccessibility:cell indexPath:indexPath text:cell.textLabel.text alwaysSaySection:NO];
 			return cell;
 		}
 	}
 	
-	return nil;
+    return [super tableView:tableView cellForRowAtIndexPath:indexPath];
 }
 
 - (CGFloat)fieldWidth
@@ -888,7 +864,7 @@
 		case kRowTypeLeg:
 			return [TripLeg getTextHeight:[self getTextForLeg:indexPath] width:shorterWidth];
 		case kRowTypeDuration:
-			return [TripLeg getTextHeight:[it getTravelTime] width:shorterWidth];
+			return [TripLeg getTextHeight:it.travelTime width:shorterWidth];
 		case kRowTypeFare:
 			return [TripLeg getTextHeight:it.fare width:shorterWidth];
 		case kRowTypeFrom:
@@ -912,7 +888,7 @@
 
 - (NSString *)plainText:(TripItinerary *)it
 {
-	NSMutableString *trip = [[[NSMutableString alloc] init] autorelease];
+	NSMutableString *trip = [NSMutableString string];
 	
 //	TripItinerary *it = [self getSafeItinerary:indexPath.section];
 	
@@ -930,6 +906,7 @@
 		 ];
 	}
 	
+
 	[trip appendFormat:@"%@: %@\n\n", [self.tripQuery.userRequest getTimeType], [self.tripQuery.userRequest getDateAndTime]];
 	
 	/*
@@ -950,11 +927,11 @@
 		[trip appendString:htmlText];
 	}
 	
-	[trip appendFormat:@"Scheduled travel time: %@\n\n",[it getTravelTime] ];
+	[trip appendFormat:@"Scheduled travel time: %@\n\n",it.travelTime];
 	
-	if ([it fare] != nil)
+	if (it.fare != nil)
 	{
-		[trip appendFormat:@"Fare: %@",[it fare] ];
+		[trip appendFormat:@"Fare: %@",it.fare ];
 	}
 	
 	return trip;
@@ -975,10 +952,10 @@
     
     NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
     NSLocale *enUS = [[[NSLocale alloc] initWithLocaleIdentifier:@"en_US"] autorelease];
-    [dateFormatter setLocale:enUS];
+    dateFormatter.locale = enUS;
     
-    [dateFormatter setDateFormat:@"M/d/yy hh:mm a"];
-    [dateFormatter setTimeZone:[NSTimeZone localTimeZone]];
+    dateFormatter.dateFormat = @"M/d/yy hh:mm a";
+    dateFormatter.timeZone = [NSTimeZone localTimeZone];
     NSString *fullDateStr = [NSString stringWithFormat:@"%@ %@", self.calendarItinerary.xdate, self.calendarItinerary.xstartTime];
     NSDate *start = [dateFormatter dateFromString:fullDateStr];
     
@@ -998,7 +975,7 @@
 #ifdef ORIGINAL_IPHONE
             start = [start addTimeInterval: -([leg.xduration intValue] * 60)];
 #else
-            start = [start dateByAddingTimeInterval: -([leg.xduration intValue] * 60)];;
+            start = [start dateByAddingTimeInterval: -(leg.xduration.intValue * 60)];;
 #endif
             
             
@@ -1010,23 +987,23 @@
 #ifdef ORIGINAL_IPHONE
     NSDate *end   = [start addTimeInterval: [self.calendarItinerary.xduration intValue] * 60];
 #else
-    NSDate *end   = [start dateByAddingTimeInterval: [self.calendarItinerary.xduration intValue] * 60];
+    NSDate *end   = [start dateByAddingTimeInterval: self.calendarItinerary.xduration.intValue * 60];
 #endif
     
     
     event.startDate = start;
     event.endDate   = end;
     
-    EKCalendar *cal = [eventStore defaultCalendarForNewEvents];
+    EKCalendar *cal = eventStore.defaultCalendarForNewEvents;
     
-    [event setCalendar:cal];
+    event.calendar = cal;
     NSError *err;
     if (cal !=nil && [eventStore saveEvent:event span:EKSpanThisEvent error:&err])
     {
         // Upon selecting an event, create an EKEventViewController to display the event.
         EKEventViewController *detailViewController = [[EKEventViewController alloc] initWithNibName:nil bundle:nil];
         detailViewController.event = event;
-        detailViewController.title = @"Calendar Event";
+        detailViewController.title = NSLocalizedString(@"Calendar Event", @"page title");
         
         // Allow event editing.
         detailViewController.allowsEditing = YES;
@@ -1044,7 +1021,7 @@
     if (_alarmItem != kNoBookmark)
     {
         TripItinerary *it = [self getSafeItinerary:_alarmItem];
-        AlarmTaskList *taskList = [AlarmTaskList getSingleton];
+        AlarmTaskList *taskList = [AlarmTaskList singleton];
         
         for (TripLegEndPoint *leg in it.displayEndPoints)
         {
@@ -1060,42 +1037,45 @@
     }
     else if (buttonIndex == 0)
 	{
-		NSIndexPath *ip = [self.table indexPathForSelectedRow];
+		NSIndexPath *ip = self.table.indexPathForSelectedRow;
 		if (ip!=nil)
 		{
 			[self.table deselectRowAtIndexPath:ip animated:YES];
 		}
 	}
 	else
-	{
-		EKEventStore *eventStore = [[[EKEventStore alloc] init] autorelease];
-        
-        
-        // maybe check for access
-        
-        if ([eventStore respondsToSelector:@selector(requestAccessToEntityType:completion:)])
-        {
-            
-            [eventStore requestAccessToEntityType:EKEntityTypeEvent completion:^(BOOL granted, NSError *error) {
-                
-                if (granted)
-                {
-                    // [self addCalendarItem:nil];
-                    [self performSelectorOnMainThread:@selector(addCalendarItem:) withObject:nil waitUntilDone:FALSE];
-                }
-                
-            }];
-        }
-        else
-        {
-            [self addCalendarItem:eventStore];
-        }
-            
+    {
+        [self addCalendarItem:nil];
     }
 		
 }
-	
-	
+
+- (void)calendarAlert:(NSNumber *)grantedObject
+{
+    bool granted = grantedObject.boolValue;
+    
+    if (granted)
+    {
+        // [self addCalendarItem:nil];
+        UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"Calendar", @"alert title")
+                                                           message:NSLocalizedString(@"Are you sure you want to add this to your default calendar?", @"alert message")
+                                                          delegate:self
+                                                 cancelButtonTitle:NSLocalizedString(@"No", @"button text")
+                                                 otherButtonTitles:NSLocalizedString(@"Yes", @"button text"), nil ] autorelease];
+        [alert show];
+    }
+    else
+    {
+        UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"Calendar", @"alert title")
+                                                           message:NSLocalizedString(@"Calendar access has been denied. Please check the app settings to allow access to the calendar.",  @"alert message")
+                                                          delegate:self
+                                                 cancelButtonTitle:NSLocalizedString(@"No", @"button text")
+                                                 otherButtonTitles:nil ] autorelease];
+        [alert show];
+    }
+}
+
+
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     // Navigation logic may go here. Create and push another view controller.
@@ -1105,7 +1085,7 @@
 	switch ([self rowType:indexPath])
 	{
 		case kRowTypeError:
-			if (![self.tripQuery gotData])
+			if (!self.tripQuery.gotData)
 			{
 				
 				[self networkTips:self.tripQuery.htmlError networkError:self.tripQuery.errorMsg];
@@ -1134,7 +1114,7 @@
 		case kRowTypeLeg:
 			{
 				TripItinerary *it = [self getSafeItinerary:indexPath.section];
-				TripLegEndPoint *leg = [it.displayEndPoints objectAtIndex:indexPath.row];
+				TripLegEndPoint *leg = it.displayEndPoints[indexPath.row];
 				[self selectLeg:leg];
 			}
 			
@@ -1153,7 +1133,7 @@
 		}
         case kRowTypeAlarms:
         {
-            AlarmTaskList *taskList = [AlarmTaskList getSingleton];
+            AlarmTaskList *taskList = [AlarmTaskList singleton];
             
             if ([LocationAuthorization locationAuthorizedOrNotDeterminedShowMsg:NO backgroundRequired:YES])
             {
@@ -1183,15 +1163,16 @@
 		case kRowTypeCal:
 		{
 			self.calendarItinerary = [self getSafeItinerary:indexPath.section];
-			
-			UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"Calendar"
-															   message:@"Are you sure you want to add this to your default calendar?"
-															  delegate:self
-													 cancelButtonTitle:@"No"
-													 otherButtonTitles:@"Yes", nil ] autorelease];
-			[alert show];
-			
-				
+            
+            EKEventStore *eventStore = [[[EKEventStore alloc] init] autorelease];
+            
+            // maybe check for access
+            [eventStore requestAccessToEntityType:EKEntityTypeEvent completion:^(BOOL granted, NSError *error) {
+                
+                [self performSelectorOnMainThread:@selector(calendarAlert:) withObject:@(granted) waitUntilDone:FALSE];
+                
+            }];
+            
 	
 		}
 		break;
@@ -1253,11 +1234,11 @@
 				[trip appendString:htmlText];
 			}
 			
-			[trip appendFormat:@"Travel time: %@<br><br>",[it getTravelTime] ];
+			[trip appendFormat:@"Travel time: %@<br><br>",it.travelTime];
 			
-			if ([it fare] != nil)
+			if (it.fare != nil)
 			{
-				[trip appendFormat:@"Fare: %@<br><br>",[it fare] ];
+				[trip appendFormat:@"Fare: %@<br><br>",it.fare ];
 			}
 			
 			MFMailComposeViewController *email = [[MFMailComposeViewController alloc] init];
@@ -1266,10 +1247,10 @@
 			
 			if (![MFMailComposeViewController canSendMail])
 			{
-				UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"email"
-																   message:@"Cannot send email on this device"
+				UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"email", @"alert title")
+																   message:NSLocalizedString(@"Cannot send email on this device", @"alert message")
 																  delegate:nil
-														 cancelButtonTitle:@"OK"
+														 cancelButtonTitle:NSLocalizedString(@"OK", @"button text")
 														 otherButtonTitles:nil] autorelease];
 				[alert show];
 				[email release];
@@ -1290,12 +1271,10 @@
 		break;
 		case kRowTypeMap:
 		{
-			TripPlannerMap *mapPage = [[TripPlannerMap alloc] init];
+            TripPlannerMap *mapPage = [TripPlannerMap viewController];
 			mapPage.callback = self.callback;
 			mapPage.lines = YES;
 			TripItinerary *it = [self getSafeItinerary:indexPath.section];
-			NSMutableArray *lineCoords = [[[NSMutableArray alloc] init] autorelease];
-			
 	
 			int i,j = 0;
 			for (i=0; i< [it legCount]; i++)
@@ -1320,42 +1299,29 @@
 					[mapPage addPin:leg.to];
 				}
 				
-				if (leg.legShape && leg.legShape.shapeCoords)
-				{
-					[lineCoords addObjectsFromArray:leg.legShape.shapeCoords];
-					[lineCoords addObject:[ShapeCoord makeEnd]];
-				}
-				
 			}
 			
 			mapPage.it = it;
 			
-			if (![mapPage fetchShapesInBackground:self.backgroundTask])
-			{
-				mapPage.lineCoords = lineCoords;
-				[[self navigationController] pushViewController:mapPage animated:YES];
-			}
-			
-			[mapPage release];
+            [mapPage fetchShapesAsync:self.backgroundTask];
 		}
 		break;
 		case kRowTypeReverse:
 		{
 			XMLTrips * reverse = [self.tripQuery createReverse];
 			
-			TripPlannerDateView *tripDate = [[TripPlannerDateView alloc] init];
+            TripPlannerDateView *tripDate = [TripPlannerDateView viewController];
 			
 			tripDate.userFaves = reverse.userFaves;
 			tripDate.tripQuery = reverse;
 			
 			// Push the detail view controller
-			[tripDate nextScreen:[self navigationController] taskContainer:self.backgroundTask];
-			[tripDate release];
+			[tripDate nextScreen:self.navigationController taskContainer:self.backgroundTask];
 			/*
 			 TripPlannerEndPointView *tripStart = [[TripPlannerEndPointView alloc] init];
 			 
 			 // Push the detail view controller
-			 [[self navigationController] pushViewController:tripStart animated:YES];
+			 [self.navigationController pushViewController:tripStart animated:YES];
 			 [tripStart release];
 			 */
 			break;
@@ -1363,9 +1329,9 @@
 		}
 		case kRowTypeDetours:
 		{
-			NSMutableArray *allRoutes = [[[NSMutableArray alloc] init] autorelease];
+            NSMutableArray *allRoutes = [NSMutableArray array];
 			NSString *route = nil;
-			NSMutableSet *allRoutesSet = [[[NSMutableSet alloc] init] autorelease];
+            NSMutableSet *allRoutesSet = [NSMutableSet set];
 			
 			TripItinerary *it = [self getSafeItinerary:indexPath.section];
 			
@@ -1375,7 +1341,7 @@
 			{
 				TripLeg *leg = [it getLeg:i];
 				
-				route = [leg xinternalNumber];
+				route = leg.xinternalNumber;
 				
 				if (route && ![allRoutesSet containsObject:route])
 				{
@@ -1386,17 +1352,15 @@
 				
 			}
 			
-			if ([allRoutes count] >0 )
+			if (allRoutes.count >0 )
 			{
-				DetoursView *detourView = [[DetoursView alloc] init];
-				[detourView fetchDetoursInBackground:self.backgroundTask routes:allRoutes];
-				[detourView release];
+				[[DetoursView viewController] fetchDetoursAsync:self.backgroundTask routes:allRoutes];
 			}
 			break;
 		}
 		case kRowTypeArrivals:
 		{
-			NSMutableString *allstops = [[[NSMutableString alloc] init] autorelease];
+			NSMutableString *allstops = [NSMutableString string];
 			NSString *lastStop = nil;
 			NSString *nextStop = nil;
 			
@@ -1415,7 +1379,7 @@
 				{
 					if (nextStop !=nil && (lastStop==nil || ![nextStop isEqualToString:lastStop]))
 					{
-						if ([allstops length] > 0)
+						if (allstops.length > 0)
 						{
 							[allstops appendFormat:@","];
 						}
@@ -1426,13 +1390,9 @@
 				}
 			}
 			
-			if ([allstops length] >0 )
+			if (allstops.length >0 )
 			{
-				DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
-				
-
-				[departureViewController fetchTimesForLocationInBackground:self.backgroundTask loc:allstops];
-				[departureViewController release];
+				[[DepartureTimesView viewController] fetchTimesForLocationAsync:self.backgroundTask loc:allstops];
 			}
 			break;
 		}
@@ -1518,9 +1478,9 @@
         if (tripItem)
         {
             self.userActivity = [[[NSUserActivity alloc] initWithActivityType:kHandoffUserActivityBookmark] autorelease];
-            NSMutableDictionary *info = [[[NSMutableDictionary alloc] init] autorelease];
+            NSMutableDictionary *info = [NSMutableDictionary dictionary];
             
-            [info setObject:tripItem forKey:kUserFavesTrip];
+            info[kUserFavesTrip] = tripItem;
             
            //  [info setObject:tripItem forKey:kUserFavesTrip];
             self.userActivity.userInfo = info;

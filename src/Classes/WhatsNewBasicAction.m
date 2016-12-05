@@ -25,7 +25,7 @@
 
 - (void)processAction:(NSString *)text parent:(ViewControllerBase*)parent
 {
-    [[parent navigationController] popViewControllerAnimated:YES];
+    [parent.navigationController popViewControllerAnimated:YES];
 }
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell text:(NSString*)text
@@ -46,7 +46,7 @@
     NSScanner *scanner = [NSScanner scannerWithString:item];
     NSString *prefix = nil;
     
-    if ([scanner isAtEnd])
+    if (scanner.atEnd)
     {
         return nil;
     }
@@ -55,7 +55,7 @@
     
     [scanner scanUpToString:@" " intoString:&prefix];
     
-    if (rest && ![scanner isAtEnd])
+    if (rest && !scanner.atEnd)
     {
         *rest = [item substringFromIndex:scanner.scanLocation+1];
     }
@@ -71,14 +71,14 @@
 
 - (NSString*)plainTextNormal:(NSString*)fullText
 {
-    NSAttributedString *text = [StringHelper formatAttributedString:[self displayText:fullText] font:[UIFont systemFontOfSize:14]];
+    NSAttributedString *text = [[self displayText:fullText] formatAttributedStringWithFont:[UIFont systemFontOfSize:14]];
     
     return text.string;
 }
 
 - (NSString*)plainTextIndented:(NSString*)fullText
 {
-    NSAttributedString *text = [StringHelper formatAttributedString:[self displayText:fullText] font:[UIFont systemFontOfSize:14]];
+    NSAttributedString *text = [[self displayText:fullText] formatAttributedStringWithFont:[UIFont systemFontOfSize:14]];
     
     return [NSString stringWithFormat:@"- %@",text.string];
 }

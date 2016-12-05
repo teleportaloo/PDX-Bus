@@ -18,6 +18,16 @@
 
 @implementation WatchBookmarksContext
 
+
+- (void)dealloc
+{
+    self.title = nil;
+    self.singleBookmark = nil;
+    self.location = nil;
+    
+    [super dealloc];
+}
+
 + (WatchBookmarksContext *)contextWithBookmark:(NSArray *)bookmark title:(NSString *)title locationString:(NSString *)location
 {
     WatchBookmarksContext *result = [[[WatchBookmarksContext alloc] init] autorelease];
@@ -40,16 +50,16 @@
 {
     if (!self.recents)
     {
-        NSMutableDictionary *info = [[[NSMutableDictionary alloc] init] autorelease];
+        NSMutableDictionary *info = [NSMutableDictionary dictionary];
     
-        [info setObject:self.title forKey:kUserFavesChosenName];
-        [info setObject:self.location forKey:kUserFavesLocation];
+        info[kUserFavesChosenName] = self.title;
+        info[kUserFavesLocation]   = self.location;
         [controller updateUserActivity:kHandoffUserActivityBookmark userInfo:info webpageURL:nil];
     }
     
 }
 
-- (id)init
+- (instancetype)init
 {
     if ((self = [super init]))
     {

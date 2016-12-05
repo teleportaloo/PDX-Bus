@@ -20,10 +20,11 @@
 
 @interface MapAnnotationImage : NSObject
 {
-    NSMutableDictionary *_imageCache;
-    double _lastMapRotation;
-    NSString *_imageFile;
-    bool _forceRetinaImage;
+    NSMutableDictionary *   _imageCache;
+    double                  _lastMapRotation;
+    NSString *              _imageFile;
+    bool                    _forceRetinaImage;
+    int                     _hits;
 }
 
 @property (nonatomic, retain) NSMutableDictionary *imageCache;
@@ -32,9 +33,9 @@
 @property (nonatomic) bool                          forceRetinaImage;
 
 - (UIImage *)getImage:(double)rotation mapRotation:(double)mapRotation bus:(bool)bus;
-+ (MapAnnotationImage*)getSingleton;
++ (MapAnnotationImage*)singleton;
 - (UIImage *)tintImage:(UIImage *)sourceImage color:(UIColor *)color;
-- (bool)tintableImage;
+@property (nonatomic, readonly) bool tintableImage;
 - (void)clearCache;
 
 

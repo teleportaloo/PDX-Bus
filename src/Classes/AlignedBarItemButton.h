@@ -20,7 +20,6 @@
     bool _right;
 }
 
-+ (bool)iOS7;
 + (UIButton*)suitableButtonRight:(bool)right;
 
 @property (nonatomic) bool right;

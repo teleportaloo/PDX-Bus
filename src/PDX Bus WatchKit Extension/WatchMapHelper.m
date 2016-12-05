@@ -29,7 +29,7 @@
     bottomRightCoord.latitude = 90;
     bottomRightCoord.longitude = -180;
     
-    MapAnnotationImage *mapAnnotionImage = [MapAnnotationImage getSingleton];
+    MapAnnotationImage *mapAnnotionImage = [MapAnnotationImage singleton];
     
     
     mapAnnotionImage.forceRetinaImage = YES;
@@ -51,7 +51,7 @@
     {
         for(NSInteger i = 0; i < otherPins.count && i < 6; i++)
         {
-            id<WatchPinColor> pin = [otherPins objectAtIndex:i];
+            id<WatchPinColor> pin = otherPins[i];
             
             CLLocationCoordinate2D loc = pin.coord;
         
@@ -61,19 +61,19 @@
             bottomRightCoord.longitude  = fmax(bottomRightCoord.longitude, loc.longitude);
             bottomRightCoord.latitude   = fmin(bottomRightCoord.latitude,  loc.latitude);
             
-            if (pin.getPinTint==nil)
+            if (pin.pinTint==nil)
             {
-                [map addAnnotation:loc withPinColor:pin.getPinColor];
+                [map addAnnotation:loc withPinColor:pin.pinColor];
             }
             else if (pin.hasBearing)
             {
                 
-                bool bus =  [pin.getPinTint isEqual:kMapAnnotationBusColor];
-                UIImage *plainImage  = [mapAnnotionImage getImage:pin.bearing mapRotation:0.0 bus:bus];
+                bool bus =  [pin.pinTint isEqual:kMapAnnotationBusColor];
+                UIImage *plainImage  = [mapAnnotionImage getImage:pin.doubleBearing mapRotation:0.0 bus:bus];
                 
                 if (!bus || mapAnnotionImage.tintableImage)
                 {
-                    UIImage *tintedImage = [mapAnnotionImage tintImage:plainImage color:pin.getPinTint];
+                    UIImage *tintedImage = [mapAnnotionImage tintImage:plainImage color:pin.pinTint];
                     [map addAnnotation:loc withImage:tintedImage centerOffset:CGPointZero];
                 }
                 else

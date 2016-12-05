@@ -69,10 +69,10 @@ enum SECTIONS_AND_ROWS {
 }
 
 
-- (id)init {
+- (instancetype)init {
 	if ((self = [super init]))
 	{
-		self.title = @"Station Details";
+        self.title = NSLocalizedString(@"Station Details", @"page title");
 	}
 	return self;
 }
@@ -86,17 +86,18 @@ enum SECTIONS_AND_ROWS {
 
 - (void)updateToolbarItems:(NSMutableArray *)toolbarItems
 {	
-	[toolbarItems addObject:[CustomToolbar autoMapButtonWithTarget:self action:@selector(showMap:)]];
-    [toolbarItems addObject:[CustomToolbar autoFlexSpace]];
+	[toolbarItems addObject:[UIToolbar autoMapButtonWithTarget:self action:@selector(showMap:)]];
+    [toolbarItems addObject:[UIToolbar autoFlexSpace]];
     
     
 	if (self.map != nil)
-	{
-		[toolbarItems addObject: [[[UIBarButtonItem alloc]
-				   initWithTitle:@"Next" style:UIBarButtonItemStyleBordered 
-				   target:self action:@selector(showNext:)] autorelease]];
-        [toolbarItems addObject:[CustomToolbar autoFlexSpace]];
-	}
+    {
+        [toolbarItems addObject: [[[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Next", @"button text")
+                                                                   style:UIBarButtonItemStylePlain
+                                                                  target:self
+                                                                  action:@selector(showNext:)] autorelease]];
+        [toolbarItems addObject:[UIToolbar autoFlexSpace]];
+    }
 	
 	
     [self maybeAddFlashButtonWithSpace:NO buttons:toolbarItems big:NO];
@@ -106,8 +107,8 @@ enum SECTIONS_AND_ROWS {
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-	AlarmTaskList *taskList = [AlarmTaskList getSingleton];
-	NSString *stopId = [self.station.locList objectAtIndex:0];
+	AlarmTaskList *taskList = [AlarmTaskList singleton];
+    NSString *stopId = self.station.locList.firstObject;
 	CLLocation *here = [self.locationsDb getLocation:stopId];
 
 	[taskList userAlertForProximityAction:buttonIndex 
@@ -127,7 +128,7 @@ enum SECTIONS_AND_ROWS {
 {
 	if (self.station.line & line) 
 	{
-		[self.routes addObject:[NSNumber numberWithInt:line]];
+		[self.routes addObject:@(line)];
 	}
 }
 
@@ -135,7 +136,7 @@ enum SECTIONS_AND_ROWS {
 {
 	// Workout if we have any routes
 	
-	self.routes = [[[NSMutableArray alloc] init] autorelease];
+    self.routes = [NSMutableArray array];
 
 	
 	[self addLineToRoutes:kBlueLine];
@@ -151,7 +152,7 @@ enum SECTIONS_AND_ROWS {
     
     if (self.callback)
     {
-        self.title = @"Choose a stop below:";
+        self.title = NSLocalizedString(@"Choose a stop below:", @"main page title");
     }
     
     [self clearSectionMaps];
@@ -163,7 +164,7 @@ enum SECTIONS_AND_ROWS {
     
     NSInteger arrivalSection = [self addSectionType:kSectionArrivals];
     
-    NSInteger rows = [self.station.locList count];
+    NSInteger rows = self.station.locList.count;
     if (rows > 1 && self.callback == nil)
     {
         [self addRowType:kRowAllArrivals];
@@ -220,7 +221,7 @@ enum SECTIONS_AND_ROWS {
         cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
     }
 	cell.textLabel.adjustsFontSizeToFitWidth = YES;
-	cell.textLabel.font = [self getBasicFont];
+	cell.textLabel.font = self.basicFont;
 	
 	return cell;
 	
@@ -228,46 +229,37 @@ enum SECTIONS_AND_ROWS {
 
 -(void)showMap:(id)sender
 {
-	if (self.locationsDb.isEmpty)
-	{
-		[self noLocations:@"Show on map" delegate:self];
-	}
-	else {
-		
-		int i;
-		CLLocation *here;
-		
-		MapViewController *mapPage = [[MapViewController alloc] init];
-		
-		for (i=0; i< [self.station.locList count];  i++)
-		{
-			here = [self.locationsDb getLocation:[self.station.locList objectAtIndex:i]];
-			
-			if (here)
-			{
-				Stop *a = [[[Stop alloc] init] autorelease];
-				
-				a.locid = [self.station.locList objectAtIndex:i];
-				a.desc  = self.station.station;
-				a.dir   = [self.station.dirList objectAtIndex:i];
-				a.lat   = [NSString stringWithFormat:@"%f", here.coordinate.latitude];
-				a.lng   = [NSString stringWithFormat:@"%f", here.coordinate.longitude];
-				a.callback = self;
-			
-				[mapPage addPin:a];
-			}
-		}
-		mapPage.callback = self.callback;
-		[[self navigationController] pushViewController:mapPage animated:YES];
-		[mapPage release];	
-	}
-	
+    int i;
+    CLLocation *here;
+    
+    MapViewController *mapPage = [MapViewController viewController];
+    
+    for (i=0; i< self.station.locList.count;  i++)
+    {
+        here = [self.locationsDb getLocation:self.station.locList[i]];
+        
+        if (here)
+        {
+            Stop *a = [Stop data];
+            
+            a.locid = self.station.locList[i];
+            a.desc  = self.station.station;
+            a.dir   = self.station.dirList[i];
+            a.lat   = [NSString stringWithFormat:@"%f", here.coordinate.latitude];
+            a.lng   = [NSString stringWithFormat:@"%f", here.coordinate.longitude];
+            a.callback = self;
+            
+            [mapPage addPin:a];
+        }
+    }
+    mapPage.callback = self.callback;
+    [self.navigationController pushViewController:mapPage animated:YES];
 }
 
 -(void)showNext:(id)sender
 {
     self.map.showNextOnAppearance = YES;
-	[[self navigationController] popViewControllerAnimated:YES];
+	[self.navigationController popViewControllerAnimated:YES];
 }
 
 
@@ -280,22 +272,22 @@ enum SECTIONS_AND_ROWS {
 	switch (sectionType)
     {
 		case kSectionRoute:
-			return @"Routes";
+            return NSLocalizedString(@"Routes", @"section header");
 		case kSectionStation:
 			return nil;
         case kSectionTripPlanner:
-            return @"Trip Planner";
+            return NSLocalizedString(@"Trip Planner", @"section header");
 		case kSectionArrivals:
 			
 			if (self.callback)
 			{
-				return @"Choose from one of these stop(s):";
+				return NSLocalizedString(@"Choose from one of these stop(s):", @"section header");
 			}
-			return @"Arrivals";
+			return NSLocalizedString(@"Arrivals", @"section header");
 		case kSectionWikiLink:
-			return @"More Information";
+			return NSLocalizedString(@"More Information", @"section header");
 		case kSectionAlarm:
-			return @"Alarms";
+			return NSLocalizedString(@"Alarms", @"section header");
 	}
 	return nil;
 }
@@ -332,6 +324,7 @@ enum SECTIONS_AND_ROWS {
 	switch (rowType)
 	{
 		case kRowStation:
+        default:
 		{
 			NSString *cellId = [NSString stringWithFormat:@"station%f", self.screenInfo.appWinWidth];
 			cell = [tableView dequeueReusableCellWithIdentifier:cellId];
@@ -341,7 +334,7 @@ enum SECTIONS_AND_ROWS {
 														   rowHeight:[self basicRowHeight] 
 														 screenWidth:self.screenInfo.screenWidth
 														 rightMargin:NO
-																font:[self getBasicFont]];
+																font:self.basicFont];
 				
 				/*
 				 [self newLabelWithPrimaryColor:[UIColor blueColor] selectedColor:[UIColor cyanColor] fontSize:14 bold:YES parentView:[cell contentView]];
@@ -365,7 +358,7 @@ enum SECTIONS_AND_ROWS {
 		}
         case kRowTripToHere:
             cell = [self plainCell:tableView];
-            cell.textLabel.text = @"Plan trip to here";
+            cell.textLabel.text = NSLocalizedString(@"Plan trip to here", @"main menu item");
             cell.selectionStyle = UITableViewCellSelectionStyleBlue;
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             cell.imageView.image = [self getActionIcon:kIconTripPlanner];
@@ -373,14 +366,14 @@ enum SECTIONS_AND_ROWS {
             
         case kRowTripFromHere:
             cell = [self plainCell:tableView];
-            cell.textLabel.text = @"Plan trip from here";
+            cell.textLabel.text = NSLocalizedString(@"Plan trip from here", @"main menu item");
             cell.selectionStyle = UITableViewCellSelectionStyleBlue;
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             cell.imageView.image = [self getActionIcon:kIconTripPlanner];
             break;
 		case kRowAllArrivals:
 			cell = [self plainCell:tableView];
-            cell.textLabel.text = @"All arrivals";
+            cell.textLabel.text = NSLocalizedString(@"All arrivals", @"main menu item");
             cell.selectionStyle = UITableViewCellSelectionStyleBlue;
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             cell.imageView.image = [self getActionIcon:kIconRecent];
@@ -388,8 +381,8 @@ enum SECTIONS_AND_ROWS {
         case kRowLocationArrival:
             cell = [self plainCell:tableView];
             cell.textLabel.text = [NSString stringWithFormat:@"%@ (ID %@)",
-                                   [self.station.dirList objectAtIndex:indexPath.row- _firstLocationRow],
-                                   [self.station.locList objectAtIndex:indexPath.row-_firstLocationRow]];
+                                   self.station.dirList[indexPath.row-_firstLocationRow],
+                                   self.station.locList[indexPath.row-_firstLocationRow]];
             cell.selectionStyle = UITableViewCellSelectionStyleBlue;
             if (self.callback==nil)
             {
@@ -399,14 +392,14 @@ enum SECTIONS_AND_ROWS {
             break;
         case kRowNearbyStops:
             cell = [self plainCell:tableView];
-            cell.textLabel.text = @"Nearby stops";
+            cell.textLabel.text = NSLocalizedString(@"Nearby stops", @"main menu item");
             cell.selectionStyle = UITableViewCellSelectionStyleBlue;
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             cell.imageView.image = [self getActionIcon7:kIconLocate7 old:kIconLocate];
 			break;
 		case kRowWikiLink:
 			cell = [self plainCell:tableView];
-            cell.textLabel.text = @"Wikipedia article";
+            cell.textLabel.text = NSLocalizedString(@"Wikipedia article", @"main menu item");
             cell.selectionStyle = UITableViewCellSelectionStyleBlue;
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             cell.imageView.image = [self getActionIcon:kIconWiki];
@@ -420,7 +413,7 @@ enum SECTIONS_AND_ROWS {
 			break;
 		case kRowRoute:
 		{
-			RAILLINES line = [((NSNumber*)[self.routes objectAtIndex:indexPath.row]) intValue];
+			RAILLINES line = self.routes[indexPath.row].intValue;
 			
 			NSString *cellId = [NSString stringWithFormat:@"route%f", self.screenInfo.appWinWidth];
 			cell = [tableView dequeueReusableCellWithIdentifier:cellId];
@@ -430,7 +423,7 @@ enum SECTIONS_AND_ROWS {
 														   rowHeight:[self basicRowHeight] 
 														 screenWidth:self.screenInfo.screenWidth
 														 rightMargin:YES
-																font:[self getBasicFont]];
+																font:self.basicFont];
 				
 				/*
 				 [self newLabelWithPrimaryColor:[UIColor blueColor] selectedColor:[UIColor cyanColor] fontSize:14 bold:YES parentView:[cell contentView]];
@@ -459,16 +452,16 @@ enum SECTIONS_AND_ROWS {
             
             for (int i=0; i<self.station.locList.count; i++)
             {
-                NSString *stopId = [self.station.locList objectAtIndex:i];
-                NSString *dir =    [self.station.dirList objectAtIndex:i];
+                NSString *stopId = self.station.locList[i];
+                NSString *dir =    self.station.dirList [i];
                 
                 CLLocation *loc = [self.locationsDb getLocation:stopId];
                 
-                SimpleAnnotation *annotLoc = [[[SimpleAnnotation alloc] init] autorelease];
+                SimpleAnnotation *annotLoc = [SimpleAnnotation annotation];
                 
                 annotLoc.pinTitle = dir;
                 annotLoc.pinColor = MKPinAnnotationColorRed;
-                [annotLoc setCoord:loc.coordinate];
+                annotLoc.coordinate = loc.coordinate;
                 
                 [self.mapView addAnnotation:annotLoc];
                 
@@ -510,7 +503,7 @@ enum SECTIONS_AND_ROWS {
         case kRowTripToHere:
         case kRowTripFromHere:
         {
-            TripPlannerSummaryView *tripPlanner = [[[TripPlannerSummaryView alloc] init] autorelease];
+            TripPlannerSummaryView *tripPlanner = [TripPlannerSummaryView viewController];
             
             // Push the detail view controller
             
@@ -528,29 +521,28 @@ enum SECTIONS_AND_ROWS {
             
             endpoint.useCurrentLocation = false;
             endpoint.additionalInfo     = self.station.station;
-            endpoint.locationDesc       = [self.station.locList objectAtIndex:0];
+            endpoint.locationDesc       = self.station.locList.firstObject;
             
             
-            [[self navigationController] pushViewController:tripPlanner animated:YES];
+            [self.navigationController pushViewController:tripPlanner animated:YES];
             break;
         }
         case kRowAllArrivals:
         {
-            DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
+            DepartureTimesView *departureViewController = [DepartureTimesView viewController];
             
-            NSMutableString *locs = [[[NSMutableString alloc] init] autorelease];
+            NSMutableString *locs = [NSMutableString string];
             
             int i;
             
-            [locs appendString:[self.station.locList objectAtIndex:0]];
+            [locs appendString:self.station.locList.firstObject];
             
-            for (i=1; i< [self.station.locList count]; i++)
+            for (i=1; i< self.station.locList.count; i++)
             {
-                [locs appendFormat:@",%@", [self.station.locList objectAtIndex:i]];
+                [locs appendFormat:@",%@", self.station.locList[i]];
             }
             
-            [departureViewController fetchTimesForLocationInBackground:self.backgroundTask loc:locs];
-            [departureViewController release];
+            [departureViewController fetchTimesForLocationAsync:self.backgroundTask loc:locs];
             break;
         }
         case kRowLocationArrival:
@@ -561,41 +553,39 @@ enum SECTIONS_AND_ROWS {
                 
                 if ([self.callback respondsToSelector:@selector(selectedStop:desc:)])
                 {
-                    [self.callback selectedStop:[self.station.locList objectAtIndex:indexPath.row] desc:self.station.station];
+                    [self.callback selectedStop:self.station.locList[indexPath.row] desc:self.station.station];
                 }
                 else
                 {
-                    [self.callback selectedStop:[self.station.locList objectAtIndex:indexPath.row]];
+                    [self.callback selectedStop:self.station.locList[indexPath.row]];
                     
                 }
             }
-            else if ((indexPath.row- _firstLocationRow) < [self.station.locList count])
+            else if ((indexPath.row- _firstLocationRow) < self.station.locList.count)
             {
-                DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
-                
-                [departureViewController fetchTimesForLocationInBackground:self.backgroundTask loc:[self.station.locList objectAtIndex:indexPath.row-_firstLocationRow]];
-                [departureViewController release];
+                [[DepartureTimesView viewController] fetchTimesForLocationAsync:self.backgroundTask
+                                                                                  loc:self.station.locList[indexPath.row-_firstLocationRow]];
             }
             break;
         }
         case kRowNearbyStops:
         {
-            CLLocation *here = [self.locationsDb getLocation:[self.station.locList objectAtIndex:0]];
+            CLLocation *here = [self.locationsDb getLocation:self.station.locList.firstObject];
             
             if (here !=nil)
             {
                 FindByLocationView *find = [[FindByLocationView alloc] initWithLocation:here description:self.station.station];
                 
-                [[self navigationController] pushViewController:find animated:YES];
+                [self.navigationController pushViewController:find animated:YES];
                 
                 [find release];
             }
             else
             {
-                UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"Nearby stops"
-                                                                   message:@"No location info is availble for that stop."
+                UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"Nearby stops", @"alert title")
+                                                                   message:NSLocalizedString(@"No location info is availble for that stop.", @"alert message")
                                                                   delegate:nil
-                                                         cancelButtonTitle:@"OK"
+                                                         cancelButtonTitle:NSLocalizedString(@"OK", @"button text")
                                                          otherButtonTitles:nil] autorelease];
                 [alert show];
                 
@@ -613,20 +603,19 @@ enum SECTIONS_AND_ROWS {
         }
         case kRowProximityAlarm:
         {
-            AlarmTaskList *taskList = [AlarmTaskList getSingleton];
+            AlarmTaskList *taskList = [AlarmTaskList singleton];
             [taskList userAlertForProximity:self];
             [self.table deselectRowAtIndexPath:indexPath animated:YES];
             break;
         }
         case kRowRoute:
         {
-            RAILLINES line = [((NSNumber*)[self.routes objectAtIndex:indexPath.row]) intValue];
-            NSString *route = [TriMetRouteColors rawColorForLine:line]->route;
+            RAILLINES line = self.routes[indexPath.row].intValue;
+            NSString *route = [TriMetRouteColors routeString:[TriMetRouteColors rawColorForLine:line]];
             
-            DirectionView *dirView = [[DirectionView alloc] init];
+            DirectionView *dirView = [DirectionView viewController];
             dirView.callback = self.callback;
-            [dirView fetchDirectionsInBackground:self.backgroundTask route:route];
-            [dirView release];
+            [dirView fetchDirectionsAsync:self.backgroundTask route:route];
             break;
         }
     }
@@ -643,7 +632,7 @@ enum SECTIONS_AND_ROWS {
 		/*
 		 if ([self.callback getController] != nil)
 		 {
-		 [[self navigationController] popToViewController:[self.callback getController] animated:YES];
+		 [self.navigationController popToViewController:[self.callback getController] animated:YES];
 		 }
 		 */		
 		if ([self.callback respondsToSelector:@selector(selectedStop:desc:)])
@@ -658,13 +647,9 @@ enum SECTIONS_AND_ROWS {
 		return;
 	}
 	
-	DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
-	
+    DepartureTimesView *departureViewController = [DepartureTimesView viewController];
 	departureViewController.displayName = stop.desc;
-	
-	[departureViewController fetchTimesForLocationInBackground:progress loc:stop.locid];
-	[departureViewController release];
-	
+	[departureViewController fetchTimesForLocationAsync:progress loc:stop.locid];
 }
 
 - (NSString *)actionText

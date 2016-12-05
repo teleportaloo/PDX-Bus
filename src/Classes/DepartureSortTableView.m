@@ -41,7 +41,7 @@
 }
 
 
-- (id) init
+- (instancetype) init
 {
 	if ((self = [super init]))
 	{
@@ -68,10 +68,10 @@
 			break;
 	}
 	
-	if (!segSetup)
+	if (!_segSetup)
 	{
 		[self.depView resort];
-		[[self navigationController] popViewControllerAnimated:YES];
+		[self.navigationController popViewControllerAnimated:YES];
 	}
 }
 
@@ -82,7 +82,6 @@
 	
 	segmentedControl.frame = frame;
 	[segmentedControl addTarget:self action:action forControlEvents:UIControlEventValueChanged];
-	segmentedControl.segmentedControlStyle = UISegmentedControlStylePlain;
 	segmentedControl.autoresizingMask =   UIViewAutoresizingFlexibleWidth;
 	
 	[parent addSubview:segmentedControl];
@@ -117,48 +116,47 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	
 	switch (indexPath.section)
-	{
-		case kSectionSeg:
-		{
-			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionSeg)];
-			if (cell == nil) {
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionSeg)] autorelease];
-				self.sortSegment = [self createSegmentedControl:
-								   [NSArray arrayWithObjects:
-                                                NSLocalizedString(@"Group by stop", @"button text"),
-                                                NSLocalizedString(@"Group by trip", @"button text"), nil]
-														parent:cell.contentView action:@selector(sortSegmentChanged:)];
-				
-				[cell layoutSubviews];
-				cell.selectionStyle = UITableViewCellSelectionStyleNone;
-				cell.isAccessibilityElement = NO;
-				cell.backgroundView = [self clearView];
-			}
-			
-			segSetup = YES;
-			self.sortSegment.selectedSegmentIndex = self.depView.blockSort ? 1 : 0;
-			segSetup = NO;
-			return cell;
-		}
-		break;
-		case kSectionInfo:
-		{
-			CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionInfo)];
-			if (cell == nil) {
-				cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionInfo)] autorelease];
-				cell.view = [self create_UITextView:[UIColor clearColor] font:TableViewBackFont];
-			}
-			
-			[self setBackfont:cell.view];
-			cell.view.text = self.info;
-			cell.selectionStyle = UITableViewCellSelectionStyleNone;
-			cell.backgroundView = [self clearView];
-			
-			return cell;
-		}
-		break;
-	}
-	return nil;
+    {
+        case kSectionSeg:
+        {
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionSeg)];
+            if (cell == nil) {
+                cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionSeg)] autorelease];
+                self.sortSegment = [self createSegmentedControl:@[
+                                                                  NSLocalizedString(@"Group by stop", @"button text"),
+                                                                  NSLocalizedString(@"Group by trip", @"button text")]
+                                                         parent:cell.contentView action:@selector(sortSegmentChanged:)];
+                
+                [cell layoutSubviews];
+                cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                cell.isAccessibilityElement = NO;
+                cell.backgroundView = [self clearView];
+            }
+            
+            _segSetup = YES;
+            self.sortSegment.selectedSegmentIndex = self.depView.blockSort ? 1 : 0;
+            _segSetup = NO;
+            return cell;
+        }
+            break;
+        case kSectionInfo:
+        {
+            CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionInfo)];
+            if (cell == nil) {
+                cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionInfo)] autorelease];
+                cell.view = [self create_UITextView:[UIColor clearColor] font:TableViewBackFont];
+            }
+            
+            [self setBackfont:cell.view];
+            cell.view.text = self.info;
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            cell.backgroundView = [self clearView];
+            
+            return cell;
+        }
+            break;
+    }
+    return [super tableView:tableView cellForRowAtIndexPath:indexPath];
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath

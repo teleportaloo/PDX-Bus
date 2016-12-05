@@ -22,37 +22,44 @@
 #import "UserFaves.h"
 
 @interface EditBookMarkView : TableViewWithToolbar <EditableTableViewCellDelegate, ReturnStopId, TripReturnUserRequest> {
-	NSMutableDictionary *_originalFave;
-	NSMutableArray *_stops;
-	UITextField *_editWindow;
-	NSInteger _item;
-	CellTextField *_editCell;
-	bool _reloadTrip;
-	bool _reloadArrival;
-	NSInteger _stopSection;
-	TripUserRequest * _userReq;
+	NSMutableDictionary *   _originalFave;
+	NSMutableArray *        _stops;
+	UITextField *           _editWindow;
+	NSInteger               _item;
+	CellTextField *         _editCell;
+	bool                    _reloadTrip;
+	bool                    _reloadArrival;
+	NSInteger               _stopSection;
+	TripUserRequest *       _userReq;
+    bool                    _invalidItem;
+    NSString *              _msg;
+    bool                    _updateNameFromDestination;
+    bool                    _newBookmark;
 }
 
+@property (nonatomic, copy) NSString *msg;
+@property (nonatomic) bool invalidItem;
 @property (nonatomic, retain) NSMutableArray *stops;
 @property (nonatomic, retain) NSMutableDictionary *originalFave;
 @property (nonatomic, retain) UITextField *editWindow;
 @property (nonatomic) NSInteger item;
 @property (nonatomic, retain) CellTextField *editCell;
 @property (nonatomic, retain) TripUserRequest *userRequest;
+@property (nonatomic) bool newBookmark;
 
 
 -(void) timeSegmentChanged:(id)sender;
 -(void) editBookMark:(NSMutableDictionary *)fave item:(uint)i;
 -(void) addBookMark;
 -(void) addTripBookMark;
+-(void) addTakeMeHomeBookMark;
 -(void) addBookMarkFromStop:(NSString *)desc location:(NSString *)locid;
 -(void) addBookMarkFromUserRequest:(XMLTrips *)tripQuery;
 -(void) setupArrivalSections;
 -(void) setupTripSections;
--(bool) autoCommuteEnabled;
+@property (nonatomic, readonly) bool autoCommuteEnabled;
 +(NSString *)daysString:(int)days;
-- (NSString*)daysString;
-
+@property (nonatomic, readonly, copy) NSString *daysString;
 
 
 @end

@@ -25,7 +25,7 @@
 
 + (bool)supported;
 
-- (id)init;
+- (instancetype)init;
 - (void)on;
 - (void)off;
 - (void)toggle;

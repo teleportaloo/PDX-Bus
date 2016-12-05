@@ -48,7 +48,6 @@
 #define kDefaultUseGpsWithin 3218.688
 
 
-static bool useWatchSettings = NO;
 
 - (NSUserDefaults*)watchPreferences
 {
@@ -60,19 +59,16 @@ static bool useWatchSettings = NO;
     return nil;
 }
 
-- (id)init {
+- (instancetype)init {
 	if ((self = [super init]))
 	{
-        if (!useWatchSettings)
-        {
-            _defaults = [[NSUserDefaults standardUserDefaults] retain];
-            _sharedDefaults = [[self watchPreferences] retain];
-        }
-        else
-        {
-            _defaults = [[self watchPreferences] retain];
-        }
-       
+        
+#ifdef PDXBUS_WATCH
+        _defaults = [[self watchPreferences] retain];
+#else
+        _defaults = [[NSUserDefaults standardUserDefaults] retain];
+        _sharedDefaults = [[self watchPreferences] retain];
+#endif
 	}
 	return self;
 }
@@ -80,16 +76,14 @@ static bool useWatchSettings = NO;
 - (void)dealloc
 {
 	[_defaults release];
+#ifndef PDXBUS_WATCH
     [_sharedDefaults release];
+#endif
 	[super dealloc];
 }
 
-+ (void)useWatchSettings
-{
-    useWatchSettings = YES;
-}
 
-+ (UserPrefs*) getSingleton
++ (UserPrefs*) singleton
 {
     static UserPrefs *_userPrefs = nil;
     
@@ -97,13 +91,6 @@ static bool useWatchSettings = NO;
     {
         _userPrefs = [[UserPrefs alloc] init];
     }
-    else if (_userPrefs.watchSettings !=  useWatchSettings)
-    {
-        [_userPrefs release];
-        _userPrefs = nil;
-        _userPrefs = [[UserPrefs alloc] init];
-    }
-    
     return _userPrefs;
 }
 
@@ -111,12 +98,19 @@ static bool useWatchSettings = NO;
 - (bool)missing:(NSString *)key
 {
     id obj = [_defaults objectForKey:key];
-    
-    if  ((!useWatchSettings && [_defaults persistentDomainForName:kPreferencesDomain] == nil)
+
+#ifdef PDXBUS_WATCH
+    if  (obj == nil)
+    {
+        return YES;
+    }
+#else
+    if  (([_defaults persistentDomainForName:kPreferencesDomain] == nil)
          || obj == nil)
     {
         return YES;
     }
+#endif
     return NO;
 }
 
@@ -210,12 +204,6 @@ static bool useWatchSettings = NO;
 	return [self getBoolFromDefaultsForKey:@"auto_commute"				ifMissing:YES writeToShared:NO];
 }
 
-- (bool) watchAutoCommute
-{
-    return [self getBoolFromDefaultsForKey:@"watch_auto_commute"		ifMissing:YES writeToShared:NO];
-}
-
-
 - (bool) commuteButton
 {
 	return [self getBoolFromDefaultsForKey:@"commute_button"			ifMissing:YES writeToShared:NO];
@@ -306,10 +294,7 @@ static bool useWatchSettings = NO;
 
 - (bool) ticketAppIcon
 {
-    return NO;
-    
-	// return [self getBoolFromDefaultsForKey:@"ticket_app_icon"           ifMissing:YES writeToShared:NO];
-    
+    return [self getBoolFromDefaultsForKey:@"ticket_app_icon"           ifMissing:YES writeToShared:NO];
 }
 
 - (void)setTicketAppIcon:(_Bool)icon
@@ -372,18 +357,18 @@ static bool useWatchSettings = NO;
 }
 - (bool) actionIcons
 {
-	return [self getBoolFromDefaultsForKey:@"action_icons"				ifMissing:YES writeToShared:NO];
+	return [self getBoolFromDefaultsForKey:@"action_icons"                  ifMissing:YES writeToShared:NO];
 }
 
 - (int) routeCacheDays
 {
 				
-	return  [self getIntFromDefaultsForKey:@"route_cache"			    ifMissing:kDefaultRouteCache max:7 min:0 writeToShared:YES];
+	return  [self getIntFromDefaultsForKey:@"route_cache"                   ifMissing:kDefaultRouteCache max:7 min:0 writeToShared:YES];
 }
 
 - (bool) useCaching
 {
-    return [self getBoolFromDefaultsForKey:@"use_caching"				ifMissing:YES writeToShared:YES];
+    return [self getBoolFromDefaultsForKey:@"use_caching"                   ifMissing:YES writeToShared:YES];
 }
 
 - (int)vehicleLocatorDistance
@@ -398,11 +383,7 @@ static bool useWatchSettings = NO;
 
 - (bool) debugXML
 {
-    if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 5.0)
-    {
-        return [self getBoolFromDefaultsForKey:@"debug_xml"                 ifMissing:NO writeToShared:NO];
-    }
-    return FALSE;
+    return [self getBoolFromDefaultsForKey:@"debug_xml"                     ifMissing:NO writeToShared:NO];
 }
 
 - (bool) useChrome
@@ -433,15 +414,6 @@ static bool useWatchSettings = NO;
     return fileName;
 }
 
-- (bool)watchBookmarksDisplayStopList
-{
-    return [self getBoolFromDefaultsForKey:@"watch_bookmarks_display_stop_list"     ifMissing:YES writeToShared:NO];
-}
-
-- (bool)watchBookmarksAtTheTop
-{
-    return [self getBoolFromDefaultsForKey:@"watch_bookmarks_at_the_stop"     ifMissing:NO writeToShared:NO];
-}
 
 - (bool)searchBookmarks
 {
@@ -456,11 +428,6 @@ static bool useWatchSettings = NO;
 - (bool)searchStations
 {
     return [self getBoolFromDefaultsForKey:@"search_stations"       ifMissing:YES writeToShared:NO];
-}
-
-- (bool)watchUseBetaVehicleLocator
-{
-    return [self getBoolFromDefaultsForKey:@"watch_use_beta_vehicle_locator" ifMissing:YES writeToShared:NO];
 }
 
 - (bool)useBetaVehicleLocator

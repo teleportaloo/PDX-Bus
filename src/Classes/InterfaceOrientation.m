@@ -13,7 +13,7 @@
 
 + (UIInterfaceOrientation) getInterfaceOrientation:(UIViewController*)controller
 {
-    return [[UIApplication sharedApplication] statusBarOrientation];
+    return [UIApplication sharedApplication].statusBarOrientation;
 }
 
 

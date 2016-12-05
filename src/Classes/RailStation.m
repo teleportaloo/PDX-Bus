@@ -52,7 +52,7 @@
 
 + (void)scannerInc:(NSScanner *)scanner 
 {	
-	if (![scanner isAtEnd])
+	if (!scanner.atEnd)
 	{
 		scanner.scanLocation++;
 	}
@@ -61,7 +61,7 @@
 
 + (void)nextSlash:(NSScanner *)scanner intoString:(NSString **)substr;
 {
-	if (![scanner isAtEnd])
+	if (!scanner.atEnd)
 	{
 		[scanner scanUpToString:@"/" intoString:substr];
 		
@@ -77,24 +77,24 @@
     
     if (names == nil)
     {
-        names = [[[NSDictionary alloc] initWithObjectsAndKeys:
-                  NSLocalizedString(@"Northbound",           @"Train direction"),  @"N",
-                  NSLocalizedString(@"Southbound",           @"Train direction"),  @"S",
-                  NSLocalizedString(@"Eastbound",            @"Train direction"),  @"E",
-                  NSLocalizedString(@"Westbound",            @"Train direction"),  @"W",
-                  NSLocalizedString(@"Northeastbound",       @"Train direction"),  @"NE",
-                  NSLocalizedString(@"Southeastbound",       @"Train direction"),  @"SE",
-                  NSLocalizedString(@"Southwestbound",       @"Train direction"),  @"SW",
-                  NSLocalizedString(@"Northwestbound",       @"Train direction"),  @"NW",
-                  NSLocalizedString(@"MAX Northbound",       @"Train direction"),  @"MAXN",
-                  NSLocalizedString(@"MAX Southbound",       @"Train direction"),  @"MAXS",
-                  NSLocalizedString(@"WES Southbound",       @"Train direction"),  @"WESS",
-                  NSLocalizedString(@"WES Both Directions",  @"Train direction"),  @"WESA",
-                  nil] retain];
+        names = @{
+                  @"N"      : NSLocalizedString(@"Northbound",           @"Train direction"),
+                  @"S"      : NSLocalizedString(@"Southbound",           @"Train direction"),
+                  @"E"      : NSLocalizedString(@"Eastbound",            @"Train direction"),
+                  @"W"      : NSLocalizedString(@"Westbound",            @"Train direction"),
+                  @"NE"     : NSLocalizedString(@"Northeastbound",       @"Train direction"),
+                  @"SE"     : NSLocalizedString(@"Southeastbound",       @"Train direction"),
+                  @"SW"     : NSLocalizedString(@"Southwestbound",       @"Train direction"),
+                  @"NW"     : NSLocalizedString(@"Northwestbound",       @"Train direction"),
+                  @"MAXN"   : NSLocalizedString(@"MAX Northbound",       @"Train direction"),
+                  @"MAXS"   : NSLocalizedString(@"MAX Southbound",       @"Train direction"),
+                  @"WESS"   : NSLocalizedString(@"WES Southbound",       @"Train direction"),
+                  @"WESA"   : NSLocalizedString(@"WES Both Directions",  @"Train direction"),
+                  }.retain;
     }
 
     
-    NSString * obj = [names objectForKey:dir];
+    NSString * obj = names[dir];
     
     if (obj == nil)
     {
@@ -106,7 +106,7 @@
 
 + (NSString *)nameFromHotspot:(HOTSPOT *)hotspot
 {
-	NSScanner *scanner = [NSScanner scannerWithString:[NSString stringWithUTF8String:hotspot->action]];
+	NSScanner *scanner = [NSScanner scannerWithString:hotspot->action];
 	NSCharacterSet *colon = [NSCharacterSet characterSetWithCharactersInString:@":"];
 	
 	NSString *substr;
@@ -126,11 +126,16 @@
 	
 }
 
-- (id)initFromHotSpot:(HOTSPOT *)hotspot index:(int)index
++ (instancetype)fromHotSpot:(HOTSPOT *)hotspot index:(int)index
+{
+   return  [[[[self class] alloc] initFromHotSpot:hotspot index:index] autorelease];
+}
+
+- (instancetype)initFromHotSpot:(HOTSPOT *)hotspot index:(int)index
 {
 	if ((self = [super init]))
 	{
-		NSScanner *scanner = [NSScanner scannerWithString:[NSString stringWithUTF8String:hotspot->action]];
+		NSScanner *scanner = [NSScanner scannerWithString:hotspot->action];
 		NSCharacterSet *colon = [NSCharacterSet characterSetWithCharactersInString:@":"];
 		NSCharacterSet *comma = [NSCharacterSet characterSetWithCharactersInString:@","];
 		NSCharacterSet *slash = [NSCharacterSet characterSetWithCharactersInString:@"/"];
@@ -152,8 +157,8 @@
 		
 		self.station = [stationName stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 		self.wikiLink =  (wiki !=nil ? [wiki stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] : nil);
-		self.locList = [[[NSMutableArray alloc] init] autorelease];
-		self.dirList = [[[NSMutableArray alloc] init] autorelease];
+        self.locList = [NSMutableArray array];
+        self.dirList = [NSMutableArray array];
 		
 		// NSString *stop = nil;
 		NSString *dir = nil;
@@ -162,7 +167,7 @@
 		
 		while ([scanner scanUpToCharactersFromSet:comma intoString:&dir])
 		{	
-			if (![scanner isAtEnd])
+			if (!scanner.atEnd)
 			{
 				scanner.scanLocation++;
 			}
@@ -172,7 +177,7 @@
 			[self.dirList addObject:[self longDirectionFromTableName:dir]];
 			[self.locList addObject:locId];
 			
-			if (![scanner isAtEnd])
+			if (!scanner.atEnd)
 			{
 				scanner.scanLocation++;
 			}
@@ -201,7 +206,7 @@
     
     if (screenWidth == WidthBigVariable || screenWidth == WidthSmallVariable)
     {
-        CGRect bounds = [[[[UIApplication sharedApplication] delegate] window] bounds];
+        CGRect bounds = [UIApplication sharedApplication].delegate.window.bounds;
         screenWidth = bounds.size.width;
     }
 	

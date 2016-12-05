@@ -34,6 +34,8 @@
 @property (nonatomic, retain) NSDate *timeStamp;
 @property (nonatomic, retain) CLLocation *lastLocation;
 @property (nonatomic, retain) XMLLocateStops *stops;
+@property (strong, nonatomic) IBOutlet WKInterfaceGroup *loadingGroup;
+@property (strong, nonatomic) IBOutlet WKInterfaceLabel *loadingLabel;
 - (IBAction)menuItemHome;
 - (IBAction)menuItemCommute;
 @property (strong, nonatomic) IBOutlet WKInterfaceLabel *locationStatusLabel;

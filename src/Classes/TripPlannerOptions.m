@@ -46,12 +46,12 @@
     [super dealloc];
 }
 
-- (id) init
+- (instancetype) init
 {
 	if ((self = [super init]))
 	{
-		self.title = @"Options";
-		self.info = @"Note: \"Shortest walk\" may suggest a long ride to avoid a few steps.";
+        self.title = NSLocalizedString(@"Options", @"page title");
+        self.info = NSLocalizedString(@"Note: \"Shortest walk\" may suggest a long ride to avoid a few steps.", @"trip planner warning info");
 	}
 	return self;
 }
@@ -71,7 +71,6 @@
 	
 	segmentedControl.frame = frame;
 	[segmentedControl addTarget:self action:action forControlEvents:UIControlEventValueChanged];
-	segmentedControl.segmentedControlStyle = UISegmentedControlStyleBar;
 	segmentedControl.autoresizingMask =   UIViewAutoresizingFlexibleWidth;
 	[parent addSubview:segmentedControl];
 	[parent layoutSubviews];
@@ -116,11 +115,11 @@
 	switch (section)
 	{
 		case kSectionWalk:
-			return @"Maximum walking distance in miles:";
+			return NSLocalizedString(@"Maximum walking distance in miles:", @"section header");
 		case kSectionMode:
-			return @"Travel by:";
+			return NSLocalizedString(@"Travel by:", @"section header");
 		case kSectionMin:
-			return @"Show me the:";
+			return NSLocalizedString(@"Show me the:", @"section header");
 	}
 	return @"";
 }
@@ -154,44 +153,42 @@
             return cell;
 		}
 		case kSectionMode:
-		{
-			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionMode)];
-			if (cell == nil) {
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionMode)] autorelease];
-				self.modeSegment = [self createSegmentedControl:
-									[NSArray arrayWithObjects: @"Bus only", @"Rail only", @"Bus or Rail", nil] 
-														 parent:cell.contentView action:@selector(modeSegmentChanged:)];
-				
-				[cell layoutSubviews];
-				cell.selectionStyle = UITableViewCellSelectionStyleNone;
-				cell.isAccessibilityElement = NO;
-				cell.backgroundView = [self clearView];
-			}	
-			
-			self.modeSegment.selectedSegmentIndex = self.tripQuery.userRequest.tripMode;
-			return cell;	
-		}
+        {
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionMode)];
+            if (cell == nil) {
+                cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionMode)] autorelease];
+                self.modeSegment = [self createSegmentedControl:@[@"Bus only", @"Rail only", @"Bus or Rail"]
+                                                         parent:cell.contentView action:@selector(modeSegmentChanged:)];
+                
+                [cell layoutSubviews];
+                cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                cell.isAccessibilityElement = NO;
+                cell.backgroundView = [self clearView];
+            }	
+            
+            self.modeSegment.selectedSegmentIndex = self.tripQuery.userRequest.tripMode;
+            return cell;	
+        }
 		case kSectionMin:
 		{
 			switch (indexPath.row)
 			{
 			case kMinRowSeg:
-				{
-					UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kMinRowSeg)];
-					if (cell == nil) {
-						cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kMinRowSeg)] autorelease];
-						self.minSegment = [self createSegmentedControl:
-									[NSArray arrayWithObjects: @"Quickest trip", @"Fewest transfers", @"Shortest walk", nil] 
-														 parent:cell.contentView action:@selector(minSegmentChanged:)];
-				
-						[cell layoutSubviews];
-						cell.selectionStyle = UITableViewCellSelectionStyleNone;
-						cell.isAccessibilityElement = NO;
-						cell.backgroundView = [self clearView];
-					}
-					self.minSegment.selectedSegmentIndex = self.tripQuery.userRequest.tripMin;
-					return cell;
-				}
+                {
+                    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kMinRowSeg)];
+                    if (cell == nil) {
+                        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kMinRowSeg)] autorelease];
+                        self.minSegment = [self createSegmentedControl:@[@"Quickest trip", @"Fewest transfers", @"Shortest walk"]
+                                                                parent:cell.contentView action:@selector(minSegmentChanged:)];
+                        
+                        [cell layoutSubviews];
+                        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                        cell.isAccessibilityElement = NO;
+                        cell.backgroundView = [self clearView];
+                    }
+                    self.minSegment.selectedSegmentIndex = self.tripQuery.userRequest.tripMin;
+                    return cell;
+                }
 				break;
 			case kMinRowInfo:
 				{
@@ -213,7 +210,8 @@
 				
 		}
 	}
-    return nil;
+    return [super tableView:tableView cellForRowAtIndexPath:indexPath];
+
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath

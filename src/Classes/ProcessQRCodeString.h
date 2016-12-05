@@ -21,7 +21,7 @@
     NSString *_stopId;
 }    
 
-@property (nonatomic, retain) NSString *stopId;
+@property (nonatomic, copy)   NSString *stopId;
 
 - (NSString *)extractStopId:(NSString *)originalURL;
 

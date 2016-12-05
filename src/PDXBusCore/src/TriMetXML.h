@@ -17,6 +17,20 @@
 @class UserPrefs;
 @class StopNameCacheManager;
 
+
+@interface NSDictionary (TriMetCaseInsensitive)
+
+- (id)objectForCaseInsensitiveKey:(NSString *)key;
+
+- (NSString *)safeValueForKey:(NSString *)key;
+- (TriMetTime)getTimeForKey:(NSString *)key;
+- (NSInteger)getNSIntegerForKey:(NSString *)key;
+- (TriMetDistance)getDistanceForKey:(NSString *)key;
+- (double)getDoubleForKey:(NSString *)key;
+- (bool)getBoolForKey:(NSString *)key;
+
+@end
+
 typedef enum  {
 	TriMetXMLCheckCache,
 	TriMetXMLForceFetchAndUpdateCache,
@@ -25,35 +39,54 @@ typedef enum  {
     TriMetXMLUseShortTermCache
 } CacheAction;
 
-@interface TriMetXML : StoppableFetcher <NSXMLParserDelegate> {
-	NSMutableString *_contentOfCurrentProperty;	
-	NSMutableArray  *_itemArray;
-	bool hasData;
-	NSData *_htmlError;
-	NSDate *_cacheTime;
-    bool    _itemFromCache;
-    NSString *_fullQuery;
+#define ELTYPE(typeName) (NSOrderedSame == [elementName caseInsensitiveCompare:@#typeName])
+#define ATRVAL(attr)     ([attributeDict safeValueForKey:@#attr])
+#define ATRTIM(attr)     ([attributeDict getTimeForKey:@#attr])
+#define ATRINT(attr)     ([attributeDict getNSIntegerForKey:@#attr])
+#define ATRBOOL(attr)    ([attributeDict getBoolForKey:@#attr])
+#define ATRCOORD(attr)   ([attributeDict getDoubleForKey:@#attr])
+#define ATRDIST(attr)    ([attributeDict getDistanceForKey:@#attr])
+#define ATREQ(attr, val) ([attr caseInsensitiveCompare:val] == NSOrderedSame)
+
+
+
+@class TriMetXML;
+
+@protocol TriMetXMLDelegate<NSObject>
+
+- (void)TriMetXML:(TriMetXML*)xml startedFetchingData:(bool)fromCache;
+- (void)TriMetXML:(TriMetXML*)xml finishedFetchingData:(bool)fromCache;
+- (void)TriMetXML:(TriMetXML*)xml startedParsingData:(NSUInteger)size;
+- (void)TriMetXML:(TriMetXML*)xml finishedParsingData:(NSUInteger)size;
+
+@end
+
+@interface TriMetXML<ObjectType> : StoppableFetcher <NSXMLParserDelegate, NSFastEnumeration> {
+	NSMutableString *               _contentOfCurrentProperty;
+	NSMutableArray<ObjectType>  *   _itemArray;
+	bool                            _hasData;
+	NSData *                        _htmlError;
+	NSDate *                        _cacheTime;
+    bool                            _itemFromCache;
+    NSString *                      _fullQuery;
+    id<TriMetXMLDelegate>           _oneTimeDelegate;
 }
 
 
 
-- (NSString *)safeValueFromDict:(NSDictionary *)dict valueForKey:(NSString *)key;
 - (BOOL)startParsing:(NSString *)query;
 - (BOOL)startParsing:(NSString *)query cacheAction:(CacheAction)cacheAction;
-- (TriMetTime)getTimeFromAttribute:(NSDictionary *)dict valueForKey:(NSString *)key;
-- (NSInteger)getNSIntegerFromAttribute:(NSDictionary *)dict valueForKey:(NSString *)key;
-- (TriMetDistance)getDistanceFromAttribute:(NSDictionary *)dict valueForKey:(NSString *)key;
-- (double)getCoordFromAttribute:(NSDictionary *)dict valueForKey:(NSString *)key;
-- (bool)getBoolFromAttribute:(NSDictionary *)dict valueForKey:(NSString *)key;
+
 + (BOOL)isDataSourceAvailable:(BOOL)forceCheck;
-- (NSInteger)safeItemCount;
-- (id)itemAtIndex:(NSInteger)index;
-- (void)addItem:(id)item;
+@property (nonatomic, readonly) NSInteger count;
+- (ObjectType)objectAtIndexedSubscript:(NSInteger)index;
+- (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id [])buffer count:(NSUInteger)len;
+- (void)addItem:(ObjectType)item;
 - (void)clearArray;
 - (void)initArray;
 - (NSString *)replaceXMLcodes:(NSString *)string;
 - (NSString *)insertXMLcodes:(NSString *)string;
-- (bool)gotData;
+@property (nonatomic, readonly) bool gotData;
 + (bool)deleteCacheFile;
 - (NSString*)displayTriMetDate:(TriMetTime)time;
 - (NSString*)displayDate:(NSDate *)date;
@@ -63,7 +96,7 @@ typedef enum  {
 + (StopNameCacheManager *)getStopNameCacheManager;
 - (NSString*)fullAddressForQuery:(NSString *)query;
 
-
++ (instancetype)xml;
 
 
 @property (nonatomic) bool itemFromCache;
@@ -71,6 +104,7 @@ typedef enum  {
 @property (nonatomic, retain) NSMutableString *contentOfCurrentProperty;
 @property (nonatomic, retain) NSData *htmlError;
 @property (nonatomic, retain) NSDate *cacheTime;
-@property (nonatomic, retain) NSString *fullQuery;
+@property (nonatomic, copy)   NSString *fullQuery;
+@property (nonatomic, retain) id<TriMetXMLDelegate> oneTimeDelegate;
 
 @end

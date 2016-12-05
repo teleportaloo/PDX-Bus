@@ -37,6 +37,12 @@ static NSURL *MailtoURL(NSString *to, NSString *sub, NSString *body) {
   return [NSURL URLWithString:result];
 }
 
+- (void)dealloc
+{
+    [recipient release];
+    [super dealloc];
+}
+
 - (id)initWithRecipient:(NSString *)rec subject:(NSString *)subject body:(NSString *)body {
   if ((self = [super initWithURL:MailtoURL(rec, subject, body)]) != nil) {
     self.recipient = rec;

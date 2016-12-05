@@ -40,7 +40,7 @@
 	
 }
 
-- (id)init {
+- (instancetype)init {
 	if ((self = [super init]))
 	{
 		self.title = NSLocalizedString(@"Alert Time", @"screen title");
@@ -62,7 +62,7 @@
 // return the picker frame based on its size, positioned at the bottom of the page
 - (CGRect)pickerFrameWithSize:(CGSize)size
 {
-	CGRect screenRect = [[UIScreen mainScreen] applicationFrame];
+	CGRect screenRect = [UIScreen mainScreen].applicationFrame;
 	
     DEBUG_LOG(@"%@", (self.view.frame.size.width == ([[UIScreen mainScreen] bounds].size.width*([[UIScreen mainScreen] bounds].size.width<[[UIScreen mainScreen] bounds].size.height))+([[UIScreen mainScreen] bounds].size.height*([[UIScreen mainScreen] bounds].size.width>[[UIScreen mainScreen] bounds].size.height))) ? @"Portrait" : @"Landscape");
 
@@ -77,12 +77,7 @@
 	}
 	
     float offset = 20.0;
-    
-    if (!self.iOS7style)
-    {
-        offset = 88.0;
-    }
-	
+    	
 	CGRect pickerRect = CGRectMake(	0.0,
 								   screenRect.size.height - offset - size.height,
 								   screenRect.size.width,
@@ -106,7 +101,7 @@
 	self.pickerView.frame = [self pickerFrameWithSize:pickerSize];
 	self.pickerView.showsSelectionIndicator = YES;
 	
-	AlarmTaskList *taskList = [AlarmTaskList getSingleton];
+	AlarmTaskList *taskList = [AlarmTaskList singleton];
 	
 	if ([taskList hasTaskForStopId:self.dep.locid block:self.dep.block])
 	{
@@ -133,12 +128,10 @@
 {
 	if (indexPath.row == kAlertViewSectionTitle)
 	{
-		return [AlarmCell rowHeight:self.screenInfo.screenWidth];
+		return [AlarmCell rowHeight];
 	}
 	return [self basicRowHeight];
 }
-
-
 
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -150,7 +143,7 @@
 		if (alarmCell == nil) {
 			alarmCell = [AlarmCell tableviewCellWithReuseIdentifier:MakeCellId(kAlertViewSectionTitle)
 															  width:self.screenInfo.screenWidth
-															 height:[AlarmCell rowHeight:self.screenInfo.screenWidth]];
+															 height:[AlarmCell rowHeight]];
 		}
 		
 		[alarmCell populateCellLine1:self.dep.locationDesc line2:self.dep.routeName line2col:[UIColor blueColor]];
@@ -177,7 +170,7 @@
 				break;
 		}
 		
-		cell.textLabel.font = [self getBasicFont];
+		cell.textLabel.font = self.basicFont;
 	}
     return cell;
 }
@@ -188,7 +181,7 @@
 	// AnotherViewController *anotherViewController = [[AnotherViewController alloc] initWithNibName:@"AnotherView" bundle:nil];
 	// [self.navigationController pushViewController:anotherViewController];
 	// [anotherViewController release];
-	AlarmTaskList *taskList = [AlarmTaskList getSingleton];
+	AlarmTaskList *taskList = [AlarmTaskList singleton];
 	
 	switch (indexPath.row)
 	{

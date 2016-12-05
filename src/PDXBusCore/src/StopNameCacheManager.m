@@ -18,11 +18,11 @@
 
 @implementation StopNameCacheManager
 
-- (id)init
+- (instancetype)init
 {
     if ((self = [super initWithFileName:@"stopNameCache.plist"]))
     {
-        self.maxSize               = 25;
+        self.maxSize               = 55;
     }
     
     return self;
@@ -34,16 +34,15 @@
     
     if (directions == nil)
     {
-         directions = [[NSDictionary alloc] initWithObjectsAndKeys:
-                                 @"N",   @"Northbound",
-                                 @"S",   @"Southbound",
-                                 @"E",   @"Eastbound",
-                                 @"W",   @"Westbound",
-                                 @"NE",  @"Northeastbound",
-                                 @"SE",  @"Southeastbound",
-                                 @"SW",  @"Southwestbound",
-                                 @"NW",  @"Northwestbound",
-                                 nil];
+        directions = @{
+                       @"Northbound"       :@"N",
+                       @"Southbound"       :@"S",
+                       @"Eastbound"        :@"E",
+                       @"Westbound"        :@"W",
+                       @"Northeastbound"   :@"NE",
+                       @"Southeastbound"   :@"SE",
+                       @"Southwestbound"   :@"SW",
+                       @"Northwestbound"   :@"NW" }.retain;
     }
 
     if (dir == nil)
@@ -51,7 +50,7 @@
         return @"";
     }
     
-    NSString *result = [directions objectForKey:dir];
+    NSString *result = directions[dir];
     
     if (result == nil)
     {
@@ -64,17 +63,17 @@
 {
     if (data.count >= kStopNameCacheArraySizeWithShortDescription)
     {
-        return [data objectAtIndex:kStopNameCacheShortDescription];
+        return data[kStopNameCacheShortDescription];
     }
-    return [data objectAtIndex:kStopNameCacheLongDescription];
+    return data[kStopNameCacheLongDescription];
 }
 
 + (NSString *)getLongName:(NSArray *)data
 {
-    return [data objectAtIndex:kStopNameCacheLongDescription];
+    return data[kStopNameCacheLongDescription];
 }
 
-- (NSArray *)getStopNameAndCache:(NSString *)stopId
+- (NSArray *)getStopName:(NSString *)stopId fetchAndCache:(bool)fetchAndCache updated:(bool*)updated
 {
     NSArray *cachedData = [self getCachedQuery:stopId];
     NSArray *result = nil;
@@ -85,13 +84,27 @@
     
     if (cachedData !=nil)
     {
-        NSData *data = [cachedData objectAtIndex:kCacheData];
+        NSData *data = cachedData[kCacheData];
         result =[NSKeyedUnarchiver unarchiveObjectWithData:data];
+        if (updated)
+        {
+            *updated = NO;
+        }
     }
     
-    if (cachedData == nil || (result && result.count < (kStopNameCacheArraySizeWithShortDescription)))
+    if (cachedData == nil && !fetchAndCache)
     {
-        XMLDepartures *dep = [[[ XMLDepartures alloc ] init] autorelease];
+        NSString *name = [NSString stringWithFormat:@"Stop ID %@ (getting full name)",stopId];
+        result = @[stopId, name, name];
+        if (updated)
+        {
+            *updated = NO;
+        }
+    }
+    
+    if (fetchAndCache && (cachedData == nil || (result && result.count < (kStopNameCacheArraySizeWithShortDescription))))
+    {
+        XMLDepartures *dep = [XMLDepartures xml];
         [dep getDeparturesForLocation:stopId];
         
         NSString *longDesc = nil;
@@ -123,7 +136,11 @@
             shortDesc = longDesc;
         }
         
-        result = [NSArray arrayWithObjects:stopId, longDesc, shortDesc, nil];
+        result = @[stopId, longDesc, shortDesc];
+        if (updated)
+        {
+            *updated = YES;
+        }
         
         
         if (cache)

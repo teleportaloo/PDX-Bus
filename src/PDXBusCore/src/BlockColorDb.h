@@ -28,15 +28,16 @@
 @property (nonatomic, retain) SharedFile *file;
 @property (nonatomic, retain) NSMutableDictionary *colorMap;
 
-+ (BlockColorDb *)getSingleton;
++ (BlockColorDb *)singleton;
 - (UIColor *) colorForBlock:(NSString *)block;
 - (void)addColor:(UIColor *)color forBlock:(NSString *)block description:(NSString*)desc;
 - (void)clearAll;
-- (NSArray *)keys;
+@property (nonatomic, readonly, copy) NSArray *keys;
 - (NSString *)descForBlock:(NSString *)block;
 - (NSDate *)timeForBlock:(NSString *)block;
 + (UIImage *)imageWithColor:(UIColor *)color;
 - (void)openFile;
 - (void)memoryWarning;
+@property (nonatomic, getter=getDB, copy) NSDictionary *DB;
 
 @end

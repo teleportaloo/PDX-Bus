@@ -33,12 +33,12 @@
     NSString *_taskKey;
 }
 @property (nonatomic, assign) id<ExternalDisplayDeviceDelegate> delegate; // weak
-@property (nonatomic, retain) NSString *taskKey;
+@property (nonatomic, copy)   NSString *taskKey;
 
 - (void)getSupportAndStartCallbacks;
 - (void)displayEnded:(AlarmFetchArrivalsTask *)task;
 - (void)updateDisplay:(AlarmFetchArrivalsTask *)task;
-- (bool)running;
+@property (nonatomic, readonly) bool running;
 
 
 @end

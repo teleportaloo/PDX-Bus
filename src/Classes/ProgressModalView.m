@@ -76,22 +76,17 @@ CGPathRef CreatePathWithRoundRect(CGRect rect, CGFloat cornerRadius);
 	
 }
 
-+ (bool)iOS7style
-{
-    return [[UIDevice currentDevice].systemVersion floatValue] >= 7.0;
-}
-
 + (bool)iOS8style
 {
-    return [[UIDevice currentDevice].systemVersion floatValue] >= 8.0;
+    return [UIDevice currentDevice].systemVersion.floatValue >= 8.0;
 }
 
 + (ProgressModalView *)initWithSuper:(UIView *)back items:(int)items title:(NSString *)title delegate:(id<ProgressDelegate>)delegate
 						 orientation:(UIInterfaceOrientation)orientation
 {	
-	ProgressModalView *top = [[[ProgressModalView alloc] initWithFrame:[back bounds]] autorelease];
+	ProgressModalView *top = [[[ProgressModalView alloc] initWithFrame:back.bounds] autorelease];
 
-	CGRect backFrame = [back frame];
+	CGRect backFrame = back.frame;
 	CGFloat quarterTurns = 0;
 	
     // We don't have to do this in OS 8.  Whatever.
@@ -139,7 +134,7 @@ CGPathRef CreatePathWithRoundRect(CGRect rect, CGFloat cornerRadius);
 		//	frame.origin.x = -125;
 		//	frame.origin.y = 140;
 		}
-		[top setTransform:trans];
+		top.transform = trans;
 	}
 	
     /*
@@ -249,7 +244,7 @@ CGPathRef CreatePathWithRoundRect(CGRect rect, CGFloat cornerRadius);
 	
 		UIButton *cancelButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
 		
-		[cancelButton setTitle:@"Cancel" forState:UIControlStateNormal];	
+		[cancelButton setTitle:NSLocalizedString(@"Cancel", @"button text") forState:UIControlStateNormal];
 		
 
 		cancelButton.frame = CGRectMake(
@@ -260,10 +255,7 @@ CGPathRef CreatePathWithRoundRect(CGRect rect, CGFloat cornerRadius);
     
 		[cancelButton addTarget:top action:@selector(buttonAction:) forControlEvents:UIControlEventTouchUpInside];	
         
-        if ([ProgressModalView iOS7style])
-        {
-            cancelButton.backgroundColor = [UIColor whiteColor];
-        }
+        cancelButton.backgroundColor = [UIColor whiteColor];
 		
 		[cancelButton setTitleColor:[UIColor colorWithRed:frontWin.R green:frontWin.G blue:frontWin.B alpha:1.0] forState:UIControlStateNormal];
 		[top addSubview:cancelButton];
@@ -344,10 +336,19 @@ CGPathRef CreatePathWithRoundRect(CGRect rect, CGFloat cornerRadius);
     }
     else
     {
-                
         CGRect rect = self.helpText.frame;
         
-        rect.size =[helpText sizeWithFont:self.helpText.font constrainedToSize:self.helpText.frame.size lineBreakMode:NSLineBreakByWordWrapping];
+        NSStringDrawingOptions options = NSStringDrawingTruncatesLastVisibleLine |
+            NSStringDrawingUsesLineFragmentOrigin;
+        
+        NSDictionary *attr = @{NSFontAttributeName: self.helpText.font};
+        rect = [helpText boundingRectWithSize:rect.size
+                                           options:options
+                                        attributes:attr
+                                           context:nil];
+
+        
+        rect.origin = self.helpText.frame.origin;
         rect.size.height += 10;
         
         self.helpText.frame = rect;
@@ -401,7 +402,7 @@ CGPathRef CreatePathWithRoundRect(CGRect rect, CGFloat cornerRadius);
 @synthesize B;
 
 
-- (id)initWithFrame:(CGRect)frame
+- (instancetype)initWithFrame:(CGRect)frame
 {
 	return [super initWithFrame:frame];
 }

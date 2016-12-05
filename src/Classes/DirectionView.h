@@ -15,22 +15,27 @@
 #import "TableViewWithToolbar.h"
 #import "ReturnStopId.h"
 #import "XMLRoutes.h"
+#import "XMLDetours.h"
 
 #define kSearchItemRoute @"org.teleportaloo.pdxbus.route"
 
 @interface DirectionView : TableViewWithToolbar {
-	Route *_route;
-	XMLRoutes *_directionData;
-	NSArray *_directionKeys;
-	NSString *_routeId;
+	Route *     _route;
+	XMLRoutes * _directionData;
+    XMLDetours *_detourData;
+	NSArray *   _directionKeys;
+	NSString *  _routeId;
+    CacheAction _cacheAction;
 }
 
 @property (nonatomic, retain) Route *route;
 @property (nonatomic, retain) NSArray *directionKeys;
 @property (nonatomic, retain) XMLRoutes *directionData;
-@property (nonatomic, retain) NSString *routeId;
+@property (nonatomic, retain) XMLDetours *detourData;
 
-- (void)fetchDirectionsInBackground:(id<BackgroundTaskProgress>)callback route:(NSString *)route;
+@property (nonatomic, copy)   NSString *routeId;
+
+- (void)fetchDirectionsAsync:(id<BackgroundTaskProgress>)callback route:(NSString *)route;
 
 
 @end

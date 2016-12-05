@@ -15,28 +15,27 @@
 
 #import "MapViewController.h"
 #import "XMLLocateVehicles.h"
-#import "XMLLocateStopsUI.h"
+#import "XMLLocateStops+iOSUI.h"
 
 @interface NearestVehiclesMap : MapViewController
 {
-    XMLLocateVehicles *_locator;
-    XMLLocateStopsUI *_stopLocator;
-    
-    NSSet *_streetcarRoutes;
-    NSSet *_triMetRoutes;
-    NSString *_direction;
-    bool _alwaysFetch;
+    XMLLocateVehicles * _locator;
+    XMLLocateStops *    _stopLocator;
+    NSSet *             _streetcarRoutes;
+    NSSet *             _triMetRoutes;
+    NSString *          _direction;
+    bool                _alwaysFetch;
 }
 
 @property (nonatomic, retain) NSSet *streetcarRoutes;
 @property (nonatomic, retain) NSSet *trimetRoutes;
-@property (nonatomic, retain) NSString *direction;
+@property (nonatomic, copy)   NSString *direction;
 @property (nonatomic) bool alwaysFetch;
-@property (nonatomic, retain) XMLLocateStopsUI *stopLocator;
+@property (nonatomic, retain) XMLLocateStops *stopLocator;
 
 @property (nonatomic, retain) XMLLocateVehicles *locator;
-- (void)fetchNearestVehiclesInBackground:(id<BackgroundTaskProgress>)background;
-- (void)fetchNearestVehiclesAndStopsInBackground:(id<BackgroundTaskProgress>)background location:(CLLocation *)here maxToFind:(int)max minDistance:(double)min mode:(TripMode)mode;
+- (void)fetchNearestVehiclesAsync:(id<BackgroundTaskProgress>)background;
+- (void)fetchNearestVehiclesAndStopsAsync:(id<BackgroundTaskProgress>)background location:(CLLocation *)here maxToFind:(int)max minDistance:(double)min mode:(TripMode)mode;
 
 
 

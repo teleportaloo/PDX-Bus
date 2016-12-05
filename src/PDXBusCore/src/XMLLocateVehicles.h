@@ -18,11 +18,11 @@
 #import <CoreLocation/CoreLocation.h>
 #import "VehicleData.h"
 
-@interface XMLLocateVehicles : TriMetXML
+@interface XMLLocateVehicles : TriMetXML<VehicleData*>
 {
     CLLocation *_location;
-    double     _dist;
-    bool _noErrorAlerts;
+    double      _dist;
+    bool        _noErrorAlerts;
 
 }
 

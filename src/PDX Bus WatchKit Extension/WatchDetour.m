@@ -17,4 +17,10 @@
 
 @implementation WatchDetour
 
+- (void)dealloc
+{
+    self.detourText = nil;
+    [super dealloc];
+}
+
 @end

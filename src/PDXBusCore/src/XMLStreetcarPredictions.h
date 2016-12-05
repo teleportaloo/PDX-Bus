@@ -17,7 +17,7 @@
 #import "DepartureData.h"
 
 
-@interface XMLStreetcarPredictions : NextBusXML {
+@interface XMLStreetcarPredictions : NextBusXML<DepartureData*> {
 	DepartureData *_currentDepartureObject;
 	NSString *_directionTitle;
     NSString *_stopTitle;
@@ -29,12 +29,12 @@
 }
 
 @property (nonatomic, retain) DepartureData *currentDepartureObject;
-@property (nonatomic, retain) NSString *directionTitle;
-@property (nonatomic, retain) NSString *routeTitle;
-@property (nonatomic, retain) NSString *blockFilter;
-@property (nonatomic, retain) NSString *copyright;
-@property (nonatomic, retain) NSString *nextBusRouteId;
-@property (nonatomic, retain) NSString *stopTitle;
+@property (nonatomic, copy)   NSString *directionTitle;
+@property (nonatomic, copy)   NSString *routeTitle;
+@property (nonatomic, copy)   NSString *blockFilter;
+@property (nonatomic, copy)   NSString *copyright;
+@property (nonatomic, copy)   NSString *nextBusRouteId;
+@property (nonatomic, copy)   NSString *stopTitle;
 
 
 - (BOOL)getDeparturesForLocation:(NSString *)location;

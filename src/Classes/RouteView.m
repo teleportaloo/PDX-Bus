@@ -34,10 +34,10 @@
 	[super dealloc];
 }
 
-- (id)init {
+- (instancetype)init {
 	if ((self = [super init]))
 	{
-		self.title = @"Routes";
+        self.title = NSLocalizedString(@"Routes", @"page title");
 		self.enableSearch = YES;
 	}
 	return self;
@@ -46,10 +46,10 @@
 
 #pragma mark Data fetchers
 
-- (void)fetchRoutes:(id)arg
+- (void)workerToFetchRoutes:(id)unused
 {	
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:@"getting routes"];
+	[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:NSLocalizedString(@"getting routes", @"activity text")];
 	
 	[self.routeData getRoutesCacheAction:TriMetXMLForceFetchAndUpdateCache];
     
@@ -59,10 +59,10 @@
 	[pool release];
 }
 
-- (void)fetchRoutesInBackground:(id<BackgroundTaskProgress>)callback
+- (void)fetchRoutesAsync:(id<BackgroundTaskProgress>)callback
 {	
 	self.backgroundTask.callbackWhenFetching = callback;
-	self.routeData = [[[XMLRoutes alloc] init] autorelease];
+    self.routeData = [XMLRoutes xml];
 
 	if (!self.backgroundRefresh && [self.routeData getRoutesCacheAction:TriMetXMLCheckCache])
 	{
@@ -70,7 +70,7 @@
 	}
 	else 
 	{
-		[NSThread detachNewThreadSelector:@selector(fetchRoutes:) toTarget:self withObject:nil];
+		[NSThread detachNewThreadSelector:@selector(workerToFetchRoutes:) toTarget:self withObject:nil];
 	}
  
 }
@@ -133,16 +133,17 @@
 				
 			}
 			// Configure the cell
-			Route *route = [[self filteredData:tableView] objectAtIndex:indexPath.row];
+			Route *route = [self filteredData:tableView][indexPath.row];
 			
 			cell.textLabel.text = route.desc; 
-			cell.textLabel.font = [self getBasicFont];
+			cell.textLabel.font = self.basicFont;
 			cell.textLabel.adjustsFontSizeToFitWidth = YES;
 			RouteColorBlobView *colorStripe = (RouteColorBlobView*)[cell.contentView viewWithTag:COLOR_STRIPE_TAG];
 			[colorStripe setRouteColor:route.route];
 		}
 		break;
 	case kSectionDisclaimer:
+    default:
 		cell = [tableView dequeueReusableCellWithIdentifier:kDisclaimerCellId];
 		if (cell == nil) {
 			cell = [self disclaimerCellWithReuseIdentifier:kDisclaimerCellId];
@@ -169,12 +170,11 @@
 	{
 		case kSectionRoutes:
 		{
-			DirectionView *directionViewController = [[DirectionView alloc] init];
-			Route * route = [[self filteredData:tableView] objectAtIndex:indexPath.row];
+            DirectionView *directionViewController = [DirectionView viewController];
+			Route * route = [self filteredData:tableView][indexPath.row];
 			// directionViewController.route = [self.routeData itemAtIndex:indexPath.row];
-			[directionViewController setCallback:self.callback];
-			[directionViewController fetchDirectionsInBackground:self.backgroundTask route:[route route]];
-			[directionViewController release];
+			directionViewController.callback = self.callback;
+			[directionViewController fetchDirectionsAsync:self.backgroundTask route:route.route];
 			break;
 		}
 		case kSectionDisclaimer:
@@ -216,21 +216,18 @@
     CSSearchableIndex * searchableIndex = [CSSearchableIndex defaultSearchableIndex];
     
     
-    [searchableIndex deleteSearchableItemsWithDomainIdentifiers:[NSArray arrayWithObjects:@"route", nil] completionHandler:^(NSError * __nullable error) {
+    [searchableIndex deleteSearchableItemsWithDomainIdentifiers:@[@"route"] completionHandler:^(NSError * __nullable error) {
         if (error != nil)
         {
             ERROR_LOG(@"Failed to delete route index %@\n", error.description);
         }
         
-        if ([UserPrefs getSingleton].searchRoutes)
+        if ([UserPrefs singleton].searchRoutes)
         {
-            NSMutableArray *index = [[[NSMutableArray alloc] init] autorelease];
+            NSMutableArray *index = [NSMutableArray array];
             
-            for (int i=0; i< self.routeData.safeItemCount;  i++)
+            for (Route *route in self.routeData)
             {
-                // Configure the cell
-                Route *route = [self.routeData itemAtIndex:i];
-                
                 CSSearchableItemAttributeSet * attributeSet = [[CSSearchableItemAttributeSet alloc] initWithItemContentType:(NSString*)kUTTypeText];
                 attributeSet.title = route.desc;
                 
@@ -266,7 +263,7 @@
 	// add our custom add button as the nav bar's custom right view
 	UIBarButtonItem *refreshButton = [[UIBarButtonItem alloc]
 									  initWithTitle:NSLocalizedString(@"Refresh", @"")
-									  style:UIBarButtonItemStyleBordered
+									  style:UIBarButtonItemStylePlain
 									  target:self
 									  action:@selector(refreshAction:)];
 	self.navigationItem.rightBarButtonItem = refreshButton;
@@ -275,7 +272,7 @@
 	
 	[self reloadData];
 	
-	if ([self.routeData safeItemCount] > 0)
+	if (self.routeData.count > 0)
 	{
 		[self.table scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] 
 						  atScrollPosition:UITableViewScrollPositionTop 
@@ -285,10 +282,10 @@
 
 #pragma mark UI callbacks
 
-- (void)refreshAction:(id)sender
+- (void)refreshAction:(id)unused
 {
 	self.backgroundRefresh = true;
-	[self fetchRoutesInBackground:self.backgroundTask];
+	[self fetchRoutesAsync:self.backgroundTask];
 }
 
 - (void)updateToolbarItems:(NSMutableArray *)toolbarItems

@@ -27,30 +27,20 @@
 
 
 @interface XMLTrips : TriMetXML {
-	TripUserRequest *_userRequest;
-	NSArray			*_userFaves;
-	bool			_reversed;
-	
-	TripItinerary   *_currentItinerary;
-	TripLeg			*_currentLeg;
-	
-	id				_currentObject;
-	NSString		*_currentTagData;
-	
-	NSMutableArray *_toList;
-	NSMutableArray *_fromList;
-	NSMutableArray *_currentList;
-	
-	TripLegEndPoint *_resultFrom;
-	TripLegEndPoint *_resultTo;
-	
-	
-	NSString *_xdate;
-	NSString *_xtime;
-	
-	
-	
-//	NSMutableArray *_itineraries;
+	TripUserRequest *   _userRequest;
+	NSArray	*           _userFaves;
+	bool                _reversed;
+	TripItinerary *     _currentItinerary;
+	TripLeg	*           _currentLeg;
+	id                  _currentObject;
+	NSString *          _currentTagData;
+	NSMutableArray *    _toList;
+	NSMutableArray *    _fromList;
+	NSMutableArray *    _currentList;
+	TripLegEndPoint *   _resultFrom;
+	TripLegEndPoint *   _resultTo;
+	NSString *          _xdate;
+	NSString *          _xtime;
 }
 
 @property (nonatomic, retain) TripUserRequest *userRequest;
@@ -73,14 +63,14 @@
 
 - (bool)isProp:(NSString *)element;
 - (void)fetchItineraries:(NSData*)rawData;
-- (XMLTrips *)createReverse;
-- (XMLTrips *) createAuto;
+@property (nonatomic, readonly, strong) XMLTrips *createReverse;
+@property (nonatomic, readonly, strong) XMLTrips *createAuto;
 - (void)saveTrip;
-- (NSString*)shortName;
-- (NSString*)longName;
-- (NSString*)mediumName;
+@property (nonatomic, readonly, copy) NSString *shortName;
+@property (nonatomic, readonly, copy) NSString *longName;
+@property (nonatomic, readonly, copy) NSString *mediumName;
 - (void)addStopsFromUserFaves:(NSArray *)userFaves;
-- (id)init;
+- (instancetype)init;
 +(NSArray *)distanceMapSingleton;
 +(int)distanceToIndex:(float)distance;
 +(float)indexToDistance:(int)index;

@@ -29,6 +29,15 @@
 @synthesize subject;
 @synthesize body;
 
+- (void) dealloc
+{
+    [to release];
+    [subject release];
+    [body release];
+    [super dealloc];
+}
+
+
 + (bool) looksLikeAnEmailAddress:(NSString *)s {
   if ([s rangeOfString:@"@"].location == NSNotFound) {
     return false;

@@ -61,12 +61,12 @@ enum INTRO_ROWS {
 #pragma mark Table view methods
 
 
-- (id)init {
+- (instancetype)init {
 	if ((self = [super init]))
     {
         self.title = NSLocalizedString(@"About", @"About screen title");
         
-#define ATTR(X) [StringHelper formatAttributedString:X font:[self getParagraphFont]]
+#define ATTR(X) [StringHelper formatAttributedString:X font:self.paragraphFont]
         
         NSString *text = [NSString stringWithFormat:
                           NSLocalizedString(
@@ -84,18 +84,18 @@ enum INTRO_ROWS {
                                             "\nCopyright (c) 2008-2016\nAndrew Wallace\n(See legal section above for other copyright owners and attrbutions).",
                                             @"Dedication text"),
                           
-                          [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"],
+                          [NSBundle mainBundle].infoDictionary[@"CFBundleVersion"],
                           sizeof(NSInteger) * 8,
                           DEBUG_MODE
                           ];
         
-        thanksText = ATTR(text).retain;
+        thanksText = [text formatAttributedStringWithFont:self.paragraphFont].retain;
         
-        introText = ATTR(@"One developer writes #bPDX Bus#b as a #ivolunteer effort#i, with a little help from friends and the local community. He has no affiliation with #b#BTriMet#b#0, but he happens to ride buses and MAX on most days.\n\n"
-                        "This is free because I do it for fun. #i#b#GReally#i#b#0.").retain;
+        introText = [@"One developer writes #bPDX Bus#b as a #ivolunteer effort#i, with a little help from friends and the local community. He has no affiliation with #b#BTriMet#b#0, but he happens to ride buses and MAX on most days.\n\n"
+                     "This is free because I do it for fun. #i#b#GReally#i#b#0." formatAttributedStringWithFont:self.paragraphFont].retain;
         
-        links = [[NSArray alloc] initWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"about-links" ofType:@"plist"]];
-        legal = [[NSArray alloc] initWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"about-legal" ofType:@"plist"]];
+        links = [NSArray arrayWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"about-links" ofType:@"plist"]].retain;
+        legal = [NSArray arrayWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"about-legal" ofType:@"plist"]].retain;
         
         _hideButton = NO;
     }
@@ -110,7 +110,7 @@ enum INTRO_ROWS {
     {
         UIBarButtonItem *info = [[[UIBarButtonItem alloc]
                                   initWithTitle:NSLocalizedString(@"Help", @"Help button")
-                                  style:UIBarButtonItemStyleBordered
+                                  style:UIBarButtonItemStylePlain
                                   target:self action:@selector(infoAction:)] autorelease];
         
         
@@ -120,15 +120,13 @@ enum INTRO_ROWS {
 
 - (void)infoAction:(id)sender
 {
-	SupportView *infoView = [[SupportView alloc] init];
+    SupportView *infoView = [SupportView viewController];
 	
 	// Push the detail view controller
     
     infoView.hideButton = YES;
 
-	[[self navigationController] pushViewController:infoView animated:YES];
-	[infoView release];
-	
+	[self.navigationController pushViewController:infoView animated:YES];
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
@@ -166,7 +164,7 @@ enum INTRO_ROWS {
 }
 
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellFromDict:(NSDictionary*)item
+- (UITableViewCell *)tableView:(UITableView *)tableView cellFromDict:(NSDictionary<NSString*, NSString*>*)item
 {
     static NSString *linkId = @"pdxbuslink";
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:linkId];
@@ -178,16 +176,16 @@ enum INTRO_ROWS {
          [self newLabelWithPrimaryColor:[UIColor blueColor] selectedColor:[UIColor cyanColor] fontSize:14 bold:YES parentView:[cell contentView]];
          */
         
-        cell.textLabel.font =  [self getBasicFont]; //  [UIFont fontWithName:@"Ariel" size:14];
+        cell.textLabel.font =  self.basicFont; //  [UIFont fontWithName:@"Ariel" size:14];
         cell.textLabel.textColor = [UIColor blueColor];
         cell.textLabel.adjustsFontSizeToFitWidth = YES;
         cell.selectionStyle = UITableViewCellSelectionStyleBlue;
     }
     
-    cell.textLabel.text =   [item objectForKey:kCellText];
-    cell.imageView.image =  [self getActionIcon:[item objectForKey:kIcon]];
+    cell.textLabel.text =   item[kCellText];
+    cell.imageView.image =  [self getActionIcon:item[kIcon]];
     
-    [cell setAccessibilityLabel:[NSString stringWithFormat:NSLocalizedString(@"Link to %@", @"Accessibility label"), cell.textLabel.text]];
+    cell.accessibilityLabel = [NSString stringWithFormat:NSLocalizedString(@"Link to %@", @"Accessibility label"), cell.textLabel.text];
     
     return cell;
     
@@ -203,10 +201,10 @@ enum INTRO_ROWS {
 				CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionHelpRowHelp)];
 				if (cell == nil) {
 					cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionHelpRowHelp)] autorelease];
-					cell.view = [self create_UITextView:nil font:[self getParagraphFont]];
+					cell.view = [self create_UITextView:nil font:self.paragraphFont];
 				}
 				
-				cell.view.font =  [self getParagraphFont];
+				cell.view.font =  self.paragraphFont;
 				cell.view.attributedText = (indexPath.section == kSectionThanks) ? thanksText : introText;
                 [cell.view setAdjustsFontSizeToFitWidth:NO];
 				DEBUG_LOG(@"help width:  %f\n", cell.view.bounds.size.width);
@@ -226,7 +224,7 @@ enum INTRO_ROWS {
 					 [self newLabelWithPrimaryColor:[UIColor blueColor] selectedColor:[UIColor cyanColor] fontSize:14 bold:YES parentView:[cell contentView]];
 					 */
 					
-					cell.textLabel.font =  [self getBasicFont]; //  [UIFont fontWithName:@"Ariel" size:14];
+					cell.textLabel.font =  self.basicFont; //  [UIFont fontWithName:@"Ariel" size:14];
 					cell.textLabel.adjustsFontSizeToFitWidth = YES;
 					cell.selectionStyle = UITableViewCellSelectionStyleBlue;
 				}
@@ -242,21 +240,19 @@ enum INTRO_ROWS {
 		}
 		case kSectionWeb:
 		{
-			return [self tableView:tableView cellFromDict:[links objectAtIndex:indexPath.row]];
+			return [self tableView:tableView cellFromDict:links[indexPath.row]];
 			break;
 		}
 		case kSectionLegal:
 		{
 			
-			return [self tableView:tableView cellFromDict:[legal objectAtIndex:indexPath.row]];
+			return [self tableView:tableView cellFromDict:legal[indexPath.row]];
 
 			break;
 		}
-		default:
-			break;
 	}
 	
-	return nil;
+    return [super tableView:tableView cellForRowAtIndexPath:indexPath];
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -280,10 +276,10 @@ enum INTRO_ROWS {
 	return [self basicRowHeight];
 }
 
-- (void)gotoDict:(NSDictionary*)dict
+- (void)gotoDict:(NSDictionary<NSString*, NSString*>*)dict
 {
-    [WebViewController displayPage:[dict objectForKey:kLinkMobile]
-                              full:[dict objectForKey:kLinkFull]
+    [WebViewController displayPage:dict[kLinkMobile]
+                              full:dict[kLinkFull]
                          navigator:self.navigationController
                     itemToDeselect:self
                           whenDone:nil];
@@ -294,24 +290,22 @@ enum INTRO_ROWS {
 	{
 		case kSectionWeb:
 		{
-			[self gotoDict:[links objectAtIndex:indexPath.row]];
+			[self gotoDict:links[indexPath.row]];
 			break;
 		}
 		case kSectionLegal:
 		{
-            [self gotoDict:[legal objectAtIndex:indexPath.row]];
+            [self gotoDict:legal[indexPath.row]];
             break;
 		}
 		case kSectionIntro:
 			if (indexPath.row == kSectionIntroRowIntro)
 			{
-				[[self navigationController] popViewControllerAnimated:YES];
+				[self.navigationController popViewControllerAnimated:YES];
 			}
             else
 			{
-				WhatsNewView *whatsNew = [[WhatsNewView alloc] init];
-				[[self navigationController] pushViewController:whatsNew animated:YES];
-				[whatsNew release];
+				[self.navigationController pushViewController:[WhatsNewView viewController] animated:YES];
 			}
 			break;
 	}

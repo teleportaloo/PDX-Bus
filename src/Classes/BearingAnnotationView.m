@@ -17,8 +17,11 @@
 #import "MapPinColor.h"
 #import "ViewControllerBase.h"
 #import "DebugLogging.h"
+#import "FilledCircleView.h"
 
-#define ARROW_TAG 15
+#define ARROW_TAG 1
+#define BLOB_TAG 2
+
 #define ROOT2 1.5 // 1.41421356237
 
 @implementation BearingAnnotationView
@@ -29,7 +32,7 @@
 {
     if ((self = [super initWithAnnotation:annotation reuseIdentifier:reuseIdentifier]))
     {
-        self.annotationImage = [MapAnnotationImage getSingleton];
+        self.annotationImage = [MapAnnotationImage singleton];
     }
     return self;
 }
@@ -44,16 +47,18 @@
 
 - (void)updateDirectionalAnnotationView:(MKMapView *)mapView
 {
-    if ([self.annotation conformsToProtocol:@protocol(MapPinColor)] && [mapView respondsToSelector:@selector(camera)])
+    if ([self.annotation conformsToProtocol:@protocol(MapPinColor)])
     {
         id<MapPinColor> pin = (id<MapPinColor>)self.annotation;
         
-        UIColor *col = [pin getPinTint];
+        UIColor *col = pin.pinTint;
         
-        UIImage *arrow = [self.annotationImage getImage:pin.bearing mapRotation:mapView.camera.heading bus:col==nil];
-    
+        UIImage *arrow = [self.annotationImage getImage:pin.doubleBearing mapRotation:mapView.camera.heading bus:col==nil];
+        
         UIView *oldArrow = [self viewWithTag:ARROW_TAG];
-    
+        
+        
+        
         if (oldArrow)
         {
             [oldArrow removeFromSuperview];
@@ -62,8 +67,14 @@
         {
             // DEBUG_LOG(@"new arrow\n");
         }
-    
-    
+        
+        UIView *blob = [self viewWithTag:BLOB_TAG];
+        
+        if (blob)
+        {
+            [blob removeFromSuperview];
+        }
+        
         if (col == nil && self.annotationImage.tintableImage)
         {
             col = kMapAnnotationBusColor;
@@ -73,12 +84,12 @@
         if (col!=nil)
         {
             UIImageView *imageView = [[[UIImageView alloc] initWithImage:[arrow imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]] autorelease];
-        
+            
             self.frame = imageView.frame;
-            [imageView setTintColor:col];
-        
+            imageView.tintColor = col;
+            
             imageView.tag = ARROW_TAG;
-        
+            
             [self addSubview:imageView];
             self.autoresizesSubviews = NO;
             
@@ -90,14 +101,35 @@
             imageView.tag = ARROW_TAG;
             [self addSubview:imageView];
             self.autoresizesSubviews = NO;
-            
         }
+        
+        if ([pin respondsToSelector:@selector(pinSubTint)])
+        {
+            UIView *arrow = [self viewWithTag:ARROW_TAG];
+            UIColor *blockColor = pin.pinSubTint;
+            
+            if (blockColor != nil)
+            {
+                CGRect blobRect = CGRectInset(arrow.frame, arrow.frame.size.width/3, arrow.frame.size.height/3);
+                FilledCircleView *view = [[[FilledCircleView alloc] initWithFrame:blobRect] autorelease];
+                
+                view.fillColor = blockColor;
+                view.backgroundColor = [UIColor clearColor];
+                
+                view.tag = BLOB_TAG;
+                
+                [self addSubview:view];
+                
+            }
+        }
+        
+        [self layoutIfNeeded];
     }
 }
 
 + (MKAnnotationView*)viewForPin:(id<MapPinColor>)pin mapView:(MKMapView*)mapView
 {
-    if (!pin.hasBearing || ![mapView respondsToSelector:@selector(camera)])
+    if (!pin.hasBearing)
     {
         NSString *ident = [NSString stringWithFormat:@"stop"];
         MKPinAnnotationView *view = (MKPinAnnotationView*)[mapView dequeueReusableAnnotationViewWithIdentifier: ident];
@@ -109,13 +141,13 @@
         
         view.annotation = pin;
         
-        if ([view respondsToSelector:@selector(pinTintColor)] && [pin getPinTint]!=nil)
+        if ([view respondsToSelector:@selector(pinTintColor)] && pin.pinTint!=nil)
         {
-            view.pinTintColor = [pin getPinTint];
+            view.pinTintColor =pin.pinTint;
         }
         else
         {
-            view.pinColor = [pin getPinColor];
+            view.pinColor = pin.pinColor;
         }
         
         return view;
@@ -139,7 +171,7 @@
     }
     
     return nil;
-
+    
 }
 
 

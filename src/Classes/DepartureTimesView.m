@@ -11,7 +11,7 @@
 
 
 #import "DepartureTimesView.h"
-#import "DepartureUI.h"
+#import "DepartureData+iOSUI.h"
 #import "XMLDepartures.h"
 #import "DepartureDetailView.h"
 #import "EditBookMarkView.h"
@@ -23,20 +23,22 @@
 #import "DepartureTimesByBus.h"
 #import "DepartureSortTableView.h"
 #import "UserFaves.h"
-#import "XMLLocateStopsUI.h"
+#import "XMLLocateStops+iOSUI.h"
 #import "AlarmTaskList.h"
 #import "TripPlannerSummaryView.h"
 #import "ProcessQRCodeString.h"
 #import "DebugLogging.h"
 #import "XMLStops.h"
 #import "FindByLocationView.h"
-#import "XMLDeparturesUI.h"
+#import "XMLDepartures+iOSUI.h"
 #import "AlarmAccurateStopProximity.h"
 #import "FormatDistance.h"
 #import "XMLRoutes.h"
 #import "XMLStops.h"
 #import "StringHelper.h"
 #import "LocationAuthorization.h"
+#import "AllRailStationView.h"
+#import "RailStationTableView.h"
 
 
 #define kSectionDistance	0
@@ -50,10 +52,12 @@
 #define kSectionMapOne      8
 #define kSectionOpposite    9
 #define kSectionNoDeeper    10
-#define kSectionInfo        11
-#define kSectionAccuracy	12
-#define kSectionXML         13
-#define kSectionStatic		14
+#define kSectionStation		11
+#define kSectionInfo        12
+#define kSectionAccuracy	13
+#define kSectionXML         14
+#define kSectionStatic		15
+#define kSectionsPerStop	16
 
 
 
@@ -106,6 +110,8 @@ static int depthCount = 0;
 @synthesize savedBlock			= _savedBlock;
 @synthesize allowSort           = _allowSort;
 @synthesize userActivity        = _userActivity;
+@synthesize sectionRows         = _sectionRows;
+@synthesize sectionExpanded     = _sectionExpanded;
 
 
 #define kNonDepartureHeight 35.0
@@ -134,7 +140,7 @@ static int depthCount = 0;
         [self.userActivity invalidate];
         self.userActivity = nil;
     }
-	free(_sectionExpanded);
+    self.sectionExpanded        = nil;
     
 	
 	[self clearSections];
@@ -142,13 +148,11 @@ static int depthCount = 0;
 }
 
 
-- (id)init {
+- (instancetype)init {
 	if ((self = [super init]))
 	{
-		_sectionRows = NULL;
-		_sectionExpanded = nil;
-		self.title = @"Arrivals";
-		self.originalDataArray = [[[NSMutableArray alloc] init] autorelease];
+        self.title = NSLocalizedString(@"Arrivals", @"page title");
+        self.originalDataArray = [NSMutableArray array];
 		[self sortByStop];
 		self.locationsDb = [StopLocations getDatabase];
 		depthCount++;
@@ -158,36 +162,27 @@ static int depthCount = 0;
 
 - (CGFloat) heightOffset
 {
-    // if (self.iOS7style && (LargeScreenStyle(self.screenInfo.screenWidth) || (self.screenInfo.screenWidth >= WidthiPhone6)))
-    if (self.iOS7style)
-    {
-        return -[UIApplication sharedApplication].statusBarFrame.size.height;
-    }
-	return 0.0;
+    return -[UIApplication sharedApplication].statusBarFrame.size.height;
 }
 
 #pragma mark Data sorting and manipulation
 
-- (id<DepartureTimesDataProvider>)departureData:(NSInteger)i
-{
-	return [self.visibleDataArray objectAtIndex:i];
-}
 
 - (bool)validStop:(unsigned long) i
 {
-	id<DepartureTimesDataProvider> dd = [self departureData:i];
-	return ([dd DTDataGetSectionHeader]!=nil 
-			&&	([dd DTDataGetSafeItemCount] == 0 
-				 ||  ([dd DTDataGetSafeItemCount] > 0 && [[dd DTDataGetDeparture:0] errorMessage]==nil)));
+	id<DepartureTimesDataProvider> dd = self.visibleDataArray[i];
+	return (dd.DTDataGetSectionHeader!=nil
+			&&	(dd.DTDataGetSafeItemCount == 0
+				 ||  (dd.DTDataGetSafeItemCount > 0 && [dd DTDataGetDeparture:0].errorMessage==nil)));
 }
 
 - (void)sortByStop
 {
-    NSMutableArray *uiArray = [[[NSMutableArray alloc] init] autorelease];
+    NSMutableArray *uiArray = [NSMutableArray array];
     
     for (XMLDepartures *dd in self.originalDataArray)
     {
-        [uiArray addObject:[XMLDeparturesUI createFromData:dd]];
+        [uiArray addObject:dd];
     }
     
     self.visibleDataArray = uiArray;
@@ -195,7 +190,7 @@ static int depthCount = 0;
 
 - (void)sortByBus
 {
-	if ([self.originalDataArray count] == 0)
+	if (self.originalDataArray.count == 0)
 	{
 		return;
 	}
@@ -206,7 +201,7 @@ static int depthCount = 0;
 		return;
 	}
 	
-	self.visibleDataArray = [[[NSMutableArray alloc] init] autorelease];
+    self.visibleDataArray = [NSMutableArray array];
 	
 	int stop;
 	int bus;
@@ -217,23 +212,23 @@ static int depthCount = 0;
 	DepartureData *firstItemForBus;
 	DepartureData *existingItem;
 	DepartureTimesByBus *busRoute;
-	XMLDepartures *dd;
+	XMLDepartures *dep;
 	
-	for (stop = 0; stop < [self.originalDataArray count]; stop++)
+	for (stop = 0; stop < self.originalDataArray.count; stop++)
 	{
-		dd = [self.originalDataArray objectAtIndex:stop];
-		for (bus = 0; bus < [dd safeItemCount]; bus++)
+		dep = self.originalDataArray[stop];
+		for (bus = 0; bus < dep.count; bus++)
 		{
-			itemToInsert = [dd itemAtIndex:bus];
+			itemToInsert = dep[bus];
 			found = NO;
-			for (search = 0; search < [self.visibleDataArray count]; search ++)
+			for (search = 0; search < self.visibleDataArray.count; search ++)
 			{
-				busRoute = [self.visibleDataArray objectAtIndex:search];
+				busRoute = self.visibleDataArray[search];
 				firstItemForBus = [busRoute DTDataGetDeparture:0];
 				
 				if (itemToInsert.block !=nil && [firstItemForBus.block isEqualToString:itemToInsert.block])
 				{
-					for (insert = 0; insert < [busRoute.departureItems count]; insert++)
+					for (insert = 0; insert < busRoute.departureItems.count; insert++)
 					{
 						existingItem = [busRoute DTDataGetDeparture:insert];
 						
@@ -256,7 +251,7 @@ static int depthCount = 0;
 			
 			if (!found)
 			{
-				DepartureTimesByBus * newBus = [[DepartureTimesByBus alloc] init];
+				DepartureTimesByBus * newBus = [DepartureTimesByBus alloc].init;
 				[newBus.departureItems addObject:itemToInsert];
 				[self.visibleDataArray addObject:newBus];
 				[newBus release];
@@ -316,15 +311,14 @@ static int depthCount = 0;
             self.navigationItem.prompt = nil;
         }
         
-        XMLDeparturesUI *item0 = [XMLDeparturesUI createFromData:[self.originalDataArray objectAtIndex:0]];
+        XMLDepartures *item0 = self.originalDataArray.firstObject;
         
         if (item0 && [item0 DTDataQueryTime] > 0)
         {
-            NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
-            [dateFormatter setDateStyle:kCFDateFormatterNoStyle];
-            [dateFormatter setTimeStyle:NSDateFormatterMediumStyle];
-            NSDate *queryTime = TriMetToNSDate([item0 DTDataQueryTime]);
-            self.secondLine = [NSString stringWithFormat:NSLocalizedString(@"Last updated: %@", @"pull to refresh text"), [dateFormatter stringFromDate:queryTime]];
+            self.secondLine = [NSString stringWithFormat:NSLocalizedString(@"Last updated: %@", @"pull to refresh text"),
+                               [NSDateFormatter localizedStringFromDate:TriMetToNSDate([item0 DTDataQueryTime])
+                                                              dateStyle:NSDateFormatterNoStyle
+                                                              timeStyle:NSDateFormatterMediumStyle]];
         }
         else
         {
@@ -345,69 +339,65 @@ static int depthCount = 0;
 
 - (void)clearSections
 {
-	free(_sectionRows);
-	_sectionRows= NULL;
+    self.sectionRows = nil;
 }
 
 -(SECTIONROWS *)calcSubsections:(NSInteger)section
 {
-	if (_sectionRows == NULL)
+	if (self.sectionRows == NULL)
 	{
-		_sectionRows = malloc(sizeof(SECTIONROWS) * [self.visibleDataArray count]);
+        self.sectionRows = [NSMutableArray array];
 		
-		for (NSInteger i=0; i< [self.visibleDataArray count]; i++)
+		for (NSInteger i=0; i< self.visibleDataArray.count; i++)
 		{
-			_sectionRows[i].row[0] = kSectionRowInit;
+            self.sectionRows[i] = [NSMutableArray array];
+			self.sectionRows[i][0] = @(kSectionRowInit);
 		}
 	}
 	
-	if (_sectionExpanded == nil)
+	if (self.sectionExpanded == nil)
 	{
-		_sectionExpanded = malloc(sizeof(bool) * self.originalDataArray.count);
+        self.sectionExpanded = [NSMutableArray array];
 		
 		if (self.originalDataArray.count == 1)
 		{
-			_sectionExpanded[0] = YES;
+			self.sectionExpanded[0] = @YES;
 		}
 		else 
 		{
 			for (int i=0; i< self.originalDataArray.count; i++)
 			{
-				_sectionExpanded[i] = NO;
+				self.sectionExpanded[i] = @NO;
 			}
 		}	
 	}
 	
-	SECTIONROWS *sr = _sectionRows + section;
-#ifndef __clang_analyzer__
-    // The analyiser can't tell that this is a static variable that is initialized once.
+    SECTIONROWS *sr = self.sectionRows[section];
     
-	if (sr->row[0] == kSectionRowInit)
+	if (sr[0].integerValue == kSectionRowInit)
 	{
-		bool expanded = !_blockSort && _sectionExpanded[section];
-		id<DepartureTimesDataProvider> dd = [self departureData:section];
+		bool expanded = !_blockSort && self.sectionExpanded[section].boolValue;
+		id<DepartureTimesDataProvider> dd = self.visibleDataArray[section];
 		
 		int next = 0;
 		
 		// kSectionDistance
-		if ([dd DTDataDistance] != nil)
+		if (dd.DTDataDistance != nil)
 		{
-			next ++;
-			
+			next++;
 		}
-		sr->row[kSectionDistance] = next;
+		sr[kSectionDistance] = @(next);
 		
 		// kSectionTitle
-		if ([dd DTDataGetSectionTitle] != nil)
+		if (dd.DTDataGetSectionTitle != nil)
 		{
-			next ++;
-			
+			next++;
 		}
-		sr->row[kSectionTitle] = next;
+		sr[kSectionTitle] = @(next);
 		
 		
 		// kSectionTimes
-		NSInteger itemCount = [dd DTDataGetSafeItemCount];
+		NSInteger itemCount = dd.DTDataGetSafeItemCount;
 		
 		if (itemCount==0)
 		{
@@ -415,100 +405,103 @@ static int depthCount = 0;
 		}
 		
 		next += itemCount;
-		sr->row[kSectionTimes] = next;
+		sr[kSectionTimes] = @(next);
 		
 		// kSectionTrip
-		if ([dd DTDataLoc]!=nil && expanded)
+		if (dd.DTDataLoc!=nil && expanded)
 		{
 			next += kTripRows;
 		}
-		sr->row[kSectionTrip] = next;
+		sr[kSectionTrip] = @(next);
 		
 		// kSectionFilter
 		if (_blockFilter && expanded)
 		{
-			next ++;
+			next++;
 		}
-		sr->row[kSectionFilter] = next;
+		sr[kSectionFilter] = @(next);
 		
 		// kSectionProximity
-		if ([dd DTDataLoc]!=nil && expanded && [AlarmTaskList proximitySupported])
+		if (dd.DTDataLoc!=nil && expanded && [AlarmTaskList proximitySupported])
 		{
-			next ++;
+			next++;
 		}
-		sr->row[kSectionProximity] = next;
+		sr[kSectionProximity] = @(next);
 		
 		// kSectionNearby
-		if ([dd DTDataLoc]!=nil && depthCount < kMaxDepth && expanded)
+		if (dd.DTDataLoc!=nil && depthCount < kMaxDepth && expanded)
 		{
-			next ++;
+			next++;
 		}
-		sr->row[kSectionNearby] = next;
+		sr[kSectionNearby] = @(next);
 		
 		// kSectionOneStop
-		if ([dd DTDataLoc]!=nil && depthCount < kMaxDepth && expanded && self.visibleDataArray.count>1)
+		if (dd.DTDataLoc!=nil && depthCount < kMaxDepth && expanded && self.visibleDataArray.count>1)
 		{
-			next ++;
+			next++;
 		}
-		sr->row[kSectionOneStop] = next;
+		sr[kSectionOneStop] = @(next);
         
         // kSectionOneStop
-		if ([dd DTDataLoc]!=nil && expanded)
+		if (dd.DTDataLoc!=nil && expanded)
 		{
-			next ++;
+			next++;
 		}
-		sr->row[kSectionMapOne] = next;
+		sr[kSectionMapOne] = @(next);
         
         // kSectionOneOpposite
-        if ([dd DTDataLoc]!=nil && expanded && [DepartureTimesView canGoDeeper])
+        if (dd.DTDataLoc!=nil && expanded && [DepartureTimesView canGoDeeper])
         {
-            next ++;
+            next++;
         }
-        sr->row[kSectionOpposite] = next;
+        sr[kSectionOpposite] = @(next);
         
         // kSectionOneOpposite
         if (expanded && ![DepartureTimesView canGoDeeper])
         {
-            next ++;
+            next++;
         }
-        sr->row[kSectionNoDeeper] = next;
+        sr[kSectionNoDeeper] = @(next);
 		
+        
+        // kSectionStation
+        if (expanded && dd.DTDataLocID!=nil && [AllRailStationView railstationFromStopId:dd.DTDataLocID]!=nil && [DepartureTimesView canGoDeeper])
+        {
+            next++;
+        }
+        sr[kSectionStation] = @(next);
 		
         // kSectionInfo
 		if (expanded)
 		{
-			next ++;
+			next++;
 		}
-		sr->row[kSectionInfo] = next;
+		sr[kSectionInfo] = @(next);
         
         
         
 		// kSectionAccuracy
-		if (expanded && [UserPrefs getSingleton].showTransitTracker)
+		if (expanded && [UserPrefs singleton].showTransitTracker)
 		{
-			next ++;
+			next++;
 		}
-        sr->row[kSectionAccuracy] = next;
+        sr[kSectionAccuracy] = @(next);
 
         
         // kSectionXML
-		if (expanded && [UserPrefs getSingleton].debugXML)
+		if (expanded && [UserPrefs singleton].debugXML)
 		{
-			next ++;
+			next++;
 		}
-		sr->row[kSectionXML] = next;
+		sr[kSectionXML] = @(next);
 		    
 		// kSectionStatic
 		next++;
-		sr->row[kSectionStatic] = next;
+		sr[kSectionStatic] = @(next);
 		
 		// final placeholder
-		sr->row[kSectionsPerStop] = next;
-		
-		
+		sr[kSectionsPerStop] = @(next);
 	}
-    
-#endif
 	return sr;
 }
 
@@ -516,13 +509,12 @@ static int depthCount = 0;
 {
 	NSIndexPath *newIndexPath = nil;
 
-#ifndef __clang_analyzer__
 	int prevrow = 0;
-	SECTIONROWS *sr = [self calcSubsections: (int)indexPath.section];
+	SECTIONROWS *sr = [self calcSubsections: indexPath.section];
 	
 	for (int i=0; i < kSectionsPerStop; i++)
 	{
-		if (indexPath.row < sr->row[i])
+		if (indexPath.row < sr[i].integerValue)
 		{
 			newIndexPath = 
 				[NSIndexPath 
@@ -530,25 +522,24 @@ static int depthCount = 0;
 					inSection:i];
 			break;
 		}
-		prevrow = sr->row[i];
+		prevrow = sr[i].intValue;
 	}
 //	printf("Old %d %d new %d %d\n",(int)indexPath.section,(int)indexPath.row, (int)newIndexPath.section, (int)newIndexPath.row);
-#endif
+
 	return newIndexPath;
 }
 
 #pragma mark Data fetchers
 
-- (void)fetchTimesForBlockVargs:(NSArray *)args;
+- (void)workerToFetchTimesForBlockVargs:(NSArray *)args;
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
-	
 	NSThread *thread = [NSThread currentThread];
 		
-	NSString *block = [args objectAtIndex:0];
-	NSString *start = [args objectAtIndex:1];
-	NSString *stop =  [args objectAtIndex:2];
+	NSString *block = args[0];
+	NSString *start = args[1];
+	NSString *stop =  args[2];
 	
 	[self.backgroundTask.callbackWhenFetching backgroundStart:2 title:kGettingArrivals];
 	
@@ -557,26 +548,24 @@ static int depthCount = 0;
 	self.streetcarLocations = nil;
 	
 	[UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
-	XMLDepartures *deps = [[ XMLDepartures alloc ] init];
+    XMLDepartures *deps = [XMLDepartures xml];
 	
 	[self.originalDataArray addObject:deps];
-	[deps setBlockFilter:block];
+	deps.blockFilter = block;
 	[self.backgroundTask.callbackWhenFetching backgroundSubtext:[NSString stringWithFormat:NSLocalizedString(@"Stop ID %@", @"TriMet Stop identifer <number>"), start]];
 	[deps getDeparturesForLocation:start];
 	deps.sectionTitle = NSLocalizedString(@"Departure", @"");
-	[deps release];
 	[self.backgroundTask.callbackWhenFetching backgroundItemsDone:1];
 	
-	if(![thread isCancelled])
+	if(!thread.cancelled)
 	{
-		deps = [[ XMLDepartures alloc ] init];
+        deps = [XMLDepartures xml];
 	
 		[self.originalDataArray addObject:deps];
-		[deps setBlockFilter:block];
+		deps.blockFilter = block;
 		[self.backgroundTask.callbackWhenFetching backgroundSubtext:[NSString stringWithFormat:NSLocalizedString(@"Stop ID %@", @"TriMet Stop identifer <number>"), stop]];
 		[deps getDeparturesForLocation:stop];
 		deps.sectionTitle = NSLocalizedString(@"Arrival", @"");
-		[deps release];
 		[self.backgroundTask.callbackWhenFetching backgroundItemsDone:2];
 	}
 	
@@ -591,7 +580,7 @@ static int depthCount = 0;
 	[pool release];
 }
 
-- (void)fetchTimesForLocations:(NSArray*) stops
+- (void)workerToFetchTimesForLocations:(NSArray*) stops
 {
 	
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
@@ -602,17 +591,17 @@ static int depthCount = 0;
 	[XMLDepartures clearCache];
 	self.streetcarLocations = nil;
 	
-	[self.backgroundTask.callbackWhenFetching backgroundStart:(int)[stops count] title:kGettingArrivals];
+	[self.backgroundTask.callbackWhenFetching backgroundStart:(int)stops.count title:kGettingArrivals];
 	
 	
-	NSMutableString * stopsstr = [[[NSMutableString alloc] init] autorelease];
+	NSMutableString * stopsstr = [NSMutableString string];
 	self.stops = stopsstr;
 	int i;
 	[UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
-	for (i=0; i< [stops count] && ![thread isCancelled]; i++)
+	for (i=0; i< stops.count && !thread.cancelled; i++)
 	{
-		XMLDepartures *deps = [[ XMLDepartures alloc ] init];
-		StopDistanceData *sd = [stops objectAtIndex:i];
+        XMLDepartures *deps = [XMLDepartures xml];
+		StopDistanceData *sd = stops[i];
 		
 		[self.originalDataArray addObject:deps];
 		[self.backgroundTask.callbackWhenFetching backgroundSubtext:[NSString stringWithFormat:NSLocalizedString(@"Stop ID %@", @"TriMet Stop identifer <number>"), sd.locid]];
@@ -626,13 +615,11 @@ static int depthCount = 0;
 			[stopsstr appendFormat:@",%@",sd.locid];
 		}
 		deps.distance = sd;
-		[deps release];
-		
 		
 		[self.backgroundTask.callbackWhenFetching backgroundItemsDone:i+1];
 	}
 	
-	if ([self.originalDataArray count] > 0)
+	if (self.originalDataArray.count > 0)
 	{	
 		[UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
 		
@@ -645,9 +632,8 @@ static int depthCount = 0;
 	[pool release];
 }
 
-- (void)fetchTimesViaQrCodeRedirect:(NSString *)url
+- (void)workerToFetchTimesViaQrCodeRedirect:(NSString *)url
 {
-	
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     
     [[url retain] autorelease];
@@ -675,12 +661,11 @@ static int depthCount = 0;
     
     if (!thread.isCancelled && stopId)
     {
-        XMLDepartures *deps = [[ XMLDepartures alloc ] init];
+        XMLDepartures *deps = [XMLDepartures xml];
 		
         [self.originalDataArray addObject:deps];
         [self.backgroundTask.callbackWhenFetching backgroundSubtext:[NSString stringWithFormat:NSLocalizedString(@"Stop ID %@", @"TriMet Stop identifer <number>"), stopId]];
         [deps getDeparturesForLocation:stopId];
-        [deps release];
         [self.backgroundTask.callbackWhenFetching backgroundItemsDone:2];
 	}
     else if (url.length >= streetcar.length && [[url substringToIndex:streetcar.length] isEqualToString:streetcar])
@@ -706,7 +691,7 @@ static int depthCount = 0;
 
 
 
-- (void)fetchTimesForNearestStops:(XMLLocateStopsUI*) locator
+- (void)workerToFetchTimesForNearestStops:(XMLLocateStops*)locator
 {
 	
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
@@ -716,8 +701,6 @@ static int depthCount = 0;
 	[self clearSections];
 	[XMLDepartures clearCache];
 	self.streetcarLocations = nil;
-	
-	
 	
 	[self.backgroundTask.callbackWhenFetching backgroundStart:locator.maxToFind+1 title:kGettingArrivals];
 	
@@ -734,14 +717,14 @@ static int depthCount = 0;
     
     if (![locator displayErrorIfNoneFound:self.backgroundTask.callbackWhenFetching])
 	{
-		NSMutableString * stopsstr = [[[NSMutableString alloc] init] autorelease];
+		NSMutableString * stopsstr = [NSMutableString string];
 		self.stops = stopsstr;
 		int i;
 		[UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
-		for (i=0; i< [locator safeItemCount] && i<locator.maxToFind && ![thread isCancelled]; i++)
+		for (i=0; i< locator.count && i<locator.maxToFind && !thread.cancelled; i++)
 		{
-			XMLDepartures *deps = [[ XMLDepartures alloc ] init];
-			StopDistanceData *sd = [locator itemAtIndex:i];
+            XMLDepartures *deps = [XMLDepartures xml];
+			StopDistanceData *sd = locator[i];
 			
 			[self.originalDataArray addObject:deps];
 			
@@ -756,13 +739,11 @@ static int depthCount = 0;
 				[stopsstr appendFormat:@",%@",sd.locid];
 			}
 			deps.distance = sd;
-			[deps release];
-			
-			
+
 			[self.backgroundTask.callbackWhenFetching backgroundItemsDone:i+2];
 		}
 		
-		if ([self.originalDataArray count] > 0)
+		if (self.originalDataArray.count > 0)
 		{	
 			[UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
 			
@@ -786,13 +767,15 @@ static int depthCount = 0;
     bool found = false;
     bool done = false;
     
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    
     while (items < MAX_STOPS && pos < self.vehicleStops.count && !done)
     {
-        Stop * stop = [self.vehicleStops objectAtIndex:pos];
+        Stop * stop = self.vehicleStops[pos];
         XMLDepartures *deps = [[ XMLDepartures alloc ] init];
         
         
-        [deps setBlockFilter:block];
+        deps.blockFilter = block;
         deps.firstOnly = YES;
         
         [self.backgroundTask.callbackWhenFetching backgroundSubtext:stop.desc];
@@ -801,7 +784,7 @@ static int depthCount = 0;
         
         [deps getDeparturesForLocation:stop.locid];
         
-        if (deps.gotData && deps.safeItemCount > 0)
+        if (deps.gotData && deps.count > 0)
         {
             [self.originalDataArray addObject:deps];
             pos++;
@@ -821,27 +804,29 @@ static int depthCount = 0;
     
         [deps release];
     }
+    
+    [pool release];
 }
 
 
 
-- (void)fetchTimesForVehicle:(NSDictionary *)args
+- (void)workerToFetchTimesForVehicle:(NSDictionary *)args
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
 	NSThread *thread = [NSThread currentThread];
 	
-	NSString* loc		= [args objectForKey:kDictLocation];
-	NSString* block		= [args objectForKey:kDictBlock];
-	NSString* route     = [args objectForKey:kDictRoute];
-	NSString* dir       = [args objectForKey:kDictDir];
+	NSString* loc		= args[kDictLocation];
+	NSString* block		= args[kDictBlock];
+	NSString* route     = args[kDictRoute];
+	NSString* dir       = args[kDictDir];
 	
 	[self clearSections];
 	[XMLDepartures clearCache];
 	self.streetcarLocations = nil;
     
     // Get Route info
-    XMLStops * stops = [[[XMLStops alloc] init] autorelease];
+    XMLStops * stops = [XMLStops xml];
     
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     
@@ -850,7 +835,7 @@ static int depthCount = 0;
     [stops getStopsAfterLocation:loc route:route direction:dir description:@"" cacheAction:TriMetXMLForceFetchAndUpdateCache];
     [self.backgroundTask.callbackWhenFetching backgroundItemsDone:1];
     
-    if ([stops gotData])
+    if (stops.gotData)
     {
         
          self.vehicleStops = stops.itemArray;
@@ -877,11 +862,11 @@ static int depthCount = 0;
     
 	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
 	
-	if (![thread isCancelled])
+	if (!thread.cancelled)
 	{
 		[_userData setLastArrivals:loc];
 		
-		NSMutableArray *names = [[[NSMutableArray alloc] init] autorelease];
+        NSMutableArray *names = [NSMutableArray array];
 		
 		for (XMLDepartures *dep in self.originalDataArray)
 		{
@@ -908,9 +893,8 @@ static int depthCount = 0;
 
 
 
-- (void)fetchTimesForNearestStopsWithArray:(NSArray*) stops
+- (void)workerToFetchTimesForNearestStopsWithArray:(NSArray*)stops
 {
-	
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
 	NSThread *thread = [NSThread currentThread];
@@ -919,17 +903,17 @@ static int depthCount = 0;
 	[XMLDepartures clearCache];
 	self.streetcarLocations = nil;
 	
-	[self.backgroundTask.callbackWhenFetching backgroundStart:(int)[stops count] title:kGettingArrivals];
+	[self.backgroundTask.callbackWhenFetching backgroundStart:(int)stops.count title:kGettingArrivals];
 	
-	NSMutableString * stopsstr = [[[NSMutableString alloc] init] autorelease];
+	NSMutableString * stopsstr = [NSMutableString string];
 	self.stops = stopsstr;
 	int i;
 	[UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
 
-	for (i=0; i< [stops count] && ![thread isCancelled]; i++)
+	for (i=0; i< stops.count && !thread.cancelled; i++)
 	{
-		XMLDepartures *deps = [[ XMLDepartures alloc ] init];
-		StopDistanceData *sd = [stops objectAtIndex:i];
+        XMLDepartures *deps = [XMLDepartures xml];
+		StopDistanceData *sd = stops[i];
 			
 		[self.originalDataArray addObject:deps];
 			
@@ -944,13 +928,11 @@ static int depthCount = 0;
 			[stopsstr appendFormat:@",%@",sd.locid];
 		}
 		deps.distance = sd;
-		[deps release];
-			
-			
+	
 		[self.backgroundTask.callbackWhenFetching backgroundItemsDone:i+2];
 	}
 		
-	if ([self.originalDataArray count] > 0)
+	if (self.originalDataArray.count > 0)
 	{	
 		[UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
 		
@@ -967,8 +949,8 @@ static int depthCount = 0;
 
 - (StopDistanceData *)fetchOtherDirectionForDeparture:(DepartureData*)dep items:(int*)items total:(int*)total
 {
-    XMLRoutes *routes = [[[XMLRoutes alloc] init] autorelease];
-    
+    // Note - to autorelease pool as this is not a thread method
+    XMLRoutes *routes = [XMLRoutes xml];
     
     static NSDictionary *oppositePairs = nil;
     
@@ -977,12 +959,10 @@ static int depthCount = 0;
     // e.g. streetcar
     if (oppositePairs == nil)
     {
-        oppositePairs = [[NSDictionary alloc] initWithObjectsAndKeys:
-                        @"194", @"195",
-                        @"195", @"194", nil];
+        oppositePairs = @{ @"194": @"195", @"195": @"194"}.retain;
     }
     
-    NSString *oppositeRoute = [oppositePairs objectForKey:dep.route];
+    NSString *oppositeRoute = oppositePairs[dep.route];
     
     NSString *oppositeDirection = nil;
     
@@ -1008,7 +988,7 @@ static int depthCount = 0;
         }
     
         // Find the first direction that isn't us
-        if (routes.safeItemCount > 0)
+        if (routes.count > 0)
         {
             Route *route = routes.itemArray.firstObject;
         
@@ -1029,22 +1009,20 @@ static int depthCount = 0;
         // some lines are interlined so finding one route is as good as another
         if (interlined == nil)
         {
-            interlined = [[NSDictionary alloc] initWithObjectsAndKeys:
-             @"190", @"290",
-             @"290", @"190", nil];
+            interlined = @{ @"190": @"290", @"290": @"190"}.retain;
         }
         
         NSArray *routes = nil;
         
-        NSString *otherLine = [interlined objectForKey:oppositeRoute];
+        NSString *otherLine = interlined[oppositeRoute];
         
         if (otherLine)
         {
-            routes = [NSArray arrayWithObjects:oppositeRoute, otherLine, nil];
+            routes = @[oppositeRoute, otherLine];
         }
         else
         {
-            routes = [NSArray arrayWithObject:oppositeRoute];
+            routes = @[oppositeRoute];
         }
         
         CLLocationDistance closest = DBL_MAX;
@@ -1060,12 +1038,11 @@ static int depthCount = 0;
             [stops getStopsForRoute:foundRoute direction:oppositeDirection description:nil cacheAction:TrIMetXMLCacheReadOrFetch];
             fetched = fetched || (!stops.itemFromCache);
             
-            if (stops.safeItemCount >0)
+            if (stops.count >0)
             {
-                
                 for (Stop *stop in stops.itemArray)
                 {
-                    CLLocation *there = [[CLLocation alloc] initWithLatitude:[stop.lat doubleValue] longitude:[stop.lng doubleValue]];
+                    CLLocation *there = [[CLLocation alloc] initWithLatitude:stop.lat.doubleValue longitude:stop.lng.doubleValue];
                     CLLocationDistance dist = [dep.stopLocation distanceFromLocation:there];
                     
                     if (dist < closest)
@@ -1094,36 +1071,35 @@ static int depthCount = 0;
         
         if (closestStop)
         {
-            StopDistanceData *distance = [[[StopDistanceData alloc] init] autorelease];
+            StopDistanceData *distance = [StopDistanceData data];
             
             distance.locid      = closestStop.locid;
             distance.desc       = closestStop.desc;
             distance.dir        = oppositeDirection;
             distance.distance   = closest;
             distance.accuracy   = 0;
-            distance.location   = [[[CLLocation alloc] initWithLatitude:[closestStop.lat doubleValue] longitude:[closestStop.lng doubleValue]] autorelease];
+            distance.location   = [[[CLLocation alloc] initWithLatitude:closestStop.lat.doubleValue longitude:closestStop.lng.doubleValue] autorelease];
 
 
             [closestStop release];
             return distance;
         }
     }
-    
     return nil;
 }
 
-- (void)fetchTimesForLocation:(NSDictionary *)args
+- (void)workerToFetchTimesForLocation:(NSDictionary *)args
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
 	NSThread *thread = [NSThread currentThread];
 
-	NSString* loc		= [args objectForKey:kDictLocation];
-	NSString* block		= [args objectForKey:kDictBlock];
-	NSArray*  names		= [args objectForKey:kDictNames];
-	NSString* bookmark  = [args objectForKey:kDictBookmark];
-    DepartureData* findOpposite  = [args objectForKey:kDictOppositeDep];
-    XMLDepartures* findOppositeAll = [args objectForKey:kDictOppositeAll];
+	NSString* loc                   = args[kDictLocation];
+	NSString* block                 = args[kDictBlock];
+	NSArray*  names                 = args[kDictNames];
+	NSString* bookmark              = args[kDictBookmark];
+    DepartureData* findOpposite     = args[kDictOppositeDep];
+    XMLDepartures* findOppositeAll  = args[kDictOppositeAll];
     
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     
@@ -1144,7 +1120,7 @@ static int depthCount = 0;
         
         if (stop)
         {
-            oppositeStops = [NSMutableArray arrayWithObject:stop];
+            oppositeStops = [@[stop].mutableCopy autorelease];
             loc = stop.locid;
         }
         
@@ -1152,11 +1128,11 @@ static int depthCount = 0;
     }
     else if (findOppositeAll)
     {
-        NSMutableArray *uniqueRoutes = [[[NSMutableArray alloc] init] autorelease];
+        NSMutableArray *uniqueRoutes = [NSMutableArray array];
         
-        for (int i=0; i<findOppositeAll.safeItemCount; i++)
+        for (int i=0; i<findOppositeAll.count; i++)
         {
-            DepartureData *dep = [findOppositeAll itemAtIndex:i];
+            DepartureData *dep = findOppositeAll[i];
             
             DepartureData * found = 0;
             
@@ -1178,7 +1154,7 @@ static int depthCount = 0;
         total = (int)uniqueRoutes.count * 2 + 1;
         [self.backgroundTask.callbackWhenFetching backgroundStart:total title:(bookmark!=nil?bookmark:kGettingArrivals)];
         
-        oppositeStops = [[[NSMutableArray alloc] init] autorelease];
+        oppositeStops = [NSMutableArray array];
         
         for (DepartureData *d in uniqueRoutes)
         {
@@ -1188,7 +1164,7 @@ static int depthCount = 0;
             {
                 for (int i=0; i<oppositeStops.count; i++)
                 {
-                    StopDistanceData* stop = [oppositeStops objectAtIndex:i];
+                    StopDistanceData* stop = oppositeStops[i];
                 
                     if ([stop.locid isEqualToString:foundStop.locid])
                     {
@@ -1216,7 +1192,7 @@ static int depthCount = 0;
         
         if (!thread.cancelled)
         {
-            loc = [StringHelper commaSeparatedStringFromEnumerator:oppositeStops selector:@selector(locid)];
+            loc = [NSString commaSeparatedStringFromEnumerator:oppositeStops selector:@selector(locid)];
         }
         total--;
     }
@@ -1230,19 +1206,19 @@ static int depthCount = 0;
 	
 	if (loc != nil)
     {
-        NSArray *locList = [StringHelper arrayFromCommaSeparatedString:loc];
+        NSArray *locList = loc.arrayFromCommaSeparatedString;
         
         total = (int)locList.count;
     
         [self.backgroundTask.callbackWhenFetching backgroundItems:total];
 	
         int stopCount = 0;
-        for (int i=0; i<locList.count && ![thread isCancelled]; i++)
+        for (int i=0; i<locList.count && !thread.cancelled; i++)
         {
-            XMLDepartures *deps = [[ XMLDepartures alloc ] init];
+            XMLDepartures *deps = [XMLDepartures xml];
             [self.originalDataArray addObject:deps];
-            [deps setBlockFilter:block];
-            NSString *aLoc = [locList objectAtIndex:i];
+            deps.blockFilter = block;
+            NSString *aLoc = locList[i];
             
 		
             if (names == nil || stopCount > names.count)
@@ -1251,18 +1227,16 @@ static int depthCount = 0;
             }
             else
             {
-                [self.backgroundTask.callbackWhenFetching backgroundSubtext:[names objectAtIndex:stopCount]];
+                [self.backgroundTask.callbackWhenFetching backgroundSubtext:names[stopCount]];
             }
 
             [deps getDeparturesForLocation:aLoc];
             
             if (oppositeStops && stopCount < oppositeStops.count)
             {
-                deps.distance = [oppositeStops objectAtIndex:stopCount];
+                deps.distance = oppositeStops[stopCount];
             }
             
-            [deps release];
-		
             stopCount++;
             items ++;
             [self.backgroundTask.callbackWhenFetching backgroundItemsDone:items];
@@ -1270,7 +1244,7 @@ static int depthCount = 0;
         }
         [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
 	
-        if ([self.originalDataArray count] > 0)
+        if (self.originalDataArray.count > 0)
         {
             if (block!=nil)
             {
@@ -1287,11 +1261,11 @@ static int depthCount = 0;
         }
 	
         
-        if (![thread isCancelled])
+        if (!thread.cancelled)
         {
             [_userData setLastArrivals:loc];
 		
-            NSMutableArray *names = [[[NSMutableArray alloc] init] autorelease];
+            NSMutableArray *names = [NSMutableArray array];
 		
             for (XMLDepartures *dep in self.originalDataArray)
             {
@@ -1326,7 +1300,7 @@ static int depthCount = 0;
 }
 
 
-- (void)fetchVehiclesAgain:(id)arg
+- (void)workerToFetchVehiclesAgain:(id)unused
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 		
@@ -1337,7 +1311,7 @@ static int depthCount = 0;
 	[UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     
     
-    XMLDepartures *dd = [self.originalDataArray objectAtIndex:0];
+    XMLDepartures *dd = self.originalDataArray.firstObject;
     NSString *block = dd.blockFilter;
 	
     [self.originalDataArray removeAllObjects];
@@ -1360,21 +1334,21 @@ static int depthCount = 0;
 	[pool release];
 }
 
-- (void)fetchAgain:(id)arg
+- (void)workerToFetchAgain:(id)unused
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	int i=0;
 	
 	NSThread *thread = [NSThread currentThread];
 		
-	[self.backgroundTask.callbackWhenFetching backgroundStart:(int)[self.originalDataArray count] title:kGettingArrivals];
+	[self.backgroundTask.callbackWhenFetching backgroundStart:(int)self.originalDataArray.count title:kGettingArrivals];
 
 	[self clearSections];
 
 	[UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
-	for (i=0; i< [self.originalDataArray count] && ![thread isCancelled]; i++)
+	for (i=0; i< self.originalDataArray.count && !thread.cancelled; i++)
 	{
-		XMLDepartures *dd = [self.originalDataArray objectAtIndex:i];
+		XMLDepartures *dd = self.originalDataArray[i];
 		if (dd.locDesc !=nil)
 		{
 			[self.backgroundTask.callbackWhenFetching backgroundSubtext:dd.locDesc];
@@ -1392,162 +1366,146 @@ static int depthCount = 0;
 	[pool release];
 }
 
-- (void)fetchAgainInBackground:(id<BackgroundTaskProgress>)background 
+- (void)fetchAgainAsync:(id<BackgroundTaskProgress>)background 
 {
 	self.backgroundTask.callbackWhenFetching = background;
 	
     if (self.vehicleStops)
     {
-        [NSThread detachNewThreadSelector:@selector(fetchVehiclesAgain:) toTarget:self withObject:nil];
+        [NSThread detachNewThreadSelector:@selector(workerToFetchVehiclesAgain:) toTarget:self withObject:nil];
     }
     else
     {
-        [NSThread detachNewThreadSelector:@selector(fetchAgain:) toTarget:self withObject:nil];
+        [NSThread detachNewThreadSelector:@selector(workerToFetchAgain:) toTarget:self withObject:nil];
     }
 }
 
-- (void)fetchTimesForLocationInBackground:(id<BackgroundTaskProgress>)background loc:(NSString*)loc block:(NSString *)block
-{
-	self.backgroundTask.callbackWhenFetching = background;
-	
-	[NSThread detachNewThreadSelector:@selector(fetchTimesForLocation:) toTarget:self withObject:
-			[NSDictionary dictionaryWithObjectsAndKeys:
-									loc,	kDictLocation,
-									block,	kDictBlock,
-									nil]];
-	
-}
-
-- (void)fetchTimesForVehicleInBackground:(id<BackgroundTaskProgress>)background route:(NSString *)route direction:(NSString *)direction nextLoc:(NSString*)loc block:(NSString *)block
+- (void)fetchTimesForLocationAsync:(id<BackgroundTaskProgress>)background loc:(NSString*)loc block:(NSString *)block
 {
     self.backgroundTask.callbackWhenFetching = background;
-	
-	[NSThread detachNewThreadSelector:@selector(fetchTimesForVehicle:) toTarget:self withObject:
-     [NSDictionary dictionaryWithObjectsAndKeys:
-      loc,      kDictLocation,
-      block,	kDictBlock,
-      direction,kDictDir,
-      route,    kDictRoute,
-      nil]];
+    
+    [NSThread detachNewThreadSelector:@selector(workerToFetchTimesForLocation:)
+                             toTarget:self
+                           withObject:@{kDictLocation   : loc,
+                                        kDictBlock      : block }];
+    
+}
+
+- (void)fetchTimesForVehicleAsync:(id<BackgroundTaskProgress>)background route:(NSString *)route direction:(NSString *)direction nextLoc:(NSString*)loc block:(NSString *)block
+{
+    self.backgroundTask.callbackWhenFetching = background;
+    
+    [NSThread detachNewThreadSelector:@selector(workerToFetchTimesForVehicle:)
+                             toTarget:self
+                           withObject:@{kDictLocation:loc,
+                                        kDictBlock   :block,
+                                        kDictDir     :direction,
+                                        kDictRoute   :route}];
 }
 
 
-- (void)fetchTimesForNearestStopsInBackground:(id<BackgroundTaskProgress>)background location:(CLLocation *)here maxToFind:(int)max minDistance:(double)min mode:(TripMode)mode
+- (void)fetchTimesForNearestStopsAsync:(id<BackgroundTaskProgress>)background location:(CLLocation *)here maxToFind:(int)max minDistance:(double)min mode:(TripMode)mode
 {
 	self.backgroundTask.callbackWhenFetching = background;
 	
-	XMLLocateStopsUI *locator = [[[XMLLocateStopsUI alloc] init] autorelease];
+    XMLLocateStops *locator = [XMLLocateStops xml];
 	
 	locator.maxToFind = max;
 	locator.location = here;
 	locator.mode = mode;
 	locator.minDistance = min;
 	
-	[NSThread detachNewThreadSelector:@selector(fetchTimesForNearestStops:) toTarget:self withObject:locator];
-	
+	[NSThread detachNewThreadSelector:@selector(workerToFetchTimesForNearestStops:) toTarget:self withObject:locator];
 }
 
 
-- (void)fetchTimesForStopInOtherDirectionInBackground:(id<BackgroundTaskProgress>)background departure:(DepartureData*)dep
+- (void)fetchTimesForStopInOtherDirectionAsync:(id<BackgroundTaskProgress>)background departure:(DepartureData*)dep
 {
     self.backgroundTask.callbackWhenFetching = background;
     
-    [NSThread detachNewThreadSelector:@selector(fetchTimesForLocation:) toTarget:self withObject:
-     [NSDictionary dictionaryWithObjectsAndKeys:
-      dep,      kDictOppositeDep,
-      nil]];
+    [NSThread detachNewThreadSelector:@selector(workerToFetchTimesForLocation:)
+                             toTarget:self
+                           withObject:@{kDictOppositeDep: dep}];
 }
 
-- (void)fetchTimesForStopInOtherDirectionInBackground:(id<BackgroundTaskProgress>)background departures:(XMLDepartures*)deps
+- (void)fetchTimesForStopInOtherDirectionAsync:(id<BackgroundTaskProgress>)background departures:(XMLDepartures*)deps
 {
     self.backgroundTask.callbackWhenFetching = background;
     
-    [NSThread detachNewThreadSelector:@selector(fetchTimesForLocation:) toTarget:self withObject:
-     [NSDictionary dictionaryWithObjectsAndKeys:
-      deps,      kDictOppositeAll,
-      nil]];
+    [NSThread detachNewThreadSelector:@selector(workerToFetchTimesForLocation:)
+                             toTarget:self
+                           withObject:@{kDictOppositeAll:deps}];
 }
 
-- (void)fetchTimesForNearestStopsInBackground:(id<BackgroundTaskProgress>)background stops:(NSArray *)stops
+- (void)fetchTimesForNearestStopsAsync:(id<BackgroundTaskProgress>)background stops:(NSArray *)stops
 {
 	self.backgroundTask.callbackWhenFetching = background;
-	[NSThread detachNewThreadSelector:@selector(fetchTimesForNearestStopsWithArray:) toTarget:self withObject:stops];
+	[NSThread detachNewThreadSelector:@selector(workerToFetchTimesForNearestStopsWithArray:) toTarget:self withObject:stops];
 }
 
-- (void)fetchTimesForLocationInBackground:(id<BackgroundTaskProgress>)background loc:(NSString*)loc names:(NSArray *)names
+- (void)fetchTimesForLocationAsync:(id<BackgroundTaskProgress>)background loc:(NSString*)loc names:(NSArray *)names
 {
 	self.backgroundTask.callbackWhenFetching = background;
 	
 	if (names !=nil)
-	{
-		[NSThread detachNewThreadSelector:@selector(fetchTimesForLocation:) 
-								 toTarget:self 
-							   withObject:
-									[NSDictionary dictionaryWithObjectsAndKeys:
-											loc,	kDictLocation,
-											names,	kDictNames,
-											nil]];
-	}
+    {
+        [NSThread detachNewThreadSelector:@selector(workerToFetchTimesForLocation:)
+                                 toTarget:self
+                               withObject:@{kDictLocation   : loc,
+                                            kDictNames      : names}];
+    }
 	else {
-		[NSThread detachNewThreadSelector:@selector(fetchTimesForLocation:) 
+		[NSThread detachNewThreadSelector:@selector(workerToFetchTimesForLocation:)
 								 toTarget:self 
-							   withObject:
-									[NSDictionary dictionaryWithObjectsAndKeys:
-											loc,	kDictLocation,
-											nil]];
+							   withObject:@{kDictLocation:loc}];
 	}
 
 }
 
-- (void)fetchTimesForLocationInBackground:(id<BackgroundTaskProgress>)background loc:(NSString*)loc
+- (void)fetchTimesForLocationAsync:(id<BackgroundTaskProgress>)background loc:(NSString*)loc
 {
 	self.backgroundTask.callbackWhenFetching = background;
 	
-	[NSThread detachNewThreadSelector:@selector(fetchTimesForLocation:) 
-							 toTarget:self 
-						   withObject:
-								[NSDictionary dictionaryWithObjectsAndKeys:
-											loc,	kDictLocation,  nil]];
+	[NSThread detachNewThreadSelector:@selector(workerToFetchTimesForLocation:)
+                             toTarget:self
+						   withObject:@{kDictLocation:loc}];
 }
 
-- (void)fetchTimesForLocationInBackground:(id<BackgroundTaskProgress>)background loc:(NSString*)loc title:(NSString *)title
+- (void)fetchTimesForLocationAsync:(id<BackgroundTaskProgress>)background loc:(NSString*)loc title:(NSString *)title
 {
 	self.backgroundTask.callbackWhenFetching = background;
 	
-	[NSThread detachNewThreadSelector:@selector(fetchTimesForLocation:) 
+	[NSThread detachNewThreadSelector:@selector(workerToFetchTimesForLocation:)
 							 toTarget:self 
-						   withObject:
-								[NSDictionary dictionaryWithObjectsAndKeys:
-											loc,	kDictLocation,
-											title,	kDictBookmark,  nil]];
+                           withObject:@{kDictLocation : loc,
+                                        kDictBookmark : title}];
 }
-- (void)fetchTimesForLocationsInBackground:(id<BackgroundTaskProgress>)background stops:(NSArray *) stops
+- (void)fetchTimesForLocationsAsync:(id<BackgroundTaskProgress>)background stops:(NSArray *) stops
 {
 	self.backgroundTask.callbackWhenFetching = background;
 	
-	[NSThread detachNewThreadSelector:@selector(fetchTimesForLocations:) toTarget:self withObject:stops];
+	[NSThread detachNewThreadSelector:@selector(workerToFetchTimesForLocations:) toTarget:self withObject:stops];
 	
 }
-- (void)fetchTimesForBlockInBackground:(id<BackgroundTaskProgress>)background block:(NSString*)block start:(NSString*)start stop:(NSString*) stop
+- (void)fetchTimesForBlockAsync:(id<BackgroundTaskProgress>)background block:(NSString*)block start:(NSString*)start stop:(NSString*) stop
 {
-	id args[] = { block, start, stop };
-	
 	self.backgroundTask.callbackWhenFetching = background;
 	
-	[NSThread detachNewThreadSelector:@selector(fetchTimesForBlockVargs:) toTarget:self withObject:
-	  [NSArray arrayWithObjects:args count:sizeof(args)/sizeof(id)]];
+	[NSThread detachNewThreadSelector:@selector(workerToFetchTimesForBlockVargs:)
+                             toTarget:self
+                           withObject:@[block, start, stop]];
 }
 
-- (void)fetchTimesViaQrCodeRedirectInBackground:(id<BackgroundTaskProgress>)background URL:(NSString*)url
+- (void)fetchTimesViaQrCodeRedirectAsync:(id<BackgroundTaskProgress>)background URL:(NSString*)url
 {
     self.backgroundTask.callbackWhenFetching = background;
 	
-	[NSThread detachNewThreadSelector:@selector(fetchTimesViaQrCodeRedirect:) toTarget:self withObject:url];
+	[NSThread detachNewThreadSelector:@selector(workerToFetchTimesViaQrCodeRedirect:) toTarget:self withObject:url];
     
 }
 
 
-- (void)fetchStreetcarLocations:(id)arg
+- (void)workerToFetchStreetcarLocations:(id)unused
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     int i=0;
@@ -1568,9 +1526,9 @@ static int depthCount = 0;
             
             [streetcarArrivals getDeparturesForLocation:[NSString stringWithFormat:@"predictions&a=portland-sc&r=%@&stopId=%@", route,dep.locid]];
             
-            for (NSInteger i=0; i< streetcarArrivals.safeItemCount; i++)
+            for (NSInteger i=0; i< streetcarArrivals.count; i++)
             {
-                DepartureData *vehicle = [streetcarArrivals itemAtIndex:i];
+                DepartureData *vehicle = streetcarArrivals[i];
                 
                 for (DepartureData *dd in dep.itemArray)
                 
@@ -1586,7 +1544,7 @@ static int depthCount = 0;
             [self.backgroundTask.callbackWhenFetching backgroundItemsDone:++i];
         }
         
-        XMLStreetcarLocations *locs = [XMLStreetcarLocations getSingletonForRoute:route];
+        XMLStreetcarLocations *locs = [XMLStreetcarLocations singletonForRoute:route];
         [locs getLocations];
         [self.backgroundTask.callbackWhenFetching backgroundItemsDone:++i];
     }
@@ -1665,10 +1623,10 @@ static int depthCount = 0;
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-	id<DepartureTimesDataProvider> dd = [self departureData:self.actionItem.section];
+	id<DepartureTimesDataProvider> dd = self.visibleDataArray[self.actionItem.section];
 	self.actionItem = nil;
 	
-	AlarmTaskList *taskList = [AlarmTaskList getSingleton];
+	AlarmTaskList *taskList = [AlarmTaskList singleton];
 	if ([taskList userAlertForProximityAction:(int)buttonIndex stopId:dd.DTDataLocID loc:dd.DTDataLoc desc:dd.DTDataLocDesc])
 	{
 		[self reloadData];	
@@ -1679,7 +1637,7 @@ static int depthCount = 0;
 {
     [super refreshAction:sender];
     
-	if ([self.table isHidden] || self.backgroundTask.progressModal !=nil)
+	if (self.table.hidden || self.backgroundTask.progressModal !=nil)
 	{
 		return; 
 	}
@@ -1688,7 +1646,7 @@ static int depthCount = 0;
 	self.backgroundRefresh = true;
 	
 	
-	[self fetchAgainInBackground:self.backgroundTask];
+	[self fetchAgainAsync:self.backgroundTask];
 	
 	
 	//	[[(MainTableViewController *)[self.navigationController topViewController] table] reloadData];	
@@ -1696,7 +1654,7 @@ static int depthCount = 0;
 
 -(void)showMapNow:(id)sender
 {
-	MapViewController *mapPage = [[MapViewController alloc] init];
+    MapViewController *mapPage = [MapViewController viewController];
 	mapPage.callback = self.callback;
     
     if (_blockFilter || _singleMapItem!=nil)
@@ -1710,12 +1668,11 @@ static int depthCount = 0;
 	
     long i,j;
     
-    NSMutableSet *blocks = [[[NSMutableSet alloc] init] autorelease];
+    NSMutableSet *blocks = [NSMutableSet set];
     
-	for (i=[self.originalDataArray count]-1; i>=0 ; i--)
+	for (i=self.originalDataArray.count-1; i>=0 ; i--)
 	{
-        XMLDepartures   * dep   = [self.originalDataArray objectAtIndex:i];
-		XMLDeparturesUI * depUI = [XMLDeparturesUI createFromData:dep];
+        XMLDepartures * dep   = self.originalDataArray[i];
         
         if (_singleMapItem!=nil && dep !=_singleMapItem)
         {
@@ -1724,18 +1681,18 @@ static int depthCount = 0;
 		
 		if (dep.loc !=nil)
 		{
-			[mapPage addPin:depUI];
+			[mapPage addPin:dep];
             
             if (_blockFilter || _singleMapItem!=nil)
             {
 			
-                for (j=0; j< [dep safeItemCount]; j++)
+                for (j=0; j< dep.count; j++)
                 {
-                    DepartureData *dd = [dep itemAtIndex:j];
+                    DepartureData *dd = dep[j];
 				
                     if (dd.hasBlock && ![blocks containsObject:dd.block] && dd.blockPosition!=nil)
                     {
-                        [mapPage addPin:[DepartureUI createFromData:dd]];
+                        [mapPage addPin:dd];
                         [blocks addObject:dd.block];
                     }
                 }
@@ -1744,9 +1701,7 @@ static int depthCount = 0;
 	}
     _singleMapItem = nil;
 	
-	[[self navigationController] pushViewController:mapPage animated:YES];
-	[mapPage release];
-	
+	[self.navigationController pushViewController:mapPage animated:YES];
 }
 
 -(bool)needtoFetchStreetcarLocationsForStop:(XMLDepartures*)dep
@@ -1755,9 +1710,9 @@ static int depthCount = 0;
     
     if (dep.loc !=nil)
     {
-        for (int j=0; j< [dep safeItemCount]; j++)
+        for (int j=0; j< dep.count; j++)
         {
-            DepartureData *dd = [dep itemAtIndex:j];
+            DepartureData *dd = dep[j];
             
             if (dd.streetcar && dd.blockPosition == nil)
             {
@@ -1776,7 +1731,7 @@ static int depthCount = 0;
     {
         _fetchingLocations = YES;
         self.backgroundTask.callbackWhenFetching = self.backgroundTask;
-        [NSThread detachNewThreadSelector:@selector(fetchStreetcarLocations:) toTarget:self withObject:nil];
+        [NSThread detachNewThreadSelector:@selector(workerToFetchStreetcarLocations:) toTarget:self withObject:nil];
     }
     else {
         [self showMapNow:nil];
@@ -1788,7 +1743,7 @@ static int depthCount = 0;
 {
     _singleMapItem = nil;
     
-    if ([self.originalDataArray count] > 1)
+    if (self.originalDataArray.count > 1)
     {
         [self showMapNow:nil];
     }
@@ -1797,9 +1752,9 @@ static int depthCount = 0;
         bool needToFetchStreetcarLocations = false;
 	
         long i;
-        for (i=[self.originalDataArray count]-1; i>=0 && !needToFetchStreetcarLocations ; i--)
+        for (i=self.originalDataArray.count-1; i>=0 && !needToFetchStreetcarLocations ; i--)
         {
-            needToFetchStreetcarLocations = [self needtoFetchStreetcarLocationsForStop:[self.originalDataArray objectAtIndex:i]];
+            needToFetchStreetcarLocations = [self needtoFetchStreetcarLocationsForStop:self.originalDataArray[i]];
         }
 	
         [self showMapFetchlocations:needToFetchStreetcarLocations];
@@ -1816,28 +1771,22 @@ static int depthCount = 0;
 
 -(void)sortButton:(id)sender
 {
-	DepartureSortTableView * options = [[ DepartureSortTableView alloc ] init];
-	
+    DepartureSortTableView * options = [DepartureSortTableView viewController];
 	
 	options.depView = self;
 	
-	[[self navigationController] pushViewController:options animated:YES];
-	
-	
-	[options release];
-	
-	
+	[self.navigationController pushViewController:options animated:YES];
 }
 
 -(void)bookmarkButton:(id)sender
 {
-	NSMutableString *loc =  [[[NSMutableString alloc] init] autorelease];
-	NSMutableString *desc = [[[NSMutableString alloc] init] autorelease];
+	NSMutableString *loc =  [NSMutableString string];
+	NSMutableString *desc = [NSMutableString string];
 	int i;
 	
-	if ([self.originalDataArray count] == 1)
+	if (self.originalDataArray.count == 1)
 	{
-		XMLDepartures *dd = [self.originalDataArray objectAtIndex:0];
+		XMLDepartures *dd = self.originalDataArray.firstObject;
 		if ([self validStop:0])
 		{
 			[loc appendFormat:@"%@",dd.locid];
@@ -1850,12 +1799,12 @@ static int depthCount = 0;
 	}
 	else
 	{
-		XMLDepartures *dd = [self.originalDataArray objectAtIndex:0];
-		[loc appendFormat:@"%@", dd.locid];
+        XMLDepartures *dd = self.originalDataArray.firstObject;
+        [loc appendFormat:@"%@", dd.locid];
 		[desc appendFormat:NSLocalizedString(@"Stop IDs: %@", @"A list of TriMet stop IDs"), dd.locid];
-		for (i=1; i< [self.originalDataArray count]; i++)
+		for (i=1; i< self.originalDataArray.count; i++)
 		{
-			XMLDepartures *dd = [self.originalDataArray objectAtIndex:i];
+			XMLDepartures *dd = self.originalDataArray[i];
 			[loc appendFormat:@",%@",dd.locid];
 			[desc appendFormat:@",%@",dd.locid];
 		}
@@ -1867,12 +1816,12 @@ static int depthCount = 0;
 	{
 		for (i=0; _userData.faves!=nil &&  i< _userData.faves.count; i++)
 		{
-			NSDictionary *bm = [_userData.faves objectAtIndex:i];
-			NSString * faveLoc = (NSString *)[bm objectForKey:kUserFavesLocation];
+			NSDictionary *bm = _userData.faves[i];
+			NSString * faveLoc = (NSString *)bm[kUserFavesLocation];
 			if (bm !=nil && faveLoc !=nil && [faveLoc isEqualToString:loc])
 			{
 				_bookmarkItem = i;
-				desc = [bm objectForKey:kUserFavesChosenName];
+				desc = bm[kUserFavesChosenName];
 				break;
 			}
 		}
@@ -1910,12 +1859,11 @@ static int depthCount = 0;
 	{
 		if (buttonIndex == 0)
 		{
-			EditBookMarkView *edit = [[EditBookMarkView alloc] init];
+            EditBookMarkView *edit = [EditBookMarkView viewController];
 			[edit addBookMarkFromStop:self.bookmarkDesc location:self.bookmarkLoc];
 			
 			// Push the detail view controller
-			[[self navigationController] pushViewController:edit animated:YES];
-			[edit release];
+			[self.navigationController pushViewController:edit animated:YES];
 		}
 	}	
 	else {
@@ -1926,32 +1874,30 @@ static int depthCount = 0;
 				@synchronized (_userData)
 				{
 					[_userData.faves removeObjectAtIndex:_bookmarkItem];
-					_userData.favesChanged = YES;
+                    [self favesChanged];
 					[_userData cacheAppData];
 				}
 				break;
 			}
 			case 1:  // Edit this bookmark
 			{
-				EditBookMarkView *edit = [[EditBookMarkView alloc] init];
+                EditBookMarkView *edit = [EditBookMarkView viewController];
 				@synchronized (_userData)
 				{
-					[edit editBookMark:[_userData.faves objectAtIndex:_bookmarkItem] item:_bookmarkItem];
+					[edit editBookMark:_userData.faves[_bookmarkItem] item:_bookmarkItem];
 				}
 				// Push the detail view controller
-				[[self navigationController] pushViewController:edit animated:YES];
-				[edit release];
+				[self.navigationController pushViewController:edit animated:YES];
 				break;
 				
 			}
 			case 2:  // Add new bookmark
 			{
-				EditBookMarkView *edit = [[EditBookMarkView alloc] init];
+                EditBookMarkView *edit = [EditBookMarkView viewController];
 				[edit addBookMarkFromStop:self.bookmarkDesc location:self.bookmarkLoc];
 				
 				// Push the detail view controller
-				[[self navigationController] pushViewController:edit animated:YES];
-				[edit release];
+				[self.navigationController pushViewController:edit animated:YES];
 				break;
 			}
 			case 3:  // Cancel
@@ -1968,20 +1914,20 @@ static int depthCount = 0;
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
 	CGFloat result;
-	id<DepartureTimesDataProvider> dd = [self departureData:indexPath.section];
+	id<DepartureTimesDataProvider> dd = self.visibleDataArray[indexPath.section];
 	NSIndexPath *newIndexPath = [self subsection:indexPath];
 	
 	
 	switch (newIndexPath.section)
 	{
 		case kSectionTimes:
-			if ([dd DTDataGetSafeItemCount]==0 && newIndexPath.row == 0 && !_blockFilter )
+			if (dd.DTDataGetSafeItemCount==0 && newIndexPath.row == 0 && !_blockFilter )
 			{
 				result = kNonDepartureHeight;
 			}
 			else
 			{
-				if ((LargeScreenStyle(self.screenInfo.screenWidth)) !=0)
+				if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
 				{
 					result = kWideDepartureCellHeight;
 				}
@@ -2000,6 +1946,7 @@ static int depthCount = 0;
 		case kSectionTrip:
 		case kSectionOneStop:
         case kSectionInfo:
+        case kSectionStation:
         case kSectionMapOne:
         case kSectionOpposite:
         case kSectionNoDeeper:
@@ -2009,7 +1956,7 @@ static int depthCount = 0;
         case kSectionXML:
 			return [self narrowRowHeight];
 		case kSectionDistance:
-			if ([dd DTDataDistance].accuracy > 0.0)
+			if (dd.DTDataDistance.accuracy > 0.0)
 			{
 				return kDepartureCellHeight;
 			}
@@ -2028,18 +1975,17 @@ static int depthCount = 0;
 
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-	return [self.visibleDataArray count];
+	return self.visibleDataArray.count;
 }
 
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section 
 {
-#ifndef __clang_analyzer__
 	SECTIONROWS *sr = [self calcSubsections:section];
 	
 	if ([self validStop:section])
 	{
-		id<DepartureTimesDataProvider> dd = [self departureData:section];
+		id<DepartureTimesDataProvider> dd = self.visibleDataArray[section];
 		[_userData addToRecentsWithLocation:dd.DTDataLocID
 								description:dd.DTDataGetSectionHeader];
 	}
@@ -2048,15 +1994,14 @@ static int depthCount = 0;
 	//		  (int)_sectionExpanded[section]);
 
 	
-	return sr->row[kSectionsPerStop-1];
-#endif
+	return sr[kSectionsPerStop-1].integerValue;
 }
 
 
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-	id<DepartureTimesDataProvider> dd = [self departureData:section];
-	return [dd DTDataGetSectionHeader];
+	id<DepartureTimesDataProvider> dd = self.visibleDataArray[section];
+	return dd.DTDataGetSectionHeader;
 }
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
@@ -2077,25 +2022,21 @@ static int depthCount = 0;
     UITableViewHeaderFooterView *header = (UITableViewHeaderFooterView *)view;
   
     header.textLabel.adjustsFontSizeToFitWidth = YES;
-    
-    if ([header.textLabel respondsToSelector:@selector(minimumScaleFactor)])
-    {
-        header.textLabel.minimumScaleFactor = 0.84;
-    }
+    header.textLabel.minimumScaleFactor = 0.84;
 }
 
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	UITableViewCell *cell = nil;
 	
-	id<DepartureTimesDataProvider> dd = [self departureData:indexPath.section];
+	id<DepartureTimesDataProvider> dd = self.visibleDataArray[indexPath.section];
 	NSIndexPath * newIndexPath = [self subsection:indexPath];
 	
 	switch (newIndexPath.section)
 	{
 		case kSectionDistance:
 		{
-			bool twoLines = ([dd DTDataDistance].accuracy > 0.0);
+			bool twoLines = (dd.DTDataDistance.accuracy > 0.0);
 			if (twoLines)
 			{
 				cell = [tableView dequeueReusableCellWithIdentifier:kDistanceCellId2];
@@ -2103,11 +2044,11 @@ static int depthCount = 0;
 					cell = [self distanceCellWithReuseIdentifier:kDistanceCellId2];
 				}
 				
-				NSString *distance = [NSString stringWithFormat:NSLocalizedString(@"Distance %@", @"stop distance"), [FormatDistance formatMetres:[dd DTDataDistance].distance]];
+				NSString *distance = [NSString stringWithFormat:NSLocalizedString(@"Distance %@", @"stop distance"), [FormatDistance formatMetres:dd.DTDataDistance.distance]];
 				((UILabel*)[cell.contentView viewWithTag:DISTANCE_TAG]).text = distance;
 				UILabel *accuracy = (UILabel*)[cell.contentView viewWithTag:ACCURACY_TAG];
-				accuracy.text = [NSString stringWithFormat:NSLocalizedString(@"Accuracy +/- %@", @"accuracy of location services"), [FormatDistance formatMetres:[dd DTDataDistance].accuracy]];
-				[cell setAccessibilityLabel:[NSString stringWithFormat:@"%@, %@", distance, accuracy.text]];
+				accuracy.text = [NSString stringWithFormat:NSLocalizedString(@"Accuracy +/- %@", @"accuracy of location services"), [FormatDistance formatMetres:dd.DTDataDistance.accuracy]];
+				cell.accessibilityLabel = [NSString stringWithFormat:@"%@, %@", distance, accuracy.text];
 				
 			}
 			else
@@ -2117,10 +2058,10 @@ static int depthCount = 0;
 					cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kDistanceCellId] autorelease];
 				}
 				
-				cell.textLabel.text = [NSString stringWithFormat:NSLocalizedString(@"Distance %@", @"stop distance"), [FormatDistance formatMetres:[dd DTDataDistance].distance]];
+				cell.textLabel.text = [NSString stringWithFormat:NSLocalizedString(@"Distance %@", @"stop distance"), [FormatDistance formatMetres:dd.DTDataDistance.distance]];
 				cell.textLabel.textColor = [UIColor blueColor];
-				cell.textLabel.font = [self getBasicFont];;
-				[cell setAccessibilityLabel:cell.textLabel.text];
+				cell.textLabel.font = self.basicFont;;
+				cell.accessibilityLabel = cell.textLabel.text;
 				
 			}
 			cell.imageView.image = nil;
@@ -2130,7 +2071,7 @@ static int depthCount = 0;
 		// Configure the cell
 		{
 			int i = (int)newIndexPath.row;
-			NSInteger deps = [dd DTDataGetSafeItemCount];
+			NSInteger deps = dd.DTDataGetSafeItemCount;
 			if (deps ==0 && i == 0)
 			{
 				cell = [tableView dequeueReusableCellWithIdentifier:kStatusCellId];
@@ -2143,13 +2084,13 @@ static int depthCount = 0;
 					cell.textLabel.adjustsFontSizeToFitWidth = NO;
 					cell.textLabel.numberOfLines = 0;
                     cell.textLabel.lineBreakMode = NSLineBreakByWordWrapping;
-					cell.textLabel.font = [self getParagraphFont];
+					cell.textLabel.font = self.paragraphFont;
 					
 				}
 				else
 				{
-					cell.textLabel.text = [NSString stringWithFormat:NSLocalizedString(@"(ID %@) No arrivals found.", @"No arrivals for a specific TriMet stop ID"), [dd DTDataLocID]];
-					cell.textLabel.font = [self getBasicFont];
+					cell.textLabel.text = [NSString stringWithFormat:NSLocalizedString(@"(ID %@) No arrivals found.", @"No arrivals for a specific TriMet stop ID"), dd.DTDataLocID];
+					cell.textLabel.font = self.basicFont;
 
 				}
 				cell.accessoryType = UITableViewCellAccessoryNone;
@@ -2158,14 +2099,14 @@ static int depthCount = 0;
 			else
 			{
 				DepartureData *departure = [dd DTDataGetDeparture:newIndexPath.row];
-                DepartureUI *departureUI = [DepartureUI createFromData:departure];
-				NSString *cellId = [departureUI cellReuseIdentifier:MakeCellId(kSectionTimes) width:self.screenInfo.appWinWidth];
+
+				NSString *cellId = [departure cellReuseIdentifier:MakeCellId(kSectionTimes) width:self.screenInfo.appWinWidth];
 				cell = [tableView dequeueReusableCellWithIdentifier:cellId];
 				
 				if (cell == nil) {
-					cell = [departureUI bigTableviewCellWithReuseIdentifier:cellId width:self.screenInfo.screenWidth];
+					cell = [departure bigTableviewCellWithReuseIdentifier:cellId width:self.screenInfo.screenWidth];
 				}
-				[dd DTDataPopulateCell:departureUI cell:cell decorate:YES wide:LargeScreenStyle(self.screenInfo.screenWidth)];
+				[dd DTDataPopulateCell:departure cell:cell decorate:YES wide:(UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)];
 				// [departure populateCell:cell decorate:YES big:YES];
 				
 			}
@@ -2181,43 +2122,41 @@ static int depthCount = 0;
 					cell = [self disclaimerCellWithReuseIdentifier:kDisclaimerCellId];
 				}
 				
-				if ([dd DTDataNetworkError])
+				if (dd.DTDataNetworkError)
 				{
-					if ([dd DTDataNetworkErrorMsg])
+					if (dd.DTDataNetworkErrorMsg)
 					{
 						[self addTextToDisclaimerCell:cell 
 												 text:kNetworkMsg];
 					}
 					else {
 						[self addTextToDisclaimerCell:cell text:
-						 [NSString stringWithFormat:kNoNetworkID, [dd DTDataLocID]]];
+						 [NSString stringWithFormat:kNoNetworkID, dd.DTDataLocID]];
 					}
 
 				}	
 				else if ([self validStop:indexPath.section])
 				{
-					NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
-					[dateFormatter setDateStyle:kCFDateFormatterNoStyle];
-					[dateFormatter setTimeStyle:NSDateFormatterMediumStyle];
-					NSDate *queryTime = TriMetToNSDate([dd DTDataQueryTime]);
 					[self addTextToDisclaimerCell:cell text:[NSString stringWithFormat:NSLocalizedString(@"%@ Updated: %@", @"text followed by time data was fetched"),
-															 [dd DTDataStaticText],
-															 [dateFormatter stringFromDate:queryTime]]];
+															 dd.DTDataStaticText,
+															 [NSDateFormatter localizedStringFromDate:TriMetToNSDate(dd.DTDataQueryTime)
+                                                                                            dateStyle:NSDateFormatterNoStyle
+                                                                                            timeStyle:NSDateFormatterMediumStyle]]];
 				}
 				
 				
-				if ([dd DTDataNetworkError])
+				if (dd.DTDataNetworkError)
 				{
 					cell.accessoryView = nil;
 					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 					cell.selectionStyle = UITableViewCellSelectionStyleBlue;
 				}
-				else if ([dd DTDataHasDetails])
+				else if (dd.DTDataHasDetails)
 				{
 					cell.accessoryView =  [[[ UIImageView alloc ] 
-										   initWithImage: _sectionExpanded[indexPath.section] 
-                                            ? [self alwaysGetIcon7:kIconCollapse7 old:kIconCollapse]
-                                            : [self alwaysGetIcon7:kIconExpand7 old:kIconExpand]
+                                            initWithImage: self.sectionExpanded[indexPath.section].boolValue
+                                                                ? [self alwaysGetIcon7:kIconCollapse7 old:kIconCollapse]
+                                                                : [self alwaysGetIcon7:kIconExpand7 old:kIconExpand]
 										   ] autorelease];
 					
 					
@@ -2235,7 +2174,7 @@ static int depthCount = 0;
 				DepartureData *dep = nil;
 				NSString *streetcarDisclaimer = nil;
 				
-				for (int i=0; i< [dd DTDataGetSafeItemCount] && streetcarDisclaimer==nil; i++)
+				for (int i=0; i< dd.DTDataGetSafeItemCount && streetcarDisclaimer==nil; i++)
 				{
 					dep = [dd DTDataGetDeparture:i];
 					
@@ -2257,7 +2196,7 @@ static int depthCount = 0;
 				}
 				cell.textLabel.text = NSLocalizedString(@"Nearby stops", @"button text");
 				cell.textLabel.textColor = [ UIColor darkGrayColor];
-				cell.textLabel.font = [self getBasicFont]; 
+				cell.textLabel.font = self.basicFont; 
 				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 				cell.imageView.image = [self getActionIcon7:kIconLocate7 old:kIconLocate];
 			}
@@ -2272,9 +2211,9 @@ static int depthCount = 0;
 			
 			cell.textLabel.text = NSLocalizedString(@"Show only this stop", @"button text");
 			cell.textLabel.textColor = [ UIColor darkGrayColor];
-			cell.textLabel.font = [self getBasicFont]; 
+			cell.textLabel.font = self.basicFont; 
 			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-			cell.imageView.image = [self getActionIcon7:kIconLocate7 old:kIconLocate];
+			cell.imageView.image = [self getActionIcon:kIconArrivals];
 		}
 		break;	
         case kSectionInfo:
@@ -2284,14 +2223,29 @@ static int depthCount = 0;
 				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kActionCellId] autorelease];
 			}
 			
-			cell.textLabel.text = [NSString stringWithFormat:NSLocalizedString(@"Stop ID %@ info", @"button text"), [dd DTDataLocID]];
+			cell.textLabel.text = [NSString stringWithFormat:NSLocalizedString(@"Stop ID %@ info", @"button text"), dd.DTDataLocID];
 			cell.textLabel.textColor = [ UIColor darkGrayColor];
-			cell.textLabel.font = [self getBasicFont]; 
+			cell.textLabel.font = self.basicFont; 
 			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 			cell.imageView.image = [self getActionIcon:kIconLink];
             break;
 
 		}
+        case kSectionStation:
+        {
+            cell = [tableView dequeueReusableCellWithIdentifier:kActionCellId];
+            if (cell == nil) {
+                cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kActionCellId] autorelease];
+            }
+            
+            cell.textLabel.text = NSLocalizedString(@"Rail station details", @"button text");
+            cell.textLabel.textColor = [ UIColor darkGrayColor];
+            cell.textLabel.font = self.basicFont;
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            cell.imageView.image = [self getActionIcon:KIconRailStations];
+            break;
+            
+        }
         case kSectionMapOne:
 		{
 			cell = [tableView dequeueReusableCellWithIdentifier:kActionCellId];
@@ -2300,7 +2254,7 @@ static int depthCount = 0;
 			}
 			cell.textLabel.text = NSLocalizedString(@"Map of arrivals", @"button text");
 			cell.textLabel.textColor = [ UIColor darkGrayColor];
-			cell.textLabel.font = [self getBasicFont];
+			cell.textLabel.font = self.basicFont;
 			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 			cell.imageView.image = cell.imageView.image = [self getActionIcon7:kIconMapAction7 old:kIconMapAction];
             break;
@@ -2314,7 +2268,7 @@ static int depthCount = 0;
             }
             cell.textLabel.text = NSLocalizedString(@"Arrivals going the other way ", @"button text");
             cell.textLabel.textColor = [ UIColor darkGrayColor];
-            cell.textLabel.font = [self getBasicFont];
+            cell.textLabel.font = self.basicFont;
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             cell.imageView.image = [self getActionIcon:kIconArrivals];
             break;
@@ -2327,7 +2281,7 @@ static int depthCount = 0;
             }
             cell.textLabel.text = NSLocalizedString(@"Too many windows open", @"button text");
             cell.textLabel.textColor = [ UIColor darkGrayColor];
-            cell.textLabel.font = [self getBasicFont];
+            cell.textLabel.font = self.basicFont;
             cell.accessoryType = UITableViewCellAccessoryNone;
             cell.imageView.image = [self getActionIcon:kIconCancel];
         }
@@ -2348,7 +2302,7 @@ static int depthCount = 0;
 			}
 
 			cell.textLabel.textColor = [ UIColor darkGrayColor];
-			cell.textLabel.font = [self getBasicFont]; 
+			cell.textLabel.font = self.basicFont; 
 			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 			cell.imageView.image = [self getActionIcon7:kIconLocate7 old:kIconLocate];
 		}
@@ -2360,7 +2314,7 @@ static int depthCount = 0;
 				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kActionCellId] autorelease];
 			}
 			
-			AlarmTaskList *taskList = [AlarmTaskList getSingleton];
+			AlarmTaskList *taskList = [AlarmTaskList singleton];
 			
 			if ([taskList hasTaskForStopIdProximity:dd.DTDataLocID])
 			{
@@ -2376,7 +2330,7 @@ static int depthCount = 0;
             }
 
 			cell.textLabel.textColor = [ UIColor darkGrayColor];
-			cell.textLabel.font = [self getBasicFont]; 
+			cell.textLabel.font = self.basicFont; 
 			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 			cell.imageView.image = [self getActionIcon:kIconAlarm];
 		}
@@ -2397,7 +2351,7 @@ static int depthCount = 0;
 				cell.textLabel.text = NSLocalizedString(@"Plan trip to here", @"button text");
 			}
 			cell.textLabel.textColor = [ UIColor darkGrayColor];
-			cell.textLabel.font = [self getBasicFont]; 
+			cell.textLabel.font = self.basicFont; 
 			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 			cell.imageView.image = [self getActionIcon:kIconTripPlanner];
 		}
@@ -2409,9 +2363,9 @@ static int depthCount = 0;
 					cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kActionCellId] autorelease];
 				}
 				
-				cell.textLabel.text = [dd DTDataGetSectionTitle];
+				cell.textLabel.text = dd.DTDataGetSectionTitle;
 				cell.textLabel.textColor = [ UIColor darkGrayColor];
-				cell.textLabel.font = [self getBasicFont]; 
+				cell.textLabel.font = self.basicFont; 
 				cell.accessoryType = UITableViewCellAccessoryNone;
 				cell.imageView.image = nil;
 			}
@@ -2425,7 +2379,7 @@ static int depthCount = 0;
 				
 				cell.textLabel.text = NSLocalizedString(@"Check TriMet web site", @"button text");
 				cell.textLabel.textColor = [ UIColor darkGrayColor];
-				cell.textLabel.font = [self getBasicFont]; 
+				cell.textLabel.font = self.basicFont; 
 				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 				cell.imageView.image = [self getActionIcon:kIconLink];
 			}
@@ -2439,11 +2393,14 @@ static int depthCount = 0;
             
             cell.textLabel.text = NSLocalizedString(@"Show raw XML data", @"button text");
             cell.textLabel.textColor = [ UIColor darkGrayColor];
-            cell.textLabel.font = [self getBasicFont]; 
+            cell.textLabel.font = self.basicFont; 
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             cell.imageView.image = [self getActionIcon:kIconXml];
             break;
         }
+        default:
+            cell = [super tableView:tableView cellForRowAtIndexPath:indexPath];
+            break;
     }
 	[self maybeAddSectionToAccessibility:cell indexPath:indexPath alwaysSaySection:NO];
 	return cell;
@@ -2457,42 +2414,40 @@ static int depthCount = 0;
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 
-	id<DepartureTimesDataProvider> dd = [self departureData:indexPath.section];
+	id<DepartureTimesDataProvider> dd = self.visibleDataArray[indexPath.section];
 	NSIndexPath *newIndexPath = [self subsection:indexPath];
 	
 	switch (newIndexPath.section)
 	{
 		case kSectionTimes:
 		{
-			if ([dd DTDataGetSafeItemCount]!=0 && newIndexPath.row < [dd DTDataGetSafeItemCount])
+			if (dd.DTDataGetSafeItemCount!=0 && newIndexPath.row < dd.DTDataGetSafeItemCount)
 			{
 				DepartureData *departure = [dd DTDataGetDeparture:newIndexPath.row];
 		
 				// if (departure.hasBlock || departure.detour)
 				{
-					DepartureDetailView *departureDetailView = [[DepartureDetailView alloc] init];
+                    DepartureDetailView *departureDetailView = [DepartureDetailView viewController];
 					departureDetailView.callback = self.callback;
                     departureDetailView.delegate = self;
                     
                     departureDetailView.navigationItem.prompt = self.navigationItem.prompt;
 					
-					if (depthCount < kMaxDepth && [self.visibleDataArray count] > 1)
+					if (depthCount < kMaxDepth && self.visibleDataArray.count > 1)
 					{
 						departureDetailView.stops = self.stops;
 					}
                     
-                    departureDetailView.allowBrowseForDestination = ((!_blockFilter) || [UserPrefs getSingleton].vehicleLocations) && depthCount < kMaxDepth;
+                    departureDetailView.allowBrowseForDestination = ((!_blockFilter) || [UserPrefs singleton].vehicleLocations) && depthCount < kMaxDepth;
 					
-					[departureDetailView fetchDepartureInBackground:self.backgroundTask dep:departure allDepartures:self.originalDataArray];
-					
-					[departureDetailView release];	
+					[departureDetailView fetchDepartureAsync:self.backgroundTask dep:departure allDepartures:self.originalDataArray];
 				}
 			}
 			break;
 		}
 		case kSectionTrip:
 		{
-			TripPlannerSummaryView *tripPlanner = [[[TripPlannerSummaryView alloc] init] autorelease];
+            TripPlannerSummaryView *tripPlanner = [TripPlannerSummaryView viewController];
 			
 			@synchronized (_userData)
 			{
@@ -2514,16 +2469,16 @@ static int depthCount = 0;
 
 			
 			endpoint.useCurrentLocation = false;
-			endpoint.additionalInfo     = [dd DTDataLocDesc];
-			endpoint.locationDesc       = [dd DTDataLocID];
+			endpoint.additionalInfo     = dd.DTDataLocDesc;
+			endpoint.locationDesc       = dd.DTDataLocID;
 			
 			
-			[[self navigationController] pushViewController:tripPlanner animated:YES];
+			[self.navigationController pushViewController:tripPlanner animated:YES];
 			break;
 		}
 		case kSectionProximity:
 		{
-			AlarmTaskList *taskList = [AlarmTaskList getSingleton];
+			AlarmTaskList *taskList = [AlarmTaskList singleton];
 			
 			if ([taskList hasTaskForStopIdProximity:dd.DTDataLocID])
 			{
@@ -2544,9 +2499,9 @@ static int depthCount = 0;
 		case kSectionNearby:
 		{
             
-            FindByLocationView *find = [[FindByLocationView alloc] initWithLocation:[dd DTDataLoc] description:[dd DTDataLocDesc]];
+            FindByLocationView *find = [[FindByLocationView alloc] initWithLocation:dd.DTDataLoc description:dd.DTDataLocDesc];
 
-			[[self navigationController] pushViewController:find animated:YES];
+			[self.navigationController pushViewController:find animated:YES];
             
 			[find release];
 
@@ -2567,7 +2522,7 @@ static int depthCount = 0;
         case kSectionInfo:
 		{
 			NSString *url = [NSString stringWithFormat:@"https://trimet.org/go/cgi-bin/cstops.pl?action=entry&resptype=U&lang=pdaen&noCat=Landmark&Loc=%@",
-							 [dd DTDataLocID]];
+							 dd.DTDataLocID];
             
             
             [WebViewController displayPage:url
@@ -2579,6 +2534,27 @@ static int depthCount = 0;
 			break;
 		}
             
+        case kSectionStation:
+        {
+            {
+                RailStation * station = [AllRailStationView railstationFromStopId:dd.DTDataLocID];
+                
+                if (station == nil)
+                {
+                    return;
+                }
+                
+                RailStationTableView *railView = [RailStationTableView viewController];
+                railView.station = station;
+                railView.callback = self.callback;
+                // railView.from = self.from;
+                railView.locationsDb = [StopLocations getDatabase];
+                [self.navigationController pushViewController:railView animated:YES];
+            }	
+
+            break;
+        }
+            
         case kSectionMapOne:
 		{
 			[self showMapForOneStop:[dd DTDataXML ]];
@@ -2586,14 +2562,9 @@ static int depthCount = 0;
 		}
         case kSectionOpposite:
         {
-            DepartureTimesView *opposite = [[DepartureTimesView alloc] init];
-            
+            DepartureTimesView *opposite = [DepartureTimesView viewController];
             opposite.callback = self.callback;
-            
-            [opposite fetchTimesForStopInOtherDirectionInBackground:self.backgroundTask departures:[dd DTDataXML]];
-            
-            [opposite release];
-            
+            [opposite fetchTimesForStopInOtherDirectionAsync:self.backgroundTask departures:dd.DTDataXML];
             break;
         }
         case kSectionNoDeeper:
@@ -2603,7 +2574,7 @@ static int depthCount = 0;
 		case kSectionAccuracy:
 		{
 			NSString *url = [NSString stringWithFormat:@"https://trimet.org/arrivals/small/tracker?locationID=%@",
-							 [dd DTDataLocID]];
+							 dd.DTDataLocID];
             
             
             [WebViewController displayPage:url
@@ -2616,7 +2587,7 @@ static int depthCount = 0;
 		}
         case kSectionXML:
 		{
-            XMLDepartures *dep = [dd DTDataXML];
+            XMLDepartures *dep = dd.DTDataXML;
             
             if (dep && dep.rawData)
             {
@@ -2629,13 +2600,12 @@ static int depthCount = 0;
         }
 		case kSectionOneStop:
 		{
-			DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
+            DepartureTimesView *departureViewController = [DepartureTimesView viewController];
 			
 			departureViewController.callback = self.callback;
-			[departureViewController fetchTimesForLocationInBackground:self.backgroundTask 
-																   loc:[dd DTDataLocID]
-																 title:[dd DTDataLocDesc]];
-			[departureViewController release];
+			[departureViewController fetchTimesForLocationAsync:self.backgroundTask 
+                                                            loc:dd.DTDataLocID
+                                                          title:dd.DTDataLocDesc];
 			break;
 		}
 		case kSectionFilter:
@@ -2643,7 +2613,7 @@ static int depthCount = 0;
 			
 			if ([dd respondsToSelector:@selector(DTDataXML)])
 			{
-				XMLDepartures *dep = (XMLDepartures*)[dd DTDataXML];
+				XMLDepartures *dep = (XMLDepartures*)dd.DTDataXML;
 					
 				if (self.savedBlock)
 				{
@@ -2663,40 +2633,40 @@ static int depthCount = 0;
 		}
 		case kSectionStatic:
 		{
-			if ([dd DTDataNetworkError])
+			if (dd.DTDataNetworkError)
 			{
-				[self networkTips:[dd DTDataHtmlError] networkError:[dd DTDataNetworkErrorMsg]];
+				[self networkTips:dd.DTDataHtmlError networkError:dd.DTDataNetworkErrorMsg];
                 [self clearSelection];
 				
 			} else if (!_blockSort)
 			{
 				int sect = (int)indexPath.section;
 				[self.table deselectRowAtIndexPath:indexPath animated:YES];
-				_sectionExpanded[sect] = _sectionExpanded[sect] ? false : true;
+				self.sectionExpanded[sect] = self.sectionExpanded[sect].boolValue ? @NO : @YES;
 			
 				
 				// copy this struct
-				SECTIONROWS oldRows = *(_sectionRows + sect);
+                SECTIONROWS *oldRows = [self.sectionRows[sect].copy autorelease];
 				
-				SECTIONROWS *newRows = _sectionRows + sect;
+                SECTIONROWS *newRows = self.sectionRows[sect];
 				
-				newRows->row[0] = kSectionRowInit;
+				newRows[0] = @(kSectionRowInit);
 				
 				[self calcSubsections:sect];
 				
-				NSMutableArray *changingRows = [[[NSMutableArray alloc] init] autorelease];
+				NSMutableArray *changingRows = [NSMutableArray array];
 				
 				int row;
 				
 				SECTIONROWS *additionalRows;
 				
-				if (_sectionExpanded[sect])
+				if (self.sectionExpanded[sect].boolValue)
 				{
 					additionalRows = newRows;
 				}
 				else 
 				{
-					additionalRows = &oldRows;
+					additionalRows = oldRows;
 				}
 
 				
@@ -2706,10 +2676,10 @@ static int depthCount = 0;
 					// DEBUG_LOG(@"row %d\n", newRows->row[i+1]-newRows->row[i]);
 					// DEBUG_LOG(@"old row %d\n", oldRows.row[i+1]-oldRows.row[i]);
 					
-					if (newRows->row[i+1]-newRows->row[i] != oldRows.row[i+1]-oldRows.row[i])
+					if (newRows[i+1].integerValue-newRows[i].integerValue != oldRows[i+1].integerValue-oldRows[i].integerValue)
 					{
 						
-						for (row = additionalRows->row[i]; row < additionalRows->row[i+1]; row++)
+						for (row = additionalRows[i].intValue; row < additionalRows[i+1].intValue; row++)
 						{
 							[changingRows addObject:[NSIndexPath indexPathForRow:row
 																	   inSection:sect]];
@@ -2723,7 +2693,7 @@ static int depthCount = 0;
 				if (staticCell != nil)
 				{
 					staticCell.accessoryView =  [[ UIImageView alloc ] 
-									   initWithImage: _sectionExpanded[sect] 
+									   initWithImage: self.sectionExpanded[sect].boolValue
                                                  ? [self alwaysGetIcon7:kIconCollapse7  old:kIconCollapse]
                                                  : [self alwaysGetIcon7:kIconExpand7    old:kIconCollapse]
 									   ];
@@ -2733,7 +2703,7 @@ static int depthCount = 0;
 				[self.table beginUpdates];	
 				
 				
-				if (_sectionExpanded[sect])
+				if (self.sectionExpanded[sect].boolValue)
 				{
 					[self.table insertRowsAtIndexPaths:changingRows withRowAnimation:UITableViewRowAnimationRight];
 				}
@@ -2841,9 +2811,9 @@ static int depthCount = 0;
 	
     
 	[toolbarItems addObject:bookmark];
-    [toolbarItems addObject:[CustomToolbar autoFlexSpace]];
+    [toolbarItems addObject:[UIToolbar autoFlexSpace]];
     
-    if (((!(_blockFilter || [self.originalDataArray count] == 1)) || _allowSort) && ([UserPrefs getSingleton].groupByArrivalsIcon))
+    if (((!(_blockFilter || self.originalDataArray.count == 1)) || _allowSort) && ([UserPrefs singleton].groupByArrivalsIcon))
     {
         UIBarButtonItem *sort = [[[UIBarButtonItem alloc]
                                   // initWithBarButtonSystemItem:UIBarButtonSystemItemRewind
@@ -2854,15 +2824,15 @@ static int depthCount = 0;
         sort.accessibilityLabel = NSLocalizedString(@"Group Arrivals", @"Accessibility text");
         
         [toolbarItems addObject:sort];;
-        [toolbarItems addObject:[CustomToolbar autoFlexSpace]];
+        [toolbarItems addObject:[UIToolbar autoFlexSpace]];
         
     }
     
-    [toolbarItems addObject:[CustomToolbar autoMapButtonWithTarget:self action:@selector(showMap:)]];
+    [toolbarItems addObject:[UIToolbar autoMapButtonWithTarget:self action:@selector(showMap:)]];
     
-    if ([UserPrefs getSingleton].ticketAppIcon)
+    if ([UserPrefs singleton].ticketAppIcon)
     {
-        [toolbarItems addObject:[CustomToolbar autoFlexSpace]];
+        [toolbarItems addObject:[UIToolbar autoFlexSpace]];
         [toolbarItems addObject:[self autoTicketAppButton]];
     }
     
@@ -2887,13 +2857,17 @@ static int depthCount = 0;
         [self reloadData];
     }
     
+    dispatch_once(&_updatedWatch, ^{
+         [self updateWatch];
+    });
+   
     
     Class userActivityClass = (NSClassFromString(@"NSUserActivity"));
     
     if (userActivityClass !=nil)
     {
         
-        NSMutableString *locs = [StringHelper commaSeparatedStringFromEnumerator:self.originalDataArray selector:@selector(locid)];
+        NSMutableString *locs = [NSString commaSeparatedStringFromEnumerator:self.originalDataArray selector:@selector(locid)];
         
         
         if (self.userActivity != nil)
@@ -2903,7 +2877,7 @@ static int depthCount = 0;
         
         self.userActivity = [[[NSUserActivity alloc] initWithActivityType:kHandoffUserActivityBookmark] autorelease];
         
-        NSMutableDictionary *info = [[[NSMutableDictionary alloc] init] autorelease];
+        NSMutableDictionary *info = [NSMutableDictionary dictionary];
         
         if (self.originalDataArray.count >= 1)
         {
@@ -2914,16 +2888,16 @@ static int depthCount = 0;
             
             if (self.originalDataArray.count == 1 && dep.locDesc != nil)
             {
-                [info setObject:dep.locDesc forKey:kUserFavesChosenName];
+                info[kUserFavesChosenName] = dep.locDesc;
             }
             else
             {
-                [info setObject:@"Stops" forKey:kUserFavesChosenName];
+                info[kUserFavesChosenName] = @"Stops";
             }
         
         }
         
-        [info setObject:locs forKey:kUserFavesLocation];
+        info[kUserFavesLocation] = locs;
         self.userActivity.userInfo = info;
         [self.userActivity becomeCurrent];
     }
@@ -2934,8 +2908,8 @@ static int depthCount = 0;
 
 
 - (void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event {
-	if ([UserPrefs getSingleton].shakeToRefresh && event.type == UIEventSubtypeMotionShake) {
-		UIViewController * top = [[self navigationController] visibleViewController];
+	if ([UserPrefs singleton].shakeToRefresh && event.type == UIEventSubtypeMotionShake) {
+		UIViewController * top = self.navigationController.visibleViewController;
 		
 		if ([top respondsToSelector:@selector(refreshAction:)])
 		{
@@ -2984,16 +2958,12 @@ static int depthCount = 0;
 - (void)reloadData
 {
     [super reloadData];
-    
-   
-    
     [self cacheWarningRefresh:YES];
-    
 }
 
 - (void)appendXmlData:(NSMutableData *)buffer
 {
-    id<DepartureTimesDataProvider> dd = [self departureData:[self.table.indexPathForSelectedRow section]];
+    id<DepartureTimesDataProvider> dd = self.visibleDataArray[self.table.indexPathForSelectedRow.section];
     XMLDepartures *dep = [dd DTDataXML];
     
     [dep appendQueryAndData:buffer];

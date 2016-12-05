@@ -19,7 +19,7 @@
 
 + (NSNumber*)getPrefix
 {
-    return [NSNumber numberWithChar:'$'];
+    return @'$';
 }
 
 - (void)updateCell:(CellLabel *)cell tableView:(UITableView *)tableView

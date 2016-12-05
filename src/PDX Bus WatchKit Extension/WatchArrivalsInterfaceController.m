@@ -15,10 +15,9 @@
 
 #import "WatchArrivalsInterfaceController.h"
 #import "XMLDepartures.h"
-#import "XMLDetour.h"
+#import "XMLDetours.h"
 #import "WatchArrival.h"
-#import "DepartureData.h"
-#import "WatchDepartureUI.h"
+#import "DepartureData+watchOSUI.h"
 #import "XMLStreetcarLocations.h"
 #import "TriMetRouteColors.h"
 #import "WatchArrivalInfo.h"
@@ -34,9 +33,9 @@
 #import "XMLLocateVehicles.h"
 #import "FormatDistance.h"
 #import "WatchNearbyInterfaceController.h"
+#import "StringHelper.h"
 
-#define kRefreshTime 20
-#define kStaleTime   59
+#define kRefreshTime 30
 
 
 @interface WatchArrivalsInterfaceController ()
@@ -49,11 +48,13 @@
 @synthesize refreshTimer        = _refreshTimer;
 @synthesize departures          = _departures;
 @synthesize lastUpdate          = _lastUpdate;
+@synthesize detours             = _detours;
 
 - (void)dealloc
 {
     self.arrivalsContext = nil;
     self.departures = nil;
+    self.detours = nil;
     self.lastUpdate = nil;
     
     if (self.refreshTimer)
@@ -61,6 +62,19 @@
         [self.refreshTimer invalidate];
         self.refreshTimer = nil;
     }
+    
+    self.arrivalsTable      = nil;
+    self.detailDeparture    = nil;
+    self.detailStreetcarId  = nil;
+    self.distanceLabel      = nil;
+    self.labelRefreshing    = nil;
+    self.loadingGroup       = nil;
+    self.loadingLabel       = nil;
+    self.navGroup           = nil;
+    self.nextButton         = nil;
+    self.progressTitle      = nil;
+    self.stopDescription    = nil;
+    
     
     [super dealloc];
 }
@@ -86,64 +100,63 @@
 
 - (NSMutableAttributedString*)detailText
 {
-    WatchDepartureUI *ui = [WatchDepartureUI createFromData:self.detailDeparture];
-    NSMutableString *detourText = [[[NSMutableString alloc] init] autorelease];
+    NSMutableString *detourText = [NSMutableString string];
 
-    NSInteger mins = ui.data.minsToArrival;
-    NSDate *depatureDate = TriMetToNSDate(ui.data.departureTime);
-    NSMutableString *timeText = [[[NSMutableString alloc] init] autorelease];
-    NSMutableString *scheduledText = [[[NSMutableString alloc] init] autorelease];
-    NSMutableString *distanceText = [[[NSMutableString alloc] init] autorelease];
+    NSInteger mins = self.detailDeparture.minsToArrival;
+    NSDate *depatureDate = TriMetToNSDate(self.detailDeparture.departureTime);
+    NSMutableString *timeText = [NSMutableString string];
+    NSMutableString *scheduledText = [NSMutableString string];
+    NSMutableString *distanceText = [NSMutableString string];
     
     
     
     UIColor *timeColor = nil;
     
     NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
-    [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
-    [dateFormatter setTimeStyle:NSDateFormatterNoStyle];
+    dateFormatter.dateStyle = NSDateFormatterMediumStyle;
+    dateFormatter.timeStyle = NSDateFormatterNoStyle;
     
     // If date is tomorrow and more than 12 hours away then put the full date
     if (([[dateFormatter stringFromDate:depatureDate] isEqualToString:[dateFormatter stringFromDate:[NSDate date]]])
         || ([depatureDate timeIntervalSinceDate:[NSDate date]] < 12 * 60 * 60)
-        || ui.data.status == kStatusEstimated)
+        || self.detailDeparture.status == kStatusEstimated)
     {
-        [dateFormatter setDateStyle:NSDateFormatterNoStyle];
+        dateFormatter.dateStyle = NSDateFormatterNoStyle;
     }
-    [dateFormatter setTimeStyle:NSDateFormatterShortStyle];
+    dateFormatter.timeStyle = NSDateFormatterShortStyle;
     
     
-    if ((mins < 0 || ui.data.invalidated) && ui.data.status != kStatusCancelled)
+    if ((mins < 0 || self.detailDeparture.invalidated) && self.detailDeparture.status != kStatusCancelled)
     {
         [timeText appendString:NSLocalizedString(@"Gone - ", @"first part of text to display on a single line if a bus has gone")];
         [timeText appendString:[dateFormatter stringFromDate:depatureDate]];
         [timeText appendString:@" "];
         timeColor = [UIColor redColor];
     }
-    else if (mins == 0 && ui.data.status != kStatusCancelled)
+    else if (mins == 0 && self.detailDeparture.status != kStatusCancelled)
     {
         [timeText appendString:NSLocalizedString(@"Due - ", @"first part of text to display on a single line if a bus is due")];
         [timeText appendString:[dateFormatter stringFromDate:depatureDate]];
         [timeText appendString:@" "];
         timeColor = [UIColor redColor];
     }
-    else if (mins == 1 && ui.data.status != kStatusCancelled)
+    else if (mins == 1 && self.detailDeparture.status != kStatusCancelled)
     {
         [timeText appendString:NSLocalizedString(@"1 min - ", @"first part of text to display on a single line if a bus is due in 1 minute")];
         [timeText appendString:[dateFormatter stringFromDate:depatureDate]];
         [timeText appendString:@" "];
         timeColor = [UIColor redColor];
     }
-    else if (mins < 6 && ui.data.status != kStatusCancelled)
+    else if (mins < 6 && self.detailDeparture.status != kStatusCancelled)
     {
-        [timeText appendFormat:NSLocalizedString(@"%lld mins - ", @"first part of text to display on a single line if a bus is due in several minutes"), mins];
+        [timeText appendFormat:NSLocalizedString(@"%d mins - ", @"first part of text to display on a single line if a bus is due in several minutes"), (int)mins];
         [timeText appendString:[dateFormatter stringFromDate:depatureDate]];
         [timeText appendString:@" "];
         timeColor = [UIColor redColor];
     }
-    else if (mins < 60 && ui.data.status != kStatusCancelled)
+    else if (mins < 60 && self.detailDeparture.status != kStatusCancelled)
     {
-        [timeText appendFormat:NSLocalizedString(@"%lld mins - ", @"first part of text to display on a single line if a bus is due in several minutes"), mins];
+        [timeText appendFormat:NSLocalizedString(@"%d mins - ", @"first part of text to display on a single line if a bus is due in several minutes"), (int)mins];
         [timeText appendString:[dateFormatter stringFromDate:depatureDate]];
         [timeText appendString:@" "];
         timeColor = [UIColor blueColor];
@@ -155,7 +168,10 @@
         timeColor = [UIColor blueColor];
     }
     
-    switch (ui.data.status)
+    // [timeText appendFormat:@"\nTime adjusted by %d:%02d ", (int)(self.detailDeparture.timeAdjustment) / 60, (int)(self.detailDeparture.timeAdjustment) % 60];
+    
+    
+    switch (self.detailDeparture.status)
     {
         case kStatusEstimated:
             break;
@@ -173,21 +189,21 @@
             break;
     }
     
-    if (ui.data.status != kStatusScheduled && ui.data.scheduledTime !=0 && (ui.data.scheduledTime/60000) != (ui.data.departureTime/60000))
+    if (self.detailDeparture.status != kStatusScheduled && self.detailDeparture.scheduledTime !=0 && (self.detailDeparture.scheduledTime/60000) != (self.detailDeparture.departureTime/60000))
     {
-        NSDate *scheduledDate = TriMetToNSDate(ui.data.scheduledTime);
+        NSDate *scheduledDate = TriMetToNSDate(self.detailDeparture.scheduledTime);
         [scheduledText appendFormat:NSLocalizedString(@"scheduled %@ ",@"info about arrival time"), [dateFormatter stringFromDate:scheduledDate]];;
     }
     
-    NSMutableAttributedString * string = [[[NSMutableAttributedString alloc] initWithString:@""] autorelease];
+    NSMutableAttributedString * string = @"".mutableAttributedString;
     
-    NSString *location = [NSString stringWithFormat:@"%@\n", ui.data.locationDesc];
-    NSDictionary *attributes = [NSDictionary dictionaryWithObject:[UIColor cyanColor] forKey:NSForegroundColorAttributeName];
+    NSString *location = [NSString stringWithFormat:@"%@\n", self.detailDeparture.locationDesc];
+    NSDictionary *attributes = @{NSForegroundColorAttributeName: [UIColor cyanColor]};
     NSAttributedString *subString = [[[NSAttributedString alloc] initWithString:location attributes:attributes] autorelease];
     [string appendAttributedString:subString];
     
-    NSString *fullsign = [NSString stringWithFormat:@"%@\n", ui.data.fullSign];
-    attributes = [NSDictionary dictionaryWithObject:[UIColor whiteColor] forKey:NSForegroundColorAttributeName];
+    NSString *fullsign = [NSString stringWithFormat:@"%@\n", self.detailDeparture.fullSign];
+    attributes =  @{NSForegroundColorAttributeName: [UIColor whiteColor]};
     subString = [[[NSAttributedString alloc] initWithString:fullsign attributes:attributes] autorelease];
     [string appendAttributedString:subString];
     
@@ -196,7 +212,7 @@
         [timeText appendString:@"\n"];
     }
     
-    attributes = [NSDictionary dictionaryWithObject:timeColor forKey:NSForegroundColorAttributeName];
+    attributes = @{NSForegroundColorAttributeName: timeColor};
     subString = [[[NSAttributedString alloc] initWithString:timeText attributes:attributes] autorelease];
     [string appendAttributedString:subString];
     
@@ -205,11 +221,11 @@
         [scheduledText appendString:@"\n"];
     }
     
-    attributes = [NSDictionary dictionaryWithObject:[UIColor grayColor] forKey:NSForegroundColorAttributeName];
+    attributes = @{NSForegroundColorAttributeName: [UIColor grayColor]};
     subString = [[[NSAttributedString alloc] initWithString:scheduledText attributes:attributes] autorelease];
     [string appendAttributedString:subString];
     
-    attributes = [NSDictionary dictionaryWithObject:[UIColor orangeColor] forKey:NSForegroundColorAttributeName];
+    attributes = @{NSForegroundColorAttributeName: [UIColor orangeColor]};
     subString = [[[NSAttributedString alloc] initWithString:detourText attributes:attributes] autorelease];
     [string appendAttributedString:subString];
     
@@ -217,33 +233,38 @@
     {
         [distanceText appendFormat:@"\n%@ away\n", [FormatDistance formatFeet:self.detailDeparture.blockPositionFeet]];
         [distanceText appendString:[VehicleData locatedSomeTimeAgo:TriMetToNSDate(self.detailDeparture.blockPositionAt)]];
-        attributes = [NSDictionary dictionaryWithObject:[UIColor yellowColor] forKey:NSForegroundColorAttributeName];
+        attributes = @{NSForegroundColorAttributeName: [UIColor yellowColor]};
         subString = [[[NSAttributedString alloc] initWithString:distanceText attributes:attributes] autorelease];
         [string appendAttributedString:subString];
-        
-        
-        
     }
     
     return string;
 }
 
-- (void)loadTableWithDepartures:(XMLDepartures *)newDepartures detour:(XMLDetour*)detour
+- (void)loadTableWithDepartures:(XMLDepartures *)newDepartures detours:(XMLDetours*)detours detailedDeparture:(DepartureData*)newDetailDep
 {
-    bool extraploate = (newDepartures == nil && self.diff > kStaleTime);
+    bool extrapolate = (newDepartures == nil && self.diff > kStaleTime);
+    bool mapShown = NO;
     NSInteger detourStartRow = 0;
+    self.loadingGroup.hidden = YES;
 
+    self.navGroup.hidden = NO;
+    
     if (self.arrivalsContext.navText)
     {
         if (self.arrivalsContext.hasNext)
         {
-            self.navGroup.hidden = NO;
+            self.nextButton.hidden = NO;
             [self.nextButton setTitle:self.arrivalsContext.navText];
         }
         else
         {
-            self.navGroup.hidden = YES;
+            self.nextButton.hidden = YES;
         }
+    }
+    else
+    {
+        self.nextButton.hidden = YES;
     }
     
     if (newDepartures == nil)
@@ -251,35 +272,43 @@
         newDepartures = self.departures;
     }
     
+    if (newDetailDep == nil)
+    {
+        newDetailDep = self.detailDeparture;
+    }
+    
     if (newDepartures.gotData && newDepartures.itemFromCache)
     {
         self.labelRefreshing.hidden = NO;
         self.labelRefreshing.text = @"Network error - extrapolated times";
     }
-    else if (extraploate)
-    {
-        // self.labelRefreshing.hidden = NO;
-        // self.labelRefreshing.text = @"Updating stale times";
-    }
+    //else if (extraploate)
+    //{
+    //    self.labelRefreshing.hidden = NO;
+    //    self.labelRefreshing.text = @"Updating stale times";
+    //}
     else
     {
         self.labelRefreshing.hidden = YES;
     }
     
-    NSMutableArray *rowTypes = [[[NSMutableArray alloc] init] autorelease];
+    NSMutableArray *rowTypes = [NSMutableArray array];
     
     
-    if (self.detailDeparture)
+    if (newDetailDep)
     {
         [rowTypes addObject:@"Arrival"];
         
-        if (self.detailDeparture.blockPosition!=nil && newDepartures.loc!=nil)
+        if (newDetailDep.blockPosition!=nil && newDepartures.loc!=nil)
         {
             [rowTypes addObject:@"Map"];
+            mapShown = YES;
         }
         [rowTypes addObject:@"Schedule Info"];
+        
+        self.detailDeparture = newDetailDep;
     }
-    else if (newDepartures.safeItemCount == 0 )
+    else if (newDepartures.count == 0 )
     {
         [rowTypes addObject:@"No arrivals"];
         _arrivalsStartRow = -1;
@@ -287,7 +316,7 @@
     else
     {
         _arrivalsStartRow = rowTypes.count;
-        for (NSInteger i=0; i<newDepartures.safeItemCount; i++)
+        for (NSInteger i=0; i<newDepartures.count; i++)
         {
             [rowTypes addObject:@"Arrival"];
         }
@@ -295,14 +324,22 @@
     
     detourStartRow = rowTypes.count;
     
-    for (NSInteger i=0; i< detour.safeItemCount; i++)
+    if (detours !=nil)
+    {
+        for (NSInteger i=0; i< detours.count; i++)
+        {
+            [rowTypes addObject:@"Detour"];
+        }
+        self.detours = detours;
+    }
+    else if (newDetailDep && newDetailDep.detour)
     {
         [rowTypes addObject:@"Detour"];
     }
     
     [rowTypes addObject:@"Static Info"];
     
-    if (self.arrivalsContext.showMap && newDepartures.loc !=nil)
+    if (self.arrivalsContext.showMap && newDepartures.loc !=nil && !mapShown)
     {
         [rowTypes addObject:@"Map"];
     }
@@ -334,33 +371,38 @@
         {
             WatchArrival *row = item;
             
-            if (extraploate)
+            if (extrapolate)
             {
                 [self.detailDeparture extrapolateFromNow];
             }
-            WatchDepartureUI *ui = [WatchDepartureUI createFromData:self.detailDeparture];
             
-            [row displayDepature:ui];
+            [row displayDeparture:self.detailDeparture];
         }
         else if (rowClass == WatchArrival.class)
         {
             WatchArrival *row = item;
             
-            DepartureData *dep = [newDepartures itemAtIndex:i-_arrivalsStartRow];
+            DepartureData *dep = newDepartures[i-_arrivalsStartRow];
             
-            if (extraploate)
+            if (extrapolate)
             {
                 [dep extrapolateFromNow];
             }
-            WatchDepartureUI *ui = [WatchDepartureUI createFromData:dep];
             
-            [row displayDepature:ui];
+            [row displayDeparture:dep];
         }
         else if (rowClass == WatchDetour.class)
         {
-            Detour *det = [detour itemAtIndex:i-detourStartRow];
             WatchDetour *detUI = item;
-            detUI.detourText.text = det.detourDesc;
+            if (detours!=nil)
+            {
+                Detour *det = detours[i-detourStartRow];
+                detUI.detourText.text = det.detourDesc;
+            }
+            else
+            {
+                detUI.detourText.text = @"Loading detour description...";
+            }
         }
         else if (rowClass == WatchArrivalInfo.class)
         {
@@ -369,10 +411,11 @@
             if (newDepartures.gotData)
             {
                 NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
-                [dateFormatter setDateStyle:NSDateFormatterNoStyle];
-                [dateFormatter setTimeStyle:NSDateFormatterMediumStyle];
+                dateFormatter.dateStyle = NSDateFormatterNoStyle;
+                dateFormatter.timeStyle = NSDateFormatterMediumStyle;
                 // NSString *shortDir = [StopNameCacheManager shortDirection:newDepartures.locDir];
                 
+            
                 if (newDepartures.locDir.length > 0)
                 {
                     info.arrivalInfoText.text = [NSString stringWithFormat:@"🆔%@\n⤵️%@\n➡️%@", newDepartures.locid, [dateFormatter stringFromDate:newDepartures.cacheTime], newDepartures.locDir];
@@ -380,7 +423,6 @@
                 else
                 {
                     info.arrivalInfoText.text = [NSString stringWithFormat:@"🆔%@\n⤵️%@", newDepartures.locid, [dateFormatter stringFromDate:newDepartures.cacheTime]];
-
                 }
             }
             else
@@ -395,7 +437,7 @@
             
             if (self.detailDeparture.blockPosition!=nil)
             {
-                otherPins = [NSArray arrayWithObjects:[WatchDepartureUI createFromData:self.detailDeparture], nil];
+                otherPins = @[self.detailDeparture];
             }
             
             [WatchMapHelper displayMap:row.map purplePin:newDepartures.loc otherPins:otherPins];
@@ -435,14 +477,23 @@
     
     if (newDepartures.gotData)
     {
-        SafeUserData *userData = [SafeUserData getSingleton];
+        SafeUserData *userData = [SafeUserData singleton];
         userData.readOnly = FALSE;
         NSString * longDesc = [NSString stringWithFormat:@"%@ (%@)", self.departures.locDesc, self.departures.locDir];
-        [userData addToRecentsWithLocation:self.arrivalsContext.locid description:longDesc];
+        NSDictionary *recent = [userData addToRecentsWithLocation:self.arrivalsContext.locid description:longDesc];
+        
+        if ([WCSession isSupported] && recent)
+        {
+            NSDictionary *userInfo = @{@"recent": recent};
+            WCSession *session = [WCSession defaultSession];
+            [session  activateSession];
+            [session transferUserInfo:userInfo];
+        }
+
         userData.readOnly = TRUE;
     }
     
-    if (!extraploate)
+    if (!extrapolate)
     {
         [self resetTitle];
     }
@@ -453,13 +504,11 @@
 }
 
 
-
-
 - (NSTimeInterval)diff
 {
     if (self.lastUpdate)
     {
-        return -[self.lastUpdate timeIntervalSinceNow];
+        return -self.lastUpdate.timeIntervalSinceNow;
     }
     return 0;
 }
@@ -495,79 +544,137 @@
     }
 }
 
-
-- (void)taskFinishedMainThread:(id)arg
+- (void)taskFinishedMainThread:(id)result
 {
-    NSArray *data = arg;
+    NSDictionary *data = result;
     
-    XMLDepartures *departures = data.firstObject;
-    XMLDetour     *detour     = nil;
-    
-    if (data.count > 1)
+    if (data!=nil)
     {
-        detour = data.lastObject;
+    
+        XMLDepartures *departures  = [data objectForKey:NSStringFromClass([XMLDepartures class])];
+        XMLDetours    *detours     = [data objectForKey:NSStringFromClass([XMLDetours class])];
+        DepartureData *detailedDep = [data objectForKey:NSStringFromClass([DepartureData class])];
+    
+        [self loadTableWithDepartures:departures detours:detours detailedDeparture:detailedDep];
+    }
+    else
+    {
+        [self loadTableWithDepartures:nil detours:nil detailedDeparture:nil];
     }
     
-    [self loadTableWithDepartures:departures detour: detour];
     [self startTimer];
 }
 
+
+
+
+- (void)TriMetXML:(TriMetXML*)xml startedFetchingData:(bool)fromCache
+{
+    if (!fromCache)
+    {
+        [self sendProgress:_tasksDone total:++_tasks];
+    }
+}
+
+- (void)TriMetXML:(TriMetXML*)xml finishedFetchingData:(bool)fromCache
+{
+    if (!fromCache)
+    {
+        [self sendProgress:++_tasksDone total:_tasks];
+    }
+}
+
+
+// static NSDate *startTime = nil;
+
+#define kThreashold 2000
+
+- (void)TriMetXML:(TriMetXML*)xml startedParsingData:(NSUInteger)size
+{
+    // startTime = [[NSDate date] retain];
+    
+    if (size > kThreashold)
+    {
+        [self sendProgress:_tasksDone total:++_tasks];
+    }
+}
+
+- (void)TriMetXML:(TriMetXML*)xml finishedParsingData:(NSUInteger)size
+{
+   // NSTimeInterval parseTime = -startTime.timeIntervalSinceNow;
+   // [startTime release];
+   // startTime = nil;
+    
+   // DEBUG_LOGF(parseTime);
+   DEBUG_LOGL(size);
+   // DEBUG_LOGF(parseTime/(float)size);
+    
+    if (size > kThreashold)
+    {
+        [self sendProgress:++_tasksDone total:_tasks];
+    }
+}
+
+
 - (id)backgroundTask
 {
-    XMLDepartures *departures = [[[XMLDepartures alloc] init] autorelease];
+    _tasks = 0;
+    _tasksDone = 0;
+    
+    [self sendProgress:_tasksDone total:_tasks];
+    
+    XMLDepartures *departures = [XMLDepartures xml];
+    XMLDetours *detours = nil;
+    DepartureData *newDetailDep = nil;
+    
+    departures.oneTimeDelegate = self;
     [departures getDeparturesForLocation:self.arrivalsContext.locid];
-    self.lastUpdate = [NSDate date];
     
-    XMLDetour *detour = nil;
+    [self sendProgress:++_tasksDone total:_tasks];
     
-    if (_arrivalsContext.detailBlock)
+    if (_arrivalsContext.detailBlock && !self.backgroundThread.cancelled)
     {
-        bool found = NO;
-        for (NSInteger i = 0; i <departures.safeItemCount; i++) {
-            
-            DepartureData *dep = [departures itemAtIndex:i];
-            
-            if ([dep.block isEqualToString:_arrivalsContext.detailBlock])
+        newDetailDep = [departures departureForBlock:_arrivalsContext.detailBlock];
+        
+        if (newDetailDep==nil && self.detailDeparture)
+        {
+            newDetailDep = [self.detailDeparture.copy autorelease];
+            [newDetailDep makeInvalid:departures.queryTime];
+        }
+        
+        if (newDetailDep)
+        {
+            if (newDetailDep.detour && !self.backgroundThread.cancelled)
             {
-                self.detailDeparture = dep;
-                found = YES;
-                break;
+                [self sendProgress:_tasksDone total:++_tasks];
+                detours = [XMLDetours xml];
+                detours.oneTimeDelegate = self;
+                [detours getDetoursForRoute:newDetailDep.route];
             }
-        }
         
-        if (!found && self.detailDeparture)
-        {
-            [self.detailDeparture makeInvalid:departures.queryTime];
-        }
-        
-        
-        DepartureData *dep = self.detailDeparture;
-        
-        if (self.detailDeparture)
-        {
-            detour = [[[XMLDetour alloc] init] autorelease];
-            [detour getDetourForRoute:dep.route];
-            
-            if (dep.needToFetchStreetcarLocation)
+            if (newDetailDep.needToFetchStreetcarLocation && !self.backgroundThread.cancelled)
             {
-                NSString *streetcarRoute = dep.route;
+                [self sendProgress:_tasksDone total:++_tasks];
                 
-                dep.streetcarId = self.detailStreetcarId;
+                NSString *streetcarRoute = newDetailDep.route;
                 
-                if (dep.streetcarId == nil)
+                newDetailDep.streetcarId = self.detailStreetcarId;
+               
+                
+                if (newDetailDep.streetcarId == nil)
                 {
                     // First get the arrivals via next bus to see if we can get the correct vehicle ID
                     XMLStreetcarPredictions *streetcarArrivals = [[XMLStreetcarPredictions alloc] init];
                     
-                    [streetcarArrivals getDeparturesForLocation:[NSString stringWithFormat:@"predictions&a=portland-sc&r=%@&stopId=%@", streetcarRoute,dep.locid]];
-                    for (NSInteger i=0; i< streetcarArrivals.safeItemCount; i++)
-                    {
-                        DepartureData *vehicle = [streetcarArrivals itemAtIndex:i];
-                        
-                        if ([vehicle.block isEqualToString:dep.block])
+                    streetcarArrivals.oneTimeDelegate = self;
+                    [streetcarArrivals getDeparturesForLocation:[NSString stringWithFormat:@"predictions&a=portland-sc&r=%@&stopId=%@", streetcarRoute,newDetailDep.locid]];
+                    
+                    for (DepartureData *vehicle in streetcarArrivals)
+                    {                        
+                        if ([vehicle.block isEqualToString:newDetailDep.block])
                         {
-                            dep.streetcarId = vehicle.streetcarId;
-                            self.detailStreetcarId = dep.streetcarId;
+                            newDetailDep.streetcarId = vehicle.streetcarId;
+                            self.detailStreetcarId = newDetailDep.streetcarId;
                             break;
                         }
                     }
@@ -576,66 +683,121 @@
                 }
                 
                 // Now get the locations of the steetcars and find ours
-                XMLStreetcarLocations *locs = [XMLStreetcarLocations getSingletonForRoute:streetcarRoute];
+                XMLStreetcarLocations *locs = [XMLStreetcarLocations singletonForRoute:streetcarRoute];
+                
+                locs.oneTimeDelegate = self;
                 [locs getLocations];
-
-                if (dep.streetcar && [dep.route isEqualToString:streetcarRoute])
+                
+                if (newDetailDep.streetcar && [newDetailDep.route isEqualToString:streetcarRoute])
                 {
-                    [locs insertLocation:dep];
+                    [locs insertLocation:newDetailDep];
                 }
             }
-            else if ([UserPrefs getSingleton].watchUseBetaVehicleLocator && (dep.blockPosition==nil || dep.invalidated))
+            else if ((newDetailDep.blockPosition==nil || newDetailDep.invalidated) && !self.backgroundThread.cancelled)
             {
-                XMLLocateVehicles *vehicles = [[[XMLLocateVehicles alloc] init] autorelease];
+                XMLLocateVehicles *vehicles = [XMLLocateVehicles xml];
                 
-                    
-                [vehicles findNearestVehicles:nil direction:nil blocks:[NSSet setWithObject:dep.block]];
-                    
-                if (vehicles.safeItemCount > 0)
+                vehicles.oneTimeDelegate = self;
+                [vehicles findNearestVehicles:nil direction:nil blocks:[NSSet setWithObject:newDetailDep.block]];
+                
+                if (vehicles.count > 0)
                 {
                     VehicleData *data = vehicles.itemArray.firstObject;
                         
-                    [dep insertLocation:data];
+                    [newDetailDep insertLocation:data];
                 }
             }
         }
         
     }
     
-    NSArray *result = nil;
+    NSMutableDictionary *result = [NSMutableDictionary dictionary];
     
-    if (detour)
+    if (!self.backgroundThread.cancelled)
     {
-        result = [NSArray arrayWithObjects:departures, detour, nil];
+        [result setObject:departures forKey:NSStringFromClass(departures.class)];
     }
-    else
+    
+    if (detours && !self.backgroundThread.cancelled)
     {
-        result = [NSArray arrayWithObject:departures];
+        [result setObject:detours forKey:NSStringFromClass(detours.class)];
+    }
+    
+    if (newDetailDep)
+    {
+        [result setObject:newDetailDep forKey:NSStringFromClass(newDetailDep.class)];
+    }
+    
+    if (!self.backgroundThread.cancelled)
+    {
+        self.lastUpdate = [NSDate date];
     }
     
     return  result;
 }
 
 
+- (void)progress:(int)state total:(int)total
+{
+    NSMutableString * progress = [NSMutableString string];
+    
+    const int max_state = 3;
+    
+    if (state > max_state)
+    {
+        total = total - (state-max_state);
+        state = max_state;
+    }
+    
+    
+    if (total > 1)
+    {
+        int i;
+    
+        for (i = 0; i<state; i++)
+        {
+            [progress appendString:@"◉"];
+        }
+    
+        for (; i<total; i++)
+        {
+            [progress appendString:@"◎"];
+        }
+        
+        [self setTitle:[NSString stringWithFormat:@"%@ %@", progress, self.progressTitle]];
+    }
+    else
+    {
+        [self setTitle:self.progressTitle];
+    }
+}
 
-
+- (void)extentionForgrounded
+{
+    [self refresh:nil];
+}
 
 - (void)refresh:(id)arg
 {
+    NSNumber *hideRefreshLabel = nil;
+    
+    if ([arg isKindOfClass:hideRefreshLabel.class])
+    {
+        hideRefreshLabel = arg;
+    }
+    
     if (self.refreshTimer)
     {
         [self.refreshTimer invalidate];
         self.refreshTimer = nil;
     }
     
-    if (arg==nil || ([arg isKindOfClass:[NSNumber class]] && ![(NSNumber *)arg boolValue]))
+    if (hideRefreshLabel==nil || !hideRefreshLabel.boolValue)
     {
-        
-        
+        DEBUG_LOGL(self.diff);
         if (self.diff > kStaleTime)
         {
-            
-            [self loadTableWithDepartures:nil detour:nil];
+            [self loadTableWithDepartures:nil detours:nil detailedDeparture:nil];
         }
         else
         {
@@ -648,6 +810,37 @@
         self.labelRefreshing.hidden = YES;
     }
     
+    
+    if (self.lastUpdate==nil && _arrivalsContext.departures == nil)
+    {
+        self.loadingGroup.hidden = NO;
+        self.loadingLabel.hidden = NO;
+        self.navGroup.hidden     = YES;
+        
+        if (_arrivalsContext.detailBlock)
+        {
+            self.progressTitle = @"Details";
+        }
+        else
+        {
+            self.progressTitle = @"Arrivals";
+        }
+    }
+    else if (_arrivalsContext.departures !=nil)
+    {
+        self.progressTitle = @"Refreshing";
+        [self loadTableWithDepartures:_arrivalsContext.departures
+                              detours:_arrivalsContext.detours
+                    detailedDeparture:[_arrivalsContext.departures departureForBlock:_arrivalsContext.detailBlock]];
+        _arrivalsContext.departures = nil;
+        _arrivalsContext.detours = nil;
+    }
+    else
+    {
+        self.loadingGroup.hidden = YES;
+        self.progressTitle = @"Refreshing";
+    }
+    
     [self startBackgroundTask];
 }
 
@@ -657,24 +850,30 @@
     self.arrivalsContext = context;
     _mapUpdated = NO;
     
-    
-    
-    NSNumber *hidden = [NSNumber numberWithBool:YES];
-    [self refresh:hidden];
+    [self refresh:@YES];
 
 }
 
 - (void)table:(WKInterfaceTable *)table didSelectRowAtIndex:(NSInteger)rowIndex
 {
-    if (rowIndex < self.departures.safeItemCount && _arrivalsContext.detailBlock == nil)
+    
+    
+    if (rowIndex < self.departures.count && _arrivalsContext.detailBlock == nil)
     {
-        WatchArrivalsContext *detailContext = [WatchArrivalsContext alloc].init.autorelease;
-        DepartureData *data = [self.departures itemAtIndex:rowIndex];
+        WatchArrivalsContext *detailContext = [self.arrivalsContext clone];
+        
+        if (detailContext == nil)
+        {
+            detailContext = [WatchArrivalsContext alloc].init.autorelease;
+        }
+        DepartureData *data = self.departures[rowIndex];
         
         detailContext.detailBlock   = data.block;
         detailContext.locid         = _arrivalsContext.locid;
         detailContext.stopDesc      = _arrivalsContext.stopDesc;
         detailContext.navText       = _arrivalsContext.navText;
+        detailContext.departures    = self.departures;
+        detailContext.detours       = self.detours;
         
         [detailContext pushFrom:self];
     }
@@ -689,11 +888,14 @@
 - (void)willActivate {
     // This method is called when watch view controller is about to be visible to user
     
-    if (![self autoCommuteAlreadyHome:NO])
+    if (![self autoCommute])
     {
         [self startTimer];
         [self.arrivalsContext updateUserActivity:self];
     }
+    
+    
+    
     [super willActivate];
 }
 
@@ -718,7 +920,7 @@
 }
 
 - (IBAction)menuItemCommute {
-    [self forceCommuteAlreadyHome:NO];
+    [self forceCommute];
 }
 - (IBAction)menuItemHome {
     [self popToRootController];
@@ -732,6 +934,9 @@
         WatchArrivalsContext *next = [self.arrivalsContext getNext];
         [next pushFrom:self];
     }
+}
+- (IBAction)homeButtonTapped {
+    [self popToRootController];
 }
 @end
 

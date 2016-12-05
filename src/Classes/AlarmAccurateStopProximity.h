@@ -23,11 +23,11 @@
 
 @interface AlarmAccurateStopProximity : AlarmTask <CLLocationManagerDelegate, MapPinColor>
 {
-	CLLocation	*_destination;
-	bool		_accurate;
-	CLLocationManager *_locationManager;
-    bool        _updating;
-    bool        _significant;
+	CLLocation *            _destination;
+	bool                    _accurate;
+	CLLocationManager *     _locationManager;
+    bool                    _updating;
+    bool                    _significant;
 }
 
 @property (nonatomic, retain)	CLLocation *destination;
@@ -35,7 +35,7 @@
 	  
 - (void)setStop:(NSString *)stopId loc:(CLLocation *)loc desc:(NSString *)desc;
 - (void)cancelAlert;
-- (id)initWithAccuracy:(bool)accurate;
+- (instancetype)initWithAccuracy:(bool)accurate;
 - (void)startUpdatingLocation;
 - (void)stopUpdatingLocation;
 - (void)startMonitoringSignificantLocationChanges;

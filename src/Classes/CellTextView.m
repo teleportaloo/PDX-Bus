@@ -18,7 +18,7 @@
 
 @dynamic view;
 
-- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)identifier
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)identifier
 {
 	self = [super initWithStyle:style reuseIdentifier:identifier];
 	if (self)
@@ -51,7 +51,7 @@
 {
 	[super layoutSubviews];
 	
-	CGRect contentRect = [self.contentView bounds];
+	CGRect contentRect = self.contentView.bounds;
 	
 	// inset the text view within the cell
 	if (contentRect.size.width > (kInsertValue*2))	// but not if the width is too small

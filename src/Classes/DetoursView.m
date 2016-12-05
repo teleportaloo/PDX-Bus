@@ -15,77 +15,78 @@
 #import "CellLabel.h"
 #import "DirectionView.h"
 #import "DebugLogging.h"
+#include "DetourData+iOSUI.h"
 
 #define kGettingDetours NSLocalizedString(@"getting detours", @"progress message")
 
 @implementation DetoursView
 
-@synthesize detourData = _detourData;
+@synthesize detours = _detours;
 
 - (void)dealloc {
-	self.detourData = nil;
+	self.detours = nil;
 	[super dealloc];
 }
 
 #pragma mark Data fetchers
 
-- (void)fetchDetours:(id) arg
+- (void)workerToFetchDetours:(NSArray*)routes
 {	
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
     [self.backgroundTask.callbackWhenFetching backgroundStart:1 title:kGettingDetours];
 	
-    self.detourData = [[[XMLDetour alloc] init] autorelease];
+    self.detours = [XMLDetours xml];
 	
-	if (arg == nil)
+	if (routes == nil)
 	{
-		[self.detourData getDetours];
+		[self.detours getDetours];
 	}
 	else 
 	{
-		[self.detourData getDetourForRoutes:(NSArray*)arg];
+		[self.detours getDetoursForRoutes:routes];
  	}
 
-	disclaimerSection = [self.detourData safeItemCount];
+	_disclaimerSection = self.detours.count;
 	
 	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
 	[pool release];
 }
 
 
-- (void) fetchDetoursInBackground:(id<BackgroundTaskProgress>) callback
+- (void) fetchDetoursAsync:(id<BackgroundTaskProgress>) callback
 {
 	self.backgroundTask.callbackWhenFetching = callback;
 	
-	[NSThread detachNewThreadSelector:@selector(fetchDetours:) toTarget:self withObject:nil];
+	[NSThread detachNewThreadSelector:@selector(workerToFetchDetours:) toTarget:self withObject:nil];
 }
 
-- (void)fetchDetoursInBackground:(id<BackgroundTaskProgress>) callback routes:(NSArray *)routes
+- (void)fetchDetoursAsync:(id<BackgroundTaskProgress>) callback routes:(NSArray *)routes
 {
 	self.backgroundTask.callbackWhenFetching = callback;
 	
-	[NSThread detachNewThreadSelector:@selector(fetchDetours:) toTarget:self withObject:routes];
+	[NSThread detachNewThreadSelector:@selector(workerToFetchDetours:) toTarget:self withObject:routes];
 }
 
-- (void)fetchDetoursForRoute:(NSString *)route
+- (void)workerToFetchDetoursForRoute:(NSString *)route
 {	
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:kGettingDetours];
 	
-    self.detourData = [[[XMLDetour alloc] init] autorelease];
-	[self.detourData getDetourForRoute:route];
+    self.detours = [XMLDetours xml];
+	[self.detours getDetoursForRoute:route];
  
-	disclaimerSection = [self.detourData safeItemCount];
+	_disclaimerSection = self.detours.count;
 	
 	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
 	[pool release];
 }
 
-- (void) fetchDetoursInBackground:(id<BackgroundTaskProgress>)callback route:(NSString *)route
+- (void) fetchDetoursAsync:(id<BackgroundTaskProgress>)callback route:(NSString *)route
 {
 	self.backgroundTask.callbackWhenFetching = callback;
 	
-	[NSThread detachNewThreadSelector:@selector(fetchDetoursForRoute:) toTarget:self withObject:route];
+	[NSThread detachNewThreadSelector:@selector(workerToFetchDetoursForRoute:) toTarget:self withObject:route];
 }
 
 
@@ -95,18 +96,18 @@
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section 
 {
 	
-	if (section == disclaimerSection)
+	if (section == _disclaimerSection)
 	{
 		return nil;
 	}
-	Detour *detour = [self.detourData itemAtIndex:section];
+	Detour *detour = self.detours[section];
 	return detour.routeDesc;
 }
 
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
 
-	return [self.detourData safeItemCount] + 1;
+	return self.detours.count + 1;
 }
 
 
@@ -116,20 +117,20 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	if (indexPath.section == disclaimerSection)
+	if (indexPath.section == _disclaimerSection)
 	{
 		return kDisclaimerCellHeight;
 	}
 	
-	Detour *detour = [self.detourData itemAtIndex:indexPath.section];
+	Detour *detour = self.detours[indexPath.section];
 	
 	
-	return [self getTextHeight:detour.detourDesc font:[self getParagraphFont]];
+	return [self getTextHeight:detour.detourDesc font:self.paragraphFont];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 		
-	if (indexPath.section == disclaimerSection)
+	if (indexPath.section == _disclaimerSection)
 	{
 		UITableViewCell *cell = nil;
 
@@ -138,11 +139,11 @@
 			cell = [self disclaimerCellWithReuseIdentifier:kDisclaimerCellId];
 		}
 		
-		if (self.detourData.itemArray == nil)
+		if (self.detours.itemArray == nil)
 		{
 			[self noNetworkDisclaimerCell:cell];
 		} 
-		else if ([self.detourData safeItemCount] == 0)
+		else if (self.detours.count == 0)
 		{
 			[self addTextToDisclaimerCell:cell text:NSLocalizedString(@"No current detours", @"empty list message")];
 			cell.accessoryType = UITableViewCellAccessoryNone;
@@ -158,20 +159,20 @@
 	else
 	{
 		
-		Detour *detour = [self.detourData itemAtIndex:indexPath.section];
+		Detour *detour = self.detours[indexPath.section];
 		
-		NSString *MyIdentifier = [NSString stringWithFormat:@"DetourLabel%f", [self getTextHeight:detour.detourDesc font:[self getParagraphFont]]];
+		NSString *MyIdentifier = [NSString stringWithFormat:@"DetourLabel%f", [self getTextHeight:detour.detourDesc font:self.paragraphFont]];
 		
 		CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:MyIdentifier];
 		if (cell == nil) {
 			cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MyIdentifier] autorelease];
-			cell.view = [Detour create_UITextView:[self getParagraphFont]];
+			cell.view = [Detour create_UITextView:self.paragraphFont];
 		}
 		
 		cell.view.text = detour.detourDesc;
 		cell.selectionStyle = UITableViewCellSelectionStyleBlue;
 		
-		[cell setAccessibilityLabel:[detour detourDesc]];
+		cell.accessibilityLabel = detour.detourDesc;
 
 		return cell;
 	}
@@ -180,19 +181,14 @@
 
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-	if (indexPath.section != disclaimerSection)
+	if (indexPath.section != _disclaimerSection)
 	{
-		Detour *detour = [self.detourData itemAtIndex:indexPath.section];
-		DirectionView *directionViewController = [[DirectionView alloc] init];
-		
-		// directionViewController.route = [detour route];
-		[directionViewController fetchDirectionsInBackground:self.backgroundTask route:[detour route]];
-		[directionViewController release];	
-		
+		Detour *detour = self.detours[indexPath.section];
+		[[DirectionView viewController] fetchDirectionsAsync:self.backgroundTask route:detour.route];
 	}
-	else if (self.detourData.itemArray == nil)
+	else if (self.detours.itemArray == nil)
 	{
-		[self networkTips:self.detourData.htmlError networkError:self.detourData.errorMsg];
+		[self networkTips:self.detours.htmlError networkError:self.detours.errorMsg];
         [self clearSelection];
 	}
 
@@ -232,7 +228,7 @@
 
 - (void)appendXmlData:(NSMutableData *)buffer
 {
-    [self.detourData appendQueryAndData:buffer];
+    [self.detours appendQueryAndData:buffer];
 }
 
 @end

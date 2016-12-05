@@ -20,12 +20,14 @@
 @synthesize parent = _parent;
 @synthesize sheet  = _sheet;
 
-- (id)initWithParent:(ViewControllerBase *)newParent {
+- (instancetype)initWithParent:(ViewControllerBase *)newParent {
 	if ((self = [super init]))
 	{
-		self.sheet = [[[UIActionSheet alloc] initWithTitle:@"TriMet Tickets App"
-                                                  delegate:self cancelButtonTitle:@"Cancel"
-                                    destructiveButtonTitle:nil otherButtonTitles:@"Get TriMet Tickets App", @"Hide toolbar icon", nil]  autorelease];
+		self.sheet = [[[UIActionSheet alloc] initWithTitle:NSLocalizedString(@"TriMet Tickets App", @"alert title")
+                                                  delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel", @"button text")
+                                    destructiveButtonTitle:nil otherButtonTitles:
+                                                                    NSLocalizedString(@"Get TriMet Tickets App" , @"button text"),
+                                                                    NSLocalizedString(@"Hide toolbar icon",@"button text"),  nil]  autorelease];
         
         // The reference is weak - so retain ourselves
         [self retain];
@@ -52,7 +54,7 @@
             [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"itms-apps://www.itunes.com/apps/TriMetTickets"]];
             break;
         case 1:
-            [UserPrefs getSingleton].ticketAppIcon = NO;
+            [UserPrefs singleton].ticketAppIcon = NO;
             [self.parent updateToolbar];
             break;
     }

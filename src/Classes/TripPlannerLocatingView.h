@@ -19,15 +19,14 @@
 
 
 @interface TripPlannerLocatingView : LocatingView <LocatingViewDelegate> {
-	XMLTrips *_tripQuery;
-	TripEndPoint  *_currentEndPoint;
-	UINavigationController *_backgroundTaskController;
-	bool _backgroundTaskForceResults;
-	UIInterfaceOrientation _cachedOrientation;
-	bool _useCachedOrientation;
-    bool _appeared;
-    
-    bool _waitingForGeocoder;
+	XMLTrips *                  _tripQuery;
+	TripEndPoint  *             _currentEndPoint;
+	UINavigationController *    _backgroundTaskController;
+	bool                        _backgroundTaskForceResults;
+	UIInterfaceOrientation      _cachedOrientation;
+	bool                        _useCachedOrientation;
+    bool                        _appeared;
+    bool                        _waitingForGeocoder;
 }
 
 @property (nonatomic, retain) XMLTrips *tripQuery;

@@ -28,11 +28,11 @@
 	[super dealloc];
 }
 
--(id)init
+-(instancetype)init
 {
 	if ((self = [super init]))
 	{
-		self.directions = [[[NSMutableDictionary alloc] init] autorelease];
+        self.directions = [NSMutableDictionary dictionary];
 	}
 	return self;
 }

@@ -23,6 +23,6 @@
 
 @property (nonatomic, retain) TripItinerary *it;
 
-- (bool)fetchShapesInBackground:(id<BackgroundTaskProgress>)background;
+- (void)fetchShapesAsync:(id<BackgroundTaskProgress>)background;
 
 @end

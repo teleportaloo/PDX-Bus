@@ -44,7 +44,7 @@
 - (NSString *)addressFromPlacemark:(CLPlacemark *)placemark
 {
     
-    NSMutableString *address = [[[NSMutableString alloc] init] autorelease];
+    NSMutableString *address = [NSMutableString string];
     
     if (placemark.addressDictionary != nil)
     {
@@ -54,7 +54,7 @@
         
         NSString* item =  (NSString *)CFDictionaryGetValue(dict, kABPersonAddressStreetKey);
         
-        if (item && [item length] > 0)
+        if (item && item.length > 0)
         {
             DEBUG_LOG(@"%@\n", item);
             [address appendString:item];
@@ -62,9 +62,9 @@
         
         item =  (NSString *)CFDictionaryGetValue(dict, kABPersonAddressCityKey);
         
-        if (item && [item length] > 0)
+        if (item && item.length > 0)
         {
-            if ([address length] > 0)
+            if (address.length > 0)
             {
                 [address appendString:@", "];
             }
@@ -75,9 +75,9 @@
         
         item =  (NSString *)CFDictionaryGetValue(dict, kABPersonAddressStateKey);
         
-        if (item && [item length] > 0)
+        if (item && item.length > 0)
         {
-            if ([address length] > 0)
+            if (address.length > 0)
             {
                 [address appendString:@", "];
             }
@@ -101,14 +101,14 @@
         
         if (!error)
         {
-            CLPlacemark *placemark = [placemarks lastObject];
+            CLPlacemark *placemark = placemarks.lastObject;
             
             NSString *address = [self addressFromPlacemark:placemark];
             DEBUG_LOG(@"%@\n", address);
             
             if (address!=nil)
             {
-                NSMutableString *addressWithNoNewLines = [[[NSMutableString alloc] init] autorelease];
+                NSMutableString *addressWithNoNewLines = [NSMutableString string];
                 
                 [addressWithNoNewLines appendString:address];
                 

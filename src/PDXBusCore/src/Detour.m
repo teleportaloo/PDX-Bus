@@ -11,7 +11,7 @@
 
 
 #import "Detour.h"
-#import <UIKit/UIStringDrawing.h>
+
 
 
 @implementation Detour
@@ -23,20 +23,7 @@
 #define kFontName				@"Arial"
 #define kTextViewFontSize		16.0
 
-+ (UILabel *)create_UITextView:(UIFont *)font
-{
-	CGRect frame = CGRectMake(0.0, 0.0, 100.0, 100.0);
-	
-	UILabel *textView = [[[UILabel alloc] initWithFrame:frame] autorelease];
-    textView.textColor = [UIColor blackColor];
-    textView.font = font;
-    textView.backgroundColor = [UIColor clearColor];
-	textView.lineBreakMode =   NSLineBreakByWordWrapping;
-	textView.adjustsFontSizeToFitWidth = YES;
-	textView.numberOfLines = 0;
-		
-	return textView;
-}
+
 
 - (void) dealloc
 {

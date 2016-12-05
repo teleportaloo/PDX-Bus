@@ -11,16 +11,15 @@
 
 
 #import <UIKit/UIKit.h>
+#import "DataFactory.h"
 
 #define kDetourCellHeight 170.0
 
-@interface Detour : NSObject {
+@interface Detour : DataFactory {
 	NSString *_routeDesc;
 	NSString *_detourDesc;
 	NSString *_route;
 }
-
-+ (UILabel *)create_UITextView:(UIFont*)font;
 
 @property (nonatomic,retain) NSString *routeDesc;
 @property (nonatomic,retain) NSString *detourDesc;

@@ -19,22 +19,23 @@
 #import "SearchFilter.h"
 
 @interface RailStation : NSObject <SearchFilter> {
-	NSMutableArray *_locList;
-	NSMutableArray *_dirList;
-	NSString *_station;
-	NSString *_wikiLink;
-	int _index;
+	NSMutableArray *    _locList;
+	NSMutableArray *    _dirList;
+	NSString *          _station;
+	NSString *          _wikiLink;
+	int                 _index;
 }
 
 @property (nonatomic, retain) NSMutableArray *locList;
 @property (nonatomic, retain) NSMutableArray *dirList;
-@property (nonatomic, retain) NSString *station;
-@property (nonatomic, retain) NSString *wikiLink;
+@property (nonatomic, copy)   NSString *station;
+@property (nonatomic, copy)   NSString *wikiLink;
 @property (nonatomic) int index;
 @property (readonly) RAILLINES line;
 
 
-- (id)initFromHotSpot:(HOTSPOT *)hotspot index:(int)index;
++ (instancetype)fromHotSpot:(HOTSPOT *)hotspot index:(int)index;
+- (instancetype)initFromHotSpot:(HOTSPOT *)hotspot index:(int)index;
 - (NSComparisonResult)compareUsingStation:(RailStation*)inStation;
 + (NSString *)nameFromHotspot:(HOTSPOT *)hotspot;
 + (UITableViewCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier rowHeight:(CGFloat)height 
@@ -42,7 +43,7 @@
 										  rightMargin:(BOOL)rightMargin
 												 font:(UIFont*)font;
 + (void)populateCell:(UITableViewCell*)cell station:(NSString *)station lines:(RAILLINES)lines;
-- (NSString*)stringToFilter;
+@property (nonatomic, readonly, copy) NSString *stringToFilter;
 
 
 @end

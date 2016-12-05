@@ -54,26 +54,24 @@ static NSString *oneRouteURLString = @"routeConfig/route/%@/dir/true";
         elementName = qName;
     }
 	
-	if ([elementName isEqualToString:@"resultSet"]) {
+	if (ELTYPE(resultSet)) {
 
 		[self initArray];
-		hasData = YES;
+		_hasData = YES;
 	}
 	
-    if ([elementName isEqualToString:@"route"]) {
-        self.currentRouteObject = [[[Route alloc] init] autorelease];
+    if (ELTYPE(route)) {
+        self.currentRouteObject = [Route data];
 		
-		self.currentRouteObject.route = [self safeValueFromDict:attributeDict valueForKey:@"route"];
-		self.currentRouteObject.desc =  [self safeValueFromDict:attributeDict valueForKey:@"desc"];		
+		self.currentRouteObject.route = ATRVAL(route);
+		self.currentRouteObject.desc =  ATRVAL(desc);
 		
         return;
     }
 	
-	if ([elementName isEqualToString:@"dir"])
+	if (ELTYPE(dir))
 	{
-		[self.currentRouteObject.directions 
-			setObject:	[self safeValueFromDict:attributeDict valueForKey:@"desc"]  
-			forKey:		[self safeValueFromDict:attributeDict valueForKey:@"dir"]];
+		self.currentRouteObject.directions[ATRVAL(dir)] = ATRVAL(desc);
 	}
 }
 
@@ -85,7 +83,7 @@ static NSString *oneRouteURLString = @"routeConfig/route/%@/dir/true";
         elementName = qName;
     }
 	
-	if ([elementName isEqualToString:@"route"]) {
+	if (ELTYPE(route)) {
 		[self addItem:self.currentRouteObject];
 		self.currentRouteObject = nil; 
 	}

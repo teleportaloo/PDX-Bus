@@ -19,8 +19,9 @@
 
 
 @interface BigRouteView : ViewControllerBase {
-	DepartureData *_departure;
-	UIView *_textView;	}
+	DepartureData *     _departure;
+	UIView *            _textView;
+}
 
 @property (nonatomic, retain) DepartureData *departure;
 @property (nonatomic, retain) UIView *textView;

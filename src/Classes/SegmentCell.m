@@ -31,7 +31,6 @@
 	
 	self.segment						= [[[UISegmentedControl alloc] initWithItems:content] autorelease];
 	self.segment.frame					= frame;
-	self.segment.segmentedControlStyle	= UISegmentedControlStylePlain;
 	self.segment.autoresizingMask		= UIViewAutoresizingFlexibleWidth;
 	[self.segment addTarget:target action:action forControlEvents:UIControlEventValueChanged];
 	[self.contentView addSubview:self.segment];

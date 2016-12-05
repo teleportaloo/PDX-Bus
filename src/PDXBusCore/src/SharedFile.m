@@ -31,13 +31,10 @@
 
 - (bool)canUseSharedFilePath
 {
-    // return NO;
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    
-    return ([fileManager respondsToSelector:@selector(containerURLForSecurityApplicationGroupIdentifier:)]);
+    return YES;
 }
 
-- (id)initWithFileName:(NSString *)shortFileName initFromBundle:(bool)initFromBundle
+- (instancetype)initWithFileName:(NSString *)shortFileName initFromBundle:(bool)initFromBundle
 {
     
     if ((self = [super init]))
@@ -45,7 +42,7 @@
         NSFileManager *fileManager = [NSFileManager defaultManager];
         
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-        NSString *documentsDirectory = [paths objectAtIndex:0];
+        NSString *documentsDirectory = paths.firstObject;
         NSError *error = nil;
         
         NSString *fullPathName = [documentsDirectory stringByAppendingPathComponent:shortFileName];
@@ -56,7 +53,7 @@
             
             self.urlToSharedFile = [sharedContainer URLByAppendingPathComponent:shortFileName];
             
-            if (![[NSFileManager defaultManager] fileExistsAtPath:[self.urlToSharedFile path]])
+            if (![[NSFileManager defaultManager] fileExistsAtPath:self.urlToSharedFile.path])
             {
                 // If we are switching over to a shared file path we move the old one over, this is
                 // transitional code.
@@ -80,7 +77,7 @@
             self.urlToSharedFile = [[[NSURL alloc] initFileURLWithPath:fullPathName isDirectory:NO] autorelease];
         }
         
-        if (![[NSFileManager defaultManager] fileExistsAtPath:[self.urlToSharedFile path]] && initFromBundle)
+        if (![[NSFileManager defaultManager] fileExistsAtPath:self.urlToSharedFile.path] && initFromBundle)
         {
             NSRange dot = [shortFileName rangeOfString:@"."];
             
@@ -136,7 +133,7 @@
     {
         ERROR_LOG(@"writeToURL exception: %@ %@\n", exception.name, exception.reason );
     }
-    
+#ifndef PDXBUS_WATCH
     if (!written)
     {
         UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"Internal error"
@@ -150,6 +147,7 @@
         // clear the local cache, as I assume it is corrupted.
         [self deleteFile];
     }
+#endif
     
 }
 

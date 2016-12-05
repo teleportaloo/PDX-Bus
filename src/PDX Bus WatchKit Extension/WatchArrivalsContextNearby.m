@@ -17,13 +17,18 @@
 
 @implementation WatchArrivalsContextNearby
 
+- (void)dealloc
+{
+    self.stops = nil;
+    [super dealloc];
+}
 
 + (WatchArrivalsContextNearby*)contextFromNearbyStops:(XMLLocateStops *)stops index:(NSInteger)index;
 {
     {
         WatchArrivalsContextNearby *context = [[[WatchArrivalsContextNearby alloc] init] autorelease];
         
-        StopDistanceData *item = [stops itemAtIndex:index];
+        StopDistanceData *item = stops[index];
         
         context.locid            = item.locid;
         context.showMap          = YES;
@@ -37,7 +42,7 @@
     }
 }
 
-- (id)init
+- (instancetype)init
 {
     if ((self = [super init]))
     {
@@ -48,7 +53,7 @@
 
 - (bool)hasNext
 {
-    return self.index < ([self.stops safeItemCount]-1);
+    return self.index < (self.stops.count-1);
 }
 
 - (WatchArrivalsContext *)getNext
@@ -60,5 +65,17 @@
     }
     return next;
 }
+
+
+- (WatchArrivalsContext *)clone
+{
+    WatchArrivalsContext *next = nil;
+    if (self.hasNext)
+    {
+        next = [WatchArrivalsContextNearby contextFromNearbyStops:self.stops index:self.index];
+    }
+    return next;
+}
+
 
 @end

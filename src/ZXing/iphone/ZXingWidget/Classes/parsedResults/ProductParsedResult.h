@@ -27,8 +27,8 @@
     NSString *normalizedProductID;
 }
 
-@property (nonatomic, copy) NSString *productID;
-@property (nonatomic, copy) NSString *normalizedProductID;
+@property (nonatomic, copy)   NSString *productID;
+@property (nonatomic, copy)   NSString *normalizedProductID;
 
 - (id)initWithProductID:(NSString*)newProductID
     normalizedProductID:(NSString*)newNormalizedProductID;

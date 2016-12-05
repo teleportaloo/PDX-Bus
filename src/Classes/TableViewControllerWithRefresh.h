@@ -38,7 +38,8 @@
 - (void)stopTimer;
 - (void)startTimer;
 - (void)setRefreshButtonText:(NSString*)text;
-- (void)refreshAction:(id)arg;
+- (void)refreshAction:(id)unused;
+- (void)countDownTimer;
 
 
 

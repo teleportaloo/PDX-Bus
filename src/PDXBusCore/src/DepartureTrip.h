@@ -23,12 +23,12 @@
 	TriMetTime      _endTime;
 	
 }
-@property (nonatomic, retain) NSString *name;
+@property (nonatomic, copy)   NSString *name;
 @property (nonatomic) unsigned long distance;
 @property (nonatomic) unsigned long progress;
 @property (nonatomic) TriMetTime startTime;
 @property (nonatomic) TriMetTime endTime;
 
-- (id)init;
+- (instancetype)init;
 
 @end

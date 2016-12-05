@@ -41,11 +41,11 @@
 	[super dealloc];
 }
 
-- (id)init {
+- (instancetype)init {
 	if ((self = [super init]))
 	{
-		self.title = @"Stops";
-		self.enableSearch = YES;
+        self.title = NSLocalizedString(@"Stops", @"page title");
+        self.enableSearch = YES;
 	}
 	return self;
 }
@@ -58,25 +58,24 @@
 	// add a segmented control to the button bar
 	UISegmentedControl	*buttonBarSegmentedControl;
 	buttonBarSegmentedControl = [[UISegmentedControl alloc] initWithItems:
-								 [NSArray arrayWithObjects:@"Line", @"A-Z" , nil]];
+								 @[
+                                    NSLocalizedString(@"Line", @"sort stops in line order"),
+                                    NSLocalizedString(@"A-Z" , @"sort stops in A-Z order"),
+                                  ]];
 	[buttonBarSegmentedControl addTarget:self action:@selector(toggleSort:) forControlEvents:UIControlEventValueChanged];
 	buttonBarSegmentedControl.selectedSegmentIndex = 0.0;	// start by showing the normal picker
-	buttonBarSegmentedControl.segmentedControlStyle = UISegmentedControlStyleBar;
-    
-    [self setSegColor:buttonBarSegmentedControl];
-	
+
 	UIBarButtonItem *segItem = [[UIBarButtonItem alloc] initWithCustomView:buttonBarSegmentedControl];	
 	
 	
-	[toolbarItems addObjectsFromArray:[NSMutableArray arrayWithObjects:
-					  [CustomToolbar autoMapButtonWithTarget:self action:@selector(showMap:)],
-					  [CustomToolbar autoFlexSpace],
-					  segItem,
-                       nil]];
+	[toolbarItems addObjectsFromArray:@[
+					  [UIToolbar autoMapButtonWithTarget:self action:@selector(showMap:)],
+					  [UIToolbar autoFlexSpace],
+                      segItem]];
     
-    if ([UserPrefs getSingleton].debugXML)
+    if ([UserPrefs singleton].debugXML)
     {
-        [toolbarItems addObject:[CustomToolbar autoFlexSpace]];
+        [toolbarItems addObject:[UIToolbar autoFlexSpace]];
 		[toolbarItems addObject:[self autoXmlButton]];
     }
     
@@ -94,7 +93,7 @@
 
 #pragma mark Data fetchers
 
-- (void)fetchDestinations:(DepartureData*) dep
+- (void)workerToFetchDestinations:(DepartureData*) dep
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:kGettingStops];
@@ -102,42 +101,42 @@
 	[self.stopData getStopsAfterLocation:dep.locid route:dep.route direction:dep.dir 
 							 description:dep.routeName cacheAction:TriMetXMLForceFetchAndUpdateCache];
 	self.departure = dep;
-	self.title = @"Destinations";
+    self.title = NSLocalizedString(@"Destinations", @"page title");
 	
 	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
 	[pool release];
 }
 
-- (void)fetchDestinationsInBackground:(id<BackgroundTaskProgress>) callback dep:(DepartureData *) dep
+- (void)fetchDestinationsAsync:(id<BackgroundTaskProgress>) callback dep:(DepartureData *) dep
 {
 	
 	self.backgroundTask.callbackWhenFetching = callback;
 	
-	self.stopData = [[[XMLStops alloc] init] autorelease];
+    self.stopData = [XMLStops xml];
 
 	if (!self.backgroundRefresh && [self.stopData getStopsAfterLocation:dep.locid route:dep.route direction:dep.dir 
 															description:dep.routeName cacheAction:TriMetXMLCheckCache])
 	{
 		self.departure = dep;
-		self.title = @"Destinations";
+		self.title = NSLocalizedString(@"Destinations", @"page title");
 
 		[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
 	}
 	else 
 	{
-		[NSThread detachNewThreadSelector:@selector(fetchDestinations:) toTarget:self withObject:dep];
+		[NSThread detachNewThreadSelector:@selector(workerToFetchDestinations:) toTarget:self withObject:dep];
 	}
 }
 
-- (void)fetchStops:(NSArray*) args
+- (void)workerToFetchStops:(NSArray*) args
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:kGettingStops];
 
 	
-    NSString *routeid = [args objectAtIndex:0];
-	NSString *dir     = [args objectAtIndex:1];
-	NSString *desc    = [args objectAtIndex:2];
+    NSString *routeid = args[0];
+	NSString *dir     = args[1];
+	NSString *desc    = args[2];
 		
 	[self.stopData getStopsForRoute:routeid 
 						  direction:dir 
@@ -149,13 +148,11 @@
 }
 
 
-- (void)fetchStopsInBackground:(id<BackgroundTaskProgress>) callback route:(NSString*) routeid direction:(NSString*)dir description:(NSString *)desc
+- (void)fetchStopsAsync:(id<BackgroundTaskProgress>) callback route:(NSString*) routeid direction:(NSString*)dir description:(NSString *)desc
 																directionName:(NSString *)dirName
 {
 	self.backgroundTask.callbackWhenFetching = callback;
-	self.stopData = [[[XMLStops alloc] init] autorelease];
-	self.directionName = dirName;
-	
+    self.stopData = [XMLStops xml];
 	if (!self.backgroundRefresh && [self.stopData getStopsForRoute:routeid 
 														 direction:dir 
 													   description:desc
@@ -165,11 +162,9 @@
 	}
 	else 
 	{
-		id args[] = {routeid, dir, desc };	
-		
-		[NSThread detachNewThreadSelector:@selector(fetchStops:) 
+		[NSThread detachNewThreadSelector:@selector(workerToFetchStops:)
 								 toTarget:self 
-							   withObject:[NSArray arrayWithObjects:args count:sizeof(args)/sizeof(id)]];
+							   withObject:@[routeid, dir, desc]];
 
 	}
 }
@@ -227,6 +222,7 @@
 	
 	switch (indexPath.section) 
 	{
+        default:
 		case kRouteNameSection:
 		{
 			NSString *stopId = [NSString stringWithFormat:@"stop%d", self.screenInfo.screenWidth];
@@ -238,10 +234,10 @@
 														   rowHeight:[self tableView:tableView heightForRowAtIndexPath:indexPath] 
 														 screenWidth:self.screenInfo.screenWidth
 														 rightMargin:NO
-																font:[self getBasicFont]];
+																font:self.basicFont];
 				
 			}
-			ROUTE_COL *col = [TriMetRouteColors rawColorForRoute:self.stopData.routeId];
+			const ROUTE_COL *col = [TriMetRouteColors rawColorForRoute:self.stopData.routeId];
 			[RailStation populateCell:cell 
 							  station:self.stopData.routeDescription
 								lines:col ? col->line : 0];
@@ -252,7 +248,7 @@
 		{
 			
 			NSArray *items = [self filteredData:tableView];
-			Stop *stop = [items objectAtIndex:indexPath.row];	
+			Stop *stop = items[indexPath.row];
 			if (stop.tp)
 			{
 				static NSString *stopTpId = @"StopTP";
@@ -273,7 +269,7 @@
 					 [self newLabelWithPrimaryColor:[UIColor blueColor] selectedColor:[UIColor cyanColor] fontSize:14 bold:YES parentView:[cell contentView]];
 					 */
 					
-					cell.textLabel.font =  [self getSmallFont];
+					cell.textLabel.font =  self.smallFont;
 					cell.textLabel.textColor = [UIColor blueColor];
 				}
 			}
@@ -296,11 +292,11 @@
 					/*
 					 [self newLabelWithPrimaryColor:[UIColor blackColor] selectedColor:[UIColor cyanColor] fontSize:14 bold:YES parentView:[cell contentView]];
 					 */
-					cell.textLabel.font =  [self getSmallFont];
+					cell.textLabel.font =  self.smallFont;
 					cell.textLabel.textColor = [UIColor blackColor];
 				}
 			}
-			cell.textLabel.text = [stop desc];
+			cell.textLabel.text = stop.desc;
 			break;
 			
 		}
@@ -334,9 +330,9 @@
 			/*
 			 [self newLabelWithPrimaryColor:[UIColor blackColor] selectedColor:[UIColor cyanColor] fontSize:14 bold:YES parentView:[cell contentView]];
 			 */
-			cell.textLabel.font =			[self getSmallFont];
+			cell.textLabel.font =			self.smallFont;
 			cell.textLabel.textColor =		[UIColor orangeColor];
-			cell.textLabel.text =			@"Blue stops are \'Time Points\', touch for info";
+            cell.textLabel.text =			NSLocalizedString(@"Blue stops are \'Time Points\', touch for info", @"help text");
 			break;
 		}
 	}
@@ -355,7 +351,7 @@
 			{
 				return self.directionName;
 			}
-			return @"Desination stops:";
+            return NSLocalizedString(@"Destination stops:", @"section header");
 		}
 		case kDisclaimerSection:
 			break;
@@ -383,7 +379,7 @@
 				return;
 			}
 			
-			[self chosenStop:[items objectAtIndex:indexPath.row] progress:self.backgroundTask];
+			[self chosenStop:items[indexPath.row] progress:self.backgroundTask];
 		}
 		case kDisclaimerSection:
 			if (self.stopData.itemArray == nil)
@@ -393,10 +389,10 @@
 			break;
 		case kTimePointSection:
 		{
-			UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"Blue stops are 'Time Points'"
-															   message:@"One of several stops on each route that serves as a benchmark for whether a trip is running on time."	
+			UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"Blue stops are 'Time Points'", @"alert title")
+                                                               message:NSLocalizedString(@"One of several stops on each route that serves as a benchmark for whether a trip is running on time.", @"help info")
 															  delegate:nil
-													 cancelButtonTitle:@"OK"
+													 cancelButtonTitle:NSLocalizedString(@"OK", @"button text")
 													 otherButtonTitles:nil ] autorelease];
 			[alert show];
             
@@ -427,7 +423,7 @@
 		/*
 		 if ([self.callback getController] != nil)
 		 {
-		 [[self navigationController] popToViewController:[self.callback getController] animated:YES];
+		 [self.navigationController popToViewController:[self.callback getController] animated:YES];
 		 }*/
 		
 		if ([self.callback respondsToSelector:@selector(selectedStop:desc:)])
@@ -445,23 +441,20 @@
 	
 	if (self.departure == nil)
 	{
-		DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
+        DepartureTimesView *departureViewController = [DepartureTimesView viewController];
 		
 		departureViewController.displayName = stop.desc;
 		
-		[departureViewController fetchTimesForLocationInBackground:progress 
+		[departureViewController fetchTimesForLocationAsync:progress 
 															   loc:stop.locid
 															 title:stop.desc];
-		[departureViewController release];
 	}
 	else
 	{
-		DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
+        DepartureTimesView *departureViewController = [DepartureTimesView viewController];
 		
 		departureViewController.displayName = stop.desc;
-		[departureViewController fetchTimesForBlockInBackground:progress block:self.departure.block start:self.departure.locid stop:stop.locid];
-		
-		[departureViewController release];
+		[departureViewController fetchTimesForBlockAsync:progress block:self.departure.block start:self.departure.locid stop:stop.locid];
 	}
 	
 }
@@ -490,7 +483,7 @@
 	// add our custom add button as the nav bar's custom right view
 	UIBarButtonItem *refreshButton = [[UIBarButtonItem alloc]
 									  initWithTitle:NSLocalizedString(@"Refresh", @"")
-									  style:UIBarButtonItemStyleBordered
+									  style:UIBarButtonItemStylePlain
 									  target:self
 									  action:@selector(refreshAction:)];
 	self.navigationItem.rightBarButtonItem = refreshButton;
@@ -518,7 +511,7 @@
 	[routeId retain];
 	
 	self.backgroundRefresh = YES;
-	[self fetchStopsInBackground:self.backgroundTask route:routeId direction:direction description:routeDescription
+	[self fetchStopsAsync:self.backgroundTask route:routeId direction:direction description:routeDescription
 				   directionName:self.directionName];
 	[routeDescription release];
 	[direction release];
@@ -528,7 +521,7 @@
 -(void)showMap:(id)sender
 {
 	NSMutableArray *items = [NSMutableArray arrayWithArray:self.topViewData];
-	NearestVehiclesMap *mapPage = [[NearestVehiclesMap alloc] init];
+    NearestVehiclesMap *mapPage = [NearestVehiclesMap viewController];
 	mapPage.callback = self.callback;
 	mapPage.annotations = items;
 	mapPage.title = self.stopData.routeDescription;
@@ -536,7 +529,7 @@
 
 	for (int i=0; items!=nil && i< items.count; i++)
 	{
-		Stop *p = [items objectAtIndex:i];
+		Stop *p = items[i];
 		
 		p.callback = self;
 	}
@@ -557,12 +550,11 @@
         mapPage.streetcarRoutes = [NSSet set];
     }
 	
-    [mapPage fetchNearestVehiclesInBackground:self.backgroundTask];
-    
-	[mapPage release];
+    [mapPage fetchNearestVehiclesAsync:self.backgroundTask];
 }
 
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
 
 - (void)toggleSort:(id)sender
 {
@@ -589,7 +581,7 @@
 	}
 }
 
-
+#pragma clang diagnostic pop
 
 @end
 

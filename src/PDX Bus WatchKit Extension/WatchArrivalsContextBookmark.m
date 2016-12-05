@@ -18,12 +18,18 @@
 
 @implementation WatchArrivalsContextBookmark
 
+- (void)dealloc
+{
+    self.bookmarksContext = nil;
+    [super dealloc];
+}
+
 + (WatchArrivalsContextBookmark*)contextFromBookmark:(WatchBookmarksContext *)bookmarksContext index:(NSInteger)index
 {
     {
         WatchArrivalsContextBookmark *context = [[[WatchArrivalsContextBookmark alloc] init] autorelease];
         
-        context.locid            = [bookmarksContext.singleBookmark objectAtIndex:index];
+        context.locid            = bookmarksContext.singleBookmark[index];
         context.showMap          = NO;
         context.showDistance     = NO;
         context.bookmarksContext = bookmarksContext;
@@ -55,7 +61,7 @@
     }
 }
 
-- (id)init
+- (instancetype)init
 {
     if ((self = [super init]))
     {
@@ -81,14 +87,27 @@
     return next;
 }
 
+- (WatchArrivalsContext *)clone
+{
+    WatchArrivalsContext *clone = nil;
+    if (self.hasNext)
+    {
+        clone = [WatchArrivalsContextBookmark contextFromBookmark:self.bookmarksContext index:self.index];
+        
+        clone.navText = self.navText;
+    }
+    return clone;
+}
+
+
 - (void)updateUserActivity:(WKInterfaceController *)controller
 {
     if (!self.bookmarksContext.recents)
     {
-        NSMutableDictionary *info = [[[NSMutableDictionary alloc] init] autorelease];
+        NSMutableDictionary *info = [NSMutableDictionary dictionary];
         
-        [info setObject:self.bookmarksContext.title forKey:kUserFavesChosenName];
-        [info setObject:self.bookmarksContext.location forKey:kUserFavesLocation];
+        info[kUserFavesChosenName] = self.bookmarksContext.title;
+        info[kUserFavesLocation]   = self.bookmarksContext.location;
         [controller updateUserActivity:kHandoffUserActivityBookmark userInfo:info webpageURL:nil];
     }
 }

@@ -28,8 +28,8 @@
   NSString *body;
 }
 
-@property (nonatomic, copy) NSString *number;
-@property (nonatomic, copy) NSString *body;
+@property (nonatomic, copy)   NSString *number;
+@property (nonatomic, copy)   NSString *body;
 
 - (id)initWithNumber:(NSString *)n body:(NSString *)b;
 

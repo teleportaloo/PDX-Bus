@@ -36,14 +36,14 @@
 }
 
 @property (nonatomic, retain) NSArray *names;
-@property (nonatomic, copy) NSString *pronunciation;
+@property (nonatomic, copy)   NSString *pronunciation;
 @property (nonatomic, retain) NSArray *phoneNumbers;
 @property (nonatomic, retain) NSArray *emails;
-@property (nonatomic, copy) NSString *note;
+@property (nonatomic, copy)   NSString *note;
 @property (nonatomic, retain) NSArray *addresses;
-@property (nonatomic, copy) NSString *organization;
-@property (nonatomic, copy) NSString *birthday;
-@property (nonatomic, copy) NSString *jobTitle;
-@property (nonatomic, copy) NSString *url;
+@property (nonatomic, copy)   NSString *organization;
+@property (nonatomic, copy)   NSString *birthday;
+@property (nonatomic, copy)   NSString *jobTitle;
+@property (nonatomic, copy)   NSString *url;
 
 @end

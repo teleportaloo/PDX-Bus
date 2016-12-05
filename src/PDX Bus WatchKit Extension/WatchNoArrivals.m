@@ -17,4 +17,10 @@
 
 @implementation WatchNoArrivals
 
+- (void)dealloc
+{
+    self.errorMsg = nil;
+    [super dealloc];
+}
+
 @end

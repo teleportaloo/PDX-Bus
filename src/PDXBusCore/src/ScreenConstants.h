@@ -41,8 +41,11 @@ typedef enum {
 } ScreenWidth;
 
 
-#define SmallScreenStyle(X) (((X) <= MaxiPhoneWidth) !=0)
-#define LargeScreenStyle(X) (((X) >  MaxiPhoneWidth) !=0)
+
+// #define SmallScreenStyle(X) (((X) <= MaxiPhoneWidth) !=0)
+// #define LargeScreenStyle(X) (((X) >  MaxiPhoneWidth) !=0)
+
+
 #define ScaleFromiPhone(X, W) ((( (double)X) / (double)WidthiPhone) * (double)(W) )
 
 typedef struct _ScreenInfo

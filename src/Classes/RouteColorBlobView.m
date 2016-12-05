@@ -24,7 +24,7 @@
 @synthesize blue	= _blue;
 @synthesize square  = _square;
 
-- (id)initWithFrame:(CGRect)frame {
+- (instancetype)initWithFrame:(CGRect)frame {
     if ((self = [super initWithFrame:frame])) {
         // Initialization code
     }
@@ -33,7 +33,7 @@
 
 - (bool)setRouteColorLine:(RAILLINES)line
 {
-	ROUTE_COL *rcol = [TriMetRouteColors rawColorForLine:line];
+	const ROUTE_COL *rcol = [TriMetRouteColors rawColorForLine:line];
 	
 	if (rcol !=nil)
 	{
@@ -59,7 +59,7 @@
 
 - (void)setRouteColor:(NSString *)route
 {
-	ROUTE_COL *rcol = [TriMetRouteColors rawColorForRoute:route];
+	const ROUTE_COL *rcol = [TriMetRouteColors rawColorForRoute:route];
 
 	if (rcol !=nil && route!=nil)
 	{
@@ -79,8 +79,6 @@
 	self.backgroundColor = [UIColor clearColor];
 }
 
-#define min(X,Y) ((X)<(Y)?(X):(Y))
-
 
 // Only override drawRect: if you perform custom drawing.
 // An empty implementation adversely affects performance during animation.
@@ -93,7 +91,7 @@
 	
 	CGRect outerSquare;
 	
-	CGFloat width = min(CGRectGetWidth(rect), CGRectGetHeight(rect));
+	CGFloat width = fmin(CGRectGetWidth(rect), CGRectGetHeight(rect));
 	
 	outerSquare.origin.x = CGRectGetMidX(rect) - width/2;
 	outerSquare.origin.y = CGRectGetMidY(rect) - width/2;

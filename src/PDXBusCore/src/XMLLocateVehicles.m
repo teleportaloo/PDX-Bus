@@ -38,20 +38,16 @@
     [super dealloc];
 }
 
-
-#define min(A,B) ((A) < (B) ? (A) : (B))
-#define max(A,B) ((A) > (B) ? (A) : (B))
-
 - (BOOL)findNearestVehicles:(NSSet *)routes direction:(NSString *)direction blocks:(NSSet *)blocks
 {
     NSString *query = nil;
     
-    NSMutableString *routeIDs = [[[NSMutableString alloc] init] autorelease];
-    NSMutableString *blockQuery   = [[[NSMutableString alloc] init] autorelease];
+    NSMutableString *routeIDs = [NSMutableString string];
+    NSMutableString *blockQuery   = [NSMutableString string];
     
     if (routes)
     {
-        routeIDs = [StringHelper commaSeparatedStringFromEnumerator:routes selector:@selector(self)];
+        routeIDs = [NSString commaSeparatedStringFromEnumerator:routes selector:@selector(self)];
         
         [routeIDs insertString:@"/routes/" atIndex:0];
     }
@@ -81,10 +77,10 @@
         southEastCorner.latitude  = self.location.coordinate.latitude  + (region.span.latitudeDelta  / 2.0);
         southEastCorner.longitude = self.location.coordinate.longitude - (region.span.longitudeDelta / 2.0);
     
-        double lonmin = min(northWestCorner.longitude, southEastCorner.longitude);
-        double latmin = min(northWestCorner.latitude,  southEastCorner.latitude);
-        double lonmax = max(northWestCorner.longitude, southEastCorner.longitude);
-        double latmax = max(northWestCorner.latitude,  southEastCorner.latitude);
+        double lonmin = fmin(northWestCorner.longitude, southEastCorner.longitude);
+        double latmin = fmin(northWestCorner.latitude,  southEastCorner.latitude);
+        double lonmax = fmax(northWestCorner.longitude, southEastCorner.longitude);
+        double latmax = fmax(northWestCorner.latitude,  southEastCorner.latitude);
     
         query = [NSString stringWithFormat:@"vehicles/bbox/%f,%f,%f,%f/xml/true/onRouteOnly/true%@%@",
    					   lonmin,latmin, lonmax, latmax, routeIDs, blockQuery];
@@ -113,7 +109,7 @@
 	NSString *str = nil;
 	
     str = [NSString stringWithFormat:@"%@://developer.trimet.org/ws/v2/%@/appID/%@",
-                [UserPrefs getSingleton].triMetProtocol,
+                [UserPrefs singleton].triMetProtocol,
                 query, TRIMET_APP_ID];
 	
 	return str;
@@ -129,35 +125,35 @@
         elementName = qName;
     }
 	
-	if ([elementName isEqualToString:@"resultSet"]) {
+	if (ELTYPE(resultSet)) {
 		
 		[self initArray];
-		hasData = YES;
+		_hasData = YES;
 	}
 	
-    if ([elementName isEqualToString:@"vehicle"]) {
+    if (ELTYPE(vehicle)) {
         
-        NSString *dir = [self safeValueFromDict:attributeDict valueForKey:@"direction"];
+        NSString *dir = ATRVAL(direction);
         
         if (self.direction == nil || [self.direction isEqualToString:dir])
         {
         
-            VehicleData *currentVehicle = [[VehicleData alloc] init];
+            VehicleData *currentVehicle = [VehicleData alloc].init;
     
-            currentVehicle.block           = [self safeValueFromDict:attributeDict valueForKey:@"blockID"];
-            currentVehicle.nextLocID       = [self safeValueFromDict:attributeDict valueForKey:@"nextLocID"];
-            currentVehicle.lastLocID       = [self safeValueFromDict:attributeDict valueForKey:@"nextLocID"];
-            currentVehicle.routeNumber     = [self safeValueFromDict:attributeDict valueForKey:@"routeNumber"];
+            currentVehicle.block           = ATRVAL(blockID);
+            currentVehicle.nextLocID       = ATRVAL(nextLocID);
+            currentVehicle.lastLocID       = ATRVAL(lastLocID);
+            currentVehicle.routeNumber     = ATRVAL(routeNumber);
             currentVehicle.direction       = dir;
-            currentVehicle.signMessage     = [attributeDict objectForKey:@"signMessage"];
-            currentVehicle.signMessageLong = [self safeValueFromDict:attributeDict valueForKey:@"signMessageLong"];
-            currentVehicle.type            = [self safeValueFromDict:attributeDict valueForKey:@"type"];
-            currentVehicle.locationTime    = [self getTimeFromAttribute:attributeDict valueForKey:@"time"];
-            currentVehicle.garage          = [self safeValueFromDict:attributeDict valueForKey:@"garage"];
-            currentVehicle.bearing         = [self safeValueFromDict:attributeDict valueForKey:@"bearing"];
+            currentVehicle.signMessage     = ATRVAL(signMessage);
+            currentVehicle.signMessageLong = ATRVAL(signMessageLong);
+            currentVehicle.type            = ATRVAL(type);
+            currentVehicle.locationTime    = ATRTIM(time);
+            currentVehicle.garage          = ATRVAL(garage);
+            currentVehicle.bearing         = ATRVAL(bearing);
 
-            currentVehicle.location = [[[CLLocation alloc] initWithLatitude:[self getCoordFromAttribute:attributeDict valueForKey:@"latitude"]
-                                                                   longitude:[self getCoordFromAttribute:attributeDict valueForKey:@"longitude"] ] autorelease];
+            currentVehicle.location = [[[CLLocation alloc] initWithLatitude:ATRCOORD(latitude)
+                                                                  longitude:ATRCOORD(longitude) ] autorelease];
         
             if (self.location != nil)
             {
@@ -183,7 +179,7 @@
         return false;
     }
 	
-	if ([self safeItemCount] == 0 && ![self gotData])
+	if (self.count == 0 && !self.gotData)
 	{
 		
 		if (![thread isCancelled])

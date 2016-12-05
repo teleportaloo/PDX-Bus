@@ -17,4 +17,10 @@
 
 @implementation WatchArrivalScheduleInfo
 
+- (void)dealloc
+{
+    self.scheduleInfoText = nil;
+    [super dealloc];
+}
+
 @end

@@ -66,30 +66,40 @@ enum SECTIONS_AND_ROWS
     [super dealloc];
 }
 
-- (id) init
+- (instancetype) init
 {
 	if ((self = [super init]))
 	{
-		self.locationManager = [[[CLLocationManager alloc] init] autorelease];
-		self.locationManager.delegate = self; // Tells the location manager to send updates to this object
-        
-        compatCallIfExists(self.locationManager, requestAlwaysAuthorization);
+		
         
 		_failed = false;
         _waitingForLocation = YES;
-        self.title = @"Locator";
+        _triedToAuthorize = NO;
+        self.title = NSLocalizedString(@"Locator", @"page title");
 	}
 	return self;
+}
+
+
+- (void)authorize
+{
+    if (!_triedToAuthorize)
+    {
+        self.locationManager = [[[CLLocationManager alloc] init] autorelease];
+        self.locationManager.delegate = self; // Tells the location manager to send updates to this object
+        
+        [self.locationManager requestAlwaysAuthorization];
+        _triedToAuthorize = YES;
+    }
 }
 
 #pragma mark Check the last location
 
 - (bool)checkLocation
 {
-	
     DEBUG_LOGF([self.timeStamp timeIntervalSinceNow] );
     // This line may be confusing - MAX_AGE is negative, so something older is even more negative
-	if (self.timeStamp == nil || [self.timeStamp timeIntervalSinceNow] < MAX_AGE)
+	if (self.timeStamp == nil || self.timeStamp.timeIntervalSinceNow < MAX_AGE)
 	{
 		return false;
 	}
@@ -158,7 +168,7 @@ enum SECTIONS_AND_ROWS
 
     UIBarButtonItem *refreshButton = [[UIBarButtonItem alloc]
 									  initWithTitle:NSLocalizedString(@"Refresh", @"")
-									  style:UIBarButtonItemStyleBordered
+									  style:UIBarButtonItemStylePlain
 									  target:self
 									  action:@selector(refreshAction:)];
 	self.navigationItem.rightBarButtonItem = refreshButton;
@@ -189,6 +199,10 @@ enum SECTIONS_AND_ROWS
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+    
+    
+    [self authorize];
+    
 
     if (_waitingForLocation)
     {
@@ -287,11 +301,11 @@ enum SECTIONS_AND_ROWS
         }
     
     
-        SimpleAnnotation *annotLoc = [[[SimpleAnnotation alloc] init] autorelease];
+        SimpleAnnotation *annotLoc = [SimpleAnnotation annotation];
     
         annotLoc.pinTitle = @"Here!";
         annotLoc.pinColor = MKPinAnnotationColorRed;
-        [annotLoc setCoord:self.lastLocation.coordinate];
+        annotLoc.coordinate = self.lastLocation.coordinate;
     
         [self.mapView addAnnotation:annotLoc];
     
@@ -326,7 +340,7 @@ enum SECTIONS_AND_ROWS
 {
 	
 	
-	if ([newLocation.timestamp timeIntervalSinceNow] < MAX_AGE)
+	if (newLocation.timestamp.timeIntervalSinceNow < MAX_AGE)
 	{
 		// too old!
 		return;
@@ -353,7 +367,6 @@ enum SECTIONS_AND_ROWS
     {
         default:
         case kCLErrorLocationUnknown:
-            break;
         case kCLErrorDenied:
             
             [self reloadData];
@@ -439,17 +452,17 @@ enum SECTIONS_AND_ROWS
                 text.text = [NSString stringWithFormat:@"Accuracy acquired:\n+/- %@",
                              [FormatDistance formatMetres:self.lastLocation.horizontalAccuracy]];
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-                [cell setAccessibilityHint:@"Double-tap for arrivals"];
+                cell.accessibilityHint = @"Double-tap for arrivals";
             }
             else if (!_failed)
             {
-                text.text = @"Locating...";
+                text.text = NSLocalizedString(@"Locating...", @"busy text");
                 cell.accessoryType = UITableViewCellAccessoryNone;
                 [cell setAccessibilityHint:nil];
             }
             else if (_failed)
             {
-                text.text = @"Locating failed.";
+                text.text = NSLocalizedString(@"Locating failed.", @"error text");
                 cell.accessoryType = UITableViewCellAccessoryNone;
                 [cell setAccessibilityHint:nil];
             }
@@ -465,16 +478,16 @@ enum SECTIONS_AND_ROWS
             }
             if (_waitingForLocation)
             {
-                cell.textLabel.text = @"Cancel";
+                cell.textLabel.text = NSLocalizedString(@"Cancel", @"button text");
             }
             else
             {
-                cell.textLabel.text =@"Done";
+                cell.textLabel.text =NSLocalizedString(@"Done", @"button text");
             }
             cell.textLabel.textAlignment = NSTextAlignmentCenter;
             cell.accessoryType = UITableViewCellAccessoryNone;
             // cell.imageView.image = [self getActionIcon:kIconCancel];
-            cell.textLabel.font = [self getBasicFont];
+            cell.textLabel.font = self.basicFont;
             
             [self updateAccessibility:cell indexPath:indexPath text:cell.textLabel.text alwaysSaySection:YES];
             return cell;
@@ -491,7 +504,8 @@ enum SECTIONS_AND_ROWS
         }
     }
     
-    return nil;
+    return [super tableView:tableView cellForRowAtIndexPath:indexPath];
+
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
@@ -499,20 +513,20 @@ enum SECTIONS_AND_ROWS
     switch ([self sectionType:section])
     {
         case kSectionButtons:
-            return @"Location information:";
+            return NSLocalizedString(@"Location information:", @"section header");
             
         case kSectionText:
         {
             if (_waitingForLocation)
             {
-                return [NSString stringWithFormat:@"Acquiring location. Accuracy will improve momentarily; search will start when accuracy is sufficient or whenever you choose."];
+                return NSLocalizedString(@"Acquiring location. Accuracy will improve momentarily; search will start when accuracy is sufficient or whenever you choose.", @"section header");
             }
             
             if (_failed)
             {
-                return @"Failed to find location.  Check that Location Services are enabled.";
+                return NSLocalizedString(@"Failed to find location.  Check that Location Services are enabled.", @"section header");
             }
-            return @"Location acquired. Select 'Refresh' to re-acquire current location.";
+            return NSLocalizedString(@"Location acquired. Select 'Refresh' to re-acquire current location.", @"section header");
         }
     }
     return nil;

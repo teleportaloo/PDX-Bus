@@ -44,10 +44,10 @@
 @property (nonatomic, retain) UILabel *refreshLabel;
 @property (nonatomic, retain) UIImageView *refreshArrow;
 @property (nonatomic, retain) UIActivityIndicatorView *refreshSpinner;
-@property (nonatomic, copy) NSString *textPull;
-@property (nonatomic, copy) NSString *textRelease;
-@property (nonatomic, copy) NSString *textLoading;
-@property (nonatomic, retain) NSString *secondLine;
+@property (nonatomic, copy)   NSString *textPull;
+@property (nonatomic, copy)   NSString *textRelease;
+@property (nonatomic, copy)   NSString *textLoading;
+@property (nonatomic, copy)   NSString *secondLine;
 
 
 - (void)setupStrings;

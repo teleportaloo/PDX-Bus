@@ -19,6 +19,7 @@
 #import "ScreenConstants.h"
 #import "AlarmCell.h"
 #import "DebugLogging.h"
+#import "DataFactory.h"
 
 #define kStopIdNotification @"stopId"
 #define kAlarmBlock			@"alarmBlock"
@@ -54,7 +55,7 @@ typedef enum AlarmStateTag {
 
 @class AlarmTaskList;
 
-@interface AlarmTask : NSObject   {
+@interface AlarmTask : DataFactory   {
 
 	NSString *					_desc;
 	AlarmLocationNeeded			_alarmState;
@@ -85,10 +86,10 @@ typedef enum AlarmStateTag {
 - (void)showMap:(UINavigationController *)navController;
 #endif
 
-- (NSString *)key;
+@property (nonatomic, readonly, copy) NSString *key;
 - (void)cancelTask;
 - (void)startTask;
-- (int)internalDataItems;
+@property (nonatomic, readonly) int internalDataItems;
 - (NSString *)internalData:(int)item;
 - (NSDate *)fetch:(AlarmTaskList*)parent;
 
@@ -100,15 +101,15 @@ typedef enum AlarmStateTag {
 	 fireDate:(NSDate*)fireDate button:(NSString *)button userInfo:(NSDictionary *)userInfo defaultSound:(bool)defaultSound; 
 
 - (void)cancelNotification;
-- (NSString *)cellDescription;
-- (NSString *)cellToGo;
+@property (nonatomic, readonly, copy) NSString *cellDescription;
+@property (nonatomic, readonly, copy) NSString *cellToGo;
 - (void)showToUser:(BackgroundTaskContainer *)backgroundTask;
-- (NSString *)icon;
-- (UIColor *)color;
+@property (nonatomic, readonly, copy) NSString *icon;
+@property (nonatomic, readonly, copy) UIColor *color;
 - (NSString *)cellReuseIdentifier:(NSString *)identifier width:(ScreenWidth)width;
 - (void)populateCell:(AlarmCell *)cell;
 - (NSDate*)earlierAlert:(NSDate *)alert;
-- (NSString*)appState;
+@property (nonatomic, readonly, copy) NSString *appState;
 
 
 @end

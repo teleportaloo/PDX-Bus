@@ -18,5 +18,5 @@
 
 @protocol TripReturnUserRequest <NSObject>
 - (void)userRequest:(TripUserRequest *)userRequest;
-- (UIViewController*) getController;
+@property (nonatomic, getter=getController, readonly, strong) UIViewController *controller;
 @end

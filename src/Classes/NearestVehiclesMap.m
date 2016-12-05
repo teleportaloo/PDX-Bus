@@ -15,15 +15,15 @@
 
 #import "NearestVehiclesMap.h"
 #import "XMLLocateVehicles.h"
-#import "VehicleUI.h"
+#import "VehicleData+iOSUI.h"
 #import "XMLStreetcarLocations.h"
 #import "SimpleAnnotation.h"
 #import "TriMetRouteColors.h"
 #import "FormatDistance.h"
 #import "MapAnnotationImage.h"
 #import "DebugLogging.h"
-#import "XMLLocateStopsUI.h"
-#import "StopDistanceUI.h"
+#import "XMLLocateStops+iOSUI.h"
+#import "StopDistanceData+iOSUI.h"
 
 @implementation NearestVehiclesMap
 
@@ -55,10 +55,10 @@
         return false;
     }
     
-    if ([locator safeItemCount] == 0 && ![locator gotData])
+    if (locator.count == 0 && !locator.gotData)
     {
         
-        if (![thread isCancelled])
+        if (!thread.cancelled)
         {
             [thread cancel];
             //UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"Nearby stops"
@@ -75,9 +75,9 @@
         }
         
     }
-    else if ([locator safeItemCount] == 0)
+    else if (locator.count == 0)
     {
-        if (![thread isCancelled])
+        if (!thread.cancelled)
         {
             [thread cancel];
             
@@ -93,7 +93,7 @@
 }
 
 
-- (void)fetchNearestVehicles:(XMLLocateVehicles*) locator
+- (void)workerToFetchNearestVehicles:(XMLLocateVehicles*) locator
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
@@ -106,7 +106,7 @@
         mode = self.stopLocator.mode;
     }
     
-    bool fetchVehicles = [UserPrefs getSingleton].useBetaVehicleLocator;
+    bool fetchVehicles = [UserPrefs singleton].useBetaVehicleLocator;
     bool includeStops  = self.stopLocator != nil;
 	
     int operations = 0;
@@ -152,11 +152,11 @@
     
         if (![self displayErrorIfNoneFound:locator progress:self.backgroundTask.callbackWhenFetching])
         {
-            for (int i=0; i< [locator safeItemCount] && ![thread isCancelled]; i++)
+            for (int i=0; i< locator.count && !thread.cancelled; i++)
             {
-                VehicleUI *ui = [VehicleUI createFromData:[locator.itemArray objectAtIndex:i]];
+                VehicleData *ui = locator.itemArray[i];
                 
-                if ([ui.data typeMatchesMode:mode] && (self.stopLocator == nil || [ui.data.location distanceFromLocation:self.stopLocator.location] <= self.stopLocator.minDistance))
+                if ([ui typeMatchesMode:mode] && (self.stopLocator == nil || [ui.location distanceFromLocation:self.stopLocator.location] <= self.stopLocator.minDistance))
                 {
                     [self addPin:ui];
                 }
@@ -168,7 +168,7 @@
     {
         for (NSString *route in self.streetcarRoutes)
         {
-            XMLStreetcarLocations *loc = [XMLStreetcarLocations getSingletonForRoute:route];
+            XMLStreetcarLocations *loc = [XMLStreetcarLocations singletonForRoute:route];
             
             
             [self.backgroundTask.callbackWhenFetching backgroundSubtext:@"locating Streetcar vehicles"];
@@ -178,14 +178,13 @@
             
             for (NSString *streetcarId in loc.locations)
             {
-                VehicleData *vehicle = [loc.locations objectForKey:streetcarId];
+                VehicleData *vehicle = loc.locations[streetcarId];
                 
                 if (self.direction==nil || vehicle.direction == nil || [vehicle.direction isEqualToString:self.direction])
                 {
                     if (self.stopLocator == nil || [vehicle.location  distanceFromLocation:self.stopLocator.location] <= self.stopLocator.minDistance)
                     {
-                        VehicleUI *ui = [VehicleUI createFromData:vehicle];
-                        [self addPin:ui];
+                        [self addPin:vehicle];
                     }
                 }
             }
@@ -202,10 +201,9 @@
         
         if (![self.stopLocator displayErrorIfNoneFound:self.backgroundTask.callbackWhenFetching])
         {
-            for (int i=0; i< [self.stopLocator safeItemCount] && ![thread isCancelled]; i++)
+            for (int i=0; i< self.stopLocator.count && !thread.cancelled; i++)
             {
-                StopDistanceUI *ui = [StopDistanceUI createFromData:[self.stopLocator.itemArray objectAtIndex:i]];
-                [self addPin:ui];
+                [self addPin:self.stopLocator.itemArray[i]];
             }
         }
     }
@@ -217,11 +215,11 @@
 
 
 
-- (void)fetchNearestVehiclesInBackground:(id<BackgroundTaskProgress>)background
+- (void)fetchNearestVehiclesAsync:(id<BackgroundTaskProgress>)background
 {
 	self.backgroundTask.callbackWhenFetching = background;
 	
-    self.locator = [[[XMLLocateVehicles alloc] init] autorelease];
+    self.locator = [XMLLocateVehicles xml];
     
     CLLocation *here = nil;
     
@@ -240,9 +238,9 @@
 	self.locator.location = here;
     self.locator.dist     = 0.0;
 	
-    if ([UserPrefs getSingleton].useBetaVehicleLocator || self.alwaysFetch)
+    if ([UserPrefs singleton].useBetaVehicleLocator || self.alwaysFetch)
     {
-        [NSThread detachNewThreadSelector:@selector(fetchNearestVehicles:) toTarget:self withObject:self.locator];
+        [NSThread detachNewThreadSelector:@selector(workerToFetchNearestVehicles:) toTarget:self withObject:self.locator];
     }
     else
     {
@@ -255,9 +253,9 @@
 {
     NSArray *annotions = self.mapView.annotations;
     
-    for (id<MKAnnotation> annot in annotions)
+    for (id<MapPinColor> annot in annotions)
     {
-        if ([annot isKindOfClass:[VehicleUI class]])
+        if ([annot isKindOfClass:[VehicleData class]])
         {
             [self.mapView removeAnnotation:annot];
             [self.annotations removeObject:annot];
@@ -265,7 +263,7 @@
     }
 }
 
--(void)refreshAction:(id)arg
+-(void)refreshAction:(id)unused
 {
     if (!self.backgroundRefresh)
     {
@@ -275,7 +273,7 @@
     
         [self removeAnnotations];
     
-        [self fetchNearestVehiclesInBackground:self.backgroundTask];
+        [self fetchNearestVehiclesAsync:self.backgroundTask];
     
         [locator release];
     }
@@ -284,13 +282,13 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    if ([UserPrefs getSingleton].useBetaVehicleLocator || self.alwaysFetch)
+    if ([UserPrefs singleton].useBetaVehicleLocator || self.alwaysFetch)
     {
         
         // add our custom add button as the nav bar's custom right view
         UIBarButtonItem *refreshButton = [[UIBarButtonItem alloc]
                                           initWithTitle:NSLocalizedString(@"Refresh", @"")
-                                          style:UIBarButtonItemStyleBordered
+                                          style:UIBarButtonItemStylePlain
                                           target:self
                                           action:@selector(refreshAction:)];
         self.navigationItem.rightBarButtonItem = refreshButton;
@@ -311,7 +309,7 @@
     
     for (NSString *route in self.streetcarRoutes)
     {
-        XMLStreetcarLocations *loc = [XMLStreetcarLocations getSingletonForRoute:route];
+        XMLStreetcarLocations *loc = [XMLStreetcarLocations singletonForRoute:route];
         
         [loc appendQueryAndData:buffer];
     }
@@ -322,19 +320,19 @@
 - (void)didReceiveMemoryWarning {
     // Releases the view if it doesn't have a superview.
     
-    [[MapAnnotationImage getSingleton] clearCache];
+    [[MapAnnotationImage singleton] clearCache];
     
     [super didReceiveMemoryWarning];
     
     // Release any cached data, images, etc that aren't in use.
 }
 
-- (void)fetchNearestVehiclesAndStopsInBackground:(id<BackgroundTaskProgress>)background location:(CLLocation *)here maxToFind:(int)max minDistance:(double)min mode:(TripMode)mode
+- (void)fetchNearestVehiclesAndStopsAsync:(id<BackgroundTaskProgress>)background location:(CLLocation *)here maxToFind:(int)max minDistance:(double)min mode:(TripMode)mode
 {
     self.backgroundTask.callbackWhenFetching = background;
-    self.stopLocator = [[[XMLLocateStopsUI alloc] init] autorelease];
+    self.stopLocator = [XMLLocateStops xml];
     
-    self.locator = [[[XMLLocateVehicles alloc] init] autorelease];
+    self.locator = [XMLLocateVehicles xml];
     self.locator.location = here;
     self.locator.dist     = min;
     
@@ -343,7 +341,7 @@
     self.stopLocator.mode = mode;
     self.stopLocator.minDistance = min;
         
-    [NSThread detachNewThreadSelector:@selector(fetchNearestVehicles:) toTarget:self withObject:self.locator];
+    [NSThread detachNewThreadSelector:@selector(workerToFetchNearestVehicles:) toTarget:self withObject:self.locator];
     
 }
 

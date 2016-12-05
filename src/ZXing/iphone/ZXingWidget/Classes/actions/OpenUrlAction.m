@@ -26,6 +26,13 @@
 
 @synthesize URL;
 
+- (void)dealloc
+{
+    [URL release];
+    [super dealloc];
+}
+
+
 - (id)initWithURL:(NSURL *)url {
   if ((self = [super init]) != nil) {
     self.URL = url;

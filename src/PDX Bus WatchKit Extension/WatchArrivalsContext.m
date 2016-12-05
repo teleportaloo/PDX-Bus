@@ -19,6 +19,18 @@
 
 @implementation WatchArrivalsContext
 
+- (void)dealloc
+{
+    self.locid          = nil;
+    self.stopDesc       = nil;
+    self.navText        = nil;
+    self.detailBlock    = nil;
+    self.departures     = nil;
+    self.detours        = nil;
+
+    [super dealloc];
+}
+
 + (WatchArrivalsContext*)contextWithLocation:(NSString *)location
 {
     WatchArrivalsContext *context = [[[WatchArrivalsContext alloc] init] autorelease];
@@ -56,7 +68,7 @@
     return context;
 }
 
-- (id)init
+- (instancetype)init
 {
     if ((self = [super init]))
     {
@@ -68,14 +80,14 @@
 - (void)updateUserActivity:(WKInterfaceController *)controller
 {
     
-    NSMutableDictionary *info = [[[NSMutableDictionary alloc] init] autorelease];
+    NSMutableDictionary *info = [NSMutableDictionary dictionary];
     
-    [info setObject:self.locid forKey:kUserFavesChosenName];
-    [info setObject:self.locid forKey:kUserFavesLocation];
+    info[kUserFavesChosenName] = self.locid;
+    info[kUserFavesLocation]   = self.locid;
     
     if (self.detailBlock)
     {
-        [info setObject:self.detailBlock forKey:kUserFavesBlock];
+        info[kUserFavesBlock] = self.detailBlock;
     }
     
     [controller updateUserActivity:kHandoffUserActivityBookmark userInfo:info webpageURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://trimet.org/arrivals/small/tracker?locationID=%@", self.locid]]];
@@ -88,6 +100,11 @@
 }
 
 - (WatchArrivalsContext *)getNext
+{
+    return nil;
+}
+
+- (WatchArrivalsContext *)clone
 {
     return nil;
 }

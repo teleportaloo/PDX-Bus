@@ -17,4 +17,10 @@
 
 @implementation WatchArrivalMap
 
+- (void)dealloc
+{
+    self.map = nil;
+    [super dealloc];
+}
+
 @end

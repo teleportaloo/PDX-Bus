@@ -54,11 +54,15 @@
 #define kLocateMode				@"mode"
 #define kLocateDist				@"dist"
 #define kLocateShow				@"show"
+#define kLocateDate             @"LocationDatabaseDate"
 
 
-#define kNewBookMark			@"New Stop Bookmark"
-#define kNewTripBookMark		@"New Trip Bookmark"
+#define kNewBookMark			NSLocalizedString(@"New Stop Bookmark", @"new bookmark name")
+#define kNewTripBookMark		NSLocalizedString(@"New Trip Bookmark", @"new bookmark name")
+#define kNewTakeMeSomewhereBookMark NSLocalizedString(@"Take me <somewhere> now", @"new bookmark name")
+
 #define kNewSavedTrip			@"New Saved Trip"
+#define kBookMarkUtil           @"bookmark util"
 
 #define kUnknownDate @"unknown"
 
@@ -90,19 +94,19 @@
 @property            bool                       readOnly;
 @property (retain, nonatomic) NSString *        lastRunKey;
 
-+ (SafeUserData *)getSingleton;
-- (void)addToRecentsWithLocation:(NSString *)locid description:(NSString *)desc;
++ (SafeUserData *)singleton;
+- (NSDictionary *)addToRecentsWithLocation:(NSString *)locid description:(NSString *)desc;
 - (void)addToRecentTripsWithUserRequest:(NSDictionary *)userRequest description:(NSString *)desc blob:(NSData *)blob;
 - (NSDictionary *)tripArchive:(NSDictionary *)userRequest description:(NSString *)desc blob:(NSData *)blob;
-- (NSDictionary *)getTakeMeHomeUserRequest;
+@property (nonatomic, getter=getTakeMeHomeUserRequest, readonly, copy) NSDictionary *takeMeHomeUserRequest;
 - (void)saveTakeMeHomeUserRequest:(NSDictionary *)userReqest;
 - (void)clearLastArrivals;
 - (void)setLastArrivals:(NSString *)locations;
 - (void)setLastNames:(NSArray *)names;
 - (void)cacheAppData;
 - (void)setLocationDatabaseDate:(NSString *)date;
-- (NSString*)getLocationDatabaseDateString;
-- (NSTimeInterval)getLocationDatabaseAge;
+@property (nonatomic, getter=getLocationDatabaseDateString, readonly, copy) NSString *locationDatabaseDateString;
+@property (nonatomic, getter=getLocationDatabaseAge, readonly) NSTimeInterval locationDatabaseAge;
 - (NSDictionary *)checkForCommuterBookmarkShowOnlyOnce:(bool)onlyOnce;
 
 

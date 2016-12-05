@@ -25,17 +25,17 @@
  
 
 @property (nonatomic, retain) NSMutableDictionary *locations;
-@property (nonatomic, retain) NSString *route;
+@property (nonatomic, copy)   NSString *route;
 
 
 - (BOOL)getLocations;
 - (void)insertLocation:(DepartureData *)dep;
-- (id) initWithRoute:(NSString *)route;
+- (instancetype) initWithRoute:(NSString *)route;
 
 + (NSSet *)getStreetcarRoutesInDepartureArray:(NSArray *)deps;
 + (void)insertLocationsIntoDepartureArray:(NSArray *)deps forRoutes:(NSSet *)routes;
 
-+ (XMLStreetcarLocations*) getSingletonForRoute:(NSString *)route;
++ (XMLStreetcarLocations*) singletonForRoute:(NSString *)route;
 
 
 @end

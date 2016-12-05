@@ -18,9 +18,9 @@
 
 @interface ReverseGeoLocator : NSObject
 {
-    bool _waitingForGeocoder;
-    NSString *_result;
-    NSError *_error;
+    bool        _waitingForGeocoder;
+    NSString *  _result;
+    NSError *   _error;
     
 }
 

@@ -14,6 +14,7 @@
 
 
 #import "InterfaceControllerWithBackgroundThread.h"
+#import "DebugLogging.h"
 
 @interface InterfaceControllerWithBackgroundThread ()
 
@@ -24,10 +25,12 @@
 
 
 @synthesize backgroundThread = _backgroundThread;
+@synthesize delayedContext   = _delayedContext;
 
 - (void)dealloc
 {
     self.backgroundThread = nil;
+    self.delayedContext   = nil;
     
     [super dealloc];
 }
@@ -38,12 +41,23 @@
     return nil;
 }
 
-- (void)executebackgroundTask:(id)arg
+- (bool)isBackgroundThreadRunning
 {
+    @synchronized(self)
+    {
+        return self.backgroundThread !=nil;
+    }
+}
+
+- (void)executebackgroundTask:(id)unused
+{
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    
     @synchronized(self)
     {
         if (self.backgroundThread !=nil)
         {
+            [pool release];
             return;
         }
         
@@ -56,11 +70,44 @@
     {
         [self performSelectorOnMainThread:@selector(taskFinishedMainThread:) withObject:result waitUntilDone:NO];
     }
+    else
+    {
+        ExtensionDelegate  *extensionDelegate = (ExtensionDelegate*)[WKExtension sharedExtension].delegate;
+        
+        if (extensionDelegate.backgrounded)
+        {
+            DEBUG_LOG(@"Saving for wake\n");
+            extensionDelegate.wakeDelegate = self;
+        }
+        
+        [self performSelectorOnMainThread:@selector(taskFailedMainThread:) withObject:result waitUntilDone:NO];
+    }
     
     @synchronized(self)
     {
         self.backgroundThread = nil;
     }
+    
+    [pool release];
+}
+
+- (void)extentionForgrounded
+{
+    [self startBackgroundTask];
+}
+
+-(void)receiveProgress:(id)unused
+{
+    [self progress:_progress total:_total];
+}
+
+- (void)sendProgress:(int)progress total:(int)total
+{
+    _progress = progress;
+    _total = total;
+    
+    [self performSelectorOnMainThread:@selector(receiveProgress:) withObject:nil waitUntilDone:NO];
+
 }
 
 
@@ -80,8 +127,17 @@
     }
 }
 
+- (void)progress:(int)state total:(int)total
+{
+    
+}
 
-- (void)taskFinishedMainThread:(id)arg
+- (void)taskFinishedMainThread:(id)result
+{
+    
+}
+
+- (void)taskFailedMainThread:(id)result
 {
     
 }
@@ -101,6 +157,29 @@
     // This method is called when watch view controller is no longer visible
     [self cancelBackgroundTask];
     [super didDeactivate];
+}
+
+- (void)delayedPush:(WatchContext *)context
+{
+    if (!self.displayed)
+    {
+        self.delayedContext = context;
+    }
+    else
+    {
+        [context delayedPushFrom:self];
+    }
+}
+
+- (void)didAppear
+{
+    self.displayed = YES;
+    
+    if (self.delayedContext)
+    {
+        [self.delayedContext delayedPushFrom:self];
+        self.delayedContext = nil;
+    }
 }
 
 @end

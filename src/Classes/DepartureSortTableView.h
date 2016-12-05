@@ -19,15 +19,15 @@
 
 
 @interface DepartureSortTableView : TableViewWithToolbar {
-	UISegmentedControl *_sortSegment;
-	NSString *_info;
-	DepartureTimesView *_depView;
-	BOOL segSetup;
+	UISegmentedControl *    _sortSegment;
+	NSString *              _info;
+	DepartureTimesView *    _depView;
+	BOOL                    _segSetup;
 	
 }
 
 @property (nonatomic, retain) UISegmentedControl *sortSegment;
-@property (nonatomic, retain) NSString *info;
+@property (nonatomic, copy)   NSString *info;
 @property (nonatomic, retain) DepartureTimesView *depView;
 
 - (void)sortSegmentChanged:(id)sender;

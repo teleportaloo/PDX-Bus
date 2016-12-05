@@ -28,11 +28,11 @@
 @synthesize timedOut = _timedOut;
 
 
-- (id)init
+- (instancetype)init
 {
 	if ((self = [super init]))
 	{
-		self.giveUp = [UserPrefs getSingleton].networkTimeout;
+		self.giveUp = [UserPrefs singleton].networkTimeout;
 	}
 	return self;
 }
@@ -44,9 +44,14 @@
 	[super dealloc];
 }
 
+
+
+
+
+#ifndef PDXBUS_WATCH
 - (void)fetchDataByPolling:(NSString *)query
 {
-	const double pollingTime = 0.1;
+	const double pollingTime = 0.125;
 	NSURL *url = [NSURL URLWithString:query];
 	NSURLRequest * request = [NSURLRequest requestWithURL:url];
 	
@@ -72,13 +77,14 @@
 	{
 		giveUpTime = [NSDate dateWithTimeIntervalSinceNow:self.giveUp];
 	}
-	
+
 	bool networkActivityIndicatorVisible = [UIApplication sharedApplication].networkActivityIndicatorVisible;
 	
 	if (!networkActivityIndicatorVisible)
 	{
 		[UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
 	}
+
 	
 	while (!self.dataComplete && [runLoop runMode: NSDefaultRunLoopMode beforeDate:future])
 	{
@@ -86,7 +92,7 @@
 		pollingCount ++;
 		future = [NSDate dateWithTimeIntervalSinceNow:pollingTime];
 		
-		if ([thisThread isCancelled])
+		if (thisThread.cancelled)
 		{
 			DEBUG_LOG(@"Cancelled\n");
 			self.rawData = nil;
@@ -111,11 +117,148 @@
 	}
 	
 	// DEBUG_LOG(@"Polling count %d\n", pollingCount);
-		
+
 	if (!networkActivityIndicatorVisible)
 	{
 		[UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
 	}
+}
+#else
+
+- (void)timerCallback:(id)unused
+{
+    
+}
+- (void)fetchDataByPolling:(NSString *)query
+{
+    NSURLSession *session =  [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:nil];
+    
+    NSURL *url = [NSURL URLWithString:query];
+    
+    NSURLSessionDataTask *task = [session dataTaskWithURL:url];
+    
+    [task resume];
+    
+   
+    const double pollingTime = 0.25;
+    
+    NSRunLoop* runLoop = [NSRunLoop currentRunLoop];
+    NSDate *future = [NSDate dateWithTimeIntervalSinceNow:pollingTime];
+    NSThread *thisThread = [NSThread currentThread];
+    
+    
+    
+    // DEBUG_LOG(@"Query: %@\n", query);
+    
+    self.rawData = nil;
+    
+    self.dataComplete = NO;
+    self.timedOut = NO;
+    
+    
+    int pollingCount = 0;
+    
+    NSDate *giveUpTime = nil;
+    
+    if (self.giveUp > 0)
+    {
+        giveUpTime = [NSDate dateWithTimeIntervalSinceNow:self.giveUp];
+    }
+    
+    NSTimer *timer = [NSTimer timerWithTimeInterval:pollingTime*2 target:self selector:@selector(timerCallback:) userInfo:nil repeats:NO];
+    
+    [runLoop addTimer:timer forMode:NSDefaultRunLoopMode];
+    
+    
+    while (!self.dataComplete && [runLoop runMode: NSDefaultRunLoopMode beforeDate:future])
+    {
+        DEBUG_LOG(@"Polling...\n");
+        pollingCount ++;
+        future = [NSDate dateWithTimeIntervalSinceNow:pollingTime];
+        
+        [timer invalidate];
+        timer = nil;
+        
+        timer = [NSTimer timerWithTimeInterval:pollingTime*2 target:self selector:@selector(timerCallback:) userInfo:nil repeats:NO];
+        [runLoop addTimer:timer forMode:NSDefaultRunLoopMode];
+        
+        if ([thisThread isCancelled])
+        {
+            DEBUG_LOG(@"Cancelled\n");
+            self.rawData = nil;
+            self.dataComplete = YES;
+            [task cancel];
+        }
+        
+        if (giveUpTime !=nil)
+        {
+            NSDate *now = [NSDate date];
+            DEBUG_LOG(@"Time: %f\n", [giveUpTime timeIntervalSinceDate:now]);
+            if ([giveUpTime compare:now] == NSOrderedAscending)
+            {
+                DEBUG_LOG(@"timed out: %f\n", [giveUpTime timeIntervalSinceDate:now]);
+                self.rawData = nil;
+                self.timedOut = YES;
+                self.dataComplete = YES;
+                [task cancel];
+            }
+            
+        }
+    }
+    
+    [timer invalidate];
+    timer = nil;
+
+    [session invalidateAndCancel];
+    
+    DEBUG_LOG(@"Polling time %f\n", pollingCount * pollingTime);
+    
+}
+
+
+
+
+#endif
+
+
+- (void)URLSession:(NSURLSession *)session
+          dataTask:(NSURLSessionDataTask *)dataTask
+didReceiveResponse:(NSURLResponse *)response
+ completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler
+{
+    
+    if (response.expectedContentLength !=-1 && response.expectedContentLength < (32 * 1024))
+    {
+        self.rawData = [NSMutableData dataWithCapacity:(NSInteger)response.expectedContentLength];
+    }
+    else {
+        self.rawData = [NSMutableData data];
+    }
+    
+    completionHandler(NSURLSessionResponseAllow);
+}
+
+- (void)URLSession:(NSURLSession *)session
+          dataTask:(NSURLSessionDataTask *)dataTask
+    didReceiveData:(NSData *)data
+{
+    if (self.rawData !=nil)
+    {
+        // DEBUG_LOG(@"Data %lu\n", (unsigned long)[data length]);
+        [self.rawData appendData:data];
+    }
+}
+
+- (void)URLSession:(NSURLSession *)session
+              task:(NSURLSessionTask *)task
+didCompleteWithError:(NSError *)error
+{
+    self.dataComplete = YES;
+}
+
+- (void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(nullable NSError *)error
+{
+    self.dataComplete = YES;
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
@@ -125,10 +268,10 @@
 	// Don't pre-allocate more than 32K - seems like it could be a mistake if we need 32K!
 	if (response.expectedContentLength !=-1 && response.expectedContentLength < (32 * 1024))
 	{
-		self.rawData = [[[NSMutableData alloc] initWithCapacity:(NSInteger)response.expectedContentLength] autorelease];
+        self.rawData = [NSMutableData dataWithCapacity:(NSInteger)response.expectedContentLength];
 	}
 	else {
-		self.rawData = [[[NSMutableData alloc] init] autorelease];
+        self.rawData = [NSMutableData data];
 	}
 }
 
@@ -145,7 +288,7 @@
 {
 	self.rawData = nil;
 	self.dataComplete = YES;
-	self.errorMsg = [error localizedDescription];
+	self.errorMsg = error.localizedDescription;
 	ERROR_LOG(@"Connection error %@\n", [error localizedDescription]);
 }
 

@@ -17,7 +17,7 @@
 
 
 
-@class XMLDetour;
+@class XMLDetours;
 @class DepartureData;
 
 @protocol DepartureDetailDelegate
@@ -28,34 +28,36 @@
 
 @interface DepartureDetailView : TableViewControllerWithRefresh <UIActionSheetDelegate, InfColorPickerControllerDelegate,ReturnStop, MKMapViewDelegate>  {
 
-    NSInteger firstDetourRow;
-	DepartureData *_departure;
-	NSArray *_allDepartures;
-	XMLDetour *_detourData;
-	NSString *_stops;
+    NSInteger                   _firstDetourRow;
+	DepartureData *             _departure;
+	NSArray *                   _allDepartures;
+	XMLDetours *                _detours;
+	NSString *                  _stops;
     id<DepartureDetailDelegate> _delegate;
-    bool _allowBrowseForDestination;
-    CLLocationDirection _previousHeading;
-    CADisplayLink *_displayLink;
+    bool                        _allowBrowseForDestination;
+    CLLocationDirection         _previousHeading;
+    CADisplayLink *             _displayLink;
+    NSIndexPath *               _indexPathOfLocationCell;
 }
 
 @property (nonatomic, retain) DepartureData *departure;
-@property (nonatomic, retain) XMLDetour *detourData;
-@property (nonatomic, retain) NSString *stops;
+@property (nonatomic, retain) XMLDetours *detours;
+@property (nonatomic, copy)   NSString *stops;
 @property (nonatomic, retain) NSArray *allDepartures;
 @property (nonatomic, assign) id<DepartureDetailDelegate> delegate;
 @property (nonatomic, assign) bool allowBrowseForDestination;
 @property (nonatomic) CLLocationDirection previousHeading;
 @property (nonatomic, strong) CADisplayLink *displayLink;
+@property (nonatomic, copy)   NSIndexPath *indexPathOfLocationCell;
 
 
-- (void)fetchDepartureInBackground:(id<BackgroundTaskProgress>) callback dep:(DepartureData *)dep allDepartures:(NSArray*)deps;
-- (void)fetchDepartureInBackground:(id<BackgroundTaskProgress>) callback location:(NSString *)loc block:(NSString *)block;
+- (void)fetchDepartureAsync:(id<BackgroundTaskProgress>) callback dep:(DepartureData *)dep allDepartures:(NSArray*)deps;
+- (void)fetchDepartureAsync:(id<BackgroundTaskProgress>) callback location:(NSString *)loc block:(NSString *)block;
 - (void)showMap:(id)sender;
 
 - (void) colorPickerControllerDidFinish: (InfColorPickerController*) controller;
 
-- (void)refreshAction:(id)arg;
+- (void)refreshAction:(id)unused;
 
 - (void)updateSections;
 @end

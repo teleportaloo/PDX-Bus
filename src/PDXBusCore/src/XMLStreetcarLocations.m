@@ -33,7 +33,7 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
 	[super dealloc];
 }
 
-- (id)initWithRoute:(NSString *)route
+- (instancetype)initWithRoute:(NSString *)route
 {
     if (self = [super init])
     {
@@ -46,28 +46,31 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
 
 #pragma mark Singleton
 
-+ (XMLStreetcarLocations *)getSingletonForRoute:(NSString *)route
++ (XMLStreetcarLocations *)singletonForRoute:(NSString *)route
 {
-	if (singleLocationsPerLine == nil)
-	{
-        singleLocationsPerLine = [[NSMutableDictionary alloc] init];
-    }
+    @synchronized (self) {
+
+        if (singleLocationsPerLine == nil)
+        {
+            singleLocationsPerLine = [[NSMutableDictionary alloc] init];
+        }
     
-    XMLStreetcarLocations *singleLocations = [singleLocationsPerLine objectForKey:route];
+        XMLStreetcarLocations *singleLocations = singleLocationsPerLine[route];
     
-    if (singleLocations == nil)
-    {
-		singleLocations = [[[XMLStreetcarLocations alloc] initWithRoute:route] autorelease];
+        if (singleLocations == nil)
+        {
+            singleLocations = [[[XMLStreetcarLocations alloc] initWithRoute:route] autorelease];
         
-        [singleLocationsPerLine setObject:singleLocations forKey:route];
-	}
+            singleLocationsPerLine[route] = singleLocations;
+        }
 	
-	return [[singleLocations retain] autorelease];
+        return [[singleLocations retain] autorelease];
+    }
 }
 
 + (NSSet *)getStreetcarRoutesInDepartureArray:(NSArray *)deps
 {
-    NSMutableSet *routes = [[[NSMutableSet alloc] init] autorelease];
+    NSMutableSet *routes = [NSMutableSet set];
     for (XMLDepartures *dep in deps)
     {
         for (DepartureData *dd in dep.itemArray)
@@ -85,7 +88,7 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
 {
     for (NSString *route in routes)
     {
-        XMLStreetcarLocations *locs = [XMLStreetcarLocations getSingletonForRoute:route];
+        XMLStreetcarLocations *locs = [XMLStreetcarLocations singletonForRoute:route];
         for (XMLDepartures *dep in deps)
         {
             for (DepartureData *dd in dep.itemArray)
@@ -104,7 +107,7 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
 
 - (BOOL)getLocations
 {
-	hasData = false;
+	_hasData = false;
 	[self startParsing:[NSString stringWithFormat:@"vehicleLocations&a=portland-sc&r=%@&t=%qu", self.route, _lastTime]];
 	return true;	
 }
@@ -124,29 +127,28 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
     if (qName) {
         elementName = qName;
     }
-	if ([elementName isEqualToString:@"body"])
+	if (ELTYPE(body))
 	{
 		if (self.locations == nil)
 		{
-			self.locations = [[[NSMutableDictionary alloc] init] autorelease];
+            self.locations = [NSMutableDictionary dictionary];
 		}
-		hasData = true;
+		_hasData = true;
 	}
 	
-    if ([elementName isEqualToString:@"vehicle"]) {
+    if (ELTYPE(vehicle)) {
 		
-		NSString *strretcarId = [self safeValueFromDict:attributeDict valueForKey:@"id"];
+		NSString *streetcarId = ATRVAL(id);
 		
-		VehicleData *pos = [[ VehicleData alloc ] init];
+		VehicleData *pos = [VehicleData alloc].init;
 		
-        pos.location = [[[CLLocation alloc] initWithLatitude:[self getCoordFromAttribute:attributeDict valueForKey:@"lat"]
-                                                   longitude:[self getCoordFromAttribute:attributeDict valueForKey:@"lon"]] autorelease];
+        pos.location = [[[CLLocation alloc] initWithLatitude:ATRCOORD(lat)
+                                                   longitude:ATRCOORD(lon)] autorelease];
 		
         pos.type = kVehicleTypeStreetcar;
-        
-        pos.block = strretcarId;
+        pos.block = streetcarId;
         pos.routeNumber = self.route;
-        NSInteger secs = [self getNSIntegerFromAttribute:attributeDict valueForKey:@"secsSinceReport"];
+        NSInteger secs = ATRINT(secsSinceReport);
         
         // Weird issue - just reversing the sign is something to do with the weird data.
         if (secs < 0)
@@ -155,9 +157,9 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
         }
     
         pos.locationTime = UnixToTriMetTime([[NSDate date] timeIntervalSince1970] - secs);
-        pos.bearing = [self safeValueFromDict:attributeDict valueForKey:@"heading"];
+        pos.bearing = ATRVAL(heading);
         
-        NSString *dirTag = [self safeValueFromDict:attributeDict valueForKey:@"dirTag"];
+        NSString *dirTag = ATRVAL(dirTag);
         
         NSScanner *scanner = [NSScanner scannerWithString:dirTag];
         NSCharacterSet *underscore = [NSCharacterSet characterSetWithCharactersInString:@"_"];
@@ -177,15 +179,15 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
             
         }
         
-		[self.locations setObject:pos forKey:strretcarId];
+		self.locations[streetcarId] = pos;
 		
 		[pos release];
 	
 	}
 	
-	if ([elementName isEqualToString:@"lastTime"])
+	if (ELTYPE(lastTime))
 	{
-		_lastTime = [self getTimeFromAttribute:attributeDict valueForKey:@"time"];
+		_lastTime = ATRTIM(time);
 	}
 }
 
@@ -193,7 +195,7 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
 
 -(void)insertLocation:(DepartureData *)dep
 {
-	VehicleData *pos = [self.locations objectForKey:dep.streetcarId];
+	VehicleData *pos = self.locations[dep.streetcarId];
 	
 	if (pos !=nil)
 	{

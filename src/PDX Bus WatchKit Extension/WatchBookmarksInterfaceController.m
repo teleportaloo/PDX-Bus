@@ -24,7 +24,8 @@
 #import "WatchNearbyInterfaceController.h"
 #import "NumberPadInterfaceController.h"
 #import "AlertInterfaceController.h"
-
+#import "WatchAppContext.h"
+#import "ExtensionDelegate.h"
 
 @interface WatchBookmarksInterfaceController()
 
@@ -42,49 +43,68 @@
 {
     self.bookmarksContext   = nil;
     self.displayedItems     = nil;
+    self.bookmarkLabel      = nil;
+    self.bookmarkTable      = nil;
+    self.mainTextLabel      = nil;
+    self.session            = nil;
+    self.topGroup           = nil;
     [super dealloc];
+}
+
+- (void)cacheUpdated:(id)unused
+{
+    [self displayStopsInBookmark];
 }
 
 - (id)backgroundTask
 {
-    [self startBackgroundTask];
+    // [self startBackgroundTask];
+    bool updated = NO;
     StopNameCacheManager *stopNameCache = [TriMetXML getStopNameCacheManager];
-    for (NSInteger i = 0; i < self.bookmarksContext.singleBookmark.count; i++) {
+    for (NSString *loc in self.bookmarksContext.singleBookmark) {
         
-        [stopNameCache getStopNameAndCache:[self.bookmarksContext.singleBookmark objectAtIndex:i]];
+        [stopNameCache getStopName:loc fetchAndCache:YES updated:&updated];
+        
+        if (updated)
+        {
+            [self performSelectorOnMainThread:@selector(cacheUpdated:) withObject:nil waitUntilDone:NO];
+        }
     }
     return nil;
 }
 
-- (void)taskFinishedMainThread:(id)arg
+- (void)displayStopsInBookmark
 {
     self.title = self.bookmarksContext.title;
     self.displayedItems = self.bookmarksContext.singleBookmark;
-    
-    StopNameCacheManager *stopNameCache = [TriMetXML getStopNameCacheManager];
-    
     [self.bookmarkTable setNumberOfRows:self.displayedItems.count withRowType:@"Bookmark"];
+
+    StopNameCacheManager *stopNameCache = [TriMetXML getStopNameCacheManager];
     
     for (NSInteger i = 0; i < self.bookmarkTable.numberOfRows; i++) {
         
         WatchBookmark *row = [self.bookmarkTable rowControllerAtIndex:i];
-        NSArray *stopName = [stopNameCache getStopNameAndCache:[self.displayedItems objectAtIndex:i]];
+        NSArray *stopName = [stopNameCache getStopName:self.displayedItems[i] fetchAndCache:NO updated:nil];
         
-        [row.bookmarkName setText:[stopName objectAtIndex:kStopNameCacheShortDescription]];
+        [row.bookmarkName setText:stopName[kStopNameCacheShortDescription]];
     }
     
-    if (self.bookmarksContext.oneTimeShowFirst)
-    {
-        self.bookmarksContext.oneTimeShowFirst = NO;
-        
-        [[WatchArrivalsContextBookmark contextFromBookmark:self.bookmarksContext index:0] delayedPushFrom:self];
-    }
+    self.displayedItems = self.bookmarksContext.singleBookmark;
 }
 
-- (void)setupButtonsAndTextTopHidden:(bool)top bottomHidden:(bool)bottom textHidden:(bool)text
+
+- (void)taskFinishedMainThread:(id)result
+{
+    self.title = self.bookmarksContext.title;
+    
+    // [self displayStopsInBookmark];
+    
+   
+}
+
+- (void)setupButtonsAndTextTopHidden:(bool)top textHidden:(bool)text
 {
     self.topGroup.hidden        = top;
-    self.bottomGroup.hidden     = bottom;
     self.mainTextLabel.hidden   = text;
 }
 
@@ -94,29 +114,37 @@
     {
         self.displayedItems = nil;
         
+        
         // force a reload
         self.faves.appData = nil;
         
         if (self.bookmarksContext == nil)
         {
             self.title = @"PDX Bus";
-            self.displayedItems = self.faves.favesArrivalsOnly;
-            self.bookmarkLabel.hidden = NO;
-            
-            if ([UserPrefs getSingleton].watchBookmarksAtTheTop)
+            if ([WatchAppContext gotBookmarks:NO])
             {
-                [self setupButtonsAndTextTopHidden:YES bottomHidden:NO textHidden:NO];
+            
+                self.displayedItems = self.faves.favesArrivalsOnly;
+                self.mainTextLabel.text = [NSString stringWithFormat:@"Note: Set up bookmarks in the iPhone app.\nVersion %@", [NSBundle mainBundle].infoDictionary[@"CFBundleVersion"]];;
+                
             }
             else
             {
-                [self setupButtonsAndTextTopHidden:NO bottomHidden:YES textHidden:NO];
+                self.displayedItems = nil;
+                self.mainTextLabel.text = [NSString stringWithFormat:@"Please run the iPhone app once; it will send bookmarks to the watch.\nVersion %@", [NSBundle mainBundle].infoDictionary[@"CFBundleVersion"]];
+                
             }
+            
+            self.bookmarkLabel.hidden = NO;
+            
+            [self setupButtonsAndTextTopHidden:NO textHidden:NO];
+            
             
         } else {
             self.title =  @"Recents";
             self.displayedItems = self.faves.recents;
             
-            [self setupButtonsAndTextTopHidden:YES bottomHidden:YES textHidden:YES];
+            [self setupButtonsAndTextTopHidden:YES textHidden:YES];
             
              self.bookmarkLabel.hidden = YES;
         }
@@ -129,16 +157,19 @@
                 
                 WatchBookmark *row = [self.bookmarkTable rowControllerAtIndex:i];
                 
-                NSDictionary *item = (NSDictionary *)[self.displayedItems objectAtIndex:i];
+                NSDictionary *item = self.displayedItems[i];
                 
-                [row.bookmarkName setText:[item valueForKey:kUserFavesChosenName]];
+                [row.bookmarkName setText:item[kUserFavesChosenName]];
             }
         }
         else
         {
             if (self.bookmarksContext == nil)
             {
-                [self.bookmarkTable setNumberOfRows:1 withRowType:@"No bookmarks"];
+                if ([WatchAppContext gotBookmarks:NO])
+                {
+                    [self.bookmarkTable setNumberOfRows:1 withRowType:@"No bookmarks"];
+                }
             }
             else
             {
@@ -149,9 +180,20 @@
     else if (self.bookmarksContext.singleBookmark !=nil)
     {
         self.title = @"Loading";
+        
+        [self displayStopsInBookmark];
         [self startBackgroundTask];
         
-        [self setupButtonsAndTextTopHidden:YES bottomHidden:YES textHidden:YES];
+        if (self.bookmarksContext.oneTimeShowFirst)
+        {
+            self.bookmarksContext.oneTimeShowFirst = NO;
+            
+            
+            [self delayedPush:[WatchArrivalsContextBookmark contextFromBookmark:self.bookmarksContext index:0]];
+            
+        }
+        
+        [self setupButtonsAndTextTopHidden:YES textHidden:YES];
         
         self.bookmarkLabel.hidden = YES;
     }
@@ -160,13 +202,28 @@
 - (void)awakeWithContext:(id)context {
     [super awakeWithContext:context];
     
-    self.faves = [SafeUserData getSingleton];
+    self.faves = [SafeUserData singleton];
     self.faves.readOnly = YES;
     self.bookmarksContext = context;
+
     
-    [UserPrefs useWatchSettings];
+    if ([WCSession isSupported] && (self.bookmarksContext == nil))
+    {
+        self.session = [WCSession defaultSession];
+        self.session .delegate = self;
+        [self.session  activateSession];
+        
+        if (self.session.applicationContext)
+        {
+            [WatchAppContext writeAppContext:self.session.applicationContext];
+        }
+    }
+    else
+    {
+        [self reloadData];
+    }
     
-    [self reloadData];
+
 }
 
 - (void)table:(WKInterfaceTable *)table didSelectRowAtIndex:(NSInteger)rowIndex
@@ -175,21 +232,21 @@
     {
         if (rowIndex < self.displayedItems.count)
         {
-            NSDictionary *selectedItem = [self.displayedItems objectAtIndex:rowIndex];
-            NSString *location = [selectedItem valueForKey:kUserFavesLocation];
-            NSString *title    = [selectedItem valueForKey:kUserFavesChosenName];
+            NSDictionary *selectedItem = self.displayedItems[rowIndex];
+            NSString *location = selectedItem[kUserFavesLocation];
+            NSString *title    = selectedItem[kUserFavesChosenName];
         
-            NSArray *stops = [StringHelper arrayFromCommaSeparatedString:location];
-
+            NSArray *stops = location.arrayFromCommaSeparatedString;
             
             if (stops.count > 1)
             {
                 WatchBookmarksContext * context = [WatchBookmarksContext contextWithBookmark:stops title:title locationString:location];
                 
-                if (![UserPrefs getSingleton].watchBookmarksDisplayStopList && self.bookmarksContext == nil)
-                {
-                    context.oneTimeShowFirst = YES;
-                }
+                //
+                //if (self.bookmarksContext == nil)
+                //{
+                //    context.oneTimeShowFirst = YES;
+                //}
                 
                 [context pushFrom:self];
                 
@@ -198,11 +255,11 @@
             {
                 if (self.bookmarksContext.recents)
                 {
-                    NSMutableArray *recentStops = [[[NSMutableArray alloc] init] autorelease];
+                    NSMutableArray *recentStops = [NSMutableArray array];
                     
                     for (NSDictionary *item in self.displayedItems)
                     {
-                        [recentStops addObject:[item valueForKey:kUserFavesLocation]];
+                        [recentStops addObject:item[kUserFavesLocation]];
                     }
                     
                     [[WatchArrivalsContextBookmark contextFromRecents:
@@ -226,34 +283,55 @@
     
 }
 
-- (void)willActivate {
-    // This method is called when watch view controller is about to be visible to user
-    
+- (void)applicationDidBecomeActive
+{
+#ifdef DEBUGLOGGING
+    bool pushedCommuterBookmark =
+#endif
+        [self autoCommute];
+    DEBUG_LOG(@"Auto-commute? %d", pushedCommuterBookmark);
+}
+
+- (void)didAppear
+{
     bool pushedCommuterBookmark = NO;
-    [SafeUserData getSingleton].lastRunKey = kLastRunWatch;
+    [SafeUserData singleton].lastRunKey = kLastRunWatch;
     
+    WKExtension *extension = [WKExtension sharedExtension];
+    
+    ExtensionDelegate *delegate = extension.delegate;
     
     // If we are the root display the bookmark
-    if (self.bookmarksContext == nil )
+    if (self.bookmarksContext == nil)
     {
-        pushedCommuterBookmark = [self maybeDisplayCommuterBookmark];
+        pushedCommuterBookmark = [self delayedDisplayOfCommuterBookmark];
         DEBUG_LOG(@"Root - did  I push? %d", pushedCommuterBookmark);
+        [WatchAppContext writeAppContext:self.session.applicationContext];
+        
     }
     
-    if (!pushedCommuterBookmark)
+    
+    
+    if (!pushedCommuterBookmark && delegate.justLaunched)
     {
-        pushedCommuterBookmark = [self autoCommuteAlreadyHome:(self.bookmarksContext == nil) ];
+        pushedCommuterBookmark = [self autoCommute];
         DEBUG_LOG(@"Auto-commute? %d", pushedCommuterBookmark);
     }
     
+    delegate.justLaunched = NO;
+    
     if (!pushedCommuterBookmark)
     {
+        if (self.session && self.session.applicationContext)
+        {
+            [WatchAppContext writeAppContext:self.session.applicationContext];
+        }
         [self reloadData];
         
         [self.bookmarksContext updateUserActivity:self];
     }
     
-    [super willActivate];
+    [super didAppear];
 }
 
 - (void)didDeactivate {
@@ -270,7 +348,7 @@
 }
 
 - (IBAction)menuItemCommute {
-    [self forceCommuteAlreadyHome:(self.bookmarksContext == nil)];
+    [self forceCommute];
 }
 - (IBAction)topRecentStops {
     [[WatchBookmarksContext contextForRecents] pushFrom:self];
@@ -280,12 +358,29 @@
     [self pushControllerWithName:kNearbyScene context:nil];
 }
 
-- (IBAction)bottomRecentStops {
-    [[WatchBookmarksContext contextForRecents] pushFrom:self];
+/** Called when the session can no longer be used to modify or add any new transfers and, all interactive messages will be cancelled, but delegate callbacks for background transfers can still occur. This will happen when the selected watch is being changed. */
+- (void)sessionDidBecomeInactive:(WCSession *)session
+{
+    
 }
 
-- (IBAction)bottomLocateStops {
-    [self pushControllerWithName:kNearbyScene context:nil];
+/** Called when all delegate callbacks for the previously selected watch has occurred. The session can be re-activated for the now selected watch using activateSession. */
+- (void)sessionDidDeactivate:(WCSession *)session
+{
+    
+}
+
+/** Called when any of the Watch state properties change. */
+- (void)sessionWatchStateDidChange:(WCSession *)session
+{
+    
+}
+
+- (void)session:(WCSession *)session didReceiveApplicationContext:(NSDictionary<NSString *, id> *)applicationContext
+{
+    [WatchAppContext writeAppContext:applicationContext];
+    
+    [self reloadData];
 }
 
 

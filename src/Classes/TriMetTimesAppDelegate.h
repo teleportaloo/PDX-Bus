@@ -28,7 +28,7 @@
 
 @property (nonatomic) bool cleanExitLastTime;
 
-@property (nonatomic, retain) NSString *pathToCleanExit;
+@property (nonatomic, copy)   NSString *pathToCleanExit;
 @property (nonatomic, retain) UIWindow *window;
 @property (nonatomic, retain) IBOutlet UINavigationController *navigationController;
 @property (nonatomic, retain) RootViewController *rootViewController;

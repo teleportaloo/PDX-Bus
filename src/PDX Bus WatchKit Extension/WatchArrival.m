@@ -17,24 +17,36 @@
 
 @implementation WatchArrival
 
--(void)displayDepature:(WatchDepartureUI *)dep
+- (void)dealloc
 {
-    if (dep.data.errorMessage)
+    self.lineColor  = nil;
+    self.blockColor = nil;
+    self.exception  = nil;
+    self.heading    = nil;
+    self.mins       = nil;
+    self.stale      = nil;
+    
+    [super dealloc];
+}
+
+-(void)displayDeparture:(DepartureData *)dep
+{
+    if (dep.errorMessage)
     {
-        [self.heading setText:dep.data.errorMessage];
+        [self.heading setText:dep.errorMessage];
         self.exception.hidden = YES;
+        self.stale.hidden = YES;
         self.blockColor.image = nil;
         [self.mins setText:nil];
     }
     else
     {
-        [self.heading setAttributedText:[dep headingWithStatus]];
+        [self.heading setAttributedText:dep.headingWithStatus];
+        [self.mins    setText:dep.formattedMinsToArrival];
+        [self.mins    setTextColor:dep.getFontColor];
+        [self.lineColor setImage:dep.getRouteColorImage];
 
-        [self.mins    setText:dep.minsToArrival];
-        [self.mins    setTextColor:[dep getFontColor]];
-        [self.lineColor setImage:[dep getRouteColorImage]];
-
-        self.blockColor.image = [dep getBlockImageColor];
+        self.blockColor.image = dep.blockImageColor;
     
         NSString *exception = dep.exception;
     
@@ -47,6 +59,9 @@
         {
             self.exception.hidden = YES;
         }
+        
+        self.stale.hidden = !dep.stale;
+        
     }
 }
 

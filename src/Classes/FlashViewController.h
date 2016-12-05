@@ -18,9 +18,9 @@
 #include "UserPrefs.h"
 
 @interface FlashViewController : ViewControllerBase {
-	NSTimer *_flashTimer;
-	int _color;
-    TorchController *_torch;
+	NSTimer *           _flashTimer;
+	int                 _color;
+    TorchController *   _torch;
 }
 
 @property (nonatomic, retain) NSTimer *flashTimer;

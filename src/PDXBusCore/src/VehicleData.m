@@ -49,11 +49,6 @@
     [super dealloc];
 }
 
-- (CLLocationCoordinate2D) coordinate
-{
-    return self.location.coordinate;
-}
-
 
 -(NSComparisonResult)compareUsingDistance:(VehicleData*)inVehicle
 {
@@ -96,7 +91,7 @@
 + (NSString *)locatedSomeTimeAgo:(NSDate *)date
 {
     NSString *lastSeen = nil;
-    NSInteger seconds = -[date timeIntervalSinceNow];
+    NSInteger seconds = -date.timeIntervalSinceNow;
     
     if (seconds < 0)
     {
@@ -106,7 +101,7 @@
     {
         lastSeen = @"Located 1s ago";
     }
-    else if (seconds < 60)
+    else if (seconds < 120)
     {
         lastSeen = [NSString stringWithFormat:@"Located %lus ago", (unsigned long)seconds];
     }
@@ -114,7 +109,7 @@
     {
         lastSeen = @"Located over an hour ago";
     }
-    else if (seconds >= 60)
+    else if (seconds >= 120)
     {
         NSInteger mins = ((seconds+30)/60);
         

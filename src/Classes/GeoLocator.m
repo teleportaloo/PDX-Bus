@@ -28,10 +28,11 @@
 {
     // This API does not work well and so is always off for now.
    return NO;
-    
+#if 0
     Class geocoderClass = (NSClassFromString(@"CLGeocoder"));
     
     return geocoderClass != nil;
+#endif
     
 }
 

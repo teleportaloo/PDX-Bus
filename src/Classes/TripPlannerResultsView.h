@@ -21,14 +21,14 @@
 
 @interface TripPlannerResultsView : TableViewWithToolbar <MFMessageComposeViewControllerDelegate, MFMailComposeViewControllerDelegate, UIActionSheetDelegate,
 											UIAlertViewDelegate> {
-	XMLTrips *_tripQuery;
-	int itinerarySectionOffset;
-	int _bookmarkItem;
-	int _smsRows;
-	int _calRows;
-	int _recentTripItem;
-    int _alarmItem;
-	TripItinerary *_calendarItinerary;
+	XMLTrips *      _tripQuery;
+	int             _itinerarySectionOffset;
+	int             _bookmarkItem;
+	int             _smsRows;
+	int             _calRows;
+	int             _recentTripItem;
+    int             _alarmItem;
+	TripItinerary * _calendarItinerary;
     NSUserActivity *_userActivity;
 }
 
@@ -41,11 +41,11 @@
 - (NSInteger)legRows:(TripItinerary *)it;
 - (NSInteger)sectionType:(NSInteger)section;
 - (TripItinerary *)getSafeItinerary:(NSInteger)section;
-- (NSString*)getFromText;
-- (NSString*)getToText;
+@property (nonatomic, getter=getFromText, readonly, copy) NSString *fromText;
+@property (nonatomic, getter=getToText, readonly, copy) NSString *toText;
 - (void)mailComposeController:(MFMailComposeViewController*)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError*)error;
 - (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult)result;
-- (id)initWithHistoryItem:(int)item;
+- (instancetype)initWithHistoryItem:(int)item;
 - (void)setItemFromHistory:(int)item;
 - (void)setItemFromArchive:(NSDictionary *)archive;
 

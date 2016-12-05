@@ -16,6 +16,6 @@
 
 
 @protocol SearchFilter <NSObject>
--(NSString*)stringToFilter;
+@property (nonatomic, readonly, copy) NSString *stringToFilter;
 @end
 

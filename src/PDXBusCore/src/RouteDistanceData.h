@@ -15,20 +15,22 @@
 
 
 #import <Foundation/Foundation.h>
+#import "DataFactory.h"
+#import "StopDistanceData.h"
 
-@interface RouteDistanceData : NSObject {
+@interface RouteDistanceData : DataFactory {
 	NSString *_desc;
 	NSString *_route;
 	NSString *_type;
-	NSMutableArray *_stops;
+	NSMutableArray<StopDistanceData*> *_stops;
 }
 
 - (void)sortStopsByDistance;
 - (NSComparisonResult)compareUsingDistance:(RouteDistanceData*)inStop;
 
-@property (nonatomic, retain) NSString *desc;
-@property (nonatomic, retain) NSString *route;
-@property (nonatomic, retain) NSString *type;
-@property (nonatomic, retain) NSMutableArray *stops;
+@property (nonatomic, copy)   NSString *desc;
+@property (nonatomic, copy)   NSString *route;
+@property (nonatomic, copy)   NSString *type;
+@property (nonatomic, retain) NSMutableArray<StopDistanceData*> *stops;
 
 @end

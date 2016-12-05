@@ -17,18 +17,18 @@
 
 
 
-@interface StoppableFetcher : NSObject {
-	NSMutableData *_rawData;
-	bool _dataComplete;
-	NSURLConnection * _connection;
-	NSString *_errorMsg;
-	float _giveUp;
-	bool _timedOut;
+@interface StoppableFetcher : NSObject <NSURLSessionDelegate> {
+	NSMutableData *     _rawData;
+	bool                _dataComplete;
+	NSURLConnection *   _connection;
+	NSString *          _errorMsg;
+	float               _giveUp;
+	bool                _timedOut;
 
 }
 
 
-@property (nonatomic, retain) NSString *errorMsg;
+@property (nonatomic, copy)   NSString *errorMsg;
 @property (retain) NSURLConnection *connection;
 @property bool dataComplete;
 @property (retain) NSMutableData *rawData;
@@ -36,6 +36,6 @@
 @property (nonatomic) bool timedOut;
 
 - (void)fetchDataByPolling:(NSString *)query;
-- (id)init;
+- (instancetype)init;
 
 @end

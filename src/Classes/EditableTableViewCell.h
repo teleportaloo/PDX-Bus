@@ -16,8 +16,8 @@
 
 @interface EditableTableViewCell : UITableViewCell
 {
-    id <EditableTableViewCellDelegate> delegate;
-    BOOL isInlineEditing;
+    id <EditableTableViewCellDelegate>  _delegate;
+    BOOL                                _isInlineEditing;
 }
 
 // Exposes the delegate property to other objects.

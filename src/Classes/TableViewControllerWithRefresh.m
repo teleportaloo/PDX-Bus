@@ -39,7 +39,7 @@
     [super dealloc];
 }
 
-- (id)init {
+- (instancetype)init {
     if ((self = [super init]))
     {
         _timerPaused = NO;
@@ -52,7 +52,7 @@
 {
     if (self.refreshTimer !=nil && self.refreshTimer)
     {
-        NSTimeInterval sinceRefresh = [self.lastRefresh timeIntervalSinceNow];
+        NSTimeInterval sinceRefresh = self.lastRefresh.timeIntervalSinceNow;
         
         // If we detect that the app was backgrounded while this timer
         // was expiring we go around one more time - this is to enable a commuter
@@ -74,8 +74,15 @@
             if (secs < 0) secs = 0;
             
             [self setRefreshButtonText:[NSString stringWithFormat:NSLocalizedString(@"Refresh in %d", @"Refresh button text {number of seconds}"), secs] ];
+            
+            [self countDownTimer];
         }
     }
+}
+
+- (void)countDownTimer
+{
+    
 }
 
 - (void)setRefreshtextColor
@@ -98,14 +105,14 @@
     }
 }
 
-- (void)refreshAction:(id)arg
+- (void)refreshAction:(id)unused
 {
     [self stopTimer];
 }
 
 - (void)startTimer
 {
-    if ([UserPrefs getSingleton].autoRefresh)
+    if ([UserPrefs singleton].autoRefresh)
     {
         self.lastRefresh = [NSDate date];
         NSDate *oneSecondFromNow = [NSDate dateWithTimeIntervalSinceNow:0];
@@ -146,7 +153,7 @@
 
 - (void)unpauseTimer
 {
-    if ([UserPrefs getSingleton].autoRefresh && _timerPaused)
+    if ([UserPrefs singleton].autoRefresh && _timerPaused)
     {
         DEBUG_LOG(@"restarting timer\n");
         
@@ -160,7 +167,7 @@
         _timerPaused = NO;
         
     }
-    else if ([UserPrefs getSingleton].autoRefresh)
+    else if ([UserPrefs singleton].autoRefresh)
     {
         [self startTimer];
         _timerPaused = NO;
@@ -205,7 +212,7 @@
     // add our custom refresh button as the nav bar's custom right view
     // The custom button here is to stop the button from flashing each time
     // the text is updated in iOS7.
-    if ([AlignedBarItemButton iOS7])
+    // if ([AlignedBarItemButton iOS7])
     {
         CGRect buttonRect = CGRectMake(0,0, 110, 30);
         
@@ -224,11 +231,6 @@
         [self setRefreshtextColor];
         
     }
-    else
-    {
-        self.refreshButton = [[UIBarButtonItem alloc] initWithTitle:kRefreshText style:UIBarButtonItemStylePlain target:self action:@selector(refreshAction:)];
-    }
-    
     self.navigationItem.rightBarButtonItem = self.refreshButton;
 
 }

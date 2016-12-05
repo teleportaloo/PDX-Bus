@@ -23,7 +23,7 @@
 	XMLRoutes *_routeData;
 }
 
-- (void)fetchRoutesInBackground:(id<BackgroundTaskProgress>)callback;
+- (void)fetchRoutesAsync:(id<BackgroundTaskProgress>)callback;
 - (void)refreshAction:(id)sender;
 
 @property (nonatomic, retain) XMLRoutes *routeData;

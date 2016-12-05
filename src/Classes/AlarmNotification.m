@@ -29,6 +29,8 @@
 
 @synthesize notification = _notification;
 @synthesize previousState = _previousState;
+@dynamic pinTint;
+@dynamic pinColor;
 
 - (void)dealloc
 {
@@ -42,50 +44,46 @@
 
 - (void)executeAction
 {
-	TriMetTimesAppDelegate *app = [TriMetTimesAppDelegate getSingleton];
-	NSString *stopId   = [self.notification.userInfo objectForKey:kStopIdNotification];
-	NSString *mapDescr = [self.notification.userInfo objectForKey:kStopMapDescription];
+	TriMetTimesAppDelegate *app = [TriMetTimesAppDelegate singleton];
+	NSString *stopId   = self.notification.userInfo[kStopIdNotification];
+	NSString *mapDescr = self.notification.userInfo[kStopMapDescription];
 	
 	if (self.notification.userInfo)
 	{
 		if (mapDescr)
 		{
-			[[app.rootViewController navigationController] popToRootViewControllerAnimated:NO];
-			MapViewController *mapPage = [[MapViewController alloc] init];
+			[app.rootViewController.navigationController popToRootViewControllerAnimated:NO];
+            MapViewController *mapPage = [MapViewController viewController];
 			
 			
-			NSNumber *lat = [self.notification.userInfo objectForKey:kCurrLocLat];
-			NSNumber *lng = [self.notification.userInfo objectForKey:kCurrLocLng];
-			NSString *stamp = [self.notification.userInfo objectForKey:kCurrTimestamp];
+			NSNumber *lat =     self.notification.userInfo[kCurrLocLat];
+			NSNumber *lng =     self.notification.userInfo[kCurrLocLng];
+			NSString *stamp =   self.notification.userInfo[kCurrTimestamp];
 			
 			if (lat && lng)
 			{
 				CLLocationCoordinate2D coord;
-				coord.latitude  = [lat doubleValue];
-				coord.longitude = [lng doubleValue];
+				coord.latitude  = lat.doubleValue;
+				coord.longitude = lng.doubleValue;
 			
-				SimpleAnnotation *currentLocation = [[[SimpleAnnotation alloc] init] autorelease];
+                SimpleAnnotation *currentLocation = [SimpleAnnotation annotation];
 				currentLocation.pinColor = MKPinAnnotationColorPurple;
 				currentLocation.pinTitle = NSLocalizedString(@"Current Location", @"map pin");
 				currentLocation.pinSubtitle = [NSString stringWithFormat:NSLocalizedString(@"as of %@","location as of time {time}"), stamp];
-				[currentLocation setCoord:coord];
+				currentLocation.coordinate = coord;
 				[mapPage addPin:currentLocation];
 			}
 			
-			[[app.rootViewController navigationController] pushViewController:mapPage animated:YES];
-          	[mapPage release];
-			
+			[app.rootViewController.navigationController pushViewController:mapPage animated:YES];
 		}
 		else if (stopId)
 		{
-			[[app.rootViewController navigationController] popToRootViewControllerAnimated:NO];
+			[app.rootViewController.navigationController popToRootViewControllerAnimated:NO];
 		
-			DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
-			NSString *block = [self.notification.userInfo objectForKey:kAlarmBlock];
-			[departureViewController fetchTimesForLocationInBackground:app.rootViewController.backgroundTask
+			NSString *block = self.notification.userInfo[kAlarmBlock];
+			[[DepartureTimesView viewController] fetchTimesForLocationAsync:app.rootViewController.backgroundTask
                                                                  loc:stopId
 																 block:block];
-			[departureViewController release];
 		}
 	}
 	
@@ -106,16 +104,16 @@
 	}
 	else 
 	{
-		if (notif.userInfo!=nil && [notif.userInfo objectForKey:kDoNotDisplayIfActive]==nil)
+		if (notif.userInfo!=nil && notif.userInfo[kDoNotDisplayIfActive]==nil)
 		{
-            UInt32 sessionCategory = kAudioSessionCategory_AmbientSound;    
+            AVAudioSession *session = [AVAudioSession sharedInstance];
             
-            AudioSessionSetProperty (
-                                     kAudioSessionProperty_AudioCategory,     
-                                     sizeof (sessionCategory),                        
-                                     &sessionCategory                     
-                                     );
-            
+            NSError *setCategoryError = nil;
+            if (![session setCategory:AVAudioSessionCategoryPlayback
+                          withOptions:AVAudioSessionCategoryOptionMixWithOthers
+                                error:&setCategoryError]) {
+                // handle error
+            }
             
             NSString *soundFile = notif.soundName;
             
@@ -126,10 +124,10 @@
                 soundFile = @"default_sound.wav";
             }
 			
-			// UserPrefs *prefs = [UserPrefs getSingleton];
+			// UserPrefs *prefs = [UserPrefs singleton];
             //Get the filename of the sound file:
             NSString *path = [NSString stringWithFormat:@"%@/%@",
-								  [[NSBundle mainBundle] resourcePath],
+								  [NSBundle mainBundle].resourcePath,
 								  soundFile];
 				
             //Get a URL for the sound file
@@ -167,7 +165,7 @@
 	[self release];
 }
 
-- (MKPinAnnotationColor) getPinColor
+- (MKPinAnnotationColor) pinColor
 {
 	return MKPinAnnotationColorGreen;
 }
@@ -180,10 +178,10 @@
 - (CLLocationCoordinate2D)coordinate
 {
 	CLLocationCoordinate2D coord;
-	NSNumber *lat = [self.notification.userInfo objectForKey:kStopMapLat];
-	NSNumber *lng = [self.notification.userInfo objectForKey:kStopMapLng];
-	coord.latitude  = [lat doubleValue];
-	coord.longitude = [lng doubleValue];
+	NSNumber *lat = self.notification.userInfo[kStopMapLat];
+	NSNumber *lng = self.notification.userInfo[kStopMapLng];
+	coord.latitude  = lat.doubleValue;
+	coord.longitude = lng.doubleValue;
 	
 	return coord;
 	
@@ -191,20 +189,20 @@
 
 - (NSString *)title
 {
-	return [self.notification.userInfo objectForKey:kStopMapDescription];
+	return self.notification.userInfo[kStopMapDescription];
 }
 
 - (NSString *)subtitle
 {
-	return [NSString stringWithFormat:NSLocalizedString(@"Stop ID %@", @"TriMet Stop identifer <number>"), [self.notification.userInfo objectForKey:kStopIdNotification]];
+	return [NSString stringWithFormat:NSLocalizedString(@"Stop ID %@", @"TriMet Stop identifer <number>"), self.notification.userInfo[kStopIdNotification]];
 }
 
 - (NSString *) mapStopId
 {
-	return [self.notification.userInfo objectForKey:kStopIdNotification];
+	return self.notification.userInfo[kStopIdNotification];
 }
 
-- (UIColor *)getPinTint
+- (UIColor *)pinTint
 {
     return nil;
 }

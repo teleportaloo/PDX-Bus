@@ -43,23 +43,10 @@ static int depthCount = 0;
 
 - (void)updateToolbarItems:(NSMutableArray *)toolbarItems
 {
-	[toolbarItems addObject:[CustomToolbar autoMapButtonWithTarget:self action:@selector(showMap:)]];
+	[toolbarItems addObject:[UIToolbar autoMapButtonWithTarget:self action:@selector(showMap:)]];
     [self maybeAddFlashButtonWithSpace:YES buttons:toolbarItems big:NO];
 }
 
-
-- (void)editHomeAction:(id)sender
-{
-	TripPlannerEndPointView *editHome = [[TripPlannerEndPointView alloc] init];
-    
-    [editHome initTakMeHome:self.tripQuery.userRequest];
-    
-    UINavigationController * navigationController = self.navigationController;
-    [navigationController popToRootViewControllerAnimated:NO];
-    [navigationController pushViewController:editHome animated:YES];
-    
-    [editHome release];
-}
 
 #pragma mark View methods
 
@@ -70,7 +57,7 @@ static int depthCount = 0;
 	
 	if (self.from)
 	{
-		self.title = @"Uncertain Start";
+        self.title = NSLocalizedString(@"Uncertain Start", @"page title");
 		if (self.locList == nil)
 		{
 			self.locList = self.tripQuery.fromList;
@@ -78,25 +65,12 @@ static int depthCount = 0;
 	}
 	else
 	{
-		self.title = @"Uncertain End";
+		self.title = NSLocalizedString(@"Uncertain End", @"page title");
 		if (self.locList == nil)
 		{
 			self.locList = self.tripQuery.toList;
 		}
 	}
-    
-    if (self.tripQuery.userRequest.takeMeHome)
-    {
-        UIBarButtonItem *editHome = [[UIBarButtonItem alloc]
-                                     initWithTitle:NSLocalizedString(@"Edit Home", @"")
-                                     style:UIBarButtonItemStyleBordered
-                                     target:self
-                                     action:@selector(editHomeAction:)];
-        self.navigationItem.rightBarButtonItem = editHome;
-        
-        [editHome release];
-    }
-    
 }
 
 
@@ -125,14 +99,13 @@ static int depthCount = 0;
 		
 		if (self.tripQuery.toList && !self.tripQuery.userRequest.toPoint.useCurrentLocation)
 		{
-			TripPlannerLocationListView *locView = [[TripPlannerLocationListView alloc] init];
+            TripPlannerLocationListView *locView = [TripPlannerLocationListView viewController];
 			
 			locView.tripQuery = self.tripQuery;
 			locView.from = false;
 			
 			// Push the detail view controller
-			[[self navigationController] pushViewController:locView animated:YES];
-			[locView release];
+			[self.navigationController pushViewController:locView animated:YES];
 			displayResults = false;
 		}
 	}
@@ -145,14 +118,12 @@ static int depthCount = 0;
 	
 	if (displayResults)
 	{
-		TripPlannerLocatingView * locView = [[ TripPlannerLocatingView alloc ] init];
+        TripPlannerLocatingView * locView = [TripPlannerLocatingView viewController];
 		
 		locView.tripQuery = self.tripQuery;
 		
-		[locView nextScreen:[self navigationController] forceResults:(depthCount > 5) postQuery:YES 
-				orientation:self.interfaceOrientation taskContainer:self.backgroundTask];
-		
-		[locView release];
+		[locView nextScreen:self.navigationController forceResults:(depthCount > 5) postQuery:YES 
+				orientation:[UIApplication sharedApplication].statusBarOrientation taskContainer:self.backgroundTask];
 		
 	}
 	
@@ -163,28 +134,25 @@ static int depthCount = 0;
 
 -(void)showMap:(id)sender
 {
-	MapViewController *mapPage = [[MapViewController alloc] init];
+    MapViewController *mapPage = [MapViewController viewController];
 	mapPage.callback = self.callback;
 	mapPage.annotations = self.locList;
 	
 	if (self.from)
 	{
-		mapPage.title = @"Uncertain Start";
+		mapPage.title = NSLocalizedString(@"Uncertain Start", @"page title");
 	}
 	else
 	{
-		mapPage.title = @"Uncertain Destination";
+		mapPage.title = NSLocalizedString(@"Uncertain End", @"page title");
 	}
 	
-	for (int i=0; i< [self.locList count]; i++)
-	{
-		TripLegEndPoint *p = [self.locList objectAtIndex:i];
-		
+	for (TripLegEndPoint *p in self.locList)
+	{		
 		p.callback = self;
 	}
 	
-	[[self navigationController] pushViewController:mapPage animated:YES];
-	[mapPage release];
+	[self.navigationController pushViewController:mapPage animated:YES];
 }
 
 #pragma mark  Table View methods
@@ -193,9 +161,9 @@ static int depthCount = 0;
 {
 	if (self.from)
 	{
-		return @"Uncertain starting location - select a choice from below:";
+		return NSLocalizedString(@"Uncertain starting location - select a choice from below:", @"section header");
 	}
-	return @"Uncertain destination - select a choice from below:";
+	return NSLocalizedString(@"Uncertain destination - select a choice from below:", @"section header");
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -205,7 +173,7 @@ static int depthCount = 0;
 
 // Customize the number of rows in the table view.
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [self.locList count];
+    return self.locList.count;
 }
 
 // Customize the appearance of table view cells.
@@ -218,12 +186,12 @@ static int depthCount = 0;
         cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
     }
     
-	TripLegEndPoint *p = [self.locList objectAtIndex:indexPath.row];
+	TripLegEndPoint *p = self.locList[indexPath.row];
 	
     cell.textLabel.text = p.xdescription;
-	cell.textLabel.font = [self getBasicFont];
+	cell.textLabel.font = self.basicFont;
 	cell.textLabel.adjustsFontSizeToFitWidth = true;
-	[cell setAccessibilityLabel:p.xdescription];
+	cell.accessibilityLabel = p.xdescription;
 	[self maybeAddSectionToAccessibility:cell indexPath:indexPath alwaysSaySection:NO];
 	
 	
@@ -236,7 +204,7 @@ static int depthCount = 0;
 	// [self.navigationController pushViewController:anotherViewController];
 	// [anotherViewController release];
 	
-	[self chosenEndpoint:[self.locList objectAtIndex:indexPath.row] ];
+	[self chosenEndpoint:self.locList[indexPath.row]];
 
 }
 

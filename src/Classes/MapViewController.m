@@ -21,48 +21,33 @@
 #import "DepartureTimesView.h"
 #import "DepartureDetailView.h"
 #import "QuartzCore/QuartzCore.h"
-#import "DepartureUI.h"
+#import "DepartureData+iOSUI.h"
 #import "BearingAnnotationView.h"
+#import "RoutePolyline.h"
 
-#define kPrev  @"Prev"
-#define kStart @"Start"
-#define kNext  @"Next"
-#define kEnd   @"End"
+#define kPrev  NSLocalizedString(@"Prev", @"Short button text for previous")
+#define kStart NSLocalizedString(@"Start", @"Short button text for start")
+#define kNext  NSLocalizedString(@"Next", @"Short button text for next")
+#define kEnd   NSLocalizedString(@"End", @"Short button text for end")
 
 #define kNoButton -1
 
-@implementation LinesAnnotation
-
-@synthesize middle = _middle;
-
-- (CLLocationCoordinate2D) coordinate
-{
-	return self.middle;
-}
-
-@end
-
-
-@implementation LinesAnnotationView
-@synthesize linesView = _linesView;
-
-
-
-- (void)dealloc
-{
-	self.linesView = nil;
-	[super dealloc];
-}
-
-
-@end
+enum{
+    ActionButtonStopId,
+    ActionButtonAction,
+    ActionButtonAppleMap,
+    ActionButtonCancel,
+    ActionButtonGoogleMap,
+    ActionButtonMotionXMap,
+    ActionButtonMotionXHdMap,
+    ActionButtonWazeMap
+};
 
 
 @implementation MapViewController
 
 @synthesize annotations = _annotations;
 @synthesize lines = _lines;
-@synthesize linesView = _linesView;
 @synthesize tappedAnnot = _tappedAnnot;
 @synthesize lineCoords = _lineCoords;
 @synthesize routePolyLines = _routePolyLines;
@@ -72,6 +57,8 @@
 @synthesize previousHeading = _previousHeading;
 @synthesize displayLink = _displayLink;
 @synthesize mapView = _mapView;
+@synthesize msgText = _msgText;
+@synthesize actionButtons = _actionButtons;
 
 - (void)dealloc {
 	self.annotations = nil;
@@ -79,11 +66,12 @@
 	self.mapView.showsUserLocation=FALSE;
 	self.routePolyLines = nil;
 	[self.mapView removeAnnotations:self.mapView.annotations];
-	self.linesView = nil;
 	self.tappedAnnot = nil;
 	self.lineCoords = nil;
 	self.circle = nil;
     self.compassButton = nil;
+    self.msgText = nil;
+    self.actionButtons = nil;
     
     if (self.displayLink)
     {
@@ -100,11 +88,11 @@
 	[super dealloc];
 }
 
-- (id)init {
+- (instancetype)init {
 	if ((self = [super init]))
 	{
-		self.title = @"Transit Map";
-		self.annotations = [[[ NSMutableArray alloc ] init] autorelease];
+        self.title = NSLocalizedString(@"Transit Map", @"page title");
+        self.annotations = [NSMutableArray array];
 	}
 	return self;
 }
@@ -169,8 +157,8 @@
 	
 	[self setSegText:segControl];
     
-    [self.mapView deselectAnnotation:[self.annotations objectAtIndex:_selectedAnnotation] animated:NO];
-    [self.mapView selectAnnotation:[self.annotations objectAtIndex:_selectedAnnotation] animated:YES];
+    [self.mapView deselectAnnotation:self.annotations[_selectedAnnotation] animated:NO];
+    [self.mapView selectAnnotation:self.annotations[_selectedAnnotation] animated:YES];
 }
 
 
@@ -196,117 +184,121 @@
 
 - (NSMutableString *)safeString:(NSString *)str
 {
-    NSMutableString *newStr = [[[NSMutableString alloc] init] autorelease];
+    NSMutableString *newStr = [[str stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding].mutableCopy autorelease];
     
-    [newStr appendString:[str stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    static NSDictionary *replacements = nil;
     
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        replacements = @{
+                         @"%2F" : @"/",
+                         @"%26" : @"&",
+                         @"%23" : @"#",
+                         @"%2B" : @"+",
+                         @"%3A" : @":",
+                         @"%3D" : @"=",
+                        }.retain;
+    });
     
-    [newStr replaceOccurrencesOfString:@"/" withString:@"%2F" options:NSCaseInsensitiveSearch range:NSMakeRange(0, newStr.length)];
-    [newStr replaceOccurrencesOfString:@"&" withString:@"%26" options:NSCaseInsensitiveSearch range:NSMakeRange(0, newStr.length)];
-    [newStr replaceOccurrencesOfString:@"#" withString:@"%23" options:NSCaseInsensitiveSearch range:NSMakeRange(0, newStr.length)];
-    [newStr replaceOccurrencesOfString:@"+" withString:@"%2B" options:NSCaseInsensitiveSearch range:NSMakeRange(0, newStr.length)];
-    [newStr replaceOccurrencesOfString:@":" withString:@"%3A" options:NSCaseInsensitiveSearch range:NSMakeRange(0, newStr.length)];
-    [newStr replaceOccurrencesOfString:@"=" withString:@"%3D" options:NSCaseInsensitiveSearch range:NSMakeRange(0, newStr.length)];
+    [replacements enumerateKeysAndObjectsUsingBlock: ^void (NSString* key, NSString* original, BOOL *stop)
+     {
+         [newStr replaceOccurrencesOfString:original withString:key options:NSCaseInsensitiveSearch range:NSMakeRange(0, newStr.length)];
+     }];
     
     return newStr;
 }
 
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-	if (buttonIndex == _appleMapButtonIndex)
-	{
-        NSString *url = nil;
-        
-        url = [NSString stringWithFormat:@"http://maps.apple.com/?q=%f,%f&ll=%f,%f",
-                   //[self.tappedAnnot.title stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
-                   self.tappedAnnot.coordinate.latitude, self.tappedAnnot.coordinate.longitude,
-                   self.tappedAnnot.coordinate.latitude, self.tappedAnnot.coordinate.longitude];
-        
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
-        
-    }
-    else if (buttonIndex == _ios5MapButtonIndex)
-	{
-        NSString *url = nil;
-        
-        url = [NSString stringWithFormat:@"http://maps.google.com/?q=%f,%f@%f,%f",
-                   //[self.tappedAnnot.title stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
-                   self.tappedAnnot.coordinate.latitude, self.tappedAnnot.coordinate.longitude,
-                   self.tappedAnnot.coordinate.latitude, self.tappedAnnot.coordinate.longitude];
-        
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
-    }
-    else if (buttonIndex == _googleMapButtonIndex)
+    switch(self.actionButtons[buttonIndex].integerValue)
     {
-        
-        NSString *url = [NSString stringWithFormat:@"comgooglemaps://?q=%f,%f@%f,%f",
-                   // [self.tappedAnnot.title stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
-                   self.tappedAnnot.coordinate.latitude, self.tappedAnnot.coordinate.longitude,
-                   self.tappedAnnot.coordinate.latitude, self.tappedAnnot.coordinate.longitude];
-    
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
-		
-		
-	}
-    else if (buttonIndex == _motionxHdMapButtonIndex)
-    {
-        
-        NSString *url = [NSString stringWithFormat:@"motionxgpshd://addWaypoint?name=%@&lat=%f&lon=%f",
-                         [self safeString:self.tappedAnnot.title],
-                         self.tappedAnnot.coordinate.latitude, self.tappedAnnot.coordinate.longitude];
-        
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
-	}
-    else if (buttonIndex == _motionxMapButtonIndex)
-    {
-        
-        NSString *url = [NSString stringWithFormat:@"motionxgps://addWaypoint?name=%@&lat=%f&lon=%f",
-                        [self safeString:self.tappedAnnot.title],
-                         self.tappedAnnot.coordinate.latitude, self.tappedAnnot.coordinate.longitude];
-        
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
-	}
-    else if (buttonIndex == _wazeMapButtonIndex)
-    {
-        
-        NSString *url = [NSString stringWithFormat:@"waze://?ll=%f,%f",
-                         //[self.tappedAnnot.title stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
-                         self.tappedAnnot.coordinate.latitude, self.tappedAnnot.coordinate.longitude];
-        
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
-	}
-	else if (buttonIndex == _cancelButtonIndex)
-	{
-		// do nothing
-	}
-	else if (buttonIndex == _actionMapButtonIndex)
-	{
-		if ([self.tappedAnnot respondsToSelector: @selector(mapTapped:)] && [self.tappedAnnot mapTapped:self.backgroundTask])
-		{
-			return;
-		}
-		else if ([self.tappedAnnot respondsToSelector: @selector(mapDeparture)])
-		{
-			DepartureUI *departureUI = [self.tappedAnnot mapDeparture];
-			DepartureDetailView *departureDetailView = [[DepartureDetailView alloc] init];
-			departureDetailView.callback = self.callback;
-			
-			[departureDetailView fetchDepartureInBackground:self.backgroundTask dep:departureUI.data allDepartures:nil];
-			[departureDetailView release];	
-		}
-	}
-    else if (buttonIndex == _stopIdMapButtonIndex)
-    {
-        if ([self.tappedAnnot respondsToSelector: @selector(mapStopId)])
+        case ActionButtonAppleMap:
+            
         {
-            DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
+            NSString *url = nil;
             
-            departureViewController.callback = self.callback;
+            url = [NSString stringWithFormat:@"http://maps.apple.com/?q=%f,%f&ll=%f,%f",
+                   //[self.tappedAnnot.title stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
+                   self.tappedAnnot.coordinate.latitude, self.tappedAnnot.coordinate.longitude,
+                   self.tappedAnnot.coordinate.latitude, self.tappedAnnot.coordinate.longitude];
             
-            [departureViewController fetchTimesForLocationInBackground:self.backgroundTask loc:[self.tappedAnnot mapStopId]];
-            [departureViewController release];
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+            break;
+            
+        }
+        case ActionButtonGoogleMap:
+        {
+            
+            NSString *url = [NSString stringWithFormat:@"comgooglemaps://?q=%f,%f@%f,%f",
+                             // [self.tappedAnnot.title stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
+                             self.tappedAnnot.coordinate.latitude, self.tappedAnnot.coordinate.longitude,
+                             self.tappedAnnot.coordinate.latitude, self.tappedAnnot.coordinate.longitude];
+            
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+            break;
+            
+        }
+        case ActionButtonMotionXHdMap:
+        {
+            
+            NSString *url = [NSString stringWithFormat:@"motionxgpshd://addWaypoint?name=%@&lat=%f&lon=%f",
+                             [self safeString:self.tappedAnnot.title],
+                             self.tappedAnnot.coordinate.latitude, self.tappedAnnot.coordinate.longitude];
+            
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+            break;
+        }
+        case ActionButtonMotionXMap:
+        {
+            
+            NSString *url = [NSString stringWithFormat:@"motionxgps://addWaypoint?name=%@&lat=%f&lon=%f",
+                             [self safeString:self.tappedAnnot.title],
+                             self.tappedAnnot.coordinate.latitude, self.tappedAnnot.coordinate.longitude];
+            
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+            break;
+        }
+        case ActionButtonWazeMap:
+        {
+            
+            NSString *url = [NSString stringWithFormat:@"waze://?ll=%f,%f",
+                             //[self.tappedAnnot.title stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
+                             self.tappedAnnot.coordinate.latitude, self.tappedAnnot.coordinate.longitude];
+            
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+            break;
+        }
+        case ActionButtonCancel:
+        default:
+            break;
+        case ActionButtonAction:
+        {
+            if ([self.tappedAnnot respondsToSelector: @selector(mapTapped:)] && [self.tappedAnnot mapTapped:self.backgroundTask])
+            {
+                break;
+            }
+            else if ([self.tappedAnnot respondsToSelector: @selector(mapDeparture)])
+            {
+                DepartureData *departure = [self.tappedAnnot mapDeparture];
+                DepartureDetailView *departureDetailView = [DepartureDetailView viewController];
+                departureDetailView.callback = self.callback;
+                
+                [departureDetailView fetchDepartureAsync:self.backgroundTask dep:departure allDepartures:nil];
+            }
+            break;
+        }
+        case ActionButtonStopId:
+        {
+            if ([self.tappedAnnot respondsToSelector: @selector(mapStopId)])
+            {
+                DepartureTimesView *departureViewController = [DepartureTimesView viewController];
+                departureViewController.callback = self.callback;
+                [departureViewController fetchTimesForLocationAsync:self.backgroundTask loc:[self.tappedAnnot mapStopId]];
+            }
+            break;
         }
     }
+    self.actionButtons = nil;
 }
 
 
@@ -314,11 +306,11 @@
 
 -(void)infoAction:(id)sender
 {
-	UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"Info"
-													   message:@"The route path does not reflect future service changes until they come into effect.\n"
-																"Route and arrival data provided by permission of TriMet."
+    UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"Info", @"alert title")
+													   message:NSLocalizedString(@"The route path does not reflect future service changes until they come into effect.\n"
+																"Route and arrival data provided by permission of TriMet.", @"trip planner information")
 													  delegate:nil
-											 cancelButtonTitle:@"OK"
+											 cancelButtonTitle:NSLocalizedString(@"OK", @"button text")
 											 otherButtonTitles:nil ] autorelease];
 	[alert show];
 	
@@ -330,13 +322,9 @@
 	// add a segmented control to the button bar
 	UISegmentedControl	*buttonBarSegmentedControl;
 	buttonBarSegmentedControl = [[UISegmentedControl alloc] initWithItems:
-								 [NSArray arrayWithObjects:@"Map", @"Hybrid", nil]];
+								 @[@"Map", @"Hybrid"]];
 	[buttonBarSegmentedControl addTarget:self action:@selector(toggleMap:) forControlEvents:UIControlEventValueChanged];
 	buttonBarSegmentedControl.selectedSegmentIndex = 0.0;	// start by showing the normal picker
-	buttonBarSegmentedControl.segmentedControlStyle = UISegmentedControlStyleBar;
-	
-    [self setSegColor:buttonBarSegmentedControl];
-    
     
     UIBarButtonItem *zoom = [[[UIBarButtonItem alloc]
                               initWithImage:[TableViewWithToolbar getToolbarIcon:kIconEye]
@@ -345,8 +333,7 @@
     
 	
     
-    [toolbarItems addObjectsFromArray:[NSArray arrayWithObjects: [CustomToolbar autoFlexSpace],  zoom, [CustomToolbar autoFlexSpace],
-                                       nil]];
+    [toolbarItems addObjectsFromArray:@[[UIToolbar autoFlexSpace],  zoom, [UIToolbar autoFlexSpace]]];
 
     if ([MKMapView instancesRespondToSelector:@selector(setUserTrackingMode:animated:)])
     {
@@ -355,7 +342,7 @@
     
     if (self.compassButton)
     {
-        [toolbarItems addObjectsFromArray:[NSArray arrayWithObjects: self.compassButton, [CustomToolbar autoFlexSpace], nil]];
+        [toolbarItems addObjectsFromArray:@[self.compassButton, [UIToolbar autoFlexSpace]]];
     }
     
     UIBarButtonItem *segItem = [[UIBarButtonItem alloc] initWithCustomView:buttonBarSegmentedControl];
@@ -366,17 +353,16 @@
     {
         // create the system-defined "OK or Done" button
         UIBarButtonItem *info = [[[UIBarButtonItem alloc]
-                                  initWithTitle:@"info"
-                                  style:UIBarButtonItemStyleBordered
+                                  initWithTitle:NSLocalizedString(@"info", @"button text")
+                                  style:UIBarButtonItemStylePlain
                                   target:self action:@selector(infoAction:)] autorelease];
         
-        [toolbarItems addObjectsFromArray:[NSArray arrayWithObjects: [CustomToolbar autoFlexSpace],  info,
-                                     nil]];
+        [toolbarItems addObjectsFromArray:@[[UIToolbar autoFlexSpace],  info]];
     }
     
     if (self.hasXML)
     {
-        [toolbarItems addObject:[CustomToolbar autoFlexSpace]];
+        [toolbarItems addObject:[UIToolbar autoFlexSpace]];
         [self updateToolbarItemsWithXml:toolbarItems];
     }
     else
@@ -388,11 +374,6 @@
 	[buttonBarSegmentedControl release];
 }
 
-- (BOOL)supportsOverlays
-{
-    // return FALSE;
-	return [MKMapView instancesRespondToSelector:@selector(addOverlays:)];
-}
 
 - (void)removeAnnotations
 {
@@ -408,14 +389,14 @@
 
 #pragma mark View functions
 
-- (void)fitToViewAction:(id)arg
+- (void)fitToViewAction:(id)unused
 {
     [self fitToView];
 }
 
 - (void)fitToView
 {
-    if (self.annotations !=nil && [self.annotations count] < 2)
+    if (self.annotations !=nil && self.annotations.count < 2)
     {
         
         /*Region and Zoom*/
@@ -428,9 +409,9 @@
         
         region.span=span;
         
-        if (self.annotations != nil && [self.annotations count] > 0)
+        if (self.annotations != nil && self.annotations.count > 0)
         {
-            region.center = ((id<MKAnnotation>)[self.annotations objectAtIndex:0]).coordinate;
+            region.center = self.annotations.firstObject.coordinate;
         }
         
         
@@ -444,16 +425,14 @@
         [self.mapView regionThatFits:region];
         [self.mapView setRegion:region animated:TRUE];
     }
-    else if (self.annotations !=nil && [self.annotations count] >= 2 && _overlaysSupported)
+    else if (self.annotations !=nil && self.annotations.count >= 2)
     {
         // Walk the list of overlays and annotations and create a MKMapRect that
         // bounds all of them and store it into flyTo.
         MKMapRect flyTo = MKMapRectNull;
         
-        for(int i = 0; i < self.annotations.count; i++)
+        for(id<MapPinColor> pin in self.annotations)
         {
-            id<MapPinColor> pin = [self.annotations objectAtIndex:i];
-            
             DEBUG_LOG(@"Coords %f %f %@\n", pin.coordinate.latitude, pin.coordinate.longitude, [pin title]);
             MKMapPoint annotationPoint = MKMapPointForCoordinate(pin.coordinate);
             MKMapRect pointRect = MakeMapRectWithPointAtCenter(annotationPoint.x, annotationPoint.y, 300, 1000);
@@ -462,14 +441,14 @@
         
         if (self.lines && self.lineCoords != nil)
         {
-            for(int i = 0; i < self.lineCoords.count; i++)
+            for(NSObject * coordObj in self.lineCoords)
             {
-                ShapeCoord * coord = [self.lineCoords objectAtIndex:i];
-                
-                if (coord.end)
+                if ([coordObj isKindOfClass:[ShapeCoordEnd class]])
                 {
-                    continue;
+                     continue;
                 }
+                
+                ShapeCoord *coord = (ShapeCoord *)coordObj;
                 
                 MKMapPoint annotationPoint = MKMapPointForCoordinate(coord.coord);
                 MKMapRect pointRect = MakeMapRectWithPointAtCenter(annotationPoint.x, annotationPoint.y, 300, 1000);
@@ -485,16 +464,15 @@
         
         [self.mapView setVisibleMapRect:[self.mapView mapRectThatFits:flyTo edgePadding:insets] animated:YES];
     }
-    else if (self.annotations !=nil && [self.annotations count] >= 2)
+    else if (self.annotations !=nil && self.annotations.count >= 2)
     {
         CLLocationDegrees maxLat = -90;
         CLLocationDegrees maxLon = -180;
         CLLocationDegrees minLat = 90;
         CLLocationDegrees minLon = 180;
         
-        for(int i = 0; i < self.annotations.count; i++)
+        for(id<MapPinColor> pin in self.annotations)
         {
-            id<MapPinColor> pin = [self.annotations objectAtIndex:i];
             CLLocationCoordinate2D coord = pin.coordinate;
             if(coord.latitude > maxLat)
             {
@@ -516,14 +494,15 @@
         
         if (self.lines && self.lineCoords != nil)
         {
-            for(int i = 0; i < self.lineCoords.count; i++)
+            for(NSObject * coordObj in self.lineCoords)
             {
-                ShapeCoord * coord = [self.lineCoords objectAtIndex:i];
-                
-                if (coord.end)
+                if (![coordObj isKindOfClass:[ShapeCoord class]])
                 {
                     continue;
                 }
+                
+                ShapeCoord *coord =  (ShapeCoord *)coordObj;
+                
                 if(coord.latitude > maxLat)
                 {
                     maxLat = coord.latitude;
@@ -558,11 +537,9 @@
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)addDataToMap:(bool)zoom {
   
-	_overlaysSupported = [self supportsOverlays];
 
     [self removeAnnotations];
     
-    if  (_overlaysSupported)
     {
         NSArray *oldOverlays = [self.mapView.overlays retain];
         
@@ -578,11 +555,8 @@
     if (self.lineCoords != nil)
 	{
 		[_segPrevNext release];
-		_segPrevNext = [[UISegmentedControl alloc] initWithItems:[NSArray arrayWithObjects: 
-																			 kPrev,
-																			 kNext, nil] ];
+		_segPrevNext = [[UISegmentedControl alloc] initWithItems:@[kPrev,kNext] ];
 		_segPrevNext.frame = CGRectMake(0, 0, 80, 30.0);
-		_segPrevNext.segmentedControlStyle = UISegmentedControlStyleBar;
 		_segPrevNext.momentary = YES;
 		[_segPrevNext addTarget:self action:@selector(prevNext:) forControlEvents:UIControlEventValueChanged];
 		
@@ -597,10 +571,9 @@
 	
 	if (self.annotations != nil)
 	{
-		int i;
-		for (i=0; i< [self.annotations count]; i++)
+		for (id<MKAnnotation> annotation in self.annotations)
 		{
-			[self.mapView addAnnotation:[self.annotations objectAtIndex:i]];
+			[self.mapView addAnnotation:annotation];
 		}
 	}
 	
@@ -610,36 +583,47 @@
     }
 	
 	
-	if (self.lines && !_overlaysSupported)
-	{
-		self.linesView = [[[MapLinesView alloc] initWithAnnotations:self.lineCoords mapView:self.mapView] autorelease];
-		self.title = @"Trip Map";
-		
-		LinesAnnotation *annot = [[LinesAnnotation alloc] init];
-		annot.middle = self.mapView.region.center;
-		
-		[self.mapView addAnnotation:annot];
-		
-		[annot release];
-	}
-	else if (self.lines && self.lineCoords.count > 0) { // overlays!
+    if (self.lines && self.lineCoords.count > 0) { // overlays!
         
 		CLLocationCoordinate2D *coords = malloc(sizeof(CLLocationCoordinate2D) * self.lineCoords.count);
-		self.routePolyLines = [[[NSMutableArray alloc] init] autorelease];
-		
+        self.routePolyLines  = [NSMutableArray array];
+
 		int j = 0;
-		for (ShapeCoord *coord in self.lineCoords)
-		{
-			if (coord.end)
+		for (NSObject *coordObj in self.lineCoords)
+		{            
+			if ([coordObj isKindOfClass:[ShapeCoordEnd class]])
 			{
-				[self.routePolyLines addObject:
-					 [MKPolyline polylineWithCoordinates:coords count:j]];
+                ShapeCoordEnd *end = (ShapeCoordEnd *)coordObj;
+                
+                if (end.direct)
+                {
+                    RoutePolyline *polyLine = [RoutePolyline polylineWithCoordinates:coords count:j];
+                    
+                    polyLine.direct = YES;
+                    polyLine.color = end.color;
+                    
+                    [self.routePolyLines addObject:polyLine];
+    
+                }
+                else
+                {
+                    RoutePolyline *polyLine = [RoutePolyline polylineWithCoordinates:coords count:j];
+                    
+                    polyLine.direct = NO;
+                    polyLine.color = end.color;
+                    
+                    [self.routePolyLines addObject:polyLine];
+                    
+                }
 				 j=0;
 				
 			}
-			else {
+			else if ([coordObj isKindOfClass:[ShapeCoord class]])
+            {
+                
+                ShapeCoord *coord = (ShapeCoord *)coordObj;
 				
-				coords[j] = [coord coord];
+				coords[j] = coord.coord;
 				j++;
 			}
 
@@ -650,7 +634,7 @@
 		[self.mapView addOverlays:self.routePolyLines];
 	}
 	
-	if (self.circle && _overlaysSupported)
+	if (self.circle)
 	{
 		[self.mapView addOverlay:self.circle];
 		
@@ -664,8 +648,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 	
-    
-    
     // Get the size of the diagonal
     CGRect mapViewRect = [self getMiddleWindowRect];
     
@@ -676,6 +658,9 @@
     //    mapViewRect.origin.y = _portraitMapRect.origin.x;
     //}
     
+    
+    mapViewRect.size.height -= self.navigationController.navigationBar.frame.size.height + self.tabBarController.view.frame.size.height;
+    mapViewRect.origin.y += self.navigationController.navigationBar.frame.size.height + self.tabBarController.view.frame.size.height;
     
     self.mapView=[[[MKMapView alloc] initWithFrame:mapViewRect] autorelease];
 	self.mapView.showsUserLocation=TRUE;
@@ -688,34 +673,43 @@
     [self.view insertSubview:self.mapView atIndex:0];
 }
 
-
-- (MKOverlayView *)mapView:(MKMapView *)mapView viewForOverlay:(id <MKOverlay>)overlay
+- (MKOverlayRenderer*)mapView:(MKMapView *)mapView rendererForOverlay:(id<MKOverlay>)overlay
 {
-	for (MKPolyline *poly in self.routePolyLines)
-	{
-		if (poly == overlay)
-		{
-			MKPolylineView *lineView = [[MKPolylineView alloc] initWithPolyline:poly];
-	
-			lineView.strokeColor = [UIColor blueColor];
-			// lineView.fillColor = fillColor;
-			lineView.lineWidth = 3.0;
-	
-	
-			return [lineView autorelease];
-		}
-	}
-	
+    if ([overlay isKindOfClass:[RoutePolyline class]])
+    {
+        RoutePolyline *poly = (RoutePolyline *)overlay;
+        
+        MKPolylineRenderer *lineView = [[MKPolylineRenderer alloc] initWithPolyline:(MKPolyline*)overlay];
+     
+        lineView.strokeColor = poly.color;
+        
+        
+        lineView.lineWidth = 3.0;
+        
+        if (poly.direct)
+        {
+            lineView.lineDashPattern = @[ @2, @15 ];
+        }
+        else
+        {
+            lineView.lineDashPattern = @[ @3,  @5 ];
+
+        }
+        
+        return [lineView autorelease];
+    }
+    
+
 	if (overlay == self.circle)
 	{
-		MKCircleView *circleView = [[MKCircleView alloc] initWithCircle:overlay];
+		MKCircleRenderer *circleView = [[MKCircleRenderer alloc] initWithCircle:overlay];
 		circleView.strokeColor = [UIColor greenColor];
 		circleView.lineWidth = 3.0;
 		return [circleView autorelease];
 		
 	}
 	
-	return nil;
+	return [[[MKCircleRenderer alloc] initWithCircle:[MKCircle circleWithMapRect:MKMapRectNull]] autorelease];
 }
 
 
@@ -728,15 +722,28 @@
 
 - (void)viewDidAppear:(BOOL)animated {
 	[super viewDidAppear:animated];
-	
-	if (self.linesView !=nil)
-	{
-		[self.mapView setNeedsDisplay];
-		// [self.linesView regionChanged];
-	}
     
+    self.navigationItem.prompt = self.msgText;
+
     self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkFired:)];
     [self.displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
+}
+
+- (void) viewWillDisappear:(BOOL)animated
+{
+    DEBUG_FUNC();
+    
+    // [UIView setAnimationsEnabled:NO];
+    self.navigationItem.prompt = nil;
+    // [UIView setAnimationsEnabled:YES];
+    
+    if (self.userActivity!=nil)
+    {
+        [self.userActivity invalidate];
+        self.userActivity = nil;
+    }
+    
+    [super viewWillDisappear:animated];
 }
 
 -(void)viewDidDisappear:(BOOL)animated
@@ -770,13 +777,6 @@
 	{
 		return nil;
 	}
-	else if ([annotation isKindOfClass:[LinesAnnotation class]])
-	{
-		retView = self.linesView;
-		retView.annotation = annotation;
-		retView.canShowCallout = NO;
-		// [self.linesView regionChanged];
-	}
 	else
 	{
 		if ([annotation conformsToProtocol:@protocol(MapPinColor)])
@@ -805,7 +805,7 @@
 	{
 		for (int i=0; i<self.annotations.count; i++)
 		{
-			if (view.annotation == [self.annotations objectAtIndex:i])
+			if (view.annotation == self.annotations[i])
 			{
 				_selectedAnnotation = i;
 				[self setSegText:_segPrevNext];
@@ -836,12 +836,12 @@
 			}
 			if (action == nil)
 			{
-				action = @"Choose this stop";
+                action = NSLocalizedString(@"Choose this stop", @"button text");
 			}
 		}
 		else if ([self.tappedAnnot respondsToSelector: @selector(mapDeparture)])
 		{
-			action = @"Show details";
+			action = NSLocalizedString(@"Show details", @"button text");
 		}
         
         
@@ -853,58 +853,45 @@
             }
             else
             {
-                stopIdAction = @"Show arrivals";
+                stopIdAction = NSLocalizedString(@"Show arrivals", @"button text");
             }
         }
     }
     
     
-    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:@"Map Actions"
+    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:NSLocalizedString(@"Map Actions", @"alert title")
                                                              delegate:self
                                                     cancelButtonTitle:nil
                                                destructiveButtonTitle:nil
                                                     otherButtonTitles:nil];
+    self.actionButtons = [NSMutableArray array];
     
-    _stopIdMapButtonIndex = stopIdAction != nil
-        ? [actionSheet addButtonWithTitle:stopIdAction]
-        : kNoButton;
     
-    _actionMapButtonIndex = action != nil
-        ? [actionSheet addButtonWithTitle:action]
-        : kNoButton;
+    if (stopIdAction !=nil)
+    {
+        self.actionButtons[[actionSheet addButtonWithTitle:stopIdAction]] = @(ActionButtonStopId);
+    }
     
-    _appleMapButtonIndex = ([[[UIDevice currentDevice] systemVersion] floatValue] >= 6.0)
-        ? [actionSheet addButtonWithTitle:@"Show in Apple map app"]
-        : kNoButton;
+    if (action !=nil)
+    {
+        self.actionButtons[[actionSheet addButtonWithTitle:action]] = @(ActionButtonAction);
+    }
     
-    _ios5MapButtonIndex = ([[[UIDevice currentDevice] systemVersion] floatValue] < 6.0)
-        ? [actionSheet addButtonWithTitle:@"Show in map app"]
-        : kNoButton;
+    self.actionButtons[[actionSheet addButtonWithTitle:NSLocalizedString(@"Show in Apple map app", "map action")]] = @(ActionButtonAppleMap);
     
     UIApplication *app = [UIApplication sharedApplication];
     
-    _googleMapButtonIndex = [app canOpenURL:[NSURL URLWithString:@"comgooglemaps:"]]
-        ? [actionSheet addButtonWithTitle:@"Show in Google map app"]
-        : kNoButton;
+#define EXTERNAL_APP(URL, STR, ACTION) if ([app canOpenURL:[NSURL URLWithString:URL]]) {self.actionButtons[[actionSheet addButtonWithTitle:STR]] = @(ACTION); }
     
-    _wazeMapButtonIndex = [app canOpenURL:[NSURL URLWithString:@"waze:"]]
-        ? [actionSheet addButtonWithTitle:@"Show in Waze map app"]
-        : kNoButton;
+    EXTERNAL_APP(@"comgooglemaps:", NSLocalizedString(@"Show in Google map app", "map action"),     ActionButtonGoogleMap);
+    EXTERNAL_APP(@"waze:",          NSLocalizedString(@"Show in Waze map app", "map action"),       ActionButtonWazeMap);
+    EXTERNAL_APP(@"motionxgps:",    NSLocalizedString(@"Import to MotionX-GPS", "map action"),      ActionButtonMotionXMap);
+    EXTERNAL_APP(@"motionxgpshd:",  NSLocalizedString(@"Import to MotionX-GPS HD", "map action"),   ActionButtonMotionXHdMap);
     
-    _motionxMapButtonIndex = [app canOpenURL:[NSURL URLWithString:@"motionxgps:"]]
-        ? [actionSheet addButtonWithTitle:@"Import to MotionX-GPS"]
-        : kNoButton;
+    actionSheet.cancelButtonIndex  = [actionSheet addButtonWithTitle:NSLocalizedString(@"Cancel", @"button text")];
     
-    _motionxHdMapButtonIndex = [app canOpenURL:[NSURL URLWithString:@"motionxgpshd:"]]
-        ? [actionSheet addButtonWithTitle:@"Import to MotionX-GPS HD"]
-        : kNoButton;
+    self.actionButtons[actionSheet.cancelButtonIndex] = @(ActionButtonCancel);
     
-    
-    
-    
-    actionSheet.cancelButtonIndex  = [actionSheet addButtonWithTitle:@"Cancel"];
-    
-    _cancelButtonIndex = actionSheet.cancelButtonIndex;
     actionSheet.actionSheetStyle = UIActionSheetStyleDefault;
     [actionSheet showFromToolbar:self.navigationController.toolbar]; // show from our table view (pops up in the middle of the table)
     [actionSheet release];
@@ -913,19 +900,11 @@
 
 - (void)mapView:(MKMapView *)mapView regionWillChangeAnimated:(BOOL)animated
 {
-	if (self.linesView !=nil)
-	{
-		[self.linesView hide:YES];
-	}
     
 }
 - (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated
 {
-	if (self.linesView !=nil)
-	{
-		[self.linesView hide:NO];
-		[self.linesView regionChanged];
-	}
+
 }
 
 #pragma mark BackgroundTask callbacks
@@ -957,7 +936,7 @@
 
 - (UIInterfaceOrientation)BackgroundTaskOrientation
 {
-	return self.interfaceOrientation;
+	return [UIApplication sharedApplication].statusBarOrientation;
 }
 
 
@@ -981,7 +960,7 @@
 
 - (void)displayLinkFired:(id)sender
 {
-    if (self.mapView && [self.mapView respondsToSelector:@selector(camera)])
+    if (self.mapView)
     {
         double difference = ABS(self.previousHeading - self.mapView.camera.heading);
     

@@ -12,41 +12,40 @@
 
 #import <UIKit/UIKit.h>
 #import "StopLocations.h"
-#import "XMLAllStops.h"
 #import "LocatingView.h"
 #import "TriMetTypes.h"
 #import "MapKit/Mapkit.h"
 
 
 @interface FindByLocationView : TableViewWithToolbar<LocatingViewDelegate,MKMapViewDelegate>  {
-	int                     _maxToFind;
-	TripMode                _mode;
-	int                     _show;
-	int                     _dist;
-	double                  _minDistance;
-	int                     _routeCount;
-	int                     _maxRouteCount;
-	NSArray *               _cachedRoutes;
-	NSMutableDictionary *   _lastLocate;
-    int                     _autoLaunch;
-    NSDictionary *          _launchArgs;
-    int                     _firstDisplay;
-    NSString                *_startingLocationName;
-    CLLocation              *_startingLocation;
-    MKCircle                *_circle;
-    NSTimer                 *_mapUpdateTimer;
-    bool                    _locationAuthorized;
+	int                                             _maxToFind;
+	TripMode                                        _mode;
+	int                                             _show;
+	int                                             _dist;
+	double                                          _minDistance;
+	int                                             _routeCount;
+	int                                             _maxRouteCount;
+	NSArray *                                       _cachedRoutes;
+    int                                             _autoLaunch;
+    NSDictionary *                                  _launchArgs;
+    int                                             _firstDisplay;
+    NSString *                                      _startingLocationName;
+    CLLocation *                                    _startingLocation;
+    MKCircle *                                      _circle;
+    NSTimer *                                       _mapUpdateTimer;
+    bool                                            _locationAuthorized;
+    NSMutableDictionary<NSString*, NSNumber*> *     _lastLocate;
 }
 
-- (id) initWithLocation:(CLLocation*)location description:(NSString*)locationName;
-- (id) init;
-- (id) initAutoLaunch;
+- (instancetype) initWithLocation:(CLLocation*)location description:(NSString*)locationName;
+- (instancetype) init;
+- (instancetype) initAutoLaunch;
 
 
 @property (nonatomic, retain) NSArray *cachedRoutes;
-@property (nonatomic, retain) NSMutableDictionary *lastLocate;
+@property (nonatomic, retain) NSMutableDictionary<NSString*, NSNumber*> *lastLocate;
 @property (nonatomic)         int autoLaunch;
-@property (nonatomic, retain) NSString *startingLocationName;
+@property (nonatomic, copy)   NSString *startingLocationName;
 @property (nonatomic, retain) CLLocation *startingLocation;
 @property (nonatomic, retain) MKCircle *circle;
 @property (nonatomic, retain) NSTimer *mapUpdateTimer;

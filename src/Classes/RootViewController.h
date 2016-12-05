@@ -17,10 +17,11 @@
 #import "CellTextField.h"
 #import "CellTextView.h"
 #import "AlarmTaskList.h"
-#import "IASKAppSettingsViewController.h"
 #import "ZXingWidgetController.h"
 #import "ProgressModalView.h"
 #import  <CoreLocation/CoreLocation.h>
+#import "WatchConnectivity/WatchConnectivity.h"
+#import "WatchConnectivity/WCSession.h"
 
 #define kRootMaxSections 7
 #define kVersion		@"Version"
@@ -45,7 +46,8 @@ typedef enum InitialAction_tag
 									MFMailComposeViewControllerDelegate,
 									AlarmObserver,
                                     ZXingDelegate,
-                                    UIActionSheetDelegate>
+                                    UIActionSheetDelegate,
+                                    WCSessionDelegate>
 {
 	NSString *_lastArrivalsShown;
 	NSArray *_lastArrivalNames;
@@ -64,7 +66,6 @@ typedef enum InitialAction_tag
     // We need to keep hold of this view because of a bug
     // in which the app will crash if this is popped off 
     // the stack.
-    IASKAppSettingsViewController *_settingsView;
     ProgressModalView *_progressView;
     NSURL   *_routingURL;
     bool    _delayedInitialAction;
@@ -72,10 +73,12 @@ typedef enum InitialAction_tag
     NSDictionary *_initialActionArgs;
     NSString *_initalBookmarkName;
     int _initialBookmarkIndex;
-    bool _viewLoaded;
     
     UIBarButtonItem *_goButton;
     UIBarButtonItem *_helpButton;
+    UIButton *_editBookmarksButton;
+    WCSession* _session;
+    bool    _updatedWatch;
 }
 
 - (void)postEditingAction:(UITextView *)textView;
@@ -85,25 +88,27 @@ typedef enum InitialAction_tag
 - (void)executeInitialAction;
 - (void)openFave:(int)index allowEdit:(bool)allowEdit;
 - (void)helpAction:(id)sender;
+- (NSInteger)rowType:(NSIndexPath *)indexPath;
 
 
 @property (nonatomic, retain) UITextField *editWindow;
-@property (nonatomic, retain) NSString *lastArrivalsShown;
+@property (nonatomic, copy)   NSString *lastArrivalsShown;
 @property (nonatomic, retain) NSArray *lastArrivalNames;
 @property (nonatomic, retain) CellTextField *editCell;
 @property (nonatomic, retain) NSArray *alarmKeys;
 @property (nonatomic, retain) NSDictionary *commuterBookmark;
-@property (nonatomic, retain) IASKAppSettingsViewController *settingsView;
 @property (nonatomic, retain) ProgressModalView *progressView;
-@property (nonatomic, retain) NSString *launchStops;
+@property (nonatomic, copy)   NSString *launchStops;
 @property (nonatomic, retain) NSURL *routingURL;
 @property (nonatomic)         bool delayedInitialAction;
 @property (nonatomic)         InitialAction initialAction;
-@property (nonatomic, retain) NSString *initialBookmarkName;
+@property (nonatomic, copy)   NSString *initialBookmarkName;
 @property (nonatomic)         int       initialBookmarkIndex;
-@property (nonatomic)         bool      viewLoaded;
 @property (nonatomic, retain) NSDictionary *initialActionArgs;
 @property (nonatomic, retain) UIBarButtonItem *goButton;
 @property (nonatomic, retain) UIBarButtonItem *helpButton;
+@property (nonatomic, retain) UIButton *editBookmarksButton;
+@property (nonatomic, retain) UIButton *emailBookmarksButton;
+@property (nonatomic, retain) WCSession *session;
 
 @end

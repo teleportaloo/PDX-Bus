@@ -105,7 +105,7 @@ static const CGFloat kPadding = 10;
         
         [toolbarItems addObject:[[[UIBarButtonItem alloc]
                                   initWithTitle:@"Help"
-                                  style:UIBarButtonItemStyleBordered
+                                  style:UIBarButtonItemStylePlain
                                   target:self action:@selector(help:)] autorelease]];
         
         
@@ -232,7 +232,7 @@ static const CGFloat kPadding = 10;
 
 - (void)help:(id)sender {
     NSString *title = QR_CODES_TITLE;
-    NSString *message = @"TriMet is placing QR Codes at many stops and statons, scan the code to see the arrivals.";
+    NSString *message = @"TriMet has placed QR Codes at most stops and stations, just scan the code to see the arrivals.";
     NSString *cancelTitle = @"OK";
     NSString *viewTitle = @"TriMet web site";
     
@@ -270,6 +270,7 @@ static const CGFloat kPadding = 10;
     [instructionsLabel release];
     [displayedMessage release];
     [self setTorch:FALSE];
+    [toolbar release];
 	[super dealloc];
 }
 
@@ -318,77 +319,92 @@ static const CGFloat kPadding = 10;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)drawRect:(CGRect)rect {
-	[super drawRect:rect];
-  if (displayedMessage == nil) {
-    // PDXBus: changed this text
-    self.displayedMessage = NSLocalizedStringWithDefaultValue(@"OverlayView displayed message", nil, [NSBundle mainBundle], @"Place a TriMet QR Code inside the viewfinder rectangle to scan it.",  @"Place a TriMet QR Code inside the viewfinder rectangle to scan it.");
-  }
-	CGContextRef c = UIGraphicsGetCurrentContext();
-  
-	if (nil != _points) {
-    //		[imageView.image drawAtPoint:cropRect.origin];
-	}
-	
-	CGFloat white[4] = {1.0f, 1.0f, 1.0f, 1.0f};
-	CGContextSetStrokeColor(c, white);
-	CGContextSetFillColor(c, white);
-	[self drawRect:cropRect inContext:c];
-	
-  //	CGContextSetStrokeColor(c, white);
-	//	CGContextSetStrokeColor(c, white);
-	CGContextSaveGState(c);
-	if (oneDMode) {
+    [super drawRect:rect];
+    if (displayedMessage == nil) {
+        // PDXBus: changed this text
+        self.displayedMessage = NSLocalizedStringWithDefaultValue(@"OverlayView displayed message", nil, [NSBundle mainBundle], @"Position a TriMet QR Code inside the viewfinder rectangle to scan it and show the arrivals.",  @"Position a TriMet QR Code inside the viewfinder rectangle to scan it and show the arrivals.");
+    }
+    CGContextRef c = UIGraphicsGetCurrentContext();
+    
+    if (nil != _points) {
+        //		[imageView.image drawAtPoint:cropRect.origin];
+    }
+    
+    CGFloat white[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+    CGContextSetStrokeColor(c, white);
+    CGContextSetFillColor(c, white);
+    [self drawRect:cropRect inContext:c];
+    
+    //	CGContextSetStrokeColor(c, white);
+    //	CGContextSetStrokeColor(c, white);
+    CGContextSaveGState(c);
+    if (oneDMode) {
         NSString *text = NSLocalizedStringWithDefaultValue(@"OverlayView 1d instructions", nil, [NSBundle mainBundle], @"Place a red line over the bar code to be scanned.", @"Place a red line over the bar code to be scanned.");
         UIFont *helvetica15 = [UIFont fontWithName:@"Helvetica" size:15];
-        CGSize textSize = [text sizeWithFont:helvetica15];
+        // CGSize textSize = [text sizeWithFont:helvetica15];
+        CGSize textSize = [text sizeWithAttributes:@{NSFontAttributeName:helvetica15}];
         
-		CGContextRotateCTM(c, M_PI/2);
+        CGContextRotateCTM(c, M_PI/2);
         // Invert height and width, because we are rotated.
         CGPoint textPoint = CGPointMake(self.bounds.size.height / 2 - textSize.width / 2, self.bounds.size.width * -1.0f + 20.0f);
-        [text drawAtPoint:textPoint withFont:helvetica15];
-	}
-	else {
-    UIFont *font = [UIFont systemFontOfSize:18];
-    CGSize constraint = CGSizeMake(rect.size.width  - 2 * kTextMargin, cropRect.origin.y);
-    CGSize displaySize = [self.displayedMessage sizeWithFont:font constrainedToSize:constraint];
-    CGRect displayRect = CGRectMake((rect.size.width - displaySize.width) / 2 , cropRect.origin.y - displaySize.height, displaySize.width, displaySize.height);
-    [self.displayedMessage drawInRect:displayRect withFont:font lineBreakMode:UILineBreakModeWordWrap alignment:NSTextAlignmentCenter];
-	}
-	CGContextRestoreGState(c);
-	int offset = rect.size.width / 2;
-	if (oneDMode) {
-		CGFloat red[4] = {1.0f, 0.0f, 0.0f, 1.0f};
-		CGContextSetStrokeColor(c, red);
-		CGContextSetFillColor(c, red);
-		CGContextBeginPath(c);
-		//		CGContextMoveToPoint(c, rect.origin.x + kPadding, rect.origin.y + offset);
-		//		CGContextAddLineToPoint(c, rect.origin.x + rect.size.width - kPadding, rect.origin.y + offset);
-		CGContextMoveToPoint(c, rect.origin.x + offset, rect.origin.y + kPadding);
-		CGContextAddLineToPoint(c, rect.origin.x + offset, rect.origin.y + rect.size.height - kPadding);
-		CGContextStrokePath(c);
-	}
-	if( nil != _points ) {
-		CGFloat blue[4] = {0.0f, 1.0f, 0.0f, 1.0f};
-		CGContextSetStrokeColor(c, blue);
-		CGContextSetFillColor(c, blue);
-		if (oneDMode) {
-			CGPoint val1 = [self map:[[_points objectAtIndex:0] CGPointValue]];
-			CGPoint val2 = [self map:[[_points objectAtIndex:1] CGPointValue]];
-			CGContextMoveToPoint(c, offset, val1.x);
-			CGContextAddLineToPoint(c, offset, val2.x);
-			CGContextStrokePath(c);
-		}
-		else {
-			CGRect smallSquare = CGRectMake(0, 0, 10, 10);
-			for( NSValue* value in _points ) {
-				CGPoint point = [self map:[value CGPointValue]];
-				smallSquare.origin = CGPointMake(
-                                         cropRect.origin.x + point.x - smallSquare.size.width / 2,
-                                         cropRect.origin.y + point.y - smallSquare.size.height / 2);
-				[self drawRect:smallSquare inContext:c];
-			}
-		}
-	}
+        // [text drawAtPoint:textPoint withFont:helvetica15];
+        [text drawAtPoint:textPoint withAttributes:@{NSFontAttributeName:helvetica15}];
+    }
+    else {
+        UIFont *font = [UIFont systemFontOfSize:18];
+        CGSize constraint = CGSizeMake(rect.size.width  - 2 * kTextMargin, cropRect.origin.y);
+        // CGSize displaySize = [self.displayedMessage sizeWithFont:font constrainedToSize:constraint];
+        
+        
+        CGSize displaySize = [self.displayedMessage boundingRectWithSize:constraint
+                                                                 options:NSStringDrawingTruncatesLastVisibleLine | NSStringDrawingUsesLineFragmentOrigin
+                                                              attributes:@{NSFontAttributeName: font}
+                                                                 context:nil].size;
+        
+        CGRect displayRect = CGRectMake((rect.size.width - displaySize.width) / 2 , cropRect.origin.y - displaySize.height, displaySize.width, displaySize.height);
+        //[self.displayedMessage drawInRect:displayRect withFont:font lineBreakMode:UILineBreakModeWordWrap alignment:NSTextAlignmentCenter];
+        [self.displayedMessage drawWithRect:displayRect
+                                    options:NSStringDrawingTruncatesLastVisibleLine | NSStringDrawingUsesLineFragmentOrigin
+                                 attributes:@{ NSFontAttributeName:font }
+                                    context:nil];
+        
+        
+    }
+    CGContextRestoreGState(c);
+    int offset = rect.size.width / 2;
+    if (oneDMode) {
+        CGFloat red[4] = {1.0f, 0.0f, 0.0f, 1.0f};
+        CGContextSetStrokeColor(c, red);
+        CGContextSetFillColor(c, red);
+        CGContextBeginPath(c);
+        //		CGContextMoveToPoint(c, rect.origin.x + kPadding, rect.origin.y + offset);
+        //		CGContextAddLineToPoint(c, rect.origin.x + rect.size.width - kPadding, rect.origin.y + offset);
+        CGContextMoveToPoint(c, rect.origin.x + offset, rect.origin.y + kPadding);
+        CGContextAddLineToPoint(c, rect.origin.x + offset, rect.origin.y + rect.size.height - kPadding);
+        CGContextStrokePath(c);
+    }
+    if( nil != _points ) {
+        CGFloat blue[4] = {0.0f, 1.0f, 0.0f, 1.0f};
+        CGContextSetStrokeColor(c, blue);
+        CGContextSetFillColor(c, blue);
+        if (oneDMode) {
+            CGPoint val1 = [self map:[[_points objectAtIndex:0] CGPointValue]];
+            CGPoint val2 = [self map:[[_points objectAtIndex:1] CGPointValue]];
+            CGContextMoveToPoint(c, offset, val1.x);
+            CGContextAddLineToPoint(c, offset, val2.x);
+            CGContextStrokePath(c);
+        }
+        else {
+            CGRect smallSquare = CGRectMake(0, 0, 10, 10);
+            for( NSValue* value in _points ) {
+                CGPoint point = [self map:[value CGPointValue]];
+                smallSquare.origin = CGPointMake(
+                                                 cropRect.origin.x + point.x - smallSquare.size.width / 2,
+                                                 cropRect.origin.y + point.y - smallSquare.size.height / 2);
+                [self drawRect:smallSquare inContext:c];
+            }
+        }
+    }
 }
 
 

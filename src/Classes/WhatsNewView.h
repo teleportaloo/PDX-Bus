@@ -14,14 +14,13 @@
 
 
 #import <Foundation/Foundation.h>
-#import "IASKAppSettingsViewController.h"
 #import "CellLabel.h"
 
 
 #import <UIKit/UIKit.h>
 #import "TableViewWithToolbar.h"
 
-#define kWhatsNewVersion @"8.1"
+#define kWhatsNewVersion @"9.0"
 
 @protocol WhatsNewSpecialAction <NSObject>
 
@@ -36,11 +35,9 @@
 	
 @interface WhatsNewView : TableViewWithToolbar {
     NSArray                         * _newTextArray;
-    IASKAppSettingsViewController   *_settingsView;
     NSDictionary                    *_specialActions;
     id<WhatsNewSpecialAction>       _basicAction;
 }
 
-@property (nonatomic, retain) IASKAppSettingsViewController *settingsView;
 
 @end

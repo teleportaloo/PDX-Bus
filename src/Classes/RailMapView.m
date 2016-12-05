@@ -25,6 +25,7 @@
 #import "RailStation.h"
 #import "NearestVehiclesMap.h"
 #import "AllRailStationView.h"
+#import "StringHelper.h"
 
 
 static HOTSPOT hotSpotRegions[MAXHOTSPOTS];
@@ -38,7 +39,7 @@ int nHotSpots = 0;
 static RAILMAP railmaps[] = 
 {
     {@"MAX & WES Map", @"MAXWESMap",   { 3000, 1700 }, 0, 0, 30, 3, 0, { 0, 0 } },
-    {@"Streetcar Map", @"StreetcarMap",{ 1500, 2091 }, 0, 0, 4, 20, 0, { 0, 0 } },
+    {@"Streetcar Map", @"StreetcarMap",{ 1500, 1951 }, 0, 0, 4, 20, 0, { 0, 0 } },
     {nil,   0, 0}
 };
 
@@ -84,7 +85,7 @@ static RAILMAP railmaps[] =
 
 - (CGFloat) heightOffset
 {
-    if (self.iOS7style && (SmallScreenStyle(self.screenInfo.screenWidth) || (self.screenInfo.screenWidth == WidthBigVariable)))
+    if ((UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)|| (self.screenInfo.screenWidth == WidthBigVariable))
     {
         return -[UIApplication sharedApplication].statusBarFrame.size.height;
     }
@@ -105,18 +106,18 @@ static RAILMAP railmaps[] =
 #endif
 
 
-- (id)init {
+- (instancetype)init {
 	if ((self = [super init]))
 	{
 		self.picker = NO;
 		self.from = NO;
 		self.callback = nil;
-		easterEgg = EasterEggStart;
+		_easterEgg = EasterEggStart;
 		self.backgroundTask = [BackgroundTaskContainer create:self];
 		
 		self.locationsDb = [ StopLocations getDatabase];
         
-        UserPrefs *prefs = [UserPrefs getSingleton];
+        UserPrefs *prefs = [UserPrefs singleton];
         int mapId;
         
         if (prefs.showStreetcarMapFirst)
@@ -140,7 +141,6 @@ static RAILMAP railmaps[] =
 {
 	if (self.callback)
 	{
-				
 		if ([self.callback respondsToSelector:@selector(selectedStop:desc:)])
 		{
 			[self.callback selectedStop:stop.locid desc:stop.desc];
@@ -154,13 +154,9 @@ static RAILMAP railmaps[] =
 		return;
 	}
 	
-	DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
-	
-	departureViewController.displayName = stop.desc;
-	
-	[departureViewController fetchTimesForLocationInBackground:progress loc:stop.locid];
-	[departureViewController release];
-	
+    DepartureTimesView *departureViewController = [DepartureTimesView viewController];
+    departureViewController.displayName = stop.desc;
+	[departureViewController fetchTimesForLocationAsync:progress loc:stop.locid];
 }
 
 #pragma mark BackgroundTask methods
@@ -188,37 +184,31 @@ static RAILMAP railmaps[] =
 
 -(void)showMap:(id)sender
 {
-	
-	if (self.locationsDb.isEmpty)
-	{
-		[self noLocations:@"Rail Map" delegate:self];
-		return;
-	}
-	
-	
 	int i,j;
 	CLLocation *here;
 	
-    NearestVehiclesMap *mapPage = [[[NearestVehiclesMap alloc] init] autorelease];
+    NearestVehiclesMap *mapPage = [NearestVehiclesMap viewController];
     
     if (_railMapIndex == kRailMapPdxStreetcar)
     {
         mapPage.streetcarRoutes = nil;
         mapPage.trimetRoutes = [NSSet set];
-        mapPage.title = @"Portland Streetcar";
+        mapPage.title = NSLocalizedString(@"Portland Streetcar", @"map page title");
     }
     else
     {
         mapPage.streetcarRoutes = [NSSet set];
         mapPage.trimetRoutes = [TriMetRouteColors triMetRoutes];
-        mapPage.title = @"MAX & WES";
+        mapPage.title = NSLocalizedString(@"MAX & WES", @"map page title");
     }
 	
 	for (i=_railMap->firstHotspot; i<= _railMap->lastHotspot;  i++)
 	{
-		if (hotSpotRegions[i].action[0]==kLinkTypeStop && hotSpotRegions[i].nVertices!=0)
+        HOTSPOT *hs = hotSpotRegions+i;
+        
+		if (hs->action.firstUnichar==kLinkTypeStop && hs->nVertices!=0)
 		{
-			RailStation *station = [[[RailStation alloc] initFromHotSpot:hotSpotRegions+i index:i] autorelease];
+			RailStation *station = [RailStation fromHotSpot:hs index:i];
 			
 			// NSString *stop = nil;
 			NSString *dir = nil;
@@ -226,14 +216,14 @@ static RAILMAP railmaps[] =
 				
 			for (j=0; j< station.dirList.count; j++)	
 			{
-				dir = [station.dirList objectAtIndex:j];
-				locId = [station.locList objectAtIndex:j];
+				dir   = station.dirList[j];
+				locId = station.locList[j];
 				
 				here = [self.locationsDb getLocation:locId];
 				
 				if (here)
 				{
-					Stop *a = [[[Stop alloc] init] autorelease];
+                    Stop *a = [Stop data];
 					
 					a.locid = locId;
 					a.desc  = station.station;
@@ -251,7 +241,7 @@ static RAILMAP railmaps[] =
 	
 	mapPage.callback = self.callback;
 	
-    [mapPage fetchNearestVehiclesInBackground:self.backgroundTask];
+    [mapPage fetchNearestVehiclesAsync:self.backgroundTask];
 
 }
 
@@ -262,9 +252,9 @@ static RAILMAP railmaps[] =
         [self saveImage];
         _railMapIndex = (int)seg.selectedSegmentIndex;
         _railMap = railmaps + _railMapIndex;
-        selectedItem = -1;
+        _selectedItem = -1;
         
-        UserPrefs *prefs = [UserPrefs getSingleton];
+        UserPrefs *prefs = [UserPrefs singleton];
         
         prefs.showStreetcarMapFirst = (_railMapIndex == kRailMapPdxStreetcar);
         
@@ -280,33 +270,23 @@ static RAILMAP railmaps[] =
     // add a segmented control to the button bar
 	UISegmentedControl	*buttonBarSegmentedControl;
 	buttonBarSegmentedControl = [[[UISegmentedControl alloc] initWithItems:
-                                  [NSArray arrayWithObjects:@"MAX & WES", @"Streetcar", nil]] autorelease];
+                                  @[@"MAX & WES", @"Streetcar"]] autorelease];
 	[buttonBarSegmentedControl addTarget:self action:@selector(toggleMap:) forControlEvents:UIControlEventValueChanged];
 	buttonBarSegmentedControl.selectedSegmentIndex = _railMapIndex;	// start by showing the normal picker
-	buttonBarSegmentedControl.segmentedControlStyle = UISegmentedControlStyleBar;
-	
     
     self.railMapSeg = buttonBarSegmentedControl;
-    
-    [self setSegColor:buttonBarSegmentedControl];
 	
 	UIBarButtonItem *segItem = [[[UIBarButtonItem alloc] initWithCustomView:buttonBarSegmentedControl] autorelease];
-
     
-	[toolbarItems addObjectsFromArray: [NSArray arrayWithObjects:
-				 [CustomToolbar autoMapButtonWithTarget:self action:@selector(showMap:)],
-				 [CustomToolbar autoFlexSpace],
-                 segItem,
-				 nil]];
+	[toolbarItems addObjectsFromArray: @[
+				 [UIToolbar autoMapButtonWithTarget:self action:@selector(showMap:)],
+				 [UIToolbar autoFlexSpace],
+                 segItem]];
     
     [self maybeAddFlashButtonWithSpace:YES buttons:toolbarItems big:NO];
 }
 
 #pragma mark View methods
-
-#define min(X,Y) ((X)<(Y)?(X):(Y))
-#define max(X,Y) ((X)>(Y)?(X):(Y))
-#define swap(T,X,Y) { T temp; temp = (X); X = (Y); Y = (X); }
 
 -(void)saveImage
 {
@@ -330,7 +310,7 @@ static RAILMAP railmaps[] =
     
     self.lowResBackgroundImage = [[[UIImageView alloc] initWithFrame:(CGRect){ CGPointZero, _railMap->size }] autorelease];
     
-    [self.lowResBackgroundImage setImage:[UIImage imageWithContentsOfFile:path]];
+    self.lowResBackgroundImage.image = [UIImage imageWithContentsOfFile:path];
     self.lowResBackgroundImage.userInteractionEnabled = YES;
                                    
     
@@ -338,25 +318,25 @@ static RAILMAP railmaps[] =
     
     
     
-    [self.imageView setDelegate:self];
+    self.imageView.delegate = self;
     [self.lowResBackgroundImage setTag:ZOOM_VIEW_TAG];
     self.imageView.frame = self.lowResBackgroundImage.bounds;
     
     [self.lowResBackgroundImage addSubview:self.imageView];
     
-    [self.scrollView setContentSize:_railMap->size];
+    self.scrollView.contentSize = _railMap->size;
     [self.scrollView addSubview:self.lowResBackgroundImage];
     
     // Lets try to calculate something that'll work for all orientations and devices.
 	float minimumScale;
-    CGRect scrollFrame = [self.scrollView frame];
-    CGRect imageFrame  = [self.imageView frame];
+    CGRect scrollFrame = self.scrollView.frame;
+    CGRect imageFrame  = self.imageView.frame;
 	
     // calculate minimum scale to perfectly fit image width, and begin at that scale
     minimumScale = scrollFrame.size.width  / imageFrame.size.width;
     
         
-    [self.scrollView setMinimumZoomScale:scrollFrame.size.height / imageFrame.size.height];
+    self.scrollView.minimumZoomScale = scrollFrame.size.height / imageFrame.size.height;
     
     
     // the zoom rect is in the content view's coordinates.
@@ -365,7 +345,7 @@ static RAILMAP railmaps[] =
     
   	
     
-    [self.scrollView setMinimumZoomScale:minimumScale];
+    self.scrollView.minimumZoomScale = minimumScale;
 	
 	self.hotSpots = [[[RailMapHotSpots alloc] initWithImageView:self.imageView map:_railMap] autorelease];
 	
@@ -381,12 +361,12 @@ static RAILMAP railmaps[] =
     else
     {
         CGRect zoom;
-        CGRect imageFrame  = [self.imageView frame];
-        CGRect scrollFrame = [self.scrollView frame];
+        CGRect imageFrame  = self.imageView.frame;
+        CGRect scrollFrame = self.scrollView.frame;
         CGFloat scale =  (scrollFrame.size.height / imageFrame.size.height) * 1.25   ;
         
-        zoom.size.width  = [self.scrollView frame].size.width  / scale;
-        zoom.size.height = [self.scrollView frame].size.height / scale;
+        zoom.size.width  = self.scrollView.frame.size.width  / scale;
+        zoom.size.height = self.scrollView.frame.size.height / scale;
         
         zoom.origin.x = ((imageFrame.size.width   - zoom.size.width)  / 2.0);
         zoom.origin.y = ((imageFrame.size.height  - zoom.size.height) / 2.0);
@@ -410,11 +390,11 @@ static RAILMAP railmaps[] =
 	
 	/// set up main scroll view
     self.scrollView = [[[UIScrollView alloc] initWithFrame:bounds] autorelease];
-    [self.scrollView setBackgroundColor:[UIColor blackColor]];
-    [self.scrollView setDelegate:self];
+    self.scrollView.backgroundColor = [UIColor blackColor];
+    self.scrollView.delegate = self;
     [self.scrollView setBouncesZoom:YES];
 	self.scrollView.autoresizingMask = (UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight);
-    [[self view] addSubview:self.scrollView];
+    [self.view addSubview:self.scrollView];
     
     [self loadImage];
 
@@ -446,7 +426,7 @@ static RAILMAP railmaps[] =
 
 - (void)scannerInc:(NSScanner *)scanner 
 {	
-	if (![scanner isAtEnd])
+	if (!scanner.atEnd)
 	{
 		scanner.scanLocation++;
 	}
@@ -455,7 +435,7 @@ static RAILMAP railmaps[] =
 
 - (void)nextSlash:(NSScanner *)scanner intoString:(NSString **)substr;
 {
-	if (![scanner isAtEnd])
+	if (!scanner.atEnd)
 	{
 		[scanner scanUpToString:@"/" intoString:substr];
 		
@@ -484,26 +464,28 @@ static RAILMAP railmaps[] =
 		return YES;
 	}
 	
-	switch (*[substr UTF8String])	
+	switch (*substr.UTF8String)	
 	{
 		case kLinkTypeNorth:
 		{
-			switch (easterEgg)
+			switch (_easterEgg)
 			{
 				case EasterEggNorth1:
 				case EasterEggNorth2:
-					easterEgg ++;
+					_easterEgg ++;
 					break;
 				case EasterEggNorth3:
 					self.hotSpots.hidden = !self.hotSpots.hidden;
-					[self.hotSpots setAlpha:self.hotSpots.hidden ? 0.0 : 1.0];
+                    self.imageView.annotates = !self.imageView.annotates;
+                    [self.imageView setNeedsDisplay];
+					self.hotSpots.alpha = self.hotSpots.hidden ? 0.0 : 1.0;
 					[self.hotSpots setNeedsDisplay];
 					[self updateToolbar];
 //					[self.toolbar setNeedsDisplay];
-					easterEgg = EasterEggStart;
+					_easterEgg = EasterEggStart;
 					break;
 				default:
-					easterEgg = EasterEggNorth1;
+					_easterEgg = EasterEggNorth1;
 					break;
 			}
 			break;
@@ -518,18 +500,18 @@ static RAILMAP railmaps[] =
                                 itemToDeselect:self
                                       whenDone:self.callbackWhenDone];
                 
-				easterEgg = EasterEggStart;
+				_easterEgg = EasterEggStart;
 			}
 			break;
 			
 		case kLinkTypeWiki:
 		{
-			easterEgg = EasterEggStart;
+			_easterEgg = EasterEggStart;
 	
 			[self scannerInc:scanner];
 			//[self.hotSpots selectItem:i];
 		
-			wikiLink = [url substringFromIndex:[scanner scanLocation]];
+			wikiLink = [url substringFromIndex:scanner.scanLocation];
 		
             [WebViewController displayPage:[NSString stringWithFormat:@"http://en.m.wikipedia.org/wiki/%@", [wikiLink stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] ]
                                       full:[NSString stringWithFormat:@"http://en.wikipedia.org/wiki/%@", [wikiLink stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding]]
@@ -541,7 +523,7 @@ static RAILMAP railmaps[] =
 		}
 		case kLinkTypeHttp:
 		{
-			easterEgg = EasterEggStart;
+			_easterEgg = EasterEggStart;
 			
 			//[self.hotSpots selectItem:i];
             
@@ -555,7 +537,7 @@ static RAILMAP railmaps[] =
 		}
 		case kLinkTypeDir:
 		{
-			easterEgg = EasterEggStart;
+			_easterEgg = EasterEggStart;
 			//[self.hotSpots selectItem:i];
 		
 			[self scannerInc:scanner];
@@ -565,15 +547,14 @@ static RAILMAP railmaps[] =
 			[self nextSlash:scanner intoString:&stationName];
 		
 		
-			DirectionView *dirView = [[DirectionView alloc] init];
+            DirectionView *dirView = [DirectionView viewController];
 			dirView.callback = self.callback;
-			[dirView fetchDirectionsInBackground:self.backgroundTask route:stationName];
-			[dirView release];
+			[dirView fetchDirectionsAsync:self.backgroundTask route:stationName];
 			break;
 		}
         case kLinkTypeMap:
 		{
-			easterEgg = EasterEggStart;
+			_easterEgg = EasterEggStart;
 			//[self.hotSpots selectItem:i];
             
 			[self scannerInc:scanner];
@@ -582,20 +563,20 @@ static RAILMAP railmaps[] =
 			// [self nextSlash:scanner intoString:&substr];
 			[self nextSlash:scanner intoString:&map];
             
-            self.railMapSeg.selectedSegmentIndex = [map integerValue];
+            self.railMapSeg.selectedSegmentIndex = map.integerValue;
             [self toggleMap:self.railMapSeg];
 			break;
 		}
 		case kLinkTypeStop:
 		{
-			easterEgg = EasterEggStart;
+			_easterEgg = EasterEggStart;
 			//[self.hotSpots selectItem:i];
 		
 		
-			RailStation *station = [[[RailStation alloc] initFromHotSpot:hotSpotRegions+i index:i] autorelease];
+            RailStation *station = [RailStation fromHotSpot:hotSpotRegions+i index:i];
 		
 			
-			RailStationTableView *railView = [[RailStationTableView alloc] init];
+            RailStationTableView *railView = [RailStationTableView viewController];
 			railView.station = station; 
 			railView.callback = self.callback;
 			railView.from = self.from;
@@ -605,8 +586,7 @@ static RAILMAP railmaps[] =
 			{
 				railView.map = self;
 			}
-			[[self navigationController] pushViewController:railView animated:YES];
-			[railView release];
+			[self.navigationController pushViewController:railView animated:YES];
 			break;
 		}
 		
@@ -638,8 +618,8 @@ static RAILMAP railmaps[] =
     // the zoom rect is in the content view's coordinates. 
     //    At a zoom scale of 1.0, it would be the size of the imageScrollView's bounds.
     //    As the zoom scale decreases, so more content is visible, the size of the rect grows.
-    zoomRect.size.height = [self.scrollView frame].size.height / scale;
-    zoomRect.size.width  = [self.scrollView frame].size.width  / scale;
+    zoomRect.size.height = self.scrollView.frame.size.height / scale;
+    zoomRect.size.width  = self.scrollView.frame.size.width  / scale;
     
     // choose an origin so as to get the right center.
     zoomRect.origin.x    = center.x - (zoomRect.size.width  / 2.0);
@@ -651,12 +631,11 @@ static RAILMAP railmaps[] =
 
 #pragma mark TapDetectingImageViewDelegate methods
 
-- (void)listAction:(id)arg
+- (void)listAction:(id)unused
 {
-    AllRailStationView *allRail = [[AllRailStationView alloc] init];
+    AllRailStationView *allRail = [AllRailStationView viewController];
     allRail.callback = self.callback;
-    [[self navigationController] pushViewController:allRail animated:YES];
-    [allRail release];
+    [self.navigationController pushViewController:allRail animated:YES];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -665,19 +644,19 @@ static RAILMAP railmaps[] =
     {
         do
         {
-            selectedItem = _railMap->firstHotspot + ((selectedItem - _railMap->firstHotspot + 1) % (_railMap->lastHotspot - _railMap->firstHotspot +1));
-        } while (hotSpotRegions[selectedItem].action[0] !='s');
+            _selectedItem = _railMap->firstHotspot + ((_selectedItem - _railMap->firstHotspot + 1) % (_railMap->lastHotspot - _railMap->firstHotspot +1));
+        } while (hotSpotRegions[_selectedItem].action.firstUnichar !='s');
         
-        hotSpotRegions[selectedItem].touched = YES;
+        hotSpotRegions[_selectedItem].touched = YES;
         // selectedItem = i;
         [self.hotSpots setNeedsDisplay];
-        [self   processHotSpot:[NSString stringWithUTF8String:hotSpotRegions[selectedItem].action] item:selectedItem];
+        [self processHotSpot:hotSpotRegions[_selectedItem].action item:_selectedItem];
         self.showNextOnAppearance = NO;
     }
     
     UIBarButtonItem *list = [[[UIBarButtonItem alloc]
                               initWithTitle:NSLocalizedString(@"List", @"List button")
-                              style:UIBarButtonItemStyleBordered
+                              style:UIBarButtonItemStylePlain
                               target:self action:@selector(listAction:)] autorelease];
     
     
@@ -688,7 +667,7 @@ static RAILMAP railmaps[] =
 
 - (void) selectedHotspot:(NSTimer*)theTimer
 {
-	[self   processHotSpot:[NSString stringWithUTF8String:hotSpotRegions[selectedItem].action] item:selectedItem];	
+	[self processHotSpot:hotSpotRegions[_selectedItem].action item:_selectedItem];
 }
 
 - (void)findHotspot:(NSTimer*)theTimer
@@ -712,32 +691,20 @@ static RAILMAP railmaps[] =
             i = *indices + _railMap->firstHotspot;
             
             HOTSPOT * hotspot = &hotSpotRegions[i];
-            
-            DEBUG_LOG(@"Hotspot: %s\n", hotspot->action);
+            DEBUG_LOGS(hotspot->action);
             
             if (    (HOTSPOT_IS_POLY(hotspot) && pnpoly(hotspot->nVertices, hotspot->coords.vertices, _tapPoint.x, _tapPoint.y))
                 ||  (HOTSPOT_IS_RECT(hotspot) && CGRectContainsPoint(*hotspot->coords.rect, _tapPoint)))		{
                 hotSpotRegions[i].touched = YES;
-                selectedItem = i;
+                _selectedItem = i;
                 [self.hotSpots selectItem:i];
                 [self.hotSpots setNeedsDisplay];
                 
-#ifdef ORIGINAL_IPHONE
-                NSDate *soon = [[NSDate date] addTimeInterval:0.1];
-#else
                 NSDate *soon = [[NSDate date] dateByAddingTimeInterval:0.1];
-#endif
                 NSTimer *timer = [[[NSTimer alloc] initWithFireDate:soon interval:0.1 target:self selector:@selector(selectedHotspot:) userInfo:nil repeats:NO] autorelease];
                 [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
                 found = true;
                 break;
-            }
-            
-            if (hotSpotRegions[i].nVertices == 0)
-            {
-                // bail out as fast as we can - the end of the array is not worth
-                // searching as they are all NULL hotspots.
-                // break;
             }
             
             indices++;
@@ -762,14 +729,14 @@ static RAILMAP railmaps[] =
 
 - (void)tapDetectingImageView:(TapDetectingImageView *)view gotDoubleTapAtPoint:(CGPoint)tapPoint {
     // double tap zooms in
-    float newScale = [self.scrollView zoomScale] * ZOOM_STEP;
+    float newScale = self.scrollView.zoomScale * ZOOM_STEP;
     CGRect zoomRect = [self zoomRectForScale:newScale withCenter:tapPoint];
     [self.scrollView zoomToRect:zoomRect animated:YES];
 }
 
 - (void)tapDetectingImageView:(TapDetectingImageView *)view gotTwoFingerTapAtPoint:(CGPoint)tapPoint {
     // two-finger tap zooms out
-    float newScale = [self.scrollView zoomScale] / ZOOM_STEP;
+    float newScale = self.scrollView.zoomScale / ZOOM_STEP;
     CGRect zoomRect = [self zoomRectForScale:newScale withCenter:tapPoint];
     [self.scrollView zoomToRect:zoomRect animated:YES];
 }
@@ -788,16 +755,16 @@ static RAILMAP railmaps[] =
     int x,y,i;
     CGPoint p;
     
-    NSMutableArray * xTiles = [[[NSMutableArray alloc] init] autorelease];
+    NSMutableArray * xTiles = [NSMutableArray array];
     
     for (x=0; x< map->xTiles; x++)
     {
-        NSMutableArray *yTiles = [[[NSMutableArray alloc] init] autorelease];
+        NSMutableArray *yTiles = [NSMutableArray array];
         [xTiles addObject:yTiles];
         
         for (y=0; y<map->yTiles; y++)
         {
-            [yTiles addObject:[[[NSMutableSet alloc] init] autorelease]];
+            [yTiles addObject:[NSMutableSet set]];
         }
         
     }
@@ -806,13 +773,13 @@ static RAILMAP railmaps[] =
     {
         int xs = x / map->tileSize.width;
     
-        NSMutableArray * yTiles = [xTiles objectAtIndex:xs];
+        NSMutableArray * yTiles = xTiles[xs];
         
         for (y=0; y< map->size.height; y++)
         {
             int ys = y / map->tileSize.height;
             
-            NSMutableSet *set = [yTiles objectAtIndex:ys];
+            NSMutableSet *set = yTiles[ys];
             
             p.x = x;
             p.y = y;
@@ -823,7 +790,7 @@ static RAILMAP railmaps[] =
                 if (    (HOTSPOT_IS_POLY(&hotSpotRegions[i]) && pnpoly(hotSpotRegions[i].nVertices, hotSpotRegions[i].coords.vertices, p.x, p.y))
                     ||  (HOTSPOT_IS_RECT(&hotSpotRegions[i]) && CGRectContainsPoint(*hotSpotRegions[i].coords.rect, p)))
                 {
-                    [set addObject:[NSNumber numberWithInt:i]];
+                    [set addObject:@(i)];
                 }
             }
         }
@@ -841,7 +808,7 @@ static RAILMAP railmaps[] =
     int x,y;
     for (x=0; x<tiles.count ; x++)
     {
-        NSMutableArray * ya = [tiles objectAtIndex:x];
+        NSMutableArray * ya = tiles[x];
         // DEBUG_LOG(@"Stripe size %lu\n", (unsigned long)stripeSet.count);
         
         [output appendFormat:@"/* -- */ MAP_TILE_ALLOCATE_ROW(%d,%d)\n", x, (int)ya.count];
@@ -849,14 +816,14 @@ static RAILMAP railmaps[] =
         
         for (y=0; y<ya.count; y++)
         {
-            NSMutableSet *set = [ya objectAtIndex:y];
+            NSMutableSet *set = ya[y];
             
             [output appendFormat:@"/* %02d */ MAP_START_TILE ", (int)set.count];
             total += set.count;
             
             for (NSNumber *n in set)
             {
-                [output appendFormat:@"%d,", (int)[n integerValue] - map->firstHotspot];
+                [output appendFormat:@"%d,", n.intValue - map->firstHotspot];
             }
             
             [output appendFormat:@"MAP_LAST_INDEX MAP_END_TILE(%d,%d)\n", x,y];
@@ -869,7 +836,7 @@ static RAILMAP railmaps[] =
 
 + (void)makeTiles:(RAILMAP *)map
 {
-    NSMutableString *output = [[[NSMutableString alloc] init] autorelease];
+    NSMutableString *output = [NSMutableString string];
     NSMutableArray *tiles = [RailMapView tileScan:map];
     [RailMapView dumpTiles:tiles map:map output:output];
     
@@ -886,12 +853,12 @@ static RAILMAP railmaps[] =
 
 
 // The Polygons from the HTML become static arrays of vertices
-#define HS_START_POLY { static CGPoint static_vertices [] = {
-#define HS_END_POLY }; hs->coords.vertices = static_vertices; hs->isRect = 0; hs->nVertices = sizeof(static_vertices)/sizeof(static_vertices[0]); hs->action =
+#define HS_START_POLY { static const CGPoint static_vertices [] = {
+#define HS_END_POLY }; hs->coords.vertices = static_vertices; hs->isRect = 0; hs->nVertices = sizeof(static_vertices)/sizeof(static_vertices[0]); hs->action = @
 #define HS_END ; nHotSpots++; hs++; }
 
 // The rectable form the HTML is simpler
-#define HS_RECT(X1,Y1,X2,Y2, STR) { static CGRect static_rect = { (X1),(Y1),(X2) - (X1),(Y2) - (Y1) }; hs->coords.rect = &static_rect; hs->isRect = 1; hs->nVertices = 4; hs->action = (STR); nHotSpots++; hs++; }
+#define HS_RECT(X1,Y1,X2,Y2, STR) { static const CGRect static_rect = { (X1),(Y1),(X2) - (X1),(Y2) - (Y1) }; hs->coords.rect = &static_rect; hs->isRect = 1; hs->nVertices = 4; hs->action = (@STR); nHotSpots++; hs++; }
 
 // The tiles are used to optimize the search when the user taps on the map
 #define MAP_TILE_ALLOCATE_ARRAY(SZ) { static RAILMAP_TILE * static_tiles[(SZ)]; map->tiles = static_tiles; }
@@ -923,85 +890,90 @@ static RAILMAP railmaps[] =
 
 + (void) initHotspotData
 {
-	if (nHotSpots > 0)
-	{
-		return;
-	}
-    
-    railmaps[kRailMapMaxWes].firstHotspot = 0;
-    HOTSPOT *hs = hotSpotRegions;
-    
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        
+        if (nHotSpots > 0)
+        {
+            return;
+        }
+        
+        railmaps[kRailMapMaxWes].firstHotspot = 0;
+        HOTSPOT *hs = hotSpotRegions;
+        
+        DEBUG_LOGL(sizeof(HOTSPOT));
+        
 #include "MaxHotSpotTable.txt"
-  	
-    railmaps[kRailMapMaxWes].lastHotspot = nHotSpots-1;
-    
-    railmaps[kRailMapPdxStreetcar].firstHotspot = nHotSpots;
-    
+        
+        railmaps[kRailMapMaxWes].lastHotspot = nHotSpots-1;
+        
+        railmaps[kRailMapPdxStreetcar].firstHotspot = nHotSpots;
+        
 #include "StreetcarHotSpotTable.txt"
-    
-    railmaps[kRailMapPdxStreetcar].lastHotspot = nHotSpots-1;
-    
-    
-    assert(nHotSpots < MAXHOTSPOTS);
-    
+        
+        railmaps[kRailMapPdxStreetcar].lastHotspot = nHotSpots-1;
+        
+        
+        assert(nHotSpots < MAXHOTSPOTS);
+        
 #ifdef DEBUGLOGGING
-    int i;
-    size_t sz = sizeof(hotSpotRegions);
-    
-    for (i=0; i< nHotSpots; i++)
-    {
-        HOTSPOT *hs = hotSpotRegions+i;
+        int i;
+        size_t sz = sizeof(hotSpotRegions);
         
-        if (hs->isRect)
+        for (i=0; i< nHotSpots; i++)
         {
-            sz+=sizeof(CGRect);
+            HOTSPOT *hs = hotSpotRegions+i;
+            
+            if (hs->isRect)
+            {
+                sz+=sizeof(CGRect);
+            }
+            else
+            {
+                sz+=sizeof(CGPoint) * hs->nVertices;
+            }
+            
+            sz+= hs->action.length;
         }
-        else
-        {
-            sz+=sizeof(CGPoint) * hs->nVertices;
-        }
+        DEBUG_LOG(@"Hotspot database size %ld\n", (long)sz);
         
-        sz+= strlen(hs->action);
-    }
-    DEBUG_LOG(@"Hotspot database size %ld\n", (long)sz);
-    
 #endif
-    
-    
-    // Put together the striping for the quick search
-
-    {
-        RAILMAP * map = &railmaps[kRailMapMaxWes];
-        map->tileSize.width  = map->size.width  / map->xTiles;
-        map->tileSize.height = map->size.height / map->yTiles;
         
+        
+        // Put together the striping for the quick search
+        
+        {
+            RAILMAP * map = &railmaps[kRailMapMaxWes];
+            map->tileSize.width  = map->size.width  / map->xTiles;
+            map->tileSize.height = map->size.height / map->yTiles;
+            
 #include "MaxHotSpotTiles.txt"
-        
+            
 #ifdef DEBUGLOGGING
-        [RailMapView calcTileSize:map];
+            [RailMapView calcTileSize:map];
 #endif
-    }
-    
-    {
-        RAILMAP * map = &railmaps[kRailMapPdxStreetcar];
-        map->tileSize.width  = map->size.width  / map->xTiles;
-        map->tileSize.height = map->size.height / map->yTiles;
-
+        }
+        
+        {
+            RAILMAP * map = &railmaps[kRailMapPdxStreetcar];
+            map->tileSize.width  = map->size.width  / map->xTiles;
+            map->tileSize.height = map->size.height / map->yTiles;
+            
 #include "StreetcarHotSpotTiles.txt"
-        
+            
 #ifdef DEBUGLOGGING
-        [RailMapView calcTileSize:map];
+            [RailMapView calcTileSize:map];
+#endif
+            
+        }
+        
+        
+#ifdef CREATE_MAX_ARRAYS
+        [RailMapView makeTiles:&railmaps[kRailMapMaxWes]];
+        [RailMapView makeTiles:&railmaps[kRailMapPdxStreetcar]];
 #endif
         
-    }
-
-    
-#ifdef CREATE_MAX_ARRAYS
-    [RailMapView makeTiles:&railmaps[kRailMapMaxWes]];
-    [RailMapView makeTiles:&railmaps[kRailMapPdxStreetcar]];
-#endif
-    
-	
+    });
 }
 
 - (void)BackgroundTaskDone:(UIViewController*)viewController cancelled:(bool)cancelled
@@ -1012,13 +984,6 @@ static RAILMAP railmaps[] =
     }
     [super BackgroundTaskDone:viewController cancelled:cancelled];
 }
-
-+ (bool)RailMapSupported
-{
-    return ([[[UIDevice currentDevice] systemVersion] floatValue] >= 4.0);
-}
-
-
 
 @end
 
@@ -1036,15 +1001,16 @@ static RAILMAP railmaps[] =
     [super dealloc];
 }
 
--(id) initWithImageView:(UIView*)mapView map:(RAILMAP*)map
+-(instancetype) initWithImageView:(UIView*)mapView map:(RAILMAP*)map
 {
 	self = [super initWithFrame:CGRectMake(0, 0, mapView.frame.size.width, mapView.frame.size.height)];
-	[self setBackgroundColor:[UIColor clearColor]];
+	self.backgroundColor = [UIColor clearColor];
 	
-	[self setMapView:mapView];
+	self.mapView = mapView;
 	
 	[self.mapView addSubview:self];
 	self.hidden = YES;
+    // self.hidden = NO;
     self.selectedItem = -1;
     
     _railMap = map;
@@ -1056,7 +1022,7 @@ static RAILMAP railmaps[] =
 {
     self.selectedItem = -1;
     _touchPoint = point;
-    [self setAlpha:1.0];
+    self.alpha = 1.0;
     [self setNeedsDisplay];
 
     [self fadeOut];
@@ -1069,7 +1035,7 @@ static RAILMAP railmaps[] =
     _touchPoint.y = 0;
     
 	
-	switch(hotSpotRegions[i].action[0])
+	switch(hotSpotRegions[i].action.firstUnichar)
 	{
 		case kLinkTypeHttp:
 		case kLinkTypeWiki:
@@ -1079,7 +1045,7 @@ static RAILMAP railmaps[] =
 		case kLinkType2:
 		case kLinkType3:
 			
-			[self setAlpha:1.0];
+			self.alpha = 1.0;
 			[self setNeedsDisplay];
 			break;
 			
@@ -1099,7 +1065,7 @@ static RAILMAP railmaps[] =
 		// [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight forView:self.view cache:YES];  
 
 
-		[self setAlpha:0.0];	
+		self.alpha = 0.0;	
 		[UIView commitAnimations]; 
 	}
 }
@@ -1107,7 +1073,7 @@ static RAILMAP railmaps[] =
 
 - (void)drawHotspot:(HOTSPOT *)hs context:(CGContextRef)context;
 {
-	if (hs->action[0] == '#')
+	if (hs->action.firstUnichar == '#')
 	{
 		CGContextSetRGBFillColor(context, 0.0, 1.0, 0.0, 0.5);
 		CGContextSetStrokeColorWithColor(context, [UIColor greenColor].CGColor);
@@ -1120,7 +1086,7 @@ static RAILMAP railmaps[] =
 	else
 	{
 		UIColor * col;
-		switch (hs->action[0])
+		switch (hs->action.firstUnichar)
 		{
             default:
 			case kLinkTypeHttp:
@@ -1270,10 +1236,11 @@ static RAILMAP railmaps[] =
                 CGContextMoveToPoint(   context, 0,                     yp);
                 CGContextAddLineToPoint(context, _railMap->size.width,  yp);
             }
+        
             
-            char sizeText[20];
+            CGContextSetTextDrawingMode(context, kCGTextFill); // This is the default
+            [[UIColor blackColor] setFill]; // This is the default
             
-            CGContextSelectFont(context, [[UIFont systemFontOfSize:12].fontName cStringUsingEncoding:NSUTF8StringEncoding] , 12, kCGEncodingMacRoman);
             CGContextSetTextMatrix(context, CGAffineTransformMake(1.0,0.0, 0.0, -1.0, 0.0, 0.0));
             
             for (int x=0; x < _railMap->xTiles; x++)
@@ -1293,10 +1260,13 @@ static RAILMAP railmaps[] =
                         count++;
                     }
                     
-                    snprintf(sizeText, sizeof(sizeText), "%d", count);
+                    NSString *sizeText = [NSString stringWithFormat:@"%d", count];
                     
-                    
-                    CGContextShowTextAtPoint(context, xp, yp, sizeText, strlen(sizeText));
+                    [sizeText drawAtPoint:CGPointMake(xp, yp)
+                               withAttributes:@{NSFontAttributeName:[UIFont fontWithName:@"Helvetica"
+                                                                                    size:12]
+                                                }];
+
                 }
             }
             

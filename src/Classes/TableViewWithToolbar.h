@@ -13,7 +13,7 @@
 #import <UIKit/UIKit.h>
 #import "ViewControllerBase.h"
 #import "ReturnStopId.h"
-#import "CustomToolbar.h"
+#import "UIToolbar+Auto.h"
 #import "BackgroundTaskProgress.h"
 #import "ProgressModalView.h"
 #import "BackgroundTaskContainer.h"
@@ -23,10 +23,10 @@
 #define kDisclaimerCellId           MakeCellId(kSectionRowDisclaimerType)
 #define kExceptionCellId            @"Exception"
 
-#define kNoNetwork				@"%@: touch here for info"
-#define kNoNetworkErrorID		@"(ID %@) %@: touch here for info"
-#define kNoNetworkID			@"(ID %@) No Network: touch here for info"
-#define kNetworkMsg				@"Network error: touch here for info"
+#define kNoNetwork				NSLocalizedString(@"%@: touch here for info", @"Stop ID and message")
+#define kNoNetworkErrorID		NSLocalizedString(@"(ID %@) %@: touch here for info", @"Stop ID and message")
+#define kNoNetworkID			NSLocalizedString(@"(ID %@) No Network: touch here for info", @"Stop ID and error message")
+#define kNetworkMsg				NSLocalizedString(@"Network error: touch here for info", @"Network error message")
 
 
 #define MakeCellId(X) @#X
@@ -43,21 +43,20 @@
 
 #define kCellLabelTotalYInset 20
 
-@interface TableViewWithToolbar : ViewControllerBase <UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate, UISearchDisplayDelegate, DeselectItemDelegate> {
-	UITableView *_tableView;
-	bool _backgroundRefresh;
-	UIFont *_basicFont;
-	UIFont *_smallFont;
-	UIFont *_paragraphFont;
-	UISearchBar *_searchBar;
-	bool _enableSearch;
-	NSMutableArray *_filteredItems;
-	NSMutableArray *_searchableItems;
-	UISearchDisplayController *_searchController;
-    NSMutableArray *_sectionTypes;
-    NSMutableArray *_perSectionRowTypes;
-    MKMapView   *_mapView;
-    bool        _mapShowsUserLocation;
+@interface TableViewWithToolbar : ViewControllerBase <UITableViewDelegate, UITableViewDataSource, UISearchResultsUpdating, UISearchControllerDelegate, DeselectItemDelegate> {
+	UITableView *       _tableView;
+	bool                _backgroundRefresh;
+	UIFont *            _basicFont;
+	UIFont *            _smallFont;
+	UIFont *            _paragraphFont;
+	bool                _enableSearch;
+	NSMutableArray *    _filteredItems;
+	NSMutableArray *    _searchableItems;
+	UISearchController *_searchController;
+    NSMutableArray<NSNumber*> *                     _sectionTypes;
+    NSMutableArray<NSMutableArray <NSNumber *> *> * _perSectionRowTypes;
+    MKMapView   *       _mapView;
+    bool                _mapShowsUserLocation;
 }
 
 - (void)addStreetcarTextToDisclaimerCell:(UITableViewCell *)cell text:(NSString *)text trimetDisclaimer:(bool)trimetDisclaimer;
@@ -69,22 +68,22 @@
 
 - (void)maybeAddSectionToAccessibility:(UITableViewCell *)cell indexPath:(NSIndexPath *)indexPath alwaysSaySection:(BOOL)alwaysSaySection;
 - (void)updateAccessibility:(UITableViewCell *)cell indexPath:(NSIndexPath *)indexPath text:(NSString *)str alwaysSaySection:(BOOL)alwaysSaySection;
-- (UITableViewStyle) getStyle;
+@property (nonatomic, getter=getStyle, readonly) UITableViewStyle style;
 - (CGFloat)getTextHeight:(NSString *)text font:(UIFont *)font;
 - (CGFloat)getAtrributedTextHeight:(NSAttributedString *)text;
 
-- (UIFont*)getBasicFont;
-- (UIFont*)getSmallFont;
-- (UIFont*)getParagraphFont;
-- (CGFloat)basicRowHeight;
-- (CGFloat)narrowRowHeight;
+@property (nonatomic, readonly, copy) UIFont *basicFont;
+@property (nonatomic, readonly, copy) UIFont *smallFont;
+@property (nonatomic, readonly, copy) UIFont *paragraphFont;
+@property (nonatomic, readonly) CGFloat basicRowHeight;
+@property (nonatomic, readonly) CGFloat narrowRowHeight;
 - (bool)isSearchRow:(int)section;
-- (CGFloat)searchRowHeight;
-- (UITableViewCell *)searchRowCell;
+@property (nonatomic, readonly) CGFloat searchRowHeight;
+@property (nonatomic, readonly, strong) UITableViewCell *searchRowCell;
 - (NSMutableArray *)filteredData:(UITableView *)table;
-- (NSMutableArray *)topViewData;
+@property (nonatomic, readonly, copy) NSMutableArray *topViewData;
 - (void)clearSelection;
-- (UIColor*)greyBackground;
+@property (nonatomic, readonly, copy) UIColor *greyBackground;
 - (void)iOS7workaroundPromptGap;
 
 
@@ -99,25 +98,27 @@
 - (NSInteger)rowType:(NSIndexPath*)index;
 - (NSInteger)addSectionType:(NSInteger)type;
 - (NSInteger)addRowType:(NSInteger)type;
-- (NSInteger)sections;
+@property (nonatomic, readonly) NSInteger sections;
+- (void)clearSection:(NSInteger)section;
+- (NSInteger)addRowType:(NSInteger)type forSectionType:(NSInteger)sectionType;
+
 - (NSInteger)rowsInSection:(NSInteger)section;
 - (NSInteger)firstSectionOfType:(NSInteger)type;
 - (NSInteger)firstRowOfType:(NSInteger)type inSection:(NSInteger)section;
 - (NSIndexPath*)firstIndexPathOfSectionType:(NSInteger)sectionType rowType:(NSInteger)rowType;
 
-- (CGFloat)mapCellHeight;
+@property (nonatomic, readonly) CGFloat mapCellHeight;
 - (void)finishWithMapView;
 - (UITableViewCell*)getMapCell:(NSString*)id withUserLocation:(bool)userLocation;
 
 @property (nonatomic, retain) UITableView *table;
 @property bool backgroundRefresh;
 @property bool enableSearch;
-@property (nonatomic, retain) UISearchBar *searchBar;
 @property (nonatomic, retain) NSMutableArray *searchableItems;
 @property (readonly) bool filtered;
-@property (nonatomic, retain) UISearchDisplayController *searchController;
-@property (nonatomic, retain) NSMutableArray *sectionTypes;
-@property (nonatomic, retain) NSMutableArray *perSectionRowTypes;
+@property (nonatomic, retain) UISearchController *searchController;
+@property (nonatomic, retain) NSMutableArray<NSNumber*> * sectionTypes;
+@property (nonatomic, retain) NSMutableArray<NSMutableArray <NSNumber *> *> *perSectionRowTypes;
 @property (nonatomic, retain) MKMapView *mapView;
 
 

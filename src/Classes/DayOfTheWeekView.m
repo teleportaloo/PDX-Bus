@@ -27,11 +27,9 @@
 
 @synthesize originalFave = _originalFave;
 
-#define kDaysInWeek 7
+#define kMorningOrEvening (1)   // 1 is not used!
+#define kSection          (0)
 
-static int daysInWeek[] = {
-		kDayMon,kDayTue,kDayWed,kDayThu,kDayFri,kDaySat,kDaySun
-};
 
 - (void)dealloc {
 	self.originalFave = nil;
@@ -41,23 +39,23 @@ static int daysInWeek[] = {
 
 - (int)days
 {
-	NSNumber *num = [self.originalFave objectForKey:kUserFavesDayOfWeek];
+	NSNumber *num = self.originalFave[kUserFavesDayOfWeek];
 	
 	if (num != nil)
 	{
-		return [num intValue];
+		return num.intValue;
 	}
 	return kDayNever;
 }
 
 - (bool)autoCommuteMorning
 {
-	NSNumber *num = [self.originalFave objectForKey:kUserFavesMorning];
+	NSNumber *num = self.originalFave[kUserFavesMorning];
 	bool morning = TRUE;
 	
 	if (num)
 	{
-		morning = [num boolValue];
+		morning = num.boolValue;
 	}
 	
 	return morning;
@@ -71,10 +69,10 @@ static int daysInWeek[] = {
 	switch (((UISegmentedControl*)sender).selectedSegmentIndex)
 	{
 		case kCommuteSectionSegAm:
-			[self.originalFave setObject:[NSNumber numberWithBool:TRUE]   forKey:kUserFavesMorning];
+			self.originalFave[kUserFavesMorning] = @TRUE;
 			break;
 		case kCommuteSectionSegPm:
-			[self.originalFave setObject:[NSNumber numberWithBool:FALSE]  forKey:kUserFavesMorning];
+			self.originalFave[kUserFavesMorning] = @FALSE;
 			break;
 	}
 }
@@ -87,18 +85,19 @@ static int daysInWeek[] = {
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return 1;
+    return [self sections];
 }
 
 
 // Customize the number of rows in the table view.
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return kDaysInWeek+1;
+    return [self rowsInSection:section];
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	if (indexPath.row < kDaysInWeek)
+    
+	if ([self rowType:indexPath] != kMorningOrEvening)
 	{
 		return [self basicRowHeight];
 	}
@@ -108,17 +107,18 @@ static int daysInWeek[] = {
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath 
 {
-	if (indexPath.row < kDaysInWeek)
+    NSInteger rowType = [self rowType:indexPath];
+	if (rowType != kMorningOrEvening)
 	{    
 		UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kDayOfWeekId];
 		if (cell == nil) {
 			cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kDayOfWeekId] autorelease];
 		}
 		
-		cell.textLabel.text = [NSString stringWithFormat:NSLocalizedString(@"Every %@", @"before a list of the days of the week"), [EditBookMarkView daysString:daysInWeek[indexPath.row]]];
-		cell.textLabel.font = [self getBasicFont];
+		cell.textLabel.text = [NSString stringWithFormat:NSLocalizedString(@"Every %@", @"before a list of the days of the week"), [EditBookMarkView daysString:(int)rowType]];
+		cell.textLabel.font = self.basicFont;
 		
-		if (([self days] & daysInWeek[indexPath.row]) != 0)
+		if ((self.days & rowType) != 0)
 		{
 			cell.accessoryType = UITableViewCellAccessoryCheckmark;
 		}
@@ -134,8 +134,8 @@ static int daysInWeek[] = {
 		SegmentCell *cell = (SegmentCell*)[tableView dequeueReusableCellWithIdentifier:kAmOrPmId];
 		if (cell == nil) {
 			cell = [[[SegmentCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kAmOrPmId] autorelease];
-			[cell createSegmentWithContent:[NSArray arrayWithObjects: NSLocalizedString(@"Morning", @"commuter bookmark option"),
-                                                                       NSLocalizedString(@"Afternoon", @"commuter bookmark option"),  nil]
+			[cell createSegmentWithContent:@[NSLocalizedString(@"Morning", @"commuter bookmark option"),
+                                                                       NSLocalizedString(@"Afternoon", @"commuter bookmark option")]
 									target:self 
 									action:@selector(amOrPmSegmentChanged:)];
 			cell.isAccessibilityElement = NO;
@@ -146,26 +146,38 @@ static int daysInWeek[] = {
 		return cell;	
 		
 	}
-	
-	
-    return nil;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	int days = [self days];
-	
-	days = days ^ daysInWeek[indexPath.row];
-	
-	[self.originalFave setObject:[NSNumber numberWithInt:days] forKey:kUserFavesDayOfWeek];
+	unsigned int days = self.days;
+    unsigned int rowType = (unsigned int)[self rowType:indexPath];
+    
+    if (rowType != kMorningOrEvening)
+    {
+        days = days ^ rowType;
+        self.originalFave[kUserFavesDayOfWeek] = @(days);
+    }
 	
 	[self.table deselectRowAtIndexPath:indexPath animated:YES];
-	[self.table reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:NO];
+	[self.table reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:NO];
 }
 
 - (void)viewDidLoad 
 {
     self.title = NSLocalizedString(@"Days of the week", @"screen title");
+    
+    [self clearSectionMaps];
+    [self addSectionType:kSection];
+    [self addRowType:kDayMon];
+    [self addRowType:kDayTue];
+    [self addRowType:kDayWed];
+    [self addRowType:kDayThu];
+    [self addRowType:kDayFri];
+    [self addRowType:kDaySat];
+    [self addRowType:kDaySun];
+    [self addRowType:kMorningOrEvening];
+    
     [super viewDidLoad];
 }
 

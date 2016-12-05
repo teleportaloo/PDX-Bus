@@ -20,6 +20,7 @@
 #import "StringHelper.h"
 #import "DebugLogging.h"
 #import  "AlertInterfaceController.h"
+#import <UIKit/UIKit.h>
 
 
 @implementation InterfaceControllerWithCommuterBookmark
@@ -31,7 +32,7 @@ static NSDictionary *singleCommuterBookmark;
 - (void)awakeWithContext:(id)context {
     [super awakeWithContext:context];
     
-    self.faves = [SafeUserData getSingleton];
+    self.faves = [SafeUserData singleton];
     self.faves.readOnly = YES;
 }
 
@@ -41,87 +42,107 @@ static NSDictionary *singleCommuterBookmark;
     [super dealloc];
 }
 
-- (bool)autoCommuteAlreadyHome:(bool)alreadyHome
+- (bool)autoCommute
 {
-    if ([UserPrefs getSingleton].watchAutoCommute)
-    {
-        return [self runCommuterBookmarkOnlyOnce:YES alreadyHome:alreadyHome];
-    }
-    
-    return NO;
+    return [self runCommuterBookmarkOnlyOnce:YES];
 }
 
-- (void)forceCommuteAlreadyHome:(bool)alreadyHome
+- (void)forceCommute
 {
-    if (![self runCommuterBookmarkOnlyOnce:NO alreadyHome:alreadyHome])
+    if (![self runCommuterBookmarkOnlyOnce:NO])
     {
         NSMutableAttributedString *string = [NSMutableAttributedString alloc].init.autorelease;
-        NSDictionary *attributes = [NSDictionary dictionaryWithObject:[UIColor whiteColor] forKey:NSForegroundColorAttributeName];
-        NSAttributedString *subString = [[NSAttributedString alloc] initWithString:@"No commuter bookmark was found for the current day of the week and time.\n\n" attributes:attributes].autorelease;
+        NSDictionary *attributes = @{ NSForegroundColorAttributeName: [UIColor whiteColor] };
+        NSAttributedString *subString = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"No commuter bookmark was found for the current day of the week and time.\n\n", @"commuter bookmark error") attributes:attributes].autorelease;
         [string appendAttributedString:subString];
         
-        attributes = [NSDictionary dictionaryWithObject:[UIColor cyanColor] forKey:NSForegroundColorAttributeName];
-        subString =  [[NSAttributedString alloc] initWithString:@"To create a commuter bookmark, go to the iPhone to edit a bookmark to set which days to use it for the morning or evening commute." attributes:attributes].autorelease;
+        attributes = @{ NSForegroundColorAttributeName: [UIColor cyanColor] };
+        subString =  [[NSAttributedString alloc] initWithString:NSLocalizedString(@"To create a commuter bookmark, go to the iPhone to edit a bookmark to set which days to use it for the morning or evening commute.", @"Commuter bookmark info")
+                                                                                  attributes:attributes].autorelease;
         [string appendAttributedString:subString];
         
         [self pushControllerWithName:kAlertScene context:string];
     }
 }
 
-- (bool)runCommuterBookmarkOnlyOnce:(bool)onlyOnce alreadyHome:(bool)alreadyHome
+- (bool)runCommuterBookmarkOnlyOnce:(bool)onlyOnce
 {
+    ExtensionDelegate  *extensionDelegate = (ExtensionDelegate*)[WKExtension sharedExtension].delegate;
     
-    NSDictionary *bookmark = [[SafeUserData getSingleton] checkForCommuterBookmarkShowOnlyOnce:onlyOnce];
+    NSDictionary *bookmark = nil;
     
-    
-    DEBUG_LOG(@"runCommuterBookmarkOnlyOnce:%d alreadyHome:%d ->\n%@\n", onlyOnce, alreadyHome, bookmark.description);
-    
-    if (bookmark)
+    if (!extensionDelegate.backgrounded)
     {
-        if (singleCommuterBookmark)
-        {
-            [singleCommuterBookmark release];
-            singleCommuterBookmark = nil;
-        }
-        singleCommuterBookmark = bookmark.retain;
         
-        if (!alreadyHome)
+        bookmark = [[SafeUserData singleton] checkForCommuterBookmarkShowOnlyOnce:onlyOnce];
+        
+        bool atRoot = NO;
+        
+        
+        WKExtension *sharedExtention = [WKExtension sharedExtension];
+        WKInterfaceController *rootInterfaceController = sharedExtention.rootInterfaceController;
+        
+        if ([rootInterfaceController isKindOfClass:[self class]])
         {
-            [self popToRootController];
-            DEBUG_LOG(@"runCommuterBookmarkOnlyOnce: popped\n");
+            if (rootInterfaceController == self)
+            {
+                atRoot = YES;
+            }
         }
-        else
+        
+        
+        DEBUG_LOG(@"runCommuterBookmarkOnlyOnce:%d atRoot:%d ->\n%@\n", onlyOnce, atRoot, bookmark.description);
+        
+        if (bookmark)
         {
-            [self maybeDisplayCommuterBookmark];
-            DEBUG_LOG(@"runCommuterBookmarkOnlyOnce: at home\n");
+            if (singleCommuterBookmark)
+            {
+                [singleCommuterBookmark release];
+                singleCommuterBookmark = nil;
+            }
+            singleCommuterBookmark = bookmark.retain;
+            
+            if (!atRoot)
+            {
+                [self popToRootController];
+                DEBUG_LOG(@"runCommuterBookmarkOnlyOnce: popped\n");
+            }
+            else
+            {
+                [self delayedDisplayOfCommuterBookmark];
+                DEBUG_LOG(@"runCommuterBookmarkOnlyOnce: at home\n");
+            }
         }
+        
+    }
+    else
+    {
+        DEBUG_LOG(@"No commuter bookmark as backgrounded\n");
     }
     
     return (bookmark !=nil);
-
+    
 }
 
 
-- (bool)maybeDisplayCommuterBookmark
+- (bool)delayedDisplayOfCommuterBookmark
 {
     if (singleCommuterBookmark != nil)
     {
         NSDictionary * bookmark = singleCommuterBookmark;
         singleCommuterBookmark = nil;
         
-        NSString *location = [bookmark valueForKey:kUserFavesLocation];
-        NSString *title    = [bookmark valueForKey:kUserFavesChosenName];
-        NSArray *stops = [StringHelper arrayFromCommaSeparatedString:location];
+        NSString *location = bookmark[kUserFavesLocation];
+        NSString *title    = bookmark[kUserFavesChosenName];
+        NSArray *stops     = location.arrayFromCommaSeparatedString;
         
         WatchBookmarksContext * context = [WatchBookmarksContext contextWithBookmark:stops title:title locationString:location];
+        context.oneTimeShowFirst = YES;
         
-        if (![UserPrefs getSingleton].watchBookmarksDisplayStopList)
-        {
-            context.oneTimeShowFirst = YES;
-        }
-        
-        DEBUG_LOG(@"maybeDisplayCommuterBookmark: delayed push\n");
-        [context delayedPushFrom:self];
+        DEBUG_LOG(@"delayedDisplayOfCommuterBookmark: delayed push\n");
+        [self delayedPush:context];
+        // self.delayedPush = context;
+        // [context delayedPushFrom:self];
         
         [bookmark release];
         return YES;

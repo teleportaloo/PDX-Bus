@@ -26,6 +26,6 @@
 @property (nonatomic, retain) ViewControllerBase *parent;
 @property (nonatomic, retain) UIActionSheet      *sheet;
 
-- (id)initWithParent:(ViewControllerBase *)newParent;
+- (instancetype)initWithParent:(ViewControllerBase *)newParent;
 
 @end

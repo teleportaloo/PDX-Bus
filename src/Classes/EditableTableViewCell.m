@@ -15,8 +15,8 @@
 
 @implementation EditableTableViewCell
 
-@synthesize delegate;
-@synthesize isInlineEditing;
+@synthesize delegate = _delegate;
+@synthesize isInlineEditing = _isInlineEditing;
 
 // To be implemented by subclasses. 
 - (void)stopEditing

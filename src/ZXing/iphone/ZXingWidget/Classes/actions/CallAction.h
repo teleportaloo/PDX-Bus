@@ -26,7 +26,7 @@
   NSString *number;
 }
 
-@property (nonatomic, copy) NSString *number;
+@property (nonatomic, copy)   NSString *number;
 
 + (NSURL *)urlForNumber:(NSString *)number;
 

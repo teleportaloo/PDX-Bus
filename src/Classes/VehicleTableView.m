@@ -17,8 +17,7 @@
 #import "XMLLocateVehicles.h"
 #import "RouteColorBlobView.h"
 #import "DepartureTimesView.h"
-#import "VehicleData.h"
-#import "VehicleUI.h"
+#import "VehicleData+iOSUI.h"
 #import "FormatDistance.h"
 
 @implementation VehicleTableView
@@ -37,10 +36,10 @@
     [super dealloc];
 }
 
-- (id)init {
+- (instancetype)init {
 	if ((self = [super init]))
 	{
-		self.title = @"Nearest Vehicles";
+        self.title = NSLocalizedString(@"Nearest Vehicles", @"page title");
         _firstTime  = YES;
 	}
 	return self;
@@ -55,7 +54,7 @@
 - (void) viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    self.navigationItem.prompt = @"Which vehicle are you on?";
+    self.navigationItem.prompt = NSLocalizedString(@"Which vehicle are you on?", @"page prompt");
 }
 
 - (void) viewWillDisappear:(BOOL)animated
@@ -68,19 +67,18 @@
 {
     [super viewDidAppear:animated];
     
-    if (_firstTime && self.locator.safeItemCount == 1)
+    if (_firstTime && self.locator.count == 1)
     {
-        VehicleUI *vehicle = [VehicleUI createFromData:[self.locator itemAtIndex:0]];
+        VehicleData *vehicle = self.locator[0];
         
         [vehicle mapTapped:self.backgroundTask];
     }
     
     _firstTime = NO;
     
-
 }
 
-- (void)fetchNearestVehicles:(id)arg
+- (void)workerToFetchNearestVehicles:(id)unused
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
@@ -90,7 +88,7 @@
     
     [self.locator findNearestVehicles:nil direction:nil blocks:nil];
     
-    if (self.locator.safeItemCount == 0)
+    if (self.locator.count == 0)
     {
         [thread cancel];
         [self.self.backgroundTask.callbackWhenFetching backgroundSetErrorMsg:kNoVehicles];
@@ -101,16 +99,16 @@
     [pool release];
 }
 
-- (void)fetchNearestVehiclesInBackground:(id<BackgroundTaskProgress>)background location:(CLLocation *)here maxDistance:(double)dist
+- (void)fetchNearestVehiclesAsync:(id<BackgroundTaskProgress>)background location:(CLLocation *)here maxDistance:(double)dist
 {
 	self.backgroundTask.callbackWhenFetching = background;
 	
-	self.locator = [[[XMLLocateVehicles alloc] init] autorelease];
+    self.locator = [XMLLocateVehicles xml];
 	
 	self.locator.location = here;
 	self.locator.dist     = dist;
 	
-	[NSThread detachNewThreadSelector:@selector(fetchNearestVehicles:) toTarget:self withObject:nil];
+	[NSThread detachNewThreadSelector:@selector(workerToFetchNearestVehicles:) toTarget:self withObject:nil];
 	
 }
 
@@ -124,7 +122,7 @@
 	{
 		case kSectionVehicles:
 		{
-			return self.locator.safeItemCount;
+			return self.locator.count;
 		}
 		case kSectionDisclaimer:
 			return 1;
@@ -167,9 +165,9 @@
 				
 			}
 			// Configure the cell
-			VehicleData *vehicle = [self.locator itemAtIndex:indexPath.row];
+			VehicleData *vehicle = self.locator[indexPath.row];
 			
-            if (LargeScreenStyle(self.screenInfo.screenWidth))
+            if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
             {
                 cell.textLabel.text = vehicle.signMessageLong;
             }
@@ -177,7 +175,7 @@
             {
                 cell.textLabel.text = vehicle.signMessage;
             }
-			cell.textLabel.font = [self getBasicFont];
+			cell.textLabel.font = self.basicFont;
 			cell.textLabel.adjustsFontSizeToFitWidth = YES;
             
             cell.detailTextLabel.text = [NSString stringWithFormat:@"Distance %@", [FormatDistance formatMetres:vehicle.distance ]];
@@ -185,6 +183,7 @@
 			[colorStripe setRouteColor:vehicle.routeNumber];
 		}
             break;
+        default:
         case kSectionDisclaimer:
             cell = [tableView dequeueReusableCellWithIdentifier:kDisclaimerCellId];
             if (cell == nil) {
@@ -212,7 +211,7 @@
 	{
 		case kSectionVehicles:
 		{
-            VehicleUI *vehicle = [VehicleUI createFromData:[self.locator itemAtIndex:indexPath.row]];
+            VehicleData *vehicle = self.locator[indexPath.row];
 			 
             [vehicle mapTapped:self.backgroundTask];
 			break;
@@ -240,7 +239,7 @@
 	// add our custom add button as the nav bar's custom right view
 	UIBarButtonItem *refreshButton = [[UIBarButtonItem alloc]
 									  initWithTitle:NSLocalizedString(@"Refresh", @"")
-									  style:UIBarButtonItemStyleBordered
+									  style:UIBarButtonItemStylePlain
 									  target:self
 									  action:@selector(refreshAction:)];
 	self.navigationItem.rightBarButtonItem = refreshButton;
@@ -249,7 +248,7 @@
 	
 	[self reloadData];
 	
-	if ([self.locator safeItemCount] > 0)
+	if (self.locator.count> 0)
 	{
 		[self.table scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]
 						  atScrollPosition:UITableViewScrollPositionTop
@@ -269,7 +268,7 @@
     
     XMLLocateVehicles * locator =[self.locator retain];
     
-    [self fetchNearestVehiclesInBackground:self.backgroundTask location:locator.location maxDistance:locator.dist];
+    [self fetchNearestVehiclesAsync:self.backgroundTask location:locator.location maxDistance:locator.dist];
     
     [locator release];
 }

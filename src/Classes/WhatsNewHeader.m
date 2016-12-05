@@ -19,12 +19,12 @@
 
 + (NSNumber*)getPrefix
 {
-    return [NSNumber numberWithChar:'.'];
+    return @'.';
 }
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell text:(NSString*)text
 {
-    int color = [UserPrefs getSingleton].toolbarColors;
+    int color = [UserPrefs singleton].toolbarColors;
 	
 	if (color == 0xFFFFFF)
     {

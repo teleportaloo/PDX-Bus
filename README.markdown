@@ -20,7 +20,7 @@ Features include:
 
 Route and arrival data provided by permission of TriMet.
 
-PDX Bus 8.1 sources
+PDX Bus 8.2 sources
 ====================
 
 I am making the sources to PDX Bus version 7.9 available as part of the
@@ -66,7 +66,7 @@ Links
 
 Things to know before building
 ------------------------------
-* PDX Bus is built with iPhone SDK 9.2 and Xcode 7.2 - available free
+* PDX Bus is built with iPhone SDK 9.2 and Xcode 8.0 - available free
 from [Apple](http://developer.apple.com) in their Mac App store.
 * Before building this code you will need to register with TriMet 
 to get a free "AppID" from [TriMet](http://developer.trimet.org/registration/),
@@ -185,6 +185,36 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Change log
 ----------
+### Version 9.0 (December 2016)
+* Watch app updated to WatchOS 2 (native app)
+* Fixed Trip Planner bug for when locale is not USA and AM and PM text changes in the query.
+* Older iOS version supported is now iOS8.  Removed deprecated calls for iOS6 and all iOS6 GUI tweaks.
+* Watch fetches stop names in the background.
+* Added detours directly to route page
+* New Streetcar map
+* Last located time on details page is now updated with the refresh timer
+* Updated to Xcode 8 - fixed leaks and other changes.
+* iOS8:  Removed references to UIBarButtonItemStyleBordered
+* iOS8:  Remvoed references to kCFDateFormatterNoStyle
+* iOS8:  Fixed calendar constants
+* iOS8:  Orientation - uses UIApplication sharedApplication statusBarOrientation instead of member variables 
+* iOS8:  Removed code that could not be executed.
+* iOS8:  Removed warnigns for undefined selectors.
+* iOS8:  NSPropertyListSerialization uses new selectors
+* iOS8:  Fixed Contacts for iOS9 and iOS10 to use CNContacts framework
+* iOS8:  Fixed search UI.
+* iOS8:  Removed settings code - now it can always use the built in settings.
+* iOS8:  Removed pre-overlay annotations from maps.
+* Added colors to trip maps, also straight lines where shapes are not available.
+* Addded Edit button and email bookmark button to end of bookmarks.
+* Restored ability to launch ticket app as the ticket app was fixed.
+* Fixed jagged edges on arrows representing vehicles by using UIGraphicsBeginImageContextWithOptions.
+* Updated to use "modern Objective-C" syntax.
+* Fixed bookmark editing to display message if bookmark not valid
+* Added a take me home bookmark construct
+* Fixed "insert" buttons on root view and edit bookmark view so they do the same as just touching the cell.
+
+
 ### Version 8.1 (June 2016)
 * iOS 6 fixed
 * Added debug option to turn off HTTPS for trimet queries.  This caused a user some issues with a VPN.

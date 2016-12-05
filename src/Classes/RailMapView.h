@@ -23,18 +23,18 @@
 #import "Hotspot.h"
 
 @interface RailMapHotSpots : UIView {
-	UIView* _mapView;
-	BOOL _hidden;
-	int _selectedItem;
-    CGPoint _touchPoint;
-    RAILMAP *_railMap;
+	UIView *        _mapView;
+	BOOL            _hidden;
+	int             _selectedItem;
+    CGPoint         _touchPoint;
+    RAILMAP *       _railMap;
 }
 
 @property (nonatomic, retain) UIView* mapView;
 @property (nonatomic) BOOL hidden;
 @property (nonatomic) int selectedItem;
 
-- (id)   initWithImageView:(UIView*)imgView map:(RAILMAP*)map;
+- (instancetype)   initWithImageView:(UIView*)imgView map:(RAILMAP*)map;
 - (void) fadeOut;
 - (void) selectItem:(int)i;
 - (void) touchAtPoint:(CGPoint) point;
@@ -61,31 +61,28 @@ typedef struct savedImageStruct
 } SAVED_IMAGE;
 
 @interface RailMapView : ViewControllerBase <ReturnStop, UIScrollViewDelegate, TapDetectingImageViewDelegate, UIAlertViewDelegate, DeselectItemDelegate>{
-	UIScrollView	*_scrollView;
-	bool _from;
-	bool _picker;
-	NSMutableArray *_stopIDs;
-	RailMapHotSpots *_hotSpots;
-	EasterEggState easterEgg;
-	int selectedItem;
-	StopLocations *_locationsDb;
-    CGPoint _tapPoint;
-    RAILMAP *_railMap;
-    int _railMapIndex;
-    TapDetectingImageView *_imageView;
-    UIImageView *_lowResBackgroundImage;
-    SAVED_IMAGE _savedImage[kRailMaps];
-    UISegmentedControl *_railMapSeg;
-    bool _showNextOnAppearance;
-    
+	UIScrollView *          _scrollView;
+	bool                    _from;
+	bool                    _picker;
+	NSMutableArray *        _stopIDs;
+	RailMapHotSpots *       _hotSpots;
+	EasterEggState          _easterEgg;
+	int                     _selectedItem;
+	StopLocations *         _locationsDb;
+    CGPoint                 _tapPoint;
+    RAILMAP *               _railMap;
+    int                     _railMapIndex;
+    TapDetectingImageView * _imageView;
+    UIImageView *           _lowResBackgroundImage;
+    SAVED_IMAGE             _savedImage[kRailMaps];
+    UISegmentedControl *    _railMapSeg;
+    bool                    _showNextOnAppearance;
 }
 
 + (void)initHotspotData;
 - (void)scannerInc:(NSScanner *)scanner;
 - (void)nextSlash:(NSScanner *)scanner intoString:(NSString **)substr;
 - (void)loadImage;
-+ (bool)RailMapSupported;
-
 
 #ifdef MAXCOLORS
 + (int)nHotspots;

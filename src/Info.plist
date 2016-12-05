@@ -30,7 +30,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>8.1</string>
+	<string>9.0</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -47,7 +47,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>8.1</string>
+	<string>9.0.2</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>comgooglemaps</string>
@@ -80,14 +80,14 @@
 				<key>NSIncludesSubdomains</key>
 				<true/>
 			</dict>
-			<key>trimet.org</key>
+			<key>qr2.it</key>
 			<dict>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
 				<true/>
 				<key>NSIncludesSubdomains</key>
 				<true/>
 			</dict>
-			<key>qr2.it</key>
+			<key>trimet.org</key>
 			<dict>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
 				<true/>
@@ -100,6 +100,8 @@
 	<string>Needed only for location alarms that trigger when you are near to a stop.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Needed for locating stops and vehicles.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>User can select a contact&apos;s address to plan a trip, and for placing a trip on a calendar.</string>
 	<key>NSMainNibFile</key>
 	<string>MainWindow</string>
 	<key>NSMainNibFile~ipad</key>
@@ -126,17 +128,19 @@
 	<array/>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
-		<string>UIRequiresFullScreen</string>
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
-		<string>UIRequiresFullScreen</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
+	<key>NSCalendarsUsageDescription</key>
+	<string>The app will add trip details to your calendar.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>The app only uses the camera while scanning QR codes.</string>
 </dict>
 </plist>

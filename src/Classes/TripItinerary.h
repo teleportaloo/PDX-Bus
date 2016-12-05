@@ -19,47 +19,43 @@
 #import "TripLegEndPoint.h"
 
 @interface TripItinerary : NSObject {
-	NSString *_xdate;
-	NSString *_xstartTime;
-	NSString *_xendTime;
-	NSString *_xduration;
-	NSString *_xdistance;
-	NSString *_xnumberOfTransfers;
-	NSString *_xnumberofTripLegs;
-	NSString *_xwalkingTime;
-	NSString *_xtransitTime;
-	NSString *_xwaitingTime;
-	NSMutableString *_fare;
-	NSMutableArray *_legs;
-	NSMutableArray *_displayEndPoints;
-	TripLegEndPoint *_startPoint;
-	NSString *_xmessage;
-	NSString *_travelTime;;
+	NSString *                          _xdate;
+	NSString *                          _xstartTime;
+	NSString *                          _xendTime;
+	NSString *                          _xduration;
+	NSString *                          _xdistance;
+	NSString *                          _xnumberOfTransfers;
+	NSString *                          _xnumberofTripLegs;
+	NSString *                          _xwalkingTime;
+	NSString *                          _xtransitTime;
+	NSString *                          _xwaitingTime;
+	NSMutableString *                   _fare;
+	NSMutableArray<TripLeg *> *         _legs;
+	NSMutableArray<TripLegEndPoint*> *  _displayEndPoints;
+	TripLegEndPoint *                   _startPoint;
+	NSString *                          _xmessage;
 }
 
-@property (nonatomic, retain) NSString		*xwaitingTime;
-@property (nonatomic, retain) NSString		*xdate;
-@property (nonatomic, retain) NSString		*xstartTime;
-@property (nonatomic, retain) NSString		*xendTime;
-@property (nonatomic, retain) NSString		*xduration;
-@property (nonatomic, retain) NSString		*xdistance;
-@property (nonatomic, retain) NSString		*xmessage;
-@property (nonatomic, retain) NSString		*xnumberOfTransfers;
-@property (nonatomic, retain) NSString		*xnumberofTripLegs;
-@property (nonatomic, retain) NSString		*xwalkingTime;
-@property (nonatomic, retain) NSString		*xtransitTime;
-@property (nonatomic, retain) NSMutableArray *legs;
-@property (nonatomic, retain) NSMutableArray *displayEndPoints;
+@property (nonatomic, copy) NSString *xwaitingTime;
+@property (nonatomic, copy) NSString *xdate;
+@property (nonatomic, copy) NSString *xstartTime;
+@property (nonatomic, copy) NSString *xendTime;
+@property (nonatomic, copy) NSString *xduration;
+@property (nonatomic, copy) NSString *xdistance;
+@property (nonatomic, copy) NSString *xmessage;
+@property (nonatomic, copy) NSString *xnumberOfTransfers;
+@property (nonatomic, copy) NSString *xnumberofTripLegs;
+@property (nonatomic, copy) NSString *xwalkingTime;
+@property (nonatomic, copy) NSString *xtransitTime;
+@property (nonatomic, retain) NSMutableArray<TripLeg *> *legs;
+@property (nonatomic, retain) NSMutableArray<TripLegEndPoint*> *displayEndPoints;
 @property (nonatomic, retain) NSMutableString *fare;
-@property (nonatomic, retain) NSString *travelTime;
 @property (nonatomic, retain) TripLegEndPoint *startPoint;
-
 - (TripLeg*)getLeg:(int)item;
-- (NSInteger)legCount;
-- (NSString *)getTravelTime;
-- (NSString *)getShortTravelTime;
-- (bool)hasFare;
+@property (nonatomic, readonly) NSInteger legCount;
+@property (nonatomic, readonly, copy) NSString *travelTime;
+@property (nonatomic, readonly, copy) NSString *shortTravelTime;
+@property (nonatomic, readonly) bool hasFare;
 - (NSString *)startPointText:(TripTextType)type;
-
 
 @end

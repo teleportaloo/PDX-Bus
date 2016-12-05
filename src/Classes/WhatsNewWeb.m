@@ -21,7 +21,7 @@
 
 + (NSNumber*)getPrefix
 {
-    return [NSNumber numberWithChar:'+'];
+    return @'+';
 }
 
 - (void)processAction:(NSString *)text parent:(ViewControllerBase*)parent

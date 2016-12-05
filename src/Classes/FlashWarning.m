@@ -24,17 +24,15 @@
 
 - (void)flashLight
 {
-    FlashViewController *flash = [[FlashViewController alloc] init];
-	[self.nav pushViewController:flash animated:YES];
-	[flash release];
+	[self.nav pushViewController:[FlashViewController viewController] animated:YES];
 }
 
-- (id)initWithNav:(UINavigationController *)newNav {
+- (instancetype)initWithNav:(UINavigationController *)newNav {
 	if ((self = [super init]))
 	{
         self.nav = newNav;
         
-        if ([UserPrefs getSingleton].flashingLightWarning)
+        if ([UserPrefs singleton].flashingLightWarning)
         {
             self.alert =  [[[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"Flashing Light", @"Alert title")
                                                         message:NSLocalizedString(@"If you have photosensitive epilepsy please be aware that you may be affected by the flashing light. Would you like to disable this feature?", @"Warning text")
@@ -70,11 +68,11 @@
 // Called when a button is clicked. The view will be automatically dismissed after this call returns
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-    [UserPrefs getSingleton].flashingLightWarning = NO;
+    [UserPrefs singleton].flashingLightWarning = NO;
     
     if (buttonIndex == 0)
     {
-        [UserPrefs getSingleton].flashingLightIcon = NO;
+        [UserPrefs singleton].flashingLightIcon = NO;
         if (self.parentBase != nil)
         {
             [self.parentBase updateToolbar];
@@ -82,7 +80,7 @@
     }
     else
     {
-        [UserPrefs getSingleton].flashingLightIcon = YES;
+        [UserPrefs singleton].flashingLightIcon = YES;
         if (self.parentBase != nil)
         {
             [self.parentBase updateToolbar];

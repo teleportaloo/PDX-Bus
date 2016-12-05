@@ -15,7 +15,7 @@
 #import "TriMetXML.h"
 
 
-@interface XMLRoutes : TriMetXML {
+@interface XMLRoutes : TriMetXML<Route*> {
 	Route *_currentRouteObject;
 }
 

@@ -59,7 +59,7 @@
 	[super dealloc];
 }
 
-- (id)init
+- (instancetype)init
 {
 	if ((self = [super init]))
 	{
@@ -97,15 +97,14 @@
 	
 	if (alerts)
 	{
-		NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
-		[dateFormatter setDateStyle:NSDateFormatterMediumStyle];
-		[dateFormatter setTimeStyle:NSDateFormatterLongStyle];
-		
 		DEBUG_LOG(@"Notifications %lu\n", (unsigned long)(unsigned long)alerts.count);
 	
 		for (UILocalNotification *notif in alerts)
 		{
-			DEBUG_LOG(@"Notif %@ %@\n", notif.alertBody, [dateFormatter stringFromDate:notif.fireDate]);
+			DEBUG_LOG(@"Notif %@ %@\n", notif.alertBody,
+                      [NSDateFormatter localizedStringFromDate:notif.fireDate
+                                                     dateStyle:NSDateFormatterMediumStyle
+                                                     timeStyle:NSDateFormatterLongStyle]);
 		}
 	}
 #endif
@@ -124,7 +123,7 @@
 		DEBUG_LOG(@"Attempting to cancel %@\n", self.alarm.alertBody);
 		[app cancelLocalNotification:self.alarm];
 		
-		NSArray *notifications = [app scheduledLocalNotifications];
+		NSArray *notifications = app.scheduledLocalNotifications;
 		
 		for (UILocalNotification *notif in notifications)
 		{
@@ -145,17 +144,13 @@
  defaultSound:(bool)defaultSound;
 {
 	UIApplication*    app = [UIApplication sharedApplication];
-    UserPrefs   *prefs = [UserPrefs getSingleton];
+    UserPrefs   *prefs = [UserPrefs singleton];
 
 	
 	[self cancelNotification];
 	
 	DEBUG_LOG(@"Alert: %@ \nuserInfo %d \nbutton %@ \ndefault sound %d\n",
 			  string, userInfo !=nil, button, defaultSound);
-    
-    NSDateFormatter *alertDateFormatter = [[[NSDateFormatter alloc] init] autorelease];
-    [alertDateFormatter setDateStyle:NSDateFormatterNoStyle];
-    [alertDateFormatter setTimeStyle:NSDateFormatterShortStyle];
     
     NSDate *displayDate = fireDate;
     
@@ -166,7 +161,7 @@
     
     NSString *approx = @"";
     
-    if ([displayDate timeIntervalSinceNow] > (10.0 * 60.0))
+    if (displayDate.timeIntervalSinceNow > (10.0 * 60.0))
     {
         approx = NSLocalizedString(@"Approximately ", "aproximately prefix before a date");
     }
@@ -177,10 +172,12 @@
 	self.alarm.timeZone						= [NSTimeZone defaultTimeZone];
 	self.alarm.repeatInterval				= 0;
 	self.alarm.repeatCalendar				= nil;
-	self.alarm.soundName					= defaultSound ? UILocalNotificationDefaultSoundName : [prefs alarmSoundFile] ;
+	self.alarm.soundName					= defaultSound ? UILocalNotificationDefaultSoundName : prefs.alarmSoundFile ;
 	self.alarm.alertBody					= [NSString stringWithFormat:@"%@%@ %@",
                                                approx,
-                                               [alertDateFormatter stringFromDate:displayDate], 
+                                               [NSDateFormatter localizedStringFromDate:displayDate
+                                                                              dateStyle:NSDateFormatterNoStyle
+                                                                              timeStyle:NSDateFormatterShortStyle],
                                                string];
 	self.alarm.hasAction					= (userInfo != nil) || (button !=nil);
 	self.alarm.userInfo						= userInfo;
@@ -193,12 +190,10 @@
 	}
 	else 
 	{
-#ifdef DEBUG_ALARMS
-		NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
-		[dateFormatter setDateStyle:NSDateFormatterMediumStyle];
-		[dateFormatter setTimeStyle:NSDateFormatterLongStyle];
-		
-		DEBUG_LOG(@"Alert time %@\n", [dateFormatter stringFromDate:fireDate]);
+#ifdef DEBUG_ALARMS		
+		DEBUG_LOG(@"Alert time %@\n", [NSDateFormatter localizedStringFromDate:fireDate
+                                                                     dateStyle:NSDateFormatterMediumStyle
+                                                                     timeStyle:NSDateFormatterLongStyle]);
 #endif
 		
 		[app scheduleLocalNotification:self.alarm];
@@ -367,7 +362,7 @@
 
 - (NSString*)appState
 {
-    NSMutableString *str = [[[NSMutableString alloc] init] autorelease];
+    NSMutableString *str = [NSMutableString string];
 #define CASE_ENUM_TO_STR(X)  case X: [str appendFormat:@"%s", #X]; break
     UIApplicationState appState = [UIApplication sharedApplication].applicationState;
     

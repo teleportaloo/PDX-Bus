@@ -32,23 +32,22 @@
 
 @interface AlarmTaskList : NSObject <AlarmObserver, ExternalDisplayDeviceDelegate>
 {
-	NSMutableDictionary *_backgroundTasks;
-    NSMutableArray *_orderedTaskKeys;
-    NSMutableArray *_newTaskKeys;
-	id<AlarmObserver> _observer;
-	UIBackgroundTaskIdentifier _taskId; 
-	NSThread *_backgroundThread;
-	bool _batchUpdate;
-    bool _atomicTaskRunning;
-    
-    NSArray *_externalDisplays;
+	NSMutableDictionary *       _backgroundTasks;
+    NSMutableArray *            _orderedTaskKeys;
+    NSMutableArray *            _newTaskKeys;
+	id<AlarmObserver>           _observer;
+	UIBackgroundTaskIdentifier  _taskId;
+	NSThread *                  _backgroundThread;
+	bool                        _batchUpdate;
+    bool                        _atomicTaskRunning;
+    NSArray *                   _externalDisplays;
 }
 
 @property (nonatomic, retain) id<AlarmObserver> observer;
 @property (retain) NSThread *backgroundThread;
 
 
-+ (AlarmTaskList*)getSingleton;
++ (AlarmTaskList*)singleton;
 + (bool)supported;
 + (bool)proximitySupported;
 - (void)addTaskForDeparture:(DepartureData *)dep mins:(uint)mins;
@@ -65,8 +64,8 @@
 - (void)taskUpdate:(id)task;
 - (void)taskDone:(id)task;
 - (void)taskStarted:(id)task;
-- (NSInteger)taskCount;
-- (NSArray *)taskKeys;
+@property (nonatomic, readonly) NSInteger taskCount;
+@property (nonatomic, readonly, copy) NSArray *taskKeys;
 - (AlarmTask *)taskForKey:(NSString *)key;
 - (void)userAlertForProximity:(id<UIAlertViewDelegate>) delegate;
 - (bool)userAlertForProximityAction:(NSInteger)button

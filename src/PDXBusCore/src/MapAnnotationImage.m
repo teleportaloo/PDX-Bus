@@ -29,29 +29,33 @@
 
 static MapAnnotationImage *singleton = nil;
 
-- (id)init {
+- (instancetype)init {
     if ((self = [super init]))
     {
-        self.imageCache = [[[NSMutableDictionary alloc] init] autorelease];
-        self.imageFile = [UserPrefs getSingleton].busIcon;
+        self.imageCache = [NSMutableDictionary dictionary];
+        self.imageFile = [UserPrefs singleton].busIcon;
+        _hits = 0;
     }
     
     return self;
 }
 
-+ (MapAnnotationImage*)getSingleton
++ (MapAnnotationImage*)singleton
 {
-    if (singleton == nil)
-    {
-        singleton = [[[MapAnnotationImage alloc] init] autorelease];
+    @synchronized (self) {
         
-        return singleton;
+        if (singleton == nil)
+        {
+            singleton = [[[MapAnnotationImage alloc] init] autorelease];
+            
+            return singleton;
+        }
+        else
+        {
+            return [[singleton retain] autorelease];
+        }
     }
-    else
-    {
-        return [[singleton retain] autorelease];
-    }
-    
+
     return nil;
 }
 
@@ -59,7 +63,10 @@ static MapAnnotationImage *singleton = nil;
 {
     self.imageCache = nil;
     self.imageFile = nil;
-    singleton = nil;
+    
+    @synchronized (self) {
+        singleton = nil;
+    }
     
     DEBUG_LOG(@"Image cache removed.\n");
     
@@ -71,7 +78,7 @@ static MapAnnotationImage *singleton = nil;
 {
     
     CGSize rotateSize =  sourceImage.size;
-    UIGraphicsBeginImageContext(rotateSize);
+    UIGraphicsBeginImageContextWithOptions(rotateSize, NO, 0.0);
     CGContextRef context = UIGraphicsGetCurrentContext();
     CGContextTranslateCTM(context, rotateSize.width/2, rotateSize.height/2);
     CGContextRotateCTM(context, ( degrees * M_PI/180.0 ) );
@@ -87,9 +94,8 @@ static MapAnnotationImage *singleton = nil;
 
 - (UIImage *)tintImage:(UIImage *)sourceImage color:(UIColor *)color
 {
-
     CGRect rect = { 0,0, sourceImage.size.width, sourceImage.size.height};
-    UIGraphicsBeginImageContext(rect.size);
+    UIGraphicsBeginImageContextWithOptions(rect.size, NO, 0.0);
     CGContextRef context = UIGraphicsGetCurrentContext();
     
     CGContextSetFillColorWithColor(context, color.CGColor);
@@ -109,7 +115,7 @@ static MapAnnotationImage *singleton = nil;
 {
     if ( ABS(mapRotation - self.lastMapRotation) > 0.001 )
     {
-        self.imageCache = [[[NSMutableDictionary alloc] init] autorelease];
+        self.imageCache = [NSMutableDictionary dictionary];
         self.lastMapRotation = mapRotation;
     }
     
@@ -117,27 +123,27 @@ static MapAnnotationImage *singleton = nil;
     
     NSString *image = self.forceRetinaImage ? kIconUp2x : kIconUp;
     
+    /*
     if (bus)
     {
-        rotation += 360*3;   // this just makes them different!
-        image = self.imageFile;
+        // rotation += 360*3;   // this just makes them different!
+        // image = self.imageFile;
     }
+    */
     
-    NSNumber *rot = [NSNumber numberWithDouble:rotation];
-    
-    UIImage *arrow = [self.imageCache objectForKey:rot];
+    UIImage *arrow = self.imageCache[@(rotation)];
     
     if (arrow == nil)
     {
-        arrow = [self rotatedImage:[UIImage imageNamed:image ] byDegreesFromNorth:total];
+        arrow = [self rotatedImage:[UIImage imageNamed:image] byDegreesFromNorth:total];
+ 
+        self.imageCache[@(rotation)] = arrow;
         
-        [self.imageCache setObject:arrow forKey:rot];
-        
-        DEBUG_LOG(@"Cache %f %lu\n", rotation, (unsigned long)self.imageCache.count);
+        DEBUG_LOG(@"Cache miss %03u %-3.2f\n", (unsigned int)self.imageCache.count, rotation );
     }
     else
     {
-        DEBUG_LOG(@"Cache hit %f\n", rotation);
+        DEBUG_LOG(@"Cache hit  %03u %-3.2f\n", (unsigned int)++_hits, rotation);
     }
     
     return arrow;
@@ -155,7 +161,7 @@ static MapAnnotationImage *singleton = nil;
 
 - (void)clearCache
 {
-    self.imageCache = [[[NSMutableDictionary alloc] init] autorelease];
+    self.imageCache = [NSMutableDictionary dictionary];
 }
 
 

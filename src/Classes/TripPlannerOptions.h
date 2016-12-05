@@ -21,13 +21,13 @@
 	UISegmentedControl *_walkSegment;
 	UISegmentedControl *_modeSegment;
 	UISegmentedControl *_minSegment;
-	NSString *_info;	
+	NSString *          _info;	
 }
 
 @property (nonatomic, retain) UISegmentedControl *walkSegment;
 @property (nonatomic, retain) UISegmentedControl *modeSegment;
 @property (nonatomic, retain) UISegmentedControl *minSegment;
-@property (nonatomic, retain) NSString *info;
+@property (nonatomic, copy)   NSString *info;
 
 - (void)walkSegmentChanged:(id)sender;
 - (void)modeSegmentChanged:(id)sender;

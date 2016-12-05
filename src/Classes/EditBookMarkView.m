@@ -27,9 +27,11 @@
 #import "DayOfTheWeekView.h"
 #import "SegmentCell.h"
 #import "StringHelper.h"
+#import "CellLabel.h"
 
 enum SECTIONS_AND_ROWS
 {
+    kTableMessage,
     kTableName,
     kTableStops,
     kTableSectionTrip,
@@ -46,12 +48,18 @@ enum SECTIONS_AND_ROWS
     kTableRowTime
 } ;
 
+
+#define kTakeMeHomeText NSLocalizedString(@"This page enables you to create a bookmark that will search for a route from your #icurrent location#i to a destination, leaving immediately.\n\nFor example, use it to create a #BTake Me Home Now#0 trip.", \
+                                          @"take me home text")
+
+
+#define kIncompleteStopMsg NSLocalizedString(@"#RThe bookmark was incomplete. Please add a stop.", @"error text")
+#define kIncompleteTripMsg NSLocalizedString(@"#RThe bookmark was incomplete. Please check locations.", @"error text")
+
 #define kUIEditHeight			55.0
 #define kUIRowHeight			40.0
 
 @implementation EditBookMarkView
-
-
 
 @synthesize originalFave	= _originalFave;
 @synthesize stops			= _stops;
@@ -59,8 +67,9 @@ enum SECTIONS_AND_ROWS
 @synthesize item			= _item;
 @synthesize editCell		= _editCell;
 @synthesize userRequest		= _userReq;
-
-
+@synthesize invalidItem     = _invalidItem;
+@synthesize msg             = _msg;
+@synthesize newBookmark     = _newBookmark;
 
 - (void)dealloc {
 	
@@ -69,15 +78,19 @@ enum SECTIONS_AND_ROWS
 	self.originalFave = nil;
 	self.editCell = nil;
 	self.userRequest = nil;
+    self.msg = nil;
 	[super dealloc];
 }
 
 
-- (id)init {
+- (instancetype)init {
 	if ((self = [super init]))
 	{
 		// clear the last run so the commute bookmark can be tested
-		[SafeUserData getSingleton].lastRun = nil;
+		[SafeUserData singleton].lastRun = nil;
+        self.invalidItem = NO;
+        _updateNameFromDestination = NO;
+        _newBookmark = NO;
 	}
 	return self;
 }
@@ -85,6 +98,13 @@ enum SECTIONS_AND_ROWS
 -(void) setupArrivalSections
 {
     [self clearSectionMaps];
+
+    if (self.invalidItem)
+    {
+        [self addSectionType:kTableMessage];
+        [self addRowType:kTableMessage];
+        self.msg = kIncompleteStopMsg;
+    }
     
     [self addSectionType:kTableName];
     [self addRowType:kTableName];
@@ -112,6 +132,13 @@ enum SECTIONS_AND_ROWS
 {
     [self clearSectionMaps];
     
+    if (self.invalidItem)
+    {
+        [self addSectionType:kTableMessage];
+        [self addRowType:kTableMessage];
+        self.msg = kIncompleteTripMsg;
+    }
+    
     [self addSectionType:kTableName];
     [self addRowType:kTableName];
     
@@ -130,6 +157,32 @@ enum SECTIONS_AND_ROWS
 	_stopSection   = kNoRowSectionTypeFound;
 }
 
+
+-(void) setupTakeMeHomeSections
+{
+    [self clearSectionMaps];
+    
+    [self addSectionType:kTableMessage];
+    [self addRowType:kTableMessage];
+    self.msg = kTakeMeHomeText;
+    
+    [self addSectionType:kTableName];
+    [self addRowType:kTableName];
+    
+    [self addSectionType:kTableSectionTrip];
+    [self addRowType:kTableTripRowTo];
+    [self addRowType:kTableTripRowOptions];
+    
+    [self addSectionType:kTableRun];
+    [self addRowType:kTableRun];
+    
+    [self addSectionType:kTableDelete];
+    [self addRowType:kTableDelete];
+    
+    _stopSection   = kNoRowSectionTypeFound;
+}
+
+
 #pragma mark Commuter Helper functions
 
 - (bool)autoCommuteEnabled
@@ -137,9 +190,9 @@ enum SECTIONS_AND_ROWS
 	bool autoCommute = NO;
 	if (self.originalFave!=nil)
 	{
-		NSNumber *days = [self.originalFave objectForKey:kUserFavesDayOfWeek];
+		NSNumber *days = self.originalFave[kUserFavesDayOfWeek];
 		
-		if ([days intValue]!=kDayNever)
+		if (days.intValue!=kDayNever)
 		{
 			autoCommute = YES;
 		}
@@ -149,12 +202,12 @@ enum SECTIONS_AND_ROWS
 
 - (bool)autoCommuteMorning
 {
-	NSNumber *num = [self.originalFave objectForKey:kUserFavesMorning];
+	NSNumber *num = self.originalFave[kUserFavesMorning];
 	bool morning = TRUE;
 	
 	if (num)
 	{
-		morning = [num boolValue];
+		morning = num.boolValue;
 	}
 	
 	return morning;
@@ -162,12 +215,12 @@ enum SECTIONS_AND_ROWS
 
 - (NSString *)daysPostfix
 {
-	NSNumber *num = [self.originalFave objectForKey:kUserFavesDayOfWeek];
+	NSNumber *num = self.originalFave[kUserFavesDayOfWeek];
 	int days = kDayNever;
 	
 	if (num)
 	{
-		days = [num intValue];
+		days = num.intValue;
 	}
 	
 	if (days == kDayNever)
@@ -184,12 +237,12 @@ enum SECTIONS_AND_ROWS
 
 - (NSString *)dayPrefix
 {
-	NSNumber *num = [self.originalFave objectForKey:kUserFavesDayOfWeek];
+	NSNumber *num = self.originalFave[kUserFavesDayOfWeek];
 	int days = kDayNever;
 	
 	if (num)
 	{
-		days = [num intValue];
+		days = num.intValue;
 	}
 	
 	switch (days)
@@ -205,12 +258,12 @@ enum SECTIONS_AND_ROWS
 
 - (NSString*)daysString
 {
-	NSNumber *num = [self.originalFave objectForKey:kUserFavesDayOfWeek];
+	NSNumber *num = self.originalFave[kUserFavesDayOfWeek];
 	int days = kDayNever;
 	
 	if (num)
 	{
-		days = [num intValue];
+		days = num.intValue;
 	}
 	
 	return [EditBookMarkView daysString:days];
@@ -223,9 +276,9 @@ enum SECTIONS_AND_ROWS
 		case kDayNever:
 			return NSLocalizedString(@"No days selected", @"error message");
 		case kDayWeekend:
-			return NSLocalizedString(@"weekend", @"");
+			return NSLocalizedString(@"weekend", @"short for Saturday and Sunday");
 		case kDayWeekday:
-			return NSLocalizedString(@"weekday", @"");
+			return NSLocalizedString(@"weekday", @"short for Monday - Friday");
 		case kDayAllWeek:
 			return NSLocalizedString(@"everyday in the", @"followed by <morning/afternoon>");
 		case kDayMon:
@@ -244,7 +297,7 @@ enum SECTIONS_AND_ROWS
 			return NSLocalizedString(@"Sunday",   @"full name for day of the week");
 		default:
 		{
-			NSMutableString *dayStr = [[[NSMutableString alloc] init] autorelease];
+			NSMutableString *dayStr = [NSMutableString string];
 			NSString *spacing = @"";
 			static NSString *space = @" ";
 			
@@ -275,7 +328,7 @@ enum SECTIONS_AND_ROWS
 {
 	UISegmentedControl *seg = (UISegmentedControl*)sender;
 	self.userRequest.timeChoice = (TripTimeChoice)seg.selectedSegmentIndex;
-	[self.originalFave setObject:[self.userRequest toDictionary] forKey:kUserFavesTrip];
+	self.originalFave[kUserFavesTrip] = self.userRequest.toDictionary;
 }
 
 #pragma mark TableViewWithToolbar methods
@@ -291,60 +344,79 @@ enum SECTIONS_AND_ROWS
 {
 	@synchronized (_userData)
 	{	
-		self.originalFave = [[[ NSMutableDictionary alloc ] init] autorelease];
+        self.originalFave = [NSMutableDictionary dictionary];
 		[_userData.faves addObject:self.originalFave];
-		self.item = [_userData.faves count]-1;
+		self.item = _userData.faves.count-1;
 	}
 }
 
 -(void)addBookMark
 {
 	[self makeNewFave];
-	[self.originalFave setObject:kNewBookMark forKey:kUserFavesChosenName];
-	self.stops = [[[NSMutableArray alloc] init] autorelease];
+	self.originalFave[kUserFavesChosenName] = kNewBookMark;
+    self.stops = [NSMutableArray array];
 	self.title = NSLocalizedString(@"Add Bookmark", @"screen title");
+    self.newBookmark = YES;
 	[self setupArrivalSections];
 }
 
 -(void)addTripBookMark
 {
 	[self makeNewFave];
-	[self.originalFave setObject:kNewTripBookMark forKey:kUserFavesChosenName];
+	self.originalFave[kUserFavesChosenName] = kNewTripBookMark;
 	
 	NSDictionary *lastTrip = _userData.lastTrip;
 	
 	if (lastTrip !=nil)
 	{
-		self.userRequest = [[[TripUserRequest alloc] initFromDict:lastTrip] autorelease];
+		self.userRequest = [TripUserRequest fromDictionary:lastTrip];
 		self.userRequest.dateAndTime = nil;
 		self.userRequest.arrivalTime = NO;
 	}
 	else
 	{
-		self.userRequest = [[[TripUserRequest alloc] init] autorelease];
+		self.userRequest = [TripUserRequest data];
 	}
 	
 	
 	self.userRequest.timeChoice = TripDepartAfterTime;
-	[self.originalFave setObject:[self.userRequest toDictionary] forKey:kUserFavesTrip];
+	self.originalFave[kUserFavesTrip] = self.userRequest.toDictionary;
 	self.title = NSLocalizedString(@"Add Trip Bookmark", @"screen title");
+    self.newBookmark = YES;
 	[self setupTripSections];
+}
+
+
+-(void)addTakeMeHomeBookMark
+{
+    [self makeNewFave];
+    
+    _updateNameFromDestination = YES;
+    self.originalFave[kUserFavesChosenName] = kNewTakeMeSomewhereBookMark;
+    self.userRequest = [TripUserRequest data];
+    self.userRequest.timeChoice = TripDepartAfterTime;
+    self.userRequest.fromPoint.useCurrentLocation = YES;
+    [self.userRequest clearGpsNames];
+    self.originalFave[kUserFavesTrip] = self.userRequest.toDictionary;
+    self.title = NSLocalizedString(@"Add a Take Me Somewhere Trip", @"screen title");
+    self.newBookmark = YES;
+    [self setupTakeMeHomeSections];
 }
 
 
 -(void)processStops:(NSString *)locs
 {
-    self.stops = [StringHelper arrayFromCommaSeparatedString:locs];
+    self.stops = locs.arrayFromCommaSeparatedString;
 }
 
 -(void) addBookMarkFromStop:(NSString *)desc location:(NSString *)locid
 {
 	[self makeNewFave];
-	[self.originalFave setObject:desc forKey:kUserFavesChosenName];
+	self.originalFave[kUserFavesChosenName] = desc;
 	[self processStops:locid];
 	self.userRequest = nil;
 	[self setupArrivalSections];
-	[self.originalFave setObject:locid forKey:kUserFavesLocation];
+	self.originalFave[kUserFavesLocation] = locid;
 	self.title = NSLocalizedString(@"Add Bookmark", @"screen title");
 }
 
@@ -358,11 +430,11 @@ enum SECTIONS_AND_ROWS
 		title = NSLocalizedString(@"New Trip", @"screen title");
 	}
 
-	[self.originalFave setObject:title forKey:kUserFavesChosenName];
+	self.originalFave[kUserFavesChosenName] = title;
 	self.stops = nil;
 	[self setupTripSections];
 	self.userRequest = tripQuery.userRequest;
-	[self.originalFave setObject:[tripQuery.userRequest toDictionary] forKey:kUserFavesTrip];
+	self.originalFave[kUserFavesTrip] = tripQuery.userRequest.toDictionary;
 	self.title = NSLocalizedString(@"Add bookmark", @"screen title");
 }
 
@@ -373,15 +445,14 @@ enum SECTIONS_AND_ROWS
 	self.item = i;
 	self.originalFave = fave;
 	
-	if ([fave valueForKey:kUserFavesTrip] == nil )
+	if (fave[kUserFavesTrip] == nil )
 	{	
-		[self processStops:[fave valueForKey:kUserFavesLocation]];
+		[self processStops:fave[kUserFavesLocation]];
 		[self setupArrivalSections];
 	}
-	else // if ([fave valueForKey:kUserFavesTrip] !=nil)
+	else // if (fave[kUserFavesTrip] !=nil)
 	{
-		self.userRequest = [[[TripUserRequest alloc] init] autorelease];
-		[self.userRequest fromDictionary:[fave valueForKey:kUserFavesTrip]];
+		self.userRequest = [TripUserRequest fromDictionary:fave[kUserFavesTrip]];
 		[self setupTripSections];
 	}
 		
@@ -411,52 +482,43 @@ enum SECTIONS_AND_ROWS
 
 - (void) selectFromRailMap
 {
-	RailMapView *rmView = [[RailMapView alloc] init];
+    RailMapView *rmView = [RailMapView viewController];
 	
 	rmView.callback = self;
 	
 	// Push the detail view controller
-	[[self navigationController] pushViewController:rmView animated:YES];
-	[rmView release];
+	[self.navigationController pushViewController:rmView animated:YES];
     
     _reloadArrival = YES;
 }
 
 - (void) selectFromRailStations
 {
-	AllRailStationView *rmView = [[AllRailStationView alloc] init];
+    AllRailStationView *rmView = [AllRailStationView viewController];
 	
 	rmView.callback = self;
 	
 	// Push the detail view controller
-	[[self navigationController] pushViewController:rmView animated:YES];
-	[rmView release];
-    
+	[self.navigationController pushViewController:rmView animated:YES];
     _reloadArrival = YES;
 }
 
 - (void) browseForStop
 {
-	RouteView *routeViewController = [[RouteView alloc] init];
+    RouteView *routeViewController = [RouteView viewController];
 	
 	routeViewController.callback = self;
 	
-	[routeViewController fetchRoutesInBackground:self.backgroundTask];
-	[routeViewController release];
-    
+	[routeViewController fetchRoutesAsync:self.backgroundTask];
     _reloadArrival = YES;
 }
 
 - (void) enterStopId
 {
-	AddNewStopToBookMark *add = [[AddNewStopToBookMark alloc] init];
-	
+    AddNewStopToBookMark *add = [AddNewStopToBookMark viewController];
 	add.callback = self;
-	
 	// Push the detail view controller
-	[[self navigationController] pushViewController:add animated:YES];
-	[add release];
-    
+	[self.navigationController pushViewController:add animated:YES];
     _reloadArrival = YES;
 }
 
@@ -465,18 +527,16 @@ enum SECTIONS_AND_ROWS
 	if (self.originalFave !=nil)	{
 		NSMutableString *locations = [[NSMutableString alloc] init];
 		
-		int i;
-		
-		if ([self.stops count] > 0)
+		if (self.stops.count > 0)
 		{
-			[locations appendFormat:@"%@", [self.stops objectAtIndex:0]];
-			for (i=1; i< [self.stops count]; i++)
+			[locations appendFormat:@"%@", self.stops.firstObject];
+			for (NSString *stop in self.stops)
 			{
-				[locations appendFormat:@",%@",[self.stops objectAtIndex:i]];
+				[locations appendFormat:@",%@",stop];
 			}
 		}
 		
-		[self.originalFave setObject:locations forKey:kUserFavesLocation];
+		self.originalFave[kUserFavesLocation] = locations;
 		[locations release];
 		return YES;
 	}
@@ -518,6 +578,9 @@ enum SECTIONS_AND_ROWS
     
     switch ([self rowType:indexPath])
     {
+        case kTableMessage:
+            result = [self getAtrributedTextHeight:[self.msg formatAttributedStringWithFont:self.paragraphFont]] + kCellLabelTotalYInset;
+            break;
         case kTableName:
             result = [CellTextField cellHeight];
             break;
@@ -567,7 +630,7 @@ enum SECTIONS_AND_ROWS
     cell.textLabel.text = text;
     
     [self maybeAddSectionToAccessibility:cell indexPath:indexPath alwaysSaySection:YES];
-    cell.textLabel.font = [self getBasicFont];
+    cell.textLabel.font = self.basicFont;
     cell.textLabel.adjustsFontSizeToFitWidth = YES;
     return cell;
 
@@ -575,9 +638,32 @@ enum SECTIONS_AND_ROWS
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	
-	
-	switch([self rowType:indexPath])
+    NSInteger rowType = [self rowType:indexPath];
+    
+	switch(rowType)
     {
+        case kTableMessage:
+        {
+            NSString *cellId = MakeCellIdW(kTableMessage,self.screenInfo.appWinWidth);
+            
+            NSAttributedString *text = [self.msg formatAttributedStringWithFont:self.paragraphFont];
+            
+            CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:cellId];
+            if (cell == nil) {
+                cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellId] autorelease];
+                cell.view = [self create_UITextView:nil font:self.paragraphFont];
+            }
+            
+            cell.view.font =  self.paragraphFont;
+            cell.view.attributedText =  text;
+            [cell.view setAdjustsFontSizeToFitWidth:NO];
+            cell.view.backgroundColor = [UIColor clearColor];
+            
+            [self updateAccessibility:cell indexPath:indexPath text:text.string alwaysSaySection:YES];
+            
+            return cell;
+            break;
+        }
         case kTableName:
         {
             if (self.editCell == nil)
@@ -587,11 +673,11 @@ enum SECTIONS_AND_ROWS
                 self.editCell.view = [self createTextField_Rounded];
                 self.editCell.delegate = self;
             }
-            self.editCell.view.text = [self.originalFave objectForKey:kUserFavesChosenName];
+            self.editCell.view.text = self.originalFave[kUserFavesChosenName];
             return self.editCell;
         }
         case kTableStops:
-            return [self plainCell:tableView text:[self.stops objectAtIndex:indexPath.row] indexPath:indexPath];
+            return [self plainCell:tableView text:self.stops[indexPath.row] indexPath:indexPath];
         case kTableRowStopId:
             return [self plainCell:tableView text: NSLocalizedString(@"Add new stop ID", @"button text") indexPath:indexPath];
         case kTableRowStopBrowse:
@@ -620,7 +706,7 @@ enum SECTIONS_AND_ROWS
         case kTableTripRowFrom:
         case kTableTripRowTo:
         {
-            CGFloat h = [self tableView:[self table] heightForRowAtIndexPath:indexPath];
+            CGFloat h = [self tableView:self.table heightForRowAtIndexPath:indexPath];
             CGFloat w = [TripLeg bodyTextWidth:self.screenInfo];
             NSString *cellIdentifier = [NSString stringWithFormat:@"TripLeg%f+%f", h,w];
             
@@ -663,7 +749,7 @@ enum SECTIONS_AND_ROWS
             UITableViewCell *cell = (UITableViewCell *)[tableView dequeueReusableCellWithIdentifier:cellId];
             if (cell == nil)
             {
-                CGFloat h = [self tableView:[self table] heightForRowAtIndexPath:indexPath];
+                CGFloat h = [self tableView:self.table heightForRowAtIndexPath:indexPath];
                 
                 cell = [TripLeg tableviewCellWithReuseIdentifier:cellId
                                                        rowHeight:h
@@ -685,9 +771,9 @@ enum SECTIONS_AND_ROWS
                 cell = [[[SegmentCell alloc] initWithStyle:UITableViewCellStyleDefault
                                            reuseIdentifier:MakeCellId(kTableRowTime)] autorelease];
                 
-                [cell createSegmentWithContent:[NSArray arrayWithObjects:
+                [cell createSegmentWithContent:@[
                                                 NSLocalizedString(@"Ask for Time",@"trip time in bookmark"),
-                                                NSLocalizedString(@"Depart Now",@"trip time in bookmark"),  nil]
+                                                NSLocalizedString(@"Depart Now",@"trip time in bookmark")]
                                         target:self
                                         action:@selector(timeSegmentChanged:)];
                 cell.isAccessibilityElement = NO;
@@ -704,13 +790,19 @@ enum SECTIONS_AND_ROWS
                 cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kTableDelete)] autorelease];
                 cell.textLabel.textAlignment = NSTextAlignmentLeft;
                 cell.textLabel.textColor = [UIColor redColor];
-                cell.textLabel.font = [self getBasicFont];
+                cell.textLabel.font = self.basicFont;
             }
             
             // Set up the cell
             
-            
-            cell.textLabel.text = NSLocalizedString(@"Delete bookmark", @"button text");
+            if (self.newBookmark)
+            {
+                cell.textLabel.text = NSLocalizedString(@"Cancel new bookmark", @"button text");
+            }
+            else
+            {
+                cell.textLabel.text = NSLocalizedString(@"Delete bookmark", @"button text");
+            }
             cell.imageView.image = [self getActionIcon:kIconDelete];
             [self maybeAddSectionToAccessibility:cell indexPath:indexPath alwaysSaySection:YES];
             return cell;
@@ -759,7 +851,7 @@ enum SECTIONS_AND_ROWS
             
     }
 	
-	return nil;
+	return [super tableView:tableView cellForRowAtIndexPath:indexPath];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -768,12 +860,11 @@ enum SECTIONS_AND_ROWS
             
         case kTableStops:
         {
-            DepartureTimesView *departureViewController = [[DepartureTimesView alloc] init];
+            DepartureTimesView *departureViewController = [DepartureTimesView viewController];
             departureViewController.callback = self;
-            [departureViewController fetchTimesForLocationInBackground:self.backgroundTask
-                                                                   loc:[self.stops objectAtIndex:indexPath.row]
-                                                                 title:[self.originalFave objectForKey:kUserFavesChosenName]];
-            [departureViewController release];
+            [departureViewController fetchTimesForLocationAsync:self.backgroundTask
+                                                                   loc:self.stops[indexPath.row]
+                                                                 title:self.originalFave[kUserFavesChosenName]];
             break;
         }
         case kTableRowStopBrowse:
@@ -791,11 +882,11 @@ enum SECTIONS_AND_ROWS
         case kTableTripRowFrom:
         case kTableTripRowTo:
         {
-            TripPlannerEndPointView *tripEnd = [[TripPlannerEndPointView alloc] init];
+            TripPlannerEndPointView *tripEnd = [TripPlannerEndPointView viewController];
             
             
             tripEnd.from = ([self rowType:indexPath]== kTableTripRowFrom) ;
-            tripEnd.tripQuery = [[[XMLTrips alloc] init] autorelease];
+            tripEnd.tripQuery = [XMLTrips xml];
             tripEnd.tripQuery.userRequest = self.userRequest;
             @synchronized (_userData)
             {
@@ -804,44 +895,53 @@ enum SECTIONS_AND_ROWS
             tripEnd.popBackTo = self;
             
             // Push the detail view controller
-            [[self navigationController] pushViewController:tripEnd animated:YES];
-            [tripEnd release];
+            [self.navigationController pushViewController:tripEnd animated:YES];
             _reloadTrip = YES;
             
             break;
         }
         case kTableTripRowOptions:
         {
-            TripPlannerOptions * options = [[ TripPlannerOptions alloc ] init];
+            TripPlannerOptions * options = [TripPlannerOptions viewController];
             
-            options.tripQuery = [[[XMLTrips alloc] init] autorelease];
+            options.tripQuery = [XMLTrips xml];
             options.tripQuery.userRequest = self.userRequest;
             
-            [[self navigationController] pushViewController:options animated:YES];
-            
-            
-            [options release];
+            [self.navigationController pushViewController:options animated:YES];
             _reloadTrip = YES;
             break;
             
         }
         case kTableRun:
         {
-            
-            TripPlannerDateView *tripDate = [[TripPlannerDateView alloc] init];
-            
-            [tripDate initializeFromBookmark:self.userRequest];
-            
-            @synchronized (_userData)
+            if ((self.userRequest.toPoint.useCurrentLocation || self.userRequest.toPoint.locationDesc!=nil)
+                && (self.userRequest.fromPoint.useCurrentLocation || self.userRequest.fromPoint.locationDesc!=nil))
             {
-                [tripDate.tripQuery addStopsFromUserFaves:_userData.faves];
+                TripPlannerDateView *tripDate = [TripPlannerDateView viewController];
+                
+                [tripDate initializeFromBookmark:self.userRequest];
+                
+                @synchronized (_userData)
+                {
+                    [tripDate.tripQuery addStopsFromUserFaves:_userData.faves];
+                }
+                
+                
+                // Push the detail view controller
+                [tripDate nextScreen:self.navigationController taskContainer:self.backgroundTask];
+
             }
-            
-            
-            // Push the detail view controller
-            [tripDate nextScreen:[self navigationController] taskContainer:self.backgroundTask];
-            [tripDate release];
-            
+            else {
+                [self.table deselectRowAtIndexPath:indexPath animated:YES];
+                
+                UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"Cannot continue", @"alert title")
+                                                                   message:NSLocalizedString(@"Select a start and destination to plan a trip.", @"alert message")
+                                                                  delegate:nil
+                                                         cancelButtonTitle:NSLocalizedString(@"OK", @"button text")
+                                                         otherButtonTitles:nil ] autorelease];
+                [alert show];
+            }
+                        
             break;
         }
         case kTableDelete:
@@ -850,17 +950,16 @@ enum SECTIONS_AND_ROWS
             {
                 [_userData.faves removeObjectAtIndex:self.item];
                 
-                [[self navigationController] popViewControllerAnimated:YES];
+                [self.navigationController popViewControllerAnimated:YES];
                 break;
             }
         }
         case kTableCommute:
         {
             _reloadArrival = YES;
-            DayOfTheWeekView *dow = [[DayOfTheWeekView alloc] init];
+            DayOfTheWeekView *dow = [DayOfTheWeekView viewController];
             dow.originalFave = self.originalFave;
-            [[self navigationController] pushViewController:dow animated:YES];
-            [dow release];
+            [self.navigationController pushViewController:dow animated:YES];
             break;
         }
     }
@@ -874,23 +973,14 @@ enum SECTIONS_AND_ROWS
 	if (editingStyle == UITableViewCellEditingStyleDelete) {
         [tableView beginUpdates];
 		[self.stops removeObjectAtIndex:indexPath.row];
-		[tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:YES];
+		[tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:YES];
 		[self updateStopsInFave];
         [self setupArrivalSections];
+        [self favesChanged];
         [tableView endUpdates];
 	}	
 	if (editingStyle == UITableViewCellEditingStyleInsert) {
-		// Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-		
-        switch ([self rowType:indexPath])
-		{
-			case kTableRowStopBrowse:
-				[self browseForStop];
-				break;
-			case kTableRowStopId:
-				[self enterStopId];
-				break;
-		}
+        [self tableView:tableView didSelectRowAtIndexPath:indexPath];
 	}	
 }
 
@@ -898,7 +988,7 @@ enum SECTIONS_AND_ROWS
 - (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath {
 	if ([self sectionType:indexPath.section] == kTableStops)
 	{
-		if ( indexPath.row < [self.stops count])
+		if ( indexPath.row < self.stops.count)
 		{
 			return UITableViewCellEditingStyleDelete;
 		}
@@ -921,7 +1011,7 @@ enum SECTIONS_AND_ROWS
 		case kTableDelete:
 		case kTableRun:
 		case kTableCommute:
-			
+        case kTableMessage:
 			return NO;
 	}	
 	return YES;
@@ -936,10 +1026,10 @@ enum SECTIONS_AND_ROWS
 				inSection:_stopSection];
 	}
 	
-	if (proposedDestinationIndexPath.row >= [self.stops count])
+	if (proposedDestinationIndexPath.row >= self.stops.count)
 	{
 		return [NSIndexPath 
-				indexPathForRow:[self.stops count]-1
+				indexPathForRow:self.stops.count-1
 				inSection:_stopSection];
 	}
 	
@@ -959,7 +1049,7 @@ enum SECTIONS_AND_ROWS
 	
     if ([self sectionType:fromIndexPath.section] == kTableStops && [self sectionType:toIndexPath.section] == kTableStops)
 	{
-		NSString *move = [[self.stops objectAtIndex:fromIndexPath.row] retain];
+		NSString *move = [self.stops[fromIndexPath.row] retain];
 		
 		if (fromIndexPath.row < toIndexPath.row)
 		{
@@ -992,7 +1082,7 @@ enum SECTIONS_AND_ROWS
 	// Add the following line if you want the list to be editable
 	// self.navigationItem.rightBarButtonItem = self.editButtonItem;
 	self.table.editing = YES;
-	_userData.favesChanged = YES;
+    [self favesChanged];
     [super viewDidLoad];
 	
 }
@@ -1007,13 +1097,30 @@ enum SECTIONS_AND_ROWS
 
 	if (_reloadTrip)
 	{
-		[self.originalFave setObject:[self.userRequest toDictionary] forKey:kUserFavesTrip];
+		self.originalFave[kUserFavesTrip] = self.userRequest.toDictionary;
+    
+        if (_updateNameFromDestination)
+        {
+            NSString *place = self.userRequest.toPoint.additionalInfo;
+            if (place == nil)
+            {
+                place = self.userRequest.toPoint.displayText;
+            }
+            
+            if (place == nil)
+            {
+                place = self.userRequest.toPoint.locationDesc;
+            }
+            self.originalFave[kUserFavesChosenName] = [NSString stringWithFormat:@"Take me to %@", place];
+        }
+        
 		[self reloadData];
 		_reloadTrip = FALSE;
 	}
 	
 	if (_reloadArrival)
 	{
+        [self favesChanged];
         [self setupArrivalSections];
 		[self reloadData];
 		_reloadArrival = FALSE;
@@ -1055,14 +1162,14 @@ enum SECTIONS_AND_ROWS
 
 - (void)cellDidEndEditing:(EditableTableViewCell *)cell
 {
-	UITextView *textView = (UITextView*)[(CellTextField*)cell view];
+	UITextView *textView = (UITextView*)((CellTextField*)cell).view;
 	if (textView.text.length !=0 && self.navigationItem.rightBarButtonItem != nil )
 	{
-		[self.originalFave setObject:textView.text forKey:kUserFavesChosenName];
+		self.originalFave[kUserFavesChosenName] = textView.text;
 	}
 	else
 	{
-		textView.text = [self.originalFave objectForKey:kUserFavesChosenName];
+		textView.text = self.originalFave[kUserFavesChosenName];
 	}
 }
 
@@ -1081,7 +1188,7 @@ enum SECTIONS_AND_ROWS
 
 -(void) selectedStop:(NSString *)stopId
 {
-	[[self navigationController] popToViewController:self animated:YES];
+	[self.navigationController popToViewController:self animated:YES];
 	[self.stops addObject:stopId];
 	[self updateStopsInFave];
 	[self reloadData];
@@ -1091,11 +1198,11 @@ enum SECTIONS_AND_ROWS
 {
 	if ([self.editCell.view.text isEqualToString:kNewBookMark])
 	{
-		[self.originalFave setObject:stopDesc forKey:kUserFavesChosenName];
+		self.originalFave[kUserFavesChosenName] = stopDesc;
 		self.editCell.view.text = stopDesc;
 	}
 	
-	[[self navigationController] popToViewController:self animated:YES];
+	[self.navigationController popToViewController:self animated:YES];
 	[self.stops addObject:stopId];
 	[self updateStopsInFave];
 	[self reloadData];
@@ -1114,12 +1221,12 @@ enum SECTIONS_AND_ROWS
 	
 	if ([self.editCell.view.text isEqualToString:kNewTripBookMark])
 	{
-		[self.originalFave setObject:[userRequest shortName] forKey:kUserFavesChosenName];
+		self.originalFave[kUserFavesChosenName] = userRequest.shortName;
 		self.editCell.view.text = [userRequest shortName];
 	}
 	
 	
-	[self.originalFave setObject:[userRequest toDictionary] forKey:kUserFavesTrip];
+	self.originalFave[kUserFavesTrip] = userRequest.toDictionary;
 	
 	[self reloadData];
 }

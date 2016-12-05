@@ -22,13 +22,13 @@
 
 
 @interface ProgressModalView : UIView {
-	UIActivityIndicatorView *_whirly;
-	UIProgressView *_progress;
-	id<ProgressDelegate> _progressDelegate;
-	UILabel *_subText;
-    UILabel *_helpText;
-   	int _totalItems;
-    int _itemsDone;
+	UIActivityIndicatorView *   _whirly;
+	UIProgressView *            _progress;
+	id<ProgressDelegate>        _progressDelegate;
+	UILabel *                   _subText;
+    UILabel *                   _helpText;
+   	int                         _totalItems;
+    int                         _itemsDone;
 }
 
 - (void) itemsDone:(int)itemsDone;

@@ -9,11 +9,11 @@
 
 @protocol WatchPinColor
 
-- (WKInterfaceMapPinColor)getPinColor;
-- (UIColor*)getPinTint;
-- (bool)hasBearing;
-- (double)bearing;
-- (CLLocationCoordinate2D)coord;
+@property (nonatomic, readonly) WKInterfaceMapPinColor pinColor;
+@property (nonatomic, readonly, copy) UIColor *pinTint;
+@property (nonatomic, readonly) bool hasBearing;
+@property (nonatomic, readonly) double doubleBearing;
+@property (nonatomic, readonly) CLLocationCoordinate2D coord;
 
 @end
 

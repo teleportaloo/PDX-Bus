@@ -27,6 +27,13 @@
 @synthesize productID;
 @synthesize normalizedProductID;
 
+- (void)dealloc
+{
+    [productID release];
+    [normalizedProductID release];
+    [super dealloc];
+}
+
 - (id)initWithProductID:(NSString*)newProductID
     normalizedProductID:(NSString*)newNormalizedProductID {
     if ((self = [super init]) != nil) {

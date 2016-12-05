@@ -27,52 +27,50 @@ typedef enum {
 } TripTimeChoice;
 
 
-@interface TripUserRequest : NSObject
+@interface TripUserRequest : DataFactory
 {
-	TripEndPoint	*_fromPoint;
-	TripEndPoint	*_toPoint;
+	TripEndPoint *  _fromPoint;
+	TripEndPoint *  _toPoint;
 	TripMode		_tripMode;
 	TripMin			_tripMin;
 	int				_maxItineraries;
 	float			_walk;
-	NSDate			*_dateAndTime;
+	NSDate *        _dateAndTime;
 	bool			_arrivalTime;
 	TripTimeChoice  _timeChoice;
-    bool            _takeMeHome;
     bool            _historical;
 }
 
-@property (nonatomic, retain) TripEndPoint	*fromPoint;
-@property (nonatomic, retain) TripEndPoint	*toPoint;
+@property (nonatomic, retain) TripEndPoint *fromPoint;
+@property (nonatomic, retain) TripEndPoint *toPoint;
 @property (nonatomic)	      TripMode		tripMode;
 @property (nonatomic)		  TripMin		tripMin;
 @property (nonatomic)		  int			maxItineraries;
 @property (nonatomic)		  float			walk;
 @property (nonatomic)		  bool			arrivalTime;
-@property (nonatomic, retain) NSDate		*dateAndTime;
+@property (nonatomic, retain) NSDate *      dateAndTime;
 @property (nonatomic)		  TripTimeChoice timeChoice;
-@property (nonatomic)         bool          takeMeHome;
 @property (nonatomic)         bool          historical;
 
-- (NSString *)getMode;
-- (NSString *)getMin;
-- (NSString *)minToString;
-- (NSString *)modeToString;
+@property (nonatomic, getter=getMode, readonly, copy) NSString *mode;
+@property (nonatomic, getter=getMin, readonly, copy) NSString *min;
+@property (nonatomic, readonly, copy) NSString *minToString;
+@property (nonatomic, readonly, copy) NSString *modeToString;
 
-- (id)initFromDict:(NSDictionary *)dict;
-- (id)init;
++ (instancetype)fromDictionary:(NSDictionary *)dict;
+- (instancetype)init;
 
-- (NSMutableDictionary *)toDictionary;
-- (bool)fromDictionary:(NSDictionary *)dict;
+@property (nonatomic, readonly, copy) NSMutableDictionary *toDictionary;
+- (bool)readDictionary:(NSDictionary *)dict;
 - (bool)equalsTripUserRequest:(TripUserRequest*)userRequest;
 
-- (NSString *)getTimeType;
+@property (nonatomic, getter=getTimeType, readonly, copy) NSString *timeType;
 
 - (NSString*)getDateAndTime;
-- (NSString*)tripName;
-- (NSString*)shortName;
-- (NSString*)optionsAccessability;
-- (NSString*)optionsDisplayText;
+@property (nonatomic, readonly, copy) NSString *tripName;
+@property (nonatomic, readonly, copy) NSString *shortName;
+@property (nonatomic, readonly, copy) NSString *optionsAccessability;
+@property (nonatomic, readonly, copy) NSString *optionsDisplayText;
 - (void)clearGpsNames;
 
 

@@ -15,7 +15,7 @@
 
 
 #import "NearestRoutesView.h"
-#import "RouteDistanceUI.h"
+#import "RouteDistanceData+iOSUI.h"
 #import "DepartureTimesView.h"
 
 #define kRouteSections		2
@@ -25,11 +25,12 @@
 @implementation NearestRoutesView
 
 @synthesize routeData = _routeData;
+@synthesize checked   = _checked;
 
 - (void)dealloc
 {
 	self.routeData = nil;
-	free(_checked);
+    self.checked = nil;
 	
 	[super dealloc];
 }
@@ -37,12 +38,11 @@
 #pragma mark -
 #pragma mark Initialization
 
-- (id) init
+- (instancetype) init
 {
 	if ((self = [super init]))
 	{
-		self.title = @"Routes";
-		_checked = nil;
+        self.title = NSLocalizedString(@"Routes",@"page title");
 	}
 	return self;
 }
@@ -61,7 +61,7 @@
 #pragma mark -
 #pragma mark Fetch data
 
-- (void)fetchNearestRoutes:(XMLLocateStopsUI*) locator
+- (void)workerToFetchNearestRoutes:(XMLLocateStops*) locator
 {
 	
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
@@ -72,13 +72,11 @@
 	
 	[locator displayErrorIfNoneFound:self.backgroundTask.callbackWhenFetching];
 	
-	free(_checked);
+    self.checked = [NSMutableArray array];
 	
-	_checked = malloc(sizeof(bool) * [self.routeData safeItemCount]);
-	
-	for (int i=0; i<[self.routeData safeItemCount]; i++)
+	for (int i=0; i<self.routeData.count; i++)
 	{
-		_checked[i] = NO;
+		self.checked[i] = @NO;
 	}
 	
 	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
@@ -86,18 +84,18 @@
 	[pool release];
 }
 
-- (void)fetchNearestRoutesInBackground:(id<BackgroundTaskProgress>)background location:(CLLocation *)here maxToFind:(int)max minDistance:(double)min mode:(TripMode)mode
+- (void)fetchNearestRoutesAsync:(id<BackgroundTaskProgress>)background location:(CLLocation *)here maxToFind:(int)max minDistance:(double)min mode:(TripMode)mode
 {
 	self.backgroundTask.callbackWhenFetching = background;
 	
-	self.routeData = [[[XMLLocateStopsUI alloc] init] autorelease];
+    self.routeData = [XMLLocateStops xml];
 	
 	self.routeData.maxToFind = max;
 	self.routeData.location = here;
 	self.routeData.mode = mode;
 	self.routeData.minDistance = min;
 	
-	[NSThread detachNewThreadSelector:@selector(fetchNearestRoutes:) toTarget:self withObject:self.routeData];
+	[NSThread detachNewThreadSelector:@selector(workerToFetchNearestRoutes:) toTarget:self withObject:self.routeData];
 	
 }
 
@@ -150,8 +148,8 @@
 	
 	// add our custom add button as the nav bar's custom right view
 	UIBarButtonItem *refreshButton = [[UIBarButtonItem alloc]
-									  initWithTitle:NSLocalizedString(@"Get arrivals", @"")
-									  style:UIBarButtonItemStyleBordered
+									  initWithTitle:NSLocalizedString(@"Get arrivals", @"button text")
+									  style:UIBarButtonItemStylePlain
 									  target:self
 									  action:@selector(showArrivalsAction:)];
 	self.navigationItem.rightBarButtonItem = refreshButton;
@@ -162,7 +160,7 @@
 - (void) viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    self.navigationItem.prompt = @"Select the routes you need:";
+    self.navigationItem.prompt = NSLocalizedString(@"Select the routes you need:", "page prompt");
 }
 
 - (void) viewWillDisappear:(BOOL)animated
@@ -175,13 +173,13 @@
 
 - (void)showArrivalsAction:(id)sender
 {
-	NSMutableArray *multipleStops = [[[NSMutableArray alloc] init] autorelease];
+    NSMutableArray *multipleStops = [NSMutableArray array];
 	
-	for (int i=0; i<[self.routeData safeItemCount]; i++)
+	for (int i=0; i<self.routeData.count; i++)
 	{
-		RouteDistanceData *rd = [self.routeData itemAtIndex:i];
+		RouteDistanceData *rd = (RouteDistanceData *)self.routeData[i];
 		
-		if (_checked[i])
+		if (self.checked[i].boolValue)
 		{
 			[multipleStops addObjectsFromArray:rd.stops];
 		}
@@ -190,7 +188,7 @@
 	[multipleStops sortUsingSelector:@selector(compareUsingDistance:)];
 	
 	// remove duplicates, they are sorted so the dups will be adjacent
-	NSMutableArray *uniqueStops = [[[NSMutableArray alloc] init] autorelease];
+    NSMutableArray *uniqueStops = [NSMutableArray array];
 
 	NSString *lastStop = nil;
 	for (StopDistanceData *sd in multipleStops)
@@ -209,9 +207,7 @@
 		
 	if (uniqueStops.count > 0)
 	{
-		DepartureTimesView *depView = [[DepartureTimesView alloc] init];
-		[depView fetchTimesForNearestStopsInBackground:self.backgroundTask stops:uniqueStops];
-		[depView release];
+		[[DepartureTimesView viewController] fetchTimesForNearestStopsAsync:self.backgroundTask stops:uniqueStops];
 	}
 }
 
@@ -225,7 +221,7 @@
 	switch (indexPath.section)
 	{
 		case kSectionRoutes:
-			if (LargeScreenStyle(self.screenInfo.screenWidth))
+			if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
 			{
 				return kRouteWideCellHeight;
 			}
@@ -248,7 +244,7 @@
 	switch (section)
 	{
 		case kSectionRoutes:
-			return [self.routeData safeItemCount];
+			return self.routeData.count;
 		case kSectionDisclaimer:
 			return 1;
 	}
@@ -266,16 +262,16 @@
 	{
 		case kSectionRoutes:
 		{
-			RouteDistanceData *rd = [self.routeData itemAtIndex:indexPath.row];
-            RouteDistanceUI *routeUI = [RouteDistanceUI createFromData:rd];
-			NSString *cellId = [routeUI cellReuseIdentifier:@"route" width:self.screenInfo.screenWidth];
+			RouteDistanceData *rd = (RouteDistanceData*)self.routeData[indexPath.row];
+
+			NSString *cellId = [rd cellReuseIdentifier:@"route" width:self.screenInfo.screenWidth];
 			cell = [tableView dequeueReusableCellWithIdentifier: cellId];
 			if (cell == nil) {
-				cell = [routeUI tableviewCellWithReuseIdentifier:cellId width:self.screenInfo.screenWidth];
+				cell = [rd tableviewCellWithReuseIdentifier:cellId width:self.screenInfo.screenWidth];
 			}
-			[routeUI populateCell:cell wide:self.screenInfo.screenWidth];
+			[rd populateCell:cell wide:self.screenInfo.screenWidth];
 			
-			if (_checked[indexPath.row])
+			if (self.checked[indexPath.row].boolValue)
 			{
 				cell.accessoryType = UITableViewCellAccessoryCheckmark;
 			}
@@ -285,7 +281,8 @@
 			}
 
 			break;
-		}	
+		}
+        default:
 		case kSectionDisclaimer:
 			cell = [tableView dequeueReusableCellWithIdentifier:kDisclaimerCellId];
 			if (cell == nil) {
@@ -357,13 +354,13 @@
 	{
 		case kSectionRoutes:
 		{
-			_checked[indexPath.row] = !_checked[indexPath.row];
+            self.checked[indexPath.row] = self.checked[indexPath.row].boolValue ? @NO : @YES;
 			[self reloadData];
 			[self.table deselectRowAtIndexPath:indexPath animated:YES];
 			/*
 			RouteDistance *rd = [self.routeData itemAtIndex:indexPath.row];
 			DepartureTimesView *depView = [[DepartureTimesView alloc] init];
-			[depView fetchTimesForNearestStopsInBackground:self.backgroundTask stops:rd.stops];
+			[depView fetchTimesForNearestStopsAsync:self.backgroundTask stops:rd.stops];
 			[depView release];
 			*/
 			break;

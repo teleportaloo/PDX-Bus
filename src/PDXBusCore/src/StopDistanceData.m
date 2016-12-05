@@ -32,7 +32,7 @@
 }
 
 
--(id)initWithLocId:(int)loc distance:(CLLocationDistance)dist accuracy:(CLLocationAccuracy)acc
+-(instancetype)initWithLocId:(int)loc distance:(CLLocationDistance)dist accuracy:(CLLocationAccuracy)acc
 {
 	if ((self = [super init]))
 	{
@@ -60,7 +60,7 @@
 }
 
 /*
-- (MKPinAnnotationColor) getPinColor
+- (MKPinAnnotationColor) pinColor
 {
 	return MKPinAnnotationColorGreen;
 }
@@ -98,7 +98,7 @@
 	return self.locid;
 }
 
-- (UIColor *)getPinTint
+- (UIColor *)pinTint
 {
     return nil;
 }

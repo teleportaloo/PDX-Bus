@@ -62,61 +62,61 @@
         elementName = qName;
     }
 	
-	if ([elementName isEqualToString:@"body"])
+	if (ELTYPE(body))
 	{
-		self.copyright = [self safeValueFromDict:attributeDict valueForKey:@"copyright"];
+		self.copyright = ATRVAL(copyright);
 	}
 	
-	if ([elementName isEqualToString:@"predictions"]) {
-		self.routeTitle = [self safeValueFromDict:attributeDict valueForKey:@"routeTitle"];
+	if (ELTYPE(predictions)) {
+		self.routeTitle = ATRVAL(routeTitle);
 		
-		self.directionTitle = [attributeDict valueForKey:@"dirTitleBecauseNoPredictions"];
+		self.directionTitle = [attributeDict objectForCaseInsensitiveKey:@"dirTitleBecauseNoPredictions"];
 #ifdef DEBUGLOGGING
-        self.stopTitle = [attributeDict valueForKey:@"stopTitle"];
+        self.stopTitle = attributeDict[@"stopTitle"];
 #endif
         
 		if (self.directionTitle!=nil)
 		{
 			[self initArray];
-			hasData = YES;
+			_hasData = YES;
 		}
 	}
 	
-	if ([elementName isEqualToString:@"direction"]) {
-		self.directionTitle = [self safeValueFromDict:attributeDict valueForKey:@"title"];
+	if (ELTYPE(direction)) {
+		self.directionTitle = ATRVAL(title);
 		
-		if (!hasData)
+		if (!_hasData)
 		{
 			[self initArray];
-			hasData = YES;
+			_hasData = YES;
 		}
 	}
 	
-    if ([elementName isEqualToString:@"prediction"])
+    if (ELTYPE(prediction))
 	{
         // Note - the vehicle is the block - I put the block into the streetcar block!
-		NSString *block = [self safeValueFromDict:attributeDict valueForKey:@"block"];
+		NSString *block = ATRVAL(block);
 		if ((self.blockFilter==nil) || ([self.blockFilter isEqualToString:block]))
 		{
 			NSString *name = [NSString stringWithFormat:@"%@ %@", self.routeTitle, self.directionTitle];
             
             // There are some bugs in the streetcar feed (e.g. Cl instead of CL)
 			
-			self.currentDepartureObject = [[[DepartureData alloc] init] autorelease];
+            self.currentDepartureObject = [DepartureData data];
 			self.currentDepartureObject.hasBlock       = true;
 			self.currentDepartureObject.route          = nil;
 			self.currentDepartureObject.fullSign       = name;
 			self.currentDepartureObject.routeName      = name;
 			self.currentDepartureObject.block          = block;
 			self.currentDepartureObject.status         = kStatusEstimated;
-			self.currentDepartureObject.nextBus        = [self getTimeFromAttribute:attributeDict valueForKey:@"minutes"];
+			self.currentDepartureObject.nextBus        = ATRTIM(minutes);
 			self.currentDepartureObject.streetcar      = true;
             self.currentDepartureObject.dir            = nil;
 			self.currentDepartureObject.copyright      = self.copyright;
-            self.currentDepartureObject.streetcarId    = [self safeValueFromDict:attributeDict valueForKey:@"vehicle"];
+            self.currentDepartureObject.streetcarId    = ATRVAL(vehicle);
 			
 			/*
-			[[self safeValueFromDict:attributeDict valueForKey:@"dirTag"] isEqualToString:@"t5"]
+			[ATRVAL(dirTag"] isEqualToString:@"t5"]
 														? @"1" : @"0";
 			*/
 			

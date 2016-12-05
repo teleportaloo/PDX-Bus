@@ -17,26 +17,32 @@
 
 
 @interface SimpleAnnotation : NSObject <MapPinColor> {
-	NSString *_pinTitle;
-	NSString *_pinSubtitle;
-	MKPinAnnotationColor _pinColor;
-	CLLocationCoordinate2D coord;
-    UIColor *_pinTint;
-    double _bearing;
-    bool _hasBearing;
+	NSString *              _pinTitle;
+	NSString *              _pinSubtitle;
+	MKPinAnnotationColor    _pinColor;
+	CLLocationCoordinate2D  _coordinate;
+    UIColor *               _pinTint;
+    UIColor *               _pinSubTint;
+    double                  _bearing;
+    bool                    _hasBearing;
 }
 
-- (NSString *)title;
-- (NSString *)subtitle;
-- (MKPinAnnotationColor) getPinColor;
-- (void)setCoord:(CLLocationCoordinate2D)value;
-- (bool)showActionMenu;
-- (void)setBearing:(double)bearing;
++ (instancetype)annotation;
 
-@property (nonatomic,retain) NSString *pinTitle;
-@property (nonatomic,retain) NSString *pinSubtitle;
+@property (nonatomic, readonly, copy) NSString *title;
+@property (nonatomic, readonly, copy) NSString *subtitle;
 @property (nonatomic) MKPinAnnotationColor pinColor;
-@property (nonatomic, retain) UIColor *pinTint;
+@property (nonatomic) CLLocationCoordinate2D coordinate;
+@property (nonatomic, readonly) bool showActionMenu;
+- (void)setDoubleBearing:(double)bearing;
+@property (nonatomic, copy) NSString *pinTitle;
+@property (nonatomic, copy) NSString *pinSubtitle;
+@property (nonatomic, copy) UIColor *pinTint;
+@property (nonatomic, copy) UIColor *pinSubTint;
+
+
+
+
 
 
 @end

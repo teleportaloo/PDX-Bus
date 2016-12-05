@@ -20,7 +20,7 @@
 
 static void HSVFromUIColor( UIColor* color, float* h, float* s, float* v )
 {
-	CGColorRef colorRef = [ color CGColor ];
+	CGColorRef colorRef = color.CGColor ;
 	
 	const CGFloat* components = CGColorGetComponents( colorRef );
 	size_t numComponents = CGColorGetNumberOfComponents( colorRef );
@@ -105,7 +105,7 @@ static void HSVFromUIColor( UIColor* color, float* h, float* s, float* v )
 #pragma mark	Creation
 //------------------------------------------------------------------------------
 
-- (id) initWithNibName: (NSString*) nibNameOrNil bundle: (NSBundle*) nibBundleOrNil
+- (instancetype) initWithNibName: (NSString*) nibNameOrNil bundle: (NSBundle*) nibBundleOrNil
 {
 	self = [ super initWithNibName: nibNameOrNil bundle: nibBundleOrNil ];
 	

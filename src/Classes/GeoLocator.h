@@ -13,9 +13,9 @@
 
 @interface GeoLocator : NSObject
 {
-    bool _waitingForGeocoder;
-    CLLocation *_result;
-    NSError *_error;
+    bool            _waitingForGeocoder;
+    CLLocation *    _result;
+    NSError *       _error;
 }
 
 + (bool) supported;

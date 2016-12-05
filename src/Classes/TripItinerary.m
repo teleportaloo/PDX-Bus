@@ -31,7 +31,6 @@
 @synthesize legs				= _legs;
 @synthesize displayEndPoints    = _displayEndPoints;
 @synthesize fare			    = _fare;
-@synthesize travelTime          = _travelTime;
 @synthesize startPoint			= _startPoint;
 
 - (void)dealloc {
@@ -48,16 +47,17 @@
 	self.legs					= nil;
 	self.xmessage				= nil;
 	self.fare					= nil;
-	self.travelTime				= nil;
 	self.xnumberOfTransfers     = nil;
 	self.xnumberofTripLegs      = nil;
+    self.displayEndPoints       = nil;
+    self.startPoint             = nil;
 	[super dealloc];
 }
 
-- (id)init {
+- (instancetype)init {
 	if ((self = [super init]))
 	{
-		self.legs = [[[ NSMutableArray alloc ] init] autorelease];
+        self.legs = [NSMutableArray array];
 		
 		
 	}
@@ -66,23 +66,23 @@
 
 - (bool)hasFare
 {
-	return self.fare != nil && [self.fare length]!=0;
+	return self.fare != nil && self.fare.length!=0;
 }
 
 - (TripLeg*) getLeg:(int)item
 {
-	return [self.legs objectAtIndex:item];
+	return self.legs[item];
 }
 
-- (NSString *)getShortTravelTime
+- (NSString *)shortTravelTime
 {
 	
-	NSMutableString *strTime = [[[NSMutableString alloc] init] autorelease];
-	int t = [self.xduration intValue];
+	NSMutableString *strTime = [NSMutableString string];
+	int t = self.xduration.intValue;
 	int h = t/60;
 	int m = t%60;
     
-	[strTime appendFormat:@"Travel time: %d:%02d", h, m];
+	[strTime appendFormat:NSLocalizedString(@"Travel time: %d:%02d", @"hours, mins"), h, m];
 	return strTime;
 }
 
@@ -93,82 +93,74 @@
 	{
 		return @"1 min";
 	}
-	return [NSString stringWithFormat:@"%d mins", t];
+    return [NSString stringWithFormat:NSLocalizedString(@"%d mins", @"minutes"), t];
 }
 
-- (NSString *)getTravelTime
+- (NSString *)travelTime
 {
-	if (self.travelTime == nil)
-	{
-		NSMutableString *strTime = [[[NSMutableString alloc] init] autorelease];
-		int t = [self.xduration intValue];
-		
-		[strTime appendString:[self mins:t]];
-		
+    NSMutableString *strTime = [NSMutableString string];
+    int t = self.xduration.intValue;
+    
+    [strTime appendString:[self mins:t]];
+    
+    bool inc = false;
+    
+    if (self.xwalkingTime != nil)
+    {
+        int walking = self.xwalkingTime.intValue;
         
-		bool inc = false;
-		
-		if (self.xwalkingTime != nil)
-		{
-			int walking = [self.xwalkingTime intValue];
-            
-			if (walking > 0)
-			{
-				[strTime appendFormat: @", including %@ walking", [self mins:walking]];
-				inc = true;
-			}
-		}
-		
-		if (self.xwaitingTime !=nil)
-		{
-			int waiting = [self.xwaitingTime intValue];
-            
-			if (waiting > 0)
-			{
-				if (!inc)
-				{
-					[strTime appendFormat: @", including %@ waiting", [self mins:waiting]];
-				}
-				else
-				{
-					[strTime appendFormat: @" and %@ waiting", [self mins:waiting]];
-				}
-			}
-		}
+        if (walking > 0)
+        {
+            [strTime appendFormat: NSLocalizedString(@", including %@ walking", @"time info, minutes"), [self mins:walking]];
+            inc = true;
+        }
+    }
+    
+    if (self.xwaitingTime !=nil)
+    {
+        int waiting = self.xwaitingTime.intValue;
         
-		[strTime appendString: @"."];
-        
-		
-		self.travelTime = strTime;
-	}
-	return self.travelTime;
-	
+        if (waiting > 0)
+        {
+            if (!inc)
+            {
+                [strTime appendFormat: NSLocalizedString(@", including %@ waiting", @"time info, minutes"), [self mins:waiting]];
+            }
+            else
+            {
+                [strTime appendFormat: NSLocalizedString(@" and %@ waiting", @"time info, minutes"), [self mins:waiting]];
+            }
+        }
+    }
+    
+    [strTime appendString: @"."];
+    
+    return strTime;
 }
 
 - (NSInteger)legCount
 {
 	if (self.legs)
 	{
-		return [self.legs count];
+		return self.legs.count;
 	}
 	return 0;
 }
 
 - (NSString *)startPointText:(TripTextType)type
 {
-	NSMutableString * text  = [[ NSMutableString alloc] init];
+    NSMutableString * text  = [NSMutableString string];
 	
 	TripLeg * firstLeg = nil;
 	TripLegEndPoint * firstPoint = nil;
 	
-	if ([self.legs count] > 0)
+	if (self.legs.count > 0)
 	{
-		firstLeg = [self.legs objectAtIndex:0];
-		firstPoint = [firstLeg from];
+        firstLeg = self.legs.firstObject;
+		firstPoint = firstLeg.from;
 	}
 	else
 	{
-		[text release];
 		return nil;
 	}
 	
@@ -219,7 +211,7 @@
 			[text appendFormat:				@"<br><br>"];
 			break;
 		case TripTextTypeMap:
-			if ([text length] != 0)
+			if (text.length != 0)
 			{
 				self.startPoint.mapText = text;
 			}
@@ -230,7 +222,6 @@
 			self.startPoint.displayText = text;
 			break;
 	}
-	[text autorelease];
 	return text;
 }
 

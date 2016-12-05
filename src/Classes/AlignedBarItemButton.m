@@ -17,7 +17,7 @@
 
 @implementation AlignedBarItemButton
 
-- (id)initWithFrame:(CGRect)frame
+- (instancetype)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
     if (self) {
@@ -26,24 +26,13 @@
     return self;
 }
 
-+ (bool)iOS7
-{
-    return [[UIDevice currentDevice].systemVersion floatValue] >= 7.0;
-}
-
 + (UIButton*)suitableButtonRight:(bool)right
 {
     UIButton *button = nil;
-    if ([AlignedBarItemButton iOS7])
-    {
-        AlignedBarItemButton *alignedButton = [AlignedBarItemButton buttonWithType:UIButtonTypeCustom];
-        alignedButton.right = right;
-        button = alignedButton;
-    }
-    else
-    {
-        button = [UIButton buttonWithType:UIButtonTypeCustom];
-    }
+
+    AlignedBarItemButton *alignedButton = [AlignedBarItemButton buttonWithType:UIButtonTypeCustom];
+    alignedButton.right = right;
+    button = alignedButton;
     
     return button;
 }

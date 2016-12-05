@@ -2,8 +2,18 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <array>
+	<string>.9.0 (December 2016)</string>
+	<string>Updated for iOS 10.</string>
+	<string>$railMap New Portland Streetcar Map.</string>
+	<string>Fixed Trip Planner for when locale is set to several non-English locales.</string>
+	<string>Watch app is more responsive. (Updated Watch app to be a &quot;native&quot; Watch OS application).</string>
+	<string>Lots of bug fixes and UI tweaks (e.g. Contacts in iOS 10).</string>
+	<string>Because of Apple tools, removed iOS6/iOS7 support.</string>
+	<string>Lots of internal code changes to make new features easier to add...</string>
+	<string>Added back link to TriMet Ticket app, as they have fixed their app and it is launchable again.</string>
+	<string>Added &apos;Take me somewhere now&apos; user interface for new bookmarks.</string>
 	<string>.8.1 (June 2016)</string>
-	<string>Bug fixes, incuding crash when entering unknown stop ID.</string>
+	<string>Bug fixes, including crash when entering unknown stop ID.</string>
 	<string>Bug fixes to stop iOS 6 crashes (this is the last iOS6 version).</string>
 	<string>#BWatch:#0 Added dictation and keypad (hard press from home screen)</string>
 	<string>+https://trimet.org/#alerts Updated link to #b#BTriMet#b#0 alert page and changed all web pages to use internal browser.</string>
@@ -37,24 +47,5 @@
 	<string>Added text to explain the different colors used for the arrival times.</string>
 	<string>Fixed issues with Streetcar arrivals by switching over to the TriMet feed for streetcar data.</string>
 	<string>Re-allowed emoji keyboard for bookmark names.</string>
-	<string>.7.1 - Bug fixes (February 2014)</string>
-	<string>!Fix for all Streetcar arrivals - the data provider changed the data without any warning (the data doesn&apos;t come from TriMet).</string>
-	<string>$settings Added back &apos;Bookmarks at the top&apos; setting.</string>
-	<string>iOS 7: Fixed refresh timer button so it doesn&apos;t flash.</string>
-	<string>iOS 7: Fixed some graphics glitches.</string>
-	<string>Canceled buses show the time crossed out.</string>
-	<string>Fixed app store link from main screen.</string>
-	<string>Now uses Apple&apos;s geocoder for getting addresses from GPS locations.</string>
-	<string>Fixed issues when GPS is used for destination in Trip Planner.</string>
-	<string>Added back proximity alarm icon.</string>
-	<string>Removed black color theme; it does not work well in iOS7.</string>
-	<string>Changed JELD-WEN Field to Providence Park. Go Timbers!</string>
-	<string>Added route map with stops to arrival details.</string>
-	<string>Toolbar map icon now behaves consistantly &amp; added new menu item to map arrivals</string>
-	<string>+https://github.com/teleportaloo/PDX-Bus/wiki/URL-Scheme Added new URL scheme to allow other apps to launch PDX Bus&apos;s trip planner.</string>
-	<string>+http://robalan.com Icon has been tweaked.</string>
-	<string>$railMap Improved responsiveness, memory usage and display of MAX &amp; Streetcar maps.</string>
-	<string>$stations Minor fixes to station search.</string>
-	<string>The &quot;Nearby stops&quot; option for arrivals has been updated to to show maps, routes or arrivals.</string>
 </array>
 </plist>

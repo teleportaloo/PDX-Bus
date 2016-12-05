@@ -33,7 +33,7 @@
 @property (nonatomic, retain)   SharedFile *sharedFile;
 
 
-- (id)initWithFileName:(NSString *)shortFileName;
+- (instancetype)initWithFileName:(NSString *)shortFileName;
 - (void)deleteCacheFile;
 + (NSString *)getCacheKey:(NSString *)query;
 - (NSArray *)getCachedQuery:(NSString *)cacheQuery;

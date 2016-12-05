@@ -50,12 +50,12 @@
 
 @interface TilingView : UIView {
     NSString *_imageName;
-    BOOL      annotates;
+    BOOL      _annotates;
 }
 @property (assign) BOOL annotates;
-@property (nonatomic, retain) NSString *imageName;
+@property (nonatomic, copy)   NSString *imageName;
 
-- (id)initWithImageName:(NSString *)name size:(CGSize)size;
+- (instancetype)initWithImageName:(NSString *)name size:(CGSize)size;
 - (UIImage *)tileForScale:(CGFloat)scale row:(int)row col:(int)col;
 
 

@@ -7,14 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A10185871D3B02F000C8F298 /* WatchAppContext.m in Sources */ = {isa = PBXBuildFile; fileRef = A10185851D3B02F000C8F298 /* WatchAppContext.m */; };
 		A1126A071B06AD0600E76977 /* SharedFile.m in Sources */ = {isa = PBXBuildFile; fileRef = A1126A061B06AD0600E76977 /* SharedFile.m */; };
 		A1246E101BD70ACB00395325 /* MapAnnotationImage.m in Sources */ = {isa = PBXBuildFile; fileRef = A1246E0F1BD70ACB00395325 /* MapAnnotationImage.m */; };
 		A14D1DC31BEE477300F46126 /* StringHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A14D1DC21BEE477300F46126 /* StringHelper.m */; };
 		A152F5E11BE338E200FB9D19 /* XMLLocateVehicles.m in Sources */ = {isa = PBXBuildFile; fileRef = A152F5E01BE338E200FB9D19 /* XMLLocateVehicles.m */; };
+		A153E4F01DB014A600CEA840 /* DataFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = A153E4EF1DB014A600CEA840 /* DataFactory.m */; };
 		A17DA1FE1BE5EA6A006BB884 /* FormatDistance.m in Sources */ = {isa = PBXBuildFile; fileRef = A17DA1FD1BE5EA6A006BB884 /* FormatDistance.m */; };
 		A1833CD81B0833BE00670E34 /* StopNameCacheManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A1833CD71B0833BE00670E34 /* StopNameCacheManager.m */; };
 		A1833CE11B0932A800670E34 /* XMLLocateStops.m in Sources */ = {isa = PBXBuildFile; fileRef = A1833CE01B0932A800670E34 /* XMLLocateStops.m */; };
 		A1833CE41B09341800670E34 /* RouteDistanceData.m in Sources */ = {isa = PBXBuildFile; fileRef = A1833CE31B09341800670E34 /* RouteDistanceData.m */; };
+		A18A6CB31DB72CC0000C4B37 /* XMLDetours.m in Sources */ = {isa = PBXBuildFile; fileRef = A18A6CB21DB72CC0000C4B37 /* XMLDetours.m */; };
 		A19A6D881B0A9F270002B1D9 /* BlockColorDb.m in Sources */ = {isa = PBXBuildFile; fileRef = A19A6D871B0A9F270002B1D9 /* BlockColorDb.m */; };
 		A1AC796B1ADA03D000A1E96F /* DepartureData.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AC79621ADA03D000A1E96F /* DepartureData.m */; };
 		A1AC796C1ADA03D000A1E96F /* DepartureTrip.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AC79641ADA03D000A1E96F /* DepartureTrip.m */; };
@@ -24,7 +27,6 @@
 		A1AC797B1ADA058A00A1E96F /* StopDistanceData.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AC797A1ADA058A00A1E96F /* StopDistanceData.m */; };
 		A1AC797F1ADA060300A1E96F /* VehicleData.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AC797E1ADA060300A1E96F /* VehicleData.m */; };
 		A1AC79831ADA06B600A1E96F /* TriMetRouteColors.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AC79821ADA06B600A1E96F /* TriMetRouteColors.m */; };
-		A1AC798D1ADAF64800A1E96F /* XMLDetour.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AC798C1ADAF64800A1E96F /* XMLDetour.m */; };
 		A1AC79901ADAF6B300A1E96F /* Detour.m in Sources */ = {isa = PBXBuildFile; fileRef = A1AC798F1ADAF6B300A1E96F /* Detour.m */; };
 		A1C755AC1AD9DE7600236776 /* MemoryCaches.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C755A01AD9DE7600236776 /* MemoryCaches.m */; };
 		A1C755AD1AD9DE7600236776 /* NextBusXML.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C755A21AD9DE7600236776 /* NextBusXML.m */; };
@@ -50,6 +52,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		A10185851D3B02F000C8F298 /* WatchAppContext.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = WatchAppContext.m; path = src/WatchAppContext.m; sourceTree = SOURCE_ROOT; };
+		A10185861D3B02F000C8F298 /* WatchAppContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WatchAppContext.h; path = src/WatchAppContext.h; sourceTree = SOURCE_ROOT; };
 		A1126A051B06AD0600E76977 /* SharedFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SharedFile.h; path = src/SharedFile.h; sourceTree = SOURCE_ROOT; };
 		A1126A061B06AD0600E76977 /* SharedFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SharedFile.m; path = src/SharedFile.m; sourceTree = SOURCE_ROOT; };
 		A1246E0E1BD70ACB00395325 /* MapAnnotationImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MapAnnotationImage.h; path = src/MapAnnotationImage.h; sourceTree = SOURCE_ROOT; };
@@ -59,6 +63,8 @@
 		A14D387B1C855802006A960B /* iOSCompat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iOSCompat.h; path = src/iOSCompat.h; sourceTree = SOURCE_ROOT; };
 		A152F5DF1BE338E200FB9D19 /* XMLLocateVehicles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XMLLocateVehicles.h; path = src/XMLLocateVehicles.h; sourceTree = SOURCE_ROOT; };
 		A152F5E01BE338E200FB9D19 /* XMLLocateVehicles.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = XMLLocateVehicles.m; path = src/XMLLocateVehicles.m; sourceTree = SOURCE_ROOT; };
+		A153E4EE1DB014A600CEA840 /* DataFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DataFactory.h; path = src/DataFactory.h; sourceTree = SOURCE_ROOT; };
+		A153E4EF1DB014A600CEA840 /* DataFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DataFactory.m; path = src/DataFactory.m; sourceTree = SOURCE_ROOT; };
 		A17DA1FC1BE5EA6A006BB884 /* FormatDistance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FormatDistance.h; path = src/FormatDistance.h; sourceTree = SOURCE_ROOT; };
 		A17DA1FD1BE5EA6A006BB884 /* FormatDistance.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FormatDistance.m; path = src/FormatDistance.m; sourceTree = SOURCE_ROOT; };
 		A1833CD61B0833BE00670E34 /* StopNameCacheManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StopNameCacheManager.h; path = src/StopNameCacheManager.h; sourceTree = SOURCE_ROOT; };
@@ -67,6 +73,8 @@
 		A1833CE01B0932A800670E34 /* XMLLocateStops.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = XMLLocateStops.m; path = src/XMLLocateStops.m; sourceTree = SOURCE_ROOT; };
 		A1833CE21B09341800670E34 /* RouteDistanceData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RouteDistanceData.h; path = src/RouteDistanceData.h; sourceTree = SOURCE_ROOT; };
 		A1833CE31B09341800670E34 /* RouteDistanceData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RouteDistanceData.m; path = src/RouteDistanceData.m; sourceTree = SOURCE_ROOT; };
+		A18A6CB11DB72CC0000C4B37 /* XMLDetours.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XMLDetours.h; path = src/XMLDetours.h; sourceTree = SOURCE_ROOT; };
+		A18A6CB21DB72CC0000C4B37 /* XMLDetours.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = XMLDetours.m; path = src/XMLDetours.m; sourceTree = SOURCE_ROOT; };
 		A19A6D861B0A9F270002B1D9 /* BlockColorDb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BlockColorDb.h; path = src/BlockColorDb.h; sourceTree = SOURCE_ROOT; };
 		A19A6D871B0A9F270002B1D9 /* BlockColorDb.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BlockColorDb.m; path = src/BlockColorDb.m; sourceTree = SOURCE_ROOT; };
 		A1AC79611ADA03D000A1E96F /* DepartureData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DepartureData.h; path = src/DepartureData.h; sourceTree = SOURCE_ROOT; };
@@ -87,8 +95,6 @@
 		A1AC797E1ADA060300A1E96F /* VehicleData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = VehicleData.m; path = src/VehicleData.m; sourceTree = SOURCE_ROOT; };
 		A1AC79811ADA06B600A1E96F /* TriMetRouteColors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TriMetRouteColors.h; path = src/TriMetRouteColors.h; sourceTree = SOURCE_ROOT; };
 		A1AC79821ADA06B600A1E96F /* TriMetRouteColors.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TriMetRouteColors.m; path = src/TriMetRouteColors.m; sourceTree = SOURCE_ROOT; };
-		A1AC798B1ADAF64800A1E96F /* XMLDetour.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XMLDetour.h; path = src/XMLDetour.h; sourceTree = SOURCE_ROOT; };
-		A1AC798C1ADAF64800A1E96F /* XMLDetour.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = XMLDetour.m; path = src/XMLDetour.m; sourceTree = SOURCE_ROOT; };
 		A1AC798E1ADAF6B300A1E96F /* Detour.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Detour.h; path = src/Detour.h; sourceTree = SOURCE_ROOT; };
 		A1AC798F1ADAF6B300A1E96F /* Detour.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Detour.m; path = src/Detour.m; sourceTree = SOURCE_ROOT; };
 		A1C7557A1AD9DD0A00236776 /* libPDXBusCore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPDXBusCore.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -166,6 +172,8 @@
 		A1AC79721ADA040800A1E96F /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				A10185861D3B02F000C8F298 /* WatchAppContext.h */,
+				A10185851D3B02F000C8F298 /* WatchAppContext.m */,
 				A14D387B1C855802006A960B /* iOSCompat.h */,
 				A14D1DC11BEE477300F46126 /* StringHelper.h */,
 				A14D1DC21BEE477300F46126 /* StringHelper.m */,
@@ -183,6 +191,8 @@
 				A1126A061B06AD0600E76977 /* SharedFile.m */,
 				A1246E0E1BD70ACB00395325 /* MapAnnotationImage.h */,
 				A1246E0F1BD70ACB00395325 /* MapAnnotationImage.m */,
+				A153E4EE1DB014A600CEA840 /* DataFactory.h */,
+				A153E4EF1DB014A600CEA840 /* DataFactory.m */,
 			);
 			name = Core;
 			sourceTree = "<group>";
@@ -211,10 +221,10 @@
 		A1AC798A1ADAF63300A1E96F /* Detours */ = {
 			isa = PBXGroup;
 			children = (
+				A18A6CB11DB72CC0000C4B37 /* XMLDetours.h */,
+				A18A6CB21DB72CC0000C4B37 /* XMLDetours.m */,
 				A1AC798E1ADAF6B300A1E96F /* Detour.h */,
 				A1AC798F1ADAF6B300A1E96F /* Detour.m */,
-				A1AC798B1ADAF64800A1E96F /* XMLDetour.h */,
-				A1AC798C1ADAF64800A1E96F /* XMLDetour.m */,
 			);
 			name = Detours;
 			sourceTree = "<group>";
@@ -322,7 +332,9 @@
 				A1C755AD1AD9DE7600236776 /* NextBusXML.m in Sources */,
 				A1C755AE1AD9DE7600236776 /* QueryCacheManager.m in Sources */,
 				A1AC79901ADAF6B300A1E96F /* Detour.m in Sources */,
+				A153E4F01DB014A600CEA840 /* DataFactory.m in Sources */,
 				A152F5E11BE338E200FB9D19 /* XMLLocateVehicles.m in Sources */,
+				A18A6CB31DB72CC0000C4B37 /* XMLDetours.m in Sources */,
 				A17DA1FE1BE5EA6A006BB884 /* FormatDistance.m in Sources */,
 				A1AC797B1ADA058A00A1E96F /* StopDistanceData.m in Sources */,
 				A1AC797F1ADA060300A1E96F /* VehicleData.m in Sources */,
@@ -333,9 +345,9 @@
 				A1AC796B1ADA03D000A1E96F /* DepartureData.m in Sources */,
 				A1833CD81B0833BE00670E34 /* StopNameCacheManager.m in Sources */,
 				A1833CE11B0932A800670E34 /* XMLLocateStops.m in Sources */,
+				A10185871D3B02F000C8F298 /* WatchAppContext.m in Sources */,
 				A1246E101BD70ACB00395325 /* MapAnnotationImage.m in Sources */,
 				A1E0F3D71AE323C20055C6FB /* StopLocations.m in Sources */,
-				A1AC798D1ADAF64800A1E96F /* XMLDetour.m in Sources */,
 				A1AC796D1ADA03D000A1E96F /* XMLDepartures.m in Sources */,
 				A14D1DC31BEE477300F46126 /* StringHelper.m in Sources */,
 				A1C755B11AD9DE7600236776 /* UserPrefs.m in Sources */,

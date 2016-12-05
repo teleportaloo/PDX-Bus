@@ -25,8 +25,8 @@
 }
 
 @property (nonatomic, retain) XMLStops *stopData;
-@property (nonatomic, retain) NSString *locId;
+@property (nonatomic, copy)   NSString *locId;
 
-- (void)fetchStopsInBackground:(id<BackgroundTaskProgress>) callback route:(NSString*)routeid direction:(NSString*)dir
+- (void)fetchStopsAsync:(id<BackgroundTaskProgress>) callback route:(NSString*)routeid direction:(NSString*)dir
                     returnStop:(id<ReturnStop>)returnStop;
 @end

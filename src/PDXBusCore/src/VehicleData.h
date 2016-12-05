@@ -16,6 +16,7 @@
 #import <Foundation/Foundation.h>
 #import "TriMetXML.h"
 #import <CoreLocation/CoreLocation.h>
+#import "DataFactory.h"
 
 
 #define kNoVehicles @"PDX Bus could not find a bus or train close by. Note - Streetcar is not supported.  Try again in a few moments as the vehicle locations may be updated."
@@ -26,55 +27,38 @@
 
 // #define VEHICLE_TEST 1
 
-@interface VehicleData : NSObject
+@interface VehicleData : DataFactory
 {
-    NSString *_block;
-    CLLocation *_location;
-    NSString *_nextLocID;
-    NSString *_lastLocID;
-    NSString *_routeNumber;
-    NSString *_direction;
-    NSString *_signMessage;
-    NSString *_signMessageLong;
-    NSString *_type;
-    NSString *_garage;
-    NSString *_bearing;
-    double   _distance;
-    TriMetTime  _locationTime;
+    NSString *      _block;
+    CLLocation *    _location;
+    NSString *      _nextLocID;
+    NSString *      _lastLocID;
+    NSString *      _routeNumber;
+    NSString *      _direction;
+    NSString *      _signMessage;
+    NSString *      _signMessageLong;
+    NSString *      _type;
+    NSString *      _garage;
+    NSString *      _bearing;
+    double          _distance;
+    TriMetTime      _locationTime;
 }
 
-@property (nonatomic, retain) NSString *block;
+@property (nonatomic, copy)   NSString *block;
 @property (nonatomic, retain) CLLocation *location;
-@property (nonatomic, retain) NSString *nextLocID;
-@property (nonatomic, retain) NSString *lastLocID;
-@property (nonatomic, retain) NSString *routeNumber;
-@property (nonatomic, retain) NSString *direction;
-@property (nonatomic, retain) NSString *signMessage;
-@property (nonatomic, retain) NSString *signMessageLong;
-@property (nonatomic, retain) NSString *type;
+@property (nonatomic, copy)   NSString *nextLocID;
+@property (nonatomic, copy)   NSString *lastLocID;
+@property (nonatomic, copy)   NSString *routeNumber;
+@property (nonatomic, copy)   NSString *direction;
+@property (nonatomic, copy)   NSString *signMessage;
+@property (nonatomic, copy)   NSString *signMessageLong;
+@property (nonatomic, copy)   NSString *type;
 @property (nonatomic)         double   distance;
 @property (nonatomic)         TriMetTime locationTime;
-@property (nonatomic, retain) NSString *garage;
-@property (nonatomic, retain) NSString *bearing;
+@property (nonatomic, copy)   NSString *garage;
+@property (nonatomic, copy)   NSString *bearing;
 
 - (bool)typeMatchesMode:(TripMode)mode;
 + (NSString *)locatedSomeTimeAgo:(NSDate *)date;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 @end

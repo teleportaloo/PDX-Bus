@@ -72,23 +72,63 @@
 	
 }
 
-- (id)init
+- (instancetype)init
 {
 	if ((self = [super init]))
 	{
 
-		self.trips = [[[NSMutableArray alloc] init] autorelease];
+        self.trips = [NSMutableArray array];
 		
 	}
 	return self;
 }
 
+-(id)copyWithZone:(NSZone *)zone
+{
+    DepartureData *new = [[[self class] allocWithZone:zone] init];
+    
+#define COPY(X) new.X = self.X;
+    
+    COPY(route);
+    COPY(fullSign);
+    COPY(errorMessage);
+    COPY(routeName);
+    COPY(block);
+    COPY(dir);
+    COPY(locid);
+    COPY(departureTime);
+    COPY(scheduledTime);
+    COPY(status);
+    COPY(detour);
+    COPY(blockPositionFeet);
+    COPY(blockPositionAt);
+    COPY(blockPosition);
+    COPY(stopLocation);
+    COPY(blockPositionHeading);
+    COPY(locationDesc);
+    COPY(locationDir);
+    COPY(hasBlock);
+    COPY(queryTime);
+    COPY(nextBus);
+    COPY(cacheTime);
+    COPY(streetcar);
+    new.trips           = [[self.trips copyWithZone:zone] autorelease];
+    COPY(copyright);
+    COPY(nextBusFeedInTriMetData);
+    COPY(timeAdjustment);
+    COPY(invalidated);
+    
+    return new;
+}
+
+    
+    
 
 #pragma mark Formatting 
 
 -(NSString *)formatLayoverTime:(TriMetTime)t
 {
-	NSMutableString * str = [[[NSMutableString alloc] init] autorelease];
+	NSMutableString * str = [NSMutableString string];
 	TriMetTime secs = TriMetToUnixTime(t) % 60;
 	TriMetTime mins = t / 60000;
 	
@@ -145,16 +185,19 @@
 
 - (void)extrapolateFromNow
 {
-    NSTimeInterval i = -[self.cacheTime timeIntervalSinceNow];
+    NSTimeInterval i = -self.cacheTime.timeIntervalSinceNow;
+    DEBUG_LOGLU(i);
     [self makeTimeAdjustment:i];
+    
+    DEBUG_LOGL(self.secondsToArrival);
+    
 }
 
 - (void)makeTimeAdjustment:(NSTimeInterval)interval
 {
-    self.queryTime = self.queryTime - self.timeAdjustment * 1000;
+    self.queryTime = self.queryTime - UnixToTriMetTime(self.timeAdjustment);
     self.timeAdjustment = interval;
-    self.queryTime = self.queryTime + self.timeAdjustment * 1000;
-
+    self.queryTime = self.queryTime + UnixToTriMetTime(self.timeAdjustment);
 }
 
 
@@ -193,7 +236,7 @@
     [self extrapolateFromNow];
     self.blockPosition  = nil;
     self.blockPositionFeet = 0;
-    self.trips = [[[NSMutableArray alloc] init] autorelease];
+    self.trips = [NSMutableArray array];
     self.invalidated = YES;
 }
 

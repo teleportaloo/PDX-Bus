@@ -83,53 +83,48 @@
 
 - (bool)canOpenSettings
 {
-    return([[UIDevice currentDevice].systemVersion floatValue] >= 8.0);
+    return([UIDevice currentDevice].systemVersion.floatValue >= 8.0);
 }
 
 - (void)initCameraText
 {
     _cameraGoesToSettings = NO;
-    if ([[AVCaptureDevice class] respondsToSelector:@selector(authorizationStatusForMediaType:)])
+    
+    AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+    
+    switch (authStatus)
     {
-        AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
-        
-        switch (authStatus)
-        {
-            default:
-            case AVAuthorizationStatusAuthorized:
-                if ([self canOpenSettings])
-                {
-                    self.cameraText = @"Camera access is authorized. Touch here to check settings.";
-                    _cameraGoesToSettings = YES;
-                }
-                else
-                {
-                    self.cameraText = @"Camera access is authorized.";
-                }
-                break;
-            case AVAuthorizationStatusNotDetermined:
-                self.cameraText = @"Camera access has not been set up by the user. Touch here to set this up.";
-                break;
-            case AVAuthorizationStatusDenied:
-                if ([self canOpenSettings])
-                {
-                    self.cameraText = @"Camera access has been denied by the user. Touch here to go to the settings app re-enable Camera access.";
-                    _cameraGoesToSettings = YES;
-                }
-                else
-                {
-                   self.cameraText = @"Camera access has been denied by the user. Go to the settings app and select PDX Bus to re-enable Camera access.";
-                }
-                break;
-            case AVAuthorizationStatusRestricted:
-                self.cameraText = @"Camea access has been restricted. Check the restrictions section in the Setttings app under 'General->Restrictions' to change this.";
-                break;
-        }
+        default:
+        case AVAuthorizationStatusAuthorized:
+            if ([self canOpenSettings])
+            {
+                self.cameraText = @"Camera access is authorized. Touch here to check settings.";
+                _cameraGoesToSettings = YES;
+            }
+            else
+            {
+                self.cameraText = @"Camera access is authorized.";
+            }
+            break;
+        case AVAuthorizationStatusNotDetermined:
+            self.cameraText = @"Camera access has not been set up by the user. Touch here to set this up.";
+            break;
+        case AVAuthorizationStatusDenied:
+            if ([self canOpenSettings])
+            {
+                self.cameraText = @"Camera access has been denied by the user. Touch here to go to the settings app re-enable Camera access.";
+                _cameraGoesToSettings = YES;
+            }
+            else
+            {
+                self.cameraText = @"Camera access has been denied by the user. Go to the settings app and select PDX Bus to re-enable Camera access.";
+            }
+            break;
+        case AVAuthorizationStatusRestricted:
+            self.cameraText = @"Camea access has been restricted. Check the restrictions section in the Setttings app under 'General->Restrictions' to change this.";
+            break;
     }
-    else
-    {
-        self.cameraText = @"Camera access can not be determined on this version of iOS.";
-    }
+    
 }
 
 - (void)initLocationText
@@ -198,12 +193,12 @@
     }
 }
 
-- (id)init {
+- (instancetype)init {
 	if ((self = [super init]))
 	{
-		self.title = @"Help and Support";
+        self.title = NSLocalizedString(@"Help and Support",@"page title");
         
-#define ATTR(X) [StringHelper formatAttributedString:X font:[self getParagraphFont]]
+#define ATTR(X) [X formatAttributedStringWithFont:self.paragraphFont]
         
         supportText = ATTR(
                        NSLocalizedString(
@@ -225,18 +220,18 @@
                        
         
         tipText = [[NSArray alloc] initWithObjects:
-                   ATTR(@"There are #bLOTS#b of settings for #bPDX Bus#b - take a look at the settings on the home screen to change colors, move the #ibookmarks#i to the top of the screen or change other options."),
-                   ATTR(@"Use the top-left #bEdit#b button on the home screen to re-order or modify the #ibookmarks#i.  #iBookmarks#i can be re-ordered, they can also include multiple stops and can be made to show themselves automatically in the morning or evening."),
-                   ATTR(@"When the time is shown in #Rred#0 the vehicle will depart in 5 minutes or less."),
-                   ATTR(@"When the time is shown in #Bblue#0 the vehicle will depart in more than 5 minutes."),
-                   ATTR(@"When the time is shown in #Agray#0 no location infomation is available - the scheduled time is shown."),
-                   ATTR(@"When the time is shown in #Oorange#0 and crossed out the vehicle was canceled.  The original scheduled time is shown for reference."),
-                   ATTR(@"Sometimes the scheduled time is also shown in #Agray#0 when the vehicle is not running to schedule."),
-                   ATTR(@"Shake the device to #brefresh#b the arrival times."),
-                   ATTR(@"Backup your bookmarks by #iemailing#i them to yourself."),
-                   ATTR(@"Keep an eye on the #btoolbar#b at the bottom - there are maps, options, and other features to explore."),
-                   ATTR(@"At night, #bTriMet#b recommends holding up a cell phone or flashing light so the driver can see you."),
-                   ATTR(@"Many issues can be solved by deleting the app and reinstalling - be sure to #iemail the bookmarks to yourself#i first so you can restore them."),
+                   ATTR(NSLocalizedString(@"There are #bLOTS#b of settings for #bPDX Bus#b - take a look at the settings on the home screen to change colors, move the #ibookmarks#i to the top of the screen or change other options.", @"info text")),
+                   ATTR(NSLocalizedString(@"Use the top-left #bEdit#b button on the home screen to re-order or modify the #ibookmarks#i.  #iBookmarks#i can be re-ordered, they can also include multiple stops and can be made to show themselves automatically in the morning or evening.", @"info text")),
+                   ATTR(NSLocalizedString(@"When the time is shown in #Rred#0 the vehicle will depart in 5 minutes or less.", @"info text")),
+                   ATTR(NSLocalizedString(@"When the time is shown in #Bblue#0 the vehicle will depart in more than 5 minutes.", @"info text")),
+                   ATTR(NSLocalizedString(@"When the time is shown in #Agray#0 no location infomation is available - the scheduled time is shown.", @"info text")),
+                   ATTR(NSLocalizedString(@"When the time is shown in #Oorange#0 and crossed out the vehicle was canceled.  The original scheduled time is shown for reference.", @"info text")),
+                   ATTR(NSLocalizedString(@"Sometimes the scheduled time is also shown in #Agray#0 when the vehicle is not running to schedule.", @"info text")),
+                   ATTR(NSLocalizedString(@"Shake the device to #brefresh#b the arrival times.", @"info text")),
+                   ATTR(NSLocalizedString(@"Backup your bookmarks by #iemailing#i them to yourself.", @"info text")),
+                   ATTR(NSLocalizedString(@"Keep an eye on the #btoolbar#b at the bottom - there are maps, options, and other features to explore.", @"info text")),
+                   ATTR(NSLocalizedString(@"At night, #bTriMet#b recommends holding up a cell phone or flashing light so the driver can see you.", @"info text")),
+                   ATTR(NSLocalizedString(@"Many issues can be solved by deleting the app and reinstalling - be sure to #iemail the bookmarks to yourself#i first so you can restore them.", @"info text")),
                    // ATTR(@"Bad escape#"),
                    // ATTR(@"## started ## pound"),
                    nil];
@@ -246,12 +241,9 @@
         
         self.locMan = [[[CLLocationManager alloc] init] autorelease];
         
-        if ([self.locMan respondsToSelector:@selector(requestAlwaysAuthorization)])
-        {
-            [self.locMan requestAlwaysAuthorization];
+        [self.locMan requestAlwaysAuthorization];
             
-            self.locMan.delegate = self;
-        }
+        self.locMan.delegate = self;
 	}
 	return self;
 }
@@ -262,8 +254,8 @@
     if (!_hideButton)
     {
         UIBarButtonItem *info = [[[UIBarButtonItem alloc]
-                                  initWithTitle:@"About"
-                                  style:UIBarButtonItemStyleBordered
+                                  initWithTitle:NSLocalizedString(@"About", @"button text")
+                                  style:UIBarButtonItemStylePlain
                                   target:self action:@selector(infoAction:)] autorelease];
         
         
@@ -273,34 +265,32 @@
 
 - (void)infoAction:(id)sender
 {
-	AboutView *infoView = [[AboutView alloc] init];
+    AboutView *infoView = [AboutView viewController];
     
     infoView.hideButton = YES;
 	
 	// Push the detail view controller
-    [[self navigationController] pushViewController:infoView animated:YES];
-	[infoView release];
-	
+    [self.navigationController pushViewController:infoView animated:YES];
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
 	switch (section) {
 		case kSectionSupport:
-			return @"PDX Bus - App Support";
+            return NSLocalizedString(@"PDX Bus - App Support", @"section header");
         case kSectionTips:
-			return @"Tips";
+			return NSLocalizedString(@"Tips", @"section header");
 		case kSectionLinks:
-			return @"App Support Links (not TriMet!)";
+			return NSLocalizedString(@"App Support Links (not TriMet!)", @"section header");
         case kSectionNetwork:
-			return @"Network & Server Connectivity";
+			return NSLocalizedString(@"Network & Server Connectivity", @"section header");
         case kSectionPrivacy:
-            return @"Privacy";
+            return NSLocalizedString(@"Privacy", @"section header");
 		case kSectionCache:
-			return @"Route and Stop Data Cache";
+			return NSLocalizedString(@"Route and Stop Data Cache", @"section header");
         case kSectionHighlights:
-			return @"Vehicle highlights";
+			return NSLocalizedString(@"Vehicle highlights", @"section header");
         case kSectionLocations:
-            return @"Vehicle locations";
+            return NSLocalizedString(@"Vehicle locations", @"section header");
 
 	}
 	return nil;
@@ -325,7 +315,7 @@
         case kSectionPrivacy:
             return kSectionPrivacyRows;
         case kSectionTips:
-			return [tipText count];
+			return tipText.count;
 	}
 	return 0;
 }
@@ -341,9 +331,9 @@
 				
 				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionNetwork)] autorelease];
 				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-                cell.textLabel.font =  [self getBasicFont]; //  [UIFont fontWithName:@"Ariel" size:14];
+                cell.textLabel.font =  self.basicFont; //  [UIFont fontWithName:@"Ariel" size:14];
 				cell.textLabel.adjustsFontSizeToFitWidth = YES;
-				cell.textLabel.text = @"Check Network Connection";
+                cell.textLabel.text = NSLocalizedString(@"Check Network Connection", @"main menu item");
 				cell.imageView.image = [self getActionIcon:kIconNetwork];
 				
 			}
@@ -356,9 +346,9 @@
 			if (cell == nil) {
 				
 				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionCache)] autorelease];
-				cell.textLabel.font =  [self getBasicFont]; //  [UIFont fontWithName:@"Ariel" size:14];
+				cell.textLabel.font =  self.basicFont; //  [UIFont fontWithName:@"Ariel" size:14];
 				cell.textLabel.adjustsFontSizeToFitWidth = YES;
-				cell.textLabel.text = @"Delete Cached Routes and Stops";
+                cell.textLabel.text = NSLocalizedString(@"Delete Cached Routes and Stops", @"main menu item");
 				cell.textLabel.textAlignment = NSTextAlignmentLeft;
 				cell.imageView.image = [self getActionIcon:kIconDelete];
 			}
@@ -372,9 +362,9 @@
 			if (cell == nil) {
 				
 				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionHighlights)] autorelease];
-				cell.textLabel.font =  [self getBasicFont]; //  [UIFont fontWithName:@"Ariel" size:14];
+				cell.textLabel.font =  self.basicFont; //  [UIFont fontWithName:@"Ariel" size:14];
 				cell.textLabel.adjustsFontSizeToFitWidth = YES;
-				cell.textLabel.text = @"Show vehicle color tags";
+                cell.textLabel.text = NSLocalizedString(@"Show vehicle color tags", @"main menu item");
 				cell.textLabel.textAlignment = NSTextAlignmentLeft;
 				cell.imageView.image = [BlockColorDb imageWithColor:[UIColor redColor]];
 			}
@@ -388,9 +378,9 @@
             if (cell == nil) {
                 
                 cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionLocations)] autorelease];
-                cell.textLabel.font =  [self getBasicFont]; //  [UIFont fontWithName:@"Ariel" size:14];
+                cell.textLabel.font =  self.basicFont; //  [UIFont fontWithName:@"Ariel" size:14];
                 cell.textLabel.adjustsFontSizeToFitWidth = YES;
-                cell.textLabel.text = @"Show vehicle locations";
+                cell.textLabel.text = NSLocalizedString(@"Show vehicle locations", @"main menu item");
                 cell.textLabel.textAlignment = NSTextAlignmentLeft;
                 cell.imageView.image = [self getActionIcon:kIconMap];
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
@@ -406,10 +396,10 @@
 				CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionSupportRowSupport)];
 				if (cell == nil) {
 					cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionSupportRowSupport)] autorelease];
-					cell.view = [self create_UITextView:nil font:[self getParagraphFont]];
+					cell.view = [self create_UITextView:nil font:self.paragraphFont];
 				}
 				
-				cell.view.font =  [self getParagraphFont];
+				cell.view.font =  self.paragraphFont;
 				cell.view.attributedText =  supportText;
                 [cell.view setAdjustsFontSizeToFitWidth:NO];
 				DEBUG_LOG(@"width:  %f\n", cell.view.bounds.size.width);
@@ -430,7 +420,7 @@
 					 [self newLabelWithPrimaryColor:[UIColor blueColor] selectedColor:[UIColor cyanColor] fontSize:14 bold:YES parentView:[cell contentView]];
 					 */
 					
-					cell.textLabel.font =  [self getBasicFont]; //  [UIFont fontWithName:@"Ariel" size:14];
+					cell.textLabel.font =  self.basicFont; //  [UIFont fontWithName:@"Ariel" size:14];
 					cell.textLabel.adjustsFontSizeToFitWidth = YES;
 					cell.selectionStyle = UITableViewCellSelectionStyleBlue;
 				}
@@ -438,11 +428,11 @@
                 switch (indexPath.row)
                 {
                     case kSectionSupportHowToRide:
-                        cell.textLabel.text = @"How to ride";
+                        cell.textLabel.text = NSLocalizedString(@"How to ride", @"main menu item");
                         cell.imageView.image = [self getActionIcon:kIconTriMetLink];
                         break;
                     case kSectionSupportRowNew:
-                        cell.textLabel.text = @"What's new?";
+                        cell.textLabel.text = NSLocalizedString(@"What's new?", @"main menu item");
                         cell.imageView.image = [self getActionIcon:kIconAppIconAction];
                         break;
                 }
@@ -462,7 +452,7 @@
 				 [self newLabelWithPrimaryColor:[UIColor blueColor] selectedColor:[UIColor cyanColor] fontSize:14 bold:YES parentView:[cell contentView]];
 				 */
 				
-				cell.textLabel.font =  [self getBasicFont]; //  [UIFont fontWithName:@"Ariel" size:14];
+				cell.textLabel.font =  self.basicFont; //  [UIFont fontWithName:@"Ariel" size:14];
 				cell.textLabel.textColor = [UIColor blueColor];
 				cell.textLabel.adjustsFontSizeToFitWidth = YES;
 				cell.selectionStyle = UITableViewCellSelectionStyleBlue;
@@ -471,23 +461,23 @@
 			switch (indexPath.row)
 			{
 			case kSectionLinkBlog:
-				cell.textLabel.text = @"PDX Bus blog & support";
+                cell.textLabel.text = NSLocalizedString(@"PDX Bus blog & support", @"main menu item");
 				cell.imageView.image = [self getActionIcon:kIconBlog];
 				break;
             case kSectionLinkTwitter:
-                cell.textLabel.text = @"@pdxbus on Twitter";
+                cell.textLabel.text = NSLocalizedString(@"@pdxbus on Twitter", @"main menu item");
                 cell.imageView.image = [self getActionIcon:kIconTwitter];
                 break;
             case kSectionLinkGitHub:
-                cell.textLabel.text = @"pdxbus on GitHub";
+                cell.textLabel.text = NSLocalizedString(@"pdxbus on GitHub", @"main menu item");
                 cell.imageView.image = [self getActionIcon:kIconSrc];
                 break;
             case kSectionLinkFacebook:
-                cell.textLabel.text = @"PDX Bus Facebook page";
+                cell.textLabel.text = NSLocalizedString(@"PDX Bus Facebook page", @"main menu item");
                 cell.imageView.image = [self getActionIcon:kIconFacebook];
                 break;
             }
-			[cell setAccessibilityLabel:[NSString stringWithFormat:@"Link to %@", cell.textLabel.text]];
+			cell.accessibilityLabel = [NSString stringWithFormat:@"Link to %@", cell.textLabel.text];
 			return cell;
 			break;
 		}
@@ -496,14 +486,14 @@
 			CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionTips)];
 			if (cell == nil) {
 				cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionTips)] autorelease];
-				cell.view = [self create_UITextView:nil font:[self getParagraphFont]];
+				cell.view = [self create_UITextView:nil font:self.paragraphFont];
 			}
 			
-			cell.view.font =  [self getParagraphFont];
-			cell.view.attributedText = [tipText objectAtIndex:indexPath.row];
+			cell.view.font =  self.paragraphFont;
+			cell.view.attributedText = tipText[indexPath.row];
             [cell.view setAdjustsFontSizeToFitWidth:NO];
 			cell.selectionStyle = UITableViewCellSelectionStyleNone;
-            NSAttributedString *tip = [tipText objectAtIndex:indexPath.row];
+            NSAttributedString *tip = tipText[indexPath.row];
 			[self updateAccessibility:cell indexPath:indexPath text:tip.string alwaysSaySection:YES];
 			return cell;
 			break;
@@ -513,11 +503,11 @@
             CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionPrivacy)];
             if (cell == nil) {
                 cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionPrivacy)] autorelease];
-                cell.view = [self create_UITextView:nil font:[self getParagraphFont]];
+                cell.view = [self create_UITextView:nil font:self.paragraphFont];
             }
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             
-            cell.view.font =  [self getParagraphFont];
+            cell.view.font =  self.paragraphFont;
             
             if (indexPath.row == kSectionPrivacyRowLocation)
             {
@@ -536,7 +526,7 @@
 			break;
 	}
 	
-	return nil;
+    return [super tableView:tableView cellForRowAtIndexPath:indexPath];
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -550,17 +540,17 @@
 			break;
         case kSectionTips:
         {
-            NSAttributedString *tip = [tipText objectAtIndex:indexPath.row];
+            NSAttributedString *tip = tipText[indexPath.row];
 			return [self getAtrributedTextHeight:tip] + 20;
         }
         case kSectionPrivacy:
             if (indexPath.row == kSectionPrivacyRowLocation)
             {
-                return [self getTextHeight:self.locationText font:[self getParagraphFont]];
+                return [self getTextHeight:self.locationText font:self.paragraphFont];
             }
             else
             {
-                return [self getTextHeight:self.cameraText font:[self getParagraphFont]];
+                return [self getTextHeight:self.cameraText font:self.paragraphFont];
             }
 		default:
 			break;
@@ -582,17 +572,17 @@
 	{
 		case kSectionLinks:
 		{
-			WebViewController *webPage = [[WebViewController alloc] init];
+            WebViewController *webPage = [WebViewController viewController];
 		
 			switch (indexPath.row)
 			{
 				case kSectionLinkBlog:
 					[webPage setURLmobile:@"http:/pdxbus.teleportaloo.org" full:nil];
-                    [webPage displayPage:[self navigationController] animated:YES itemToDeselect:self];
+                    [webPage displayPage:self.navigationController animated:YES itemToDeselect:self];
 					break;
                 case kSectionLinkGitHub:
 					[webPage setURLmobile:@"https:/github.com/teleportaloo/PDX-Bus" full:nil];
-                    [webPage displayPage:[self navigationController] animated:YES itemToDeselect:self];
+                    [webPage displayPage:self.navigationController animated:YES itemToDeselect:self];
 					break;
                 case kSectionLinkTwitter:
                     self.tweetAt   = @"pdxbus";
@@ -603,9 +593,7 @@
                     [self facebook];
                     break;
             }
-	
-            [webPage release];
-			
+				
 			break;
 		}
 		case kSectionNetwork:
@@ -616,10 +604,10 @@
 		{
 			[TriMetXML deleteCacheFile];
 			[self.table deselectRowAtIndexPath:indexPath animated:YES];
-			UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"Data Cache"
-															   message:@"Cached Routes and Stops have been deleted"
+            UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"Data Cache", @"alert title")
+															   message:NSLocalizedString(@"Cached Routes and Stops have been deleted", @"information text")
 															  delegate:nil
-													 cancelButtonTitle:@"OK"
+                                                     cancelButtonTitle:NSLocalizedString(@"OK", @"button text")
 													 otherButtonTitles:nil ] autorelease];
 			[alert show];
 			
@@ -627,30 +615,22 @@
 		}
         case kSectionHighlights:
 		{
-            BlockColorViewController *blockTable = [[BlockColorViewController alloc] init];
-            [[self navigationController] pushViewController:blockTable animated:YES];
-            [blockTable release];
-            
-            /*
-			[[BlockColorDb getSingleton] clearAll];
-            [self.table deselectRowAtIndexPath:indexPath animated:YES];
-			*/
+            BlockColorViewController *blockTable = [BlockColorViewController viewController];
+            [self.navigationController pushViewController:blockTable animated:YES];
             break;
 		}
         case kSectionLocations:
         {
-            NearestVehiclesMap *mapView = [[NearestVehiclesMap alloc] init];
+            NearestVehiclesMap *mapView = [NearestVehiclesMap viewController];
             mapView.alwaysFetch = YES;
-            [mapView fetchNearestVehiclesInBackground:self.backgroundTask];
-            
-            [mapView release];
+            [mapView fetchNearestVehiclesAsync:self.backgroundTask];
             break;
         }
 		case kSectionSupport:
             switch (indexPath.row)
             {
                 case kSectionSupportRowSupport:
-                    [[self navigationController] popViewControllerAnimated:YES];
+                    [self.navigationController popViewControllerAnimated:YES];
                     break;
                 case kSectionSupportHowToRide:
                     [WebViewController displayPage:@"https://trimet.org/howtoride/index.htm"
@@ -661,9 +641,7 @@
                     break;
                 case kSectionSupportRowNew:
                 {
-                    WhatsNewView *whatsNew = [[WhatsNewView alloc] init];
-                    [[self navigationController] pushViewController:whatsNew animated:YES];
-                    [whatsNew release];
+                    [self.navigationController pushViewController:[WhatsNewView viewController] animated:YES];
                     break;
                 }
             }
@@ -680,12 +658,9 @@
                 {
                     self.locMan = [[[CLLocationManager alloc] init] autorelease];
             
-                    if ([self.locMan respondsToSelector:@selector(requestAlwaysAuthorization)])
-                    {
-                        [self.locMan requestAlwaysAuthorization];
+                    [self.locMan requestAlwaysAuthorization];
                 
-                        self.locMan.delegate = self;
-                    }
+                    self.locMan.delegate = self;
                 }
             }
             else
@@ -694,7 +669,7 @@
                 {
                     [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
                 }
-                else if (  [[AVCaptureDevice class] respondsToSelector:@selector(requestAccessForMediaType:completionHandler:)])
+                else
                 {
                     [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
                         if(granted){

@@ -25,7 +25,7 @@
 
 @interface StopNameCacheManager : QueryCacheManager
 
-- (NSArray *)getStopNameAndCache:(NSString *)stopId;
+- (NSArray *)getStopName:(NSString *)stopId fetchAndCache:(bool)fetchAndCache updated:(bool*)updated;
 + (NSString *)shortDirection:(NSString *)dir;
 
 @end

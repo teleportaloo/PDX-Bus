@@ -26,7 +26,7 @@
 }
 + (void)showLocationAlert:(NSString *)reason
 {
-    if  ([[UIDevice currentDevice].systemVersion floatValue] >= 8.0)
+    if  ([UIDevice currentDevice].systemVersion.floatValue >= 8.0)
     {
         LocationAuthorization *alert = [[[ LocationAuthorization alloc ] initWithTitle:NSLocalizedString(@"Location Authorization Needed",@"alarm pop-up title")
                                                                                message:[NSString stringWithFormat:NSLocalizedString(@"%@. Go to the settings app and select PDX Bus to re-enable location services.", @"alarm warning"), reason]

@@ -30,7 +30,7 @@
 
 @property (nonatomic) bool hideButton;
 @property (nonatomic, retain) CLLocationManager *locMan;
-@property (nonatomic, retain) NSString *locationText;
-@property (nonatomic, retain) NSString *cameraText;
+@property (nonatomic, copy)   NSString *locationText;
+@property (nonatomic, copy)   NSString *cameraText;
 
 @end
