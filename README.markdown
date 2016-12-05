@@ -20,7 +20,7 @@ Features include:
 
 Route and arrival data provided by permission of TriMet.
 
-PDX Bus 8.2 sources
+PDX Bus 9.0 sources
 ====================
 
 I am making the sources to PDX Bus version 7.9 available as part of the
@@ -461,4 +461,4 @@ First Open Source Version.
 
 HAVE FUN!
 
-Andrew Wallace, August 2015.
+Andrew Wallace, December 2016.
