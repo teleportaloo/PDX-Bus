@@ -12,17 +12,17 @@
 
 #import <UIKit/UIKit.h>
 #import "TableViewWithToolbar.h"
-#import "XMLDetour.h"
+#import "XMLDetours.h"
 
 
 @interface DetoursView : TableViewWithToolbar {
-	XMLDetour *_detourData; 
-	NSInteger disclaimerSection;
+	XMLDetours *_detours;
+	NSInteger   _disclaimerSection;
 }
-- (void)fetchDetoursInBackground:(id<BackgroundTaskProgress>) callback;
-- (void)fetchDetoursInBackground:(id<BackgroundTaskProgress>) callback route:(NSString *)route;
-- (void)fetchDetoursInBackground:(id<BackgroundTaskProgress>) callback routes:(NSArray *)routes;
+- (void)fetchDetoursAsync:(id<BackgroundTaskProgress>) callback;
+- (void)fetchDetoursAsync:(id<BackgroundTaskProgress>) callback route:(NSString *)route;
+- (void)fetchDetoursAsync:(id<BackgroundTaskProgress>) callback routes:(NSArray *)routes;
 
-@property (nonatomic, retain) XMLDetour *detourData;
+@property (nonatomic, retain) XMLDetours *detours;
 
 @end
