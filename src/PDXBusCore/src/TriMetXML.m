@@ -102,6 +102,9 @@
 @synthesize itemFromCache = _itemFromCache;
 @synthesize fullQuery = _fullQuery;
 @synthesize oneTimeDelegate = oneTimeDelegate;
+@synthesize startSelectors = _startSelectors;
+@synthesize endSelectors = _endSelectors;
+
 
 
 #pragma mark Cache
@@ -155,6 +158,8 @@ static StopNameCacheManager *stopNameCache = nil;
 	self.cacheTime = nil;
     self.oneTimeDelegate = nil;
     self.fullQuery   = nil;
+    self.startSelectors = nil;
+    self.endSelectors = nil;
 	[super dealloc];
 }
 
@@ -560,7 +565,13 @@ static StopNameCacheManager *stopNameCache = nil;
 	[parser setShouldResolveExternalEntities:NO];
 	
 	[self clearArray];
-	
+    
+    if (self.startSelectors == nil)
+    {
+        self.startSelectors = [[[NSMutableDictionary alloc] init] autorelease];
+        self.endSelectors =   [[[NSMutableDictionary alloc] init] autorelease];
+    }
+    
 	[parser parse];
 	
     NSError *parseError = parser.parserError;
@@ -573,6 +584,20 @@ static StopNameCacheManager *stopNameCache = nil;
 	}
 	
 	[parser release];
+    
+#ifdef XMLLOGGING
+    [self.startSelectors enumerateKeysAndObjectsUsingBlock: ^void (NSString* element, NSValue* sel, BOOL *stop)
+     {
+         DEBUG_LOG_RAW(@"start element %@ %p", element, sel.pointerValue);
+     }];
+    
+    [self.endSelectors enumerateKeysAndObjectsUsingBlock: ^void (NSString* element, NSValue* sel, BOOL *stop)
+     {
+         DEBUG_LOG_RAW(@"end element %@ %p", element, sel.pointerValue);
+     }];
+
+
+#endif
 	
 	return succeeded;
 	
@@ -690,12 +715,61 @@ static NSDictionary *replacements = nil;
 	
 }
 
+-(SEL)selectorForElement:(NSString*)elementName format:(NSString*)format cache:(NSMutableDictionary<NSString *, NSValue*> *)cache debug:(NSString*)debug
+{
+    NSString *lowerElName   = [elementName lowercaseString];
+    NSValue *selValue       = [cache objectForKey:lowerElName];
+    SEL elementSelector     = nil;
+    
+    if (selValue == nil)
+    {
+        NSString *selName = [NSString stringWithFormat:format, lowerElName];
+        elementSelector = NSSelectorFromString(selName);
+        
+        if (![self respondsToSelector:elementSelector])
+        {
+            elementSelector = nil;
+#ifdef XMLLOGGING
+            DEBUG_LOG_RAW(@"XML:%@ <- not %@\n", debug, elementName);
+#endif
+        }
+#ifdef XMLLOGGING
+        else
+        {
+            DEBUG_LOG_RAW(@"XML:%@ <-     %@\n", debug, elementName);
+        }
+#endif
+        [cache setObject:[NSValue valueWithPointer:elementSelector] forKey:lowerElName];
+    }
+    else if (selValue.pointerValue != nil)
+    {
+        elementSelector = selValue.pointerValue;
+#ifdef XMLLOGGING
+        DEBUG_LOG_RAW(@"XML:%@ ->    %@\n", debug, elementName);
+#endif
+    }
+#ifdef XMLLOGGING
+    else
+    {
+        DEBUG_LOG_RAW(@"XML:%@ -> not %@\n", debug, elementName);
+    }
+#endif
+    return elementSelector;
+}
+
 - (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict
 {
-#ifdef XMLLOGGING
+    if ([NSThread currentThread].isCancelled)
+    {
+        [parser abortParsing];
+        return;
+    }
+    
     if (qName) {
         elementName = qName;
     }
+#ifdef XMLLOGGING
+
     
     DEBUG_LOG_RAW(@"XML: %@",elementName);
     
@@ -708,15 +782,57 @@ static NSDictionary *replacements = nil;
         DEBUG_LOG_RAW(@"XML:  %@ = %@\n", key, attributeDict[key]);
     }
 #endif
+    
+    SEL elementSelector = [self selectorForElement:elementName format:@"parser:didStartX%@:namespaceURI:qualifiedName:attributes:" cache:self.startSelectors debug:@"start"];
+    if (elementSelector !=nil)
+    {
+            NSInvocation *inv = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:elementSelector]];
+            [inv setSelector:elementSelector];
+            [inv setTarget:self];
+            [inv setArgument:&(parser) atIndex:2]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
+            [inv setArgument:&(elementName) atIndex:3]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
+            [inv setArgument:&(namespaceURI) atIndex:4]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
+            [inv setArgument:&(qName) atIndex:5]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
+            [inv setArgument:&(attributeDict) atIndex:6]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
+        
+            [inv invoke];
+    }
+    
 }
 
 - (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName
 {
+    if ([NSThread currentThread].isCancelled)
+    {
+        [parser abortParsing];
+        return;
+    }
+    
+    if (qName) {
+        elementName = qName;
+    }
+    
 #ifdef XMLLOGGING
     if (self.contentOfCurrentProperty != nil)
     {
-        DEBUG_LOG(@"  Content: %@\n", self.contentOfCurrentProperty);
+        DEBUG_LOG_RAW(@"  Content: %@\n", self.contentOfCurrentProperty);
     }
 #endif
+    
+    SEL elementSelector = [self selectorForElement:elementName format:@"parser:didEndX%@:namespaceURI:qualifiedName:" cache:self.endSelectors debug:@"end  "];
+    
+    if (elementSelector !=nil)
+    {
+        NSInvocation *inv = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:elementSelector]];
+        [inv setSelector:elementSelector];
+        [inv setTarget:self];
+        [inv setArgument:&(parser) atIndex:2]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
+        [inv setArgument:&(elementName) atIndex:3]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
+        [inv setArgument:&(namespaceURI) atIndex:4]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
+        [inv setArgument:&(qName) atIndex:5]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
+        
+        [inv invoke];
+    }
+    
 }
 @end

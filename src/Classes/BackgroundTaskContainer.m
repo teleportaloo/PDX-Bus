@@ -17,25 +17,51 @@
 #import "AppDelegateMethods.h"
 #import "DebugLogging.h"
 
+
+
+@interface BackgroundTaskContainer()
+
+@property (atomic, readonly)	NSThread * backgroundThread;
+@property (atomic, retain)      NSThread * thisBackgroundThread;
+
+@end
+
 @implementation BackgroundTaskContainer
 
 @synthesize progressModal			= _progressModal;
 @synthesize callbackComplete		= _callbackComplete;
 @synthesize callbackWhenFetching	= _callbackWhenFetching;
-@synthesize backgroundThread		= _backgroundThread;
+@dynamic backgroundThread;
 @synthesize title                   = _title;
 @synthesize help                    = _help;
 @synthesize errMsg                  = _errMsg;
 @synthesize controllerToPop         = _controllerToPop;
 
-static int taskCount;
-static NSNumber *syncObject;
+static NSThread *singletonBackgroundThread = nil;
+static NSCondition *condition = nil;
+
+- (void)cancel
+{
+    DEBUG_FUNC();
+    if (self.thisBackgroundThread!=nil)
+    {
+        [self.backgroundThread cancel];
+    }
+    else if (singletonBackgroundThread!=nil)
+    {
+        DEBUG_LOG(@"Would have cancelled the wrong thread");
+    }
+}
+
+- (bool)running
+{
+    return (self.thisBackgroundThread != nil);
+}
 
 - (void)dealloc {
 	self.progressModal = nil;
 	self.callbackComplete = nil;
 	self.callbackWhenFetching = nil;
-	self.backgroundThread = nil;
     self.errMsg           = nil;
     self.controllerToPop  = nil;
     self.help             = nil;
@@ -50,6 +76,59 @@ static NSNumber *syncObject;
 	btc.callbackComplete = done;	
 	return btc;
 		
+}
+
+- (instancetype)init
+{
+    if ((self = [super init]))
+    {
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            condition = [[NSCondition alloc] init];
+        });
+    }
+    
+    return self;
+}
+
+- (NSThread*)backgroundThread
+{
+    return self.thisBackgroundThread;
+}
+
+- (void)privateSetBackgroundThread:(NSThread*)newBackgroundThread
+{
+    DEBUG_FUNC();
+    if (newBackgroundThread!=nil)
+    {
+        [condition lock];
+    
+        while (singletonBackgroundThread!=nil)
+        {
+            DEBUG_LOG(@"Waiting");
+            [condition wait];
+            DEBUG_LOG(@"Got signal");
+        }
+
+        singletonBackgroundThread = [newBackgroundThread retain];
+        self.thisBackgroundThread = singletonBackgroundThread;
+        
+        [condition unlock];
+    }
+    else
+    {
+        [condition lock];
+        
+        if (singletonBackgroundThread!=nil)
+        {
+            [singletonBackgroundThread release];
+            singletonBackgroundThread = nil;
+            self.thisBackgroundThread = singletonBackgroundThread;
+        }
+        // DEBUG_LOG(@"Signal");
+        [condition signal];
+        [condition unlock];
+    }
 }
 
 - (void) ProgressDelegateCancel
@@ -87,39 +166,20 @@ static NSNumber *syncObject;
 
 -(void)backgroundStart:(int)items title:(NSString *)title
 {
-	self.title = title;
+    self.title = title;
     self.errMsg = nil;
-	
-	if (syncObject == nil)
-	{
-		syncObject = [[NSNumber alloc] init];
-	}
-	
-	@synchronized (syncObject)
-	{
-		taskCount++;
-	
-        DEBUG_LOGLU(taskCount);
-		// Cancel this immediately if there is one already running
-		if (taskCount > 1)
-		{
-			[[NSThread currentThread] cancel];
-		}
-        else
+
+    [self privateSetBackgroundThread:[NSThread currentThread]];
+    
+    [self performSelectorOnMainThread:@selector(BackgroundStartMainThread:) withObject:@(items) waitUntilDone:YES];
+    
+    if ([self.callbackComplete respondsToSelector:@selector(backgroundTaskWait)])
+    {
+        while([self.callbackComplete backgroundTaskWait])
         {
-            self.backgroundThread = [NSThread currentThread];
+            [NSThread sleepForTimeInterval:0.3];
         }
-	}
-	
-	[self performSelectorOnMainThread:@selector(BackgroundStartMainThread:) withObject:@(items) waitUntilDone:YES];
-	
-	if ([self.callbackComplete respondsToSelector:@selector(backgroundTaskWait)])
-	{
-		while([self.callbackComplete backgroundTaskWait])
-		{
-			[NSThread sleepForTimeInterval:0.3];
-		}
-	}	
+    }	
 }
 
 
@@ -153,19 +213,15 @@ static NSNumber *syncObject;
 
 -(void)finish
 {
+    DEBUG_FUNC();
+    
     bool cancelled = (self.backgroundThread !=nil && self.backgroundThread.cancelled);
     [self.callbackComplete BackgroundTaskDone:self.controllerToPop cancelled:cancelled];
     self.controllerToPop = nil;
-    self.backgroundThread = nil;
     
     self.callbackWhenFetching = nil;
 	self.progressModal = nil;
-	
-	
-	@synchronized (syncObject)
-	{
-		taskCount--;
-	}
+    [self privateSetBackgroundThread:nil];
 }
 
 -(void)BackgroundCompletedMainThread:(UIViewController *)viewController

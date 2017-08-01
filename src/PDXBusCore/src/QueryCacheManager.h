@@ -23,13 +23,13 @@
 
 @interface QueryCacheManager : NSObject <ClearableCache>
 {
-    NSMutableDictionary *   _cache;
-    SharedFile *            _sharedFile;
-    int                     _maxSize;
+    NSMutableDictionary<NSString *, NSArray*> *     _cache;
+    SharedFile *                                    _sharedFile;
+    int                                             _maxSize;
 }
 
-@property (nonatomic) int maxSize;
-@property (nonatomic, retain)   NSMutableDictionary *cache;
+@property (nonatomic)           int maxSize;
+@property (nonatomic, retain)   NSMutableDictionary<NSString *, NSArray*> *cache;
 @property (nonatomic, retain)   SharedFile *sharedFile;
 
 

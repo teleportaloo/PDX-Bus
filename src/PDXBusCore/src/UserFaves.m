@@ -16,6 +16,7 @@
 #import "UserFaves.h"
 #import "DebugLogging.h"
 #import "StopLocations.h"
+#import "NSMutableDictionary+MutableElements.h"
 
 
 @implementation SafeUserData
@@ -68,7 +69,8 @@
 {
     if (self.appData == nil)
     {
-        self.appData = [NSMutableDictionary dictionaryWithContentsOfURL:self.sharedUserCopyOfPlist.urlToSharedFile];
+        // We have to read the property list and make it mutable
+        self.appData = [NSMutableDictionary mutableContainersWithContentsOfURL:self.sharedUserCopyOfPlist.urlToSharedFile];
         
         [self getOrInitRecentTrips];
         
@@ -485,12 +487,12 @@
     NSDate *lastRun					 = [self.lastRun retain];
     NSDate *now						 = [NSDate date];
     
-// Text code forces the commuter bookmark every 30 seconds.
-//    if ([lastRun timeIntervalSinceNow] < -30)
-//    {
-//        [lastRun release];
-//        lastRun = nil;
-//    }
+// Text code forces the commuter bookmark every 5 seconds.
+   if ([UserPrefs singleton].debugCommuter && [lastRun timeIntervalSinceNow] < -5)
+   {
+       [lastRun release];
+       lastRun = nil;
+   }
     
     bool readOnly = self.readOnly;
     

@@ -391,12 +391,11 @@
 
 -(void)showCopy:(id)sender
 {
-	XMLTrips * copy = [self.tripQuery createAuto];
-	
     TripPlannerSummaryView *trip = [TripPlannerSummaryView viewController];
-	trip.tripQuery = copy;
-	
-	// Push the detail view controller
+    
+    trip.tripQuery = [self.tripQuery createAuto];
+    [trip.tripQuery resetCurrentLocation];
+    
 	[self.navigationController pushViewController:trip animated:YES];
 }
 

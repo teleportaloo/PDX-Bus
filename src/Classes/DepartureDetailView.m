@@ -1200,14 +1200,21 @@ enum SECTIONS_AND_ROWS
 
 - (void)countDownTimer
 {
-    if (self.indexPathOfLocationCell)
+    if (self.indexPathOfLocationCell && self.table)
     {
-        [self.table reloadRowsAtIndexPaths:@[self.indexPathOfLocationCell]
-                          withRowAnimation:UITableViewRowAnimationNone];
+        // If the  cell is not visable we will not update it this time. It
+        // will get updated in a second anyway.
+        
+        // It crashes here a lot according to the logs, so this may also
+        // protect against the exception.
+        
+        if ([self.table cellForRowAtIndexPath:self.indexPathOfLocationCell]!=nil)
+        {
+            [self.table reloadRowsAtIndexPaths:@[self.indexPathOfLocationCell]
+                              withRowAnimation:UITableViewRowAnimationNone];
+        }
     }
 }
-
-
 
 @end
 

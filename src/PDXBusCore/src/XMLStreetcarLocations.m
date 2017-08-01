@@ -114,82 +114,69 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
 
 #pragma mark Parser Callbacks
 
-- (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict
+
+START_ELEMENT(body)
 {
-	if ([NSThread currentThread].isCancelled)
-	{
-		[parser abortParsing];
-		return;
-	}
-    
-    [super parser:parser didStartElement:elementName namespaceURI:namespaceURI qualifiedName:qName attributes:attributeDict];
-	
-    if (qName) {
-        elementName = qName;
+    if (self.locations == nil)
+    {
+        self.locations = [NSMutableDictionary dictionary];
     }
-	if (ELTYPE(body))
-	{
-		if (self.locations == nil)
-		{
-            self.locations = [NSMutableDictionary dictionary];
-		}
-		_hasData = true;
-	}
-	
-    if (ELTYPE(vehicle)) {
-		
-		NSString *streetcarId = ATRVAL(id);
-		
-		VehicleData *pos = [VehicleData alloc].init;
-		
-        pos.location = [[[CLLocation alloc] initWithLatitude:ATRCOORD(lat)
-                                                   longitude:ATRCOORD(lon)] autorelease];
-		
-        pos.type = kVehicleTypeStreetcar;
-        pos.block = streetcarId;
-        pos.routeNumber = self.route;
-        NSInteger secs = ATRINT(secsSinceReport);
-        
-        // Weird issue - just reversing the sign is something to do with the weird data.
-        if (secs < 0)
-        {
-            secs = -secs;
-        }
+    _hasData = true;
+}
+
+START_ELEMENT(vehicle)
+{
+    NSString *streetcarId = ATRVAL(id);
     
-        pos.locationTime = UnixToTriMetTime([[NSDate date] timeIntervalSince1970] - secs);
-        pos.bearing = ATRVAL(heading);
-        
-        NSString *dirTag = ATRVAL(dirTag);
-        
-        NSScanner *scanner = [NSScanner scannerWithString:dirTag];
-        NSCharacterSet *underscore = [NSCharacterSet characterSetWithCharactersInString:@"_"];
-        NSString *aLoc;
-        
-        [scanner scanUpToCharactersFromSet:underscore intoString:&aLoc];
+    VehicleData *pos = [VehicleData alloc].init;
+    
+    pos.location = [[[CLLocation alloc] initWithLatitude:ATRCOORD(lat)
+                                               longitude:ATRCOORD(lon)] autorelease];
+    
+    pos.type = kVehicleTypeStreetcar;
+    pos.block = streetcarId;
+    pos.routeNumber = self.route;
+    NSInteger secs = ATRINT(secsSinceReport);
+    
+    // Weird issue - just reversing the sign is something to do with the weird data.
+    if (secs < 0)
+    {
+        secs = -secs;
+    }
+    
+    pos.locationTime = UnixToTriMetTime([[NSDate date] timeIntervalSince1970] - secs);
+    pos.bearing = ATRVAL(heading);
+    
+    NSString *dirTag = ATRVAL(dirTag);
+    
+    NSScanner *scanner = [NSScanner scannerWithString:dirTag];
+    NSCharacterSet *underscore = [NSCharacterSet characterSetWithCharactersInString:@"_"];
+    NSString *aLoc;
+    
+    [scanner scanUpToCharactersFromSet:underscore intoString:&aLoc];
+    
+    if (!scanner.isAtEnd)
+    {
+        scanner.scanLocation++;
         
         if (!scanner.isAtEnd)
         {
-            scanner.scanLocation++;
-            
-            if (!scanner.isAtEnd)
-            {
-                [scanner scanUpToCharactersFromSet:underscore intoString:&aLoc];
-                pos.direction = aLoc;
-            }
-            
+            [scanner scanUpToCharactersFromSet:underscore intoString:&aLoc];
+            pos.direction = aLoc;
         }
         
-		self.locations[streetcarId] = pos;
-		
-		[pos release];
-	
-	}
-	
-	if (ELTYPE(lastTime))
-	{
-		_lastTime = ATRTIM(time);
-	}
+    }
+    
+    self.locations[streetcarId] = pos;
+    
+    [pos release];
 }
+
+START_ELEMENT(lastTime)
+{
+    _lastTime = ATRTIM(time);
+}
+
 
 #pragma mark Access location data
 

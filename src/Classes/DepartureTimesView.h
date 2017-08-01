@@ -52,7 +52,7 @@ typedef NSMutableArray<NSNumber *> SECTIONROWS;
     bool                                                _reloadWhenAppears;
     bool                                                _allowSort;
     NSUserActivity *                                    _userActivity;
-    dispatch_once_t                                     _updatedWatch;
+    bool                                                _updatedWatch;
 	XMLStreetcarLocations *                             _streetcarLocations;
     NSMutableArray      *                               _vehiclesStops;
 }

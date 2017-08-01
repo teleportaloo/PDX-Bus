@@ -38,6 +38,29 @@
     [super dealloc];
 }
 
+- (void)cleanup
+{
+    int i = 0;
+    
+    VehicleData *previous = nil;
+    
+    for (i=0; i<_itemArray.count;)
+    {
+        VehicleData *item = _itemArray[i];
+        
+        if (item.signMessage==nil || item.signMessage.length==0
+            || ((previous!=nil && [previous.block isEqualToString:item.block])))
+        {
+            [_itemArray removeObjectAtIndex:i];
+        }
+        else
+        {
+            previous = item;
+            i++;
+        }
+    }
+}
+
 - (BOOL)findNearestVehicles:(NSSet *)routes direction:(NSString *)direction blocks:(NSSet *)blocks
 {
     NSString *query = nil;
@@ -98,6 +121,7 @@
     if (self.gotData)
     {
         [_itemArray sortUsingSelector:NSSelectorFromString(@"compareUsingDistance:")];
+        [self cleanup];
     }
 
 	
@@ -116,57 +140,49 @@
 	
 }
 
-
-- (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict
+START_ELEMENT(resultset)
 {
-    [super parser:parser didStartElement:elementName namespaceURI:namespaceURI qualifiedName:qName attributes:attributeDict];
-    
-    if (qName) {
-        elementName = qName;
-    }
-	
-	if (ELTYPE(resultSet)) {
-		
-		[self initArray];
-		_hasData = YES;
-	}
-	
-    if (ELTYPE(vehicle)) {
-        
-        NSString *dir = ATRVAL(direction);
-        
-        if (self.direction == nil || [self.direction isEqualToString:dir])
-        {
-        
-            VehicleData *currentVehicle = [VehicleData alloc].init;
-    
-            currentVehicle.block           = ATRVAL(blockID);
-            currentVehicle.nextLocID       = ATRVAL(nextLocID);
-            currentVehicle.lastLocID       = ATRVAL(lastLocID);
-            currentVehicle.routeNumber     = ATRVAL(routeNumber);
-            currentVehicle.direction       = dir;
-            currentVehicle.signMessage     = ATRVAL(signMessage);
-            currentVehicle.signMessageLong = ATRVAL(signMessageLong);
-            currentVehicle.type            = ATRVAL(type);
-            currentVehicle.locationTime    = ATRTIM(time);
-            currentVehicle.garage          = ATRVAL(garage);
-            currentVehicle.bearing         = ATRVAL(bearing);
-
-            currentVehicle.location = [[[CLLocation alloc] initWithLatitude:ATRCOORD(latitude)
-                                                                  longitude:ATRCOORD(longitude) ] autorelease];
-        
-            if (self.location != nil)
-            {
-                currentVehicle.distance = [currentVehicle.location distanceFromLocation:self.location];
-            }
-        
-        
-            [self addItem:currentVehicle];
-        
-            [currentVehicle release];
-        }
-	}
+    [self initArray];
+    _hasData = YES;
 }
+
+START_ELEMENT(vehicle)
+{
+    NSString *dir = ATRVAL(direction);
+    
+    if (self.direction == nil || [self.direction isEqualToString:dir])
+    {
+        
+        VehicleData *currentVehicle = [VehicleData alloc].init;
+        
+        currentVehicle.block           = ATRVAL(blockID);
+        currentVehicle.nextLocID       = ATRVAL(nextLocID);
+        currentVehicle.lastLocID       = ATRVAL(lastLocID);
+        currentVehicle.routeNumber     = ATRVAL(routeNumber);
+        currentVehicle.direction       = dir;
+        currentVehicle.signMessage     = ATRVAL(signMessage);
+        currentVehicle.signMessageLong = ATRVAL(signMessageLong);
+        currentVehicle.type            = ATRVAL(type);
+        currentVehicle.locationTime    = ATRTIM(time);
+        currentVehicle.garage          = ATRVAL(garage);
+        currentVehicle.bearing         = ATRVAL(bearing);
+        
+        currentVehicle.location = [[[CLLocation alloc] initWithLatitude:ATRCOORD(latitude)
+                                                              longitude:ATRCOORD(longitude) ] autorelease];
+        
+        if (self.location != nil)
+        {
+            currentVehicle.distance = [currentVehicle.location distanceFromLocation:self.location];
+        }
+        
+        
+        [self addItem:currentVehicle];
+        
+        [currentVehicle release];
+    }
+
+}
+
 
 /*
 

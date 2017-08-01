@@ -40,6 +40,7 @@
 + (instancetype)fromDictionary:(NSDictionary *)dict;
 @property (nonatomic, readonly, copy) NSString *displayText;
 @property (nonatomic, readonly, copy) NSString *userInputDisplayText;
+- (void)resetCurrentLocation;
 
 
 @end

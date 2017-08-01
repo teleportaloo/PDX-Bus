@@ -84,6 +84,7 @@
 		A14F0D12145DDB75009BE614 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A14F0D11145DDB75009BE614 /* AVFoundation.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		A14F96BD0E5E6ECD006EAEDE /* RouteView.m in Sources */ = {isa = PBXBuildFile; fileRef = A14F96BC0E5E6ECD006EAEDE /* RouteView.m */; };
 		A14F98330E5E7D74006EAEDE /* DirectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = A14F98320E5E7D74006EAEDE /* DirectionView.m */; };
+		A14FBB461E21BE26009CD9EC /* NSMutableDictionary+MutableElements.m in Sources */ = {isa = PBXBuildFile; fileRef = A14FBB451E21BE26009CD9EC /* NSMutableDictionary+MutableElements.m */; };
 		A153E4F31DB0167400CEA840 /* DataFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = A153E4F21DB0167400CEA840 /* DataFactory.m */; };
 		A1553FA10E5FAA07000D494B /* XMLStops.m in Sources */ = {isa = PBXBuildFile; fileRef = A1553FA00E5FAA07000D494B /* XMLStops.m */; };
 		A1553FA60E5FAA9C000D494B /* Stop.m in Sources */ = {isa = PBXBuildFile; fileRef = A1553FA50E5FAA9C000D494B /* Stop.m */; };
@@ -572,6 +573,8 @@
 		A14F96BC0E5E6ECD006EAEDE /* RouteView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = RouteView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		A14F98310E5E7D74006EAEDE /* DirectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DirectionView.h; sourceTree = "<group>"; };
 		A14F98320E5E7D74006EAEDE /* DirectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = DirectionView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		A14FBB441E21BE26009CD9EC /* NSMutableDictionary+MutableElements.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSMutableDictionary+MutableElements.h"; path = "PDXBusCore/src/NSMutableDictionary+MutableElements.h"; sourceTree = SOURCE_ROOT; };
+		A14FBB451E21BE26009CD9EC /* NSMutableDictionary+MutableElements.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSMutableDictionary+MutableElements.m"; path = "PDXBusCore/src/NSMutableDictionary+MutableElements.m"; sourceTree = SOURCE_ROOT; };
 		A153E4F11DB0167400CEA840 /* DataFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DataFactory.h; path = PDXBusCore/src/DataFactory.h; sourceTree = SOURCE_ROOT; };
 		A153E4F21DB0167400CEA840 /* DataFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DataFactory.m; path = PDXBusCore/src/DataFactory.m; sourceTree = SOURCE_ROOT; };
 		A1553F9F0E5FAA07000D494B /* XMLStops.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLStops.h; sourceTree = "<group>"; };
@@ -1406,6 +1409,8 @@
 				A1667B9B1D2C7B0A004B36D9 /* SharedFile.m */,
 				A1667B9C1D2C7B0A004B36D9 /* MapAnnotationImage.h */,
 				A1667B9D1D2C7B0A004B36D9 /* MapAnnotationImage.m */,
+				A14FBB441E21BE26009CD9EC /* NSMutableDictionary+MutableElements.h */,
+				A14FBB451E21BE26009CD9EC /* NSMutableDictionary+MutableElements.m */,
 			);
 			name = Core;
 			path = PDXBusCore/PDXBusCore;
@@ -2896,6 +2901,7 @@
 				A1667BD61D2C7B0A004B36D9 /* XMLDetours.m in Sources */,
 				A1667BD31D2C7B0A004B36D9 /* SharedFile.m in Sources */,
 				A1C910141BD2A5F20080C31E /* WatchArrivalMap.m in Sources */,
+				A14FBB461E21BE26009CD9EC /* NSMutableDictionary+MutableElements.m in Sources */,
 				A1246E151BD71EAE00395325 /* WatchPinColor.m in Sources */,
 				A1667BD71D2C7B0A004B36D9 /* XMLLocateVehicles.m in Sources */,
 				A1667BEB1D2C8095004B36D9 /* StopDistanceData.m in Sources */,
@@ -3094,6 +3100,10 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				OTHER_CFLAGS = (
+					"-Wno-nullability-completeness",
+					"-Wno-nullability-completeness-on-arrays",
+				);
 				PRODUCT_NAME = PDXBus;
 				PROVISIONING_PROFILE = "235F1E60-9C76-482C-9216-E57923C23E1B";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "1ff967eb-2cb9-4250-abac-4a99267d666b";
@@ -3188,6 +3198,10 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = (
+					"-Wno-nullability-completeness",
+					"-Wno-nullability-completeness-on-arrays",
+				);
 				PRODUCT_NAME = PDXBus;
 				PROVISIONING_PROFILE = "45E31EEA-5D3F-463B-A906-BFCC37A56E6B";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
@@ -3265,6 +3279,10 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				OTHER_CFLAGS = (
+					"-Wno-nullability-completeness",
+					"-Wno-nullability-completeness-on-arrays",
+				);
 				PRODUCT_NAME = PDXBus;
 				PROVISIONING_PROFILE = "45E31EEA-5D3F-463B-A906-BFCC37A56E6B";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
@@ -3914,6 +3932,10 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				OTHER_CFLAGS = (
+					"-Wno-nullability-completeness",
+					"-Wno-nullability-completeness-on-arrays",
+				);
 				PRODUCT_NAME = PDXBus;
 				PROVISIONING_PROFILE = "45E31EEA-5D3F-463B-A906-BFCC37A56E6B";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "45E31EEA-5D3F-463B-A906-BFCC37A56E6B";
@@ -3991,6 +4013,10 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = (
+					"-Wno-nullability-completeness",
+					"-Wno-nullability-completeness-on-arrays",
+				);
 				PRODUCT_NAME = PDXBus;
 				PROVISIONING_PROFILE = "235F1E60-9C76-482C-9216-E57923C23E1B";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
@@ -4026,6 +4052,10 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				OTHER_CFLAGS = (
+					"-Wno-nullability-completeness",
+					"-Wno-nullability-completeness-on-arrays",
+				);
 				PRODUCT_NAME = PDXBus;
 				PROVISIONING_PROFILE = "235F1E60-9C76-482C-9216-E57923C23E1B";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";

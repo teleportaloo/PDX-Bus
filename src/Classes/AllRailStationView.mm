@@ -16,7 +16,7 @@
 #import "AllRailStationView.h"
 #import "DepartureTimesView.h"
 
-#import "Hotspot.h"
+#import "HotSpot.h"
 #import "RailStation.h"
 #import "RailStationTableView.h"
 #import "XMLStops.h"

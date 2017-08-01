@@ -61,37 +61,30 @@ static NSString *allDetoursURLString = @"detours";
     
 }
 
-- (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict
+START_ELEMENT(resultset)
 {
-    [super parser:parser didStartElement:elementName namespaceURI:namespaceURI qualifiedName:qName attributes:attributeDict];
+    [self initArray];
+    _hasData = YES;
+}
+
+START_ELEMENT(detour)
+{
+    self.detour = [self replaceXMLcodes:ATRVAL(desc)];
+}
+
+START_ELEMENT(route)
+{
+    NSString *rt = ATRVAL(route);
     
-    if (qName) {
-        elementName = qName;
+    if (self.route == nil || [self.route isEqualToString:rt])
+    {
+        Detour *detour = [[Detour alloc] init];
+        detour.detourDesc = self.detour.stringWithTrailingSpacesRemoved;
+        detour.routeDesc = ATRVAL(desc);
+        detour.route = rt;
+        [self addItem:detour];
+        [detour release];
     }
-	
-	if (ELTYPE(resultSet)) {
-		
-		[self initArray];
-		_hasData = YES;
-	}
-	
-    if (ELTYPE(detour)) {
-		self.detour = [self replaceXMLcodes:ATRVAL(desc)];
-	}
-	else if (ELTYPE(route))
-	{
-		NSString *rt = ATRVAL(route);
-		
-		if (self.route == nil || [self.route isEqualToString:rt])
-		{
-			Detour *detour = [[Detour alloc] init];
-			detour.detourDesc = self.detour;
-			detour.routeDesc = ATRVAL(desc);
-			detour.route = rt;
-			[self addItem:detour];
-			[detour release];
-		}
-	}
 }
 
 

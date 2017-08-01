@@ -122,121 +122,103 @@
 	return false;
 }
 
-- (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict
+START_ELEMENT(resultset)
 {
-    [super parser:parser didStartElement:elementName namespaceURI:namespaceURI qualifiedName:qName attributes:attributeDict];
-    
-    if (qName) {
-        elementName = qName;
-    }
-	
-	if (ELTYPE(resultSet)) {
-		
-		[self initArray];
-		_hasData = YES;
-	}
-	
-    if (ELTYPE(location)) {
-        self.currentStop = [[[StopDistanceData alloc] init] autorelease];
-		_currentMode = TripModeNone;
-		
-		self.currentStop.locid = ATRVAL(locid);
-		self.currentStop.desc  = ATRVAL(desc);
-        self.currentStop.dir   = ATRVAL(dir);
-		
-		self.currentStop.location = [[[CLLocation alloc] initWithLatitude:ATRCOORD(lat)
-															    longitude:ATRCOORD(lng) ] autorelease];
-    
-        self.currentStop.distance = [self.location distanceFromLocation:self.currentStop.location];
+    [self initArray];
+    _hasData = YES;
+}
 
-		
-    }
-	
-	if (ELTYPE(route))
-	{
-		NSString *type   = ATRVAL(type);
-        NSString *number = ATRVAL(route);
+START_ELEMENT(location)
+{
+    self.currentStop = [[[StopDistanceData alloc] init] autorelease];
+    _currentMode = TripModeNone;
+    
+    self.currentStop.locid = ATRVAL(locid);
+    self.currentStop.desc  = ATRVAL(desc);
+    self.currentStop.dir   = ATRVAL(dir);
+    
+    self.currentStop.location = [[[CLLocation alloc] initWithLatitude:ATRCOORD(lat)
+                                                            longitude:ATRCOORD(lng) ] autorelease];
+    
+    self.currentStop.distance = [self.location distanceFromLocation:self.currentStop.location];
+}
+
+START_ELEMENT(route)
+{
+    NSString *type   = ATRVAL(type);
+    NSString *number = ATRVAL(route);
+    
+    // Route 98 is the MAX Shuttle and makes all max trains look like bus stops
+    if (number.intValue!=98)
+    {
         
-        // Route 98 is the MAX Shuttle and makes all max trains look like bus stops
-        if (number.intValue!=98)
+        switch ([type characterAtIndex:0])
         {
-		
-            switch ([type characterAtIndex:0])
+            case 'R':
+            case 'r':
+                switch (_currentMode)
             {
-                case 'R':
-                case 'r':
-                    switch (_currentMode)
-                    {
-                        case TripModeNone:
-                        case TripModeTrainOnly:
-                            _currentMode = TripModeTrainOnly;
-                            break;
-                        case TripModeBusOnly:
-                        case TripModeAll:
-                        default:
-                            _currentMode = TripModeAll;
-                            break;
-                    }
-                    
+                case TripModeNone:
+                case TripModeTrainOnly:
+                    _currentMode = TripModeTrainOnly;
                     break;
-                case 'B':
-                case 'b':
-                    switch (_currentMode)
-                    {
-                        case TripModeNone:
-                        case TripModeBusOnly:
-                            _currentMode = TripModeBusOnly;
-                            break;
-                        case TripModeTrainOnly:
-                        case TripModeAll:
-                        default:
-                            _currentMode = TripModeAll;
-                            break;
-                    }
-                    break;
+                case TripModeBusOnly:
+                case TripModeAll:
                 default:
                     _currentMode = TripModeAll;
                     break;
             }
+                
+                break;
+            case 'B':
+            case 'b':
+                switch (_currentMode)
+            {
+                case TripModeNone:
+                case TripModeBusOnly:
+                    _currentMode = TripModeBusOnly;
+                    break;
+                case TripModeTrainOnly:
+                case TripModeAll:
+                default:
+                    _currentMode = TripModeAll;
+                    break;
+            }
+                break;
+            default:
+                _currentMode = TripModeAll;
+                break;
         }
-		if (self.routes != nil && [self modeMatch:_currentMode second:_mode])
-		{
-			NSString *xmlRoute = ATRVAL(route);
-			
-			RouteDistanceData *rd = self.routes[xmlRoute];
-			
-			if (rd == nil)
-			{
-				NSString *desc = ATRVAL(desc);
-				
-                rd = [RouteDistanceData data];
-				rd.desc = desc;
-				rd.type = type;
-				rd.route = xmlRoute;
-				
-				self.routes[xmlRoute] = rd;
-			}
-			
-			[rd.stops addObject:self.currentStop];
-		}
-	}
+    }
+    if (self.routes != nil && [self modeMatch:_currentMode second:_mode])
+    {
+        NSString *xmlRoute = ATRVAL(route);
+        
+        RouteDistanceData *rd = self.routes[xmlRoute];
+        
+        if (rd == nil)
+        {
+            NSString *desc = ATRVAL(desc);
+            
+            rd = [RouteDistanceData data];
+            rd.desc = desc;
+            rd.type = type;
+            rd.route = xmlRoute;
+            
+            self.routes[xmlRoute] = rd;
+        }
+        
+        [rd.stops addObject:self.currentStop];
+    }
 }
 
-- (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName
+END_ELEMENT(location)
 {
-    [super parser:parser didEndElement:elementName namespaceURI:namespaceURI qualifiedName:qName];
-    
-    if (qName) {
-        elementName = qName;
+    if ([self modeMatch:_currentMode second:_mode])
+    {
+        [self addItem:self.currentStop];
     }
-	
-	if (ELTYPE(location)) {
-		if ([self modeMatch:_currentMode second:_mode])
-		{
-			[self addItem:self.currentStop];
-		}
-		self.currentStop = nil; 
-	}
+    self.currentStop = nil;
 }
 
 

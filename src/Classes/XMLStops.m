@@ -84,61 +84,41 @@ static NSString *stopsURLString = @"routeConfig/route/%@/dir/%@/stops/true";
     
 }
 
-
-- (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict
+START_ELEMENT(resultset)
 {
-    [super parser:parser didStartElement:elementName namespaceURI:namespaceURI qualifiedName:qName attributes:attributeDict];
+    [self initArray];
+    _hasData = YES;
+}
+
+START_ELEMENT(stop)
+{
+    NSString *locid = ATRVAL(locid);
     
-    if (qName) {
-        elementName = qName;
+    if (self.afterStop !=nil && [locid isEqualToString:self.afterStop])
+    {
+        self.afterStop = nil;
+        self.currentStopObject = nil;
     }
-	
-	if (ELTYPE(resultSet)) {
-		[self initArray]; 
-		_hasData = YES;
-	}
-	
-    if (ELTYPE(stop)) {
-		NSString *locid = ATRVAL(locid);
+    else if (self.afterStop == nil)
+    {
+        self.currentStopObject = [Stop data];
         
-		if (self.afterStop !=nil && [locid isEqualToString:self.afterStop])
-		{
-			self.afterStop = nil;
-			self.currentStopObject = nil;
-		}
-		else if (self.afterStop == nil)
-		{
-            self.currentStopObject = [Stop data];
-			
-			self.currentStopObject.locid =	ATRVAL(locid);
-			self.currentStopObject.desc =	ATRVAL(desc);
-			self.currentStopObject.tp =		ATRBOOL(tp);
-			self.currentStopObject.lat =	ATRVAL(lat);
-			self.currentStopObject.lng =    ATRVAL(lng);
-		}
-        return;
+        self.currentStopObject.locid =	ATRVAL(locid);
+        self.currentStopObject.desc =	ATRVAL(desc);
+        self.currentStopObject.tp =		ATRBOOL(tp);
+        self.currentStopObject.lat =	ATRVAL(lat);
+        self.currentStopObject.lng =    ATRVAL(lng);
     }
 }
 
-- (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName
+END_ELEMENT(stop)
 {
-    [super parser:parser didEndElement:elementName namespaceURI:namespaceURI qualifiedName:qName];
-    
-    if (qName) {
-        elementName = qName;
+    if (self.currentStopObject !=nil)
+    {
+        [self addItem:self.currentStopObject];
+        self.currentStopObject.index = (int)self.itemArray.count;
+        self.currentStopObject = nil;
     }
-	
-	if (ELTYPE(stop)) {
-		if (self.currentStopObject !=nil)
-		{
-			[self addItem:self.currentStopObject ];
-			self.currentStopObject.index = (int)self.itemArray.count;
-			self.currentStopObject = nil;
-		}
-	}
 }
-
-
-
 
 @end

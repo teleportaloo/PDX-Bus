@@ -104,6 +104,15 @@
 	
 }
 
+- (void)resetCurrentLocation
+{
+    if (self.useCurrentLocation)
+    {
+        self.locationDesc = nil;
+        self.coordinates = nil;
+    }
+}
+
 - (NSNumber *)forceNSNumber:(NSObject*)obj
 {
 	if (obj && [obj isKindOfClass:[NSNumber class]])

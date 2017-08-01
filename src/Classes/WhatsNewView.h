@@ -20,7 +20,7 @@
 #import <UIKit/UIKit.h>
 #import "TableViewWithToolbar.h"
 
-#define kWhatsNewVersion @"9.0"
+#define kWhatsNewVersion @"9.2"
 
 @protocol WhatsNewSpecialAction <NSObject>
 

@@ -10,10 +10,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+
+// There is an analysis error in CGColorSpace.h - this will suppress
+// that error for that case only. 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wno-nullability-completeness"
+#pragma clang diagnostic ignored "-Wno-nullability-completeness-on-arrays"
+
 #import <UIKit/UIKit.h>
 
-#include "TriMetTypes.h"
+#pragma clag diagnostic pop
 
+#include "TriMetTypes.h"
 
 @interface DepartureTrip : NSObject {
 	NSString *      _name;

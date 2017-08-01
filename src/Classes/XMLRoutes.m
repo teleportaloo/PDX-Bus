@@ -45,48 +45,33 @@ static NSString *oneRouteURLString = @"routeConfig/route/%@/dir/true";
     
 }
 
+#pragma mark Start Elements
 
-- (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict
+START_ELEMENT(resultset)
 {
-    [super parser:parser didStartElement:elementName namespaceURI:namespaceURI qualifiedName:qName attributes:attributeDict];
-    
-    if (qName) {
-        elementName = qName;
-    }
-	
-	if (ELTYPE(resultSet)) {
-
-		[self initArray];
-		_hasData = YES;
-	}
-	
-    if (ELTYPE(route)) {
-        self.currentRouteObject = [Route data];
-		
-		self.currentRouteObject.route = ATRVAL(route);
-		self.currentRouteObject.desc =  ATRVAL(desc);
-		
-        return;
-    }
-	
-	if (ELTYPE(dir))
-	{
-		self.currentRouteObject.directions[ATRVAL(dir)] = ATRVAL(desc);
-	}
+    [self initArray];
+    _hasData = YES;
 }
 
-- (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName
+START_ELEMENT(route)
 {
-    [super parser:parser didEndElement:elementName namespaceURI:namespaceURI qualifiedName:qName];
+    self.currentRouteObject = [Route data];
     
-    if (qName) {
-        elementName = qName;
-    }
-	
-	if (ELTYPE(route)) {
-		[self addItem:self.currentRouteObject];
-		self.currentRouteObject = nil; 
-	}
+    self.currentRouteObject.route = ATRVAL(route);
+    self.currentRouteObject.desc =  ATRVAL(desc);
+}
+
+START_ELEMENT(dir)
+{
+    self.currentRouteObject.directions[ATRVAL(dir)] = ATRVAL(desc);
+}
+
+#pragma mark End Elements
+
+END_ELEMENT(route)
+{
+    [self addItem:self.currentRouteObject];
+    self.currentRouteObject = nil;
 }
 
 @end

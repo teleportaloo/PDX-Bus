@@ -33,7 +33,6 @@
 	ProgressModalView *			_progressModal;
 	id<BackgroundTaskDone>		_callbackComplete;
 	id<BackgroundTaskProgress>	_callbackWhenFetching;
-	NSThread *					_backgroundThread;
 	NSString *					_title;
     NSString *                  _help;
     NSString *                  _errMsg;
@@ -47,12 +46,14 @@
 - (void)backgroundCompleted:(UIViewController*)viewController;
 - (void)backgroundSetErrorMsg:(NSString *)errMsg;
 - (void)BackgroundSetHelpText:(NSString*)helpText;
+- (void)cancel;
+- (bool)running;
 
 @property (nonatomic, retain)	NSString *					title;
 @property (retain)				ProgressModalView *			progressModal;     // atomic for thread safety
 @property (   atomic, assign)	id<BackgroundTaskDone>		callbackComplete;  // weak
 @property (nonatomic, retain)	id<BackgroundTaskProgress>	callbackWhenFetching;
-@property (nonatomic, retain)	NSThread *					backgroundThread;
+//@property (atomic, readonly)	NSThread *					backgroundThread;
 @property (nonatomic, retain)   NSString *                  errMsg;
 @property (nonatomic, retain)   UIViewController *          controllerToPop;
 @property (nonatomic, retain)   NSString *                  help;

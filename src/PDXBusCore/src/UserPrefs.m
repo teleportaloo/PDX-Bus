@@ -230,7 +230,7 @@
 
 - (float)maxWalkingDistance
 {
-	return [self getFloatFromDefaultsForKey:@"max_walking_distance"		ifMissing:0.5 max:2.0 min:0.1 writeToShared:NO];
+	return [self getFloatFromDefaultsForKey:@"max_walking_distance"		ifMissing:0.75 max:2.0 min:0.1 writeToShared:NO];
 	
 }
 - (bool) flashLed
@@ -386,6 +386,12 @@
     return [self getBoolFromDefaultsForKey:@"debug_xml"                     ifMissing:NO writeToShared:NO];
 }
 
+- (bool) debugCommuter
+{
+    return [self getBoolFromDefaultsForKey:@"debug_commuter"                ifMissing:NO writeToShared:NO];
+}
+
+
 - (bool) useChrome
 {
     return [self getBoolFromDefaultsForKey:@"chrome"                        ifMissing:NO writeToShared:NO];
@@ -450,29 +456,7 @@
 
 - (NSString*)busIcon
 {
-    //  Currently this feature is disabled - so I return a default value.
-    
     return @"icon_arrow_up.png";
-    
-    /*
-     
-    NSString *fileName = nil;
-    
-    if (useWatchSettings)
-    {
-        fileName = [self getStringFromDefaultsForKey:@"watch_bus_icon"   ifMissing:@"icon_arrow_up.png"];
-
-    }
-    else
-    {
-        fileName = [self getStringFromDefaultsForKey:@"bus_icon"   ifMissing:@"icon_arrow_up.png"];
-    }
-    
-    
-    DEBUG_LOG(@"bus icon %@\n", fileName);
-    return fileName;
-     
-     */
 }
 
 

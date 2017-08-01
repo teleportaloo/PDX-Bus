@@ -214,7 +214,7 @@ enum
 
 - (BOOL)shouldAutorotate {
     
-    if (self.backgroundTask.backgroundThread !=nil)
+    if (self.backgroundTask.running)
     {
         return NO;
     }
@@ -275,7 +275,7 @@ enum
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
 {
-    if (self.backgroundTask.backgroundThread ==nil)
+    if (!self.backgroundTask.running)
     {
         [self reloadData];
     }
@@ -554,6 +554,17 @@ enum
     
 }
 
+- (void)didEnterBackground
+{
+    if (self.backgroundTask)
+    {
+        [self.backgroundTask cancel];
+        [self.backgroundTask.progressModal removeFromSuperview];
+        self.backgroundTask.progressModal= nil;
+
+    };
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
 
 - (void)xmlAction:(UIView *)sender
 {
@@ -943,7 +954,7 @@ enum
     
     if ([self canTweet])
     {
-        self.tweetButtons[ [self.tweetAlert addButtonWithTitle:@"Send tweet"] ] = @(kTweetButtonTweet);
+        self.tweetButtons[ [self.tweetAlert addButtonWithTitle:NSLocalizedString(@"Send tweet", @"button text")] ] = @(kTweetButtonTweet);
     }
     
     NSString *twitter=[NSString stringWithFormat:@"twitter:"];
@@ -1145,6 +1156,12 @@ enum
         [WatchAppContext updateWatch:root.session];
     }
     
+}
+
+- (void) viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    [self.backgroundTask cancel];
 }
 
 

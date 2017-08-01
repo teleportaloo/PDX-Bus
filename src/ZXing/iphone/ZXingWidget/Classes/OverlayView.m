@@ -104,7 +104,7 @@ static const CGFloat kPadding = 10;
                                                                                action:nil] autorelease]]; 
         
         [toolbarItems addObject:[[[UIBarButtonItem alloc]
-                                  initWithTitle:@"Help"
+                                  initWithTitle:NSLocalizedString(@"Help", @"button text")
                                   style:UIBarButtonItemStylePlain
                                   target:self action:@selector(help:)] autorelease]];
         
@@ -228,15 +228,15 @@ static const CGFloat kPadding = 10;
 	}
 }
 
-#define QR_CODES_TITLE @"QR Codes"
+#define QR_CODES_TITLE NSLocalizedString(@"QR Codes", @"button title")
 
 - (void)help:(id)sender {
     NSString *title = QR_CODES_TITLE;
-    NSString *message = @"TriMet has placed QR Codes at most stops and stations, just scan the code to see the arrivals.";
-    NSString *cancelTitle = @"OK";
-    NSString *viewTitle = @"TriMet web site";
+    NSString *message = NSLocalizedString(@"TriMet has placed QR Codes at most stops and stations, just scan the code to see the arrivals.", @"help text for QR coddes");
+    NSString *cancelTitle = NSLocalizedString(@"OK",@"button text");
+    // NSString *viewTitle = NSLocalizedString(@"TriMet web site", @"button text");
     
-    UIAlertView *av = [[UIAlertView alloc] initWithTitle:title message:message delegate:self cancelButtonTitle:cancelTitle otherButtonTitles:viewTitle, nil];
+    UIAlertView *av = [[UIAlertView alloc] initWithTitle:title message:message delegate:self cancelButtonTitle:cancelTitle otherButtonTitles:nil];
     [av show];
     [av release];
 }

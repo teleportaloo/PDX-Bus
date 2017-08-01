@@ -48,90 +48,77 @@
 
 #pragma mark Parser Callbacks
 
-- (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict
+START_ELEMENT(body)
 {
-	if ([NSThread currentThread].isCancelled)
-	{
-		[parser abortParsing];
-		return;
-	}
+   self.copyright = ATRVAL(copyright);
+}
+
+START_ELEMENT(predictions)
+{
+    self.routeTitle = ATRVAL(routeTitle);
     
-    [super parser:parser didStartElement:elementName namespaceURI:namespaceURI qualifiedName:qName attributes:attributeDict];
-	
-    if (qName) {
-        elementName = qName;
-    }
-	
-	if (ELTYPE(body))
-	{
-		self.copyright = ATRVAL(copyright);
-	}
-	
-	if (ELTYPE(predictions)) {
-		self.routeTitle = ATRVAL(routeTitle);
-		
-		self.directionTitle = [attributeDict objectForCaseInsensitiveKey:@"dirTitleBecauseNoPredictions"];
+    self.directionTitle = [attributeDict objectForCaseInsensitiveKey:@"dirTitleBecauseNoPredictions"];
 #ifdef DEBUGLOGGING
-        self.stopTitle = attributeDict[@"stopTitle"];
+    self.stopTitle = attributeDict[@"stopTitle"];
 #endif
+    
+    if (self.directionTitle!=nil)
+    {
+        [self initArray];
+        _hasData = YES;
+    }
+}
+
+START_ELEMENT(direction)
+{
+    self.directionTitle = ATRVAL(title);
+    
+    if (!_hasData)
+    {
+        [self initArray];
+        _hasData = YES;
+    }
+}
+
+START_ELEMENT(prediction)
+{
+    // Note - the vehicle is the block - I put the block into the streetcar block!
+    NSString *block = ATRVAL(block);
+    if ((self.blockFilter==nil) || ([self.blockFilter isEqualToString:block]))
+    {
+        NSString *name = [NSString stringWithFormat:@"%@ %@", self.routeTitle, self.directionTitle];
         
-		if (self.directionTitle!=nil)
-		{
-			[self initArray];
-			_hasData = YES;
-		}
-	}
-	
-	if (ELTYPE(direction)) {
-		self.directionTitle = ATRVAL(title);
-		
-		if (!_hasData)
-		{
-			[self initArray];
-			_hasData = YES;
-		}
-	}
-	
-    if (ELTYPE(prediction))
-	{
-        // Note - the vehicle is the block - I put the block into the streetcar block!
-		NSString *block = ATRVAL(block);
-		if ((self.blockFilter==nil) || ([self.blockFilter isEqualToString:block]))
-		{
-			NSString *name = [NSString stringWithFormat:@"%@ %@", self.routeTitle, self.directionTitle];
-            
-            // There are some bugs in the streetcar feed (e.g. Cl instead of CL)
-			
-            self.currentDepartureObject = [DepartureData data];
-			self.currentDepartureObject.hasBlock       = true;
-			self.currentDepartureObject.route          = nil;
-			self.currentDepartureObject.fullSign       = name;
-			self.currentDepartureObject.routeName      = name;
-			self.currentDepartureObject.block          = block;
-			self.currentDepartureObject.status         = kStatusEstimated;
-			self.currentDepartureObject.nextBus        = ATRTIM(minutes);
-			self.currentDepartureObject.streetcar      = true;
-            self.currentDepartureObject.dir            = nil;
-			self.currentDepartureObject.copyright      = self.copyright;
-            self.currentDepartureObject.streetcarId    = ATRVAL(vehicle);
-			
-			/*
-			[ATRVAL(dirTag"] isEqualToString:@"t5"]
-														? @"1" : @"0";
-			*/
-			
-			/*
-			self.currentDepartureObject.locationDesc =	self.locDesc;
-			self.currentDepartureObject.locid		 =  self.locid;
-			self.currentDepartureObject.locationDir  =  self.locDir;
-			*/
-			
-			[self addItem:self.currentDepartureObject];
-		}
-		else
-		{
-			self.currentDepartureObject=nil;
-		}
+        // There are some bugs in the streetcar feed (e.g. Cl instead of CL)
+        
+        self.currentDepartureObject = [DepartureData data];
+        self.currentDepartureObject.hasBlock       = true;
+        self.currentDepartureObject.route          = nil;
+        self.currentDepartureObject.fullSign       = name;
+        self.currentDepartureObject.routeName      = name;
+        self.currentDepartureObject.block          = block;
+        self.currentDepartureObject.status         = kStatusEstimated;
+        self.currentDepartureObject.nextBus        = ATRTIM(minutes);
+        self.currentDepartureObject.streetcar      = true;
+        self.currentDepartureObject.dir            = nil;
+        self.currentDepartureObject.copyright      = self.copyright;
+        self.currentDepartureObject.streetcarId    = ATRVAL(vehicle);
+        
+        /*
+         [ATRVAL(dirTag"] isEqualToString:@"t5"]
+         ? @"1" : @"0";
+         */
+        
+        /*
+         self.currentDepartureObject.locationDesc =	self.locDesc;
+         self.currentDepartureObject.locid		 =  self.locid;
+         self.currentDepartureObject.locationDir  =  self.locDir;
+         */
+        
+        [self addItem:self.currentDepartureObject];
+    }
+    else
+    {
+        self.currentDepartureObject=nil;
     }
 }
 

@@ -2,6 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <array>
+	<string>.9.2 (August 2017)</string>
+	<string>Several bug fixes from bugs found from crash logs.</string>
+	<string>Fixed bug in which blank arrivals were displayed if commuter bookmark is triggered while already fetching data.</string>
+	<string>Minor user interface text changes.</string>
+	<string>.9.1 (January 2017)</string>
+	<string>Fixed bookmarks so first stop is not duplicated when editing.</string>
 	<string>.9.0 (December 2016)</string>
 	<string>Updated for iOS 10.</string>
 	<string>$railMap New Portland Streetcar Map.</string>
@@ -41,11 +47,5 @@
 	<string>Added Apple Watch app that supports arrivals for bookmarks, recent stops and nearby stops.</string>
 	<string>Fixed some issues with authorization of localization services and camera;  added diagnostics to the support page.</string>
 	<string>UI fixes: Fixed issues when rotating trip planner on iPad, and removed a small gap in the arrivals screen on older phones.</string>
-	<string>.7.2 (iOS 8) (December 2014)</string>
-	<string>+https://www.trimet.org/pdfs/maps/railsystem.pdf New MAX &amp; WES map.</string>
-	<string>+https://en.wikipedia.org/wiki/IOS_8 Rebuilt for iOS 8 and iPhone 6 and iPhone 6 Plus.</string>
-	<string>Added text to explain the different colors used for the arrival times.</string>
-	<string>Fixed issues with Streetcar arrivals by switching over to the TriMet feed for streetcar data.</string>
-	<string>Re-allowed emoji keyboard for bookmark names.</string>
 </array>
 </plist>

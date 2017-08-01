@@ -40,6 +40,7 @@
 @synthesize resultTo		= _resultTo;
 @synthesize userFaves       = _userFaves;
 @synthesize reversed        = _reversed;
+@synthesize selsForProps   = _selsForProps;
 
 static NSString *tripURLString = @"trips/tripplanner?%@&%@&Date=%@&Time=%@&Arr=%@&Walk=%f&Mode=%@&Min=%@&Format=XML&MaxItineraries=%d&";
 
@@ -57,6 +58,7 @@ static NSString *tripURLString = @"trips/tripplanner?%@&%@&Date=%@&Time=%@&Arr=%
 	self.resultFrom			= nil;
 	self.resultTo			= nil;
 	self.userFaves			= nil;
+    self.selsForProps       = nil;
 	[super dealloc];
 }
 
@@ -121,30 +123,51 @@ static NSString *tripURLString = @"trips/tripplanner?%@&%@&Date=%@&Time=%@&Arr=%
 	return copy;
 }
 
-- (bool)isProp:(NSString *)elementName
+- (void)resetCurrentLocation
 {
-	return (ELTYPE(date)
-			|| ELTYPE(time)
-			|| ELTYPE(message)
-			|| ELTYPE(startTime)
-			|| ELTYPE(endTime)
-			|| ELTYPE(duration)
-			|| ELTYPE(distance)
-			|| ELTYPE(numberOfTransfers)
-			|| ELTYPE(numberOfTripLegs)
-			|| ELTYPE(walkingTime)
-			|| ELTYPE(transitTime)
-			|| ELTYPE(waitingTime)
-			|| ELTYPE(number)
-			|| ELTYPE(internalNumber)
-			|| ELTYPE(name)
-			|| ELTYPE(direction)
-			|| ELTYPE(block)
-			|| ELTYPE(lat)
-			|| ELTYPE(lon)
-			|| ELTYPE(stopId)
-			|| ELTYPE(description)
-			);
+    [self.userRequest.fromPoint resetCurrentLocation];
+    [self.userRequest.toPoint   resetCurrentLocation];
+}
+
+- (SEL)selForProp:(NSString *)elementName
+{
+    if (self.selsForProps == nil)
+    {
+#define SEL_FOR_PROP(X) [@#X lowercaseString] : [NSValue valueWithPointer: NSSelectorFromString(@"setX" @#X @":") ]
+        self.selsForProps = @{
+                            SEL_FOR_PROP(data),
+                            SEL_FOR_PROP(time),
+                            SEL_FOR_PROP(message),
+                            SEL_FOR_PROP(startTime),
+                            SEL_FOR_PROP(endTime),
+                            SEL_FOR_PROP(duration),
+                            SEL_FOR_PROP(distance),
+                            SEL_FOR_PROP(numberOfTransfers),
+                            SEL_FOR_PROP(numberOfTripLegs),
+                            SEL_FOR_PROP(walkingTime),
+                            SEL_FOR_PROP(transitTime),
+                            SEL_FOR_PROP(waitingTime),
+                            SEL_FOR_PROP(number),
+                            SEL_FOR_PROP(internalNumber),
+                            SEL_FOR_PROP(name),
+                            SEL_FOR_PROP(direction),
+                            SEL_FOR_PROP(block),
+                            SEL_FOR_PROP(lat),
+                            SEL_FOR_PROP(lon),
+                            SEL_FOR_PROP(stopId),
+                            SEL_FOR_PROP(description)
+                            };
+    }
+    
+    
+    NSValue *selVal = _selsForProps[[elementName lowercaseString]];
+    
+    if (selVal == nil)
+    {
+        return nil;
+    }
+    
+    return selVal.pointerValue;
 }
 
 
@@ -333,6 +356,118 @@ static NSString *tripURLString = @"trips/tripplanner?%@&%@&Date=%@&Time=%@&Arr=%
     
 }
 
+START_ELEMENT(request)
+{
+    self.currentObject = nil;
+}
+
+START_ELEMENT(response)
+{
+    [self initArray];
+    _hasData = YES;
+    self.currentObject = self;
+}
+
+START_ELEMENT(itinerary)
+{
+    self.currentItinerary =  [[[TripItinerary alloc] init] autorelease];
+    self.currentLeg = nil;
+    [self addItem:self.currentItinerary];
+    self.currentObject = self.currentItinerary;
+}
+
+START_ELEMENT(error)
+{
+    [self parser:parser didStartXitinerary:elementName namespaceURI:namespaceURI qualifiedName:qName attributes:attributeDict];
+}
+
+START_ELEMENT(leg)
+{
+    self.currentLeg = [TripLeg data];
+    [self.currentItinerary.legs addObject:self.currentLeg];
+    self.currentObject = self.currentLeg;
+    self.currentLeg.mode = ATRVAL(mode);
+    self.currentLeg.order = ATRVAL(order);
+}
+
+START_ELEMENT(from)
+{
+    if (self.currentLeg!=nil)
+    {
+        self.currentLeg.from = [TripLegEndPoint data];
+        self.currentObject = self.currentLeg.from;
+    
+        if (ATREQ(self.currentLeg.order, @"thru-route"))
+        {
+            self.currentLeg.from.thruRoute = YES;
+        }
+    }
+    else if (self.resultFrom == nil)
+    {
+        self.resultFrom = [TripLegEndPoint data];
+        self.currentObject = self.resultFrom;
+    }
+}
+
+START_ELEMENT(to)
+{
+    if (self.currentLeg!=nil)
+    {
+        self.currentLeg.to = [TripLegEndPoint data];
+        self.currentObject = self.currentLeg.to;
+    }
+    else if (self.resultTo == nil)
+    {
+        self.resultTo = [TripLegEndPoint data];
+        self.currentObject = self.resultTo;
+    }
+}
+
+START_ELEMENT(special)
+{
+    NSString *tag = ATRVAL(id);
+    if (ATREQ(tag, @"honored"))
+    {
+        self.currentTagData = NSLocalizedString(@"Honored Citizen: $%@\n", @"fare type");
+    }
+    else if (ATREQ(tag, @"youth"))
+    {
+        self.currentTagData = NSLocalizedString(@"Youth/Student: $%@\n", @"fare type");
+    }
+    else
+    {
+        self.currentTagData = [NSString stringWithFormat:@"%@ ($%@)", tag, @"%@"];
+    }
+}
+
+START_ELEMENT(fare)
+{
+    self.currentItinerary.fare = [NSMutableString string];
+    // [self.currentItinerary.fare appendFormat:@"Fare: "];
+}
+
+START_ELEMENT(tolist)
+{
+    self.toList = [NSMutableArray array];
+    self.currentList = self.toList;
+}
+
+START_ELEMENT(location)
+{
+    if (self.currentList != nil)
+    {
+        TripLegEndPoint *loc = [TripLegEndPoint data];
+        [self.currentList addObject:loc];
+        self.currentObject = loc;
+    }
+}
+
+START_ELEMENT(fromlist)
+{
+    self.fromList = [NSMutableArray array];
+    self.currentList = self.fromList;
+}
+
 - (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict
 {
     [super parser:parser didStartElement:elementName namespaceURI:namespaceURI qualifiedName:qName attributes:attributeDict];
@@ -341,98 +476,7 @@ static NSString *tripURLString = @"trips/tripplanner?%@&%@&Date=%@&Time=%@&Arr=%
         elementName = qName;
     }
 	
-	if (ELTYPE(request))
-	{
-		self.currentObject = nil;
-	}
-	
-	if (ELTYPE(response)) {
-		[self initArray]; 
-		_hasData = YES;
-		self.currentObject = self;
-	}
-	else if (ELTYPE(itinerary)
-		|| ELTYPE(error)) {
-		self.currentItinerary =  [[[TripItinerary alloc] init] autorelease];
-		self.currentLeg = nil;
-		[self addItem:self.currentItinerary];
-		self.currentObject = self.currentItinerary;
-	}
-	else if (ELTYPE(leg))
-	{
-        self.currentLeg = [TripLeg data];
-		[self.currentItinerary.legs addObject:self.currentLeg];
-		self.currentObject = self.currentLeg;
-		self.currentLeg.mode = ATRVAL(mode);
-        self.currentLeg.order = ATRVAL(order);
-	} 
-	else if (ELTYPE(from) && self.currentLeg !=nil)
-	{
-        self.currentLeg.from = [TripLegEndPoint data];
-		self.currentObject = self.currentLeg.from;
-        
-        if (ATREQ(self.currentLeg.order, @"thru-route"))
-        {
-            self.currentLeg.from.thruRoute = YES;
-        }
-	}
-	else if (ELTYPE(to) && self.currentLeg !=nil)
-	{
-        self.currentLeg.to = [TripLegEndPoint data];
-		self.currentObject = self.currentLeg.to;
-	}
-	else if (ELTYPE(from) && self.resultFrom == nil)
-	{
-        self.resultFrom = [TripLegEndPoint data];
-		self.currentObject = self.resultFrom;
-	}
-	else if (ELTYPE(to) && self.resultTo == nil)
-	{
-        self.resultTo = [TripLegEndPoint data];
-		self.currentObject = self.resultTo;
-	}
-	else if (ELTYPE(special))
-	{
-		NSString *tag = ATRVAL(id);
-		if (ATREQ(tag, @"honored"))
-		{
-            self.currentTagData = NSLocalizedString(@"Honored Citizen: $%@\n", @"fare type");
-		}
-		else if (ATREQ(tag, @"youth"))
-		{
-            self.currentTagData = NSLocalizedString(@"Youth/Student: $%@\n", @"fare type");
-		}
-		else 
-		{
-			self.currentTagData = [NSString stringWithFormat:@"%@ ($%@)", tag, @"%@"];
-		}
-	}
-	else if (ELTYPE(fare))
-	{
-		self.currentItinerary.fare = [NSMutableString string];
-		// [self.currentItinerary.fare appendFormat:@"Fare: "];	
-	}
-	else if (ELTYPE(toList))
-	{
-        self.toList = [NSMutableArray array];
-		self.currentList = self.toList;
-	}
-	else if (ELTYPE(location))
-	{
-		if (self.currentList != nil)
-		{
-            TripLegEndPoint *loc = [TripLegEndPoint data];
-			[self.currentList addObject:loc];
-			self.currentObject = loc;
-		}
-	}
-	else if (ELTYPE(fromList))
-	{
-        self.fromList = [NSMutableArray array];
-		self.currentList = self.fromList;
-	}
-	
-	if ([self isProp:elementName] || ELTYPE(regular) || ELTYPE(special)
+	if ([self selForProp:elementName]!=nil || ELTYPE(regular) || ELTYPE(special)
 			|| ELTYPE(url))
 	{
 		self.contentOfCurrentProperty = [NSMutableString string];
@@ -440,6 +484,63 @@ static NSString *tripURLString = @"trips/tripplanner?%@&%@&Date=%@&Time=%@&Arr=%
 	
 }
 
+END_ELEMENT(regular)
+{
+    [self.currentItinerary.fare appendFormat:@"Adult: $%@\n", self.contentOfCurrentProperty];
+}
+
+END_ELEMENT(special)
+{
+    [self.currentItinerary.fare appendFormat:self.currentTagData, self.contentOfCurrentProperty];
+}
+
+END_ELEMENT(leg)
+{
+    self.currentLeg = nil;
+    self.currentObject = nil;
+}
+
+END_ELEMENT(from)
+{
+    self.currentObject = self.currentLeg;
+}
+
+END_ELEMENT(to)
+{
+    self.currentObject = self.currentLeg;
+}
+
+END_ELEMENT(itinerary)
+{
+    self.currentItinerary = nil;
+    self.currentObject = nil;
+}
+
+END_ELEMENT(error)
+{
+    self.currentItinerary = nil;
+    self.currentObject = nil;
+}
+
+END_ELEMENT(tolist)
+{
+    self.currentList = nil;
+}
+
+END_ELEMENT(fromlist)
+{
+    self.currentList = nil;
+}
+
+END_ELEMENT(url)
+{
+    if (self.currentLeg !=nil)
+    {
+        self.currentLeg.legShape = [[[LegShapeParser alloc] init] autorelease];
+        self.currentLeg.legShape.lineURL = self.contentOfCurrentProperty;
+        // [self.currentLeg.legShape fetchCoords];
+    }
+}
 
 - (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName
 {
@@ -448,53 +549,13 @@ static NSString *tripURLString = @"trips/tripplanner?%@&%@&Date=%@&Time=%@&Arr=%
     if (qName) {
         elementName = qName;
     }
+    
+    SEL sel = [self selForProp:elementName];
 	
-	if (self.currentObject != nil && [self isProp:elementName])
-		
-	{
-		NSString *selName = [NSString stringWithFormat:@"setX%@:", elementName];
-		SEL prop = NSSelectorFromString(selName);
-		if ([self.currentObject respondsToSelector:prop])
-		{
-			[self.currentObject performSelector:prop withObject:self.contentOfCurrentProperty];
-		}
-	}
-	
-	if (ELTYPE(regular))
-	{
-		[self.currentItinerary.fare appendFormat:@"Adult: $%@\n", self.contentOfCurrentProperty];
-	} 
-	else if (ELTYPE(special))
-	{
-		[self.currentItinerary.fare appendFormat:self.currentTagData, self.contentOfCurrentProperty];
-	}
-	else if (ELTYPE(leg))
-	{
-		self.currentLeg = nil;
-		self.currentObject = nil;
-	}
-	else if (ELTYPE(from) || ELTYPE(to))
-	{
-		self.currentObject = self.currentLeg;
-	}
-	else if (ELTYPE(itinerary)
-			 || ELTYPE(error))
-	{
-		self.currentItinerary = nil;
-		self.currentObject = nil;
-	}
-	else if (ELTYPE(toList)
-		||	 ELTYPE(fromList))
-	{
-		self.currentList = nil;
-	}
-	else if (ELTYPE(url) && self.currentLeg !=nil)
-	{
-		self.currentLeg.legShape = [[[LegShapeParser alloc] init] autorelease];
-		self.currentLeg.legShape.lineURL = self.contentOfCurrentProperty;
-		// [self.currentLeg.legShape fetchCoords];
-	}
-	
+	if (self.currentObject != nil && sel!=nil && [self.currentObject respondsToSelector:sel])
+    {
+        [self.currentObject performSelector:sel withObject:self.contentOfCurrentProperty];
+    }
 	self.contentOfCurrentProperty = nil;
 }
 

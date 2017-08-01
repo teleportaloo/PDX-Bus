@@ -176,7 +176,7 @@
     }
     
     
-    while (_colorMap.count > 40)
+    while (_colorMap.count > 50)
     {
         // Find the oldest item
         __block double oldestTime = MAXFLOAT;

@@ -19,7 +19,7 @@
 
 #import "ScreenConstants.h"
 #import "TripLegEndPoint.h"
-#import "Tripleg.h"
+#import "TripLeg.h"
 #import "TripEndPoint.h"
 #import "TripUserRequest.h"
 #import "TripItinerary.h"
@@ -41,6 +41,7 @@
 	TripLegEndPoint *   _resultTo;
 	NSString *          _xdate;
 	NSString *          _xtime;
+    NSDictionary <NSString *, NSValue *> *_selsForProps;
 }
 
 @property (nonatomic, retain) TripUserRequest *userRequest;
@@ -60,12 +61,15 @@
 @property (nonatomic, retain) NSMutableArray *currentList;
 @property (nonatomic, retain) NSString       *xdate;
 @property (nonatomic, retain) NSString		 *xtime;
+@property (nonatomic, retain) NSDictionary <NSString *, NSValue *> *selsForProps;
 
-- (bool)isProp:(NSString *)element;
+
+- (SEL)selForProp:(NSString *)element;
 - (void)fetchItineraries:(NSData*)rawData;
-@property (nonatomic, readonly, strong) XMLTrips *createReverse;
-@property (nonatomic, readonly, strong) XMLTrips *createAuto;
+- (XMLTrips *)createReverse;
+- (XMLTrips *)createAuto;
 - (void)saveTrip;
+- (void)resetCurrentLocation;
 @property (nonatomic, readonly, copy) NSString *shortName;
 @property (nonatomic, readonly, copy) NSString *longName;
 @property (nonatomic, readonly, copy) NSString *mediumName;

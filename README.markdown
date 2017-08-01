@@ -20,10 +20,10 @@ Features include:
 
 Route and arrival data provided by permission of TriMet.
 
-PDX Bus 9.0 sources
-====================
+PDX Bus sources
+===============
 
-I am making the sources to PDX Bus version 7.9 available as part of the
+I am making the sources to PDX Bus available as part of the
 [Civic Apps](http://www.civicapps.org) competition.  These
 sources were developed by me from Apple samples and documentation, except 
 where explicitly mentioned in the code.  
@@ -32,7 +32,7 @@ I am choosing to release a copy of the code under the
 [MPL 2.0](http://www.mozilla.org/MPL/) License but I retain the copyright,
 which enables me to release the iPhone app under the regular Apple iPhone 
 license (this avoids any conflict of licenses for the time being).
- (No outside MPL or GPL code has been incorporated into the
+(No outside MPL or GPL code has been incorporated into the
 code, some BSD License has been included, it is clearly marked).  
 However - this really is the exact same code that was used to build the app, and 
 I will continue to release the code for all future releases (the method of 
@@ -66,7 +66,7 @@ Links
 
 Things to know before building
 ------------------------------
-* PDX Bus is built with iPhone SDK 9.2 and Xcode 8.0 - available free
+* PDX Bus is built with iPhone SDK 10.3 and Xcode 8.3.3 - available free
 from [Apple](http://developer.apple.com) in their Mac App store.
 * Before building this code you will need to register with TriMet 
 to get a free "AppID" from [TriMet](http://developer.trimet.org/registration/),
@@ -130,9 +130,9 @@ choose "Get Info" from the pop-up menu.
 [Creative Commons Attribution-Share Alike 3.0 License](http://creativecommons.org/licenses/by/3.0/us/). 
 These files are in a separate folder with attributions:
 
-    * Attribution:  [http://www.small-icons.com/packs/24x24-free-application-icons.htm](http://www.small-icons.com/packs/24x24-free-application-icons.htm).
-    * Attribution:  [http://www.small-icons.com/packs/48x48-free-time-icons.htm](http://www.small-icons.com/packs/48x48-free-time-icons.htm).
-    * Attribution:  [http://www.small-icons.com/packs/48x48-free-object-icons.htm](http://www.small-icons.com/packs/48x48-free-object-icons.htm).
+* Attribution:  [http://www.small-icons.com/packs/24x24-free-application-icons.htm](http://www.small-icons.com/packs/24x24-free-application-icons.htm).
+* Attribution:  [http://www.small-icons.com/packs/48x48-free-time-icons.htm](http://www.small-icons.com/packs/48x48-free-time-icons.htm).
+* Attribution:  [http://www.small-icons.com/packs/48x48-free-object-icons.htm](http://www.small-icons.com/packs/48x48-free-object-icons.htm).
 
 * Glyphish Attribution - some graphics files from Gliphish.com are used under a
 [Creative Commons Attribution-Share Alike 3.0 License](http://creativecommons.org/licenses/by/3.0/us/)
@@ -155,7 +155,7 @@ These files are in a separate folder with attribution - [App Icon by Rob Alan](h
 [Creative Commons Attribution-Share Alike 3.0 License](http://creativecommons.org/licenses/by/3.0/us/)
 
 * Mike Koenig Attribution - the Train Honk file is from Mike Koenig and are used under a 
-    [Creative Commons Attribution License](http://creativecommons.org/licenses/by/3.0/)- location
+[Creative Commons Attribution License](http://creativecommons.org/licenses/by/3.0/)- location
 [soundbible.com](http://soundbible.com/1695-Train-Honk-Horn-2x.html).
 
 * QR Code Scanning - ZXing library [http://http://code.google.com/p/zxing/] is Apache 2.0 licensed with changes by A.R.Wallace.
@@ -180,11 +180,27 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-    
-    
+
+
 
 Change log
 ----------
+### Version 9.2 (August 2017)
+* Fixed crash when opening map when there is a callback
+* Fixed crash for timer if the cell is not available.
+* Faves are now read in with mutable containers, this will fix any issues with recents not being mutable.
+* Fixed 8.3.1 analyis issues.
+* Added direct link to review.
+* Optimized XML parser to make a dictionary of the elements and map it to the selector for the element.
+* Fixed issue where blanks scren could be displayed when commuter bookmark is shown when a progress window is displayed.
+* Changed default walking distance to be 0.75 miles.
+* Removed additional nullify warnings
+* Cleanup vehicle locations to remove duplicates and blanks
+* Changed Browse to lookup and changed "list" to "alphabetically"
+
+### Version 9.1 (January 2017)
+* Fixed bookmarks so first stop is not duplicated when editing.
+
 ### Version 9.0 (December 2016)
 * Watch app updated to WatchOS 2 (native app)
 * Fixed Trip Planner bug for when locale is not USA and AM and PM text changes in the query.
@@ -335,7 +351,7 @@ Change log
 * Fixed issue when keyboard did not show up when hitting the search button for the first time and fixed Help/Done buttons for the same editing case.
 * Added option to open Google Chrome app instead of Safari.
 * Updated to XCode 4.6 - fixed analysis errors found by latest analyser.
-                         
+
 ### Version 6.6 (October 2012)
 * Fixed stop ID 13604 - added NS Line arrivals.
 * Optimized rail maps to use "tiles" - reducing crashes due to memory issues.
@@ -389,14 +405,14 @@ Change log
 * Now caches arrivals for up to two hours for devices that are not always connected.
 * Added a quick locate toolbar item to the first screen.
 * Added code to flash the LED if the hardware is available and the OS version allows.
-                         
+
 ### Version 6.0.1 (August 2011)
 * Fixed locate nearby stops so that GPS cannot be left on.  
- 
+
 ### Version 6.0
 * Updated PGE Park to JELD-WEN Field on the map.  Go Timbers!
 * Added 'commuter bookmarks' - any bookmark can be configured to automatically display
-    on your morning or evening commute.
+on your morning or evening commute.
 * Added a proximity alarm to alert you when you get close to a stop (iOS 4.0 and above).
 * Added an arrival alarm to alert you when a bus or train is getting close (iOS 4.0 and above).
 * Added 'Plan trip from here' option to arrival screen.
@@ -409,15 +425,15 @@ Change log
 
 ### Version 5.2
 * User requested changes:
-    * Arrival screen now shows  the scheduled time in addition to the estimated time (so you can tell if a bus is running late or early).   The arrival time screen has been adjusted to make space for this (e.g. arrivals are not shown to the nearest second and a button has been removed).The find stop by location feature has been updated to be more flexible and have more options (such as showing the nearest routes and going straight to a map).
-    * The "busy" screen has been updated to show what stop is being downloaded.
-    * Added a very large font Bus Line identifier screen. This is intended as an alternative to the large-print book provided to partially sighted travelers to let the operator know which bus they need to board.
+* Arrival screen now shows  the scheduled time in addition to the estimated time (so you can tell if a bus is running late or early).   The arrival time screen has been adjusted to make space for this (e.g. arrivals are not shown to the nearest second and a button has been removed).The find stop by location feature has been updated to be more flexible and have more options (such as showing the nearest routes and going straight to a map).
+* The "busy" screen has been updated to show what stop is being downloaded.
+* Added a very large font Bus Line identifier screen. This is intended as an alternative to the large-print book provided to partially sighted travelers to let the operator know which bus they need to board.
 * Other updates:
-    * Updated the rail map to include Bike &amp; Ride Info.
-    * Added a Facebook Fan Page.
-    * Added a few more retina graphics.
-    * Several bug fixes and new settings (to work around a continuous refresh issue).
-    * Phone will not go to sleep while showing the Night Visibility Flashing Light (user is warned). 
+* Updated the rail map to include Bike &amp; Ride Info.
+* Added a Facebook Fan Page.
+* Added a few more retina graphics.
+* Several bug fixes and new settings (to work around a continuous refresh issue).
+* Phone will not go to sleep while showing the Night Visibility Flashing Light (user is warned). 
 
 ### Version 5.1
 

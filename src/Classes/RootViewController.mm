@@ -723,6 +723,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 - (void)executeInitialAction
 {
 	// DEBUG_PRINTF("Last arrivals: %s", [self.lastArrivalsShown cStringUsingEncoding:NSUTF8StringEncoding]);
+    DEBUG_LOGB(self.commuterBookmark);
 	
     if (!self.viewLoaded)
     {
@@ -776,6 +777,8 @@ static NSString *callString = @"tel:1-503-238-RIDE";
         [_userData clearLastArrivals];
         
         [self.navigationController popToRootViewControllerAnimated:NO];
+        DEBUG_LOG(@"popToRootViewControllerAnimated");
+        
         
         [[DepartureTimesView viewController] fetchTimesForLocationAsync:self.backgroundTask
                                                                           loc:self.commuterBookmark[kUserFavesLocation]
@@ -962,7 +965,8 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 - (void)addStopIdRows
 {
     [self addRowType:kTableFindRowId];
-    [self addRowType:kTableFindRowLocate];    
+    [self addRowType:kTableFindRowLocate];
+    [self addRowType:kTableFindRowBrowse];
     [self addRowType:kTableFindRowRailMap];
     
     if ([UserPrefs singleton].vehicleLocations)
@@ -974,8 +978,6 @@ static NSString *callString = @"tel:1-503-238-RIDE";
     {
         [self addRowType:kTableFindRowQR];
     }
-    
-    [self addRowType:kTableFindRowBrowse];
     
     if ([UserPrefs singleton].maxRecentStops != 0)
     {
@@ -1760,14 +1762,14 @@ static NSString *callString = @"tel:1-503-238-RIDE";
                 {
                     return [self plainCell:tableView
                                      image:[self getActionIcon:kIconBrowse]
-                                      text:NSLocalizedString(@"Browse all routes for stop", @"main menu item")
+                                      text:NSLocalizedString(@"Lookup stop by route", @"main menu item")
                                  accessory:UITableViewCellAccessoryDisclosureIndicator];
                 }
                 case kTableFindRowRailMap:
                 {
                     return [self plainCell:tableView
                                      image:[self getActionIcon:kIconMaxMap]
-                                      text:NSLocalizedString(@"Choose from rail maps or list", @"main menu item")
+                                      text:NSLocalizedString(@"Lookup rail stop from map or A-Z", @"main menu item")
                                  accessory:UITableViewCellAccessoryDisclosureIndicator];
                 }
                     
@@ -2518,7 +2520,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
                 case kTableAboutRate:
                 {
                     [[UIApplication sharedApplication] openURL:[NSURL URLWithString:
-                                                                @"http://itunes.apple.com/app/pdx-bus-max-streetcar-and-wes/id289814055?mt=8"]];
+                                                                @"https://itunes.apple.com/us/app/pdx-bus-max-streetcar-and-wes/id289814055?action=write-review"]];
                     // @"itms-apps://www.itunes.com/apps/pdx-bus-max-streetcar-and-wes/id289814055?mt=8"]];
                     [self.table deselectRowAtIndexPath:indexPath animated:YES];
                     break;
@@ -2899,6 +2901,16 @@ static NSString *callString = @"tel:1-503-238-RIDE";
     [self.progressView removeFromSuperview];
     self.progressView= nil;
     [self dismissViewControllerAnimated:YES completion:nil];
+    
+    if (self.backgroundTask)
+    {
+        [self.backgroundTask cancel];
+        [self.backgroundTask.progressModal removeFromSuperview];
+        self.backgroundTask.progressModal= nil;
+        
+    };
+
+    
 }
 
 //Watch Kit delegate

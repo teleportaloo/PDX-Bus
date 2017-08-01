@@ -148,7 +148,7 @@
   [super viewWillAppear:animated];
   //self.wantsFullScreenLayout = YES;
     
-  [[UIApplication sharedApplication] setStatusBarOrientation:UIDeviceOrientationPortrait animated:NO];
+  [[UIApplication sharedApplication] setStatusBarOrientation:UIInterfaceOrientationPortrait animated:NO];
     
   if ([self soundToPlay] != nil) {
     OSStatus error = AudioServicesCreateSystemSoundID((CFURLRef)[self soundToPlay], &beepSound);
@@ -161,7 +161,7 @@
 - (void)viewDidAppear:(BOOL)animated {
   [super viewDidAppear:animated];
    
-  [[UIApplication sharedApplication] setStatusBarOrientation:UIDeviceOrientationPortrait animated:NO];
+  [[UIApplication sharedApplication] setStatusBarOrientation:UIInterfaceOrientationPortrait animated:NO];
     
   self.isStatusBarHidden = [[UIApplication sharedApplication] isStatusBarHidden];
   if (!isStatusBarHidden)

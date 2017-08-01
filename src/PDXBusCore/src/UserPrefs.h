@@ -47,6 +47,7 @@
 @property (nonatomic, readonly)  bool alarmInitialWarning;
 @property (nonatomic, readonly)  bool useCaching;
 @property (nonatomic, readonly)  bool debugXML;
+@property (nonatomic, readonly)  bool debugCommuter;
 @property (nonatomic, readonly)  bool useChrome;
 @property (nonatomic, readonly)  bool googleMapApp;
 @property (nonatomic)            bool autoLocateShowOptions;
@@ -59,7 +60,6 @@
 @property (nonatomic)            bool flashingLightIcon;
 @property (nonatomic, readonly)  bool qrCodeScannerIcon;
 @property (nonatomic)            bool flashingLightWarning;
-@property (nonatomic)            bool watchSettings;
 @property (nonatomic, readonly)  bool searchRoutes;
 @property (nonatomic, readonly)  bool searchBookmarks;
 @property (nonatomic, readonly)  bool searchStations;

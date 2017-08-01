@@ -38,6 +38,6 @@ typedef enum {
 // http://developer.trimet.org/registration/
 // 
 
-// #error Get an APP ID from TriMet then copy it into the string below and delete this line!
+#error Get an APP ID from TriMet then copy it into the string below and delete this line!
 
 #define TRIMET_APP_ID @""

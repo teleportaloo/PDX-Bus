@@ -39,6 +39,9 @@ typedef enum  {
     TriMetXMLUseShortTermCache
 } CacheAction;
 
+#define START_ELEMENT(typeName) - (void)parser:(NSXMLParser *)parser didStartX##typeName:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict
+#define END_ELEMENT(typeName)   - (void)parser:(NSXMLParser *)parser didEndX##typeName:(NSString *)  elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName
+
 #define ELTYPE(typeName) (NSOrderedSame == [elementName caseInsensitiveCompare:@#typeName])
 #define ATRVAL(attr)     ([attributeDict safeValueForKey:@#attr])
 #define ATRTIM(attr)     ([attributeDict getTimeForKey:@#attr])
@@ -70,6 +73,8 @@ typedef enum  {
     bool                            _itemFromCache;
     NSString *                      _fullQuery;
     id<TriMetXMLDelegate>           _oneTimeDelegate;
+    NSMutableDictionary<NSString *, NSValue *> *_startSelectors;
+    NSMutableDictionary<NSString *, NSValue *> *_endSelectors;
 }
 
 
@@ -106,5 +111,8 @@ typedef enum  {
 @property (nonatomic, retain) NSDate *cacheTime;
 @property (nonatomic, copy)   NSString *fullQuery;
 @property (nonatomic, retain) id<TriMetXMLDelegate> oneTimeDelegate;
+@property (nonatomic, retain) NSMutableDictionary<NSString *, NSValue *> *startSelectors;
+@property (nonatomic, retain) NSMutableDictionary<NSString *, NSValue *> *endSelectors;
 
 @end
+

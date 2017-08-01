@@ -20,7 +20,7 @@
 #import "Stop.h"
 #import "ViewControllerBase.h"
 #import "XMLStops.h"
-#import "Hotspot.h"
+#import "HotSpot.h"
 
 @interface RailMapHotSpots : UIView {
 	UIView *        _mapView;

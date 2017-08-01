@@ -104,15 +104,11 @@
 
 - (void)addToCache:(NSString *)cacheQuery item:(NSData *)item write:(bool)write
 {
-    if ([UserPrefs singleton].useCaching)
+    if ([UserPrefs singleton].useCaching && item!=nil && cacheQuery!=nil)
     {
         [self openCache];
-        NSMutableArray *arrayToCache = [NSMutableArray array];
     
-        [arrayToCache insertObject:[NSDate date] atIndex:kCacheDateAndTime];
-        [arrayToCache insertObject:item atIndex:kCacheData];
-    
-        (self.cache)[cacheQuery] = arrayToCache; 
+        (self.cache)[cacheQuery] = @[[NSDate date], item];
     
         if (self.maxSize > 0 && self.cache.count > 1)
         {

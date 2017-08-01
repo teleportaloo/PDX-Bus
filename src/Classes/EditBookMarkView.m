@@ -529,10 +529,13 @@ enum SECTIONS_AND_ROWS
 		
 		if (self.stops.count > 0)
 		{
-			[locations appendFormat:@"%@", self.stops.firstObject];
 			for (NSString *stop in self.stops)
 			{
-				[locations appendFormat:@",%@",stop];
+                if (locations.length>0)
+                {
+                    [locations appendString:@","];
+                }
+				[locations appendFormat:@"%@",stop];
 			}
 		}
 		

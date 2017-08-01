@@ -655,7 +655,7 @@ static RAILMAP railmaps[] =
     }
     
     UIBarButtonItem *list = [[[UIBarButtonItem alloc]
-                              initWithTitle:NSLocalizedString(@"List", @"List button")
+                              initWithTitle:NSLocalizedString(@"A-Z", @"List button")
                               style:UIBarButtonItemStylePlain
                               target:self action:@selector(listAction:)] autorelease];
     

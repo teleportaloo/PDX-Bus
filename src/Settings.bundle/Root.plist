@@ -72,16 +72,16 @@
 			<key>Type</key>
 			<string>PSToggleSwitchSpecifier</string>
 		</dict>
-        <dict>
-            <key>Type</key>
-            <string>PSToggleSwitchSpecifier</string>
-            <key>Title</key>
-            <string>TriMet Tickets App icon</string>
-            <key>Key</key>
-            <string>ticket_app_icon</string>
-            <key>DefaultValue</key>
-            <true/>
-        </dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>TriMet Tickets App icon</string>
+			<key>Key</key>
+			<string>ticket_app_icon</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
 		<dict>
 			<key>Type</key>
 			<string>PSToggleSwitchSpecifier</string>
@@ -325,7 +325,7 @@
 		</dict>
 		<dict>
 			<key>DefaultValue</key>
-			<real>0.5</real>
+			<real>0.75</real>
 			<key>Key</key>
 			<string>max_walking_distance</string>
 			<key>Title</key>
@@ -470,6 +470,16 @@
 			<string>Debugging options:</string>
 			<key>Type</key>
 			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Always show commuter bookmark</string>
+			<key>Key</key>
+			<string>debug_commuter</string>
+			<key>DefaultValue</key>
+			<false/>
 		</dict>
 		<dict>
 			<key>Type</key>

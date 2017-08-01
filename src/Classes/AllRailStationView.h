@@ -20,7 +20,7 @@
 #import "TableViewWithToolbar.h"
 #import "ReturnStopId.h"
 #import "Stop.h"
-#import "Hotspot.h"
+#import "HotSpot.h"
 #import "RailStation.h"
 
 

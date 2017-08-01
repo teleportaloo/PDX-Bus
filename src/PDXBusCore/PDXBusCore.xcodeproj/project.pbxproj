@@ -11,6 +11,7 @@
 		A1126A071B06AD0600E76977 /* SharedFile.m in Sources */ = {isa = PBXBuildFile; fileRef = A1126A061B06AD0600E76977 /* SharedFile.m */; };
 		A1246E101BD70ACB00395325 /* MapAnnotationImage.m in Sources */ = {isa = PBXBuildFile; fileRef = A1246E0F1BD70ACB00395325 /* MapAnnotationImage.m */; };
 		A14D1DC31BEE477300F46126 /* StringHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A14D1DC21BEE477300F46126 /* StringHelper.m */; };
+		A14FBB431E21B950009CD9EC /* NSMutableDictionary+MutableElements.m in Sources */ = {isa = PBXBuildFile; fileRef = A14FBB421E21B950009CD9EC /* NSMutableDictionary+MutableElements.m */; };
 		A152F5E11BE338E200FB9D19 /* XMLLocateVehicles.m in Sources */ = {isa = PBXBuildFile; fileRef = A152F5E01BE338E200FB9D19 /* XMLLocateVehicles.m */; };
 		A153E4F01DB014A600CEA840 /* DataFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = A153E4EF1DB014A600CEA840 /* DataFactory.m */; };
 		A17DA1FE1BE5EA6A006BB884 /* FormatDistance.m in Sources */ = {isa = PBXBuildFile; fileRef = A17DA1FD1BE5EA6A006BB884 /* FormatDistance.m */; };
@@ -61,6 +62,8 @@
 		A14D1DC11BEE477300F46126 /* StringHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StringHelper.h; path = src/StringHelper.h; sourceTree = SOURCE_ROOT; };
 		A14D1DC21BEE477300F46126 /* StringHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = StringHelper.m; path = src/StringHelper.m; sourceTree = SOURCE_ROOT; };
 		A14D387B1C855802006A960B /* iOSCompat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iOSCompat.h; path = src/iOSCompat.h; sourceTree = SOURCE_ROOT; };
+		A14FBB411E21B950009CD9EC /* NSMutableDictionary+MutableElements.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSMutableDictionary+MutableElements.h"; path = "src/NSMutableDictionary+MutableElements.h"; sourceTree = SOURCE_ROOT; };
+		A14FBB421E21B950009CD9EC /* NSMutableDictionary+MutableElements.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSMutableDictionary+MutableElements.m"; path = "src/NSMutableDictionary+MutableElements.m"; sourceTree = SOURCE_ROOT; };
 		A152F5DF1BE338E200FB9D19 /* XMLLocateVehicles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XMLLocateVehicles.h; path = src/XMLLocateVehicles.h; sourceTree = SOURCE_ROOT; };
 		A152F5E01BE338E200FB9D19 /* XMLLocateVehicles.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = XMLLocateVehicles.m; path = src/XMLLocateVehicles.m; sourceTree = SOURCE_ROOT; };
 		A153E4EE1DB014A600CEA840 /* DataFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DataFactory.h; path = src/DataFactory.h; sourceTree = SOURCE_ROOT; };
@@ -193,6 +196,8 @@
 				A1246E0F1BD70ACB00395325 /* MapAnnotationImage.m */,
 				A153E4EE1DB014A600CEA840 /* DataFactory.h */,
 				A153E4EF1DB014A600CEA840 /* DataFactory.m */,
+				A14FBB411E21B950009CD9EC /* NSMutableDictionary+MutableElements.h */,
+				A14FBB421E21B950009CD9EC /* NSMutableDictionary+MutableElements.m */,
 			);
 			name = Core;
 			sourceTree = "<group>";
@@ -325,6 +330,7 @@
 				A19A6D881B0A9F270002B1D9 /* BlockColorDb.m in Sources */,
 				A1AC796C1ADA03D000A1E96F /* DepartureTrip.m in Sources */,
 				A1C755AF1AD9DE7600236776 /* StoppableFetcher.m in Sources */,
+				A14FBB431E21B950009CD9EC /* NSMutableDictionary+MutableElements.m in Sources */,
 				A1AC796E1ADA03D000A1E96F /* XMLStreetcarLocations.m in Sources */,
 				A1126A071B06AD0600E76977 /* SharedFile.m in Sources */,
 				A1C755AC1AD9DE7600236776 /* MemoryCaches.m in Sources */,
@@ -395,6 +401,10 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				WARNING_CFLAGS = (
+					"-Wno-nullability-completeness",
+					"-Wno-nullability-completeness-on-arrays",
+				);
 			};
 			name = Debug;
 		};
@@ -430,6 +440,10 @@
 				ONLY_ACTIVE_ARCH = NO;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
+				WARNING_CFLAGS = (
+					"-Wno-nullability-completeness",
+					"-Wno-nullability-completeness-on-arrays",
+				);
 			};
 			name = Release;
 		};

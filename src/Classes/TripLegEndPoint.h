@@ -35,7 +35,7 @@
 	id<ReturnTripLegEndPoint>   _callback;
 }
 
-@property (nonatomic, copy) id<ReturnTripLegEndPoint> callback;
+@property (nonatomic, retain) id<ReturnTripLegEndPoint> callback;
 @property (nonatomic, copy) NSString *xlat;
 @property (nonatomic, copy) NSString *xlon;
 @property (nonatomic, copy) NSString *xdescription;

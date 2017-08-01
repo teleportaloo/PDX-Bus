@@ -126,14 +126,15 @@ static int depthCount = 0;
 	self.locationsDb			= nil;
 	self.originalDataArray		= nil;
 	self.streetcarLocations		= nil;
+
 	depthCount--;
+    DEBUG_LOGL(depthCount);
 	self.stops = nil;
     self.bookmarkLoc			= nil;
 	self.bookmarkDesc			= nil;
 	self.actionItem				= nil;
 	self.savedBlock				= nil;
     self.vehicleStops           = nil;
-    
     
     if (self.userActivity)
     {
@@ -155,7 +156,9 @@ static int depthCount = 0;
         self.originalDataArray = [NSMutableArray array];
 		[self sortByStop];
 		self.locationsDb = [StopLocations getDatabase];
+        DEBUG_LOGL(depthCount);
 		depthCount++;
+        _updatedWatch = NO;
 	}
 	return self;
 }
@@ -2857,9 +2860,12 @@ static int depthCount = 0;
         [self reloadData];
     }
     
-    dispatch_once(&_updatedWatch, ^{
+    if (!_updatedWatch)
+    
+    {
+        _updatedWatch = YES;
          [self updateWatch];
-    });
+    };
    
     
     Class userActivityClass = (NSClassFromString(@"NSUserActivity"));
