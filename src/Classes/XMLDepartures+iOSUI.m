@@ -75,15 +75,13 @@
 	return self.sectionTitle;
 }
 
-- (void)DTDataPopulateCell:(DepartureData *)dd cell:(UITableViewCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide
+- (void)DTDataPopulateCell:(DepartureData *)dd cell:(DepartureCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide
 {
 	[dd populateCell:cell decorate:decorate busName:YES wide:wide];
 }
 - (NSString *)DTDataStaticText
 {
-	return [NSString stringWithFormat:@"(ID %@) %@.", 
-			self.locid,
-			self.locDir];
+	return [NSString stringWithFormat:@"Stop ID %@.", self.locid];
 }
 
 - (StopDistanceData*)DTDataDistance

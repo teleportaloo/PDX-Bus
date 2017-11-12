@@ -32,7 +32,7 @@
 @end
 
 
-@interface MapViewController : ViewControllerBase <MKMapViewDelegate, UIActionSheetDelegate, BackgroundTaskDone> {
+@interface MapViewController : ViewControllerBase <MKMapViewDelegate, BackgroundTaskDone> {
 	MKMapView *                         _mapView;
 	NSMutableArray<id<MapPinColor>> *   _annotations;
 	NSMutableArray<ShapeObject*> *      _lineCoords;
@@ -40,8 +40,6 @@
 	MKCircle *                          _circle;
 	bool                                _lines;
 	int                                 _selectedAnnotation;
-	id<MapPinColor>                     _tappedAnnot;
-    NSMutableArray<NSNumber *>*         _actionButtons;
 	UISegmentedControl *                _segPrevNext;
     UIBarButtonItem *                   _compassButton;
     CGRect                              _portraitMapRect;
@@ -51,10 +49,8 @@
     bool                                _backgroundRefresh;
 }
 
-@property (nonatomic, retain) NSMutableArray<NSNumber *> * actionButtons;
 @property (nonatomic, retain) MKMapView *mapView;
 @property (nonatomic, retain) NSMutableArray *routePolyLines;
-@property (nonatomic, retain) id<MapPinColor> tappedAnnot;
 @property (nonatomic, retain) NSMutableArray<id<MapPinColor>> *annotations;
 @property (nonatomic) bool lines;
 @property (nonatomic, retain) NSMutableArray<ShapeObject*> *lineCoords;

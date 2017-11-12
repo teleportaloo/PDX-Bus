@@ -18,6 +18,7 @@
 #import "LegShapeParser.h"
 #import "ScreenConstants.h"
 #import "DataFactory.h"
+#import "TripItemCell.h"
 
 #define kNearTo   @"Near "
 #define kModeWalk @"Walk"
@@ -69,11 +70,8 @@ typedef enum {
 	TripTextTypeClip
 } TripTextType;
 
-+ (CGFloat)getTextHeight:(NSString *)text width:(CGFloat)width;
-+ (void)populateCell:(UITableViewCell*)cell body:(NSString *)body mode:(NSString *)mode time:(NSString *)time leftColor:(UIColor *)col route:(NSString *)route;
 - (NSString*)createFromText:(bool)first textType:(TripTextType)type;
 - (NSString*)createToText:(bool)last textType:(TripTextType)type;
 - (NSString *)direction:(NSString *)dir;
-+ (CGFloat)bodyTextWidth:(ScreenInfo)screen;
-+ (UITableViewCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier rowHeight:(CGFloat)height screenInfo:(ScreenInfo)screen;
+
 @end

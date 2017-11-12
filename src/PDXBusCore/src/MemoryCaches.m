@@ -34,7 +34,7 @@
 	
 }
 
-+ (MemoryCaches*)singleton
++ (MemoryCaches*)sharedInstance
 {
     static MemoryCaches *caches = nil;
     
@@ -48,7 +48,7 @@
 + (void)memoryWarning
 {
     DEBUG_LOG(@"Clearing caches\n");
-    MemoryCaches *caches = [MemoryCaches singleton];
+    MemoryCaches *caches = [MemoryCaches sharedInstance];
     
     for (id<ClearableCache> cache in caches->_caches)
     {
@@ -58,7 +58,7 @@
 
 + (void)addCache:(id<ClearableCache>)cache
 {
-    MemoryCaches *caches = [MemoryCaches singleton];
+    MemoryCaches *caches = [MemoryCaches sharedInstance];
     
     [caches->_caches addObject:cache];
     
@@ -66,7 +66,7 @@
 
 + (void)removeCache:(id<ClearableCache>)cache
 {
-    MemoryCaches *caches = [MemoryCaches singleton];
+    MemoryCaches *caches = [MemoryCaches sharedInstance];
     
     [caches->_caches removeObject:cache];
 }

@@ -6,6 +6,13 @@
 //  Copyright © 2016 Teleportaloo. All rights reserved.
 //
 
+
+
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+
 #import "WatchAppContext.h"
 #import "BlockColorDb.h"
 #import "UserFaves.h"
@@ -23,7 +30,7 @@
     [super dealloc];
 }
 
-+ (WatchAppContext *)singleton
++ (WatchAppContext *)sharedInstance
 {
     static WatchAppContext *singleton = nil;
     
@@ -32,7 +39,7 @@
         singleton = [[WatchAppContext alloc] init];
     });
     
-    return [[singleton retain] autorelease];
+    return singleton;
 }
 
 - (instancetype)init
@@ -52,8 +59,8 @@
 - (void)updateWatch:(WCSession *)session
 {
     
-    NSDictionary *appData = [SafeUserData singleton].appData;
-    NSDictionary *blockColorData = [BlockColorDb singleton].getDB;
+    NSDictionary *appData = [SafeUserData sharedInstance].appData;
+    NSDictionary *blockColorData = [BlockColorDb sharedInstance].getDB;
     
     
     if (session != nil && session.isWatchAppInstalled)
@@ -162,7 +169,7 @@
 
 + (bool)gotBookmarks:(bool)update
 {
-    return [[WatchAppContext singleton] gotBookmarks:update];
+    return [[WatchAppContext sharedInstance] gotBookmarks:update];
 }
 
 
@@ -175,7 +182,7 @@
         NSDictionary *bcdb      = appContext[kBlockColor];
         NSDictionary *appData   = appContext[kAppData];
         
-        SafeUserData *faves = [SafeUserData singleton];
+        SafeUserData *faves = [SafeUserData sharedInstance];
         
         if (appData)
         {
@@ -195,7 +202,7 @@
             updatedBookmarks = YES;
         }
         
-        BlockColorDb *colorDb = [BlockColorDb singleton];
+        BlockColorDb *colorDb = [BlockColorDb sharedInstance];
         
         if (bcdb && ![colorDb.getDB isEqualToDictionary:bcdb])
         {
@@ -209,12 +216,12 @@
 
 + (void)updateWatch:(WCSession *)session
 {
-    [[WatchAppContext singleton] updateWatch:session];
+    [[WatchAppContext sharedInstance] updateWatch:session];
 }
 
 + (bool)writeAppContext:(NSDictionary *)appContext
 {
-    return [[WatchAppContext singleton] writeAppContext:appContext];
+    return [[WatchAppContext sharedInstance] writeAppContext:appContext];
 }
 
 

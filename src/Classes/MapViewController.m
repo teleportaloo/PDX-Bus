@@ -32,23 +32,11 @@
 
 #define kNoButton -1
 
-enum{
-    ActionButtonStopId,
-    ActionButtonAction,
-    ActionButtonAppleMap,
-    ActionButtonCancel,
-    ActionButtonGoogleMap,
-    ActionButtonMotionXMap,
-    ActionButtonMotionXHdMap,
-    ActionButtonWazeMap
-};
-
 
 @implementation MapViewController
 
 @synthesize annotations = _annotations;
 @synthesize lines = _lines;
-@synthesize tappedAnnot = _tappedAnnot;
 @synthesize lineCoords = _lineCoords;
 @synthesize routePolyLines = _routePolyLines;
 @synthesize circle = _circle;
@@ -58,7 +46,6 @@ enum{
 @synthesize displayLink = _displayLink;
 @synthesize mapView = _mapView;
 @synthesize msgText = _msgText;
-@synthesize actionButtons = _actionButtons;
 
 - (void)dealloc {
 	self.annotations = nil;
@@ -66,12 +53,10 @@ enum{
 	self.mapView.showsUserLocation=FALSE;
 	self.routePolyLines = nil;
 	[self.mapView removeAnnotations:self.mapView.annotations];
-	self.tappedAnnot = nil;
 	self.lineCoords = nil;
 	self.circle = nil;
     self.compassButton = nil;
     self.msgText = nil;
-    self.actionButtons = nil;
     
     if (self.displayLink)
     {
@@ -207,100 +192,6 @@ enum{
     
     return newStr;
 }
-
-- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
-{
-    switch(self.actionButtons[buttonIndex].integerValue)
-    {
-        case ActionButtonAppleMap:
-            
-        {
-            NSString *url = nil;
-            
-            url = [NSString stringWithFormat:@"http://maps.apple.com/?q=%f,%f&ll=%f,%f",
-                   //[self.tappedAnnot.title stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
-                   self.tappedAnnot.coordinate.latitude, self.tappedAnnot.coordinate.longitude,
-                   self.tappedAnnot.coordinate.latitude, self.tappedAnnot.coordinate.longitude];
-            
-            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
-            break;
-            
-        }
-        case ActionButtonGoogleMap:
-        {
-            
-            NSString *url = [NSString stringWithFormat:@"comgooglemaps://?q=%f,%f@%f,%f",
-                             // [self.tappedAnnot.title stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
-                             self.tappedAnnot.coordinate.latitude, self.tappedAnnot.coordinate.longitude,
-                             self.tappedAnnot.coordinate.latitude, self.tappedAnnot.coordinate.longitude];
-            
-            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
-            break;
-            
-        }
-        case ActionButtonMotionXHdMap:
-        {
-            
-            NSString *url = [NSString stringWithFormat:@"motionxgpshd://addWaypoint?name=%@&lat=%f&lon=%f",
-                             [self safeString:self.tappedAnnot.title],
-                             self.tappedAnnot.coordinate.latitude, self.tappedAnnot.coordinate.longitude];
-            
-            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
-            break;
-        }
-        case ActionButtonMotionXMap:
-        {
-            
-            NSString *url = [NSString stringWithFormat:@"motionxgps://addWaypoint?name=%@&lat=%f&lon=%f",
-                             [self safeString:self.tappedAnnot.title],
-                             self.tappedAnnot.coordinate.latitude, self.tappedAnnot.coordinate.longitude];
-            
-            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
-            break;
-        }
-        case ActionButtonWazeMap:
-        {
-            
-            NSString *url = [NSString stringWithFormat:@"waze://?ll=%f,%f",
-                             //[self.tappedAnnot.title stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
-                             self.tappedAnnot.coordinate.latitude, self.tappedAnnot.coordinate.longitude];
-            
-            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
-            break;
-        }
-        case ActionButtonCancel:
-        default:
-            break;
-        case ActionButtonAction:
-        {
-            if ([self.tappedAnnot respondsToSelector: @selector(mapTapped:)] && [self.tappedAnnot mapTapped:self.backgroundTask])
-            {
-                break;
-            }
-            else if ([self.tappedAnnot respondsToSelector: @selector(mapDeparture)])
-            {
-                DepartureData *departure = [self.tappedAnnot mapDeparture];
-                DepartureDetailView *departureDetailView = [DepartureDetailView viewController];
-                departureDetailView.callback = self.callback;
-                
-                [departureDetailView fetchDepartureAsync:self.backgroundTask dep:departure allDepartures:nil];
-            }
-            break;
-        }
-        case ActionButtonStopId:
-        {
-            if ([self.tappedAnnot respondsToSelector: @selector(mapStopId)])
-            {
-                DepartureTimesView *departureViewController = [DepartureTimesView viewController];
-                departureViewController.callback = self.callback;
-                [departureViewController fetchTimesForLocationAsync:self.backgroundTask loc:[self.tappedAnnot mapStopId]];
-            }
-            break;
-        }
-    }
-    self.actionButtons = nil;
-}
-
 
 #pragma mark ViewControllerBase methods
 
@@ -818,38 +709,38 @@ enum{
 
 - (void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)view calloutAccessoryControlTapped:(UIControl *)control
 {
-	self.tappedAnnot = (id<MapPinColor>)view.annotation;
-	
+    id<MapPinColor> tappedAnnot = (id<MapPinColor>)view.annotation;
+    
     NSString *action = nil;
     NSString *stopIdAction = nil;
-	
-	if ([self.tappedAnnot showActionMenu])
-	{
-		// action = @"Show details";
-		if ([self.tappedAnnot respondsToSelector: @selector(mapTapped:)]) //  && [self.tappedAnnot mapTapped])
-		{
-			action = nil;
-			
-			if ([self.tappedAnnot respondsToSelector:@selector(tapActionText)])
-			{
-				action = [self.tappedAnnot tapActionText];
-			}
-			if (action == nil)
-			{
-                action = NSLocalizedString(@"Choose this stop", @"button text");
-			}
-		}
-		else if ([self.tappedAnnot respondsToSelector: @selector(mapDeparture)])
-		{
-			action = NSLocalizedString(@"Show details", @"button text");
-		}
-        
-        
-        if ([self.tappedAnnot respondsToSelector: @selector(mapStopId)])
+    
+    if ([tappedAnnot showActionMenu])
+    {
+        // action = @"Show details";
+        if ([tappedAnnot respondsToSelector: @selector(mapTapped:)]) //  && [self.tappedAnnot mapTapped])
         {
-            if ([self.tappedAnnot respondsToSelector: @selector(mapStopIdText)])
+            action = nil;
+            
+            if ([tappedAnnot respondsToSelector:@selector(tapActionText)])
             {
-                stopIdAction = [self.tappedAnnot mapStopIdText];
+                action = [tappedAnnot tapActionText];
+            }
+            if (action == nil)
+            {
+                action = NSLocalizedString(@"Choose this stop", @"button text");
+            }
+        }
+        else if ([tappedAnnot respondsToSelector: @selector(mapDeparture)])
+        {
+            action = NSLocalizedString(@"Show details", @"button text");
+        }
+        
+        
+        if ([tappedAnnot respondsToSelector: @selector(mapStopId)])
+        {
+            if ([tappedAnnot respondsToSelector: @selector(mapStopIdText)])
+            {
+                stopIdAction = [tappedAnnot mapStopIdText];
             }
             else
             {
@@ -859,43 +750,127 @@ enum{
     }
     
     
-    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:NSLocalizedString(@"Map Actions", @"alert title")
-                                                             delegate:self
-                                                    cancelButtonTitle:nil
-                                               destructiveButtonTitle:nil
-                                                    otherButtonTitles:nil];
-    self.actionButtons = [NSMutableArray array];
+    UIAlertController* alert = [UIAlertController alertControllerWithTitle:tappedAnnot.title
+                                                                   message:nil
+                                                            preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    
     
     
     if (stopIdAction !=nil)
     {
-        self.actionButtons[[actionSheet addButtonWithTitle:stopIdAction]] = @(ActionButtonStopId);
+        [alert addAction:[UIAlertAction actionWithTitle:stopIdAction
+                                                  style:UIAlertActionStyleDefault
+                                                handler:^(UIAlertAction *action){
+                                                    if ([tappedAnnot respondsToSelector: @selector(mapStopId)])
+                                                    {
+                                                        DepartureTimesView *departureViewController = [DepartureTimesView viewController];
+                                                        departureViewController.callback = self.callback;
+                                                        [departureViewController fetchTimesForLocationAsync:self.backgroundTask loc:[tappedAnnot mapStopId]];
+                                                    }
+                                                }]];
     }
     
     if (action !=nil)
     {
-        self.actionButtons[[actionSheet addButtonWithTitle:action]] = @(ActionButtonAction);
+        [alert addAction:[UIAlertAction actionWithTitle:action
+                                                  style:UIAlertActionStyleDefault
+                                                handler:^(UIAlertAction *action){
+                                                    if ([tappedAnnot respondsToSelector: @selector(mapTapped:)] && [tappedAnnot mapTapped:self.backgroundTask])
+                                                    {
+                                                        
+                                                    }
+                                                    else if ([tappedAnnot respondsToSelector: @selector(mapDeparture)])
+                                                    {
+                                                        DepartureData *departure = [tappedAnnot mapDeparture];
+                                                        DepartureDetailView *departureDetailView = [DepartureDetailView viewController];
+                                                        departureDetailView.callback = self.callback;
+                                                        
+                                                        [departureDetailView fetchDepartureAsync:self.backgroundTask dep:departure allDepartures:nil];
+                                                    }
+                                                    
+                                                }]];
     }
     
-    self.actionButtons[[actionSheet addButtonWithTitle:NSLocalizedString(@"Show in Apple map app", "map action")]] = @(ActionButtonAppleMap);
+    
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Show in Apple map app", "map action")
+                                              style:UIAlertActionStyleDefault
+                                            handler:^(UIAlertAction *action){
+                                                
+                                                NSString *url = nil;
+                                                url = [NSString stringWithFormat:@"http://maps.apple.com/?q=%f,%f&ll=%f,%f",
+                                                       //[self.tappedAnnot.title stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
+                                                       tappedAnnot.coordinate.latitude, tappedAnnot.coordinate.longitude,
+                                                       tappedAnnot.coordinate.latitude, tappedAnnot.coordinate.longitude];
+                                                
+                                                [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+                                            }]];
+    
     
     UIApplication *app = [UIApplication sharedApplication];
     
-#define EXTERNAL_APP(URL, STR, ACTION) if ([app canOpenURL:[NSURL URLWithString:URL]]) {self.actionButtons[[actionSheet addButtonWithTitle:STR]] = @(ACTION); }
+    typedef void (^external_app_block)(NSString *url, NSString *title, void (^handler)(UIAlertAction *action) );
+
+    external_app_block external_app = ^(NSString *url, NSString *title, void (^handler)(UIAlertAction *handler))
+    {
+        DEBUG_LOGS(url);
+        DEBUG_LOGS(title);
+        
+        if ([app canOpenURL:[NSURL URLWithString:url]])
+        {
+            DEBUG_LOG(@"open");
+            [alert addAction:[UIAlertAction actionWithTitle:title
+                                                      style:UIAlertActionStyleDefault
+                                                    handler:handler]];
+        }
+    };
+    external_app(@"comgooglemaps:",
+                 NSLocalizedString(@"Show in Google map app", "map action"),
+                 ^(UIAlertAction *action){
+                     NSString *url = [NSString stringWithFormat:@"comgooglemaps://?q=%f,%f@%f,%f",
+                                      tappedAnnot.coordinate.latitude, tappedAnnot.coordinate.longitude,
+                                      tappedAnnot.coordinate.latitude, tappedAnnot.coordinate.longitude];
+                     
+                     [app openURL:[NSURL URLWithString:url]];
+                 });
+    external_app(@"waze:",
+                 NSLocalizedString(@"Show in Waze map app", "map action"),
+                 ^(UIAlertAction *action){
+                     NSString *url = [NSString stringWithFormat:@"waze://?ll=%f,%f",
+                                      tappedAnnot.coordinate.latitude, tappedAnnot.coordinate.longitude];
+                     
+                     [app openURL:[NSURL URLWithString:url]];
+                 });
+    external_app(@"motionxgps:",
+                 NSLocalizedString(@"Import to MotionX-GPS", "map action"),
+                 ^(UIAlertAction *action){
+                     NSString *url = [NSString stringWithFormat:@"motionxgps://addWaypoint?name=%@&lat=%f&lon=%f",
+                                      [self safeString:tappedAnnot.title],
+                                      tappedAnnot.coordinate.latitude, tappedAnnot.coordinate.longitude];
+                     
+                     [app openURL:[NSURL URLWithString:url]];
+                 });
+    external_app(@"motionxgpshd:",
+                 NSLocalizedString(@"Import to MotionX-GPS HD", "map action"),
+                 ^(UIAlertAction *action){
+                     NSString *url = [NSString stringWithFormat:@"motionxgpshd://addWaypoint?name=%@&lat=%f&lon=%f",
+                                      [self safeString:tappedAnnot.title],
+                                      tappedAnnot.coordinate.latitude, tappedAnnot.coordinate.longitude];
+                     
+                     [app openURL:[NSURL URLWithString:url]];
+                 });
     
-    EXTERNAL_APP(@"comgooglemaps:", NSLocalizedString(@"Show in Google map app", "map action"),     ActionButtonGoogleMap);
-    EXTERNAL_APP(@"waze:",          NSLocalizedString(@"Show in Waze map app", "map action"),       ActionButtonWazeMap);
-    EXTERNAL_APP(@"motionxgps:",    NSLocalizedString(@"Import to MotionX-GPS", "map action"),      ActionButtonMotionXMap);
-    EXTERNAL_APP(@"motionxgpshd:",  NSLocalizedString(@"Import to MotionX-GPS HD", "map action"),   ActionButtonMotionXHdMap);
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"button text") style:UIAlertActionStyleCancel handler:nil]];
+
+    const CGFloat side = 1;
+    CGRect frame = control.frame;
+    CGRect sourceRect = CGRectMake(frame.origin.x + (frame.size.width - side)/2.0, frame.origin.y + (frame.size.height-side)/2.0, side, side);
     
-    actionSheet.cancelButtonIndex  = [actionSheet addButtonWithTitle:NSLocalizedString(@"Cancel", @"button text")];
     
-    self.actionButtons[actionSheet.cancelButtonIndex] = @(ActionButtonCancel);
-    
-    actionSheet.actionSheetStyle = UIActionSheetStyleDefault;
-    [actionSheet showFromToolbar:self.navigationController.toolbar]; // show from our table view (pops up in the middle of the table)
-    [actionSheet release];
-    
+    alert.popoverPresentationController.sourceView  = control;
+    alert.popoverPresentationController.sourceRect = sourceRect;
+        
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 - (void)mapView:(MKMapView *)mapView regionWillChangeAnimated:(BOOL)animated

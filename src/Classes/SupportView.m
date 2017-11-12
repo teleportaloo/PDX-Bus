@@ -11,7 +11,6 @@
 
 
 #import "SupportView.h"
-#include "CellLabel.h"
 #include "WebViewController.h"
 #include "TriMetXML.h"
 #import "WhatsNewView.h"
@@ -23,6 +22,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import "NearestVehiclesMap.h"
 #import "StringHelper.h"
+#import "UITableViewCell+MultiLineCell.h"
 
 #define kSectionSupport			0
 #define kSectionTips			1
@@ -320,7 +320,6 @@
 	return 0;
 }
 
-
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	
 	switch (indexPath.section) {
@@ -393,18 +392,15 @@
 		{
 			if (indexPath.row == kSectionSupportRowSupport)
 			{
-				CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionSupportRowSupport)];
+				UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionSupportRowSupport)];
 				if (cell == nil) {
-					cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionSupportRowSupport)] autorelease];
-					cell.view = [self create_UITextView:nil font:self.paragraphFont];
+                    cell = [UITableViewCell cellWithMultipleLines:MakeCellId(kSectionSupportRowSupport)];
+
 				}
 				
-				cell.view.font =  self.paragraphFont;
-				cell.view.attributedText =  supportText;
-                [cell.view setAdjustsFontSizeToFitWidth:NO];
-				DEBUG_LOG(@"width:  %f\n", cell.view.bounds.size.width);
-    
-				cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                cell.selectionStyle = UITableViewCellSelectionStyleNone;
+				cell.textLabel.attributedText =  supportText;
+                DEBUG_LOG(@"width:  %f\n", cell.textLabel.bounds.size.width);
                 
 				[self updateAccessibility:cell indexPath:indexPath text:supportText.string alwaysSaySection:YES];
 				// cell.backgroundView = [self clearView];
@@ -483,15 +479,11 @@
 		}
         case kSectionTips:
 		{
-			CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionTips)];
+			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionTips)];
 			if (cell == nil) {
-				cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionTips)] autorelease];
-				cell.view = [self create_UITextView:nil font:self.paragraphFont];
+                cell = [UITableViewCell cellWithMultipleLines:MakeCellId(kSectionTips)];
 			}
-			
-			cell.view.font =  self.paragraphFont;
-			cell.view.attributedText = tipText[indexPath.row];
-            [cell.view setAdjustsFontSizeToFitWidth:NO];
+			cell.textLabel.attributedText = tipText[indexPath.row];
 			cell.selectionStyle = UITableViewCellSelectionStyleNone;
             NSAttributedString *tip = tipText[indexPath.row];
 			[self updateAccessibility:cell indexPath:indexPath text:tip.string alwaysSaySection:YES];
@@ -500,23 +492,20 @@
 		}
         case kSectionPrivacy:
         {
-            CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionPrivacy)];
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionPrivacy)];
             if (cell == nil) {
-                cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionPrivacy)] autorelease];
-                cell.view = [self create_UITextView:nil font:self.paragraphFont];
+                cell = [UITableViewCell cellWithMultipleLines:MakeCellId(kSectionPrivacy) font:self.paragraphFont];
             }
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             
-            cell.view.font =  self.paragraphFont;
-            
             if (indexPath.row == kSectionPrivacyRowLocation)
             {
-                cell.view.text = self.locationText;
+                cell.textLabel.text = self.locationText;
                 [self updateAccessibility:cell indexPath:indexPath text:self.locationText alwaysSaySection:YES];
             }
             else
             {
-                cell.view.text = self.cameraText;
+                cell.textLabel.text = self.cameraText;
                 [self updateAccessibility:cell indexPath:indexPath text:self.cameraText alwaysSaySection:YES];
             }
             return cell;
@@ -533,25 +522,9 @@
 {
 	switch (indexPath.section) {
 		case kSectionSupport:
-			if (indexPath.row == kSectionSupportRowSupport)
-			{
-                return [self getAtrributedTextHeight:supportText] + 20;;
-			}
-			break;
         case kSectionTips:
-        {
-            NSAttributedString *tip = tipText[indexPath.row];
-			return [self getAtrributedTextHeight:tip] + 20;
-        }
         case kSectionPrivacy:
-            if (indexPath.row == kSectionPrivacyRowLocation)
-            {
-                return [self getTextHeight:self.locationText font:self.paragraphFont];
-            }
-            else
-            {
-                return [self getTextHeight:self.cameraText font:self.paragraphFont];
-            }
+            return UITableViewAutomaticDimension;
 		default:
 			break;
 	}
@@ -585,9 +558,7 @@
                     [webPage displayPage:self.navigationController animated:YES itemToDeselect:self];
 					break;
                 case kSectionLinkTwitter:
-                    self.tweetAt   = @"pdxbus";
-                    self.initTweet = @"@pdxbus";
-                    [self tweet];
+                    [self tweetAt:@"pdxbus"];
                     break;
                 case kSectionLinkFacebook:
                     [self facebook];

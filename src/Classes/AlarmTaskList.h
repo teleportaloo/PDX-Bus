@@ -47,7 +47,7 @@
 @property (retain) NSThread *backgroundThread;
 
 
-+ (AlarmTaskList*)singleton;
++ (AlarmTaskList*)sharedInstance;
 + (bool)supported;
 + (bool)proximitySupported;
 - (void)addTaskForDeparture:(DepartureData *)dep mins:(uint)mins;

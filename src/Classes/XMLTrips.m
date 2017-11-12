@@ -44,6 +44,8 @@
 
 static NSString *tripURLString = @"trips/tripplanner?%@&%@&Date=%@&Time=%@&Arr=%@&Walk=%f&Mode=%@&Min=%@&Format=XML&MaxItineraries=%d&";
 
+#define IS_BLANK(STR) ((STR)==nil || (STR).length==0)
+
 - (void)dealloc {
 	self.userRequest		= nil;
 	self.currentItinerary	= nil;
@@ -135,7 +137,7 @@ static NSString *tripURLString = @"trips/tripplanner?%@&%@&Date=%@&Time=%@&Arr=%
     {
 #define SEL_FOR_PROP(X) [@#X lowercaseString] : [NSValue valueWithPointer: NSSelectorFromString(@"setX" @#X @":") ]
         self.selsForProps = @{
-                            SEL_FOR_PROP(data),
+                            SEL_FOR_PROP(date),
                             SEL_FOR_PROP(time),
                             SEL_FOR_PROP(message),
                             SEL_FOR_PROP(startTime),
@@ -512,6 +514,16 @@ END_ELEMENT(to)
 
 END_ELEMENT(itinerary)
 {
+    if (IS_BLANK(self.currentItinerary.xdate))
+    {
+        self.currentItinerary.xdate = self.xdate;
+    }
+    
+    if (IS_BLANK(self.currentItinerary.xstartTime))
+    {
+        self.currentItinerary.xstartTime = self.xtime;
+    }
+    
     self.currentItinerary = nil;
     self.currentObject = nil;
 }
@@ -554,6 +566,7 @@ END_ELEMENT(url)
 	
 	if (self.currentObject != nil && sel!=nil && [self.currentObject respondsToSelector:sel])
     {
+        DEBUG_LOG(@"XML==:%@=%@", elementName, self.contentOfCurrentProperty);
         [self.currentObject performSelector:sel withObject:self.contentOfCurrentProperty];
     }
 	self.contentOfCurrentProperty = nil;
@@ -568,7 +581,7 @@ END_ELEMENT(url)
 
 - (void)saveTrip
 {
-	SafeUserData *userData = [SafeUserData singleton];
+	SafeUserData *userData = [SafeUserData sharedInstance];
 	
 	if (self.rawData !=nil)
 	{

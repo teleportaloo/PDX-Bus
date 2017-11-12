@@ -17,7 +17,7 @@
 @class RootViewController;
 @class DepartureData;
 
-@interface TriMetTimesAppDelegate : NSObject <UIApplicationDelegate,UIAlertViewDelegate> {	
+@interface TriMetTimesAppDelegate : NSObject <UIApplicationDelegate> {	
 	IBOutlet UIWindow *window;
 	IBOutlet UINavigationController *navigationController;
     IBOutlet RootViewController *rootViewController;

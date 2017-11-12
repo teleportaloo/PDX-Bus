@@ -46,6 +46,7 @@ typedef struct route_cols {
 	NSString *name;
 	NSString *type;
     bool  square;
+    int order;
 } ROUTE_COL;
 
 @interface TriMetRouteColors : NSObject {

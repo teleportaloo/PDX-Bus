@@ -71,7 +71,7 @@
     {
         [[VehicleTableView viewController] fetchNearestVehiclesAsync:locatingView.backgroundTask
                                                                   location:self.locationManager.location
-                                                               maxDistance:[UserPrefs singleton].vehicleLocatorDistance];
+                                                               maxDistance:[UserPrefs sharedInstance].vehicleLocatorDistance];
     
     }
     else if (locatingView.cancelled)

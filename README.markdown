@@ -66,7 +66,7 @@ Links
 
 Things to know before building
 ------------------------------
-* PDX Bus is built with iPhone SDK 10.3 and Xcode 8.3.3 - available free
+* PDX Bus is built with iPhone SDK 11.0 and Xcode 9.1 - available free
 from [Apple](http://developer.apple.com) in their Mac App store.
 * Before building this code you will need to register with TriMet 
 to get a free "AppID" from [TriMet](http://developer.trimet.org/registration/),
@@ -158,8 +158,6 @@ These files are in a separate folder with attribution - [App Icon by Rob Alan](h
 [Creative Commons Attribution License](http://creativecommons.org/licenses/by/3.0/)- location
 [soundbible.com](http://soundbible.com/1695-Train-Honk-Horn-2x.html).
 
-* QR Code Scanning - ZXing library [http://http://code.google.com/p/zxing/] is Apache 2.0 licensed with changes by A.R.Wallace.
-
 * Leah Culver - Pull to Refresh: [http://github.com/leah/PullToRefresh] - license below:
 
 Permission is hereby granted, free of charge, to any person obtaining
@@ -185,6 +183,22 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Change log
 ----------
+### Version 10.0 (October 2017)
+* Fixed calendar time - typo from "data" back to "date" :-(
+* Fixed trip itineraries that are only walking - they have no date, if I use the trip date it's in a different format.
+* Updated rail map to lated and used cleared streetcar map.
+* Updated static data to include new station names;  updated maps to latest maps.
+* Removed QR code reader and replaced with iOS reader.
+* Rebuilt with Xcode 9;  fixed iOS 11 weird scrolling issues.
+* Removed Pebble code.
+* Fixed run-time issues found by analyzer
+* Refactored UIAlertView and UISheetView to use UIAlertController so reduce complexity.
+* Recfactored Departure cell to be in own class and to use layout subviews for multi-tasking.
+* Refactored text height calculations to use a prototype cell view and use the constants in the CellLabel class.
+* Refactored Trip cells also to calculate height much better.
+* Route color blobs are much bigger.
+* Removed CellLabel class - now we can just use the UITableViewCell class and an automatic height.  It's like magic!
+
 ### Version 9.2 (August 2017)
 * Fixed crash when opening map when there is a callback
 * Fixed crash for timer if the cell is not available.
@@ -477,4 +491,4 @@ First Open Source Version.
 
 HAVE FUN!
 
-Andrew Wallace, December 2016.
+Andrew Wallace, September 2017.

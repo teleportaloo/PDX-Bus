@@ -20,6 +20,7 @@
 #import "XMLTrips.h"
 #import "TripReturnUserRequest.h"
 #import "UserFaves.h"
+#import "TripItemCell.h"
 
 @interface EditBookMarkView : TableViewWithToolbar <EditableTableViewCellDelegate, ReturnStopId, TripReturnUserRequest> {
 	NSMutableDictionary *   _originalFave;

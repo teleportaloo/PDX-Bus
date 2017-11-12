@@ -44,9 +44,8 @@
 #import "DirectionView.h"
 
 #import "TripPlannerLocatingView.h"
+#import "QrCodeReaderViewController.h"
 
-#import "ZXingWidgetController.h"
-#import "QRCodeReader.h"
 #import "ProgressModalView.h"
 #import "BlockColorDb.h"
 
@@ -151,8 +150,6 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 	self.alarmKeys			= nil;
 	self.commuterBookmark   = nil;
     self.progressView       = nil;
-    self.tweetAt            = nil;
-    self.initTweet          = nil;
     self.launchStops        = nil;
     self.routingURL         = nil;
     self.initialActionArgs  = nil;
@@ -161,6 +158,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
     self.session            = nil;
     self.editBookmarksButton= nil;
     self.emailBookmarksButton = nil;
+    self.initialBookmarkName = nil;
 
 	[super dealloc];
 }
@@ -174,7 +172,16 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 
 - (CGFloat) heightOffset
 {
-    return -20.0;
+    if (SMALL_SCREEN || (self.screenInfo.screenWidth == WidthBigVariable))
+    {
+        return -[UIApplication sharedApplication].statusBarFrame.size.height;
+    }
+    return 0.0;
+}
+
+- (bool)neverAdjustContentInset
+{
+    return YES;
 }
 
 - (void)updateToolbarItems:(NSMutableArray *)toolbarItems
@@ -183,13 +190,13 @@ static NSString *callString = @"tel:1-503-238-RIDE";
     bool spaceNeeded = NO;
     
     
-    if ([UserPrefs singleton].locateToolbarIcon)
+    if ([UserPrefs sharedInstance].locateToolbarIcon)
     {
         [toolbarItems addObject:[UIToolbar autoLocateWithTarget:self  action:@selector(autoLocate:)]];
         spaceNeeded = YES;
     }
     
-    if ([UserPrefs singleton].commuteButton)
+    if ([UserPrefs sharedInstance].commuteButton)
     {
         if (spaceNeeded)
         {
@@ -199,7 +206,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
         spaceNeeded = YES;
     }
     
-    if (self.ZXingSupported && [UserPrefs singleton].qrCodeScannerIcon)
+    if (self.videoCaptureSupported && [UserPrefs sharedInstance].qrCodeScannerIcon)
     {
         if (spaceNeeded)
         {
@@ -209,7 +216,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
         spaceNeeded = YES;
     }
     
-    if ([UserPrefs singleton].ticketAppIcon)
+    if ([UserPrefs sharedInstance].ticketAppIcon)
     {
         if (spaceNeeded)
         {
@@ -244,60 +251,20 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 
 - (void) delayedQRScanner:(NSObject *)arg
 {
-    ZXingWidgetController *widController = [[ZXingWidgetController alloc] initWithDelegate:self showCancel:YES OneDMode:NO];
+    QrCodeReaderViewController* qrView = [[[ QrCodeReaderViewController alloc ] init ] autorelease];
     
+    [self presentViewController:qrView animated:YES completion:nil];
     
-
-    int color = [UserPrefs singleton].toolbarColors;
-	
-    
-	if (color == 0xFFFFFF)
-	{
-        widController.overlayView.toolbar.barTintColor =  nil;
-        widController.overlayView.toolbar.tintColor =  nil;
-	}
-	else
-	{
-        widController.overlayView.toolbar.barTintColor = [ViewControllerBase htmlColor:color];
-        widController.overlayView.toolbar.tintColor =  [UIColor whiteColor];
-    }
-    
-    NSMutableSet *readers = [NSMutableSet set];
-    
-    QRCodeReader* qrcodeReader = [[QRCodeReader alloc] init];
-    [readers addObject:qrcodeReader];
-    [qrcodeReader release];
-    
-    widController.readers = readers;
-    
-    NSBundle *mainBundle = [NSBundle mainBundle];
-    widController.soundToPlay =
-        [NSURL fileURLWithPath:[mainBundle pathForResource:@"beep-beep" ofType:@"aiff"] isDirectory:NO];
-    [self presentViewController:widController animated:YES completion:NULL];
-    [widController release];   
 }
 
 - (bool)QRCodeScanner
 {
-    if (self.ZXingSupported)
+    if (self.videoCaptureSupported)
     {
-        TriMetTimesAppDelegate *app = [TriMetTimesAppDelegate singleton];
-    
-        self.progressView = [ProgressModalView initWithSuper:app.window
-                                                       items:0 
-                                                       title:@"Starting QR Code Scanner"
-                                                    delegate:nil
-                                                 orientation:[UIApplication sharedApplication].statusBarOrientation];
-    
-        [app.window addSubview:self.progressView];
-    
-        NSTimer *timer = [[[NSTimer alloc] initWithFireDate:[NSDate dateWithTimeIntervalSinceNow:0.01]
-                                                   interval:0.0 
-                                                     target:[self retain]
-                                                   selector:@selector(delayedQRScanner:) 
-                                                   userInfo:nil 
-                                                    repeats:NO] autorelease];
-        [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
+        QrCodeReaderViewController* qrView = [[[ QrCodeReaderViewController alloc ] init ] autorelease];
+        
+        [self.navigationController pushViewController:qrView animated:YES];
+        
     }
     else {
         UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:nil
@@ -668,7 +635,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
         [self.navigationController pushViewController:findView animated:YES];
         [findView release];
     }
-    else if ([UserPrefs singleton].autoLocateShowOptions)
+    else if ([UserPrefs sharedInstance].autoLocateShowOptions)
     {
         // Push the detail view controller
         [self.navigationController pushViewController:[FindByLocationView viewController] animated:YES];
@@ -688,7 +655,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 - (void)commuteAction:(id)sender
 {
 	
-	NSDictionary *commuteBookmark = [[SafeUserData singleton] checkForCommuterBookmarkShowOnlyOnce:NO];
+	NSDictionary *commuteBookmark = [[SafeUserData sharedInstance] checkForCommuterBookmarkShowOnlyOnce:NO];
 	
 	if (commuteBookmark!=nil)
     {
@@ -743,7 +710,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
     bool reIndexStations = [self newVersion:@"stationIndex.plist" version:
                             [NSString stringWithFormat:@"%@ %d %d %d",
                              kWhatsNewVersion,
-                             (int)[UserPrefs singleton].searchStations,
+                             (int)[UserPrefs sharedInstance].searchStations,
                              (int)nowDateComponents.weekOfYear,
                              (int)nowDateComponents.year]];
     
@@ -969,17 +936,17 @@ static NSString *callString = @"tel:1-503-238-RIDE";
     [self addRowType:kTableFindRowBrowse];
     [self addRowType:kTableFindRowRailMap];
     
-    if ([UserPrefs singleton].vehicleLocations)
+    if ([UserPrefs sharedInstance].vehicleLocations)
     {
         [self addRowType:kTableFindRowVehicle];
     }
     
-    if (self.ZXingSupported)
+    if (self.videoCaptureSupported)
     {
         [self addRowType:kTableFindRowQR];
     }
     
-    if ([UserPrefs singleton].maxRecentStops != 0)
+    if ([UserPrefs sharedInstance].maxRecentStops != 0)
     {
         [self addRowType:kTableFindRowHistory];
     }
@@ -1012,7 +979,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
         self.alarmKeys = _taskList.taskKeys;
     }
     
-    if ([UserPrefs singleton].bookmarksAtTheTop)
+    if ([UserPrefs sharedInstance].bookmarksAtTheTop)
     {
         
         if (self.alarmKeys!=nil && self.alarmKeys.count>0)
@@ -1060,7 +1027,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
     [self addRowType:kTableStreetcarTweet];
     [self addRowType:kTableTriMetFacebook];
     
-    if ([UserPrefs singleton].ticketAppIcon)
+    if ([UserPrefs sharedInstance].ticketAppIcon)
     {
         [self addRowType:kTableTriMetTicketApp];
     }
@@ -1086,7 +1053,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 	
 	if ([AlarmTaskList supported])
 	{
-		_taskList = [AlarmTaskList singleton];
+		_taskList = [AlarmTaskList sharedInstance];
 	}
     
     if (self.session == nil)
@@ -1123,7 +1090,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
             ERROR_LOG(@"Failed to delete bookmark index %@\n", error.description);
         }
         
-        if ([UserPrefs singleton].searchBookmarks)
+        if ([UserPrefs sharedInstance].searchBookmarks)
         {
             NSDictionary *bookmark = nil;
             NSMutableArray *index = [NSMutableArray array];
@@ -1303,10 +1270,12 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 
 - (void)viewWillDisappear:(BOOL)animated
 {
+    DEBUG_LOGL(self.table.contentOffset.y);
     [super viewWillDisappear:animated];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
+    DEBUG_LOGL(self.table.contentOffset.y);
 	[super viewWillAppear:animated];
 	
     DEBUG_FUNC();
@@ -1319,6 +1288,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 }
 
 - (void)viewDidAppear:(BOOL)animated {
+    DEBUG_LOGL(self.table.contentOffset.y);
 	[super viewDidAppear:animated];
     
     DEBUG_FUNC();
@@ -1361,6 +1331,10 @@ static NSString *callString = @"tel:1-503-238-RIDE";
     [self iOS7workaroundPromptGap];
 }
 
+- (void)viewWillLayoutSubviews
+{
+    DEBUG_LOGL(self.table.contentOffset.y);
+}
 
 - (void)viewDidDisappear:(BOOL)animated {
 	if (_taskList)
@@ -1369,6 +1343,8 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 	}
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    
+    DEBUG_LOGL(self.table.contentOffset.y);
     
     [super viewDidDisappear:animated];
 }
@@ -1467,7 +1443,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 	case kTableSectionPlanner:
 			
 			rows = kTableTripRows;
-			if ([UserPrefs singleton].maxRecentTrips == 0)
+			if ([UserPrefs sharedInstance].maxRecentTrips == 0)
 			{
 				rows--;
 			}
@@ -1535,6 +1511,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 
 - (void)tableView: (UITableView*)tableView willDisplayCell: (UITableViewCell*)cell forRowAtIndexPath: (NSIndexPath*)indexPath
 {
+    [super tableView:tableView willDisplayCell:cell forRowAtIndexPath:indexPath];
     
     switch([self sectionType:indexPath.section])
 	{
@@ -2055,15 +2032,10 @@ static NSString *callString = @"tel:1-503-238-RIDE";
                     cell = [tableView dequeueReusableCellWithIdentifier:cellId];
                     if (cell == nil)
                     {
-                        cell = [AlarmCell tableviewCellWithReuseIdentifier:cellId
-                                                                     width:self.screenInfo.screenWidth
-                                                                    height:[self tableView:tableView heightForRowAtIndexPath:indexPath]];
-                        
+                        cell = [AlarmCell tableviewCellWithReuseIdentifier:cellId];
                     }
                     
                     [task populateCell:(AlarmCell*)cell];
-                    
-                    [((AlarmCell*)cell) resetState];
                     
                     cell.imageView.image = [self getActionIcon:task.icon];
                     
@@ -2434,24 +2406,18 @@ static NSString *callString = @"tel:1-503-238-RIDE";
             {
                 case kTableStreetcarTweet:
                 {
-                    self.tweetAt   = @"PDXStreetcar";
-                    self.initTweet = @"@PDXStreetcar #pdxbus";
-                    
-                    [self tweet];
+                    [self tweetAt:@"PDXStreetcar"];
                     break;
                 }
                 case kTableTriMetTweet:
                 {
-                    self.tweetAt   = @"TriMet";
-                    self.initTweet = @"@TriMet #pdxbus";
-                    
-                    [self tweet];
+                    [self tweetAt:@"TriMet"];
                     break;
                 }
                     
                 case kTableTriMetTicketApp:
                 {
-                    [self ticketApp];
+                    [self ticketAppFrom:[self.table cellForRowAtIndexPath:indexPath].contentView button:nil];
                     break;
                 }
                     
@@ -2865,36 +2831,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
 	}
 }
 
-#pragma mark -
-#pragma mark ZXingDelegateMethods
 
-
-- (void)zxingController:(ZXingWidgetController*)controller didScanResult:(NSString *)result {
-    [self dismissViewControllerAnimated:YES completion:nil];
-    
-    /*
-    UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"QR Code read"
-                                                       message:result
-                                                      delegate:nil
-                                             cancelButtonTitle:@"OK"
-                                             otherButtonTitles:nil ] autorelease];
-    [alert show]; 
-    */
-    
-    [[DepartureTimesView viewController] fetchTimesViaQrCodeRedirectAsync:self.backgroundTask URL:result];
-}
-
-- (void)zxingControllerDidCancel:(ZXingWidgetController*)controller {
-    [self.progressView removeFromSuperview];
-    self.progressView= nil;
-    [self dismissViewControllerAnimated:YES completion:nil];
-}
-
-- (void)zxingControllerDidDisplay:(ZXingWidgetController *)controller
-{
-    [self.progressView removeFromSuperview];
-    self.progressView= nil;
-}
 
 - (void)didEnterBackground
 {
@@ -2954,7 +2891,7 @@ static NSString *callString = @"tel:1-503-238-RIDE";
             
             if (locId && desc)
             {
-                [[SafeUserData singleton] addToRecentsWithLocation:locId description:desc];
+                [[SafeUserData sharedInstance] addToRecentsWithLocation:locId description:desc];
             }
             
         }

@@ -104,8 +104,7 @@
     
     [query deleteCharactersInRange:NSMakeRange(0,9)];  // /transweb is 9 characters
     
-    NSString *fullQuery = [NSString stringWithFormat:@"%@://developer.trimet.org%@",
-                       [UserPrefs singleton].triMetProtocol, query];
+    NSString *fullQuery = [NSString stringWithFormat:@"https://developer.trimet.org%@", query];
     
     DEBUG_LOG(@"Query %@\n", fullQuery);
     

@@ -17,6 +17,7 @@
 #import "TableViewWithToolbar.h"
 #import "XMLTrips.h"
 #import "TripPlannerBaseView.h"
+#import "TripItemCell.h"
 
 
 @interface TripPlannerSummaryView : TripPlannerBaseView {

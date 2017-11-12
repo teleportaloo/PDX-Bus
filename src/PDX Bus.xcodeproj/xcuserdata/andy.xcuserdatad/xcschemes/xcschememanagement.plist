@@ -12,17 +12,17 @@
 		<key>PDX Bus Ad-Hoc.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>6</integer>
+			<integer>5</integer>
 		</dict>
 		<key>PDX Bus App Store.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>5</integer>
+			<integer>4</integer>
 		</dict>
 		<key>PDX Bus Create Data.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>7</integer>
+			<integer>6</integer>
 		</dict>
 		<key>PDX Bus Debug.xcscheme</key>
 		<dict>
@@ -37,7 +37,7 @@
 		<key>PDX Bus Watch Release.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>4</integer>
+			<integer>3</integer>
 		</dict>
 		<key>PDX Bus WatchKit App.xcscheme</key>
 		<dict>

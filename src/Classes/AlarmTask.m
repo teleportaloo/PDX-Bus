@@ -112,94 +112,98 @@
 
 - (void)cancelNotification
 {
-	UIApplication*    app = [UIApplication sharedApplication];
-	
+    dispatch_async(dispatch_get_main_queue(), ^{
+        UIApplication*    app = [UIApplication sharedApplication];
+        
 #ifdef DEBUGLOGGING 
-	[self dumpAlerts:@"before!"];
+        [self dumpAlerts:@"before!"];
 #endif
-
-	if (self.alarm != nil)
-	{
-		DEBUG_LOG(@"Attempting to cancel %@\n", self.alarm.alertBody);
-		[app cancelLocalNotification:self.alarm];
-		
-		NSArray *notifications = app.scheduledLocalNotifications;
-		
-		for (UILocalNotification *notif in notifications)
-		{
-			if ([notif.alertBody isEqualToString:self.alarm.alertBody])
-			{
-				[app cancelLocalNotification:notif];
-			}
-		}
-	}
+        
+        if (self.alarm != nil)
+        {
+            DEBUG_LOG(@"Attempting to cancel %@\n", self.alarm.alertBody);
+            [app cancelLocalNotification:self.alarm];
+            
+            NSArray *notifications = app.scheduledLocalNotifications;
+            
+            for (UILocalNotification *notif in notifications)
+            {
+                if ([notif.alertBody isEqualToString:self.alarm.alertBody])
+                {
+                    [app cancelLocalNotification:notif];
+                }
+            }
+        }
 #ifdef DEBUGLOGGING 
-	[self dumpAlerts:@"deleted!"];
+        [self dumpAlerts:@"deleted!"];
 #endif	
-	
+    });
 }
 
 - (void)alert:(NSString *)string 
 	 fireDate:(NSDate*)fireDate button:(NSString *)button userInfo:(NSDictionary *)userInfo 
  defaultSound:(bool)defaultSound;
 {
-	UIApplication*    app = [UIApplication sharedApplication];
-    UserPrefs   *prefs = [UserPrefs singleton];
-
-	
-	[self cancelNotification];
-	
-	DEBUG_LOG(@"Alert: %@ \nuserInfo %d \nbutton %@ \ndefault sound %d\n",
-			  string, userInfo !=nil, button, defaultSound);
-    
-    NSDate *displayDate = fireDate;
-    
-    if (displayDate == nil)
-    {
-        displayDate = [NSDate date];
-    }
-    
-    NSString *approx = @"";
-    
-    if (displayDate.timeIntervalSinceNow > (10.0 * 60.0))
-    {
-        approx = NSLocalizedString(@"Approximately ", "aproximately prefix before a date");
-    }
-	
-	// Create a new notification
-	self.alarm = [[[UILocalNotification alloc] init] autorelease];
-	self.alarm.fireDate						= fireDate;
-	self.alarm.timeZone						= [NSTimeZone defaultTimeZone];
-	self.alarm.repeatInterval				= 0;
-	self.alarm.repeatCalendar				= nil;
-	self.alarm.soundName					= defaultSound ? UILocalNotificationDefaultSoundName : prefs.alarmSoundFile ;
-	self.alarm.alertBody					= [NSString stringWithFormat:@"%@%@ %@",
-                                               approx,
-                                               [NSDateFormatter localizedStringFromDate:displayDate
-                                                                              dateStyle:NSDateFormatterNoStyle
-                                                                              timeStyle:NSDateFormatterShortStyle],
-                                               string];
-	self.alarm.hasAction					= (userInfo != nil) || (button !=nil);
-	self.alarm.userInfo						= userInfo;
-	self.alarm.alertAction					= button;
-	self.alarm.applicationIconBadgeNumber	= 0;
-	
-	if (fireDate == nil)
-	{
-		[app presentLocalNotificationNow:self.alarm];
-	}
-	else 
-	{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        
+        UIApplication*    app = [UIApplication sharedApplication];
+        UserPrefs   *prefs = [UserPrefs sharedInstance];
+        
+        
+        [self cancelNotification];
+        
+        DEBUG_LOG(@"Alert: %@ \nuserInfo %d \nbutton %@ \ndefault sound %d\n",
+                  string, userInfo !=nil, button, defaultSound);
+        
+        NSDate *displayDate = fireDate;
+        
+        if (displayDate == nil)
+        {
+            displayDate = [NSDate date];
+        }
+        
+        NSString *approx = @"";
+        
+        if (displayDate.timeIntervalSinceNow > (10.0 * 60.0))
+        {
+            approx = NSLocalizedString(@"Approximately ", "aproximately prefix before a date");
+        }
+        
+        // Create a new notification
+        self.alarm = [[[UILocalNotification alloc] init] autorelease];
+        self.alarm.fireDate						= fireDate;
+        self.alarm.timeZone						= [NSTimeZone defaultTimeZone];
+        self.alarm.repeatInterval				= 0;
+        self.alarm.repeatCalendar				= nil;
+        self.alarm.soundName					= defaultSound ? UILocalNotificationDefaultSoundName : prefs.alarmSoundFile ;
+        self.alarm.alertBody					= [NSString stringWithFormat:@"%@%@ %@",
+                                                   approx,
+                                                   [NSDateFormatter localizedStringFromDate:displayDate
+                                                                                  dateStyle:NSDateFormatterNoStyle
+                                                                                  timeStyle:NSDateFormatterShortStyle],
+                                                   string];
+        self.alarm.hasAction					= (userInfo != nil) || (button !=nil);
+        self.alarm.userInfo						= userInfo;
+        self.alarm.alertAction					= button;
+        self.alarm.applicationIconBadgeNumber	= 0;
+        
+        if (fireDate == nil)
+        {
+            [app presentLocalNotificationNow:self.alarm];
+        }
+        else
+        {
 #ifdef DEBUG_ALARMS		
-		DEBUG_LOG(@"Alert time %@\n", [NSDateFormatter localizedStringFromDate:fireDate
-                                                                     dateStyle:NSDateFormatterMediumStyle
-                                                                     timeStyle:NSDateFormatterLongStyle]);
+            DEBUG_LOG(@"Alert time %@\n", [NSDateFormatter localizedStringFromDate:fireDate
+                                                                         dateStyle:NSDateFormatterMediumStyle
+                                                                         timeStyle:NSDateFormatterLongStyle]);
 #endif
-		
-		[app scheduleLocalNotification:self.alarm];
-	}
-	
-	[self dumpAlerts:@"done!"];
+            
+            [app scheduleLocalNotification:self.alarm];
+        }
+        
+        [self dumpAlerts:@"done!"];
+    });
 }
 
 - (NSString *)cellDescription

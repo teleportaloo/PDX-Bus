@@ -73,7 +73,7 @@
 					  [UIToolbar autoFlexSpace],
                       segItem]];
     
-    if ([UserPrefs singleton].debugXML)
+    if ([UserPrefs sharedInstance].debugXML)
     {
         [toolbarItems addObject:[UIToolbar autoFlexSpace]];
 		[toolbarItems addObject:[self autoXmlButton]];
@@ -93,80 +93,62 @@
 
 #pragma mark Data fetchers
 
-- (void)workerToFetchDestinations:(DepartureData*) dep
-{
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:kGettingStops];
-	
-	[self.stopData getStopsAfterLocation:dep.locid route:dep.route direction:dep.dir 
-							 description:dep.routeName cacheAction:TriMetXMLForceFetchAndUpdateCache];
-	self.departure = dep;
-    self.title = NSLocalizedString(@"Destinations", @"page title");
-	
-	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
-	[pool release];
-}
+
 
 - (void)fetchDestinationsAsync:(id<BackgroundTaskProgress>) callback dep:(DepartureData *) dep
 {
-	
-	self.backgroundTask.callbackWhenFetching = callback;
-	
+    self.backgroundTask.callbackWhenFetching = callback;
+    
     self.stopData = [XMLStops xml];
-
-	if (!self.backgroundRefresh && [self.stopData getStopsAfterLocation:dep.locid route:dep.route direction:dep.dir 
-															description:dep.routeName cacheAction:TriMetXMLCheckCache])
-	{
-		self.departure = dep;
-		self.title = NSLocalizedString(@"Destinations", @"page title");
-
-		[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
-	}
-	else 
-	{
-		[NSThread detachNewThreadSelector:@selector(workerToFetchDestinations:) toTarget:self withObject:dep];
-	}
-}
-
-- (void)workerToFetchStops:(NSArray*) args
-{
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:kGettingStops];
-
-	
-    NSString *routeid = args[0];
-	NSString *dir     = args[1];
-	NSString *desc    = args[2];
-		
-	[self.stopData getStopsForRoute:routeid 
-						  direction:dir 
-						description:desc
-						cacheAction:TriMetXMLForceFetchAndUpdateCache];
-	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
-
-	[pool release];
+    
+    if (!self.backgroundRefresh && [self.stopData getStopsAfterLocation:dep.locid route:dep.route direction:dep.dir
+                                                            description:dep.shortSign cacheAction:TriMetXMLCheckCache])
+    {
+        self.departure = dep;
+        self.title = NSLocalizedString(@"Destinations", @"page title");
+        
+        [self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
+    }
+    else
+    {
+        [self runAsyncOnBackgroundThread:^{
+            [self.backgroundTask.callbackWhenFetching backgroundStart:1 title:kGettingStops];
+            
+            [self.stopData getStopsAfterLocation:dep.locid route:dep.route direction:dep.dir
+                                     description:dep.shortSign cacheAction:TriMetXMLForceFetchAndUpdateCache];
+            self.departure = dep;
+            self.title = NSLocalizedString(@"Destinations", @"page title");
+            
+            [self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
+        }];
+    }
 }
 
 
 - (void)fetchStopsAsync:(id<BackgroundTaskProgress>) callback route:(NSString*) routeid direction:(NSString*)dir description:(NSString *)desc
 																directionName:(NSString *)dirName
 {
-	self.backgroundTask.callbackWhenFetching = callback;
+    self.backgroundTask.callbackWhenFetching = callback;
     self.stopData = [XMLStops xml];
-	if (!self.backgroundRefresh && [self.stopData getStopsForRoute:routeid 
-														 direction:dir 
-													   description:desc
-													   cacheAction:TriMetXMLCheckCache])
-	{
-		[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
-	}
-	else 
-	{
-		[NSThread detachNewThreadSelector:@selector(workerToFetchStops:)
-								 toTarget:self 
-							   withObject:@[routeid, dir, desc]];
-
-	}
+    if (!self.backgroundRefresh && [self.stopData getStopsForRoute:routeid
+                                                         direction:dir
+                                                       description:desc
+                                                       cacheAction:TriMetXMLCheckCache])
+    {
+        [self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
+    }
+    else
+    {
+        [self runAsyncOnBackgroundThread:^{
+            [self.backgroundTask.callbackWhenFetching backgroundStart:1 title:kGettingStops];
+            
+            [self.stopData getStopsForRoute:routeid
+                                  direction:dir
+                                description:desc
+                                cacheAction:TriMetXMLForceFetchAndUpdateCache];
+            [self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
+        }];
+    }
 }
 
 
@@ -225,16 +207,11 @@
         default:
 		case kRouteNameSection:
 		{
-			NSString *stopId = [NSString stringWithFormat:@"stop%d", self.screenInfo.screenWidth];
-			
-			cell = [tableView dequeueReusableCellWithIdentifier:stopId];
+			cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kRouteNameSection)];
 			if (cell == nil) {
 				
-				cell = [RailStation tableviewCellWithReuseIdentifier:stopId 
-														   rowHeight:[self tableView:tableView heightForRowAtIndexPath:indexPath] 
-														 screenWidth:self.screenInfo.screenWidth
-														 rightMargin:NO
-																font:self.basicFont];
+				cell = [RailStation tableviewCellWithReuseIdentifier:MakeCellId(kRouteNameSection)
+														   rowHeight:[self tableView:tableView heightForRowAtIndexPath:indexPath]];
 				
 			}
 			const ROUTE_COL *col = [TriMetRouteColors rawColorForRoute:self.stopData.routeId];

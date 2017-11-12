@@ -13,8 +13,8 @@
 
 
 #import "DepartureSortTableView.h"
-#import "CellLabel.h"
 #import "DepartureTimesView.h"
+#import "UITableViewCell+MultiLineCell.h"
 
 @implementation DepartureSortTableView
 
@@ -111,7 +111,6 @@
     return 1;
 }
 
-
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	
@@ -141,17 +140,14 @@
             break;
         case kSectionInfo:
         {
-            CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionInfo)];
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionInfo)];
             if (cell == nil) {
-                cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionInfo)] autorelease];
-                cell.view = [self create_UITextView:[UIColor clearColor] font:TableViewBackFont];
+                cell = [UITableViewCell cellWithMultipleLines:MakeCellId(kSectionInfo) font:self.paragraphFont];
             }
             
-            [self setBackfont:cell.view];
-            cell.view.text = self.info;
+            cell.textLabel.text = self.info;
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             cell.backgroundView = [self clearView];
-            
             return cell;
         }
             break;
@@ -163,7 +159,7 @@
 {
 	if (indexPath.section == kSectionInfo)
 	{
-		return [self getTextHeight:self.info font:TableViewBackFont];
+        return UITableViewAutomaticDimension;
 	}
 	return kSegRowHeight;
 }

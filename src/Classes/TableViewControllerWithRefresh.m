@@ -112,7 +112,7 @@
 
 - (void)startTimer
 {
-    if ([UserPrefs singleton].autoRefresh)
+    if ([UserPrefs sharedInstance].autoRefresh)
     {
         self.lastRefresh = [NSDate date];
         NSDate *oneSecondFromNow = [NSDate dateWithTimeIntervalSinceNow:0];
@@ -153,7 +153,7 @@
 
 - (void)unpauseTimer
 {
-    if ([UserPrefs singleton].autoRefresh && _timerPaused)
+    if ([UserPrefs sharedInstance].autoRefresh && _timerPaused)
     {
         DEBUG_LOG(@"restarting timer\n");
         
@@ -167,7 +167,7 @@
         _timerPaused = NO;
         
     }
-    else if ([UserPrefs singleton].autoRefresh)
+    else if ([UserPrefs sharedInstance].autoRefresh)
     {
         [self startTimer];
         _timerPaused = NO;

@@ -107,7 +107,7 @@ enum SECTIONS_AND_ROWS {
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-	AlarmTaskList *taskList = [AlarmTaskList singleton];
+	AlarmTaskList *taskList = [AlarmTaskList sharedInstance];
     NSString *stopId = self.station.locList.firstObject;
 	CLLocation *here = [self.locationsDb getLocation:stopId];
 
@@ -326,15 +326,11 @@ enum SECTIONS_AND_ROWS {
 		case kRowStation:
         default:
 		{
-			NSString *cellId = [NSString stringWithFormat:@"station%f", self.screenInfo.appWinWidth];
-			cell = [tableView dequeueReusableCellWithIdentifier:cellId];
+			cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kRowStation)];
 			if (cell == nil) {
 				
-				cell = [RailStation tableviewCellWithReuseIdentifier:cellId 
-														   rowHeight:[self basicRowHeight] 
-														 screenWidth:self.screenInfo.screenWidth
-														 rightMargin:NO
-																font:self.basicFont];
+				cell = [RailStation tableviewCellWithReuseIdentifier:MakeCellId(kRowStation)
+														   rowHeight:[self basicRowHeight]];
 				
 				/*
 				 [self newLabelWithPrimaryColor:[UIColor blueColor] selectedColor:[UIColor cyanColor] fontSize:14 bold:YES parentView:[cell contentView]];
@@ -415,15 +411,11 @@ enum SECTIONS_AND_ROWS {
 		{
 			RAILLINES line = self.routes[indexPath.row].intValue;
 			
-			NSString *cellId = [NSString stringWithFormat:@"route%f", self.screenInfo.appWinWidth];
-			cell = [tableView dequeueReusableCellWithIdentifier:cellId];
+			cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kRowRoute)];
 			if (cell == nil) {
 				
-				cell = [RailStation tableviewCellWithReuseIdentifier:cellId 
-														   rowHeight:[self basicRowHeight] 
-														 screenWidth:self.screenInfo.screenWidth
-														 rightMargin:YES
-																font:self.basicFont];
+				cell = [RailStation tableviewCellWithReuseIdentifier:MakeCellId(kRowRoute)
+														   rowHeight:[self basicRowHeight]];
 				
 				/*
 				 [self newLabelWithPrimaryColor:[UIColor blueColor] selectedColor:[UIColor cyanColor] fontSize:14 bold:YES parentView:[cell contentView]];
@@ -603,7 +595,7 @@ enum SECTIONS_AND_ROWS {
         }
         case kRowProximityAlarm:
         {
-            AlarmTaskList *taskList = [AlarmTaskList singleton];
+            AlarmTaskList *taskList = [AlarmTaskList sharedInstance];
             [taskList userAlertForProximity:self];
             [self.table deselectRowAtIndexPath:indexPath animated:YES];
             break;

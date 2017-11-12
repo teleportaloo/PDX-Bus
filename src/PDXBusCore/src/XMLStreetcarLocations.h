@@ -35,7 +35,7 @@
 + (NSSet *)getStreetcarRoutesInDepartureArray:(NSArray *)deps;
 + (void)insertLocationsIntoDepartureArray:(NSArray *)deps forRoutes:(NSSet *)routes;
 
-+ (XMLStreetcarLocations*) singletonForRoute:(NSString *)route;
++ (XMLStreetcarLocations*) autoSingletonForRoute:(NSString *)route;
 
 
 @end

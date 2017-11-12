@@ -14,28 +14,25 @@
 
 
 #import <Foundation/Foundation.h>
-#import "CellLabel.h"
-
-
 #import <UIKit/UIKit.h>
 #import "TableViewWithToolbar.h"
 
-#define kWhatsNewVersion @"9.2"
+#define kWhatsNewVersion @"10.0"
 
 @protocol WhatsNewSpecialAction <NSObject>
 
 + (NSNumber*)getPrefix;
 - (void)processAction:(NSString *)text parent:(ViewControllerBase*)parent;
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell text:(NSString*)text;
-- (void)updateCell:(CellLabel *)cell tableView:(UITableView *)tableView;
+- (void)updateCell:(UITableViewCell *)cell tableView:(UITableView *)tableView;
 - (NSString*)displayText:(NSString *)fullText;
 - (NSString*)plainText:(NSString *)fullText;
 
 @end
 	
 @interface WhatsNewView : TableViewWithToolbar {
-    NSArray                         * _newTextArray;
-    NSDictionary                    *_specialActions;
+    NSArray *                       _newTextArray;
+    NSDictionary *                  _specialActions;
     id<WhatsNewSpecialAction>       _basicAction;
 }
 

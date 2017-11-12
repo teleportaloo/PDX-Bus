@@ -193,7 +193,24 @@ START_ELEMENT(arrival)
         
         self.currentDepartureObject.route =			ATRVAL(route);
         self.currentDepartureObject.fullSign =		ATRVAL(fullSign);
-        self.currentDepartureObject.routeName =		ATRVAL(shortSign);
+        self.currentDepartureObject.shortSign =		ATRVAL(shortSign);
+        
+        
+        NSString *prefix  = @"Portland Streetcar ";
+        NSInteger prefixLen = prefix.length;
+        
+        if (self.currentDepartureObject.shortSign.length > prefixLen && [self.currentDepartureObject.fullSign isEqualToString:self.currentDepartureObject.shortSign])
+        {
+            NSString *replace = @"";
+            
+            // Streetcar names are a little long.  Chop off the portland part
+            if  ([[self.currentDepartureObject.shortSign substringToIndex:prefixLen] isEqualToString:prefix])
+            {
+                self.currentDepartureObject.shortSign = [NSString stringWithFormat:@"%@%@", replace, [self.currentDepartureObject.shortSign substringFromIndex:prefixLen]];
+            }
+        }
+        
+        
         self.currentDepartureObject.block =         block;
         self.currentDepartureObject.dir =			ATRVAL(dir);
         

@@ -192,9 +192,7 @@ static int depthCount = 0;
 	cell.textLabel.font = self.basicFont;
 	cell.textLabel.adjustsFontSizeToFitWidth = true;
 	cell.accessibilityLabel = p.xdescription;
-	[self maybeAddSectionToAccessibility:cell indexPath:indexPath alwaysSaySection:NO];
-	
-	
+
     return cell;
 }
 

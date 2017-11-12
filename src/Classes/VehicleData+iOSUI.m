@@ -119,7 +119,7 @@
 {
     if (self.block!=nil)
     {
-        BlockColorDb *db = [BlockColorDb singleton];
+        BlockColorDb *db = [BlockColorDb sharedInstance];
         return [db colorForBlock:self.block];
         
     }

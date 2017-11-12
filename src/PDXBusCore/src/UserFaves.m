@@ -88,7 +88,7 @@
 	return self;
 }
 
-+ (SafeUserData *)singleton
++ (SafeUserData *)sharedInstance
 {
 	static SafeUserData *singleton = nil;
 	
@@ -97,7 +97,7 @@
 		singleton = [[SafeUserData alloc] init];
         [MemoryCaches addCache:singleton];
     });
-	return [[singleton retain] autorelease];
+	return singleton;
 }
 
 - (void)cacheAppData
@@ -198,7 +198,7 @@
 		
 	
 		
-		int maxRecents = [UserPrefs singleton].maxRecentTrips;
+		int maxRecents = [UserPrefs sharedInstance].maxRecentTrips;
 		
 		while (recentTrips.count > maxRecents)
 		{
@@ -256,7 +256,7 @@
 		
 		[recents insertObject:newItem atIndex:0];
 		
-		int maxRecents = [UserPrefs singleton].maxRecentStops;
+		int maxRecents = [UserPrefs sharedInstance].maxRecentStops;
 		
 		while (recents.count > maxRecents)
 		{
@@ -488,7 +488,7 @@
     NSDate *now						 = [NSDate date];
     
 // Text code forces the commuter bookmark every 5 seconds.
-   if ([UserPrefs singleton].debugCommuter && [lastRun timeIntervalSinceNow] < -5)
+   if ([UserPrefs sharedInstance].debugCommuter && [lastRun timeIntervalSinceNow] < -5)
    {
        [lastRun release];
        lastRun = nil;
@@ -505,11 +505,9 @@
     
     self.readOnly = readOnly;
     bool firstRunInPeriod			 = YES;
-#ifdef PDXBUS_WATCH
+
     unsigned unitFlags				 = NSCalendarUnitYear | NSCalendarUnitMonth |  NSCalendarUnitDay | kCFCalendarUnitHour | kCFCalendarUnitWeekday;
-#else
-    unsigned unitFlags				 = NSYearCalendarUnit | NSMonthCalendarUnit |  NSDayCalendarUnit | kCFCalendarUnitHour | kCFCalendarUnitWeekday;
-#endif
+
     NSCalendar       *cal			 = [NSCalendar currentCalendar];
     NSDateComponents *nowComponents  = [cal components:(NSUInteger)unitFlags fromDate:now];
     

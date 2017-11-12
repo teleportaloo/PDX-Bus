@@ -66,6 +66,7 @@ static NSCondition *condition = nil;
     self.controllerToPop  = nil;
     self.help             = nil;
     self.title            = nil;
+    self.thisBackgroundThread = nil;
     [super dealloc];
 }
 
@@ -94,6 +95,18 @@ static NSCondition *condition = nil;
 - (NSThread*)backgroundThread
 {
     return self.thisBackgroundThread;
+}
+
+- (void) runSyncOnMainQueueWithoutDeadlocking: (void (^)(void)) block
+{
+    if ([NSThread isMainThread])
+    {
+        block();
+    }
+    else
+    {
+        dispatch_sync(dispatch_get_main_queue(), block);
+    }
 }
 
 - (void)privateSetBackgroundThread:(NSThread*)newBackgroundThread
@@ -136,34 +149,6 @@ static NSCondition *condition = nil;
 	[self.backgroundThread cancel];
 }
 
--(void)BackgroundStartMainThread:(NSNumber *)items
-{
-	TriMetTimesAppDelegate *app = [TriMetTimesAppDelegate singleton];
-	
-	if (self.progressModal == nil)
-	{
-		
-		if ([self.callbackComplete respondsToSelector:@selector(backgroundTaskStarted)])
-		{
-			[self.callbackComplete backgroundTaskStarted];
-		}
-		
-		self.progressModal = [ProgressModalView initWithSuper:app.window items:items.intValue
-														title:self.title
-													 delegate:(self.backgroundThread!=nil?self:nil)
-												  orientation:[self.callbackComplete BackgroundTaskOrientation]];
-		
-		[app.window addSubview:self.progressModal];
-        
-        [self.progressModal addHelpText:self.help];
-	}
-	else 
-	{
-		self.progressModal.totalItems = items.intValue;
-	}
-}
-
-
 -(void)backgroundStart:(int)items title:(NSString *)title
 {
     self.title = title;
@@ -171,7 +156,32 @@ static NSCondition *condition = nil;
 
     [self privateSetBackgroundThread:[NSThread currentThread]];
     
-    [self performSelectorOnMainThread:@selector(BackgroundStartMainThread:) withObject:@(items) waitUntilDone:YES];
+    [self runSyncOnMainQueueWithoutDeadlocking:^{
+        TriMetTimesAppDelegate *app = [TriMetTimesAppDelegate sharedInstance];
+        
+        if (self.progressModal == nil)
+        {
+            
+            if ([self.callbackComplete respondsToSelector:@selector(backgroundTaskStarted)])
+            {
+                [self.callbackComplete backgroundTaskStarted];
+            }
+            
+            self.progressModal = [ProgressModalView initWithSuper:app.window items:items
+                                                            title:self.title
+                                                         delegate:(self.backgroundThread!=nil?self:nil)
+                                                      orientation:[self.callbackComplete BackgroundTaskOrientation]];
+            
+            [app.window addSubview:self.progressModal];
+            
+            [self.progressModal addHelpText:self.help];
+        }
+        else
+        {
+            self.progressModal.totalItems = items;
+        }
+        
+    }];
     
     if ([self.callbackComplete respondsToSelector:@selector(backgroundTaskWait)])
     {
@@ -182,32 +192,28 @@ static NSCondition *condition = nil;
     }	
 }
 
-
 -(void)backgroundSubtext:(NSString *)subtext
 {
-	[self.progressModal addSubtext:subtext]; 
-	
+    dispatch_async(dispatch_get_main_queue(),
+                   ^{
+                       [self.progressModal addSubtext:subtext];
+                   });
 }
-
--(void)BackgroundItemsDoneMainThread:(NSNumber*)itemsDone
-{
-	[self.progressModal itemsDone:itemsDone.intValue];
-}
-
 
 -(void)backgroundItemsDone:(int)itemsDone
 {
-	[self performSelectorOnMainThread:@selector(BackgroundItemsDoneMainThread:) withObject:@(itemsDone) waitUntilDone:YES];
-}
-
--(void)BackgroundTotalItemsMainThread:(NSNumber*)totalItems
-{
-    [self.progressModal totalItems:totalItems.intValue];
+    dispatch_async(dispatch_get_main_queue(),
+                   ^{
+                       [self.progressModal itemsDone:itemsDone];
+                   });
 }
 
 -(void)backgroundItems:(int)totalItems
 {
-    [self performSelectorOnMainThread:@selector(BackgroundTotalItemsMainThread:) withObject:@(totalItems) waitUntilDone:YES];
+    dispatch_async(dispatch_get_main_queue(),
+                   ^{
+                       [self.progressModal totalItems:totalItems];
+                   });
 }
 
 
@@ -224,43 +230,39 @@ static NSCondition *condition = nil;
     [self privateSetBackgroundThread:nil];
 }
 
--(void)BackgroundCompletedMainThread:(UIViewController *)viewController
-{
-
-    
-    self.controllerToPop = viewController;
-	
-	if (self.progressModal)
-	{
-		[self.progressModal removeFromSuperview];
-	}
-    
-    if (self.errMsg)
-    {
-        UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:nil
-                                                           message:self.errMsg
-                                                          delegate:self
-                                                 cancelButtonTitle:NSLocalizedString(@"OK", @"button text")
-                                                 otherButtonTitles:nil ] autorelease];
-        [alert show];
-    }
-    else
-    {
-        [self finish];
-    }
-	
-}
-
-// Called when a button is clicked. The view will be automatically dismissed after this call returns
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
-{
-    [self finish];
-}
-
-
 -(void)backgroundCompleted:(UIViewController *)viewController
 {
-	[self performSelectorOnMainThread:@selector(BackgroundCompletedMainThread:) withObject:viewController waitUntilDone:YES];	
+    dispatch_async(dispatch_get_main_queue(),
+                   ^{
+                       self.controllerToPop = viewController;
+                       
+                       if (self.progressModal)
+                       {
+                           [self.progressModal removeFromSuperview];
+                       }
+                       
+                       if (self.errMsg)
+                       {
+                           TriMetTimesAppDelegate *app = [TriMetTimesAppDelegate sharedInstance];
+                           
+                           UIAlertController* alert = [UIAlertController alertControllerWithTitle:nil
+                                                                                          message:self.errMsg
+                                                                                   preferredStyle:UIAlertControllerStyleAlert];
+                           
+                           
+                           [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"button text") style:UIAlertActionStyleDefault handler:^(UIAlertAction* action){
+                               [self finish];
+                           }]];
+                           
+                           [app.navigationController.topViewController presentViewController:alert animated:YES completion:nil];
+                       }
+                       else
+                       {
+                          
+                           
+                           [self finish];
+                       }
+                   });
 }
 
 - (void)backgroundSetErrorMsg:(NSString *)errMsg

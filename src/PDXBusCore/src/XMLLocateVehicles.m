@@ -132,8 +132,7 @@
 {
 	NSString *str = nil;
 	
-    str = [NSString stringWithFormat:@"%@://developer.trimet.org/ws/v2/%@/appID/%@",
-                [UserPrefs singleton].triMetProtocol,
+    str = [NSString stringWithFormat:@"https://developer.trimet.org/ws/v2/%@/appID/%@",
                 query, TRIMET_APP_ID];
 	
 	return str;

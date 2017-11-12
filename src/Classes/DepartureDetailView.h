@@ -26,7 +26,7 @@
 
 @end
 
-@interface DepartureDetailView : TableViewControllerWithRefresh <UIActionSheetDelegate, InfColorPickerControllerDelegate,ReturnStop, MKMapViewDelegate>  {
+@interface DepartureDetailView : TableViewControllerWithRefresh <InfColorPickerControllerDelegate,ReturnStop>  {
 
     NSInteger                   _firstDetourRow;
 	DepartureData *             _departure;

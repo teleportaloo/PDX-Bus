@@ -101,7 +101,7 @@
 	self.pickerView.frame = [self pickerFrameWithSize:pickerSize];
 	self.pickerView.showsSelectionIndicator = YES;
 	
-	AlarmTaskList *taskList = [AlarmTaskList singleton];
+	AlarmTaskList *taskList = [AlarmTaskList sharedInstance];
 	
 	if ([taskList hasTaskForStopId:self.dep.locid block:self.dep.block])
 	{
@@ -141,12 +141,10 @@
 	{
 		AlarmCell *alarmCell = (AlarmCell *)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kAlertViewSectionTitle)];
 		if (alarmCell == nil) {
-			alarmCell = [AlarmCell tableviewCellWithReuseIdentifier:MakeCellId(kAlertViewSectionTitle)
-															  width:self.screenInfo.screenWidth
-															 height:[AlarmCell rowHeight]];
+			alarmCell = [AlarmCell tableviewCellWithReuseIdentifier:MakeCellId(kAlertViewSectionTitle)];
 		}
 		
-		[alarmCell populateCellLine1:self.dep.locationDesc line2:self.dep.routeName line2col:[UIColor blueColor]];
+		[alarmCell populateCellLine1:self.dep.locationDesc line2:self.dep.shortSign line2col:[UIColor blueColor]];
 		
 		alarmCell.imageView.image = [self getActionIcon:kIconAlarm ];
         alarmCell.selectionStyle  = UITableViewCellSelectionStyleNone;
@@ -181,7 +179,7 @@
 	// AnotherViewController *anotherViewController = [[AnotherViewController alloc] initWithNibName:@"AnotherView" bundle:nil];
 	// [self.navigationController pushViewController:anotherViewController];
 	// [anotherViewController release];
-	AlarmTaskList *taskList = [AlarmTaskList singleton];
+	AlarmTaskList *taskList = [AlarmTaskList sharedInstance];
 	
 	switch (indexPath.row)
 	{

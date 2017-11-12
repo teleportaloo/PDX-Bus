@@ -21,392 +21,54 @@
 #import "CanceledBusOverlay.h"
 #import "FormatDistance.h"
 
-#define kVehicleDepartedText    NSLocalizedString(@"The time is shown in black as the vehicle has departed.",                                                               @"Infomation text")
-#define kVehicleSoonText        NSLocalizedString(@"The time is shown in red as the vehicle will depart in 5 minutes or less.",                                           @"Infomation text")
-#define kVehicleComingText      NSLocalizedString(@"The time is shown in blue as the vehicle will depart in more than 5 minutes.",                                         @"Infomation text")
+#define kVehicleDepartedText    NSLocalizedString(@"#0The time is shown in #bblack#b as the vehicle has departed.",                                                               @"Infomation text")
+#define kVehicleSoonText        NSLocalizedString(@"#RThe time is shown in #bred#b as the vehicle will depart in 5 minutes or less.",                                           @"Infomation text")
+#define kVehicleComingText      NSLocalizedString(@"#BThe time is shown in #bblue#b as the vehicle will depart in more than 5 minutes.",                                         @"Infomation text")
 #define kVehicleLongText        kVehicleComingText
-#define kVehicleScheduled       NSLocalizedString(@"The time is shown in gray as no location infomation is available - the scheduled time is shown.",                          @"Infomation text")
-#define kVehicleCanceled        NSLocalizedString(@"The time is shown in orange and crossed out as the vehicle was canceled.  The original scheduled time is shown for reference.",     @"Infomation text")
-#define kVehicleDelayed         NSLocalizedString(@"The Time is shown in yellow as the vehicle is delayed.",                                                                 @"Infomation text")
-#define kVehicleLate            NSLocalizedString(@"Note: the scheduled time is also shown in gray as the vehicle is not running to schedule.",                       @"Infomation text")
+#define kVehicleScheduled       NSLocalizedString(@"#AThe time is shown in #bgray#b as no location infomation is available - the scheduled time is shown.",                          @"Infomation text")
+#define kVehicleCanceled        NSLocalizedString(@"#OThe time is shown in #borange#b and crossed out as the vehicle was canceled.  #AThe original scheduled time is shown for reference.",     @"Infomation text")
+#define kVehicleDelayed         NSLocalizedString(@"#YThe Time is shown in #byellow#b as the vehicle is delayed.",                                                                 @"Infomation text")
+#define kVehicleLate            NSLocalizedString(@"#AThe scheduled time is also shown in #bgray#b as the vehicle is not running to schedule.",                       @"Infomation text")
 
 
 @implementation DepartureData (iOSUI)
 
 #pragma mark User Interface
 
-enum VIEW_TAGS
-{
-    ROUTE_TAG = 1,
-    TIME_TAG,
-    BIG_MINS_TAG,
-    BIG_UNIT_TAG,
-    COLOR_STRIPE_TAG,
-    SCHEDULED_TAG,
-    DETOUR_TAG,
-    BLOCK_COLOR_TAG,
-    CANCELED_OVERLAY
-};
 
-- (UILabel*)label:(UITableViewCell*)cell tag:(NSInteger)tag
-{
-	return ((UILabel*)[cell.contentView viewWithTag:tag]);
-}
 
-- (NSString *)cellReuseIdentifier:(NSString *)identifier width:(CGFloat)width
+- (void)populateCell:(DepartureCell *)cell decorate:(BOOL)decorate busName:(BOOL)busName wide:(BOOL)wide
 {
-	return [NSString stringWithFormat:@"%@-%f", identifier, width];
-}
-
-typedef struct _DepartureCellAttributes
-{
-    CGFloat LeftColumnOffset;
-    CGFloat LeftColumnWidth;
-    CGFloat ShortLeftColumnWidth;
-    CGFloat LongLeftColumnWidth;
-    
-    CGFloat MinsLeft;
-    CGFloat MinsWidth;
-    CGFloat MinsHeight;
-    CGFloat MinsUnitHeight;
-    
-    CGFloat MainFontSize;
-    CGFloat BigMinsFontSize;
-    CGFloat UnitFontSize;
-    CGFloat LabelHeight;
-    CGFloat TimeFontSize;
-    CGFloat RowHeight;
-    CGFloat MinsGap;
-    CGFloat RowGap;
-    CGFloat BlockColorGap;
-    CGFloat BlockColorWidth;
-    CGFloat BlockColorHeight;
-    
-} DepartureCellAttributes;
-
-- (void)initDepartureCellAttributesWithWidth:(ScreenWidth)width attribures:(DepartureCellAttributes *)attr
-{
-    attr->LeftColumnOffset			= 11.0;
-    attr->LeftColumnWidth			= 280.0;
-    attr->ShortLeftColumnWidth		= 254.0;
-    attr->LongLeftColumnWidth		= 300.0;
-    attr->MinsLeft					= 266.0;
-    
-    attr->MinsWidth					= 30.0;
-    attr->MinsHeight			    = 26.0;
-    attr->MinsUnitHeight			= 16.0;
-    
-    attr->MainFontSize				= 18.0;
-    attr->BigMinsFontSize			= 24.0;
-    attr->UnitFontSize				= 14.0;
-    attr->LabelHeight				= 26.0;
-    attr->TimeFontSize				= 14.0;
-    attr->RowHeight					= kDepartureCellHeight;
-    attr->MinsGap                   = ((attr->RowHeight - attr->MinsHeight - attr->MinsUnitHeight) / 3.0);
-    attr->RowGap                    = ((attr->RowHeight - attr->LabelHeight - attr->LabelHeight) / 3.0);
-    attr->BlockColorGap             = 2;
-    attr->BlockColorWidth           = 15;
-    attr->BlockColorHeight          = attr->RowHeight - 5;
-    
-    CGRect bounds = [UIApplication sharedApplication].delegate.window.bounds;
-    
-    // 1024 for iPad Pro Portrait
-    // 1366 for iPad Pro Landscape
-    //  768 for iPad Portrait
-    // 1024 for iPad Landscape
-    
-    switch (width)
-    {
-        default:
-        case WidthiPhone:
-            break;
-        case WidthiPhone6:
-            attr->MinsLeft                 += 54;
-            attr->ShortLeftColumnWidth     += 54;
-            attr->UnitFontSize              = 15.0;
-            break;
-        case WidthiPhone6Plus:
-            attr->MinsLeft                 += 84;
-            attr->ShortLeftColumnWidth     += 84;
-            attr->UnitFontSize              = 15.0;
-            break;
-        case WidthiPadWide:
-        case WidthBigVariable:
-            attr->RowHeight				= kWideDepartureCellHeight;
-            attr->LeftColumnOffset		= 16.0;
-            attr->LeftColumnWidth		= 560.0;
-            
-            if (width == WidthiPadWide)
-            {
-                attr->LongLeftColumnWidth	= 900.0;
-            }
-            else
-            {
-                attr->LongLeftColumnWidth	= bounds.size.width - (768.0-640.0);
-            }
-            attr->ShortLeftColumnWidth  = (attr->LongLeftColumnWidth + 10.0);
-            attr->MinsLeft				= (attr->LongLeftColumnWidth + 30.0);
-            
-            attr->MinsWidth				= 60.0;
-            attr->MinsHeight			= 45.0;
-            attr->MinsUnitHeight		= 28.0;
-            
-            
-            attr->MainFontSize			= 32.0;
-            attr->BigMinsFontSize		= 44.0;
-            attr->UnitFontSize			= 28.0;
-            attr->LabelHeight			= 43.0;
-            attr->TimeFontSize			= 28.0;
-            
-            attr->MinsGap				= ((kWideDepartureCellHeight - attr->MinsHeight  - attr->MinsUnitHeight) / 3.0);
-            attr->RowGap                = ((kWideDepartureCellHeight - attr->LabelHeight - attr->LabelHeight) / 3.0);
-            attr->BlockColorHeight      = 70;
-            
-            break;
-    }
-    
+    [self populateCellAndGetExplaination:cell decorate:decorate busName:busName wide:wide details:nil];
 }
 
 
-- (UITableViewCell *)bigTableviewCellWithReuseIdentifier:(NSString *)identifier width:(ScreenWidth)width
+- (NSString *)getFormattedExplaination
 {
-    DepartureCellAttributes attr;
+    NSString *str = nil;
+    [self populateCellAndGetExplaination:nil decorate:NO busName:NO wide:NO details:&str];
     
-    [self initDepartureCellAttributesWithWidth:width attribures:&attr];
-    
-    
-    /*
-     Create an instance of UITableViewCell and add tagged subviews for the name, local time, and quarter image of the time zone.
-     */
-    CGRect rect;
-    
-    UITableViewCell *cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier] autorelease];
-    
-    
-    /*
-     Create labels for the text fields; set the highlight color so that when the cell is selected it changes appropriately.
-     */
-    UILabel *label;
-    CanceledBusOverlay *canceled;
-    
-    rect = CGRectMake(attr.MinsLeft+attr.MinsWidth+attr.BlockColorGap, (attr.RowHeight - attr.BlockColorHeight)/2, attr.BlockColorWidth, attr.BlockColorHeight);
-    UIView *blockColor = [[UIView alloc] initWithFrame:rect];
-    blockColor.tag = BLOCK_COLOR_TAG;
-    [cell.contentView addSubview:blockColor];
-    [blockColor release];
-    
-    rect = CGRectMake(attr.LeftColumnOffset, attr.MinsGap, attr.ShortLeftColumnWidth, attr.LabelHeight);
-    label = [[UILabel alloc] initWithFrame:rect];
-    label.tag = ROUTE_TAG;
-    label.font = [UIFont boldSystemFontOfSize:attr.MainFontSize];
-    label.adjustsFontSizeToFitWidth = YES;
-    [cell.contentView addSubview:label];
-    label.highlightedTextColor = [UIColor whiteColor];
-    [label release];
-    
-    rect = CGRectMake(0, attr.MinsGap, COLOR_STRIPE_WIDTH, attr.LabelHeight);
-    RouteColorBlobView *colorStripe = [[RouteColorBlobView alloc] initWithFrame:rect];
-    colorStripe.tag = COLOR_STRIPE_TAG;
-    [cell.contentView addSubview:colorStripe];
-    [colorStripe release];
-    
-    rect = CGRectMake(attr.LeftColumnOffset, attr.MinsGap+attr.MinsHeight+attr.MinsGap, attr.ShortLeftColumnWidth, attr.MinsUnitHeight);
-    label = [[UILabel alloc] initWithFrame:rect];
-    label.tag = TIME_TAG;
-    label.font = [UIFont systemFontOfSize:attr.UnitFontSize];
-    label.adjustsFontSizeToFitWidth = YES;
-    [cell.contentView addSubview:label];
-    label.highlightedTextColor = [UIColor whiteColor];
-    [label release];
-    
-    
-    label = [[UILabel alloc] initWithFrame:rect];
-    label.tag = SCHEDULED_TAG;
-    label.font = [UIFont systemFontOfSize:attr.UnitFontSize];
-    label.adjustsFontSizeToFitWidth = YES;
-    [cell.contentView addSubview:label];
-    label.highlightedTextColor = [UIColor whiteColor];
-    [label release];
-    
-    label = [[UILabel alloc] initWithFrame:rect];
-    label.tag = DETOUR_TAG;
-    label.font = [UIFont systemFontOfSize:attr.UnitFontSize];
-    label.adjustsFontSizeToFitWidth = YES;
-    [cell.contentView addSubview:label];
-    label.highlightedTextColor = [UIColor whiteColor];
-    [label release];
-    
-    rect = CGRectMake(attr.MinsLeft, attr.MinsGap, attr.MinsWidth, attr.MinsHeight);
-    label = [[UILabel alloc] initWithFrame:rect];
-    label.tag = BIG_MINS_TAG;
-    label.font = [UIFont boldSystemFontOfSize:attr.BigMinsFontSize];
-    label.adjustsFontSizeToFitWidth = YES;
-    [cell.contentView addSubview:label];
-    label.highlightedTextColor = [UIColor whiteColor];
-    [label release];
-    
-    canceled = [[CanceledBusOverlay alloc] initWithFrame:rect];
-    canceled.tag = CANCELED_OVERLAY;
-    [cell.contentView addSubview:canceled];
-    canceled.backgroundColor = [UIColor clearColor];
-    canceled.hidden = YES;
-    [canceled release];
-    
-    rect = CGRectMake(attr.MinsLeft, attr.MinsGap+attr.MinsHeight+attr.MinsGap, attr.MinsWidth, attr.MinsUnitHeight);
-    label = [[UILabel alloc] initWithFrame:rect];
-    label.tag = BIG_UNIT_TAG;
-    label.font = [UIFont systemFontOfSize:attr.UnitFontSize];
-    label.adjustsFontSizeToFitWidth = YES;
-    [cell.contentView addSubview:label];
-    label.highlightedTextColor = [UIColor whiteColor];
-    [label release];
-    
-    return cell;
-}
-
-- (UITableViewCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier spaceToDecorate:(bool)spaceToDecorate width:(ScreenWidth)width
-{
-    DepartureCellAttributes attr;
-    
-    [self initDepartureCellAttributesWithWidth:width attribures:&attr];
-    
-    
-    /*
-     Create an instance of UITableViewCell and add tagged subviews for the name, local time, and quarter image of the time zone.
-     */
-    CGRect rect;
-    
-    UITableViewCell *cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier] autorelease];
-    
-    
-    /*
-     Create labels for the text fields; set the highlight color so that when the cell is selected it changes appropriately.
-     */
-    UILabel *label;
-    
-    
-    rect = CGRectMake(attr.MinsLeft+attr.MinsWidth+attr.BlockColorGap, (attr.RowHeight - attr.BlockColorHeight)/2, attr.BlockColorWidth, attr.BlockColorHeight);
-    UIView *blockColor = [[UIView alloc] initWithFrame:rect];
-    blockColor.tag = BLOCK_COLOR_TAG;
-    [cell.contentView addSubview:blockColor];
-    [blockColor release];
-    
-    rect = CGRectMake(attr.LeftColumnOffset, attr.RowGap, spaceToDecorate? attr.LeftColumnWidth : attr.LongLeftColumnWidth, attr.LabelHeight);
-    label = [[UILabel alloc] initWithFrame:rect];
-    label.tag = ROUTE_TAG;
-    label.font = [UIFont boldSystemFontOfSize:attr.MainFontSize];
-    label.adjustsFontSizeToFitWidth = YES;
-    [cell.contentView addSubview:label];
-    label.highlightedTextColor = [UIColor whiteColor];
-    label.backgroundColor = [UIColor clearColor];
-    [label release];
-    
-    rect = CGRectMake(0, attr.RowGap, COLOR_STRIPE_WIDTH, attr.LabelHeight);
-    RouteColorBlobView *colorStripe = [[RouteColorBlobView alloc] initWithFrame:rect];
-    colorStripe.tag = COLOR_STRIPE_TAG;
-    [cell.contentView addSubview:colorStripe];
-    [colorStripe release];
-    
-    rect = CGRectMake(attr.LeftColumnOffset,attr.RowGap * 2.0 + attr.LabelHeight, spaceToDecorate? attr.LeftColumnWidth : attr.LongLeftColumnWidth, attr.LabelHeight);
-    label = [[UILabel alloc] initWithFrame:rect];
-    label.tag = TIME_TAG;
-    label.font = [UIFont systemFontOfSize:attr.TimeFontSize];
-    label.adjustsFontSizeToFitWidth = YES;
-    [cell.contentView addSubview:label];
-    label.highlightedTextColor = [UIColor whiteColor];
-    [label release];
-    
-    label = [[UILabel alloc] initWithFrame:rect];
-    label.tag = SCHEDULED_TAG;
-    label.font = [UIFont systemFontOfSize:attr.UnitFontSize];
-    label.adjustsFontSizeToFitWidth = YES;
-    [cell.contentView addSubview:label];
-    label.highlightedTextColor = [UIColor whiteColor];
-    [label release];
-    
-    label = [[UILabel alloc] initWithFrame:rect];
-    label.tag = DETOUR_TAG;
-    label.font = [UIFont systemFontOfSize:attr.UnitFontSize];
-    label.adjustsFontSizeToFitWidth = YES;
-    [cell.contentView addSubview:label];
-    label.highlightedTextColor = [UIColor whiteColor];
-    [label release];
-    
-    
-    return cell;
-}
-
-- (CGFloat)moveLabelInCell:(UITableViewCell*)cell nextX:(CGFloat)nextX text:(NSString *)text tag:(int)tag color:(UIColor *)col
-{
-	UILabel *label = [self label:cell tag:tag];
-	UILabel *unitView = [self label:cell tag:BIG_UNIT_TAG];
-	
-	if (text !=nil && text.length !=0)
-	{
-		label.textColor = col;
-		label.text = text;
-		label.hidden = NO;
-        
-        NSStringDrawingOptions options = NSStringDrawingTruncatesLastVisibleLine |
-            NSStringDrawingUsesLineFragmentOrigin;
-        
-        NSDictionary *attr = @{NSFontAttributeName: label.font};
-        CGRect rect = [label.text boundingRectWithSize:CGSizeMake(9999, 9999)
-                                          options:options
-                                       attributes:attr
-                                          context:nil];
-	
-		CGRect frame = CGRectMake( nextX, label.frame.origin.y, rect.size.width, label.frame.size.height );
-		label.frame = frame;
-		nextX += rect.size.width;
-		// DEBUG_LOG(@"%@ y %f h %f\n", text, frame.origin.y, frame.size.height);
-		
-		if (unitView && nextX > unitView.frame.origin.x)
-		{
-			unitView.hidden = YES;
-		}
-	}
-	else {
-		label.hidden = YES;
-	}
-	
-	return nextX;
-	
-}
-
-- (void)populateCell:(UITableViewCell *)cell decorate:(BOOL)decorate busName:(BOOL)busName wide:(BOOL)wide
-{
-    [self populateCellAndGetExplaination:cell decorate:decorate busName:busName wide:wide color:nil details:nil];
-}
-
-
-- (void)getExplaination:(UIColor **)color details:(NSString **)details
-{
-    [self populateCellAndGetExplaination:nil decorate:NO busName:NO wide:NO color:color details:details];
+    return str;
 }
 
 
 
-- (void)populateCellAndGetExplaination:(UITableViewCell *)cell decorate:(BOOL)decorate busName:(BOOL)busName wide:(BOOL)wide color:(UIColor **)color details:(NSString **)details;
+- (void)populateCellAndGetExplaination:(DepartureCell *)cell decorate:(BOOL)decorate busName:(BOOL)busName wide:(BOOL)wide details:(NSString **)formattedDetails;
 {
 	if (self.errorMessage !=nil)
 	{
         if (cell!=nil)
         {
-            [self label:cell tag:ROUTE_TAG].text = self.errorMessage;
-            [self label:cell tag:TIME_TAG].text = nil;
-            [self label:cell tag:BIG_MINS_TAG].hidden = YES;
-            [self label:cell tag:BIG_UNIT_TAG].hidden = YES;
-            
-            RouteColorBlobView *colorStripe = (RouteColorBlobView*)[cell.contentView viewWithTag:COLOR_STRIPE_TAG];
-            [colorStripe setRouteColor:nil];
-            
+            cell.routeLabel.text = self.errorMessage;
+            cell.timeLabel.text = nil;
+            cell.minsLabel.hidden = YES;
+            cell.unitLabel.hidden = YES;
+            [cell.routeColorView setRouteColor:nil];
         }
         
-        if (details != nil)
+        if (formattedDetails != nil)
         {
-            *details = NSLocalizedString(@"There was an error getting the arrival data.", @"Error explaination");
-            *color   = [UIColor orangeColor];
+            *formattedDetails = NSLocalizedString(@"#OThere was an error getting the arrival data.", @"Error explaination");
         }
 	}
 	else
@@ -417,7 +79,7 @@ typedef struct _DepartureCellAttributes
         if (cell!=nil)
         {
             cell.textLabel.text = nil;
-            minsView = [self label:cell tag:BIG_MINS_TAG];
+            minsView = cell.minsLabel;
         }
         //if (decorate)
         //{
@@ -449,8 +111,7 @@ typedef struct _DepartureCellAttributes
         
         if (cell!=nil)
         {
-            UIView * blockColor = [cell.contentView viewWithTag:BLOCK_COLOR_TAG];
-            blockColor.backgroundColor = [[BlockColorDb singleton] colorForBlock:self.block];
+            cell.blockColorView.color = [[BlockColorDb sharedInstance] colorForBlock:self.block];
         }
 
         
@@ -467,10 +128,9 @@ typedef struct _DepartureCellAttributes
             [timeText appendString:@" "];
             timeColor = [UIColor blackColor];
             
-            if (details && color)
+            if (formattedDetails)
             {
-                *details = kVehicleDepartedText;
-                *color   = [UIColor blackColor];
+                *formattedDetails = kVehicleDepartedText;
             }
         }
         else if (mins == 0)
@@ -481,10 +141,9 @@ typedef struct _DepartureCellAttributes
             [timeText appendString:@" "];
             timeColor = [UIColor redColor];
             
-            if (details && color)
+            if (formattedDetails)
             {
-                *details = kVehicleSoonText;
-                *color   = [UIColor redColor];
+                *formattedDetails = kVehicleSoonText;
             }
         }
         else if (mins == 1)
@@ -495,10 +154,9 @@ typedef struct _DepartureCellAttributes
             [timeText appendString:@" "];
             timeColor = [UIColor redColor];
             
-            if (details && color)
+            if (formattedDetails)
             {
-                *details = kVehicleSoonText;
-                *color   = [UIColor redColor];
+                *formattedDetails = kVehicleSoonText;
             }
         }
         else if (mins < 6)
@@ -509,13 +167,10 @@ typedef struct _DepartureCellAttributes
             [timeText appendString:@" "];
             timeColor = [UIColor redColor];
             
-            if (details && color)
+            if (formattedDetails)
             {
-                *details = kVehicleSoonText;
-                *color   = [UIColor redColor];
+                *formattedDetails = kVehicleSoonText;
             }
-            
-            
         }
         else if (mins < 60)
         {
@@ -525,12 +180,10 @@ typedef struct _DepartureCellAttributes
             [timeText appendString:@" "];
             timeColor = [UIColor blueColor];
             
-            if (details && color)
+            if (formattedDetails)
             {
-                *details = kVehicleComingText;
-                *color   = [UIColor blueColor];
+                *formattedDetails = kVehicleComingText;
             }
-            
         }
         else
         {
@@ -540,13 +193,10 @@ typedef struct _DepartureCellAttributes
             [timeText appendString:@" "];
             timeColor = [UIColor blueColor];
             
-            if (details && color)
+            if (formattedDetails)
             {
-                *details = kVehicleLongText;
-                *color   = [UIColor blueColor];
+                *formattedDetails = kVehicleLongText;
             }
-            
-            
         }
         
         
@@ -555,7 +205,7 @@ typedef struct _DepartureCellAttributes
         
         if (cell!=nil)
         {
-            canceled = (CanceledBusOverlay*)[cell.contentView viewWithTag:CANCELED_OVERLAY];
+            canceled = cell.cancelledOverlayView;
         }
         
         if (canceled!=nil)
@@ -571,10 +221,9 @@ typedef struct _DepartureCellAttributes
                 [scheduledText appendString:NSLocalizedString(@"scheduled ", @"info about arrival time")];
                 timeColor = [UIColor grayColor];
                 
-                if (details && color)
+                if (formattedDetails)
                 {
-                    *details = kVehicleScheduled;
-                    *color   = [UIColor grayColor];
+                    *formattedDetails = kVehicleScheduled;
                 }
                 
                 break;
@@ -586,10 +235,9 @@ typedef struct _DepartureCellAttributes
                     canceled.hidden = NO;
                 }
                 
-                if (details && color)
+                if (formattedDetails)
                 {
-                    *details = kVehicleCanceled;
-                    *color   = [UIColor grayColor];
+                    *formattedDetails = kVehicleCanceled;
                 }
                 
                 break;
@@ -597,10 +245,9 @@ typedef struct _DepartureCellAttributes
                 [detourText appendString:NSLocalizedString(@"delayed ",  @"info about arrival time")];
                 timeColor = [UIColor yellowColor];
                 
-                if (details && color)
+                if (formattedDetails)
                 {
-                    *details = kVehicleDelayed;
-                    *color   = [UIColor yellowColor];
+                    *formattedDetails = kVehicleDelayed;
                 }
                 break;
         }
@@ -615,10 +262,10 @@ typedef struct _DepartureCellAttributes
             NSDate *scheduledDate = TriMetToNSDate(self.scheduledTime);
             [scheduledText appendFormat:NSLocalizedString(@"scheduled %@ ",@"info about arrival time"), [dateFormatter stringFromDate:scheduledDate]];;
             
-            if (details)
+            if (formattedDetails)
             {
-                NSString *old = *details;
-                *details = [NSString stringWithFormat:@"%@ %@", old, kVehicleLate];
+                NSString *old = *formattedDetails;
+                *formattedDetails = [NSString stringWithFormat:@"%@ %@", old, kVehicleLate];
             }
         }
         
@@ -630,7 +277,7 @@ typedef struct _DepartureCellAttributes
         
         if (cell!=nil)
         {
-            UILabel * unitView = [self label:cell tag:BIG_UNIT_TAG];
+            UILabel * unitView = cell.unitLabel;
             
             if (minsText !=nil)
             {
@@ -662,56 +309,50 @@ typedef struct _DepartureCellAttributes
                 cell.selectionStyle = UITableViewCellSelectionStyleNone;
             }
             
-            UILabel *routeLabel;
             
             // DEBUG_LOG(@"Unit y %f h %f\n", unitView.frame.origin.y, unitView.frame.size.height);
             
             
-            routeLabel = [self label:cell tag:ROUTE_TAG ];
-            [self label:cell tag:ROUTE_TAG			].hidden = NO;
+            cell.routeLabel.hidden = NO;
             
             // Layout the time text, scheduled text and detour text all in a row
             
-            UILabel *timeLabel = [self label:cell tag:TIME_TAG ];
-            CGFloat nextX = timeLabel.frame.origin.x;
-            nextX = [self moveLabelInCell:cell nextX:nextX text:timeText		tag:TIME_TAG		color:timeColor];
-            nextX = [self moveLabelInCell:cell nextX:nextX text:scheduledText	tag:SCHEDULED_TAG	color:[UIColor grayColor]];
-            [self moveLabelInCell:cell nextX:nextX text:detourText		tag:DETOUR_TAG		color:[UIColor orangeColor]];
+            cell.timeLabel.text = timeText;
+            cell.timeLabel.textColor = timeColor;
+            
+            cell.scheduledLabel.text = scheduledText;
+            cell.scheduledLabel.textColor = [UIColor grayColor];
+            
+            cell.detourLabel.text = detourText;
+            cell.detourLabel.textColor = [UIColor orangeColor];
+            
             
             
             if (busName)
             {
                 if (wide)
                 {
-                    routeLabel.text = self.fullSign;
+                    cell.routeLabel.text = self.fullSign;
                 }
                 else
                 {
-                    routeLabel.text = self.routeName;
+                    cell.routeLabel.text = self.shortSign;
                 }
-                
-                
-                //routeLabel.lineBreakMode = UILineBreakModeWordWrap;
-                //routeLabel.adjustsFontSizeToFitWidth = YES;
-                
             }
             else
             {
-                routeLabel.text = self.locationDesc;
-                //routeLabel.lineBreakMode = UILineBreakModeTailTruncation;
-                //routeLabel.adjustsFontSizeToFitWidth = NO;
+                cell.routeLabel.text = self.locationDesc;
             }
             
             
             cell.accessibilityLabel = [NSString stringWithFormat:@"%@, %@ %@, %@ %@ %@",
-                                         routeLabel.text, minsText, unitText, timeText, scheduledText, detourText];
+                                         cell.routeLabel.text, minsText, unitText, timeText, scheduledText, detourText];
             
             
             
         }
-        
-        RouteColorBlobView *colorStripe = (RouteColorBlobView*)[cell.contentView viewWithTag:COLOR_STRIPE_TAG];
-        [colorStripe setRouteColor:self.route];
+
+        [cell.routeColorView setRouteColor:self.route];
     }
     
 }
@@ -719,26 +360,20 @@ typedef struct _DepartureCellAttributes
 
 
 
-- (void)populateCellGeneric:(UITableViewCell *)cell first:(NSString *)first second:(NSString *)second col1:(UIColor *)col1 col2:(UIColor *)col2;
+- (void)populateCellGeneric:(DepartureCell *)cell first:(NSString *)first second:(NSString *)second col1:(UIColor *)col1 col2:(UIColor *)col2;
 
 {
-	[self label:cell tag:ROUTE_TAG].text = first;
-	[self label:cell tag:ROUTE_TAG].textColor = col1;
-	[self label:cell tag:ROUTE_TAG].hidden = NO;
-	[self label:cell tag:TIME_TAG].text = second;
-	[self label:cell tag:TIME_TAG].textColor = col2;
-	RouteColorBlobView *colorStripe = (RouteColorBlobView*)[cell.contentView viewWithTag:COLOR_STRIPE_TAG];
-	colorStripe.hidden = YES;
-	
-	UILabel *timeLabel = [self label:cell tag:TIME_TAG ];
-	CGFloat nextX = timeLabel.frame.origin.x;
-	nextX = [self moveLabelInCell:cell nextX:nextX text:second		tag:TIME_TAG		color:col2];
-	nextX = [self moveLabelInCell:cell nextX:nextX text:nil			tag:SCHEDULED_TAG	color:col2];
-			[self moveLabelInCell:cell nextX:nextX text:nil			tag:DETOUR_TAG		color:col2];
-	
+	cell.routeLabel.text = first;
+	cell.routeLabel.textColor = col1;
+	cell.routeLabel.hidden = NO;
+	cell.timeLabel.text = second;
+	cell.timeLabel.textColor = col2;
+    cell.routeColorView.hidden = YES;
+    cell.scheduledLabel.text = nil;
+    cell.detourLabel.text = nil;
 }
 
-- (void)populateTripCell:(UITableViewCell *)cell item:(NSInteger)item
+- (void)populateTripCell:(DepartureCell *)cell item:(NSInteger)item
 {
 	DepartureTrip * trip = self.trips[item];
 	
@@ -748,10 +383,10 @@ typedef struct _DepartureCellAttributes
 	
 	NSString *timeText = nil;
 	UIColor *timeColor = nil;
-	[self label:cell tag:BIG_MINS_TAG].hidden = YES;
-	[self label:cell tag:BIG_UNIT_TAG].hidden = YES;
+	cell.minsLabel.hidden = YES;
+	cell.unitLabel.hidden = YES;
 
-	[self label:cell tag:ROUTE_TAG].hidden = NO;
+	cell.routeLabel.hidden = NO;
 	
 	if (trip.distance > 0)
 	{
@@ -759,27 +394,27 @@ typedef struct _DepartureCellAttributes
 		
 		if (trip.progress > 0)
 		{
-			[self label:cell tag:ROUTE_TAG].text = [NSString stringWithFormat:NSLocalizedString(@"Current trip: %@", @"trip details"), trip.name];
-			[self label:cell tag:ROUTE_TAG].textColor = [UIColor blackColor];
+			cell.routeLabel.text = [NSString stringWithFormat:NSLocalizedString(@"Current trip: %@", @"trip details"), trip.name];
+			cell.routeLabel.textColor = [UIColor blackColor];
 			timeText = [NSString stringWithFormat:NSLocalizedString(@"%@ left to go", @"distance remaining"), [FormatDistance formatFeet:(int)toGo]];
 			timeColor = [UIColor blueColor];
 		}
 		else
 		{
-			[self label:cell tag:ROUTE_TAG].text = [NSString stringWithFormat:NSLocalizedString(@"Trip: %@", @"name of trip"), trip.name];
-			[self label:cell tag:ROUTE_TAG].textColor = [UIColor blackColor];
+			cell.routeLabel.text = [NSString stringWithFormat:NSLocalizedString(@"Trip: %@", @"name of trip"), trip.name];
+			cell.routeLabel.textColor = [UIColor blackColor];
 			timeText = [NSString stringWithFormat:NSLocalizedString(@"%@ total", @"total distance"), [FormatDistance formatFeet:(int)toGo]];
 			timeColor = [UIColor grayColor];
 		}
 		cell.accessibilityLabel = [NSString stringWithFormat:@"%@, %@", 
-											[self label:cell tag:ROUTE_TAG].text,
+											cell.routeLabel.text,
 											timeText];
 	}
 	
 	if (trip.startTime > 0)
 	{
-		[self label:cell tag:ROUTE_TAG].text = [NSString stringWithFormat:@"%@", trip.name];
-		[self label:cell tag:ROUTE_TAG].textColor = [UIColor blackColor];
+		cell.routeLabel.text = [NSString stringWithFormat:@"%@", trip.name];
+		cell.routeLabel.textColor = [UIColor blackColor];
 		
 		TriMetTime toGo; 
 		
@@ -813,21 +448,18 @@ typedef struct _DepartureCellAttributes
 			timeColor = [UIColor grayColor];
 		}
 		cell.accessibilityLabel = [NSString stringWithFormat:@"%@, %@", 
-									 [self label:cell tag:ROUTE_TAG].text,
+									 cell.routeLabel.text,
 										timeText];
 		
 	}
 	
-	UILabel *timeLabel = [self label:cell tag:TIME_TAG ];
-	CGFloat nextX = timeLabel.frame.origin.x;
-	nextX = [self moveLabelInCell:cell nextX:nextX text:timeText	tag:TIME_TAG		color:timeColor];
-	nextX = [self moveLabelInCell:cell nextX:nextX text:nil			tag:SCHEDULED_TAG	color:timeColor];
-	[self moveLabelInCell:cell nextX:nextX text:nil			tag:DETOUR_TAG		color:timeColor];
-
-	RouteColorBlobView *colorStripe = (RouteColorBlobView*)[cell.contentView viewWithTag:COLOR_STRIPE_TAG];
-	colorStripe.hidden = YES;
-
-	
+    cell.timeLabel.text = timeText;
+    cell.timeLabel.textColor = timeColor;
+    cell.scheduledLabel.text = nil;
+    cell.detourLabel.text = nil;
+    cell.routeColorView.hidden = YES;
+    
+    [cell setNeedsLayout];
 }
 
 
@@ -857,7 +489,7 @@ typedef struct _DepartureCellAttributes
 
 - (NSString *)title
 {
-	return self.routeName;
+	return self.shortSign;
 }
 
 - (NSString *)subtitle
@@ -914,7 +546,7 @@ typedef struct _DepartureCellAttributes
 {
     if (self.block!=nil)
     {
-        BlockColorDb *db = [BlockColorDb singleton];
+        BlockColorDb *db = [BlockColorDb sharedInstance];
         return [db colorForBlock:self.block];
         
     }

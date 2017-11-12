@@ -13,7 +13,6 @@
 
 
 #import "TripPlannerResultsView.h"
-#import "CellLabel.h"
 #import "DepartureTimesView.h"
 #import "MapViewController.h"
 #import "SimpleAnnotation.h"
@@ -74,6 +73,7 @@
 - (void)dealloc {
 	self.tripQuery = nil;
 	self.calendarItinerary = nil;
+    self.prototypeTripCell = nil;
     
     if (self.userActivity)
     {
@@ -171,7 +171,7 @@
 	[toolbarItems addObject: edit];
     [toolbarItems addObject: [UIToolbar autoFlexSpace]];
      
-    if ([UserPrefs singleton].debugXML)
+    if ([UserPrefs sharedInstance].debugXML)
     {
         [toolbarItems addObject:[self autoXmlButton]];
         [toolbarItems addObject:[UIToolbar autoFlexSpace]];
@@ -228,8 +228,16 @@
 	[self enableArrows:segControl];
 }
 
+- (void)loadView
+{
+    [super loadView];
+    
+    [self.table registerNib:[TripItemCell nib] forCellReuseIdentifier:kTripItemCellId];
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
     self.title = NSLocalizedString(@"Trip",@"page title");
     
     _alarmItem      = -1;
@@ -452,14 +460,14 @@
 
 #pragma mark UI Callback methods
 
--(void)bookmarkButton:(id)sender
+-(void)bookmarkButton:(UIBarButtonItem*)sender
 {
 	NSString *desc = nil;
+    int  bookmarkItem = kNoBookmark;
 	@synchronized (_userData)
 	{
 		int i;
-	
-		_bookmarkItem = kNoBookmark;
+
 		TripUserRequest * req = [[[TripUserRequest alloc] init] autorelease];
 	
 		for (i=0; _userData.faves!=nil &&  i< _userData.faves.count; i++)
@@ -472,7 +480,7 @@
 				[req readDictionary:faveTrip];
 				if ([req equalsTripUserRequest:self.tripQuery.userRequest])
 				{
-					_bookmarkItem = i;
+					bookmarkItem = i;
 					desc = bm[kUserFavesChosenName];
 					break;
 				}
@@ -481,79 +489,63 @@
 		}
 	}
 	
-	if (_bookmarkItem == kNoBookmark)
-	{
-        UIActionSheet *actionSheet = [[[ UIActionSheet alloc ] initWithTitle:NSLocalizedString(@"Bookmark Trip",@"alert title")
-																	delegate:self
-														   cancelButtonTitle:NSLocalizedString(@"Cancel", @"button text")
-													  destructiveButtonTitle:nil
-														   otherButtonTitles:NSLocalizedString(@"Add new bookmark", @"button text"), nil] autorelease];
-		actionSheet.actionSheetStyle = UIActionSheetStyleDefault;
-		[actionSheet showFromToolbar:self.navigationController.toolbar]; // show from our table view (pops up in the middle of the table)
-	}
+	if (bookmarkItem == kNoBookmark)
+    {
+        UIAlertController* alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Bookmark Trip",@"alert title")
+                                                                       message:nil
+                                                                preferredStyle:UIAlertControllerStyleActionSheet];
+        
+        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Add new bookmark", @"button text")
+                                                  style:UIAlertActionStyleDefault
+                                                handler:^(UIAlertAction *action){
+                                                    EditBookMarkView *edit = [EditBookMarkView viewController];
+                                                    // [edit addBookMarkFromStop:self.bookmarkDesc location:self.bookmarkLoc];
+                                                    [edit addBookMarkFromUserRequest:self.tripQuery];
+                                                    // Push the detail view controller
+                                                    [self.navigationController pushViewController:edit animated:YES];
+                                                }]];
+        
+        
+        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"button text") style:UIAlertActionStyleCancel handler:nil]];
+        
+        alert.popoverPresentationController.barButtonItem = sender;
+        
+        [self presentViewController:alert animated:YES completion:^{
+            [self clearSelection];
+        }];
+    }
 	else {
-		UIActionSheet *actionSheet = [[[ UIActionSheet alloc ] initWithTitle:desc
-																	delegate:self
-														   cancelButtonTitle:@"Cancel"
-													  destructiveButtonTitle:@"Delete this bookmark"
-														   otherButtonTitles:@"Edit this bookmark",
-									   @"Add new bookmark", nil] autorelease];
-		actionSheet.actionSheetStyle = UIActionSheetStyleDefault;
-		[actionSheet showFromToolbar:self.navigationController.toolbar]; // show from our table view (pops up in the middle of the table)
+        UIAlertController* alert = [UIAlertController alertControllerWithTitle:desc
+                                                                       message:nil
+                                                                preferredStyle:UIAlertControllerStyleActionSheet];
+        
+        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Delete this bookmark", @"button text")
+                                                  style:UIAlertActionStyleDestructive
+                                                handler:^(UIAlertAction *action){
+                                                    [_userData.faves removeObjectAtIndex:bookmarkItem];
+                                                    [self favesChanged];
+                                                    [_userData cacheAppData];
+                                                }]];
+        
+        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Edit this bookmark", @"button text")
+                                                  style:UIAlertActionStyleDefault
+                                                handler:^(UIAlertAction *action){
+                                                    EditBookMarkView *edit = [EditBookMarkView viewController];
+                                                    [edit editBookMark:_userData.faves[bookmarkItem] item:bookmarkItem];
+                                                    // Push the detail view controller
+                                                    [self.navigationController pushViewController:edit animated:YES];
+                                                }]];
+        
+        
+        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"button text") style:UIAlertActionStyleCancel handler:nil]];
+        
+        alert.popoverPresentationController.barButtonItem = sender;
+        
+        [self presentViewController:alert animated:YES completion:^{
+            [self clearSelection];
+        }];
+        
 	}	
-}
-
-// Called when a button is clicked. The view will be automatically dismissed after this call returns
-- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
-{
-   if (_bookmarkItem == kNoBookmark)
-   {
-		if (buttonIndex == 0)
-		{
-            EditBookMarkView *edit = [EditBookMarkView viewController];
-			// [edit addBookMarkFromStop:self.bookmarkDesc location:self.bookmarkLoc];
-			[edit addBookMarkFromUserRequest:self.tripQuery];
-			// Push the detail view controller
-			[self.navigationController pushViewController:edit animated:YES];
-		}
-	}	
-	else {
-		switch (buttonIndex)
-		{
-			case 0:  // Delete this bookmark
-			{
-				@synchronized (_userData)
-				{
-					[_userData.faves removeObjectAtIndex:_bookmarkItem];
-                    [self favesChanged];
-					[_userData cacheAppData];
-					break;
-				}
-			}
-			case 1:  // Edit this bookmark
-			{
-                EditBookMarkView *edit = [EditBookMarkView viewController];
-				[edit editBookMark:_userData.faves[_bookmarkItem] item:_bookmarkItem];
-				// Push the detail view controller
-				[self.navigationController pushViewController:edit animated:YES];
-				break;
-				
-			}
-			case 2:  // Add new bookmark
-			{
-                EditBookMarkView *edit = [EditBookMarkView viewController];
-				// [edit addBookMarkFromStop:self.bookmarkDesc location:self.bookmarkLoc];
-				[edit addBookMarkFromUserRequest:self.tripQuery];
-				
-				// Push the detail view controller
-				[self.navigationController pushViewController:edit animated:YES];
-				break;
-			}
-			case 3:  // Cancel
-				break;
-		}
-	}
-	
 }
 
 
@@ -621,7 +613,103 @@
 	return nil;
 }
 
+- (void)populateTripCell:(TripItemCell *)cell itinerary:(TripItinerary *)it rowType:(NSInteger)rowType indexPath:(NSIndexPath*)indexPath
+{
 
+        
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        cell.accessoryType = UITableViewCellAccessoryNone;
+        
+        switch (rowType)
+    {
+        case kRowTypeError:
+            [cell populateBody:it.xmessage mode:@"No" time:@"Route" leftColor:nil route:nil];
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            
+            if (!self.tripQuery.gotData)
+            {
+                cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            }
+            
+            // [cell populateBody:it.xmessage mode:nil time:nil];
+            // cell.view.text = it.xmessage;
+            break;
+        case kRowTypeLeg:
+        {
+            TripLegEndPoint * ep = it.displayEndPoints[indexPath.row];
+            [cell populateBody:ep.displayText mode:ep.displayModeText time:ep.displayTimeText leftColor:ep.leftColor
+                         route:ep.xnumber];
+            
+            //[cell populateBody:@"l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l"
+            //                 mode:ep.displayModeText time:ep.displayTimeText leftColor:ep.leftColor
+            //                route:ep.xnumber];
+            
+            
+            if (ep.xstopId!=nil || ep.xlat !=nil)
+            {
+                cell.selectionStyle = UITableViewCellSelectionStyleBlue;
+                cell.accessoryType = KDisclosure;
+            }
+            else
+            {
+                cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                cell.accessoryType = UITableViewCellAccessoryNone;
+            }
+        }
+            // cell.view.text = [self getTextForLeg:indexPath];
+            
+            //printf("width: %f\n", cell.view.frame.size.width);
+            break;
+        case kRowTypeDuration:
+            [cell populateBody:it.travelTime mode:@"Travel" time:@"time" leftColor:nil route:nil];
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            cell.accessoryType = UITableViewCellAccessoryNone;
+            // justText = [it getTravelTime];
+            break;
+        case kRowTypeFare:
+            [cell populateBody:it.fare.stringWithTrailingSpacesRemoved
+                          mode:@"Fare"
+                          time:nil
+                     leftColor:nil
+                         route:nil];
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            cell.accessoryType = UITableViewCellAccessoryNone;
+            // justText = it.fare;
+            break;
+        case kRowTypeFrom:
+            [cell populateBody:[self getFromText] mode:@"From" time:nil leftColor:nil route:nil];
+            cell.selectionStyle = UITableViewCellSelectionStyleBlue;
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            break;
+        case kRowTypeOptions:
+            [cell populateBody:[self.tripQuery.userRequest optionsDisplayText] mode:@"Options" time:nil
+                     leftColor:nil
+                         route:nil];
+            
+            cell.accessibilityLabel = [self.tripQuery.userRequest optionsAccessability];
+            
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            cell.accessoryType = UITableViewCellAccessoryNone;
+            break;
+        case kRowTypeTo:
+            [cell populateBody:[self getToText] mode:@"To" time:nil leftColor:nil route:nil];
+            cell.selectionStyle = UITableViewCellSelectionStyleBlue;
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            break;
+            
+        case kRowTypeDateAndTime:
+            
+            
+            [cell populateBody:[self.tripQuery.userRequest getDateAndTime]
+                          mode:[self.tripQuery.userRequest getTimeType]
+                          time:nil
+                     leftColor:nil
+                         route:nil];
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            cell.accessoryType = UITableViewCellAccessoryNone;
+            break;
+    }
+}
 
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -639,115 +727,9 @@
 		case kRowTypeDateAndTime:
 		case kRowTypeOptions:
 		{
-			CGFloat h = [self tableView:self.table heightForRowAtIndexPath:indexPath];
-
-			NSString *cellIdentifier = [NSString stringWithFormat:@"TripLeg%f+%f", h,self.screenInfo.appWinWidth];
 			TripItinerary *it = [self getSafeItinerary:indexPath.section];
-	
-			UITableViewCell *cell = (UITableViewCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
-			if (cell == nil) {
-				
-				
-				cell = [TripLeg tableviewCellWithReuseIdentifier:cellIdentifier
-													   rowHeight:h
-													  screenInfo:self.screenInfo];
-			}
-	
-			cell.selectionStyle = UITableViewCellSelectionStyleNone;
-			cell.accessoryType = UITableViewCellAccessoryNone;
-    
-
-			switch (rowType)
-			{
-				case kRowTypeError:
-					[TripLeg populateCell:cell body:it.xmessage mode:@"No" time:@"Route" leftColor:nil route:nil];
-					cell.selectionStyle = UITableViewCellSelectionStyleNone;
-					
-					if (!self.tripQuery.gotData)
-					{
-						cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-					}
-					
-					// [TripLeg populateCell:cell body:it.xmessage mode:nil time:nil];
-					// cell.view.text = it.xmessage;
-					break;
-				case kRowTypeLeg:
-					{
-						TripLegEndPoint * ep = it.displayEndPoints[indexPath.row];
-						[TripLeg populateCell:cell body:ep.displayText mode:ep.displayModeText time:ep.displayTimeText leftColor:ep.leftColor
-										route:ep.xnumber];
-						
-						//[TripLeg populateCell:cell body:@"l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l" 
-						//				 mode:ep.displayModeText time:ep.displayTimeText leftColor:ep.leftColor
-						//				route:ep.xnumber];
-									
-						
-						if (ep.xstopId!=nil || ep.xlat !=nil)
-						{
-							cell.selectionStyle = UITableViewCellSelectionStyleBlue;	
-							cell.accessoryType = KDisclosure; 
-						}
-						else
-						{
-							cell.selectionStyle = UITableViewCellSelectionStyleNone;	
-							cell.accessoryType = UITableViewCellAccessoryNone;
-						}
-					}
-					// cell.view.text = [self getTextForLeg:indexPath];
-			
-				//printf("width: %f\n", cell.view.frame.size.width);
-					break;
-				case kRowTypeDuration:
-					[TripLeg populateCell:cell body:it.travelTime mode:@"Travel" time:@"time" leftColor:nil route:nil];
-					cell.selectionStyle = UITableViewCellSelectionStyleNone;
-					cell.accessoryType = UITableViewCellAccessoryNone;
-					// justText = [it getTravelTime];
-					break;
-				case kRowTypeFare:
-					[TripLeg populateCell:cell
-                                     body:it.fare.stringWithTrailingSpacesRemoved
-                                     mode:@"Fare"
-                                     time:nil
-                                leftColor:nil
-                                    route:nil];
-					cell.selectionStyle = UITableViewCellSelectionStyleNone;
-					cell.accessoryType = UITableViewCellAccessoryNone;
-					// justText = it.fare;
-					break;
-				case kRowTypeFrom:
-					[TripLeg populateCell:cell body:[self getFromText] mode:@"From" time:nil leftColor:nil route:nil];
-					cell.selectionStyle = UITableViewCellSelectionStyleBlue;
-					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-					break;
-				case kRowTypeOptions:
-					[TripLeg populateCell:cell body:[self.tripQuery.userRequest optionsDisplayText] mode:@"Options" time:nil 
-								leftColor:nil
-									route:nil];
-					
-					cell.accessibilityLabel = [self.tripQuery.userRequest optionsAccessability];
-					
-					cell.selectionStyle = UITableViewCellSelectionStyleNone;
-					cell.accessoryType = UITableViewCellAccessoryNone;
-					break;
-				case kRowTypeTo:
-					[TripLeg populateCell:cell body:[self getToText] mode:@"To" time:nil leftColor:nil route:nil];
-					cell.selectionStyle = UITableViewCellSelectionStyleBlue;
-					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-					break;
-				
-				case kRowTypeDateAndTime:
-
-
-					[TripLeg populateCell:cell body:[self.tripQuery.userRequest getDateAndTime]
-									 mode:[self.tripQuery.userRequest getTimeType] 
-									 time:nil
-								leftColor:nil
-									route:nil];
-					cell.selectionStyle = UITableViewCellSelectionStyleNone;
-					cell.accessoryType = UITableViewCellAccessoryNone;
-					break;					
-			}
-			[self maybeAddSectionToAccessibility:cell indexPath:indexPath alwaysSaySection:NO];
+			TripItemCell *cell = [tableView dequeueReusableCellWithIdentifier:kTripItemCellId];
+            [self populateTripCell:cell itinerary:it rowType:rowType indexPath:indexPath];
 			return cell;
 		}
 		case kSectionRowDisclaimerType:
@@ -762,7 +744,6 @@
 				[self addTextToDisclaimerCell:cell text:[NSString stringWithFormat:@"Updated %@ %@", self.tripQuery.xdate, self.tripQuery.xtime]];
 			}
 			cell.selectionStyle = UITableViewCellSelectionStyleNone;
-			[self maybeAddSectionToAccessibility:cell indexPath:indexPath alwaysSaySection:NO];
 			return cell;
 		}
 		case kRowTypeMap:
@@ -840,37 +821,22 @@
     return [super tableView:tableView cellForRowAtIndexPath:indexPath];
 }
 
-- (CGFloat)fieldWidth
-{
-    return [TripLeg bodyTextWidth:self.screenInfo];
-}
-
-
-
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
 	NSInteger rowType = [self rowType:indexPath];
-	TripItinerary *it = [self getSafeItinerary:indexPath.section];
-	// CGFloat width = [self variableTextFieldWidth];
-	CGFloat shorterWidth = [self fieldWidth];
-
+	
 	switch (rowType)
 	{
-		case kRowTypeOptions:
-			return [TripLeg getTextHeight:[self.tripQuery.userRequest optionsDisplayText] width:shorterWidth];
-		case kRowTypeError:
-			return [TripLeg getTextHeight:it.xmessage width:shorterWidth];
-		case kRowTypeLeg:
-			return [TripLeg getTextHeight:[self getTextForLeg:indexPath] width:shorterWidth];
-		case kRowTypeDuration:
-			return [TripLeg getTextHeight:it.travelTime width:shorterWidth];
-		case kRowTypeFare:
-			return [TripLeg getTextHeight:it.fare width:shorterWidth];
-		case kRowTypeFrom:
-			return [TripLeg getTextHeight:[self getFromText] width:shorterWidth];
-		case kRowTypeTo:
-			return [TripLeg getTextHeight:[self getToText] width:shorterWidth];
-			break;
+        case kRowTypeError:
+        case kRowTypeLeg:
+        case kRowTypeDuration:
+        case kRowTypeFare:
+        case kRowTypeFrom:
+        case kRowTypeTo:
+        case kRowTypeDateAndTime:
+        case kRowTypeOptions:
+            return UITableViewAutomaticDimension;
+		
 		case kRowTypeEmail:
 		case kRowTypeClipboard:
         case kRowTypeAlarms:
@@ -953,8 +919,20 @@
     NSLocale *enUS = [[[NSLocale alloc] initWithLocaleIdentifier:@"en_US"] autorelease];
     dateFormatter.locale = enUS;
     
-    dateFormatter.dateFormat = @"M/d/yy hh:mm a";
+    
+    // Yikes - may have AM or PM or be 12 hour. :-(
+    unichar last = [self.calendarItinerary.xstartTime characterAtIndex:(self.calendarItinerary.xstartTime.length-1)];
+    if (last=='M' || last=='m')
+    {
+        dateFormatter.dateFormat = @"M/d/yy hh:mm a";
+    }
+    else
+    {
+        dateFormatter.dateFormat = @"M/d/yy HH:mm:ss";
+    }
+    
     dateFormatter.timeZone = [NSTimeZone localTimeZone];
+    
     NSString *fullDateStr = [NSString stringWithFormat:@"%@ %@", self.calendarItinerary.xdate, self.calendarItinerary.xstartTime];
     NSDate *start = [dateFormatter dateFromString:fullDateStr];
     
@@ -1020,7 +998,7 @@
     if (_alarmItem != kNoBookmark)
     {
         TripItinerary *it = [self getSafeItinerary:_alarmItem];
-        AlarmTaskList *taskList = [AlarmTaskList singleton];
+        AlarmTaskList *taskList = [AlarmTaskList sharedInstance];
         
         for (TripLegEndPoint *leg in it.displayEndPoints)
         {
@@ -1132,7 +1110,7 @@
 		}
         case kRowTypeAlarms:
         {
-            AlarmTaskList *taskList = [AlarmTaskList singleton];
+            AlarmTaskList *taskList = [AlarmTaskList sharedInstance];
             
             if ([LocationAuthorization locationAuthorizedOrNotDeterminedShowMsg:NO backgroundRequired:YES])
             {

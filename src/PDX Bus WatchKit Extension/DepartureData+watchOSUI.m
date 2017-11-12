@@ -113,7 +113,7 @@
 
 - (UIImage*)blockImageColor
 {
-    BlockColorDb *db = [BlockColorDb singleton];
+    BlockColorDb *db = [BlockColorDb sharedInstance];
     db.colorMap = nil;
     
     UIColor *color = [db colorForBlock:self.block];
@@ -197,9 +197,9 @@
          statusColor = [UIColor grayColor];
     }
     
-    if (self.routeName!=nil)
+    if (self.shortSign!=nil)
     {
-        NSAttributedString *subString = [[NSAttributedString alloc] initWithString:self.routeName
+        NSAttributedString *subString = [[NSAttributedString alloc] initWithString:self.shortSign
                                                                         attributes:@{NSForegroundColorAttributeName:statusColor}].autorelease;
         [string appendAttributedString:subString];
     }

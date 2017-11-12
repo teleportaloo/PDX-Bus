@@ -33,14 +33,14 @@ static MapAnnotationImage *singleton = nil;
     if ((self = [super init]))
     {
         self.imageCache = [NSMutableDictionary dictionary];
-        self.imageFile = [UserPrefs singleton].busIcon;
+        self.imageFile = [UserPrefs sharedInstance].busIcon;
         _hits = 0;
     }
     
     return self;
 }
 
-+ (MapAnnotationImage*)singleton
++ (MapAnnotationImage*)autoSingleton
 {
     @synchronized (self) {
         

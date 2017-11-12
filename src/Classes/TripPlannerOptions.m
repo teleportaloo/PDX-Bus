@@ -13,8 +13,7 @@
 
 
 #import "TripPlannerOptions.h"
-#import "CellLabel.h"
-
+#import "UITableViewCell+MultiLineCell.h"
 
 @implementation TripPlannerOptions
 
@@ -124,7 +123,6 @@
 	return @"";
 }
 
-
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	switch (indexPath.section)
@@ -192,16 +190,14 @@
 				break;
 			case kMinRowInfo:
 				{
-					CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kMinRowInfo)];
+					UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kMinRowInfo)];
 					if (cell == nil) {
-						cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kMinRowInfo)] autorelease];
-						cell.view = [self create_UITextView:[UIColor clearColor] font:TableViewBackFont];
+                        cell = [UITableViewCell cellWithMultipleLines:MakeCellId(kMinRowInfo) font:self.paragraphFont];
 					}
-					
-					[self setBackfont:cell.view];
-					cell.view.text = self.info;
+					cell.textLabel.text = self.info;
 					cell.selectionStyle = UITableViewCellSelectionStyleNone;
 					cell.backgroundView = [self clearView];
+                    cell.backgroundColor = [UIColor clearColor];
 					
 					return cell;
 				}
@@ -214,11 +210,19 @@
 
 }
 
+- (void)tableView:(UITableView *)tableView  willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (indexPath.section == kMinRowInfo)
+    {
+        [cell setBackgroundColor:[UIColor clearColor]];
+    }
+}
+
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
 	if (indexPath.section == kSectionMin && indexPath.row == kMinRowInfo)
 	{
-		return [self getTextHeight:self.info font:TableViewBackFont];
+        return UITableViewAutomaticDimension;
 	}
 	return kSegRowHeight;
 }

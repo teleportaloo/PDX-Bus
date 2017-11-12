@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 #import "ScreenConstants.h"
 #import "RouteDistanceData.h"
+#import "DepartureCell.h"
 
 
 #define kRouteCellHeight	 55
@@ -24,8 +25,6 @@
 
 @interface RouteDistanceData (iOSUI)
 
-- (NSString *)cellReuseIdentifier:(NSString *)identifier width:(ScreenWidth)width;
-- (UITableViewCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier width:(ScreenWidth)width;
-- (void)populateCell:(UITableViewCell *)cell wide:(BOOL)wide;
+- (void)populateCell:(DepartureCell *)cell;
 
 @end

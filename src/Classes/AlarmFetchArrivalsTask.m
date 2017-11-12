@@ -54,6 +54,8 @@
     return self;
 }
 
+
+
 - (NSDate *)fetch:(AlarmTaskList*)parent
 {
     bool taskDone			= NO;
@@ -118,21 +120,21 @@
         if (self.minsToAlert <= 0)
         {
             alertText = [NSString stringWithFormat:NSLocalizedString(@"\"%@\" is due at %@", @"alarm message"),
-                         self.lastFetched.routeName,
+                         self.lastFetched.shortSign,
                          self.lastFetched.locationDesc
                          ];
         }
         else if (self.minsToAlert == 1)
         {
             alertText = [NSString stringWithFormat:NSLocalizedString(@"\"%@\" 1 minute way from %@", @"alarm message"),
-                         self.lastFetched.routeName,
+                         self.lastFetched.shortSign,
                          self.lastFetched.locationDesc
                          ];
         }
         else
         {
             alertText = [NSString stringWithFormat:NSLocalizedString(@"\"%@\" is %d minutes away from %@", @"alarm message"),
-                         self.lastFetched.routeName,
+                         self.lastFetched.shortSign,
                          self.minsToAlert,
                          self.lastFetched.locationDesc
                          ];

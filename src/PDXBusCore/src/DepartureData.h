@@ -29,7 +29,7 @@ typedef enum {
 	NSString *			_route;
 	NSString *			_fullSign;
 	NSString *			_errorMessage;
-	NSString *			_routeName;
+	NSString *			_shortSign;
 	NSString *			_block;
 	NSString *			_dir;
 	NSString *			_locid;
@@ -82,7 +82,7 @@ typedef enum {
 @property (nonatomic, retain) CLLocation *blockPosition;
 @property (nonatomic, copy)   NSString *blockPositionHeading;
 @property (nonatomic, copy)   NSString *errorMessage;
-@property (nonatomic, copy)   NSString *routeName;
+@property (nonatomic, copy)   NSString *shortSign;
 @property (nonatomic, copy)   NSString *route;
 @property (nonatomic, copy)   NSString *fullSign;
 @property (nonatomic, copy)   NSString *locationDesc;

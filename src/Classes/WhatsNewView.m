@@ -14,11 +14,9 @@
 
 
 #import "WhatsNewView.h"
-#include "CellLabel.h"
 #import "DepartureTimesView.h"
 #import "BlockColorViewController.h"
 #import "WebViewController.h"
-#import "FlashWarning.h"
 #import "AllRailStationView.h"
 #import "RailMapView.h"
 #import "WhatsNewBasicAction.h"
@@ -30,6 +28,7 @@
 #import "NearestVehiclesMap.h"
 #import "StringHelper.h"
 #import "DebugLogging.h"
+#import "UITableViewCell+MultiLineCell.h"
 
 
 @implementation WhatsNewView
@@ -102,6 +101,7 @@
         }
         NSLog(@"%@\n", output);
 #endif
+    
     }
 
 	return self;
@@ -155,17 +155,13 @@
             
             NSAttributedString *text = [[action displayText:fullText] formatAttributedStringWithFont:self.paragraphFont];
             
-            CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionText)];
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionText)];
 			if (cell == nil) {
-				cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionText)] autorelease];
-				cell.view = [self create_UITextView:nil font:self.paragraphFont];
+                cell = [UITableViewCell cellWithMultipleLines:MakeCellId(kSectionText)];
 			}
-			
-			cell.view.font =  self.paragraphFont;
-			cell.view.attributedText =  text;
-            [cell.view setAdjustsFontSizeToFitWidth:NO];
-            cell.view.backgroundColor = [UIColor clearColor];
-			
+        
+			cell.textLabel.attributedText =  text;
+    		
             [action updateCell:cell tableView:tableView];
             
 			[self updateAccessibility:cell indexPath:indexPath text:text.string alwaysSaySection:YES];
@@ -196,13 +192,7 @@
 {
 	if (indexPath.section == kSectionText)
 	{
-        NSString * fullText = _newTextArray[indexPath.row];
-    
-        id<WhatsNewSpecialAction> action = [self getAction:fullText];
-        
-        NSAttributedString *text = [[action displayText:fullText] formatAttributedStringWithFont:self.paragraphFont];
-        
-		return [self getAtrributedTextHeight:text] + kCellLabelTotalYInset;
+        return UITableViewAutomaticDimension;
 	}
 	return [self basicRowHeight];
 }
@@ -247,17 +237,6 @@
 - (void)fbTriMet
 {
     [self facebookTriMet];
-}
-
-- (void)flashWarning
-{
-    [UserPrefs singleton].flashingLightWarning = YES;
-    
-    FlashWarning *warning = [[FlashWarning alloc] initWithNav:self.navigationController];
-    
-    warning.parentBase = self;
-    
-	[warning release];
 }
 
 - (void)settings

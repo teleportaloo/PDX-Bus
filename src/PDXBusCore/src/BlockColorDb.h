@@ -16,7 +16,10 @@
 #import <Foundation/Foundation.h>
 #import "MemoryCaches.h"
 #import "SharedFile.h"
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+
+@class UIColor;
+@class UIImage;
 
 
 @interface BlockColorDb : NSObject <ClearableCache>
@@ -28,7 +31,7 @@
 @property (nonatomic, retain) SharedFile *file;
 @property (nonatomic, retain) NSMutableDictionary *colorMap;
 
-+ (BlockColorDb *)singleton;
++ (BlockColorDb *)sharedInstance;
 - (UIColor *) colorForBlock:(NSString *)block;
 - (void)addColor:(UIColor *)color forBlock:(NSString *)block description:(NSString*)desc;
 - (void)clearAll;

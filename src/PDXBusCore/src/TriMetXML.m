@@ -126,7 +126,7 @@ static StopNameCacheManager *stopNameCache = nil;
         routeCache = [[QueryCacheManager alloc] initWithFileName:@"queryCache.plist"];
         
         shortTermCache = [[QueryCacheManager alloc] initWithFileName:@"shortTermCache.plist"];
-        shortTermCache.maxSize = [UserPrefs singleton].maxRecentStops;
+        shortTermCache.maxSize = [UserPrefs sharedInstance].maxRecentStops;
         
         stopNameCache = [[StopNameCacheManager alloc] init];
     
@@ -274,14 +274,12 @@ static StopNameCacheManager *stopNameCache = nil;
 	
 	if ([query characterAtIndex:query.length-1] == '&')
 	{
-		str = [NSString stringWithFormat:@"%@://developer.trimet.org/ws/V1/%@&appID=%@",
-               [UserPrefs singleton].triMetProtocol,
+		str = [NSString stringWithFormat:@"https://developer.trimet.org/ws/V1/%@&appID=%@",
                query, TRIMET_APP_ID];
 	}
 	else
 	{
-		str = [NSString stringWithFormat:@"%@://developer.trimet.org/ws/V1/%@/appID/%@",
-               [UserPrefs singleton].triMetProtocol,
+		str = [NSString stringWithFormat:@"https://developer.trimet.org/ws/V1/%@/appID/%@",
                query, TRIMET_APP_ID];
 	}
 	
@@ -301,7 +299,7 @@ static StopNameCacheManager *stopNameCache = nil;
 	int tries = 2;
 	BOOL succeeded = NO;
     self.itemFromCache = NO;
-	int days = [UserPrefs singleton].routeCacheDays;
+	int days = [UserPrefs sharedInstance].routeCacheDays;
 	
 	_hasData = NO;
 	[self clearArray];
@@ -313,7 +311,7 @@ static StopNameCacheManager *stopNameCache = nil;
 	
 	DEBUG_LOG(@"Query: %@\n", str);
     
-    if (([UserPrefs singleton].debugXML))
+    if (([UserPrefs sharedInstance].debugXML))
     {
         self.fullQuery = str;
     }
@@ -338,11 +336,8 @@ static StopNameCacheManager *stopNameCache = nil;
 				{
 					NSDate *itemDate = cachedArray[kCacheDateAndTime];
 					NSCalendar *cal = [NSCalendar currentCalendar];
-#ifdef PDXBUS_WATCH
 					int units = NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitWeekOfYear;
-#else
-                    int units = NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit | NSWeekCalendarUnit;
-#endif
+
 					NSDateComponents *itemDateComponents = [cal components:units fromDate:itemDate];
 					NSDateComponents *nowDateComponents =  [cal components:units fromDate:[NSDate date]];
                     
@@ -351,14 +346,8 @@ static StopNameCacheManager *stopNameCache = nil;
                     DEBUG_DATE(year);
                     DEBUG_DATE(month);
                     DEBUG_DATE(day);
-#ifdef PDXBUS_WATCH
                     DEBUG_DATE(weekOfYear);
-#else
-                    DEBUG_DATE(week);
-#endif
                     
-                    
-                     
 					
 					/* This code is just to confirm that weeks change on Sunday! */
 					/*
@@ -394,13 +383,8 @@ static StopNameCacheManager *stopNameCache = nil;
 					// or occasionally 12am mid meek.
 					//
                     
-#ifdef PDXBUS_WATCH
-                    int itemWeek = itemDateComponents.weekOfYear;
-                    int nowWeek  = nowDateComponents.weekOfYear;
-#else
-                    int itemWeek = (int)itemDateComponents.week;
-                    int nowWeek  = (int)nowDateComponents.week;
-#endif
+                    NSInteger itemWeek = itemDateComponents.weekOfYear;
+                    NSInteger nowWeek  = nowDateComponents.weekOfYear;
 					
 					if (
 						(cacheAction != TriMetXMLForceFetchAndUpdateCache)
@@ -605,7 +589,7 @@ static StopNameCacheManager *stopNameCache = nil;
 
 -(void)clearRawData
 {
-    if (![UserPrefs singleton].debugXML)
+    if (![UserPrefs sharedInstance].debugXML)
     {
         self.rawData = nil;
     }

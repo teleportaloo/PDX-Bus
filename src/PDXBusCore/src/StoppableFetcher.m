@@ -16,7 +16,7 @@
 #import "StoppableFetcher.h"
 #import "DebugLogging.h"
 #import "UserPrefs.h"
-#import <UIKit/UIKit.h>
+#import "PDXBusCore.h"
 
 @implementation StoppableFetcher
 
@@ -32,7 +32,7 @@
 {
 	if ((self = [super init]))
 	{
-		self.giveUp = [UserPrefs singleton].networkTimeout;
+		self.giveUp = [UserPrefs sharedInstance].networkTimeout;
 	}
 	return self;
 }
@@ -49,6 +49,19 @@
 
 
 #ifndef PDXBUS_WATCH
+
+void runSyncOnMainQueueWithoutDeadlocking(void (^block)(void))
+{
+    if ([NSThread isMainThread])
+    {
+        block();
+    }
+    else
+    {
+        dispatch_sync(dispatch_get_main_queue(), block);
+    }
+}
+
 - (void)fetchDataByPolling:(NSString *)query
 {
 	const double pollingTime = 0.125;
@@ -77,15 +90,17 @@
 	{
 		giveUpTime = [NSDate dateWithTimeIntervalSinceNow:self.giveUp];
 	}
+    
+    bool networkActivityIndicatorVisible = NO;
 
-	bool networkActivityIndicatorVisible = [UIApplication sharedApplication].networkActivityIndicatorVisible;
-	
-	if (!networkActivityIndicatorVisible)
-	{
-		[UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
-	}
-
-	
+    runSyncOnMainQueueWithoutDeadlocking(^{
+        bool networkActivityIndicatorVisible = [UIApplication sharedApplication].networkActivityIndicatorVisible;
+        
+        if (!networkActivityIndicatorVisible)
+        {
+            [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+        }
+    });
 	while (!self.dataComplete && [runLoop runMode: NSDefaultRunLoopMode beforeDate:future])
 	{
 		// NSLog(@"Polling...\n");
@@ -117,11 +132,14 @@
 	}
 	
 	// DEBUG_LOG(@"Polling count %d\n", pollingCount);
-
-	if (!networkActivityIndicatorVisible)
-	{
-		[UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-	}
+    
+    runSyncOnMainQueueWithoutDeadlocking (^{
+        if (!networkActivityIndicatorVisible)
+        {
+            [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+        }
+        
+    });
 }
 #else
 

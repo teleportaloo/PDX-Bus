@@ -20,23 +20,23 @@
 #import "UserPrefs.h"
 #import "UserFaves.h"
 
+
+#define kLargeScreenWidth           694
+#define LARGE_SCREEN                ([UIApplication sharedApplication].delegate.window.bounds.size.width >= kLargeScreenWidth)
+#define SMALL_SCREEN                !(LARGE_SCREEN)
+
 @protocol DeselectItemDelegate <NSObject>
 
 - (void)deselectItemCallback;
 
 @end
 
-@interface ViewControllerBase : UIViewController <BackgroundTaskDone, UIDocumentInteractionControllerDelegate, UIActionSheetDelegate> {
+@interface ViewControllerBase : UIViewController <BackgroundTaskDone> {
 	BackgroundTaskContainer *           _backgroundTask;
 	id<ReturnStopId>                    _callback;
 	SafeUserData *                      _userData;
     UIDocumentInteractionController *   _docMenu;
     UIBarButtonItem *                   _xmlButton;
-    
-    NSString *                          _tweetAt;
-    NSString *                          _initTweet;
-    NSMutableArray<NSNumber *> *        _tweetButtons;
-    UIActionSheet *                     _tweetAlert;
 }
 
 - (bool)initMembers;
@@ -46,9 +46,8 @@
 @property (nonatomic, readonly, strong) UIBarButtonItem *autoDoneButton;
 @property (nonatomic, readonly, strong) UIBarButtonItem *autoXmlButton;
 @property (nonatomic, readonly, strong) UIBarButtonItem *autoTicketAppButton;
-@property (nonatomic, retain) NSMutableArray<NSNumber *> *tweetButtons;
 @property (nonatomic, readonly) bool forceRedoButton;
-+ (void)flashScreen:(UINavigationController *)nav;
++ (void)flashScreen:(UINavigationController *)nav button:(UIBarButtonItem *)button;
 - (void)backToRootButtons:(NSMutableArray *)toolbarItems;
 - (void)updateToolbarItems:(NSMutableArray *)toolbarItems;
 - (void)networkTips:(NSData *)htmlError networkError:(NSString *)networkError;
@@ -73,20 +72,24 @@
 @property (nonatomic, readonly) CGFloat heightOffset;
 @property (nonatomic, getter=getMiddleWindowRect, readonly) CGRect middleWindowRect;
 @property (nonatomic, readonly) ScreenInfo screenInfo;
+
+@property(nonatomic,getter=isNetworkActivityIndicatorVisible) BOOL networkActivityIndicatorVisible;
+
 - (void)reloadData;
 + (UIColor*)htmlColor:(int)val;
 - (void)appendXmlData:(NSMutableData *)buffer;
 - (void)xmlAction:(UIView *)button;
 - (void)updateToolbar;
 - (void)updateToolbarItemsWithXml:(NSMutableArray *)toolbarItems;
-- (void)tweet;
+- (void)tweetAt:(NSString *)twitterUser;
 - (void)clearSelection;
 - (void)facebook;
 - (void)facebookTriMet;
 @property (nonatomic, readonly) bool iOS8style;
 @property (nonatomic, readonly) bool iOS9style;
-@property (nonatomic, readonly) bool ZXingSupported;
-@property (nonatomic, readonly) bool ticketApp;
+@property (nonatomic, readonly) bool iOS11style;
+@property (nonatomic, readonly) bool videoCaptureSupported;
+- (bool) ticketAppFrom:(UIView *)source button:(UIBarButtonItem*)button;
 @property (nonatomic, readonly) bool fullScreen;
 - (bool)openSafariFrom:(UIViewController *)view path:(NSString *)path;
 - (bool)openBrowserFrom:(UIViewController *)view path:(NSString *)path;  // May open chrome
@@ -94,14 +97,12 @@
 - (void)updateWatch;
 - (void)favesChanged;
 + (instancetype)viewController;
+- (void) runSyncOnMainQueueWithoutDeadlocking: (void (^)(void)) block;
+- (void) runAsyncOnBackgroundThread: (void (^)(void)) block;
 
 @property (nonatomic, retain) UIBarButtonItem *xmlButton;
 @property (nonatomic, retain) BackgroundTaskContainer *backgroundTask;
 @property (nonatomic, retain) id<ReturnStopId> callback;
-@property (nonatomic, retain) UIDocumentInteractionController *docMenu;
-@property (nonatomic, copy)   NSString *tweetAt;
-@property (nonatomic, copy)   NSString *initTweet;
-@property (nonatomic, retain) UIActionSheet *tweetAlert;
 
 #define kRailAwareReloadButton 1
 

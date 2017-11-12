@@ -477,7 +477,7 @@
     
     if (newDepartures.gotData)
     {
-        SafeUserData *userData = [SafeUserData singleton];
+        SafeUserData *userData = [SafeUserData sharedInstance];
         userData.readOnly = FALSE;
         NSString * longDesc = [NSString stringWithFormat:@"%@ (%@)", self.departures.locDesc, self.departures.locDir];
         NSDictionary *recent = [userData addToRecentsWithLocation:self.arrivalsContext.locid description:longDesc];
@@ -683,7 +683,7 @@
                 }
                 
                 // Now get the locations of the steetcars and find ours
-                XMLStreetcarLocations *locs = [XMLStreetcarLocations singletonForRoute:streetcarRoute];
+                XMLStreetcarLocations *locs = [XMLStreetcarLocations autoSingletonForRoute:streetcarRoute];
                 
                 locs.oneTimeDelegate = self;
                 [locs getLocations];
@@ -715,6 +715,7 @@
     
     if (!self.backgroundThread.cancelled)
     {
+        _mapUpdated = NO;
         [result setObject:departures forKey:NSStringFromClass(departures.class)];
     }
     

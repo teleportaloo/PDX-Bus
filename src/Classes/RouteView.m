@@ -46,33 +46,27 @@
 
 #pragma mark Data fetchers
 
-- (void)workerToFetchRoutes:(id)unused
-{	
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:NSLocalizedString(@"getting routes", @"activity text")];
-	
-	[self.routeData getRoutesCacheAction:TriMetXMLForceFetchAndUpdateCache];
-    
-    [self indexRoutes];
-    
-	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
-	[pool release];
-}
-
 - (void)fetchRoutesAsync:(id<BackgroundTaskProgress>)callback
 {	
-	self.backgroundTask.callbackWhenFetching = callback;
+    self.backgroundTask.callbackWhenFetching = callback;
     self.routeData = [XMLRoutes xml];
-
-	if (!self.backgroundRefresh && [self.routeData getRoutesCacheAction:TriMetXMLCheckCache])
-	{
-		[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
-	}
-	else 
-	{
-		[NSThread detachNewThreadSelector:@selector(workerToFetchRoutes:) toTarget:self withObject:nil];
-	}
- 
+    
+    if (!self.backgroundRefresh && [self.routeData getRoutesCacheAction:TriMetXMLCheckCache])
+    {
+        [self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
+    }
+    else
+    {
+        [self runAsyncOnBackgroundThread:^{
+            [self.backgroundTask.callbackWhenFetching backgroundStart:1 title:NSLocalizedString(@"getting routes", @"activity text")];
+            
+            [self.routeData getRoutesCacheAction:TriMetXMLForceFetchAndUpdateCache];
+            
+            [self indexRoutes];
+            
+            [self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
+        }];
+    }
 }
 
 #pragma mark Table View methods
@@ -124,7 +118,7 @@
 			if (cell == nil) {
 				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionRoutes)] autorelease];
 				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-				CGRect rect = CGRectMake(0, 0, COLOR_STRIPE_WIDTH, [self tableView:tableView heightForRowAtIndexPath:indexPath]);
+				CGRect rect = CGRectMake(0, 0, ROUTE_COLOR_WIDTH, [self tableView:tableView heightForRowAtIndexPath:indexPath]);
 				
 				RouteColorBlobView *colorStripe = [[RouteColorBlobView alloc] initWithFrame:rect];
 				colorStripe.tag = COLOR_STRIPE_TAG;
@@ -222,7 +216,7 @@
             ERROR_LOG(@"Failed to delete route index %@\n", error.description);
         }
         
-        if ([UserPrefs singleton].searchRoutes)
+        if ([UserPrefs sharedInstance].searchRoutes)
         {
             NSMutableArray *index = [NSMutableArray array];
             

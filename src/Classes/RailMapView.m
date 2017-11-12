@@ -59,7 +59,7 @@ static RAILMAP railmaps[] =
 
 
 - (void)dealloc {
-	[UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+	self.networkActivityIndicatorVisible = NO;
     
     self.callback = nil;
 	self.stopIDs = nil;
@@ -85,7 +85,7 @@ static RAILMAP railmaps[] =
 
 - (CGFloat) heightOffset
 {
-    if ((UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)|| (self.screenInfo.screenWidth == WidthBigVariable))
+    if (SMALL_SCREEN || (self.screenInfo.screenWidth == WidthBigVariable))
     {
         return -[UIApplication sharedApplication].statusBarFrame.size.height;
     }
@@ -117,7 +117,7 @@ static RAILMAP railmaps[] =
 		
 		self.locationsDb = [ StopLocations getDatabase];
         
-        UserPrefs *prefs = [UserPrefs singleton];
+        UserPrefs *prefs = [UserPrefs sharedInstance];
         int mapId;
         
         if (prefs.showStreetcarMapFirst)
@@ -175,11 +175,6 @@ static RAILMAP railmaps[] =
 		return [self.callback actionText];
 	}
 	return @"Show arrivals";
-}
-
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
-{
-	[self notRailAwareButton:buttonIndex];
 }
 
 -(void)showMap:(id)sender
@@ -254,7 +249,7 @@ static RAILMAP railmaps[] =
         _railMap = railmaps + _railMapIndex;
         _selectedItem = -1;
         
-        UserPrefs *prefs = [UserPrefs singleton];
+        UserPrefs *prefs = [UserPrefs sharedInstance];
         
         prefs.showStreetcarMapFirst = (_railMapIndex == kRailMapPdxStreetcar);
         

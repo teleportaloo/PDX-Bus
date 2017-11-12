@@ -22,12 +22,12 @@
     return @'$';
 }
 
-- (void)updateCell:(CellLabel *)cell tableView:(UITableView *)tableView
+- (void)updateCell:(UITableViewCell *)cell tableView:(UITableView *)tableView
 {
-    cell.view.backgroundColor   = [UIColor clearColor];
-    cell.accessoryType          = UITableViewCellAccessoryDisclosureIndicator;
-    cell.view.textAlignment     = NSTextAlignmentLeft;
-    cell.selectionStyle         = UITableViewCellSelectionStyleBlue;
+    cell.textLabel.backgroundColor   = [UIColor clearColor];
+    cell.accessoryType               = UITableViewCellAccessoryDisclosureIndicator;
+    cell.textLabel.textAlignment     = NSTextAlignmentLeft;
+    cell.selectionStyle              = UITableViewCellSelectionStyleBlue;
 }
 
 - (void)processAction:(NSString *)text parent:(ViewControllerBase*)parent

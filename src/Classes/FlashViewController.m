@@ -173,12 +173,12 @@
 	{
 		case 0:	
 		{
-            [UserPrefs singleton].flashLed = YES;
+            [UserPrefs sharedInstance].flashLed = YES;
             break;
 		}
 		case 1:	
 		{
-			[UserPrefs singleton].flashLed = NO;
+			[UserPrefs sharedInstance].flashLed = NO;
 			break;
 		}
 	}
@@ -198,7 +198,7 @@
                                      ];
         [buttonBarSegmentedControl addTarget:self action:@selector(toggleLed:) forControlEvents:UIControlEventValueChanged];
         
-        if ([UserPrefs singleton].flashLed)
+        if ([UserPrefs sharedInstance].flashLed)
         {
             buttonBarSegmentedControl.selectedSegmentIndex = 0.0;	// start by showing the normal picker
         }
@@ -216,7 +216,7 @@
         [buttonBarSegmentedControl release];
     }
     
-    if ([UserPrefs singleton].ticketAppIcon)
+    if ([UserPrefs sharedInstance].ticketAppIcon)
     {
         [toolbarItems addObject:[self autoTicketAppButton]];
     }

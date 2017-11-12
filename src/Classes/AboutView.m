@@ -11,13 +11,13 @@
 
 
 #import "AboutView.h"
-#include "CellLabel.h"
 #include "WebViewController.h"
 #include "TriMetXML.h"
 #import "WhatsNewView.h"
 #import "SupportView.h"
 #import "DebugLogging.h"
 #import "StringHelper.h"
+#import "UITableViewCell+MultiLineCell.h"
 
 
 enum SECTIONS {
@@ -81,7 +81,7 @@ enum INTRO_ROWS {
                                             "...to #iRob Alan#i for the stylish icon; and\n\n"
                                             "...to #iCivicApps.org#i for Awarding PDX Bus the #i#bMost Appealing#b#i and #b#iBest in Show#b#i awards in July 2010.\n\n"
                                             "Special thanks to #R#b#iKen#i#b#0 for putting up with all this.\n\n"
-                                            "\nCopyright (c) 2008-2016\nAndrew Wallace\n(See legal section above for other copyright owners and attrbutions).",
+                                            "\nCopyright (c) 2008-2017\nAndrew Wallace\n(See legal section above for other copyright owners and attrbutions).",
                                             @"Dedication text"),
                           
                           [NSBundle mainBundle].infoDictionary[@"CFBundleVersion"],
@@ -98,6 +98,7 @@ enum INTRO_ROWS {
         legal = [NSArray arrayWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"about-legal" ofType:@"plist"]].retain;
         
         _hideButton = NO;
+
     }
 	return self;
 }
@@ -190,6 +191,7 @@ enum INTRO_ROWS {
     return cell;
     
 }
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	
 	switch (indexPath.section) {
@@ -198,18 +200,13 @@ enum INTRO_ROWS {
 		{
 			if (indexPath.row == kSectionIntroRowIntro)
 			{
-				CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionHelpRowHelp)];
+				UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionHelpRowHelp)];
 				if (cell == nil) {
-					cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionHelpRowHelp)] autorelease];
-					cell.view = [self create_UITextView:nil font:self.paragraphFont];
+                    cell = [UITableViewCell cellWithMultipleLines:MakeCellId(kSectionHelpRowHelp)];
 				}
-				
-				cell.view.font =  self.paragraphFont;
-				cell.view.attributedText = (indexPath.section == kSectionThanks) ? thanksText : introText;
-                [cell.view setAdjustsFontSizeToFitWidth:NO];
-				DEBUG_LOG(@"help width:  %f\n", cell.view.bounds.size.width);
+				cell.textLabel.attributedText = (indexPath.section == kSectionThanks) ? thanksText : introText;
 				cell.selectionStyle = UITableViewCellSelectionStyleNone;
-				[self updateAccessibility:cell indexPath:indexPath text:cell.view.attributedText.string alwaysSaySection:YES];
+				[self updateAccessibility:cell indexPath:indexPath text:cell.textLabel.attributedText.string alwaysSaySection:YES];
 				// cell.backgroundView = [self clearView];
 				return cell;
 			}
@@ -259,14 +256,8 @@ enum INTRO_ROWS {
 {
 	switch (indexPath.section) {
 		case kSectionThanks:
-            return [self getAtrributedTextHeight:thanksText] + kCellLabelTotalYInset;
-			break;
 		case kSectionIntro:
-			if (indexPath.row == kSectionIntroRowIntro)
-			{
-				return [self getAtrributedTextHeight:introText] + kCellLabelTotalYInset;
-			}
-			break;
+            return UITableViewAutomaticDimension;
 		case kSectionWeb:
 		case kSectionLegal:
 			return [self basicRowHeight];

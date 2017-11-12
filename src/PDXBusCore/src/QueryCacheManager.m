@@ -16,7 +16,6 @@
 #import "QueryCacheManager.h"
 #import "TriMetTypes.h"
 #import "DebugLogging.h"
-#import <UIKit/UIKit.h>
 
 @implementation QueryCacheManager
 
@@ -37,7 +36,7 @@
 
 - (void)openCache
 {
-    if (self.cache == nil && [UserPrefs singleton].useCaching)
+    if (self.cache == nil && [UserPrefs sharedInstance].useCaching)
     {
 
         if (self.sharedFile.urlToSharedFile !=nil)
@@ -54,7 +53,7 @@
 
 - (void)writeCache
 {
-    if (self.cache!=nil && self.sharedFile.urlToSharedFile != nil && [UserPrefs singleton].useCaching)
+    if (self.cache!=nil && self.sharedFile.urlToSharedFile != nil && [UserPrefs sharedInstance].useCaching)
     {
         [self.sharedFile writeDictionary:self.cache];
     }
@@ -94,60 +93,71 @@
 
 - (NSArray *)getCachedQuery:(NSString *)cacheQuery
 {
-    if ([UserPrefs singleton].useCaching)
+    if ([UserPrefs sharedInstance].useCaching)
     {
         [self openCache];
-        return self.cache[cacheQuery];
+        
+        if (self.cache)
+        {
+            return self.cache[cacheQuery];
+        }
     }
     return nil;
 }
 
 - (void)addToCache:(NSString *)cacheQuery item:(NSData *)item write:(bool)write
 {
-    if ([UserPrefs singleton].useCaching && item!=nil && cacheQuery!=nil)
+    if ([UserPrefs sharedInstance].useCaching && item!=nil && cacheQuery!=nil)
     {
         [self openCache];
-    
-        (self.cache)[cacheQuery] = @[[NSDate date], item];
-    
-        if (self.maxSize > 0 && self.cache.count > 1)
-        {
-            // Eviction time
-            NSString *oldestKey    = nil;
-            NSDate   *oldestDate   = nil;
         
-            while (self.cache.count > self.maxSize)
+        if (self.cache)
+        {
+            (self.cache)[cacheQuery] = @[[NSDate date], item];
+            
+            if (self.maxSize > 0 && self.cache.count > 1)
             {
-                for (NSString *str in self.cache)
+                // Eviction time
+                __block NSString *oldestKey    = nil;
+                __block NSDate   *oldestDate   = nil;
+                
+                while (self.cache.count > self.maxSize)
                 {
-                    NSArray *obj = self.cache[str];
-                    NSDate  *objDate = obj[kCacheDateAndTime];
-                    if (oldestKey == nil  || [oldestDate compare:objDate] == NSOrderedDescending)
+                    [self.cache enumerateKeysAndObjectsUsingBlock: ^void (NSString* str, NSArray* obj, BOOL *stop)
+                     {
+                         NSDate  *objDate = obj[kCacheDateAndTime];
+                         if (oldestKey == nil  || [oldestDate compare:objDate] == NSOrderedDescending)
+                         {
+                             oldestKey    = str;
+                             oldestDate   = objDate;
+                         }
+                         
+                     }];
+                    if (oldestKey!=nil)
                     {
-                        oldestKey    = str;
-                        oldestDate   = objDate;
+                        [self.cache removeObjectForKey:oldestKey.retain.autorelease];
                     }
                 }
-                if (oldestKey!=nil)
-                {
-                    [self.cache removeObjectForKey:oldestKey];
-                }
             }
-        }
-    
-        if (write)
-        {
-            [self writeCache];
+            
+            if (write)
+            {
+                [self writeCache];
+            }
         }
     }
 }
 
 - (void)removeFromCache:(NSString *)cacheQuery
 {
-    if ([UserPrefs singleton].useCaching)
+    if ([UserPrefs sharedInstance].useCaching)
     {
         [self openCache];
-        [self.cache removeObjectForKey:cacheQuery]; 
+        
+        if (self.cache)
+        {
+            [self.cache removeObjectForKey:cacheQuery];
+        }
     }
 }
 

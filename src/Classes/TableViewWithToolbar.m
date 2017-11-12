@@ -19,7 +19,7 @@
 #import <UIKit/UISearchDisplayController.h>
 #import <MapKit/MapKit.h>
 #include "iOSCompat.h"
-
+#include "BearingAnnotationView.h"
 
 @implementation TableViewWithToolbar
 
@@ -39,10 +39,12 @@
 @dynamic smallFont;
 
 
-#define DISCLAIMER_TAG 1
-#define UPDATE_TAG	   2
-#define STREETCAR_TAG  3
+// #define DISCLAIMER_TAG 1
+// #define UPDATE_TAG	   2
+// #define STREETCAR_TAG  3
 #define MAP_TAG        4
+
+static CGFloat leftInset;
 
 -(void)finishWithMapView
 {
@@ -99,6 +101,12 @@
 	return self;
 }
 
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    
+  
+}
 
 -(void)recreateNewTable
 {
@@ -145,6 +153,10 @@
 		// self.tableHeaderHeight = [self searchRowHeight];
 	}
     
+    if (@available(iOS 11.0, *)) {
+        self.table.contentInsetAdjustmentBehavior = self.neverAdjustContentInset ?   UIScrollViewContentInsetAdjustmentNever :  UIScrollViewContentInsetAdjustmentAutomatic;
+    }
+    
     if (self.getStyle == UITableViewStylePlain)
     {
         self.table.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1.0];
@@ -155,6 +167,11 @@
     // Hide all the cell lines at the end
     self.table.tableFooterView = [[[UIView alloc] init] autorelease];
 	
+}
+
+- (bool)neverAdjustContentInset
+{
+    return NO;
 }
 
 - (UIColor *)lighterColorForColor:(UIColor *)c
@@ -224,19 +241,16 @@
 	
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
-	// self.view = [[[CustomLayoutView alloc] init] autorelease];
-	
-	[self recreateNewTable];
-	
-	
+    [self recreateNewTable];
+
 	[pool release];
-	
 }
 
 - (void)viewWillDisappear:(BOOL)animated
 {
     if (self.mapView)
     {
+        self.mapView.delegate = nil;
         self.mapView.showsUserLocation = NO;
     }
     
@@ -251,6 +265,7 @@
 	if (self.mapView)
     {
         self.mapView.showsUserLocation = _mapShowsUserLocation;
+        self.mapView.delegate = self;
     }
     
     
@@ -298,6 +313,11 @@
 	return 0;
 }
 
+- (CGFloat)leftInset
+{
+    return leftInset;
+}
+
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath 
 {
     if ([cell.reuseIdentifier isEqualToString:kDisclaimerCellId])
@@ -307,6 +327,11 @@
     else
     {
         cell.backgroundColor = [UIColor whiteColor];
+    }
+    
+    if (cell.layoutMargins.left > leftInset)
+    {
+        leftInset = cell.layoutMargins.left;
     }
 }
 
@@ -321,61 +346,9 @@
     }
 }
 
-- (CGFloat)getAtrributedTextHeight:(NSAttributedString *)text
-{
-    CGFloat width = 0.0;
-    
-    width = self.screenInfo.appWinWidth - 20;
-    DEBUG_LOG(@"Width for text %f\n", width);
-
-    
-    CGRect rect = [text boundingRectWithSize:CGSizeMake(width, MAXFLOAT)
-                                     options:NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading
-                                     context:nil];
-    
-    return rect.size.height;
-}
-
-- (CGFloat)getTextHeight:(NSString *)text font:(UIFont *)font;
-{
-	CGFloat width = 0.0;
-    width = self.screenInfo.appWinWidth - 20 - font.pointSize;
-	DEBUG_LOG(@"Width for text %f\n", width);
-	
-    NSStringDrawingOptions options = NSStringDrawingTruncatesLastVisibleLine |
-        NSStringDrawingUsesLineFragmentOrigin;
-    
-    NSDictionary *attr = @{NSFontAttributeName: font};
-    CGRect bounds = [text boundingRectWithSize:CGSizeMake(width, MAXFLOAT)
-                                              options:options
-                                           attributes:attr
-                                              context:nil];
-    
-	return bounds.size.height + font.pointSize + font.pointSize;
-}
-
 - (void)updateAccessibility:(UITableViewCell *)cell indexPath:(NSIndexPath *)indexPath text:(NSString *)str alwaysSaySection:(BOOL)alwaysSaySection
 {
 	cell.accessibilityLabel = str;
-	[self maybeAddSectionToAccessibility:cell indexPath:indexPath alwaysSaySection:alwaysSaySection];
-}
-
-- (void)maybeAddSectionToAccessibility:(UITableViewCell *)cell indexPath:(NSIndexPath *)indexPath alwaysSaySection:(BOOL)alwaysSaySection
-{
-	// iPhone 3.1 made this not required, but keeping just in case!
-	/*
-	if ((alwaysSaySection || indexPath.row == 0 || indexPath.row == ([self.table numberOfRowsInSection:indexPath.section]) -1) &&
-		[cell accessibilityLabel]!=nil)
-	{
-		NSString *title =[self tableView:self.table titleForHeaderInSection:indexPath.section];
-		
-		if (title != nil)
-		{
-			NSString *newVoiceOver = [NSString stringWithFormat:@"%@, %@", title, [cell accessibilityLabel]];
-			[cell setAccessibilityLabel:newVoiceOver];
-		}
-	}
-	*/
 }
 
 static NSString *trimetDisclaimerText = @"Route and arrival data provided by permission of TriMet";
@@ -385,68 +358,31 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 	/*
 	 Create an instance of UITableViewCell and add tagged subviews for the name, local time, and quarter image of the time zone.
 	 */
-	CGRect rect;
-		
-	UITableViewCell *cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier] autorelease];
 	
-#define LEFT_COLUMN_OFFSET 10.0
-#define LEFT_COLUMN_WIDTH 260
-	
-#define MAIN_FONT_SIZE 16.0
-#define SMALL_FONT_SIZE 10.0
-#define LABEL_HEIGHT 22.0
-#define DISCLAIMER_HEIGHT 14.0
-#define LABEL_SPACING 0 // ((kDisclaimerCellHeight - LABEL_HEIGHT - 2.0 * DISCLAIMER_HEIGHT) / 5.0)
-	
-	/*
-	 Create labels for the text fields; set the highlight color so that when the cell is selected it changes appropriately.
-	 */
-	UILabel *label;
-	
-	rect = CGRectMake(LEFT_COLUMN_OFFSET, LABEL_SPACING, LEFT_COLUMN_WIDTH, LABEL_HEIGHT);
-	label = [[UILabel alloc] initWithFrame:rect];
-	label.tag = UPDATE_TAG;
-	label.font = [UIFont boldSystemFontOfSize:MAIN_FONT_SIZE];
-	label.adjustsFontSizeToFitWidth = YES;
-	label.highlightedTextColor = [UIColor whiteColor];
-	label.textColor = [UIColor grayColor];
-	label.backgroundColor = [UIColor clearColor];
-	label.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-	[cell.contentView addSubview:label];
-	[label release];
-	
-	rect = CGRectMake(LEFT_COLUMN_OFFSET, 2 * LABEL_SPACING + LABEL_HEIGHT, LEFT_COLUMN_WIDTH, DISCLAIMER_HEIGHT);
-	label = [[UILabel alloc] initWithFrame:rect];
-	label.tag = STREETCAR_TAG;
-	label.font = [UIFont systemFontOfSize:SMALL_FONT_SIZE];
-	label.adjustsFontSizeToFitWidth = YES;
-	label.highlightedTextColor = [UIColor whiteColor];
-	label.textColor = [UIColor grayColor];
-	label.backgroundColor = [UIColor clearColor];
-	label.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-	[cell.contentView addSubview:label];
-	[label release];
-	
-	label =  ((UILabel*)[cell.contentView viewWithTag:STREETCAR_TAG]);
-	label.text = @"";
-	rect = CGRectMake(LEFT_COLUMN_OFFSET, 3 * LABEL_SPACING + LABEL_HEIGHT + DISCLAIMER_HEIGHT, LEFT_COLUMN_WIDTH, DISCLAIMER_HEIGHT);
-	label = [[UILabel alloc] initWithFrame:rect];
-	label.tag = DISCLAIMER_TAG;
-	label.font = [UIFont systemFontOfSize:SMALL_FONT_SIZE];
-	label.adjustsFontSizeToFitWidth = YES;
-	label.highlightedTextColor = [UIColor whiteColor];
-	label.textColor = [UIColor grayColor];
-	label.backgroundColor = [UIColor clearColor];
-	[cell.contentView addSubview:label];
-	[cell.contentView addSubview:label];
-	[label release];
-	
-	label =  ((UILabel*)[cell.contentView viewWithTag:DISCLAIMER_TAG]);
-	label.text = trimetDisclaimerText;
-	
-	cell.selectionStyle = UITableViewCellSelectionStyleNone;
-	cell.accessibilityLabel = label.text;
-	
+#define MAIN_FONT_SIZE  16.0
+#define SMALL_FONT_SIZE 12.0
+    
+	UITableViewCell *cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:identifier] autorelease];
+
+    cell.textLabel.font = [UIFont boldSystemFontOfSize:MAIN_FONT_SIZE];
+    cell.textLabel.adjustsFontSizeToFitWidth = YES;
+    cell.textLabel.highlightedTextColor = [UIColor whiteColor];
+    cell.textLabel.textColor = [UIColor grayColor];
+    cell.textLabel.backgroundColor = [UIColor clearColor];
+    cell.textLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+    
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    cell.accessibilityLabel = cell.textLabel.text;
+    
+    
+    cell.detailTextLabel.font = [UIFont systemFontOfSize:SMALL_FONT_SIZE];
+    cell.detailTextLabel.adjustsFontSizeToFitWidth = YES;
+    cell.detailTextLabel.highlightedTextColor = [UIColor whiteColor];
+    cell.detailTextLabel.textColor = [UIColor grayColor];
+    cell.detailTextLabel.backgroundColor = [UIColor clearColor];
+    cell.detailTextLabel.numberOfLines = 1;
+    cell.detailTextLabel.text = trimetDisclaimerText;
+    
 	return cell;
 }
 
@@ -454,51 +390,47 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 {
 	if (trimetDisclaimer)
 	{
-		UILabel *label = ((UILabel*)[cell.contentView viewWithTag:STREETCAR_TAG]);
-	
 		if (text !=nil)
 		{
-			label.text = [NSString stringWithFormat:@"Streetcar: %@", text];
+			cell.detailTextLabel.text = [NSString stringWithFormat:@"Streetcar: %@\n%@", text, trimetDisclaimerText];
+            cell.detailTextLabel.numberOfLines = 2;
 		}
 		else {
-			label.text = @"";
+			cell.detailTextLabel.text = trimetDisclaimerText;
+            cell.detailTextLabel.numberOfLines = 1;
 		}
-		
-		label = ((UILabel*)[cell.contentView viewWithTag:DISCLAIMER_TAG]);
-		label.text = trimetDisclaimerText;
 	}
 	else 
 	{
-		UILabel *label = ((UILabel*)[cell.contentView viewWithTag:STREETCAR_TAG]);
-		
-		label.text = @"";
-		
-		
-		label = ((UILabel*)[cell.contentView viewWithTag:DISCLAIMER_TAG]);
+
 		
 		if (text !=nil)
 		{
-			label.text = [NSString stringWithFormat:@"Streetcar: %@", text];
+            cell.detailTextLabel.text = @"";
+            cell.detailTextLabel.numberOfLines = 1;
 		}
 		else {
-			label.text = @"";
+			cell.detailTextLabel.text = text;
+            cell.detailTextLabel.numberOfLines = 1;
 		} 
 	}
-
-	
 }
-
 
 - (void)addTextToDisclaimerCell:(UITableViewCell *)cell text:(NSString *)text
 {
-	UILabel *label = ((UILabel*)[cell.contentView viewWithTag:UPDATE_TAG]);
-	
+    [self addTextToDisclaimerCell:cell text:text lines:1];
+}
+
+- (void)addTextToDisclaimerCell:(UITableViewCell *)cell text:(NSString *)text lines:(NSInteger)numberOfLines
+{
 	if (text !=nil)
 	{
-		label.text = text;
+		cell.textLabel.text = text;
+        cell.textLabel.numberOfLines = numberOfLines;
 	}
 	else {
-		label.text = @"";
+		cell.textLabel.text = @"";
+        cell.textLabel.numberOfLines = 1;
 	}
 
 	cell.accessibilityLabel = [NSString stringWithFormat:@"%@, %@", text, cell.accessibilityLabel];
@@ -543,7 +475,7 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 {
 	if (_basicFont == nil)
 	{
-		if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
+		if (SMALL_SCREEN)
 		{
             if (self.screenInfo.screenWidth >= WidthiPhone6)
             {
@@ -567,7 +499,7 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 {
 	if (_smallFont == nil)
 	{
-		if  (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
+		if  (SMALL_SCREEN)
 		{
             if (self.screenInfo.screenWidth >= WidthiPhone6)
             {
@@ -590,7 +522,7 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 {
 	if (_paragraphFont == nil)
 	{
-		if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
+		if (SMALL_SCREEN)
 		{
             if (self.screenInfo.screenWidth >= WidthiPhone6)
             {
@@ -608,11 +540,9 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 	return _paragraphFont;
 }
 
-
-
 - (CGFloat)basicRowHeight
 {
-	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
+	if (SMALL_SCREEN)
 	{
 		return 40.0;
 	}
@@ -621,16 +551,12 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 
 - (CGFloat)narrowRowHeight
 {
-	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
+	if (SMALL_SCREEN)
 	{
 		return 35.0;
 	}
 	return 40.0;
 }
-
-
-
-
 
 #pragma mark Background task impleementaion
 
@@ -675,7 +601,13 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 
 - (bool)backgroundTaskWait
 {
-	return self.backgroundRefresh && self.table.decelerating;
+    __block BOOL decelerating = NO;
+    
+    [self runSyncOnMainQueueWithoutDeadlocking:^{
+        decelerating = self.table.decelerating;
+    }];
+    
+	return self.backgroundRefresh && decelerating;
 }
 
 #pragma mark Search filter
@@ -824,28 +756,32 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 
 - (void)iOS7workaroundPromptGap
 {
-    // This is a workaround for the prompt leaving a gap. Not sure why I need it here especially and not in other windows.
-    // Based on this answer:  http://stackoverflow.com/questions/19372024/navigation-bar-with-prompt-appears-over-the-view-with-new-ios7-sdk
-    if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1) {
-        CGRect nbFrame = self.navigationController.navigationBar.frame;
-        __block CGRect vFrame = self.view.frame;
-        __block CGFloat diff = nbFrame.size.height + nbFrame.origin.y - vFrame.origin.y;
-        if (diff != 0.0) {
-            __block CGSize size = self.table.contentSize;
-            [UIView animateWithDuration:UINavigationControllerHideShowBarDuration
-                                  delay:0.0
-                                options: UIViewAnimationOptionCurveEaseOut
-                             animations:^{
-                                 vFrame.origin.y += diff;
-                                 vFrame.size.height -= diff;
-                                 self.view.frame = vFrame;
-                                 
-                                 size.height -= diff;
-                                 self.table.contentSize = size;
-                             }
-                             completion:^(BOOL finished){
-                                 DEBUG_LOG(@"Animation!");
-                             }];
+    
+    // if (!self.iOS11style)
+    {
+        // This is a workaround for the prompt leaving a gap. Not sure why I need it here especially and not in other windows.
+        // Based on this answer:  http://stackoverflow.com/questions/19372024/navigation-bar-with-prompt-appears-over-the-view-with-new-ios7-sdk
+        if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1) {
+            CGRect nbFrame = self.navigationController.navigationBar.frame;
+            __block CGRect vFrame = self.view.frame;
+            __block CGFloat diff = nbFrame.size.height + nbFrame.origin.y - vFrame.origin.y;
+            if (diff != 0.0) {
+                __block CGSize size = self.table.contentSize;
+                [UIView animateWithDuration:UINavigationControllerHideShowBarDuration
+                                      delay:0.0
+                                    options: UIViewAnimationOptionCurveEaseOut
+                                 animations:^{
+                                     vFrame.origin.y += diff;
+                                     vFrame.size.height -= diff;
+                                     self.view.frame = vFrame;
+                                     
+                                     size.height -= diff;
+                                     self.table.contentSize = size;
+                                 }
+                                 completion:^(BOOL finished){
+                                     DEBUG_LOG(@"Animation!");
+                                 }];
+            }
         }
     }
 }
@@ -1023,7 +959,7 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 
 - (CGFloat)mapCellHeight
 {
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
+    if (SMALL_SCREEN)
     {
         return 150.0;
     }
@@ -1066,6 +1002,7 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
         map.zoomEnabled = FALSE;
         map.pitchEnabled = FALSE;
         map.rotateEnabled = FALSE;
+        map.delegate = self;
         
         UITapGestureRecognizer* tapRec = [[UITapGestureRecognizer alloc]
                                           initWithTarget:self action:@selector(didTapMap:)];
@@ -1089,6 +1026,58 @@ static NSString *trimetDisclaimerText = @"Route and arrival data provided by per
 {
     
 }
+
+//Without this the page bounces when reloading the location time.
+
+- (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(nonnull NSIndexPath *)indexPath
+{
+    return [self tableView:tableView heightForRowAtIndexPath:indexPath];
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return self.table.rowHeight;
+}
+
+
+- (MKAnnotationView *)mapView:(MKMapView *)mv viewForAnnotation:(id <MKAnnotation>)annotation
+{
+    MKAnnotationView *retView = nil;
+    
+    if (annotation == mv.userLocation)
+    {
+        return nil;
+    }
+    else if ([annotation conformsToProtocol:@protocol(MapPinColor)])
+    {
+        retView = [BearingAnnotationView viewForPin:(id<MapPinColor>)annotation mapView:mv];
+        
+        retView.canShowCallout = YES;
+        
+    }
+    return retView;
+}
+
+
+- (void)updateAnnotations:(MKMapView *)map
+{
+    if (map)
+    {
+        for (id <MKAnnotation> annotation in map.annotations)
+        {
+            MKAnnotationView *av = [map viewForAnnotation:annotation];
+            
+            if (av && [av isKindOfClass:[BearingAnnotationView class]])
+            {
+                BearingAnnotationView *bv = (BearingAnnotationView*)av;
+                
+                [bv updateDirectionalAnnotationView:map];
+                
+            }
+        }
+    }
+}
+
 
 
 

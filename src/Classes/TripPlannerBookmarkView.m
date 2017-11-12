@@ -36,47 +36,40 @@
 
 #pragma mark Data fetchers
 
-- (void)workerToFetchNamesForLocations:(NSString*) loc
-{
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	
-	[UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
-	
-    self.locList = [NSMutableArray array];
-    
-    NSArray *idList  = loc.arrayFromCommaSeparatedString;
-	
-    int items = (int)idList.count;
-	
-	[self.backgroundTask.callbackWhenFetching backgroundStart:items title:@"getting stop names"];
-	
-	
-	items = 0;
-    
-    StopNameCacheManager *stopNameCache = [TriMetXML getStopNameCacheManager];
-	
-    for (NSString *aLoc in idList)
-	{
-        NSArray *stopName = [stopNameCache getStopName:aLoc fetchAndCache:YES updated:nil];
-		[self.locList addObject:stopName];
-		
-        [self.backgroundTask.callbackWhenFetching backgroundItemsDone:items];
-		
-	}
-	[UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-	
-	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
 
-	
-	[pool release];
-	
-}
 
-- (void)fetchNamesForLocationsAsync:(id<BackgroundTaskProgress>)callback loc:(NSString*) loc
+- (void)fetchNamesForLocationsAsync:(id<BackgroundTaskProgress>)callback loc:(NSString*)loc
 {
 	self.backgroundTask.callbackWhenFetching = callback;
-	
-	[NSThread detachNewThreadSelector:@selector(workerToFetchNamesForLocations:) toTarget:self withObject:loc];
+    
+    [self runAsyncOnBackgroundThread:^{
+            self.networkActivityIndicatorVisible = YES;
+            
+            self.locList = [NSMutableArray array];
+            
+            NSArray *idList  = loc.arrayFromCommaSeparatedString;
+            
+            int items = (int)idList.count;
+            
+            [self.backgroundTask.callbackWhenFetching backgroundStart:items title:@"getting stop names"];
+            
+            
+            items = 0;
+            
+            StopNameCacheManager *stopNameCache = [TriMetXML getStopNameCacheManager];
+            
+            for (NSString *aLoc in idList)
+            {
+                NSArray *stopName = [stopNameCache getStopName:aLoc fetchAndCache:YES updated:nil];
+                [self.locList addObject:stopName];
+                
+                [self.backgroundTask.callbackWhenFetching backgroundItemsDone:items];
+                
+            }
+            self.networkActivityIndicatorVisible = NO;
+            
+            [self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
+    }];
 }
 
 #pragma mark View methods
@@ -147,8 +140,6 @@
 	{
 		cell.accessoryType = UITableViewCellAccessoryNone;
 	}
-    
-	[self maybeAddSectionToAccessibility:cell indexPath:indexPath alwaysSaySection:YES];
     return cell;
 }
 

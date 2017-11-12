@@ -17,7 +17,7 @@
 #import "UserPrefs.h"
 #import "TriMetTypes.h"
 #include "DebugLogging.h"
-#import <UIKit/UIKit.h>
+#import "PDXBusCore.h"
 
 
 @implementation UserPrefs
@@ -83,14 +83,14 @@
 }
 
 
-+ (UserPrefs*) singleton
++ (UserPrefs*)sharedInstance
 {
     static UserPrefs *_userPrefs = nil;
     
-    if (_userPrefs == nil)
-    {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
         _userPrefs = [[UserPrefs alloc] init];
-    }
+    });
     return _userPrefs;
 }
 
@@ -399,8 +399,7 @@
 
 - (int) networkTimeout
 {
-	
-	return  [self getIntFromDefaultsForKey:@"network_timeout2"              ifMissing:kDefaultNetworkTimeout max:60 min:0 writeToShared:YES];
+	return  [self getIntFromDefaultsForKey:@"network_timeout2"              ifMissing:kDefaultNetworkTimeout max:20 min:0 writeToShared:YES];
 }
 
 - (bool) alarmInitialWarning
@@ -444,14 +443,6 @@
 - (bool)showTrips
 {
     return [self getBoolFromDefaultsForKey:@"show_trips" ifMissing:NO writeToShared:NO];
-}
-
-
-- (NSString *) triMetProtocol
-{
-    bool https = [self getBoolFromDefaultsForKey:@"trimet_https"	ifMissing:YES writeToShared:YES];
-    
-    return https ? @"https" : @"http";
 }
 
 - (NSString*)busIcon

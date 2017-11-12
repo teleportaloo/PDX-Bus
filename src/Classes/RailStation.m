@@ -190,79 +190,37 @@
 	
 }
 
-#define TEXT_TAG 1
 #define MAX_TAG 2
 #define MAX_LINES 4
 
 
 + (UITableViewCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier 
-											rowHeight:(CGFloat)height 
-										  screenWidth:(ScreenWidth)screenWidth 
-										  rightMargin:(BOOL)rightMargin
-												 font:(UIFont*)font
+											rowHeight:(CGFloat)height
 {
-	
-	CGFloat cellWidth = 0;
+    #define MAX_LINE_SIDE ROUTE_COLOR_WIDTH
+    const CGFloat MAX_LINE_VOFFSET = (height - MAX_LINE_SIDE)/2;
+    #define MAX_LINE_GAP  0
     
-    if (screenWidth == WidthBigVariable || screenWidth == WidthSmallVariable)
-    {
-        CGRect bounds = [UIApplication sharedApplication].delegate.window.bounds;
-        screenWidth = bounds.size.width;
-    }
-	
-	if (rightMargin)
-	{
-        cellWidth = screenWidth - 35;
-	}
-	else 
-	{
-        cellWidth = screenWidth - 15;
-	}
+    UIView *maxColors = [[UIView alloc] initWithFrame:CGRectMake(0, 0, MAX_LINE_SIDE * MAX_LINES, height)];
     
-	CGRect rect;
-	
-	UITableViewCell *cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier] autorelease];
-	
-#define LEFT_COLUMN_OFFSET 10.0
-	
-#define MAX_LINE_SIDE COLOR_STRIPE_WIDTH
-#define MAX_LINE_GAP  0
-	
-
-	int LEFT_COLUMN_WIDTH  = cellWidth - LEFT_COLUMN_OFFSET - MAX_LINE_SIDE * MAX_LINES - MAX_LINE_GAP * (MAX_LINES+1);
-	// #define RIGHT_COLUMN_WIDTH 200.0 with disclosure
-	int MAX_LINE_VOFFSET = (height - MAX_LINE_SIDE)/2;
-	
-	/*
-	 Create labels for the text fields; set the highlight color so that when the cell is selected it changes appropriately.
-	 */
-	UILabel *label;
-	
-	rect = CGRectMake(LEFT_COLUMN_OFFSET, 0 , LEFT_COLUMN_WIDTH, height);
-	
-	label = [[UILabel alloc] initWithFrame:rect];
-	label.tag = TEXT_TAG;
-	label.adjustsFontSizeToFitWidth = YES;
-	[cell.contentView addSubview:label];
-	label.highlightedTextColor = [UIColor whiteColor];
-	label.textAlignment = NSTextAlignmentLeft;
-	// label.lineBreakMode = UILineBreakModeWordWrap; 
-	// label.adjustsFontSizeToFitWidth = YES;
-	label.numberOfLines = 1;
-	label.font = font;
-	label.backgroundColor = [UIColor clearColor];
-	[label release];
-	
+    CGRect rect;
 	
 	for (int i=0; i< MAX_LINES;i++)
 	{
-		rect = CGRectMake(LEFT_COLUMN_WIDTH + LEFT_COLUMN_OFFSET + MAX_LINE_GAP + (MAX_LINE_SIDE + MAX_LINE_GAP ) *i, MAX_LINE_VOFFSET , MAX_LINE_SIDE, MAX_LINE_SIDE);
+		rect = CGRectMake((MAX_LINE_SIDE + MAX_LINE_GAP ) *i, MAX_LINE_VOFFSET , MAX_LINE_SIDE, MAX_LINE_SIDE);
 		RouteColorBlobView *max = [[RouteColorBlobView alloc] initWithFrame:rect];
 		max.tag = MAX_LINES+MAX_TAG-i-1;
-		[cell.contentView addSubview:max];
+		[maxColors addSubview:max];
 		[max release];
 	}
-	
+    
+    
+    UITableViewCell *cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier] autorelease];
+    
+    cell.accessoryView = maxColors;
+    
+    [maxColors release];
+
 	return cell;	
 }
 
@@ -273,7 +231,7 @@
 		return tag;
 	}
 		
-	RouteColorBlobView *view = (RouteColorBlobView *)[cell.contentView viewWithTag:tag];
+	RouteColorBlobView *view = (RouteColorBlobView *)[cell.accessoryView viewWithTag:tag];
 	
 
 	if (lines & line)
@@ -293,8 +251,9 @@
 	
 	int tag = MAX_TAG;
 	
-	UILabel *label = (UILabel*)[cell.contentView viewWithTag:TEXT_TAG];
-	label.text = station;
+	// UILabel *label = (UILabel*)[cell.contentView viewWithTag:TEXT_TAG];
+    cell.textLabel.text = station;
+    cell.textLabel.adjustsFontSizeToFitWidth = YES;
 	
 	
 	tag = [RailStation addLine:cell tag:tag line:kBlueLine          lines:lines];
@@ -309,7 +268,7 @@
 	
 	for (; tag < MAX_TAG + MAX_LINES; tag++)
 	{
-		RouteColorBlobView *view = (RouteColorBlobView *)[cell.contentView viewWithTag:tag];
+		RouteColorBlobView *view = (RouteColorBlobView *)[cell.accessoryView viewWithTag:tag];
 		view.hidden = YES;
 	}
 	

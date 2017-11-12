@@ -24,7 +24,7 @@
 @synthesize blockPositionFeet = _blockPositionFeet;
 @synthesize blockPositionAt = _blockPositionAt;
 @synthesize blockPositionHeading = _blockPositionHeading;
-@synthesize routeName = _routeName;
+@synthesize shortSign = _shortSign;
 @synthesize errorMessage = _errorMessage;
 @synthesize route = _route;
 @synthesize fullSign = _fullSign;
@@ -54,7 +54,7 @@
 	self.route = nil;
 	self.fullSign = nil;
 	self.errorMessage = nil;
-	self.routeName = nil;
+	self.shortSign = nil;
 	self.blockPosition = nil;
 	self.locationDesc = nil;
 	self.trips = nil;
@@ -92,7 +92,7 @@
     COPY(route);
     COPY(fullSign);
     COPY(errorMessage);
-    COPY(routeName);
+    COPY(shortSign);
     COPY(block);
     COPY(dir);
     COPY(locid);

@@ -10,7 +10,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <UIKit/UIKit.h>
 #import "DataFactory.h"
 
 #define kDetourCellHeight 170.0

@@ -13,7 +13,7 @@
 #import <UIKit/UIKit.h>
 #import "ViewControllerBase.h"
 
-@interface WebViewController : ViewControllerBase <UIWebViewDelegate, UIActionSheetDelegate>{
+@interface WebViewController : ViewControllerBase <UIWebViewDelegate>{
 	UIWebView *         _webView;
 	NSString *          _urlToDisplay;
 	NSString *          _dataToDisplay;

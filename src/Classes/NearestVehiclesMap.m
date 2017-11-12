@@ -93,124 +93,122 @@
 }
 
 
-- (void)workerToFetchNearestVehicles:(XMLLocateVehicles*) locator
+- (void)fetchNearestVehicles:(XMLLocateVehicles*) locator
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	
-	NSThread *thread = [NSThread currentThread];
-    
-    TripMode mode = TripModeAll;
-    
-    if (self.stopLocator)
-    {
-        mode = self.stopLocator.mode;
-    }
-    
-    bool fetchVehicles = [UserPrefs singleton].useBetaVehicleLocator;
-    bool includeStops  = self.stopLocator != nil;
-	
-    int operations = 0;
-    
-    if (self.trimetRoutes == nil && fetchVehicles)
-    {
-        operations ++;
-    }
-    else if (self.trimetRoutes.count > 0 && fetchVehicles)
-    {
-        operations ++;
-    }
-    
-    if (includeStops && !self.stopLocator.gotData)
-    {
-        operations ++;
-    }
-    
-    if (mode != TripModeBusOnly && fetchVehicles)
-    {
-        if (self.streetcarRoutes == nil)
+    [self runAsyncOnBackgroundThread:^{
+        
+        NSThread *thread = [NSThread currentThread];
+        
+        TripMode mode = TripModeAll;
+        
+        if (self.stopLocator)
         {
-            self.streetcarRoutes = [TriMetRouteColors streetcarRoutes];
+            mode = self.stopLocator.mode;
         }
-
-        operations += self.streetcarRoutes.count;
-    }
-    
-	[self.backgroundTask.callbackWhenFetching backgroundStart:operations title:@"getting items"];
-    
-    int task=0;
-    
-    if ((self.trimetRoutes == nil || self.trimetRoutes.count > 0) && fetchVehicles)
-    {
-        locator.noErrorAlerts = YES;
         
-        [self.backgroundTask.callbackWhenFetching backgroundSubtext:@"locating TriMet vehicles"];
+        bool fetchVehicles = [UserPrefs sharedInstance].useBetaVehicleLocator;
+        bool includeStops  = self.stopLocator != nil;
         
-        [locator findNearestVehicles:self.trimetRoutes direction:self.direction blocks:nil];
-    
-   
-        [self.backgroundTask.callbackWhenFetching backgroundItemsDone:++task];
-    
-        if (![self displayErrorIfNoneFound:locator progress:self.backgroundTask.callbackWhenFetching])
+        int operations = 0;
+        
+        if (self.trimetRoutes == nil && fetchVehicles)
         {
-            for (int i=0; i< locator.count && !thread.cancelled; i++)
+            operations ++;
+        }
+        else if (self.trimetRoutes.count > 0 && fetchVehicles)
+        {
+            operations ++;
+        }
+        
+        if (includeStops && !self.stopLocator.gotData)
+        {
+            operations ++;
+        }
+        
+        if (mode != TripModeBusOnly && fetchVehicles)
+        {
+            if (self.streetcarRoutes == nil)
             {
-                VehicleData *ui = locator.itemArray[i];
-                
-                if ([ui typeMatchesMode:mode] && (self.stopLocator == nil || [ui.location distanceFromLocation:self.stopLocator.location] <= self.stopLocator.minDistance))
-                {
-                    [self addPin:ui];
-                }
+                self.streetcarRoutes = [TriMetRouteColors streetcarRoutes];
             }
-		}
-	}
-    
-    if (self.streetcarRoutes.count > 0 && mode != TripModeBusOnly && fetchVehicles)
-    {
-        for (NSString *route in self.streetcarRoutes)
+            
+            operations += self.streetcarRoutes.count;
+        }
+        
+        [self.backgroundTask.callbackWhenFetching backgroundStart:operations title:@"getting items"];
+        
+        int task=0;
+        
+        if ((self.trimetRoutes == nil || self.trimetRoutes.count > 0) && fetchVehicles)
         {
-            XMLStreetcarLocations *loc = [XMLStreetcarLocations singletonForRoute:route];
+            locator.noErrorAlerts = YES;
             
+            [self.backgroundTask.callbackWhenFetching backgroundSubtext:@"locating TriMet vehicles"];
             
-            [self.backgroundTask.callbackWhenFetching backgroundSubtext:@"locating Streetcar vehicles"];
-            [loc getLocations];
+            [locator findNearestVehicles:self.trimetRoutes direction:self.direction blocks:nil];
+            
             
             [self.backgroundTask.callbackWhenFetching backgroundItemsDone:++task];
             
-            for (NSString *streetcarId in loc.locations)
+            if (![self displayErrorIfNoneFound:locator progress:self.backgroundTask.callbackWhenFetching])
             {
-                VehicleData *vehicle = loc.locations[streetcarId];
-                
-                if (self.direction==nil || vehicle.direction == nil || [vehicle.direction isEqualToString:self.direction])
+                for (int i=0; i< locator.count && !thread.cancelled; i++)
                 {
-                    if (self.stopLocator == nil || [vehicle.location  distanceFromLocation:self.stopLocator.location] <= self.stopLocator.minDistance)
+                    VehicleData *ui = locator.itemArray[i];
+                    
+                    if ([ui typeMatchesMode:mode] && (self.stopLocator == nil || [ui.location distanceFromLocation:self.stopLocator.location] <= self.stopLocator.minDistance))
                     {
-                        [self addPin:vehicle];
+                        [self addPin:ui];
                     }
                 }
             }
         }
-    }
-    
-    if (includeStops && !self.stopLocator.gotData)
-    {
-        [self.backgroundTask.callbackWhenFetching backgroundSubtext:@"locating stops"];
-
-        [self.stopLocator findNearestStops];
         
-        [self.backgroundTask.callbackWhenFetching backgroundItemsDone:++task];
-        
-        if (![self.stopLocator displayErrorIfNoneFound:self.backgroundTask.callbackWhenFetching])
+        if (self.streetcarRoutes.count > 0 && mode != TripModeBusOnly && fetchVehicles)
         {
-            for (int i=0; i< self.stopLocator.count && !thread.cancelled; i++)
+            for (NSString *route in self.streetcarRoutes)
             {
-                [self addPin:self.stopLocator.itemArray[i]];
+                XMLStreetcarLocations *loc = [XMLStreetcarLocations autoSingletonForRoute:route];
+                
+                
+                [self.backgroundTask.callbackWhenFetching backgroundSubtext:@"locating Streetcar vehicles"];
+                [loc getLocations];
+                
+                [self.backgroundTask.callbackWhenFetching backgroundItemsDone:++task];
+                
+                [loc.locations enumerateKeysAndObjectsUsingBlock:^(NSString *streecarId, VehicleData *vehicle, BOOL *stop)
+                 {
+                     if (self.direction==nil || vehicle.direction == nil || [vehicle.direction isEqualToString:self.direction])
+                     {
+                         if (self.stopLocator == nil || [vehicle.location  distanceFromLocation:self.stopLocator.location] <= self.stopLocator.minDistance)
+                         {
+                             [self addPin:vehicle];
+                         }
+                     }
+                 }];
             }
         }
-    }
-    
-    [self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
-    
-	[pool release];
+        
+        if (includeStops && !self.stopLocator.gotData)
+        {
+            [self.backgroundTask.callbackWhenFetching backgroundSubtext:@"locating stops"];
+            
+            [self.stopLocator findNearestStops];
+            
+            [self.backgroundTask.callbackWhenFetching backgroundItemsDone:++task];
+            
+            if (![self.stopLocator displayErrorIfNoneFound:self.backgroundTask.callbackWhenFetching])
+            {
+                for (int i=0; i< self.stopLocator.count && !thread.cancelled; i++)
+                {
+                    [self addPin:self.stopLocator.itemArray[i]];
+                }
+            }
+        }
+        
+        [self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
+        
+    }];
 }
 
 
@@ -238,9 +236,9 @@
 	self.locator.location = here;
     self.locator.dist     = 0.0;
 	
-    if ([UserPrefs singleton].useBetaVehicleLocator || self.alwaysFetch)
+    if ([UserPrefs sharedInstance].useBetaVehicleLocator || self.alwaysFetch)
     {
-        [NSThread detachNewThreadSelector:@selector(workerToFetchNearestVehicles:) toTarget:self withObject:self.locator];
+        [self fetchNearestVehicles:self.locator];
     }
     else
     {
@@ -282,7 +280,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    if ([UserPrefs singleton].useBetaVehicleLocator || self.alwaysFetch)
+    if ([UserPrefs sharedInstance].useBetaVehicleLocator || self.alwaysFetch)
     {
         
         // add our custom add button as the nav bar's custom right view
@@ -309,7 +307,7 @@
     
     for (NSString *route in self.streetcarRoutes)
     {
-        XMLStreetcarLocations *loc = [XMLStreetcarLocations singletonForRoute:route];
+        XMLStreetcarLocations *loc = [XMLStreetcarLocations autoSingletonForRoute:route];
         
         [loc appendQueryAndData:buffer];
     }
@@ -320,7 +318,7 @@
 - (void)didReceiveMemoryWarning {
     // Releases the view if it doesn't have a superview.
     
-    [[MapAnnotationImage singleton] clearCache];
+    [[MapAnnotationImage autoSingleton] clearCache];
     
     [super didReceiveMemoryWarning];
     
@@ -340,9 +338,8 @@
     self.stopLocator.location = here;
     self.stopLocator.mode = mode;
     self.stopLocator.minDistance = min;
-        
-    [NSThread detachNewThreadSelector:@selector(workerToFetchNearestVehicles:) toTarget:self withObject:self.locator];
     
+    [self fetchNearestVehicles:self.locator];    
 }
 
 @end

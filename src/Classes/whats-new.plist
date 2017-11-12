@@ -2,6 +2,15 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <array>
+	<string>.10.0 (October 2017)</string>
+	<string>Fixed calendar issue;  trips are now added to the calendar with the correct date.</string>
+	<string>Minor fixes to station names and maps.</string>
+	<string>Updated for iOS 11 and iPhone X.</string>
+	<string>New QR code reader and added flashlight.</string>
+	<string>Fixed many interface quirks with different width screens, things just align better now.</string>
+	<string>Detours are grouped by route and text is more compact.</string>
+	<string>Bigger route color circles and squares for trains.</string>
+	<string>Shortened route names for streetcar arrivals to make them bigger on the screen.</string>
 	<string>.9.2 (August 2017)</string>
 	<string>Several bug fixes from bugs found from crash logs.</string>
 	<string>Fixed bug in which blank arrivals were displayed if commuter bookmark is triggered while already fetching data.</string>
@@ -40,12 +49,5 @@
 	<string>For arrivals, added ability to find the nearest stops going in the other direction.</string>
 	<string>Updated help screen with more infomation and #bf#b#io#i#Rr#Gm#Ya#0t#O#bt#b#Ai#On#0g.</string>
 	<string>Bug fixes and stability improvements.</string>
-	<string>.7.11 (September 2015)</string>
-	<string>Added Orange Line stations and updated the map and MAX colors.</string>
-	<string>Updated streetcar colors and map for A Loop and B Loop.</string>
-	<string>.7.9 (August 2015)</string>
-	<string>Added Apple Watch app that supports arrivals for bookmarks, recent stops and nearby stops.</string>
-	<string>Fixed some issues with authorization of localization services and camera;  added diagnostics to the support page.</string>
-	<string>UI fixes: Fixed issues when rotating trip planner on iPad, and removed a small gap in the arrivals screen on older phones.</string>
 </array>
 </plist>

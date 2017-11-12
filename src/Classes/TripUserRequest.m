@@ -148,9 +148,9 @@
 {
 	if ((self = [super init]))
 	{
-		self.walk =             [UserPrefs singleton].maxWalkingDistance;
-		self.tripMode =         [UserPrefs singleton].travelBy;
-		self.tripMin =          [UserPrefs singleton].tripMin;
+		self.walk =             [UserPrefs sharedInstance].maxWalkingDistance;
+		self.tripMode =         [UserPrefs sharedInstance].travelBy;
+		self.tripMin =          [UserPrefs sharedInstance].tripMin;
 		self.maxItineraries =   6;
         self.toPoint =          [TripEndPoint data];
         self.fromPoint =        [TripEndPoint data];
@@ -218,13 +218,13 @@
 	NSNumber *tripMode = [self forceNSNumber:dict[kDictUserRequestTripMode]];
 	
 	self.tripMode = tripMode	? tripMode.intValue
-                                : [UserPrefs singleton].travelBy;
+                                : [UserPrefs sharedInstance].travelBy;
     
     
 	
 	NSNumber *tripMin = [self forceNSNumber:dict[kDictUserRequestTripMin]];
 	self.tripMin = tripMin	? tripMin.intValue
-                            : [UserPrefs singleton].tripMin;
+                            : [UserPrefs sharedInstance].tripMin;
 	
 	NSNumber *maxItineraries = [self forceNSNumber:dict[kDictUserRequestMaxItineraries]];
 	self.maxItineraries =  maxItineraries ? maxItineraries.intValue
@@ -232,7 +232,7 @@
 	
 	NSNumber *walk = [self forceNSNumber:dict[kDictUserRequestWalk]];
 	self.walk = walk	? walk.floatValue
-                        : [UserPrefs singleton].maxWalkingDistance;
+                        : [UserPrefs sharedInstance].maxWalkingDistance;
     
 	
 	NSNumber *arrivalTime = [self forceNSNumber:dict[kDictUserRequestArrivalTime]];
@@ -327,7 +327,7 @@
     NSString *walk =
     [XMLTrips distanceMapSingleton][[XMLTrips distanceToIndex:self.walk]];
     
-	return [NSString stringWithFormat:@"Max walk: %@ miles\nTravel by: %@\nShow the: %@", walk,
+    return [NSString stringWithFormat:@"Max walk: %@ miles\nTravel by: %@\nShow the: %@", walk,
 			[self getMode], [self getMin]];
 }
 

@@ -68,7 +68,7 @@
 
 - (void)setURLmobile:(NSString *)url full:(NSString *)full
 {
-	if ((UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) && full!=nil)
+	if (LARGE_SCREEN && full!=nil)
 	{
 		self.urlToDisplay = full;
 	}
@@ -131,42 +131,41 @@
 
 #pragma mark UI callbacks
 
-// Called when a button is clicked. The view will be automatically dismissed after this call returns
-- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
+-(void)safariButton:(UIBarButtonItem*)sender
 {
     NSURL *address = [NSURL URLWithString:[self.webView stringByEvaluatingJavaScriptFromString:@"document.URL"]];
-    OpenInChromeController *chrome = [OpenInChromeController sharedInstance];
     
-	if (buttonIndex == 0)
-	{
-		[[UIApplication sharedApplication] openURL:address];
-	}
+    UIAlertController* alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Safari", @"alert title")
+                                                                   message:nil
+                                                            preferredStyle:UIAlertControllerStyleActionSheet];
     
-    if (chrome.isChromeInstalled && buttonIndex == 1)
-    {
-        [[OpenInChromeController sharedInstance] openInChrome:address
-                                              withCallbackURL:[NSURL URLWithString:@"pdxbus://back"]
-                                                 createNewTab:YES];
-    }
-}
-
--(void)safariButton:(id)sender
-{
-    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:NSLocalizedString(@"Safari", @"alert title")
-                                                             delegate:self
-                                                    cancelButtonTitle:nil
-                                               destructiveButtonTitle:nil
-                                                    otherButtonTitles:NSLocalizedString(@"Show in Safari", @"button text"), nil];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Open in Safari", @"alert title")
+                                              style:UIAlertActionStyleDefault
+                                            handler:^(UIAlertAction *action){
+                                                [[UIApplication sharedApplication] openURL:address];
+                                            }]];
     
     if ([OpenInChromeController sharedInstance].isChromeInstalled)
     {
-        [actionSheet addButtonWithTitle:NSLocalizedString(@"Show in Chrome", @"button text")];
+        
+        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Open in Chrome", @"button text")
+                                                  style:UIAlertActionStyleDefault
+                                                handler:^(UIAlertAction *action){
+                                                    [[OpenInChromeController sharedInstance] openInChrome:address
+                                                                                          withCallbackURL:[NSURL URLWithString:@"pdxbus://back"]
+                                                                                             createNewTab:YES];
+                                                }]];
+        
     }
     
-    actionSheet.cancelButtonIndex  = [actionSheet addButtonWithTitle:NSLocalizedString(@"Cancel", @"button text")];
-    actionSheet.actionSheetStyle = UIActionSheetStyleDefault;
-    [actionSheet showFromToolbar:self.navigationController.toolbar]; // show from our table view (pops up in the middle of the table)
-    [actionSheet release];
+    alert.popoverPresentationController.barButtonItem = sender;
+    
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"button text") style:UIAlertActionStyleCancel handler:nil]];
+    
+    [self presentViewController:alert animated:YES completion:^{
+        [self clearSelection];
+    }];
 }
 
 -(void)webForwardButton:(id)sender
@@ -206,7 +205,7 @@
 
 - (CGFloat) heightOffset
 {
-    if ((UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) || (self.screenInfo.screenWidth == WidthBigVariable))
+    if (LARGE_SCREEN || (self.screenInfo.screenWidth == WidthBigVariable))
     {
         return -[UIApplication sharedApplication].statusBarFrame.size.height;
     }
@@ -415,7 +414,7 @@
 
 - (void)displayPage:(UINavigationController *)nav animated:(BOOL)animated itemToDeselect:(id<DeselectItemDelegate>)deselect
 {
-    if ([UserPrefs singleton].useChrome && [OpenInChromeController sharedInstance].isChromeInstalled && self.urlToDisplay!=nil)
+    if ([UserPrefs sharedInstance].useChrome && [OpenInChromeController sharedInstance].isChromeInstalled && self.urlToDisplay!=nil)
     {
         [[OpenInChromeController sharedInstance] openInChrome:[NSURL URLWithString:self.urlToDisplay]
                                               withCallbackURL:[NSURL URLWithString:@"pdxbus:"]

@@ -20,11 +20,6 @@
 #import "TriMetTimesAppDelegate.h"
 #import "AppDelegateMethods.h"
 
-
-#ifdef PEBBLE_SUPPORT
-#import "PebbleSportsDisplay.h"
-#endif
-
 #define kLoopTimeSecs 20
 
 @implementation AlarmTaskList
@@ -44,7 +39,7 @@
 	[super dealloc];
 }
 
-+ (AlarmTaskList*)singleton
++ (AlarmTaskList*)sharedInstance
 {
 	static AlarmTaskList * taskList = nil;
     
@@ -77,10 +72,26 @@
 
 #define SYSTEM_VERSION_LESS_THAN(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
 
+- (void) runSyncOnMainQueueWithoutDeadlocking: (void (^)(void)) block
+{
+    if ([NSThread isMainThread])
+    {
+        block();
+    }
+    else
+    {
+        dispatch_sync(dispatch_get_main_queue(), block);
+    }
+}
+
 
 - (BOOL)checkNotificationType:(UIUserNotificationType)type
 {
-    UIUserNotificationSettings *currentSettings = [UIApplication sharedApplication].currentUserNotificationSettings;
+    __block UIUserNotificationSettings *currentSettings = nil;
+    
+    [self runSyncOnMainQueueWithoutDeadlocking: ^{
+         currentSettings = [UIApplication sharedApplication].currentUserNotificationSettings;
+    }];
     
     return (currentSettings.types & type);
 }
@@ -135,7 +146,9 @@
             }
         }
         
-        [self setApplicationBadgeNumber:count];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self setApplicationBadgeNumber:count];
+        });
         
 		// [UIApplication sharedApplication].applicationIconBadgeNumber = count;
 	}
@@ -157,25 +170,20 @@
 - (instancetype)init
 {
 	if ((self = [super init]))
-	{
-		_backgroundTasks    = [[NSMutableDictionary alloc] init];
+    {
+        _backgroundTasks    = [[NSMutableDictionary alloc] init];
         _orderedTaskKeys    = [[NSMutableArray alloc] init];
         _newTaskKeys        = [[NSMutableArray alloc] init];
         _taskId             = 0; // UIBackgroundTaskInvalid cannot be used in 3.2 OS
         _atomicTaskRunning  = NO;
         _externalDisplays =
-#ifdef PEBBLE_SUPPORT
-                            [[NSArray arrayWithObjects:
-                              [[[PebbleSportsDisplay alloc] init] autorelease],
-                              nil] retain];
-#else
-                            [[NSArray alloc] init];
         
-#endif
-		[self updateBadge];
+        [[NSArray alloc] init];
         
-       
-	}
+        [self updateBadge];
+        
+        
+    }
 	return self;
 }
 
@@ -225,7 +233,7 @@
 		newTask.block  = dep.block;
 		newTask.minsToAlert = mins;
 		newTask.observer = self;
-        newTask.desc = dep.routeName;
+        newTask.desc = dep.shortSign;
 		newTask.lastFetched = dep;
         
         [self checkForMute];
@@ -380,7 +388,7 @@
         UIApplication *app = [UIApplication sharedApplication];
         NSTimeInterval remaining = app.backgroundTimeRemaining;
         bool alertRequired = NO;
-        if (_backgroundTasks.count > 0 && [UserPrefs singleton].alarmInitialWarning)
+        if (_backgroundTasks.count > 0 && [UserPrefs sharedInstance].alarmInitialWarning)
         {
             NSArray *keys = [self taskKeys];
             
@@ -691,7 +699,7 @@
 {
 	if (button != 0)
 	{
-		AlarmTaskList *taskList = [AlarmTaskList singleton];
+		AlarmTaskList *taskList = [AlarmTaskList sharedInstance];
 		
 		[taskList addTaskForStopIdProximity:stopId loc:loc desc:desc accurate:button==1];
 		return true;

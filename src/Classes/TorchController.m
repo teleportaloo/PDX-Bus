@@ -53,7 +53,7 @@
 - (void)on
 {
     
-    if ([TorchController supported] && [UserPrefs singleton].flashLed) {
+    if ([TorchController supported] && [UserPrefs sharedInstance].flashLed) {
         
         AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
         
@@ -92,7 +92,7 @@
         
         [device lockForConfiguration:nil];
         
-        if (device.torchMode != AVCaptureTorchModeOn && [UserPrefs singleton].flashLed)
+        if (device.torchMode != AVCaptureTorchModeOn && [UserPrefs sharedInstance].flashLed)
         {
             device.torchMode = AVCaptureTorchModeOn;
             device.flashMode = AVCaptureFlashModeOn;            

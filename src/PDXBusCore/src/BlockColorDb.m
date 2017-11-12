@@ -17,6 +17,7 @@
 #import "DebugLogging.h"
 #import <CoreGraphics/CoreGraphics.h>
 #import "UserFaves.h"
+#import "PDXBusCore.h"
 
 
 @implementation BlockColorDb
@@ -86,7 +87,7 @@
      _colorMap = [[NSMutableDictionary alloc] init];
     
     [self writeToFile];
-    [SafeUserData singleton].favesChanged = YES;
+    [SafeUserData sharedInstance].favesChanged = YES;
 }
 
 - (void)dealloc
@@ -99,7 +100,7 @@
     [super dealloc];
 }
 
-+ (BlockColorDb *)singleton
++ (BlockColorDb *)sharedInstance
 {
     static BlockColorDb *singleton = nil;
     
@@ -108,7 +109,7 @@
         singleton = [[BlockColorDb alloc] init];
     });
     
-    return [[singleton retain] autorelease];
+    return singleton;
 }
 
 - (CGFloat)getComponent:(NSString*)key fromDict:(NSDictionary *)dict
@@ -209,7 +210,7 @@
     
     [self writeToFile];
     
-    [SafeUserData singleton].favesChanged = YES;
+    [SafeUserData sharedInstance].favesChanged = YES;
 }
 
 - (NSArray *)keys
@@ -268,7 +269,7 @@
 }
 
 + (UIImage *)imageWithColor:(UIColor *)color {
-    CGRect rect = CGRectMake(0.0f, 0.0f, 20.0f, 20.0f);
+    CGRect rect = CGRectMake(0.0f, 0.0f, 24.0f, 24.0f);
     UIGraphicsBeginImageContextWithOptions(rect.size, NO, 0.0);
     CGContextRef context = UIGraphicsGetCurrentContext();
     

@@ -25,7 +25,7 @@
         NSMutableSet *_caches;
 }
 
-+ (MemoryCaches*)singleton;
++ (MemoryCaches*)sharedInstance;
 + (void)memoryWarning;
 + (void)addCache:(id<ClearableCache>)cache;
 + (void)removeCache:(id<ClearableCache>)cache;

@@ -523,16 +523,6 @@
 		</dict>
 		<dict>
 			<key>Type</key>
-			<string>PSToggleSwitchSpecifier</string>
-			<key>Title</key>
-			<string>Use https for TriMet queries</string>
-			<key>Key</key>
-			<string>trimet_https</string>
-			<key>DefaultValue</key>
-			<true/>
-		</dict>
-		<dict>
-			<key>Type</key>
 			<string>PSGroupSpecifier</string>
 			<key>Title</key>
 			<string>The vehicle locator is an experimental feature that will try to find which vehicle you are currently on. The distance may need tuning - if it is too big it will find too many vehicles close by, but too small and it won&apos;t find the one you are on.</string>

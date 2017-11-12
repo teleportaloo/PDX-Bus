@@ -14,15 +14,17 @@
 #import "TableViewWithToolbar.h"
 #import "XMLDetours.h"
 
-
 @interface DetoursView : TableViewWithToolbar {
 	XMLDetours *_detours;
 	NSInteger   _disclaimerSection;
+    NSMutableArray<NSMutableArray<Detour *> *> *_sortedDetours;
 }
 - (void)fetchDetoursAsync:(id<BackgroundTaskProgress>) callback;
 - (void)fetchDetoursAsync:(id<BackgroundTaskProgress>) callback route:(NSString *)route;
 - (void)fetchDetoursAsync:(id<BackgroundTaskProgress>) callback routes:(NSArray *)routes;
 
+
 @property (nonatomic, retain) XMLDetours *detours;
+@property (nonatomic, retain) NSMutableArray<NSMutableArray<Detour *> *> *sortedDetours;
 
 @end

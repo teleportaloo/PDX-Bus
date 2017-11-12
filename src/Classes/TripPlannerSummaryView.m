@@ -36,6 +36,12 @@ enum
 @implementation TripPlannerSummaryView
 
 
+
+- (void)dealloc
+{  
+    [super dealloc];
+}
+
 - (instancetype)init
 {
 	if ((self = [super init]))
@@ -57,7 +63,10 @@ enum
 			self.tripQuery.userRequest = req;
 		}
         
+        
         [self makeSummaryRows];
+        
+        
 	}
 	return self;
 }
@@ -104,6 +113,9 @@ enum
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    [self.table registerNib:[TripItemCell nib] forCellReuseIdentifier:kTripItemCellId];
+    
     self.title = NSLocalizedString(@"Trip Planner", @"page title");
 	
 	UIBarButtonItem *resetButton = [[UIBarButtonItem alloc]
@@ -169,40 +181,66 @@ enum
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	CGFloat result = 0.0;
-	
-	switch ([self rowType:indexPath])
-	{
-	case kTripSectionRowOptions:
-		result = [TripLeg getTextHeight:[self.tripQuery.userRequest optionsDisplayText] 
-								  width:[TripLeg bodyTextWidth:self.screenInfo]];
-		break;
-	case kTripSectionRowTo:
-		result = [TripLeg getTextHeight:[self.tripQuery.userRequest.toPoint userInputDisplayText] 
-								  width:[TripLeg bodyTextWidth:self.screenInfo]];
-		break;
-	case kTripSectionRowFrom:
-		result = [TripLeg getTextHeight:[self.tripQuery.userRequest.fromPoint userInputDisplayText] 
-								  width:[TripLeg bodyTextWidth:self.screenInfo]];
-		break;
-	case kTripSectionRowTime:
-			result = [TripLeg getTextHeight:[self.tripQuery.userRequest getDateAndTime] 
-									  width:[TripLeg bodyTextWidth:self.screenInfo]];
-		break;
-	case kTripSectionRowPlan:
-    case kTripSectionRowHistory:
-			result = [self basicRowHeight];
-			break;
-	
-	}	
-	return result;
+    CGFloat result = 0.0;
+    
+    switch ([self rowType:indexPath])
+    {
+        case kTripSectionRowOptions:
+        case kTripSectionRowTo:
+        case kTripSectionRowFrom:
+        case kTripSectionRowTime:
+            return UITableViewAutomaticDimension;
+        case kTripSectionRowPlan:
+        case kTripSectionRowHistory:
+            result = [self basicRowHeight];
+            break;
+            
+    }
+    return result;
 }
 
+- (void)populateOptions:(TripItemCell *)cell
+{
+    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+    cell.imageView.image = nil;
+    
+    [cell populateBody:[self.tripQuery.userRequest optionsDisplayText] mode:@"Options" time:nil leftColor:nil route:nil];
+}
+
+- (void)populateEnd:(TripItemCell *)cell from:(bool)from
+{
+    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+    cell.imageView.image = nil;
+    
+    NSString *text;
+    NSString *dir;
+    
+    if (from)
+    {
+        text = [self.tripQuery.userRequest.fromPoint userInputDisplayText];
+        dir = @"From";
+        
+    }
+    else {
+        text = [self.tripQuery.userRequest.toPoint userInputDisplayText];
+        dir = @"To";
+    }
+    
+    [cell populateBody:text mode:dir time:nil leftColor:nil route:nil];
+}
+
+- (void)populateTime:(TripItemCell *)cell
+{
+    [cell populateBody:[self.tripQuery.userRequest getDateAndTime]
+                  mode:[self.tripQuery.userRequest getTimeType]
+                  time:nil
+             leftColor:nil
+                 route:nil];
+    
+    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+}
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-	
-	CGFloat h = [self tableView:self.table heightForRowAtIndexPath:indexPath];
-	NSString *cellIdentifier = [NSString stringWithFormat:@"TripLeg%f+%f", h, self.screenInfo.appWinWidth];
     
     NSInteger rowType = [self rowType:indexPath];
 	
@@ -211,73 +249,22 @@ enum
 		case kTripSectionRowFrom:
 		case kTripSectionRowTo:
 		{
-			UITableViewCell *cell = (UITableViewCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
-			if (cell == nil) 
-			{
-				cell = [TripLeg tableviewCellWithReuseIdentifier:cellIdentifier
-													   rowHeight:h
-                                                      screenInfo:self.screenInfo];
-			}
-			
-			cell.accessoryType = UITableViewCellAccessoryNone;	
-			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-			cell.imageView.image = nil;
-			
-			NSString *text;
-			NSString *dir;
-			
-			if (rowType == kTripSectionRowFrom)
-			{
-				text = [self.tripQuery.userRequest.fromPoint userInputDisplayText];
-				dir = @"From";
-				
-			}
-			else {
-				text = [self.tripQuery.userRequest.toPoint userInputDisplayText];
-				dir = @"To";
-			}
-			
-			[TripLeg populateCell:cell body:text mode:dir time:nil leftColor:nil route:nil];
+			TripItemCell *cell = (TripItemCell *)[tableView dequeueReusableCellWithIdentifier:kTripItemCellId];
+            [self populateEnd:cell from:rowType == kTripSectionRowFrom];
 			return cell;
 			
 		}
 		case kTripSectionRowOptions:
 		{
-            NSString *cellId = MakeCellIdW(kTripSectionRowOptions, self.screenInfo.appWinWidth);
-			UITableViewCell *cell = (UITableViewCell *)[tableView dequeueReusableCellWithIdentifier:cellId];
-			if (cell == nil) 
-			{
-				cell = [TripLeg tableviewCellWithReuseIdentifier:cellId
-													   rowHeight:h
-													  screenInfo:self.screenInfo];
-			}
-			
-			cell.accessoryType = UITableViewCellAccessoryNone;	
-			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-			cell.imageView.image = nil;
-			
-			[TripLeg populateCell:cell body:[self.tripQuery.userRequest optionsDisplayText] mode:@"Options" time:nil leftColor:nil route:nil];
+            TripItemCell *cell = (TripItemCell *)[tableView dequeueReusableCellWithIdentifier:kTripItemCellId];
+            [self populateOptions:cell];
 			return cell;
 		}
 			
 		case kTripSectionRowTime:
 		{
-            NSString *cellId = MakeCellIdW(kTripSectionRowTime, self.screenInfo.appWinWidth);
-			UITableViewCell *cell = (UITableViewCell *)[tableView dequeueReusableCellWithIdentifier:cellId];
-			if (cell == nil) 
-			{
-				cell = [TripLeg tableviewCellWithReuseIdentifier:cellId
-													   rowHeight:h
-													  screenInfo:self.screenInfo];
-            }
-			
-			[TripLeg populateCell:cell body:[self.tripQuery.userRequest getDateAndTime]
-							 mode:[self.tripQuery.userRequest getTimeType] 
-							 time:nil 
-						leftColor:nil
-							route:nil];
-
-			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            TripItemCell *cell = (TripItemCell *)[tableView dequeueReusableCellWithIdentifier:kTripItemCellId];
+            [self populateTime:cell];
 			return cell;	
 		}
 		case kTripSectionRowPlan:

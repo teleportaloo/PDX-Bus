@@ -32,7 +32,7 @@
 {
     if ((self = [super initWithAnnotation:annotation reuseIdentifier:reuseIdentifier]))
     {
-        self.annotationImage = [MapAnnotationImage singleton];
+        self.annotationImage = [MapAnnotationImage autoSingleton];
     }
     return self;
 }

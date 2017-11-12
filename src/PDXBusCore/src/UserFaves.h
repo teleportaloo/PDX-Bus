@@ -94,7 +94,7 @@
 @property            bool                       readOnly;
 @property (retain, nonatomic) NSString *        lastRunKey;
 
-+ (SafeUserData *)singleton;
++ (SafeUserData *)sharedInstance;
 - (NSDictionary *)addToRecentsWithLocation:(NSString *)locid description:(NSString *)desc;
 - (void)addToRecentTripsWithUserRequest:(NSDictionary *)userRequest description:(NSString *)desc blob:(NSData *)blob;
 - (NSDictionary *)tripArchive:(NSDictionary *)userRequest description:(NSString *)desc blob:(NSData *)blob;

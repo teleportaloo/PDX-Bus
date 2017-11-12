@@ -19,22 +19,23 @@
 #import <MessageUI/MFMessageComposeViewController.h>
 
 
-@interface TripPlannerResultsView : TableViewWithToolbar <MFMessageComposeViewControllerDelegate, MFMailComposeViewControllerDelegate, UIActionSheetDelegate,
+@interface TripPlannerResultsView : TableViewWithToolbar <MFMessageComposeViewControllerDelegate, MFMailComposeViewControllerDelegate,
 											UIAlertViewDelegate> {
 	XMLTrips *      _tripQuery;
 	int             _itinerarySectionOffset;
-	int             _bookmarkItem;
 	int             _smsRows;
 	int             _calRows;
 	int             _recentTripItem;
     int             _alarmItem;
 	TripItinerary * _calendarItinerary;
     NSUserActivity *_userActivity;
+    TripItemCell *_prototypeTripCell;
 }
 
 @property (nonatomic, retain) XMLTrips *tripQuery;
 @property (nonatomic, retain) TripItinerary *calendarItinerary;
 @property (nonatomic, retain) NSUserActivity *userActivity;
+@property (nonatomic, retain) TripItemCell *prototypeTripCell;
 
 - (NSString *)getTextForLeg:(NSIndexPath *)indexPath;
 - (NSInteger)rowType:(NSIndexPath*)indexPath;

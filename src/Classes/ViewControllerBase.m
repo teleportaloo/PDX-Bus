@@ -14,13 +14,11 @@
 
 #import "ViewControllerBase.h"
 #import "FindByLocationView.h"
-#import "FlashWarning.h"
 #import "FlashViewController.h"
 #import "WebViewController.h"
 #import "NetworkTestView.h"
 #import <Social/Social.h>
 #import "OpenInChromeController.h"
-#import "TicketAlert.h"
 #import "UserPrefs.h"
 #import "MemoryCaches.h"
 #import "TriMetTimesAppDelegate.h"
@@ -31,14 +29,7 @@
 #import "WatchAppContext.h"
 #import "TriMetRouteColors.h"
 
-enum
-{
-    kTweetButtonTweet,
-    kTweetButtonApp,
-    kTweetButtonWeb,
-    kTweetButtonCancel
-};
-    
+
 
 @implementation UINavigationController (Rotation_IOS6)
 
@@ -63,9 +54,6 @@ enum
 
 @synthesize backgroundTask	 = _backgroundTask;
 @synthesize callback		 = _callback;
-@synthesize docMenu          = _docMenu;
-@synthesize tweetButtons     = _tweetButtons;
-
 
 + (instancetype)viewController
 {
@@ -83,14 +71,9 @@ enum
 	}
     self.backgroundTask   = nil;
 	self.callback		  = nil;
-    self.docMenu          = nil;
-    self.tweetAlert       = nil;
-    self.tweetAt          = nil;
-    self.initTweet        = nil;
     self.xmlButton        = nil;
-    self.tweetButtons     = nil;
     
-	[_userData release];
+
 	[super dealloc];
 }
 
@@ -104,7 +87,7 @@ enum
 
 - (void)setTheme
 {
-    int color = [UserPrefs singleton].toolbarColors;
+    int color = [UserPrefs sharedInstance].toolbarColors;
     
     if (color == 0xFFFFFF)
     {
@@ -133,11 +116,66 @@ enum
     return [UIDevice currentDevice].systemVersion.floatValue >= 8.0;
 }
 
+
+- (bool)iOS11style
+{
+    return [UIDevice currentDevice].systemVersion.floatValue >= 11.0;
+}
+
+
+
+- (void) runSyncOnMainQueueWithoutDeadlocking: (void (^)(void)) block
+{
+    if ([NSThread isMainThread])
+    {
+        block();
+    }
+    else
+    {
+        dispatch_sync(dispatch_get_main_queue(), block);
+    }
+}
+
+- (void)runBlock:(void (^)(void)) block
+{
+    @autoreleasepool
+    {
+        block();
+    }
+}
+
+- (void) runAsyncOnBackgroundThread: (void (^)(void)) block
+{
+    // We need to use the NSThread mechanism so we can cancel it easily, but I want to use the blocks
+    // as it makes the passing of variables very easy.
+    
+    [self performSelectorInBackground:@selector(runBlock:) withObject:[[block copy] autorelease]];
+}
+
+- (void) setNetworkActivityIndicatorVisible:(BOOL)visible
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = visible;
+    });
+}
+
+- (BOOL)isNetworkActivityIndicatorVisible
+{
+    __block BOOL visible = NO;
+    
+    [self runSyncOnMainQueueWithoutDeadlocking:^{
+        visible = [UIApplication sharedApplication].networkActivityIndicatorVisible;
+    }];
+ 
+     return visible;
+}
+
+
 - (bool)initMembers
 {
 	if (self.backgroundTask == nil)
 	{
-        _userData = [[SafeUserData singleton] retain];
+        _userData = [SafeUserData sharedInstance];
 		self.backgroundTask = [BackgroundTaskContainer create:self];
 		return true;
 	}
@@ -347,7 +385,6 @@ enum
 	return 0.0;
 }
 
-
 - (CGRect)getMiddleWindowRect
 {
 	CGRect tableViewRect;
@@ -446,7 +483,7 @@ enum
 
 - (UIImage *)getActionIcon:(NSString *)name
 {
-	if ([UserPrefs singleton].actionIcons)
+	if ([UserPrefs sharedInstance].actionIcons)
 	{
 		return [self alwaysGetIcon:name];
 	}
@@ -455,7 +492,7 @@ enum
 
 - (UIImage *)getActionIcon7:(NSString *)name old:(NSString *)old
 {
-	if ([UserPrefs singleton].actionIcons)
+	if ([UserPrefs sharedInstance].actionIcons)
 	{
         return [self alwaysGetIcon7:name old:old];
     }
@@ -464,7 +501,7 @@ enum
 
 - (UIImage *)getFaveIcon:(NSString *)name
 {
-	if ([UserPrefs singleton].actionIcons)
+	if ([UserPrefs sharedInstance].actionIcons)
 	{
 		return [self alwaysGetIcon:name];
 	}
@@ -493,7 +530,7 @@ enum
 
 - (void)maybeAddFlashButtonWithSpace:(bool)space buttons:(NSMutableArray *)array big:(bool)big
 {
-    if ([UserPrefs singleton].flashingLightIcon)
+    if ([UserPrefs sharedInstance].flashingLightIcon)
     {
         
         if (space)
@@ -579,95 +616,42 @@ enum
                                    @"?-->"          : @"-->",
                                    @"<body"         : @"<wasbody",           // This keyword gets dropped
                                    @"body>"         : @"wasbody>"
-                                  };
+                                   };
     
     NSMutableData *buffer = [[NSMutableData alloc] init];
-       
+    
     [self appendXmlData:buffer];
     
-    if (self.docMenu)
-    {
-        [self.docMenu dismissMenuAnimated:YES];
-        self.docMenu = nil;
-        [buffer release];
-    }
-    else 
-    {
-        // NSFileManager *fileManager = [NSFileManager defaultManager];
-        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-        NSString *documentsDirectory = paths.firstObject;
+    NSMutableString *redactedData = [[NSMutableString alloc] initWithBytes:buffer.bytes
+                                                                    length:buffer.length
+                                                                  encoding:NSUTF8StringEncoding];
     
-        NSString * filePath = [documentsDirectory stringByAppendingPathComponent:@"PDXBusData.xml"];
-        
-        [[NSFileManager defaultManager] removeItemAtPath:filePath error:nil];
+    [buffer release];
     
- 
-        NSMutableString *redactedData = [[NSMutableString alloc] initWithBytes:buffer.bytes
-                                                                         length:buffer.length
-                                                                       encoding:NSUTF8StringEncoding];
-        
-        [buffer release];
-        
-        
-        [replacements enumerateKeysAndObjectsUsingBlock: ^void (NSString* key, NSString* replacement, BOOL *stop)
-         {
-            [redactedData replaceOccurrencesOfString:key
-                                          withString:replacement
-                                             options:NSCaseInsensitiveSearch
-                                               range:NSMakeRange(0, redactedData.length)];
-        
-         }];
-        
-        [redactedData insertString:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?><root>" atIndex:0];
-        [redactedData appendString:@"</root>"];
-        
-        DEBUG_LOG(@"%@", redactedData);
-        if ([redactedData writeToFile:filePath atomically:YES encoding:NSUTF8StringEncoding error:nil])
-        {
-            self.docMenu = [UIDocumentInteractionController interactionControllerWithURL:[NSURL fileURLWithPath:filePath]];
-            self.docMenu.delegate = self;
-            self.docMenu.UTI = @"data.xml";
-
-            if (self.xmlButton)
-            {
-                if (![self.docMenu presentOpenInMenuFromBarButtonItem:self.xmlButton animated:YES])
-                {
-                    UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"Debug XML", @"DNL")
-                                                                       message:NSLocalizedString(@"No applications can read XML", @"DNL")
-                                                                      delegate:nil
-                                                             cancelButtonTitle:NSLocalizedString(@"OK", @"button text")
-                                                             otherButtonTitles:nil] autorelease];
-                    [alert show];
-                    self.docMenu = nil;
-                }
-            }
-            else
-            {
-                UIView *view = self.navigationController.view;
-                CGRect rect = CGRectZero;
-            
-                if (sender!=nil)
-                {
-                    rect = [view convertRect:sender.frame fromView:sender.superview];
-                }
-                [self.docMenu presentOpenInMenuFromRect:rect
-                                                 inView:view
-                                               animated:YES];
-        
-            }
-        }
-        else
-        {
-            [redactedData release];
-            UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"XML error", @"DNL")
-                                                               message:NSLocalizedString(@"Could not write to file.", @"DNL")
-                                                              delegate:nil
-                                                     cancelButtonTitle:NSLocalizedString(@"OK", @"button text")
-                                                     otherButtonTitles:nil] autorelease];
-            [alert show];
-        }
-        [redactedData release];
-    }
+    [replacements enumerateKeysAndObjectsUsingBlock: ^void (NSString* key, NSString* replacement, BOOL *stop)
+     {
+         [redactedData replaceOccurrencesOfString:key
+                                       withString:replacement
+                                          options:NSCaseInsensitiveSearch
+                                            range:NSMakeRange(0, redactedData.length)];
+         
+     }];
+    
+    [redactedData insertString:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?><root>" atIndex:0];
+    [redactedData appendString:@"</root>"];
+    
+    DEBUG_LOG(@"%@", redactedData);
+    
+    UIPasteboard *clipboard = [UIPasteboard generalPasteboard];
+    clipboard.string = redactedData;
+    [redactedData release];
+    
+    UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"XML", @"DNL")
+                                                       message:NSLocalizedString(@"XML copied to clipboard", @"DNL")
+                                                      delegate:nil
+                                             cancelButtonTitle:NSLocalizedString(@"OK", @"button text")
+                                             otherButtonTitles:nil] autorelease];
+    [alert show];
 }
 
 - (UIBarButtonItem*)autoXmlButton
@@ -693,7 +677,7 @@ enum
 
 - (void)updateToolbarItemsWithXml:(NSMutableArray *)toolbarItems
 {    
-    if ([UserPrefs singleton].debugXML)
+    if ([UserPrefs sharedInstance].debugXML)
     {
         [toolbarItems addObject:[self autoXmlButton]];
         [self maybeAddFlashButtonWithSpace:YES buttons:toolbarItems big:NO];
@@ -720,28 +704,66 @@ enum
     }
 }
 
--(void)ticketButton:(id)sender
+-(void)ticketButton:(UIBarButtonItem *)sender
 {
-	[self ticketApp];
+    [self ticketAppFrom:nil button:sender];
 }
 
-+ (void)flashScreen:(UINavigationController *)nav
++ (void)flashLight:(UINavigationController *)nav
 {
-    FlashWarning *warning = [[FlashWarning alloc] initWithNav:nav];
+    [nav pushViewController:[FlashViewController viewController] animated:YES];
+}
+
++ (void)flashScreen:(UINavigationController *)nav button:(UIBarButtonItem *)button
+{
     
-    
-	[warning release];
+    if ([UserPrefs sharedInstance].flashingLightWarning)
+    {
+        [UserPrefs sharedInstance].flashingLightWarning = NO;
+        
+        UIAlertController* alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Flashing Light", @"Alert title")
+                                                                       message:NSLocalizedString(@"If you have photosensitive epilepsy please be aware that you may be affected by the flashing light. Would you like to disable this feature? This warning will not be shown again.", @"Warning text")
+                                                                preferredStyle:UIAlertControllerStyleAlert];
+        
+        ViewControllerBase *top = nil;
+        
+        if ([nav.topViewController isKindOfClass:[ViewControllerBase class]])
+        {
+            top = (ViewControllerBase *)nav.topViewController;
+        }
+        
+        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Disable", @"Button text") style:UIAlertActionStyleDestructive handler:^(UIAlertAction* action){
+            
+                [UserPrefs sharedInstance].flashingLightIcon = NO;
+                if (top != nil)
+                {
+                    [top updateToolbar];
+                }
+        }]];
+        
+        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Continue", @"Buttin text") style:UIAlertActionStyleDefault handler:^(UIAlertAction* action){
+            [UserPrefs sharedInstance].flashingLightIcon = YES;
+            if (top != nil)
+            {
+                [top updateToolbar];
+            }
+            [ViewControllerBase flashLight:nav];
+        }]];
+        
+        alert.popoverPresentationController.barButtonItem = button;
+        
+        [nav.topViewController presentViewController:alert animated:YES completion:nil];
+    }
+    else
+    {
+        [ViewControllerBase flashLight:nav];
+    }
 }
 
 
--(void)flashButton:(id)sender
+-(void)flashButton:(UIBarButtonItem*)sender
 {
-    FlashWarning *warning = [[FlashWarning alloc] initWithNav:self.navigationController];
-    
-    warning.parentBase = self;
-    
-	[warning release];
-    
+    [ViewControllerBase flashScreen:self.navigationController button:sender];
 }
 
 
@@ -786,7 +808,7 @@ enum
     return NO;
 }
 
-- (bool)ZXingSupported
+- (bool)videoCaptureSupported
 {
     Class captureDeviceClass = NSClassFromString(@"AVCaptureDevice");
     if (self.fullScreen && captureDeviceClass != nil)
@@ -905,25 +927,6 @@ enum
     [super didReceiveMemoryWarning];
 }
 
-
-#pragma mark Document interaction methods
-
--(void)documentInteractionController:(UIDocumentInteractionController *)controller
-       willBeginSendingToApplication:(NSString *)application {
-    
-}
-
--(void)documentInteractionController:(UIDocumentInteractionController *)controller
-          didEndSendingToApplication:(NSString *)application {
-    self.docMenu = nil;
-}
-
--(void)documentInteractionControllerDidDismissOpenInMenu:
-(UIDocumentInteractionController *)controller {
-    //   [controller dismissMenuAnimated:YES];
-    self.docMenu = nil;
-}
-
 - (bool)canTweet
 {
     
@@ -942,37 +945,25 @@ enum
 }
 
 
-- (void) tweet
+- (void)tweetAt:(NSString *)twitterUser
 {
-    self.tweetAlert = [[[UIActionSheet alloc] initWithTitle:[NSString stringWithFormat:@"@%@ on Twitter", self.tweetAt]
-                                                   delegate:self
-                                          cancelButtonTitle:nil
-                                     destructiveButtonTitle:nil
-                                          otherButtonTitles:nil] autorelease];
-    
-    self.tweetButtons = [NSMutableArray array];
-    
-    if ([self canTweet])
-    {
-        self.tweetButtons[ [self.tweetAlert addButtonWithTitle:NSLocalizedString(@"Send tweet", @"button text")] ] = @(kTweetButtonTweet);
-    }
-    
     NSString *twitter=[NSString stringWithFormat:@"twitter:"];
     
     if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:twitter]])
     {
-        self.tweetButtons[[self.tweetAlert addButtonWithTitle:NSLocalizedString(@"Show in Twitter app", @"button text")]] = @(kTweetButtonApp);
+        NSString *twitter=[NSString stringWithFormat:@"twitter://user?screen_name=%@", twitterUser];
+        
+        if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:twitter]])
+        {
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:twitter]];
+        }
+        
     }
     else
     {
-        self.tweetButtons[[self.tweetAlert addButtonWithTitle:NSLocalizedString(@"Show in browser", @"button text")]]     = @(kTweetButtonWeb);
+        NSString *twitter=[NSString stringWithFormat:@"https://mobile.twitter.com/%@", twitterUser];
+        [self openBrowserFrom:self path:twitter];
     }
-        
-    self.tweetAlert.cancelButtonIndex  = [self.tweetAlert addButtonWithTitle:NSLocalizedString(@"Cancel", @"button text")];
-    self.tweetButtons[self.tweetAlert.cancelButtonIndex] = @(kTweetButtonCancel);
-    
-    [self.tweetAlert showFromToolbar:self.navigationController.toolbar];
-    
 }
 
 
@@ -994,7 +985,7 @@ enum
 
 - (bool)openBrowserFrom:(UIViewController *)view path:(NSString *)path
 {
-    if ([UserPrefs singleton].useChrome && [ OpenInChromeController sharedInstance].isChromeInstalled)
+    if ([UserPrefs sharedInstance].useChrome && [ OpenInChromeController sharedInstance].isChromeInstalled)
     {
         if ([[OpenInChromeController sharedInstance] openInChrome:[NSURL URLWithString:path]
                                                   withCallbackURL:[NSURL URLWithString:@"pdxbus:"]
@@ -1047,20 +1038,57 @@ enum
     [self clearSelection];
 }
 
-- (bool)ticketApp
+- (bool)ticketAppFrom:(UIView *)source button:(UIBarButtonItem *)button
 {
-#if 1
+
     static NSString *ticket = @"trimettickets://";
     
-
+    
     if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:ticket]])
     {
         [[UIApplication sharedApplication] openURL:[NSURL URLWithString:ticket]];
         return YES;
     }
-#endif
-    TicketAlert *alert = [[[TicketAlert alloc] initWithParent:self] autorelease];
-    [alert.sheet showFromToolbar:self.navigationController.toolbar];
+    
+    UIAlertController* alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"TriMet Tickets App", @"alert title")
+                                                                   message:nil
+                                                            preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Get TriMet Tickets App" , @"button text")
+                                              style:UIAlertActionStyleDefault
+                                            handler:^(UIAlertAction *action){
+                                                [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"itms-apps://www.itunes.com/apps/TriMetTickets"]];
+                                            }]];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Remove ticket icon from toolbar" , @"button text")
+                                              style:UIAlertActionStyleDefault
+                                            handler:^(UIAlertAction *action){
+                                                [UserPrefs sharedInstance].ticketAppIcon = NO;
+                                                [self updateToolbar];
+                                            }]];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"button text") style:UIAlertActionStyleCancel handler:nil]];
+    
+    if (source)
+    {
+        // Make a small rect in the center, just 10,10
+        const CGFloat side = 10;
+        CGRect frame = source.frame;
+        CGRect sourceRect = CGRectMake(frame.origin.x + (frame.size.width - side)/2.0, frame.origin.y + (frame.size.height-side)/2.0, side, side);
+        
+        alert.popoverPresentationController.sourceView = source;
+        alert.popoverPresentationController.sourceRect = sourceRect;
+    }
+    
+    if (button)
+    {
+        alert.popoverPresentationController.barButtonItem = button;
+    }
+    
+    [self presentViewController:alert animated:YES completion:^{
+        [self clearSelection];
+    }];
     
     return NO;
     
@@ -1082,62 +1110,6 @@ enum
     [self facebookWithId:fbid path:fbpath];
 }
 
-#pragma mark -
-#pragma mark UIActionSheetDelegate methods
-
-- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex;
-{
-    
-    if (actionSheet != self.tweetAlert)
-    {
-        return;
-    }
-    switch (self.tweetButtons[buttonIndex].integerValue)
-    {
-        default:
-        case kTweetButtonApp:
-        {
-            NSString *twitter=[NSString stringWithFormat:@"twitter://user?screen_name=%@", self.tweetAt];
-            
-            if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:twitter]])
-            {
-                [[UIApplication sharedApplication] openURL:[NSURL URLWithString:twitter]];
-                [self clearSelection];
-            }
-            break;
-        }
-        case kTweetButtonWeb:
-        {
-            NSString *twitter=[NSString stringWithFormat:@"https://mobile.twitter.com/%@", self.tweetAt];
-            [self openBrowserFrom:self path:twitter];
-            [self clearSelection];
-            break;
-        }
-            
-        case kTweetButtonCancel:
-        {
-            [self clearSelection];
-            break;
-        }
-            
-        case kTweetButtonTweet:
-        {
-            SLComposeViewController *picker = [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeTwitter];
-            [picker setInitialText:self.initTweet];
-            
-            picker.completionHandler =
-            ^(SLComposeViewControllerResult result) {
-                [self clearSelection];
-            };
-            
-            [self presentViewController:picker animated:YES completion:nil];
-            
-            break;
-        }
-    }
-    
-    self.tweetButtons = nil;
-}
 
 - (void)favesChanged
 {
@@ -1148,7 +1120,7 @@ enum
 - (void)updateWatch
 {
     
-    TriMetTimesAppDelegate *app = [TriMetTimesAppDelegate singleton];
+    TriMetTimesAppDelegate *app = [TriMetTimesAppDelegate sharedInstance];
     RootViewController *root = (RootViewController*)app.rootViewController;
     
     if (root.session)
@@ -1163,6 +1135,8 @@ enum
     [super viewWillDisappear:animated];
     [self.backgroundTask cancel];
 }
+
+
 
 
 

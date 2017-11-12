@@ -17,9 +17,10 @@
 #import "TripPlannerCacheView.h"
 #import "TripPlannerResultsView.h"
 #import "UserFaves.h"
-#import "CellLabel.h"
 #import "Detour.h"
 #import "DetourData+iOSUI.h"
+#import "UITableViewCell+MultiLineCell.h"
+#import "StringHelper.h"
 
 @implementation TripPlannerCacheView
 
@@ -80,9 +81,40 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	NSDictionary *trip = _userData.recentTrips[indexPath.row];
-	return [self getTextHeight:trip[kUserFavesChosenName] font:self.paragraphFont];
+    return UITableViewAutomaticDimension;
 }
+
+
+- (NSString *)insertAttributes:(NSString *)string
+{
+   static NSDictionary<NSString*, NSString*> *replacements = nil;
+    
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        replacements = @{@"From: "               : @"#b#BFrom:#0#b ",
+                         @"\nTo:"               : @"\n#B#bTo:#0#b",
+                         @"\nDepart after"      : @"\n#B#bDepart after#b#0",
+                         @"\nArrive by"         : @"\n#B#bArrive by#b#0",
+                         @"\nArrive"            : @"\n#B#bArrive#b#0",
+                         @"\nDepart"            : @"\n#B#bDepart#b#0"
+                         }.retain;
+    });
+    
+    NSMutableString *ms = [NSMutableString string];
+    [ms appendString:string];
+    
+    [replacements enumerateKeysAndObjectsUsingBlock: ^void (NSString* dictionaryKey, NSString* val, BOOL *stop)
+     {
+         [ms replaceOccurrencesOfString:dictionaryKey
+                             withString:val
+                                options:NSLiteralSearch
+                                  range:NSMakeRange(0, ms.length)];
+     }];
+    
+    return ms;
+    
+}
+
 
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -90,19 +122,18 @@
 	NSDictionary *trip = _userData.recentTrips[indexPath.row];
 	NSString *text = trip[kUserFavesChosenName];
 	
-	NSString *MyIdentifier = [NSString stringWithFormat:@"DetourLabel%f", [self getTextHeight:text font:self.paragraphFont]];
+    NSString *MyIdentifier = @"Trip";
 	
-	CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:MyIdentifier];
+	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MyIdentifier];
 	if (cell == nil) {
-		cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MyIdentifier] autorelease];
-		cell.view = [Detour create_UITextView:self.paragraphFont];
+        cell = [UITableViewCell cellWithMultipleLines:MyIdentifier];
 	}
 	
-	cell.view.text = text;
+    cell.textLabel.attributedText = [[self insertAttributes:text] formatAttributedStringWithFont:self.paragraphFont];
 	cell.selectionStyle = UITableViewCellSelectionStyleBlue;
 	cell.backgroundColor = [UIColor whiteColor];
-	
 	cell.accessibilityLabel = text;
+    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 	
     return cell;
 }

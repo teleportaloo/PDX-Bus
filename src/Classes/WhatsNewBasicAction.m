@@ -33,12 +33,12 @@
     cell.backgroundColor = [UIColor whiteColor];
 }
 
-- (void)updateCell:(CellLabel *)cell tableView:(UITableView *)tableView
+- (void)updateCell:(UITableViewCell *)cell tableView:(UITableView *)tableView
 {
-    cell.view.backgroundColor = [UIColor clearColor];
-    cell.view.textAlignment   = NSTextAlignmentLeft;
-    cell.accessoryType        = UITableViewCellAccessoryNone;
-    cell.selectionStyle       = UITableViewCellSelectionStyleNone;
+    cell.textLabel.backgroundColor  = [UIColor clearColor];
+    cell.textLabel.textAlignment    = NSTextAlignmentLeft;
+    cell.accessoryType              = UITableViewCellAccessoryNone;
+    cell.selectionStyle             = UITableViewCellSelectionStyleNone;
 }
 
 - (NSString*)prefix:(NSString *)item restOfText:(NSString**)rest

@@ -14,7 +14,6 @@
 
 
 #import "LocationServicesDebugView.h"
-#include "CellLabel.h"
 
 #ifdef DEBUG_ALARMS
 
@@ -67,8 +66,6 @@
 	return 0;
 }
 
-
-
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	
 	switch (indexPath.section)
@@ -77,11 +74,10 @@
 		{
 			CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionText)];
 			if (cell == nil) {
-				cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionText)] autorelease];
-				cell.view = [self create_UITextView:nil font:self.paragraphFont];
+                cell = [CellLabel cellWithReuseIdentifier:MakeCellId(kSectionText)];
+                cell.view = [self labelForCell];
 			}
 			
-			cell.view.font =  self.paragraphFont;
 			cell.view.text = [self.data internalData:(int)indexPath.row];
 			// printf("width:  %f\n", cell.view.bounds.size.width);
 			cell.selectionStyle = UITableViewCellSelectionStyleNone;
@@ -117,7 +113,7 @@
 {
 	if (indexPath.section == kSectionText)
 	{
-		return [self getTextHeight:[self.data internalData:(int)indexPath.row] font:self.paragraphFont];
+		return [self getCellLabelHeightWithText:[self.data internalData:(int)indexPath.row]];
 	}
 	return [self basicRowHeight];
 }

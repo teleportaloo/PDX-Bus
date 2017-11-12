@@ -51,14 +51,14 @@
 }
 - (NSString *)DTDataGetSectionHeader
 {
-	return [self DTDataGetDeparture:0].routeName;
+	return [self DTDataGetDeparture:0].shortSign;
 }
 - (NSString *)DTDataGetSectionTitle
 {
 	return nil;
 }
 
-- (void)DTDataPopulateCell:(DepartureData *)dd cell:(UITableViewCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide
+- (void)DTDataPopulateCell:(DepartureData *)dd cell:(DepartureCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide
 {
 	[dd populateCell:cell decorate:decorate busName:NO wide:wide];	
 }

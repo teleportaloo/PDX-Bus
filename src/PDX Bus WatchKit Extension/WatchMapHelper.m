@@ -29,7 +29,7 @@
     bottomRightCoord.latitude = 90;
     bottomRightCoord.longitude = -180;
     
-    MapAnnotationImage *mapAnnotionImage = [MapAnnotationImage singleton];
+    MapAnnotationImage *mapAnnotionImage = [MapAnnotationImage autoSingleton];
     
     
     mapAnnotionImage.forceRetinaImage = YES;

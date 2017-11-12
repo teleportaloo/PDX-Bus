@@ -92,14 +92,6 @@
 	</dict>
 	<dict>
 		<key>Title</key>
-		<string>QR Scanning from ZXing library</string>
-		<key>Icon</key>
-		<string>Source.png</string>
-		<key>LinkM</key>
-		<string>http://github.com/zxing/zxing</string>
-	</dict>
-	<dict>
-		<key>Title</key>
 		<string>Some icons by Gentleface</string>
 		<key>Icon</key>
 		<string>Brush.png</string>

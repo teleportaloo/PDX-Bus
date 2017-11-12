@@ -38,10 +38,7 @@
 - (instancetype)initFromHotSpot:(HOTSPOT *)hotspot index:(int)index;
 - (NSComparisonResult)compareUsingStation:(RailStation*)inStation;
 + (NSString *)nameFromHotspot:(HOTSPOT *)hotspot;
-+ (UITableViewCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier rowHeight:(CGFloat)height 
-										  screenWidth:(ScreenWidth)screenWidth 
-										  rightMargin:(BOOL)rightMargin
-												 font:(UIFont*)font;
++ (UITableViewCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier rowHeight:(CGFloat)height;
 + (void)populateCell:(UITableViewCell*)cell station:(NSString *)station lines:(RAILLINES)lines;
 @property (nonatomic, readonly, copy) NSString *stringToFilter;
 

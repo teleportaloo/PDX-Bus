@@ -32,7 +32,7 @@ static NSDictionary *singleCommuterBookmark;
 - (void)awakeWithContext:(id)context {
     [super awakeWithContext:context];
     
-    self.faves = [SafeUserData singleton];
+    self.faves = [SafeUserData sharedInstance];
     self.faves.readOnly = YES;
 }
 
@@ -74,7 +74,7 @@ static NSDictionary *singleCommuterBookmark;
     if (!extensionDelegate.backgrounded)
     {
         
-        bookmark = [[SafeUserData singleton] checkForCommuterBookmarkShowOnlyOnce:onlyOnce];
+        bookmark = [[SafeUserData sharedInstance] checkForCommuterBookmarkShowOnlyOnce:onlyOnce];
         
         bool atRoot = NO;
         

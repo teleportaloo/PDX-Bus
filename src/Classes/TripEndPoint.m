@@ -199,12 +199,12 @@
 {
 	if (self.useCurrentLocation)
 	{
-		return @"Current Location (GPS)";
+        return @"#iCurrent Location (GPS)#i";
 	}
 	
 	if (self.locationDesc == nil)
 	{
-		return @"<touch to choose location>";
+        return @"#i<touch to choose location>#i";
 	}
 	
 	for (int i=0; i<self.locationDesc.length; i++)

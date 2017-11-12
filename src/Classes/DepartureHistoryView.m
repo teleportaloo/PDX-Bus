@@ -81,13 +81,12 @@
     return _userData.recents.count;
 }
 
-/*
+
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	NSDictionary *trip = self.recentTrips[indexPath.row];
-	return [self getTextHeight:[trip valueForKey:kUserFavesChosenName] font:self.paragraphFont];
+    return UITableViewAutomaticDimension;
 }
-*/
+
 
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -102,6 +101,7 @@
 	NSDictionary *item = _userData.recents[indexPath.row];
 	cell.textLabel.text = item[kUserFavesOriginalName];
 	cell.textLabel.font = self.basicFont;
+    cell.textLabel.numberOfLines = 0;
 	[self updateAccessibility:cell indexPath:indexPath text:cell.textLabel.text alwaysSaySection:NO];
 	cell.imageView.image = [self getFaveIcon:kIconRecent]; 
 	cell.textLabel.adjustsFontSizeToFitWidth = YES;

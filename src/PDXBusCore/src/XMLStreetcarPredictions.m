@@ -94,7 +94,7 @@ START_ELEMENT(prediction)
         self.currentDepartureObject.hasBlock       = true;
         self.currentDepartureObject.route          = nil;
         self.currentDepartureObject.fullSign       = name;
-        self.currentDepartureObject.routeName      = name;
+        self.currentDepartureObject.shortSign      = name;
         self.currentDepartureObject.block          = block;
         self.currentDepartureObject.status         = kStatusEstimated;
         self.currentDepartureObject.nextBus        = ATRTIM(minutes);

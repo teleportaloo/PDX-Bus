@@ -17,7 +17,7 @@
 #import "TriMetRouteColors.h"
 
 
-#define COLOR_STRIPE_WIDTH 10.0
+#define ROUTE_COLOR_WIDTH 14.0
 
 @interface RouteColorBlobView : UIView {
 	CGFloat _red;

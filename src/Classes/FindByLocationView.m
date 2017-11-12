@@ -14,7 +14,6 @@
 #import "RootViewController.h"
 #import "StopDistanceData.h"
 #import "DepartureTimesView.h"
-#import "CellLabel.h"
 #import "NearestVehiclesMap.h"
 #import "NearestRoutesView.h"
 #import "DebugLogging.h"
@@ -294,7 +293,7 @@ enum SECTIONS_AND_ROWS
     _mode = TripModeAll;
     _show = kShowArrivals;
     _dist = kDistanceHalfMile;
-    UserPrefs *prefs = [UserPrefs singleton];
+    UserPrefs *prefs = [UserPrefs sharedInstance];
     prefs.autoLocateShowOptions = YES;
     [self reloadData];
 }
@@ -406,7 +405,7 @@ enum SECTIONS_AND_ROWS
 {
 	UISegmentedControl *seg = (UISegmentedControl *)sender;
 	
-    UserPrefs *prefs = [UserPrefs singleton];
+    UserPrefs *prefs = [UserPrefs sharedInstance];
     
     switch (seg.selectedSegmentIndex)
     {
@@ -674,7 +673,7 @@ enum SECTIONS_AND_ROWS
                               action:@selector(autoSegmentChanged:)];
             }
             
-            if ([UserPrefs singleton].autoLocateShowOptions)
+            if ([UserPrefs sharedInstance].autoLocateShowOptions)
             {
                 [self getSeg:cell].selectedSegmentIndex = kAutoAsk;
             }
@@ -797,10 +796,7 @@ enum SECTIONS_AND_ROWS
         self.mapUpdateTimer = nil;
     }
     
-    if (self.mapView)
-    {
-        self.mapView.delegate = nil;
-    }
+
     
     [super viewWillDisappear:animated];
 }

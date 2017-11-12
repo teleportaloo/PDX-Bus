@@ -82,15 +82,15 @@
         rootViewController.lastArrivalNames  = nil;
     }
     
-    if ([UserPrefs singleton].autoCommute)
+    if ([UserPrefs sharedInstance].autoCommute)
 	{
-        rootViewController.commuterBookmark  = [[SafeUserData singleton] checkForCommuterBookmarkShowOnlyOnce:YES];
+        rootViewController.commuterBookmark  = [[SafeUserData sharedInstance] checkForCommuterBookmarkShowOnlyOnce:YES];
 	}
     
     [rootViewController executeInitialAction];
 
     
-    AlarmTaskList *list = [AlarmTaskList singleton];
+    AlarmTaskList *list = [AlarmTaskList sharedInstance];
     [list resumeOnActivate];
     
     if (!newWindow && self.rootViewController)
@@ -116,7 +116,7 @@
         }
     }
     
-    AlarmTaskList *list = [AlarmTaskList singleton];
+    AlarmTaskList *list = [AlarmTaskList sharedInstance];
     [list checkForLongAlarms];
     [list updateBadge];
     
@@ -131,7 +131,7 @@
 	
 	[fileManager removeItemAtPath:self.pathToCleanExit error:NULL];
 	
-	SafeUserData *userData = [SafeUserData singleton];
+	SafeUserData *userData = [SafeUserData sharedInstance];
 	
 	[userData cacheAppData];
 }
@@ -196,8 +196,8 @@
     
     
     
-    rootViewController.lastArrivalsShown = [SafeUserData singleton].last;
-	rootViewController.lastArrivalNames  = [SafeUserData singleton].lastNames;
+    rootViewController.lastArrivalsShown = [SafeUserData sharedInstance].last;
+	rootViewController.lastArrivalNames  = [SafeUserData sharedInstance].lastNames;
     
 	if ((rootViewController.lastArrivalsShown!=nil && rootViewController.lastArrivalsShown.length == 0)
             || backgroundSupported
@@ -563,7 +563,7 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
 		stops = [bookmark substringFromIndex:scanner.scanLocation+1];
 	}
 	
-	SafeUserData *userData = [SafeUserData singleton];
+	SafeUserData *userData = [SafeUserData sharedInstance];
 	
 	// If this is an encoded dictionary we have to decode it
 	if ([stops characterAtIndex:0] == 'd' && [protocol isEqualToString:@"pdxbus2:"])
@@ -644,7 +644,7 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
 	[notify release];
 }
 
-+ (TriMetTimesAppDelegate*)singleton
++ (TriMetTimesAppDelegate*)sharedInstance
 {
 	return (TriMetTimesAppDelegate *)[UIApplication sharedApplication].delegate;
 }

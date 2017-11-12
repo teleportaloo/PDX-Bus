@@ -19,14 +19,14 @@
 #import "DepartureTimesView.h"
 #import "VehicleData+iOSUI.h"
 #import "FormatDistance.h"
+#import "BlockColorDb.h"
+#import "DepartureCell.h"
 
 @implementation VehicleTableView
 
 #define kSectionVehicles   0
 #define kSectionDisclaimer 1
 #define kSections		   2
-
-#define COLOR_STRIPE_TAG 1
 
 @synthesize locator = _locator;
 
@@ -78,27 +78,6 @@
     
 }
 
-- (void)workerToFetchNearestVehicles:(id)unused
-{
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	
-	NSThread *thread = [NSThread currentThread];
-	
-	[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:@"getting vehicles"];
-    
-    [self.locator findNearestVehicles:nil direction:nil blocks:nil];
-    
-    if (self.locator.count == 0)
-    {
-        [thread cancel];
-        [self.self.backgroundTask.callbackWhenFetching backgroundSetErrorMsg:kNoVehicles];
-    }
-
-    [self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
-    
-    [pool release];
-}
-
 - (void)fetchNearestVehiclesAsync:(id<BackgroundTaskProgress>)background location:(CLLocation *)here maxDistance:(double)dist
 {
 	self.backgroundTask.callbackWhenFetching = background;
@@ -107,9 +86,23 @@
 	
 	self.locator.location = here;
 	self.locator.dist     = dist;
-	
-	[NSThread detachNewThreadSelector:@selector(workerToFetchNearestVehicles:) toTarget:self withObject:nil];
-	
+    
+    [self runAsyncOnBackgroundThread:^{
+        NSThread *thread = [NSThread currentThread];
+        
+        [self.backgroundTask.callbackWhenFetching backgroundStart:1 title:@"getting vehicles"];
+        
+        [self.locator findNearestVehicles:nil direction:nil blocks:nil];
+        
+        if (self.locator.count == 0)
+        {
+            [thread cancel];
+            [self.self.backgroundTask.callbackWhenFetching backgroundSetErrorMsg:kNoVehicles];
+        }
+        
+        [self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
+        
+    }];
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -135,7 +128,7 @@
 	switch (indexPath.section)
 	{
 		case kSectionVehicles:
-			return [self basicRowHeight] * 1.5;
+            return DEPARTURE_CELL_HEIGHT;
 		case kSectionDisclaimer:
 			return kDisclaimerCellHeight;
 	}
@@ -153,34 +146,28 @@
 		{
 			cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionVehicles)];
 			if (cell == nil) {
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:MakeCellId(kSectionVehicles)] autorelease];
-				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-				
-                CGRect rect = CGRectMake(0, 0, COLOR_STRIPE_WIDTH, [self tableView:tableView heightForRowAtIndexPath:indexPath]);
-                
-				RouteColorBlobView *colorStripe = [[RouteColorBlobView alloc] initWithFrame:rect];
-				colorStripe.tag = COLOR_STRIPE_TAG;
-				[cell.contentView addSubview:colorStripe];
-				[colorStripe release];
-				
-			}
+                cell = [DepartureCell genericWithReuseIdentifier:MakeCellId(kSectionVehicles)];
+            }
+            DepartureCell *dcell = (DepartureCell *)cell;
+            
 			// Configure the cell
 			VehicleData *vehicle = self.locator[indexPath.row];
 			
-            if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+            if (LARGE_SCREEN)
             {
-                cell.textLabel.text = vehicle.signMessageLong;
+                dcell.routeLabel.text = vehicle.signMessageLong;
             }
             else
             {
-                cell.textLabel.text = vehicle.signMessage;
+                dcell.routeLabel.text = vehicle.signMessage;
             }
-			cell.textLabel.font = self.basicFont;
-			cell.textLabel.adjustsFontSizeToFitWidth = YES;
+
             
-            cell.detailTextLabel.text = [NSString stringWithFormat:@"Distance %@", [FormatDistance formatMetres:vehicle.distance ]];
-            RouteColorBlobView *colorStripe = (RouteColorBlobView*)[cell.contentView viewWithTag:COLOR_STRIPE_TAG];
-			[colorStripe setRouteColor:vehicle.routeNumber];
+            dcell.timeLabel.text = [NSString stringWithFormat:@"Distance %@", [FormatDistance formatMetres:vehicle.distance ]];
+			[dcell.routeColorView setRouteColor:vehicle.routeNumber];
+            dcell.blockColorView.color = [[BlockColorDb sharedInstance] colorForBlock:vehicle.block];
+            dcell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+
 		}
             break;
         default:

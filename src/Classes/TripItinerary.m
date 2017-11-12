@@ -176,7 +176,7 @@
 		if (type == TripTextTypeUI)
 		{
 			self.startPoint.displayModeText = @"Start";
-			[text appendFormat:@"%@%@", nearTo ? @"" : @"Start at ", firstPoint.xdescription];
+            [text appendFormat:@"%@%@", nearTo ? @"" : @"#bStart at#b ", firstPoint.xdescription];
 		}
 		else if (type == TripTextTypeHTML && firstPoint.xlon!=nil)
 		{

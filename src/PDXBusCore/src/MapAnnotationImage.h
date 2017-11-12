@@ -14,7 +14,7 @@
 
 
 #import <Foundation/Foundation.h>
-#import "UIKit/UIKit.h"
+#import "PDXBusCore.h"
 
 #define kMapAnnotationBusColor [UIColor purpleColor]
 
@@ -33,7 +33,7 @@
 @property (nonatomic) bool                          forceRetinaImage;
 
 - (UIImage *)getImage:(double)rotation mapRotation:(double)mapRotation bus:(bool)bus;
-+ (MapAnnotationImage*)singleton;
++ (MapAnnotationImage*)autoSingleton;   // zero or one instances can exist - is refrence counted.
 - (UIImage *)tintImage:(UIImage *)sourceImage color:(UIColor *)color;
 @property (nonatomic, readonly) bool tintableImage;
 - (void)clearCache;

@@ -14,7 +14,7 @@
 
 
 #import "BlockColorViewController.h"
-#import "CellLabel.h"
+#import "UITableViewCell+MultiLineCell.h"
 
 @interface BlockColorViewController ()
 
@@ -32,7 +32,7 @@
 	if ((self = [super init]))
 	{
 		self.title = NSLocalizedString(@"Vehicle Color Tags", @"screen text");
-        _db = [[BlockColorDb singleton] retain];
+        _db = [BlockColorDb sharedInstance];
         _keys = [[_db keys] retain];
         self.table.allowsSelectionDuringEditing = YES;
         _helpText = NSLocalizedString(@"Vehicle color tags can be set to highlight a bus or train so that you can follow its progress through several stops. "
@@ -46,7 +46,6 @@
 
 - (void)dealloc
 {
-    [_db release];
     [_keys release];
     [_changingColor release];
     [_helpText release];
@@ -135,28 +134,24 @@
         
         cell.imageView.image = [BlockColorDb imageWithColor:col];
         cell.textLabel.text  =  [_db descForBlock:key];
-    
-        cell.detailTextLabel.text = [NSString stringWithFormat:@"ID %@ - %@", key,
+        cell.textLabel.adjustsFontSizeToFitWidth = YES;
+        cell.detailTextLabel.text = [NSString stringWithFormat:@"Trip ID %@ - %@", key,
                                      [NSDateFormatter localizedStringFromDate:[_db timeForBlock:key] dateStyle:NSDateFormatterMediumStyle timeStyle:NSDateFormatterShortStyle]];
-        
         
         return cell;
     }
     else
     {
-		NSString *MyIdentifier = [NSString stringWithFormat:@"CellLabel%f", [self getTextHeight:_helpText font:self.paragraphFont]];
+		NSString *MyIdentifier = [NSString stringWithFormat:@"CellLabel"];
 		
-		CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:MyIdentifier];
+		UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MyIdentifier];
 		if (cell == nil) {
-			cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MyIdentifier] autorelease];
-			cell.view = [self create_UITextView:self.paragraphFont];
+            cell = [UITableViewCell cellWithMultipleLines:MyIdentifier font:self.paragraphFont];
 		}
 		
-		cell.view.text = _helpText;
+		cell.textLabel.text = _helpText;
 		cell.selectionStyle = UITableViewCellSelectionStyleNone;
-		
 		cell.accessibilityLabel = _helpText;
-        
 		return cell;
     }
 }
@@ -254,7 +249,7 @@
 {
     if (indexPath.section == kSectionNoData)
     {
-        return [self getTextHeight:_helpText font:self.paragraphFont];
+        return UITableViewAutomaticDimension;
     }
     return tableView.rowHeight;
 

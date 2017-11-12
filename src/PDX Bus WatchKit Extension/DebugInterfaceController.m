@@ -25,7 +25,7 @@
 
 - (void)reloadData
 {
-    NSDictionary *commuter = [[SafeUserData singleton] checkForCommuterBookmarkShowOnlyOnce:NO];
+    NSDictionary *commuter = [[SafeUserData sharedInstance] checkForCommuterBookmarkShowOnlyOnce:NO];
     
     if (commuter == nil)
     {
@@ -33,7 +33,7 @@
     }
     else
     {
-        NSDate *lastRun = [SafeUserData singleton].lastRun;
+        NSDate *lastRun = [SafeUserData sharedInstance].lastRun;
         
         self.CommuterStatus.text = commuter[kUserFavesChosenName];
         
@@ -73,11 +73,11 @@
 }
 
 - (IBAction)ClearCommuterBookmark {
-    SafeUserData *prefs = [SafeUserData singleton];
+    SafeUserData *prefs = [SafeUserData sharedInstance];
     
     prefs.readOnly = NO;
     
-    [[SafeUserData singleton] setLastRun:nil];
+    [[SafeUserData sharedInstance] setLastRun:nil];
     
      prefs.readOnly = YES;
     

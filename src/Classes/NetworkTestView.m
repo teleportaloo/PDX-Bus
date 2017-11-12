@@ -13,11 +13,11 @@
 
 
 #import "NetworkTestView.h"
-#import "CellLabel.h"
 #import "XMLDetours.h"
 #import "XMLTrips.h"
 #import "XMLStreetcarLocations.h"
 #import "ReverseGeoLocator.h"
+#import "UITableViewCell+MultiLineCell.h"
 
 @implementation NetworkTestView
 
@@ -49,100 +49,96 @@
 
 #pragma mark Data fetchers
 
-- (void)workerToFetchData:(id)unused
-{
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	
-	[self.backgroundTask.callbackWhenFetching backgroundStart:5 title:@"checking network"];
-	
-	self.internetConnectionStatus = [TriMetXML isDataSourceAvailable:YES];
-	
-	[self.backgroundTask.callbackWhenFetching backgroundItemsDone:1];
-	
-    XMLDetours *detours = [XMLDetours xml];
-	
-	[detours getDetours];
-	
-	self.trimetQueryStatus = detours.gotData;
-	
-	
-	[self.backgroundTask.callbackWhenFetching backgroundItemsDone:2];
-	
-    XMLTrips *trips = [XMLTrips xml];
-	trips.userRequest.dateAndTime = nil;
-	trips.userRequest.arrivalTime = NO;
-	trips.userRequest.timeChoice  = TripDepartAfterTime;
-	trips.userRequest.toPoint.locationDesc   = @"8336"; // Yamhil District
-	trips.userRequest.fromPoint.locationDesc = @"8334"; // Pioneer Square South
-	
-	[trips fetchItineraries:nil];
-	
-	self.trimetTripStatus = trips.gotData;
-	
-	[self.backgroundTask.callbackWhenFetching backgroundItemsDone:3];
-	
-	XMLStreetcarLocations *locations = [XMLStreetcarLocations singletonForRoute:@"streetcar"];
-	
-	[locations getLocations];
-	
-	self.nextbusQueryStatus = locations.gotData;
-	
-	[self.backgroundTask.callbackWhenFetching backgroundItemsDone:4];
-    
-    if ([ReverseGeoLocator supported])
-    {
-	
-        ReverseGeoLocator *provider = [[[ReverseGeoLocator alloc] init] autorelease];
-		// Pioneer Square!
-        
-		CLLocation *loc = [[[CLLocation alloc] initWithLatitude:45.519077 longitude:-122.678602] autorelease];
-		[provider fetchAddress:loc];
-		self.reverseGeoCodeStatus = (provider.error == nil);
-        self.reverseGeoCodeService = @"Apple Geocoder";
-	}
-	else {
-		self.reverseGeoCodeService = nil;
-		self.reverseGeoCodeStatus = YES;
-	}
-	
-	[self.backgroundTask.callbackWhenFetching backgroundItemsDone:5];
-    
-	NSMutableString *diagnosticString = [NSMutableString string];
-	
-	if (!self.internetConnectionStatus)
-	{
-		[diagnosticString appendString:@"The Internet is not available. Check you are not in Airplane mode, and not in the Robertson Tunnel.\n\nIf your device is capable, you could also try switching between WiFi, Edge and 3G.\n\nTouch here to start Safari to check your connection. "];
-	}
-	else if (!self.trimetQueryStatus || !self.nextbusQueryStatus || !self.trimetTripStatus)
-	{
-		[diagnosticString appendString:@"The Internet is available, but PDX Bus is not able to contact TriMet's or NextBus's servers. Touch here to check if www.trimet.org is working."];
-	}
-	else
-	{
-		[diagnosticString appendString:@"The main network services are working at this time. If you are having problems, touch here to load www.trimet.org, then restart PDX Bus."];
-	}
-	
-	if (self.internetConnectionStatus && !self.reverseGeoCodeStatus && self.reverseGeoCodeService!=nil)
-	{
-        
-		[diagnosticString appendFormat:@"\n\nApple's GeoCoding service is not responding."];
-	}
-	
-	self.diagnosticText = diagnosticString;
-	
-	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
-    
-	
-	[pool release];
-	
-}
-
 - (void)fetchNetworkStatusAsync:(id<BackgroundTaskProgress>)background
 {
 	self.backgroundTask.callbackWhenFetching = background;
-	
-	[NSThread detachNewThreadSelector:@selector(workerToFetchData:) toTarget:self withObject:nil];
-	
+    
+    [self runAsyncOnBackgroundThread:^{
+        
+        [self.backgroundTask.callbackWhenFetching backgroundStart:5 title:@"checking network"];
+        
+        self.internetConnectionStatus = [TriMetXML isDataSourceAvailable:YES];
+        
+        [self.backgroundTask.callbackWhenFetching backgroundItemsDone:1];
+        
+        XMLDetours *detours = [XMLDetours xml];
+        
+        detours.giveUp = 7;
+        
+        [detours getDetours];
+        
+        self.trimetQueryStatus = detours.gotData;
+        
+        
+        [self.backgroundTask.callbackWhenFetching backgroundItemsDone:2];
+        
+        XMLTrips *trips = [XMLTrips xml];
+        trips.userRequest.dateAndTime = nil;
+        trips.userRequest.arrivalTime = NO;
+        trips.userRequest.timeChoice  = TripDepartAfterTime;
+        trips.userRequest.toPoint.locationDesc   = @"8336"; // Yamhil District
+        trips.userRequest.fromPoint.locationDesc = @"8334"; // Pioneer Square South
+        trips.giveUp = 7;
+        
+        [trips fetchItineraries:nil];
+        
+        self.trimetTripStatus = trips.gotData;
+        
+        [self.backgroundTask.callbackWhenFetching backgroundItemsDone:3];
+        
+        XMLStreetcarLocations *locations = [XMLStreetcarLocations autoSingletonForRoute:@"streetcar"];
+        
+        locations.giveUp = 7;
+        
+        [locations getLocations];
+    
+        self.nextbusQueryStatus = locations.gotData;
+        
+        [self.backgroundTask.callbackWhenFetching backgroundItemsDone:4];
+        
+        if ([ReverseGeoLocator supported])
+        {
+            
+            ReverseGeoLocator *provider = [[[ReverseGeoLocator alloc] init] autorelease];
+            // Pioneer Square!
+            
+            CLLocation *loc = [[[CLLocation alloc] initWithLatitude:45.519077 longitude:-122.678602] autorelease];
+            [provider fetchAddress:loc];
+            self.reverseGeoCodeStatus = (provider.error == nil);
+            self.reverseGeoCodeService = @"Apple Geocoder";
+        }
+        else {
+            self.reverseGeoCodeService = nil;
+            self.reverseGeoCodeStatus = YES;
+        }
+        
+        [self.backgroundTask.callbackWhenFetching backgroundItemsDone:5];
+        
+        NSMutableString *diagnosticString = [NSMutableString string];
+        
+        if (!self.internetConnectionStatus)
+        {
+            [diagnosticString appendString:@"The Internet is not available. Check you are not in Airplane mode, and not in the Robertson Tunnel.\n\nIf your device is capable, you could also try switching between WiFi, Edge and 3G.\n\nTouch here to start Safari to check your connection. "];
+        }
+        else if (!self.trimetQueryStatus || !self.nextbusQueryStatus || !self.trimetTripStatus)
+        {
+            [diagnosticString appendString:@"The Internet is available, but PDX Bus is not able to contact TriMet's or NextBus's servers. Touch here to check if www.trimet.org is working."];
+        }
+        else
+        {
+            [diagnosticString appendString:@"The main network services are working at this time. If you are having problems, touch here to load www.trimet.org, then restart PDX Bus."];
+        }
+        
+        if (self.internetConnectionStatus && !self.reverseGeoCodeStatus && self.reverseGeoCodeService!=nil)
+        {
+            
+            [diagnosticString appendFormat:@"\n\nApple's GeoCoding service is not responding."];
+        }
+        
+        self.diagnosticText = diagnosticString;
+        
+        [self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
+    }];
 }
 
 #pragma mark View Methods
@@ -173,8 +169,6 @@
  }
  */
 
-
-
 - (void)viewDidLoad {
     [super viewDidLoad];
     
@@ -187,6 +181,8 @@
                                       action:@selector(refreshAction:)];
     self.navigationItem.rightBarButtonItem = refreshButton;
     [refreshButton release];
+    
+    
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
 }
@@ -281,9 +277,7 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     UITableViewCell *cell = nil;
-	
-    
-	
+
 	switch ([self adjustSectionNumber:indexPath.section])
 	{
         default:
@@ -388,33 +382,24 @@
 		case kSectionDiagnose:
 		{
 			static NSString *diagsId = @"diags";
-			CellLabel *diagCell;
-			diagCell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:diagsId];
-			if (diagCell == nil) {
-				diagCell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:diagsId] autorelease];
-				diagCell.view = [self create_UITextView:nil font:self.paragraphFont];
-				diagCell.view.font =  self.paragraphFont;
-				diagCell.selectionStyle = UITableViewCellSelectionStyleNone;
+			cell = [tableView dequeueReusableCellWithIdentifier:diagsId];
+			if (cell == nil) {
+                cell = [UITableViewCell cellWithMultipleLines:diagsId font:self.paragraphFont];
 			}
-			
-			diagCell.view.text = self.diagnosticText;
-			cell = diagCell;
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+			cell.textLabel.text = self.diagnosticText;
 			break;
 		}
 		case KSectionMaybeError:
 		{
 			static NSString *diagsId = @"error";
-			CellLabel *diagCell;
-			diagCell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:diagsId];
-			if (diagCell == nil) {
-				diagCell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:diagsId] autorelease];
-				diagCell.view = [self create_UITextView:nil font:self.paragraphFont];
-				diagCell.view.font =  self.paragraphFont;
-				diagCell.selectionStyle = UITableViewCellSelectionStyleNone;
+			cell = [tableView dequeueReusableCellWithIdentifier:diagsId];
+			if (cell == nil) {
+				cell = [UITableViewCell cellWithMultipleLines:diagsId font:self.paragraphFont];
+
 			}
-			
-			diagCell.view.text = self.networkErrorFromQuery;
-			cell = diagCell;
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+			cell.textLabel.text = self.networkErrorFromQuery;
 			break;
 		}
             break;
@@ -428,9 +413,8 @@
 {
 	switch ([self adjustSectionNumber:indexPath.section]) {
 		case KSectionMaybeError:
-			return [self getTextHeight:self.networkErrorFromQuery font:self.paragraphFont];
-		case kSectionDiagnose:
-			return [self getTextHeight:self.diagnosticText font:self.paragraphFont];
+        case kSectionDiagnose:
+            return UITableViewAutomaticDimension;
 		default:
 			return [self basicRowHeight];
 	}

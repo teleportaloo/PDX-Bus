@@ -71,11 +71,11 @@ typedef enum AlarmStateTag {
 	
 }
 
-@property (nonatomic, retain)	NSString *desc;
-@property (nonatomic)			AlarmLocationNeeded alarmState;
+@property (nonatomic, copy)	    NSString *desc;
+@property (atomic)			    AlarmLocationNeeded alarmState;
 @property (nonatomic, retain)   NSDate *nextFetch;
 
-@property (nonatomic, retain)	NSString * stopId;
+@property (nonatomic, copy)	    NSString * stopId;
 @property (nonatomic, assign)	id<AlarmObserver> observer; // weak
 @property (retain)				UILocalNotification *alarm;
 @property (readonly, nonatomic) int threadReferenceCount;

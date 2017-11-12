@@ -16,10 +16,10 @@
 #import "MapPinColor.h"
 #import "ScreenConstants.h"
 #import "DepartureData.h"
+#import "DepartureCell.h"
 
 
-#define kDepartureCellHeight        55
-#define kWideDepartureCellHeight    85
+
 
 @interface DepartureData (iOSUI) <MapPinColor>
 
@@ -31,16 +31,12 @@
 @property (nonatomic, readonly, strong) DepartureData *mapDeparture;
 
 
-// Rest
-- (NSString *)cellReuseIdentifier:(NSString *)identifier width:(CGFloat)width;
-- (UITableViewCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier spaceToDecorate:(bool)spaceToDecorate width:(ScreenWidth)width;
-- (UITableViewCell *)bigTableviewCellWithReuseIdentifier:(NSString *)identifier width:(ScreenWidth)width;
 
-- (void)populateCell:(UITableViewCell *)cell decorate:(BOOL)decorate busName:(BOOL)busName wide:(BOOL)wide;
-- (void)populateCellAndGetExplaination:(UITableViewCell *)cell decorate:(BOOL)decorate busName:(BOOL)busName wide:(BOOL)wide color:(UIColor **)color details:(NSString **)details;
-- (void)getExplaination:(UIColor**)color details:(NSString **)details;
+- (void)populateCell:(DepartureCell *)cell decorate:(BOOL)decorate busName:(BOOL)busName wide:(BOOL)wide;
+- (void)populateCellAndGetExplaination:(DepartureCell *)cell decorate:(BOOL)decorate busName:(BOOL)busName wide:(BOOL)wide details:(NSString **)formattedDetails;
+- (NSString*)getFormattedExplaination;
 - (void)populateTripCell:(UITableViewCell *)cell item:(NSInteger)item;
-- (void)populateCellGeneric:(UITableViewCell *)cell first:(NSString *)first second:(NSString *)second col1:(UIColor *)col1 col2:(UIColor *)col2;
+- (void)populateCellGeneric:(DepartureCell *)cell first:(NSString *)first second:(NSString *)second col1:(UIColor *)col1 col2:(UIColor *)col2;
 
 
 @end

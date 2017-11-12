@@ -60,7 +60,7 @@ typedef struct savedImageStruct
     bool    saved;
 } SAVED_IMAGE;
 
-@interface RailMapView : ViewControllerBase <ReturnStop, UIScrollViewDelegate, TapDetectingImageViewDelegate, UIAlertViewDelegate, DeselectItemDelegate>{
+@interface RailMapView : ViewControllerBase <ReturnStop, UIScrollViewDelegate, TapDetectingImageViewDelegate, DeselectItemDelegate>{
 	UIScrollView *          _scrollView;
 	bool                    _from;
 	bool                    _picker;

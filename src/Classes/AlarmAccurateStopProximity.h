@@ -34,7 +34,6 @@
 @property (retain)				CLLocationManager *locationManager;
 	  
 - (void)setStop:(NSString *)stopId loc:(CLLocation *)loc desc:(NSString *)desc;
-- (void)cancelAlert;
 - (instancetype)initWithAccuracy:(bool)accurate;
 - (void)startUpdatingLocation;
 - (void)stopUpdatingLocation;

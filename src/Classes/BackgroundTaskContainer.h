@@ -29,7 +29,7 @@
 @end
 
 
-@interface BackgroundTaskContainer : NSObject  <BackgroundTaskProgress,ProgressDelegate, UIAlertViewDelegate> {
+@interface BackgroundTaskContainer : NSObject  <BackgroundTaskProgress,ProgressDelegate> {
 	ProgressModalView *			_progressModal;
 	id<BackgroundTaskDone>		_callbackComplete;
 	id<BackgroundTaskProgress>	_callbackWhenFetching;

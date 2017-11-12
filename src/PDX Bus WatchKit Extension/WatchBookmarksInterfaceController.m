@@ -202,7 +202,7 @@
 - (void)awakeWithContext:(id)context {
     [super awakeWithContext:context];
     
-    self.faves = [SafeUserData singleton];
+    self.faves = [SafeUserData sharedInstance];
     self.faves.readOnly = YES;
     self.bookmarksContext = context;
 
@@ -295,7 +295,7 @@
 - (void)didAppear
 {
     bool pushedCommuterBookmark = NO;
-    [SafeUserData singleton].lastRunKey = kLastRunWatch;
+    [SafeUserData sharedInstance].lastRunKey = kLastRunWatch;
     
     WKExtension *extension = [WKExtension sharedExtension];
     

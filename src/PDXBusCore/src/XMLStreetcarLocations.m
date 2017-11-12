@@ -46,7 +46,7 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
 
 #pragma mark Singleton
 
-+ (XMLStreetcarLocations *)singletonForRoute:(NSString *)route
++ (XMLStreetcarLocations *)autoSingletonForRoute:(NSString *)route
 {
     @synchronized (self) {
 
@@ -88,7 +88,7 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
 {
     for (NSString *route in routes)
     {
-        XMLStreetcarLocations *locs = [XMLStreetcarLocations singletonForRoute:route];
+        XMLStreetcarLocations *locs = [XMLStreetcarLocations autoSingletonForRoute:route];
         for (XMLDepartures *dep in deps)
         {
             for (DepartureData *dd in dep.itemArray)

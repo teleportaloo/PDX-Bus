@@ -17,7 +17,6 @@
 #import "CellTextField.h"
 #import "CellTextView.h"
 #import "AlarmTaskList.h"
-#import "ZXingWidgetController.h"
 #import "ProgressModalView.h"
 #import  <CoreLocation/CoreLocation.h>
 #import "WatchConnectivity/WatchConnectivity.h"
@@ -45,8 +44,6 @@ typedef enum InitialAction_tag
 @interface RootViewController : TableViewWithToolbar <EditableTableViewCellDelegate, 
 									MFMailComposeViewControllerDelegate,
 									AlarmObserver,
-                                    ZXingDelegate,
-                                    UIActionSheetDelegate,
                                     WCSessionDelegate>
 {
 	NSString *_lastArrivalsShown;

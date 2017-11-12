@@ -196,7 +196,7 @@ static StopLocations *singleton;
 	
 	[self open];
 
-	[[SafeUserData singleton] setLocationDatabaseDate:kUnknownDate];
+	[[SafeUserData sharedInstance] setLocationDatabaseDate:kUnknownDate];
 	
 	DEBUG_LOG(@"New location database path: %@\n", self.path);
 	

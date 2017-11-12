@@ -27,7 +27,7 @@
 #import "DayOfTheWeekView.h"
 #import "SegmentCell.h"
 #import "StringHelper.h"
-#import "CellLabel.h"
+#import "UITableViewCell+MultiLineCell.h"
 
 enum SECTIONS_AND_ROWS
 {
@@ -61,15 +61,15 @@ enum SECTIONS_AND_ROWS
 
 @implementation EditBookMarkView
 
-@synthesize originalFave	= _originalFave;
-@synthesize stops			= _stops;
-@synthesize editWindow		= _editWindow;
-@synthesize item			= _item;
-@synthesize editCell		= _editCell;
-@synthesize userRequest		= _userReq;
-@synthesize invalidItem     = _invalidItem;
-@synthesize msg             = _msg;
-@synthesize newBookmark     = _newBookmark;
+@synthesize originalFave	  = _originalFave;
+@synthesize stops			  = _stops;
+@synthesize editWindow		  = _editWindow;
+@synthesize item			  = _item;
+@synthesize editCell		  = _editCell;
+@synthesize userRequest		  = _userReq;
+@synthesize invalidItem       = _invalidItem;
+@synthesize msg               = _msg;
+@synthesize newBookmark       = _newBookmark;
 
 - (void)dealloc {
 	
@@ -87,7 +87,7 @@ enum SECTIONS_AND_ROWS
 	if ((self = [super init]))
 	{
 		// clear the last run so the commute bookmark can be tested
-		[SafeUserData singleton].lastRun = nil;
+		[SafeUserData sharedInstance].lastRun = nil;
         self.invalidItem = NO;
         _updateNameFromDestination = NO;
         _newBookmark = NO;
@@ -582,22 +582,19 @@ enum SECTIONS_AND_ROWS
     switch ([self rowType:indexPath])
     {
         case kTableMessage:
-            result = [self getAtrributedTextHeight:[self.msg formatAttributedStringWithFont:self.paragraphFont]] + kCellLabelTotalYInset;
+            result = UITableViewAutomaticDimension;
             break;
         case kTableName:
             result = [CellTextField cellHeight];
             break;
         case kTableTripRowOptions:
-            result = [TripLeg getTextHeight:[self.userRequest optionsDisplayText]
-                                      width:[TripLeg bodyTextWidth:self.screenInfo]];
+            result = UITableViewAutomaticDimension;
             break;
         case kTableTripRowTo:
-            result = [TripLeg getTextHeight:[self.userRequest.toPoint userInputDisplayText]
-                                      width:[TripLeg bodyTextWidth:self.screenInfo]];
+            result = UITableViewAutomaticDimension;
             break;
         case kTableTripRowFrom:
-            result = [TripLeg getTextHeight:[self.userRequest.fromPoint userInputDisplayText]
-                                      width:[TripLeg bodyTextWidth:self.screenInfo]];
+            result = UITableViewAutomaticDimension;
             break;
         case kTableRowTime:
             result = [SegmentCell segmentCellHeight];
@@ -631,12 +628,40 @@ enum SECTIONS_AND_ROWS
     cell.accessoryType = UITableViewCellAccessoryNone ;
     cell.editingAccessoryType = UITableViewCellAccessoryDisclosureIndicator ;
     cell.textLabel.text = text;
-    
-    [self maybeAddSectionToAccessibility:cell indexPath:indexPath alwaysSaySection:YES];
     cell.textLabel.font = self.basicFont;
     cell.textLabel.adjustsFontSizeToFitWidth = YES;
     return cell;
 
+}
+
+- (void)populateOptionsCell:(TripItemCell *)cell
+{
+    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+    cell.imageView.image = nil;
+    
+    [cell populateBody:[self.userRequest optionsDisplayText] mode:NSLocalizedString(@"Options", @"trip options") time:nil leftColor:nil route:nil];
+}
+
+- (void)populateEndCell:(TripItemCell *)cell from:(bool)from
+{
+    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+    cell.imageView.image = nil;
+    
+    NSString *text;
+    NSString *dir;
+    
+    if (from)
+    {
+        text = [self.userRequest.fromPoint userInputDisplayText];
+        dir = NSLocalizedString(@"From", @"trip starting from");
+        
+    }
+    else {
+        text = [self.userRequest.toPoint userInputDisplayText];
+        dir = NSLocalizedString(@"To", @"trip ending at");
+    }
+    
+    [cell populateBody:text mode:dir time:nil leftColor:nil route:nil];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -651,19 +676,13 @@ enum SECTIONS_AND_ROWS
             
             NSAttributedString *text = [self.msg formatAttributedStringWithFont:self.paragraphFont];
             
-            CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:cellId];
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellId];
             if (cell == nil) {
-                cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellId] autorelease];
-                cell.view = [self create_UITextView:nil font:self.paragraphFont];
+                cell = [UITableViewCell cellWithMultipleLines:cellId];
             }
-            
-            cell.view.font =  self.paragraphFont;
-            cell.view.attributedText =  text;
-            [cell.view setAdjustsFontSizeToFitWidth:NO];
-            cell.view.backgroundColor = [UIColor clearColor];
-            
+            cell.textLabel.attributedText =  text;
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
             [self updateAccessibility:cell indexPath:indexPath text:text.string alwaysSaySection:YES];
-            
             return cell;
             break;
         }
@@ -709,61 +728,14 @@ enum SECTIONS_AND_ROWS
         case kTableTripRowFrom:
         case kTableTripRowTo:
         {
-            CGFloat h = [self tableView:self.table heightForRowAtIndexPath:indexPath];
-            CGFloat w = [TripLeg bodyTextWidth:self.screenInfo];
-            NSString *cellIdentifier = [NSString stringWithFormat:@"TripLeg%f+%f", h,w];
-            
-            UITableViewCell *cell = (UITableViewCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
-            if (cell == nil)
-            {
-                
-                
-                cell = [TripLeg tableviewCellWithReuseIdentifier:cellIdentifier
-                                                       rowHeight:h
-                                                      screenInfo:self.screenInfo];
-                        
-            }
-            
-            cell.accessoryType = UITableViewCellAccessoryNone;
-            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-            cell.imageView.image = nil;
-            
-            NSString *text;
-            NSString *dir;
-            
-            if ([self rowType:indexPath] == kTableTripRowFrom)
-            {
-                text = [self.userRequest.fromPoint userInputDisplayText];
-                dir = NSLocalizedString(@"From", @"trip starting from");
-                
-            }
-            else {
-                text = [self.userRequest.toPoint userInputDisplayText];
-                dir = NSLocalizedString(@"To", @"trip ending at");
-            }
-            
-            [TripLeg populateCell:cell body:text mode:dir time:nil leftColor:nil route:nil];
+            TripItemCell *cell = [tableView dequeueReusableCellWithIdentifier:kTripItemCellId];
+            [self populateEndCell:cell from:[self rowType:indexPath] == kTableTripRowFrom];
             return cell;
-            
         }
         case kTableTripRowOptions:
         {
-            NSString *cellId = MakeCellIdW(kTableTripRowOptions, self.screenInfo.appWinWidth);
-            UITableViewCell *cell = (UITableViewCell *)[tableView dequeueReusableCellWithIdentifier:cellId];
-            if (cell == nil)
-            {
-                CGFloat h = [self tableView:self.table heightForRowAtIndexPath:indexPath];
-                
-                cell = [TripLeg tableviewCellWithReuseIdentifier:cellId
-                                                       rowHeight:h
-                                                      screenInfo:self.screenInfo];
-            }
-            
-            cell.accessoryType = UITableViewCellAccessoryNone;
-            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-            cell.imageView.image = nil;
-            
-            [TripLeg populateCell:cell body:[self.userRequest optionsDisplayText] mode:NSLocalizedString(@"Options", @"trip options") time:nil leftColor:nil route:nil];
+            TripItemCell *cell = [tableView dequeueReusableCellWithIdentifier:kTripItemCellId];
+            [self populateOptionsCell:cell];
             return cell;
         }
             
@@ -807,7 +779,6 @@ enum SECTIONS_AND_ROWS
                 cell.textLabel.text = NSLocalizedString(@"Delete bookmark", @"button text");
             }
             cell.imageView.image = [self getActionIcon:kIconDelete];
-            [self maybeAddSectionToAccessibility:cell indexPath:indexPath alwaysSaySection:YES];
             return cell;
             
             break;
@@ -1134,6 +1105,7 @@ enum SECTIONS_AND_ROWS
 {
 	[super loadView];
 	self.table.allowsSelectionDuringEditing = YES;
+    [self.table registerNib:[TripItemCell nib] forCellReuseIdentifier:kTripItemCellId];
 }
 
 

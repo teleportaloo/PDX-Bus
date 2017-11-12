@@ -47,6 +47,7 @@
 
 #import "TilingView.h"
 #import <QuartzCore/CATiledLayer.h>
+#import "DebugLogging.h"
 
 
 @implementation TilingView
@@ -56,6 +57,7 @@
 - (void)dealloc
 {
     self.imageName = nil;
+    self.tiledLayer = nil;
     [super dealloc];
 }
 
@@ -68,8 +70,10 @@
     if ((self = [super initWithFrame:CGRectMake(0, 0, size.width, size.height)])) {
         self.imageName = name;
 
-        CATiledLayer *tiledLayer = (CATiledLayer *)self.layer;
-        tiledLayer.levelsOfDetail = 4;
+        self.tiledLayer = (CATiledLayer *)self.layer;
+        self.tiledLayer.levelsOfDetail = 4;
+        self.safeBounds = self.bounds;
+        DEBUG_LOGR(self.bounds);
     }
     return self;
 }
@@ -135,8 +139,7 @@
     CGFloat _scaleX = CGContextGetCTM(context).a;
     CGFloat _scaleY = CGContextGetCTM(context).d;
     
-    CATiledLayer *tiledLayer = (CATiledLayer *)self.layer;
-    CGSize tileSize = tiledLayer.tileSize;
+    CGSize tileSize = self.tiledLayer.tileSize;
     
     // Even at scales lower than 100%, we are drawing into a rect in the coordinate system of the full
     // image. One tile at 50% covers the width (in original image coordinates) of two tiles at 100%.
@@ -164,7 +167,10 @@
             
             // if the tile would stick outside of our bounds, we need to truncate it so as to avoid
             // stretching out the partial tiles at the right and bottom edges
-            tileRect = CGRectIntersection(self.bounds, tileRect);
+            
+            // Uses the safe bounds now as not allowed to access the bounds.
+            tileRect = CGRectIntersection(self.safeBounds, tileRect);
+            DEBUG_LOGR(self.safeBounds);
             
             [tile drawInRect:tileRect];
             

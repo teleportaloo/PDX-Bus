@@ -14,7 +14,7 @@
 
 
 #import "TriMetRouteColors.h"
-#import <UIKit/UIKit.h>
+#import "PDXBusCore.h"
 #import "DebugLogging.h"
 
 @implementation TriMetRouteColors
@@ -26,16 +26,16 @@
 // These must be in route order and the lines also in order so a binary search works on both!
 static const ROUTE_COL routeColours[] =
 {
-    { 90,       kRedLine,           RGB(211, 31, 67),   RGB_WHITE,  @"MAX_Red_Line",				@"MAX Red Line",                @"MAX",       NO },		// Red line
-	{ 100,      kBlueLine,          RGB( 15,106,172),   RGB_RED,    @"MAX_Blue_Line",				@"MAX Blue Line",               @"MAX",       NO },		// Blue Line
-    { 190,      kYellowLine,        RGB(255,197, 36),   RGB_RED,    @"MAX_Yellow_Line",				@"MAX Yellow Line",             @"MAX",       NO },		// Yellow line
-    { 193,      kStreetcarNsLine,	RGB(140,198, 63),	RGB_WHITE,  @"Portland_Streetcar",			@"Portland Streetcar - NS Line",@"NS Line",   YES},     // Streetcar Green
-    { 194,      kStreetcarALoop,	RGB(224, 29,144),	RGB_WHITE,  @"Portland_Streetcar",			@"Portland Streetcar - A Loop", @"A Loop",    YES},     // Streetcar Blue
-    { 195,      kStreetcarBLoop,    RGB(  0,169,204),	RGB_WHITE,  @"Portland_Streetcar",          @"Portland Streetcar - B Loop", @"B Loop",    YES},     // Streetcar Pink
-    { 200,      kGreenLine,         RGB(  2,137, 83),   RGB_WHITE,  @"MAX_Green_Line",				@"MAX Green Line",              @"MAX",       NO },		// Green Line
-	{ 203,      kWesLine,           RGB(  0,  0,  0),   RGB_WHITE,  @"Westside_Express_Service",	@"WES Commuter Rail",           @"WES",       NO },		// WES Black
-    { 290,      kOrangeLine,        RGB(209, 95, 39),	RGB_WHITE,  @"MAX_Orange_Line",			    @"MAX Orange Line",             @"MAX",       NO },     // MAX Orange
-	{ kNoRoute,	kNoLine,            RGB(  0,  0,  0),   RGB_WHITE,  nil,							nil,                            nil,          NO }      // Terminator
+    { 90,       kRedLine,           RGB(211, 31, 67),   RGB_WHITE,  @"MAX_Red_Line",				@"MAX Red Line",                @"MAX",       NO ,3},	  // Red line
+	{ 100,      kBlueLine,          RGB( 15,106,172),   RGB_RED,    @"MAX_Blue_Line",				@"MAX Blue Line",               @"MAX",       NO ,0},	  // Blue Line
+    { 190,      kYellowLine,        RGB(255,197, 36),   RGB_RED,    @"MAX_Yellow_Line",				@"MAX Yellow Line",             @"MAX",       NO ,4},	  // Yellow line
+    { 193,      kStreetcarNsLine,	RGB(140,198, 63),	RGB_WHITE,  @"Portland_Streetcar",			@"Portland Streetcar - NS Line",@"NS Line",   YES,6},     // Streetcar Green
+    { 194,      kStreetcarALoop,	RGB(224, 29,144),	RGB_WHITE,  @"Portland_Streetcar",			@"Portland Streetcar - A Loop", @"A Loop",    YES,7},     // Streetcar Blue
+    { 195,      kStreetcarBLoop,    RGB(  0,169,204),	RGB_WHITE,  @"Portland_Streetcar",          @"Portland Streetcar - B Loop", @"B Loop",    YES,8},     // Streetcar Pink
+    { 200,      kGreenLine,         RGB(  2,137, 83),   RGB_WHITE,  @"MAX_Green_Line",				@"MAX Green Line",              @"MAX",       NO ,1},	  // Green Line
+	{ 203,      kWesLine,           RGB(  0,  0,  0),   RGB_WHITE,  @"Westside_Express_Service",	@"WES Commuter Rail",           @"WES",       NO ,5},	  // WES Black
+    { 290,      kOrangeLine,        RGB(209, 95, 39),	RGB_WHITE,  @"MAX_Orange_Line",			    @"MAX Orange Line",             @"MAX",       NO ,2},     // MAX Orange
+	{ kNoRoute,	kNoLine,            RGB(  0,  0,  0),   RGB_WHITE,  nil,							nil,                            nil,          NO ,9}      // Terminator
 };
 
 int compareRoute(const void *first, const void *second)

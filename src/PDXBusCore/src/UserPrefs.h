@@ -24,7 +24,7 @@
 - (BOOL) getBoolFromDefaultsForKey:(NSString*)key ifMissing:(BOOL)missing writeToShared:(BOOL)writeToShared;
 - (float)getFloatFromDefaultsForKey:(NSString*)key ifMissing:(float)missing max:(float)max min:(float)min writeToShared:(BOOL)writeToShared;
 - (int)  getIntFromDefaultsForKey:(NSString*)key ifMissing:(int)missing max:(int)max min:(int)min writeToShared:(BOOL)writeToShared;
-+ (UserPrefs*) singleton;
++ (UserPrefs*)sharedInstance;
 
 @property (nonatomic, readonly)  bool  bookmarksAtTheTop;
 @property (nonatomic, readonly)  bool  autoCommute;
@@ -66,6 +66,5 @@
 @property (nonatomic, readonly)  bool useBetaVehicleLocator;
 @property (nonatomic, readonly)  NSString *busIcon;
 @property (nonatomic, readonly)  bool showTrips;
-@property (nonatomic, readonly)  NSString *triMetProtocol;
 
 @end

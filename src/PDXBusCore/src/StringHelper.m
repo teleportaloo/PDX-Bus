@@ -15,7 +15,7 @@
 
 #import "StringHelper.h"
 #import "DebugLogging.h"
-#import "UIKit/UIKit.h"
+#import "PDXBusCore.h"
 
 
 @implementation NSString(PDXBus)
@@ -44,7 +44,7 @@
         }
     }
     
-    return [self substringToIndex:i];
+    return [self substringToIndex:i+1];
 }
 
 

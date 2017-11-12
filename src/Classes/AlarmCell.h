@@ -19,14 +19,11 @@
 @interface AlarmCell : UITableViewCell {
     bool                        _fired;
     UITableViewCellStateMask    _state;
-    CGFloat                     _originalTextWidth;
 }
 
-- (void)willTransitionToState:(UITableViewCellStateMask)state;
-+ (AlarmCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier width:(ScreenWidth)width height:(CGFloat)height;
++ (AlarmCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier;
 - (void)populateCellLine1:(NSString *)line1 line2:(NSString *)line2 line2col:(UIColor *)col;
 + (CGFloat)rowHeight;
-- (void)resetState;
 
 @property (nonatomic) bool fired;
 

@@ -17,7 +17,6 @@
 #import "BackgroundTaskContainer.h"
 #import "XMLStreetcarLocations.h"
 #import "TableViewControllerWithRefresh.h"
-#import "AlertViewCancelsTask.h"
 #import "DepartureDetailView.h"
 #import "DepartureTimesDataProvider.h"
 
@@ -31,8 +30,7 @@
 
 typedef NSMutableArray<NSNumber *> SECTIONROWS;
 
-@interface DepartureTimesView :  TableViewControllerWithRefresh <UIAlertViewDelegate,
-        UIActionSheetDelegate, DepartureDetailDelegate> {
+@interface DepartureTimesView :  TableViewControllerWithRefresh <UIAlertViewDelegate, DepartureDetailDelegate> {
 	NSString *                                          _displayName;
 	NSMutableArray<id<DepartureTimesDataProvider>> *	_visibleDataArray;
 	NSMutableArray<XMLDepartures*> *                    _originalDataArray;
@@ -46,7 +44,6 @@ typedef NSMutableArray<NSNumber *> SECTIONROWS;
 	NSIndexPath *                                       _actionItem;
 	bool                                                _fetchingLocations;
     XMLDepartures *                                     _singleMapItem; // weak
-	int                                                 _bookmarkItem;
 	NSString *                                          _bookmarkDesc;
 	NSString *                                          _bookmarkLoc;
     bool                                                _reloadWhenAppears;

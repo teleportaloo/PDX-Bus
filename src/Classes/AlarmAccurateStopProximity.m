@@ -202,7 +202,7 @@
     
     DEBUG_LOGO(newLocation);
 	
-	double becomeAccurate = [UserPrefs singleton].useGpsWithin;
+	double becomeAccurate = [UserPrefs sharedInstance].useGpsWithin;
 	
 	
 	
@@ -332,30 +332,6 @@
     }
 }
 
-- (void)cancelAlert
-{
-	
-	UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"Proximity Alarm", @"alarm title")
-													   message:NSLocalizedString(@"Cancel proximity alarm?", @"alarm button text")
-													  delegate:self
-											 cancelButtonTitle:NSLocalizedString(@"Cancel", @"button text")
-											 otherButtonTitles:NSLocalizedString(@"Keep", @"button text to not cancel alarm"), nil] autorelease];
-	[alert show];
-}
-
-
-// Called when a button is clicked. The view will be automatically dismissed after this call returns
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
-{
-	if (buttonIndex == 0)
-	{
-#ifdef DEBUG_ALARMS
-		_done = true;
-#endif
-		[self.observer taskDone:self];
-	}
-}
-
 - (NSString *)key
 {
 	return self.stopId;
@@ -432,7 +408,7 @@
 {
 	if (self.locationManager.location!=nil)
     {
-        TriMetTimesAppDelegate *app = [TriMetTimesAppDelegate singleton];
+        TriMetTimesAppDelegate *app = [TriMetTimesAppDelegate sharedInstance];
         MapViewController *mapPage = [MapViewController viewController];
         
         mapPage.title = NSLocalizedString(@"Stop Proximity", @"map title");

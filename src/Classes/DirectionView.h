@@ -26,6 +26,7 @@
 	NSArray *   _directionKeys;
 	NSString *  _routeId;
     CacheAction _cacheAction;
+    bool        _appeared;
 }
 
 @property (nonatomic, retain) Route *route;

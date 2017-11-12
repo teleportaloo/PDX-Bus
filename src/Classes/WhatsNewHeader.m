@@ -24,7 +24,7 @@
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell text:(NSString*)text
 {
-    int color = [UserPrefs singleton].toolbarColors;
+    int color = [UserPrefs sharedInstance].toolbarColors;
 	
 	if (color == 0xFFFFFF)
     {
@@ -36,12 +36,12 @@
     }
 }
 
-- (void)updateCell:(CellLabel *)cell tableView:(UITableView *)tableView
+- (void)updateCell:(UITableViewCell *)cell tableView:(UITableView *)tableView
 {
-    cell.view.backgroundColor = [UIColor clearColor];
-    cell.view.textAlignment   = NSTextAlignmentCenter;
-    cell.accessoryType        = UITableViewCellAccessoryNone;
-    cell.selectionStyle       = UITableViewCellSelectionStyleNone;
+    cell.textLabel.backgroundColor = [UIColor clearColor];
+    cell.textLabel.textAlignment   = NSTextAlignmentCenter;
+    cell.accessoryType             = UITableViewCellAccessoryNone;
+    cell.selectionStyle            = UITableViewCellSelectionStyleNone;
 }
 
 - (NSString*)displayText:(NSString*)fullText

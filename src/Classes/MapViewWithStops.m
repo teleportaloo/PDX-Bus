@@ -55,29 +55,6 @@
     }
 }
 
-- (void)workerToFetchStops:(NSArray*) args
-{
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:kGettingStops];
-    
-	
-    NSString *routeid           = args[0];
-	NSString *dir               = args[1];
-    id<ReturnStop> returnStop   = args[2];
-	
-	[self.stopData getStopsForRoute:routeid
-						  direction:dir
-						description:@""
-						cacheAction:TriMetXMLForceFetchAndUpdateCache];
-	
-    [self addStops:returnStop];
-    
-    [self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
-    
-	[pool release];
-}
-
-
 - (void)fetchStopsAsync:(id<BackgroundTaskProgress>) callback route:(NSString*)routeid direction:(NSString*)dir
                     returnStop:(id<ReturnStop>)returnStop
 {
@@ -94,9 +71,19 @@
 	}
 	else
 	{
-		[NSThread detachNewThreadSelector:@selector(workerToFetchStops:)
-								 toTarget:self
-							   withObject:@[routeid, dir, returnStop]];
+        [self runAsyncOnBackgroundThread:^{
+            [self.backgroundTask.callbackWhenFetching backgroundStart:1 title:kGettingStops];
+            
+            [self.stopData getStopsForRoute:routeid
+                                  direction:dir
+                                description:@""
+                                cacheAction:TriMetXMLForceFetchAndUpdateCache];
+            
+            [self addStops:returnStop];
+            
+            [self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
+            
+        }];
 	}
 }
 

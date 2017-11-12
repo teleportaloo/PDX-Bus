@@ -24,6 +24,7 @@
 #import "RootViewController.h"
 #import "MapViewController.h"
 #import "SimpleAnnotation.h"
+#import <AVFoundation/AVFoundation.h>
 
 @implementation AlarmNotification
 
@@ -44,7 +45,7 @@
 
 - (void)executeAction
 {
-	TriMetTimesAppDelegate *app = [TriMetTimesAppDelegate singleton];
+	TriMetTimesAppDelegate *app = [TriMetTimesAppDelegate sharedInstance];
 	NSString *stopId   = self.notification.userInfo[kStopIdNotification];
 	NSString *mapDescr = self.notification.userInfo[kStopMapDescription];
 	
@@ -124,7 +125,7 @@
                 soundFile = @"default_sound.wav";
             }
 			
-			// UserPrefs *prefs = [UserPrefs singleton];
+			// UserPrefs *prefs = [UserPrefs sharedInstance];
             //Get the filename of the sound file:
             NSString *path = [NSString stringWithFormat:@"%@/%@",
 								  [NSBundle mainBundle].resourcePath,

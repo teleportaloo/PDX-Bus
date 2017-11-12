@@ -17,8 +17,9 @@
 #import "BackgroundTaskProgress.h"
 #import "ProgressModalView.h"
 #import "BackgroundTaskContainer.h"
+#import "MapKit/MapKit.h"
 
-#define kDisclaimerCellHeight       55.0
+#define kDisclaimerCellHeight       UITableViewAutomaticDimension
 #define kSectionRowDisclaimerType   0xFFFFFF
 #define kDisclaimerCellId           MakeCellId(kSectionRowDisclaimerType)
 #define kExceptionCellId            @"Exception"
@@ -41,9 +42,8 @@
 @protocol UIAlertViewDelegate;
 @class MKMapView;
 
-#define kCellLabelTotalYInset 20
-
-@interface TableViewWithToolbar : ViewControllerBase <UITableViewDelegate, UITableViewDataSource, UISearchResultsUpdating, UISearchControllerDelegate, DeselectItemDelegate> {
+@interface TableViewWithToolbar : ViewControllerBase <UITableViewDelegate, UITableViewDataSource, UISearchResultsUpdating, UISearchControllerDelegate,
+            DeselectItemDelegate, MKMapViewDelegate> {
 	UITableView *       _tableView;
 	bool                _backgroundRefresh;
 	UIFont *            _basicFont;
@@ -60,17 +60,15 @@
 }
 
 - (void)addStreetcarTextToDisclaimerCell:(UITableViewCell *)cell text:(NSString *)text trimetDisclaimer:(bool)trimetDisclaimer;
+
 - (void)addTextToDisclaimerCell:(UITableViewCell *)cell text:(NSString *)text;
+- (void)addTextToDisclaimerCell:(UITableViewCell *)cell text:(NSString *)text lines:(NSInteger)numberOfLines;
 - (void)noNetworkDisclaimerCell:(UITableViewCell *)cell;
 - (UITableViewCell *)disclaimerCellWithReuseIdentifier:(NSString *)identifier;
 - (void)recreateNewTable;
-
-
-- (void)maybeAddSectionToAccessibility:(UITableViewCell *)cell indexPath:(NSIndexPath *)indexPath alwaysSaySection:(BOOL)alwaysSaySection;
+- (bool)neverAdjustContentInset;
 - (void)updateAccessibility:(UITableViewCell *)cell indexPath:(NSIndexPath *)indexPath text:(NSString *)str alwaysSaySection:(BOOL)alwaysSaySection;
 @property (nonatomic, getter=getStyle, readonly) UITableViewStyle style;
-- (CGFloat)getTextHeight:(NSString *)text font:(UIFont *)font;
-- (CGFloat)getAtrributedTextHeight:(NSAttributedString *)text;
 
 @property (nonatomic, readonly, copy) UIFont *basicFont;
 @property (nonatomic, readonly, copy) UIFont *smallFont;
@@ -92,7 +90,7 @@
 // the table.   Not all tables need to use this but refactoring will make it
 // simpler.
 
-
+- (CGFloat)leftInset;
 - (void)clearSectionMaps;
 - (NSInteger)sectionType:(NSInteger)section;
 - (NSInteger)rowType:(NSIndexPath*)index;
@@ -110,6 +108,8 @@
 @property (nonatomic, readonly) CGFloat mapCellHeight;
 - (void)finishWithMapView;
 - (UITableViewCell*)getMapCell:(NSString*)id withUserLocation:(bool)userLocation;
+- (void)updateAnnotations:(MKMapView *)map;
+
 
 @property (nonatomic, retain) UITableView *table;
 @property bool backgroundRefresh;

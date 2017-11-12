@@ -17,6 +17,7 @@
 #import "NearestRoutesView.h"
 #import "RouteDistanceData+iOSUI.h"
 #import "DepartureTimesView.h"
+#include "DepartureCell.h"
 
 #define kRouteSections		2
 #define kSectionRoutes		0
@@ -61,28 +62,7 @@
 #pragma mark -
 #pragma mark Fetch data
 
-- (void)workerToFetchNearestRoutes:(XMLLocateStops*) locator
-{
-	
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-		
-	[self.backgroundTask.callbackWhenFetching backgroundStart:1 title:@"getting routes"];
-	
-	[locator findNearestRoutes];
-	
-	[locator displayErrorIfNoneFound:self.backgroundTask.callbackWhenFetching];
-	
-    self.checked = [NSMutableArray array];
-	
-	for (int i=0; i<self.routeData.count; i++)
-	{
-		self.checked[i] = @NO;
-	}
-	
-	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
-	
-	[pool release];
-}
+
 
 - (void)fetchNearestRoutesAsync:(id<BackgroundTaskProgress>)background location:(CLLocation *)here maxToFind:(int)max minDistance:(double)min mode:(TripMode)mode
 {
@@ -95,8 +75,18 @@
 	self.routeData.mode = mode;
 	self.routeData.minDistance = min;
 	
-	[NSThread detachNewThreadSelector:@selector(workerToFetchNearestRoutes:) toTarget:self withObject:self.routeData];
-	
+    [self runAsyncOnBackgroundThread:^{
+            [self.backgroundTask.callbackWhenFetching backgroundStart:1 title:@"getting routes"];
+            [self.routeData findNearestRoutes];
+            [self.routeData displayErrorIfNoneFound:self.backgroundTask.callbackWhenFetching];
+            self.checked = [NSMutableArray array];
+            for (int i=0; i<self.routeData.count; i++)
+            {
+                self.checked[i] = @NO;
+            }
+
+            [self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
+     }];
 }
 
 
@@ -221,7 +211,7 @@
 	switch (indexPath.section)
 	{
 		case kSectionRoutes:
-			if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+			if (LARGE_SCREEN)
 			{
 				return kRouteWideCellHeight;
 			}
@@ -263,13 +253,15 @@
 		case kSectionRoutes:
 		{
 			RouteDistanceData *rd = (RouteDistanceData*)self.routeData[indexPath.row];
+            DepartureCell *dcel = nil;
 
-			NSString *cellId = [rd cellReuseIdentifier:@"route" width:self.screenInfo.screenWidth];
-			cell = [tableView dequeueReusableCellWithIdentifier: cellId];
-			if (cell == nil) {
-				cell = [rd tableviewCellWithReuseIdentifier:cellId width:self.screenInfo.screenWidth];
+			dcel = [tableView dequeueReusableCellWithIdentifier: MakeCellId(XkSectionRoutes)];
+			if (dcel == nil) {
+                 dcel = [DepartureCell genericWithReuseIdentifier:MakeCellId(XkSectionRoutes)];
 			}
-			[rd populateCell:cell wide:self.screenInfo.screenWidth];
+            cell = dcel;
+            
+			[rd populateCell:dcel];
 			
 			if (self.checked[indexPath.row].boolValue)
 			{

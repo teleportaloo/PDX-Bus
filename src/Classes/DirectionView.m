@@ -19,8 +19,7 @@
 #import "DebugLogging.h"
 #import "Detour.h"
 #import "DetourData+iOSUI.h"
-
-#import "CellLabel.h"
+#import "UITableViewCell+MultiLineCell.h"
 
 @implementation DirectionView
 
@@ -63,79 +62,7 @@ enum {
 
 #pragma mark Data fetchers
 
-- (void)workerToFetchDirections:(NSString *)route
-{	
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	self.routeId = route;
-    int items = 2;
-    
-    if (!self.backgroundRefresh && [self.directionData getDirections:route cacheAction:TriMetXMLCheckCache])
-    {
-        items = 1;
-    }
-    
-    [self.backgroundTask.callbackWhenFetching backgroundStart:items title:NSLocalizedString(@"getting directions", @"progress message")];
-	
-	[self.directionData getDirections:route cacheAction:_cacheAction];
-    
-	if (self.directionData.count > 0)
-	{
-		self.route = self.directionData[0];
-	}
-    
-    if (items > 1)
-    {
-        [self.backgroundTask.callbackWhenFetching backgroundItemsDone:1];
-    }
-    
-    [self.detourData getDetoursForRoute:route];
-    
-    if (items > 1)
-    {
-        [self.backgroundTask.callbackWhenFetching backgroundItemsDone:2];
-    }
-    
-    [self clearSectionMaps];
-    
-    [self addSectionType:kSectionRowName];
-    [self addRowType:kSectionRowName];
-    
-    [self addSectionType:kSectionRowDirection];
-    
-    if (self.route)
-    {
-        for (int i=0; i < self.route.directions.count; i++)
-        {
-            [self addRowType:kSectionRowDirection];
-        }
-    }
-    
-    [self addSectionType:kSectionOther];
-    [self addRowType:kOtherRowMap];
-    
-    if (self.route)
-    {
-        const ROUTE_COL *col = [TriMetRouteColors rawColorForRoute:self.route.route];
-        if (col!=nil && col->wiki != nil)
-        {
-            [self addRowType:kOtherRowWiki];
-        }
-    }
-    
-    if (self.detourData.count > 0)
-    {
-        [self addSectionType:kSectionRowDetour];
-        for (int i=0; i < self.detourData.count; i++)
-        {
-            [self addRowType:kSectionRowDetour];
-        }
-    }
-    
-    [self addRowType:kSectionRowDisclaimer];
-    
-	[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
-	[pool release];
-}
+
 
 - (void)fetchDirectionsAsync:(id<BackgroundTaskProgress>) callback route:(NSString *)route
 {
@@ -143,8 +70,77 @@ enum {
 	
     self.directionData = [XMLRoutes xml];
     self.detourData    = [XMLDetours xml];
-	
-    [NSThread detachNewThreadSelector:@selector(workerToFetchDirections:) toTarget:self withObject:route];
+    
+    [self runAsyncOnBackgroundThread:^{
+            self.routeId = route;
+            int items = 2;
+            
+            if (!self.backgroundRefresh && [self.directionData getDirections:route cacheAction:TriMetXMLCheckCache])
+            {
+                items = 1;
+            }
+            
+            [self.backgroundTask.callbackWhenFetching backgroundStart:items title:NSLocalizedString(@"getting directions", @"progress message")];
+            
+            [self.directionData getDirections:route cacheAction:_cacheAction];
+            
+            if (self.directionData.count > 0)
+            {
+                self.route = self.directionData[0];
+            }
+            
+            if (items > 1)
+            {
+                [self.backgroundTask.callbackWhenFetching backgroundItemsDone:1];
+            }
+            
+            [self.detourData getDetoursForRoute:route];
+            
+            if (items > 1)
+            {
+                [self.backgroundTask.callbackWhenFetching backgroundItemsDone:2];
+            }
+            
+            [self clearSectionMaps];
+            
+            [self addSectionType:kSectionRowName];
+            [self addRowType:kSectionRowName];
+            
+            [self addSectionType:kSectionRowDirection];
+            
+            if (self.route)
+            {
+                for (int i=0; i < self.route.directions.count; i++)
+                {
+                    [self addRowType:kSectionRowDirection];
+                }
+            }
+            
+            [self addSectionType:kSectionOther];
+            [self addRowType:kOtherRowMap];
+            
+            if (self.route)
+            {
+                const ROUTE_COL *col = [TriMetRouteColors rawColorForRoute:self.route.route];
+                if (col!=nil && col->wiki != nil)
+                {
+                    [self addRowType:kOtherRowWiki];
+                }
+            }
+            
+            if (self.detourData.count > 0)
+            {
+                [self addSectionType:kSectionRowDetour];
+                for (int i=0; i < self.detourData.count; i++)
+                {
+                    [self addRowType:kSectionRowDetour];
+                }
+            }
+            
+            [self addRowType:kSectionRowDisclaimer];
+            
+            [self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
+    }];
 }
 
 
@@ -175,7 +171,6 @@ enum {
 	
 }
 
-
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	UITableViewCell *cell = nil;
     
@@ -186,16 +181,11 @@ enum {
 		case kSectionRowName:
         default:
 		{
-			NSString *stopId = [NSString stringWithFormat:@"stop%d", self.screenInfo.screenWidth];
-			
-			cell = [tableView dequeueReusableCellWithIdentifier:stopId];
+			cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionRowName)];
 			if (cell == nil) {
 				
-				cell = [RailStation tableviewCellWithReuseIdentifier:stopId 
-														   rowHeight:[self tableView:tableView heightForRowAtIndexPath:indexPath] 
-														 screenWidth:self.screenInfo.screenWidth
-														 rightMargin:NO
-																font:self.basicFont];
+				cell = [RailStation tableviewCellWithReuseIdentifier:MakeCellId(kSectionRowName)
+														   rowHeight:[self tableView:tableView heightForRowAtIndexPath:indexPath]];
 				
 			}
 			const ROUTE_COL *col = [TriMetRouteColors rawColorForRoute:self.route.route];
@@ -270,30 +260,25 @@ enum {
         }
         case kSectionRowDetour:
         {
-            CellLabel *cell = (CellLabel *)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kRowDetour)];
+            UITableViewCell *cell = (UITableViewCell *)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kRowDetour)];
             if (cell == nil) {
-                cell = [[[CellLabel alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kRowDetour)] autorelease];
-                cell.view = [Detour create_UITextView:self.paragraphFont];
-                
+                cell = [UITableViewCell cellWithMultipleLines:MakeCellId(kRowDetour) font:self.paragraphFont];
             }
             
             if (self.detourData.detour !=nil)
             {
                 Detour *det = self.detourData[indexPath.row];
-                cell.view.text = det.detourDesc;
-                cell.view.textColor = [UIColor orangeColor];
-                
+                cell.textLabel.text = det.detourDesc;
                 cell.accessibilityLabel = [NSString stringWithFormat:@"%@, %@",
                                              det.routeDesc, det.detourDesc];
             }
             else
             {
-                cell.view.text = NSLocalizedString(@"Detour information not known.", @"error message");
+                cell.textLabel.text = NSLocalizedString(@"Detour information not known.", @"error message");
             }
             
+            cell.textLabel.textColor = [UIColor orangeColor];
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
-    
-            [self maybeAddSectionToAccessibility:cell indexPath:indexPath alwaysSaySection:NO];
             return cell;
             
         }
@@ -395,6 +380,12 @@ enum {
 	return nil;
 }
 
+- (void)tableView:(UITableView *)tableView willDisplayHeaderView:(UIView *)view forSection:(NSInteger)section {
+    UITableViewHeaderFooterView *header = (UITableViewHeaderFooterView *)view;
+    
+    header.textLabel.adjustsFontSizeToFitWidth = YES;
+}
+
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     switch ([self rowType:indexPath])
@@ -407,10 +398,7 @@ enum {
 		case kSectionRowDisclaimer:
 			return kDisclaimerCellHeight;
         case kSectionRowDetour:
-        {
-            Detour *det = self.detourData[indexPath.row];
-            return [self getTextHeight:det.detourDesc font:self.paragraphFont];
-        }
+            return UITableViewAutomaticDimension;
 	}
 	return 1;
 	
@@ -443,6 +431,13 @@ enum {
 
 - (void)viewWillAppear:(BOOL)animated {
 	[super viewWillAppear:animated];
+    
+    // iPhone 4S does not show the first cell sometimes.  Quick fix.
+    if (!_appeared)
+    {
+        _appeared = YES;
+       [self.table scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:NO];
+    }
 }
 
 - (void)viewDidAppear:(BOOL)animated {

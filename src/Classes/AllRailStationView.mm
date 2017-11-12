@@ -102,7 +102,7 @@ static STOP_TO_HOTSPOT stopToHotspot2[MAXHOTSPOTS * 3];
              ERROR_LOG(@"Failed to delete station index %@\n", error.description);
          }
          
-         if ([UserPrefs singleton].searchStations)
+         if ([UserPrefs sharedInstance].searchStations)
          {
              NSMutableArray *index = [NSMutableArray array];
              for (int i=0; i< sizeof(stationsAlpha)/sizeof(int);  i++)
@@ -364,16 +364,12 @@ static STOP_TO_HOTSPOT stopToHotspot2[MAXHOTSPOTS * 3];
 		case kFilterSection:
 		{
 			RailStation * station = [self stationForIndex:indexPath tableView:tableView];
-			NSString *stopId = [NSString stringWithFormat:@"stop%f", self.screenInfo.appWinWidth];
 				
-			cell = [tableView dequeueReusableCellWithIdentifier:stopId];
+			cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kAlphaSection)];
 			if (cell == nil) {
 					
-				cell = [RailStation tableviewCellWithReuseIdentifier:stopId 
-															rowHeight:[self tableView:tableView heightForRowAtIndexPath:indexPath] 
-														 screenWidth:self.screenInfo.screenWidth
-														 rightMargin:(sectionType == kAlphaSection)
-																font:self.basicFont];
+				cell = [RailStation tableviewCellWithReuseIdentifier:MakeCellId(kAlphaSection)
+															rowHeight:[self tableView:tableView heightForRowAtIndexPath:indexPath]];
 					
 			}
 			[RailStation populateCell:cell 
@@ -737,7 +733,7 @@ int compareStopToHotspots(const void *first, const void *second)
         
         for (NSString *prefix in specialCases)
         {
-            if ([[r.station substringToIndex:prefix.length] isEqualToString:prefix])
+            if (r.station.length <= prefix.length && [[r.station substringToIndex:prefix.length] isEqualToString:prefix])
             {
                 next = prefix;
             }
