@@ -21,7 +21,7 @@
 // http://developer.trimet.org/registration/
 //
 
-// #error Get an APP ID from TriMet then copy it letter by letter into the macro below.
+#error Get an APP ID from TriMet then copy it letter by letter into the macro below.
 // We don't store it as a string to make it a little obscure so it can't be found
 // in the binary.
 
