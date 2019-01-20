@@ -1267,6 +1267,8 @@ enum SECTIONS_AND_ROWS
     
     magnifyButton.accessibilityHint = NSLocalizedString(@"Bus line indentifier", @"accessibilty hint");
     
+    TOOLBAR_PLACEHOLDER(magnifyButton, @"mag");
+    
     [toolbarItems addObject:magnifyButton];
     
     [self maybeAddFlashButtonWithSpace:needSpace buttons:toolbarItems big:NO];

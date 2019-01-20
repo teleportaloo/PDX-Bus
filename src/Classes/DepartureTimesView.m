@@ -2975,6 +2975,8 @@ API_AVAILABLE(ios(12.0))
         
         sort.accessibilityLabel = NSLocalizedString(@"Group Arrivals", @"Accessibility text");
         
+        TOOLBAR_PLACEHOLDER(sort, @"G");
+        
         [toolbarItems addObject:sort];;
         [toolbarItems addObject:[UIToolbar flexSpace]];
         

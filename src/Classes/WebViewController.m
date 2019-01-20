@@ -80,6 +80,7 @@
                                 target:self action:@selector(webBackButton:)];
     self.webBack.accessibilityLabel = @"Back";
 
+    TOOLBAR_PLACEHOLDER(self.webBack, @"back");
     
     self.webForward = [[UIBarButtonItem alloc]
                             initWithImage:[TableViewWithToolbar getToolbarIcon:kIconForward7]
@@ -88,7 +89,8 @@
     self.webForward.accessibilityLabel = @"Forward";
     self.webForward.style = style;
 
-    
+    TOOLBAR_PLACEHOLDER(self.webBack, @"next");
+                        
     if (self.rawDataToDisplay == nil && self.localURL == nil)
     {
 

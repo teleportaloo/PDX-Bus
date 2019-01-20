@@ -14,6 +14,8 @@
 
 #import <UIKit/UIKit.h>
 
+#define TOOLBAR_PLACEHOLDER(X, Y) if (X.image==nil) { X.title=Y; }
+
 
 @interface UIToolbar (Auto) {
 

@@ -42,6 +42,7 @@
                              style:UIBarButtonItemStylePlain
                              target:target action:action];
     
+    TOOLBAR_PLACEHOLDER(mag, @"mag");
     mag.style = UIBarButtonItemStylePlain;
     mag.accessibilityLabel = NSLocalizedString(@"Large bus line identifier", @"accessibility text");
     return mag;
@@ -55,7 +56,8 @@
                              initWithImage:[TableViewWithToolbar getToolbarIcon:kIconMap7]
                             style:UIBarButtonItemStylePlain
                              target:target action:action];
-
+    
+    TOOLBAR_PLACEHOLDER(map, @"map");
     map.style = UIBarButtonItemStylePlain;
     map.accessibilityLabel = NSLocalizedString(@"Show Map", @"accessibility text");
     
@@ -70,6 +72,7 @@
                              style:UIBarButtonItemStylePlain
                              target:target action:action];
     
+    TOOLBAR_PLACEHOLDER(flash, @"flash");
     flash.style = UIBarButtonItemStylePlain;
     flash.accessibilityLabel = NSLocalizedString(@"Flash Screen",@"accessibility text");
     return flash;
@@ -84,7 +87,7 @@
                                style:UIBarButtonItemStylePlain
                                target:target action:action];
     
-    
+    TOOLBAR_PLACEHOLDER(back, @"home");
     back.style = UIBarButtonItemStylePlain;
     back.accessibilityLabel = NSLocalizedString(@"Home",@"accessibility text");
     back.accessibilityHint = nil;
@@ -100,7 +103,7 @@
                               style:UIBarButtonItemStylePlain
                               target:target action:action];
     
-    
+    TOOLBAR_PLACEHOLDER(back, @"redo");
     back.style = UIBarButtonItemStylePlain;
     back.accessibilityLabel = NSLocalizedString(@"Redo",@"accessibility text");
     return back;
@@ -114,7 +117,7 @@
                               style:UIBarButtonItemStylePlain
                               target:target action:action];
     
-    
+    TOOLBAR_PLACEHOLDER(back, @"com");
     back.style = UIBarButtonItemStylePlain;
     back.accessibilityLabel = NSLocalizedString(@"Commuter Bookmark", @"acessibility text");
     return back;
@@ -128,7 +131,7 @@
                               style:UIBarButtonItemStylePlain
                               target:target action:action];
     
-    
+    TOOLBAR_PLACEHOLDER(back, @"loc");
     back.style = UIBarButtonItemStylePlain;
     back.accessibilityLabel = NSLocalizedString(@"Locate Stops",@"acessibility text");
     return back;
@@ -142,7 +145,7 @@
                               style:UIBarButtonItemStylePlain
                               target:target action:action];
     
-    
+    TOOLBAR_PLACEHOLDER(back, @"QR");
     back.style = UIBarButtonItemStylePlain;
     back.accessibilityLabel = NSLocalizedString(@"QR Scanner",@"acessibility text");
     return back;
