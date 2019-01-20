@@ -376,14 +376,23 @@
 + (UIImage *)getIcon:(NSString *)name
 {
     UIImage *image = [UIImage imageNamed:name];
+    
+    if (image==nil)
+    {
+        image = [UIImage imageNamed:kIconAppIconAction];
+    }
+    
     image.accessibilityHint = nil;
     image.accessibilityLabel = nil;
-    return image; 
+    return image;
 }
 
 + (UIImage *)getToolbarIcon:(NSString *)name
 {
-    return [self getIcon:name];
+    UIImage *image = [UIImage imageNamed:name];
+    image.accessibilityHint = nil;
+    image.accessibilityLabel = nil;
+    return image;
 }
 
 - (UIImage *)getFaveIcon:(NSString *)name
