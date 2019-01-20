@@ -3,7 +3,7 @@
 //  PDX Bus
 //
 //  Created by Andrew Wallace on 2/6/16.
-//  Copyright © 2016 Teleportaloo. All rights reserved.
+//  Copyright © 2016 Andrew Wallace
 //
 
 

@@ -3,7 +3,7 @@
 //  PDX Bus WatchKit Extension
 //
 //  Created by Andrew Wallace on 11/17/18.
-//  Copyright © 2018 Teleportaloo. All rights reserved.
+//  Copyright © 2018 Andrew Wallace
 //
 
 

@@ -384,7 +384,7 @@
     
     image.accessibilityHint = nil;
     image.accessibilityLabel = nil;
-    return image;
+    return image; 
 }
 
 + (UIImage *)getToolbarIcon:(NSString *)name
@@ -464,10 +464,7 @@
     tix.style = UIBarButtonItemStylePlain;
     tix.accessibilityLabel = @"Tickets";
     
-    if (tix.image == nil)
-    {
-        tix.title = @"T";
-    }
+    TOOLBAR_PLACEHOLDER(tix, @"T");
     return tix;
 }
 
@@ -608,6 +605,8 @@
     
     xmlButton.style = UIBarButtonItemStylePlain;
     xmlButton.accessibilityLabel = @"Show XML";
+    
+    TOOLBAR_PLACEHOLDER(xmlButton, @"XML");
     
     return xmlButton;
 }

@@ -3,7 +3,7 @@
 //  PDXBusCore
 //
 //  Created by Andrew Wallace on 7/16/16.
-//  Copyright © 2016 Teleportaloo. All rights reserved.
+//  Copyright © 2016 Andrew Wallace
 //
 
 
