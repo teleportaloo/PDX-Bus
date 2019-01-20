@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Scheme
+   LastUpgradeVersion = "1000"
+   wasCreatedForAppExtension = "YES"
+   version = "1.3">
+   <BuildAction
+      parallelizeBuildables = "YES"
+      buildImplicitDependencies = "YES">
+      <BuildActionEntries>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "A100597021797F8000B0F8ED"
+               BuildableName = "PDX Bus WatchKit Siri Extension.appex"
+               BlueprintName = "PDX Bus WatchKit Siri Extension"
+               ReferencedContainer = "container:PDX Bus.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "A1C756261AD9E9BB00236776"
+               BuildableName = "PDX Bus WatchKit App.app"
+               BlueprintName = "PDX Bus WatchKit App"
+               ReferencedContainer = "container:PDX Bus.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+      </BuildActionEntries>
+   </BuildAction>
+   <TestAction
+      buildConfiguration = "Debug"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      shouldUseLaunchSchemeArgsEnv = "YES">
+      <Testables>
+      </Testables>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "A100597021797F8000B0F8ED"
+            BuildableName = "PDX Bus WatchKit Siri Extension.appex"
+            BlueprintName = "PDX Bus WatchKit Siri Extension"
+            ReferencedContainer = "container:PDX Bus.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
+      <AdditionalOptions>
+      </AdditionalOptions>
+   </TestAction>
+   <LaunchAction
+      buildConfiguration = "Debug"
+      intentQueryString = "Bus to work"
+      selectedDebuggerIdentifier = ""
+      selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
+      launchStyle = "0"
+      useCustomWorkingDirectory = "NO"
+      ignoresPersistentStateOnLaunch = "NO"
+      debugDocumentVersioning = "YES"
+      debugServiceExtension = "internal"
+      allowLocationSimulation = "YES">
+      <RemoteRunnable
+         runnableDebuggingMode = "2"
+         BundleIdentifier = "com.apple.Carousel"
+         RemotePath = "/PDXBus Siri Watch Extension">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "A100597021797F8000B0F8ED"
+            BuildableName = "PDX Bus WatchKit Siri Extension.appex"
+            BlueprintName = "PDX Bus WatchKit Siri Extension"
+            ReferencedContainer = "container:PDX Bus.xcodeproj">
+         </BuildableReference>
+      </RemoteRunnable>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "A100597021797F8000B0F8ED"
+            BuildableName = "PDX Bus WatchKit Siri Extension.appex"
+            BlueprintName = "PDX Bus WatchKit Siri Extension"
+            ReferencedContainer = "container:PDX Bus.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
+      <AdditionalOptions>
+      </AdditionalOptions>
+   </LaunchAction>
+   <ProfileAction
+      buildConfiguration = "Release"
+      intentQueryString = "Bus to work"
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      savedToolIdentifier = ""
+      useCustomWorkingDirectory = "NO"
+      debugDocumentVersioning = "YES">
+      <RemoteRunnable
+         runnableDebuggingMode = "2"
+         BundleIdentifier = "com.apple.Carousel"
+         RemotePath = "/PDXBus Siri Watch Extension">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "A100597021797F8000B0F8ED"
+            BuildableName = "PDX Bus WatchKit Siri Extension.appex"
+            BlueprintName = "PDX Bus WatchKit Siri Extension"
+            ReferencedContainer = "container:PDX Bus.xcodeproj">
+         </BuildableReference>
+      </RemoteRunnable>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "A100597021797F8000B0F8ED"
+            BuildableName = "PDX Bus WatchKit Siri Extension.appex"
+            BlueprintName = "PDX Bus WatchKit Siri Extension"
+            ReferencedContainer = "container:PDX Bus.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
+   </ProfileAction>
+   <AnalyzeAction
+      buildConfiguration = "Debug">
+   </AnalyzeAction>
+   <ArchiveAction
+      buildConfiguration = "Release"
+      revealArchiveInOrganizer = "YES">
+   </ArchiveAction>
+</Scheme>
