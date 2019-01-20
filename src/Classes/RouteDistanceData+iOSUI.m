@@ -18,6 +18,7 @@
 #import "ScreenConstants.h"
 #import "RouteColorBlobView.h"
 #import "FormatDistance.h"
+#import "StringHelper.h"
 
 @implementation RouteDistanceData (iOSUI)
 
@@ -30,8 +31,8 @@
     cell.timeLabel.text = [FormatDistance formatMetres:self.stops.firstObject.distance];
     cell.timeLabel.textColor = [UIColor blueColor];
 	
-	cell.accessibilityLabel = [NSString stringWithFormat:@"%@, %@",
-								 cell.routeLabel.text, cell.timeLabel.text];
+    cell.accessibilityLabel = [NSString stringWithFormat:@"%@, %@",
+                                cell.routeLabel.text, cell.timeLabel.text].phonetic;
 	cell.routeLabel.textColor = [UIColor blackColor];
 	[cell.routeColorView setRouteColor:self.route];
 }

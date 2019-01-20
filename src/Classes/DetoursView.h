@@ -11,20 +11,20 @@
 
 
 #import <UIKit/UIKit.h>
-#import "TableViewWithToolbar.h"
-#import "XMLDetours.h"
+#import "TableViewControllerWithRefresh.h"
+#import "XMLDetoursAndMessages.h"
+#import "DetoursForRoute.h"
 
-@interface DetoursView : TableViewWithToolbar {
-	XMLDetours *_detours;
-	NSInteger   _disclaimerSection;
-    NSMutableArray<NSMutableArray<Detour *> *> *_sortedDetours;
+@interface DetoursView : TableViewControllerWithRefresh<DetoursForRoute *>  {
+    NSInteger   _disclaimerSection;
 }
-- (void)fetchDetoursAsync:(id<BackgroundTaskProgress>) callback;
-- (void)fetchDetoursAsync:(id<BackgroundTaskProgress>) callback route:(NSString *)route;
-- (void)fetchDetoursAsync:(id<BackgroundTaskProgress>) callback routes:(NSArray *)routes;
 
+- (void)fetchDetoursAsync:(id<BackgroundTaskController>)task;
+- (void)fetchDetoursAsync:(id<BackgroundTaskController>)task route:(NSString *)route;
+- (void)fetchDetoursAsync:(id<BackgroundTaskController>)task routes:(NSArray *)routes backgroundRefresh:(bool)backgroundRefresh;
 
-@property (nonatomic, retain) XMLDetours *detours;
-@property (nonatomic, retain) NSMutableArray<NSMutableArray<Detour *> *> *sortedDetours;
+@property (nonatomic, strong) XMLDetoursAndMessages *detours;
+@property (nonatomic, strong) NSMutableArray<DetoursForRoute *> *sortedDetours;
+@property (nonatomic, strong) NSArray *routes;
 
 @end

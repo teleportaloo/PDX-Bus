@@ -18,29 +18,24 @@
 #import "ScreenConstants.h"
 #import "SearchFilter.h"
 
-@interface RailStation : NSObject <SearchFilter> {
-	NSMutableArray *    _locList;
-	NSMutableArray *    _dirList;
-	NSString *          _station;
-	NSString *          _wikiLink;
-	int                 _index;
-}
+@interface RailStation : NSObject <SearchFilter>
 
-@property (nonatomic, retain) NSMutableArray *locList;
-@property (nonatomic, retain) NSMutableArray *dirList;
+@property (nonatomic, strong) NSMutableArray *locList;
+@property (nonatomic, strong) NSMutableArray *dirList;
 @property (nonatomic, copy)   NSString *station;
 @property (nonatomic, copy)   NSString *wikiLink;
 @property (nonatomic) int index;
 @property (readonly) RAILLINES line;
-
-
-+ (instancetype)fromHotSpot:(HOTSPOT *)hotspot index:(int)index;
-- (instancetype)initFromHotSpot:(HOTSPOT *)hotspot index:(int)index;
-- (NSComparisonResult)compareUsingStation:(RailStation*)inStation;
-+ (NSString *)nameFromHotspot:(HOTSPOT *)hotspot;
-+ (UITableViewCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier rowHeight:(CGFloat)height;
-+ (void)populateCell:(UITableViewCell*)cell station:(NSString *)station lines:(RAILLINES)lines;
+@property (readonly) RAILLINES line0;
+@property (readonly) RAILLINES line1;
 @property (nonatomic, readonly, copy) NSString *stringToFilter;
 
+- (instancetype)initFromHotSpot:(HOTSPOT *)hotspot index:(int)index;
+- (NSComparisonResult)compareUsingStation:(RailStation*)inStation;
+
++ (NSString *)nameFromHotspot:(HOTSPOT *)hotspot;
++ (UITableViewCell *)tableView:(UITableView*)tableView cellWithReuseIdentifier:(NSString *)identifier rowHeight:(CGFloat)height;
++ (void)populateCell:(UITableViewCell*)cell station:(NSString *)station lines:(RAILLINES)lines;
++ (instancetype)fromHotSpot:(HOTSPOT *)hotspot index:(int)index;
 
 @end

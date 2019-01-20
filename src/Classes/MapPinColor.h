@@ -9,11 +9,17 @@
 #import <MapKit/MapKit.h>
 
 @class DepartureData;
-@protocol BackgroundTaskProgress;
+@protocol BackgroundTaskController;
 
 @protocol MapPinColor <MKAnnotation>
 
-@property (nonatomic, readonly) MKPinAnnotationColor pinColor;
+typedef enum MapPinColorEnum {
+    MAP_PIN_COLOR_RED,
+    MAP_PIN_COLOR_GREEN,
+    MAP_PIN_COLOR_PURPLE
+} MapPinColorValue;
+
+@property (nonatomic, readonly) MapPinColorValue pinColor;
 @property (nonatomic, readonly, copy) UIColor *pinTint;
 @property (nonatomic, readonly) bool showActionMenu;
 @property (nonatomic, readonly) bool hasBearing;
@@ -24,7 +30,8 @@
 @property (nonatomic, readonly, copy) NSString *mapStopId;
 @property (nonatomic, readonly, copy) NSString *mapStopIdText;
 @property (nonatomic, readonly, strong) DepartureData *mapDeparture;
-- (bool)mapTapped:(id<BackgroundTaskProgress>) progress;
 @property (nonatomic, readonly, copy) NSString *tapActionText;
 @property (nonatomic, readonly, copy) UIColor *pinSubTint;
+
+- (bool)mapTapped:(id<BackgroundTaskController>) progress;
 @end

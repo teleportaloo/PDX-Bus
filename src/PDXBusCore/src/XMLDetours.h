@@ -10,21 +10,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import "TriMetXML.h"
+#import "TriMetXMLv2.h"
 #import "Detour.h"
+#import "Route.h"
 
 
-@interface XMLDetours : TriMetXML<Detour*> {
-	NSString *_detour;
-	NSString *_route;
-}
+@interface XMLDetours : TriMetXMLv2<Detour*>
 
-@property (nonatomic, copy)   NSString *detour;
-@property (nonatomic, copy)   NSString *route;
-- (BOOL)getDetoursForRoute:(NSString *)route;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, Route *> * allRoutes;
+@property (nonatomic, strong) Detour *currentDetour;
+@property (nonatomic, copy) NSString *route;
+
 - (BOOL)getDetoursForRoutes:(NSArray *)routes;
+- (BOOL)getDetoursForRoute:(NSString *)route;
 - (BOOL)getDetours;
-
 
 @end
 

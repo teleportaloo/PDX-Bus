@@ -14,6 +14,7 @@
 
 
 #import "WhatsNewHeader.h"
+#import "TriMetInfo.h"
 
 @implementation WhatsNewHeader
 
@@ -32,7 +33,7 @@
     }
     else
     {
-        cell.backgroundColor = [ViewControllerBase htmlColor:color];
+        cell.backgroundColor = HTML_COLOR(color);
     }
 }
 

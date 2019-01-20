@@ -26,43 +26,29 @@
 
 
 
-@interface XMLTrips : TriMetXML {
-	TripUserRequest *   _userRequest;
-	NSArray	*           _userFaves;
-	bool                _reversed;
-	TripItinerary *     _currentItinerary;
-	TripLeg	*           _currentLeg;
-	id                  _currentObject;
-	NSString *          _currentTagData;
-	NSMutableArray *    _toList;
-	NSMutableArray *    _fromList;
-	NSMutableArray *    _currentList;
-	TripLegEndPoint *   _resultFrom;
-	TripLegEndPoint *   _resultTo;
-	NSString *          _xdate;
-	NSString *          _xtime;
-    NSDictionary <NSString *, NSValue *> *_selsForProps;
-}
+@interface XMLTrips : TriMetXML
 
-@property (nonatomic, retain) TripUserRequest *userRequest;
-@property (nonatomic)		  bool reversed;
-@property (nonatomic, retain) NSArray *userFaves;
-@property (nonatomic, retain) TripLegEndPoint *resultFrom;
-@property (nonatomic, retain) TripLegEndPoint *resultTo;
+@property (nonatomic, strong) TripUserRequest *userRequest;
+@property (nonatomic)          bool reversed;
+@property (nonatomic, strong) NSArray *userFaves;
+@property (nonatomic, strong) TripLegEndPoint *resultFrom;
+@property (nonatomic, strong) TripLegEndPoint *resultTo;
 
 // @property (nonatomic, retain) NSString      **currentProperty;
-@property (nonatomic, retain) TripItinerary *currentItinerary;
-@property (nonatomic, retain) TripLeg		*currentLeg;
+@property (nonatomic, strong) TripItinerary *currentItinerary;
+@property (nonatomic, strong) TripLeg        *currentLeg;
 // @property (nonatomic, retain) NSMutableArray *itineraries;
-@property (nonatomic, retain) id			currentObject;
-@property (nonatomic, retain) NSString		*currentTagData;
-@property (nonatomic, retain) NSMutableArray *toList;
-@property (nonatomic, retain) NSMutableArray *fromList;
-@property (nonatomic, retain) NSMutableArray *currentList;
-@property (nonatomic, retain) NSString       *xdate;
-@property (nonatomic, retain) NSString		 *xtime;
-@property (nonatomic, retain) NSDictionary <NSString *, NSValue *> *selsForProps;
-
+@property (nonatomic, strong) id            currentObject;
+@property (nonatomic, strong) NSString        *currentTagData;
+@property (nonatomic, strong) NSMutableArray *toList;
+@property (nonatomic, strong) NSMutableArray *fromList;
+@property (nonatomic, strong) NSMutableArray *currentList;
+@property (nonatomic, strong) NSString       *xdate;
+@property (nonatomic, strong) NSString         *xtime;
+@property (nonatomic, strong) NSDictionary <NSString *, NSValue *> *selsForProps;
+@property (nonatomic, readonly, copy) NSString *shortName;
+@property (nonatomic, readonly, copy) NSString *longName;
+@property (nonatomic, readonly, copy) NSString *mediumName;
 
 - (SEL)selForProp:(NSString *)element;
 - (void)fetchItineraries:(NSData*)rawData;
@@ -70,11 +56,10 @@
 - (XMLTrips *)createAuto;
 - (void)saveTrip;
 - (void)resetCurrentLocation;
-@property (nonatomic, readonly, copy) NSString *shortName;
-@property (nonatomic, readonly, copy) NSString *longName;
-@property (nonatomic, readonly, copy) NSString *mediumName;
 - (void)addStopsFromUserFaves:(NSArray *)userFaves;
 - (instancetype)init;
+- (NSUserActivity *)userActivity;
+
 +(NSArray *)distanceMapSingleton;
 +(int)distanceToIndex:(float)distance;
 +(float)indexToDistance:(int)index;

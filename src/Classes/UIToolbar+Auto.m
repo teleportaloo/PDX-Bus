@@ -21,141 +21,141 @@
 #pragma mark Methods to create common auto-released toolbar buttons
 
 
-+ (UIBarButtonItem *)autoNoSleepWithTarget:(id)target action:(SEL)action
++ (UIBarButtonItem *)noSleepButtonWithTarget:(id)target action:(SEL)action
 {
-	// create the system-defined "OK or Done" button
-	UIBarButtonItem *button = [[[UIBarButtonItem alloc]
-							   initWithTitle:NSLocalizedString(@"Device sleep disabled!", @"warning") style:UIBarButtonItemStylePlain
-							   target:target action:action] autorelease];
-	return button;
-	
-	
+    // create the system-defined "OK or Done" button
+    UIBarButtonItem *button = [[UIBarButtonItem alloc]
+                               initWithTitle:NSLocalizedString(@"Device sleep disabled!", @"warning") style:UIBarButtonItemStylePlain
+                               target:target action:action];
+    return button;
+    
+    
 }
 
-+ (UIBarButtonItem *)autoMagnifyButtonWithTarget:(id)target action:(SEL)action
++ (UIBarButtonItem *)magnifyButtonWithTarget:(id)target action:(SEL)action
 {
-	
-	// create the system-defined "OK or Done" button
-	UIBarButtonItem *mag = [[[UIBarButtonItem alloc]
-							 // initWithBarButtonSystemItem:UIBarButtonSystemItemRewind
-							 initWithImage:[TableViewWithToolbar getToolbarIcon:kIconMagnify]
-							 style:UIBarButtonItemStylePlain
-							 target:target action:action] autorelease];
-	
-	mag.style = UIBarButtonItemStylePlain;
-	mag.accessibilityLabel = NSLocalizedString(@"Large bus line identifier", @"accessibility text");
-	return mag;
+    
+    // create the system-defined "OK or Done" button
+    UIBarButtonItem *mag = [[UIBarButtonItem alloc]
+                             // initWithBarButtonSystemItem:UIBarButtonSystemItemRewind
+                             initWithImage:[TableViewWithToolbar getToolbarIcon:kIconMagnify]
+                             style:UIBarButtonItemStylePlain
+                             target:target action:action];
+    
+    mag.style = UIBarButtonItemStylePlain;
+    mag.accessibilityLabel = NSLocalizedString(@"Large bus line identifier", @"accessibility text");
+    return mag;
 }
 
-+ (UIBarButtonItem *)autoMapButtonWithTarget:(id)target action:(SEL)action
++ (UIBarButtonItem *)mapButtonWithTarget:(id)target action:(SEL)action
 {
 
-	// create the system-defined "OK or Done" button
-	UIBarButtonItem *map = [[[UIBarButtonItem alloc]
-                             initWithImage:[TableViewWithToolbar getToolbarIcon7:kIconMap7 old:kIconMap]
-							style:UIBarButtonItemStylePlain
-							 target:target action:action] autorelease];
+    // create the system-defined "OK or Done" button
+    UIBarButtonItem *map = [[UIBarButtonItem alloc]
+                             initWithImage:[TableViewWithToolbar getToolbarIcon:kIconMap7]
+                            style:UIBarButtonItemStylePlain
+                             target:target action:action];
 
-	map.style = UIBarButtonItemStylePlain;
-	map.accessibilityLabel = NSLocalizedString(@"Show Map", @"accessibility text");
-	
-	return map;
+    map.style = UIBarButtonItemStylePlain;
+    map.accessibilityLabel = NSLocalizedString(@"Show Map", @"accessibility text");
+    
+    return map;
 }
 
-+ (UIBarButtonItem *)autoFlashButtonWithTarget:(id)target action:(SEL)action
++ (UIBarButtonItem *)flashButtonWithTarget:(id)target action:(SEL)action
 {
-	UIBarButtonItem *flash = [[[UIBarButtonItem alloc]
-							 // initWithBarButtonSystemItem:UIBarButtonSystemItemRewind
-                               initWithImage:[TableViewWithToolbar getToolbarIcon7:kIconFlash7 old:kIconFlash]
-							 style:UIBarButtonItemStylePlain
-							 target:target action:action] autorelease];
-	
-	flash.style = UIBarButtonItemStylePlain;
-	flash.accessibilityLabel = NSLocalizedString(@"Flash Screen",@"accessibility text");
-	return flash;
-	
+    UIBarButtonItem *flash = [[UIBarButtonItem alloc]
+                             // initWithBarButtonSystemItem:UIBarButtonSystemItemRewind
+                               initWithImage:[TableViewWithToolbar getToolbarIcon:kIconFlash7]
+                             style:UIBarButtonItemStylePlain
+                             target:target action:action];
+    
+    flash.style = UIBarButtonItemStylePlain;
+    flash.accessibilityLabel = NSLocalizedString(@"Flash Screen",@"accessibility text");
+    return flash;
+    
 }
 
-+ (UIBarButtonItem *)autoDoneButtonWithTarget:(id)target action:(SEL)action
++ (UIBarButtonItem *)doneButtonWithTarget:(id)target action:(SEL)action
 {
-	// create the system-defined "OK or Done" button
-	UIBarButtonItem *back = [[[UIBarButtonItem alloc]
-                               initWithImage:[TableViewWithToolbar getToolbarIcon7:kIconHome7 old:kIconHome]
-							   style:UIBarButtonItemStylePlain
-							   target:target action:action] autorelease];
-	
-	
-	back.style = UIBarButtonItemStylePlain;
+    // create the system-defined "OK or Done" button
+    UIBarButtonItem *back = [[UIBarButtonItem alloc]
+                               initWithImage:[TableViewWithToolbar getToolbarIcon:kIconHome7]
+                               style:UIBarButtonItemStylePlain
+                               target:target action:action];
+    
+    
+    back.style = UIBarButtonItemStylePlain;
     back.accessibilityLabel = NSLocalizedString(@"Home",@"accessibility text");
-	back.accessibilityHint = nil;
-	
-	return back;
+    back.accessibilityHint = nil;
+    
+    return back;
 }
 
-+ (UIBarButtonItem *)autoRedoButtonWithTarget:(id)target action:(SEL)action
++ (UIBarButtonItem *)redoButtonWithTarget:(id)target action:(SEL)action
 {
-	// create the system-defined "OK or Done" button
-	UIBarButtonItem *back = [[[UIBarButtonItem alloc]
-							  initWithImage:[TableViewWithToolbar getToolbarIcon:kIconRedo]
-							  style:UIBarButtonItemStylePlain
-							  target:target action:action] autorelease];
-	
-	
-	back.style = UIBarButtonItemStylePlain;
-	back.accessibilityLabel = NSLocalizedString(@"Redo",@"accessibility text");
-	return back;
+    // create the system-defined "OK or Done" button
+    UIBarButtonItem *back = [[UIBarButtonItem alloc]
+                              initWithImage:[TableViewWithToolbar getToolbarIcon:kIconRedo]
+                              style:UIBarButtonItemStylePlain
+                              target:target action:action];
+    
+    
+    back.style = UIBarButtonItemStylePlain;
+    back.accessibilityLabel = NSLocalizedString(@"Redo",@"accessibility text");
+    return back;
 }
 
-+ (UIBarButtonItem *)autoCommuteWithTarget:(id)target action:(SEL)action
++ (UIBarButtonItem *)commuteButtonWithTarget:(id)target action:(SEL)action
 {
-	UIBarButtonItem *back = [[[UIBarButtonItem alloc]
-							  // initWithBarButtonSystemItem:UIBarButtonSystemItemRewind
-							  initWithImage:[TableViewWithToolbar getToolbarIcon7:kIconCommute7 old:kIconCommute]
-							  style:UIBarButtonItemStylePlain
-							  target:target action:action] autorelease];
-	
-	
-	back.style = UIBarButtonItemStylePlain;
-	back.accessibilityLabel = NSLocalizedString(@"Commuter Bookmark", @"acessibility text");
-	return back;
-	
+    UIBarButtonItem *back = [[UIBarButtonItem alloc]
+                              // initWithBarButtonSystemItem:UIBarButtonSystemItemRewind
+                              initWithImage:[TableViewWithToolbar getToolbarIcon:kIconCommute7]
+                              style:UIBarButtonItemStylePlain
+                              target:target action:action];
+    
+    
+    back.style = UIBarButtonItemStylePlain;
+    back.accessibilityLabel = NSLocalizedString(@"Commuter Bookmark", @"acessibility text");
+    return back;
+    
 }
 
-+ (UIBarButtonItem *)autoLocateWithTarget:(id)target action:(SEL)action
++ (UIBarButtonItem *)locateButtonWithTarget:(id)target action:(SEL)action
 {
-	UIBarButtonItem *back = [[[UIBarButtonItem alloc]
-							  initWithImage:[TableViewWithToolbar getToolbarIcon7:kIconLocateNear7 old:kIconLocateNear]
-							  style:UIBarButtonItemStylePlain
-							  target:target action:action] autorelease];
-	
-	
-	back.style = UIBarButtonItemStylePlain;
-	back.accessibilityLabel = NSLocalizedString(@"Locate Stops",@"acessibility text");
-	return back;
-	
+    UIBarButtonItem *back = [[UIBarButtonItem alloc]
+                              initWithImage:[TableViewWithToolbar getToolbarIcon:kIconLocateNear7]
+                              style:UIBarButtonItemStylePlain
+                              target:target action:action];
+    
+    
+    back.style = UIBarButtonItemStylePlain;
+    back.accessibilityLabel = NSLocalizedString(@"Locate Stops",@"acessibility text");
+    return back;
+    
 }
 
-+ (UIBarButtonItem *)autoQRScanner:(id)target action:(SEL)action
++ (UIBarButtonItem *)qrScannerButtonWithTarget:(id)target action:(SEL)action
 {
-	UIBarButtonItem *back = [[[UIBarButtonItem alloc]
-							  initWithImage:[TableViewWithToolbar getToolbarIcon7:kIconCamera7 old:kIconCamera]
-							  style:UIBarButtonItemStylePlain
-							  target:target action:action] autorelease];
-	
-	
-	back.style = UIBarButtonItemStylePlain;
-	back.accessibilityLabel = NSLocalizedString(@"QR Scanner",@"acessibility text");
-	return back;
-	
+    UIBarButtonItem *back = [[UIBarButtonItem alloc]
+                              initWithImage:[TableViewWithToolbar getToolbarIcon:kIconCamera7]
+                              style:UIBarButtonItemStylePlain
+                              target:target action:action];
+    
+    
+    back.style = UIBarButtonItemStylePlain;
+    back.accessibilityLabel = NSLocalizedString(@"QR Scanner",@"acessibility text");
+    return back;
+    
 }
 
 
-+ (UIBarButtonItem *)autoFlexSpace
++ (UIBarButtonItem *)flexSpace
 {
-	UIBarButtonItem *space =[[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
-														  target:nil
-															action:nil] autorelease];
-	return space;
+    UIBarButtonItem *space =[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
+                                                          target:nil
+                                                            action:nil];
+    return space;
 }
 
 

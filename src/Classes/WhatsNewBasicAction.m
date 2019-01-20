@@ -18,6 +18,11 @@
 
 @implementation WhatsNewBasicAction
 
++ (instancetype)action
+{
+    return [[[self class] alloc] init];
+}
+
 + (NSNumber*)getPrefix
 {
     return nil;
@@ -71,21 +76,22 @@
 
 - (NSString*)plainTextNormal:(NSString*)fullText
 {
-    NSAttributedString *text = [[self displayText:fullText] formatAttributedStringWithFont:[UIFont systemFontOfSize:14]];
-    
-    return text.string;
+    return [self displayText:fullText].removeFormatting;
 }
 
 - (NSString*)plainTextIndented:(NSString*)fullText
-{
-    NSAttributedString *text = [[self displayText:fullText] formatAttributedStringWithFont:[UIFont systemFontOfSize:14]];
-    
-    return [NSString stringWithFormat:@"- %@",text.string];
+{    
+    return [NSString stringWithFormat:@"- %@",[self displayText:fullText].removeFormatting];
 }
 
 - (NSString*)plainText:(NSString*)fullText
 {
     return [self plainTextIndented:fullText];
+}
+
++ (bool)matches:(NSString *)string
+{
+    return [@(string.firstUnichar) isEqualToNumber:[[self class] getPrefix]];
 }
 
 

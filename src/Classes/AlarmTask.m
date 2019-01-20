@@ -21,98 +21,83 @@
 #import "DebugLogging.h"
 #import "AlarmCell.h"
 #import "ViewControllerBase.h"
+#import "MainQueueSync.h"
 
 @implementation AlarmTask
 
-@synthesize desc                    = _desc;
-@synthesize alarmState              = _alarmState;
-@synthesize stopId                  = _stopId;
-@synthesize observer                = _observer;
-@synthesize alarm                   = _alarm;
-@synthesize nextFetch               = _nextFetch;
-@synthesize alarmWarningDisplayed   = _alarmWarningDisplayed;
 @dynamic    threadReferenceCount;
 
 #ifdef DEBUG_ALARMS
-@synthesize dataReceived	= _dataReceived;
+@synthesize dataReceived    = _dataReceived;
 #endif
-
-
-
-- (void)locationManager:(CLLocationManager *)manager
-    didUpdateToLocation:(CLLocation *)newLocation
-		   fromLocation:(CLLocation *)oldLocation
-{
-	return;
-}
 
 - (void)dealloc
 {
-	self.stopId			= nil;
-	self.desc			= nil;
-	self.alarm			= nil;
-	self.nextFetch		= nil;
-	
-#ifdef DEBUG_ALARMS
-	self.dataReceived	= nil;
-#endif
-	[super dealloc];
+    
 }
+
+- (void)locationManager:(CLLocationManager *)manager
+    didUpdateToLocation:(CLLocation *)newLocation
+           fromLocation:(CLLocation *)oldLocation
+{
+    return;
+}
+
 
 - (instancetype)init
 {
-	if ((self = [super init]))
-	{
+    if ((self = [super init]))
+    {
 #ifdef DEBUG_ALARMS
-		self.dataReceived = [[NSMutableArray alloc] init];
+        self.dataReceived = [[NSMutableArray alloc] init];
 #endif
         self.alarmWarningDisplayed = NO;
-	}
-	return self;
+    }
+    return self;
 }
 
 - (NSString *)key
 {
-	return @"";
+    return @"";
 }
 
 - (void)cancelTask
 {
-	
+    
 }
 
 - (void)startTask
 {
-	[self.observer taskStarted:self];
+    [self.observer taskStarted:self];
 }
 
 - (void)dumpAlerts:(NSString *)dump
 {
 #ifdef DEBUGLOGGING
-	DEBUG_LOG(@"Alerts: %@\n", dump);
-	
-	UIApplication*    app = [UIApplication sharedApplication];
-	
-	NSArray *alerts = [app scheduledLocalNotifications];
-	
-	if (alerts)
-	{
-		DEBUG_LOG(@"Notifications %lu\n", (unsigned long)(unsigned long)alerts.count);
-	
-		for (UILocalNotification *notif in alerts)
-		{
-			DEBUG_LOG(@"Notif %@ %@\n", notif.alertBody,
+    DEBUG_LOG(@"Alerts: %@\n", dump);
+    
+    UIApplication*    app = [UIApplication sharedApplication];
+    
+    NSArray *alerts = [app scheduledLocalNotifications];
+    
+    if (alerts)
+    {
+        DEBUG_LOG(@"Notifications %lu\n", (unsigned long)(unsigned long)alerts.count);
+    
+        for (UILocalNotification *notif in alerts)
+        {
+            DEBUG_LOG(@"Notif %@ %@\n", notif.alertBody,
                       [NSDateFormatter localizedStringFromDate:notif.fireDate
                                                      dateStyle:NSDateFormatterMediumStyle
                                                      timeStyle:NSDateFormatterLongStyle]);
-		}
-	}
+        }
+    }
 #endif
 }
 
 - (void)cancelNotification
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
+    [MainQueueSync runSyncOnMainQueueWithoutDeadlocking:^{
         UIApplication*    app = [UIApplication sharedApplication];
         
 #ifdef DEBUGLOGGING 
@@ -136,16 +121,19 @@
         }
 #ifdef DEBUGLOGGING 
         [self dumpAlerts:@"deleted!"];
-#endif	
-    });
+#endif    
+    }];
 }
 
 - (void)alert:(NSString *)string 
-	 fireDate:(NSDate*)fireDate button:(NSString *)button userInfo:(NSDictionary *)userInfo 
- defaultSound:(bool)defaultSound;
+     fireDate:(NSDate*)fireDate button:(NSString *)button userInfo:(NSDictionary *)userInfo 
+ defaultSound:(bool)defaultSound
+   thisThread:(bool)thisThread
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        
+    DEBUG_FUNC();
+    DEBUG_LOGB(thisThread);
+    
+    [MainQueueSync runSyncOnMainQueueWithoutDeadlocking:^{
         UIApplication*    app = [UIApplication sharedApplication];
         UserPrefs   *prefs = [UserPrefs sharedInstance];
         
@@ -164,28 +152,23 @@
         
         NSString *approx = @"";
         
-        if (displayDate.timeIntervalSinceNow > (10.0 * 60.0))
-        {
-            approx = NSLocalizedString(@"Approximately ", "aproximately prefix before a date");
-        }
-        
         // Create a new notification
-        self.alarm = [[[UILocalNotification alloc] init] autorelease];
-        self.alarm.fireDate						= fireDate;
-        self.alarm.timeZone						= [NSTimeZone defaultTimeZone];
-        self.alarm.repeatInterval				= 0;
-        self.alarm.repeatCalendar				= nil;
-        self.alarm.soundName					= defaultSound ? UILocalNotificationDefaultSoundName : prefs.alarmSoundFile ;
-        self.alarm.alertBody					= [NSString stringWithFormat:@"%@%@ %@",
+        self.alarm = [[UILocalNotification alloc] init];
+        self.alarm.fireDate                        = fireDate;
+        self.alarm.timeZone                        = [NSTimeZone defaultTimeZone];
+        self.alarm.repeatInterval                = 0;
+        self.alarm.repeatCalendar                = nil;
+        self.alarm.soundName                    = defaultSound ? UILocalNotificationDefaultSoundName : prefs.alarmSoundFile ;
+        self.alarm.alertBody                    = [NSString stringWithFormat:@"%@%@ %@",
                                                    approx,
                                                    [NSDateFormatter localizedStringFromDate:displayDate
                                                                                   dateStyle:NSDateFormatterNoStyle
                                                                                   timeStyle:NSDateFormatterShortStyle],
                                                    string];
-        self.alarm.hasAction					= (userInfo != nil) || (button !=nil);
-        self.alarm.userInfo						= userInfo;
-        self.alarm.alertAction					= button;
-        self.alarm.applicationIconBadgeNumber	= 0;
+        self.alarm.hasAction                    = (userInfo != nil) || (button !=nil);
+        self.alarm.userInfo                        = userInfo;
+        self.alarm.alertAction                    = button;
+        self.alarm.applicationIconBadgeNumber    = 0;
         
         if (fireDate == nil)
         {
@@ -193,7 +176,7 @@
         }
         else
         {
-#ifdef DEBUG_ALARMS		
+#ifdef DEBUG_ALARMS        
             DEBUG_LOG(@"Alert time %@\n", [NSDateFormatter localizedStringFromDate:fireDate
                                                                          dateStyle:NSDateFormatterMediumStyle
                                                                          timeStyle:NSDateFormatterLongStyle]);
@@ -203,97 +186,99 @@
         }
         
         [self dumpAlerts:@"done!"];
-    });
+    }];
+    
+    DEBUG_FUNCEX();
 }
 
 - (NSString *)cellDescription
 {
 #if 0
-	NSString *locStr = nil;
-	switch(self.locationNeeded)
-	{
-		case AlarmNoLocationNeeded:
-			locStr = @"N";
-			break;
-		case AlarmAccurateLocationNeeded:
-			locStr = @"A";
-			break;
-		case AlarmInaccurateLocationNeeded:
-			locStr = @"I";
-			break;
-		case AlarmFired:
-			locStr = @"F";
-			break;
-	}
-	return [NSString stringWithFormat:@"%@ %@", locStr, self.desc];
+    NSString *locStr = nil;
+    switch(self.locationNeeded)
+    {
+        case AlarmNoLocationNeeded:
+            locStr = @"N";
+            break;
+        case AlarmAccurateLocationNeeded:
+            locStr = @"A";
+            break;
+        case AlarmInaccurateLocationNeeded:
+            locStr = @"I";
+            break;
+        case AlarmFired:
+            locStr = @"F";
+            break;
+    }
+    return [NSString stringWithFormat:@"%@ %@", locStr, self.desc];
 #else
-	return self.desc;
+    return self.desc;
 #endif
 }
 
 - (NSString *)cellToGo
 {
-	return @"";
+    return @"";
 }
 
 
 - (int)internalDataItems
 {
-	return 0;
+    return 0;
 }
 
 - (NSString *)internalData:(int)item
 {
-	return nil;
+    return nil;
 }
 
 - (NSDate *)fetch:(AlarmTaskList *)parent;
 {
-	return nil;
+    return nil;
 }
 
 - (void)showToUser:(BackgroundTaskContainer *)backgroundTask
 {
-	
+    
 }
 
 - (NSString *)icon
 {
-	switch (self.alarmState)
-	{
-		case AlarmStateFetchArrivals:
-		case AlarmStateNearlyArrived:
-		case AlarmStateAccurateLocationNeeded:
-		case AlarmStateAccurateInitiallyThenInaccurate:
-		case AlarmStateInaccurateLocationNeeded:
+    switch (self.alarmState)
+    {
+        case AlarmStateFetchArrivals:
+        case AlarmStateNearlyArrived:
+        case AlarmStateAccurateLocationNeeded:
+        case AlarmStateAccurateInitiallyThenInaccurate:
+        case AlarmStateInaccurateLocationNeeded:
             return kIconAlarm;
-		case AlarmFired:
-			return kIconAlarmFired;
-	}
-	return nil;
+        case AlarmFired:
+            return kIconAlarmFired;
+    }
+    return nil;
 }
 
 - (UIColor *)color
 {
-	switch (self.alarmState)
-	{
-		case AlarmStateFetchArrivals:
-		case AlarmStateNearlyArrived:
-			return [UIColor blueColor];
-		case AlarmStateAccurateLocationNeeded:
-		case AlarmStateAccurateInitiallyThenInaccurate:
-			return [UIColor orangeColor];
-		case AlarmStateInaccurateLocationNeeded:
-		case AlarmFired:
-			return [UIColor redColor];
-	}
-	return nil;
-	
+    switch (self.alarmState)
+    {
+        case AlarmStateFetchArrivals:
+        case AlarmStateNearlyArrived:
+            return [UIColor blueColor];
+        case AlarmStateAccurateLocationNeeded:
+        case AlarmStateAccurateInitiallyThenInaccurate:
+            return [UIColor orangeColor];
+        case AlarmStateInaccurateLocationNeeded:
+        case AlarmFired:
+            return [UIColor redColor];
+    }
+    return nil;
+    
 }
 
 - (NSString *)cellReuseIdentifier:(NSString *)identifier width:(ScreenWidth)width
 {
-	return [NSString stringWithFormat:@"%@-%d", identifier, width];
+    return [NSString stringWithFormat:@"%@-%d", identifier, width];
 }
 
 - (void)accessoryButtonTapped:(UIButton *)button withEvent:(UIControlEvents)event
@@ -308,7 +293,7 @@
         cell.fired = YES;
         
         
-        UIImage *image = [ViewControllerBase alwaysGetIcon:kIconDelete];
+        UIImage *image = [ViewControllerBase getIcon:kIconDelete];
         
         UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
         CGRect frame = CGRectMake(0.0, 0.0, image.size.width, image.size.height);
@@ -340,23 +325,23 @@
 #endif
     }
     
-	[cell populateCellLine1:self.cellDescription line2:self.cellToGo line2col:[self color]];
+    [cell populateCellLine1:self.cellDescription line2:self.cellToGo line2col:[self color]];
 
 }
 
 - (int)threadReferenceCount
 {
-	return 0;
+    return 0;
 }
 
 - (NSDate *)earlierAlert:(NSDate *)alert
 {
-	if (self.alarm && self.alarm.fireDate  && self.nextFetch)
-	{
-		return [[alert earlierDate:self.alarm.fireDate] earlierDate:self.nextFetch];
-	}
-	
-	return alert;
+    if (self.alarm && self.alarm.fireDate  && self.nextFetch)
+    {
+        return [[alert earlierDate:self.alarm.fireDate] earlierDate:self.nextFetch];
+    }
+    
+    return alert;
 }
 
 - (void)showMap:(UINavigationController *)navController

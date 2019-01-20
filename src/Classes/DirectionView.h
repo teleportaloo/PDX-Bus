@@ -11,32 +11,26 @@
 
 
 #import <UIKit/UIKit.h>
-#import "Route.h"
-#import "TableViewWithToolbar.h"
+#import "Route+iOS.h"
+#import "TableViewControllerWithRefresh.h"
 #import "ReturnStopId.h"
 #import "XMLRoutes.h"
-#import "XMLDetours.h"
+#import "XMLDetoursAndMessages.h"
 
 #define kSearchItemRoute @"org.teleportaloo.pdxbus.route"
 
-@interface DirectionView : TableViewWithToolbar {
-	Route *     _route;
-	XMLRoutes * _directionData;
-    XMLDetours *_detourData;
-	NSArray *   _directionKeys;
-	NSString *  _routeId;
+@interface DirectionView : TableViewControllerWithRefresh
+{
     CacheAction _cacheAction;
     bool        _appeared;
 }
 
-@property (nonatomic, retain) Route *route;
-@property (nonatomic, retain) NSArray *directionKeys;
-@property (nonatomic, retain) XMLRoutes *directionData;
-@property (nonatomic, retain) XMLDetours *detourData;
-
+@property (nonatomic, strong) Route *route;
+@property (nonatomic, strong) NSArray *directionKeys;
+@property (nonatomic, strong) XMLRoutes *directionData;
+@property (nonatomic, strong) XMLDetoursAndMessages *detourData;
 @property (nonatomic, copy)   NSString *routeId;
 
-- (void)fetchDirectionsAsync:(id<BackgroundTaskProgress>)callback route:(NSString *)route;
-
-
+- (void)fetchDirectionsAsync:(id<BackgroundTaskController>)task route:(NSString *)route backgroundRefresh:(bool)backgroundRefresh;
+- (void)fetchDirectionsAsync:(id<BackgroundTaskController>)task route:(NSString *)route;
 @end

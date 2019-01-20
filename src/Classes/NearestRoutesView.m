@@ -19,33 +19,23 @@
 #import "DepartureTimesView.h"
 #include "DepartureCell.h"
 
-#define kRouteSections		2
-#define kSectionRoutes		0
-#define kSectionDisclaimer	1
+#define kRouteSections        2
+#define kSectionRoutes        0
+#define kSectionDisclaimer    1
 
 @implementation NearestRoutesView
 
-@synthesize routeData = _routeData;
-@synthesize checked   = _checked;
-
-- (void)dealloc
-{
-	self.routeData = nil;
-    self.checked = nil;
-	
-	[super dealloc];
-}
 
 #pragma mark -
 #pragma mark Initialization
 
 - (instancetype) init
 {
-	if ((self = [super init]))
-	{
+    if ((self = [super init]))
+    {
         self.title = NSLocalizedString(@"Routes",@"page title");
-	}
-	return self;
+    }
+    return self;
 }
 
 /*
@@ -64,29 +54,27 @@
 
 
 
-- (void)fetchNearestRoutesAsync:(id<BackgroundTaskProgress>)background location:(CLLocation *)here maxToFind:(int)max minDistance:(double)min mode:(TripMode)mode
+- (void)fetchNearestRoutesAsync:(id<BackgroundTaskController>)task location:(CLLocation *)here maxToFind:(int)max minDistance:(double)min mode:(TripMode)mode
 {
-	self.backgroundTask.callbackWhenFetching = background;
-	
-    self.routeData = [XMLLocateStops xml];
-	
-	self.routeData.maxToFind = max;
-	self.routeData.location = here;
-	self.routeData.mode = mode;
-	self.routeData.minDistance = min;
-	
-    [self runAsyncOnBackgroundThread:^{
-            [self.backgroundTask.callbackWhenFetching backgroundStart:1 title:@"getting routes"];
-            [self.routeData findNearestRoutes];
-            [self.routeData displayErrorIfNoneFound:self.backgroundTask.callbackWhenFetching];
-            self.checked = [NSMutableArray array];
-            for (int i=0; i<self.routeData.count; i++)
-            {
-                self.checked[i] = @NO;
-            }
+    [task taskRunAsync:^{        
+        self.routeData = [XMLLocateStops xml];
+        
+        self.routeData.maxToFind = max;
+        self.routeData.location = here;
+        self.routeData.mode = mode;
+        self.routeData.minDistance = min;
+        
+        [task taskStartWithItems:1 title:@"getting routes"];
+        [self.routeData findNearestRoutes];
+        [self.routeData displayErrorIfNoneFound:task];
+        self.checked = [NSMutableArray array];
+        for (int i=0; i<self.routeData.count; i++)
+        {
+            self.checked[i] = @NO;
+        }
+        return (UIViewController*)self;
 
-            [self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
-     }];
+    }];
 }
 
 
@@ -131,20 +119,19 @@
 */
 
 - (void)viewDidLoad {
-	[super viewDidLoad];
-	// Add the following line if you want the list to be editable
-	// self.navigationItem.leftBarButtonItem = self.editButtonItem;
-	// self.title = originalName;
-	
-	// add our custom add button as the nav bar's custom right view
-	UIBarButtonItem *refreshButton = [[UIBarButtonItem alloc]
-									  initWithTitle:NSLocalizedString(@"Get arrivals", @"button text")
-									  style:UIBarButtonItemStylePlain
-									  target:self
-									  action:@selector(showArrivalsAction:)];
-	self.navigationItem.rightBarButtonItem = refreshButton;
-	[refreshButton release];
-	
+    [super viewDidLoad];
+    // Add the following line if you want the list to be editable
+    // self.navigationItem.leftBarButtonItem = self.editButtonItem;
+    // self.title = originalName;
+    
+    // add our custom add button as the nav bar's custom right view
+    UIBarButtonItem *refreshButton = [[UIBarButtonItem alloc]
+                                      initWithTitle:NSLocalizedString(@"Get arrivals", @"button text")
+                                      style:UIBarButtonItemStylePlain
+                                      target:self
+                                      action:@selector(showArrivalsAction:)];
+    self.navigationItem.rightBarButtonItem = refreshButton;
+    
 }
 
 - (void) viewWillAppear:(BOOL)animated
@@ -164,41 +151,41 @@
 - (void)showArrivalsAction:(id)sender
 {
     NSMutableArray *multipleStops = [NSMutableArray array];
-	
-	for (int i=0; i<self.routeData.count; i++)
-	{
-		RouteDistanceData *rd = (RouteDistanceData *)self.routeData[i];
-		
-		if (self.checked[i].boolValue)
-		{
-			[multipleStops addObjectsFromArray:rd.stops];
-		}
-	}
-	
-	[multipleStops sortUsingSelector:@selector(compareUsingDistance:)];
-	
-	// remove duplicates, they are sorted so the dups will be adjacent
+    
+    for (int i=0; i<self.routeData.count; i++)
+    {
+        RouteDistanceData *rd = (RouteDistanceData *)self.routeData[i];
+        
+        if (self.checked[i].boolValue)
+        {
+            [multipleStops addObjectsFromArray:rd.stops];
+        }
+    }
+    
+    [multipleStops sortUsingSelector:@selector(compareUsingDistance:)];
+    
+    // remove duplicates, they are sorted so the dups will be adjacent
     NSMutableArray *uniqueStops = [NSMutableArray array];
 
-	NSString *lastStop = nil;
-	for (StopDistanceData *sd in multipleStops)
-	{
-		if (lastStop == nil || ![sd.locid isEqualToString:lastStop])
-		{
-			[uniqueStops addObject:sd];
-		}
-		lastStop = sd.locid;
-	}
-	
-	while (uniqueStops.count > kMaxStops)
-	{
-		[uniqueStops removeLastObject];
-	}
-		
-	if (uniqueStops.count > 0)
-	{
-		[[DepartureTimesView viewController] fetchTimesForNearestStopsAsync:self.backgroundTask stops:uniqueStops];
-	}
+    NSString *lastStop = nil;
+    for (StopDistanceData *sd in multipleStops)
+    {
+        if (lastStop == nil || ![sd.locid isEqualToString:lastStop])
+        {
+            [uniqueStops addObject:sd];
+        }
+        lastStop = sd.locid;
+    }
+    
+    while (uniqueStops.count > kMaxStops)
+    {
+        [uniqueStops removeLastObject];
+    }
+        
+    if (uniqueStops.count > 0)
+    {
+        [[DepartureTimesView viewController] fetchTimesForNearestStopsAsync:self.backgroundTask stops:uniqueStops];
+    }
 }
 
 
@@ -208,19 +195,19 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	switch (indexPath.section)
-	{
-		case kSectionRoutes:
-			if (LARGE_SCREEN)
-			{
-				return kRouteWideCellHeight;
-			}
-			return kRouteCellHeight;
-		case kSectionDisclaimer:
-			return kDisclaimerCellHeight;
-	}
-	return 1;
-	
+    switch (indexPath.section)
+    {
+        case kSectionRoutes:
+            if (LARGE_SCREEN)
+            {
+                return kRouteWideCellHeight;
+            }
+            return kRouteCellHeight;
+        case kSectionDisclaimer:
+            return kDisclaimerCellHeight;
+    }
+    return 1;
+    
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -231,69 +218,62 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     // Return the number of rows in the section.
-	switch (section)
-	{
-		case kSectionRoutes:
-			return self.routeData.count;
-		case kSectionDisclaimer:
-			return 1;
-	}
-	
-	return 0;
+    switch (section)
+    {
+        case kSectionRoutes:
+            return self.routeData.count;
+        case kSectionDisclaimer:
+            return 1;
+    }
+    
+    return 0;
 }
 
 
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-	UITableViewCell *cell = nil;
-	
-	
+    UITableViewCell *cell = nil;
+    
+    
     switch (indexPath.section)
-	{
-		case kSectionRoutes:
-		{
-			RouteDistanceData *rd = (RouteDistanceData*)self.routeData[indexPath.row];
-            DepartureCell *dcel = nil;
-
-			dcel = [tableView dequeueReusableCellWithIdentifier: MakeCellId(XkSectionRoutes)];
-			if (dcel == nil) {
-                 dcel = [DepartureCell genericWithReuseIdentifier:MakeCellId(XkSectionRoutes)];
-			}
+    {
+        case kSectionRoutes:
+        {
+            RouteDistanceData *rd = (RouteDistanceData*)self.routeData[indexPath.row];
+            DepartureCell *dcel = [DepartureCell tableView:tableView genericWithReuseIdentifier:MakeCellId(XkSectionRoutes)];
+            [rd populateCell:dcel];
+            
             cell = dcel;
             
-			[rd populateCell:dcel];
-			
-			if (self.checked[indexPath.row].boolValue)
-			{
-				cell.accessoryType = UITableViewCellAccessoryCheckmark;
-			}
-			else 
-			{
-				cell.accessoryType = UITableViewCellAccessoryNone;
-			}
+            if (self.checked[indexPath.row].boolValue)
+            {
+                cell.accessoryType = UITableViewCellAccessoryCheckmark;
+            }
+            else 
+            {
+                cell.accessoryType = UITableViewCellAccessoryNone;
+            }
 
-			break;
-		}
+            break;
+        }
         default:
-		case kSectionDisclaimer:
-			cell = [tableView dequeueReusableCellWithIdentifier:kDisclaimerCellId];
-			if (cell == nil) {
-				cell = [self disclaimerCellWithReuseIdentifier:kDisclaimerCellId];
-			}
-			
-			[self addTextToDisclaimerCell:cell text:[self.routeData displayDate:self.routeData.cacheTime]];	
-			
-			if (self.routeData.itemArray == nil)
-			{
-				[self noNetworkDisclaimerCell:cell];
-			}
-			else
-			{
-				cell.accessoryType = UITableViewCellAccessoryNone;
-			}
-			break;
-			
-	}
+        case kSectionDisclaimer:
+            cell = [self disclaimerCell:tableView];
+            
+            [self addTextToDisclaimerCell:cell text:[self.routeData displayDate:self.routeData.cacheTime]];    
+            
+            if (self.routeData.items == nil)
+            {
+                [self noNetworkDisclaimerCell:cell];
+            }
+            else
+            {
+                cell.accessoryType = UITableViewCellAccessoryNone;
+            }
+            [self updateDisclaimerAccessibility:cell];
+            break;
+            
+    }
     return cell;
 }
 
@@ -342,30 +322,30 @@
 #pragma mark Table view delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-   	switch (indexPath.section)
-	{
-		case kSectionRoutes:
-		{
+       switch (indexPath.section)
+    {
+        case kSectionRoutes:
+        {
             self.checked[indexPath.row] = self.checked[indexPath.row].boolValue ? @NO : @YES;
-			[self reloadData];
-			[self.table deselectRowAtIndexPath:indexPath animated:YES];
-			/*
-			RouteDistance *rd = [self.routeData itemAtIndex:indexPath.row];
-			DepartureTimesView *depView = [[DepartureTimesView alloc] init];
-			[depView fetchTimesForNearestStopsAsync:self.backgroundTask stops:rd.stops];
-			[depView release];
-			*/
-			break;
-		}
-		case kSectionDisclaimer:
-		{
-			if (self.routeData.itemArray == nil)
-			{
-				[self networkTips:self.routeData.htmlError networkError:self.routeData.errorMsg];
+            [self reloadData];
+            [self.table deselectRowAtIndexPath:indexPath animated:YES];
+            /*
+            RouteDistance *rd = [self.routeData itemAtIndex:indexPath.row];
+            DepartureTimesView *depView = [[DepartureTimesView alloc] init];
+            [depView fetchTimesForNearestStopsAsync:self.backgroundTask stops:rd.stops];
+            [depView release];
+            */
+            break;
+        }
+        case kSectionDisclaimer:
+        {
+            if (self.routeData.items == nil)
+            {
+                [self networkTips:self.routeData.htmlError networkError:self.routeData.errorMsg];
                 [self clearSelection];
-			}
-		}
-	}
+            }
+        }
+    }
 }
 
 
@@ -377,6 +357,17 @@
     [super didReceiveMemoryWarning];
     
     // Relinquish ownership any cached data, images, etc. that aren't in use.
+}
+
+
+- (void)updateToolbarItems:(NSMutableArray *)toolbarItems
+{
+    [self updateToolbarItemsWithXml:toolbarItems];
+}
+
+-(void)appendXmlData:(NSMutableData *)buffer
+{
+    [self.routeData appendQueryAndData:buffer];
 }
 
 

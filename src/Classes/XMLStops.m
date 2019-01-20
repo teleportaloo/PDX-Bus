@@ -16,48 +16,30 @@ static NSString *stopsURLString = @"routeConfig/route/%@/dir/%@/stops/true";
 
 @implementation XMLStops
 
-@synthesize currentStopObject = _currentStopObject;
-@synthesize routeId				= _routeId;
-@synthesize direction			= _direction;
-@synthesize routeDescription	= _routeDescription;
-@synthesize afterStop			= _afterStop;
-@synthesize staticQuery         = _staticQuery;
-
-- (void)dealloc
-{
-	self.currentStopObject = nil;
-	self.direction = nil;
-	self.routeId = nil;
-	self.routeDescription = nil;
-	self.afterStop = nil;
-    self.staticQuery = nil;
-	[super dealloc];
-	
-}
 
 #pragma mark Data fetchers
 
 - (BOOL)getStopsAfterLocation:(NSString *)locid route:(NSString *)route direction:(NSString *)dir 
-				  description:(NSString *)desc cacheAction:(CacheAction)cacheAction
+                  description:(NSString *)desc cacheAction:(CacheAction)cacheAction
 {
-	self.routeId = route;
-	self.direction = dir;
-	self.routeDescription = desc;
-	self.afterStop = locid;
-	
-	return [self startParsing:[NSString stringWithFormat:stopsURLString, route, dir] cacheAction:cacheAction];
-	
+    self.routeId = route;
+    self.direction = dir;
+    self.routeDescription = desc;
+    self.afterStop = locid;
+    
+    return [self startParsing:[NSString stringWithFormat:stopsURLString, route, dir] cacheAction:cacheAction];
+    
 }
 
 - (BOOL)getStopsForRoute:(NSString *)route direction:(NSString *)dir 
-			 description:(NSString *)desc cacheAction:(CacheAction)cacheAction
-{	
-	self.routeId = route;
-	self.direction = dir;
-	self.routeDescription = desc;
-	self.afterStop = nil;
-	
-	return [self startParsing:[NSString stringWithFormat:stopsURLString, route, dir] cacheAction:cacheAction];
+             description:(NSString *)desc cacheAction:(CacheAction)cacheAction
+{    
+    self.routeId = route;
+    self.direction = dir;
+    self.routeDescription = desc;
+    self.afterStop = nil;
+    
+    return [self startParsing:[NSString stringWithFormat:stopsURLString, route, dir] cacheAction:cacheAction];
 }
 
 #pragma mark Parser callbacks
@@ -84,15 +66,15 @@ static NSString *stopsURLString = @"routeConfig/route/%@/dir/%@/stops/true";
     
 }
 
-START_ELEMENT(resultset)
+XML_START_ELEMENT(resultset)
 {
-    [self initArray];
+    [self initItems];
     _hasData = YES;
 }
 
-START_ELEMENT(stop)
+XML_START_ELEMENT(stop)
 {
-    NSString *locid = ATRVAL(locid);
+    NSString *locid = ATRSTR(locid);
     
     if (self.afterStop !=nil && [locid isEqualToString:self.afterStop])
     {
@@ -103,20 +85,20 @@ START_ELEMENT(stop)
     {
         self.currentStopObject = [Stop data];
         
-        self.currentStopObject.locid =	ATRVAL(locid);
-        self.currentStopObject.desc =	ATRVAL(desc);
-        self.currentStopObject.tp =		ATRBOOL(tp);
-        self.currentStopObject.lat =	ATRVAL(lat);
-        self.currentStopObject.lng =    ATRVAL(lng);
+        self.currentStopObject.locid =    ATRSTR(locid);
+        self.currentStopObject.desc =    ATRSTR(desc);
+        self.currentStopObject.tp =        ATRBOOL(tp);
+        self.currentStopObject.lat =    ATRSTR(lat);
+        self.currentStopObject.lng =    ATRSTR(lng);
     }
 }
 
-END_ELEMENT(stop)
+XML_END_ELEMENT(stop)
 {
     if (self.currentStopObject !=nil)
     {
         [self addItem:self.currentStopObject];
-        self.currentStopObject.index = (int)self.itemArray.count;
+        self.currentStopObject.index = (int)self.items.count;
         self.currentStopObject = nil;
     }
 }

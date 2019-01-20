@@ -17,10 +17,6 @@
 
 
 @interface InterfaceOrientation : NSObject
-{
-    
-}
-
 
 + (UIInterfaceOrientation) getInterfaceOrientation:(UIViewController*)controller;
 

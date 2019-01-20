@@ -11,25 +11,28 @@
 
 
 #import "AboutView.h"
-#include "WebViewController.h"
-#include "TriMetXML.h"
+#import "WebViewController.h"
+#import "TriMetXML.h"
 #import "WhatsNewView.h"
 #import "SupportView.h"
 #import "DebugLogging.h"
 #import "StringHelper.h"
-#import "UITableViewCell+MultiLineCell.h"
 
+#include <sys/types.h>
+#include <sys/sysctl.h>
 
 enum SECTIONS {
-    kSectionIntro,
+    kSectionIntro=0,
     kSectionWeb,
     kSectionLegal,
+    kSectionVersions,
+    kSectionMachine,
     kSectionThanks,
     kSections
 };
-			
+            
 enum INTRO_ROWS {
-    kSectionIntroRowIntro,
+    kSectionIntroRowIntro=0,
     kSectionIntroRowNew,
     kSectionIntroRows
 };
@@ -41,28 +44,30 @@ enum INTRO_ROWS {
 
 @implementation AboutView
 
-@synthesize hideButton = _hideButton;
-
-- (void)dealloc {
-	[thanksText release];
-	[introText release];
-    [links release];
-    [legal release];
-	[super dealloc];
-}
 
 #pragma mark Helper functions
 
-- (UITableViewStyle) getStyle
+- (UITableViewStyle) style
 {
-	return UITableViewStyleGrouped;
+    return UITableViewStyleGrouped;
 }
 
 #pragma mark Table view methods
 
 
+- (NSString *) platform
+{
+    size_t size;
+    sysctlbyname("hw.machine", NULL, &size, NULL, 0);
+    char *machine = malloc(size);
+    sysctlbyname("hw.machine", machine, &size, NULL, 0);
+    NSString *platform = [NSString stringWithUTF8String:machine];
+    free(machine);
+    return platform;
+}
+
 - (instancetype)init {
-	if ((self = [super init]))
+    if ((self = [super init]))
     {
         self.title = NSLocalizedString(@"About", @"About screen title");
         
@@ -70,8 +75,7 @@ enum INTRO_ROWS {
         
         NSString *text = [NSString stringWithFormat:
                           NSLocalizedString(
-                                            @"#bVersion %@ (%d-bit) %@#b\n\n"
-                                            "Route and arrival data provided by permission of #B#bTriMet#b#0.\n\n"
+                                            @"Route and arrival data provided by permission of #B#bTriMet#b#0.\n\n"
                                             "This app was developed as a volunteer effort to provide a service for #B#bTriMet#b#0 riders. The developer has no affiliation with #B#bTriMet#b#0, or Apple.\n\n"
                                             "Lots of #ithanks#i...\n\n"
                                             "...to #ihttp://www.portlandtransport.com#i for help and advice;\n\n"
@@ -81,190 +85,182 @@ enum INTRO_ROWS {
                                             "...to #iRob Alan#i for the stylish icon; and\n\n"
                                             "...to #iCivicApps.org#i for Awarding PDX Bus the #i#bMost Appealing#b#i and #b#iBest in Show#b#i awards in July 2010.\n\n"
                                             "Special thanks to #R#b#iKen#i#b#0 for putting up with all this.\n\n"
-                                            "\nCopyright (c) 2008-2017\nAndrew Wallace\n(See legal section above for other copyright owners and attrbutions).",
-                                            @"Dedication text"),
-                          
-                          [NSBundle mainBundle].infoDictionary[@"CFBundleVersion"],
-                          sizeof(NSInteger) * 8,
-                          DEBUG_MODE
+                                            "\nCopyright (c) 2008-2018\nAndrew Wallace\n(See legal section above for other copyright owners and attrbutions).",
+                                            @"Dedication text")
                           ];
         
-        thanksText = [text formatAttributedStringWithFont:self.paragraphFont].retain;
+        versions = @[
+                     [NSString stringWithFormat:@"#0App: #b#B%@.%@", [NSBundle mainBundle].infoDictionary[@"CFBundleShortVersionString"], [NSBundle mainBundle].infoDictionary[@"CFBundleVersion"]],
+                     [NSString stringWithFormat:@"#0Type: #b#B%@", UIDevice.currentDevice.model],
+                     [NSString stringWithFormat:@"#0iOS: #b#B%@", UIDevice.currentDevice.systemVersion],
+                     [NSString stringWithFormat:@"#0Device: #b#B%@", self.platform],
+                     [NSString stringWithFormat:@"#0Build: #b#B%lu bits %@", sizeof(NSInteger) * 8, DEBUG_MODE]
+                     ];
+    
+        thanksText = [text formatAttributedStringWithFont:self.paragraphFont];
         
         introText = [@"One developer writes #bPDX Bus#b as a #ivolunteer effort#i, with a little help from friends and the local community. He has no affiliation with #b#BTriMet#b#0, but he happens to ride buses and MAX on most days.\n\n"
-                     "This is free because I do it for fun. #i#b#GReally#i#b#0." formatAttributedStringWithFont:self.paragraphFont].retain;
+                     "This is free because I do it for fun. #i#b#GReally#i#b#0." formatAttributedStringWithFont:self.paragraphFont];
         
-        links = [NSArray arrayWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"about-links" ofType:@"plist"]].retain;
-        legal = [NSArray arrayWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"about-legal" ofType:@"plist"]].retain;
+        links = [NSArray arrayWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"about-links" ofType:@"plist"]];
+        legal = [NSArray arrayWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"about-legal" ofType:@"plist"]];
         
         _hideButton = NO;
 
     }
-	return self;
+    return self;
 }
 
 - (void)viewDidAppear:(BOOL)animated {
-	[super viewDidAppear:animated];
-	
-	
+    [super viewDidAppear:animated];
+    
+    
     if (!_hideButton)
     {
-        UIBarButtonItem *info = [[[UIBarButtonItem alloc]
+        UIBarButtonItem *info = [[UIBarButtonItem alloc]
                                   initWithTitle:NSLocalizedString(@"Help", @"Help button")
                                   style:UIBarButtonItemStylePlain
-                                  target:self action:@selector(infoAction:)] autorelease];
+                                  target:self action:@selector(infoAction:)];
         
         
         self.navigationItem.rightBarButtonItem = info;
-	}
+    }
 }
 
 - (void)infoAction:(id)sender
 {
     SupportView *infoView = [SupportView viewController];
-	
-	// Push the detail view controller
+    
+    // Push the detail view controller
     
     infoView.hideButton = YES;
 
-	[self.navigationController pushViewController:infoView animated:YES];
+    [self.navigationController pushViewController:infoView animated:YES];
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-	switch (section) {
-		case kSectionThanks:
-			return NSLocalizedString(@"Thanks!", @"Thanks section header");
-		case kSectionWeb:
-			return NSLocalizedString(@"Links", @"Link section header");
-		case kSectionLegal:
-			return NSLocalizedString(@"Attributions and Legal", @"Section header");
-		case kSectionIntro:
-			return NSLocalizedString(@"Welcome to PDX Bus!", @"Section header");
-			
-	}
-	return nil;
+    switch (section) {
+        case kSectionThanks:
+            return NSLocalizedString(@"Thanks!", @"Thanks section header");
+        case kSectionWeb:
+            return NSLocalizedString(@"Links", @"Link section header");
+        case kSectionLegal:
+            return NSLocalizedString(@"Attributions and Legal", @"Section header");
+        case kSectionVersions:
+            return NSLocalizedString(@"Versions", @"Section header");
+        case kSectionIntro:
+            return NSLocalizedString(@"Welcome to PDX Bus!", @"Section header");
+            
+    }
+    return nil;
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-	return kSections;
+    return kSections;
 }
 
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-	switch (section) {
-		case kSectionThanks:
-			return 1;
-		case kSectionIntro:
-			return kSectionIntroRows;
-		case kSectionWeb:
-			return links.count;
-		case kSectionLegal:
-			return legal.count;
-	}
-	return 0;
+    switch (section) {
+        case kSectionThanks:
+            return 1;
+        case kSectionIntro:
+            return kSectionIntroRows;
+        case kSectionWeb:
+            return links.count;
+        case kSectionLegal:
+            return legal.count;
+        case kSectionVersions:
+            return versions.count;
+    }
+    return 0;
 }
 
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellFromDict:(NSDictionary<NSString*, NSString*>*)item
 {
     static NSString *linkId = @"pdxbuslink";
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:linkId];
-    if (cell == nil) {
-        
-        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:linkId] autorelease];
-        cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-        /*
-         [self newLabelWithPrimaryColor:[UIColor blueColor] selectedColor:[UIColor cyanColor] fontSize:14 bold:YES parentView:[cell contentView]];
-         */
-        
-        cell.textLabel.font =  self.basicFont; //  [UIFont fontWithName:@"Ariel" size:14];
-        cell.textLabel.textColor = [UIColor blueColor];
-        cell.textLabel.adjustsFontSizeToFitWidth = YES;
-        cell.selectionStyle = UITableViewCellSelectionStyleBlue;
+    UITableViewCell *cell = [self tableView:tableView multiLineCellWithReuseIdentifier:linkId];
+    
+    cell.textLabel.font =  self.basicFont; //  [UIFont fontWithName:@"Ariel" size:14];
+    cell.textLabel.textColor = [UIColor blueColor];
+    // cell.textLabel.adjustsFontSizeToFitWidth = YES;
+    
+    if (item[kLinkFull]==nil && item[kLinkMobile]==nil)
+    {
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        cell.accessoryType = UITableViewCellAccessoryNone;
     }
-    
+    else
+    {
+        cell.selectionStyle = UITableViewCellSelectionStyleBlue;
+        cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+    }
     cell.textLabel.text =   item[kCellText];
-    cell.imageView.image =  [self getActionIcon:item[kIcon]];
-    
-    cell.accessibilityLabel = [NSString stringWithFormat:NSLocalizedString(@"Link to %@", @"Accessibility label"), cell.textLabel.text];
-    
+    cell.imageView.image =  [self getIcon:item[kIcon]];
+    cell.accessibilityLabel = [NSString stringWithFormat:NSLocalizedString(@"Link to %@", @"Accessibility label"), cell.textLabel.text.phonetic];
     return cell;
     
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-	
-	switch (indexPath.section) {
-		case kSectionThanks:
-		case kSectionIntro:
-		{
-			if (indexPath.row == kSectionIntroRowIntro)
-			{
-				UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionHelpRowHelp)];
-				if (cell == nil) {
-                    cell = [UITableViewCell cellWithMultipleLines:MakeCellId(kSectionHelpRowHelp)];
-				}
-				cell.textLabel.attributedText = (indexPath.section == kSectionThanks) ? thanksText : introText;
-				cell.selectionStyle = UITableViewCellSelectionStyleNone;
-				[self updateAccessibility:cell indexPath:indexPath text:cell.textLabel.attributedText.string alwaysSaySection:YES];
-				// cell.backgroundView = [self clearView];
-				return cell;
-			}
-			else
+    
+    switch (indexPath.section) {
+        case kSectionThanks:
+        case kSectionIntro:
+        {
+            if (indexPath.row == kSectionIntroRowIntro)
             {
-				UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionHelpRowNew)];
-				if (cell == nil) {
-					
-					cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionHelpRowNew)] autorelease];
-					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-					/*
-					 [self newLabelWithPrimaryColor:[UIColor blueColor] selectedColor:[UIColor cyanColor] fontSize:14 bold:YES parentView:[cell contentView]];
-					 */
-					
-					cell.textLabel.font =  self.basicFont; //  [UIFont fontWithName:@"Ariel" size:14];
-					cell.textLabel.adjustsFontSizeToFitWidth = YES;
-					cell.selectionStyle = UITableViewCellSelectionStyleBlue;
-				}
-                
-                {
-                    cell.textLabel.text = NSLocalizedString(@"What's new?", @"Link to what's new");
-                    cell.imageView.image = [self getActionIcon:kIconAppIconAction];
-                }
-				return cell;
-			}
+                UITableViewCell *cell = [self tableView:tableView multiLineCellWithReuseIdentifier:MakeCellId(kSectionHelpRowHelp) font:self.paragraphFont];
+                cell.textLabel.attributedText = (indexPath.section == kSectionThanks) ? thanksText : introText;
+                cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                [self updateAccessibility:cell];
+                return cell;
+            }
+            else
+            {
+                UITableViewCell *cell = [self tableView:tableView multiLineCellWithReuseIdentifier:MakeCellId(kSectionHelpRowNew) font:self.paragraphFont];
+                cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+                cell.textLabel.font =  self.basicFont; //  [UIFont fontWithName:@"Ariel" size:14];
+                cell.textLabel.adjustsFontSizeToFitWidth = YES;
+                cell.selectionStyle = UITableViewCellSelectionStyleBlue;
+                cell.textLabel.text = NSLocalizedString(@"What's new?", @"Link to what's new");
+                cell.imageView.image = [self getIcon:kIconAppIconAction];
+                return cell;
+            }
 
-			break;
-		}
-		case kSectionWeb:
-		{
-			return [self tableView:tableView cellFromDict:links[indexPath.row]];
-			break;
-		}
-		case kSectionLegal:
-		{
-			
-			return [self tableView:tableView cellFromDict:legal[indexPath.row]];
-
-			break;
-		}
-	}
-	
+            break;
+        }
+        case kSectionWeb:
+        {
+            return [self tableView:tableView cellFromDict:links[indexPath.row]];
+            break;
+        }
+        case kSectionLegal:
+        {
+            return [self tableView:tableView cellFromDict:legal[indexPath.row]];
+            break;
+        }
+        case kSectionVersions:
+        {
+            UITableViewCell *cell = [self tableView:tableView multiLineCellWithReuseIdentifier:MakeCellId(kSectionVersions) font:self.basicFont];
+            cell.accessoryType = UITableViewCellAccessoryNone;
+            cell.textLabel.font =  self.basicFont; //  [UIFont fontWithName:@"Ariel" size:14];
+            cell.textLabel.adjustsFontSizeToFitWidth = NO;
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            cell.textLabel.attributedText = [versions[indexPath.row] formatAttributedStringWithFont:self.basicFont];
+            // cell.imageView.image = [self getIcon:kIconAppIconAction];
+            return cell;
+            break;
+        }
+    }
+    
     return [super tableView:tableView cellForRowAtIndexPath:indexPath];
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	switch (indexPath.section) {
-		case kSectionThanks:
-		case kSectionIntro:
-            return UITableViewAutomaticDimension;
-		case kSectionWeb:
-		case kSectionLegal:
-			return [self basicRowHeight];
-		default:
-			break;
-	}
-	return [self basicRowHeight];
+    return UITableViewAutomaticDimension;
 }
 
 - (void)gotoDict:(NSDictionary<NSString*, NSString*>*)dict
@@ -277,29 +273,29 @@ enum INTRO_ROWS {
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-	switch (indexPath.section)
-	{
-		case kSectionWeb:
-		{
-			[self gotoDict:links[indexPath.row]];
-			break;
-		}
-		case kSectionLegal:
-		{
+    switch (indexPath.section)
+    {
+        case kSectionWeb:
+        {
+            [self gotoDict:links[indexPath.row]];
+            break;
+        }
+        case kSectionLegal:
+        {
             [self gotoDict:legal[indexPath.row]];
             break;
-		}
-		case kSectionIntro:
-			if (indexPath.row == kSectionIntroRowIntro)
-			{
-				[self.navigationController popViewControllerAnimated:YES];
-			}
+        }
+        case kSectionIntro:
+            if (indexPath.row == kSectionIntroRowIntro)
+            {
+                [self.navigationController popViewControllerAnimated:YES];
+            }
             else
-			{
-				[self.navigationController pushViewController:[WhatsNewView viewController] animated:YES];
-			}
-			break;
-	}
+            {
+                [self.navigationController pushViewController:[WhatsNewView viewController] animated:YES];
+            }
+            break;
+    }
 }
 
 @end

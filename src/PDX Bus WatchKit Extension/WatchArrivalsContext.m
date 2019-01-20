@@ -19,21 +19,9 @@
 
 @implementation WatchArrivalsContext
 
-- (void)dealloc
-{
-    self.locid          = nil;
-    self.stopDesc       = nil;
-    self.navText        = nil;
-    self.detailBlock    = nil;
-    self.departures     = nil;
-    self.detours        = nil;
-
-    [super dealloc];
-}
-
 + (WatchArrivalsContext*)contextWithLocation:(NSString *)location
 {
-    WatchArrivalsContext *context = [[[WatchArrivalsContext alloc] init] autorelease];
+    WatchArrivalsContext *context = [[WatchArrivalsContext alloc] init];
     
     context.locid           = location;
     context.showMap         = NO;
@@ -44,7 +32,7 @@
 }
 + (WatchArrivalsContext*)contextWithLocation:(NSString *)location distance:(double)distance
 {
-    WatchArrivalsContext *context = [[[WatchArrivalsContext alloc] init] autorelease];
+    WatchArrivalsContext *context = [[WatchArrivalsContext alloc] init];
 
     context.locid           = location;
     context.showMap         = YES;
@@ -57,7 +45,7 @@
 
 + (WatchArrivalsContext*)contextWithLocation:(NSString *)location distance:(double)distance stopDesc:(NSString *)stopDesc
 {
-    WatchArrivalsContext *context = [[[WatchArrivalsContext alloc] init] autorelease];
+    WatchArrivalsContext *context = [[WatchArrivalsContext alloc] init];
     
     context.locid           = location;
     context.showMap         = YES;
@@ -99,7 +87,7 @@
     return NO;
 }
 
-- (WatchArrivalsContext *)getNext
+- (WatchArrivalsContext *)next
 {
     return nil;
 }

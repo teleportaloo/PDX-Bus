@@ -17,6 +17,9 @@
 #import "XMLTrips.h"
 
 @protocol TripReturnUserRequest <NSObject>
+
+@property (nonatomic, readonly, strong) UIViewController *controller;
+
 - (void)userRequest:(TripUserRequest *)userRequest;
-@property (nonatomic, getter=getController, readonly, strong) UIViewController *controller;
+
 @end

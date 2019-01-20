@@ -30,6 +30,7 @@
 
 #import <QuartzCore/QuartzCore.h>
 #import "PullRefreshTableViewController.h"
+#import "DebugLogging.h"
 
 #define REFRESH_HEADER_HEIGHT 52.0f
 
@@ -43,8 +44,7 @@
     self = [super initWithCoder:aDecoder];
     if (self != nil) {
         [self setupStrings];
-        
-            }
+    }
     return self;
 }
 
@@ -57,23 +57,32 @@
 }
 
 
-- (CGFloat) heightOffset
+- (CGFloat)heightOffset
 {
-    return -20.0;
+    return -[UIApplication sharedApplication].statusBarFrame.size.height;
 }
 
 - (void)viewDidLoad {
-    
-    [self addPullToRefreshHeader];
+    if (!self.disablePull)
+    {
+        [self addPullToRefreshHeader];
+        
+    }
     self.edgesForExtendedLayout = UIRectEdgeNone;
     [super viewDidLoad];
 }
 
-
+- (void)viewDidAppear:(BOOL)animated {
+    if (!self.disablePull)
+    {
+        [self iOS7workaroundPromptGap];
+    }
+    [super viewDidAppear:animated];
+}
 - (void)setupStrings{
-    textPull = [[NSString alloc] initWithString:@"Pull down to refresh..."];
-    textRelease = [[NSString alloc] initWithString:@"Release to refresh..."];
-    textLoading = [[NSString alloc] initWithString:@"Loading..."];
+    textPull = @"Pull down to refresh...";
+    textRelease = @"Release to refresh...";
+    textLoading = @"Loading...";
     
     self.secondLine = @"";
 }
@@ -90,7 +99,7 @@
     _width = [self widthNow];
     
     refreshHeaderView = [[UIView alloc] initWithFrame:CGRectMake(0, 0 - REFRESH_HEADER_HEIGHT, _width, REFRESH_HEADER_HEIGHT)];
-    refreshHeaderView.backgroundColor = [UIColor clearColor];
+    refreshHeaderView.backgroundColor = self.table.backgroundColor;
     refreshHeaderView.autoresizesSubviews = YES;
     
     refreshLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, _width, REFRESH_HEADER_HEIGHT)];
@@ -120,6 +129,11 @@
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
+    if (self.disablePull)
+    {
+        return;
+    }
+    
     if (_width != [self widthNow])
     {
         [refreshHeaderView removeFromSuperview];
@@ -127,10 +141,6 @@
         [refreshArrow      removeFromSuperview];
         [refreshSpinner    removeFromSuperview];
         
-        [refreshHeaderView release];
-        [refreshLabel      release];
-        [refreshArrow      release];
-        [refreshSpinner    release];
         
         [self addPullToRefreshHeader];
     }
@@ -139,14 +149,28 @@
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    if (self.disablePull)
+    {
+        return;
+    }
+    if (scrollView!=self.table)
+    {
+        return;
+    }
+    
+    //DEBUG_LOGB(isLoading);
     if (isLoading) {
         // Update the content inset, good for section headers
         if (scrollView.contentOffset.y > 0)
-            self.table.contentInset = UIEdgeInsetsZero;
+            scrollView.contentInset = UIEdgeInsetsZero;
         else if (scrollView.contentOffset.y >= -REFRESH_HEADER_HEIGHT)
-            self.table.contentInset = UIEdgeInsetsMake(-scrollView.contentOffset.y, 0, 0, 0);
+        {
+            scrollView.contentInset = UIEdgeInsetsMake(-scrollView.contentOffset.y, 0, 0, 0);
+            DEBUG_LOGF(scrollView.contentInset.top);
+        }
     } else if (isDragging && scrollView.contentOffset.y < 0) {
         // Update the arrow direction and label
+        [self.table bringSubviewToFront:refreshHeaderView];
         [UIView beginAnimations:nil context:NULL];
         if (scrollView.contentOffset.y < -REFRESH_HEADER_HEIGHT) {
             // User is scrolling above the header
@@ -161,9 +185,19 @@
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+    if (self.disablePull)
+    {
+        return;
+    }
+    
+    if (scrollView!=self.table)
+    {
+        return;
+    }
+    
     if (isLoading) return;
     isDragging = NO;
-    if (scrollView.contentOffset.y <= -REFRESH_HEADER_HEIGHT) {
+    if (scrollView.contentOffset.y <= -REFRESH_HEADER_HEIGHT && scrollView == self.table) {
         // Released above the header
         [self startLoading];
     }
@@ -195,6 +229,16 @@
     [UIView setAnimationDidStopSelector:@selector(stopLoadingComplete:finished:context:)];
     self.table.contentInset = UIEdgeInsetsZero;
     refreshArrow.layer.transform = CATransform3DMakeRotation(M_PI * 2, 0, 0, 1);
+    
+    DEBUG_LOGF(self.table.contentOffset.y);
+    DEBUG_LOGF(self.table.contentInset.bottom);
+    
+    if (self.searchController && !self.searchController.searchBar.hidden)
+    {
+        self.table.contentOffset = CGPointMake(0, self.searchController.searchBar.frame.size.height);
+    }
+    DEBUG_LOGF(self.table.contentOffset.y);
+    
     [UIView commitAnimations];
 }
 
@@ -206,22 +250,45 @@
 }
 
 - (void)refresh {
-    // This is just a demo. Override this method with your custom reload action.
-    // Don't forget to call stopLoading at the end.
-    [self performSelector:@selector(stopLoading) withObject:nil afterDelay:2.0];
+    [self refreshAction:nil];
+    [self performSelector:@selector(stopLoading) withObject:nil afterDelay:0.5];
 }
 
-- (void)dealloc {
-    [refreshHeaderView release];
-    [refreshLabel release];
-    [refreshArrow release];
-    [refreshSpinner release];
-    [textPull release];
-    [textRelease release];
-    [textLoading release];
-    self.secondLine = nil;
-    [super dealloc];
+- (void)refreshAction:(id)sender
+{
+    
 }
+
+
+- (void)updateRefreshDate:(NSDate *)date
+{
+    
+    if (date == nil)
+    {
+        date = [NSDate date];
+    }
+    
+    self.secondLine = [NSString stringWithFormat:NSLocalizedString(@"Last updated: %@", @"pull to refresh text"),
+                       [NSDateFormatter localizedStringFromDate:date
+                                                      dateStyle:NSDateFormatterNoStyle
+                                                      timeStyle:NSDateFormatterMediumStyle]];
+}
+
+
+#pragma mark - <UIBarPositioningDelegate>
+
+// Make sure NavigationBar is properly top-aligned to Status bar
+- (UIBarPosition)positionForBar:(id<UIBarPositioning>)bar
+{
+    if (bar == self.searchController.searchBar) {
+        return UIBarPositionTopAttached;
+    }
+    else { // Handle other cases
+        return UIBarPositionAny;
+    }
+}
+
+
 
 
 @end

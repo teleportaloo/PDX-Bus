@@ -15,21 +15,18 @@
 #import "TableViewWithToolbar.h"
 #import <CoreLocation/CoreLocation.h>
 
-#define kTips					2
+#define kTips                    2
 
 @interface SupportView : TableViewWithToolbar  <CLLocationManagerDelegate> {
-	NSAttributedString *supportText;
+    NSAttributedString *supportText;
     NSArray *tipText;
-    NSString *_locationText;
-    NSString *_cameraText;
-    CLLocationManager *_locMan;
+
     bool _cameraGoesToSettings;
     bool _locationGoesToSettings;
-    bool _hideButton;
 }
 
 @property (nonatomic) bool hideButton;
-@property (nonatomic, retain) CLLocationManager *locMan;
+@property (nonatomic, strong) CLLocationManager *locMan;
 @property (nonatomic, copy)   NSString *locationText;
 @property (nonatomic, copy)   NSString *cameraText;
 

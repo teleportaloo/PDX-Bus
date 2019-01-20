@@ -10,11 +10,9 @@
 #import <Foundation/Foundation.h>
 
 @interface NumberPadInterfaceController : WKInterfaceController
-{
-   
-}
+
 @property (strong, nonatomic) IBOutlet WKInterfaceButton *buttonStopId;
-@property (nonatomic, retain) NSMutableString *stopId;
+@property (nonatomic, strong) NSMutableString *stopId;
 - (IBAction)button1;
 - (IBAction)button2;
 - (IBAction)button3;

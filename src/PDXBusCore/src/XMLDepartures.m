@@ -17,57 +17,50 @@
 #import "DebugLogging.h"
 #import "DepartureData.h"
 #import "StringHelper.h"
-
-static NSString *departuresURLString = @"arrivals/locIDs/%@/streetcar/true";
-
+#import "CLLocation+Helper.h"
+#import "UserPrefs.h"
+#import "XMLStreetcarMessages.h"
 
 @implementation XMLDepartures
 
-@synthesize distance = _distance;
-@synthesize blockFilter = _blockFilter;
-@synthesize queryTime = _queryTime;
-@synthesize locDesc = _locDesc;
-@synthesize locid = _locid;
-@synthesize loc = _loc;
-@synthesize locDir = _locDir;
-@synthesize currentDepartureObject = _currentDepartureObject;
-@synthesize currentTrip = _currentTrip;
-@synthesize sectionTitle = _sectionTitle;
-@synthesize streetcarData = _streetcarData;
-@synthesize firstOnly = _firstOnly;
-
-- (void)dealloc
++(instancetype)xmlWithOptions:(unsigned int)options
 {
-	self.currentDepartureObject = nil;
-	self.currentTrip = nil;
+    XMLDepartures *item = [[[self class] alloc] init];
     
-	
-	self.locDesc = nil;
-	self.loc = nil;
-	self.locid = nil;
-	self.blockFilter = nil;
-	
-	self.distance = nil;
-	self.locDir = nil;
-	self.sectionTitle = nil;
-    self.streetcarData = nil;
-	
-	[super dealloc];
+    item.options = options;
+    
+    return item;
 }
 
 
+- (instancetype)init
+{
+    if ((self = [super init]))
+    {
+        self.allDetours = [NSMutableDictionary dictionary];
+        self.usedDetours = [NSMutableSet set];
+        self.allRoutes = [NSMutableDictionary dictionary];
+    }
+    return self;
+}
+
+- (bool)cacheSelectors
+{
+    return YES;
+}
+
 - (double)getDouble:(NSString *)str
 {
-	double d = 0.0;
-	NSScanner *scanner = [NSScanner scannerWithString:str];	
-	[scanner scanDouble:&d];
-	return d;
+    double d = 0.0;
+    NSScanner *scanner = [NSScanner scannerWithString:str];    
+    [scanner scanDouble:&d];
+    return d;
 }
 
 
 - (void)parserDidStartDocument:(NSXMLParser *)parser
 {
-	
+    
 }
 
 - (DepartureData*)departureForBlock:(NSString *)block
@@ -83,43 +76,100 @@ static NSString *departuresURLString = @"arrivals/locIDs/%@/streetcar/true";
 
 #pragma mark Initiate parsing
 
+- (void)startFromMultiple
+{
+    _hasData = NO;
+    [self clearItems];
+}
+
+- (void)reparse:(NSMutableData *)data
+{
+    self.itemFromCache = NO;
+    [self clearItems];
+    self.rawData = data;
+    [self reloadWithAction:^{
+        NSError *parseError;
+        [self parseRawData:&parseError];
+        LOG_PARSE_ERROR(parseError);
+    }];
+}
+
 - (void)reload
 {
-	[self startParsing:[NSString stringWithFormat:departuresURLString, self.locid]
-        cacheAction:TriMetXMLUseShortTermCache];
-		
-    NSMutableArray *locs = self.locid.arrayFromCommaSeparatedString;
-	
-    int nStops = (int)locs.count;
-	
-	if (nStops > 1)
-	{
-		self.locDesc = [ NSString stringWithFormat:@"Stop Ids:%@", self.locid];
-		self.loc = nil;
-	}
+    [self reloadWithAction:^{
+        NSString *mins = @"1";
+        
+        if (!DepOption(DepOptionsOneMin))
+        {
+            mins = [UserPrefs sharedInstance].minsForArrivals;
+        }
+        
+        [self startParsing:[NSString stringWithFormat:@"arrivals/locIDs/%@/streetcar/true/showPosition/true/minutes/%@", self.locid,mins]
+               cacheAction:TriMetXMLUseShortTermCache];
+    }];
+}
+
+- (void)reloadWithAction:(void (^ __nullable)(void))action
+{
+    if (self.locid)
+    {
+        action();
+        
+        NSMutableArray *locs = self.locid.arrayFromCommaSeparatedString;
     
-    NSArray *sorted = [self.itemArray sortedArrayUsingSelector:@selector(compareUsingTime:)];
+        int nStops = (int)locs.count;
     
-    [self.itemArray removeAllObjects];
-    [self.itemArray addObjectsFromArray:sorted];
-	
+        if (nStops > 1)
+        {
+            self.locDesc = [ NSString stringWithFormat:@"Stop Ids:%@", self.locid];
+            self.loc = nil;
+        }
+        
+        // NSArray *sorted = [self.itemArray sortedArrayUsingSelector:@selector(compareUsingTime:)];
+    
+        [self.items sortUsingSelector:@selector(compareUsingTime:)];
+        // [self.itemArray addObjectsFromArray:sorted];
+        
+        if (self.nextBusFeedInTriMetData)
+        {
+            XMLStreetcarMessages * messages = [XMLStreetcarMessages sharedInstance];
+            [messages getMessages];
+            [messages insertDetoursIntoDepartureArray:self];
+        }
+    }
+    
 }
 
 - (BOOL)getDeparturesForLocation:(NSString *)location
-{	
-	self.distance = nil;
-	self.locid = location;
-	[self reload];
-	return YES;
+{    
+    self.distance = nil;
+    self.locid = location;
+    [self reload];
+    return YES;
 }
 
 - (BOOL)getDeparturesForLocation:(NSString *)location block:(NSString*)block
-{	
-	self.distance = nil;
-	self.locid = location;
-	self.blockFilter = block;
-	[self reload];
-	return YES;
+{    
+    self.distance = nil;
+    self.locid = location;
+    self.blockFilter = block;
+    [self reload];
+    return YES;
+}
+
+- (Route *)route:(NSString *)route desc:(NSString *)desc
+{
+    Route *result = self.allRoutes[route];
+    
+    if (result == nil)
+    {
+        result = [Route data];
+        result.desc = desc;
+        result.route = route;
+        [self.allRoutes setObject:result forKey:route];
+    }
+    
+    return result;
 }
 
 #pragma mark Parser callbacks
@@ -137,122 +187,171 @@ static NSString *departuresURLString = @"arrivals/locIDs/%@/streetcar/true";
 
 #pragma mark Start Elements
 
-START_ELEMENT(resultset)
+XML_START_ELEMENT(resultset)
 {
-    self.queryTime = ATRTIM(queryTime);
-    [self initArray];
+    self.queryTime = ATRDAT(queryTime);
+    [self initItems];
+    self.locDetours = [NSMutableOrderedSet orderedSet];
+    self.nextBusFeedInTriMetData = NO;
     _hasData = YES;
 }
 
-START_ELEMENT(location)
+
+// There is a location inside of a detour
+
+XML_START_ELEMENT(location)
 {
-    if (self.locDesc == nil)
+    if (self.currentDetour!=nil)
     {
-        self.locDesc = ATRVAL(desc);
+#ifndef PDXBUS_WATCH
+        if (!DepOption(DepOptionsNoDetours))
+        {
+            DetourLocation *loc = [DetourLocation data];
+        
+            loc.desc =  ATRSTR(desc);
+            loc.locid = ATRSTR(id);
+            loc.dir =   ATRSTR(dir);
+            
+            [loc setPassengerCodeFromString:NATRSTR(passengerCode)];
+        
+            loc.noServiceFlag = ATRBOOL(no_service_flag);
+            loc.location = ATRLOC(lat,lng);
+        
+            [self.currentDetour.locations addObject:loc];
+        }
+#endif
+    }
+    else if (self.locDesc == nil)
+    {
+        self.locDesc = ATRSTR(desc);
     
-        NSString *lat = ATRVAL(lat);
-        NSString *lng = ATRVAL(lng);
+        NSString *lat = ATRSTR(lat);
+        NSString *lng = ATRSTR(lng);
     
         if (lat!=nil && lng!=nil)
         {
-            self.loc = [[[CLLocation alloc] initWithLatitude:lat.doubleValue longitude:lng.doubleValue] autorelease];
+            self.loc = [CLLocation fromStringsLat:lat lng:lng];
         }
-        self.locDir  = ATRVAL(dir);
+        self.locDir  = ATRSTR(dir);
     }
     
     
     if (self.currentDepartureObject!=nil && self.locDesc != nil)
     {
-        self.currentTrip.name = ATRVAL(desc);
+        self.currentTrip.name = ATRSTR(desc);
     }
 }
 
 
-START_ELEMENT(arrival)
+XML_START_ELEMENT(arrival)
 {
+    NSString *block = NATRSTR(blockID);
     
-    NSString *block = ATRVAL(block);
-    if (((self.blockFilter==nil) || ([self.blockFilter isEqualToString:block])) &&
-        ((!self.firstOnly || self.count < 1)))
+    // Sometimes the streetcar block is in a different attribute - this
+    // may be a temporary bug. 
+    if (block==nil || block.length==0)
     {
+        block = NATRSTR(block);
+    }
+    
+    if (block == nil || block.length==0)
+    {
+        block = @"?";
+    }
+    
+    if (((self.blockFilter==nil) || ([self.blockFilter isEqualToString:block])) &&
+        ((!DepOption(DepOptionsFirstOnly)|| self.count < 1)))
+    {
+        DepartureData *dep = [DepartureData data];
         
-        self.currentDepartureObject = [DepartureData data];
+        dep.allDetours = self.allDetours;
+        
+        self.currentDepartureObject = dep;
         
         // Streetcar arrivals have an implicit block
-        self.currentDepartureObject.hasBlock = ATRBOOL(streetCar);
+        dep.hasBlock = ATRBOOL(streetCar);
         
-        self.currentDepartureObject.cacheTime = self.cacheTime;
+        dep.cacheTime = self.cacheTime;
         
         // Adjust the query time based on the cache time
-        
-        
-        
-        self.currentDepartureObject.queryTime = self.queryTime;
-        
-        
-        
-        self.currentDepartureObject.route =			ATRVAL(route);
-        self.currentDepartureObject.fullSign =		ATRVAL(fullSign);
-        self.currentDepartureObject.shortSign =		ATRVAL(shortSign);
-        
-        
+        dep.queryTime =             self.queryTime;
+        dep.route =                    ATRSTR(route);
+        dep.fullSign =                ATRSTR(fullSign);
+        dep.shortSign =                ATRSTR(shortSign);
+        dep.dropOffOnly =           ATRBOOL(dropOffOnly);
+        dep.blockPositionFeet   =   ATRDIST(feet);
+
         NSString *prefix  = @"Portland Streetcar ";
         NSInteger prefixLen = prefix.length;
         
-        if (self.currentDepartureObject.shortSign.length > prefixLen && [self.currentDepartureObject.fullSign isEqualToString:self.currentDepartureObject.shortSign])
+        if (dep.shortSign.length > prefixLen && [dep.fullSign isEqualToString:dep.shortSign])
         {
             NSString *replace = @"";
             
             // Streetcar names are a little long.  Chop off the portland part
-            if  ([[self.currentDepartureObject.shortSign substringToIndex:prefixLen] isEqualToString:prefix])
+            if  ([[dep.shortSign substringToIndex:prefixLen] isEqualToString:prefix])
             {
-                self.currentDepartureObject.shortSign = [NSString stringWithFormat:@"%@%@", replace, [self.currentDepartureObject.shortSign substringFromIndex:prefixLen]];
+                dep.shortSign = [NSString stringWithFormat:@"%@%@", replace, [self.currentDepartureObject.shortSign substringFromIndex:prefixLen]];
             }
         }
         
+        dep.block =         block;
+        dep.dir =            ATRSTR(dir);
         
-        self.currentDepartureObject.block =         block;
-        self.currentDepartureObject.dir =			ATRVAL(dir);
-        
-        self.currentDepartureObject.locationDesc =	self.locDesc;
-        self.currentDepartureObject.locid		 =  self.locid;
-        self.currentDepartureObject.locationDir  =  self.locDir;
-        self.currentDepartureObject.stopLocation =  self.loc;
-        
-        NSString *status = ATRVAL(status);
-        
-        if (ATREQ(status, @"estimated"))
+        NSString *vehicleID = NATRSTR(vehicleID);
+    
+        if (vehicleID == nil || vehicleID.length==0)
         {
-            self.currentDepartureObject.departureTime = ATRTIM(estimated);
-            self.currentDepartureObject.status = kStatusEstimated;
+            dep.vehicleIDs = nil;
         }
         else
         {
-            self.currentDepartureObject.departureTime = ATRTIM(scheduled);
+            dep.vehicleIDs = @[ vehicleID ];
+        }
+        dep.reason =         NATRSTR(reason);
+        dep.loadPercentage = ZATRINT(loadPercentage);
+        dep.locationDesc =    self.locDesc;
+        dep.locid         =  self.locid;
+        dep.locationDir  =  self.locDir;
+        dep.stopLocation =  self.loc;
+        
+        NSString *status = ATRSTR(status);
+        
+        if (ATREQ(status, @"estimated"))
+        {
+            dep.departureTime = ATRDAT(estimated);
+            dep.status = kStatusEstimated;
+        }
+        else
+        {
+            dep.departureTime = ATRDAT(scheduled);
             
             if (ATREQ(status,@"scheduled"))
             {
-                self.currentDepartureObject.status = kStatusScheduled;
+                dep.status = kStatusScheduled;
             }
             else if (ATREQ(status, @"delayed"))
             {
-                self.currentDepartureObject.status = kStatusDelayed;
+                dep.status = kStatusDelayed;
             }
             else if (ATREQ(status, @"canceled"))
             {
-                self.currentDepartureObject.status = kStatusCancelled;
+                dep.status = kStatusCancelled;
             }
         }
         
-        [self.currentDepartureObject extrapolateFromNow];
+        [dep extrapolateFromNow];
         
-        self.currentDepartureObject.scheduledTime           = ATRTIM(scheduled);
-        self.currentDepartureObject.detour                  = ATRBOOL(detour);
-        self.currentDepartureObject.nextBusFeedInTriMetData = ATRBOOL(nextBusFeed);
-        self.currentDepartureObject.streetcar               = ATRBOOL(streetCar);
+        dep.scheduledTime           = ATRDAT(scheduled);
+        dep.nextBusFeedInTriMetData = ATRBOOL(nextBusFeed);
+        dep.streetcar               = ATRBOOL(streetCar);
         
-        
-        // DEBUG_LOG(@"Nextbusfeed:%d %@\n", self.currentDepartureObject.nextBusFeedInTriMetData, ATRVAL(nextbusfeed)	;
+        if (dep.nextBusFeedInTriMetData || [[TriMetInfo streetcarRoutes] containsObject:dep.route])
+        {
+            self.nextBusFeedInTriMetData = YES;
+        }
+
+        // DEBUG_LOG(@"Nextbusfeed:%d %@\n", self.currentDepartureObject.nextBusFeedInTriMetData, ATRSTR(nextbusfeed)    ;
         // [self dumpDict:attributeDict];
     }
     else
@@ -262,41 +361,48 @@ START_ELEMENT(arrival)
 }
 
 
-START_ELEMENT(errormessage)
+XML_START_ELEMENT(error)
 {
     self.currentDepartureObject   = [DepartureData data];
     self.contentOfCurrentProperty = [NSMutableString string];
 }
 
-START_ELEMENT(blockposition)
+XML_START_ELEMENT(blockposition)
 {
     if (self.currentDepartureObject!=nil)
     {
-        self.currentDepartureObject.blockPositionAt = ATRTIM(at);
+        self.currentDepartureObject.blockPositionAt = ATRDAT(at);
         
-        NSString *lat = ATRVAL(lat);
-        NSString *lng = ATRVAL(lng);
+        NSString *lat = ATRSTR(lat);
+        NSString *lng = ATRSTR(lng);
         
         if (lat !=nil && lng!=nil)
         {
-            self.currentDepartureObject.blockPosition = [[[CLLocation alloc] initWithLatitude:lat.doubleValue longitude:lng.doubleValue] autorelease];
+            self.currentDepartureObject.blockPosition = [CLLocation fromStringsLat:lat lng:lng];
         }
         
-        self.currentDepartureObject.blockPositionFeet   = ATRDIST(feet);
-        self.currentDepartureObject.blockPositionHeading= ATRVAL(heading);
+        self.currentDepartureObject.blockPositionDir            = ATRSTR(direction);
+        self.currentDepartureObject.blockPositionRouteNumber    = ATRSTR(routeNumber);
+        
+        self.currentDepartureObject.nextLocid = ATRSTR(nextLocID);
+        
+        // self.currentDepartureObject.blockPositionFeet   = ATRDIST(feet);
+        self.currentDepartureObject.blockPositionHeading= ATRSTR(heading);
         
         self.currentDepartureObject.hasBlock = true;
     }
 }
 
-START_ELEMENT(trip)
+XML_START_ELEMENT(trip)
 {
     if (self.currentDepartureObject!=nil)
     {
-        self.currentTrip = [[[DepartureTrip alloc] init] autorelease];
-        self.currentTrip.name     = ATRVAL(desc);
+        self.currentTrip = [DepartureTrip data];
+        self.currentTrip.name     = ATRSTR(desc);
         self.currentTrip.distance = (unsigned long)ATRDIST(destDist);
         self.currentTrip.progress = (unsigned long)ATRDIST(progress);
+        self.currentTrip.route = ATRSTR(route);
+        self.currentTrip.dir = ATRSTR(dir);
         
         if (self.currentTrip.distance > 0)
         {
@@ -305,37 +411,155 @@ START_ELEMENT(trip)
     }
 }
 
-
-START_ELEMENT(layover)
+XML_START_ELEMENT(layover)
 {
     if (self.currentDepartureObject!=nil)
     {
-        self.currentTrip = [[[DepartureTrip alloc] init] autorelease];
-        self.currentTrip.startTime = ATRTIM(start);
-        self.currentTrip.endTime   = ATRTIM(end);
+        self.currentTrip = [DepartureTrip data];
+        self.currentTrip.startTime = ATRDAT(start);
+        self.currentTrip.endTime   = ATRDAT(end);
         [self.currentDepartureObject.trips addObject:self.currentTrip];
     }
 }
 
+XML_START_ELEMENT(trackingerror)
+{
+    if (self.currentDepartureObject!=nil)
+    {
+        self.currentDepartureObject.offRoute = ATRBOOL(offRoute);
+    }
+}
+
+XML_START_ELEMENT(detour)
+{
+    // There is a detour element inside an arrival and one outside
+    if (self.currentDepartureObject!=nil)
+    {
+        NSNumber *detourId = @(ATRINT(id));
+        [self.currentDepartureObject.detours addObject:detourId];
+        [self.usedDetours addObject:detourId];
+        self.currentDepartureObject.detour = YES;
+    }
+    else
+    {
+        // If we have a desc attibute then we are definately in the later detour section
+        // we may get here if filtering on a block otherwise.
+        if (!DepOption(DepOptionsNoDetours) && NATRSTR(desc)!=nil)
+        {
+            NSNumber *detourId = @(ATRINT(id));
+            Detour *detour = [self.allDetours objectForKey:detourId];
+            
+            if (detour == nil)
+            {
+                detour = [Detour fromAttributeDict:attributeDict allRoutes:self.allRoutes];
+                [self.allDetours setObject:detour forKey:detour.detourId];
+            }
+            
+            self.currentDetour = detour;
+            
+            if (self.currentDetour.systemWideFlag)
+            {
+                [self.usedDetours addObject:self.currentDetour.detourId];
+                // System wide alerts go at the top            
+                for (DepartureData *dep in self)
+                {
+                    if ([dep.detours containsObject:self.currentDetour.detourId])
+                    {
+                        [dep.detours removeObject:self.currentDetour.detourId];
+                    }
+                    [dep.detours insertObject:self.currentDetour.detourId atIndex:0];
+                    dep.systemWideDetours++;
+                }
+            }
+        }
+    }
+}
+
+#ifndef PDXBUS_WATCH
+XML_START_ELEMENT(route)
+{
+    if (!DepOption(DepOptionsNoDetours))
+    {
+        if (self.currentDetour)
+        {
+            [self.currentDetour.routes addObject:[self route:ATRSTR(route) desc: ATRSTR(desc)]];
+        }
+    }
+}
+#endif
+
+XML_END_ELEMENT(detour)
+{
+    if (self.currentDetour && !self.currentDetour.systemWideFlag)
+    {
+        for (NSString *stop in self.currentDetour.extractStops)
+        {
+            if ([stop isEqualToString:self.locid])
+            {
+                [self.locDetours addObject:self.currentDetour.detourId];
+                [self.usedDetours addObject:self.currentDetour.detourId];
+            }
+        }
+    
+        for (DetourLocation *detourLoc in self.currentDetour.locations)
+        {
+            if ([detourLoc.locid isEqualToString:self.locid])
+            {
+                [self.locDetours addObject:self.currentDetour.detourId];
+                [self.usedDetours addObject:self.currentDetour.detourId];
+            }
+        }
+    }
+    
+    self.currentDetour = nil;
+}
+
 #pragma mark End Elements
 
-END_ELEMENT(errormessage)
+XML_END_ELEMENT(error)
 {
     if (self.currentDepartureObject!=nil) {
         self.currentDepartureObject.errorMessage = self.contentOfCurrentProperty;
-        _contentOfCurrentProperty = nil;
-    
+        self.contentOfCurrentProperty = nil;
+        self.locDesc = @"Error message";
+        
+        /*
+        self.loc = nil;
+        self.locid = nil;
+        self.locDir = nil;
+        self.locDesc = nil;
+        self.distance = nil;
+        self.sectionTitle = nil;
+        */
+        
         [self addItem:self.currentDepartureObject];
         self.currentDepartureObject = nil;
     }
 }
 
-END_ELEMENT(arrival)
+XML_END_ELEMENT(arrival)
 {
     if (self.currentDepartureObject!=nil)
     {
+        [self.currentDepartureObject.detours sortUsingComparator:^NSComparisonResult(NSNumber * obj1, NSNumber * obj2) {
+            return [obj1 compare:obj2];
+        }];
         [self addItem:self.currentDepartureObject];
         self.currentDepartureObject = nil;
+    }
+}
+
+XML_END_ELEMENT(resultset)
+{
+    if (self.items==nil || self.items.count==0)
+    {
+        // Not sure about the detours yet
+        [self.allDetours enumerateKeysAndObjectsUsingBlock:^(NSNumber * _Nonnull key, Detour * _Nonnull detour, BOOL * _Nonnull stop) {
+            // if (![self.usedDetours containsObject:key])
+            {
+                [self.locDetours addObject:key];
+            }
+        }];
     }
 }
 
@@ -345,37 +569,35 @@ static NSMutableDictionary *cachedDetours = nil;
 
 + (void)clearCache
 {
-	if (cachedDetours !=nil)
-	{
-		[cachedDetours release];
-		cachedDetours = nil;
-	}
+    if (cachedDetours !=nil)
+    {
+        cachedDetours = nil;
+    }
 }
 
--(bool)checkForDetour:(NSString *)route
+- (bool)hasError
 {
-	bool hasDetour = false;
-
-	if (cachedDetours == nil)
-	{
-		cachedDetours = [[NSMutableDictionary alloc] init];
-	}
-	
-	XMLDetours *detours = cachedDetours[route];
-	
-	if (detours == nil)
-	{
-		detours = [[XMLDetours alloc] init];
-		[detours getDetoursForRoute:route];
-		cachedDetours[route] = detours;
-		[detours release];
-	}
-	
-	hasDetour = (detours.count > 0);
-	return hasDetour;
+    if (self.items.count == 1 && self.items.firstObject.errorMessage!=nil)
+    {
+        return YES;
+    }
+    return NO;
 }
 
-
+- (void)appendQueryAndData:(NSMutableData *)buffer
+{
+    [super appendQueryAndData:buffer];
+    
+    if (self.nextBusFeedInTriMetData)
+    {
+        XMLStreetcarMessages *messages = [XMLStreetcarMessages sharedInstance];
+        
+        if (messages.gotData)
+        {
+            [messages appendQueryAndData:buffer];
+        }
+    }
+}
 
 
 @end

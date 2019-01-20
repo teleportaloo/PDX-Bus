@@ -24,33 +24,14 @@
 #import "StringHelper.h"
 #import "FormatDistance.h"
 
-#define MAX_AGE					-30.0
-
-@interface WatchNearbyInterfaceController ()
-
-@end
+#define MAX_AGE                    -30.0
 
 @implementation WatchNearbyInterfaceController
 
-@synthesize locationManager = _locationManager;
-@synthesize timeStamp       = _timeStamp;
-@synthesize lastLocation    = _lastLocation;
-@synthesize stops           = _stops;
-
 - (void)dealloc
 {
-    self.locationManager.delegate	= nil;
-    self.locationManager			= nil;
-    self.timeStamp                  = nil;
-    self.lastLocation               = nil;
-    self.stops                      = nil;
-    self.loadingGroup               = nil;
-    self.loadingLabel               = nil;
-    self.locationStatusLabel        = nil;
-    self.map                        = nil;
-    self.stopTable                  = nil;
+    self.locationManager.delegate    = nil;
     
-    [super dealloc];
 }
 
 - (void)setUpLocationStatus
@@ -145,7 +126,7 @@
     
     self.map.hidden = YES;
     
-    if (context != nil)
+    if ([context isKindOfClass:[WatchArrivalsContextNearby class]])
     {
         _waitingForLocation = false;
         
@@ -157,7 +138,7 @@
     {
     
         // Configure interface objects here.
-        self.locationManager = [[[CLLocationManager alloc] init] autorelease];
+        self.locationManager = [[CLLocationManager alloc] init];
         self.locationManager.delegate = self;
         
         [self setUpLocationStatus];
@@ -198,7 +179,7 @@
     
 }
 
-- (NSString *)stopName:(StopDistanceData*)item
+- (NSAttributedString *)stopName:(StopDistanceData*)item
 {
     NSString *dir = @"";
     
@@ -213,7 +194,18 @@
         }
     }
     
-    return [NSString stringWithFormat:@"%@%@",dir, item.desc];
+    NSMutableString *name = [NSMutableString stringWithFormat:@"#G%@#Y%@#W", dir, item.desc];
+    
+    for (Route *route in item.routes)
+    {
+        [name appendFormat:@"\n#b%@#b",route.desc];
+                
+        [route.directions enumerateKeysAndObjectsUsingBlock:^(NSString* _Nonnull key, NSString*  _Nonnull obj, BOOL * _Nonnull stop) {
+            [name appendFormat:@"\n#i%@#i",obj];
+        }];
+    }
+    
+    return [name formatAttributedStringWithFont:[UIFont systemFontOfSize:13.0]];
 }
 
 
@@ -222,7 +214,7 @@
     
     [self.stopTable setNumberOfRows:self.stops.count withRowType:@"Stop"];
     
-    NSMutableString *locs = [NSString commaSeparatedStringFromEnumerator:self.stops.itemArray selector:@selector(locid)];
+    NSMutableString *locs = [NSString commaSeparatedStringFromEnumerator:self.stops.items selector:@selector(locid)];
     
     for (NSInteger i = 0; i < self.stopTable.numberOfRows; i++) {
         
@@ -230,7 +222,7 @@
         
         StopDistanceData *item = (StopDistanceData*)self.stops[i];
     
-        row.stopName.text = [self stopName:item];
+        row.stopName.attributedText = [self stopName:item];
     }
     
     NSMutableDictionary *info = [NSMutableDictionary dictionary];
@@ -263,9 +255,6 @@
         pin.simpleCoord    = sd.location.coordinate;
         
         [redPins addObject:pin];
-        
-        [pin release];
-        
     }
     
     [WatchMapHelper displayMap:self.map purplePin:self.lastLocation otherPins:redPins];
@@ -275,10 +264,11 @@
 {
     XMLLocateStops *stops = [XMLLocateStops xml];
     
-    stops.maxToFind   = 4;
-    stops.minDistance = kDistMile;
-    stops.mode        = TripModeAll;
-    stops.location    = self.lastLocation;
+    stops.maxToFind             = 4;
+    stops.minDistance           = kDistMile;
+    stops.mode                  = TripModeAll;
+    stops.location              = self.lastLocation;
+    stops.includeRoutesInStops  = YES;
     
     [stops findNearestStops];
     
@@ -294,7 +284,7 @@
     
     while (self.stops.count > 10)
     {
-        [self.stops.itemArray removeLastObject];
+        [self.stops.items removeLastObject];
     }
     
     [self displayMap];
@@ -382,9 +372,9 @@
     }
 }
 
-
-
-
+- (IBAction)swipeDown:(id)sender {
+       [self popToRootController];
+}
 @end
 
 

@@ -16,8 +16,5 @@
 #import "WhatsNewBasicAction.h"
 
 @interface WhatsNewHighlight : WhatsNewBasicAction
-
-
-
 @end
 

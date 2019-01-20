@@ -15,7 +15,7 @@
 
 
 #import <UIKit/UIKit.h>
-#import "TriMetRouteColors.h"
+#import "TriMetInfo.h"
 
 
 #define MAXHOTSPOTS 278

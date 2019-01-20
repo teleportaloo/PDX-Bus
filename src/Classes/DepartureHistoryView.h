@@ -15,11 +15,10 @@
 
 
 #import <UIKit/UIKit.h>
-#import "TableViewWithToolbar.h"
+#import "HistoryView.h"
 
 
-@interface DepartureHistoryView : TableViewWithToolbar {
-	
-}
+@interface DepartureHistoryView : HistoryView
+
 
 @end

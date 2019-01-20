@@ -14,45 +14,13 @@
 
 
 #import <Foundation/Foundation.h>
-#import <CoreLocation/CoreLocation.h>
 #import "StoppableFetcher.h"
-#import "DataFactory.h"
+#import "TriMetInfo.h"
+#import "ShapeRoutePath.h"
 
+@interface LegShapeParser : StoppableFetcher 
 
-@interface ShapeObject: DataFactory
-
-@end
-
-@interface ShapeCoord : ShapeObject
-{
-	CLLocationCoordinate2D _coord;
-}
-
-@property (nonatomic) CLLocationDegrees latitude;
-@property (nonatomic) CLLocationDegrees longitude;
-@property (nonatomic) CLLocationCoordinate2D coord;
-
-@end
-
-@interface ShapeCoordEnd : ShapeObject
-{
-    bool _direct;
-    UIColor *_color;
-}
-
-@property (nonatomic)           bool direct;
-@property (nonatomic, retain)   UIColor *color;
-
-+ (ShapeCoordEnd*)makeDirect:(bool)direct color:(UIColor *)color;
-
-@end
-
-@interface LegShapeParser : StoppableFetcher {
-	NSMutableArray<ShapeObject *> * _shapeCoords;
-	NSString *                      _lineURL;
-}
-
-@property (nonatomic, retain) NSMutableArray *shapeCoords;
+@property (nonatomic, strong) ShapeMutableSegment *segment;
 @property (nonatomic, copy)   NSString *lineURL;
 
 - (void)fetchCoords;

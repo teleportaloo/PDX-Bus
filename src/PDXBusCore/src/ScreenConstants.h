@@ -53,3 +53,5 @@ typedef struct _ScreenInfo
     ScreenWidth screenWidth;
     CGFloat     appWinWidth;
 } ScreenInfo;
+
+#define VerdanaScale(PT) ((PT)*0.9)

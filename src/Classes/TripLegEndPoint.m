@@ -14,109 +14,82 @@
 
 
 #import "TripLegEndPoint.h"
+#import "CLLocation+Helper.h"
 
 @implementation TripLegEndPoint
 
-@synthesize xlat			= _xlat;
-@synthesize xlon			= _xlon;
-@synthesize xdescription	= _xdescription;
-@synthesize xstopId			= _xstopId;
-@synthesize displayText		= _displayText;
-@synthesize mapText			= _mapText;
-@synthesize index			= _index;
-@synthesize callback		= _callback;
-@synthesize displayModeText = _displayModeText;
-@synthesize displayTimeText = _displayTimeText;
-@synthesize leftColor       = _leftColor;
-@synthesize xnumber			= _xnumber;
-@synthesize thruRoute       = _thruRoute;
 @dynamic pinTint;
 
-- (void)dealloc {
-	
-	self.xlat			= nil;
-	self.xlon			= nil;
-	self.xdescription	= nil;
-	self.xstopId		= nil;
-	self.displayText    = nil;
-	self.mapText		= nil;
-	self.callback		= nil;
-	self.displayModeText = nil;
-	self.displayTimeText = nil;
-	self.leftColor		 = nil;
-	self.xnumber		 = nil;
-	[super dealloc];
-}
 
 - (id)copyWithZone:(NSZone *)zone
 {
-	TripLegEndPoint *ep = [[ TripLegEndPoint allocWithZone:zone] init];
-	
-	ep.xlat				= [[self.xlat			copyWithZone:zone] autorelease];
-	ep.xlon				= [[self.xlon			copyWithZone:zone] autorelease];
-	ep.xdescription		= [[self.xdescription	copyWithZone:zone] autorelease];
-	ep.xstopId			= [[self.xstopId		copyWithZone:zone] autorelease];
-	ep.displayText		= [[self.displayText	copyWithZone:zone] autorelease];
-	ep.displayText		= [[self.displayText	copyWithZone:zone] autorelease];
-	ep.mapText			= [[self.mapText		copyWithZone:zone] autorelease];
-	ep.xnumber			= [[self.xnumber		copyWithZone:zone] autorelease];
-	ep.callback			= self.callback;
-	ep.displayModeText	= [[self.displayModeText copyWithZone:zone] autorelease];
-	ep.displayTimeText	= [[self.displayTimeText copyWithZone:zone] autorelease];
-	ep.leftColor		= self.leftColor;
-	ep.index			= self.index;
-	
-	return ep;
+    TripLegEndPoint *ep = [[ TripLegEndPoint allocWithZone:zone] init];
+    
+    ep.xlat                = [self.xlat            copyWithZone:zone];
+    ep.xlon                = [self.xlon            copyWithZone:zone];
+    ep.xdescription        = [self.xdescription    copyWithZone:zone];
+    ep.xstopId            = [self.xstopId        copyWithZone:zone];
+    ep.displayText        = [self.displayText    copyWithZone:zone];
+    ep.displayText        = [self.displayText    copyWithZone:zone];
+    ep.mapText            = [self.mapText        copyWithZone:zone];
+    ep.xnumber            = [self.xnumber        copyWithZone:zone];
+    ep.callback            = self.callback;
+    ep.displayModeText    = [self.displayModeText copyWithZone:zone];
+    ep.displayTimeText    = [self.displayTimeText copyWithZone:zone];
+    ep.leftColor        = self.leftColor;
+    ep.index            = self.index;
+    
+    return ep;
 }
 
 #pragma mark Map callbacks
 
 - (NSString*)stopId
 {
-	if (self.xstopId)
-	{
-		return [NSString stringWithFormat:@"%d", self.xstopId.intValue];
-	}
-	return nil;
+    if (self.xstopId)
+    {
+        return [NSString stringWithFormat:@"%d", self.xstopId.intValue];
+    }
+    return nil;
 }
 
 
-- (MKPinAnnotationColor) pinColor
+- (MapPinColorValue) pinColor
 {
-	return MKPinAnnotationColorGreen;
+    return MAP_PIN_COLOR_GREEN;
 }
 
 - (NSString *)mapStopId
 {
-	return [self stopId];
+    return [self stopId];
 }
 
 - (CLLocationCoordinate2D)coordinate
 {
-	CLLocationCoordinate2D pos;
-	
-	pos.latitude =  self.xlat.doubleValue;
-	pos.longitude = self.xlon.doubleValue;
-	return pos;
+    CLLocationCoordinate2D pos;
+    
+    pos.latitude =  self.xlat.doubleValue;
+    pos.longitude = self.xlon.doubleValue;
+    return pos;
 }
 
 - (bool)showActionMenu
 {
-	return self.xstopId!=nil || self.callback!=nil;
+    return self.xstopId!=nil || self.callback!=nil;
 }
 
 - (NSString *)title
 {
-	return self.xdescription;
+    return self.xdescription;
 }
 
 - (NSString *)subtitle
 {
-	if (self.mapText != nil)
-	{
-		return [NSString stringWithFormat:@"%d: %@", self.index, self.mapText];
-	}
-	return nil;
+    if (self.mapText != nil)
+    {
+        return [NSString stringWithFormat:@"%d: %@", self.index, self.mapText];
+    }
+    return nil;
 }
 
 - (UIColor *)pinTint
@@ -133,7 +106,7 @@
 {
     if (self.xlat!=nil && self.xlon!=nil)
     {
-        return [[[CLLocation alloc] initWithLatitude:self.xlat.doubleValue longitude:self.xlon.doubleValue] autorelease];
+        return [CLLocation fromStringsLat:self.xlat lng:self.xlon];
     }
     
     return nil;

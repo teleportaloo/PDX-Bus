@@ -23,9 +23,9 @@
  
 }
 
-+ (WatchAppContext *)sharedInstance;
-+ (void)updateWatch:(WCSession *)session;
 + (bool)writeAppContext:(NSDictionary *)appContext;
++ (void)updateWatch:(WCSession *)session API_AVAILABLE(ios(9.0));
++ (WatchAppContext *)sharedInstance;
 + (bool)gotBookmarks:(bool)update;
 
 @end

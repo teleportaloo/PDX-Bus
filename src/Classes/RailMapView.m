@@ -46,32 +46,11 @@ static RAILMAP railmaps[] =
 
 @implementation RailMapView
 
-@synthesize scrollView = _scrollView;
-@synthesize from = _from;
-@synthesize picker = _picker;
-@synthesize stopIDs = _stopIDs;
-@synthesize hotSpots = _hotSpots;
-@synthesize locationsDb = _locationsDb;
-@synthesize imageView = _imageView;
-@synthesize lowResBackgroundImage = _lowResBackgroundImage;
-@synthesize railMapSeg = _railMapSeg;
-@synthesize showNextOnAppearance = _showNextOnAppearance;
-
-
 - (void)dealloc {
-	self.networkActivityIndicatorVisible = NO;
     
     self.callback = nil;
-	self.stopIDs = nil;
     self.hotSpots.mapView = nil;
-	self.hotSpots = nil;
-	self.locationsDb = nil;
-	self.backgroundTask = nil;
-    self.lowResBackgroundImage = nil;
-    self.imageView = nil;
-    self.railMapSeg = nil;
-    self.scrollView = nil;
-	[super dealloc];
+    self.backgroundTask = nil;
     
 }
 
@@ -83,39 +62,40 @@ static RAILMAP railmaps[] =
 // sure what is going on but on the iPad we need to make the height a little bigger in some cases.
 // Annoying.
 
-- (CGFloat) heightOffset
+
+- (CGFloat)heightOffset
 {
     if (SMALL_SCREEN || (self.screenInfo.screenWidth == WidthBigVariable))
     {
         return -[UIApplication sharedApplication].statusBarFrame.size.height;
     }
-	return 0.0;
+    return 0.0;
 }
 
 
 #ifdef MAXCOLORS
 + (HOTSPOT *)hotspots
 {
-	return &hotSpotRegions[0];	
+    return &hotSpotRegions[0];    
 }
 + (int)nHotspots
 {
-	return nHotSpots;	
+    return nHotSpots;    
 }
 
 #endif
 
 
 - (instancetype)init {
-	if ((self = [super init]))
-	{
-		self.picker = NO;
-		self.from = NO;
-		self.callback = nil;
-		_easterEgg = EasterEggStart;
-		self.backgroundTask = [BackgroundTaskContainer create:self];
-		
-		self.locationsDb = [ StopLocations getDatabase];
+    if ((self = [super init]))
+    {
+        self.picker = NO;
+        self.from = NO;
+        self.callback = nil;
+        _easterEgg = EasterEggStart;
+        self.backgroundTask = [BackgroundTaskContainer create:self];
+        
+        self.locationsDb = [ StopLocations getDatabase];
         
         UserPrefs *prefs = [UserPrefs sharedInstance];
         int mapId;
@@ -131,111 +111,106 @@ static RAILMAP railmaps[] =
         
         _railMap = railmaps + mapId;
         _railMapIndex = mapId;
-	}
-	return self;
+    }
+    return self;
 }
 
 #pragma mark ReturnStop callbacks
 
-- (void) chosenStop:(Stop *)stop progress:(id<BackgroundTaskProgress>) progress
+- (void) chosenStop:(Stop *)stop progress:(id<BackgroundTaskController>) progress
 {
-	if (self.callback)
-	{
-		if ([self.callback respondsToSelector:@selector(selectedStop:desc:)])
-		{
-			[self.callback selectedStop:stop.locid desc:stop.desc];
-		}
-		else 
-		{
-			[self.callback selectedStop:stop.locid];
-		}
+    if (self.callback)
+    {
+        if ([self.callback respondsToSelector:@selector(selectedStop:desc:)])
+        {
+            [self.callback selectedStop:stop.locid desc:stop.desc];
+        }
+        else 
+        {
+            [self.callback selectedStop:stop.locid];
+        }
 
-		
-		return;
-	}
-	
+        
+        return;
+    }
+    
     DepartureTimesView *departureViewController = [DepartureTimesView viewController];
     departureViewController.displayName = stop.desc;
-	[departureViewController fetchTimesForLocationAsync:progress loc:stop.locid];
+    [departureViewController fetchTimesForLocationAsync:progress loc:stop.locid];
 }
 
 #pragma mark BackgroundTask methods
-
--(void)backgroundCompleted:(UIViewController *)viewController
-{
-	[self.navigationController pushViewController:viewController animated:YES];
-}
 
 #pragma mark UI callbacks
 
 - (NSString *)actionText
 {
-	if (self.callback)
-	{
-		return [self.callback actionText];
-	}
-	return @"Show arrivals";
+    if (self.callback)
+    {
+        return [self.callback actionText];
+    }
+    return @"Show arrivals";
 }
 
 -(void)showMap:(id)sender
 {
-	int i,j;
-	CLLocation *here;
-	
+    int i,j;
+    CLLocation *here;
+    
     NearestVehiclesMap *mapPage = [NearestVehiclesMap viewController];
     
     if (_railMapIndex == kRailMapPdxStreetcar)
     {
-        mapPage.streetcarRoutes = nil;
         mapPage.trimetRoutes = [NSSet set];
+        mapPage.streetcarRoutes = [TriMetInfo streetcarRoutes];
         mapPage.title = NSLocalizedString(@"Portland Streetcar", @"map page title");
     }
     else
     {
         mapPage.streetcarRoutes = [NSSet set];
-        mapPage.trimetRoutes = [TriMetRouteColors triMetRoutes];
+        mapPage.trimetRoutes = [TriMetInfo triMetRailLines];
         mapPage.title = NSLocalizedString(@"MAX & WES", @"map page title");
     }
-	
-	for (i=_railMap->firstHotspot; i<= _railMap->lastHotspot;  i++)
-	{
+    
+    for (i=_railMap->firstHotspot; i<= _railMap->lastHotspot;  i++)
+    {
         HOTSPOT *hs = hotSpotRegions+i;
         
-		if (hs->action.firstUnichar==kLinkTypeStop && hs->nVertices!=0)
-		{
-			RailStation *station = [RailStation fromHotSpot:hs index:i];
-			
-			// NSString *stop = nil;
-			NSString *dir = nil;
-			NSString *locId = nil;
-				
-			for (j=0; j< station.dirList.count; j++)	
-			{
-				dir   = station.dirList[j];
-				locId = station.locList[j];
-				
-				here = [self.locationsDb getLocation:locId];
-				
-				if (here)
-				{
+        if (hs->action.firstUnichar==kLinkTypeStop && hs->nVertices!=0)
+        {
+            RailStation *station = [RailStation fromHotSpot:hs index:i];
+            
+            // NSString *stop = nil;
+            NSString *dir = nil;
+            NSString *locId = nil;
+                
+            for (j=0; j< station.dirList.count; j++)    
+            {
+                dir   = station.dirList[j];
+                locId = station.locList[j];
+                
+                here = [self.locationsDb getLocation:locId];
+                
+                if (here)
+                {
                     Stop *a = [Stop data];
-					
-					a.locid = locId;
-					a.desc  = station.station;
-					a.dir   = dir;
-					a.lat   = [NSString stringWithFormat:@"%f", here.coordinate.latitude];
-					a.lng   = [NSString stringWithFormat:@"%f", here.coordinate.longitude];
-					a.callback = self;
-				
-					[mapPage addPin:a];
-				}
-			}
-		}
-				
-	}
-	
-	mapPage.callback = self.callback;
-	
+                    
+                    a.locid = locId;
+                    a.desc  = station.station;
+                    a.dir   = dir;
+                    a.lat   = [NSString stringWithFormat:@"%f", here.coordinate.latitude];
+                    a.lng   = [NSString stringWithFormat:@"%f", here.coordinate.longitude];
+                    a.callback = self;
+                
+                    [mapPage addPin:a];
+                }
+            }
+        }
+                
+    }
+    
+    mapPage.callback = self.callback;
+    
     [mapPage fetchNearestVehiclesAsync:self.backgroundTask];
 
 }
@@ -263,19 +238,19 @@ static RAILMAP railmaps[] =
 - (void)updateToolbarItems:(NSMutableArray *)toolbarItems
 {
     // add a segmented control to the button bar
-	UISegmentedControl	*buttonBarSegmentedControl;
-	buttonBarSegmentedControl = [[[UISegmentedControl alloc] initWithItems:
-                                  @[@"MAX & WES", @"Streetcar"]] autorelease];
-	[buttonBarSegmentedControl addTarget:self action:@selector(toggleMap:) forControlEvents:UIControlEventValueChanged];
-	buttonBarSegmentedControl.selectedSegmentIndex = _railMapIndex;	// start by showing the normal picker
+    UISegmentedControl    *buttonBarSegmentedControl;
+    buttonBarSegmentedControl = [[UISegmentedControl alloc] initWithItems:
+                                  @[@"MAX & WES", @"Streetcar"]];
+    [buttonBarSegmentedControl addTarget:self action:@selector(toggleMap:) forControlEvents:UIControlEventValueChanged];
+    buttonBarSegmentedControl.selectedSegmentIndex = _railMapIndex;    // start by showing the normal picker
     
     self.railMapSeg = buttonBarSegmentedControl;
-	
-	UIBarButtonItem *segItem = [[[UIBarButtonItem alloc] initWithCustomView:buttonBarSegmentedControl] autorelease];
     
-	[toolbarItems addObjectsFromArray: @[
-				 [UIToolbar autoMapButtonWithTarget:self action:@selector(showMap:)],
-				 [UIToolbar autoFlexSpace],
+    UIBarButtonItem *segItem = [[UIBarButtonItem alloc] initWithCustomView:buttonBarSegmentedControl];
+    
+    [toolbarItems addObjectsFromArray: @[
+                 [UIToolbar mapButtonWithTarget:self action:@selector(showMap:)],
+                 [UIToolbar flexSpace],
                  segItem]];
     
     [self maybeAddFlashButtonWithSpace:YES buttons:toolbarItems big:NO];
@@ -303,13 +278,13 @@ static RAILMAP railmaps[] =
     NSString *path = [[NSBundle mainBundle] pathForResource:[NSString stringWithFormat:@"%@_Placeholder", _railMap->fileName]
                                                       ofType:@"gif"];
     
-    self.lowResBackgroundImage = [[[UIImageView alloc] initWithFrame:(CGRect){ CGPointZero, _railMap->size }] autorelease];
+    self.lowResBackgroundImage = [[UIImageView alloc] initWithFrame:(CGRect){ CGPointZero, _railMap->size }];
     
     self.lowResBackgroundImage.image = [UIImage imageWithContentsOfFile:path];
     self.lowResBackgroundImage.userInteractionEnabled = YES;
                                    
     
-    self.imageView = [[[TapDetectingImageView alloc] initWithImageName:_railMap->fileName size:_railMap->size] autorelease];
+    self.imageView = [[TapDetectingImageView alloc] initWithImageName:_railMap->fileName size:_railMap->size];
     
     
     
@@ -323,10 +298,10 @@ static RAILMAP railmaps[] =
     [self.scrollView addSubview:self.lowResBackgroundImage];
     
     // Lets try to calculate something that'll work for all orientations and devices.
-	float minimumScale;
+    float minimumScale;
     CGRect scrollFrame = self.scrollView.frame;
     CGRect imageFrame  = self.imageView.frame;
-	
+    
     // calculate minimum scale to perfectly fit image width, and begin at that scale
     minimumScale = scrollFrame.size.width  / imageFrame.size.width;
     
@@ -338,13 +313,13 @@ static RAILMAP railmaps[] =
     //    At a zoom scale of 1.0, it would be the size of the imageScrollView's bounds.
     //    As the zoom scale decreases, so more content is visible, the size of the rect grows.
     
-  	
+      
     
     self.scrollView.minimumZoomScale = minimumScale;
-	
-	self.hotSpots = [[[RailMapHotSpots alloc] initWithImageView:self.imageView map:_railMap] autorelease];
-	
-	self.title = _railMap->title;
+    
+    self.hotSpots = [[RailMapHotSpots alloc] initWithImageView:self.imageView map:_railMap];
+    
+    self.title = _railMap->title;
     
     SAVED_IMAGE *saved =_savedImage + _railMapIndex;
     
@@ -376,33 +351,33 @@ static RAILMAP railmaps[] =
 }
 
 - (void)loadView {
-	[super loadView];
-	
-	[RailMapView initHotspotData];
-	
-	// Set the size for the table view
-	CGRect bounds = [self getMiddleWindowRect];
-	
-	/// set up main scroll view
-    self.scrollView = [[[UIScrollView alloc] initWithFrame:bounds] autorelease];
+    [super loadView];
+    
+    [RailMapView initHotspotData];
+    
+    // Set the size for the table view
+    CGRect bounds = self.middleWindowRect;
+    
+    /// set up main scroll view
+    self.scrollView = [[UIScrollView alloc] initWithFrame:bounds];
     self.scrollView.backgroundColor = [UIColor blackColor];
     self.scrollView.delegate = self;
     [self.scrollView setBouncesZoom:YES];
-	self.scrollView.autoresizingMask = (UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight);
+    self.scrollView.autoresizingMask = (UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight);
     [self.view addSubview:self.scrollView];
     
     [self loadImage];
 
-	
-	// [self.scrollView scrollRectToVisible:zoom animated:NO];
- 	[self updateToolbar];
+    
+    // [self.scrollView scrollRectToVisible:zoom animated:NO];
+     [self updateToolbar];
 }
 
 
 
 - (void)didReceiveMemoryWarning {
-	[super didReceiveMemoryWarning]; // Releases the view if it doesn't have a superview
-	// Release anything that's not essential, such as cached data
+    [super didReceiveMemoryWarning]; // Releases the view if it doesn't have a superview
+    // Release anything that's not essential, such as cached data
 }
 
 - (void)deselectItemCallback
@@ -411,182 +386,183 @@ static RAILMAP railmaps[] =
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-	
-	[self.hotSpots fadeOut];
-	
-	[super viewWillAppear:animated];
+    
+    [self.hotSpots fadeOut];
+    
+    [super viewWillAppear:animated];
 }
 
 #pragma mark Process hotspot string "URL"
 
 - (void)scannerInc:(NSScanner *)scanner 
-{	
-	if (!scanner.atEnd)
-	{
-		scanner.scanLocation++;
-	}
+{    
+    if (!scanner.atEnd)
+    {
+        scanner.scanLocation++;
+    }
 }
 
 
 - (void)nextSlash:(NSScanner *)scanner intoString:(NSString **)substr;
 {
-	if (!scanner.atEnd)
-	{
-		[scanner scanUpToString:@"/" intoString:substr];
-		
-		// NSLog(@"%@", *substr);
-		[self scannerInc:scanner];
-	}
-	
+    if (!scanner.atEnd)
+    {
+        [scanner scanUpToString:@"/" intoString:substr];
+        
+        // NSLog(@"%@", *substr);
+        [self scannerInc:scanner];
+    }
+    
 }
 
 
 
 -(BOOL) processHotSpot:(NSString *)url item:(int)i
 {
-	NSScanner *scanner = [NSScanner scannerWithString:url];
-	NSCharacterSet *colon = [NSCharacterSet characterSetWithCharactersInString:@":"];
+    NSScanner *scanner = [NSScanner scannerWithString:url];
+    NSCharacterSet *colon = [NSCharacterSet characterSetWithCharactersInString:@":"];
 
-	NSString *substr;
-	NSString *stationName = @"";
-	NSString *wikiLink;
+    NSString *substr;
+    NSString *stationName = @"";
+    NSString *wikiLink;
     NSString *map = @"";
-	
-	[scanner scanUpToCharactersFromSet:colon intoString:&substr];
-	
-	if (substr == nil)
-	{
-		return YES;
-	}
-	
-	switch (*substr.UTF8String)	
-	{
-		case kLinkTypeNorth:
-		{
-			switch (_easterEgg)
-			{
-				case EasterEggNorth1:
-				case EasterEggNorth2:
-					_easterEgg ++;
-					break;
-				case EasterEggNorth3:
-					self.hotSpots.hidden = !self.hotSpots.hidden;
+    
+    [scanner scanUpToCharactersFromSet:colon intoString:&substr];
+    
+    if (substr == nil)
+    {
+        return YES;
+    }
+    
+    switch (*substr.UTF8String)    
+    {
+        case kLinkTypeNorth:
+        {
+            switch (_easterEgg)
+            {
+                case EasterEggNorth1:
+                case EasterEggNorth2:
+                    _easterEgg ++;
+                    break;
+                case EasterEggNorth3:
+                    self.hotSpots.hidden = !self.hotSpots.hidden;
                     self.imageView.annotates = !self.imageView.annotates;
                     [self.imageView setNeedsDisplay];
-					self.hotSpots.alpha = self.hotSpots.hidden ? 0.0 : 1.0;
-					[self.hotSpots setNeedsDisplay];
-					[self updateToolbar];
-//					[self.toolbar setNeedsDisplay];
-					_easterEgg = EasterEggStart;
-					break;
-				default:
-					_easterEgg = EasterEggNorth1;
-					break;
-			}
-			break;
-		}
-		case kLinkType1:
-		case kLinkType2:
-		case kLinkType3:
-			{
+                    self.hotSpots.alpha = self.hotSpots.hidden ? 0.0 : 1.0;
+                    [self.hotSpots setNeedsDisplay];
+                    [self updateToolbar];
+//                    [self.toolbar setNeedsDisplay];
+                    _easterEgg = EasterEggStart;
+                    break;
+                default:
+                    _easterEgg = EasterEggNorth1;
+                    break;
+            }
+            break;
+        }
+        case kLinkType1:
+        case kLinkType2:
+        case kLinkType3:
+            {
                 [WebViewController displayPage:@"http://www.teleportaloo.org/pdxbus/easteregg/"
                                           full:nil
                                      navigator:self.navigationController
                                 itemToDeselect:self
                                       whenDone:self.callbackWhenDone];
                 
-				_easterEgg = EasterEggStart;
-			}
-			break;
-			
-		case kLinkTypeWiki:
-		{
-			_easterEgg = EasterEggStart;
-	
-			[self scannerInc:scanner];
-			//[self.hotSpots selectItem:i];
-		
-			wikiLink = [url substringFromIndex:scanner.scanLocation];
-		
+                _easterEgg = EasterEggStart;
+            }
+            break;
+            
+        case kLinkTypeWiki:
+        {
+            _easterEgg = EasterEggStart;
+    
+            [self scannerInc:scanner];
+            //[self.hotSpots selectItem:i];
+        
+            wikiLink = [url substringFromIndex:scanner.scanLocation];
+        
             [WebViewController displayPage:[NSString stringWithFormat:@"http://en.m.wikipedia.org/wiki/%@", [wikiLink stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] ]
                                       full:[NSString stringWithFormat:@"http://en.wikipedia.org/wiki/%@", [wikiLink stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding]]
                                  navigator:self.navigationController
                             itemToDeselect:self
                                   whenDone:self.callbackWhenDone];
-			
-			break;
-		}
-		case kLinkTypeHttp:
-		{
-			_easterEgg = EasterEggStart;
-			
-			//[self.hotSpots selectItem:i];
+            
+            break;
+        }
+        case kLinkTypeHttp:
+        {
+            _easterEgg = EasterEggStart;
+            
+            //[self.hotSpots selectItem:i];
             
             [WebViewController displayPage:url
                                       full:nil
                                  navigator:self.navigationController
                             itemToDeselect:self
                                   whenDone:self.callbackWhenDone];
-		
-			break;
-		}
-		case kLinkTypeDir:
-		{
-			_easterEgg = EasterEggStart;
-			//[self.hotSpots selectItem:i];
-		
-			[self scannerInc:scanner];
-			[self nextSlash:scanner intoString:&substr];
-			[self nextSlash:scanner intoString:&substr];
-			// [self nextSlash:scanner intoString:&substr];
-			[self nextSlash:scanner intoString:&stationName];
-		
-		
+        
+            break;
+        }
+        case kLinkTypeDir:
+        {
+            _easterEgg = EasterEggStart;
+            //[self.hotSpots selectItem:i];
+        
+            [self scannerInc:scanner];
+            [self nextSlash:scanner intoString:&substr];
+            [self nextSlash:scanner intoString:&substr];
+            // [self nextSlash:scanner intoString:&substr];
+            [self nextSlash:scanner intoString:&stationName];
+        
+        
             DirectionView *dirView = [DirectionView viewController];
-			dirView.callback = self.callback;
-			[dirView fetchDirectionsAsync:self.backgroundTask route:stationName];
-			break;
-		}
+            dirView.callback = self.callback;
+            [dirView fetchDirectionsAsync:self.backgroundTask route:stationName];
+            break;
+        }
         case kLinkTypeMap:
-		{
-			_easterEgg = EasterEggStart;
-			//[self.hotSpots selectItem:i];
+        {
+            _easterEgg = EasterEggStart;
+            //[self.hotSpots selectItem:i];
             
-			[self scannerInc:scanner];
-			[self nextSlash:scanner intoString:&substr];
-			[self nextSlash:scanner intoString:&substr];
-			// [self nextSlash:scanner intoString:&substr];
-			[self nextSlash:scanner intoString:&map];
+            [self scannerInc:scanner];
+            [self nextSlash:scanner intoString:&substr];
+            [self nextSlash:scanner intoString:&substr];
+            // [self nextSlash:scanner intoString:&substr];
+            [self nextSlash:scanner intoString:&map];
             
             self.railMapSeg.selectedSegmentIndex = map.integerValue;
             [self toggleMap:self.railMapSeg];
-			break;
-		}
-		case kLinkTypeStop:
-		{
-			_easterEgg = EasterEggStart;
-			//[self.hotSpots selectItem:i];
-		
-		
+            break;
+        }
+        case kLinkTypeStop:
+        {
+            _easterEgg = EasterEggStart;
+            //[self.hotSpots selectItem:i];
+        
+        
             RailStation *station = [RailStation fromHotSpot:hotSpotRegions+i index:i];
-		
-			
+        
+            
             RailStationTableView *railView = [RailStationTableView viewController];
-			railView.station = station; 
-			railView.callback = self.callback;
-			railView.from = self.from;
-			railView.locationsDb = self.locationsDb;
-			
-			if (!self.hotSpots.hidden)
-			{
-				railView.map = self;
-			}
-			[self.navigationController pushViewController:railView animated:YES];
-			break;
-		}
-		
-	}
-	return YES;
+            railView.station = station; 
+            railView.callback = self.callback;
+            railView.from = self.from;
+            railView.locationsDb = self.locationsDb;
+            
+            if (!self.hotSpots.hidden)
+            {
+                railView.map = self;
+            }
+            
+            [railView maybeFetchRouteShapesAsync:self.backgroundTask];
+            break;
+        }
+        
+    }
+    return YES;
 }
 
 #pragma mark UIScrollViewDelegate methods
@@ -649,10 +625,10 @@ static RAILMAP railmaps[] =
         self.showNextOnAppearance = NO;
     }
     
-    UIBarButtonItem *list = [[[UIBarButtonItem alloc]
+    UIBarButtonItem *list = [[UIBarButtonItem alloc]
                               initWithTitle:NSLocalizedString(@"A-Z", @"List button")
                               style:UIBarButtonItemStylePlain
-                              target:self action:@selector(listAction:)] autorelease];
+                              target:self action:@selector(listAction:)];
     
     
     self.navigationItem.rightBarButtonItem = list;
@@ -662,7 +638,7 @@ static RAILMAP railmaps[] =
 
 - (void) selectedHotspot:(NSTimer*)theTimer
 {
-	[self processHotSpot:hotSpotRegions[_selectedItem].action item:_selectedItem];
+    [self processHotSpot:hotSpotRegions[_selectedItem].action item:_selectedItem];
 }
 
 - (void)findHotspot:(NSTimer*)theTimer
@@ -689,14 +665,14 @@ static RAILMAP railmaps[] =
             DEBUG_LOGS(hotspot->action);
             
             if (    (HOTSPOT_IS_POLY(hotspot) && pnpoly(hotspot->nVertices, hotspot->coords.vertices, _tapPoint.x, _tapPoint.y))
-                ||  (HOTSPOT_IS_RECT(hotspot) && CGRectContainsPoint(*hotspot->coords.rect, _tapPoint)))		{
+                ||  (HOTSPOT_IS_RECT(hotspot) && CGRectContainsPoint(*hotspot->coords.rect, _tapPoint)))        {
                 hotSpotRegions[i].touched = YES;
                 _selectedItem = i;
                 [self.hotSpots selectItem:i];
                 [self.hotSpots setNeedsDisplay];
                 
                 NSDate *soon = [[NSDate date] dateByAddingTimeInterval:0.1];
-                NSTimer *timer = [[[NSTimer alloc] initWithFireDate:soon interval:0.1 target:self selector:@selector(selectedHotspot:) userInfo:nil repeats:NO] autorelease];
+                NSTimer *timer = [[NSTimer alloc] initWithFireDate:soon interval:0.1 target:self selector:@selector(selectedHotspot:) userInfo:nil repeats:NO];
                 [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
                 found = true;
                 break;
@@ -716,10 +692,6 @@ static RAILMAP railmaps[] =
         
     _tapPoint = tapPoint;
     [self findHotspot:nil];
-    
-  //  NSDate *soon = [[NSDate date] addTimeInterval:0.1];
-  //  NSTimer *timer = [[[NSTimer alloc] initWithFireDate:soon interval:0.0 target:self selector:@selector(findHotspot:) userInfo:nil repeats:NO] autorelease];
-  //  [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
 }
 
 - (void)tapDetectingImageView:(TapDetectingImageView *)view gotDoubleTapAtPoint:(CGPoint)tapPoint {
@@ -971,13 +943,13 @@ static RAILMAP railmaps[] =
     });
 }
 
-- (void)BackgroundTaskDone:(UIViewController*)viewController cancelled:(bool)cancelled
+- (void)backgroundTaskDone:(UIViewController*)viewController cancelled:(bool)cancelled
 {
     if (cancelled)
     {
         [self.hotSpots  fadeOut];
     }
-    [super BackgroundTaskDone:viewController cancelled:cancelled];
+    [super backgroundTaskDone:viewController cancelled:cancelled];
 }
 
 @end
@@ -991,26 +963,22 @@ static RAILMAP railmaps[] =
 
 
 
-- (void)dealloc {
-	self.mapView = nil;
-    [super dealloc];
-}
 
 -(instancetype) initWithImageView:(UIView*)mapView map:(RAILMAP*)map
 {
-	self = [super initWithFrame:CGRectMake(0, 0, mapView.frame.size.width, mapView.frame.size.height)];
-	self.backgroundColor = [UIColor clearColor];
-	
-	self.mapView = mapView;
-	
-	[self.mapView addSubview:self];
-	self.hidden = YES;
+    self = [super initWithFrame:CGRectMake(0, 0, mapView.frame.size.width, mapView.frame.size.height)];
+    self.backgroundColor = [UIColor clearColor];
+    
+    self.mapView = mapView;
+    
+    [self.mapView addSubview:self];
+    self.hidden = YES;
     // self.hidden = NO;
     self.selectedItem = -1;
     
     _railMap = map;
-	
-	return self;
+    
+    return self;
 }
 
 - (void)touchAtPoint:(CGPoint)point
@@ -1025,93 +993,93 @@ static RAILMAP railmaps[] =
 
 - (void)selectItem:(int)i
 {
-	self.selectedItem = i;
+    self.selectedItem = i;
     _touchPoint.x = 0;
     _touchPoint.y = 0;
     
-	
-	switch(hotSpotRegions[i].action.firstUnichar)
-	{
-		case kLinkTypeHttp:
-		case kLinkTypeWiki:
-		case kLinkTypeStop:
-		case kLinkTypeDir:
-		case kLinkType1:
-		case kLinkType2:
-		case kLinkType3:
-			
-			self.alpha = 1.0;
-			[self setNeedsDisplay];
-			break;
-			
-		case kLinkTypeNorth:
-					break;
-			
-	}
+    
+    switch(hotSpotRegions[i].action.firstUnichar)
+    {
+        case kLinkTypeHttp:
+        case kLinkTypeWiki:
+        case kLinkTypeStop:
+        case kLinkTypeDir:
+        case kLinkType1:
+        case kLinkType2:
+        case kLinkType3:
+            
+            self.alpha = 1.0;
+            [self setNeedsDisplay];
+            break;
+            
+        case kLinkTypeNorth:
+                    break;
+            
+    }
 }
 
 - (void)fadeOut
 {
-	
-	if (self.hidden)
-	{
-		[UIView beginAnimations:nil context:NULL];  
-		[UIView setAnimationDuration:1.0];  
-		// [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight forView:self.view cache:YES];  
+    
+    if (self.hidden)
+    {
+        [UIView beginAnimations:nil context:NULL];  
+        [UIView setAnimationDuration:1.0];  
+        // [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight forView:self.view cache:YES];  
 
 
-		self.alpha = 0.0;	
-		[UIView commitAnimations]; 
-	}
+        self.alpha = 0.0;    
+        [UIView commitAnimations]; 
+    }
 }
 
 
 - (void)drawHotspot:(HOTSPOT *)hs context:(CGContextRef)context;
 {
-	if (hs->action.firstUnichar == '#')
-	{
-		CGContextSetRGBFillColor(context, 0.0, 1.0, 0.0, 0.5);
-		CGContextSetStrokeColorWithColor(context, [UIColor greenColor].CGColor);
-	}
-	else if (hs->touched && !self.hidden)
-	{
-		CGContextSetRGBFillColor(context, 0.0, 1.0, 0.0, 0.5);
-		CGContextSetStrokeColorWithColor(context, [UIColor yellowColor].CGColor);
-	}
-	else
-	{
-		UIColor * col;
-		switch (hs->action.firstUnichar)
-		{
+    if (hs->action.firstUnichar == '#')
+    {
+        CGContextSetRGBFillColor(context, 0.0, 1.0, 0.0, 0.5);
+        CGContextSetStrokeColorWithColor(context, [UIColor greenColor].CGColor);
+    }
+    else if (hs->touched && !self.hidden)
+    {
+        CGContextSetRGBFillColor(context, 0.0, 1.0, 0.0, 0.5);
+        CGContextSetStrokeColorWithColor(context, [UIColor yellowColor].CGColor);
+    }
+    else
+    {
+        UIColor * col;
+        switch (hs->action.firstUnichar)
+        {
             default:
-			case kLinkTypeHttp:
-				col = [UIColor orangeColor];
-				break;
-			case kLinkTypeWiki:
-				col = [UIColor redColor];
-				break;
-			case kLinkTypeStop:
-			case kLinkTypeDir:
-				col = [UIColor blueColor];
-				break;
-			
-			case kLinkType1:
-			case kLinkType2:
-			case kLinkType3:
-				col = [UIColor blueColor];
-				break;
-			case kLinkTypeNorth:
-				col = [UIColor grayColor];
-				break;
-		}
-		
-		const CGFloat *components = CGColorGetComponents(col.CGColor);
-		// printf("%f %f %f\n", components[0], components[1], components[2]);
-		CGContextSetRGBFillColor(context, components[0], components[1], components[2], 0.5);
-		CGContextSetStrokeColorWithColor(context, col.CGColor);
-	}
-	
-	
+            case kLinkTypeHttp:
+                col = [UIColor orangeColor];
+                break;
+            case kLinkTypeWiki:
+                col = [UIColor redColor];
+                break;
+            case kLinkTypeStop:
+            case kLinkTypeDir:
+                col = [UIColor blueColor];
+                break;
+            
+            case kLinkType1:
+            case kLinkType2:
+            case kLinkType3:
+                col = [UIColor blueColor];
+                break;
+            case kLinkTypeNorth:
+                col = [UIColor grayColor];
+                break;
+        }
+        
+        const CGFloat *components = CGColorGetComponents(col.CGColor);
+        // printf("%f %f %f\n", components[0], components[1], components[2]);
+        CGContextSetRGBFillColor(context, components[0], components[1], components[2], 0.5);
+        CGContextSetStrokeColorWithColor(context, col.CGColor);
+    }
+    
+    
     if (HOTSPOT_IS_POLY(hs))
     {
         const CGPoint * vertices = hs->coords.vertices;
@@ -1139,34 +1107,34 @@ static RAILMAP railmaps[] =
 - (void)drawBlob:(CGContextRef) context
 {
     // Drawing code
-	
-	CGMutablePathRef fillPath = CGPathCreateMutable();
-	
-	// CGPathAddRects(fillPath, NULL, &rect, 1);
+    
+    CGMutablePathRef fillPath = CGPathCreateMutable();
+    
+    // CGPathAddRects(fillPath, NULL, &rect, 1);
     CGFloat width = 20.0;
     CGRect rect = CGRectMake(_touchPoint.x - width / 2.0,
                              _touchPoint.y - width / 2.0,
                              width,
                              width);
-	
-	CGRect square;
-	
-	// CGFloat width = min(CGRectGetWidth(rect), CGRectGetHeight(rect));
-	
-	square.origin.x = CGRectGetMidX(rect) - width/2;
-	square.origin.y = CGRectGetMidY(rect) - width/2;
-	square.size.width = width;
-	square.size.height = width;
-	
-	CGPathAddEllipseInRect(fillPath, NULL, square);
-	
+    
+    CGRect square;
+    
+    // CGFloat width = min(CGRectGetWidth(rect), CGRectGetHeight(rect));
+    
+    square.origin.x = CGRectGetMidX(rect) - width/2;
+    square.origin.y = CGRectGetMidY(rect) - width/2;
+    square.size.width = width;
+    square.size.height = width;
+    
+    CGPathAddEllipseInRect(fillPath, NULL, square);
+    
 //    CGContextRef context = UIGraphicsGetCurrentContext();
-	
-//	CGContextSetRGBFillColor(context, _red , _green, _blue, self.hidden ? 0.0 : 1.0);
+    
+//    CGContextSetRGBFillColor(context, _red , _green, _blue, self.hidden ? 0.0 : 1.0);
     CGContextAddPath(context, fillPath);
     CGContextFillPath(context);
-	
-    //	DEBUG_LOG(@"%f %f %f\n", _red, _green, _blue);
+    
+    //    DEBUG_LOG(@"%f %f %f\n", _red, _green, _blue);
     
     CGPathRelease(fillPath);
     
@@ -1174,46 +1142,46 @@ static RAILMAP railmaps[] =
 
 
 - (void)drawRect:(CGRect)rect {
-	{
-		static CGFloat dash [] = { 5.0, 5.0 };
-		CGContextRef context = UIGraphicsGetCurrentContext(); 
-		
-		
-		CGContextSetRGBFillColor(context, 0.0, 0.0, 1.0, 0.5);
-		CGContextSetLineDash (context, 5.0, dash, 2);
-		CGContextSetLineWidth(context, 1.0);
-		
-		
-		HOTSPOT *hs;
-		
-		if (self.hidden)
-		{
-			if (self.selectedItem != -1)
-			{
-				[self drawHotspot:(hotSpotRegions+self.selectedItem) context:context];
-			}
+    {
+        static CGFloat dash [] = { 5.0, 5.0 };
+        CGContextRef context = UIGraphicsGetCurrentContext(); 
+        
+        
+        CGContextSetRGBFillColor(context, 0.0, 0.0, 1.0, 0.5);
+        CGContextSetLineDash (context, 5.0, dash, 2);
+        CGContextSetLineWidth(context, 1.0);
+        
+        
+        HOTSPOT *hs;
+        
+        if (self.hidden)
+        {
+            if (self.selectedItem != -1)
+            {
+                [self drawHotspot:(hotSpotRegions+self.selectedItem) context:context];
+            }
             else if (_touchPoint.x != 0.0)
             {
                 [self drawBlob:context];
             }
-		}
-		else 
-		{
+        }
+        else 
+        {
             
             if (self.selectedItem == -1 && _touchPoint.x != 0.0)
             {
                 [self drawBlob:context];
             }
-		
-			for (int j=_railMap->firstHotspot; j <= _railMap->lastHotspot; j++)
-			{
-				hs = hotSpotRegions+j;
-				
-				if (hs->nVertices > 0)
-				{
-					[self drawHotspot:hs context:context];
-				}
-			}
+        
+            for (int j=_railMap->firstHotspot; j <= _railMap->lastHotspot; j++)
+            {
+                hs = hotSpotRegions+j;
+                
+                if (hs->nVertices > 0)
+                {
+                    [self drawHotspot:hs context:context];
+                }
+            }
             
             CGContextSetStrokeColorWithColor(context, [UIColor orangeColor].CGColor);
             
@@ -1269,11 +1237,11 @@ static RAILMAP railmaps[] =
         
            //  CGContextStrokePath(context);
         
-		}
-		
-				
-		// CGContextStrokePath(context);
-	}
+        }
+        
+                
+        // CGContextStrokePath(context);
+    }
 }
 
 

@@ -18,16 +18,51 @@
 
 @class UIFont;
 
-@interface  NSString(PDXBus)
+@interface  NSString(StringHelper)
 
-@property (nonatomic, readonly) unichar firstUnichar;
 @property (nonatomic, readonly, copy) NSMutableAttributedString *mutableAttributedString;
+@property (nonatomic, readonly) NSString *stringWithTrailingSpaceIfNeeded;
 @property (nonatomic, readonly) NSString *stringWithTrailingSpacesRemoved;
-@property (nonatomic, readonly) NSMutableArray *arrayFromCommaSeparatedString;
+@property (nonatomic, readonly) NSString *stringWithLeadingSpacesRemoved;
+@property (nonatomic, readonly) unichar firstUnichar;
 
-- (NSAttributedString*)formatAttributedStringWithFont:(UIFont *)regularFont;
-- (NSMutableArray *)arrayFromCommaSeparatedString;
+// Formatting - a simple markup for basic text formatting.
+// Use # as escape characters
+// #b - bold text on or off
+// #i - italic text on or off
+// #h is used to escape - e.g. #h becomes #
+// #+ increases font size by 1 point
+// #( increases font size by 2 points
+// #[ increases font size by 4 points
+// #- decreases font size by 1 point
+// #) decreases font size by 2 points
+// #] decreases font size by 4 points
+
+// Colors:
+//  #0 - black
+//  #O - orange
+//  #G - green
+//  #A - gray
+//  #R - red
+//  #B - blue
+//  #Y - yellow
+//  #N - brown
+//  #M - magenta
+//  #W - white
+//  #> - indent all by font point size
+//  #< - decrease indentatation
+
+- (NSMutableAttributedString*)formatAttributedStringWithFont:(UIFont *)regularFont;
+- (NSString*)removeFormatting;
+
+- (NSMutableAttributedString *)appendToAttributedString:(NSMutableAttributedString *)attr;
+- (NSMutableArray<NSString*> *)arrayFromCommaSeparatedString;
+- (bool)hasCaseInsensitiveSubstring:(NSString *)search;
+- (NSMutableString *)phonetic;
+- (NSString *)justNumbers;
+
 + (NSMutableString *)commaSeparatedStringFromEnumerator:(id<NSFastEnumeration>)container selector:(SEL)selector;
 
 @end
+
 

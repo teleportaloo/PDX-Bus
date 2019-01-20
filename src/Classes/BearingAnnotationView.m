@@ -21,12 +21,11 @@
 
 #define ARROW_TAG 1
 #define BLOB_TAG 2
+#define HEAD_TAG 3
 
 #define ROOT2 1.5 // 1.41421356237
 
 @implementation BearingAnnotationView
-
-@synthesize annotationImage = _annotationImage;
 
 - (instancetype)initWithAnnotation:(nullable id <MKAnnotation>)annotation reuseIdentifier:(nullable NSString *)reuseIdentifier
 {
@@ -37,12 +36,6 @@
     return self;
 }
 
-- (void)dealloc
-{
-    self.annotationImage = nil;
-    
-    [super dealloc];
-}
 
 
 - (void)updateDirectionalAnnotationView:(MKMapView *)mapView
@@ -53,7 +46,7 @@
         
         UIColor *col = pin.pinTint;
         
-        UIImage *arrow = [self.annotationImage getImage:pin.doubleBearing mapRotation:mapView.camera.heading bus:col==nil];
+        UIImage *arrow = [self.annotationImage getImage:pin.doubleBearing mapRotation:mapView.camera.heading bus:col==nil named:self.annotationImage.forceRetinaImage ? kIconUp2x : kIconUp];
         
         UIView *oldArrow = [self viewWithTag:ARROW_TAG];
         
@@ -75,6 +68,13 @@
             [blob removeFromSuperview];
         }
         
+        UIView *head = [self viewWithTag:HEAD_TAG];
+        
+        if (head)
+        {
+            [head removeFromSuperview];
+        }
+        
         if (col == nil && self.annotationImage.tintableImage)
         {
             col = kMapAnnotationBusColor;
@@ -83,7 +83,7 @@
         
         if (col!=nil)
         {
-            UIImageView *imageView = [[[UIImageView alloc] initWithImage:[arrow imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]] autorelease];
+            UIImageView *imageView = [[UIImageView alloc] initWithImage:[arrow imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
             
             self.frame = imageView.frame;
             imageView.tintColor = col;
@@ -91,17 +91,25 @@
             imageView.tag = ARROW_TAG;
             
             [self addSubview:imageView];
+            
+            UIImage *head = [self.annotationImage getImage:pin.doubleBearing mapRotation:mapView.camera.heading bus:col==nil named:self.annotationImage.forceRetinaImage ? kIconUpHead2x : kIconUpHead];
+            UIImageView *headView = [[UIImageView alloc] initWithImage:[head imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+            headView.tintColor = [UIColor darkGrayColor];
+            headView.tag = HEAD_TAG;
+            [self addSubview:headView];
+            
             self.autoresizesSubviews = NO;
             
         }
         else
         {
-            UIImageView *imageView = [[[UIImageView alloc] initWithImage:arrow ] autorelease];
+            UIImageView *imageView = [[UIImageView alloc] initWithImage:arrow ];
             self.frame = imageView.frame;
             imageView.tag = ARROW_TAG;
             [self addSubview:imageView];
             self.autoresizesSubviews = NO;
         }
+        
         
         if ([pin respondsToSelector:@selector(pinSubTint)])
         {
@@ -111,7 +119,7 @@
             if (blockColor != nil)
             {
                 CGRect blobRect = CGRectInset(arrow.frame, arrow.frame.size.width/3, arrow.frame.size.height/3);
-                FilledCircleView *view = [[[FilledCircleView alloc] initWithFrame:blobRect] autorelease];
+                FilledCircleView *view = [[FilledCircleView alloc] initWithFrame:blobRect];
                 
                 view.fillColor = blockColor;
                 view.backgroundColor = [UIColor clearColor];
@@ -136,7 +144,7 @@
         
         if (view == nil)
         {
-            view=[[[MKPinAnnotationView alloc] initWithAnnotation:pin reuseIdentifier:ident] autorelease];
+            view=[[MKPinAnnotationView alloc] initWithAnnotation:pin reuseIdentifier:ident];
         }
         
         view.annotation = pin;
@@ -147,7 +155,25 @@
         }
         else
         {
-            view.pinColor = pin.pinColor;
+#ifdef BASE_IOS12
+            switch (pin.pinColor)
+            {
+                default:
+                case MAP_PIN_COLOR_RED:         view.pinTintColor = [UIColor redColor]; break;
+                case MAP_PIN_COLOR_GREEN:       view.pinTintColor = [UIColor greenColor]; break;
+                case MAP_PIN_COLOR_PURPLE:      view.pinTintColor = [UIColor greenColor]; break;
+            }
+
+#else
+            switch (pin.pinColor)
+            {
+                default:
+                case MAP_PIN_COLOR_RED:         view.pinColor =  MKPinAnnotationColorRed;       break;
+                case MAP_PIN_COLOR_GREEN:       view.pinColor =  MKPinAnnotationColorGreen;     break;
+                case MAP_PIN_COLOR_PURPLE:      view.pinColor =  MKPinAnnotationColorPurple;    break;
+            }
+            
+#endif
         }
         
         return view;
@@ -160,7 +186,7 @@
         
         if (view == nil)
         {
-            view=[[[BearingAnnotationView alloc] initWithAnnotation:pin reuseIdentifier:ident] autorelease];
+            view=[[BearingAnnotationView alloc] initWithAnnotation:pin reuseIdentifier:ident];
         }
         
         view.annotation = pin;

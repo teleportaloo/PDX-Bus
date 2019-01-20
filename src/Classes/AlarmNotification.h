@@ -21,14 +21,12 @@
 
 
 
-@interface AlarmNotification : NSObject <UIAlertViewDelegate, MapPinColor> {
-	UILocalNotification *   _notification;
-	UIApplicationState      _previousState;
+@interface AlarmNotification : NSObject <MapPinColor> {
     SystemSoundID           _soundID;
 }
 
-@property (nonatomic, retain)	UILocalNotification *notification;
-@property (nonatomic)			UIApplicationState previousState;
+@property (nonatomic, strong)    UILocalNotification *notification;
+@property (nonatomic)            UIApplicationState previousState;
 
 - (void)application:(UIApplication *)app didReceiveLocalNotification:(UILocalNotification *)notif;
 

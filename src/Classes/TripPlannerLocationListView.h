@@ -16,16 +16,12 @@
 #import "XMLTrips.h"
 #import "TableViewWithToolbar.h"
 
-@interface TripPlannerLocationListView : TableViewWithToolbar <ReturnTripLegEndPoint> {
-	XMLTrips *          _tripQuery;
-	bool                _from;
-	NSMutableArray *    _locList;
-}
+@interface TripPlannerLocationListView : TableViewWithToolbar <ReturnTripLegEndPoint> 
 
-@property (nonatomic, retain) XMLTrips *tripQuery;
+@property (nonatomic, strong) XMLTrips *tripQuery;
 @property (nonatomic) bool from;
-@property (nonatomic, retain) NSMutableArray *locList;
+@property (nonatomic, strong) NSMutableArray *locList;
 
-- (void) chosenEndpoint:(TripLegEndPoint*)endpoint;
+- (void)chosenEndpoint:(TripLegEndPoint*)endpoint;
 
 @end

@@ -28,7 +28,7 @@
 
 - (void)viewDidLoad
 {
-    _accuracy = 200.0;
+    self.accuracy = 200.0;
     [super viewDidLoad];
 }
 
@@ -57,7 +57,7 @@
 
 - (void)updateToolbarItems:(NSMutableArray *)toolbarItems
 {
-	[toolbarItems addObject:[UIToolbar autoMapButtonWithTarget:self action:@selector(showMap:)]];
+	[toolbarItems addObject:[UIToolbar mapButtonWithTarget:self action:@selector(showMap:)]];
     [self maybeAddFlashButtonWithSpace:YES buttons:toolbarItems big:NO];
 }
 
@@ -70,8 +70,9 @@
     if (!locatingView.failed && !locatingView.cancelled)
     {
         [[VehicleTableView viewController] fetchNearestVehiclesAsync:locatingView.backgroundTask
-                                                                  location:self.locationManager.location
-                                                               maxDistance:[UserPrefs sharedInstance].vehicleLocatorDistance];
+                                                            location:self.locationManager.location
+                                                         maxDistance:[UserPrefs sharedInstance].vehicleLocatorDistance
+                                                   backgroundRefresh:NO];
     
     }
     else if (locatingView.cancelled)

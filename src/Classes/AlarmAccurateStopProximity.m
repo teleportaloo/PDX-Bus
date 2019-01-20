@@ -37,9 +37,6 @@
 
 @implementation AlarmAccurateStopProximity
 
-@synthesize destination		= _destination;
-@synthesize locationManager = _locationManager;
-
 - (void)deleteLocationManager
 {
     if (self.locationManager!=nil)
@@ -57,13 +54,6 @@
 - (void)dealloc
 {
     [self deleteLocationManager];
-    
-#ifdef DEBUG_ALARMS
-    self.dataReceived = nil;
-#endif
-	
-	self.destination = nil;
-	[super dealloc];
 }
 
 
@@ -72,7 +62,7 @@
 {
 	if ((self = [super init]))
 	{
-		self.locationManager = [CLLocationManager alloc].init.autorelease;
+		self.locationManager = [[CLLocationManager alloc] init];
         
         self.locationManager.delegate = self;
         [self.locationManager requestAlwaysAuthorization];
@@ -174,13 +164,15 @@
 
 -(void)delayedDelete:(id)unused
 {		
-	[self release];
+	
 }
 
-- (void)locationManager:(CLLocationManager *)manager 
-	didUpdateToLocation:(CLLocation *)newLocation
-		   fromLocation:(CLLocation *)oldLocation
+- (void)locationManager:(CLLocationManager *)manager
+     didUpdateLocations:(NSArray<CLLocation *> *)locations
 {
+    
+    CLLocation *newLocation = locations.lastObject;
+    
 	CLLocationDistance minPossibleDist = [self distanceFromLocation:newLocation];
 	
 #ifdef DEBUG_ALARMS
@@ -212,7 +204,7 @@
 		return;
 	}
 	
-	[[self retain] autorelease];
+    [self performSelector:@selector(self) withObject:nil afterDelay:(NSTimeInterval)0.1];
 	
 	if (newLocation.horizontalAccuracy < kBadAccuracy && self.alarmState == AlarmStateAccurateInitiallyThenInaccurate)
 	{
@@ -252,7 +244,8 @@
                 }
          
 
-	   defaultSound:NO];
+	   defaultSound:NO
+         thisThread:NO];
 		
 #ifdef DEBUG_ALARMS
 		_done = true;
@@ -281,19 +274,21 @@
 			[self startMonitoringSignificantLocationChanges];
 			break;
 		case AlarmFired:
+        {
 			[self stopUpdatingLocation];
 			[self stopMonitoringSignificantLocationChanges];
             
             compatSetIfExists(self.locationManager, setAllowsBackgroundLocationUpdates:, NO);  // iOS9
             
-			NSTimer *timer = [[[NSTimer alloc] initWithFireDate:[NSDate dateWithTimeIntervalSinceNow:0.5]
+			NSTimer *timer = [[NSTimer alloc] initWithFireDate:[NSDate dateWithTimeIntervalSinceNow:0.5]
 													   interval:0.1 
-														 target:[self retain]
+														 target:self
 													   selector:@selector(delayedDelete:) 
 													   userInfo:nil 
-														repeats:NO] autorelease];
+														repeats:NO];
 			[[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode]; 
 			break;
+        }
         default:
             break;
 	}
@@ -322,7 +317,8 @@
                fireDate:nil 
                  button:nil 
                userInfo:nil
-           defaultSound:YES];
+           defaultSound:YES
+             thisThread:NO];
             
             [self deleteLocationManager];
             [self cancelTask];
@@ -415,7 +411,7 @@
         [mapPage addPin:self];
         
         SimpleAnnotation *currentLocation = [SimpleAnnotation annotation];
-        currentLocation.pinColor		= MKPinAnnotationColorPurple;
+        currentLocation.pinColor		= MAP_PIN_COLOR_PURPLE;
         currentLocation.pinTitle		= NSLocalizedString(@"Current Location", @"map pin text");
         currentLocation.coordinate		= self.locationManager.location.coordinate;
         currentLocation.pinSubtitle		= [NSString stringWithFormat:NSLocalizedString(@"as of %@", @"shows the date"),
@@ -428,9 +424,9 @@
     }
 }
 
-- (MKPinAnnotationColor) pinColor
+- (MapPinColorValue) pinColor
 {
-	return MKPinAnnotationColorGreen;
+	return MAP_PIN_COLOR_GREEN;
 }
 
 - (bool) showActionMenu
@@ -514,13 +510,11 @@
         [shape setLongitude:loc.coordinate.longitude];
         
         [mapPage.lineCoords addObject:shape];
-        
-        [shape release];
     }
     
     [mapPage.lineCoords addObject:[ShapeCoordEnd data]];
     
-    NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
     [dateFormatter setTimeStyle:NSDateFormatterLongStyle];
     

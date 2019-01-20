@@ -30,6 +30,7 @@
 @dynamic routeColorView;
 @dynamic scheduledLabel;
 @dynamic detourLabel;
+@dynamic fullLabel;
 @dynamic blockColorView;
 @dynamic cancelledOverlayView;
 @dynamic large;
@@ -44,6 +45,7 @@ enum VIEW_TAGS
     ROUTE_COLOR_TAG,
     SCHEDULED_TAG,
     DETOUR_TAG,
+    FULL_TAG,
     BLOCK_COLOR_TAG,
     CANCELED_OVERLAY_TAG
 };
@@ -84,6 +86,11 @@ enum VIEW_TAGS
     return (UILabel*)[self viewWithTag:DETOUR_TAG];
 }
 
+- (UILabel *)fullLabel
+{
+    return (UILabel*)[self viewWithTag:FULL_TAG];
+}
+
 - (BlockColorView *)blockColorView
 {
     return (BlockColorView*)[self viewWithTag:BLOCK_COLOR_TAG];
@@ -96,7 +103,7 @@ enum VIEW_TAGS
 
 - (bool)large
 {
-    DEBUG_LOGF([UIApplication sharedApplication].delegate.window.bounds.size.width);
+    // DEBUG_LOGF([UIApplication sharedApplication].delegate.window.bounds.size.width);
     return DEPARTURE_CELL_USE_LARGE;
 }
 
@@ -109,7 +116,6 @@ typedef struct _DepartureCellAttributes
     
     CGFloat minsLeft;
     CGFloat minsWidth;
-    CGFloat minsHeight;
     CGFloat minsUnitHeight;
     
     CGFloat mainFontSize;
@@ -137,25 +143,23 @@ const CGFloat blockColorLeftGap  =  4.0;
     if (self.large)
     {
         attr->mainFontSize              = 32.0;
-        attr->minsFontSize              = 44.0;
+        attr->minsFontSize              = 42.0;
         attr->unitFontSize              = 28.0;
         attr->rowHeight                 = kLargeDepartureCellHeight;
         
-        attr->minsWidth                 = 60.0;
-        attr->minsHeight                = 45.0;
+        attr->minsWidth                 = 70.0;
         attr->minsUnitHeight            = 28.0;
-        attr->labelHeight               = 43.0;
+        attr->labelHeight               = 45.0;
         attr->timeFontSize              = 28.0;
     }
     else
     {
         attr->mainFontSize              = 18.0;
-        attr->minsFontSize              = 24.0;
+        attr->minsFontSize              = 23.0;
         attr->unitFontSize              = 14.0;
         attr->rowHeight                 = kDepartureCellHeight;
         
-        attr->minsWidth                 = 30.0;
-        attr->minsHeight                = 26.0;
+        attr->minsWidth                 = 40.0;
         attr->minsUnitHeight            = 16.0;
         attr->labelHeight               = 26.0;
         attr->timeFontSize              = 14.0;
@@ -174,16 +178,22 @@ const CGFloat blockColorLeftGap  =  4.0;
     attr->leftColumnWidth      = attr->shortLeftColumnWidth + attr->minsWidth;
     attr->longLeftColumnWidth  = width - self.layoutMargins.left - rightMargin;
 
-    attr->minsGap                    = ((attr->rowHeight - attr->minsHeight - attr->minsUnitHeight) / 3.0);
+    attr->minsGap                    = ((attr->rowHeight - attr->labelHeight - attr->minsUnitHeight) / 3.0);
     attr->rowGap                     = ((attr->rowHeight - attr->labelHeight - attr->labelHeight) / 3.0);
     
     attr->blockColorHeight           = attr->rowHeight - 5;
     attr->blockColorLeft             = width - blockColorGap - blockColorWidth;
 }
 
-+ (instancetype)cellWithReuseIdentifier:(NSString *)identifier
++ (instancetype)tableView:(UITableView*)tableView cellWithReuseIdentifier:(NSString *)identifier;
 {
-    return [[[DepartureCell alloc] initWithReuseIdentifier:identifier] autorelease];
+    DepartureCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
+    
+    if (cell == nil)
+    {
+        cell = [[DepartureCell alloc] initWithReuseIdentifier:identifier];
+    }    
+    return cell;
 }
 
 static inline CGRect blockColorRect(DepartureCellAttributes *attr)
@@ -203,18 +213,18 @@ static inline CGRect blockColorRect(DepartureCellAttributes *attr)
 
 - (CGRect)timeRect:(DepartureCellAttributes *)attr width:(CGFloat)width
 {
-    DEBUG_LOGF(self.layoutMargins.left);
-    return CGRectMake(self.layoutMargins.left, attr->minsGap+attr->minsHeight+attr->minsGap, width, attr->minsUnitHeight);
+    // DEBUG_LOGF(self.layoutMargins.left);
+    return CGRectMake(self.layoutMargins.left, attr->minsGap+attr->labelHeight+attr->minsGap, width, attr->minsUnitHeight);
 }
 
 static inline CGRect minsRect(DepartureCellAttributes *attr)
 {
-    return CGRectMake(attr->minsLeft, attr->minsGap, attr->minsWidth, attr->minsHeight);
+    return CGRectMake(attr->minsLeft, attr->minsGap, attr->minsWidth, attr->labelHeight);
 }
 
 static inline CGRect unitRect(DepartureCellAttributes *attr)
 {
-    return CGRectMake(attr->minsLeft, attr->minsGap+attr->minsHeight+attr->minsGap, attr->minsWidth, attr->minsUnitHeight);
+    return CGRectMake(attr->minsLeft, attr->minsGap+attr->labelHeight+attr->minsGap, attr->minsWidth, attr->minsUnitHeight);
 }
 
 - (DepartureCell *)initWithReuseIdentifier:(NSString *)identifier
@@ -228,75 +238,91 @@ static inline CGRect unitRect(DepartureCellAttributes *attr)
         BlockColorView *blockColor = [[BlockColorView alloc] initWithFrame:blockColorRect(&attr)];
         blockColor.tag = BLOCK_COLOR_TAG;
         [self.contentView addSubview:blockColor];
-        [blockColor release];
         
         UILabel *label;
         label = [[UILabel alloc] initWithFrame:[self routeRect:&attr width:attr.shortLeftColumnWidth]];
         label.tag = ROUTE_TAG;
         label.font = [UIFont boldSystemFontOfSize:attr.mainFontSize];
         label.adjustsFontSizeToFitWidth = YES;
+        label.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
         label.highlightedTextColor = [UIColor whiteColor];
         [self.contentView addSubview:label];
-        [label release];
         
         RouteColorBlobView *colorStripe = [[RouteColorBlobView alloc] initWithFrame:[self routeColorRect:&attr]];
         colorStripe.tag = ROUTE_COLOR_TAG;
         [self.contentView addSubview:colorStripe];
-        [colorStripe release];
+        
+        UIFont *smallTimeFont =  [UIFont systemFontOfSize:attr.unitFontSize];
+        
+        // Verdana has a fixed width numbers.  I don't like it, but needed to try it here.
+        // UIFont *smallTimeFont =  [UIFont fontWithName:@"Verdana" size:attr.unitFontSize-1];
 
         label = [[UILabel alloc] initWithFrame:[self timeRect:&attr width:attr.shortLeftColumnWidth]];
         label.tag = TIME_TAG;
-        label.font = [UIFont systemFontOfSize:attr.unitFontSize];
+        label.font = smallTimeFont;
         label.adjustsFontSizeToFitWidth = YES;
+        label.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
         label.highlightedTextColor = [UIColor whiteColor];
         [self.contentView addSubview:label];
-        [label release];
         
         label = [[UILabel alloc] initWithFrame:[self timeRect:&attr width:attr.shortLeftColumnWidth]];
         label.tag = SCHEDULED_TAG;
-        label.font = [UIFont systemFontOfSize:attr.unitFontSize];
+        label.font = smallTimeFont;
         label.adjustsFontSizeToFitWidth = YES;
+        label.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
         label.highlightedTextColor = [UIColor whiteColor];
         [self.contentView addSubview:label];
-        [label release];
         
         label = [[UILabel alloc] initWithFrame:[self timeRect:&attr width:attr.shortLeftColumnWidth]];
         label.tag = DETOUR_TAG;
-        label.font = [UIFont systemFontOfSize:attr.unitFontSize];
+        label.font = smallTimeFont;
         label.adjustsFontSizeToFitWidth = YES;
+        label.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
         label.highlightedTextColor = [UIColor whiteColor];
         [self.contentView addSubview:label];
-        [label release];
+        
+        label = [[UILabel alloc] initWithFrame:[self timeRect:&attr width:attr.leftColumnWidth]];
+        label.tag = FULL_TAG;
+        label.font = smallTimeFont;
+        label.adjustsFontSizeToFitWidth = YES;
+        label.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
+        [self.contentView addSubview:label];
+        label.highlightedTextColor = [UIColor whiteColor];
         
         label = [[UILabel alloc] initWithFrame:minsRect(&attr)];
         label.tag = MINS_TAG;
-        label.font = [UIFont boldSystemFontOfSize:attr.minsFontSize];
+        label.font = [UIFont fontWithName:@"Verdana-bold" size:attr.minsFontSize];
         label.adjustsFontSizeToFitWidth = YES;
+        label.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
         label.highlightedTextColor = [UIColor whiteColor];
         [self.contentView addSubview:label];
-        [label release];
         
         CanceledBusOverlay *canceled = [[CanceledBusOverlay alloc] initWithFrame:minsRect(&attr)];
         canceled.tag = CANCELED_OVERLAY_TAG;
         canceled.backgroundColor = [UIColor clearColor];
         canceled.hidden = YES;
         [self.contentView addSubview:canceled];
-        [canceled release];
         
         label = [[UILabel alloc] initWithFrame:unitRect(&attr)];
         label.tag = UNIT_TAG;
-        label.font = [UIFont systemFontOfSize:attr.unitFontSize];
+        label.font = smallTimeFont;
         label.adjustsFontSizeToFitWidth = YES;
+        label.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
         label.highlightedTextColor = [UIColor whiteColor];
         [self.contentView addSubview:label];
-        [label release];
     }
     return self;
 }
 
-+ (instancetype)genericWithReuseIdentifier:(NSString *)identifier
++ (instancetype)tableView:(UITableView*)tableView genericWithReuseIdentifier:(NSString *)identifier
 {
-    return [[[DepartureCell alloc] initGenericWithReuseIdentifier:identifier] autorelease];
+    DepartureCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
+    
+    if (cell == nil)
+    {
+        cell = [[DepartureCell alloc] initGenericWithReuseIdentifier:identifier];
+    }
+    return cell;
 }
 
 - (DepartureCell *)initGenericWithReuseIdentifier:(NSString *)identifier
@@ -315,7 +341,6 @@ static inline CGRect unitRect(DepartureCellAttributes *attr)
         BlockColorView *blockColor = [[BlockColorView alloc] initWithFrame:blockColorRect(&attr)];
         blockColor.tag = BLOCK_COLOR_TAG;
         [self.contentView addSubview:blockColor];
-        [blockColor release];
         
         // rect = CGRectMake(attr.LeftColumnOffset, attr.RowGap, spaceToDecorate? attr.LeftColumnWidth : attr.LongLeftColumnWidth, attr.LabelHeight);
         label = [[UILabel alloc] initWithFrame:[self routeRect:&attr width:attr.leftColumnWidth]];
@@ -325,12 +350,10 @@ static inline CGRect unitRect(DepartureCellAttributes *attr)
         [self.contentView addSubview:label];
         label.highlightedTextColor = [UIColor whiteColor];
         label.backgroundColor = [UIColor clearColor];
-        [label release];
         
         RouteColorBlobView *colorStripe = [[RouteColorBlobView alloc] initWithFrame:[self routeColorRect:&attr]];
         colorStripe.tag = ROUTE_COLOR_TAG;
         [self.contentView addSubview:colorStripe];
-        [colorStripe release];
         
         // rect = CGRectMake(attr.LeftColumnOffset,attr.RowGap * 2.0 + attr.LabelHeight, spaceToDecorate? attr.LeftColumnWidth : attr.LongLeftColumnWidth, attr.LabelHeight);
         label = [[UILabel alloc] initWithFrame:[self timeRect:&attr width:attr.leftColumnWidth]];
@@ -339,7 +362,6 @@ static inline CGRect unitRect(DepartureCellAttributes *attr)
         label.adjustsFontSizeToFitWidth = YES;
         [self.contentView addSubview:label];
         label.highlightedTextColor = [UIColor whiteColor];
-        [label release];
         
         label = [[UILabel alloc] initWithFrame:[self timeRect:&attr width:attr.leftColumnWidth]];
         label.tag = SCHEDULED_TAG;
@@ -347,7 +369,6 @@ static inline CGRect unitRect(DepartureCellAttributes *attr)
         label.adjustsFontSizeToFitWidth = YES;
         [self.contentView addSubview:label];
         label.highlightedTextColor = [UIColor whiteColor];
-        [label release];
         
         label = [[UILabel alloc] initWithFrame:[self timeRect:&attr width:attr.leftColumnWidth]];
         label.tag = DETOUR_TAG;
@@ -355,8 +376,13 @@ static inline CGRect unitRect(DepartureCellAttributes *attr)
         label.adjustsFontSizeToFitWidth = YES;
         [self.contentView addSubview:label];
         label.highlightedTextColor = [UIColor whiteColor];
-        [label release];
         
+        label = [[UILabel alloc] initWithFrame:[self timeRect:&attr width:attr.leftColumnWidth]];
+        label.tag = FULL_TAG;
+        label.font = [UIFont systemFontOfSize:attr.unitFontSize];
+        label.adjustsFontSizeToFitWidth = YES;
+        [self.contentView addSubview:label];
+        label.highlightedTextColor = [UIColor whiteColor];
     }
     
     return self;
@@ -474,29 +500,33 @@ static inline UIFont * resetFontSize(UIFont *font, CGFloat sz)
     self.detourLabel.frame = [self timeRect:&attr width:leftColumnWidth];
     reset_font_size(self.detourLabel.font, attr.unitFontSize);
     
+    self.fullLabel.frame = [self timeRect:&attr width:leftColumnWidth];
+    reset_font_size(self.fullLabel.font, attr.unitFontSize);
+    
     CGFloat nextX = self.timeLabel.frame.origin.x;
     nextX = [self moveLabelNextX:nextX label:self.timeLabel];
     nextX = [self moveLabelNextX:nextX label:self.scheduledLabel];
+    nextX = [self moveLabelNextX:nextX label:self.detourLabel];
     
     if (self.unitLabel)
     {
-        CGFloat detourWidth = [self labelWidth:self.detourLabel];
+        CGFloat fullWidth = [self labelWidth:self.fullLabel];
         CGFloat unitLeft = self.unitLabel.frame.origin.x;
-        const CGFloat gap = 3.0;
+        const CGFloat gap = 0.0;
     
-        if ((detourWidth + nextX + gap) < unitLeft )
+        if ((fullWidth + nextX + gap) < unitLeft)
         {
-            [self moveLabelNextX:nextX label:self.detourLabel];
+            [self moveLabelNextX:nextX label:self.fullLabel];
         }
         else
         {
-            nextX = [self moveLabelNextX:nextX label:self.detourLabel];
+            nextX = [self moveLabelNextX:nextX label:self.fullLabel];
             [self moveLabelNextX:nextX+gap label:self.unitLabel];
         }
     }
     else
     {
-        [self moveLabelNextX:nextX label:self.detourLabel];
+        [self moveLabelNextX:nextX label:self.fullLabel];
     }
 }
 

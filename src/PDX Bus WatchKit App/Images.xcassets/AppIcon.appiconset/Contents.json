@@ -3,7 +3,7 @@
     {
       "size" : "24x24",
       "idiom" : "watch",
-      "filename" : "48.png",
+      "filename" : "48x48.png",
       "scale" : "2x",
       "role" : "notificationCenter",
       "subtype" : "38mm"
@@ -11,7 +11,7 @@
     {
       "size" : "27.5x27.5",
       "idiom" : "watch",
-      "filename" : "55.png",
+      "filename" : "55x55.png",
       "scale" : "2x",
       "role" : "notificationCenter",
       "subtype" : "42mm"
@@ -19,21 +19,21 @@
     {
       "size" : "29x29",
       "idiom" : "watch",
-      "filename" : "58.png",
+      "filename" : "29x29@2X.png",
       "role" : "companionSettings",
       "scale" : "2x"
     },
     {
       "size" : "29x29",
       "idiom" : "watch",
-      "filename" : "87.png",
+      "filename" : "29x29@3X.png",
       "role" : "companionSettings",
       "scale" : "3x"
     },
     {
       "size" : "40x40",
       "idiom" : "watch",
-      "filename" : "80.png",
+      "filename" : "80x80.png",
       "scale" : "2x",
       "role" : "appLauncher",
       "subtype" : "38mm"
@@ -41,15 +41,23 @@
     {
       "size" : "44x44",
       "idiom" : "watch",
-      "filename" : "88.png",
+      "filename" : "88x88.png",
       "scale" : "2x",
-      "role" : "longLook",
-      "subtype" : "42mm"
+      "role" : "appLauncher",
+      "subtype" : "40mm"
+    },
+    {
+      "size" : "50x50",
+      "idiom" : "watch",
+      "filename" : "50x50@2x.png",
+      "scale" : "2x",
+      "role" : "appLauncher",
+      "subtype" : "44mm"
     },
     {
       "size" : "86x86",
       "idiom" : "watch",
-      "filename" : "172.png",
+      "filename" : "172x172.png",
       "scale" : "2x",
       "role" : "quickLook",
       "subtype" : "38mm"
@@ -57,15 +65,23 @@
     {
       "size" : "98x98",
       "idiom" : "watch",
-      "filename" : "196.png",
+      "filename" : "192x192.png",
       "scale" : "2x",
       "role" : "quickLook",
       "subtype" : "42mm"
     },
     {
+      "size" : "108x108",
+      "idiom" : "watch",
+      "filename" : "108x108@2x.png",
+      "scale" : "2x",
+      "role" : "quickLook",
+      "subtype" : "44mm"
+    },
+    {
       "size" : "1024x1024",
       "idiom" : "watch-marketing",
-      "filename" : "iTunesArtwork@2x.png",
+      "filename" : "1024x1024.png",
       "scale" : "1x"
     }
   ],

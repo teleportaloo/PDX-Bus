@@ -6,6 +6,13 @@
 //  Copyright © 2017 Teleportaloo. All rights reserved.
 //
 
+
+
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+
 #import "TripItemCell.h"
 #import "ViewControllerBase.h"
 #import "DebugLogging.h"
@@ -48,9 +55,6 @@
     DEBUG_LOG(@"Width: %f\n", self.bodyLabel.bounds.size.width);
     DEBUG_LOG(@"Text: %@\n", body);
     
-    self.accessibilityLabel = [NSString stringWithFormat:@"%@, %@", self.modeLabel.text, body];
-    
-    
     
     [self.routeColorView setRouteColor:route];
     
@@ -66,8 +70,7 @@
 
 - (void)setFormattedBodyText:(NSString *)formattedBodyText
 {
-    [_formattedBodyText release];
-    _formattedBodyText = [formattedBodyText retain];
+    _formattedBodyText = formattedBodyText;
     self.bodyLabel.attributedText = [self.formattedBodyText formatAttributedStringWithFont:self.bodyFont];
 }
 
@@ -85,7 +88,7 @@
 
 - (bool)large
 {
-    DEBUG_LOGF([UIApplication sharedApplication].delegate.window.bounds.size.width);
+    // DEBUG_LOGF([UIApplication sharedApplication].delegate.window.bounds.size.width);
     return LARGE_SCREEN;
 }
 
@@ -122,26 +125,30 @@
     return font;
 }
 
+- (NSString *)labelText:(UILabel *)label
+{
+    if (label.attributedText!=nil)
+    {
+        return label.attributedText.string;
+    }
+    
+    return label.text;
+}
+
 - (void)update
 {
     self.modeLabel.font = self.boldBodyFont;
     self.bodyLabel.attributedText = [self.formattedBodyText formatAttributedStringWithFont:self.bodyFont];
     self.modeLabelWidth.constant = self.large ? 100.0 : 75.0;
+    
+    self.accessibilityLabel = [NSString stringWithFormat:@"%@, ,%@",
+                               [self labelText:self.modeLabel],  [self labelText:self.bodyLabel]].phonetic;
 }
 
 - (void)layoutSubviews
 {
     [self update];
     [super layoutSubviews];
-}
-
-- (void)dealloc {
-    [_routeColorView release];
-    [_modeLabel release];
-    [_bodyLabel release];
-    [_modeLabelWidth release];
-    self.formattedBodyText = nil;
-    [super dealloc];
 }
 
 + (UINib*)nib

@@ -17,24 +17,26 @@
 #import <UIKit/UIKit.h>
 #import "TableViewWithToolbar.h"
 
-#define kWhatsNewVersion @"10.0"
-
 @protocol WhatsNewSpecialAction <NSObject>
 
-+ (NSNumber*)getPrefix;
 - (void)processAction:(NSString *)text parent:(ViewControllerBase*)parent;
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell text:(NSString*)text;
 - (void)updateCell:(UITableViewCell *)cell tableView:(UITableView *)tableView;
 - (NSString*)displayText:(NSString *)fullText;
 - (NSString*)plainText:(NSString *)fullText;
 
++ (NSNumber*)getPrefix;
+
 @end
+
+typedef NSMutableArray<NSString*> WHATS_NEW_SECTION;
+
 	
-@interface WhatsNewView : TableViewWithToolbar {
-    NSArray *                       _newTextArray;
+@interface WhatsNewView : TableViewWithToolbar<WHATS_NEW_SECTION *> {
     NSDictionary *                  _specialActions;
     id<WhatsNewSpecialAction>       _basicAction;
 }
 
++ (NSString *)version;
 
 @end

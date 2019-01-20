@@ -20,10 +20,8 @@
 #import "TripItemCell.h"
 
 
-@interface TripPlannerSummaryView : TripPlannerBaseView {
+@interface TripPlannerSummaryView : TripPlannerBaseView
 
-}
-
--(void) initQuery;
+-(void)initQuery;
 
 @end

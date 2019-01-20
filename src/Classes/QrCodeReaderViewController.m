@@ -12,22 +12,8 @@
 #define kLightCtrlOn  (0)
 #define kLightCtrlOff (1)
 
-
-@interface QrCodeReaderViewController ()
-
-@end
-
 @implementation QrCodeReaderViewController
 
-- (void)dealloc
-{
-    self.captureSession = nil;
-    self.videoPreviewLayer = nil;
-    self.viewPreview = nil;
-    self.lightSegControl = nil;
-    
-    [super dealloc];
-}
 
 -(bool)torchSupported
 {
@@ -65,11 +51,11 @@
         AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
         
         if (!input) {
-            NSLog(@"%@", [error localizedDescription]);
+            LOG_NSERROR(error);
             return NO;
         }
         
-        self.captureSession = [[[AVCaptureSession alloc] init] autorelease];
+        self.captureSession = [[AVCaptureSession alloc] init];
         [self.captureSession addInput:input];
         
         AVCaptureMetadataOutput *captureMetadataOutput = [[AVCaptureMetadataOutput alloc] init];
@@ -80,7 +66,7 @@
         [captureMetadataOutput setMetadataObjectsDelegate:self queue:dispatchQueue];
         [captureMetadataOutput setMetadataObjectTypes:[NSArray arrayWithObject:AVMetadataObjectTypeQRCode]];
         
-        self.videoPreviewLayer = [[[AVCaptureVideoPreviewLayer alloc] initWithSession:self.captureSession] autorelease];
+        self.videoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.captureSession];
         [self.videoPreviewLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
         [self.videoPreviewLayer setFrame:self.viewPreview.layer.bounds];
         [self.viewPreview.layer addSublayer:self.videoPreviewLayer];
@@ -88,7 +74,6 @@
        
         [_captureSession startRunning];
         
-        [dispatchQueue release];
     }
     
     return YES;
@@ -109,11 +94,11 @@
     }
 }
 
-- (void)BackgroundTaskDone:(UIViewController *)viewController cancelled:(bool)cancelled
+- (void)backgroundTaskDone:(UIViewController *)viewController cancelled:(bool)cancelled
 {
     if (!cancelled)
     {
-        [super BackgroundTaskDone:viewController cancelled:cancelled];
+        [super backgroundTaskDone:viewController cancelled:cancelled];
     }
     else
     {
@@ -138,9 +123,9 @@
     
     self.title = NSLocalizedString(@"QR Code Reader", @"screen title");
     
-    CGRect viewRect = [self getMiddleWindowRect];
+    CGRect viewRect = self.middleWindowRect;
     
-    self.viewPreview = [[[UIView alloc] initWithFrame:viewRect] autorelease];
+    self.viewPreview = [[UIView alloc] initWithFrame:viewRect];
     
     [self.view addSubview:self.viewPreview];
     
@@ -164,7 +149,7 @@
     
     CGRect labelRect = CGRectMake(margin,100, width, bounds.size.height + 20);
     
-    UILabel *label = [[[UILabel alloc] initWithFrame:labelRect] autorelease];
+    UILabel *label = [[UILabel alloc] initWithFrame:labelRect];
     
     label.font = font;
     label.textAlignment = NSTextAlignmentCenter;
@@ -256,20 +241,20 @@
 
 - (void) updateToolbarItems:(NSMutableArray *)toolbarItems
 {
-    [toolbarItems addObject:[[[UIBarButtonItem alloc]
+    [toolbarItems addObject:[[UIBarButtonItem alloc]
                               initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
-                              target:self action:@selector(cancel:)] autorelease]];
+                              target:self action:@selector(cancel:)]];
     
     if (self.torchSupported)
     {
-        self.lightSegControl = [[[UISegmentedControl alloc] initWithItems:
-                                      @[@"Light", @"Off"]] autorelease];
+        self.lightSegControl = [[UISegmentedControl alloc] initWithItems:
+                                      @[@"Light", @"Off"]];
         [self.lightSegControl addTarget:self action:@selector(toggleFlash:) forControlEvents:UIControlEventValueChanged];
         self.lightSegControl.selectedSegmentIndex = kLightCtrlOff;
         
-        [toolbarItems addObject:[UIToolbar autoFlexSpace]];
+        [toolbarItems addObject:[UIToolbar flexSpace]];
         
-        UIBarButtonItem *segItem = [[[UIBarButtonItem alloc] initWithCustomView:self.lightSegControl] autorelease];
+        UIBarButtonItem *segItem = [[UIBarButtonItem alloc] initWithCustomView:self.lightSegControl];
         [toolbarItems addObject:segItem];
     }
     

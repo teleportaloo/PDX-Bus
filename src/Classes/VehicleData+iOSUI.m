@@ -15,7 +15,7 @@
 
 #import "VehicleData+iOSUI.h"
 #import "DepartureTimesView.h"
-#import "TriMetRouteColors.h"
+#import "TriMetInfo.h"
 #import "DebugLogging.h"
 #import "BlockColorDb.h"
 
@@ -33,17 +33,17 @@
 {
     if (self.signMessage)
     {
-        DEBUG_LOG(@"Sign Message %@ b %@ %f %f\n", self.signMessage, self.block, self.location.coordinate.latitude, self.location.coordinate.latitude);
+        // DEBUG_LOG(@"Sign Message %@ b %@ %f %f\n", self.signMessage, self.block, self.location.coordinate.latitude, self.location.coordinate.latitude);
         return self.signMessage;
     }
     
     if ([self.type isEqualToString:kVehicleTypeStreetcar])
     {
-        const ROUTE_COL *col = [TriMetRouteColors rawColorForRoute:self.routeNumber];
+        PC_ROUTE_INFO info = [TriMetInfo infoForRoute:self.routeNumber];
         
-        if (col)
+        if (info)
         {
-            return col->name;
+            return info->full_name;
         }
         return @"Portland Streetcar";
     }
@@ -59,23 +59,30 @@
 
 - (NSString*)subtitle
 {
-    return [VehicleData locatedSomeTimeAgo:TriMetToNSDate(self.locationTime)];
+    NSString *located = [VehicleData locatedSomeTimeAgo:self.locationTime];
+    
+    if (self.vehicleID)
+    {
+        return [NSString stringWithFormat:@"ID %@ %@", self.vehicleID, located];
+    }
+    
+    return located;
 }
 
 // From MapPinColor
-- (MKPinAnnotationColor) pinColor
+- (MapPinColorValue) pinColor
 {
         if ([self.type isEqualToString:kVehicleTypeBus])
         {
-            return MKPinAnnotationColorPurple;
+            return MAP_PIN_COLOR_PURPLE;
         }
         
         if ([self.type isEqualToString:kVehicleTypeStreetcar])
         {
-            return MKPinAnnotationColorGreen;
+            return MAP_PIN_COLOR_GREEN;
         }
         
-        return MKPinAnnotationColorRed;
+        return MAP_PIN_COLOR_RED;
 }
 - (bool)showActionMenu
 {
@@ -86,9 +93,9 @@
     return NO;
 }
 
-- (bool)mapTapped:(id<BackgroundTaskProgress>) progress
+- (bool)mapTapped:(id<BackgroundTaskController>) progress
 {
-    [[DepartureTimesView viewController]  fetchTimesForVehicleAsync:progress route:self.routeNumber direction:self.direction nextLoc:self.lastLocID block:self.block];
+    [[DepartureTimesView viewController]  fetchTimesForVehicleAsync:progress route:self.routeNumber direction:self.direction nextLoc:self.lastLocID block:self.block targetDeparture:nil];
     return true;
 }
 
@@ -111,7 +118,7 @@
 
 - (UIColor *)pinTint
 {
-    return [TriMetRouteColors colorForRoute:self.routeNumber];
+    return [TriMetInfo colorForRoute:self.routeNumber];
 }
 
 

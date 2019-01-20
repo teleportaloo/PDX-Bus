@@ -20,26 +20,24 @@
 
 #define kCacheDateAndTime   0
 #define kCacheData          1
+#define kAlwaysAgeOut      -1
 
 @interface QueryCacheManager : NSObject <ClearableCache>
-{
-    NSMutableDictionary<NSString *, NSArray*> *     _cache;
-    SharedFile *                                    _sharedFile;
-    int                                             _maxSize;
-}
 
 @property (nonatomic)           int maxSize;
-@property (nonatomic, retain)   NSMutableDictionary<NSString *, NSArray*> *cache;
-@property (nonatomic, retain)   SharedFile *sharedFile;
+@property (nonatomic, strong)   NSMutableDictionary<NSString *, NSArray*> *cache;
+@property (nonatomic, strong)   SharedFile *sharedFile;
+@property (nonatomic)           int ageOutDays;
 
-
-- (instancetype)initWithFileName:(NSString *)shortFileName;
-- (void)deleteCacheFile;
-+ (NSString *)getCacheKey:(NSString *)query;
-- (NSArray *)getCachedQuery:(NSString *)cacheQuery;
 - (void)addToCache:(NSString *)cacheQuery item:(NSData *)item write:(bool)write;
+- (instancetype)initWithFileName:(NSString *)shortFileName;
+- (NSArray *)getCachedQuery:(NSString *)cacheQuery;
 - (void)removeFromCache:(NSString *)cacheQuery;
+- (void)deleteCacheFile;
 - (void)memoryWarning;
+- (void)writeCache;
 
++ (instancetype)cacheWithFileName:(NSString *)shortFileName;
++ (NSString *)getCacheKey:(NSString *)query;
 
 @end

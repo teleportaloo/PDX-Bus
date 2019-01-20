@@ -12,43 +12,35 @@
 
 #import <UIKit/UIKit.h>
 #import "ViewControllerBase.h"
+#import <WebKit/WebKit.h>
 
-@interface WebViewController : ViewControllerBase <UIWebViewDelegate>{
-	UIWebView *         _webView;
-	NSString *          _urlToDisplay;
-	NSString *          _dataToDisplay;
-	NSData *            _rawDataToDisplay;
-	UIBarButtonItem *   _webBack;
-	UIBarButtonItem *   _webForward;
-	UIBarButtonItem *   _safari;
-	UIViewController *  _whenDone;
-	NSURL *             _localURL;
-	bool                _showErrors;
-	int                 _depth;
+@interface WebViewController : ViewControllerBase <WKNavigationDelegate>{
+    int                 _depth;
+    bool               _navigated;
 }
+
+@property (nonatomic, strong) NSData *rawDataToDisplay;
+@property (nonatomic, copy)   NSString *urlToDisplay;
+@property (nonatomic, copy)   NSString *dataToDisplay;
+@property (nonatomic, strong) WKWebView *webView;
+@property (nonatomic, strong) UIBarButtonItem *webBack;
+@property (nonatomic, strong) UIBarButtonItem *webForward;
+@property (nonatomic, strong) UIBarButtonItem *safari;
+@property (nonatomic, strong) UIViewController *whenDone;
+@property (nonatomic) bool showErrors;
+@property (nonatomic, strong) NSURL *localURL;
+@property (nonatomic)          NSInteger rssLinkItem;
+@property (nonatomic,copy)    NSString *javsScriptCommand;
 
 - (void)updateToolbarItems:(NSMutableArray*)toolbarItems;
 - (void)setURLmobile:(NSString *)url full:(NSString *)full;
 - (void)setRawData:(NSData *)rawData title:(NSString *)title;
 - (void)displayPage:(UINavigationController *)nav animated:(BOOL)animated itemToDeselect:(id<DeselectItemDelegate>)deselect;
+
 + (void)displayPage:(NSString *)url
                full:(NSString*)full
           navigator:(UINavigationController *)nav
      itemToDeselect:(id<DeselectItemDelegate>)deselect
            whenDone:(UIViewController*)whenDone;
-
-
-
-@property (nonatomic, retain) NSData *rawDataToDisplay;
-@property (nonatomic, copy)   NSString *urlToDisplay;
-@property (nonatomic, copy)   NSString *dataToDisplay;
-@property (nonatomic, retain) UIWebView *webView;
-@property (nonatomic, retain) UIBarButtonItem *webBack;
-@property (nonatomic, retain) UIBarButtonItem *webForward;
-@property (nonatomic, retain) UIBarButtonItem *safari;
-@property (nonatomic, retain) UIViewController *whenDone;
-@property (nonatomic) bool showErrors;
-@property (nonatomic, retain) NSURL *localURL;
-@property (nonatomic)		  NSInteger rssLinkItem;
 
 @end

@@ -12,12 +12,6 @@
 
 @synthesize fillColor = _fillColor;
 
-- (void)dealloc
-{
-    self.fillColor = nil;
-    
-    [super dealloc];
-}
 
 // Only override drawRect: if you perform custom drawing.
 // An empty implementation adversely affects performance during animation.
@@ -48,7 +42,7 @@
     CGContextFillPath(context);
     
     
-    //	DEBUG_LOG(@"%f %f %f\n", _red, _green, _blue);
+    //    DEBUG_LOG(@"%f %f %f\n", _red, _green, _blue);
     
     CGPathRelease(fillPath);
     

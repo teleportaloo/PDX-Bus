@@ -51,18 +51,10 @@
 
 
 @implementation TilingView
-@synthesize annotates = _annotates;
-@synthesize imageName = _imageName;
 
-- (void)dealloc
-{
-    self.imageName = nil;
-    self.tiledLayer = nil;
-    [super dealloc];
-}
 
 + (Class)layerClass {
-	return [CATiledLayer class];
+    return [CATiledLayer class];
 }
 
 - (instancetype)initWithImageName:(NSString *)name size:(CGSize)size
@@ -91,7 +83,7 @@
 - (void)drawRect:(CGRect)rect
 {
 #if 0
- 	CGContextRef context = UIGraphicsGetCurrentContext();
+     CGContextRef context = UIGraphicsGetCurrentContext();
     
     // get the scale from the context by getting the current transform matrix, then asking
     // for its "a" component, which is one of the two scale components. We could also ask
@@ -198,33 +190,33 @@
 #if 0
      // we use "imageWithContentsOfFile:" instead of "imageNamed:" here because we don't want UIImage to cache our tiles
 
-	
-	// Scale 1    maps to 4
-	// Scale 1/2  maps to 3
-	// Scale 1/4  maps to 2
-	// Scale 1/8  maps to 1
-	int level = 0;
+    
+    // Scale 1    maps to 4
+    // Scale 1/2  maps to 3
+    // Scale 1/4  maps to 2
+    // Scale 1/8  maps to 1
+    int level = 0;
     
     //int scale1   = (int)(scale * 1000);
     //int scale2   = scale1 + 60;
     //int scale3   = scale2 / 125;
     //int scaleInt = scale3 * 125;
     int scaleInt = (((((int)(scale*1000)) + 60) / 125 ) * 125);
-	
     
-	switch (scaleInt)
-	{
-		case 1000: level = 4; break;
-		case 500:  level = 3; break;
-		case 250:  level = 2; break;
-		case 125:  level = 1; break;
-		default:
-			level = 0;
-			break;
-	}
-	
+    
+    switch (scaleInt)
+    {
+        case 1000: level = 4; break;
+        case 500:  level = 3; break;
+        case 250:  level = 2; break;
+        case 125:  level = 1; break;
+        default:
+            level = 0;
+            break;
+    }
+    
 
-	
+    
     NSString *tileName = [NSString stringWithFormat:@"%d-%d-%d", level, col, row];
     // NSLog(@"%@\n", tileName);
     NSString *path = [[NSBundle mainBundle] pathForResource:tileName ofType:@"jpg" inDirectory:imageName];

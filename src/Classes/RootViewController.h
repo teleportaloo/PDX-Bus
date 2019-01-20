@@ -23,8 +23,8 @@
 #import "WatchConnectivity/WCSession.h"
 
 #define kRootMaxSections 7
-#define kVersion		@"Version"
-#define kAboutVersion	@"2"
+#define kVersion        @"Version"
+#define kAboutVersion    @"2"
 
 @class UITextField;
 
@@ -42,41 +42,37 @@ typedef enum InitialAction_tag
 
 
 @interface RootViewController : TableViewWithToolbar <EditableTableViewCellDelegate, 
-									MFMailComposeViewControllerDelegate,
-									AlarmObserver,
+                                    MFMailComposeViewControllerDelegate,
+                                    AlarmObserver,
                                     WCSessionDelegate>
 {
-	NSString *_lastArrivalsShown;
-	NSArray *_lastArrivalNames;
-	NSDictionary *_commuterBookmark;
-	UITextField *_editWindow;	
-	NSInteger faveSection;
-	NSInteger editSection;
-	AlarmTaskList *_taskList;
-	NSArray *_alarmKeys;
-    
-	CellTextField *_editCell;
-	bool keyboardUp;
-	bool showingLast;
-    NSString *_launchStops;
-        
-    // We need to keep hold of this view because of a bug
-    // in which the app will crash if this is popped off 
-    // the stack.
-    ProgressModalView *_progressView;
-    NSURL   *_routingURL;
-    bool    _delayedInitialAction;
-    InitialAction _initialAction;
-    NSDictionary *_initialActionArgs;
-    NSString *_initalBookmarkName;
-    int _initialBookmarkIndex;
-    
-    UIBarButtonItem *_goButton;
-    UIBarButtonItem *_helpButton;
-    UIButton *_editBookmarksButton;
-    WCSession* _session;
-    bool    _updatedWatch;
+    NSInteger _faveSection;
+    NSInteger _editSection;
+    AlarmTaskList *_taskList;
+    bool _keyboardUp;
+    bool _showingLast;
+    bool _updatedWatch;
 }
+
+@property (nonatomic, strong) UITextField *editWindow;
+@property (nonatomic, copy)   NSString *lastArrivalsShown;
+@property (nonatomic, strong) NSArray *lastArrivalNames;
+@property (nonatomic, strong) CellTextField *editCell;
+@property (nonatomic, strong) NSArray *alarmKeys;
+@property (nonatomic, strong) NSDictionary *commuterBookmark;
+@property (nonatomic, strong) ProgressModalView *progressView;
+@property (nonatomic, copy)   NSString *launchStops;
+@property (nonatomic, strong) NSURL *routingURL;
+@property (nonatomic)         bool delayedInitialAction;
+@property (nonatomic)         InitialAction initialAction;
+@property (nonatomic, copy)   NSString *initialBookmarkName;
+@property (nonatomic)         int       initialBookmarkIndex;
+@property (nonatomic, strong) NSDictionary *initialActionArgs;
+@property (nonatomic, strong) UIBarButtonItem *goButton;
+@property (nonatomic, strong) UIBarButtonItem *helpButton;
+@property (nonatomic, strong) UIButton *editBookmarksButton;
+@property (nonatomic, strong) UIButton *emailBookmarksButton;
+@property (nonatomic, strong) WCSession *session;
 
 - (void)postEditingAction:(UITextView *)textView;
 - (void)commuteAction:(id)sender;
@@ -86,26 +82,5 @@ typedef enum InitialAction_tag
 - (void)openFave:(int)index allowEdit:(bool)allowEdit;
 - (void)helpAction:(id)sender;
 - (NSInteger)rowType:(NSIndexPath *)indexPath;
-
-
-@property (nonatomic, retain) UITextField *editWindow;
-@property (nonatomic, copy)   NSString *lastArrivalsShown;
-@property (nonatomic, retain) NSArray *lastArrivalNames;
-@property (nonatomic, retain) CellTextField *editCell;
-@property (nonatomic, retain) NSArray *alarmKeys;
-@property (nonatomic, retain) NSDictionary *commuterBookmark;
-@property (nonatomic, retain) ProgressModalView *progressView;
-@property (nonatomic, copy)   NSString *launchStops;
-@property (nonatomic, retain) NSURL *routingURL;
-@property (nonatomic)         bool delayedInitialAction;
-@property (nonatomic)         InitialAction initialAction;
-@property (nonatomic, copy)   NSString *initialBookmarkName;
-@property (nonatomic)         int       initialBookmarkIndex;
-@property (nonatomic, retain) NSDictionary *initialActionArgs;
-@property (nonatomic, retain) UIBarButtonItem *goButton;
-@property (nonatomic, retain) UIBarButtonItem *helpButton;
-@property (nonatomic, retain) UIButton *editBookmarksButton;
-@property (nonatomic, retain) UIButton *emailBookmarksButton;
-@property (nonatomic, retain) WCSession *session;
 
 @end

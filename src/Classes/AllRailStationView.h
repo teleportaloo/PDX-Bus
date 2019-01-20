@@ -31,8 +31,11 @@
 }
 
 - (void)generateArrays;
-+ (RAILLINES)railLines:(int)index;
 - (void)indexStations;
+
 + (RailStation *)railstationFromStopId:(NSString *)stopId;
++ (RAILLINES)railLines:(int)index;
++ (RAILLINES)railLines0:(int)index;
++ (RAILLINES)railLines1:(int)index;
 
 @end

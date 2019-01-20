@@ -36,12 +36,6 @@ enum
 @implementation TripPlannerSummaryView
 
 
-
-- (void)dealloc
-{  
-    [super dealloc];
-}
-
 - (instancetype)init
 {
 	if ((self = [super init]))
@@ -103,10 +97,9 @@ enum
 
 - (void)reverseAction:(id)sender
 {
-	TripEndPoint *savedFrom = [self.tripQuery.userRequest.fromPoint retain];
+	TripEndPoint *savedFrom = self.tripQuery.userRequest.fromPoint;
 	self.tripQuery.userRequest.fromPoint =  self.tripQuery.userRequest.toPoint;
 	self.tripQuery.userRequest.toPoint = savedFrom;
-	[savedFrom release];
 	[self reloadData];
 }
 
@@ -124,7 +117,6 @@ enum
 									  target:self
 									  action:@selector(resetAction:)];
 	self.navigationItem.rightBarButtonItem = resetButton;
-	[resetButton release];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -161,7 +153,7 @@ enum
 
 #pragma mark TableViewWithToolbar methods
 
-- (UITableViewStyle) getStyle
+- (UITableViewStyle) style
 {
 	return UITableViewStyleGrouped;
 }
@@ -169,9 +161,9 @@ enum
 - (void)updateToolbarItems:(NSMutableArray *)toolbarItems
 {	
 	// create the system-defined "OK or Done" button
-	UIBarButtonItem *reverse = [[[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Reverse trip", @"button text")
+	UIBarButtonItem *reverse = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Reverse trip", @"button text")
                                                                  style:UIBarButtonItemStylePlain
-                                                                target:self action:@selector(reverseAction:)] autorelease];
+                                                                target:self action:@selector(reverseAction:)];
 	
 	
 	 [toolbarItems addObject:reverse];
@@ -232,7 +224,7 @@ enum
 - (void)populateTime:(TripItemCell *)cell
 {
     [cell populateBody:[self.tripQuery.userRequest getDateAndTime]
-                  mode:[self.tripQuery.userRequest getTimeType]
+                  mode:[self.tripQuery.userRequest timeType]
                   time:nil
              leftColor:nil
                  route:nil];
@@ -269,30 +261,24 @@ enum
 		}
 		case kTripSectionRowPlan:
 		{
-			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kTripSectionRowPlan)];
-			if (cell == nil) {
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kTripSectionRowPlan)] autorelease];
-			}
-			
+			UITableViewCell *cell = [self tableView:tableView cellWithReuseIdentifier:MakeCellId(kTripSectionRowPlan)];
+    
 			// Set up the cell
 			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 			cell.editingAccessoryType = UITableViewCellAccessoryDisclosureIndicator ;
             cell.textLabel.text = NSLocalizedString(@"Show trip", @"main menu item");
-			cell.imageView.image = [self getActionIcon:kIconTripPlanner];
+			cell.imageView.image = [self getIcon:kIconTripPlanner];
 			return cell;
 		}
         case kTripSectionRowHistory:
 		{
-			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kTripSectionRowHistory)];
-			if (cell == nil) {
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kTripSectionRowHistory)] autorelease];
-			}
-			
+			UITableViewCell *cell = [self tableView:tableView cellWithReuseIdentifier:MakeCellId(kTripSectionRowHistory)];
+        
 			// Set up the cell
 			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 			cell.editingAccessoryType = UITableViewCellAccessoryDisclosureIndicator ;
             cell.textLabel.text = NSLocalizedString(@"Recent trips", @"main menu item");
-			cell.imageView.image = [self getActionIcon:kIconRecent];
+			cell.imageView.image = [self getIcon:kIconRecent];
 			return cell;
 		}
 
@@ -369,11 +355,11 @@ enum
 			else {
 				[self.table deselectRowAtIndexPath:indexPath animated:YES];
 				
-				UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"Cannot continue", @"alert title")
+				UIAlertView *alert = [[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"Cannot continue", @"alert title")
 																   message:NSLocalizedString(@"Select a start and destination to plan a trip.", @"alert message")
 																  delegate:nil
                                                          cancelButtonTitle:NSLocalizedString(@"OK", @"button text")
-														 otherButtonTitles:nil ] autorelease];
+														 otherButtonTitles:nil];
 				[alert show];
 			}
 

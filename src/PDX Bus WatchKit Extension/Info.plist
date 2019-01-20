@@ -17,11 +17,22 @@
 	<key>CFBundlePackageType</key>
 	<string>XPC!</string>
 	<key>CFBundleShortVersionString</key>
-	<string>10.0</string>
+	<string>11.1</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>10.0.3</string>
+	<string>29</string>
+	<key>CLKComplicationPrincipalClass</key>
+	<string>ComplicationController</string>
+	<key>CLKComplicationSupportedFamilies</key>
+	<array>
+		<string>CLKComplicationFamilyCircularSmall</string>
+		<string>CLKComplicationFamilyGraphicCircular</string>
+		<string>CLKComplicationFamilyGraphicCorner</string>
+		<string>CLKComplicationFamilyModularSmall</string>
+		<string>CLKComplicationFamilyUtilitarianSmall</string>
+		<string>CLKComplicationFamilyUtilitarianSmallFlat</string>
+	</array>
 	<key>LSApplicationCategoryType</key>
 	<string></string>
 	<key>NSAppTransportSecurity</key>
@@ -54,13 +65,13 @@
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.watchkit</string>
 	</dict>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Locate nearby stops.</string>
 	<key>NSUserActivityTypes</key>
 	<array>
 		<string>org.teleportaloo.pdxbus.bookmark</string>
 	</array>
 	<key>WKExtensionDelegateClassName</key>
 	<string>ExtensionDelegate</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Locate nearby stops.</string>
 </dict>
 </plist>

@@ -18,11 +18,8 @@
 #import "MapAnnotationImage.h"
 
 @interface BearingAnnotationView : MKAnnotationView
-{
-    MapAnnotationImage *_annotationImage;
-}
 
-@property (nonatomic, retain) MapAnnotationImage *annotationImage;
+@property (nonatomic, strong) MapAnnotationImage *annotationImage;
 
 - (void)updateDirectionalAnnotationView:(MKMapView *)mapView;
 

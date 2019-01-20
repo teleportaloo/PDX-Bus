@@ -23,12 +23,7 @@ CGPoint midpointBetweenPoints(CGPoint a, CGPoint b);
 @end
 
 @implementation TapDetectingImageView
-@synthesize delegate = _delegate;
 
-- (void)dealloc
-{
-	[super dealloc];
-}
 
 - (instancetype)initWithImageName:(NSString *)image size:(CGSize)size
 {

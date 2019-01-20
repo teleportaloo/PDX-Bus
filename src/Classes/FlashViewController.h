@@ -18,12 +18,11 @@
 #include "UserPrefs.h"
 
 @interface FlashViewController : ViewControllerBase {
-	NSTimer *           _flashTimer;
-	int                 _color;
+    int                 _color;
     TorchController *   _torch;
 }
 
-@property (nonatomic, retain) NSTimer *flashTimer;
+@property (nonatomic, strong) NSTimer *flashTimer;
 
 
 @end

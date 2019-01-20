@@ -28,27 +28,23 @@
 
 
 @interface DepartureCell : UITableViewCell
-{
 
-}
-
-@property (nonatomic, readonly) UILabel *routeLabel;
-@property (nonatomic, readonly) UILabel *timeLabel;
-@property (nonatomic, readonly) UILabel *minsLabel;
-@property (nonatomic, readonly) UILabel *unitLabel;
-@property (nonatomic, readonly) RouteColorBlobView *routeColorView;
-@property (nonatomic, readonly) UILabel *scheduledLabel;
-@property (nonatomic, readonly) UILabel *detourLabel;
-@property (nonatomic, readonly) BlockColorView *blockColorView;
-@property (nonatomic, readonly) CanceledBusOverlay *cancelledOverlayView;
+@property (weak, nonatomic, readonly) UILabel *routeLabel;
+@property (weak, nonatomic, readonly) UILabel *timeLabel;
+@property (weak, nonatomic, readonly) UILabel *minsLabel;
+@property (weak, nonatomic, readonly) UILabel *unitLabel;
+@property (weak, nonatomic, readonly) RouteColorBlobView *routeColorView;
+@property (weak, nonatomic, readonly) UILabel *scheduledLabel;
+@property (weak, nonatomic, readonly) UILabel *detourLabel;
+@property (weak, nonatomic, readonly) UILabel *fullLabel;
+@property (weak, nonatomic, readonly) BlockColorView *blockColorView;
+@property (weak, nonatomic, readonly) CanceledBusOverlay *cancelledOverlayView;
 @property (nonatomic, readonly) bool large;
-
-+ (instancetype)cellWithReuseIdentifier:(NSString *)identifier;
-+ (instancetype)genericWithReuseIdentifier:(NSString *)identifier;
 
 - (DepartureCell *)initWithReuseIdentifier:(NSString *)identifier;
 - (DepartureCell *)initGenericWithReuseIdentifier:(NSString *)identifier;
 
-
++ (instancetype)tableView:(UITableView*)tableView cellWithReuseIdentifier:(NSString *)identifier;
++ (instancetype)tableView:(UITableView*)tableView genericWithReuseIdentifier:(NSString *)identifier;
 
 @end

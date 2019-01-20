@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <WatchKit/WatchKit.h>
+#import "WatchPinColor.h"
 
 
 
@@ -18,6 +19,6 @@
 
 @interface WatchMapHelper : NSObject
 
-+ (void)displayMap:(WKInterfaceMap*)map purplePin:(CLLocation*)purplePin otherPins:(NSArray *)pins;
++ (void)displayMap:(WKInterfaceMap*)map purplePin:(CLLocation*)purplePin otherPins:(NSArray<id<WatchPinColor>>*)pins;
 
 @end

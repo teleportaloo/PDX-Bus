@@ -1,0 +1,32 @@
+{
+  "images" : [
+    {
+      "idiom" : "watch",
+      "filename" : "42x42@2x-1.png",
+      "screen-width" : "<=145",
+      "scale" : "2x"
+    },
+    {
+      "idiom" : "watch",
+      "filename" : "84x84-1.png",
+      "screen-width" : ">161",
+      "scale" : "2x"
+    },
+    {
+      "idiom" : "watch",
+      "filename" : "84x84-2.png",
+      "screen-width" : ">145",
+      "scale" : "2x"
+    },
+    {
+      "idiom" : "watch",
+      "filename" : "94x94.png",
+      "screen-width" : ">183",
+      "scale" : "2x"
+    }
+  ],
+  "info" : {
+    "version" : 1,
+    "author" : "xcode"
+  }
+}

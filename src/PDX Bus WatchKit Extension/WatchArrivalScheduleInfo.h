@@ -14,9 +14,11 @@
 
 
 #import <Foundation/Foundation.h>
-#import <WatchKit/WatchKit.h> 
+#import <WatchKit/WatchKit.h>
+#import "WatchRow.h"
 
-@interface WatchArrivalScheduleInfo : NSObject
-@property (strong, nonatomic) IBOutlet WKInterfaceLabel *scheduleInfoText;
+@interface WatchArrivalScheduleInfo : WatchRow
+
+@property (strong, nonatomic) IBOutlet WKInterfaceLabel *label;
 
 @end

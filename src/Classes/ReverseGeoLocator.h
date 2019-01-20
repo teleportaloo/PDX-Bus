@@ -17,22 +17,13 @@
 #import <CoreLocation/CoreLocation.h>
 
 @interface ReverseGeoLocator : NSObject
-{
-    bool        _waitingForGeocoder;
-    NSString *  _result;
-    NSError *   _error;
-    
-}
 
 @property (atomic) bool waitingForGeocoder;
-@property (atomic, retain) NSString *result;
-@property (atomic, retain) NSError *error;
+@property (atomic, strong) NSString *result;
+@property (atomic, strong) NSError *error;
 
-+ (bool) supported;
 - (NSString *)fetchAddress:(CLLocation*)loc;
 
-
-
-
++ (bool) supported;
 
 @end

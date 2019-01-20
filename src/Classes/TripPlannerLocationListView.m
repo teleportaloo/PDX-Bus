@@ -17,33 +17,27 @@
 #import "TripPlannerLocatingView.h"
 #import "MapViewController.h"
 #import "TripPlannerEndPointView.h"
+#import "StringHelper.h"
 
 
 @implementation TripPlannerLocationListView
 
-@synthesize tripQuery = _tripQuery;
-@synthesize from = _from;
-@synthesize locList = _locList;
-
 static int depthCount = 0;
 
 - (void)dealloc {
-	self.tripQuery = nil;
-	self.locList = nil;
-	depthCount --;
-    [super dealloc];
+    depthCount --;
 }
 
 #pragma mark TableViewWithToolbar methods
 
-- (UITableViewStyle) getStyle
+- (UITableViewStyle) style
 {
-	return UITableViewStyleGrouped;
+    return UITableViewStyleGrouped;
 }
 
 - (void)updateToolbarItems:(NSMutableArray *)toolbarItems
 {
-	[toolbarItems addObject:[UIToolbar autoMapButtonWithTarget:self action:@selector(showMap:)]];
+    [toolbarItems addObject:[UIToolbar mapButtonWithTarget:self action:@selector(showMap:)]];
     [self maybeAddFlashButtonWithSpace:YES buttons:toolbarItems big:NO];
 }
 
@@ -52,82 +46,82 @@ static int depthCount = 0;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-	
-	depthCount ++;
-	
-	if (self.from)
-	{
+    
+    depthCount ++;
+    
+    if (self.from)
+    {
         self.title = NSLocalizedString(@"Uncertain Start", @"page title");
-		if (self.locList == nil)
-		{
-			self.locList = self.tripQuery.fromList;
-		}
-	}
-	else
-	{
-		self.title = NSLocalizedString(@"Uncertain End", @"page title");
-		if (self.locList == nil)
-		{
-			self.locList = self.tripQuery.toList;
-		}
-	}
+        if (self.locList == nil)
+        {
+            self.locList = self.tripQuery.fromList;
+        }
+    }
+    else
+    {
+        self.title = NSLocalizedString(@"Uncertain End", @"page title");
+        if (self.locList == nil)
+        {
+            self.locList = self.tripQuery.toList;
+        }
+    }
 }
 
 
 - (void)didReceiveMemoryWarning {
-	// Releases the view if it doesn't have a superview.
+    // Releases the view if it doesn't have a superview.
     [super didReceiveMemoryWarning];
-	
-	// Release any cached data, images, etc that aren't in use.
+    
+    // Release any cached data, images, etc that aren't in use.
 }
 
 #pragma mark ReturnTripLegEndPoint methods
 
 - (NSString *)actionText
 {
-	return nil;
+    return nil;
 }
 
 - (void) chosenEndpoint:(TripLegEndPoint*)endpoint
 {
-	bool displayResults = true;
-	
-	if (self.from)
-	{
-		self.tripQuery.userRequest.fromPoint.locationDesc = endpoint.xdescription;
+    bool displayResults = true;
+    
+    if (self.from)
+    {
+        self.tripQuery.userRequest.fromPoint.locationDesc = endpoint.xdescription;
         self.tripQuery.userRequest.fromPoint.coordinates  = endpoint.loc;
-		
-		if (self.tripQuery.toList && !self.tripQuery.userRequest.toPoint.useCurrentLocation)
-		{
+        
+        if (self.tripQuery.toList && !self.tripQuery.userRequest.toPoint.useCurrentLocation)
+        {
             TripPlannerLocationListView *locView = [TripPlannerLocationListView viewController];
-			
-			locView.tripQuery = self.tripQuery;
-			locView.from = false;
-			
-			// Push the detail view controller
-			[self.navigationController pushViewController:locView animated:YES];
-			displayResults = false;
-		}
-	}
-	else
-	{
-		self.tripQuery.userRequest.toPoint.locationDesc = endpoint.xdescription;
+            
+            locView.tripQuery = self.tripQuery;
+            locView.from = false;
+            
+            // Push the detail view controller
+            [self.navigationController pushViewController:locView animated:YES];
+            displayResults = false;
+        }
+    }
+    else
+    {
+        self.tripQuery.userRequest.toPoint.locationDesc = endpoint.xdescription;
         self.tripQuery.userRequest.toPoint.coordinates  = endpoint.loc;
-	}
-	
-	
-	if (displayResults)
-	{
+    }
+    
+    
+    if (displayResults)
+    {
         TripPlannerLocatingView * locView = [TripPlannerLocatingView viewController];
-		
-		locView.tripQuery = self.tripQuery;
-		
-		[locView nextScreen:self.navigationController forceResults:(depthCount > 5) postQuery:YES 
-				orientation:[UIApplication sharedApplication].statusBarOrientation taskContainer:self.backgroundTask];
-		
-	}
-	
-	
+        
+        locView.tripQuery = self.tripQuery;
+        
+        [locView nextScreen:self.navigationController forceResults:(depthCount > 5) postQuery:YES 
+                orientation:[UIApplication sharedApplication].statusBarOrientation taskContainer:self.backgroundTask];
+        
+    }
+    
+    
 }
 
 #pragma mark UI Helpers
@@ -135,35 +129,35 @@ static int depthCount = 0;
 -(void)showMap:(id)sender
 {
     MapViewController *mapPage = [MapViewController viewController];
-	mapPage.callback = self.callback;
-	mapPage.annotations = self.locList;
-	
-	if (self.from)
-	{
-		mapPage.title = NSLocalizedString(@"Uncertain Start", @"page title");
-	}
-	else
-	{
-		mapPage.title = NSLocalizedString(@"Uncertain End", @"page title");
-	}
-	
-	for (TripLegEndPoint *p in self.locList)
-	{		
-		p.callback = self;
-	}
-	
-	[self.navigationController pushViewController:mapPage animated:YES];
+    mapPage.callback = self.callback;
+    mapPage.annotations = self.locList;
+    
+    if (self.from)
+    {
+        mapPage.title = NSLocalizedString(@"Uncertain Start", @"page title");
+    }
+    else
+    {
+        mapPage.title = NSLocalizedString(@"Uncertain End", @"page title");
+    }
+    
+    for (TripLegEndPoint *p in self.locList)
+    {        
+        p.callback = self;
+    }
+    
+    [self.navigationController pushViewController:mapPage animated:YES];
 }
 
 #pragma mark  Table View methods
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-	if (self.from)
-	{
-		return NSLocalizedString(@"Uncertain starting location - select a choice from below:", @"section header");
-	}
-	return NSLocalizedString(@"Uncertain destination - select a choice from below:", @"section header");
+    if (self.from)
+    {
+        return NSLocalizedString(@"Uncertain starting location - select a choice from below:", @"section header");
+    }
+    return NSLocalizedString(@"Uncertain destination - select a choice from below:", @"section header");
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -179,30 +173,26 @@ static int depthCount = 0;
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    static NSString *CellIdentifier = @"TripLocation";
+    UITableViewCell *cell = [self tableView:tableView cellWithReuseIdentifier:@"TripLocation"];
     
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-    if (cell == nil) {
-        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
-    }
+    TripLegEndPoint *p = self.locList[indexPath.row];
     
-	TripLegEndPoint *p = self.locList[indexPath.row];
-	
     cell.textLabel.text = p.xdescription;
-	cell.textLabel.font = self.basicFont;
-	cell.textLabel.adjustsFontSizeToFitWidth = true;
-	cell.accessibilityLabel = p.xdescription;
+    cell.textLabel.font = self.basicFont;
+    cell.textLabel.adjustsFontSizeToFitWidth = true;
+    cell.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
+    cell.accessibilityLabel = p.xdescription.phonetic;
 
     return cell;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     // Navigation logic may go here. Create and push another view controller.
-	// AnotherViewController *anotherViewController = [[AnotherViewController alloc] initWithNibName:@"AnotherView" bundle:nil];
-	// [self.navigationController pushViewController:anotherViewController];
-	// [anotherViewController release];
-	
-	[self chosenEndpoint:self.locList[indexPath.row]];
+    // AnotherViewController *anotherViewController = [[AnotherViewController alloc] initWithNibName:@"AnotherView" bundle:nil];
+    // [self.navigationController pushViewController:anotherViewController];
+    // [anotherViewController release];
+    
+    [self chosenEndpoint:self.locList[indexPath.row]];
 
 }
 

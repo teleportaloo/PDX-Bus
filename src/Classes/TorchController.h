@@ -19,15 +19,12 @@
 
 
 @interface TorchController : NSObject
-{
- 
-}
-
-+ (bool)supported;
 
 - (instancetype)init;
 - (void)on;
 - (void)off;
 - (void)toggle;
+
++ (bool)supported;
 
 @end

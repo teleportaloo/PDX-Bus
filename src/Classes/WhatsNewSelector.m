@@ -38,7 +38,11 @@
     
     if ([parent respondsToSelector:action])
     {
-        [parent performSelector:action];
+        IMP imp = [parent methodForSelector:action];
+        void (*func)(id, SEL) = (void *)imp;
+        func(parent, action);
+        
+        // [parent performSelector:action];
     }
 }
 

@@ -17,31 +17,27 @@
 
 #define kRefreshText        NSLocalizedString(@"Refresh", @"Refresh arrivals button")
 
-@interface TableViewControllerWithRefresh : PullRefreshTableViewController
-{
-    
-    NSTimer *			_refreshTimer;
-    NSDate *			_lastRefresh;
-    bool                _timerPaused;
-    UIBarButtonItem *	_refreshButton;
-    UILabel *           _refreshText;
+#define kRefreshButton  0x01
+#define kRefreshTimer   0x02
+#define kRefreshPull    0x04
+#define kRefreshShake   0x08
+#define kRefreshAll     (kRefreshButton | kRefreshTimer | kRefreshPull | kRefreshShake)
+#define kRefreshNoTimer (kRefreshButton | kRefreshPull | kRefreshShake)
 
+@interface TableViewControllerWithRefresh<FilteredItemType>  : PullRefreshTableViewController<FilteredItemType> 
+{
+    bool                _timerPaused;
 }
 
-@property (nonatomic, retain) NSTimer *             refreshTimer;
-@property (nonatomic, retain) NSDate *              lastRefresh;
-@property (nonatomic, retain) UIBarButtonItem *     refreshButton;
-@property (nonatomic, retain) UILabel *             refreshText;
-
-
+@property (nonatomic, strong) NSTimer *             refreshTimer;
+@property (nonatomic, strong) NSDate *              lastRefresh;
+@property (nonatomic, strong) UIBarButtonItem *     refreshButton;
+@property (nonatomic)         NSInteger             refreshFlags;
 
 - (void)stopTimer;
 - (void)startTimer;
 - (void)setRefreshButtonText:(NSString*)text;
 - (void)refreshAction:(id)unused;
 - (void)countDownTimer;
-
-
-
 
 @end

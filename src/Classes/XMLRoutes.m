@@ -18,24 +18,17 @@ static NSString *oneRouteURLString = @"routeConfig/route/%@/dir/true";
 
 @implementation XMLRoutes
 
-@synthesize currentRouteObject = _currentRouteObject;
-
-- (void)dealloc
-{
-	self.currentRouteObject = nil;	
-	[super dealloc];
-}
 
 #pragma mark Data fetchers
 
 - (BOOL)getRoutesCacheAction:(CacheAction)cacheAction;
-{	
-	return [self startParsing:routesURLString cacheAction:cacheAction];
+{    
+    return [self startParsing:routesURLString cacheAction:cacheAction];
 }
 
 - (BOOL)getDirections:(NSString *)route cacheAction:(CacheAction)cacheAction
-{	
-	return [self startParsing:[NSString stringWithFormat:oneRouteURLString, route] cacheAction:cacheAction];
+{    
+    return [self startParsing:[NSString stringWithFormat:oneRouteURLString, route] cacheAction:cacheAction];
 }
 
 #pragma mark Parser callbacks
@@ -47,28 +40,28 @@ static NSString *oneRouteURLString = @"routeConfig/route/%@/dir/true";
 
 #pragma mark Start Elements
 
-START_ELEMENT(resultset)
+XML_START_ELEMENT(resultset)
 {
-    [self initArray];
+    [self initItems];
     _hasData = YES;
 }
 
-START_ELEMENT(route)
+XML_START_ELEMENT(route)
 {
     self.currentRouteObject = [Route data];
     
-    self.currentRouteObject.route = ATRVAL(route);
-    self.currentRouteObject.desc =  ATRVAL(desc);
+    self.currentRouteObject.route = ATRSTR(route);
+    self.currentRouteObject.desc =  ATRSTR(desc);
 }
 
-START_ELEMENT(dir)
+XML_START_ELEMENT(dir)
 {
-    self.currentRouteObject.directions[ATRVAL(dir)] = ATRVAL(desc);
+    self.currentRouteObject.directions[ATRSTR(dir)] = ATRSTR(desc);
 }
 
 #pragma mark End Elements
 
-END_ELEMENT(route)
+XML_END_ELEMENT(route)
 {
     [self addItem:self.currentRouteObject];
     self.currentRouteObject = nil;

@@ -13,50 +13,46 @@
 
 
 #import <Foundation/Foundation.h>
-#import "BackgroundTaskProgress.h"
+#import "BackgroundTaskController.h"
 #import "ProgressModalView.h"
 
 @protocol BackgroundTaskDone <NSObject>
 
-- (void)BackgroundTaskDone:(UIViewController*)viewController cancelled:(bool)cancelled;
-@property (nonatomic, readonly) UIInterfaceOrientation BackgroundTaskOrientation;
+@property (nonatomic, readonly) UIInterfaceOrientation backgroundTaskOrientation;
+
+- (void)backgroundTaskDone:(UIViewController*)viewController cancelled:(bool)cancelled;
 
 @optional
 
-- (void)backgroundTaskStarted;
 @property (nonatomic, readonly) bool backgroundTaskWait;
+
+- (void)backgroundTaskStarted;
 
 @end
 
 
-@interface BackgroundTaskContainer : NSObject  <BackgroundTaskProgress,ProgressDelegate> {
-	ProgressModalView *			_progressModal;
-	id<BackgroundTaskDone>		_callbackComplete;
-	id<BackgroundTaskProgress>	_callbackWhenFetching;
-	NSString *					_title;
-    NSString *                  _help;
-    NSString *                  _errMsg;
-    UIViewController *          _controllerToPop;
-    
-}
+@interface BackgroundTaskContainer : NSObject  <BackgroundTaskController,ProgressDelegate>
+
+@property (atomic, strong)      NSString *                 title;
+@property (strong)              ProgressModalView *        progressModal;     // atomic for thread safety
+@property (atomic, weak)        id<BackgroundTaskDone>     callbackComplete;  // weak
+@property (atomic, strong)      NSString *                 errMsg;
+@property (atomic, strong)      UIViewController *         controllerToPop;
+@property (atomic, strong)      NSString *                 help;
+@property (atomic, strong)      NSThread *                 backgroundThread;
+@property (nonatomic, readonly) bool                       taskCancelled;
+@property (nonatomic, readonly) bool                       running;
+@property (atomic)              bool                       debugMessages;
+
+- (void)taskStartWithItems:(NSInteger)items title:(NSString *)title;
+- (void)taskItemsDone:(NSInteger)itemsDone;
+- (void)taskCompleted:(UIViewController*)viewController;
+- (void)taskSetErrorMsg:(NSString *)errMsg;
+- (void)taskSetHelpText:(NSString*)helpText;
+- (void)taskCancel;
+- (void)taskRunAsync:(UIViewController * (^)(void)) block;
+
 
 + (BackgroundTaskContainer*) create:(id<BackgroundTaskDone>) done;
-- (void)backgroundStart:(int)items title:(NSString *)title;
-- (void)backgroundItemsDone:(int)itemsDone;
-- (void)backgroundCompleted:(UIViewController*)viewController;
-- (void)backgroundSetErrorMsg:(NSString *)errMsg;
-- (void)BackgroundSetHelpText:(NSString*)helpText;
-- (void)cancel;
-- (bool)running;
-
-@property (nonatomic, retain)	NSString *					title;
-@property (retain)				ProgressModalView *			progressModal;     // atomic for thread safety
-@property (   atomic, assign)	id<BackgroundTaskDone>		callbackComplete;  // weak
-@property (nonatomic, retain)	id<BackgroundTaskProgress>	callbackWhenFetching;
-//@property (atomic, readonly)	NSThread *					backgroundThread;
-@property (nonatomic, retain)   NSString *                  errMsg;
-@property (nonatomic, retain)   UIViewController *          controllerToPop;
-@property (nonatomic, retain)   NSString *                  help;
-
 
 @end

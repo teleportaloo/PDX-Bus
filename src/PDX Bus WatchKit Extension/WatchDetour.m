@@ -14,13 +14,20 @@
 
 
 #import "WatchDetour.h"
+#import "XMLDepartures.h"
 
 @implementation WatchDetour
 
-- (void)dealloc
+
++ (NSString*)identifier
 {
-    self.detourText = nil;
-    [super dealloc];
+    return @"Detour";
 }
 
+- (void)populate:(XMLDepartures *)xml departures:(NSArray<DepartureData*>*)deps
+{
+    Detour *det = deps.firstObject.allDetours[self.index];
+    self.label.text = det.detourDesc;
+}
+    
 @end

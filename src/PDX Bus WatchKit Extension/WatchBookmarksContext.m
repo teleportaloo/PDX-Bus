@@ -19,18 +19,10 @@
 @implementation WatchBookmarksContext
 
 
-- (void)dealloc
-{
-    self.title = nil;
-    self.singleBookmark = nil;
-    self.location = nil;
-    
-    [super dealloc];
-}
 
 + (WatchBookmarksContext *)contextWithBookmark:(NSArray *)bookmark title:(NSString *)title locationString:(NSString *)location
 {
-    WatchBookmarksContext *result = [[[WatchBookmarksContext alloc] init] autorelease];
+    WatchBookmarksContext *result = [[WatchBookmarksContext alloc] init];
     result.singleBookmark = bookmark;
     result.title = title;
     result.location = location;
@@ -40,7 +32,7 @@
 
 + (WatchBookmarksContext *)contextForRecents
 {
-    WatchBookmarksContext *result = [[[WatchBookmarksContext alloc] init] autorelease];
+    WatchBookmarksContext *result = [[WatchBookmarksContext alloc] init];
     
     result.recents = YES;
     return result;

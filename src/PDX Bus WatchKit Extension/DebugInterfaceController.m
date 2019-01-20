@@ -6,6 +6,13 @@
 //  Copyright © 2016 Teleportaloo. All rights reserved.
 //
 
+
+
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+
 #import "DebugInterfaceController.h"
 #import "UserFaves.h"
 #import "DebugLogging.h"
@@ -16,11 +23,6 @@
 
 @implementation DebugInterfaceController
 
-- (void)dealloc
-{
-    self.CommuterStatus = nil;
-    [super dealloc];
-}
 
 
 - (void)reloadData

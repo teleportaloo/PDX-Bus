@@ -16,7 +16,7 @@
 #import "TriMetXML.h"
 
 
-@interface NextBusXML<ObjectType> : TriMetXML<ObjectType> {
+@interface NextBusXML<ItemType> : TriMetXML<ItemType> {
 
 }
 

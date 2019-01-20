@@ -15,13 +15,9 @@
 @protocol EditableTableViewCellDelegate;
 
 @interface EditableTableViewCell : UITableViewCell
-{
-    id <EditableTableViewCellDelegate>  _delegate;
-    BOOL                                _isInlineEditing;
-}
 
 // Exposes the delegate property to other objects.
-@property (nonatomic, assign) id <EditableTableViewCellDelegate> delegate;
+@property (nonatomic, weak) id <EditableTableViewCellDelegate> delegate;
 @property (nonatomic, assign) BOOL isInlineEditing;
 
 // Informs the cell to stop editing, resulting in keyboard/pickers/etc. being ordered out 

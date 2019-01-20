@@ -19,8 +19,6 @@
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
-	<key>CFBundleIconFile</key>
-	<string>v2AppIcon57x57.png</string>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -30,7 +28,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>10.0</string>
+	<string>11.1</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -47,7 +45,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>10.0.3</string>
+	<string>29</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>comgooglemaps</string>
@@ -63,6 +61,8 @@
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<false/>
 	<key>MKDirectionsApplicationSupportedModes</key>
 	<array>
 		<string>MKDirectionsModeBus</string>
@@ -96,22 +96,30 @@
 			</dict>
 		</dict>
 	</dict>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Needed only for location alarms that trigger when you are near to a stop.</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>The app will add trip details to your calendar.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>The app only uses the camera while scanning QR codes.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>User can select a contact's address to plan a trip, and for placing a trip on a calendar.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Needed for locating stops, vehicles. Also used for location alarms that trigger when you are near to a stop.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Needed for locating stops and vehicles.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Needed only for location alarms that trigger when you are near to a stop.</string>
 	<key>NSLocationUsageDescription</key>
 	<string>Needed for locating stops and vehicles.</string>
-	<key>NSContactsUsageDescription</key>
-	<string>User can select a contact&apos;s address to plan a trip, and for placing a trip on a calendar.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Needed for locating stops and vehicles.</string>
 	<key>NSMainNibFile</key>
 	<string>MainWindow</string>
 	<key>NSMainNibFile~ipad</key>
 	<string>MainWindow-iPad</string>
+	<key>NSSiriUsageDescription</key>
+	<string>Stop information will be sent to Siri.</string>
 	<key>NSUserActivityTypes</key>
 	<array>
+		<string>ArrivalsIntent</string>
+		<string>LocateIntent</string>
 		<string>org.teleportaloo.pdxbus.bookmark</string>
 	</array>
 	<key>UIBackgroundModes</key>
@@ -142,9 +150,5 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
-	<key>NSCalendarsUsageDescription</key>
-	<string>The app will add trip details to your calendar.</string>
-	<key>NSCameraUsageDescription</key>
-	<string>The app only uses the camera while scanning QR codes.</string>
 </dict>
 </plist>

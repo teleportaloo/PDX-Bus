@@ -17,16 +17,11 @@
 
 @implementation WatchArrivalsContextNearby
 
-- (void)dealloc
-{
-    self.stops = nil;
-    [super dealloc];
-}
 
 + (WatchArrivalsContextNearby*)contextFromNearbyStops:(XMLLocateStops *)stops index:(NSInteger)index;
 {
     {
-        WatchArrivalsContextNearby *context = [[[WatchArrivalsContextNearby alloc] init] autorelease];
+        WatchArrivalsContextNearby *context = [[WatchArrivalsContextNearby alloc] init];
         
         StopDistanceData *item = stops[index];
         
@@ -35,7 +30,7 @@
         context.showDistance     = YES;
         context.stops            = stops;
         context.index            = index;
-        context.navText          = @"Next nearest";
+        context.navText          = @"Next nearest swipe ←";
         context.distance         = item.distance;
        
         return context;
@@ -56,7 +51,7 @@
     return self.index < (self.stops.count-1);
 }
 
-- (WatchArrivalsContext *)getNext
+- (WatchArrivalsContext *)next
 {
     WatchArrivalsContext *next = nil;
     if (self.hasNext)

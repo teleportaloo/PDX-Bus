@@ -17,21 +17,13 @@
 @class RootViewController;
 @class DepartureData;
 
-@interface TriMetTimesAppDelegate : NSObject <UIApplicationDelegate> {	
-	IBOutlet UIWindow *window;
-	IBOutlet UINavigationController *navigationController;
-    IBOutlet RootViewController *rootViewController;
-    
-	NSString *_pathToCleanExit;
-	bool     _cleanExitLastTime;
-}
+@interface TriMetTimesAppDelegate : NSObject <UIApplicationDelegate> 
 
 @property (nonatomic) bool cleanExitLastTime;
-
 @property (nonatomic, copy)   NSString *pathToCleanExit;
-@property (nonatomic, retain) UIWindow *window;
-@property (nonatomic, retain) IBOutlet UINavigationController *navigationController;
-@property (nonatomic, retain) RootViewController *rootViewController;
+@property (nonatomic, strong) UIWindow *window;
+@property (nonatomic, strong) IBOutlet UINavigationController *navigationController;
+@property (nonatomic, strong) RootViewController *rootViewController;
 
 
 @end

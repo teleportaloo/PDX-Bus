@@ -66,7 +66,7 @@ Links
 
 Things to know before building
 ------------------------------
-* PDX Bus is built with iPhone SDK 11.0 and Xcode 9.1 - available free
+* PDX Bus is built with iPhone SDK 12.0 and Xcode 10.1 - available free
 from [Apple](http://developer.apple.com) in their Mac App store.
 * Before building this code you will need to register with TriMet 
 to get a free "AppID" from [TriMet](http://developer.trimet.org/registration/),
@@ -183,6 +183,65 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Change log
 ----------
+### Version 11.1 (January 2019)
+* Added Siri extensions
+* Added Add to Siri buttons
+* Reworked background task to fully utilize blocks and simplified
+* Separated core iOS code into a library - to shorten build times
+* Renamed extensions to be all consistent
+* Now displays day of week or time for arrivals that are far in the future.
+* Updated watch icons for Apple Watch 4
+* Updated cache code - there was an endless loop if the cache has more than one item to evict.
+* Added launch complictions to watch.
+* Added new screen to cache recently used vehicle IDs.  Refactored history code to use a common base class.
+* Changed Refreshing countdown text to use verdana and simplifiied to use built in classes without animation and attributed text.
+* All labels where the font can be resised now align baseline centers.
+* Rebuilt with Xcode 10.1
+
+
+### Version 11.0.2 (October 2018)
+* Reworked threading code for nasty deadlock.
+
+### Version 11.0.1 (October 2018)
+* Fixed verion 11.0 issues with caching
+* Intents are optional
+
+### Version 11.0 (September 2018)
+* Uses arrivals V2, including vehicle ID, reason for delay, loading and drop off only.
+* Fetches 2nd vehicle ID for max trains if only one is found
+* Late color changed to magenta.
+* Fixed detours embedded in arrivals to use data in feed.
+* Uses regular expressions on some text to create better sounding accessibility text.
+* Fixed search screens to only display search results and have no gaps
+* Added auto versioning - agvtool next-version -all
+* Refactored cell creation
+* Generalized search features and added seatch to detours, rececent stops and recent trips.
+* Removed unused icons and refactored icons to only use iOS7 versions.
+* Improved UI of commuter bookmark on watch.
+* Added system wide alerts.  Refactored detours.
+* Added support for test data - the app can be built to ignroe the real URLs and fetch data from github if required.  URLs are read from TestData.plist for different queries.
+* Added multiple stop queries.  If multiple stops are being fetched it can batch them in groups of 10 in a single query.
+* Reworked watch arrivals and detours.
+* Added code to ge the streetcar messages.
+* Can read the KML routes from TriMet's site and caches the routes to be displayed on many maps.
+* KML routes only read if on WiFi - optional, but YES by default.
+* Removed unneeded members when they were properties. (Modernized Objectiive-C)
+* Refactored threading to syncronize on the background thread so moved additional checks and replaced with assertions.
+* Added ability to find a vehicle by ID (debug only))
+* Added special off route text when vehicle is late but re-routed.
+* Added basic support for Siri shortcuts
+* Rebuilt with Xcode 10.
+
+### Version 10.1 (January 2018)
+* Trip planner:  All vehicles in a trip can be tagged withe the same color
+* Tags controller:  tags are sorted by time.
+* Fixed calendar events and used blocks for alerts.
+* Fixed issue with alarm notifications not sounding - they were being deleted.
+* Alarms now go direct to detail screen for alerts and from the home page.
+* Added brown color for late vehicles
+* Refactored dates to use NSDate immediately.
+* Updated to use new icons from Rob Alan.
+
 ### Version 10.0 (October 2017)
 * Fixed calendar time - typo from "data" back to "date" :-(
 * Fixed trip itineraries that are only walking - they have no date, if I use the trip date it's in a different format.
@@ -214,6 +273,7 @@ Change log
 
 ### Version 9.1 (January 2017)
 * Fixed bookmarks so first stop is not duplicated when editing.
+* Fixed black space around icons and updated all icons to be the latest ones.
 
 ### Version 9.0 (December 2016)
 * Watch app updated to WatchOS 2 (native app)

@@ -22,16 +22,6 @@
 
 @implementation ReverseGeoLocator
 
-@synthesize waitingForGeocoder = _waitingForGeocoder;
-@synthesize result             = _result;
-
-- (void)dealloc
-{
-    self.result = nil;
-    self.error  = nil;
-    
-    [super dealloc];
-}
 
 + (bool) supported
 {
@@ -50,7 +40,7 @@
     {
         // NSDictionary *dict = mapItem.placemark.addressDictionary;
         
-        CFDictionaryRef dict =  (CFDictionaryRef)placemark.addressDictionary;
+        CFDictionaryRef dict =  (__bridge CFDictionaryRef)placemark.addressDictionary;
         
         NSString* item =  (NSString *)CFDictionaryGetValue(dict, kABPersonAddressStreetKey);
         
@@ -93,7 +83,7 @@
 
 - (NSString *)fetchAddress:(CLLocation*)loc
 {
-    CLGeocoder *geocoder = [[[CLGeocoder alloc] init] autorelease];
+    CLGeocoder *geocoder = [[CLGeocoder alloc] init];
     
     self.waitingForGeocoder = true;
     

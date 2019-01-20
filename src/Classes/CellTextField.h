@@ -17,10 +17,9 @@
 @interface CellTextField : EditableTableViewCell <UITextFieldDelegate>
 {
     UITextField *   _view;
-	CGFloat         _cellLeftOffset;
 }
 
-@property (nonatomic, retain) UITextField *view;
+@property (nonatomic, strong) UITextField *view;
 @property CGFloat cellLeftOffset;
 
 +(CGFloat)cellHeight;

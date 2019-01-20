@@ -20,19 +20,15 @@
 
 
 
--(void)dealloc
-{
-    [super dealloc];
-}
 + (void)showLocationAlert:(NSString *)reason
 {
     if  ([UIDevice currentDevice].systemVersion.floatValue >= 8.0)
     {
-        LocationAuthorization *alert = [[[ LocationAuthorization alloc ] initWithTitle:NSLocalizedString(@"Location Authorization Needed",@"alarm pop-up title")
+        LocationAuthorization *alert = [[ LocationAuthorization alloc ] initWithTitle:NSLocalizedString(@"Location Authorization Needed",@"alarm pop-up title")
                                                                                message:[NSString stringWithFormat:NSLocalizedString(@"%@. Go to the settings app and select PDX Bus to re-enable location services.", @"alarm warning"), reason]
                                                                               delegate:nil
                                                                      cancelButtonTitle:NSLocalizedString(@"OK",@"OK button")
-                                                                     otherButtonTitles:@"Go to settings", nil] autorelease];
+                                                                     otherButtonTitles:@"Go to settings", nil];
         
         alert.delegate = alert;
         [alert show];
@@ -42,11 +38,11 @@
     else
     {
         
-        UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"Location Authorization Needed",@"alarm pop-up title")
+        UIAlertView *alert = [[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"Location Authorization Needed",@"alarm pop-up title")
                                                            message:[NSString stringWithFormat:NSLocalizedString(@"%@. Go to the settings app and select PDX Bus to re-enable location services.", @"alarm warning"), reason]
                                                           delegate:nil
                                                  cancelButtonTitle:NSLocalizedString(@"OK",@"OK button")
-                                                 otherButtonTitles:nil] autorelease];
+                                                 otherButtonTitles:nil];
         [alert show];
     }
 }

@@ -16,17 +16,15 @@
 
 
 
-@interface TapDetectingImageView : TilingView {
-	
-    id <TapDetectingImageViewDelegate> _delegate;
-    
+@interface TapDetectingImageView : TilingView
+{    
     // Touch detection
     CGPoint     _tapLocation;            // Needed to record location of single tap, which will only be registered after delayed perform.
     BOOL        _multipleTouches;        // YES if a touch event contains more than one touch; reset when all fingers are lifted.
     BOOL        _twoFingerTapIsPossible; // Set to NO when 2-finger tap can be ruled out (e.g. 3rd finger down, fingers touch down too far apart, etc).
 }
 
-@property (nonatomic, assign) id <TapDetectingImageViewDelegate> delegate;
+@property (nonatomic, weak) id <TapDetectingImageViewDelegate> delegate;
 
 - (instancetype)initWithImageName:(NSString *)image size:(CGSize)size;
 

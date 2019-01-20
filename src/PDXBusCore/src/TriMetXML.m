@@ -1,3 +1,4 @@
+
 //
 //  TriMetXML.m
 //  TriMetTimes
@@ -19,6 +20,7 @@
 #include "QueryCacheManager.h"
 #include "UserPrefs.h"
 #include "StopNameCacheManager.h"
+#include "TriMetAppId.h"
 
 #define kShortTermCacheAge  (20 * 60) // 15 mins
 
@@ -48,6 +50,48 @@
     return result;
 }
 
+- (NSString *)nullOrSafeValueForKey:(NSString *)key
+{
+    NSString *val = [self objectForCaseInsensitiveKey:key];
+    
+    if (val == nil || ![val isKindOfClass:[NSString class]])
+    {
+        val = nil;
+    }
+    
+    if (val.length == 0)
+    {
+        return nil;
+    }
+    
+    return val;
+}
+
+
+- (NSNumber *)nullOrSafeNumForKey:(NSString *)key
+{
+    NSString *val = [self objectForCaseInsensitiveKey:key];
+    
+    if (val == nil || ![val isKindOfClass:[NSString class]])
+    {
+        val = nil;
+    }
+    
+    return @(val.integerValue);
+}
+
+- (NSInteger)zeroOrSafeIntForKey:(NSString *)key
+{
+    NSString *val = [self objectForCaseInsensitiveKey:key];
+    
+    if (val == nil || ![val isKindOfClass:[NSString class]])
+    {
+        return 0;
+    }
+    
+    return [val integerValue];
+}
+
 
 - (NSString *)safeValueForKey:(NSString *)key
 {
@@ -65,6 +109,18 @@
 {
     NSString * val = [self safeValueForKey:key];
     return (TriMetTime)val.longLongValue;
+}
+
+- (NSDate *)getDateForKey:(NSString *)key
+{
+    NSString * val = [self objectForCaseInsensitiveKey:key];
+    
+    if (val == nil || val.length == 0 || val.integerValue ==0)
+    {
+        return nil;
+    }
+    
+    return TriMetToNSDate((TriMetTime)val.longLongValue);
 }
 
 - (NSInteger)getNSIntegerForKey:(NSString *)key
@@ -95,18 +151,6 @@
 
 @implementation TriMetXML
 
-@synthesize contentOfCurrentProperty = _contentOfCurrentProperty;
-@synthesize itemArray = _itemArray;
-@synthesize htmlError = _htmlError;
-@synthesize cacheTime = _cacheTime;
-@synthesize itemFromCache = _itemFromCache;
-@synthesize fullQuery = _fullQuery;
-@synthesize oneTimeDelegate = oneTimeDelegate;
-@synthesize startSelectors = _startSelectors;
-@synthesize endSelectors = _endSelectors;
-
-
-
 #pragma mark Cache
 
 static QueryCacheManager *routeCache = nil;
@@ -116,19 +160,20 @@ static StopNameCacheManager *stopNameCache = nil;
 
 + (instancetype)xml
 {
-    return [[[[self class] alloc] init] autorelease];
+    return [[[self class] alloc] init];
 }
 
 + (void)initCaches
 {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        routeCache = [[QueryCacheManager alloc] initWithFileName:@"queryCache.plist"];
+        routeCache = [QueryCacheManager cacheWithFileName:@"queryCache.plist"];
+        routeCache.maxSize = 25;
         
-        shortTermCache = [[QueryCacheManager alloc] initWithFileName:@"shortTermCache.plist"];
+        shortTermCache = [QueryCacheManager cacheWithFileName:@"shortTermCache.plist"];
         shortTermCache.maxSize = [UserPrefs sharedInstance].maxRecentStops;
         
-        stopNameCache = [[StopNameCacheManager alloc] init];
+        stopNameCache = [StopNameCacheManager cache];
     
     });
 }
@@ -151,17 +196,6 @@ static StopNameCacheManager *stopNameCache = nil;
 }
 
 
-- (void)dealloc {
-	self.contentOfCurrentProperty = nil;
-	self.itemArray = nil;
-	self.htmlError = nil;
-	self.cacheTime = nil;
-    self.oneTimeDelegate = nil;
-    self.fullQuery   = nil;
-    self.startSelectors = nil;
-    self.endSelectors = nil;
-	[super dealloc];
-}
 
 #ifdef PDXBUS_WATCH
 - (id)init
@@ -169,9 +203,78 @@ static StopNameCacheManager *stopNameCache = nil;
     if (self = [super init])
     {
         self.giveUp = 30.0;
+        [self setTestData];
     }
     
     return self;
+}
+#else
+
+- (id)init
+{
+    if (self = [super init])
+    {
+        [self setTestData];
+    }
+    
+    return self;
+}
+
+#endif
+
+#if defined XML_TEST_DATA
+
+static NSMutableDictionary<NSString*, NSNumber*> *testDataIndex = nil;
+
+- (void)setTestData
+{
+    NSString *name = NSStringFromClass([self class]);
+    static NSDictionary *testData = nil;
+    
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSDictionary *allTestData = [[NSDictionary alloc] initWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"TestData" ofType:@"plist"]];
+        testData = allTestData[@XML_TEST_DATA];
+        testDataIndex = [NSMutableDictionary dictionary];
+    });
+    self.testURLs = testData[name];
+    
+    if (testDataIndex[name]==nil)
+    {
+        testDataIndex[name] = @(0);
+    }
+    
+    DEBUG_LOGS(name);
+    DEBUG_LOGO(self.testURLs);
+}
+
+- (NSString *)nextTestUrl:(NSString *)str
+{
+    if (self.testURLs != nil)
+    {
+        NSString *name = NSStringFromClass([self class]);
+        NSNumber *next = testDataIndex[name];
+        if (next.intValue < self.testURLs.count)
+        {
+            str = self.testURLs[next.intValue];
+        }
+        next = @((next.intValue+1) % self.testURLs.count);
+        testDataIndex[name] = next;
+        DEBUG_LOGS(str);
+    }
+    
+    return str;
+}
+
+#else
+- (void)setTestData
+{
+
+}
+
+- (NSString *)nextTestUrl:(NSString *)str
+{
+    return str;
 }
 #endif
 
@@ -182,22 +285,22 @@ static StopNameCacheManager *stopNameCache = nil;
 {
 #ifndef PDXBUS_WATCH
     static BOOL checkNetwork = YES;
-	static BOOL isDataSourceAvailable = NO;
+    static BOOL isDataSourceAvailable = NO;
     
 
-	// if (checkNetwork || forceCheck) { // Since checking the reachability of a host can be expensive, cache the result and perform the reachability check once.
+    // if (checkNetwork || forceCheck) { // Since checking the reachability of a host can be expensive, cache the result and perform the reachability check once.
     if (forceCheck)
-	{
+    {
         Boolean success;    
         const char *host_name = "developer.trimet.org";
-		
+        
         SCNetworkReachabilityRef reachability = SCNetworkReachabilityCreateWithName(NULL, host_name);
         SCNetworkReachabilityFlags flags;
         success = SCNetworkReachabilityGetFlags(reachability, &flags);
         isDataSourceAvailable = success && (flags & kSCNetworkFlagsReachable) && !(flags & kSCNetworkFlagsConnectionRequired);
         CFRelease(reachability);
-		checkNetwork = !isDataSourceAvailable;
-		return isDataSourceAvailable;
+        checkNetwork = !isDataSourceAvailable;
+        return isDataSourceAvailable;
     }
 #endif
     return YES;
@@ -205,7 +308,7 @@ static StopNameCacheManager *stopNameCache = nil;
 
 - (bool)gotData
 {
-	return _hasData;
+    return _hasData;
 }
 
 #pragma mark Item array
@@ -213,383 +316,389 @@ static StopNameCacheManager *stopNameCache = nil;
 
 - (id)objectAtIndexedSubscript:(NSInteger)index
 {
-	if (self.itemArray != nil)
-	{
-		return self.itemArray[index];
-	}
-	return nil;
+    if (self.items != nil)
+    {
+        return self.items[index];
+    }
+    return nil;
 }
 
 - (void)addItem:(id)item
 {
-	[self.itemArray addObject:item];
+    [self.items addObject:item];
 }
 
-- (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id [])buffer count:(NSUInteger)len
+- (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id __unsafe_unretained _Nullable [_Nonnull])buffer count:(NSUInteger)len
 {
-    return [self.itemArray countByEnumeratingWithState:state objects:buffer count:len];
+    return [self.items countByEnumeratingWithState:state objects:buffer count:len];
 }
 
-- (void)clearArray
+- (void)clearItems
 {
-	self.itemArray = nil;
+    self.items = nil;
 }
 
-- (void)initArray
+- (void)initItems
 {
-    self.itemArray = [NSMutableArray array];
+    self.items = [NSMutableArray array];
 }
 
 
 - (NSInteger)count
 {
-	if (_itemArray !=nil)
-	{
-		return _itemArray.count;
-	}
-	return 0;
+    if (_items !=nil)
+    {
+        return _items.count;
+    }
+    return 0;
 }
 
 #pragma mark Attribute Dictionary helpers
 
 - (NSString *)displayTriMetDate:(TriMetTime)time
 {
-	return [self displayDate:TriMetToNSDate(time)];
+    return [self displayDate:TriMetToNSDate(time)];
 }
 
 - (NSString *)displayDate:(NSDate *)queryTime
 {
-	return [NSString stringWithFormat:NSLocalizedString(@"Updated: %@", @"updated time"),
-			[NSDateFormatter localizedStringFromDate:queryTime dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterMediumStyle]];
+    return [NSString stringWithFormat:NSLocalizedString(@"Updated: %@", @"updated time"),
+            [NSDateFormatter localizedStringFromDate:queryTime dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterMediumStyle]];
 }
 
+// 25 character TriMet app ID is stored at rest in an encoded way to make it hard to find
+// These macros encode it in a static way using the compiler to encode it and a small
+// amount of code to decode it.
+#define ENC(A,B,J)      (((A)^((B))) | (0x##J << 4))  // EOR with previous digit and add some junk fo the top digit
+#define SEED            0xA
+#define DE_ENC(E,B)     (((E) & 0xF)^((B)))
+#define APP_ID_SIZE     (25)
 
+#define ENCODED_APPID(L01,L02,L03,L04,L05,L06,L07,L08,L09,L10,L11,L12,L13,L14,L15,L16,L17,L18,L19,L20,L21,L22,L23,L24,L25) \
+             {  (ENC(0x##L01,SEED   ,2)),(ENC(0x##L02,0x##L01,4)),(ENC(0x##L03,0x##L02,3)),(ENC(0x##L04,0x##L03,F)),(ENC(0x##L05,0x##L04,6)),  \
+                (ENC(0x##L06,0x##L05,A)),(ENC(0x##L07,0x##L06,8)),(ENC(0x##L08,0x##L07,8)),(ENC(0x##L09,0x##L08,8)),(ENC(0x##L10,0x##L09,5)),  \
+                (ENC(0x##L11,0x##L10,A)),(ENC(0x##L12,0x##L11,3)),(ENC(0x##L13,0x##L12,0)),(ENC(0x##L14,0x##L13,8)),(ENC(0x##L15,0x##L14,D)),  \
+                (ENC(0x##L16,0x##L15,3)),(ENC(0x##L17,0x##L16,1)),(ENC(0x##L18,0x##L17,3)),(ENC(0x##L19,0x##L18,1)),(ENC(0x##L20,0x##L19,9)),  \
+                (ENC(0x##L21,0x##L20,8)),(ENC(0x##L22,0x##L21,A)),(ENC(0x##L23,0x##L22,2)),(ENC(0x##L24,0x##L23,E)),(ENC(0x##L25,0x##L24,0)) }
+
++ (NSString*)appId
+{
+    static NSMutableString *appId;
+    
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        appId = [NSMutableString string];
+        static char raw[APP_ID_SIZE] = TRIMET_APP_ID;
+        char p = SEED;
+        char c;
+        char *r = raw;
+        for(int i=0; i<APP_ID_SIZE; i++)
+        {
+            c= DE_ENC(*r,p);
+            p = c;
+            [appId appendFormat:@"%c", c > 9 ? c+'A'-10 : c+'0'];
+            r++;
+        }
+    });
+    
+    return appId;
+}
 
 
 #pragma mark Parsing init
 
 - (NSString*)fullAddressForQuery:(NSString *)query
 {
-	NSString *str = nil;
-	
-	if ([query characterAtIndex:query.length-1] == '&')
-	{
-		str = [NSString stringWithFormat:@"https://developer.trimet.org/ws/V1/%@&appID=%@",
-               query, TRIMET_APP_ID];
-	}
-	else
-	{
-		str = [NSString stringWithFormat:@"https://developer.trimet.org/ws/V1/%@/appID/%@",
-               query, TRIMET_APP_ID];
-	}
-	
-	return str;
-	
+    NSString *str = nil;
+    
+    if ([query characterAtIndex:query.length-1] == '&')
+    {
+        str = [NSString stringWithFormat:@"https://developer.trimet.org/ws/V1/%@&appID=%@",
+               query, [TriMetXML appId]];
+    }
+    else
+    {
+        str = [NSString stringWithFormat:@"https://developer.trimet.org/ws/V1/%@/appID/%@",
+               query, [TriMetXML appId]];
+    }
+    
+    return str;
+    
 }
 
 - (BOOL)startParsing:(NSString *)query
 {
-	return [self startParsing:query cacheAction:TriMetXMLNoCaching];
+    return [self startParsing:query cacheAction:TriMetXMLNoCaching];
 }
 
 - (BOOL)startParsing:(NSString *)query cacheAction:(CacheAction)cacheAction
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    NSError *parseError = nil;
-	int tries = 2;
-	BOOL succeeded = NO;
-    self.itemFromCache = NO;
-	int days = [UserPrefs sharedInstance].routeCacheDays;
-	
-	_hasData = NO;
-	[self clearArray];
-	
-	NSString *str = [self fullAddressForQuery:query];
-    NSString *cacheKey = [QueryCacheManager getCacheKey:str];
-    
-    [TriMetXML initCaches];
-	
-	DEBUG_LOG(@"Query: %@\n", str);
-    
-    if (([UserPrefs sharedInstance].debugXML))
-    {
-        self.fullQuery = str;
-    }
-	
-	if (cacheAction == TriMetXMLCheckCache)
-	{
-		tries = 1;
-	}
-	
-	while(!_hasData && tries > 0 && ![NSThread currentThread].isCancelled)
-	{
-	
-		if ([TriMetXML isDataSourceAvailable:NO] == YES && ![NSThread currentThread].isCancelled) 
-		{
-			self.rawData = nil;
-			if (cacheAction != TriMetXMLNoCaching && cacheAction != TriMetXMLUseShortTermCache)
-			{
-				
-                NSArray *cachedArray = [routeCache getCachedQuery:cacheKey];
-				
-				if (cachedArray != nil)
-				{
-					NSDate *itemDate = cachedArray[kCacheDateAndTime];
-					NSCalendar *cal = [NSCalendar currentCalendar];
-					int units = NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitWeekOfYear;
-
-					NSDateComponents *itemDateComponents = [cal components:units fromDate:itemDate];
-					NSDateComponents *nowDateComponents =  [cal components:units fromDate:[NSDate date]];
+    @autoreleasepool {
+        NSError *parseError = nil;
+        int tries = 2;
+        BOOL succeeded = NO;
+        self.itemFromCache = NO;
+        
+        _hasData = NO;
+        [self clearItems];
+        
+        NSString *str = [self fullAddressForQuery:query];
+        NSString *cacheKey = [QueryCacheManager getCacheKey:str];
+        
+        [TriMetXML initCaches];
+        
+        DEBUG_LOG(@"Query: %@\n", str);
+        
+        if (([UserPrefs sharedInstance].debugXML))
+        {
+            self.fullQuery = str;
+        }
+        
+        if (cacheAction == TriMetXMLCheckCache)
+        {
+            tries = 1;
+        }
+        
+        while(!_hasData && tries > 0 && ![NSThread currentThread].isCancelled)
+        {
+            if ([TriMetXML isDataSourceAvailable:NO] == YES && ![NSThread currentThread].isCancelled)
+            {
+                self.rawData = nil;
+                if (cacheAction != TriMetXMLNoCaching && cacheAction != TriMetXMLUseShortTermCache)
+                {
+                    routeCache.ageOutDays = cacheAction == TriMetXMLForceFetchAndUpdateCache ? kAlwaysAgeOut : [UserPrefs sharedInstance].routeCacheDays;
+                    NSArray *cachedArray = [routeCache getCachedQuery:cacheKey];
                     
-#define DEBUG_DATE(X) DEBUG_LOG(@"%@ %ld %ld\n", @#X,(long)itemDateComponents.X,(long)nowDateComponents.X)
+                    if (cachedArray)
+                    {
+                        self.rawData            = cachedArray[kCacheData];
+                        self.itemFromCache      = YES;
+                        self.cacheTime          = cachedArray[kCacheDateAndTime];
+                    }
                     
-                    DEBUG_DATE(year);
-                    DEBUG_DATE(month);
-                    DEBUG_DATE(day);
-                    DEBUG_DATE(weekOfYear);
+                    if (self.rawData == nil && cacheAction!=TriMetXMLCheckCache)
+                    {
+                        self.cacheTime = [NSDate date];
+                        if (self.oneTimeDelegate)
+                        {
+                            [self.oneTimeDelegate TriMetXML:self startedFetchingData:FALSE];
+                        }
+                        
+#if defined XML_TEST_DATA
+                        str = [self nextTestUrl:str];
+#endif
+                        [self fetchDataByPolling:str];
+                        
+                        if (self.oneTimeDelegate)
+                        {
+                            [self.oneTimeDelegate TriMetXML:self finishedFetchingData:FALSE];
+                        }
+                        
+                    }
+                    else
+                    {
+                        if (self.oneTimeDelegate)
+                        {
+                            [self.oneTimeDelegate TriMetXML:self finishedFetchingData:TRUE];
+                        }
+                    }
                     
-					
-					/* This code is just to confirm that weeks change on Sunday! */
-					/*
-					DEBUG_LOG(@"Cached week %d\n", itemDateComponents.week);
-					DEBUG_LOG(@"week now %d\n",    nowDateComponents.week);
-					
-					NSDateComponents *testDateComponents1 = [[[NSDateComponents alloc] init] autorelease];
-					testDateComponents1.day = 12; // Saturday
-					testDateComponents1.month = 6;
-					testDateComponents1.year = 2010;
-					
-					NSDate *testDate1 = [cal dateFromComponents:testDateComponents1];
-					testDateComponents1 = [cal components:NSWeekCalendarUnit fromDate:testDate1];
-					DEBUG_LOG(@"week 1 %d\n",    testDateComponents1.week);
-
-					
-					testDateComponents1 = [[[NSDateComponents alloc] init] autorelease];
-					
-					testDateComponents1.day = 13;    // Sunday
-					testDateComponents1.month = 6;
-					testDateComponents1.year = 2010;
-					
-					testDate1 = [cal dateFromComponents:testDateComponents1];
-					testDateComponents1 = [cal components:NSWeekCalendarUnit fromDate:testDate1];
-					DEBUG_LOG(@"week 2 %d\n",    testDateComponents1.week);
-					*/
-					
-					//
-					// The cache expires at the end of the current calendar day, or at the end
-					// of the current week. Weeks end on Satuday, and the above code proves that
-					// the weeks in the calendar also end on Saturdays.
-					// This conincides with when TriMet updates the routes, which is at 12am Sunday,
-					// or occasionally 12am mid meek.
-					//
+                }
+                else {
+                    self.cacheTime = [NSDate date];
                     
-                    NSInteger itemWeek = itemDateComponents.weekOfYear;
-                    NSInteger nowWeek  = nowDateComponents.weekOfYear;
-					
-					if (
-						(cacheAction != TriMetXMLForceFetchAndUpdateCache)
-						&&
-						 (
-							(days == 1 && (		itemDateComponents.year  == nowDateComponents.year 
-										   &&	itemDateComponents.month == nowDateComponents.month 
-									       &&	itemDateComponents.day   == nowDateComponents.day))
-						 ||
-							(days == 7 && (		itemDateComponents.year  == nowDateComponents.year
-										   &&	itemWeek                 == nowWeek))
-						 ||
-						    (days == 0)
-						 )
-					    )
-					{
-						self.rawData	= cachedArray[kCacheData];
-						self.itemFromCache	= YES;
-						self.cacheTime	= itemDate;
-					}
-					else
-					{
-						[routeCache removeFromCache:cacheKey]; 
-					}
-				}
-				
-				if (self.rawData == nil && cacheAction!=TriMetXMLCheckCache)
-				{
-					self.cacheTime = [NSDate date];
                     if (self.oneTimeDelegate)
                     {
                         [self.oneTimeDelegate TriMetXML:self startedFetchingData:FALSE];
                     }
-					[self fetchDataByPolling:str];
+                    
+#if defined XML_TEST_DATA
+                    str = [self nextTestUrl:str];
+#endif
+                    [self fetchDataByPolling:str];
                     
                     if (self.oneTimeDelegate)
                     {
                         [self.oneTimeDelegate TriMetXML:self finishedFetchingData:FALSE];
                     }
                     
-				}
-                else
+                }
+                
+                if (self.rawData !=nil)
                 {
                     if (self.oneTimeDelegate)
                     {
-                        [self.oneTimeDelegate TriMetXML:self finishedFetchingData:TRUE];
+                        [self.oneTimeDelegate TriMetXML:self startedParsingData:self.rawData.length fromCache:self.itemFromCache];
                     }
+                    
+                    succeeded = [self parseRawData:&parseError];
+                    LOG_PARSE_ERROR(parseError);
+                    
+                    if (self.oneTimeDelegate)
+                    {
+                        [self.oneTimeDelegate TriMetXML:self finishedParsingData:self.rawData.length fromCache:self.itemFromCache];
+                    }
+                    
                 }
-
-			}
-			else {
-				self.cacheTime = [NSDate date];
-                
-                if (self.oneTimeDelegate)
-                {
-                    [self.oneTimeDelegate TriMetXML:self startedFetchingData:FALSE];
-                }
-                
-				[self fetchDataByPolling:str];
-                
-                if (self.oneTimeDelegate)
-                {
-                    [self.oneTimeDelegate TriMetXML:self finishedFetchingData:FALSE];
-                }
-
-			}
-
-			if (self.rawData !=nil)
-			{
-                if (self.oneTimeDelegate)
-                {
-                    [self.oneTimeDelegate TriMetXML:self startedParsingData:self.rawData.length];
-                }
-                
-				succeeded = [self parseRawData:&parseError];
-                LOG_PARSE_ERROR(parseError);
-                
-                if (self.oneTimeDelegate)
-                {
-                    [self.oneTimeDelegate TriMetXML:self finishedParsingData:self.rawData.length];
-                }
-                
-			}
-		}
-		tries --;
-	}
-    
-    if (!_hasData && cacheAction == TriMetXMLUseShortTermCache)
-    {
-        NSArray *cachedArray = [shortTermCache getCachedQuery:cacheKey];
+            }
+            tries --;
+        }
         
-        if (cachedArray != nil)
+        if (!_hasData && cacheAction == TriMetXMLUseShortTermCache)
         {
-            NSDate *itemDate = cachedArray[kCacheDateAndTime];
-          
-            NSTimeInterval cacheAge = itemDate.timeIntervalSinceNow;
+            NSArray *cachedArray = [shortTermCache getCachedQuery:cacheKey];
             
-            if ((-cacheAge) < kShortTermCacheAge)
+            if (cachedArray != nil)
             {
-                self.rawData	= cachedArray[kCacheData];
-                self.itemFromCache	= YES;
-                self.cacheTime	= itemDate;
-                parseError      = nil;
-                succeeded       = [self parseRawData:&parseError];
-                LOG_PARSE_ERROR(parseError);
+                NSDate *itemDate = cachedArray[kCacheDateAndTime];
+                
+                NSTimeInterval cacheAge = itemDate.timeIntervalSinceNow;
+                
+                if ((-cacheAge) < kShortTermCacheAge)
+                {
+                    self.rawData    = cachedArray[kCacheData];
+                    self.itemFromCache    = YES;
+                    self.cacheTime    = itemDate;
+                    parseError      = nil;
+                    succeeded       = [self parseRawData:&parseError];
+                    LOG_PARSE_ERROR(parseError);
+                }
+                else
+                {
+                    [shortTermCache removeFromCache:cacheKey];
+                }
+            }
+        }
+        
+        if (!_hasData && ![NSThread currentThread].isCancelled)
+        {
+            self.htmlError = self.rawData;
+            
+#ifdef DEBUG 
+            if (self.htmlError !=nil)
+            {
+                NSString *debug = [[NSString alloc] initWithBytes:[self.htmlError bytes] length:[self.htmlError length] encoding:NSUTF8StringEncoding];
+                DEBUG_PRINTF("HTML: %s\n", [debug cStringUsingEncoding:NSUTF8StringEncoding]);
+            }
+#endif
+            
+        }
+        else if (![NSThread currentThread].isCancelled && cacheAction != TriMetXMLNoCaching && !self.itemFromCache)
+        {
+            if (cacheAction == TriMetXMLUseShortTermCache)
+            {
+                [shortTermCache addToCache:cacheKey item:self.rawData write:YES];
             }
             else
             {
-                [shortTermCache removeFromCache:cacheKey]; 
+                [routeCache addToCache:cacheKey     item:self.rawData write:(routeCache.ageOutDays > 0)];
+                
             }
         }
+        
+        [self clearRawData];
+        
+        self.oneTimeDelegate = nil;
+        
+        return succeeded;
     }
-	
-	if (!_hasData && ![NSThread currentThread].isCancelled)
-	{
-		self.htmlError = self.rawData;
-		
-#ifdef DEBUG 
-		if (self.htmlError !=nil)
-		{
-			NSString *debug = [[[NSString alloc] initWithBytes:[self.htmlError bytes] length:[self.htmlError length] encoding:NSUTF8StringEncoding] autorelease];
-			DEBUG_PRINTF("HTML: %s\n", [debug cStringUsingEncoding:NSUTF8StringEncoding]);
-		}
-#endif
-				
-	}
-	else if (![NSThread currentThread].isCancelled && cacheAction != TriMetXMLNoCaching && !self.itemFromCache)
-	{
-        if (cacheAction == TriMetXMLUseShortTermCache)
-        {
-            [shortTermCache addToCache:cacheKey item:self.rawData write:YES];
-        }
-        else
-        {
-            [routeCache addToCache:cacheKey     item:self.rawData write:(days > 0)];
-		
-        }
-    }
-	
-	[self clearRawData];
-    
-    self.oneTimeDelegate = nil;
-	
-	[ pool release ];
-	return succeeded;
 }
 
--(bool)parseRawData:(NSError **)error
+- (bool)cacheSelectors
 {
-	bool succeeded = NO;
-	// DEBUG_LOG(@"Results:\n%@\n", [[[NSString alloc] initWithData:self.rawData encoding: NSUTF8StringEncoding] autorelease]); 
-	
-	// Moved from synchronous to asyncronous calls
-	// NSURL *URL = [NSURL URLWithString:str];	
-	// NSXMLParser *parser = [[NSXMLParser alloc] initWithContentsOfURL:URL];
-	// Set self as the delegate of the parser so that it will receive the parser delegate methods callbacks.
-	NSXMLParser *parser = [[NSXMLParser alloc] initWithData:self.rawData];
-	parser.delegate = self;
-	// Depending on the XML document you're parsing, you may want to enable these features of NSXMLParser.
-	[parser setShouldProcessNamespaces:NO];
-	[parser setShouldReportNamespacePrefixes:NO];
-	[parser setShouldResolveExternalEntities:NO];
-	
-	[self clearArray];
+#ifdef XMLLOGGING
+    return YES;
+#else
+    return NO;
+#endif
+}
+
+- (void)initSelectors
+{
+    static NSMutableDictionary *allStartSelectors = nil;
+    static NSMutableDictionary *allEndSelectors = nil;
     
-    if (self.startSelectors == nil)
+    NSString *name = NSStringFromClass([self class]);
+    
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        allStartSelectors = [NSMutableDictionary dictionary];
+        allEndSelectors = [NSMutableDictionary dictionary];
+    });
+    
+    if (self.cacheSelectors)
     {
-        self.startSelectors = [[[NSMutableDictionary alloc] init] autorelease];
-        self.endSelectors =   [[[NSMutableDictionary alloc] init] autorelease];
+        self.startSels = allStartSelectors[name];
+        if (self.startSels == nil)
+        {
+            self.startSels = [NSMutableDictionary dictionary];
+            allStartSelectors[name] = self.startSels;
+        }
+    
+        self.endSels = allEndSelectors[name];
+        if (self.endSels == nil)
+        {
+            self.endSels = [NSMutableDictionary dictionary];
+            allEndSelectors[name] = self.endSels;
+        }
+    }
+    else
+    {
+        self.startSels = [NSMutableDictionary dictionary];
+        self.endSels   = [NSMutableDictionary dictionary];
+    }
+}
+
+- (bool)parseRawData:(NSError **)error
+{
+    bool succeeded = NO;
+     
+    // Moved from synchronous to asyncronous calls
+    // NSURL *URL = [NSURL URLWithString:str];    
+    // NSXMLParser *parser = [[NSXMLParser alloc] initWithContentsOfURL:URL];
+    // Set self as the delegate of the parser so that it will receive the parser delegate methods callbacks.
+    NSXMLParser *parser = [[NSXMLParser alloc] initWithData:self.rawData];
+    parser.delegate = self;
+    // Depending on the XML document you're parsing, you may want to enable these features of NSXMLParser.
+    [parser setShouldProcessNamespaces:NO];
+    [parser setShouldReportNamespacePrefixes:NO];
+    [parser setShouldResolveExternalEntities:NO];
+    
+    [self clearItems];
+    
+    [self initSelectors];
+    
+    [parser parse];
+    
+    NSError *parseError = parser.parserError;
+    if (parseError && error && ![NSThread currentThread].isCancelled) {
+        *error = parseError;
+    }
+    if (parseError==nil)
+    {
+        succeeded = YES;
     }
     
-	[parser parse];
-	
-    NSError *parseError = parser.parserError;
-	if (parseError && error && ![NSThread currentThread].isCancelled) {
-        *error = parseError.retain.autorelease;
-	}
-	if (parseError==nil)
-	{
-		succeeded = YES;
-	}
-	
-	[parser release];
     
 #ifdef XMLLOGGING
-    [self.startSelectors enumerateKeysAndObjectsUsingBlock: ^void (NSString* element, NSValue* sel, BOOL *stop)
+    [self.startSels enumerateKeysAndObjectsUsingBlock: ^void (NSString* element, NSValue* sel, BOOL *stop)
      {
          DEBUG_LOG_RAW(@"start element %@ %p", element, sel.pointerValue);
      }];
     
-    [self.endSelectors enumerateKeysAndObjectsUsingBlock: ^void (NSString* element, NSValue* sel, BOOL *stop)
+    [self.endSels enumerateKeysAndObjectsUsingBlock: ^void (NSString* element, NSValue* sel, BOOL *stop)
      {
          DEBUG_LOG_RAW(@"end element %@ %p", element, sel.pointerValue);
      }];
-
-
 #endif
-	
-	return succeeded;
-	
+    
+    return succeeded;
+    
 }
 
 -(void)clearRawData
 {
-    if (![UserPrefs sharedInstance].debugXML)
+    if (!self.keepRawData && ![UserPrefs sharedInstance].debugXML)
     {
         self.rawData = nil;
     }
@@ -600,7 +709,7 @@ static StopNameCacheManager *stopNameCache = nil;
     NSString *start = nil;
     if (self.fullQuery)
     {
-        start = [NSString stringWithFormat:@"<query url=\"%@\">", [self insertXMLcodes:self.fullQuery] ];
+        start = [NSString stringWithFormat:@"<query url=\"%@\">", [TriMetXML insertXMLcodes:self.fullQuery] ];
     }
     else
     {
@@ -621,10 +730,10 @@ static StopNameCacheManager *stopNameCache = nil;
 
 - (void)parser:(NSXMLParser *)parser foundCharacters:(NSString *)string
 {
-	if ([NSThread currentThread].isCancelled)
-	{
-		[parser abortParsing];
-	}
+    if ([NSThread currentThread].isCancelled)
+    {
+        [parser abortParsing];
+    }
     if (self.contentOfCurrentProperty) {
         // If the current element is one whose content we care about, append 'string'
         // to the property that holds the content of the current element.
@@ -636,7 +745,7 @@ static StopNameCacheManager *stopNameCache = nil;
 
 static NSDictionary *replacements = nil;
 
-- (void)makeReplacements
++ (void)makeReplacements
 {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -645,13 +754,13 @@ static NSDictionary *replacements = nil;
                           @"\""    : @"&quot;",
                           @"'"     : @"&apos;",
                           @" "     : @"&nbsp;"
-                          }.retain;
+                          };
     });
 }
 
-- (NSString *)insertXMLcodes:(NSString *)string
++ (NSString *)insertXMLcodes:(NSString *)string
 {
-    [self makeReplacements];
+    [TriMetXML makeReplacements];
     
     NSMutableString *ms = [NSMutableString string];
     [ms appendString:string];
@@ -669,18 +778,18 @@ static NSDictionary *replacements = nil;
                                 options:NSLiteralSearch
                                   range:NSMakeRange(0, ms.length)];
      }];
-	
-	return ms;
-	
+    
+    return ms;
+    
 }
 
-- (NSString *)replaceXMLcodes:(NSString *)string
++ (NSString *)replaceXMLcodes:(NSString *)string
 {
-    [self makeReplacements];
+    [TriMetXML makeReplacements];
 
-	NSMutableString *ms = [NSMutableString string];
-	[ms appendString:string];
-	
+    NSMutableString *ms = [NSMutableString string];
+    [ms appendString:string];
+    
     [replacements enumerateKeysAndObjectsUsingBlock: ^void (NSString* dictionaryKey, NSString* val, BOOL *stop)
      {
          [ms replaceOccurrencesOfString:val
@@ -695,12 +804,16 @@ static NSDictionary *replacements = nil;
                            options:NSLiteralSearch
                              range:NSMakeRange(0, ms.length)];
     
-	return ms;
-	
+    return ms;
+    
 }
+
+// Profiling shows that using the cache here is twice as fast, but still the time is very small.
 
 -(SEL)selectorForElement:(NSString*)elementName format:(NSString*)format cache:(NSMutableDictionary<NSString *, NSValue*> *)cache debug:(NSString*)debug
 {
+    // PROFILING_ENTER_FUNCTION;
+    
     NSString *lowerElName   = [elementName lowercaseString];
     NSValue *selValue       = [cache objectForKey:lowerElName];
     SEL elementSelector     = nil;
@@ -738,6 +851,9 @@ static NSDictionary *replacements = nil;
         DEBUG_LOG_RAW(@"XML:%@ -> not %@\n", debug, elementName);
     }
 #endif
+    
+    // PROFILING_EXIT_FUNCTION;
+    
     return elementSelector;
 }
 
@@ -752,9 +868,8 @@ static NSDictionary *replacements = nil;
     if (qName) {
         elementName = qName;
     }
-#ifdef XMLLOGGING
-
     
+#ifdef XMLLOGGING
     DEBUG_LOG_RAW(@"XML: %@",elementName);
     
     NSEnumerator *i = attributeDict.keyEnumerator;
@@ -767,21 +882,28 @@ static NSDictionary *replacements = nil;
     }
 #endif
     
-    SEL elementSelector = [self selectorForElement:elementName format:@"parser:didStartX%@:namespaceURI:qualifiedName:attributes:" cache:self.startSelectors debug:@"start"];
-    if (elementSelector !=nil)
+    SEL elementSelector = [self selectorForElement:elementName format:XML_START_SELECTOR cache:self.startSels debug:@"start"];
+    if (elementSelector != nil)
     {
-            NSInvocation *inv = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:elementSelector]];
-            [inv setSelector:elementSelector];
-            [inv setTarget:self];
-            [inv setArgument:&(parser) atIndex:2]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
-            [inv setArgument:&(elementName) atIndex:3]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
-            [inv setArgument:&(namespaceURI) atIndex:4]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
-            [inv setArgument:&(qName) atIndex:5]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
-            [inv setArgument:&(attributeDict) atIndex:6]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
+#ifdef XML_SHORT_SELECTORS
+        IMP imp = [self methodForSelector:elementSelector];
+        void (*func)(id, SEL, NSDictionary*) = (void *)imp;
+        func(self, elementSelector, attributeDict);
         
-            [inv invoke];
+        // [self performSelector:elementSelector withObject:attributeDict];
+#else
+        NSInvocation *inv = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:elementSelector]];
+        [inv setSelector:elementSelector];
+        [inv setTarget:self];
+        [inv setArgument:&(parser) atIndex:2]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
+        [inv setArgument:&(elementName) atIndex:3]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
+        [inv setArgument:&(namespaceURI) atIndex:4]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
+        [inv setArgument:&(qName) atIndex:5]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
+        [inv setArgument:&(attributeDict) atIndex:6]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
+        
+        [inv invoke];
+#endif
     }
-    
 }
 
 - (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName
@@ -803,10 +925,17 @@ static NSDictionary *replacements = nil;
     }
 #endif
     
-    SEL elementSelector = [self selectorForElement:elementName format:@"parser:didEndX%@:namespaceURI:qualifiedName:" cache:self.endSelectors debug:@"end  "];
+    SEL elementSelector = [self selectorForElement:elementName format:XML_END_SELECTOR cache:self.endSels debug:@"end  "];
     
-    if (elementSelector !=nil)
+    if (elementSelector != nil)
     {
+        
+#ifdef XML_SHORT_SELECTORS
+        IMP imp = [self methodForSelector:elementSelector];
+        void (*func)(id, SEL) = (void *)imp;
+        func(self, elementSelector);
+        // [self performSelector:elementSelector];
+#else
         NSInvocation *inv = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:elementSelector]];
         [inv setSelector:elementSelector];
         [inv setTarget:self];
@@ -816,7 +945,22 @@ static NSDictionary *replacements = nil;
         [inv setArgument:&(qName) atIndex:5]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
         
         [inv invoke];
+#endif
     }
-    
+}
+
+- (void)expectedSize:(long long)expected
+{
+    if (self.oneTimeDelegate)
+    {
+        [self.oneTimeDelegate TriMetXML:self expectedSize:expected];
+    }
+}
+- (void)progressed:(long long)progress
+{
+    if (self.oneTimeDelegate)
+    {
+        [self.oneTimeDelegate TriMetXML:self progress:progress of:_expected];
+    }
 }
 @end

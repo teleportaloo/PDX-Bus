@@ -14,7 +14,6 @@
 
 #import "DepartureSortTableView.h"
 #import "DepartureTimesView.h"
-#import "UITableViewCell+MultiLineCell.h"
 
 @implementation DepartureSortTableView
 
@@ -23,23 +22,12 @@
 #define kSectionInfo 0
 #define kSectionSeg  1
 
+#define SEGMENT_TAG 5
 
 #define kSegRowWidth		320
 #define kSegRowHeight		40
 #define kUISegHeight		40
 #define kUISegWidth			320
-
-@synthesize sortSegment = _sortSegment;
-@synthesize info		= _info;
-@synthesize depView		= _depView;
-
-- (void)dealloc {
-	self.depView		= nil;
-	self.sortSegment	= nil;
-	self.info			= nil;
-    [super dealloc];
-}
-
 
 - (instancetype) init
 {
@@ -79,6 +67,8 @@
 {
 	UISegmentedControl *segmentedControl = [[UISegmentedControl alloc] initWithItems:segmentTextContent];
 	CGRect frame = CGRectMake((kSegRowWidth-kUISegWidth)/2, (kSegRowHeight - kUISegHeight)/2 , kUISegWidth, kUISegHeight);
+    
+    segmentedControl.tag = SEGMENT_TAG;
 	
 	segmentedControl.frame = frame;
 	[segmentedControl addTarget:self action:action forControlEvents:UIControlEventValueChanged];
@@ -86,7 +76,6 @@
 	
 	[parent addSubview:segmentedControl];
 	[parent layoutSubviews];
-	[segmentedControl autorelease];
 	return segmentedControl;
 }
 
@@ -118,33 +107,31 @@
     {
         case kSectionSeg:
         {
-            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionSeg)];
-            if (cell == nil) {
-                cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionSeg)] autorelease];
+            UITableViewCell *cell = [self tableView:tableView cellWithReuseIdentifier:MakeCellId(kSectionSeg)];
+            
+            if ([cell.contentView viewWithTag:SEGMENT_TAG]==nil)
+            {
+            
                 self.sortSegment = [self createSegmentedControl:@[
-                                                                  NSLocalizedString(@"Group by stop", @"button text"),
-                                                                  NSLocalizedString(@"Group by trip", @"button text")]
-                                                         parent:cell.contentView action:@selector(sortSegmentChanged:)];
-                
+                                                              NSLocalizedString(@"Group by stop", @"button text"),
+                                                              NSLocalizedString(@"Group by trip", @"button text")]
+                                                     parent:cell.contentView action:@selector(sortSegmentChanged:)];
                 [cell layoutSubviews];
                 cell.selectionStyle = UITableViewCellSelectionStyleNone;
                 cell.isAccessibilityElement = NO;
                 cell.backgroundView = [self clearView];
-            }
             
-            _segSetup = YES;
-            self.sortSegment.selectedSegmentIndex = self.depView.blockSort ? 1 : 0;
-            _segSetup = NO;
-            return cell;
+            
+                _segSetup = YES;
+                self.sortSegment.selectedSegmentIndex = self.depView.blockSort ? 1 : 0;
+                _segSetup = NO;
+            }
+                return cell;
+                break;
         }
-            break;
         case kSectionInfo:
         {
-            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionInfo)];
-            if (cell == nil) {
-                cell = [UITableViewCell cellWithMultipleLines:MakeCellId(kSectionInfo) font:self.paragraphFont];
-            }
-            
+            UITableViewCell *cell = [self tableView:tableView multiLineCellWithReuseIdentifier:MakeCellId(kSectionInfo) font:self.paragraphFont];
             cell.textLabel.text = self.info;
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             cell.backgroundView = [self clearView];
@@ -173,7 +160,7 @@
 
 #pragma mark TableViewWithToolbar methods
 
-- (UITableViewStyle) getStyle
+- (UITableViewStyle) style
 {
 	return UITableViewStyleGrouped;
 }

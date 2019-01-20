@@ -30,12 +30,12 @@
 @dynamic tripMin;
 @dynamic autoRefresh;
 @dynamic toolbarColors;
-@dynamic actionIcons;
 @dynamic routeCacheDays;
 @dynamic networkTimeout;
 @dynamic useGpsWithin;
 @dynamic commuteButton;
 @dynamic autoLocateShowOptions;
+@dynamic hideSystemWideDetours;
 
 #define kPreferencesDomain      @"org.teleportaloo.PDXBus"
 #define kWatchSuite             @"group.teleportaloo.pdxbus"
@@ -53,34 +53,26 @@
 {
     if ([NSUserDefaults instancesRespondToSelector:@selector(initWithSuiteName:)])
     {
-        return [[[NSUserDefaults alloc] initWithSuiteName:kWatchSuite] autorelease];
+        return [[NSUserDefaults alloc] initWithSuiteName:kWatchSuite];
     }
     
     return nil;
 }
 
 - (instancetype)init {
-	if ((self = [super init]))
-	{
+    if ((self = [super init]))
+    {
         
 #ifdef PDXBUS_WATCH
-        _defaults = [[self watchPreferences] retain];
+        _defaults = [self watchPreferences];
 #else
-        _defaults = [[NSUserDefaults standardUserDefaults] retain];
-        _sharedDefaults = [[self watchPreferences] retain];
+        _defaults = [NSUserDefaults standardUserDefaults];
+        _sharedDefaults = [self watchPreferences];
 #endif
-	}
-	return self;
+    }
+    return self;
 }
 
-- (void)dealloc
-{
-	[_defaults release];
-#ifndef PDXBUS_WATCH
-    [_sharedDefaults release];
-#endif
-	[super dealloc];
-}
 
 
 + (UserPrefs*)sharedInstance
@@ -117,9 +109,9 @@
 - (BOOL)getBoolFromDefaultsForKey:(NSString*)key ifMissing:(BOOL)missing writeToShared:(BOOL)writeToShared
 {
     if  ([self missing:key])
-	{
-		return missing;
-	}
+    {
+        return missing;
+    }
     
     BOOL res = [_defaults boolForKey:key];
     
@@ -128,114 +120,118 @@
         [_sharedDefaults setBool:res forKey:key];
     }
     
-	return res;
-	
+    return res;
+    
 }
 
-- (NSString*)getStringFromDefaultsForKey:(NSString*)key ifMissing:(NSString*)missing
+- (NSString*)getStringFromDefaultsForKey:(NSString*)key ifMissing:(NSString*)missing writeToShared:(BOOL)writeToShared
 {
-	if  ([self missing:key])
-	{
+    if  ([self missing:key])
+    {
         DEBUG_LOG(@"UserPrefs: Missing key %@ used %@\n", key, missing);
-		return missing;
-	}
+        return missing;
+    }
     NSString *ret = [_defaults stringForKey:key];
     DEBUG_LOG(@"UserPrefs key %@ value %@\n", key, ret);
 
+    if (writeToShared && _sharedDefaults)
+    {
+        [_sharedDefaults setObject:ret forKey:key];
+    }
     
-	return ret;
+    return ret;
 }
 
 
 
 - (float)getFloatFromDefaultsForKey:(NSString*)key ifMissing:(float)missing max:(float)max min:(float)min writeToShared:(BOOL)writeToShared
 {
-	float res;
-	if  ([self missing:key])
-	{
-		return missing;
-	}
-	res = [_defaults floatForKey:key];
-	
-	if (res > max || res < min)
-	{
-		return missing;
-	}
+    float res;
+    if  ([self missing:key])
+    {
+        return missing;
+    }
+    res = [_defaults floatForKey:key];
+    
+    if (res > max || res < min)
+    {
+        return missing;
+    }
     
     if (writeToShared && _sharedDefaults)
     {
         [_sharedDefaults setFloat:res forKey:key];
     }
     
-	return res;
+    return res;
 }
 
 - (int)getIntFromDefaultsForKey:(NSString*)key ifMissing:(int)missing max:(int)max min:(int)min writeToShared:(BOOL)writeToShared
 {
-	int res;
+    int res;
     
-	if  ([self missing:key])
-	{
-		return missing;
-	}
+    if  ([self missing:key])
+    {
+        return missing;
+    }
 
-	res = (int)[_defaults integerForKey:key];
-	
-	if (res > max || res < min)
-	{
-		return missing;
-	}
+    res = (int)[_defaults integerForKey:key];
+    
+    if (res > max || res < min)
+    {
+        return missing;
+    }
     
     if (writeToShared && _sharedDefaults)
     {
         [_sharedDefaults setInteger:res forKey:key];
     }
     
-	return res;
+    return res;
 }
 
 - (bool) bookmarksAtTheTop
 {
-	return [self getBoolFromDefaultsForKey:@"bookmarks_at_the_top"		ifMissing:NO writeToShared:NO];
+    return [self getBoolFromDefaultsForKey:@"bookmarks_at_the_top"        ifMissing:NO writeToShared:NO];
 }
 
 - (bool) autoCommute
 {
-	return [self getBoolFromDefaultsForKey:@"auto_commute"				ifMissing:YES writeToShared:NO];
+    return [self getBoolFromDefaultsForKey:@"auto_commute"                ifMissing:YES writeToShared:NO];
 }
 
 - (bool) commuteButton
 {
-	return [self getBoolFromDefaultsForKey:@"commute_button"			ifMissing:YES writeToShared:NO];
+    return [self getBoolFromDefaultsForKey:@"commute_button"            ifMissing:YES writeToShared:NO];
 }
 
 - (bool) showTransitTracker
 {
-	return [self getBoolFromDefaultsForKey:@"show_transit_tracker"		ifMissing:NO writeToShared:NO];
+    return [self getBoolFromDefaultsForKey:@"show_transit_tracker"        ifMissing:NO writeToShared:NO];
 }
 
 - (bool) shakeToRefresh
 {
-	return [self getBoolFromDefaultsForKey:@"shake_to_refresh"			ifMissing:YES writeToShared:NO];
+    return [self getBoolFromDefaultsForKey:@"shake_to_refresh"            ifMissing:YES writeToShared:NO];
 }
 
 - (int)  maxRecentStops
 {
-	return [self getIntFromDefaultsForKey:@"recent_stops"				ifMissing:kDefaultRecentStops max:20 min:0 writeToShared:YES];
+    return [self getIntFromDefaultsForKey:@"recent_stops"                ifMissing:kDefaultRecentStops max:20 min:0 writeToShared:YES];
 }
 - (int)  maxRecentTrips
 {
-	return [self getIntFromDefaultsForKey:@"trip_history"				ifMissing:kDefaultTripHistory max:20 min:0 writeToShared:YES];
+    return [self getIntFromDefaultsForKey:@"trip_history"                ifMissing:kDefaultTripHistory max:20 min:0 writeToShared:YES];
 }
 
 - (float)maxWalkingDistance
 {
-	return [self getFloatFromDefaultsForKey:@"max_walking_distance"		ifMissing:0.75 max:2.0 min:0.1 writeToShared:NO];
-	
+    return [self getFloatFromDefaultsForKey:@"max_walking_distance"        ifMissing:0.75 max:2.0 min:0.1 writeToShared:NO];
+    
 }
 - (bool) flashLed
 {
-	return [self getBoolFromDefaultsForKey:@"flash_led"                 ifMissing:NO writeToShared:NO];
+    return [self getBoolFromDefaultsForKey:@"flash_led"                 ifMissing:NO writeToShared:NO];
     
 }
 
@@ -246,7 +242,7 @@
 
 - (bool) flashingLightWarning
 {
-	return [self getBoolFromDefaultsForKey:@"flashing_light_warning"	ifMissing:YES writeToShared:NO];
+    return [self getBoolFromDefaultsForKey:@"flashing_light_warning"    ifMissing:YES writeToShared:NO];
     
 }
 
@@ -258,20 +254,20 @@
 
 - (bool) locateToolbarIcon
 {
-	return [self getBoolFromDefaultsForKey:@"locate_toolbar_icon"		ifMissing:YES writeToShared:NO];
+    return [self getBoolFromDefaultsForKey:@"locate_toolbar_icon"        ifMissing:YES writeToShared:NO];
     
 }
 
 - (bool) groupByArrivalsIcon
 {
-	return [self getBoolFromDefaultsForKey:@"group_by_arrivals_icon"    ifMissing:NO writeToShared:NO];
+    return [self getBoolFromDefaultsForKey:@"group_by_arrivals_icon"    ifMissing:NO writeToShared:NO];
     
 }
 
 
 - (bool) flashingLightIcon
 {
-	return [self getBoolFromDefaultsForKey:@"flashing_light_icon"       ifMissing:YES writeToShared:NO];
+    return [self getBoolFromDefaultsForKey:@"flashing_light_icon"       ifMissing:YES writeToShared:NO];
     
 }
 
@@ -283,7 +279,7 @@
 
 - (bool) qrCodeScannerIcon
 {
-	return [self getBoolFromDefaultsForKey:@"qr_code_scanner_icon"      ifMissing:YES writeToShared:NO];
+    return [self getBoolFromDefaultsForKey:@"qr_code_scanner_icon"      ifMissing:YES writeToShared:NO];
     
 }
 - (void)setLocateToolbarIcon:(_Bool)icon
@@ -305,7 +301,7 @@
 
 - (bool) showStreetcarMapFirst
 {
-	return [self getBoolFromDefaultsForKey:@"streetcar_map_first"		ifMissing:NO writeToShared:NO];
+    return [self getBoolFromDefaultsForKey:@"streetcar_map_first"        ifMissing:NO writeToShared:NO];
     
 }
 
@@ -314,21 +310,18 @@
     [_defaults setBool:first forKey:@"streetcar_map_first"];
 }
 
-
-
-
 - (float)useGpsWithin
 {
-	return [self getFloatFromDefaultsForKey:@"use_gps_within"			ifMissing:4828.032 max:8046.72 min:1609.344 writeToShared:NO];
-}	
+    return [self getFloatFromDefaultsForKey:@"use_gps_within"            ifMissing:4828.032 max:8046.72 min:1609.344 writeToShared:NO];
+}    
 - (int)  travelBy
 {
-	return [self getIntFromDefaultsForKey:@"travel_by"					ifMissing:(int)TripModeAll max:2 min:0 writeToShared:NO];
+    return [self getIntFromDefaultsForKey:@"travel_by"                    ifMissing:(int)TripModeAll max:2 min:0 writeToShared:NO];
 }
 
 - (bool) autoLocateShowOptions
 {
-	return [self getBoolFromDefaultsForKey:@"auto_locate_show_options"	ifMissing:YES writeToShared:NO];
+    return [self getBoolFromDefaultsForKey:@"auto_locate_show_options"    ifMissing:YES writeToShared:NO];
 }
 
 - (void)setAutoLocateShowOptions:(_Bool)showOptions
@@ -338,11 +331,11 @@
 
 - (int)  tripMin
 {
-	return [self getIntFromDefaultsForKey:@"min"						ifMissing:(int)TripMinQuickestTrip max:2 min:0 writeToShared:NO];
+    return [self getIntFromDefaultsForKey:@"min"                        ifMissing:(int)TripMinQuickestTrip max:2 min:0 writeToShared:NO];
 }
 - (bool) autoRefresh
 {
-	return [self getBoolFromDefaultsForKey:@"auto_refresh"				ifMissing:YES writeToShared:YES];
+    return [self getBoolFromDefaultsForKey:@"auto_refresh"                ifMissing:YES writeToShared:YES];
 }
 - (int) toolbarColors
 {
@@ -353,17 +346,13 @@
     {
         color = 0xFFFFFF;
     }
-	return color;
-}
-- (bool) actionIcons
-{
-	return [self getBoolFromDefaultsForKey:@"action_icons"                  ifMissing:YES writeToShared:NO];
+    return color;
 }
 
 - (int) routeCacheDays
 {
-				
-	return  [self getIntFromDefaultsForKey:@"route_cache"                   ifMissing:kDefaultRouteCache max:7 min:0 writeToShared:YES];
+                
+    return  [self getIntFromDefaultsForKey:@"route_cache"                   ifMissing:kDefaultRouteCache max:7 min:0 writeToShared:YES];
 }
 
 - (bool) useCaching
@@ -376,19 +365,29 @@
     return [self getIntFromDefaultsForKey:@"vehicle_locator_distance"       ifMissing:(int)0 max:800 min:0 writeToShared:NO];
 }
 
-- (bool) vehicleLocations
+- (bool)vehicleLocations
 {
     return self.vehicleLocatorDistance!=0;
 }
 
+- (int) xmlViewer
+{
+    return [self getIntFromDefaultsForKey:@"debug_xml3" ifMissing:0 max:100 min:0 writeToShared:NO];
+}
+
 - (bool) debugXML
 {
-    return [self getBoolFromDefaultsForKey:@"debug_xml"                     ifMissing:NO writeToShared:NO];
+    return self.xmlViewer!=0;
 }
 
 - (bool) debugCommuter
 {
     return [self getBoolFromDefaultsForKey:@"debug_commuter"                ifMissing:NO writeToShared:NO];
+}
+
+- (NSString*) minsForArrivals
+{
+    return [self getStringFromDefaultsForKey:@"mins_for_arrivals" ifMissing:@"30" writeToShared:YES];
 }
 
 
@@ -399,21 +398,21 @@
 
 - (int) networkTimeout
 {
-	return  [self getIntFromDefaultsForKey:@"network_timeout2"              ifMissing:kDefaultNetworkTimeout max:20 min:0 writeToShared:YES];
+    return  [self getIntFromDefaultsForKey:@"network_timeout2"              ifMissing:kDefaultNetworkTimeout max:20 min:0 writeToShared:YES];
 }
 
 - (bool) alarmInitialWarning
 {
-	return [self getBoolFromDefaultsForKey:@"alarm_initial_10_min_warning"	ifMissing:YES writeToShared:NO];
+    return [self getBoolFromDefaultsForKey:@"alarm_initial_10_min_warning"    ifMissing:YES writeToShared:NO];
 }
 
 - (bool) googleMapApp
 {
-	return [self getBoolFromDefaultsForKey:@"google_maps"                   ifMissing:YES writeToShared:NO];
+    return [self getBoolFromDefaultsForKey:@"google_maps"                   ifMissing:YES writeToShared:NO];
 }
 - (NSString*)alarmSoundFile
 {
-    NSString *fileName = [self getStringFromDefaultsForKey:@"alarm_sound"   ifMissing:@"Train_Honk_Horn_2x-Mike_Koenig-157974048.aif"];
+    NSString *fileName = [self getStringFromDefaultsForKey:@"alarm_sound"   ifMissing:@"Train_Honk_Horn_2x-Mike_Koenig-157974048.aif" writeToShared:NO];
 
     DEBUG_LOG(@"alarmSoundFile %@\n", fileName);
     return fileName;
@@ -448,6 +447,51 @@
 - (NSString*)busIcon
 {
     return @"icon_arrow_up.png";
+}
+
+- (bool)hideSystemWideDetours
+{
+    return [self getBoolFromDefaultsForKey:@"hide_system_wide_detours" ifMissing:NO writeToShared:NO];
+}
+
+
+- (void)setHideSystemWideDetours:(_Bool)hide
+{
+    if (self.hideSystemWideDetours!=hide)
+    {
+        [_defaults setBool:hide forKey:@"hide_system_wide_detours"];
+    }
+}
+
+- (int)kmlAgeOut
+{
+    return [self getIntFromDefaultsForKey:@"kml_routes2" ifMissing:0 max:100 min:0 writeToShared:NO];
+}
+
+- (bool)kmlWifiOnly
+{
+    return [self getBoolFromDefaultsForKey:@"kml_route_only_wifi" ifMissing:YES writeToShared:NO];
+}
+
+- (bool) kmlRoutes
+{
+    DEBUG_LOGL([self kmlAgeOut]);
+    return [self kmlAgeOut]> 0;
+}
+
+- (bool) showSizes
+{
+    return [self getBoolFromDefaultsForKey:@"show_sizes" ifMissing:NO writeToShared:NO];
+}
+
+- (bool)gitHubRouteShapes
+{
+    return [self getBoolFromDefaultsForKey:@"github_route_shapes" ifMissing:NO writeToShared:NO];
+}
+
+- (bool)progressDebug
+{
+    return [self getBoolFromDefaultsForKey:@"progress_debug" ifMissing:NO writeToShared:NO];
 }
 
 

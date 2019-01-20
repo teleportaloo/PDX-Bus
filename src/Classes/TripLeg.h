@@ -26,49 +26,31 @@
 #define kModeMax  @"Light Rail"
 #define kModeSc   @"Streetcar"
 
-@interface TripLeg: DataFactory
-{
-	NSString *          _mode;
-    NSString *          _order;
-	NSString *          _xdate;
-	NSString *          _xstartTime;
-	NSString *          _xendTime;
-	NSString *          _xduration;
-	NSString *          _xdistance;
-	TripLegEndPoint *   _from;
-	TripLegEndPoint *   _to;
-	NSString *          _xnumber;
-	NSString *          _xinternalNumber;
-	NSString *          _xname;
-	NSString *          _xkey;
-	NSString *          _xdirection;
-	NSString *          _xblock;
-	LegShapeParser *    _legShape;
-}
-
-@property (nonatomic, retain) NSString		*mode;
-@property (nonatomic, retain) NSString      *order;
-@property (nonatomic, retain) NSString		*xdate;
-@property (nonatomic, retain) NSString		*xstartTime;
-@property (nonatomic, retain) NSString		*xendTime;
-@property (nonatomic, retain) NSString		*xduration;
-@property (nonatomic, retain) NSString		*xdistance;
-@property (nonatomic, retain) NSString		*xnumber;
-@property (nonatomic, retain) NSString		*xinternalNumber;
-@property (nonatomic, retain) NSString		*xname;
-@property (nonatomic, retain) NSString		*xkey;
-@property (nonatomic, retain) NSString		*xdirection;
-@property (nonatomic, retain) NSString		*xblock;
-@property (nonatomic, retain) TripLegEndPoint *from;
-@property (nonatomic, retain) TripLegEndPoint *to;
-@property (nonatomic, retain) LegShapeParser *legShape;
-
 typedef enum {
-	TripTextTypeMap,
-	TripTextTypeUI,
-	TripTextTypeHTML,
-	TripTextTypeClip
+    TripTextTypeMap,
+    TripTextTypeUI,
+    TripTextTypeHTML,
+    TripTextTypeClip
 } TripTextType;
+
+@interface TripLeg: DataFactory
+
+@property (nonatomic, strong) NSString        *mode;
+@property (nonatomic, strong) NSString      *order;
+@property (nonatomic, strong) NSString        *xdate;
+@property (nonatomic, strong) NSString        *xstartTime;
+@property (nonatomic, strong) NSString        *xendTime;
+@property (nonatomic, strong) NSString        *xduration;
+@property (nonatomic, strong) NSString        *xdistance;
+@property (nonatomic, strong) NSString        *xnumber;
+@property (nonatomic, strong) NSString        *xinternalNumber;
+@property (nonatomic, strong) NSString        *xname;
+@property (nonatomic, strong) NSString        *xkey;
+@property (nonatomic, strong) NSString        *xdirection;
+@property (nonatomic, strong) NSString        *xblock;
+@property (nonatomic, strong) TripLegEndPoint *from;
+@property (nonatomic, strong) TripLegEndPoint *to;
+@property (nonatomic, strong) LegShapeParser *legShape;
 
 - (NSString*)createFromText:(bool)first textType:(TripTextType)type;
 - (NSString*)createToText:(bool)last textType:(TripTextType)type;

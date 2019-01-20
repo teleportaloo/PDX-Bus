@@ -17,17 +17,12 @@
 #import "DebugLogging.h"
 #import "UserPrefs.h"
 
-#define kIconUp				 @"icon_arrow_up.png"
+#define kIconUp                 @"icon_arrow_up.png"
 #define kIconUp2x            @"icon_arrow_up@2x.png"
 
 @implementation MapAnnotationImage
 
-@synthesize imageCache = _imageCache;
-@synthesize lastMapRotation = _lastMapRotation;
-@synthesize imageFile = _imageFile;
-@synthesize forceRetinaImage = _forceRetinaImage;
-
-static MapAnnotationImage *singleton = nil;
+static __weak MapAnnotationImage *singleton = nil;
 
 - (instancetype)init {
     if ((self = [super init]))
@@ -46,13 +41,13 @@ static MapAnnotationImage *singleton = nil;
         
         if (singleton == nil)
         {
-            singleton = [[[MapAnnotationImage alloc] init] autorelease];
-            
-            return singleton;
+            MapAnnotationImage *ret = [[MapAnnotationImage alloc] init];
+            singleton = ret;
+            return ret;
         }
         else
         {
-            return [[singleton retain] autorelease];
+            return singleton;
         }
     }
 
@@ -61,8 +56,6 @@ static MapAnnotationImage *singleton = nil;
 
 - (void)dealloc
 {
-    self.imageCache = nil;
-    self.imageFile = nil;
     
     @synchronized (self) {
         singleton = nil;
@@ -70,14 +63,14 @@ static MapAnnotationImage *singleton = nil;
     
     DEBUG_LOG(@"Image cache removed.\n");
     
-    [super dealloc];
 }
 
 
 - (UIImage*)rotatedImage:(UIImage*)sourceImage byDegreesFromNorth:(double)degrees
 {
-    
     CGSize rotateSize =  sourceImage.size;
+    
+    /* Note:  This is a graphics context block */
     UIGraphicsBeginImageContextWithOptions(rotateSize, NO, 0.0);
     CGContextRef context = UIGraphicsGetCurrentContext();
     CGContextTranslateCTM(context, rotateSize.width/2, rotateSize.height/2);
@@ -95,23 +88,20 @@ static MapAnnotationImage *singleton = nil;
 - (UIImage *)tintImage:(UIImage *)sourceImage color:(UIColor *)color
 {
     CGRect rect = { 0,0, sourceImage.size.width, sourceImage.size.height};
+   
+    /* Note:  This is a graphics context block */
     UIGraphicsBeginImageContextWithOptions(rect.size, NO, 0.0);
     CGContextRef context = UIGraphicsGetCurrentContext();
-    
     CGContextSetFillColorWithColor(context, color.CGColor);
-    
     CGContextFillRect(context, rect); // draw base
-    
     [sourceImage drawInRect:rect blendMode:kCGBlendModeDestinationIn alpha:1.0]; // draw image
-    
     UIImage *tintedImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     
     return tintedImage;
-    
 }
 
-- (UIImage *)getImage:(double)rotation mapRotation:(double)mapRotation bus:(bool)bus
+- (UIImage *)getImage:(double)rotation mapRotation:(double)mapRotation bus:(bool)bus named:(NSString*)name
 {
     if ( ABS(mapRotation - self.lastMapRotation) > 0.001 )
     {
@@ -121,7 +111,7 @@ static MapAnnotationImage *singleton = nil;
     
     double total = rotation - mapRotation;
     
-    NSString *image = self.forceRetinaImage ? kIconUp2x : kIconUp;
+    // NSString *image = self.forceRetinaImage ? kIconUp2x : kIconUp;
     
     /*
     if (bus)
@@ -131,15 +121,23 @@ static MapAnnotationImage *singleton = nil;
     }
     */
     
-    UIImage *arrow = self.imageCache[@(rotation)];
+    NSMutableDictionary *cachePerName = self.imageCache[name];
+    
+    if (cachePerName == nil)
+    {
+        cachePerName = [NSMutableDictionary dictionary];
+        self.imageCache[name] = cachePerName;
+    }
+    
+    UIImage *arrow = cachePerName[@(rotation)];
     
     if (arrow == nil)
     {
-        arrow = [self rotatedImage:[UIImage imageNamed:image] byDegreesFromNorth:total];
+        arrow = [self rotatedImage:[UIImage imageNamed:name] byDegreesFromNorth:total];
  
-        self.imageCache[@(rotation)] = arrow;
+        cachePerName[@(rotation)] = arrow;
         
-        DEBUG_LOG(@"Cache miss %03u %-3.2f\n", (unsigned int)self.imageCache.count, rotation );
+        DEBUG_LOG(@"Cache miss %03u %-3.2f\n", (unsigned int)cachePerName.count, rotation );
     }
     else
     {

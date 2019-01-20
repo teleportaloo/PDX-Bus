@@ -17,8 +17,11 @@ typedef long long TriMetDistance;
 #define TriMetToUnixTime(X)     ((X)/1000)
 #define UnixToTriMetTime(X)     ((X)*1000)
 #define TriMetToNSDate(X)       [NSDate dateWithTimeIntervalSince1970:TriMetToUnixTime(X)]
+#define MinsBetweenDates(T, Q)  ([(T) timeIntervalSinceDate:(Q)]/60)
+#define SecsToMins(S)           ((NSInteger)(S)/60)
 
 
+#define kTriMetDisclaimerText  NSLocalizedString(@"Route and arrival data provided by permission of TriMet", @"Disclaimer")
 
 typedef enum {
 	TripModeBusOnly,
@@ -33,11 +36,5 @@ typedef enum {
     TripMinShortestWalk
 } TripMin;
 
-//
-// This is a constant NS string containing the app ID from 
-// http://developer.trimet.org/registration/
-// 
 
-#error Get an APP ID from TriMet then copy it into the string below and delete this line!
 
-#define TRIMET_APP_ID @""

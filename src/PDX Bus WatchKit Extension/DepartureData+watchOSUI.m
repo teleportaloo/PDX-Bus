@@ -14,10 +14,11 @@
 
 
 #import "DepartureData+watchOSUI.h"
-#import "TriMetRouteColors.h"
+#import "TriMetInfo.h"
 #import "BlockColorDb.h"
 #import "MapAnnotationImage.h"
 #import "StringHelper.h"
+#import "ArrivalColors.h"
 
 @implementation DepartureData (watchOSUI)
 
@@ -25,28 +26,32 @@
 @dynamic stale;
 
 
-- (UIColor*)getFontColor
+- (UIColor*)fontColor
 {
     int mins = self.minsToArrival;
     UIColor *timeColor = nil;
     
     if (self.status == kStatusScheduled)
     {
-        timeColor = [UIColor grayColor];
+        timeColor = ArrivalColorScheduled;
+    }
+    else if (self.actuallyLate)
+    {
+        timeColor = ArrivalColorLate;
     }
     else if (mins < 6 || self.status == kStatusCancelled)
     {
-        timeColor = [UIColor redColor];
+        timeColor = ArrivalColorSoon;
     }
     else
     {
-        timeColor = [UIColor blueColor];
+        timeColor = ArrivalColorOK;
     }
     
     return timeColor;
 }
 
-- (UIImage *)getRouteColorImage
+- (UIImage *)routeColorImage
 {
     static NSMutableDictionary *imageCache = nil;
     
@@ -57,7 +62,7 @@
         imageCache = [[NSMutableDictionary alloc] init];
     }
     
-    const ROUTE_COL *raw =  [TriMetRouteColors rawColorForRoute:self.route];
+    PC_ROUTE_INFO raw =  [TriMetInfo infoForRoute:self.route];
     
     if (raw != NULL)
     {
@@ -65,25 +70,21 @@
         
         if (image == nil)
         {
-            const ROUTE_COL *raw =  [TriMetRouteColors rawColorForRoute:self.route];
+            PC_ROUTE_INFO raw =  [TriMetInfo infoForRoute:self.route];
             
             CGRect rect = CGRectMake(0.0f, 0.0f, 20.0f, 20.0f);
+
+            /* Note:  This is a graphics context block */
             UIGraphicsBeginImageContextWithOptions(rect.size, NO, 0.0);
             
-            // Drawing code
-            
             CGMutablePathRef fillPath = CGPathCreateMutable();
-            
             CGRect outerSquare;
-            
             CGFloat width = fmin(CGRectGetWidth(rect), CGRectGetHeight(rect));
-            
             outerSquare.origin.x = CGRectGetMidX(rect) - width/2;
             outerSquare.origin.y = CGRectGetMidY(rect) - width/2;
             outerSquare.size.width = width;
             outerSquare.size.height = width;
-            
-            if (raw->square)
+            if (raw->streetcar)
             {
                 CGRect innerSquare = CGRectInset(outerSquare, 1, 1);
                 CGPathAddRect(fillPath, NULL, innerSquare);
@@ -92,15 +93,15 @@
             {
                 CGPathAddEllipseInRect(fillPath, NULL, outerSquare);
             }
-            
             CGContextRef context = UIGraphicsGetCurrentContext();
-            CGContextSetRGBFillColor(context, raw->r , raw->g, raw->b, 1.0);
+            CGContextSetRGBFillColor(context, COL_HTML_R(raw->html_color) , COL_HTML_G(raw->html_color), COL_HTML_B(raw->html_color), 1.0);
             CGContextAddPath(context, fillPath);
             CGContextFillPath(context);
             
             CGPathRelease(fillPath);
             
             image = UIGraphicsGetImageFromCurrentImageContext();
+            
             UIGraphicsEndImageContext();
             
             
@@ -135,9 +136,11 @@
     if (image == nil)
     {
         CGRect rect = CGRectMake(0.0f, 0.0f, 1.0f, 1.0f);
+        
+        /* Note:  This is a graphics context block */
         UIGraphicsBeginImageContextWithOptions(rect.size, NO, 0.0);
         CGContextRef context = UIGraphicsGetCurrentContext();
-        
+
         CGContextSetFillColorWithColor(context, color.CGColor);
         CGContextFillRect(context, rect);
         
@@ -164,18 +167,34 @@
     {
         return @"Due";
     }
-    else if (self.minsToArrival < 100)
+    else if (self.minsToArrival < 60)
     {
         return [NSString stringWithFormat:@"%d", self.minsToArrival];
     }
     else
     {
+        ArrivalWindow arrivalWindow;
+        NSDateFormatter *dateFormatter = [self dateAndTimeFormatterWithPossibleLongDateStyle:kLongDateFormat arrivalWindow:&arrivalWindow];
+        
+        switch (arrivalWindow)
+        {
+            case ArrivalSoon:
+                dateFormatter.dateFormat = @"a";
+                return [dateFormatter stringFromDate:self.departureTime];
+            case ArrivalThisWeek:
+                dateFormatter.dateFormat = @"E";
+                return [dateFormatter stringFromDate:self.departureTime];
+            case ArrivalNextWeek:
+            default:
+                return @"::";
+        }
+        
         return @"::";
     }
 }
 - (bool)hasRouteColor
 {
-    return [TriMetRouteColors rawColorForRoute:self.route] != nil;
+    return [TriMetInfo infoForRoute:self.route] != nil;
 }
 
 - (NSAttributedString *)headingWithStatus
@@ -200,31 +219,9 @@
     if (self.shortSign!=nil)
     {
         NSAttributedString *subString = [[NSAttributedString alloc] initWithString:self.shortSign
-                                                                        attributes:@{NSForegroundColorAttributeName:statusColor}].autorelease;
+                                                                         attributes:@{NSForegroundColorAttributeName:statusColor}];
         [string appendAttributedString:subString];
     }
-
-/*
-    if (self.data.status == kStatusCancelled)
-    {
-        attributes = [NSDictionary dictionaryWithObject:[UIColor redColor] forKey:NSForegroundColorAttributeName];
-        subString = [[[NSAttributedString alloc] initWithString:@"\n❌cancelled" attributes:attributes] autorelease];
-        [string appendAttributedString:subString];
-    }
-    else if (self.data.detour)
-    {
-        attributes = [NSDictionary dictionaryWithObject:[UIColor orangeColor] forKey:NSForegroundColorAttributeName];
-        subString = [[[NSAttributedString alloc] initWithString:@"\n⚠️detour" attributes:attributes] autorelease];
-        [string appendAttributedString:subString];
-    }
-    
-    if (self.data.status == kStatusScheduled)
-    {
-        attributes = [NSDictionary dictionaryWithObject:[UIColor grayColor] forKey:NSForegroundColorAttributeName];
-        subString = [[[NSAttributedString alloc] initWithString:@"\n🕔scheduled" attributes:attributes] autorelease];
-        [string appendAttributedString:subString];
-    }
-*/
     return string;
 }
 
@@ -235,7 +232,7 @@
 
 - (NSString *)exception
 {
-    NSMutableString *result = [@"".mutableCopy autorelease];
+    NSMutableString *result = @"".mutableCopy;
     
     bool needsNewl = NO;
     
@@ -262,14 +259,14 @@
     return result;
 }
 
-
 - (WKInterfaceMapPinColor)pinColor
 {
     return WKInterfaceMapPinColorRed;
 }
+
 - (UIColor*)pinTint
 {
-    UIColor *ret = [TriMetRouteColors colorForRoute:self.route];
+    UIColor *ret = [TriMetInfo colorForRoute:self.route];
     
     if (ret == nil)
     {
@@ -277,10 +274,12 @@
     }
     return ret;
 }
+
 - (bool)hasBearing
 {
     return self.blockPositionHeading!=nil;
 }
+
 - (double)doubleBearing
 {
     return self.blockPositionHeading.doubleValue;
@@ -289,6 +288,11 @@
 - (CLLocationCoordinate2D)coord
 {
     return self.blockPosition.coordinate;
+}
+
+- (bool)hasCoord
+{
+    return self.hasBlock && self.blockPosition.coordinate.latitude!=0;
 }
 
 @end

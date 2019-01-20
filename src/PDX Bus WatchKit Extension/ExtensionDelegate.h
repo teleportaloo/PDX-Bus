@@ -6,6 +6,13 @@
 //  Copyright © 2016 Teleportaloo. All rights reserved.
 //
 
+
+
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+
 #import <WatchKit/WatchKit.h>
 
 @protocol ExtentionWakeDelegate <NSObject>
@@ -18,6 +25,6 @@
 
 @property (nonatomic) bool justLaunched;
 @property (atomic)    bool backgrounded;
-@property (nonatomic, retain) id<ExtentionWakeDelegate> wakeDelegate;
+@property (nonatomic, strong) id<ExtentionWakeDelegate> wakeDelegate;
 
 @end

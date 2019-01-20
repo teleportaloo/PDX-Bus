@@ -17,21 +17,12 @@
 #import "VehicleData.h"
 #import "DebugLogging.h"
 #import "FormatDistance.h"
+#import "CLLocation+Helper.h"
 
 @implementation XMLStreetcarLocations
 
-@synthesize locations = _locations;
-@synthesize route = _route;
-
 static NSMutableDictionary *singleLocationsPerLine = nil;
 
-- (void)dealloc
-{
-	self.locations = nil;
-    self.route = nil;
-    
-	[super dealloc];
-}
 
 - (instancetype)initWithRoute:(NSString *)route
 {
@@ -44,12 +35,16 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
     return self;
 }
 
+- (bool)cacheSelectors
+{
+    return YES;
+}
+
 #pragma mark Singleton
 
-+ (XMLStreetcarLocations *)autoSingletonForRoute:(NSString *)route
++ (XMLStreetcarLocations *)sharedInstanceForRoute:(NSString *)route
 {
     @synchronized (self) {
-
         if (singleLocationsPerLine == nil)
         {
             singleLocationsPerLine = [[NSMutableDictionary alloc] init];
@@ -59,39 +54,39 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
     
         if (singleLocations == nil)
         {
-            singleLocations = [[[XMLStreetcarLocations alloc] initWithRoute:route] autorelease];
+            singleLocations = [[XMLStreetcarLocations alloc] initWithRoute:route];
         
             singleLocationsPerLine[route] = singleLocations;
         }
-	
-        return [[singleLocations retain] autorelease];
+    
+        return singleLocations;
     }
 }
 
-+ (NSSet *)getStreetcarRoutesInDepartureArray:(NSArray *)deps
++ (NSSet<NSString*> *)getStreetcarRoutesInDepartureArray:(NSArray *)deps
 {
-    NSMutableSet *routes = [NSMutableSet set];
+    NSMutableSet<NSString*> *routes = [NSMutableSet set];
     for (XMLDepartures *dep in deps)
     {
-        for (DepartureData *dd in dep.itemArray)
-		{
-			if (dd.streetcar)
-			{
-				[routes addObject:dd.route];
-			}
-		}
+        for (DepartureData *dd in dep.items)
+        {
+            if (dd.streetcar)
+            {
+                [routes addObject:dd.route];
+            }
+        }
     }
     
     return routes;
 }
-+ (void)insertLocationsIntoDepartureArray:(NSArray *)deps forRoutes:(NSSet *)routes
++ (void)insertLocationsIntoDepartureArray:(NSArray *)deps forRoutes:(NSSet<NSString*> *)routes
 {
     for (NSString *route in routes)
     {
-        XMLStreetcarLocations *locs = [XMLStreetcarLocations autoSingletonForRoute:route];
+        XMLStreetcarLocations *locs = [XMLStreetcarLocations sharedInstanceForRoute:route];
         for (XMLDepartures *dep in deps)
         {
-            for (DepartureData *dd in dep.itemArray)
+            for (DepartureData *dd in dep.items)
             {
                 if (dd.streetcar && [dd.route isEqualToString:route])
                 {
@@ -100,22 +95,21 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
             }
         }
     }
-    
 }
 
 #pragma mark Initiate Parsing
 
 - (BOOL)getLocations
 {
-	_hasData = false;
-	[self startParsing:[NSString stringWithFormat:@"vehicleLocations&a=portland-sc&r=%@&t=%qu", self.route, _lastTime]];
-	return true;	
+    _hasData = false;
+    [self startParsing:[NSString stringWithFormat:@"vehicleLocations&a=portland-sc&r=%@&t=%qu", self.route, 0LL]]; // _lastTime]];
+    return true;    
 }
 
 #pragma mark Parser Callbacks
 
 
-START_ELEMENT(body)
+XML_START_ELEMENT(body)
 {
     if (self.locations == nil)
     {
@@ -124,14 +118,13 @@ START_ELEMENT(body)
     _hasData = true;
 }
 
-START_ELEMENT(vehicle)
+XML_START_ELEMENT(vehicle)
 {
-    NSString *streetcarId = ATRVAL(id);
+    NSString *streetcarId = ATRSTR(id);
     
-    VehicleData *pos = [VehicleData alloc].init;
+    VehicleData *pos = [VehicleData data];
     
-    pos.location = [[[CLLocation alloc] initWithLatitude:ATRCOORD(lat)
-                                               longitude:ATRCOORD(lon)] autorelease];
+    pos.location = ATRLOC(lat,lon);
     
     pos.type = kVehicleTypeStreetcar;
     pos.block = streetcarId;
@@ -144,10 +137,10 @@ START_ELEMENT(vehicle)
         secs = -secs;
     }
     
-    pos.locationTime = UnixToTriMetTime([[NSDate date] timeIntervalSince1970] - secs);
-    pos.bearing = ATRVAL(heading);
+    pos.locationTime = [[NSDate date] dateByAddingTimeInterval:-secs];
+    pos.bearing = ATRSTR(heading);
     
-    NSString *dirTag = ATRVAL(dirTag);
+    NSString *dirTag = ATRSTR(dirTag);
     
     NSScanner *scanner = [NSScanner scannerWithString:dirTag];
     NSCharacterSet *underscore = [NSCharacterSet characterSetWithCharactersInString:@"_"];
@@ -169,12 +162,19 @@ START_ELEMENT(vehicle)
     
     self.locations[streetcarId] = pos;
     
-    [pos release];
 }
 
-START_ELEMENT(lastTime)
+XML_START_ELEMENT(lastTime)
 {
     _lastTime = ATRTIM(time);
+}
+
+XML_END_ELEMENT(body)
+{
+    if (_lastTime==0)
+    {
+        _lastTime = UnixToTriMetTime([NSDate date].timeIntervalSince1970);
+    }
 }
 
 
@@ -182,17 +182,15 @@ START_ELEMENT(lastTime)
 
 -(void)insertLocation:(DepartureData *)dep
 {
-	VehicleData *pos = self.locations[dep.streetcarId];
-	
-	if (pos !=nil)
-	{
+    VehicleData *pos = self.locations[dep.streetcarId];
+    
+    if (pos !=nil)
+    {
         dep.blockPosition = pos.location;
-		
-		// This allows this to run on a 3.0 iPhone but makes the warning go away
         dep.blockPositionFeet = [dep.stopLocation distanceFromLocation:pos.location] * kFeetInAMetre; // convert meters to feet
         dep.blockPositionHeading = pos.bearing;
-		dep.blockPositionAt = _lastTime;
-	}
+        dep.blockPositionAt = pos.locationTime;
+    }
 }
 
 - (void)memoryWarning

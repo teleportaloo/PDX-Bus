@@ -13,19 +13,8 @@
 #import "AlertInterfaceController.h"
 #import "UIKit/UIKit.h"
 
-@interface NumberPadInterfaceController ()
-
-@end
-
 @implementation NumberPadInterfaceController
 
-- (void)dealloc
-{
-    self.buttonStopId = nil;
-    self.stopId         = nil;
-    
-    [super dealloc];
-}
 
 - (void)awakeWithContext:(id)context {
     [super awakeWithContext:context];
@@ -49,7 +38,7 @@
     if (self.stopId.length == 0)
     {
         [self.buttonStopId setAttributedTitle:
-         [@"#A#i<stop ID>" formatAttributedStringWithFont:[UIFont systemFontOfSize:18]]];
+         [@"#A#i<stop ID>" formatAttributedStringWithFont:[UIFont systemFontOfSize:16]]];
 
     }
     else
@@ -150,7 +139,7 @@
             // Find the numbers in the results
             for (NSString *result in results)
             {
-                NSMutableString *replacedResult = [result.mutableCopy autorelease];
+                NSMutableString *replacedResult = result.mutableCopy;
                 
                 [replacements enumerateKeysAndObjectsUsingBlock: ^void (NSString* key, NSString* replacement, BOOL *stop)
                  {

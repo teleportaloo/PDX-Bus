@@ -16,161 +16,89 @@
 #import "TriMetTimesAppDelegate.h"
 #import "AppDelegateMethods.h"
 #import "DebugLogging.h"
+#import "MainQueueSync.h"
 
-
-
-@interface BackgroundTaskContainer()
-
-@property (atomic, readonly)	NSThread * backgroundThread;
-@property (atomic, retain)      NSThread * thisBackgroundThread;
-
-@end
 
 @implementation BackgroundTaskContainer
 
-@synthesize progressModal			= _progressModal;
-@synthesize callbackComplete		= _callbackComplete;
-@synthesize callbackWhenFetching	= _callbackWhenFetching;
-@dynamic backgroundThread;
-@synthesize title                   = _title;
-@synthesize help                    = _help;
-@synthesize errMsg                  = _errMsg;
-@synthesize controllerToPop         = _controllerToPop;
-
-static NSThread *singletonBackgroundThread = nil;
-static NSCondition *condition = nil;
-
-- (void)cancel
+- (void)taskCancel
 {
     DEBUG_FUNC();
-    if (self.thisBackgroundThread!=nil)
+    if (self.backgroundThread!=nil)
     {
         [self.backgroundThread cancel];
     }
-    else if (singletonBackgroundThread!=nil)
+}
+
+
+- (bool)taskCancelled
+{
+    DEBUG_FUNC();
+    if (self.backgroundThread!=nil)
     {
-        DEBUG_LOG(@"Would have cancelled the wrong thread");
+        return NO;
     }
+    
+    return self.backgroundThread.isCancelled;
 }
 
 - (bool)running
 {
-    return (self.thisBackgroundThread != nil);
+    return (self.backgroundThread != nil);
 }
 
 - (void)dealloc {
-	self.progressModal = nil;
-	self.callbackComplete = nil;
-	self.callbackWhenFetching = nil;
-    self.errMsg           = nil;
-    self.controllerToPop  = nil;
-    self.help             = nil;
-    self.title            = nil;
-    self.thisBackgroundThread = nil;
-    [super dealloc];
+    self.callbackComplete = nil;
 }
 
-+ (BackgroundTaskContainer*) create:(id<BackgroundTaskDone>) done
++ (BackgroundTaskContainer*)create:(id<BackgroundTaskDone>) done
 {
-	BackgroundTaskContainer * btc = [[[BackgroundTaskContainer alloc] init] autorelease];
-	
-	btc.callbackComplete = done;	
-	return btc;
-		
+    BackgroundTaskContainer * btc = [[BackgroundTaskContainer alloc] init];
+    
+    btc.callbackComplete = done;    
+    return btc;
+        
 }
 
 - (instancetype)init
 {
     if ((self = [super init]))
     {
-        static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{
-            condition = [[NSCondition alloc] init];
-        });
+        
     }
     
     return self;
 }
 
-- (NSThread*)backgroundThread
+- (void)progressDelegateCancel
 {
-    return self.thisBackgroundThread;
+    [self.backgroundThread cancel];
 }
 
-- (void) runSyncOnMainQueueWithoutDeadlocking: (void (^)(void)) block
-{
-    if ([NSThread isMainThread])
-    {
-        block();
-    }
-    else
-    {
-        dispatch_sync(dispatch_get_main_queue(), block);
-    }
-}
-
-- (void)privateSetBackgroundThread:(NSThread*)newBackgroundThread
-{
-    DEBUG_FUNC();
-    if (newBackgroundThread!=nil)
-    {
-        [condition lock];
-    
-        while (singletonBackgroundThread!=nil)
-        {
-            DEBUG_LOG(@"Waiting");
-            [condition wait];
-            DEBUG_LOG(@"Got signal");
-        }
-
-        singletonBackgroundThread = [newBackgroundThread retain];
-        self.thisBackgroundThread = singletonBackgroundThread;
-        
-        [condition unlock];
-    }
-    else
-    {
-        [condition lock];
-        
-        if (singletonBackgroundThread!=nil)
-        {
-            [singletonBackgroundThread release];
-            singletonBackgroundThread = nil;
-            self.thisBackgroundThread = singletonBackgroundThread;
-        }
-        // DEBUG_LOG(@"Signal");
-        [condition signal];
-        [condition unlock];
-    }
-}
-
-- (void) ProgressDelegateCancel
-{
-	[self.backgroundThread cancel];
-}
-
--(void)backgroundStart:(int)items title:(NSString *)title
+-(void)taskStartWithItems:(NSInteger)items title:(NSString *)title
 {
     self.title = title;
     self.errMsg = nil;
 
-    [self privateSetBackgroundThread:[NSThread currentThread]];
+    self.backgroundThread = [NSThread currentThread];
     
-    [self runSyncOnMainQueueWithoutDeadlocking:^{
+    self.debugMessages = [UserPrefs sharedInstance].progressDebug;
+    
+    [MainQueueSync runSyncOnMainQueueWithoutDeadlocking:^{
         TriMetTimesAppDelegate *app = [TriMetTimesAppDelegate sharedInstance];
         
         if (self.progressModal == nil)
         {
-            
             if ([self.callbackComplete respondsToSelector:@selector(backgroundTaskStarted)])
             {
                 [self.callbackComplete backgroundTaskStarted];
             }
             
-            self.progressModal = [ProgressModalView initWithSuper:app.window items:items
+            self.progressModal = [ProgressModalView initWithSuper:app.window
+                                                            items:items
                                                             title:self.title
                                                          delegate:(self.backgroundThread!=nil?self:nil)
-                                                      orientation:[self.callbackComplete BackgroundTaskOrientation]];
+                                                      orientation:[self.callbackComplete backgroundTaskOrientation]];
             
             [app.window addSubview:self.progressModal];
             
@@ -189,10 +117,10 @@ static NSCondition *condition = nil;
         {
             [NSThread sleepForTimeInterval:0.3];
         }
-    }	
+    }    
 }
 
--(void)backgroundSubtext:(NSString *)subtext
+-(void)taskSubtext:(NSString *)subtext
 {
     dispatch_async(dispatch_get_main_queue(),
                    ^{
@@ -200,7 +128,7 @@ static NSCondition *condition = nil;
                    });
 }
 
--(void)backgroundItemsDone:(int)itemsDone
+-(void)taskItemsDone:(NSInteger)itemsDone
 {
     dispatch_async(dispatch_get_main_queue(),
                    ^{
@@ -208,7 +136,7 @@ static NSCondition *condition = nil;
                    });
 }
 
--(void)backgroundItems:(int)totalItems
+-(void)taskTotalItems:(NSInteger)totalItems
 {
     dispatch_async(dispatch_get_main_queue(),
                    ^{
@@ -222,58 +150,161 @@ static NSCondition *condition = nil;
     DEBUG_FUNC();
     
     bool cancelled = (self.backgroundThread !=nil && self.backgroundThread.cancelled);
-    [self.callbackComplete BackgroundTaskDone:self.controllerToPop cancelled:cancelled];
+    [self.callbackComplete backgroundTaskDone:self.controllerToPop cancelled:cancelled];
     self.controllerToPop = nil;
-    
-    self.callbackWhenFetching = nil;
-	self.progressModal = nil;
-    [self privateSetBackgroundThread:nil];
+    self.progressModal = nil;
+    self.backgroundThread = nil;
 }
 
--(void)backgroundCompleted:(UIViewController *)viewController
+- (void)runBlock:(UIViewController * (^)(void)) block
 {
-    dispatch_async(dispatch_get_main_queue(),
-                   ^{
-                       self.controllerToPop = viewController;
-                       
-                       if (self.progressModal)
-                       {
-                           [self.progressModal removeFromSuperview];
-                       }
-                       
-                       if (self.errMsg)
-                       {
-                           TriMetTimesAppDelegate *app = [TriMetTimesAppDelegate sharedInstance];
-                           
-                           UIAlertController* alert = [UIAlertController alertControllerWithTitle:nil
-                                                                                          message:self.errMsg
-                                                                                   preferredStyle:UIAlertControllerStyleAlert];
-                           
-                           
-                           [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"button text") style:UIAlertActionStyleDefault handler:^(UIAlertAction* action){
-                               [self finish];
-                           }]];
-                           
-                           [app.navigationController.topViewController presentViewController:alert animated:YES completion:nil];
-                       }
-                       else
-                       {
-                          
-                           
-                           [self finish];
-                       }
-                   });
+    static NSNumber *globalSyncObject;
+    
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        globalSyncObject = @(42);
+    });
+    
+    // This forces the background thread only to run one at a time - no
+    // deadlock!
+    
+    @synchronized(globalSyncObject)
+    {
+        @autoreleasepool
+        {
+            self.backgroundThread = [NSThread currentThread];
+            [self taskCompleted:block()];
+        }
+    }
 }
 
-- (void)backgroundSetErrorMsg:(NSString *)errMsg
+- (void)taskRunAsync:(UIViewController * (^)(void)) block
+{
+    // We need to use the NSThread mechanism so we can cancel it easily, but I want to use the blocks
+    // as it makes the passing of variables very easy.
+    [self performSelectorInBackground:@selector(runBlock:) withObject:[block copy]];
+}
+
+
+-(void)taskCompleted:(UIViewController *)viewController
+{
+    DEBUG_FUNC();
+    DEBUG_PROGRESS(self, @"BC");
+    
+    [MainQueueSync runSyncOnMainQueueWithoutDeadlocking:^{
+         DEBUG_FUNC();
+         self.controllerToPop = viewController;
+        
+         DEBUG_PROGRESS(self, @"DONE");
+        
+         if (self.progressModal)
+         {
+             [self.progressModal removeFromSuperview];
+         }
+         
+         if (self.errMsg)
+         {
+             TriMetTimesAppDelegate *app = [TriMetTimesAppDelegate sharedInstance];
+             
+             UIAlertController* alert = [UIAlertController alertControllerWithTitle:nil
+                                                                            message:self.errMsg
+                                                                     preferredStyle:UIAlertControllerStyleAlert];
+             
+             
+             [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"button text") style:UIAlertActionStyleDefault handler:^(UIAlertAction* action){
+                 
+             }]];
+             
+             [app.navigationController.topViewController presentViewController:alert animated:YES completion:^{
+                 [self finish];
+             }];
+         }
+         else
+         {
+             DEBUG_LOG(@"finish");
+             [self finish];
+         }
+     }];
+}
+
+- (void)taskSetErrorMsg:(NSString *)errMsg
 {
     self.errMsg = errMsg;
 }
 
-- (void)BackgroundSetHelpText:(NSString *)helpText
+- (void)taskSetHelpText:(NSString *)helpText
 {
     [self.progressModal addHelpText:helpText];
 }
 
+-(NSString *)size:(NSInteger)bytes fromCache:(bool)fromCache
+{
+    NSString *result = nil;
+    if (bytes < 1024)
+    {
+        result = [NSString stringWithFormat:@"%d B%@", (int)bytes, fromCache ? @" cached" : @""];
+    }
+    else if (bytes < (1024 * 1024))
+    {
+        result = [NSString stringWithFormat:@"%.2f K%@", (((float)(bytes))/1024.0),fromCache ? @" cached" : @""];
+    } else
+    {
+        result = [NSString stringWithFormat:@"%.2f MB%@", ((float)(bytes)/(1024*1024)),fromCache ? @" cached" : @""];
+    }
+    
+    return result;
+}
+
+- (void)TriMetXML:(TriMetXML*)xml startedFetchingData:(bool)fromCache
+{
+    dispatch_async(dispatch_get_main_queue(),
+                   ^{
+                       [self.progressModal subItemsDone:1 totalSubs:5];
+                   });
+}
+
+- (void)TriMetXML:(TriMetXML*)xml finishedFetchingData:(bool)fromCache
+{
+    dispatch_async(dispatch_get_main_queue(),
+                   ^{
+                       [self.progressModal subItemsDone:3 totalSubs:5];
+                   });
+}
+
+- (void)TriMetXML:(TriMetXML*)xml startedParsingData:(NSUInteger)size fromCache:(bool)fromCache
+{
+    dispatch_async(dispatch_get_main_queue(),
+                   ^{
+                       [self.progressModal subItemsDone:4 totalSubs:5];
+                       if ([UserPrefs sharedInstance].showSizes)
+                       {
+                           [self.progressModal addSubtext:[self size:size fromCache:fromCache]];
+                       }
+                   });
+}
+
+- (void)TriMetXML:(TriMetXML*)xml finishedParsingData:(NSUInteger)size fromCache:(bool)fromCache
+{
+    dispatch_async(dispatch_get_main_queue(),
+                   ^{
+                       [self.progressModal subItemsDone:5 totalSubs:5];
+                   });
+}
+
+- (void)TriMetXML:(TriMetXML *)xml expectedSize:(long long)expected {
+    
+}
+
+- (void)TriMetXML:(TriMetXML *)xml progress:(long long)progress of:(long long)expected {
+    
+    if (expected > 1024*1024)
+    {
+        dispatch_async(dispatch_get_main_queue(),
+                       ^{
+                           [self.progressModal subItemsDone:4 totalSubs:5];
+                           [self.progressModal addSubtext:[NSString stringWithFormat:@"%.1f%% done", (100.0*(float)progress/(float)expected)]];
+                       });
+    }
+}
 
 @end

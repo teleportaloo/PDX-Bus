@@ -41,28 +41,28 @@
 	return self.locDesc;
 }
 
-- (MKPinAnnotationColor) pinColor
+- (MapPinColorValue) pinColor
 {
-	return MKPinAnnotationColorGreen;
+	return MAP_PIN_COLOR_GREEN;
 }
 
 
 #pragma mark Data accessors
 
-- (id)DTDataXML
+- (id)depXML
 {
 	return self;
 }
 
-- (DepartureData *)DTDataGetDeparture:(NSInteger)i
+- (DepartureData *)depGetDeparture:(NSInteger)i
 {
 	return self[i];
 }
-- (NSInteger)DTDataGetSafeItemCount
+- (NSInteger)depGetSafeItemCount
 {
 	return self.count;
 }
-- (NSString *)DTDataGetSectionHeader
+- (NSString *)depGetSectionHeader
 {
     if (self.locDir!=nil && self.locDir.length!=0)
     {
@@ -70,66 +70,66 @@
     }
     return self.locDesc;
 }
-- (NSString *)DTDataGetSectionTitle
+- (NSString *)depGetSectionTitle
 {
 	return self.sectionTitle;
 }
 
-- (void)DTDataPopulateCell:(DepartureData *)dd cell:(DepartureCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide
+- (void)depPopulateCell:(DepartureData *)dd cell:(DepartureCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide
 {
 	[dd populateCell:cell decorate:decorate busName:YES wide:wide];
 }
-- (NSString *)DTDataStaticText
+- (NSString *)depStaticText
 {
 	return [NSString stringWithFormat:@"Stop ID %@.", self.locid];
 }
 
-- (StopDistanceData*)DTDataDistance
+- (StopDistanceData*)depDistance
 {
 	return self.distance;
 }
 
-- (TriMetTime) DTDataQueryTime
+- (NSDate *)depQueryTime
 {
 	return self.queryTime;
 }
 
-- (CLLocation *)DTDataLoc
+- (CLLocation *)depLocation
 {
 	return self.loc;
 }
 
-- (NSString *)DTDataLocDesc
+- (NSString *)depLocDesc
 {
 	return self.locDesc;
 }
 
-- (NSString *)DTDataLocID
+- (NSString *)depLocId
 {
 	return self.locid;
 }
 
-- (BOOL) DTDataHasDetails
+- (bool)depHasDetails
 {
 	return TRUE;
 }
 
-- (BOOL) DTDataNetworkError
+- (bool)depNetworkError
 {
 	return !self.gotData;
 }
 
-- (NSString *) DTDataNetworkErrorMsg
+- (NSString *)depNetworkErrorMsg
 {
 	return self.errorMsg;
 }
 
-- (NSString *) DTDataDir
+- (NSString *)depDir
 {
 	return self.locDir;
 }
 
-- (NSData *) DTDataHtmlError
+- (NSData *)depHtmlError
 {
 	return self.htmlError;
 }
@@ -142,6 +142,16 @@
 - (bool)hasBearing
 {
     return NO;
+}
+
+- (Detour *)depDetour
+{
+    return nil;
+}
+
+- (NSOrderedSet<NSNumber*>*) depDetoursPerSection
+{
+    return self.locDetours;
 }
 
 

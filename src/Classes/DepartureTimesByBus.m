@@ -19,108 +19,118 @@
 
 @implementation DepartureTimesByBus
 
-@synthesize departureItems = _departureItems;
-
-- (void)dealloc
-{
-	self.departureItems = nil;
-	[super dealloc];
-}
 
 - (instancetype)init {
-	if ((self = [super init]))
-	{
+    if ((self = [super init]))
+    {
         self.departureItems = [NSMutableArray array];
-	}
-	return self;
+    }
+    return self;
 }
 
 #pragma mark Data Accessors
 
-- (DepartureData *)DTDataGetDeparture:(NSInteger)i
+- (DepartureData *)depGetDeparture:(NSInteger)i
 {
-	return self.departureItems[i];
+    return self.departureItems[i];
 }
-- (NSInteger)DTDataGetSafeItemCount
+- (NSInteger)depGetSafeItemCount
 {
-	if (self.departureItems == nil)
-	{
-		return 0;
-	}
-	return self.departureItems.count;
+    if (self.departureItems == nil)
+    {
+        return 0;
+    }
+    return self.departureItems.count;
 }
-- (NSString *)DTDataGetSectionHeader
+- (NSString *)depGetSectionHeader
 {
-	return [self DTDataGetDeparture:0].shortSign;
+    return self.departureItems.lastObject.shortSign;
 }
-- (NSString *)DTDataGetSectionTitle
+- (NSString *)depGetSectionTitle
 {
-	return nil;
-}
-
-- (void)DTDataPopulateCell:(DepartureData *)dd cell:(DepartureCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide
-{
-	[dd populateCell:cell decorate:decorate busName:NO wide:wide];	
+    return nil;
 }
 
-- (NSString *)DTDataStaticText
+- (void)depPopulateCell:(DepartureData *)dd cell:(DepartureCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide
 {
-	DepartureData *d = [self DTDataGetDeparture:0];
-	if (d.block != nil)
-	{
-		return [NSString stringWithFormat:NSLocalizedString(@"(Trip ID %@) ", @"trip info small text"), d.block];
-	}
-	return NSLocalizedString(@"(Trip ID unavailable)", @"error text");
+    [dd populateCell:cell decorate:decorate busName:NO wide:wide];    
 }
 
-- (StopDistanceData*)DTDataDistance
+- (NSString *)depStaticText
 {
-	return nil;
-}
-- (TriMetTime) DTDataQueryTime
-{
-	return [self DTDataGetDeparture:0].queryTime;
-}
-
-- (NSString *)DTDataLoc
-{
-	return nil;
-}
-
-- (NSString *)DTDataLocDesc
-{
-	DepartureData *dep = [self DTDataGetDeparture:0];
-	return dep.locationDesc;
+    DepartureData *d = [self depGetDeparture:0];
+    if (d.block != nil)
+    {
+        if (d.vehicleIDs && d.vehicleIDs.count > 0)
+        {
+            return [NSString stringWithFormat:NSLocalizedString(@"(Vehicle ID %@) ", @"trip info small text"), d.vehicleIDs[0]];
+        }
+        return @"(No Vehicle ID)";
+        
+    }
+    return NSLocalizedString(@"(" kBlockNameC "Trip ID unavailable)", @"error text");
 }
 
-- (NSString *)DTDataLocID
+- (StopDistanceData*)depDistance
 {
-	return [self DTDataGetDeparture:0].locid;
+    return nil;
+}
+- (NSDate *)depQueryTime
+{
+    return [self depGetDeparture:0].queryTime;
 }
 
-- (NSString *)DTDataDir
+- (NSString *)depLocation
 {
-	return [self DTDataGetDeparture:0].locationDir;
+    return nil;
 }
 
-- (BOOL) DTDataHasDetails
+- (NSString *)depLocDesc
 {
-	return FALSE;
+    DepartureData *dep = [self depGetDeparture:0];
+    return dep.locationDesc;
 }
 
-- (BOOL) DTDataNetworkError
+- (NSString *)depLocId
 {
-	return self.departureItems == nil;
+    return [self depGetDeparture:0].locid;
 }
 
-- (NSString *)DTDataNetworkErrorMsg
+- (NSString *)depDir
 {
-	return nil;
+    return [self depGetDeparture:0].locationDir;
 }
 
-- (NSData *) DTDataHtmlError
+- (bool)depHasDetails
 {
-	return nil;
+    return FALSE;
 }
+
+- (bool)depNetworkError
+{
+    return self.departureItems == nil;
+}
+
+- (NSString *)depNetworkErrorMsg
+{
+    return nil;
+}
+
+- (Detour *)depDetour
+{
+    return nil;
+}
+
+- (NSData *) depHtmlError
+{
+    return nil;
+}
+
+-(NSOrderedSet<NSNumber*>*) depDetoursPerSection
+{
+    return [NSOrderedSet orderedSet];
+}
+
+
 
 @end

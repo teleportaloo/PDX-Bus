@@ -21,9 +21,7 @@
 	NSAttributedString *introText;
     NSArray<NSDictionary<NSString*, NSString*>*> *links;
     NSArray<NSDictionary<NSString*, NSString*>*> *legal;
-    
-    
-    bool _hideButton;
+    NSArray<NSString*> *versions;
 }
 
 @property (nonatomic) bool hideButton;

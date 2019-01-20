@@ -11,26 +11,22 @@
 
 
 #import <UIKit/UIKit.h>
-#import "TableViewWithToolbar.h"
+#import "TableViewControllerWithRefresh.h"
 #import "ReturnStopId.h"
 #import "Stop.h"
 @class XMLStops;
 @class DepartureData;
 
 
-@interface StopView : TableViewWithToolbar <ReturnStop>{
-	XMLStops *      _stopData;
-	DepartureData * _departure;
-	NSString *      _directionName;
-}
+@interface StopView : TableViewControllerWithRefresh<ReturnStop>
 
-@property (nonatomic, retain) XMLStops *stopData;
-@property (nonatomic, retain) DepartureData *departure;
+@property (nonatomic, strong) XMLStops *stopData;
+@property (nonatomic, strong) DepartureData *departure;
 @property (nonatomic, copy)   NSString *directionName;
-- (void)refreshAction:(id)sender;
-- (void)fetchStopsAsync:(id<BackgroundTaskProgress>) callback route:(NSString*)routeid direction:(NSString*)dir description:(NSString *)desc
-				 directionName:(NSString *)dirName;
-- (void)fetchDestinationsAsync:(id<BackgroundTaskProgress>) callback dep:(DepartureData *)dep;
 
+- (void)refreshAction:(id)sender;
+- (void)fetchStopsAsync:(id<BackgroundTaskController>)task route:(NSString*)routeid direction:(NSString*)dir description:(NSString *)desc
+          directionName:(NSString *)dirName backgroundRefresh:(bool)backgroundRefresh;
+- (void)fetchDestinationsAsync:(id<BackgroundTaskController>)task dep:(DepartureData *)dep;
 
 @end

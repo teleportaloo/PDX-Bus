@@ -20,27 +20,21 @@
 
 #define kAcquiredLocation @"<Acquired GPS Location>"
 
-@interface TripEndPoint : DataFactory {
-	bool        _useCurrentLocation;
-	NSString *  _locationDesc;
-	NSString *  _additionalInfo;
-	CLLocation *_coordinates;
-}
+@interface TripEndPoint : DataFactory 
 
-@property (nonatomic, retain) NSString  *locationDesc;
-@property (nonatomic, retain) NSString  *additionalInfo;
-@property (nonatomic, retain) CLLocation  *coordinates;
+@property (nonatomic, strong) NSString  *locationDesc;
+@property (nonatomic, strong) NSString  *additionalInfo;
+@property (nonatomic, strong) CLLocation  *coordinates;
 @property (nonatomic) bool useCurrentLocation;
-
-- (NSString *)toQuery:(NSString *)toOrFrom;
-
 @property (nonatomic, readonly, copy) NSDictionary *toDictionary;
-- (bool)readDictionary:(NSDictionary *)dict;
-- (bool)equalsTripEndPoint:(TripEndPoint*)endPoint;
-+ (instancetype)fromDictionary:(NSDictionary *)dict;
 @property (nonatomic, readonly, copy) NSString *displayText;
 @property (nonatomic, readonly, copy) NSString *userInputDisplayText;
+
+- (NSString *)toQuery:(NSString *)toOrFrom;
+- (bool)readDictionary:(NSDictionary *)dict;
+- (bool)equalsTripEndPoint:(TripEndPoint*)endPoint;
 - (void)resetCurrentLocation;
 
++ (instancetype)fromDictionary:(NSDictionary *)dict;
 
 @end

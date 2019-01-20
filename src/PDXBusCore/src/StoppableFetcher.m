@@ -17,129 +17,121 @@
 #import "DebugLogging.h"
 #import "UserPrefs.h"
 #import "PDXBusCore.h"
+#import "MainQueueSync.h"
 
 @implementation StoppableFetcher
 
-@synthesize dataComplete = _dataComplete;
-@synthesize rawData = _rawData;
-@synthesize connection = _connection;
-@synthesize errorMsg = _errorMsg;
-@synthesize giveUp = _giveUp;
-@synthesize timedOut = _timedOut;
-
-
 - (instancetype)init
 {
-	if ((self = [super init]))
-	{
-		self.giveUp = [UserPrefs sharedInstance].networkTimeout;
-	}
-	return self;
+    if ((self = [super init]))
+    {
+        self.giveUp = [UserPrefs sharedInstance].networkTimeout;
+    }
+    return self;
 }
-
-- (void)dealloc {
-	self.rawData = nil;
-	self.connection = nil;
-	self.errorMsg = nil;
-	[super dealloc];
-}
-
 
 
 
 
 #ifndef PDXBUS_WATCH
 
-void runSyncOnMainQueueWithoutDeadlocking(void (^block)(void))
-{
-    if ([NSThread isMainThread])
-    {
-        block();
-    }
-    else
-    {
-        dispatch_sync(dispatch_get_main_queue(), block);
-    }
-}
-
 - (void)fetchDataByPolling:(NSString *)query
 {
-	const double pollingTime = 0.125;
-	NSURL *url = [NSURL URLWithString:query];
-	NSURLRequest * request = [NSURLRequest requestWithURL:url];
-	
-	NSRunLoop* runLoop = [NSRunLoop currentRunLoop];
-	NSDate *future = [NSDate dateWithTimeIntervalSinceNow:pollingTime];
-	NSThread *thisThread = [NSThread currentThread];
-	
-	// DEBUG_LOG(@"Query: %@\n", query);
-	
-	self.rawData = nil; 
-	
-	self.dataComplete = NO;
-	self.timedOut = NO;
-	
-	self.connection = [NSURLConnection connectionWithRequest:request delegate:self];
-	[self.connection start];
-	
-	int pollingCount = 0;
-	
-	NSDate *giveUpTime = nil;
-	
-	if (self.giveUp > 0)
-	{
-		giveUpTime = [NSDate dateWithTimeIntervalSinceNow:self.giveUp];
-	}
+    DEBUG_FUNC();
+    const double pollingTime = 0.125;
+    NSURL *url = [NSURL URLWithString:query];
     
-    bool networkActivityIndicatorVisible = NO;
-
-    runSyncOnMainQueueWithoutDeadlocking(^{
-        bool networkActivityIndicatorVisible = [UIApplication sharedApplication].networkActivityIndicatorVisible;
-        
-        if (!networkActivityIndicatorVisible)
+    
+    NSThread *thisThread = [NSThread currentThread];
+    
+    // DEBUG_LOG(@"Query: %@\n", query);
+    
+    self.rawData = nil; 
+    
+    self.dataComplete = NO;
+    self.timedOut = NO;
+    
+#ifdef BASE_IOS12
+    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration delegate:self delegateQueue:nil];
+    self.connection = [session dataTaskWithURL:url];
+    [self.connection resume];
+#else
+    NSRunLoop* runLoop = [NSRunLoop currentRunLoop];
+    NSURLRequest * request = [NSURLRequest requestWithURL:url];
+    self.connection = [NSURLConnection connectionWithRequest:request delegate:self];
+    [self.connection start];
+#endif
+    
+    
+    int pollingCount = 0;
+    
+    NSDate *giveUpTime = nil;
+    
+    if (self.giveUp > 0)
+    {
+        giveUpTime = [NSDate dateWithTimeIntervalSinceNow:self.giveUp];
+    }
+    
+#ifndef PDXBUS_EXTENSION
+    [MainQueueSync runSyncOnMainQueueWithoutDeadlocking:^{
+        UIApplication *app = [UIApplication sharedApplication];
+        if (!app.networkActivityIndicatorVisible)
         {
-            [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+            app.networkActivityIndicatorVisible = YES;
         }
-    });
-	while (!self.dataComplete && [runLoop runMode: NSDefaultRunLoopMode beforeDate:future])
-	{
-		// NSLog(@"Polling...\n");
-		pollingCount ++;
-		future = [NSDate dateWithTimeIntervalSinceNow:pollingTime];
-		
-		if (thisThread.cancelled)
-		{
-			DEBUG_LOG(@"Cancelled\n");
-			self.rawData = nil;
-			[self.connection cancel];	
-			self.dataComplete = YES;
-		}
-		
-		if (giveUpTime !=nil)
-		{
-			NSDate *now = [NSDate date];
-			DEBUG_LOG(@"Time: %f\n", [giveUpTime timeIntervalSinceDate:now]);
-			if ([giveUpTime compare:now] == NSOrderedAscending)
-			{
-				DEBUG_LOG(@"timed out: %f\n", [giveUpTime timeIntervalSinceDate:now]);
-				self.rawData = nil;
-				[self.connection cancel];
-				self.timedOut = YES;
-				self.dataComplete = YES;
-			}
-			
-		}
-	}
-	
-	// DEBUG_LOG(@"Polling count %d\n", pollingCount);
-    
-    runSyncOnMainQueueWithoutDeadlocking (^{
-        if (!networkActivityIndicatorVisible)
+    }];
+#endif
+#ifdef BASE_IOS12
+    while (!self.dataComplete)
+    {
+        [NSThread sleepForTimeInterval:pollingTime];
+#else
+    NSDate *future = [NSDate dateWithTimeIntervalSinceNow:pollingTime];
+    while (!self.dataComplete && [runLoop runMode: NSDefaultRunLoopMode beforeDate:future])
+    future = [NSDate dateWithTimeIntervalSinceNow:pollingTime];
+    {
+#endif
+        // NSLog(@"Polling...\n");
+        pollingCount ++;
+        
+        
+        if (thisThread.cancelled)
         {
-            [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+            DEBUG_LOG(@"Cancelled\n");
+            self.rawData = nil;
+            [self.connection cancel];    
+            self.dataComplete = YES;
         }
         
-    });
+        if (giveUpTime !=nil)
+        {
+            NSDate *now = [NSDate date];
+            DEBUG_LOG(@"Time: %f\n", [giveUpTime timeIntervalSinceDate:now]);
+            if ([giveUpTime compare:now] == NSOrderedAscending)
+            {
+                DEBUG_LOG(@"timed out: %f\n", [giveUpTime timeIntervalSinceDate:now]);
+                self.rawData = nil;
+                [self.connection cancel];
+                self.timedOut = YES;
+                self.dataComplete = YES;
+            }
+            
+        }
+    }
+    
+    DEBUG_LOG(@"Data done: %lu\n", (unsigned long)self.rawData.length);
+    
+    // DEBUG_LOG(@"Polling count %d\n", pollingCount);
+#ifndef PDXBUS_EXTENSION
+    [MainQueueSync runSyncOnMainQueueWithoutDeadlocking:^{
+        UIApplication *app = [UIApplication sharedApplication];
+        if (app.networkActivityIndicatorVisible)
+        {
+            app.networkActivityIndicatorVisible = NO;
+        }
+    }];
+#endif
 }
 #else
 
@@ -279,41 +271,69 @@ didCompleteWithError:(NSError *)error
     self.dataComplete = YES;
 }
 
+- (void)expectedSize:(long long)expected
+{
+    
+}
+
+- (void)progressed:(long long)progress
+{
+    
+}
+
+
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
 {
-	// DEBUG_LOG(@"Expected length: %lld\n", response.expectedContentLength);
-	
-	// Don't pre-allocate more than 32K - seems like it could be a mistake if we need 32K!
-	if (response.expectedContentLength !=-1 && response.expectedContentLength < (32 * 1024))
-	{
+    // DEBUG_LOG(@"Expected length: %lld\n", response.expectedContentLength);
+    
+    // Don't pre-allocate more than 15 MB - seems like it could be a mistake if we need 15 MB!
+    if (response.expectedContentLength !=-1 && response.expectedContentLength < (15 * 1025 * 1024))
+    {
         self.rawData = [NSMutableData dataWithCapacity:(NSInteger)response.expectedContentLength];
-	}
-	else {
+    }
+    else {
         self.rawData = [NSMutableData data];
-	}
+    }
+    
+    _expected = response.expectedContentLength;
+    _progress = 0;
+    
+    [self expectedSize:_expected];
+    /*
+    if ([response isKindOfClass:[NSHTTPURLResponse class]])
+    {
+        NSHTTPURLResponse *http = (NSHTTPURLResponse*)response;
+        DEBUG_LOGO(http.allHeaderFields);
+    }
+     */
+   
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
 {
-	if (self.rawData !=nil)
-	{
-		// DEBUG_LOG(@"Data %lu\n", (unsigned long)[data length]);
-		[self.rawData appendData:data];
-	}
+    if (self.rawData !=nil)
+    {
+        // DEBUG_LOG(@"Data %lu\n", (unsigned long)[data length]);
+        [self.rawData appendData:data];
+        _progress += data.length;
+        [self progressed:_progress];
+    }
 }
 
 - (void)connection:(NSURLConnection *)theConnection didFailWithError:(NSError *)error
 {
-	self.rawData = nil;
-	self.dataComplete = YES;
-	self.errorMsg = error.localizedDescription;
-	ERROR_LOG(@"Connection error %@\n", [error localizedDescription]);
+    self.rawData = nil;
+    self.dataComplete = YES;
+    self.errorMsg = error.localizedDescription;
+    ERROR_LOG(@"Connection error %@\n", [error localizedDescription]);
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)theConnection
 {
-	self.dataComplete = YES;
+    self.dataComplete = YES;
 }
+
+
 
 
 @end

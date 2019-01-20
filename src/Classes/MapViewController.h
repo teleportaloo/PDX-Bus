@@ -18,12 +18,12 @@
 #import "MapPinColor.h"
 #import "UIToolbar+Auto.h"
 #import "ViewControllerBase.h"
-#import "LegShapeParser.h"
+#import "ShapeRoutePath.h"
 #import "RoutePolyline.h"
 
 @interface LinesAnnotation : NSObject <MKAnnotation>
 {
-	CLLocationCoordinate2D _middle;
+    CLLocationCoordinate2D _middle;
 }
 
 @property (nonatomic) CLLocationCoordinate2D middle;
@@ -31,42 +31,40 @@
 
 @end
 
+typedef enum _mapViewlineOptions {
+    MapViewNoLines,
+    MapViewFitLines,
+    MapViewNoFitLines
+} MapViewLineOptions;
 
 @interface MapViewController : ViewControllerBase <MKMapViewDelegate, BackgroundTaskDone> {
-	MKMapView *                         _mapView;
-	NSMutableArray<id<MapPinColor>> *   _annotations;
-	NSMutableArray<ShapeObject*> *      _lineCoords;
-	NSMutableArray<RoutePolyline *> *   _routePolyLines;
-	MKCircle *                          _circle;
-	bool                                _lines;
-	int                                 _selectedAnnotation;
-	UISegmentedControl *                _segPrevNext;
-    UIBarButtonItem *                   _compassButton;
+    int                                 _selectedAnnotation;
+    UISegmentedControl *                _segPrevNext;
     CGRect                              _portraitMapRect;
-    CLLocationDirection                 _previousHeading;
-    CADisplayLink *                     _displayLink;
-    NSString *                          _msgText;
     bool                                _backgroundRefresh;
 }
 
-@property (nonatomic, retain) MKMapView *mapView;
-@property (nonatomic, retain) NSMutableArray *routePolyLines;
-@property (nonatomic, retain) NSMutableArray<id<MapPinColor>> *annotations;
-@property (nonatomic) bool lines;
-@property (nonatomic, retain) NSMutableArray<ShapeObject*> *lineCoords;
-@property (nonatomic, retain) MKCircle *circle;
-@property (nonatomic, retain) UIBarButtonItem *compassButton;
+@property (nonatomic, strong) MKMapView *mapView;
+@property (nonatomic, strong) NSMutableArray *routePolyLines;
+@property (nonatomic, strong) NSMutableArray<id<MapPinColor>> *annotations;
+@property (nonatomic) MapViewLineOptions lineOptions;
+@property (nonatomic, strong) NSMutableArray<ShapeRoutePath*>* lineCoords;
+@property (nonatomic, strong) MKCircle *circle;
+@property (nonatomic, strong) UIBarButtonItem *compassButton;
 @property (atomic)            bool animating;
 @property (nonatomic)         bool backgroundRefresh;
 @property (readonly)          bool hasXML;
 @property (nonatomic) CLLocationDirection previousHeading;
 @property (nonatomic, strong) CADisplayLink *displayLink;
 @property (nonatomic, copy)   NSString *msgText;
+@property (nonatomic)         bool nextPrevButtons;
+@property (nonatomic, strong)  NSMutableSet<RoutePin*>* overlayAnnotations;
 
 // - (void)setMapLocationLat:(NSString *)lat lng:(NSString *)lng title:(NSString *)title;
 - (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation;
 - (void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)view calloutAccessoryControlTapped:(UIControl *)control;
 - (void)addPin:(id<MapPinColor>) pin;
 - (void)removeAnnotations;
+- (void)modifyMapViewFrame:(CGRect *)frame;
 
 @end

@@ -14,11 +14,8 @@
 
 
 #import "BlockColorViewController.h"
-#import "UITableViewCell+MultiLineCell.h"
-
-@interface BlockColorViewController ()
-
-@end
+#import "TriMetInfo.h"
+#import "StringHelper.h"
 
 #define kSectionData        0
 #define kSectionNoData      1
@@ -26,32 +23,36 @@
 
 @implementation BlockColorViewController
 
+- (void)initKeys
+{
+    _keys = [_db.keys sortedArrayUsingComparator:^NSComparisonResult(NSString * obj1, NSString * obj2) {
+        NSDate *d1 = [self->_db timeForBlock:obj1];
+        NSDate *d2 = [self->_db timeForBlock:obj2];
+        return [d1 compare:d2];
+    }];
+}
+
 
 - (instancetype)init
 {
-	if ((self = [super init]))
-	{
-		self.title = NSLocalizedString(@"Vehicle Color Tags", @"screen text");
+    if ((self = [super init]))
+    {
+        self.title = NSLocalizedString(@kBlockNameC " Color Tags", @"screen text");
         _db = [BlockColorDb sharedInstance];
-        _keys = [[_db keys] retain];
+        
+        [self initKeys];
+       
+        
         self.table.allowsSelectionDuringEditing = YES;
-        _helpText = NSLocalizedString(@"Vehicle color tags can be set to highlight a bus or train so that you can follow its progress through several stops. "
+        _helpText = NSLocalizedString(@kBlockNameC " color tags can be set to highlight a bus or train so that you can follow its progress through several stops. "
                                                       @"For example, if you tag an arrival at one stop, you can use the color tag to see when it will arrive at your destination. "
                                                       @"Also, the tags will remain persistant on each day of the week, so the same bus or train will have the same color the next day.\n\n"
-                                                      @"To set a tag, click 'Tag this vehicle with a color' from the arrival details.", @"Tagging help screen");
+                                                      @"To set a tag, click 'Tag this " kBlockName " with a color' from the arrival details.", @"Tagging help screen");
 
-	}
-	return self;
+    }
+    return self;
 }
 
-- (void)dealloc
-{
-    [_keys release];
-    [_changingColor release];
-    [_helpText release];
-    
-    [super dealloc];
-}
 
 
 
@@ -75,8 +76,8 @@
 - (void)deleteAll:(id)sender
 {
     [_db clearAll];
-    [_keys release];
-    _keys = [_db keys];
+    
+    [self initKeys];
     [self reloadData];
 }
 
@@ -104,17 +105,18 @@
 
 -(UILabel *)create_UITextView:(UIFont *)font
 {
-	CGRect frame = CGRectMake(0.0, 0.0, 100.0, 100.0);
-	
-	UILabel *textView = [[[UILabel alloc] initWithFrame:frame] autorelease];
+    CGRect frame = CGRectMake(0.0, 0.0, 100.0, 100.0);
+    
+    UILabel *textView = [[UILabel alloc] initWithFrame:frame];
     textView.textColor = [UIColor blackColor];
     textView.font = font;
     textView.backgroundColor = [UIColor whiteColor];
-	textView.lineBreakMode =   NSLineBreakByWordWrapping;
-	textView.adjustsFontSizeToFitWidth = YES;
-	textView.numberOfLines = 0;
+    textView.lineBreakMode =   NSLineBreakByWordWrapping;
+    textView.adjustsFontSizeToFitWidth = YES;
+    textView.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
+    textView.numberOfLines = 0;
     
-	return textView;
+    return textView;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -125,7 +127,7 @@
         UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionData)];
         
         if (cell == nil) {
-            cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:MakeCellId(kSectionData)] autorelease];
+            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:MakeCellId(kSectionData)];
         }
         
         // Configure the cell...
@@ -135,24 +137,19 @@
         cell.imageView.image = [BlockColorDb imageWithColor:col];
         cell.textLabel.text  =  [_db descForBlock:key];
         cell.textLabel.adjustsFontSizeToFitWidth = YES;
-        cell.detailTextLabel.text = [NSString stringWithFormat:@"Trip ID %@ - %@", key,
+        cell.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
+        cell.detailTextLabel.text = [NSString stringWithFormat:@kBlockNameC " ID %@ - %@", key,
                                      [NSDateFormatter localizedStringFromDate:[_db timeForBlock:key] dateStyle:NSDateFormatterMediumStyle timeStyle:NSDateFormatterShortStyle]];
         
         return cell;
     }
     else
     {
-		NSString *MyIdentifier = [NSString stringWithFormat:@"CellLabel"];
-		
-		UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MyIdentifier];
-		if (cell == nil) {
-            cell = [UITableViewCell cellWithMultipleLines:MyIdentifier font:self.paragraphFont];
-		}
-		
-		cell.textLabel.text = _helpText;
-		cell.selectionStyle = UITableViewCellSelectionStyleNone;
-		cell.accessibilityLabel = _helpText;
-		return cell;
+        UITableViewCell *cell = [self tableView:tableView multiLineCellWithReuseIdentifier:@"HelpCell" font:self.paragraphFont];
+        cell.textLabel.text = _helpText;
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        cell.accessibilityLabel = _helpText.phonetic;
+        return cell;
     }
 }
 
@@ -201,7 +198,7 @@
 {
     if (indexPath.section == kSectionData)
     {
-        _changingColor = [_keys[indexPath.row] retain];
+        _changingColor = _keys[indexPath.row];
         
         InfColorPickerController* picker = [ InfColorPickerController colorPickerViewController ];
         
@@ -226,8 +223,8 @@
             NSString *block = _keys[indexPath.row];
             
             [_db addColor:nil forBlock:block description:nil];
-            [_keys release];
-            _keys = [[_db keys] retain];
+
+            [self initKeys];
             
             [tableView beginUpdates];
             
@@ -265,7 +262,6 @@
       description:desc];
     [controller dismissViewControllerAnimated:YES completion:nil];
     
-    [_changingColor release];
     _changingColor = nil;
 
     [self reloadData];
@@ -273,23 +269,22 @@
 
 - (void)updateToolbarItems:(NSMutableArray *)toolbarItems
 {
-	// match each of the toolbar item's style match the selection in the "UIBarButtonItemStyle" segmented control
-	// UIBarButtonItemStyle style = UIBarButtonItemStylePlain;
-	
-	
+    // match each of the toolbar item's style match the selection in the "UIBarButtonItemStyle" segmented control
+    // UIBarButtonItemStyle style = UIBarButtonItemStylePlain;
+    
+    
     UIBarButtonItem *delete = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Delete All", @"button text")
                                                                 style:UIBarButtonItemStylePlain
                                                                target:self
                                                                action:@selector(deleteAll:)];
-	
-	
-	delete.style = UIBarButtonItemStylePlain;
-	delete.accessibilityLabel = NSLocalizedString(@"Delete all", @"accessibility text");
-	
+    
+    
+    delete.style = UIBarButtonItemStylePlain;
+    delete.accessibilityLabel = NSLocalizedString(@"Delete all", @"accessibility text");
+    
     [toolbarItems addObject:delete];
     [self maybeAddFlashButtonWithSpace:YES buttons:toolbarItems big:NO];
     
-    [delete release];
 
 }
 

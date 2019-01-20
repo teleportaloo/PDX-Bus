@@ -15,14 +15,26 @@
 
 #import <MapKit/MapKit.h>
 
+#define kPolyLineSegLength      (4)
+#define kPolyLinePatternDirect  (5)
+#define kPolyLinePatternBus     (1)
+
+@class RoutePin;
 
 @interface RoutePolyline : MKPolyline
 {
-    UIColor *   _color;
-    bool        _direct;
+    CLLocationCoordinate2D _touchPosition;
 }
 
-@property (nonatomic, retain) UIColor *color;
-@property (nonatomic) bool direct;
+@property (nonatomic, strong) UIColor *color;
+@property (nonatomic) CGFloat dashPhase;
+@property (weak, nonatomic, readonly) NSArray<NSNumber*> *dashPattern;
+@property (nonatomic) int dashPatternId;
+@property (nonatomic, copy) NSString *desc;
+@property (nonatomic, copy) NSString *route;
+@property (nonatomic, copy) NSString *dir;
+
+- (MKPolylineRenderer*)renderer;
+- (RoutePin *)routePin;
 
 @end

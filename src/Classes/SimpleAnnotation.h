@@ -17,32 +17,21 @@
 
 
 @interface SimpleAnnotation : NSObject <MapPinColor> {
-	NSString *              _pinTitle;
-	NSString *              _pinSubtitle;
-	MKPinAnnotationColor    _pinColor;
-	CLLocationCoordinate2D  _coordinate;
-    UIColor *               _pinTint;
-    UIColor *               _pinSubTint;
-    double                  _bearing;
     bool                    _hasBearing;
+    double                  _bearing;
 }
-
-+ (instancetype)annotation;
 
 @property (nonatomic, readonly, copy) NSString *title;
 @property (nonatomic, readonly, copy) NSString *subtitle;
-@property (nonatomic) MKPinAnnotationColor pinColor;
+@property (nonatomic) MapPinColorValue pinColor;
 @property (nonatomic) CLLocationCoordinate2D coordinate;
 @property (nonatomic, readonly) bool showActionMenu;
-- (void)setDoubleBearing:(double)bearing;
 @property (nonatomic, copy) NSString *pinTitle;
 @property (nonatomic, copy) NSString *pinSubtitle;
 @property (nonatomic, copy) UIColor *pinTint;
 @property (nonatomic, copy) UIColor *pinSubTint;
 
+- (void)setDoubleBearing:(double)bearing;
 
-
-
-
-
++ (instancetype)annotation;
 @end

@@ -25,11 +25,6 @@
 @implementation WatchAppContext
 
 
-- (void)dealloc
-{
-    [super dealloc];
-}
-
 + (WatchAppContext *)sharedInstance
 {
     static WatchAppContext *singleton = nil;
@@ -44,7 +39,6 @@
 
 - (instancetype)init
 {
-    
     if ((self = [super init]))
     {
 
@@ -54,22 +48,16 @@
 }
 
 #ifndef PDXBUS_WATCH
-
-
-- (void)updateWatch:(WCSession *)session
+- (void)updateWatch:(WCSession *)session API_AVAILABLE(ios(9.0))
 {
-    
+    NSDictionary *blockColorData = [BlockColorDb sharedInstance].db;
     NSDictionary *appData = [SafeUserData sharedInstance].appData;
-    NSDictionary *blockColorData = [BlockColorDb sharedInstance].getDB;
-    
-    
+
     if (session != nil && session.isWatchAppInstalled)
     {
-        NSError *error=nil;
-        
         Class uuidClass = (NSClassFromString(@"NSUUID"));
-        
         NSString *UUID = nil;
+        NSError *error=nil;
         
         if (uuidClass)
         {
@@ -92,8 +80,6 @@
             ERROR_LOG(@"Failed to push bookmarks to watch %@\n",error.description);
         }
     }
-    
-    
 }
 
 
@@ -187,13 +173,12 @@
         if (appData)
         {
             [self gotBookmarks:YES];
-            NSDate *savedLastRun = faves.lastRun.retain;
+            NSDate *savedLastRun = faves.lastRun;
             
-            faves.appData = [[[NSMutableDictionary alloc] initWithDictionary:appData] autorelease];
+            faves.appData = [NSMutableDictionary dictionaryWithDictionary:appData];
             
             faves.lastRun = savedLastRun;
             
-            [savedLastRun release];
             
             faves.readOnly = NO;
             [faves cacheAppData];
@@ -204,9 +189,9 @@
         
         BlockColorDb *colorDb = [BlockColorDb sharedInstance];
         
-        if (bcdb && ![colorDb.getDB isEqualToDictionary:bcdb])
+        if (bcdb && ![colorDb.db isEqualToDictionary:bcdb])
         {
-            [colorDb setDB:bcdb];
+            [colorDb setDb:bcdb];
         }
     }
     

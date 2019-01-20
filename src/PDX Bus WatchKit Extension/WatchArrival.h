@@ -16,15 +16,15 @@
 #import <WatchKit/WatchKit.h>
 #import <Foundation/Foundation.h>
 #import "DepartureData+watchOSUI.h"
+#import "WatchRow.h"
 
-@interface WatchArrival: NSObject
+@interface WatchArrival: WatchRow
+
 @property (strong, nonatomic) IBOutlet WKInterfaceImage *lineColor;
 @property (strong, nonatomic) IBOutlet WKInterfaceLabel *heading;
 @property (strong, nonatomic) IBOutlet WKInterfaceLabel *mins;
 @property (strong, nonatomic) IBOutlet WKInterfaceImage *blockColor;
 @property (strong, nonatomic) IBOutlet WKInterfaceLabel *exception;
 @property (strong, nonatomic) IBOutlet WKInterfaceLabel *stale;
-
--(void)displayDeparture:(DepartureData *)dep;
 
 @end

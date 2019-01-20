@@ -1,0 +1,11 @@
+{
+  "supported complication families" : {
+    "10" : "3F48F850-5778-488F-89EA-B570D044DDDF.json",
+    "8" : "88F73C3B-70BD-4EC3-B24F-61F1064C6139.json",
+    "6" : "CDFA4667-7F95-44FB-9AD6-5DA095234E53.json",
+    "4" : "A62BBD48-0DA6-49F3-9FDE-834AFC2CB5FF.json",
+    "2" : "84680912-F112-48B3-92B2-DA53190A9F7E.json",
+    "0" : "E303B481-9E00-471B-A81B-61070FC0583D.json"
+  },
+  "client ID" : "org.teleportaloo.PDXBus.watchkitapp.watchkitextension"
+}

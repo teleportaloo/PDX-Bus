@@ -17,16 +17,11 @@
 #import "XMLTrips.h"
 #import "TripPlannerBaseView.h"
 
-@interface TripPlannerOptions : TripPlannerBaseView {
-	UISegmentedControl *_walkSegment;
-	UISegmentedControl *_modeSegment;
-	UISegmentedControl *_minSegment;
-	NSString *          _info;	
-}
+@interface TripPlannerOptions : TripPlannerBaseView
 
-@property (nonatomic, retain) UISegmentedControl *walkSegment;
-@property (nonatomic, retain) UISegmentedControl *modeSegment;
-@property (nonatomic, retain) UISegmentedControl *minSegment;
+@property (nonatomic, strong) UISegmentedControl *walkSegment;
+@property (nonatomic, strong) UISegmentedControl *modeSegment;
+@property (nonatomic, strong) UISegmentedControl *minSegment;
 @property (nonatomic, copy)   NSString *info;
 
 - (void)walkSegmentChanged:(id)sender;

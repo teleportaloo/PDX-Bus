@@ -14,6 +14,7 @@
 @property (nonatomic, readonly) bool hasBearing;
 @property (nonatomic, readonly) double doubleBearing;
 @property (nonatomic, readonly) CLLocationCoordinate2D coord;
+@property (nonatomic, readonly) bool hasCoord;
 
 @end
 

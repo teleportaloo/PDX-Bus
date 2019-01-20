@@ -14,13 +14,37 @@
 
 
 #import "WatchNoArrivals.h"
+#import "XMLDepartures.h"
 
 @implementation WatchNoArrivals
 
-- (void)dealloc
+
++ (NSString *)identifier
 {
-    self.errorMsg = nil;
-    [super dealloc];
+    return @"None";
+}
+
+- (void)populate:(XMLDepartures *)xml departures:(NSArray<DepartureData*>*)deps
+{
+    if (xml.gotData)
+    {
+        if (deps.count == 0)
+        {
+            self.label.text = @"No arrivals";
+        }
+        else if (deps.count>0 && deps.firstObject.errorMessage!=nil)
+        {
+            self.label.text = deps.firstObject.errorMessage;
+        }
+        else
+        {
+            self.label.text = @"Internal error";
+        }
+    }
+    else
+    {
+        self.label.text = @"Network timeout";
+    }
 }
 
 @end

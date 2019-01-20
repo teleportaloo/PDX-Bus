@@ -196,8 +196,10 @@ int const stationsAlpha[]={
 // It is calculated by gettng the stops
 // for each station and merging them in.  Much easier than doing it by hand!
 //
+// There is one array for each direction
 
-static const RAILLINES railLines[]={
+
+static const RAILLINES railLines0[]={
     0x0000,
     0x0000,
     0x0000,
@@ -219,7 +221,7 @@ static const RAILLINES railLines[]={
     0x0100,    /* OMSI/SE Water MAX Station */
     0x0100,    /* South Waterfront/SW Moody MAX Station */
     0x0100,    /* Lincoln St/SW 3rd Ave MAX Station */
-    0x0140,    /* PSU South/SW 5th & Jackson */
+    0x0000,    /* PSU South/SW 5th & Jackson */
     0x0044,    /* PSU South/SW 6th & College */
     0x0002,    /* Hatfield Government Center */
     0x0002,    /* Hillsboro Central/SE 3rd TC */
@@ -251,8 +253,8 @@ static const RAILLINES railLines[]={
     0x0000,
     0x0043,    /* Gateway/NE 99th TC */
     0x0000,
-    0x0003,    /* Galleria/SW 10th */
-    0x0003,    /* Pioneer Square North */
+    0x0000,    /* Galleria/SW 10th */
+    0x0000,    /* Pioneer Square North */
     0x0044,    /* Pioneer Courthouse/SW 6th Ave */
     0x0003,    /* Library/SW 9th Ave */
     0x0003,    /* Pioneer Square South */
@@ -263,14 +265,14 @@ static const RAILLINES railLines[]={
     0x0044,    /* NW 6th & Davis St */
     0x0044,    /* SW 6th & Pine St */
     0x0000,
-    0x0144,    /* Union Station/NW 5th & Glisan St */
-    0x0140,    /* NW 5th & Couch St */
-    0x0140,    /* Pioneer Place/SW 5th Ave */
-    0x0140,    /* SW 5th & Oak St */
-    0x0003,    /* Mall/SW 5th Ave */
-    0x0003,    /* Morrison/SW 3rd Ave */
-    0x0140,    /* PSU/SW 5th & Mill St */
-    0x0140,    /* City Hall/SW 5th & Jefferson St */
+    0x0000,    /* Union Station/NW 5th & Glisan St */
+    0x0000,    /* NW 5th & Couch St */
+    0x0000,    /* Pioneer Place/SW 5th Ave */
+    0x0000,    /* SW 5th & Oak St */
+    0x0000,    /* Mall/SW 5th Ave */
+    0x0000,    /* Morrison/SW 3rd Ave */
+    0x0000,    /* PSU/SW 5th & Mill St */
+    0x0000,    /* City Hall/SW 5th & Jefferson St */
     0x0003,    /* Mall/SW 4th Ave */
     0x0003,    /* Yamhill District */
     0x0003,    /* Old Town/Chinatown */
@@ -370,43 +372,43 @@ static const RAILLINES railLines[]={
     0x0010,    /* NW 9th & Lovejoy */
     0x0020,    /* NW 11th & Marshall */
     0x0008,    /* NW 23rd & Marshall */
-    0x0008,    /* NW Lovejoy & 22nd */
+    0x0000,    /* NW Lovejoy & 22nd */
     0x0008,    /* NW Northrup & 22nd */
-    0x0008,    /* NW Lovejoy & 21st */
+    0x0000,    /* NW Lovejoy & 21st */
     0x0008,    /* NW Northrup & 21st */
     0x0008,    /* NW Northrup & 18th */
-    0x0008,    /* NW Lovejoy & 18th */
+    0x0000,    /* NW Lovejoy & 18th */
     0x0008,    /* NW Northrup & 14th */
-    0x0018,    /* NW Lovejoy & 13th */
+    0x0010,    /* NW Lovejoy & 13th */
     0x0008,    /* NW 12th & Northrup */
     0x0028,    /* NW 10th & Northrup */
-    0x0028,    /* NW 11th & Johnson */
+    0x0020,    /* NW 11th & Johnson */
     0x0018,    /* NW 10th & Johnson */
-    0x0028,    /* NW 11th & Glisan */
+    0x0020,    /* NW 11th & Glisan */
     0x0018,    /* NW 10th & Glisan */
-    0x0028,    /* NW 11th & Couch */
+    0x0020,    /* NW 11th & Couch */
     0x0018,    /* NW 10th & Couch */
-    0x0028,    /* SW 11th & Alder */
+    0x0020,    /* SW 11th & Alder */
     0x0018,    /* SW 10th & Alder */
     0x0018,    /* Central Library */
-    0x0028,    /* SW 11th & Taylor */
+    0x0020,    /* SW 11th & Taylor */
     0x0018,    /* Art Museum */
-    0x0028,    /* SW 11th & Jefferson */
-    0x0028,    /* SW 11th & Clay */
+    0x0020,    /* SW 11th & Jefferson */
+    0x0020,    /* SW 11th & Clay */
     0x0018,    /* SW 10th & Clay */
-    0x0028,    /* SW Park & Market */
+    0x0020,    /* SW Park & Market */
     0x0018,    /* SW Park & Mill */
     0x0018,    /* PSU Urban Center */
-    0x0028,    /* SW 5th & Montgomery */
-    0x0028,    /* SW 5th & Market */
+    0x0020,    /* SW 5th & Montgomery */
+    0x0020,    /* SW 5th & Market */
     0x0038,    /* SW 3rd & Harrison */
     0x0008,    /* OHSU Commons */
-    0x0008,    /* SW Moody & Gibbs */
+    0x0000,    /* SW Moody & Gibbs */
     0x0038,    /* SW River Pkwy & Moody */
     0x0038,    /* SW Harrison Street */
     0x0038,    /* SW Moody & Meade */
     0x0008,    /* SW Bond & Lane */
-    0x0008,    /* SW Moody & Gaines */
+    0x0000,    /* SW Moody & Gaines */
     0x0008,    /* SW Lowell & Bond */
     0x0000,
     0x0000,
@@ -437,6 +439,245 @@ static const RAILLINES railLines[]={
     0x0000,
 };
 
+static const RAILLINES railLines1[]={
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0100,    /* SE Park Ave MAX Station */
+    0x0100,    /* Milwaukie/Main St MAX Station */
+    0x0100,    /* SE Tacoma/Johnson Creek MAX Station */
+    0x0100,    /* SE Bybee Blvd MAX Station */
+    0x0100,    /* SE 17th Ave & Holgate Blvd MAX Station */
+    0x0100,    /* SE 17th Ave & Rhine St MAX Station */
+    0x0100,    /* Clinton St/SE 12th Ave MAX Station */
+    0x0100,    /* OMSI/SE Water MAX Station */
+    0x0100,    /* South Waterfront/SW Moody MAX Station */
+    0x0100,    /* Lincoln St/SW 3rd Ave MAX Station */
+    0x0140,    /* PSU South/SW 5th & Jackson */
+    0x0000,    /* PSU South/SW 6th & College */
+    0x0002,    /* Hatfield Government Center */
+    0x0002,    /* Hillsboro Central/SE 3rd TC */
+    0x0002,    /* Tuality Hospital/SE 8th Ave */
+    0x0002,    /* Washington/SE 12th Ave */
+    0x0002,    /* Fair Complex/Hillsboro Airport */
+    0x0002,    /* Hawthorn Farm */
+    0x0002,    /* Orenco */
+    0x0002,    /* Quatama */
+    0x0002,    /* Willow Creek/SW 185th Ave TC */
+    0x0002,    /* Elmonica/SW 170th Ave */
+    0x0002,    /* Merlo Rd/SW 158th Ave */
+    0x0002,    /* Beaverton Creek */
+    0x0002,    /* Millikan Way */
+    0x0002,    /* Beaverton Central */
+    0x0083,    /* Beaverton TC */
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0080,    /* Hall/Nimbus */
+    0x0080,    /* Tigard TC */
+    0x0080,    /* Tualatin */
+    0x0080,    /* Wilsonville */
+    0x0003,    /* Sunset TC */
+    0x0003,    /* Washington Park */
+    0x0003,    /* Goose Hollow/SW Jefferson St */
+    0x0003,    /* Kings Hill/SW Salmon St */
+    0x0003,    /* Providence Park */
+    0x0000,
+    0x0043,    /* Gateway/NE 99th TC */
+    0x0000,
+    0x0003,    /* Galleria/SW 10th */
+    0x0003,    /* Pioneer Square North */
+    0x0000,    /* Pioneer Courthouse/SW 6th Ave */
+    0x0000,    /* Library/SW 9th Ave */
+    0x0000,    /* Pioneer Square South */
+    0x0000,    /* SW 6th & Madison St */
+    0x0000,    /* PSU/SW 6th & Montgomery */
+    0x0000,
+    0x0000,    /* Union Station/NW 6th & Hoyt St */
+    0x0000,    /* NW 6th & Davis St */
+    0x0000,    /* SW 6th & Pine St */
+    0x0000,
+    0x0144,    /* Union Station/NW 5th & Glisan St */
+    0x0140,    /* NW 5th & Couch St */
+    0x0140,    /* Pioneer Place/SW 5th Ave */
+    0x0140,    /* SW 5th & Oak St */
+    0x0003,    /* Mall/SW 5th Ave */
+    0x0003,    /* Morrison/SW 3rd Ave */
+    0x0140,    /* PSU/SW 5th & Mill St */
+    0x0140,    /* City Hall/SW 5th & Jefferson St */
+    0x0000,    /* Mall/SW 4th Ave */
+    0x0000,    /* Yamhill District */
+    0x0003,    /* Old Town/Chinatown */
+    0x0003,    /* Skidmore Fountain */
+    0x0003,    /* Oak/SW 1st Ave */
+    0x0004,    /* Expo Center */
+    0x0004,    /* Delta Park/Vanport */
+    0x0004,    /* Kenton/N Denver */
+    0x0004,    /* N Lombard TC */
+    0x0004,    /* Rosa Parks */
+    0x0004,    /* N Killingsworth */
+    0x0004,    /* N Prescott */
+    0x0004,    /* Overlook Park */
+    0x0004,    /* Albina/Mississippi */
+    0x0004,    /* Interstate/Rose Quarter */
+    0x0043,    /* Rose Quarter TC */
+    0x0043,    /* Convention Center */
+    0x0043,    /* NE 7th Ave */
+    0x0043,    /* Lloyd Center/NE 11th Ave */
+    0x0043,    /* Hollywood/NE 42nd Ave */
+    0x0043,    /* NE 60th Ave */
+    0x0043,    /* NE 82nd Ave */
+    0x0001,    /* Portland Int'l Airport */
+    0x0001,    /* Mt Hood Ave */
+    0x0001,    /* Cascades */
+    0x0001,    /* Parkrose/Sumner TC */
+    0x0040,    /* SE Main St */
+    0x0040,    /* SE Division St */
+    0x0040,    /* SE Powell Blvd */
+    0x0040,    /* SE Holgate Blvd */
+    0x0040,    /* Lents/SE Foster Rd */
+    0x0040,    /* SE Flavel St */
+    0x0040,    /* SE Fuller Rd */
+    0x0040,    /* Clackamas Town Center TC */
+    0x0002,    /* E 102nd Ave */
+    0x0002,    /* E 122nd Ave */
+    0x0002,    /* E 148th Ave */
+    0x0002,    /* E 162nd Ave */
+    0x0002,    /* E 172nd */
+    0x0002,    /* E 181st */
+    0x0002,    /* Rockwood/E 188th Ave TC */
+    0x0002,    /* Ruby Junction/E 197th Ave */
+    0x0002,    /* Civic Drive */
+    0x0002,    /* Gresham City Hall */
+    0x0002,    /* Gresham Central TC */
+    0x0002,    /* Cleveland Ave */
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,    /* SE Water/OMSI (Streetcar) */
+    0x0000,    /* SE Grand & Mill */
+    0x0000,    /* SE M L King & Mill */
+    0x0000,    /* SE Grand & Hawthorne */
+    0x0000,    /* SE M L King & Hawthorne */
+    0x0000,    /* SE Grand & Taylor */
+    0x0000,    /* SE M L King & Taylor */
+    0x0000,    /* SE Grand & Belmont */
+    0x0000,    /* SE M L King & Morrison */
+    0x0000,    /* SE Grand & Stark */
+    0x0000,    /* SE M L King & Stark */
+    0x0000,    /* SE Grand & E Burnside */
+    0x0000,    /* NE M L King & E Burnside */
+    0x0000,    /* NE M L King & Hoyt */
+    0x0000,    /* NE Grand & Hoyt */
+    0x0000,    /* NE Oregon & Grand */
+    0x0000,    /* NE Grand & Holladay */
+    0x0000,    /* NE 7th & Holladay */
+    0x0000,    /* NE 7th & Halsey */
+    0x0000,    /* NE Grand & Multnomah */
+    0x0000,    /* NE Grand & Broadway */
+    0x0000,    /* NE Weidler & Grand */
+    0x0000,    /* NE Broadway & 2nd (Streetcar) */
+    0x0000,    /* NE Weidler & 2nd (Streetcar) */
+    0x0000,    /* N Weidler/N Broadway & Ross */
+    0x0000,    /* NW 9th & Lovejoy */
+    0x0000,    /* NW 11th & Marshall */
+    0x0008,    /* NW 23rd & Marshall */
+    0x0008,    /* NW Lovejoy & 22nd */
+    0x0000,    /* NW Northrup & 22nd */
+    0x0008,    /* NW Lovejoy & 21st */
+    0x0000,    /* NW Northrup & 21st */
+    0x0000,    /* NW Northrup & 18th */
+    0x0008,    /* NW Lovejoy & 18th */
+    0x0000,    /* NW Northrup & 14th */
+    0x0008,    /* NW Lovejoy & 13th */
+    0x0000,    /* NW 12th & Northrup */
+    0x0000,    /* NW 10th & Northrup */
+    0x0008,    /* NW 11th & Johnson */
+    0x0000,    /* NW 10th & Johnson */
+    0x0008,    /* NW 11th & Glisan */
+    0x0000,    /* NW 10th & Glisan */
+    0x0008,    /* NW 11th & Couch */
+    0x0000,    /* NW 10th & Couch */
+    0x0008,    /* SW 11th & Alder */
+    0x0000,    /* SW 10th & Alder */
+    0x0000,    /* Central Library */
+    0x0008,    /* SW 11th & Taylor */
+    0x0000,    /* Art Museum */
+    0x0008,    /* SW 11th & Jefferson */
+    0x0008,    /* SW 11th & Clay */
+    0x0000,    /* SW 10th & Clay */
+    0x0008,    /* SW Park & Market */
+    0x0000,    /* SW Park & Mill */
+    0x0000,    /* PSU Urban Center */
+    0x0008,    /* SW 5th & Montgomery */
+    0x0008,    /* SW 5th & Market */
+    0x0008,    /* SW 3rd & Harrison */
+    0x0000,    /* OHSU Commons */
+    0x0008,    /* SW Moody & Gibbs */
+    0x0008,    /* SW River Pkwy & Moody */
+    0x0008,    /* SW Harrison Street */
+    0x0008,    /* SW Moody & Meade */
+    0x0000,    /* SW Bond & Lane */
+    0x0008,    /* SW Moody & Gaines */
+    0x0008,    /* SW Lowell & Bond */
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+    0x0000,
+};
 
 //
 // These are the sections for the rail view screen, only displayed when no

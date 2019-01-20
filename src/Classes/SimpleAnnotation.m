@@ -17,24 +17,10 @@
 
 @implementation SimpleAnnotation
 
-@synthesize pinColor = _pinColor;
-@synthesize pinSubtitle = _pinSubtitle;
-@synthesize pinTitle = _pinTitle;
-@synthesize pinTint = _pinTint;
-@synthesize pinSubTint = _pinSubTint;
-@synthesize coordinate = _coordinate;
-
-- (void)dealloc {
-	self.pinSubtitle = nil;
-	self.pinTitle = nil;
-    self.pinTint = nil;
-    self.pinSubTint  = nil;
-	[super dealloc];
-}
 
 + (instancetype)annotation
 {
-    return [[[[self class] alloc] init] autorelease];
+    return [[[self class] alloc] init];
 }
 
 #pragma mark Setters
@@ -43,16 +29,16 @@
 
 - (NSString *)title
 {
-	return self.pinTitle;
+    return self.pinTitle;
 }
 - (NSString *)subtitle
 {
-	return self.pinSubtitle;
+    return self.pinSubtitle;
 }
 
-- (bool) showActionMenu
+- (bool)showActionMenu
 {
-	return false;
+    return false;
 }
 
 - (bool)hasBearing

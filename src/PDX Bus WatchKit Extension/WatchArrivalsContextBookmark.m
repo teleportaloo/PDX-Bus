@@ -18,16 +18,11 @@
 
 @implementation WatchArrivalsContextBookmark
 
-- (void)dealloc
-{
-    self.bookmarksContext = nil;
-    [super dealloc];
-}
 
 + (WatchArrivalsContextBookmark*)contextFromBookmark:(WatchBookmarksContext *)bookmarksContext index:(NSInteger)index
 {
     {
-        WatchArrivalsContextBookmark *context = [[[WatchArrivalsContextBookmark alloc] init] autorelease];
+        WatchArrivalsContextBookmark *context = [[WatchArrivalsContextBookmark alloc] init];
         
         context.locid            = bookmarksContext.singleBookmark[index];
         context.showMap          = NO;
@@ -37,12 +32,12 @@
         
         if (bookmarksContext.dictated)
         {
-            context.navText          = @"Next dictated";
+            context.navText          = @"Next dictated swipe ←";
 
         }
         else
         {
-            context.navText          = @"Next in bookmark";
+            context.navText          = @"Next stop swipe ←";
         }
         
         return context;
@@ -55,7 +50,7 @@
     {
         WatchArrivalsContextBookmark *context = [WatchArrivalsContextBookmark contextFromBookmark:bookmarksContext index:index];
         
-        context.navText         = @"Next recent";
+        context.navText         = @"Next recent swipe ←";
         
         return context;
     }
@@ -75,7 +70,7 @@
     return self.index < (self.bookmarksContext.singleBookmark.count-1);
 }
 
-- (WatchArrivalsContext *)getNext
+- (WatchArrivalsContext *)next
 {
     WatchArrivalsContext *next = nil;
     if (self.hasNext)

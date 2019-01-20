@@ -28,37 +28,22 @@
 #import <Twitter/TWTweetComposeViewController.h>
 #import "WebViewController.h"
 #import <CoreSpotlight/CoreSpotlight.h>
+#import "KMLRoutes.h"
+#import "ArrivalsIntent.h"
+#import "FindByLocationView.h"
 
 @implementation TriMetTimesAppDelegate
 
-@synthesize window;
-@synthesize navigationController;
 
-
-@synthesize rootViewController;
-@synthesize cleanExitLastTime		= _cleanExitLastTime;
-@synthesize pathToCleanExit			= _pathToCleanExit;
-
-- (void)dealloc {
-	//	[departureList release];
-	//	[pathToUserCopyOfPlist release];
-	self.navigationController = nil;
-	//	[userFaves release];
-    [window release];
-	self.pathToCleanExit = nil;
-    
-    [rootViewController release];
-	[super dealloc];
-}
 
 #pragma mark Application methods
 
 - (instancetype)init {
-	if ((self = [super init])) 
+    if ((self = [super init])) 
     {
-		 
-	}
-	return self;
+         
+    }
+    return self;
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application
@@ -78,16 +63,16 @@
     
     if (!self.cleanExitLastTime)
     {
-        rootViewController.lastArrivalsShown = nil;
-        rootViewController.lastArrivalNames  = nil;
+        self.rootViewController.lastArrivalsShown = nil;
+        self.rootViewController.lastArrivalNames  = nil;
     }
     
     if ([UserPrefs sharedInstance].autoCommute)
-	{
-        rootViewController.commuterBookmark  = [[SafeUserData sharedInstance] checkForCommuterBookmarkShowOnlyOnce:YES];
-	}
+    {
+        self.rootViewController.commuterBookmark  = [[SafeUserData sharedInstance] checkForCommuterBookmarkShowOnlyOnce:YES];
+    }
     
-    [rootViewController executeInitialAction];
+    [self.rootViewController executeInitialAction];
 
     
     AlarmTaskList *list = [AlarmTaskList sharedInstance];
@@ -128,32 +113,33 @@
 - (void)cleanExit
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];
-	
-	[fileManager removeItemAtPath:self.pathToCleanExit error:NULL];
-	
-	SafeUserData *userData = [SafeUserData sharedInstance];
-	
-	[userData cacheAppData];
+    
+    [fileManager removeItemAtPath:self.pathToCleanExit error:NULL];
+    
+    SafeUserData *userData = [SafeUserData sharedInstance];
+    
+    [userData cacheAppData];
 }
 
 - (void)cleanStart
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];
 
-	if ([fileManager fileExistsAtPath:self.pathToCleanExit] == YES)
-	{
-		self.cleanExitLastTime = NO;
+    if ([fileManager fileExistsAtPath:self.pathToCleanExit] == YES)
+    {
+        self.cleanExitLastTime = NO;
         
         // If the app crashed we should assume the cache file may be bad
         // best to delete it just in case.
         [TriMetXML deleteCacheFile];
-	}
-	else 
-	{
-		self.cleanExitLastTime = YES;
-		NSString * str = @"clean";
-		[str writeToFile:self.pathToCleanExit atomically:YES encoding:NSUTF8StringEncoding error:NULL];
-	}
+        [KMLRoutes deleteCacheFile];
+    }
+    else 
+    {
+        self.cleanExitLastTime = YES;
+        NSString * str = @"clean";
+        [str writeToFile:self.pathToCleanExit atomically:YES encoding:NSUTF8StringEncoding error:NULL];
+    }
 }
 
 
@@ -161,31 +147,31 @@
     DEBUG_FUNC();
    // [actualRootViewController initRootWindow];
     
-	// Check for data in Documents directory. Copy default appData.plist to Documents if not found.
+    // Check for data in Documents directory. Copy default appData.plist to Documents if not found.
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = paths.firstObject;
-	NSError *error = nil;
-	
-	if ([application respondsToSelector:@selector(cancelAllLocalNotifications)])
-	{
-		[application cancelAllLocalNotifications];
-	}
+    NSError *error = nil;
     
-	self.pathToCleanExit = [documentsDirectory stringByAppendingPathComponent:@"cleanExit.txt"];
-	
+    if ([application respondsToSelector:@selector(cancelAllLocalNotifications)])
+    {
+        [application cancelAllLocalNotifications];
+    }
+    
+    self.pathToCleanExit = [documentsDirectory stringByAppendingPathComponent:@"cleanExit.txt"];
+    
     UIDevice* device = [UIDevice currentDevice];
     BOOL backgroundSupported = device.multitaskingSupported;
-	
-	NSString *oldDatabase1 = [documentsDirectory stringByAppendingPathComponent:kOldDatabase1];
-	[fileManager removeItemAtPath:oldDatabase1 error:&error];
-	
-	NSString *oldDatabase2 = [documentsDirectory stringByAppendingPathComponent:kOldDatabase2];
-	[fileManager removeItemAtPath:oldDatabase2 error:&error];
-	
+    
+    NSString *oldDatabase1 = [documentsDirectory stringByAppendingPathComponent:kOldDatabase1];
+    [fileManager removeItemAtPath:oldDatabase1 error:&error];
+    
+    NSString *oldDatabase2 = [documentsDirectory stringByAppendingPathComponent:kOldDatabase2];
+    [fileManager removeItemAtPath:oldDatabase2 error:&error];
+    
 
-	DEBUG_PRINTF("Last arrivals %s clean %d\n", [rootViewController.lastArrivalsShown cStringUsingEncoding:NSUTF8StringEncoding],
-				 self.cleanExitLastTime);
+    DEBUG_PRINTF("Last arrivals %s clean %d\n", [self.rootViewController.lastArrivalsShown cStringUsingEncoding:NSUTF8StringEncoding],
+                 self.cleanExitLastTime);
     
 
 
@@ -196,28 +182,28 @@
     
     
     
-    rootViewController.lastArrivalsShown = [SafeUserData sharedInstance].last;
-	rootViewController.lastArrivalNames  = [SafeUserData sharedInstance].lastNames;
+    self.rootViewController.lastArrivalsShown = [SafeUserData sharedInstance].last;
+    self.rootViewController.lastArrivalNames  = [SafeUserData sharedInstance].lastNames;
     
-	if ((rootViewController.lastArrivalsShown!=nil && rootViewController.lastArrivalsShown.length == 0)
+    if ((self.rootViewController.lastArrivalsShown!=nil && self.rootViewController.lastArrivalsShown.length == 0)
             || backgroundSupported
-		)
-	{
-		rootViewController.lastArrivalsShown = nil;
-		rootViewController.lastArrivalNames  = nil;
-	}
+        )
+    {
+        self.rootViewController.lastArrivalsShown = nil;
+        self.rootViewController.lastArrivalNames  = nil;
+    }
 
     
     // Configure and show the window
     
-    self.window = [[[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds] autorelease];
+    self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     
     self.window.rootViewController = self.rootViewController;
     
     // drawerController.closeDrawerGestureModeMask = MMCloseDrawerGestureModeTapCenterView | MMCloseDrawerGestureModeTapNavigationBar;
 
     
-    window.rootViewController = self.navigationController ;
+    self.window.rootViewController = self.navigationController ;
     
     NSArray *windows = [UIApplication sharedApplication].windows;
     for(UIWindow *win in windows) {
@@ -228,19 +214,19 @@
         }
     }
     
-   	[window makeKeyAndVisible];
-		
+       [self.window makeKeyAndVisible];
+        
 #if defined(MAXCOLORS) && defined(CREATE_MAX_ARRAYS)
     AllRailStationView *station = [AllRailStationView viewController];
     
-	[station generateArrays];
+    [station generateArrays];
 #endif
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
-	
+    
     [self cleanExit];
-	[StopLocations quit];
+    [StopLocations quit];
 }
 
 - (BOOL)application:(UIApplication *)application willContinueUserActivityWithType:(NSString *)userActivityType
@@ -248,31 +234,64 @@
     return YES;
 }
 
-- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void(^)(NSArray * __nullable restorableObjects))restorationHandler
+- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void(^)(NSArray<id<UIUserActivityRestoring>> * __nullable restorableObjects))restorationHandler
 {
     DEBUG_FUNC();
     
-    if ([userActivity.activityType isEqualToString:CSSearchableItemActionType])
+    bool siri = NO;
+    
+    if (@available(ios 12.0, *))
+    {        
+        if ([userActivity.interaction.intent isKindOfClass:[ArrivalsIntent class]])
+        {
+            self.rootViewController.initialActionArgs = @{kUserFavesLocation: userActivity.userInfo[@"locs"]};
+            
+            self.rootViewController.initialAction = InitialAction_UserActivityBookmark;
+            
+            if (self.rootViewController != nil)
+            {
+                [self.rootViewController executeInitialAction];
+            }
+            
+            siri = YES;
+        }
+    }
+    
+    if (siri)
+    {
+        
+    }
+    else if ([userActivity.activityType isEqualToString:CSSearchableItemActionType])
     {
         self.rootViewController.initialActionArgs = userActivity.userInfo;
         
         self.rootViewController.initialAction = InitialAction_UserActivitySearch;
         
-        if (rootViewController != nil)
+        if (self.rootViewController != nil)
         {
-            [rootViewController executeInitialAction];
+            [self.rootViewController executeInitialAction];
         }
     }
     else if ([userActivity.activityType isEqualToString:kHandoffUserActivityBookmark])
     {
-    
         self.rootViewController.initialActionArgs = userActivity.userInfo;
     
         self.rootViewController.initialAction = InitialAction_UserActivityBookmark;
     
-        if (rootViewController != nil)
+        if (self.rootViewController != nil)
         {
-            [rootViewController executeInitialAction];
+            [self.rootViewController executeInitialAction];
+        }
+    }
+    else if ([userActivity.activityType isEqualToString:kHandoffUserActivityLocation])
+    {
+        self.rootViewController.initialActionArgs = userActivity.userInfo;
+        
+        self.rootViewController.initialAction = InitialAction_Locate;
+        
+        if (self.rootViewController != nil)
+        {
+            [self.rootViewController executeInitialAction];
         }
     }
     
@@ -292,9 +311,9 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
     
     self.rootViewController.initialAction = InitialAction_UserActivityBookmark;
     
-    if (rootViewController != nil)
+    if (self.rootViewController != nil)
     {
-        [rootViewController executeInitialAction];
+        [self.rootViewController executeInitialAction];
     }
     
     completionHandler(YES);
@@ -302,17 +321,17 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
 
 
 - (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url
-{	
-	// Debugger();
-	// BOOL more = NO;
+{    
+    // Debugger();
+    // BOOL more = NO;
     // while (more) {
     //     [NSThread sleepForTimeInterval:1.0]; // Set break point on this line
     // }
-	
+    
     // And here is the real code for 'handleOpenURL'
     // Set a breakpoint here as well.
-	
-	
+    
+    
     // You should be extremely careful when handling URL requests.
     // You must take steps to validate the URL before handling it.
     
@@ -324,58 +343,58 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
     Class dirClass = (NSClassFromString(@"MKDirectionsRequest"));
         
     if (dirClass && [MKDirectionsRequest isDirectionsRequestURL:url]) {
-        rootViewController.routingURL = url;
+        self.rootViewController.routingURL = url;
         return YES;
     }
     
     
     
-	NSString *strUrl = url.absoluteString;
-	
-	// we bound the length of the URL to 15K.  This is really big!
-	if (strUrl.length > 15 * 1024)
-	{
-		return NO;
-	}
-	
-	NSScanner *scanner = [NSScanner scannerWithString:strUrl];
-	NSCharacterSet *slash = [NSCharacterSet characterSetWithCharactersInString:@"/"];
-	NSString *section;
+    NSString *strUrl = url.absoluteString;
+    
+    // we bound the length of the URL to 15K.  This is really big!
+    if (strUrl.length > 15 * 1024)
+    {
+        return NO;
+    }
+    
+    NSScanner *scanner = [NSScanner scannerWithString:strUrl];
+    NSCharacterSet *slash = [NSCharacterSet characterSetWithCharactersInString:@"/"];
+    NSString *section;
     NSString *protocol;
-	
-	// skip up to first slash
-	[scanner scanUpToCharactersFromSet:slash intoString:&protocol];
+    
+    // skip up to first slash
+    [scanner scanUpToCharactersFromSet:slash intoString:&protocol];
     
     if ([protocol caseInsensitiveCompare:@"pdxbusroute:"]==NSOrderedSame)
     {
-        rootViewController.routingURL = url;
+        self.rootViewController.routingURL = url;
         return YES;
     }
-	
-	if (!scanner.atEnd)
-	{
-		scanner.scanLocation++;
-		
-		while (!scanner.atEnd)
-		{	
-			// Sometimes we get NO back when there are two slashes in a row, skip that case
-			if ([scanner scanUpToCharactersFromSet:slash intoString:&section] && ![self processURL:section protocol:protocol])
-			{
-				break;
-			}
-			
-			if (!scanner.atEnd)
-			{
-				scanner.scanLocation++;
-			}
-		}	
-	}
-	
-	if (rootViewController != nil)
-	{
-        [rootViewController reloadData];
-	}
-	
+    
+    if (!scanner.atEnd)
+    {
+        scanner.scanLocation++;
+        
+        while (!scanner.atEnd)
+        {    
+            // Sometimes we get NO back when there are two slashes in a row, skip that case
+            if ([scanner scanUpToCharactersFromSet:slash intoString:&section] && ![self processURL:section protocol:protocol])
+            {
+                break;
+            }
+            
+            if (!scanner.atEnd)
+            {
+                scanner.scanLocation++;
+            }
+        }    
+    }
+    
+    if (self.rootViewController != nil)
+    {
+        [self.rootViewController reloadData];
+    }
+    
     return YES;
 }
 
@@ -388,22 +407,22 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
 - (BOOL)processURL:(NSString *)url protocol:(NSString *)protocol
 {
     NSScanner *scanner = [NSScanner scannerWithString:url];
-	NSCharacterSet *query = [NSCharacterSet characterSetWithCharactersInString:@"?"];
-	
-	if (url.length == 0)
-	{
-		return YES;
-	}
-	
-	
-	NSString * name = nil;
+    NSCharacterSet *query = [NSCharacterSet characterSetWithCharactersInString:@"?"];
+    
+    if (url.length == 0)
+    {
+        return YES;
+    }
+    
+    
+    NSString * name = nil;
 
-	[scanner scanUpToCharactersFromSet:query intoString:&name];
-	
-	if (!scanner.atEnd)
-	{
-		return [self processBookMarkFromURL:url protocol:protocol];
-	}
+    [scanner scanUpToCharactersFromSet:query intoString:&name];
+    
+    if (!scanner.atEnd)
+    {
+        return [self processBookMarkFromURL:url protocol:protocol];
+    }
     else if (isalpha([url characterAtIndex:0]))
     {
        return [self processCommandFromURL:url];
@@ -450,9 +469,9 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
     NSScanner *scanner = [NSScanner scannerWithString:command];
     NSCharacterSet *delim = [NSCharacterSet characterSetWithCharactersInString:@"=&"];
     NSString * token = nil;
-    NSCharacterSet *blankSet = [[[NSCharacterSet alloc] init] autorelease];
+    NSCharacterSet *blankSet = [[NSCharacterSet alloc] init];
     
-	[scanner scanUpToCharactersFromSet:delim intoString:&token];
+    [scanner scanUpToCharactersFromSet:delim intoString:&token];
         
     if (token==nil)
     {
@@ -520,12 +539,12 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
 - (BOOL)processStopFromURL:(NSString *)stops
 {
     DEBUG_FUNC();
-	if (stops.length == 0)
-	{
-		return YES;
-	}
-	
-	NSMutableString *safeStopString = [NSMutableString string];
+    if (stops.length == 0)
+    {
+        return YES;
+    }
+    
+    NSMutableString *safeStopString = [NSMutableString string];
     
     int i;
     unichar item;
@@ -540,113 +559,112 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
     
     self.rootViewController.launchStops = safeStopString;
     
-	return YES;
+    return YES;
 }
 
 - (BOOL)processBookMarkFromURL:(NSString *)bookmark protocol:(NSString *)protocol
 {
-	NSScanner *scanner = [NSScanner scannerWithString:bookmark];
-	NSCharacterSet *query = [NSCharacterSet characterSetWithCharactersInString:@"?"];
-	
-	if (bookmark.length == 0)
-	{
-		return YES;
-	}
-	
-	NSString * name = nil;
-	NSString * stops = nil;
-	
-	[scanner scanUpToCharactersFromSet:query intoString:&name];
-	
-	if (!scanner.atEnd)
-	{
-		stops = [bookmark substringFromIndex:scanner.scanLocation+1];
-	}
-	
-	SafeUserData *userData = [SafeUserData sharedInstance];
-	
-	// If this is an encoded dictionary we have to decode it
-	if ([stops characterAtIndex:0] == 'd' && [protocol isEqualToString:@"pdxbus2:"])
-	{
-		DEBUG_LOG(@"dictionary");
-		NSMutableData *encodedDictionary = [[[NSMutableData alloc] initWithCapacity:stops.length / 2] autorelease];
-	
-		unsigned char byte;
-		
-		for (int i=1; i< stops.length; i+=2)
-		{
+    NSScanner *scanner = [NSScanner scannerWithString:bookmark];
+    NSCharacterSet *query = [NSCharacterSet characterSetWithCharactersInString:@"?"];
+    
+    if (bookmark.length == 0)
+    {
+        return YES;
+    }
+    
+    NSString * name = nil;
+    NSString * stops = nil;
+    
+    [scanner scanUpToCharactersFromSet:query intoString:&name];
+    
+    if (!scanner.atEnd)
+    {
+        stops = [bookmark substringFromIndex:scanner.scanLocation+1];
+    }
+    
+    SafeUserData *userData = [SafeUserData sharedInstance];
+    
+    // If this is an encoded dictionary we have to decode it
+    if ([stops characterAtIndex:0] == 'd' && [protocol isEqualToString:@"pdxbus2:"])
+    {
+        DEBUG_LOG(@"dictionary");
+        NSMutableData *encodedDictionary = [[NSMutableData alloc] initWithCapacity:stops.length / 2];
+    
+        unsigned char byte;
+        
+        for (int i=1; i< stops.length; i+=2)
+        {
             unsigned char c0 = [stops characterAtIndex:i];
             unsigned char c1 = [stops characterAtIndex:i+1];
             
-			byte = HEX_DIGIT(c0) * 16 + HEX_DIGIT(c1);
-			[encodedDictionary appendBytes:&byte length:1];
-		}
-		NSError *error = nil;
-		NSPropertyListFormat fmt = NSPropertyListBinaryFormat_v1_0;
-		
-		DEBUG_LOG(@"Stops: %@ %ld data length %ld stops/2 %ld\n", stops, (unsigned long)stops.length, (unsigned long)encodedDictionary.length, (unsigned long)stops.length/2);
-		
-		
-		NSMutableDictionary *d = nil;
-		
+            byte = HEX_DIGIT(c0) * 16 + HEX_DIGIT(c1);
+            [encodedDictionary appendBytes:&byte length:1];
+        }
+        NSError *error = nil;
+        NSPropertyListFormat fmt = NSPropertyListBinaryFormat_v1_0;
+        
+        DEBUG_LOG(@"Stops: %@ %ld data length %ld stops/2 %ld\n", stops, (unsigned long)stops.length, (unsigned long)encodedDictionary.length, (unsigned long)stops.length/2);
+        
+        
+        NSMutableDictionary *d = nil;
+        
         d = [NSPropertyListSerialization propertyListWithData:encodedDictionary
-														  options:NSPropertyListMutableContainers 
-														   format:&fmt 
-															error:&error];
+                                                          options:NSPropertyListMutableContainers 
+                                                           format:&fmt 
+                                                            error:&error];
 
-		if (d!=nil)
-		{
-			@synchronized (userData)
-			{
-				[userData.faves addObject:d];
-			}
-		}
-	}
-	else if ([stops characterAtIndex:0] != 'd')
-	{
-		@synchronized (userData)
-		{
-			if (name == nil || name.length == 0)
-			{
-				name = kNewBookMark;
-			}
-	
-			if (stops !=nil && stops.length!=0 && userData.faves.count < kMaxFaves)
-			{
-				rootViewController = nil;
+        if (d!=nil)
+        {
+            @synchronized (userData)
+            {
+                [userData.faves addObject:d];
+            }
+        }
+    }
+    else if ([stops characterAtIndex:0] != 'd')
+    {
+        @synchronized (userData)
+        {
+            if (name == nil || name.length == 0)
+            {
+                name = kNewBookMark;
+            }
+    
+            if (stops !=nil && stops.length!=0 && userData.faves.count < kMaxFaves)
+            {
+                self.rootViewController = nil;
 
-				NSString *fullName = [name stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-		
-		
+                NSString *fullName = [name stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+        
+        
                 NSMutableDictionary * newFave = [NSMutableDictionary dictionary];
-				newFave[kUserFavesChosenName] = fullName;
-				newFave[kUserFavesLocation] = stops;
-				[userData.faves addObject:newFave];                
-			}
-		}
-	}
+                newFave[kUserFavesChosenName] = fullName;
+                newFave[kUserFavesLocation] = stops;
+                [userData.faves addObject:newFave];                
+            }
+        }
+    }
     
     [userData cacheAppData];
-	
-	return YES;
+    
+    return YES;
 }
 
 - (void)application:(UIApplication *)app didReceiveLocalNotification:(UILocalNotification *)notif 
 {
-	AlarmNotification *notify = [[AlarmNotification alloc] init];
-	
-	UIApplicationState previousState = app.applicationState;
-	
-	notify.previousState = previousState;
-	
-	[notify application:app didReceiveLocalNotification:notif];
-	
-	[notify release];
+    AlarmNotification *notify = [[AlarmNotification alloc] init];
+    
+    UIApplicationState previousState = app.applicationState;
+    
+    notify.previousState = previousState;
+    
+    [notify application:app didReceiveLocalNotification:notif];
+    
 }
 
 + (TriMetTimesAppDelegate*)sharedInstance
 {
-	return (TriMetTimesAppDelegate *)[UIApplication sharedApplication].delegate;
+    return (TriMetTimesAppDelegate *)[UIApplication sharedApplication].delegate;
 }
 
 

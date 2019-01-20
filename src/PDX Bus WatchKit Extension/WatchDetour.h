@@ -15,8 +15,10 @@
 
 #import <Foundation/Foundation.h>
 #import <WatchKit/WatchKit.h>
+#import "WatchRow.h"
 
-@interface WatchDetour : NSObject
-@property (strong, nonatomic) IBOutlet WKInterfaceLabel *detourText;
+@interface WatchDetour : WatchRow
+
+@property (strong, nonatomic) IBOutlet WKInterfaceLabel *label;
 
 @end

@@ -17,12 +17,6 @@
 
 @implementation ProcessQRCodeString
 
-@synthesize stopId      = _stopId;
-
-- (void)dealloc {
-    self.stopId = nil;
-    [super dealloc];
-}
 
 
 // check that this is a good URL - the original URL may be completely different

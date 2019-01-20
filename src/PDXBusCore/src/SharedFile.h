@@ -17,17 +17,17 @@
 #import <Foundation/Foundation.h>
 
 @interface SharedFile : NSObject
-{
-    NSURL * _urlToSharedFile;
-}
 
-@property (retain) NSURL *urlToSharedFile;
+@property (nonatomic, readonly) bool canUseSharedFilePath;
+@property (strong) NSURL *urlToSharedFile;
+@property (nonatomic, copy) NSString *shortName;
 
 - (instancetype)initWithFileName:(NSString *)shortFileNamem initFromBundle:(bool)initFromBundle;
-@property (nonatomic, readonly) bool canUseSharedFilePath;
 - (void)writeDictionary:(NSDictionary *)dict;
+- (void)writeDictionaryBinary:(NSDictionary *)dict;
+- (NSMutableDictionary*)readFromFile:(NSPropertyListFormat*)format;
 - (void)deleteFile;
 
-
++ (instancetype)fileWithName:(NSString *)shortFileName initFromBundle:(bool)initFromBundle;
 
 @end

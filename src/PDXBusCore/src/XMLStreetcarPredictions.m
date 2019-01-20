@@ -16,77 +16,62 @@
 
 @implementation XMLStreetcarPredictions
 
-@synthesize currentDepartureObject = _currentDepartureObject;
-@synthesize directionTitle = _directionTitle;
-@synthesize routeTitle = _routeTitle;
-@synthesize blockFilter = _blockFilter;
-@synthesize copyright = _copyright;
-@synthesize nextBusRouteId = _nextBusRouteId;
-
-- (void)dealloc
-{
-	self.currentDepartureObject = nil;
-	self.directionTitle = nil;
-	self.routeTitle = nil;
-	self.blockFilter = nil;
-	self.copyright = nil;
-    self.nextBusRouteId = nil;
-    self.stopTitle = nil;
-	
-	[super dealloc];
-}
 
 #pragma mark Initiate Parsing
 
 - (BOOL)getDeparturesForLocation:(NSString *)location;
 
-{	
-   
-	[self startParsing:location cacheAction:TriMetXMLUseShortTermCache];
-	return true;
+{
+    [self startParsing:location cacheAction:TriMetXMLUseShortTermCache];
+    return true;
+}
+
+- (bool)cacheSelectors
+{
+    return YES;
 }
 
 #pragma mark Parser Callbacks
 
-START_ELEMENT(body)
+XML_START_ELEMENT(body)
 {
-   self.copyright = ATRVAL(copyright);
+   self.copyright = ATRSTR(copyright);
 }
 
-START_ELEMENT(predictions)
+XML_START_ELEMENT(predictions)
 {
-    self.routeTitle = ATRVAL(routeTitle);
+    self.currentRouteTitle = ATRSTR(routeTitle);
     
-    self.directionTitle = [attributeDict objectForCaseInsensitiveKey:@"dirTitleBecauseNoPredictions"];
+    self.currentDirectionTitle = [attributeDict objectForCaseInsensitiveKey:@"dirTitleBecauseNoPredictions"];
 #ifdef DEBUGLOGGING
     self.stopTitle = attributeDict[@"stopTitle"];
 #endif
     
-    if (self.directionTitle!=nil)
+    if (self.currentDirectionTitle!=nil && self.items==nil)
     {
-        [self initArray];
+        [self initItems];
         _hasData = YES;
     }
 }
 
-START_ELEMENT(direction)
+XML_START_ELEMENT(direction)
 {
-    self.directionTitle = ATRVAL(title);
+    self.currentDirectionTitle = ATRSTR(title);
     
     if (!_hasData)
     {
-        [self initArray];
+        [self initItems];
         _hasData = YES;
     }
 }
 
-START_ELEMENT(prediction)
+XML_START_ELEMENT(prediction)
 {
     // Note - the vehicle is the block - I put the block into the streetcar block!
-    NSString *block = ATRVAL(block);
+    NSString *block = ATRSTR(block);
     if ((self.blockFilter==nil) || ([self.blockFilter isEqualToString:block]))
     {
-        NSString *name = [NSString stringWithFormat:@"%@ %@", self.routeTitle, self.directionTitle];
+        NSString *name = [NSString stringWithFormat:@"%@ %@", self.currentRouteTitle, self.currentDirectionTitle];
         
         // There are some bugs in the streetcar feed (e.g. Cl instead of CL)
         
@@ -97,20 +82,20 @@ START_ELEMENT(prediction)
         self.currentDepartureObject.shortSign      = name;
         self.currentDepartureObject.block          = block;
         self.currentDepartureObject.status         = kStatusEstimated;
-        self.currentDepartureObject.nextBus        = ATRTIM(minutes);
+        self.currentDepartureObject.nextBusMins    = ATRINT(minutes);
         self.currentDepartureObject.streetcar      = true;
         self.currentDepartureObject.dir            = nil;
         self.currentDepartureObject.copyright      = self.copyright;
-        self.currentDepartureObject.streetcarId    = ATRVAL(vehicle);
+        self.currentDepartureObject.streetcarId    = ATRSTR(vehicle);
         
         /*
-         [ATRVAL(dirTag"] isEqualToString:@"t5"]
+         [ATRSTR(dirTag"] isEqualToString:@"t5"]
          ? @"1" : @"0";
          */
         
         /*
-         self.currentDepartureObject.locationDesc =	self.locDesc;
-         self.currentDepartureObject.locid		 =  self.locid;
+         self.currentDepartureObject.locationDesc =    self.locDesc;
+         self.currentDepartureObject.locid         =  self.locid;
          self.currentDepartureObject.locationDir  =  self.locDir;
          */
         

@@ -32,12 +32,7 @@
 
 - (void)setView:(UITextView *)inView
 {
-    if (_view !=nil)
-    {
-        [_view release];
-        _view = nil;
-    }
-	_view = [inView retain];
+    _view = nil;
 	[self.contentView addSubview:inView];
 	[self layoutSubviews];
 }
@@ -61,16 +56,6 @@
 									  contentRect.size.width - (kInsertValue*2),
 									  contentRect.size.height - (kInsertValue*2));
 	}
-}
-
-- (void)dealloc
-{
-    if (_view !=nil)
-    {
-        [_view release];
-    }
-  
-    [super dealloc];
 }
 
 @end

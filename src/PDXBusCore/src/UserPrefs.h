@@ -21,10 +21,6 @@
     NSUserDefaults *_sharedDefaults;
 }
 
-- (BOOL) getBoolFromDefaultsForKey:(NSString*)key ifMissing:(BOOL)missing writeToShared:(BOOL)writeToShared;
-- (float)getFloatFromDefaultsForKey:(NSString*)key ifMissing:(float)missing max:(float)max min:(float)min writeToShared:(BOOL)writeToShared;
-- (int)  getIntFromDefaultsForKey:(NSString*)key ifMissing:(int)missing max:(int)max min:(int)min writeToShared:(BOOL)writeToShared;
-+ (UserPrefs*)sharedInstance;
 
 @property (nonatomic, readonly)  bool  bookmarksAtTheTop;
 @property (nonatomic, readonly)  bool  autoCommute;
@@ -36,7 +32,6 @@
 @property (nonatomic, readonly)  int   tripMin;
 @property (nonatomic, readonly)  bool  autoRefresh;
 @property (nonatomic, readonly)  int   toolbarColors;
-@property (nonatomic, readonly)  bool  actionIcons;
 @property (nonatomic, readonly)  int   routeCacheDays;
 @property (nonatomic, readonly)  int   networkTimeout;
 @property (nonatomic, readonly)  bool  showTransitTracker; 
@@ -47,11 +42,12 @@
 @property (nonatomic, readonly)  bool alarmInitialWarning;
 @property (nonatomic, readonly)  bool useCaching;
 @property (nonatomic, readonly)  bool debugXML;
+@property (nonatomic, readonly)  int xmlViewer;
 @property (nonatomic, readonly)  bool debugCommuter;
 @property (nonatomic, readonly)  bool useChrome;
 @property (nonatomic, readonly)  bool googleMapApp;
 @property (nonatomic)            bool autoLocateShowOptions;
-@property (nonatomic, readonly)  NSString *alarmSoundFile;
+@property (weak, nonatomic, readonly)  NSString *alarmSoundFile;
 @property (nonatomic, readonly)  bool vehicleLocations;
 @property (nonatomic, readonly)  int  vehicleLocatorDistance;
 @property (nonatomic)            bool ticketAppIcon;
@@ -64,7 +60,21 @@
 @property (nonatomic, readonly)  bool searchBookmarks;
 @property (nonatomic, readonly)  bool searchStations;
 @property (nonatomic, readonly)  bool useBetaVehicleLocator;
-@property (nonatomic, readonly)  NSString *busIcon;
+@property (weak, nonatomic, readonly)  NSString *busIcon;
 @property (nonatomic, readonly)  bool showTrips;
+@property (weak, nonatomic, readonly)  NSString *minsForArrivals;
+@property (nonatomic)            bool  hideSystemWideDetours;
+@property (nonatomic)            bool  kmlRoutes;
+@property (nonatomic)            int   kmlAgeOut;
+@property (nonatomic)            bool  kmlWifiOnly;
+@property (nonatomic)            bool  showSizes;
+@property (nonatomic)            bool  gitHubRouteShapes;
+@property (nonatomic)            bool  progressDebug;
+
+- (float)getFloatFromDefaultsForKey:(NSString*)key ifMissing:(float)missing max:(float)max min:(float)min writeToShared:(BOOL)writeToShared;
+- (int) getIntFromDefaultsForKey:(NSString*)key ifMissing:(int)missing max:(int)max min:(int)min writeToShared:(BOOL)writeToShared;
+- (BOOL)getBoolFromDefaultsForKey:(NSString*)key ifMissing:(BOOL)missing writeToShared:(BOOL)writeToShared;
+
++ (UserPrefs*)sharedInstance;
 
 @end

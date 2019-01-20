@@ -109,7 +109,6 @@
 - (void)dealloc
 {
     [self off];
-    [super dealloc];
 }
 
 @end

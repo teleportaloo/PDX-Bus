@@ -20,21 +20,12 @@
 
 @implementation MapViewWithStops
 
-@synthesize stopData = _stopData;
-@synthesize locId    = _locId;
-
-- (void)dealloc
-{
-    self.stopData = nil;
-    self.locId    = nil;
-    [super dealloc];
-}
 
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view.
+    // Do any additional setup after loading the view.
 }
 
 - (void)didReceiveMemoryWarning
@@ -45,7 +36,7 @@
 
 - (void)addStops:(id<ReturnStop>)returnStop
 {
-    for (Stop *stop in self.stopData.itemArray)
+    for (Stop *stop in self.stopData.items)
     {
         if (![stop.locid isEqualToString:self.locId])
         {
@@ -55,24 +46,23 @@
     }
 }
 
-- (void)fetchStopsAsync:(id<BackgroundTaskProgress>) callback route:(NSString*)routeid direction:(NSString*)dir
+- (void)fetchStopsAsync:(id<BackgroundTaskController>)task route:(NSString*)routeid direction:(NSString*)dir
                     returnStop:(id<ReturnStop>)returnStop
 {
-	self.backgroundTask.callbackWhenFetching = callback;
     self.stopData = [XMLStops xml];
-	
-	if (!self.backgroundRefresh && [self.stopData getStopsForRoute:routeid
-														 direction:dir
-													   description:@""
-													   cacheAction:TriMetXMLCheckCache])
-	{
+    
+    if (!self.backgroundRefresh && [self.stopData getStopsForRoute:routeid
+                                                         direction:dir
+                                                       description:@""
+                                                       cacheAction:TriMetXMLCheckCache])
+    {
         [self addStops:returnStop];
-		[self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
-	}
-	else
-	{
-        [self runAsyncOnBackgroundThread:^{
-            [self.backgroundTask.callbackWhenFetching backgroundStart:1 title:kGettingStops];
+        [task taskCompleted:self];
+    }
+    else
+    {
+        [task taskRunAsync:^{
+            [task taskStartWithItems:1 title:kGettingStops];
             
             [self.stopData getStopsForRoute:routeid
                                   direction:dir
@@ -81,10 +71,9 @@
             
             [self addStops:returnStop];
             
-            [self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
-            
+            return (UIViewController*)self;
         }];
-	}
+    }
 }
 
 

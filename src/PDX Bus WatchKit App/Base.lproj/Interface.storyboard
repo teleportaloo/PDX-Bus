@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="11542" systemVersion="16A323" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="dfG-2e-wGV">
+<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="14109" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="dfG-2e-wGV">
     <device id="watch38" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="watchOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11524"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="11508"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="14031"/>
     </dependencies>
     <scenes>
         <!--Arrivals-->
@@ -24,7 +24,7 @@
                         </label>
                         <group width="1" alignment="center" verticalAlignment="center" layout="vertical" id="GET-md-68r" userLabel="LoadingGroup">
                             <items>
-                                <label alignment="center" verticalAlignment="center" text="Loading" id="HUA-WA-OUq">
+                                <label alignment="center" verticalAlignment="center" text="Loading" textAlignment="center" numberOfLines="5" id="HUA-WA-OUq">
                                     <color key="textColor" red="1" green="0.96215764895953759" blue="0.43400017865084772" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     <fontDescription key="font" type="system" pointSize="23"/>
                                 </label>
@@ -75,7 +75,7 @@
                                         <outlet property="stale" destination="jyG-Tv-M6x" id="v9Q-t7-tWs"/>
                                     </connections>
                                 </tableRow>
-                                <tableRow identifier="No arrivals" id="A0F-1Z-cDh" userLabel="No arrivals" customClass="WatchNoArrivals">
+                                <tableRow identifier="None" id="A0F-1Z-cDh" userLabel="No arrivals" customClass="WatchNoArrivals">
                                     <group key="rootItem" width="1" alignment="left" id="ZUJ-uT-RmS">
                                         <items>
                                             <label width="1" height="1" alignment="left" text="No arrivals" textAlignment="center" minimumScaleFactor="0.5" id="Ghu-0M-BJP">
@@ -86,7 +86,7 @@
                                         <color key="backgroundColor" red="0.98387513826350592" green="1" blue="0.98595916549955653" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </group>
                                     <connections>
-                                        <outlet property="errorMsg" destination="Ghu-0M-BJP" id="OPs-ys-rkx"/>
+                                        <outlet property="label" destination="Ghu-0M-BJP" id="OPs-ys-rkx"/>
                                     </connections>
                                 </tableRow>
                                 <tableRow identifier="Detour" selectable="NO" id="lOE-ne-l4s" customClass="WatchDetour">
@@ -98,10 +98,37 @@
                                         </items>
                                     </group>
                                     <connections>
-                                        <outlet property="detourText" destination="vTj-OL-POd" id="oqQ-jp-WV8"/>
+                                        <outlet property="label" destination="vTj-OL-POd" id="oqQ-jp-WV8"/>
                                     </connections>
                                 </tableRow>
-                                <tableRow identifier="Schedule Info" selectable="NO" id="kvO-KK-a6x" customClass="WatchArrivalScheduleInfo">
+                                <tableRow identifier="SWD" selectable="NO" id="xgc-aA-qyA" userLabel="System Wide Detour" customClass="WatchSystemWideDetour">
+                                    <group key="rootItem" width="1" height="0.0" alignment="left" id="2aU-cN-C3J">
+                                        <items>
+                                            <label alignment="left" text="Detour" textAlignment="left" numberOfLines="100" id="Adi-sa-x87">
+                                                <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            </label>
+                                        </items>
+                                        <color key="backgroundColor" red="1" green="1" blue="0.59999999999999998" alpha="1" colorSpace="calibratedRGB"/>
+                                    </group>
+                                    <connections>
+                                        <outlet property="label" destination="Adi-sa-x87" id="ccF-uf-scN"/>
+                                    </connections>
+                                </tableRow>
+                                <tableRow identifier="SWH" selectable="NO" id="7mK-yl-iDk" userLabel="System Wide Header" customClass="WatchSystemWideHeader">
+                                    <group key="rootItem" width="1" height="0.0" alignment="left" id="AbZ-2Z-hjY">
+                                        <items>
+                                            <label alignment="left" text="Header" textAlignment="left" numberOfLines="100" id="e1t-nd-8IA">
+                                                <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <fontDescription key="font" style="UICTFontTextStyleHeadline"/>
+                                            </label>
+                                        </items>
+                                        <color key="backgroundColor" red="1" green="1" blue="0.59999999999999998" alpha="1" colorSpace="calibratedRGB"/>
+                                    </group>
+                                    <connections>
+                                        <outlet property="label" destination="e1t-nd-8IA" id="WTY-f0-PPD"/>
+                                    </connections>
+                                </tableRow>
+                                <tableRow identifier="Schedule" selectable="NO" id="kvO-KK-a6x" userLabel="Schedule Info" customClass="WatchArrivalScheduleInfo">
                                     <group key="rootItem" width="1" height="0.0" alignment="left" id="quf-AI-9wF">
                                         <items>
                                             <label alignment="left" text="Schedule Info Text" textAlignment="left" numberOfLines="100" id="qZQ-BL-0Cv">
@@ -110,7 +137,7 @@
                                         </items>
                                     </group>
                                     <connections>
-                                        <outlet property="scheduleInfoText" destination="qZQ-BL-0Cv" id="9fI-lK-s07"/>
+                                        <outlet property="label" destination="qZQ-BL-0Cv" id="9fI-lK-s07"/>
                                     </connections>
                                 </tableRow>
                                 <tableRow identifier="Map" selectable="NO" id="yPP-IK-8Bj" customClass="WatchArrivalMap">
@@ -124,17 +151,29 @@
                                         <outlet property="map" destination="3xl-Gh-qIa" id="oYL-h1-uZc"/>
                                     </connections>
                                 </tableRow>
-                                <tableRow identifier="Static Info" selectable="NO" id="CDV-ri-dlT" userLabel="Static Info" customClass="WatchArrivalInfo">
+                                <tableRow identifier="Info" selectable="NO" id="CDV-ri-dlT" userLabel="Arrival Info" customClass="WatchArrivalInfo">
                                     <group key="rootItem" width="1" height="0.0" alignment="left" id="POi-uW-o4R">
                                         <items>
                                             <label alignment="left" text="Arrival Info" numberOfLines="0" id="pdX-6j-hud"/>
                                         </items>
                                     </group>
                                     <connections>
-                                        <outlet property="arrivalInfoText" destination="pdX-6j-hud" id="gho-uY-thF"/>
+                                        <outlet property="label" destination="pdX-6j-hud" id="gho-uY-thF"/>
                                     </connections>
                                 </tableRow>
                             </items>
+                            <gestureRecognizers>
+                                <swipeGestureRecognizer direction="2" id="Z0p-uC-Jjl">
+                                    <connections>
+                                        <action selector="swipeLeft:" destination="AgC-eL-Hgc" id="Dow-zG-xHM"/>
+                                    </connections>
+                                </swipeGestureRecognizer>
+                                <swipeGestureRecognizer direction="8" id="aYU-zp-Vay">
+                                    <connections>
+                                        <action selector="swipeDown:" destination="AgC-eL-Hgc" id="BzY-xb-TuV"/>
+                                    </connections>
+                                </swipeGestureRecognizer>
+                            </gestureRecognizers>
                         </table>
                         <group width="1" alignment="left" id="O5g-9C-ceF" userLabel="Navigation Group">
                             <items>
@@ -202,10 +241,10 @@
                         <table alignment="left" id="tQC-Gk-mRt">
                             <items>
                                 <tableRow identifier="Stop" id="Ct3-1q-jzd" userLabel="Stop" customClass="WatchStop">
-                                    <group key="rootItem" width="1" alignment="left" id="Zcz-nU-v9W">
+                                    <group key="rootItem" width="1" height="0.0" alignment="left" id="Zcz-nU-v9W">
                                         <items>
-                                            <label width="1" height="1" alignment="left" numberOfLines="3" id="7tm-j6-QVP">
-                                                <fontDescription key="font" style="UICTFontTextStyleFootnote"/>
+                                            <label width="1" alignment="left" textAlignment="left" numberOfLines="0" id="7tm-j6-QVP">
+                                                <fontDescription key="font" type="system" pointSize="13"/>
                                             </label>
                                         </items>
                                     </group>
@@ -226,6 +265,13 @@
                                     </connections>
                                 </tableRow>
                             </items>
+                            <gestureRecognizers>
+                                <swipeGestureRecognizer direction="8" id="zwq-Gv-LAK">
+                                    <connections>
+                                        <action selector="swipeDown:" destination="a7b-HT-MQ9" id="ZBN-wT-PXW"/>
+                                    </connections>
+                                </swipeGestureRecognizer>
+                            </gestureRecognizers>
                         </table>
                         <label width="1" alignment="left" verticalAlignment="center" hidden="YES" text="Location" textAlignment="center" numberOfLines="10" id="Y0y-Pk-iKr">
                             <fontDescription key="font" type="system" pointSize="16"/>
@@ -351,8 +397,15 @@
                                     </group>
                                 </tableRow>
                             </items>
+                            <gestureRecognizers>
+                                <swipeGestureRecognizer direction="8" id="oWv-VQ-wxu">
+                                    <connections>
+                                        <action selector="swipeDown:" destination="dfG-2e-wGV" id="sFA-lw-2el"/>
+                                    </connections>
+                                </swipeGestureRecognizer>
+                            </gestureRecognizers>
                         </table>
-                        <label width="1" alignment="left" text="." textAlignment="center" numberOfLines="4" id="ccv-of-0aE">
+                        <label width="1" alignment="left" text="Initializing" textAlignment="center" numberOfLines="4" id="ccv-of-0aE">
                             <fontDescription key="font" type="system" pointSize="12"/>
                         </label>
                         <group width="1" alignment="center" hidden="YES" layout="vertical" spacing="6" id="eiA-I8-Itb" userLabel="Debug Group">

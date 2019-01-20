@@ -20,22 +20,8 @@
 @protocol ReturnTripLegEndPoint;
 
 @interface TripLegEndPoint: DataFactory <MapPinColor, NSCopying>
-{
-	NSString *                  _xlat;
-	NSString *                  _xlon;
-	NSString *                  _xdescription;
-	NSString *                  _xstopId;
-	NSString *                  _displayText;
-	NSString *                  _mapText;
-	NSString *                  _displayModeText;
-	NSString *                  _displayTimeText;
-	NSString *                  _xnumber;
-	UIColor *                   _leftColor;
-	int                         _index;
-	id<ReturnTripLegEndPoint>   _callback;
-}
 
-@property (nonatomic, retain) id<ReturnTripLegEndPoint> callback;
+@property (nonatomic, strong) id<ReturnTripLegEndPoint> callback;
 @property (nonatomic, copy) NSString *xlat;
 @property (nonatomic, copy) NSString *xlon;
 @property (nonatomic, copy) NSString *xdescription;
@@ -50,18 +36,19 @@
 @property (nonatomic) bool thruRoute;
 @property (nonatomic) bool deboard;
 @property (nonatomic, readonly, copy) NSString *stopId;
-@property (nonatomic) MKPinAnnotationColor pinColor;
+@property (nonatomic) MapPinColorValue pinColor;
 @property (nonatomic, readonly, copy) NSString *mapStopId;
-- (id)copyWithZone:(NSZone *)zone;
 @property (nonatomic, readonly, copy) CLLocation *loc;
 
+- (id)copyWithZone:(NSZone *)zone;
 
 @end
 
 @protocol ReturnTripLegEndPoint
 
-- (void) chosenEndpoint:(TripLegEndPoint*)endpoint;
 @property (nonatomic, readonly, copy) NSString *actionText;
+
+- (void)chosenEndpoint:(TripLegEndPoint*)endpoint;
 
 @end
 

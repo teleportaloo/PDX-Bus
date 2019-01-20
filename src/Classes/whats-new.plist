@@ -2,6 +2,44 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <array>
+	<string>.11.1 (January 2019)</string>
+	<string>iOS 12 Siri Shortcuts:  Use the &quot;Add this stop to Siri&quot; menu item to associate a stop with a phrase for Siri, and Siri will say and show all the arrivals for a single stop.</string>
+	<string>iOS 12 Siri Shortcuts:  Use the  &quot;Add to Siri to launch with bookmark&quot; menu item to associate a bookmark with a phrase for Siri, who will launch PDX Bus and show the bookmark. Siri won&apos;t attempt to read all the arrivals in this case, as there could be a lot as each bookmark can have many stops.</string>
+	<string>iOS 12 Siri Shortcuts:  Use the &quot;Add to Siri&quot; menu item on the locate screen to set up a phrase to launch the app and locate nearby arrivals, routes or show a map.</string>
+	<string>WatchOS 5 Siri Shortcuts: Support for some Siri shortcuts on the watch app (trip planning is not supported from the watch).</string>
+	<string>WatchOS:  Added complications support to launch watch app from a watch face.</string>
+	<string>iOS: Detours are shown for stops without arrivals.</string>
+	<string>All: : Bug fixes;  modernized memory management. I found a place that can cause a hang;  this was probably the real cause of the issue when getting routes.</string>
+	<string>iOS: Fonts.  Now displays the time in larger text when the arrival time is more than an hour away.   Uses Verdana where there are changing numbers - this looks better as the numbers are fixed width. Fixed text alignment issues.</string>
+	<string>All: Now displays the day of the week if arrival time is more than 12 hours away, instead of the date.</string>
+	<string>.11.0.3 (October 2018)</string>
+	<string>Modified route indexing to hopefully stop occasional hang.</string>
+	<string>.11.0.2 (Ocober 2018)</string>
+	<string>I&apos;ve been looking into the way it hangs for some people, especially when getting routes, and hopefully I have a fix.  Thanks for all the bug reports and pictures, it really helps!</string>
+	<string>.11.0.1 (October 2018)</string>
+	<string>Fixed issue where app will not launch on iOS8 and 9.</string>
+	<string>Fixed issue with Refresh not working on Lookup stop by Route.</string>
+	<string>.11.0 (September 2018)</string>
+	<string>Updated for iOS 12.  Added basic support for Siri Shortcuts.</string>
+	<string>Updated to use new #b#BTriMet#0#b data - may include more details about delays, vehicle IDs, vehicle types and when busses are full.</string>
+	<string>Improved speed of arrival downloads by combining queries.</string>
+	<string>$detours Updated detours to use new #b#BTriMet#0#b alert data - including #+#bsystem wide alerts#-#b. #(#AThey also show the start and end time#)#0. Removed &quot;Rider Alerts&quot; as it was basically the same as the detour list and renamed the detours to be &quot;Detours, delays and closures&quot;.   Detours also include messages about the streetcar.</string>
+	<string>$settings You can adjust how many arrivals are shown. In the settings there is a new setting &quot;Don&apos;t show route after arrival &gt; N mins away&quot;.  Arrivals for each route served at each stop will be shown up to the first that is further than the chosen number of minutes away. </string>
+	<string>$tweet Updated Twitter links, as #b#BTriMet#0#b now has three Twitter accounts. Touch here to see.</string>
+	<string>Late color is now #M#bmagenta#b#0, as #isome people#i thought #N#bbrown#b#0 was a bit close to #A#bgrey#b#0.</string>
+	<string>VoiceOver text for detours improved to pronouce local #b#BTriMet#0#b words better (eg 185th Ave TC MAX Stn).  #i#htest#b!</string>
+	<string>Added search to detours, recent stops, recent trips and this #iWhat&apos;s New#i screen (pull down for search box).</string>
+	<string>$settings Maps:  There is a new option to show the route paths on the maps.  These paths are useful, but they are a 10 MB download so this is off by default.</string>
+	<string>Watch:  Improved commuter bookmark user-interface - it will show when it is active in the title.</string>
+	<string>Watch:  When locating stops, it will show you the routes and directions served by each stop.</string>
+	<string>Watch:  Added a swipe left to move to the next stop, and improved speed and stability.</string>
+	<string>.10.1 (January 2018)</string>
+	<string>New fixed icons - no black areas around icon when launching.</string>
+	<string>New Apple Watch icons (thanks Rob for icons updates!).</string>
+	<string>Fixed alarm notifications.</string>
+	<string>Fixed additional issues with trip planner results, and calendaring events.</string>
+	<string>Updated trip planner so all vehicles in a trip can be tagged at once with the same color.</string>
+	<string>Late vehicles have their times shown in #N#bbrown#b#0.</string>
 	<string>.10.0 (October 2017)</string>
 	<string>Fixed calendar issue;  trips are now added to the calendar with the correct date.</string>
 	<string>Minor fixes to station names and maps.</string>
@@ -17,37 +55,5 @@
 	<string>Minor user interface text changes.</string>
 	<string>.9.1 (January 2017)</string>
 	<string>Fixed bookmarks so first stop is not duplicated when editing.</string>
-	<string>.9.0 (December 2016)</string>
-	<string>Updated for iOS 10.</string>
-	<string>$railMap New Portland Streetcar Map.</string>
-	<string>Fixed Trip Planner for when locale is set to several non-English locales.</string>
-	<string>Watch app is more responsive. (Updated Watch app to be a &quot;native&quot; Watch OS application).</string>
-	<string>Lots of bug fixes and UI tweaks (e.g. Contacts in iOS 10).</string>
-	<string>Because of Apple tools, removed iOS6/iOS7 support.</string>
-	<string>Lots of internal code changes to make new features easier to add...</string>
-	<string>Added back link to TriMet Ticket app, as they have fixed their app and it is launchable again.</string>
-	<string>Added &apos;Take me somewhere now&apos; user interface for new bookmarks.</string>
-	<string>.8.1 (June 2016)</string>
-	<string>Bug fixes, including crash when entering unknown stop ID.</string>
-	<string>Bug fixes to stop iOS 6 crashes (this is the last iOS6 version).</string>
-	<string>#BWatch:#0 Added dictation and keypad (hard press from home screen)</string>
-	<string>+https://trimet.org/#alerts Updated link to #b#BTriMet#b#0 alert page and changed all web pages to use internal browser.</string>
-	<string>Removed link to TriMet Ticket app, as it no longer launches (their app changed - will restore this when they fix it)</string>
-	<string>.8.0 (February 2016)</string>
-	<string>Fixed notifications so #Ralarms#0 will #iactually#i work, added single button to add alarms for planned trips.</string>
-	<string>Updates for #biOS 9#b including searchable bookmarks, stations and routes. The first 4 bookmarks appear as Quick Actions on the home screen for iPhone 6S.</string>
-	<string>$railMap Updated #b#BTriMet#b#0 MAX map - they changed it again to include the new streetcar route names and colors.</string>
-	<string>Using Handoff, arrival screens and trip results can be passed between devices.</string>
-	<string>#BWatch:#0 Improved navigation though lists of stops on the watch by adding a &quot;Next stop&quot; button where appropriate.</string>
-	<string>#BWatch:#0 Added automatic commuter bookmark to the watch.</string>
-	<string>Arrival detail screen is now auto-refreshed; added a map so now you watch watch the bus or train get closer as you wait.</string>
-	<string>Added support for iPad split view and overlay;  updated for iPad Pro screen size.</string>
-	<string>Maps that show routes and stops now also show vehicle locations for that route.</string>
-	<string>$vehicles Maps now show buses &amp; trains as arrows pointing in the direction of travel and using the route color.</string>
-	<string>Trip planner now correctly says to stay on the train if the route color changes (e.g. #OOrange#0 trains change to #YYellow#0).</string>
-	<string>All distances are now given in tenths of a mile or feet if shorter than 0.1 miles.  Metric distances remain the same.</string>
-	<string>For arrivals, added ability to find the nearest stops going in the other direction.</string>
-	<string>Updated help screen with more infomation and #bf#b#io#i#Rr#Gm#Ya#0t#O#bt#b#Ai#On#0g.</string>
-	<string>Bug fixes and stability improvements.</string>
 </array>
 </plist>

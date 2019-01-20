@@ -15,8 +15,10 @@
 
 #import <Foundation/Foundation.h>
 #import <WatchKit/WatchKit.h>
+#import "WatchRow.h"
 
-@interface WatchNoArrivals : NSObject
-@property (strong, nonatomic) IBOutlet WKInterfaceLabel *errorMsg;
+@interface WatchNoArrivals : WatchRow
+
+@property (strong, nonatomic) IBOutlet WKInterfaceLabel *label;
 
 @end

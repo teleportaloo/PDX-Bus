@@ -6,6 +6,13 @@
 //  Copyright © 2017 Teleportaloo. All rights reserved.
 //
 
+
+
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+
 #import <UIKit/UIKit.h>
 #import "RouteColorBlobView.h"
 
@@ -15,17 +22,14 @@
 {
     NSString *_formattedBodyText;
 }
-@property (retain, nonatomic) IBOutlet RouteColorBlobView *routeColorView;
-@property (retain, nonatomic) IBOutlet UILabel *modeLabel;
-@property (retain, nonatomic) IBOutlet UILabel *bodyLabel;
-@property (retain, nonatomic) IBOutlet NSLayoutConstraint *modeLabelWidth;
-
+@property (strong, nonatomic) IBOutlet RouteColorBlobView *routeColorView;
+@property (strong, nonatomic) IBOutlet UILabel *modeLabel;
+@property (strong, nonatomic) IBOutlet UILabel *bodyLabel;
+@property (strong, nonatomic) IBOutlet NSLayoutConstraint *modeLabelWidth;
 @property (nonatomic, readonly) bool large;
-
 @property (nonatomic, copy) NSString *formattedBodyText;
 
 - (void)update;
-
 - (void)populateBody:(NSString *)body
                 mode:(NSString *)mode
                 time:(NSString *)time

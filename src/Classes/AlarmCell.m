@@ -17,8 +17,8 @@
 #import "DebugLogging.h"
 #import "ViewControllerBase.h"
 
-// #define ALARM_NAME_TAG	1
-///#define ALARM_TOGO_TAG	2
+// #define ALARM_NAME_TAG    1
+///#define ALARM_TOGO_TAG    2
 
 
 @implementation AlarmCell
@@ -49,9 +49,6 @@
 }
 
 
-- (void)dealloc {
-    [super dealloc];
-}
 
 - (void)setFired:(_Bool)fired
 {
@@ -66,30 +63,31 @@
 
 + (AlarmCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier
 {
-	AlarmCell *cell = [[[AlarmCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier] autorelease];
-	
+    AlarmCell *cell = [[AlarmCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
+    
     [cell setUpViews];
-	
-	return cell;
+    
+    return cell;
 }
 
 - (void)populateCellLine1:(NSString *)line1 line2:(NSString *)line2 line2col:(UIColor *)col
 {
-	self.textLabel.text = line1;
+    self.textLabel.text = line1;
     self.textLabel.adjustsFontSizeToFitWidth = YES;
-	
+    self.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
+    
     self.detailTextLabel.text = line2;
     self.detailTextLabel.adjustsFontSizeToFitWidth = YES;
-	self.detailTextLabel.textColor = col;
+    self.detailTextLabel.textColor = col;
 }
 
 + (CGFloat)rowHeight
 {
-	if (SMALL_SCREEN)
-	{
-		return 45.0 * 1.4;
-	}
-	return 55.0 * 1.4;
+    if (SMALL_SCREEN)
+    {
+        return 45.0 * 1.4;
+    }
+    return 55.0 * 1.4;
 }
 
 - (void)layoutSubviews

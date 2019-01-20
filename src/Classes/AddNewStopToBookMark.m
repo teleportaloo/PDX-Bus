@@ -15,6 +15,7 @@
 #import "AddNewStopToBookMark.h"
 #import "CellTextView.h"
 #import "CellTextField.h"
+#import "StringHelper.h"
 
 #define kRowEnter	0
 #define kRowDone	1
@@ -23,12 +24,6 @@
 #define kUIRowHeight			40.0
 
 @implementation AddNewStopToBookMark
-@synthesize editWindow	= _editWindow;
-
-- (void)dealloc {
-	self.editWindow = nil;
-    [super dealloc];
-}
 
 #pragma mark Helper functions
 
@@ -36,7 +31,7 @@
 - (UITextField *)createTextField_Rounded
 {
 	CGRect frame = CGRectMake(0.0, 0.0, 100.0, [CellTextField editHeight]);
-	UITextField *returnTextField = [[[UITextField alloc] initWithFrame:frame] autorelease];
+	UITextField *returnTextField = [[UITextField alloc] initWithFrame:frame];
     
 	returnTextField.borderStyle = UITextBorderStyleRoundedRect;
     returnTextField.textColor = [UIColor blackColor];
@@ -56,7 +51,7 @@
 
 #pragma mark TableViewWithToolbar functions
 
-- (UITableViewStyle) getStyle
+- (UITableViewStyle) style
 {
 	return UITableViewStyleGrouped;
 }
@@ -67,10 +62,10 @@
 // Implement viewDidLoad to do additional setup after loading the view.
 - (void)viewDidLoad {
     [super viewDidLoad];
-	UIBarButtonItem *cancelButton = [[[UIBarButtonItem alloc]
+	UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc]
 									  initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
 									  target:self
-									  action:@selector(cancelAction:)] autorelease];
+									  action:@selector(cancelAction:)];
 	self.navigationItem.rightBarButtonItem = cancelButton;
 
 }
@@ -113,28 +108,25 @@
 			CellTextField *sourceCell = (CellTextField*) [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
 			if (sourceCell == nil)
 			{
-				sourceCell =  [[[CellTextField alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];	
+				sourceCell =  [[CellTextField alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];	
 				((CellTextField *)sourceCell).view = [self createTextField_Rounded];
 				((CellTextField *)sourceCell).delegate = self;
 				self.editWindow = sourceCell.view;
 				[self.editWindow becomeFirstResponder];
 				sourceCell.cellLeftOffset = 40.0;
-				sourceCell.imageView.image = [self alwaysGetIcon:kIconEnterStopID];
+				sourceCell.imageView.image = [self getIcon:kIconEnterStopID];
 				return sourceCell;
 			}
 			break;
 		}
 		case kRowDone:
 		{
-			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kDoneId];
-			if (cell == nil) {
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kDoneId] autorelease];
-				cell.textLabel.textAlignment = NSTextAlignmentLeft;
-			}
-			
+			UITableViewCell *cell = [self tableView:tableView cellWithReuseIdentifier:kDoneId];
+            
+            cell.textLabel.textAlignment = NSTextAlignmentLeft;
 			// Set up the cell
 			cell.textLabel.text = NSLocalizedString(@"Add this stop ID", @"action button");
-			cell.imageView.image = [self getActionIcon:kIconAdd];
+			cell.imageView.image = [self getIcon:kIconAdd];
 			// [self maybeAddSectionToAccessibility:cell indexPath:indexPath];
 			cell.textLabel.font = self.basicFont;
 			return cell;
@@ -147,7 +139,7 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 	UITextView *textView = (UITextView*)self.editWindow;
-	NSString *editText =[self justNumbers:textView.text];
+	NSString *editText =[textView.text justNumbers];
 	
 	if (indexPath.row == kRowDone && editText.length !=0)
 	{
@@ -178,12 +170,12 @@
 {
 	
 	UITextView *textView = (UITextView*)((CellTextField*)cell).view;
-	NSString *editText =[self justNumbers:textView.text];
+	NSString *editText =[textView.text justNumbers];
 	if (editText.length !=0 && self.navigationItem.rightBarButtonItem != nil )
 	{
-		if ([self.callback getController] != nil)
+		if (self.callback.controller != nil)
 		{
-			[self.navigationController popToViewController:[self.callback getController] animated:YES];
+			[self.navigationController popToViewController:self.callback.controller animated:YES];
 		}
 		[self.callback selectedStop:editText];
 	}
@@ -195,7 +187,7 @@
 {
 	self.navigationItem.rightBarButtonItem = nil;
 	[self.editWindow resignFirstResponder];
-	[self.navigationController popToViewController:[self.callback getController] animated:YES];
+	[self.navigationController popToViewController:self.callback.controller animated:YES];
 }
 
 @end

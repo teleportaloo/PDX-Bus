@@ -17,20 +17,11 @@
 
 
 @protocol ReturnStop;
-@protocol BackgroundTaskProgress;
+@protocol BackgroundTaskController;
 
 
 
-@interface Stop : DataFactory <MapPinColor, SearchFilter> {
-	NSString *      _locid;
-	bool			_tp;
-	NSString *      _desc;
-	NSString *      _lat;
-	NSString *      _lng;
-	id<ReturnStop>  _callback;
-	NSString *      _dir;
-	int			    _index;
-}
+@interface Stop : DataFactory <MapPinColor, SearchFilter> 
 
 @property (nonatomic, copy)   NSString *locid;
 @property (nonatomic, copy)   NSString *desc;
@@ -38,18 +29,18 @@
 @property (nonatomic)         bool tp;
 @property (nonatomic, copy)   NSString *lat;
 @property (nonatomic, copy)   NSString *lng;
-@property (nonatomic, retain) id<ReturnStop> callback;
+@property (nonatomic, strong) id<ReturnStop> callback;
 @property (nonatomic)         int index;
-
-@property (nonatomic)           MKPinAnnotationColor pinColor;
+@property (nonatomic)         MapPinColorValue pinColor;
 @property (nonatomic, readonly) bool showActionMenu;
-- (bool) mapTapped:(id<BackgroundTaskProgress>) progress;
 @property (nonatomic, readonly, copy) NSString *stringToFilter;
+
+- (bool) mapTapped:(id<BackgroundTaskController>) progress;
 
 @end
 
 @protocol ReturnStop
-- (void) chosenStop:(Stop *)stop progress:(id<BackgroundTaskProgress>) progress;
+- (void) chosenStop:(Stop *)stop progress:(id<BackgroundTaskController>) progress;
 @property (nonatomic, readonly, copy) NSString *actionText;
 @end
 

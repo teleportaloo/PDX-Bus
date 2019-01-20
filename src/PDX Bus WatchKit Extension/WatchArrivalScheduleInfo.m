@@ -14,13 +14,185 @@
 
 
 #import "WatchArrivalScheduleInfo.h"
+#import "XMLDepartures.h"
+#import "ArrivalColors.h"
+#import "FormatDistance.h"
+#import "StringHelper.h"
+#import "VehicleData.h"
 
 @implementation WatchArrivalScheduleInfo
 
-- (void)dealloc
+
++ (NSString*)identifier
 {
-    self.scheduleInfoText = nil;
-    [super dealloc];
+    return @"Schedule";
+}
+
+- (void)populate:(XMLDepartures *)xml departures:(NSArray<DepartureData*>*)deps
+{
+    NSMutableString *detourText = [NSMutableString string];
+    DepartureData *dep = deps.firstObject;
+    
+    NSInteger mins = dep.minsToArrival;
+    NSDate *depatureDate = dep.departureTime;
+    NSMutableString *timeText = [NSMutableString string];
+    NSMutableString *scheduledText = [NSMutableString string];
+    NSMutableString *distanceText = [NSMutableString string];
+    UIColor *timeColor = nil;
+    
+    NSDateFormatter *dateFormatter = [dep dateAndTimeFormatterWithPossibleLongDateStyle:kLongDateFormat arrivalWindow:nil];
+    
+    
+    if ((mins < 0 || dep.invalidated) && dep.status != kStatusCancelled)
+    {
+        [timeText appendString:NSLocalizedString(@"Gone - ", @"first part of text to display on a single line if a bus has gone")];
+        [timeText appendString:[dateFormatter stringFromDate:depatureDate]];
+        [timeText appendString:@" "];
+        timeColor = ArrivalColorDeparted;
+    }
+    else if (mins == 0 && dep.status != kStatusCancelled)
+    {
+        [timeText appendString:NSLocalizedString(@"Due - ", @"first part of text to display on a single line if a bus is due")];
+        [timeText appendString:[dateFormatter stringFromDate:depatureDate]];
+        [timeText appendString:@" "];
+        
+        if (dep.actuallyLate)
+        {
+            timeColor = ArrivalColorLate;
+        }
+        else
+        {
+            timeColor = ArrivalColorSoon;
+        }
+    }
+    else if (mins == 1 && dep.status != kStatusCancelled)
+    {
+        [timeText appendString:NSLocalizedString(@"1 min - ", @"first part of text to display on a single line if a bus is due in 1 minute")];
+        [timeText appendString:[dateFormatter stringFromDate:depatureDate]];
+        [timeText appendString:@" "];
+        
+        if (dep.actuallyLate)
+        {
+            timeColor = ArrivalColorLate;
+        }
+        else
+        {
+            timeColor = ArrivalColorSoon;
+        }
+    }
+    else if (mins < 6 && dep.status != kStatusCancelled)
+    {
+        [timeText appendFormat:NSLocalizedString(@"%d mins - ", @"first part of text to display on a single line if a bus is due in several minutes"), (int)mins];
+        [timeText appendString:[dateFormatter stringFromDate:depatureDate]];
+        [timeText appendString:@" "];
+        
+        if (dep.actuallyLate)
+        {
+            timeColor = ArrivalColorLate;
+        }
+        else
+        {
+            timeColor = ArrivalColorSoon;
+        }
+    }
+    else if (mins < 60 && dep.status != kStatusCancelled)
+    {
+        [timeText appendFormat:NSLocalizedString(@"%d mins - ", @"first part of text to display on a single line if a bus is due in several minutes"), (int)mins];
+        [timeText appendString:[dateFormatter stringFromDate:depatureDate]];
+        [timeText appendString:@" "];
+        
+        if (dep.actuallyLate)
+        {
+            timeColor = ArrivalColorLate;
+        }
+        else
+        {
+            timeColor = ArrivalColorOK;
+        }
+    }
+    else
+    {
+        [timeText appendString:[dateFormatter stringFromDate:depatureDate]];
+        [timeText appendString:@" "];
+        
+        if (dep.actuallyLate)
+        {
+            timeColor = ArrivalColorLate;
+        }
+        else
+        {
+            timeColor = ArrivalColorOK;
+        }
+    }
+    
+    switch (dep.status)
+    {
+        case kStatusEstimated:
+            break;
+        case kStatusScheduled:
+            [scheduledText appendString:NSLocalizedString(@"🕔Scheduled - no location information available. ", @"info about arrival time")];
+            timeColor = ArrivalColorScheduled;
+            break;
+        case kStatusCancelled:
+            [scheduledText appendString:NSLocalizedString(@"❌Canceled ", @"info about arrival time")];
+            timeColor = ArrivalColorCancelled;
+            break;
+        case kStatusDelayed:
+            [detourText appendString:NSLocalizedString(@"Delayed ",  @"info about arrival time")];
+            timeColor = ArrivalColorDelayed;
+            break;
+    }
+    
+    if (dep.notToSchedule)
+    {
+        NSDate *scheduledDate = dep.scheduledTime;
+        [scheduledText appendFormat:NSLocalizedString(@"scheduled %@ ",@"info about arrival time"), [dateFormatter stringFromDate:scheduledDate]];;
+    }
+    
+    NSMutableAttributedString * string = @"".mutableAttributedString;
+    
+    NSString *location = [NSString stringWithFormat:@"%@\n", dep.locationDesc];
+    NSDictionary *attributes = @{NSForegroundColorAttributeName: [UIColor cyanColor]};
+    NSAttributedString *subString = [[NSAttributedString alloc] initWithString:location attributes:attributes];
+    [string appendAttributedString:subString];
+    
+    NSString *fullsign = [NSString stringWithFormat:@"%@\n", dep.fullSign];
+    attributes =  @{NSForegroundColorAttributeName: [UIColor whiteColor]};
+    subString = [[NSAttributedString alloc] initWithString:fullsign attributes:attributes];
+    [string appendAttributedString:subString];
+    
+    if (scheduledText.length>0)
+    {
+        [timeText appendString:@"\n"];
+    }
+    
+    attributes = @{NSForegroundColorAttributeName: timeColor};
+    subString = [[NSAttributedString alloc] initWithString:timeText attributes:attributes];
+    [string appendAttributedString:subString];
+    
+    if (detourText.length>0)
+    {
+        [scheduledText appendString:@"\n"];
+    }
+    
+    attributes = @{NSForegroundColorAttributeName: ArrivalColorScheduled};
+    subString = [[NSAttributedString alloc] initWithString:scheduledText attributes:attributes];
+    [string appendAttributedString:subString];
+    
+    attributes = @{NSForegroundColorAttributeName: [UIColor orangeColor]};
+    subString = [[NSAttributedString alloc] initWithString:detourText attributes:attributes];
+    [string appendAttributedString:subString];
+    
+    if (dep.blockPosition && dep.blockPositionFeet > 0)
+    {
+        [distanceText appendFormat:@"\n%@ away\n", [FormatDistance formatFeet:dep.blockPositionFeet]];
+        [distanceText appendString:[VehicleData locatedSomeTimeAgo:dep.blockPositionAt]];
+        attributes = @{NSForegroundColorAttributeName: [UIColor yellowColor]};
+        subString = [[NSAttributedString alloc] initWithString:distanceText attributes:attributes];
+        [string appendAttributedString:subString];
+    }
+    
+    self.label.attributedText = string;
 }
 
 @end

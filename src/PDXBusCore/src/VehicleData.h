@@ -28,37 +28,24 @@
 // #define VEHICLE_TEST 1
 
 @interface VehicleData : DataFactory
-{
-    NSString *      _block;
-    CLLocation *    _location;
-    NSString *      _nextLocID;
-    NSString *      _lastLocID;
-    NSString *      _routeNumber;
-    NSString *      _direction;
-    NSString *      _signMessage;
-    NSString *      _signMessageLong;
-    NSString *      _type;
-    NSString *      _garage;
-    NSString *      _bearing;
-    double          _distance;
-    TriMetTime      _locationTime;
-}
 
-@property (nonatomic, copy)   NSString *block;
-@property (nonatomic, retain) CLLocation *location;
-@property (nonatomic, copy)   NSString *nextLocID;
-@property (nonatomic, copy)   NSString *lastLocID;
-@property (nonatomic, copy)   NSString *routeNumber;
-@property (nonatomic, copy)   NSString *direction;
-@property (nonatomic, copy)   NSString *signMessage;
-@property (nonatomic, copy)   NSString *signMessageLong;
-@property (nonatomic, copy)   NSString *type;
-@property (nonatomic)         double   distance;
-@property (nonatomic)         TriMetTime locationTime;
-@property (nonatomic, copy)   NSString *garage;
-@property (nonatomic, copy)   NSString *bearing;
+@property (nonatomic, copy) NSString *signMessageLong;
+@property (nonatomic, strong) NSDate * locationTime;
+@property (nonatomic, strong) CLLocation *location;
+@property (nonatomic, copy) NSString *signMessage;
+@property (nonatomic, copy) NSString *routeNumber;
+@property (nonatomic, copy) NSString *direction;
+@property (nonatomic, copy) NSString *vehicleID;
+@property (nonatomic, copy) NSString *nextLocID;
+@property (nonatomic, copy) NSString *lastLocID;
+@property (nonatomic, copy) NSString *bearing;
+@property (nonatomic, copy) NSString *garage;
+@property (nonatomic, copy) NSString *block;
+@property (nonatomic, copy) NSString *type;
+@property (nonatomic) double distance;
 
 - (bool)typeMatchesMode:(TripMode)mode;
+
 + (NSString *)locatedSomeTimeAgo:(NSDate *)date;
 
 @end

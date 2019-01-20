@@ -18,28 +18,24 @@
 #import "XMLTrips.h"
 
 
-@interface TripPlannerLocatingView : LocatingView <LocatingViewDelegate> {
-	XMLTrips *                  _tripQuery;
-	TripEndPoint  *             _currentEndPoint;
-	UINavigationController *    _backgroundTaskController;
-	bool                        _backgroundTaskForceResults;
-	UIInterfaceOrientation      _cachedOrientation;
-	bool                        _useCachedOrientation;
+@interface TripPlannerLocatingView : LocatingView <LocatingViewDelegate>
+{
+    UIInterfaceOrientation      _cachedOrientation;
+    bool                        _useCachedOrientation;
     bool                        _appeared;
-    bool                        _waitingForGeocoder;
 }
 
-@property (nonatomic, retain) XMLTrips *tripQuery;
-@property (nonatomic, retain) TripEndPoint  *currentEndPoint;
-@property (nonatomic, retain) UINavigationController *backgroundTaskController;
+@property (nonatomic, strong) XMLTrips *tripQuery;
+@property (nonatomic, strong) TripEndPoint  *currentEndPoint;
+@property (nonatomic, strong) UINavigationController *backgroundTaskController;
 @property (nonatomic) bool backgroundTaskForceResults;
 @property (atomic) bool waitingForGeocoder;
 
 -(void)nextScreen:(UINavigationController *)controller forceResults:(bool)forceResults postQuery:(bool)postQuery 
-	  orientation:(UIInterfaceOrientation)orientation
-	taskContainer:(BackgroundTaskContainer *)taskContainer;
+      orientation:(UIInterfaceOrientation)orientation
+    taskContainer:(BackgroundTaskContainer *)taskContainer;
 -(void)fetchAndDisplay:(UINavigationController *)controller forceResults:(bool)forceResults
-		 taskContainer:(BackgroundTaskContainer *)taskContainer;
+         taskContainer:(BackgroundTaskContainer *)taskContainer;
 
 
 @end

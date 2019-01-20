@@ -18,15 +18,10 @@
 #import "Stop.h"
 
 @interface MapViewWithStops : MapViewController
-{
-    XMLStops *_stopData;
-    NSString *_locId;
-    
-}
 
-@property (nonatomic, retain) XMLStops *stopData;
+@property (nonatomic, strong) XMLStops *stopData;
 @property (nonatomic, copy)   NSString *locId;
 
-- (void)fetchStopsAsync:(id<BackgroundTaskProgress>) callback route:(NSString*)routeid direction:(NSString*)dir
+- (void)fetchStopsAsync:(id<BackgroundTaskController>)task route:(NSString*)routeid direction:(NSString*)dir
                     returnStop:(id<ReturnStop>)returnStop;
 @end

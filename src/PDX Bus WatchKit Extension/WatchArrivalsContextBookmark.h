@@ -17,11 +17,8 @@
 #import "WatchBookmarksContext.h"
 
 @interface WatchArrivalsContextBookmark : WatchArrivalsContext
-{
-    
-}
 
-@property (nonatomic, retain) WatchBookmarksContext *bookmarksContext;
+@property (nonatomic, strong) WatchBookmarksContext *bookmarksContext;
 @property (nonatomic)         NSInteger             index;
 
 + (WatchArrivalsContextBookmark*)contextFromBookmark:(WatchBookmarksContext *)bookmarksContext index:(NSInteger)index;

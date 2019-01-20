@@ -6,7 +6,7 @@
 //  Created by Troy Gaul on 7 Aug 2010.
 //
 //  Copyright (c) 2011 InfinitApps LLC - http://infinitapps.com
-//	Some rights reserved: http://opensource.org/licenses/MIT
+//    Some rights reserved: http://opensource.org/licenses/MIT
 //
 //==============================================================================
 
@@ -22,32 +22,33 @@
 //------------------------------------------------------------------------------
 
 @interface InfColorPickerController : UIViewController {
-	float hue;
-	float saturation;
-	float brightness;
+    float hue;
+    float saturation;
+    float brightness;
 }
 
-	// Public API:
+    // Public API:
 
 + (InfColorPickerController*) colorPickerViewController;
 + (CGSize) idealSizeForViewInPopover;
 
 - (void) presentModallyOverViewController: (UIViewController*) controller;
 
-@property( retain, nonatomic ) UIColor* sourceColor;
-@property( retain, nonatomic ) UIColor* resultColor;
+@property( strong, nonatomic ) UIColor* sourceColor;
+@property( strong, nonatomic ) UIColor* resultColor;
 
-@property( assign, nonatomic ) id< InfColorPickerControllerDelegate > delegate;
+@property( weak, nonatomic ) id< InfColorPickerControllerDelegate > delegate;
+@property( nonatomic, copy )  void (^completionBlock)(InfColorPickerController *sender) ;
 
-	// IB outlets:
+    // IB outlets:
 
-@property( retain, nonatomic ) IBOutlet InfColorBarView* barView;
-@property( retain, nonatomic ) IBOutlet InfColorSquareView* squareView;
-@property( retain, nonatomic ) IBOutlet InfColorBarPicker* barPicker;
-@property( retain, nonatomic ) IBOutlet InfColorSquarePicker* squarePicker;
-@property( retain, nonatomic ) IBOutlet UIView* sourceColorView;
-@property( retain, nonatomic ) IBOutlet UIView* resultColorView;
-@property( retain, nonatomic ) IBOutlet UINavigationController* navController;
+@property( strong, nonatomic ) IBOutlet InfColorBarView* barView;
+@property( strong, nonatomic ) IBOutlet InfColorSquareView* squareView;
+@property( strong, nonatomic ) IBOutlet InfColorBarPicker* barPicker;
+@property( strong, nonatomic ) IBOutlet InfColorSquarePicker* squarePicker;
+@property( strong, nonatomic ) IBOutlet UIView* sourceColorView;
+@property( strong, nonatomic ) IBOutlet UIView* resultColorView;
+@property( strong, nonatomic ) IBOutlet UINavigationController* navController;
 
 @end
 
@@ -58,7 +59,7 @@
 @optional
 
 - (void) colorPickerControllerDidFinish: (InfColorPickerController*) controller;
-	// This is only called when the color picker is presented modally.
+    // This is only called when the color picker is presented modally.
 
 - (void) colorPickerControllerDidChangeColor: (InfColorPickerController*) controller;
 

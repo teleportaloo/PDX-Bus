@@ -11,60 +11,83 @@
 
 
 #import "RouteView.h"
-#import "Route.h"
+#import "Route+iOS.h"
 #import "XMLRoutes.h"
 #import "DirectionView.h"
 #import "RouteColorBlobView.h"
 #import <CoreSpotlight/CoreSpotlight.h>
 #import <MobileCoreServices/MobileCoreServices.h> 
 #import "DebugLogging.h"
+#import "AllRailStationView.h"
 
 @implementation RouteView
 
 
-#define kSectionRoutes	   0
-#define kSectionDisclaimer 1
-#define kSections		   2
+#define kSectionAllStations 0
+#define kSectionRoutes        1
+#define kSectionDisclaimer  2
+#define kMainSections       3
+#define kSearchSections     1
 
-
-@synthesize routeData = _routeData;
-
-- (void)dealloc {
-	self.routeData = nil;
-	[super dealloc];
-}
 
 - (instancetype)init {
-	if ((self = [super init]))
-	{
+    if ((self = [super init]))
+    {
         self.title = NSLocalizedString(@"Routes", @"page title");
-		self.enableSearch = YES;
-	}
-	return self;
+        self.enableSearch = YES;
+        self.refreshFlags =  kRefreshButton | kRefreshShake;
+    }
+    return self;
+}
+
+- (NSInteger)tableView:(UITableView *)tableview sectionType:(NSInteger)section
+{
+    if (tableview == self.table)
+    {
+        return section;
+    }
+    
+    return section+1;
 }
 
 
 #pragma mark Data fetchers
 
-- (void)fetchRoutesAsync:(id<BackgroundTaskProgress>)callback
-{	
-    self.backgroundTask.callbackWhenFetching = callback;
+- (void)fetchRoutesAsync:(id<BackgroundTaskController>)task backgroundRefresh:(bool)backgroundRefresh
+{
     self.routeData = [XMLRoutes xml];
     
-    if (!self.backgroundRefresh && [self.routeData getRoutesCacheAction:TriMetXMLCheckCache])
+    if (!backgroundRefresh && [self.routeData getRoutesCacheAction:TriMetXMLCheckCache])
     {
-        [self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
+        self.backgroundRefresh = backgroundRefresh;
+        [self updateRefreshDate:self.routeData.cacheTime];
+        [task taskCompleted:self];
+      
     }
     else
     {
-        [self runAsyncOnBackgroundThread:^{
-            [self.backgroundTask.callbackWhenFetching backgroundStart:1 title:NSLocalizedString(@"getting routes", @"activity text")];
+        [task taskRunAsync:^{
+            self.backgroundRefresh = backgroundRefresh;
+            [task taskStartWithItems:1 title:NSLocalizedString(@"getting routes", @"activity text")];
             
+            DEBUG_PROGRESS(task, @"R1");
+            self.routeData.oneTimeDelegate = task;
             [self.routeData getRoutesCacheAction:TriMetXMLForceFetchAndUpdateCache];
             
-            [self indexRoutes];
+            DEBUG_PROGRESS(task, @"R2");
             
-            [self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
+            if (self.routeData.gotData && self.routeData.count > 0)
+            {
+                dispatch_async(dispatch_get_main_queue() , ^{
+                    [self indexRoutes];
+                });
+            }
+        
+            DEBUG_PROGRESS(task, @"R3");
+            [self updateRefreshDate:self.routeData.cacheTime];
+            
+            DEBUG_PROGRESS(task, @"R4");
+            return (UIViewController*)self;
         }];
     }
 }
@@ -73,128 +96,155 @@
 
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-	return kSections;
+    
+    if (tableView == self.table)
+    {
+        return kMainSections;
+    }
+    return kSearchSections;
 }
 
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {	
-	switch (section)
-	{
-		case kSectionRoutes:
-		{
-			NSArray *items = [self filteredData:tableView];
-			return items ? items.count : 0;
-		}
-		case kSectionDisclaimer:
-			return 1;
-	}
-	return 1;
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {    
+    switch ([self tableView:tableView sectionType:section])
+    {
+        case kSectionRoutes:
+        {
+            NSArray *items = [self filteredData:tableView];
+            return items ? items.count : 0;
+        }
+        case kSectionAllStations:
+        case kSectionDisclaimer:
+            return 1;
+    }
+    return 1;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	switch (indexPath.section)
-	{
-		case kSectionRoutes:
-			return [self basicRowHeight];
-		case kSectionDisclaimer:
-			return kDisclaimerCellHeight;
-	}
-	return 1;
-	
+    switch ([self tableView:tableView sectionType:indexPath.section])
+    {
+        case kSectionRoutes:
+        case kSectionAllStations:
+            return [self basicRowHeight];
+        case kSectionDisclaimer:
+            return kDisclaimerCellHeight;
+    }
+    return 1;
+    
 }
 
 #define COLOR_STRIPE_TAG 1
 
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-	UITableViewCell *cell = nil;
-	
-	switch (indexPath.section)
-	{
-	case kSectionRoutes:
-		{		
-			cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionRoutes)];
-			if (cell == nil) {
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionRoutes)] autorelease];
-				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-				CGRect rect = CGRectMake(0, 0, ROUTE_COLOR_WIDTH, [self tableView:tableView heightForRowAtIndexPath:indexPath]);
-				
-				RouteColorBlobView *colorStripe = [[RouteColorBlobView alloc] initWithFrame:rect];
-				colorStripe.tag = COLOR_STRIPE_TAG;
-				[cell.contentView addSubview:colorStripe];
-				[colorStripe release];
-				
-			}
-			// Configure the cell
-			Route *route = [self filteredData:tableView][indexPath.row];
-			
-			cell.textLabel.text = route.desc; 
-			cell.textLabel.font = self.basicFont;
-			cell.textLabel.adjustsFontSizeToFitWidth = YES;
-			RouteColorBlobView *colorStripe = (RouteColorBlobView*)[cell.contentView viewWithTag:COLOR_STRIPE_TAG];
-			[colorStripe setRouteColor:route.route];
-		}
-		break;
-	case kSectionDisclaimer:
-    default:
-		cell = [tableView dequeueReusableCellWithIdentifier:kDisclaimerCellId];
-		if (cell == nil) {
-			cell = [self disclaimerCellWithReuseIdentifier:kDisclaimerCellId];
-		}
-			
-		[self addTextToDisclaimerCell:cell text:[self.routeData displayDate:self.routeData.cacheTime]];	
-			
-		if (self.routeData.itemArray == nil)
-		{
-			[self noNetworkDisclaimerCell:cell];
-		}
-		else
-		{
-			cell.accessoryType = UITableViewCellAccessoryNone;
-		}
-		break;
-	}
-	return cell;
+    UITableViewCell *cell = nil;
+    
+    switch ([self tableView:tableView sectionType:indexPath.section])
+    {
+        case kSectionAllStations:
+        {
+            cell = [self tableView:tableView cellWithReuseIdentifier:MakeCellId(kSectionAllStations)];
+            
+            cell.textLabel.text = NSLocalizedString(@"All Rail Stations (A-Z)", @"menu item");
+            cell.textLabel.font = self.basicFont;
+            cell.textLabel.adjustsFontSizeToFitWidth = YES;
+            cell.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            
+            [self updateAccessibility:cell];
+            break;
+        }
+        case kSectionRoutes:
+        {
+            cell = [self tableView:tableView cellWithReuseIdentifier:MakeCellId(kSectionRoutes)];
+            
+            if ([cell.contentView viewWithTag:COLOR_STRIPE_TAG]==nil)
+            {
+                cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+                CGRect rect = CGRectMake(0, 0, ROUTE_COLOR_WIDTH, [self tableView:tableView heightForRowAtIndexPath:indexPath]);
+                
+                RouteColorBlobView *colorStripe = [[RouteColorBlobView alloc] initWithFrame:rect];
+                colorStripe.tag = COLOR_STRIPE_TAG;
+                [cell.contentView addSubview:colorStripe];
+            }
+            
+            // Configure the cell
+            Route *route = [self filteredData:tableView][indexPath.row];
+            
+            cell.textLabel.text = route.desc;
+            cell.textLabel.font = self.basicFont;
+            cell.textLabel.adjustsFontSizeToFitWidth = YES;
+            cell.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
+            RouteColorBlobView *colorStripe = (RouteColorBlobView*)[cell.contentView viewWithTag:COLOR_STRIPE_TAG];
+            [colorStripe setRouteColor:route.route];
+            [self updateAccessibility:cell];
+        }
+            break;
+        case kSectionDisclaimer:
+        default:
+            cell = [self disclaimerCell:tableView];
+            
+            [self addTextToDisclaimerCell:cell text:[self.routeData displayDate:self.routeData.cacheTime]];
+            
+            if (self.routeData.items == nil)
+            {
+                [self noNetworkDisclaimerCell:cell];
+            }
+            else
+            {
+                cell.accessoryType = UITableViewCellAccessoryNone;
+            }
+            [self updateDisclaimerAccessibility:cell];
+            break;
+    }
+    return cell;
 }
 
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-	switch (indexPath.section)
-	{
-		case kSectionRoutes:
-		{
+    switch ([self tableView:tableView sectionType:indexPath.section])
+    {
+        case kSectionAllStations:
+        {
+            AllRailStationView *view = [AllRailStationView viewController];
+            view.callback = self.callback;
+            [self.navigationController pushViewController:view animated:YES];
+            break;
+        }
+        case kSectionRoutes:
+        {
             DirectionView *directionViewController = [DirectionView viewController];
-			Route * route = [self filteredData:tableView][indexPath.row];
-			// directionViewController.route = [self.routeData itemAtIndex:indexPath.row];
-			directionViewController.callback = self.callback;
-			[directionViewController fetchDirectionsAsync:self.backgroundTask route:route.route];
-			break;
-		}
-		case kSectionDisclaimer:
-		{
-			if (self.routeData.itemArray == nil)
-			{
-				[self networkTips:self.routeData.htmlError networkError:self.routeData.errorMsg];
+            Route * route = [self filteredData:tableView][indexPath.row];
+            // directionViewController.route = [self.routeData itemAtIndex:indexPath.row];
+            directionViewController.callback = self.callback;
+            [directionViewController fetchDirectionsAsync:self.backgroundTask route:route.route backgroundRefresh:NO];
+            break;
+        }
+        case kSectionDisclaimer:
+        {
+            if (self.routeData.items == nil)
+            {
+                [self networkTips:self.routeData.htmlError networkError:self.routeData.errorMsg];
                 [self clearSelection];
-			}
-			break;
-		}
-	}
+            }
+            break;
+        }
+    }
 }
 
 #pragma mark View methods
 
 - (void)viewWillAppear:(BOOL)animated {
-	[super viewWillAppear:animated];
+    [super viewWillAppear:animated];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
-	[super viewDidAppear:animated];
+    [super viewDidAppear:animated];
 }
 
 - (void)didReceiveMemoryWarning {
-	[super didReceiveMemoryWarning];
+    [super didReceiveMemoryWarning];
 }
 
 
@@ -233,8 +283,6 @@
                 
                 [index addObject:item];
                 
-                [item release];
-                [attributeSet release];
             }
             
             [[CSSearchableIndex defaultSearchableIndex] indexSearchableItems:index completionHandler: ^(NSError * __nullable error) {
@@ -249,37 +297,29 @@
 }
 
 - (void)viewDidLoad {
-	[super viewDidLoad];
-	// Add the following line if you want the list to be editable
-	// self.navigationItem.leftBarButtonItem = self.editButtonItem;
-	// self.title = originalName;
-	
-	// add our custom add button as the nav bar's custom right view
-	UIBarButtonItem *refreshButton = [[UIBarButtonItem alloc]
-									  initWithTitle:NSLocalizedString(@"Refresh", @"")
-									  style:UIBarButtonItemStylePlain
-									  target:self
-									  action:@selector(refreshAction:)];
-	self.navigationItem.rightBarButtonItem = refreshButton;
-	[refreshButton release];
-	self.searchableItems = self.routeData.itemArray;
-	
-	[self reloadData];
-	
-	if (self.routeData.count > 0)
-	{
-		[self.table scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] 
-						  atScrollPosition:UITableViewScrollPositionTop 
-								  animated:NO];
-	}
+    [super viewDidLoad];
+    // Add the following line if you want the list to be editable
+    // self.navigationItem.leftBarButtonItem = self.editButtonItem;
+    // self.title = originalName;
+    
+    self.searchableItems = self.routeData.items;
+    
+    [self reloadData];
+    
+    if (self.routeData.count > 0)
+    {
+        [self safeScrollToTop];
+    }
 }
 
 #pragma mark UI callbacks
 
 - (void)refreshAction:(id)unused
 {
-	self.backgroundRefresh = true;
-	[self fetchRoutesAsync:self.backgroundTask];
+    if (!self.backgroundTask.running)
+    {
+        [self fetchRoutesAsync:self.backgroundTask backgroundRefresh:YES];
+    }
 }
 
 - (void)updateToolbarItems:(NSMutableArray *)toolbarItems

@@ -13,8 +13,8 @@
 
 @property (nonatomic, strong) AVCaptureSession *captureSession;
 @property (nonatomic, strong) AVCaptureVideoPreviewLayer *videoPreviewLayer;
-@property (nonatomic, retain) UIView *viewPreview;
+@property (nonatomic, strong) UIView *viewPreview;
 @property (nonatomic) bool isReading;
-@property (nonatomic, retain) UISegmentedControl *lightSegControl;
+@property (nonatomic, strong) UISegmentedControl *lightSegControl;
 
 @end

@@ -16,5 +16,4 @@
 #import "WhatsNewBasicAction.h"
 
 @interface WhatsNewSelector : WhatsNewBasicAction
-
 @end

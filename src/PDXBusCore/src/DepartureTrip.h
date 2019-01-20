@@ -18,25 +18,23 @@
 #pragma clang diagnostic ignored "-Wnullability-completeness-on-arrays"
 
 #import <Foundation/Foundation.h>
+#import "DataFactory.h"
 
 
 #pragma clag diagnostic pop
 
 #include "TriMetTypes.h"
 
-@interface DepartureTrip : NSObject {
-	NSString *      _name;
-	unsigned long   _distance;
-	unsigned long   _progress;
-	TriMetTime      _startTime;
-	TriMetTime      _endTime;
-	
-}
+@interface DepartureTrip : DataFactory
+
 @property (nonatomic, copy)   NSString *name;
 @property (nonatomic) unsigned long distance;
 @property (nonatomic) unsigned long progress;
-@property (nonatomic) TriMetTime startTime;
-@property (nonatomic) TriMetTime endTime;
+@property (nonatomic, strong) NSDate *startTime;
+@property (nonatomic, strong) NSDate *endTime;
+@property (nonatomic, copy) NSString *route;
+@property (nonatomic, copy) NSString *dir;
+
 
 - (instancetype)init;
 

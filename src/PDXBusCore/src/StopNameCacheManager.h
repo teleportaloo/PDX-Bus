@@ -15,17 +15,21 @@
 
 #import "QueryCacheManager.h"
 
-#define kStopNameCacheLocation                      0
-#define kStopNameCacheLongDescription               1
-#define kStopNameCacheShortDescription              2
-#define kStopNameCacheArraySizeWithShortDescription 3
+
 
 
 
 
 @interface StopNameCacheManager : QueryCacheManager
 
-- (NSArray *)getStopName:(NSString *)stopId fetchAndCache:(bool)fetchAndCache updated:(bool*)updated;
+- (NSDictionary *)getStopNames:(NSArray<NSString*> *)stopIds fetchAndCache:(bool)fetchAndCache updated:(bool*)updated completion:(void (^ __nullable)(int item))completion;
+
+
++ (NSString *)getShortName:(NSArray *)data;
++ (NSString *)getLongName:(NSArray *)data;
++ (NSString *)getStopId:(NSArray *)data;
+
 + (NSString *)shortDirection:(NSString *)dir;
++ (instancetype)cache;
 
 @end

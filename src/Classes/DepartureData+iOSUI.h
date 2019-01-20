@@ -12,14 +12,14 @@
 
 #import <Foundation/Foundation.h>
 #import "TriMetTypes.h"
-#import <MapKit/MkAnnotation.h>
+
 #import "MapPinColor.h"
 #import "ScreenConstants.h"
 #import "DepartureData.h"
 #import "DepartureCell.h"
 
 
-
+#import <MapKit/MkAnnotation.h>
 
 @interface DepartureData (iOSUI) <MapPinColor>
 
@@ -27,10 +27,8 @@
 @property (nonatomic, readonly) CLLocationCoordinate2D coordinate;
 @property (nonatomic, readonly, copy) NSString *title; 
 @property (nonatomic, readonly, copy) NSString *subtitle;
-@property (nonatomic, readonly) MKPinAnnotationColor pinColor;
+@property (nonatomic, readonly) MapPinColorValue pinColor;
 @property (nonatomic, readonly, strong) DepartureData *mapDeparture;
-
-
 
 - (void)populateCell:(DepartureCell *)cell decorate:(BOOL)decorate busName:(BOOL)busName wide:(BOOL)wide;
 - (void)populateCellAndGetExplaination:(DepartureCell *)cell decorate:(BOOL)decorate busName:(BOOL)busName wide:(BOOL)wide details:(NSString **)formattedDetails;

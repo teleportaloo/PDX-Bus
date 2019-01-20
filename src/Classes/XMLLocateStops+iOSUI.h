@@ -19,7 +19,7 @@
 
 @interface XMLLocateStops(iOSUI) 
 
-- (bool)displayErrorIfNoneFound:(id<BackgroundTaskProgress>)progress;
+- (bool)displayErrorIfNoneFound:(id<BackgroundTaskController>)progress;
 
 
 @end

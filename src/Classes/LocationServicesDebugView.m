@@ -27,8 +27,6 @@
 #define kMapRowMap				0
 #define kMapRowCancel			1
 
-@synthesize data = _data;
-
 - (void)dealloc {
 	self.data = nil;
 	[super dealloc];
@@ -87,24 +85,22 @@
 			break;
 		}
 		case kSectionMap:
-		{
-			UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionMap)];
-			if (cell == nil) {
-				
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kSectionMap)] autorelease];
-				cell.textLabel.font =  self.basicFont; //  [UIFont fontWithName:@"Ariel" size:14];
-				cell.textLabel.adjustsFontSizeToFitWidth = YES;
-				cell.textLabel.textAlignment = NSTextAlignmentCenter;
-			}
-			
-			switch (indexPath.row)
-			{
-				case kMapRowMap:	cell.textLabel.text = @"show on map"; break;
-				case kMapRowCancel: cell.textLabel.text = @"cancel"		; break;	
-			}
-			return cell;
-			break;
-		}
+        {
+            UITableViewCell *cell = [self tableView:tableView cellWithReuseIdentifier:MakeCellId(kSectionMap)];
+            cell.textLabel.font =  self.basicFont; //  [UIFont fontWithName:@"Ariel" size:14];
+            cell.textLabel.adjustsFontSizeToFitWidth = YES;
+            cell.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
+            cell.textLabel.textAlignment = NSTextAlignmentCenter;
+            
+            
+            switch (indexPath.row)
+            {
+                case kMapRowMap:	cell.textLabel.text = @"show on map"; break;
+                case kMapRowCancel: cell.textLabel.text = @"cancel"		; break;	
+            }
+            return cell;
+            break;
+        }
 	}
 	return nil;
 }

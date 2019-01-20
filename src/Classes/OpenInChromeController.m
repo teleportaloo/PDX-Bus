@@ -38,13 +38,13 @@ static NSString * const kGoogleChromeCallbackScheme =
 
 static NSString * encodeByAddingPercentEscapes(NSString *input) {
   NSString *encodedValue =
-      (NSString *)CFURLCreateStringByAddingPercentEscapes(
+      (NSString *)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(
           kCFAllocatorDefault,
           (CFStringRef)input,
           NULL,
           (CFStringRef)@"!*'();:@&=+$,/?%#[]",
-          kCFStringEncodingUTF8);
-  return [encodedValue autorelease];
+          kCFStringEncodingUTF8));
+  return encodedValue;
 }
 
 @implementation OpenInChromeController
@@ -58,7 +58,7 @@ static NSString * encodeByAddingPercentEscapes(NSString *input) {
   return sharedInstance;
 }
 
-- (BOOL)isChromeInstalled {
+- (BOOL)chromeInstalled {
   NSURL *simpleURL = [NSURL URLWithString:kGoogleChromeHTTPScheme];
   NSURL *callbackURL = [NSURL URLWithString:kGoogleChromeCallbackScheme];
   return  [[UIApplication sharedApplication] canOpenURL:simpleURL] ||

@@ -19,27 +19,23 @@
 #import "RailStation.h"
 
 @class RailMapView;
+@class ShapeRoutePath;
 
 
-@interface RailStationTableView : TableViewWithToolbar <UIAlertViewDelegate, ReturnStop> {
-	RailStation *               _station;
-	RailMapView *               _map;
-	bool                        _from;
-	StopLocations *             _locationsDb;
-    NSMutableArray<NSNumber*> * _routes;
-    NSInteger                   _firstLocationRow;
+@interface RailStationTableView : TableViewWithToolbar <ReturnStop>
+{
+    NSInteger                           _firstLocationRow;
 }
 
-@property (nonatomic, retain) RailMapView *map;
-@property (nonatomic, retain) RailStation *station;
+@property (nonatomic, strong) RailMapView *map;
+@property (nonatomic, strong) RailStation *station;
 @property (nonatomic) bool from;
-@property (nonatomic, retain) StopLocations *locationsDb;
-@property (nonatomic, retain) NSMutableArray<NSNumber*> *routes;
-
-
-- (void) chosenStop:(Stop *)stop progress:(id<BackgroundTaskProgress>) progress;
+@property (nonatomic, strong) StopLocations *locationsDb;
+@property (nonatomic, strong) NSMutableArray<NSNumber*> *routes;
 @property (nonatomic, readonly, copy) NSString *actionText;
+@property (nonatomic, strong) NSMutableArray<ShapeRoutePath*>* shapes;
 
-
+- (void) chosenStop:(Stop *)stop progress:(id<BackgroundTaskController>) progress;
+- (void)maybeFetchRouteShapesAsync:(id<BackgroundTaskController>)task;
 
 @end

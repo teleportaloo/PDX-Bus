@@ -14,20 +14,14 @@
 #import "StopView.h"
 #import "DetoursView.h"
 #import "RailStation.h"
-#import "TriMetRouteColors.h"
+#import "TriMetInfo.h"
 #import "WebViewController.h"
 #import "DebugLogging.h"
 #import "Detour.h"
-#import "DetourData+iOSUI.h"
-#import "UITableViewCell+MultiLineCell.h"
+#import "Detour+iOSUI.h"
+#import "StringHelper.h"
 
 @implementation DirectionView
-
-@synthesize route = _route;
-@synthesize directionKeys = _directionKeys;
-@synthesize directionData = _directionData;
-@synthesize detourData = _detourData;
-@synthesize routeId = _routeId;
 
 enum {
     kSectionRowName,
@@ -42,104 +36,98 @@ enum {
 #define kDirectionId		@"Direction"
 
 
-- (void)dealloc {
-	self.route = nil;
-	self.routeId = nil;
-	self.directionKeys = nil;
-    self.detourData = nil;
-    self.directionData = nil;
-	[super dealloc];
-}
-
 - (instancetype)init {
 	if ((self = [super init]))
 	{
 		self.title = NSLocalizedString(@"Route Info", @"screen title");
         _cacheAction = TrIMetXMLCacheReadOrFetch;
+        self.refreshFlags =  kRefreshNoTimer;
 	}
 	return self;
 }
 
 #pragma mark Data fetchers
 
-
-
-- (void)fetchDirectionsAsync:(id<BackgroundTaskProgress>) callback route:(NSString *)route
+- (void)fetchDirectionsAsync:(id<BackgroundTaskController>)task route:(NSString *)route
 {
-	self.backgroundTask.callbackWhenFetching = callback;
-	
-    self.directionData = [XMLRoutes xml];
-    self.detourData    = [XMLDetours xml];
-    
-    [self runAsyncOnBackgroundThread:^{
-            self.routeId = route;
-            int items = 2;
-            
-            if (!self.backgroundRefresh && [self.directionData getDirections:route cacheAction:TriMetXMLCheckCache])
+    [self fetchDirectionsAsync:task route:route backgroundRefresh:NO];
+}
+
+- (void)fetchDirectionsAsync:(id<BackgroundTaskController>)task route:(NSString *)route backgroundRefresh:(bool)backgroundRefresh
+{
+    [task taskRunAsync:^{
+        self.backgroundRefresh = backgroundRefresh;
+        
+        self.directionData = [XMLRoutes xml];
+        self.detourData    = [XMLDetoursAndMessages XmlWithRoutes:@[route]];
+        
+        self.routeId = route;
+        int items = 2;
+        
+        if (!self.backgroundRefresh && [self.directionData getDirections:route cacheAction:TriMetXMLCheckCache])
+        {
+            items = 1;
+        }
+        
+        [task taskStartWithItems:items title:NSLocalizedString(@"getting directions", @"progress message")];
+        self.directionData.oneTimeDelegate = task;
+        [self.directionData getDirections:route cacheAction:self->_cacheAction];
+        
+        if (self.directionData.count > 0)
+        {
+            self.route = self.directionData[0];
+        }
+        
+        if (items > 1)
+        {
+            [task taskItemsDone:1];
+        }
+        
+        [task taskSubtext:@"checking detours"];
+        self.detourData.oneTimeDelegate = task;
+        [self.detourData fetchDetoursAndMessages];
+        
+        [self.detourData.items sortUsingSelector:@selector(compare:)];
+        
+        if (items > 1)
+        {
+            [task taskItemsDone:2];
+        }
+        
+        [self clearSectionMaps];
+        
+        [self addSectionType:kSectionRowName];
+        [self addRowType:kSectionRowName];
+        
+        [self addSectionType:kSectionRowDirection];
+        
+        if (self.route)
+        {
+            [self addRowType:kSectionRowDirection count:self.route.directions.count];
+        }
+        
+        [self addSectionType:kSectionOther];
+        [self addRowType:kOtherRowMap];
+        
+        if (self.route)
+        {
+            PC_ROUTE_INFO info = self.route.rawColor;
+            if (info!=nil && info->wiki != nil)
             {
-                items = 1;
+                [self addRowType:kOtherRowWiki];
             }
-            
-            [self.backgroundTask.callbackWhenFetching backgroundStart:items title:NSLocalizedString(@"getting directions", @"progress message")];
-            
-            [self.directionData getDirections:route cacheAction:_cacheAction];
-            
-            if (self.directionData.count > 0)
-            {
-                self.route = self.directionData[0];
-            }
-            
-            if (items > 1)
-            {
-                [self.backgroundTask.callbackWhenFetching backgroundItemsDone:1];
-            }
-            
-            [self.detourData getDetoursForRoute:route];
-            
-            if (items > 1)
-            {
-                [self.backgroundTask.callbackWhenFetching backgroundItemsDone:2];
-            }
-            
-            [self clearSectionMaps];
-            
-            [self addSectionType:kSectionRowName];
-            [self addRowType:kSectionRowName];
-            
-            [self addSectionType:kSectionRowDirection];
-            
-            if (self.route)
-            {
-                for (int i=0; i < self.route.directions.count; i++)
-                {
-                    [self addRowType:kSectionRowDirection];
-                }
-            }
-            
-            [self addSectionType:kSectionOther];
-            [self addRowType:kOtherRowMap];
-            
-            if (self.route)
-            {
-                const ROUTE_COL *col = [TriMetRouteColors rawColorForRoute:self.route.route];
-                if (col!=nil && col->wiki != nil)
-                {
-                    [self addRowType:kOtherRowWiki];
-                }
-            }
-            
-            if (self.detourData.count > 0)
-            {
-                [self addSectionType:kSectionRowDetour];
-                for (int i=0; i < self.detourData.count; i++)
-                {
-                    [self addRowType:kSectionRowDetour];
-                }
-            }
-            
-            [self addRowType:kSectionRowDisclaimer];
-            
-            [self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
+        }
+        
+        if (self.detourData.count > 0)
+        {
+            [self addSectionType:kSectionRowDetour];
+            [self addRowType:kSectionRowDetour count:self.detourData.count];
+        }
+        
+        [self addRowType:kSectionRowDisclaimer];
+        
+        [self updateRefreshDate:self.directionData.cacheTime];
+        return (UIViewController*)self;
     }];
 }
 
@@ -148,13 +136,12 @@ enum {
 
 - (void)refreshAction:(id)sender
 {
-	NSString *route = self.routeId;
-	
-	[route retain];	
-	self.backgroundRefresh = YES;
-    _cacheAction = TriMetXMLForceFetchAndUpdateCache;
-	[self fetchDirectionsAsync:self.backgroundTask route:route]; 
-	[route release];
+    if (!self.backgroundTask.running)
+    {
+        NSString *route = self.routeId;
+        _cacheAction = TriMetXMLForceFetchAndUpdateCache;
+        [self fetchDirectionsAsync:self.backgroundTask route:route backgroundRefresh:YES];
+    }
 }
 	 
 #pragma mark TableView callbacks
@@ -180,31 +167,24 @@ enum {
 	{
 		case kSectionRowName:
         default:
-		{
-			cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionRowName)];
-			if (cell == nil) {
-				
-				cell = [RailStation tableviewCellWithReuseIdentifier:MakeCellId(kSectionRowName)
-														   rowHeight:[self tableView:tableView heightForRowAtIndexPath:indexPath]];
-				
-			}
-			const ROUTE_COL *col = [TriMetRouteColors rawColorForRoute:self.route.route];
-			[RailStation populateCell:cell 
-							  station:self.route.desc
-								lines:col ? col->line : 0];
-			cell.selectionStyle = UITableViewCellSelectionStyleNone;
-			//	DEBUG_LOG(@"Section %d row %d offset %d index %d name %@ line %x\n", indexPath.section,
-			//				  indexPath.row, offset, index, [RailStation nameFromHotspot:_hotSpots+index], railLines[index]);
-			break;
-		}
+        {
+            cell = [RailStation tableView:tableView
+                  cellWithReuseIdentifier:MakeCellId(kSectionRowName)
+                                rowHeight:[self tableView:tableView heightForRowAtIndexPath:indexPath]];
+            
+            PC_ROUTE_INFO info = self.route.rawColor;
+            [RailStation populateCell:cell
+                              station:self.route.desc
+                                lines:info ? info->line_bit : 0];
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            //	DEBUG_LOG(@"Section %d row %d offset %d index %d name %@ line %x\n", indexPath.section,
+            //				  indexPath.row, offset, index, [RailStation nameFromHotspot:_hotSpots+index], railLines[index]);
+            break;
+        }
 		case kSectionRowDirection:
 		{
-			cell = [tableView dequeueReusableCellWithIdentifier:kDirectionId];
-			if (cell == nil) {
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kDirectionId] autorelease];
-				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-			}
-			
+			cell = [self tableView:tableView cellWithReuseIdentifier:kDirectionId];
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 			if (self.directionKeys == nil)
 			{
 				self.directionKeys = [self.route.directions keysSortedByValueUsingSelector:@selector(compare:)];
@@ -213,16 +193,15 @@ enum {
 			cell.textLabel.text = self.route.directions[self.directionKeys[indexPath.row]];
 			cell.textLabel.font = self.basicFont;
 			cell.textLabel.adjustsFontSizeToFitWidth = YES;
+            cell.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
+            [self updateAccessibility:cell];
 			break;
 		}			
 		case kSectionRowDisclaimer:
 		{
-			cell = [tableView dequeueReusableCellWithIdentifier:kDisclaimerCellId];
-			if (cell == nil) {
-				cell = [self disclaimerCellWithReuseIdentifier:kDisclaimerCellId];
-			}
+			cell = [self disclaimerCell:tableView];
 			
-			if (self.directionData.itemArray == nil)
+			if (self.directionData.items == nil)
 			{
 				[self noNetworkDisclaimerCell:cell];
 				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
@@ -233,52 +212,47 @@ enum {
 				cell.accessoryType = UITableViewCellAccessoryNone;
 				[self addTextToDisclaimerCell:cell text:[self.directionData displayDate:self.directionData.cacheTime]];	
 			}
+            [self updateDisclaimerAccessibility:cell];
 			break;
 		}
 		case kOtherRowMap:
         case kOtherRowWiki:
 		{
-			cell = [tableView dequeueReusableCellWithIdentifier:kDirectionId];
-			if (cell == nil) {
-				cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kDirectionId] autorelease];
-				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-			}
+			cell = [self tableView:tableView cellWithReuseIdentifier:kDirectionId];
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 			cell.textLabel.textColor = [UIColor darkGrayColor];
 			cell.textLabel.font = self.basicFont;
 			switch (rowType)
 			{
 				case kOtherRowMap:
 					cell.textLabel.text = NSLocalizedString(@"Map & schedule page", @"button text");
-					cell.imageView.image = [self getActionIcon:kIconLink];
+					cell.imageView.image = [self getIcon:kIconLink];
 					break;
 				case kOtherRowWiki:
 					cell.textLabel.text = NSLocalizedString(@"Wikipedia page", @"Link to English wikipedia page");
-					cell.imageView.image = [self getActionIcon:kIconWiki];
+					cell.imageView.image = [self getIcon:kIconWiki];
 					break;
 			}
+            [self updateAccessibility:cell];
             break;
         }
         case kSectionRowDetour:
         {
-            UITableViewCell *cell = (UITableViewCell *)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kRowDetour)];
-            if (cell == nil) {
-                cell = [UITableViewCell cellWithMultipleLines:MakeCellId(kRowDetour) font:self.paragraphFont];
-            }
-            
-            if (self.detourData.detour !=nil)
+            UITableViewCell *cell = nil;
+            if (self.detourData.gotData)
             {
                 Detour *det = self.detourData[indexPath.row];
-                cell.textLabel.text = det.detourDesc;
-                cell.accessibilityLabel = [NSString stringWithFormat:@"%@, %@",
-                                             det.routeDesc, det.detourDesc];
+                cell = [self tableView:tableView multiLineCellWithReuseIdentifier:det.reuseIdentifer];
+                [det populateCell:cell font:self.paragraphFont routeDisclosure:NO];
+                [self addDetourButtons:det cell:cell routeDisclosure:NO];
             }
             else
             {
+                cell = [self tableView:tableView multiLineCellWithReuseIdentifier:MakeCellId(kRowDetour)];
                 cell.textLabel.text = NSLocalizedString(@"Detour information not known.", @"error message");
+                cell.accessoryType = UITableViewCellAccessoryNone;
+                cell.selectionStyle = UITableViewCellSelectionStyleNone;
             }
-            
-            cell.textLabel.textColor = [UIColor orangeColor];
-            cell.selectionStyle = UITableViewCellSelectionStyleNone;
             return cell;
             
         }
@@ -286,6 +260,11 @@ enum {
 	return cell;
 }
 
+- (void) tableView:(UITableView *)tableView detourButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath buttonType:(NSInteger)buttonType
+{
+    Detour *det = self.detourData[indexPath.row];
+    [self detourAction:det buttonType:buttonType indexPath:indexPath reloadSection:NO];
+}
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 	if (self.route == nil)
@@ -311,14 +290,15 @@ enum {
             
             stopViewController.callback = self.callback;
             [stopViewController fetchStopsAsync:self.backgroundTask route:rt direction:dr
-                                           description:rd
-                                         directionName:self.route.directions[self.directionKeys[indexPath.row]]];
+                                    description:rd
+                                  directionName:self.route.directions[self.directionKeys[indexPath.row]]
+                              backgroundRefresh:NO];
             break;
         }
         case kOtherRowWiki:
         {
             
-            NSString *wiki = [TriMetRouteColors rawColorForRoute:self.route.route]->wiki;
+            NSString *wiki = [TriMetInfo infoForRoute:self.route.route]->wiki;
             
             [WebViewController displayPage:[NSString stringWithFormat:@"https://en.m.wikipedia.org/wiki/%@", wiki]
                                       full:[NSString stringWithFormat:@"https://en.wikipedia.org/wiki/%@", wiki ]
@@ -334,14 +314,17 @@ enum {
             break;
         case kSectionRowDisclaimer:
         {
-            if (self.directionData.itemArray == nil)
+            if (self.directionData.items == nil)
             {
                 [self networkTips:self.directionData.htmlError networkError:self.directionData.errorMsg] ;
                 [self clearSelection];
             }
             break;
         }
-    }	
+        case kSectionRowDetour:
+            [self detourToggle:self.detourData[indexPath.row] indexPath:indexPath reloadSection:NO];
+            break;
+    }
 	
 	
 }
@@ -363,15 +346,7 @@ enum {
 	case kSectionOther:
             return NSLocalizedString(@"Additional route info:", @"section title");
     case kSectionRowDetour:
-            if (self.detourData.count > 1)
-            {
-                return NSLocalizedString(@"Detours:", @"section title");
-            }
-            else
-            {
-                return NSLocalizedString(@"Detour:", @"section title");
-
-            }
+            return NSLocalizedString(@"Detours, delays and closures:", @"section title");
             break;
 	default:
 		return nil;
@@ -384,6 +359,8 @@ enum {
     UITableViewHeaderFooterView *header = (UITableViewHeaderFooterView *)view;
     
     header.textLabel.adjustsFontSizeToFitWidth = YES;
+    header.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
+    header.accessibilityLabel = header.textLabel.text.phonetic;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -408,22 +385,12 @@ enum {
 
 - (void)viewDidLoad {
 	[super viewDidLoad];
-	// add our custom add button as the nav bar's custom right view
-	UIBarButtonItem *refreshButton = [[UIBarButtonItem alloc]
-									  initWithTitle:NSLocalizedString(@"Refresh", @"button text")
-									  style:UIBarButtonItemStylePlain
-									  target:self
-									  action:@selector(refreshAction:)];
-	self.navigationItem.rightBarButtonItem = refreshButton;
-	[refreshButton release];
 	
 	[self reloadData];
 	
 	if (self.route.directions.count > 0)
 	{
-		[self.table scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:[self firstSectionOfType:kSectionRowDirection]]
-						  atScrollPosition:UITableViewScrollPositionTop 
-								  animated:NO];
+        [self safeScrollToTop];
 	}
 	
 }
@@ -436,7 +403,7 @@ enum {
     if (!_appeared)
     {
         _appeared = YES;
-       [self.table scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:NO];
+        [self safeScrollToTop];
     }
 }
 
@@ -458,6 +425,7 @@ enum {
 - (void) appendXmlData:(NSMutableData*)buffer
 {
     [self.directionData appendQueryAndData:buffer];
+    [self.detourData appendQueryAndData:buffer];
 }
 
 @end

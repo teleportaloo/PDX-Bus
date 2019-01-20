@@ -17,10 +17,5 @@
 
 @implementation WatchBookmark
 
-- (void)dealloc
-{
-    self.bookmarkName = nil;
-    [super dealloc];
-}
 
 @end

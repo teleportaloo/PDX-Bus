@@ -12,6 +12,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#import <Foundation/Foundation.h>
 #import "ViewControllerBase.h"
 #import "FindByLocationView.h"
 #import "FlashViewController.h"
@@ -27,9 +28,13 @@
 #import "SafariServices/SafariServices.h"
 #import "RootViewController.h"
 #import "WatchAppContext.h"
-#import "TriMetRouteColors.h"
-
-
+#import "TriMetInfo.h"
+#import "Detour+iOSUI.h"
+#import "TripPlannerSummaryView.h"
+#import "MapViewController.h"
+#import "DetourLocation+iOSUI.h"
+#import "MapViewWithDetourStops.h"
+#import "StringHelper.h"
 
 @implementation UINavigationController (Rotation_IOS6)
 
@@ -52,12 +57,11 @@
 
 @implementation ViewControllerBase
 
-@synthesize backgroundTask	 = _backgroundTask;
-@synthesize callback		 = _callback;
+@dynamic basicFont;
 
 + (instancetype)viewController
 {
-   return [[[[self class] alloc] init] autorelease]; 
+   return [[[self class] alloc] init]; 
 }
 
 - (void)dealloc {
@@ -68,21 +72,8 @@
     if (self.backgroundTask)
     {
         self.backgroundTask.callbackComplete = nil;
-	}
-    self.backgroundTask   = nil;
-	self.callback		  = nil;
-    self.xmlButton        = nil;
+    }
     
-
-	[super dealloc];
-}
-
-+ (UIColor*)htmlColor:(int)val
-{
-	return [UIColor colorWithRed:((CGFloat)((val >> 16) & 0xFF))/255.0 
-						   green:((CGFloat)((val >> 8) & 0xFF))/255.0 
-							blue:((CGFloat)(val & 0xFF))/255.0 alpha:1.0];
-
 }
 
 - (void)setTheme
@@ -98,8 +89,8 @@
     }
     else
     {
-        self.navigationController.toolbar.barTintColor = [ViewControllerBase htmlColor:color];
-        self.navigationController.navigationBar.barTintColor = [ViewControllerBase htmlColor:color];
+        self.navigationController.toolbar.barTintColor = HTML_COLOR(color);
+        self.navigationController.navigationBar.barTintColor = HTML_COLOR(color);
         self.navigationController.toolbar.tintColor = [UIColor whiteColor];
         self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
     }
@@ -122,87 +113,38 @@
     return [UIDevice currentDevice].systemVersion.floatValue >= 11.0;
 }
 
-
-
-- (void) runSyncOnMainQueueWithoutDeadlocking: (void (^)(void)) block
-{
-    if ([NSThread isMainThread])
-    {
-        block();
-    }
-    else
-    {
-        dispatch_sync(dispatch_get_main_queue(), block);
-    }
-}
-
-- (void)runBlock:(void (^)(void)) block
-{
-    @autoreleasepool
-    {
-        block();
-    }
-}
-
-- (void) runAsyncOnBackgroundThread: (void (^)(void)) block
-{
-    // We need to use the NSThread mechanism so we can cancel it easily, but I want to use the blocks
-    // as it makes the passing of variables very easy.
-    
-    [self performSelectorInBackground:@selector(runBlock:) withObject:[[block copy] autorelease]];
-}
-
-- (void) setNetworkActivityIndicatorVisible:(BOOL)visible
-{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [UIApplication sharedApplication].networkActivityIndicatorVisible = visible;
-    });
-}
-
-- (BOOL)isNetworkActivityIndicatorVisible
-{
-    __block BOOL visible = NO;
-    
-    [self runSyncOnMainQueueWithoutDeadlocking:^{
-        visible = [UIApplication sharedApplication].networkActivityIndicatorVisible;
-    }];
- 
-     return visible;
-}
-
-
 - (bool)initMembers
 {
-	if (self.backgroundTask == nil)
-	{
+    if (self.backgroundTask == nil)
+    {
         _userData = [SafeUserData sharedInstance];
-		self.backgroundTask = [BackgroundTaskContainer create:self];
-		return true;
-	}
-	return false;
+        self.backgroundTask = [BackgroundTaskContainer create:self];
+        return true;
+    }
+    return false;
 }
 
 - (instancetype)initWithCoder:(NSCoder *)aDecoder
 {
     if ((self = [super initWithCoder:aDecoder]))
-	{
-		[self initMembers];
-	}
-	return self;
+    {
+        [self initMembers];
+    }
+    return self;
 }
 
 - (instancetype)init {
-	if ((self = [super init]))
-	{
-		[self initMembers];
-	}
-	return self;
+    if ((self = [super init]))
+    {
+        [self initMembers];
+    }
+    return self;
 }
 
 - (void)backToRootButtons:(NSMutableArray *)toolbarItems
 {
-    [toolbarItems addObject:[self autoDoneButton]];
-    [toolbarItems addObject:[UIToolbar autoFlexSpace]];
+    [toolbarItems addObject:[self doneButton]];
+    [toolbarItems addObject:[UIToolbar flexSpace]];
 }
 
 - (void)updateToolbar
@@ -211,7 +153,7 @@
     
     [self backToRootButtons:toolbarItems];
     
-	[self updateToolbarItems:toolbarItems];
+    [self updateToolbarItems:toolbarItems];
     
     
     [self setToolbarItems:toolbarItems animated:NO];
@@ -222,13 +164,13 @@
 
 // Implement loadView to create a view hierarchy programmatically, without using a nib.
 - (void)loadView {
-	
-	[super loadView];
-	
-	[self.navigationController setToolbarHidden:NO animated:NO];	 
-	
-	[self setTheme];
-		
+    
+    [super loadView];
+    
+    [self.navigationController setToolbarHidden:NO animated:NO];     
+    
+    [self setTheme];
+        
     [self updateToolbar];
     
  }
@@ -237,7 +179,7 @@
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
     [super viewDidLoad];
-//	[self.view bringSubviewToFront:self.toolbar];
+//    [self.view bringSubviewToFront:self.toolbar];
     
     /*
     if ([self respondsToSelector:@selector(setEdgesForExtendedLayout:)])
@@ -262,62 +204,56 @@
 
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations {
     CGRect bounds = [UIScreen mainScreen].bounds;
-	
-	// Small devices do not need to orient
-	if (bounds.size.width <= MaxiPhoneWidth)
-	{
+    
+    // Small devices do not need to orient
+    if (bounds.size.width <= MaxiPhoneWidth)
+    {
         return UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskPortraitUpsideDown;
-	}
+    }
 
-	/*
-	if (self.backgroundTask.backgroundThread !=nil)
-	{
-		return ;
-	}
+    /*
+    if (self.backgroundTask.backgroundThread !=nil)
+    {
+        return ;
+    }
     */
     
     return UIInterfaceOrientationMaskAll;
 }
 
 
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-	// Return YES for supported orientations
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
+{
+    [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context)
+     {
+         UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+         
+         [self rotatedTo:orientation];
+         
+     } completion:^(id<UIViewControllerTransitionCoordinatorContext> context)
+     {
+         
+     }];
     
-    // ios 5 bug - just return NO
-    
-    return NO;
-    
-    /*
-	CGRect bounds = [[UIScreen mainScreen] bounds];
-	
-	// Small devices do not need to orient
-	if (bounds.size.width <= kLargestSmallScreenDimension)
-	{
-		return interfaceOrientation == UIInterfaceOrientationPortrait || interfaceOrientation == UIDeviceOrientationPortraitUpsideDown;
-	}
-	
-	if (self.backgroundTask.backgroundThread !=nil)
-	{
-		return NO;
-	}
-	return YES;
-     */
+    [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
 }
+
 
 #pragma mark View helper methods
 
-- (void)reloadData
-{
-
-}
-
-- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
+- (void)rotatedTo:(UIInterfaceOrientation)orientation
 {
     if (!self.backgroundTask.running)
     {
         [self reloadData];
     }
 }
+
+- (void)reloadData
+{
+    _paragraphFont = nil;
+}
+
 
 - (ScreenInfo)screenInfo
 {
@@ -336,15 +272,15 @@
         orientation = UIInterfaceOrientationPortrait;
     }
     
-	switch (orientation)
-	{
-		case UIInterfaceOrientationPortraitUpsideDown:	
-		case UIInterfaceOrientationPortrait:
+    switch (orientation)
+    {
+        case UIInterfaceOrientationPortraitUpsideDown:    
+        case UIInterfaceOrientationPortrait:
         case UIInterfaceOrientationUnknown:
-			if (bounds.size.width <= WidthiPhone)
-			{
-				res.screenWidth = WidthiPhone;
-			}
+            if (bounds.size.width <= WidthiPhone)
+            {
+                res.screenWidth = WidthiPhone;
+            }
             else if (bounds.size.width <= WidthiPhone6)
             {
                 res.screenWidth = WidthiPhone6;
@@ -362,8 +298,8 @@
                 res.screenWidth = WidthBigVariable;
             }
             break;
-		case	UIInterfaceOrientationLandscapeLeft:
-		case	UIInterfaceOrientationLandscapeRight:
+        case    UIInterfaceOrientationLandscapeLeft:
+        case    UIInterfaceOrientationLandscapeRight:
             if (bounds.size.width <= WidthiPadWide)
             {
                 res.screenWidth = WidthiPadWide;
@@ -375,157 +311,104 @@
             break;
         default:
             res.screenWidth = WidthiPadWide;
-	}
+    }
 
-	return res;
+    return res;
 }
 
-- (CGFloat) heightOffset
+- (CGFloat)heightOffset
 {
-	return 0.0;
+    return 0.0;
 }
 
-- (CGRect)getMiddleWindowRect
+- (CGRect)middleWindowRect
 {
-	CGRect tableViewRect;
+    CGRect tableViewRect;
     
     tableViewRect.size.width = self.navigationController.view.frame.size.width;
     
-	tableViewRect.size.height = [UIScreen mainScreen].applicationFrame.size.height-[self heightOffset];
-	tableViewRect.origin.x = 0;
-	tableViewRect.origin.y = 0;
+    tableViewRect.size.height = [UIScreen mainScreen].applicationFrame.size.height-[self heightOffset];
+    tableViewRect.origin.x = 0;
+    tableViewRect.origin.y = 0;
     
     DEBUG_LOGR(tableViewRect);
-	return tableViewRect;
+    return tableViewRect;
 }
 
-	
+    
 
 - (UIView *)clearView
 {
-	UIView *backView = [[[UIView alloc] initWithFrame:CGRectZero] autorelease];
-	backView.backgroundColor = [UIColor clearColor];
-	return backView;
+    UIView *backView = [[UIView alloc] initWithFrame:CGRectZero];
+    backView.backgroundColor = [UIColor clearColor];
+    return backView;
 }
 
 - (void)setBackfont:(UILabel *)label
 {
-	label.font =  TableViewBackFont;
-	label.textColor = [UIColor colorWithRed:0.30f green:0.34f blue:0.42f alpha:1.0];
-	label.shadowColor = [UIColor whiteColor];
-	label.shadowOffset = CGSizeMake(0.0f, 1.0f);
-	label.backgroundColor = [UIColor clearColor];
+    label.font =  TableViewBackFont;
+    label.textColor = [UIColor colorWithRed:0.30f green:0.34f blue:0.42f alpha:1.0];
+    label.shadowColor = [UIColor whiteColor];
+    label.shadowOffset = CGSizeMake(0.0f, 1.0f);
+    label.backgroundColor = [UIColor clearColor];
 }
 
-- (NSString *)justNumbers:(NSString *)text
-{
-	NSMutableString *res = [NSMutableString string];
-	
-	int i=0;
-	unichar c;
-	
-	for (i=0; i< text.length; i++)
-	{
-		c = [text characterAtIndex:i];
-		
-		if (isnumber(c))
-		{
-			[res appendFormat:@"%C", c];
-		}
-	}
-	
-	return res;
-	
-}
+
 
 
 - (void)notRailAwareButton:(NSInteger)button
 {
-	if (button == kRailAwareReloadButton)
-	{
-		// Push the detail view controller
-		[self.navigationController pushViewController:[FindByLocationView viewController] animated:YES];
-	}
+    if (button == kRailAwareReloadButton)
+    {
+        // Push the detail view controller
+        [self.navigationController pushViewController:[FindByLocationView viewController] animated:YES];
+    }
 }
 
 #pragma mark Icon methods
 
 
-- (UIImage *)alwaysGetIcon:(NSString *)name
+- (UIImage *)getIcon:(NSString *)name
 {
-	return [ViewControllerBase alwaysGetIcon:name];
+    return [ViewControllerBase getIcon:name];
 }
 
-- (UIImage *)alwaysGetIcon7:(NSString *)name old:(NSString *)old
-{
-    UIImage* icon =[self alwaysGetIcon:name];
-    return icon != nil ? icon : [self alwaysGetIcon:old];
-}
-
-+ (UIImage *)alwaysGetIcon:(NSString *)name
++ (UIImage *)getIcon:(NSString *)name
 {
     UIImage *image = [UIImage imageNamed:name];
     image.accessibilityHint = nil;
     image.accessibilityLabel = nil;
-	return image; 
-}
-
-+ (UIImage *)getToolbarIcon7:(NSString *)name old:(NSString *)old
-{
-    UIImage* icon =[self alwaysGetIcon:name];
-	return icon != nil ? icon : [self alwaysGetIcon:old];
+    return image; 
 }
 
 + (UIImage *)getToolbarIcon:(NSString *)name
 {
-	return [self alwaysGetIcon:name];
-}
-
-- (UIImage *)getActionIcon:(NSString *)name
-{
-	if ([UserPrefs sharedInstance].actionIcons)
-	{
-		return [self alwaysGetIcon:name];
-	}
-	return nil;
-}
-
-- (UIImage *)getActionIcon7:(NSString *)name old:(NSString *)old
-{
-	if ([UserPrefs sharedInstance].actionIcons)
-	{
-        return [self alwaysGetIcon7:name old:old];
-    }
-	return nil;
+    return [self getIcon:name];
 }
 
 - (UIImage *)getFaveIcon:(NSString *)name
 {
-	if ([UserPrefs sharedInstance].actionIcons)
-	{
-		return [self alwaysGetIcon:name];
-	}
-	return nil;
+    return [self getIcon:name];
 }
 
 #pragma mark Toolbar methods
 
-- (UIBarButtonItem *)autoDoneButton
+- (UIBarButtonItem *)doneButton
 {
-	if (self.callback !=nil && ([self.callback getController] !=nil || [self forceRedoButton]))
-	{
-		return [UIToolbar autoRedoButtonWithTarget:self action:@selector(backButton:)];
-	}
-	else
-	{
-		return [UIToolbar autoDoneButtonWithTarget:self action:@selector(backButton:)];
-	}
+    if (self.callback !=nil && (self.callback.controller !=nil || [self forceRedoButton]))
+    {
+        return [UIToolbar redoButtonWithTarget:self action:@selector(backButton:)];
+    }
+    else
+    {
+        return [UIToolbar doneButtonWithTarget:self action:@selector(backButton:)];
+    }
 
 }
 
 - (bool)forceRedoButton
 {
-	return false;
+    return false;
 }
 
 - (void)maybeAddFlashButtonWithSpace:(bool)space buttons:(NSMutableArray *)array big:(bool)big
@@ -535,67 +418,69 @@
         
         if (space)
         {
-            [array addObject:[UIToolbar autoFlexSpace]];
+            [array addObject:[UIToolbar flexSpace]];
         }
     
         if (big)
         {
-            [array addObject:[self autoBigFlashButton]];
+            [array addObject:[self bigFlashButton]];
         }
         else
         {
-            [array addObject:[self autoFlashButton]];
+            [array addObject:[self flashButton]];
         }
     }
 }
 
-- (UIBarButtonItem *)autoFlashButton
+- (UIBarButtonItem *)flashButton
 {
-	return [UIToolbar autoFlashButtonWithTarget:self action:@selector(flashButton:)];
+    return [UIToolbar flashButtonWithTarget:self action:@selector(flashButton:)];
 }
 
-- (UIBarButtonItem *)autoBigFlashButton
+- (UIBarButtonItem *)bigFlashButton
 {
-    return [UIToolbar autoFlashButtonWithTarget:self action:@selector(flashButton:)];
-#if 0
-	// create the system-defined "OK or Done" button
-	UIBarButtonItem *flash = [[[UIBarButtonItem alloc]
-							   initWithTitle:@" Flash" style:UIBarButtonItemStylePlain 
-							   target:self action:@selector(flashButton:)] autorelease];
-	return flash;
-#endif
+    return [UIToolbar flashButtonWithTarget:self action:@selector(flashButton:)];
 }
 
 
-- (UIBarButtonItem *)autoTicketAppButton
+- (UIBarButtonItem *)ticketAppButton
 {
-	// create the system-defined "OK or Done" button
-	UIBarButtonItem *tix = [[[UIBarButtonItem alloc]
-							 // initWithBarButtonSystemItem:UIBarButtonSystemItemRewind
-							 initWithImage:[TableViewWithToolbar getToolbarIcon:kIconTicket]
-							 style:UIBarButtonItemStylePlain
-							 target:self action:@selector(ticketButton:)] autorelease];
-	
-	tix.style = UIBarButtonItemStylePlain;
-	tix.accessibilityLabel = @"Tickets";
+    // create the system-defined "OK or Done" button
+    UIBarButtonItem *tix = [[UIBarButtonItem alloc]
+                             // initWithBarButtonSystemItem:UIBarButtonSystemItemRewind
+                             initWithImage:[TableViewWithToolbar getToolbarIcon:kIconTicket]
+                             style:UIBarButtonItemStylePlain
+                             target:self action:@selector(ticketButton:)];
+    
+    tix.style = UIBarButtonItemStylePlain;
+    tix.accessibilityLabel = @"Tickets";
     
     if (tix.image == nil)
     {
         tix.title = @"T";
     }
-	return tix;
+    return tix;
 }
 
 - (void)appendXmlData:(NSMutableData *)buffer
 {
-    
+    if (self.xml)
+    {
+        for (TriMetXML *xml in self.xml)
+        {
+            if (xml.rawData && xml.fullQuery)
+            {
+                [xml appendQueryAndData:buffer];
+            }
+        }
+    }
 }
 
 - (void)didEnterBackground
 {
     if (self.backgroundTask)
     {
-        [self.backgroundTask cancel];
+        [self.backgroundTask taskCancel];
         [self.backgroundTask.progressModal removeFromSuperview];
         self.backgroundTask.progressModal= nil;
 
@@ -607,9 +492,8 @@
 {
     // We replace some items in the XML to hide it or to make the reader
     // happy when concatonating.  This was learnt by trial and error!
-    
     NSDictionary *replacements = @{
-                                   TRIMET_APP_ID    : @"TRIMET_APP_ID",      // hide APP ID
+                                   [TriMetXML appId]: @"TRIMET_APP_ID",      // hide APP ID
                                    @"<?xml"         : @"<!--",               // XML encoding gets in the way
                                    @"?>"            : @"-->",
                                    @"<--?xml"       : @"<!--",               // XML encoding gets in the way
@@ -617,6 +501,7 @@
                                    @"<body"         : @"<wasbody",           // This keyword gets dropped
                                    @"body>"         : @"wasbody>"
                                    };
+    
     
     NSMutableData *buffer = [[NSMutableData alloc] init];
     
@@ -626,7 +511,6 @@
                                                                     length:buffer.length
                                                                   encoding:NSUTF8StringEncoding];
     
-    [buffer release];
     
     [replacements enumerateKeysAndObjectsUsingBlock: ^void (NSString* key, NSString* replacement, BOOL *stop)
      {
@@ -637,35 +521,86 @@
          
      }];
     
+    
     [redactedData insertString:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?><root>" atIndex:0];
     [redactedData appendString:@"</root>"];
     
-    DEBUG_LOG(@"%@", redactedData);
+    int viewer = [UserPrefs sharedInstance].xmlViewer;
     
-    UIPasteboard *clipboard = [UIPasteboard generalPasteboard];
-    clipboard.string = redactedData;
-    [redactedData release];
+    if (viewer == 1)    // Copy
+    {
+        UIPasteboard *clipboard = [UIPasteboard generalPasteboard];
+        clipboard.string = redactedData;
+        
+        UIAlertController* alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Debug XML", @"Alert title")
+                                                                       message:NSLocalizedString(@"XML trace copied to clipboard", @"Warning text")
+                                                                preferredStyle:UIAlertControllerStyleAlert];
+        
+        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"Button text") style:UIAlertActionStyleCancel handler:^(UIAlertAction* action){
+            
+        }]];
+        
+        alert.popoverPresentationController.sourceView  = self.view;
+        alert.popoverPresentationController.sourceRect = CGRectMake(self.view.frame.size.width/2, self.view.frame.size.height/2, 10, 10);
+        
+        [self.navigationController presentViewController:alert animated:YES completion:nil];
+    }
+    else
+    {
+        [redactedData replaceOccurrencesOfString:@"\\"
+                                      withString:@"\\\\"
+                                         options:NSCaseInsensitiveSearch
+                                           range:NSMakeRange(0, redactedData.length)];
+        
+        NSDictionary *replacements2 = @{
+                                       @"\""         : @"\\\"",
+                                       @"\n"         : @" ",
+                                       @"\r"         : @" ",
+                                       @"'"          : @"\'"
+                                       };
+        
+        [replacements2 enumerateKeysAndObjectsUsingBlock: ^void (NSString* key, NSString* replacement, BOOL *stop)
+         {
+             [redactedData replaceOccurrencesOfString:key
+                                           withString:replacement
+                                              options:NSCaseInsensitiveSearch
+                                                range:NSMakeRange(0, redactedData.length)];
+             
+         }];
+        
+        WebViewController *web = [WebViewController viewController];
+        
+        if (viewer==2)
+        {
+            [web setURLmobile:@"https://www.freeformatter.com/xml-formatter.html" full:nil];
+            web.javsScriptCommand = [NSString stringWithFormat:@"document.getElementById('xmlString').value=\"%@\"; document.forms[0].submit()", redactedData];
+        }
+        else if (viewer==3)
+        {
+            [web setURLmobile:@"https://www.samltool.com/prettyprint.php" full:nil];
+            web.javsScriptCommand = [NSString stringWithFormat:@"document.getElementById('xml').value=\"%@\"; document.getElementById('pretty_print').submit()", redactedData];
+        }
+        DEBUG_LOGS(web.urlToDisplay);
+        DEBUG_LOGS(web.javsScriptCommand);
+        [self.navigationController pushViewController:web animated:YES];
+        
+    }
     
-    UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"XML", @"DNL")
-                                                       message:NSLocalizedString(@"XML copied to clipboard", @"DNL")
-                                                      delegate:nil
-                                             cancelButtonTitle:NSLocalizedString(@"OK", @"button text")
-                                             otherButtonTitles:nil] autorelease];
-    [alert show];
+    
 }
 
-- (UIBarButtonItem*)autoXmlButton
+- (UIBarButtonItem*)debugXmlButton
 {
     // create the system-defined "OK or Done" button
-	self.xmlButton = [[[UIBarButtonItem alloc]
-                             initWithImage:[TableViewWithToolbar getToolbarIcon:kIconXml]
-                             style:UIBarButtonItemStylePlain
-							 target:self action:@selector(xmlAction:)] autorelease];
+    UIBarButtonItem *xmlButton = [[UIBarButtonItem alloc]
+                                   initWithImage:[TableViewWithToolbar getToolbarIcon:kIconXml]
+                                   style:UIBarButtonItemStylePlain
+                                   target:self action:@selector(xmlAction:)];
     
-	self.xmlButton.style = UIBarButtonItemStylePlain;
-	self.xmlButton.accessibilityLabel = @"Show XML";
-	
-	return self.xmlButton;
+    xmlButton.style = UIBarButtonItemStylePlain;
+    xmlButton.accessibilityLabel = @"Show XML";
+    
+    return xmlButton;
 }
 
 
@@ -679,7 +614,7 @@
 {    
     if ([UserPrefs sharedInstance].debugXML)
     {
-        [toolbarItems addObject:[self autoXmlButton]];
+        [toolbarItems addObject:[self debugXmlButton]];
         [self maybeAddFlashButtonWithSpace:YES buttons:toolbarItems big:NO];
     }
     else
@@ -691,12 +626,12 @@
 
 -(void)backButton:(id)sender
 {
-	if (self.callback !=nil && [self.callback getController] !=nil)
-	{
-		[self.navigationController popToViewController:[self.callback getController] animated:YES];
-	}
-	else
-	{
+    if (self.callback !=nil && self.callback.controller !=nil)
+    {
+        [self.navigationController popToViewController:self.callback.controller animated:YES];
+    }
+    else
+    {
        // TriMetTimesAppDelegate *app = [TriMetTimesAppDelegate singleton];
         
        // [self.navigationController popToViewController:(UIViewController*)app.rootViewController animated:YES];
@@ -769,7 +704,7 @@
 
 - (void)showRouteSchedule:(NSString *)route
 {
-    if ([[TriMetRouteColors streetcarRoutes] containsObject:route])
+    if ([[TriMetInfo streetcarRoutes] containsObject:route])
     {
         [WebViewController displayPage:[NSString stringWithFormat:@"https://portlandstreetcar.org"]
                                   full:nil
@@ -839,89 +774,144 @@
 
 - (void) padRoute:(NSString *)route padding:(NSMutableString **)padding
 {
-	while (route.length + (*padding).length < 3)
-	{
-		[*padding appendString:@"0"];
-	}
-	[*padding appendString:route];
+    while (route.length + (*padding).length < 3)
+    {
+        [*padding appendString:@"0"];
+    }
+    [*padding appendString:route];
 }
 
 - (void)networkTips:(NSData*)htmlError networkError:(NSString *)networkError
 {
-	
-	if (htmlError)
-	{
+    if (htmlError)
+    {
         WebViewController *errorScreen = [WebViewController viewController];
-		[errorScreen setRawData:htmlError title:@"Error Message"];
-		[errorScreen displayPage:self.navigationController animated:YES itemToDeselect:nil];
-	}
-	else {
+        [errorScreen setRawData:htmlError title:@"Error Message"];
+        [errorScreen displayPage:self.navigationController animated:YES itemToDeselect:nil];
+    }
+    else 
+    {
         NetworkTestView *networkTest = [NetworkTestView viewController];
-		networkTest.networkErrorFromQuery = networkError;
-		[networkTest fetchNetworkStatusAsync:self.backgroundTask];
-	}
+        networkTest.networkErrorFromQuery = networkError;
+        [networkTest fetchNetworkStatusAsync:self.backgroundTask backgroundRefresh:NO];
+    }
 }
 
 #pragma mark Text Manipulation Methods
 
 - (UILabel *)create_UITextView:(UIColor *)backgroundColor font:(UIFont *)font;
 {
-	CGRect frame = CGRectMake(0.0, 0.0, 100.0, 200.0);
-	
-	
-	UILabel *textView = [[[UILabel alloc] initWithFrame:frame] autorelease];
+    CGRect frame = CGRectMake(0.0, 0.0, 100.0, 200.0);
+    
+    
+    UILabel *textView = [[UILabel alloc] initWithFrame:frame];
     textView.textColor = [UIColor blackColor];
     textView.font = font; // ;
-	//    textView.delegate = self;
-	//	textView.editable = NO;
-	if (backgroundColor ==nil)
-	{
-		textView.backgroundColor = [UIColor clearColor];
-	}
-	else
-	{
-		textView.backgroundColor = backgroundColor;
-		
-	}
-	textView.lineBreakMode =   NSLineBreakByWordWrapping;
-	textView.adjustsFontSizeToFitWidth = YES;
-	textView.numberOfLines = 0;
-	
-	// note: for UITextView, if you don't like autocompletion while typing use:
-	// myTextView.autocorrectionType = UITextAutocorrectionTypeNo;
-	
-	return textView;
+    //    textView.delegate = self;
+    //    textView.editable = NO;
+    if (backgroundColor ==nil)
+    {
+        textView.backgroundColor = [UIColor clearColor];
+    }
+    else
+    {
+        textView.backgroundColor = backgroundColor;
+        
+    }
+    textView.lineBreakMode =   NSLineBreakByWordWrapping;
+    textView.adjustsFontSizeToFitWidth = YES;
+    textView.numberOfLines = 0;
+    
+    // note: for UITextView, if you don't like autocompletion while typing use:
+    // myTextView.autocorrectionType = UITextAutocorrectionTypeNo;
+    
+    return textView;
 }
 
+- (UIFont *)systemFontBold:(bool)bold size:(CGFloat)size
+{
+    if (bold)
+    {
+        return [UIFont boldSystemFontOfSize:size];
+    }
+    
+    return [UIFont systemFontOfSize:size];
+    
+}
 
+- (UIFont*)paragraphFont
+{
+    if (_paragraphFont == nil)
+    {
+        if (SMALL_SCREEN)
+        {
+            if (self.screenInfo.screenWidth >= WidthiPhone6)
+            {
+                _paragraphFont =[UIFont systemFontOfSize:16.0];
+            }
+            else
+            {
+                _paragraphFont =[UIFont systemFontOfSize:14.0];
+            }
+        }
+        else {
+            _paragraphFont = [UIFont systemFontOfSize:22.0];
+        }
+    }
+    return _paragraphFont;
+}
+
+- (UIFont*)basicFont
+{
+    if (_basicFont == nil)
+    {
+        if (SMALL_SCREEN)
+        {
+            if (self.screenInfo.screenWidth >= WidthiPhone6)
+            {
+                _basicFont =[self systemFontBold:NO size:20.0];
+            }
+            else
+            {
+                _basicFont =[self systemFontBold:NO size:18.0];
+            }
+            
+        }
+        else
+        {
+            _basicFont = [self systemFontBold:NO size:22.0];
+        }
+    }
+    return _basicFont;
+}
 
 #pragma mark Background Task methods
 
--(void)BackgroundTaskDone:(UIViewController *)viewController cancelled:(bool)cancelled
+-(void)backgroundTaskDone:(UIViewController *)viewController cancelled:(bool)cancelled
 {
-	if (!cancelled)
-	{
-		[self.navigationController pushViewController:viewController animated:YES];
-	}
+    if (!cancelled)
+    {
+        [self.navigationController pushViewController:viewController animated:YES];
+    }
 }
 
-- (UIInterfaceOrientation)BackgroundTaskOrientation
+- (UIInterfaceOrientation)backgroundTaskOrientation
 {
-	return [InterfaceOrientation getInterfaceOrientation:self];
+    return [InterfaceOrientation getInterfaceOrientation:self];
 }
 
 #pragma mark Standard Object methods
 
 
 - (void)didReceiveMemoryWarning {
-	// Releases the view if it doesn't have a superview.
+    // Releases the view if it doesn't have a superview.
     
     if (self.viewLoaded && self.view.window == nil) {
         self.view = nil;
     }
     
-	
-	// Release any cached data, images, etc that aren't in use.
+    
+    // Release any cached data, images, etc that aren't in use.
     [MemoryCaches memoryWarning];
     
     [super didReceiveMemoryWarning];
@@ -966,6 +956,43 @@
     }
 }
 
+- (void)triMetTweetFrom:(UIView*)view
+{
+    UIAlertController* alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"TriMet on Twitter", @"alert title")
+                                                                   message:NSLocalizedString(@"Which twitter account do you need?", @"alert message")
+                                                            preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"@TriMetAlerts - Distruption and Alert Info", @"alert item")
+                                              style:UIAlertActionStyleDefault
+                                            handler:^(UIAlertAction *action){
+                                                [self tweetAt:@"trimetalerts"];
+                                            }]];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"@TriMetHelp - Rider Support", @"alert item")
+                                              style:UIAlertActionStyleDefault
+                                            handler:^(UIAlertAction *action){
+                                                [self tweetAt:@"trimethelp"];
+                                            }]];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"@TriMet - General Info", @"alert item")
+                                              style:UIAlertActionStyleDefault
+                                            handler:^(UIAlertAction *action){
+                                                [self tweetAt:@"trimet"];
+                                            }]];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"alert item")
+                                              style:UIAlertActionStyleCancel
+                                            handler:^(UIAlertAction *action){
+                                                [self clearSelection];
+                                            }]];
+    
+    
+    alert.popoverPresentationController.sourceView  = view;
+    alert.popoverPresentationController.sourceRect = CGRectMake(0, 0, view.frame.size.width, view.frame.size.height);
+    
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
 
 -(void)clearSelection
 {
@@ -976,7 +1003,7 @@
 {
     if (self.callback)
     {
-        return [self.callback getController];
+        return self.callback.controller;
     }
     
     return nil;
@@ -985,7 +1012,7 @@
 
 - (bool)openBrowserFrom:(UIViewController *)view path:(NSString *)path
 {
-    if ([UserPrefs sharedInstance].useChrome && [ OpenInChromeController sharedInstance].isChromeInstalled)
+    if ([UserPrefs sharedInstance].useChrome && [ OpenInChromeController sharedInstance].chromeInstalled)
     {
         if ([[OpenInChromeController sharedInstance] openInChrome:[NSURL URLWithString:path]
                                                   withCallbackURL:[NSURL URLWithString:@"pdxbus:"]
@@ -1075,7 +1102,7 @@
         // Make a small rect in the center, just 10,10
         const CGFloat side = 10;
         CGRect frame = source.frame;
-        CGRect sourceRect = CGRectMake(frame.origin.x + (frame.size.width - side)/2.0, frame.origin.y + (frame.size.height-side)/2.0, side, side);
+        CGRect sourceRect = CGRectMake((frame.size.width - side)/2.0, (frame.size.height-side)/2.0, side, side);
         
         alert.popoverPresentationController.sourceView = source;
         alert.popoverPresentationController.sourceRect = sourceRect;
@@ -1133,11 +1160,31 @@
 - (void) viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
-    [self.backgroundTask cancel];
+    [self.backgroundTask taskCancel];
 }
 
 
 
-
+- (void)openDetourLink:(NSString *)link
+{
+    if ([link isEqualToString:@"https://trimet.org/#/planner"])
+    {
+        TripPlannerSummaryView *tripStart = [TripPlannerSummaryView viewController];
+        @synchronized (_userData)
+        {
+            [tripStart.tripQuery addStopsFromUserFaves:_userData.faves];
+        }
+        [self.navigationController pushViewController:tripStart animated:YES];
+        
+    }
+    else
+    {
+        [WebViewController displayPage:link
+                                  full:nil
+                             navigator:self.navigationController
+                        itemToDeselect:nil
+                              whenDone:self.callbackWhenDone];
+    }
+}
 
 @end

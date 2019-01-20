@@ -20,6 +20,6 @@
     UIColor *_color;
 }
 
-@property (nonatomic, retain) UIColor *color;
+@property (nonatomic, strong) UIColor *color;
 
 @end

@@ -11,21 +11,17 @@
 
 
 #import <UIKit/UIKit.h>
-#import "TableViewWithToolbar.h"
+#import "TableViewControllerWithRefresh.h"
 #import "ReturnStopId.h"
 #import "BackgroundTaskContainer.h"
 
 @class XMLRoutes;
 
+@interface RouteView : TableViewControllerWithRefresh
 
+@property (nonatomic, strong) XMLRoutes *routeData;
 
-@interface RouteView : TableViewWithToolbar {
-	XMLRoutes *_routeData;
-}
-
-- (void)fetchRoutesAsync:(id<BackgroundTaskProgress>)callback;
+- (void)fetchRoutesAsync:(id<BackgroundTaskController>)task backgroundRefresh:(bool)backgroundRefresh;
 - (void)refreshAction:(id)sender;
-
-@property (nonatomic, retain) XMLRoutes *routeData;
 
 @end

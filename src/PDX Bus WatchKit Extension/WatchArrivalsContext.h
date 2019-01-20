@@ -24,7 +24,7 @@
 
 @interface WatchArrivalsContext : WatchContext
 
-@property (retain, nonatomic) NSString *locid;
+@property (copy, nonatomic)   NSString *locid;
 @property (nonatomic)         bool     showMap;
 @property (nonatomic)         double   distance;
 @property (nonatomic)         bool     showDistance;
@@ -32,8 +32,6 @@
 @property (nonatomic, copy)   NSString *navText;
 @property (nonatomic, copy)   NSString *detailBlock;
 @property (nonatomic, retain) XMLDepartures *departures;
-@property (nonatomic, retain) XMLDetours *detours;
-
 
 + (WatchArrivalsContext*)contextWithLocation:(NSString *)location;
 + (WatchArrivalsContext*)contextWithLocation:(NSString *)location distance:(double)distance;
@@ -43,7 +41,7 @@
 
 
 @property (nonatomic, readonly) bool hasNext;
-@property (nonatomic, getter=getNext, readonly, strong) WatchArrivalsContext *next;
+@property (nonatomic, readonly, strong) WatchArrivalsContext *next;
 @property (nonatomic, readonly, strong) WatchArrivalsContext *clone; 
 
 

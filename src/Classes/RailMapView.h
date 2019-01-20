@@ -23,14 +23,14 @@
 #import "HotSpot.h"
 
 @interface RailMapHotSpots : UIView {
-	UIView *        _mapView;
-	BOOL            _hidden;
-	int             _selectedItem;
+    UIView *        _mapView;
+    BOOL            _hidden;
+    int             _selectedItem;
     CGPoint         _touchPoint;
     RAILMAP *       _railMap;
 }
 
-@property (nonatomic, retain) UIView* mapView;
+@property (nonatomic, strong) UIView* mapView;
 @property (nonatomic) BOOL hidden;
 @property (nonatomic) int selectedItem;
 
@@ -44,13 +44,13 @@
 
 typedef enum
 {
-	EasterEggStart,
-	EasterEggNorth1,
-	EasterEggNorth2,
-	EasterEggNorth3,
-	EasterEgg1,
-	EasterEgg2,
-	EasterEgg3
+    EasterEggStart,
+    EasterEggNorth1,
+    EasterEggNorth2,
+    EasterEggNorth3,
+    EasterEgg1,
+    EasterEgg2,
+    EasterEgg3
 } EasterEggState;
 
 typedef struct savedImageStruct
@@ -60,44 +60,37 @@ typedef struct savedImageStruct
     bool    saved;
 } SAVED_IMAGE;
 
-@interface RailMapView : ViewControllerBase <ReturnStop, UIScrollViewDelegate, TapDetectingImageViewDelegate, DeselectItemDelegate>{
-	UIScrollView *          _scrollView;
-	bool                    _from;
-	bool                    _picker;
-	NSMutableArray *        _stopIDs;
-	RailMapHotSpots *       _hotSpots;
-	EasterEggState          _easterEgg;
-	int                     _selectedItem;
-	StopLocations *         _locationsDb;
+@interface RailMapView : ViewControllerBase <ReturnStop, UIScrollViewDelegate, TapDetectingImageViewDelegate, DeselectItemDelegate>
+{
+    EasterEggState          _easterEgg;
+    int                     _selectedItem;
     CGPoint                 _tapPoint;
     RAILMAP *               _railMap;
     int                     _railMapIndex;
-    TapDetectingImageView * _imageView;
-    UIImageView *           _lowResBackgroundImage;
     SAVED_IMAGE             _savedImage[kRailMaps];
-    UISegmentedControl *    _railMapSeg;
-    bool                    _showNextOnAppearance;
 }
 
-+ (void)initHotspotData;
+@property (nonatomic, strong) UIScrollView *scrollView;
+@property (nonatomic) bool from;
+@property (nonatomic) bool picker;
+@property (nonatomic, strong) NSMutableArray *stopIDs;
+@property (nonatomic, strong) RailMapHotSpots *hotSpots;
+@property (nonatomic, strong) StopLocations *locationsDb;
+@property (nonatomic, strong) TapDetectingImageView *imageView;
+@property (nonatomic, strong) UIImageView *lowResBackgroundImage;
+@property (nonatomic, strong) UISegmentedControl *railMapSeg;
+@property (nonatomic)         bool showNextOnAppearance;
+
 - (void)scannerInc:(NSScanner *)scanner;
 - (void)nextSlash:(NSScanner *)scanner intoString:(NSString **)substr;
 - (void)loadImage;
+
++ (void)initHotspotData;
 
 #ifdef MAXCOLORS
 + (int)nHotspots;
 + (HOTSPOT *)hotspots;
 #endif
 
-@property (nonatomic, retain) UIScrollView *scrollView;
-@property (nonatomic) bool from;
-@property (nonatomic) bool picker;
-@property (nonatomic, retain) NSMutableArray *stopIDs;
-@property (nonatomic, retain) RailMapHotSpots *hotSpots;
-@property (nonatomic, retain) StopLocations *locationsDb;
-@property (nonatomic, retain) TapDetectingImageView *imageView;
-@property (nonatomic, retain) UIImageView *lowResBackgroundImage;
-@property (nonatomic, retain) UISegmentedControl *railMapSeg;
-@property (nonatomic)         bool showNextOnAppearance;
 
 @end

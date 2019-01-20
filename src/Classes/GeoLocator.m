@@ -9,22 +9,13 @@
 #import "GeoLocator.h"
 #import "DebugLogging.h"
 #import "ReverseGeoLocator.h"
+#import "CLLocation+Helper.h"
 
 @implementation GeoLocator
 
-@synthesize waitingForGeocoder = _waitingForGeocoder;
-@synthesize result             = _result;
-
-- (void)dealloc
-{
-    self.result = nil;
-    self.error  = nil;
-    
-    [super dealloc];
-}
 
 
-+ (bool) supported
++ (bool)supported
 {
     // This API does not work well and so is always off for now.
    return NO;
@@ -55,7 +46,7 @@
 
 - (CLLocation *)fetchCoordinates:(NSString *)address;
 {
-    CLGeocoder *geocoder = [[[CLGeocoder alloc] init] autorelease];
+    CLGeocoder *geocoder = [[CLGeocoder alloc] init];
     
     self.waitingForGeocoder = true;
     
@@ -71,14 +62,14 @@
     CLLocationCoordinate2D triMetCenter = { (X0 + X1) / 2.0, (Y0 + Y1) /2.0  };
     
 #if 0
-    ReverseGeoLocator *locator = [[[ReverseGeoLocator alloc] init] autorelease];
-    CLLocation *loc = [[[CLLocation alloc] initWithLatitude:triMetCenter.latitude longitude:triMetCenter.longitude] autorelease];
+    ReverseGeoLocator *locator = [[ReverseGeoLocator alloc] init];
+    CLLocation *loc = [CLLocation withLat:triMetCenter.latitude lng:triMetCenter.longitude];
     [locator fetchAddress:loc];
     DEBUG_LOG(@"Middle is %@\n", locator.result);
 #endif
     
-    CLLocation *topLeft     = [[[CLLocation alloc] initWithLatitude:X0 longitude:Y0] autorelease];
-    CLLocation *bottomRight = [[[CLLocation alloc] initWithLatitude:X1 longitude:Y1] autorelease];
+    CLLocation *topLeft     = [CLLocation withLat:X0 lng:Y0];
+    CLLocation *bottomRight = [CLLocation withLat:X1 lng:Y1];
     
     CLLocationDistance radius = [topLeft distanceFromLocation:bottomRight] / 2;
     

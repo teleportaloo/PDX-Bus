@@ -16,5 +16,4 @@
 #import "WhatsNewSelector.h"
 
 @interface WhatsNewStopIDs : WhatsNewSelector
-
 @end

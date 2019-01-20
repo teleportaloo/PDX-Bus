@@ -17,11 +17,6 @@
 
 @implementation AlertInterfaceController
 
-- (void)dealloc
-{
-    self.alertLabel = nil;
-    [super dealloc];
-}
 
 - (IBAction)okButtonTapped {
     [self popController];

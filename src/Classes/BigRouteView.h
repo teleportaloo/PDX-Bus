@@ -18,12 +18,9 @@
 #import "DepartureData.h"
 
 
-@interface BigRouteView : ViewControllerBase {
-	DepartureData *     _departure;
-	UIView *            _textView;
-}
+@interface BigRouteView : ViewControllerBase 
 
-@property (nonatomic, retain) DepartureData *departure;
-@property (nonatomic, retain) UIView *textView;
+@property (nonatomic, strong) DepartureData *departure;
+@property (nonatomic, strong) UIView *textView;
 
 @end

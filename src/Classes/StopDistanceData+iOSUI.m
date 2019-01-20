@@ -18,9 +18,9 @@
 @implementation StopDistanceData (iOSUI)
 
 
-- (MKPinAnnotationColor) pinColor
+- (MapPinColorValue) pinColor
 {
-    return MKPinAnnotationColorGreen;
+    return MAP_PIN_COLOR_GREEN;
 }
 
 - (bool) showActionMenu

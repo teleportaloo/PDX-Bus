@@ -24,24 +24,13 @@
 @implementation InterfaceControllerWithBackgroundThread
 
 
-@synthesize backgroundThread = _backgroundThread;
-@synthesize delayedContext   = _delayedContext;
-
-- (void)dealloc
-{
-    self.backgroundThread = nil;
-    self.delayedContext   = nil;
-    
-    [super dealloc];
-}
-
 
 - (id)backgroundTask
 {
     return nil;
 }
 
-- (bool)isBackgroundThreadRunning
+- (bool)backgroundThreadRunning
 {
     @synchronized(self)
     {
@@ -51,44 +40,43 @@
 
 - (void)executebackgroundTask:(id)unused
 {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    @autoreleasepool {
     
-    @synchronized(self)
-    {
-        if (self.backgroundThread !=nil)
+        @synchronized(self)
         {
-            [pool release];
-            return;
+            if (self.backgroundThread !=nil)
+            {
+                return;
+            }
+            
+            self.backgroundThread = [NSThread currentThread];
         }
         
-        self.backgroundThread = [NSThread currentThread];
-    }
-    
-    id result = [self backgroundTask];
-    
-    if (![NSThread currentThread].isCancelled)
-    {
-        [self performSelectorOnMainThread:@selector(taskFinishedMainThread:) withObject:result waitUntilDone:NO];
-    }
-    else
-    {
-        ExtensionDelegate  *extensionDelegate = (ExtensionDelegate*)[WKExtension sharedExtension].delegate;
+        id result = [self backgroundTask];
         
-        if (extensionDelegate.backgrounded)
+        if (![NSThread currentThread].isCancelled)
         {
-            DEBUG_LOG(@"Saving for wake\n");
-            extensionDelegate.wakeDelegate = self;
+            [self performSelectorOnMainThread:@selector(taskFinishedMainThread:) withObject:result waitUntilDone:NO];
+        }
+        else
+        {
+            ExtensionDelegate  *extensionDelegate = (ExtensionDelegate*)[WKExtension sharedExtension].delegate;
+            
+            if (extensionDelegate.backgrounded)
+            {
+                DEBUG_LOG(@"Saving for wake\n");
+                extensionDelegate.wakeDelegate = self;
+            }
+            
+            [self performSelectorOnMainThread:@selector(taskFailedMainThread:) withObject:result waitUntilDone:NO];
         }
         
-        [self performSelectorOnMainThread:@selector(taskFailedMainThread:) withObject:result waitUntilDone:NO];
-    }
+        @synchronized(self)
+        {
+            self.backgroundThread = nil;
+        }
     
-    @synchronized(self)
-    {
-        self.backgroundThread = nil;
     }
-    
-    [pool release];
 }
 
 - (void)extentionForgrounded
@@ -159,26 +147,28 @@
     [super didDeactivate];
 }
 
-- (void)delayedPush:(WatchContext *)context
+- (void)delayedPush:(WatchContext *)context completion:(void (^)(void))block
 {
     if (!self.displayed)
     {
         self.delayedContext = context;
+        self.delayedBlock = block;
     }
     else
     {
-        [context delayedPushFrom:self];
+        [context delayedPushFrom:self completion:block];
     }
 }
 
 - (void)didAppear
 {
     self.displayed = YES;
-    
+
     if (self.delayedContext)
     {
-        [self.delayedContext delayedPushFrom:self];
+        [self.delayedContext delayedPushFrom:self completion:self.delayedBlock];
         self.delayedContext = nil;
+        self.delayedBlock = nil;
     }
 }
 

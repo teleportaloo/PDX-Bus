@@ -26,7 +26,7 @@
 #import "TableViewWithToolbar.h"
 
 
-@interface PullRefreshTableViewController : TableViewWithToolbar {
+@interface PullRefreshTableViewController<FilteredItemType>  : TableViewWithToolbar<FilteredItemType>  {
     UIView *refreshHeaderView;
     UILabel *refreshLabel;
     UIImageView *refreshArrow;
@@ -40,14 +40,15 @@
     CGFloat _width;
 }
 
-@property (nonatomic, retain) UIView *refreshHeaderView;
-@property (nonatomic, retain) UILabel *refreshLabel;
-@property (nonatomic, retain) UIImageView *refreshArrow;
-@property (nonatomic, retain) UIActivityIndicatorView *refreshSpinner;
+@property (nonatomic, strong) UIView *refreshHeaderView;
+@property (nonatomic, strong) UILabel *refreshLabel;
+@property (nonatomic, strong) UIImageView *refreshArrow;
+@property (nonatomic, strong) UIActivityIndicatorView *refreshSpinner;
 @property (nonatomic, copy)   NSString *textPull;
 @property (nonatomic, copy)   NSString *textRelease;
 @property (nonatomic, copy)   NSString *textLoading;
-@property (nonatomic, copy)   NSString *secondLine;
+@property (atomic, copy)      NSString *secondLine;
+@property (nonatomic)         bool disablePull;
 
 
 - (void)setupStrings;
@@ -55,5 +56,7 @@
 - (void)startLoading;
 - (void)stopLoading;
 - (void)refresh;
+- (void)refreshAction:(id)sender;  // Usually this is what the subclass uses
+- (void)updateRefreshDate:(NSDate *)date;
 
 @end

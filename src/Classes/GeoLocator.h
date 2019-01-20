@@ -12,19 +12,14 @@
 #import <CoreLocation/CoreLocation.h>
 
 @interface GeoLocator : NSObject
-{
-    bool            _waitingForGeocoder;
-    CLLocation *    _result;
-    NSError *       _error;
-}
-
-+ (bool) supported;
-- (CLLocation *)fetchCoordinates:(NSString *)address;
-+ (bool)addressNeedsCoords:(NSString *)address;
-
 
 @property (atomic) bool waitingForGeocoder;
-@property (atomic, retain) CLLocation *result;
-@property (atomic, retain) NSError *error;
+@property (atomic, strong) CLLocation *result;
+@property (atomic, strong) NSError *error;
+
+- (CLLocation *)fetchCoordinates:(NSString *)address;
+
++ (bool) supported;
++ (bool)addressNeedsCoords:(NSString *)address;
 
 @end

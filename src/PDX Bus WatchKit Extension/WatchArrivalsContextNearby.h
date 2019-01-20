@@ -18,7 +18,7 @@
 
 @interface WatchArrivalsContextNearby : WatchArrivalsContext
 
-@property (nonatomic, retain) XMLLocateStops *      stops;
+@property (nonatomic, strong) XMLLocateStops *      stops;
 @property (nonatomic)         NSInteger             index;
 
 + (WatchArrivalsContextNearby*)contextFromNearbyStops:(XMLLocateStops *)stops index:(NSInteger)index;

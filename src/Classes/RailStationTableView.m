@@ -19,21 +19,16 @@
 #import "MapViewController.h"
 #import "RailMapView.h"
 #import "AllRailStationView.h"
-#import "TriMetRouteColors.h"
+#import "TriMetInfo.h"
 #import "DirectionView.h"
 #import "AlarmTaskList.h"
 #import "TripPlannerSummaryView.h"
 #import "FindByLocationView.h"
-
-
+#import "VehicleTableView.h"
+#import "StringHelper.h"
+#import "KMLRoutes.h"
 
 @implementation RailStationTableView
-
-@synthesize station			= _station;
-@synthesize from			= _from;
-@synthesize locationsDb		= _locationsDb;
-@synthesize map				= _map;
-@synthesize routes			= _routes;
 
 enum SECTIONS_AND_ROWS {
     kSectionStation,
@@ -47,6 +42,7 @@ enum SECTIONS_AND_ROWS {
     kRowAllArrivals,
     kRowLocationArrival,
     kRowNearbyStops,
+    kRowNearbyVehicles,
     kRowWikiLink,
     kRowTripToHere,
     kRowTripFromHere,
@@ -55,100 +51,69 @@ enum SECTIONS_AND_ROWS {
     kRowMap
 };
 
-#define kDirectionCellHeight	45.0
-#define DIRECTION_TAG			1
-#define ID_TAG					2
+#define kDirectionCellHeight        45.0
+#define DIRECTION_TAG               1
+#define ID_TAG                      2
 
 
-- (void)dealloc {
-	self.locationsDb = nil;
-	self.station = nil;
-	self.map = nil;
-	self.routes = nil;
-	[super dealloc];
-}
 
 
 - (instancetype)init {
-	if ((self = [super init]))
-	{
+    if ((self = [super init]))
+    {
         self.title = NSLocalizedString(@"Station Details", @"page title");
-	}
-	return self;
+    }
+    return self;
 }
 
 #pragma mark ViewControllerBase methods
 
-- (UITableViewStyle) getStyle
+- (UITableViewStyle) style
 {
-	return UITableViewStylePlain;
+    return UITableViewStylePlain;
 }
 
 - (void)updateToolbarItems:(NSMutableArray *)toolbarItems
-{	
-	[toolbarItems addObject:[UIToolbar autoMapButtonWithTarget:self action:@selector(showMap:)]];
-    [toolbarItems addObject:[UIToolbar autoFlexSpace]];
+{    
+    [toolbarItems addObject:[UIToolbar mapButtonWithTarget:self action:@selector(showMap:)]];
+    [toolbarItems addObject:[UIToolbar flexSpace]];
     
     
-	if (self.map != nil)
+    if (self.map != nil)
     {
-        [toolbarItems addObject: [[[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Next", @"button text")
+        [toolbarItems addObject: [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Next", @"button text")
                                                                    style:UIBarButtonItemStylePlain
                                                                   target:self
-                                                                  action:@selector(showNext:)] autorelease]];
-        [toolbarItems addObject:[UIToolbar autoFlexSpace]];
+                                                                  action:@selector(showNext:)]];
+        [toolbarItems addObject:[UIToolbar flexSpace]];
     }
-	
-	
+    
+    
     [self maybeAddFlashButtonWithSpace:NO buttons:toolbarItems big:NO];
 }
 
 #pragma mark View methods
 
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
-{
-	AlarmTaskList *taskList = [AlarmTaskList sharedInstance];
-    NSString *stopId = self.station.locList.firstObject;
-	CLLocation *here = [self.locationsDb getLocation:stopId];
-
-	[taskList userAlertForProximityAction:buttonIndex 
-								   stopId:stopId 
-									  loc:here
-									 desc:self.station.station];
-}
-
 - (void)didReceiveMemoryWarning {
-	// Releases the view if it doesn't have a superview.
+    // Releases the view if it doesn't have a superview.
     [super didReceiveMemoryWarning];
-	
-	// Release any cached data, images, etc that aren't in use.
-}
-
-- (void)addLineToRoutes:(RAILLINES)line
-{
-	if (self.station.line & line) 
-	{
-		[self.routes addObject:@(line)];
-	}
+    
+    // Release any cached data, images, etc that aren't in use.
 }
 
 - (void)viewDidLoad
 {
-	// Workout if we have any routes
-	
-    self.routes = [NSMutableArray array];
-
-	
-	[self addLineToRoutes:kBlueLine];
-	[self addLineToRoutes:kRedLine];
-	[self addLineToRoutes:kGreenLine];
-	[self addLineToRoutes:kYellowLine];
-	[self addLineToRoutes:kStreetcarALoop];
-    [self addLineToRoutes:kStreetcarBLoop];
-    [self addLineToRoutes:kStreetcarNsLine];
-	[self addLineToRoutes:kWesLine];
-    [self addLineToRoutes:kOrangeLine];
+    // Workout if we have any routes
     
+    self.routes = [NSMutableArray array];
+    
+    for (PC_ROUTE_INFO info = [TriMetInfo allColoredLines]; info->route_number!=kNoRoute; info++)
+    {
+        if (self.station.line & info->line_bit)
+        {
+            [self.routes addObject:@(info->line_bit)];
+        }
+    }
     
     if (self.callback)
     {
@@ -171,15 +136,17 @@ enum SECTIONS_AND_ROWS {
     }
     
     _firstLocationRow = [self rowsInSection:arrivalSection];
-    
-    for (int i=0; i< rows; i++)
-    {
-        [self addRowType:kRowLocationArrival];
-    }
+    [self addRowType:kRowLocationArrival count:rows];
     
     if (self.callback ==nil)
     {
         [self addRowType:kRowNearbyStops];
+        
+        if ([UserPrefs sharedInstance].vehicleLocations)
+        {
+            [self addRowType:kRowNearbyVehicles];
+        }
+        
         [self addSectionType:kSectionTripPlanner];
         [self addRowType:kRowTripToHere];
         [self addRowType:kRowTripFromHere];
@@ -194,11 +161,7 @@ enum SECTIONS_AND_ROWS {
     if (self.routes.count > 0)
     {
         [self addSectionType:kSectionRoute];
-    
-        for (int i=0; i < self.routes.count; i++)
-        {
-            [self addRowType:kRowRoute];
-        }
+        [self addRowType:kRowRoute count:self.routes.count];
     }
     
     if ([AlarmTaskList proximitySupported])
@@ -214,17 +177,11 @@ enum SECTIONS_AND_ROWS {
 
 - (UITableViewCell *)plainCell:(UITableView *)tableView
 {
-	static NSString *CellIdentifier = @"Cell";
-    
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-    if (cell == nil) {
-        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
-    }
-	cell.textLabel.adjustsFontSizeToFitWidth = YES;
-	cell.textLabel.font = self.basicFont;
-	
-	return cell;
-	
+    UITableViewCell *cell = [self tableView:tableView cellWithReuseIdentifier:@"Cell"];
+    cell.textLabel.adjustsFontSizeToFitWidth = YES;
+    cell.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
+    cell.textLabel.font = self.basicFont;
+    return cell;
 }
 
 -(void)showMap:(id)sender
@@ -252,6 +209,14 @@ enum SECTIONS_AND_ROWS {
             [mapPage addPin:a];
         }
     }
+    
+    if (self.shapes)
+    {
+        mapPage.lineCoords = self.shapes;
+        mapPage.lineOptions = MapViewNoFitLines;
+    }
+    
+    
     mapPage.callback = self.callback;
     [self.navigationController pushViewController:mapPage animated:YES];
 }
@@ -259,7 +224,7 @@ enum SECTIONS_AND_ROWS {
 -(void)showNext:(id)sender
 {
     self.map.showNextOnAppearance = YES;
-	[self.navigationController popViewControllerAnimated:YES];
+    [self.navigationController popViewControllerAnimated:YES];
 }
 
 
@@ -269,32 +234,32 @@ enum SECTIONS_AND_ROWS {
     
     NSInteger sectionType = [self sectionType:section];
     
-	switch (sectionType)
+    switch (sectionType)
     {
-		case kSectionRoute:
+        case kSectionRoute:
             return NSLocalizedString(@"Routes", @"section header");
-		case kSectionStation:
-			return nil;
+        case kSectionStation:
+            return nil;
         case kSectionTripPlanner:
             return NSLocalizedString(@"Trip Planner", @"section header");
-		case kSectionArrivals:
-			
-			if (self.callback)
-			{
-				return NSLocalizedString(@"Choose from one of these stop(s):", @"section header");
-			}
-			return NSLocalizedString(@"Arrivals", @"section header");
-		case kSectionWikiLink:
-			return NSLocalizedString(@"More Information", @"section header");
-		case kSectionAlarm:
-			return NSLocalizedString(@"Alarms", @"section header");
-	}
-	return nil;
+        case kSectionArrivals:
+            
+            if (self.callback)
+            {
+                return NSLocalizedString(@"Choose from one of these stop(s):", @"section header");
+            }
+            return NSLocalizedString(@"Arrivals", @"section header");
+        case kSectionWikiLink:
+            return NSLocalizedString(@"More Information", @"section header");
+        case kSectionAlarm:
+            return NSLocalizedString(@"Alarms", @"section header");
+    }
+    return nil;
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     
- 	
+     
     return [self sections];
 }
 
@@ -305,7 +270,7 @@ enum SECTIONS_AND_ROWS {
         return [self mapCellHeight];
     }
     
-    return self.basicRowHeight;
+    return UITableViewAutomaticDimension;
 }
 
 
@@ -321,43 +286,37 @@ enum SECTIONS_AND_ROWS {
     UITableViewCell *cell = nil;
     
     NSInteger rowType = [self rowType:indexPath];
-	switch (rowType)
-	{
-		case kRowStation:
+    switch (rowType)
+    {
+        case kRowStation:
         default:
-		{
-			cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kRowStation)];
-			if (cell == nil) {
-				
-				cell = [RailStation tableviewCellWithReuseIdentifier:MakeCellId(kRowStation)
-														   rowHeight:[self basicRowHeight]];
-				
-				/*
-				 [self newLabelWithPrimaryColor:[UIColor blueColor] selectedColor:[UIColor cyanColor] fontSize:14 bold:YES parentView:[cell contentView]];
-				 */
-			}
-			
-			
-			// cell = [self plainCell:tableView];
-			//cell.textLabel.text =  self.station.station;
-			cell.selectionStyle = UITableViewCellSelectionStyleNone;
-			cell.accessoryType = UITableViewCellAccessoryNone;
-			cell.imageView.image = nil;
-			//cell.textLabel.textAlignment = NSTextAlignmentCenter;
-			
-			
-			[RailStation populateCell:cell 
-							  station:self.station.station
-								lines:[AllRailStationView railLines:self.station.index]];
-			
-			break;
-		}
+        {
+            
+            cell = [RailStation tableView:tableView
+                  cellWithReuseIdentifier:MakeCellId(kRowStation)
+                                rowHeight:[self basicRowHeight]];
+            
+            // cell = [self plainCell:tableView];
+            //cell.textLabel.text =  self.station.station;
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            cell.accessoryType = UITableViewCellAccessoryNone;
+            cell.imageView.image = nil;
+            //cell.textLabel.textAlignment = NSTextAlignmentCenter;
+            
+            
+            [RailStation populateCell:cell
+                              station:self.station.station
+                                lines:[AllRailStationView railLines:self.station.index]];
+            
+            break;
+        }
         case kRowTripToHere:
             cell = [self plainCell:tableView];
             cell.textLabel.text = NSLocalizedString(@"Plan trip to here", @"main menu item");
             cell.selectionStyle = UITableViewCellSelectionStyleBlue;
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-            cell.imageView.image = [self getActionIcon:kIconTripPlanner];
+            cell.imageView.image = [self getIcon:kIconTripPlanner];
+            cell.accessibilityLabel = cell.textLabel.text.phonetic;
             break;
             
         case kRowTripFromHere:
@@ -365,82 +324,92 @@ enum SECTIONS_AND_ROWS {
             cell.textLabel.text = NSLocalizedString(@"Plan trip from here", @"main menu item");
             cell.selectionStyle = UITableViewCellSelectionStyleBlue;
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-            cell.imageView.image = [self getActionIcon:kIconTripPlanner];
+            cell.imageView.image = [self getIcon:kIconTripPlanner];
+            cell.accessibilityLabel = cell.textLabel.text.phonetic;
             break;
-		case kRowAllArrivals:
-			cell = [self plainCell:tableView];
+        case kRowAllArrivals:
+            cell = [self plainCell:tableView];
             cell.textLabel.text = NSLocalizedString(@"All arrivals", @"main menu item");
             cell.selectionStyle = UITableViewCellSelectionStyleBlue;
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-            cell.imageView.image = [self getActionIcon:kIconRecent];
+            cell.imageView.image = [self getIcon:kIconRecent];
+            cell.accessibilityLabel = cell.textLabel.text.phonetic;
             break;
         case kRowLocationArrival:
             cell = [self plainCell:tableView];
-            cell.textLabel.text = [NSString stringWithFormat:@"%@ (ID %@)",
-                                   self.station.dirList[indexPath.row-_firstLocationRow],
-                                   self.station.locList[indexPath.row-_firstLocationRow]];
+            cell.textLabel.attributedText = [[NSString stringWithFormat:@"%@ #A#[(ID %@)#]",
+                                              self.station.dirList[indexPath.row-_firstLocationRow],
+                                              self.station.locList[indexPath.row-_firstLocationRow]] formatAttributedStringWithFont:self.basicFont];
             cell.selectionStyle = UITableViewCellSelectionStyleBlue;
             if (self.callback==nil)
             {
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             }
-            cell.imageView.image = [self getActionIcon:kIconRecent];
+            cell.imageView.image = [self getIcon:kIconRecent];
+            cell.accessibilityLabel = cell.textLabel.text.phonetic;
             break;
         case kRowNearbyStops:
             cell = [self plainCell:tableView];
             cell.textLabel.text = NSLocalizedString(@"Nearby stops", @"main menu item");
             cell.selectionStyle = UITableViewCellSelectionStyleBlue;
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-            cell.imageView.image = [self getActionIcon7:kIconLocate7 old:kIconLocate];
-			break;
-		case kRowWikiLink:
-			cell = [self plainCell:tableView];
+            cell.imageView.image = [self getIcon:kIconLocate7];
+            cell.accessibilityLabel = cell.textLabel.text.phonetic;
+            break;
+        case kRowNearbyVehicles:
+            cell = [self plainCell:tableView];
+            cell.textLabel.text = NSLocalizedString(@"Nearby vehicles", @"main menu item");
+            cell.selectionStyle = UITableViewCellSelectionStyleBlue;
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            cell.imageView.image = [self getIcon:kIconLocate7];
+            cell.accessibilityLabel = cell.textLabel.text.phonetic;
+            break;
+        case kRowWikiLink:
+            cell = [self plainCell:tableView];
             cell.textLabel.text = NSLocalizedString(@"Wikipedia article", @"main menu item");
             cell.selectionStyle = UITableViewCellSelectionStyleBlue;
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-            cell.imageView.image = [self getActionIcon:kIconWiki];
+            cell.imageView.image = [self getIcon:kIconWiki];
+            cell.accessibilityLabel = cell.textLabel.text.phonetic;
             break;
-		case kRowProximityAlarm:
-			cell = [self plainCell:tableView];
-			cell.textLabel.text = kUserProximityCellText;
-			cell.imageView.image = [self getActionIcon:kIconAlarm];
-			cell.selectionStyle = UITableViewCellSelectionStyleBlue;
-			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-			break;
-		case kRowRoute:
-		{
-			RAILLINES line = self.routes[indexPath.row].intValue;
-			
-			cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kRowRoute)];
-			if (cell == nil) {
-				
-				cell = [RailStation tableviewCellWithReuseIdentifier:MakeCellId(kRowRoute)
-														   rowHeight:[self basicRowHeight]];
-				
-				/*
-				 [self newLabelWithPrimaryColor:[UIColor blueColor] selectedColor:[UIColor cyanColor] fontSize:14 bold:YES parentView:[cell contentView]];
-				 */
-			}
-			
-			
-			// cell = [self plainCell:tableView];
-			//cell.textLabel.text =  self.station.station;
-			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-			cell.imageView.image = nil;
-			//cell.textLabel.textAlignment = NSTextAlignmentCenter;
-			
-			
-			[RailStation populateCell:cell 
-							  station:[NSString stringWithFormat:@"%@ info", [TriMetRouteColors rawColorForLine:line]->name]
-								lines:line];
+        case kRowProximityAlarm:
+            cell = [self plainCell:tableView];
+            cell.textLabel.text = kUserProximityCellText;
+            cell.imageView.image = [self getIcon:kIconAlarm];
+            cell.selectionStyle = UITableViewCellSelectionStyleBlue;
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            cell.accessibilityLabel = cell.textLabel.text.phonetic;
             break;
-			
-		}
+        case kRowRoute:
+        {
+            RAILLINES line = self.routes[indexPath.row].intValue;
+            cell = [RailStation tableView:tableView
+                  cellWithReuseIdentifier:MakeCellId(kRowRoute)
+                                rowHeight:[self basicRowHeight]];
+            
+            // cell = [self plainCell:tableView];
+            //cell.textLabel.text =  self.station.station;
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            cell.imageView.image = nil;
+            //cell.textLabel.textAlignment = NSTextAlignmentCenter;
+            
+            
+            [RailStation populateCell:cell
+                              station:[NSString stringWithFormat:@"%@ info", [TriMetInfo infoForLine:line]->full_name]
+                                lines:line];
+            break;
+            
+        }
         case kRowMap:
         {
             cell = [self getMapCell:MakeCellId(kRowMap) withUserLocation:NO];
             
             MKMapRect flyTo = MKMapRectNull;
+            
+            bool showRoute = [UserPrefs sharedInstance].kmlRoutes;
+            
+            
+            KMLRoutes *kml = [KMLRoutes xml];
             
             for (int i=0; i<self.station.locList.count; i++)
             {
@@ -452,7 +421,7 @@ enum SECTIONS_AND_ROWS {
                 SimpleAnnotation *annotLoc = [SimpleAnnotation annotation];
                 
                 annotLoc.pinTitle = dir;
-                annotLoc.pinColor = MKPinAnnotationColorRed;
+                annotLoc.pinColor = MAP_PIN_COLOR_RED;
                 annotLoc.coordinate = loc.coordinate;
                 
                 [self.mapView addAnnotation:annotLoc];
@@ -462,6 +431,50 @@ enum SECTIONS_AND_ROWS {
                 MKMapRect busRect = MakeMapRectWithPointAtCenter(annotationPoint.x, annotationPoint.y, 300, 2000);
                 
                 flyTo = MKMapRectUnion(flyTo, busRect);
+                
+                ShapeRoutePath *path;
+                
+                if (showRoute)
+                {
+                    NSMutableArray *overlays = [NSMutableArray array];
+                    if (self.shapes == nil)
+                    {
+                        self.shapes = [NSMutableArray array];
+                        
+                        for (PC_ROUTE_INFO info = [TriMetInfo allColoredLines]; info->route_number!=kNoRoute; info++)
+                        {
+                            NSString *route = [TriMetInfo routeString:info];
+                            
+                            if ((self.station.line0 & info->line_bit)!=0)
+                            {
+                                path = [kml lineCoordsForRoute:route direction:kKmlFirstDirection];
+                                if (path)
+                                {
+                                    [path addPolylines:overlays];
+                                    [self.shapes addObject:path];
+                                }
+                            }
+                            
+                            if ((self.station.line1 & info->line_bit)!=0)
+                            {
+                                path = [kml lineCoordsForRoute:route direction:kKmlOptionalDirection];
+                                if (path)
+                                {
+                                    [path addPolylines:overlays];
+                                    [self.shapes addObject:path];
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (ShapeRoutePath *path in self.shapes)
+                        {
+                            [path addPolylines:overlays];
+                        }
+                    }
+                    [self.mapView addOverlays:overlays];
+                }
                 
             }
             
@@ -474,9 +487,9 @@ enum SECTIONS_AND_ROWS {
             break;
         }
             
-				
-	}
-	
+                
+    }
+    
     return cell;
 }
 
@@ -570,18 +583,42 @@ enum SECTIONS_AND_ROWS {
                 
                 [self.navigationController pushViewController:find animated:YES];
                 
-                [find release];
             }
             else
             {
-                UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"Nearby stops", @"alert title")
+                UIAlertView *alert = [[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"Nearby stops", @"alert title")
                                                                    message:NSLocalizedString(@"No location info is availble for that stop.", @"alert message")
                                                                   delegate:nil
                                                          cancelButtonTitle:NSLocalizedString(@"OK", @"button text")
-                                                         otherButtonTitles:nil] autorelease];
+                                                         otherButtonTitles:nil];
                 [alert show];
                 
             }
+            break;
+        }
+        case kRowNearbyVehicles:
+        {
+            CLLocation *here = [self.locationsDb getLocation:self.station.locList.firstObject];
+            
+            if (here !=nil)
+            {
+                [[VehicleTableView viewController] fetchNearestVehiclesAsync:self.backgroundTask
+                                                                    location:here
+                                                                 maxDistance:[UserPrefs sharedInstance].vehicleLocatorDistance
+                                                           backgroundRefresh:NO
+                 ];
+            }
+            else
+            {
+                UIAlertView *alert = [[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"Nearby vehicles", @"alert title")
+                                                                   message:NSLocalizedString(@"No location info is availble for that stop.", @"alert message")
+                                                                  delegate:nil
+                                                         cancelButtonTitle:NSLocalizedString(@"OK", @"button text")
+                                                         otherButtonTitles:nil];
+                [alert show];
+                
+            }
+
             break;
         }
         case kRowWikiLink:
@@ -596,14 +633,23 @@ enum SECTIONS_AND_ROWS {
         case kRowProximityAlarm:
         {
             AlarmTaskList *taskList = [AlarmTaskList sharedInstance];
-            [taskList userAlertForProximity:self];
-            [self.table deselectRowAtIndexPath:indexPath animated:YES];
+            [taskList userAlertForProximity:self source:[tableView cellForRowAtIndexPath:indexPath]
+                                 completion:^(bool cancelled, bool accurate) {
+                                     if (!cancelled)
+                                     {
+                                         NSString *stopId = self.station.locList.firstObject;
+                                         CLLocation *here = [self.locationsDb getLocation:stopId];
+                                     
+                                         [taskList addTaskForStopIdProximity:stopId loc:here desc:self.station.station accurate:accurate];
+                                     }
+                                     [self.table deselectRowAtIndexPath:indexPath animated:YES];
+                                 }];
             break;
         }
         case kRowRoute:
         {
             RAILLINES line = self.routes[indexPath.row].intValue;
-            NSString *route = [TriMetRouteColors routeString:[TriMetRouteColors rawColorForLine:line]];
+            NSString *route = [TriMetInfo routeString:[TriMetInfo infoForLine:line]];
             
             DirectionView *dirView = [DirectionView viewController];
             dirView.callback = self.callback;
@@ -617,41 +663,81 @@ enum SECTIONS_AND_ROWS {
 
 #pragma mark ReturnStop callbacks
 
-- (void) chosenStop:(Stop *)stop progress:(id<BackgroundTaskProgress>) progress
+- (void) chosenStop:(Stop *)stop progress:(id<BackgroundTaskController>) progress
 {
-	if (self.callback)
-	{
-		/*
-		 if ([self.callback getController] != nil)
-		 {
-		 [self.navigationController popToViewController:[self.callback getController] animated:YES];
-		 }
-		 */		
-		if ([self.callback respondsToSelector:@selector(selectedStop:desc:)])
-		{
-			[self.callback selectedStop:stop.locid desc:self.station.station];
-		}
-		else {
-			[self.callback selectedStop:stop.locid];
-		}
+    if (self.callback)
+    {
+        /*
+         if ([self.callback getController] != nil)
+         {
+         [self.navigationController popToViewController:[self.callback getController] animated:YES];
+         }
+         */        
+        if ([self.callback respondsToSelector:@selector(selectedStop:desc:)])
+        {
+            [self.callback selectedStop:stop.locid desc:self.station.station];
+        }
+        else {
+            [self.callback selectedStop:stop.locid];
+        }
 
-		
-		return;
-	}
-	
+        
+        return;
+    }
+    
     DepartureTimesView *departureViewController = [DepartureTimesView viewController];
-	departureViewController.displayName = stop.desc;
-	[departureViewController fetchTimesForLocationAsync:progress loc:stop.locid];
+    departureViewController.displayName = stop.desc;
+    [departureViewController fetchTimesForLocationAsync:progress loc:stop.locid];
 }
 
 - (NSString *)actionText
 {
-	if (self.callback)
-	{
-		return [self.callback actionText];
-	}
-	return @"Show arrivals";
-	
+    if (self.callback)
+    {
+        return [self.callback actionText];
+    }
+    return @"Show arrivals";
+    
+}
+
+
+- (MKOverlayRenderer*)mapView:(MKMapView *)mapView rendererForOverlay:(id<MKOverlay>)overlay
+{
+    if ([overlay isKindOfClass:[RoutePolyline class]])
+    {
+        return [(RoutePolyline *)overlay renderer];
+    }
+    return [[MKCircleRenderer alloc] initWithCircle:[MKCircle circleWithMapRect:MKMapRectNull]];
+}
+
+- (void)maybeFetchRouteShapesAsync:(id<BackgroundTaskController>)task
+{
+    bool needsFetching = NO;
+    
+    KMLRoutes *kml = 0;
+    
+    if ([UserPrefs sharedInstance].kmlRoutes)
+    {
+        kml = [KMLRoutes xml];
+        
+        needsFetching = !kml.cached;
+    }
+    
+    if (needsFetching)
+    {
+        [task taskRunAsync:^{
+            [task taskStartWithItems:1 title:@"getting route shapes"];
+            kml.oneTimeDelegate = task;
+            [kml fetch];
+            [task taskItemsDone:1];
+            return (UIViewController*)self;
+        }];
+    }
+    else
+    {        
+        [task taskCompleted:self];
+    }
+
 }
 
 @end

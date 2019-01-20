@@ -18,6 +18,7 @@
 - (BOOL)processBookMarkFromURL:(NSString *)bookmark protocol:(NSString *)protocol;
 - (BOOL)processStopFromURL:(NSString *)stop;
 - (BOOL)processCommandFromURL:(NSString *)command;
+
 + (TriMetTimesAppDelegate*)sharedInstance;
 
 @end

@@ -14,19 +14,64 @@
 
 
 #import "RoutePolyline.h"
+#import "RoutePin.h"
 
 @implementation RoutePolyline
 
-@synthesize color = _color;
-@synthesize direct = _direct;
+@dynamic dashPattern;
 
-- (void)dealloc
+
+
+
+- (NSArray *)dashPattern
 {
-    self.color = nil;
+    static NSArray<NSArray *> *pattern;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        pattern = @[ @[ @1,  @1 ],
+                     @[ @3,  @5 ],
+                     @[@kPolyLineSegLength,@(kPolyLineSegLength *2)],
+                     @[@kPolyLineSegLength,@(kPolyLineSegLength *3)],
+                     @[@kPolyLineSegLength,@(kPolyLineSegLength *4)],
+                     @[ @2, @kPolyLineSegLength, @kPolyLineSegLength, @(kPolyLineSegLength*2) ]
+                     ];
+    });
     
-    [super dealloc];
+    NSArray *result = nil;
+    
+    if (_dashPatternId < pattern.count)
+    {
+        result = pattern[_dashPatternId];
+    }
+    
+    if (result == nil)
+    {
+        result = pattern[1];
+    }
+    
+    return result;
 }
 
+- (MKPolylineRenderer *)renderer
+{
+    MKPolylineRenderer *lineView = [[MKPolylineRenderer alloc] initWithPolyline:self];
+    lineView.strokeColor = self.color;
+    lineView.lineWidth = 2.0;
+    lineView.lineDashPattern = self.dashPattern;
+    lineView.lineDashPhase = self.dashPhase;
+    return lineView;
+}
+
+- (RoutePin*)routePin
+{
+    RoutePin *pin = [RoutePin data];
+    pin.desc = self.desc;
+    pin.dir = self.dir;
+    pin.color = self.color;
+    pin.route = self.route;
+    
+    return pin;
+}
 
 
 @end

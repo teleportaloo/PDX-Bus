@@ -16,16 +16,12 @@
 #import <UIKit/UIKit.h>
 
 
-@interface SegmentCell : UITableViewCell {
-	UISegmentedControl *_segment;
-}
+@interface SegmentCell : UITableViewCell 
 
-@property (nonatomic, retain) UISegmentedControl *segment;
-
+@property (nonatomic, strong) UISegmentedControl *segment;
 
 - (void)createSegmentWithContent:(NSArray*)content target:(NSObject *)target action:(SEL)action;
+
 + (CGFloat)segmentCellHeight;
-
-
 
 @end

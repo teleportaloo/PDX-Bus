@@ -17,14 +17,10 @@
 #import "StoppableFetcher.h"
 
 @interface ProcessQRCodeString : StoppableFetcher
-{
-    NSString *_stopId;
-}    
 
 @property (nonatomic, copy)   NSString *stopId;
 
 - (NSString *)extractStopId:(NSString *)originalURL;
-
 
 @end
 

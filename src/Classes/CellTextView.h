@@ -17,6 +17,6 @@
     UITextView *_view;
 }
 
-@property (nonatomic, retain) UITextView *view;
+@property (nonatomic, strong) UITextView *view;
 
 @end

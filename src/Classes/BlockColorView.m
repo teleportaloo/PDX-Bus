@@ -20,8 +20,7 @@
 
 - (void)setColor:(UIColor *)color
 {
-    [_color release];
-    _color = [color retain];
+    _color = color;
     [self setNeedsDisplay];
 }
 
@@ -45,7 +44,6 @@
 {
     self.color = nil;
     
-    [super dealloc];
 }
 
 - (void)drawRect:(CGRect)rect {

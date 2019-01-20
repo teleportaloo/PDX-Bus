@@ -29,16 +29,16 @@
 
 @interface VehicleData (VehicleUI) <MapPinColor>
 
-
 // From Annotation
 @property (nonatomic, readonly) CLLocationCoordinate2D coordinate;
 @property (nonatomic, readonly, copy) NSString *title;
 @property (nonatomic, readonly, copy) NSString *subtitle;
 
 // From MapPinColor
-@property (nonatomic, readonly) MKPinAnnotationColor pinColor;
+@property (nonatomic, readonly) MapPinColorValue pinColor;
 @property (nonatomic, readonly) bool showActionMenu;
-- (bool) mapTapped:(id<BackgroundTaskProgress>) progress;
 @property (nonatomic, readonly, copy) NSString *tapActionText;
+
+- (bool) mapTapped:(id<BackgroundTaskController>) progress;
 
 @end

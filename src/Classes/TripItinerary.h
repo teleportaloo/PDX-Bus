@@ -18,23 +18,7 @@
 #import "TripEndPoint.h"
 #import "TripLegEndPoint.h"
 
-@interface TripItinerary : NSObject {
-	NSString *                          _xdate;
-	NSString *                          _xstartTime;
-	NSString *                          _xendTime;
-	NSString *                          _xduration;
-	NSString *                          _xdistance;
-	NSString *                          _xnumberOfTransfers;
-	NSString *                          _xnumberofTripLegs;
-	NSString *                          _xwalkingTime;
-	NSString *                          _xtransitTime;
-	NSString *                          _xwaitingTime;
-	NSMutableString *                   _fare;
-	NSMutableArray<TripLeg *> *         _legs;
-	NSMutableArray<TripLegEndPoint*> *  _displayEndPoints;
-	TripLegEndPoint *                   _startPoint;
-	NSString *                          _xmessage;
-}
+@interface TripItinerary : NSObject 
 
 @property (nonatomic, copy) NSString *xwaitingTime;
 @property (nonatomic, copy) NSString *xdate;
@@ -47,15 +31,17 @@
 @property (nonatomic, copy) NSString *xnumberofTripLegs;
 @property (nonatomic, copy) NSString *xwalkingTime;
 @property (nonatomic, copy) NSString *xtransitTime;
-@property (nonatomic, retain) NSMutableArray<TripLeg *> *legs;
-@property (nonatomic, retain) NSMutableArray<TripLegEndPoint*> *displayEndPoints;
-@property (nonatomic, retain) NSMutableString *fare;
-@property (nonatomic, retain) TripLegEndPoint *startPoint;
-- (TripLeg*)getLeg:(int)item;
+@property (nonatomic, strong) NSMutableArray<TripLeg *> *legs;
+@property (nonatomic, strong) NSMutableArray<TripLegEndPoint*> *displayEndPoints;
+@property (nonatomic, strong) NSMutableString *fare;
+@property (nonatomic, strong) TripLegEndPoint *startPoint;
 @property (nonatomic, readonly) NSInteger legCount;
 @property (nonatomic, readonly, copy) NSString *travelTime;
 @property (nonatomic, readonly, copy) NSString *shortTravelTime;
 @property (nonatomic, readonly) bool hasFare;
+
+- (TripLeg*)getLeg:(int)item;
 - (NSString *)startPointText:(TripTextType)type;
+- (bool)hasBlocks;
 
 @end

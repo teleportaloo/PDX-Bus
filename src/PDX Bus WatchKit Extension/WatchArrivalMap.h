@@ -15,9 +15,10 @@
 
 #import <Foundation/Foundation.h>
 #import <WatchKit/WatchKit.h>
+#import "WatchRow.h"
 
-@interface WatchArrivalMap : NSObject
-
+@interface WatchArrivalMap : WatchRow
 
 @property (strong, nonatomic) IBOutlet WKInterfaceMap *map;
+
 @end

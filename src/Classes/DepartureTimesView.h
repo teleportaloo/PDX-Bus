@@ -19,9 +19,10 @@
 #import "TableViewControllerWithRefresh.h"
 #import "DepartureDetailView.h"
 #import "DepartureTimesDataProvider.h"
+#import <IntentsUI/IntentsUI.h>
 
 
-#define kSectionRowInit		-1
+#define kSectionRowInit        -1
 
 #define kCacheWarning NSLocalizedString(@"WARNING: No network - extrapolated times", @"error message")
 
@@ -30,67 +31,49 @@
 
 typedef NSMutableArray<NSNumber *> SECTIONROWS;
 
-@interface DepartureTimesView :  TableViewControllerWithRefresh <UIAlertViewDelegate, DepartureDetailDelegate> {
-	NSString *                                          _displayName;
-	NSMutableArray<id<DepartureTimesDataProvider>> *	_visibleDataArray;
-	NSMutableArray<XMLDepartures*> *                    _originalDataArray;
-	bool                                                _blockFilter;
-	bool                                                _blockSort;
-	NSString *                                          _savedBlock;
-	StopLocations *                                     _locationsDb;
-	NSString *                                          _stops;
-    NSMutableArray<SECTIONROWS *> *                     _sectionRows;
-	NSMutableArray<NSNumber *> *                        _sectionExpanded;
-	NSIndexPath *                                       _actionItem;
-	bool                                                _fetchingLocations;
-    XMLDepartures *                                     _singleMapItem; // weak
-	NSString *                                          _bookmarkDesc;
-	NSString *                                          _bookmarkLoc;
-    bool                                                _reloadWhenAppears;
-    bool                                                _allowSort;
-    NSUserActivity *                                    _userActivity;
-    bool                                                _updatedWatch;
-	XMLStreetcarLocations *                             _streetcarLocations;
-    NSMutableArray      *                               _vehiclesStops;
+@interface DepartureTimesView :  TableViewControllerWithRefresh <DepartureDetailDelegate, INUIAddVoiceShortcutViewControllerDelegate>
+{
+    bool  _blockFilter;
+    bool  _reloadWhenAppears;
+    bool  _updatedWatch;
 }
 
-- (void)fetchTimesForVehicleAsync:(id<BackgroundTaskProgress>)background route:(NSString *)route direction:(NSString *)direction nextLoc:(NSString*)loc block:(NSString *)block;
-- (void)fetchTimesForLocationAsync:(id<BackgroundTaskProgress>)background loc:(NSString*)loc block:(NSString *)block;
-- (void)fetchTimesForLocationAsync:(id<BackgroundTaskProgress>)background loc:(NSString*)loc title:(NSString *)title;
-- (void)fetchTimesForLocationAsync:(id<BackgroundTaskProgress>)background loc:(NSString*)loc;
-- (void)fetchTimesForLocationAsync:(id<BackgroundTaskProgress>)background loc:(NSString*)loc names:(NSArray*)names;
-- (void)fetchTimesForLocationsAsync:(id<BackgroundTaskProgress>)background stops:(NSArray *) stops;
-- (void)fetchTimesForBlockAsync:(id<BackgroundTaskProgress>)background block:(NSString*)block start:(NSString*)start stop:(NSString*) stop;
-- (void)fetchTimesForNearestStopsAsync:(id<BackgroundTaskProgress>)background location:(CLLocation *)here maxToFind:(int)max minDistance:(double)min mode:(TripMode)mode;
-- (void)fetchTimesForNearestStopsAsync:(id<BackgroundTaskProgress>)background stops:(NSArray *)stops;
-- (void)fetchTimesViaQrCodeRedirectAsync:(id<BackgroundTaskProgress>)background URL:(NSString*)url;
-- (void)fetchTimesForStopInOtherDirectionAsync:(id<BackgroundTaskProgress>)background departure:(DepartureData*)dep;
-- (void)fetchTimesForStopInOtherDirectionAsync:(id<BackgroundTaskProgress>)background departures:(XMLDepartures*)deps;
+@property (nonatomic, strong) NSMutableArray<SECTIONROWS *> *sectionRows;
+@property (nonatomic, strong) NSMutableArray<NSNumber *> * sectionExpanded;
+@property (nonatomic, strong) NSMutableArray<id<DepartureTimesDataProvider>>  *visibleDataArray;
+@property (nonatomic, strong) NSMutableArray<XMLDepartures*> *originalDataArray;
+@property (nonatomic, strong) NSMutableDictionary<NSNumber*, Detour*> *allDetours;
+@property (nonatomic, strong) NSMutableDictionary<NSString*, Route*> *allRoutes;
+@property (nonatomic, copy)   NSString *displayName;
+@property (nonatomic, strong) StopLocations *locationsDb;
+@property (nonatomic, copy)   NSString *stops;
+@property (nonatomic)         bool blockSort;
+@property (nonatomic, copy)   NSString *bookmarkLoc;
+@property (nonatomic, copy)   NSString *bookmarkDesc;
+@property (nonatomic, copy)   NSString *savedBlock;
+@property (nonatomic)         bool allowSort;
+@property (nonatomic, strong) NSMutableArray *vehicleStops;
+@property (nonatomic, strong) NSUserActivity *userActivity;
 
+- (void)fetchTimesForVehicleAsync:(id<BackgroundTaskController>)task route:(NSString *)route direction:(NSString *)direction nextLoc:(NSString*)loc block:(NSString *)block targetDeparture:(DepartureData *)targetDep;
+- (void)fetchTimesForVehicleAsync:(id<BackgroundTaskController>)task vehicleId:(NSString *)vehicleId;
+- (void)fetchTimesForLocationAsync:(id<BackgroundTaskController>)task loc:(NSString*)loc block:(NSString *)block;
+- (void)fetchTimesForLocationAsync:(id<BackgroundTaskController>)task loc:(NSString*)loc title:(NSString *)title;
+- (void)fetchTimesForLocationAsync:(id<BackgroundTaskController>)task loc:(NSString*)loc;
+- (void)fetchTimesForLocationAsync:(id<BackgroundTaskController>)task loc:(NSString*)loc names:(NSArray*)names;
+- (void)fetchTimesForBlockAsync:(id<BackgroundTaskController>)task block:(NSString*)block start:(NSString*)start stop:(NSString*) stop;
+- (void)fetchTimesForNearestStopsAsync:(id<BackgroundTaskController>)task location:(CLLocation *)here maxToFind:(int)max minDistance:(double)min mode:(TripMode)mode;
+- (void)fetchTimesForNearestStopsAsync:(id<BackgroundTaskController>)task stops:(NSArray<StopDistanceData*>*)stops;
+- (void)fetchTimesViaQrCodeRedirectAsync:(id<BackgroundTaskController>)task URL:(NSString*)url;
+- (void)fetchTimesForStopInOtherDirectionAsync:(id<BackgroundTaskController>)task departure:(DepartureData*)dep;
+- (void)fetchTimesForStopInOtherDirectionAsync:(id<BackgroundTaskController>)task departures:(XMLDepartures*)deps;
 
 - (void)refreshAction:(id)sender;
 - (void)sortByBus;
 - (void)resort;
 - (void)clearSections;
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex;
-
-+ (BOOL)canGoDeeper;
 - (void)detailsChanged;
 
-@property (nonatomic, retain) NSMutableArray<SECTIONROWS *> *sectionRows;
-@property (nonatomic, retain) NSMutableArray<NSNumber *> * sectionExpanded;
-@property (nonatomic, retain) NSMutableArray<id<DepartureTimesDataProvider>>  *      visibleDataArray;
-@property (nonatomic, retain) NSMutableArray<XMLDepartures*> *                       originalDataArray;
-@property (nonatomic, copy)   NSString *            displayName;
-@property (nonatomic, retain) StopLocations *       locationsDb;
-@property (nonatomic, copy)   NSString *            stops;
-@property (nonatomic)         bool                  blockSort;
-@property (nonatomic, retain) XMLStreetcarLocations *streetcarLocations;
-@property (nonatomic, copy)   NSString *            bookmarkLoc;
-@property (nonatomic, copy)   NSString *            bookmarkDesc;
-@property (nonatomic, retain) NSIndexPath *         actionItem;
-@property (nonatomic, copy)   NSString *            savedBlock;
-@property (nonatomic)         bool                  allowSort;
-@property (nonatomic, retain) NSMutableArray *      vehicleStops;
-@property (nonatomic, retain) NSUserActivity *      userActivity;
++ (BOOL)canGoDeeper;
+
 @end

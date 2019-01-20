@@ -18,11 +18,5 @@
 
 @implementation TripPlannerBaseView
 
-@synthesize tripQuery = _tripQuery;
-
-- (void)dealloc {
-	self.tripQuery = nil;
-	[super dealloc];
-}
 
 @end

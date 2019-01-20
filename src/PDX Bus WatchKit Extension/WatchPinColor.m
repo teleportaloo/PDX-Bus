@@ -38,6 +38,11 @@
     return self.simpleCoord;
 }
 
+- (bool)hasCoord
+{
+    return YES;
+}
+
 
 @end
 

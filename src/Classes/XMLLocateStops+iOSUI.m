@@ -25,7 +25,7 @@
 #pragma mark Error check 
 
 
-- (bool)displayErrorIfNoneFound:(id<BackgroundTaskProgress>)progress
+- (bool)displayErrorIfNoneFound:(id<BackgroundTaskController>)progress
 {
 	NSThread *thread = [NSThread currentThread]; 
 	
@@ -35,15 +35,7 @@
 		if (!thread.cancelled) 
 		{
 			[thread cancel];
-			//UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"Nearby stops"
-			//												   message:@"Network problem: please try again later."
-			//												  delegate:delegate
-			//										 cancelButtonTitle:@"OK"
-			//										 otherButtonTitles:nil] autorelease];
-			//[delegate retain];
-            //[alert show];
-            
-            [progress backgroundSetErrorMsg:@"Network problem: please try again later."];
+            [progress taskSetErrorMsg:@"Network problem: please try again later."];
             
 			return true;
 		}	
@@ -57,18 +49,9 @@
             
             NSArray *modes = @[@"bus stops", @"train stops", @"bus or train stops"];
         
-            [progress backgroundSetErrorMsg:[NSString stringWithFormat:@"No %@ were found within %@.",
-                                             modes[_mode],
+            [progress taskSetErrorMsg:[NSString stringWithFormat:@"No %@ were found within %@.",
+                                             modes[self.mode],
                                              [FormatDistance formatMetres:self.minDistance]]];
-			//UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"Nearby stops"
-			//												   message:[NSString stringWithFormat:@"No stops were found within %0.1f miles",
-			//															self.minDistance / 1609.344]
-			//
-			//												  delegate:delegate
-			//										 cancelButtonTitle:@"OK"
-			//										 otherButtonTitles:nil] autorelease];
-			//[alert performSelectorOnMainThread:@selector(show) withObject:nil waitUntilDone:NO];
-           // [alert show];
 			return true;
 		}
 	}

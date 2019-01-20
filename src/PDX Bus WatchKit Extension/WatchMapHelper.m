@@ -17,9 +17,12 @@
 #import "WatchPinColor.h"
 #import "MapAnnotationImage.h"
 
+#define kIconUp              @"icon_arrow_up.png"
+#define kIconUp2x            @"icon_arrow_up@2x.png"
+
 @implementation WatchMapHelper
 
-+ (void)displayMap:(WKInterfaceMap*)map purplePin:(CLLocation*)purplePin otherPins:(NSArray*)otherPins
++ (void)displayMap:(WKInterfaceMap*)map purplePin:(CLLocation*)purplePin otherPins:(NSArray<id<WatchPinColor>>*)otherPins
 {
     CLLocationCoordinate2D topLeftCoord;
     topLeftCoord.latitude = -90;
@@ -30,8 +33,6 @@
     bottomRightCoord.longitude = -180;
     
     MapAnnotationImage *mapAnnotionImage = [MapAnnotationImage autoSingleton];
-    
-    
     mapAnnotionImage.forceRetinaImage = YES;
     
     [map removeAllAnnotations];
@@ -53,35 +54,36 @@
         {
             id<WatchPinColor> pin = otherPins[i];
             
-            CLLocationCoordinate2D loc = pin.coord;
-        
-            topLeftCoord.longitude      = fmin(topLeftCoord.longitude, loc.longitude);
-            topLeftCoord.latitude       = fmax(topLeftCoord.latitude,  loc.latitude);
-        
-            bottomRightCoord.longitude  = fmax(bottomRightCoord.longitude, loc.longitude);
-            bottomRightCoord.latitude   = fmin(bottomRightCoord.latitude,  loc.latitude);
-            
-            if (pin.pinTint==nil)
+            if (pin.hasCoord)
             {
-                [map addAnnotation:loc withPinColor:pin.pinColor];
-            }
-            else if (pin.hasBearing)
-            {
+                CLLocationCoordinate2D loc = pin.coord;
                 
-                bool bus =  [pin.pinTint isEqual:kMapAnnotationBusColor];
-                UIImage *plainImage  = [mapAnnotionImage getImage:pin.doubleBearing mapRotation:0.0 bus:bus];
+                topLeftCoord.longitude      = fmin(topLeftCoord.longitude, loc.longitude);
+                topLeftCoord.latitude       = fmax(topLeftCoord.latitude,  loc.latitude);
                 
-                if (!bus || mapAnnotionImage.tintableImage)
+                bottomRightCoord.longitude  = fmax(bottomRightCoord.longitude, loc.longitude);
+                bottomRightCoord.latitude   = fmin(bottomRightCoord.latitude,  loc.latitude);
+                
+                if (pin.pinTint==nil)
                 {
-                    UIImage *tintedImage = [mapAnnotionImage tintImage:plainImage color:pin.pinTint];
-                    [map addAnnotation:loc withImage:tintedImage centerOffset:CGPointZero];
+                    [map addAnnotation:loc withPinColor:pin.pinColor];
                 }
-                else
+                else if (pin.hasBearing)
                 {
-                    [map addAnnotation:loc withImage:plainImage centerOffset:CGPointZero];
+                    
+                    bool bus =  [pin.pinTint isEqual:kMapAnnotationBusColor];
+                    UIImage *plainImage  = [mapAnnotionImage getImage:pin.doubleBearing mapRotation:0.0 bus:bus named:mapAnnotionImage.forceRetinaImage ? kIconUp2x : kIconUp];
+                    
+                    if (!bus || mapAnnotionImage.tintableImage)
+                    {
+                        UIImage *tintedImage = [mapAnnotionImage tintImage:plainImage color:pin.pinTint];
+                        [map addAnnotation:loc withImage:tintedImage centerOffset:CGPointZero];
+                    }
+                    else
+                    {
+                        [map addAnnotation:loc withImage:plainImage centerOffset:CGPointZero];
+                    }
                 }
-                
-                
             }
         }
     }

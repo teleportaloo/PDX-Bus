@@ -17,38 +17,35 @@
 #import "TableViewWithToolbar.h"
 #import <MessageUI/MFMailComposeViewController.h>
 #import <MessageUI/MFMessageComposeViewController.h>
+#import "InfColorPickerController.h"
+#import <EventKitUI/EventKitUI.h>
+#import <IntentsUI/IntentsUI.h>
 
 
 @interface TripPlannerResultsView : TableViewWithToolbar <MFMessageComposeViewControllerDelegate, MFMailComposeViewControllerDelegate,
-											UIAlertViewDelegate> {
-	XMLTrips *      _tripQuery;
-	int             _itinerarySectionOffset;
-	int             _smsRows;
-	int             _calRows;
-	int             _recentTripItem;
-    int             _alarmItem;
-	TripItinerary * _calendarItinerary;
-    NSUserActivity *_userActivity;
-    TripItemCell *_prototypeTripCell;
+                                                            InfColorPickerControllerDelegate, EKEventViewDelegate,INUIAddVoiceShortcutViewControllerDelegate>
+{
+    int             _itinerarySectionOffset;
+    bool            _sms;
+    bool            _cal;
+    int             _recentTripItem;
 }
 
-@property (nonatomic, retain) XMLTrips *tripQuery;
-@property (nonatomic, retain) TripItinerary *calendarItinerary;
-@property (nonatomic, retain) NSUserActivity *userActivity;
-@property (nonatomic, retain) TripItemCell *prototypeTripCell;
+@property (nonatomic, strong) XMLTrips *tripQuery;
+@property (nonatomic, strong) NSUserActivity *userActivity;
+@property (nonatomic, strong) TripItemCell *prototypeTripCell;
+@property (nonatomic, strong) EKEvent *event;
+@property (nonatomic, strong) EKEventStore *eventStore;
+@property (nonatomic, readonly, copy) NSString *fromText;
+@property (nonatomic, readonly, copy) NSString *toText;
 
 - (NSString *)getTextForLeg:(NSIndexPath *)indexPath;
-- (NSInteger)rowType:(NSIndexPath*)indexPath;
 - (NSInteger)legRows:(TripItinerary *)it;
-- (NSInteger)sectionType:(NSInteger)section;
 - (TripItinerary *)getSafeItinerary:(NSInteger)section;
-@property (nonatomic, getter=getFromText, readonly, copy) NSString *fromText;
-@property (nonatomic, getter=getToText, readonly, copy) NSString *toText;
 - (void)mailComposeController:(MFMailComposeViewController*)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError*)error;
 - (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult)result;
 - (instancetype)initWithHistoryItem:(int)item;
 - (void)setItemFromHistory:(int)item;
 - (void)setItemFromArchive:(NSDictionary *)archive;
-
 
 @end

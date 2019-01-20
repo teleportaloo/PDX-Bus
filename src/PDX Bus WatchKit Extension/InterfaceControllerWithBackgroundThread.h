@@ -20,23 +20,20 @@
 
 @interface InterfaceControllerWithBackgroundThread : WKInterfaceController<ExtentionWakeDelegate>
 {
-    NSThread *      _backgroundThread;
-    WatchContext *  _delayedContext;
     int             _progress;
     int             _total;
 }
 
-@property (atomic, retain)      NSThread *backgroundThread;
-@property (nonatomic, retain)   WatchContext *delayedContext;
+@property (atomic, strong)      NSThread *backgroundThread;
+@property (nonatomic, strong)   WatchContext *delayedContext;
+@property (nonatomic, copy)     void (^delayedBlock)(void);
 @property (nonatomic)           bool displayed;
 
 - (void)startBackgroundTask;
 - (void)cancelBackgroundTask;
-@property (nonatomic, getter=isBackgroundThreadRunning, readonly) bool backgroundThreadRunning;
-- (void)delayedPush:(WatchContext *)context;
+@property (nonatomic, readonly) bool backgroundThreadRunning;
+- (void)delayedPush:(WatchContext *)context completion:(void (^)(void))completion;
 - (void)sendProgress:(int)progress total:(int)total;
-
-
 
 - (id)backgroundTask;
 - (void)taskFinishedMainThread:(id)result;

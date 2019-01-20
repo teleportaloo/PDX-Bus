@@ -17,11 +17,9 @@
 #import "TripReturnUserRequest.h"
 #import "TableViewWithToolbar.h"
 
-@interface TripPlannerBaseView : TableViewWithToolbar {
-	XMLTrips *_tripQuery;
-}
+@interface TripPlannerBaseView : TableViewWithToolbar
 
-@property (nonatomic, retain) XMLTrips *tripQuery;
+@property (nonatomic, strong) XMLTrips *tripQuery;
 
 
 @end

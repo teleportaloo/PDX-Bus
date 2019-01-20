@@ -20,23 +20,15 @@
 #import "TripPlannerBaseView.h"
 
 
-@interface TripPlannerDateView : TripPlannerBaseView  {
-	UIDatePicker *  _datePickerView;
-	UIPickerView *  _pickerView;
-	NSArray *       _userFaves;
-	bool            _popBack;
-	
-}
+@interface TripPlannerDateView : TripPlannerBaseView
 
-@property (nonatomic, retain) NSArray *userFaves;
-@property (nonatomic, retain) UIDatePicker *datePickerView;
-@property (nonatomic, retain) UIPickerView *pickerView;
-@property (nonatomic)		  bool popBack;
+@property (nonatomic, strong) NSArray *userFaves;
+@property (nonatomic, strong) UIDatePicker *datePickerView;
+@property (nonatomic, strong) UIPickerView *pickerView;
+@property (nonatomic)          bool popBack;
 
 - (CGRect)pickerFrameWithSize:(CGSize)size;
 - (void)initializeFromBookmark:(TripUserRequest *)req;
-
--(void)nextScreen:(UINavigationController *)controller taskContainer:(BackgroundTaskContainer*)taskContainer;
-
+- (void)nextScreen:(UINavigationController *)controller taskContainer:(BackgroundTaskContainer*)taskContainer;
 
 @end

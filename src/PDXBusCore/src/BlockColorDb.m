@@ -22,9 +22,6 @@
 
 @implementation BlockColorDb
 
-@synthesize colorMap = _colorMap;
-@synthesize file     = _file;
-
 #define kKeyR   @"r"
 #define kKeyG   @"g"
 #define kKeyB   @"b"
@@ -36,7 +33,7 @@
 
 - (void)writeToFile
 {
-    [self.file writeDictionary:self.colorMap];
+    [self.file writeDictionaryBinary:self.colorMap];
 }
 
 - (void)openFile
@@ -44,21 +41,29 @@
     if (_colorMap == nil)
     {
         [self readFromFile];
+        self.colorCache = [NSMutableDictionary dictionary];
     }
 }
 
 - (void)memoryWarning
 {
     DEBUG_LOG(@"Releasing color map %p\n", (id)_colorMap);
-    [_colorMap release];
-    _colorMap = nil;
+    self.colorMap = nil;
+    self.colorCache = [NSMutableDictionary dictionary];
 }
 
 - (void)readFromFile
 {
     if (self.file.urlToSharedFile !=nil)
     {
-        self.colorMap = [NSMutableDictionary dictionaryWithContentsOfURL:self.file.urlToSharedFile];
+        NSPropertyListFormat format;
+        
+        self.colorMap =  [self.file readFromFile:&format];
+        
+        if (self.colorMap && format != NSPropertyListBinaryFormat_v1_0)
+        {
+            [self writeToFile];
+        };
     }
     
     if (self.colorMap == nil)
@@ -68,23 +73,25 @@
 }
 
 - (instancetype)init {
-	if ((self = [super init]))
-	{
+    if ((self = [super init]))
+    {
         self.colorMap = [NSMutableDictionary dictionary];
         
-        self.file = [[[SharedFile alloc] initWithFileName:blockFile initFromBundle:NO] autorelease];
+        self.file = [SharedFile fileWithName:blockFile initFromBundle:NO];
         
         [MemoryCaches addCache:self];
 
         [self readFromFile];
+        
+        self.colorCache = [NSMutableDictionary dictionary];
     }
     return self;
 }
 
 - (void)clearAll
 {
-    [_colorMap release];
-     _colorMap = [[NSMutableDictionary alloc] init];
+    self.colorCache = [NSMutableDictionary dictionary];
+    self.colorMap = [NSMutableDictionary dictionary];
     
     [self writeToFile];
     [SafeUserData sharedInstance].favesChanged = YES;
@@ -92,12 +99,9 @@
 
 - (void)dealloc
 {
-    self.colorMap = nil;
-    self.file     = nil;
     
     [MemoryCaches removeCache:self];
     
-    [super dealloc];
 }
 
 + (BlockColorDb *)sharedInstance
@@ -112,12 +116,9 @@
     return singleton;
 }
 
-- (CGFloat)getComponent:(NSString*)key fromDict:(NSDictionary *)dict
-{
-    return (CGFloat)((NSNumber*)dict[key]).floatValue;
-}
+#define GET_COMPONENT(key, dict) ((CGFloat)((NSNumber*)dict[key]).floatValue)
 
-- (UIColor *) colorForBlock:(NSString *)block
+- (UIColor *)colorForBlock:(NSString *)block
 {
     [self openFile];
     
@@ -126,17 +127,29 @@
         return [UIColor clearColor];
     }
     
-    NSDictionary *item =_colorMap[block];
+    UIColor *col = _colorCache[block];
     
-    if (item == nil)
+    if (col !=nil)
     {
-        return nil;
+        return col;
+    }
+    else
+    {
+        NSDictionary *item =_colorMap[block];
+    
+        if (item == nil)
+        {
+            return nil;
+        }
+        
+        col = [UIColor colorWithRed:GET_COMPONENT(kKeyR,item)
+                               green:GET_COMPONENT(kKeyG,item)
+                                blue:GET_COMPONENT(kKeyB,item)
+                               alpha:GET_COMPONENT(kKeyA,item)];
+        [_colorCache setObject:col forKey:block];
     }
     
-    return [UIColor colorWithRed:[self getComponent:kKeyR fromDict:item]
-                           green:[self getComponent:kKeyG fromDict:item]
-                            blue:[self getComponent:kKeyB fromDict:item]
-                           alpha:[self getComponent:kKeyA fromDict:item]];
+    return col;
 }
 
 - (void)addColor:(UIColor *)color forBlock:(NSString *)block description:(NSString*)desc
@@ -148,10 +161,10 @@
     CGFloat blue;
     CGFloat alpha;
     
-    
     if (color == nil)
     {
         [_colorMap removeObjectForKey:block];
+        [_colorCache removeObjectForKey:block];
         [self writeToFile];
         return;
     }
@@ -164,18 +177,7 @@
                                                                                 kKeyA : @(alpha),
                                                                                 kKeyD : desc }];
     
-    NSMutableDictionary *oldItem = _colorMap[block];
-    
-    if (oldItem == nil)
-    {
-        
-        item[kKeyT] = @([NSDate date].timeIntervalSinceReferenceDate);
-    }
-    else
-    {
-        item[kKeyT] = oldItem[kKeyT];
-    }
-    
+    item[kKeyT] = @([NSDate date].timeIntervalSinceReferenceDate);
     
     while (_colorMap.count > 50)
     {
@@ -202,11 +204,11 @@
         }
         
         [_colorMap removeObjectForKey:oldestKey];
+        [_colorCache removeObjectForKey:oldestKey];
     }
     
-    
     _colorMap[block] = item;
-    
+    _colorCache[block] = color;
     
     [self writeToFile];
     
@@ -235,18 +237,19 @@
 }
 
 
-- (NSDictionary*)getDB
+- (NSDictionary*)db
 {
     [self openFile];
     
     return _colorMap;
 }
 
-- (void)setDB:(NSDictionary*)db
+- (void)setDb:(NSDictionary*)db
 {
     [self openFile];
     
     self.colorMap = [NSMutableDictionary dictionaryWithDictionary:db];
+    self.colorCache = [NSMutableDictionary dictionary];
     
     [self writeToFile];
 }
@@ -269,13 +272,14 @@
 }
 
 + (UIImage *)imageWithColor:(UIColor *)color {
+    
     CGRect rect = CGRectMake(0.0f, 0.0f, 24.0f, 24.0f);
+    
+    /* Note:  This is a graphics context block */
     UIGraphicsBeginImageContextWithOptions(rect.size, NO, 0.0);
     CGContextRef context = UIGraphicsGetCurrentContext();
-    
     CGContextSetFillColorWithColor(context, color.CGColor);
     CGContextFillRect(context, rect);
-    
     UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     

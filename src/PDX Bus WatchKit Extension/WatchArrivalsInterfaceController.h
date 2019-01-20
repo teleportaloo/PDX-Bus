@@ -23,39 +23,34 @@
 
 @interface WatchArrivalsInterfaceController : InterfaceControllerWithCommuterBookmark <TriMetXMLDelegate>
 {
-    WatchArrivalsContext *  _arrivalsContext;
-    NSTimer *               _refreshTimer;
-    XMLDepartures *         _departures;
-    XMLDetours *            _detours;
-    NSInteger               _arrivalsStartRow;
-    bool                    _mapUpdated;
-    NSDate *                _lastUpdate;
     int                     _tasks;
     int                     _tasksDone;
 }
-
 @property (strong, nonatomic) IBOutlet WKInterfaceLabel *loadingLabel;
 @property (strong, nonatomic) IBOutlet WKInterfaceButton *nextButton;
 @property (strong, nonatomic) IBOutlet WKInterfaceTable *arrivalsTable;
-@property (nonatomic, retain) WatchArrivalsContext *arrivalsContext;
-@property (nonatomic, retain) NSTimer *refreshTimer;
-@property (atomic, retain) NSDate *lastUpdate;
-- (IBAction)doRefreshMenuItem;
-- (IBAction)menuItemNearby;
-- (IBAction)menuItemCommute;
-@property (nonatomic, retain) XMLDepartures *departures;
-@property (nonatomic, retain) XMLDetours    *detours;
-
+@property (nonatomic, strong) WatchArrivalsContext *arrivalsContext;
+@property (nonatomic, strong) NSTimer *refreshTimer;
+@property (atomic, strong) NSDate *lastUpdate;
+@property (nonatomic, strong) XMLDepartures *departures;
+@property (nonatomic, strong) NSMutableArray<Detour*> *systemWideDetours;
+@property (nonatomic, strong) NSMutableArray<Detour*> *stopDetours;
 @property (strong, nonatomic) IBOutlet WKInterfaceLabel *labelRefreshing;
 @property (strong, nonatomic) IBOutlet WKInterfaceLabel *distanceLabel;
 @property (strong, nonatomic) IBOutlet WKInterfaceLabel *stopDescription;
-- (IBAction)menuItemHome;
-- (IBAction)nextButtonTapped;
 @property (strong, nonatomic) IBOutlet WKInterfaceGroup *navGroup;
-@property (nonatomic, retain) DepartureData *detailDeparture;
+@property (nonatomic, strong) DepartureData *detailDeparture;
 @property (nonatomic, copy)   NSString *detailStreetcarId;
 @property (strong, nonatomic) IBOutlet WKInterfaceGroup *loadingGroup;
 @property (nonatomic, copy)   NSString *progressTitle;
+
+- (IBAction)swipeLeft:(id)sender;
+- (IBAction)swipeDown:(id)sender;
+- (IBAction)doRefreshMenuItem;
+- (IBAction)menuItemNearby;
+- (IBAction)menuItemCommute;
+- (IBAction)menuItemHome;
+- (IBAction)nextButtonTapped;
 - (IBAction)homeButtonTapped;
 
 @end

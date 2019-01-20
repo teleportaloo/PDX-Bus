@@ -17,25 +17,22 @@
 #import "DepartureData.h"
 #import "MemoryCaches.h"
 
+@class VehicleData;
+
 @interface XMLStreetcarLocations : NextBusXML <ClearableCache> {
-	NSMutableDictionary *_locations;
-	TriMetTime _lastTime;
-    NSString *_route;
+    TriMetTime _lastTime;
 }
  
 
-@property (nonatomic, retain) NSMutableDictionary *locations;
+@property (nonatomic, strong) NSMutableDictionary<NSString*, VehicleData*> *locations;
 @property (nonatomic, copy)   NSString *route;
 
-
-- (BOOL)getLocations;
-- (void)insertLocation:(DepartureData *)dep;
 - (instancetype) initWithRoute:(NSString *)route;
+- (void)insertLocation:(DepartureData *)dep;
+- (BOOL)getLocations;
 
-+ (NSSet *)getStreetcarRoutesInDepartureArray:(NSArray *)deps;
-+ (void)insertLocationsIntoDepartureArray:(NSArray *)deps forRoutes:(NSSet *)routes;
-
-+ (XMLStreetcarLocations*) autoSingletonForRoute:(NSString *)route;
-
++ (void)insertLocationsIntoDepartureArray:(NSArray *)deps forRoutes:(NSSet<NSString*> *)routes;
++ (NSSet<NSString*> *)getStreetcarRoutesInDepartureArray:(NSArray *)deps;
++ (XMLStreetcarLocations*) sharedInstanceForRoute:(NSString *)route;
 
 @end

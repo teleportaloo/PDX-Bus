@@ -1,0 +1,8 @@
+{
+  "textProvider" : {
+    "class" : "CLKSimpleTextProvider",
+    "text" : "PDX BUS"
+  },
+  "class" : "CLKComplicationTemplateUtilitarianSmallFlat",
+  "version" : 30000
+}

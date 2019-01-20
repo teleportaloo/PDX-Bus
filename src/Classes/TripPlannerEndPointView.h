@@ -25,30 +25,25 @@
 #import <ContactsUI/ContactsUI.h>
 
 
-@interface TripPlannerEndPointView: TripPlannerBaseView <EditableTableViewCellDelegate, ReturnStopId, ABPeoplePickerNavigationControllerDelegate, CNContactPickerDelegate> {
-	
-	bool                _from;
-	UITextField *       _placeNameField;
-	bool                _keyboardUp;
-	CellTextField *     _editCell;
-	UIViewController *  _popBackTo;
+@interface TripPlannerEndPointView: TripPlannerBaseView <EditableTableViewCellDelegate, ReturnStopId, ABPeoplePickerNavigationControllerDelegate, CNContactPickerDelegate>
+{
+    bool                _keyboardUp;
 }
 
 @property (nonatomic) bool from;
-@property (nonatomic, retain) UITextField *placeNameField;
-@property (nonatomic, retain) CellTextField *editCell;
-@property (nonatomic, retain) UIViewController *popBackTo;
-
-
+@property (nonatomic, strong) UITextField *placeNameField;
+@property (nonatomic, strong) CellTextField *editCell;
+@property (nonatomic, strong) UIViewController *popBackTo;
 @property (nonatomic, readonly, strong) UITextField *createTextField_Rounded;
+@property (nonatomic, readonly, strong) UIViewController *controller;
+@property (nonatomic, readonly, strong) TripEndPoint *endPoint;
+
 - (void)cellDidEndEditing:(EditableTableViewCell *)cell;
-- (void) browseForStop;
-- (void) selectFromRailMap;
-- (void) selectedStop:(NSString *)stopId;
-@property (nonatomic, getter=getController, readonly, strong) UIViewController *controller;
+- (void)browseForStop;
+- (void)selectFromRailMap;
+- (void)selectedStop:(NSString *)stopId;
 - (void)gotPlace:(NSString *)place setUiText:(bool)setText additionalInfo:(NSString *)info;
 - (void)cancelAction:(id)sender;
-@property (nonatomic, readonly, strong) TripEndPoint *endPoint;
 - (void)initEndPoint;
 - (void)nextScreen;
 

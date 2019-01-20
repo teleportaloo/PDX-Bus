@@ -21,58 +21,42 @@
 #define kDictUserRequestHistorical @"historical"
 
 typedef enum {
-	TripAskForTime,
-	TripDepartAfterTime,
-	TripArriveBeforeTime
+    TripAskForTime,
+    TripDepartAfterTime,
+    TripArriveBeforeTime
 } TripTimeChoice;
 
-
 @interface TripUserRequest : DataFactory
-{
-	TripEndPoint *  _fromPoint;
-	TripEndPoint *  _toPoint;
-	TripMode		_tripMode;
-	TripMin			_tripMin;
-	int				_maxItineraries;
-	float			_walk;
-	NSDate *        _dateAndTime;
-	bool			_arrivalTime;
-	TripTimeChoice  _timeChoice;
-    bool            _historical;
-}
 
-@property (nonatomic, retain) TripEndPoint *fromPoint;
-@property (nonatomic, retain) TripEndPoint *toPoint;
-@property (nonatomic)	      TripMode		tripMode;
-@property (nonatomic)		  TripMin		tripMin;
-@property (nonatomic)		  int			maxItineraries;
-@property (nonatomic)		  float			walk;
-@property (nonatomic)		  bool			arrivalTime;
-@property (nonatomic, retain) NSDate *      dateAndTime;
-@property (nonatomic)		  TripTimeChoice timeChoice;
+@property (nonatomic, strong) TripEndPoint *fromPoint;
+@property (nonatomic, strong) TripEndPoint *toPoint;
+@property (nonatomic)          TripMode        tripMode;
+@property (nonatomic)          TripMin        tripMin;
+@property (nonatomic)          int            maxItineraries;
+@property (nonatomic)          float            walk;
+@property (nonatomic)          bool            arrivalTime;
+@property (nonatomic, strong) NSDate *      dateAndTime;
+@property (nonatomic)          TripTimeChoice timeChoice;
 @property (nonatomic)         bool          historical;
-
-@property (nonatomic, getter=getMode, readonly, copy) NSString *mode;
-@property (nonatomic, getter=getMin, readonly, copy) NSString *min;
+@property (nonatomic, readonly, copy) NSString *mode;
+@property (nonatomic, readonly, copy) NSString *min;
 @property (nonatomic, readonly, copy) NSString *minToString;
 @property (nonatomic, readonly, copy) NSString *modeToString;
-
-+ (instancetype)fromDictionary:(NSDictionary *)dict;
-- (instancetype)init;
-
 @property (nonatomic, readonly, copy) NSMutableDictionary *toDictionary;
-- (bool)readDictionary:(NSDictionary *)dict;
-- (bool)equalsTripUserRequest:(TripUserRequest*)userRequest;
-
-@property (nonatomic, getter=getTimeType, readonly, copy) NSString *timeType;
-
-- (NSString*)getDateAndTime;
+@property (nonatomic, readonly, copy) NSString *timeType;
 @property (nonatomic, readonly, copy) NSString *tripName;
 @property (nonatomic, readonly, copy) NSString *shortName;
 @property (nonatomic, readonly, copy) NSString *optionsAccessability;
 @property (nonatomic, readonly, copy) NSString *optionsDisplayText;
-- (void)clearGpsNames;
 
+- (instancetype)init;
+- (void)clearGpsNames;
+- (bool)readDictionary:(NSDictionary *)dict;
+- (bool)equalsTripUserRequest:(TripUserRequest*)userRequest;
+- (NSString*)getDateAndTime;
+- (NSUserActivity*)userActivityWithTitle:(NSString*)title;
+
++ (instancetype)fromDictionary:(NSDictionary *)dict;
 
 @end
 

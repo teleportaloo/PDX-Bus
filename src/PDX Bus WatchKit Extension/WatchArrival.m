@@ -14,23 +14,20 @@
 
 
 #import "WatchArrival.h"
+#import "WatchArrivalsContext.h"
 
 @implementation WatchArrival
 
-- (void)dealloc
+
++ (NSString *)identifier
 {
-    self.lineColor  = nil;
-    self.blockColor = nil;
-    self.exception  = nil;
-    self.heading    = nil;
-    self.mins       = nil;
-    self.stale      = nil;
-    
-    [super dealloc];
+    return @"Arrival";
 }
 
--(void)displayDeparture:(DepartureData *)dep
+- (void)populate:(XMLDepartures *)xml departures:(NSArray<DepartureData*>*)deps
 {
+    DepartureData *dep = deps[self.index.integerValue];
+
     if (dep.errorMessage)
     {
         [self.heading setText:dep.errorMessage];
@@ -43,8 +40,8 @@
     {
         [self.heading setAttributedText:dep.headingWithStatus];
         [self.mins    setText:dep.formattedMinsToArrival];
-        [self.mins    setTextColor:dep.getFontColor];
-        [self.lineColor setImage:dep.getRouteColorImage];
+        [self.mins    setTextColor:dep.fontColor];
+        [self.lineColor setImage:dep.routeColorImage];
 
         self.blockColor.image = dep.blockImageColor;
     
@@ -63,6 +60,28 @@
         self.stale.hidden = !dep.stale;
         
     }
+}
+
+- (bool)select:(XMLDepartures *)xml from:(WKInterfaceController *)from context:(WatchArrivalsContext*)context
+{
+    WatchArrivalsContext *detailContext = [context clone];
+    
+    if (detailContext == nil)
+    {
+        detailContext = [[WatchArrivalsContext alloc] init];
+    }
+    DepartureData *data = xml[self.index.integerValue];
+    
+    detailContext.detailBlock   = data.block;
+    detailContext.locid         = context.locid;
+    detailContext.stopDesc      = context.stopDesc;
+    detailContext.navText       = context.navText;
+    detailContext.departures    = xml;
+    
+    [detailContext pushFrom:from];
+    
+    
+    return YES;
 }
 
 @end

@@ -39,31 +39,12 @@ enum SECTIONS_AND_ROWS
 
 @implementation LocatingView
 
-@synthesize progressInd			= _progressInd;
-@synthesize locationManager		= _locationManager;
-@synthesize lastLocation		= _lastLocation;
-@synthesize progressCell		= _progressCell;
-@synthesize timeStamp			= _timeStamp;
-@synthesize failed              = _failed;
-@synthesize accuracy            = _accuracy;
-@synthesize delegate            = _delegate;
-@synthesize annotation          = _anotation;
-
 - (void)dealloc {
     if (self.locationManager)
     {
         [self.locationManager stopUpdatingLocation];
         self.locationManager.delegate	= nil;
-    }
-	self.locationManager			= nil;
-	self.progressInd				= nil;
-	self.lastLocation				= nil;
-	self.progressCell				= nil;
-	self.timeStamp					= nil;
-    self.delegate                   = nil;
-    self.annotation                 = nil;
-	
-    [super dealloc];
+    }	
 }
 
 - (instancetype) init
@@ -85,7 +66,7 @@ enum SECTIONS_AND_ROWS
 {
     if (!_triedToAuthorize)
     {
-        self.locationManager = [[[CLLocationManager alloc] init] autorelease];
+        self.locationManager = [[CLLocationManager alloc] init];
         self.locationManager.delegate = self; // Tells the location manager to send updates to this object
         
         [self.locationManager requestAlwaysAuthorization];
@@ -123,7 +104,7 @@ enum SECTIONS_AND_ROWS
 #else
     NSDate *soon = [[NSDate date] dateByAddingTimeInterval:0.2];
 #endif
-	NSTimer *timer = [[[NSTimer alloc] initWithFireDate:soon interval:0.1 target:self selector:@selector(delayedCompletion:) userInfo:nil repeats:NO] autorelease];
+	NSTimer *timer = [[NSTimer alloc] initWithFireDate:soon interval:0.1 target:self selector:@selector(delayedCompletion:) userInfo:nil repeats:NO];
 	[[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
 	
 	return true;
@@ -131,7 +112,7 @@ enum SECTIONS_AND_ROWS
 
 #pragma mark ViewControllerBase methods
 
-- (UITableViewStyle) getStyle
+- (UITableViewStyle) style
 {
 	return UITableViewStyleGrouped;
 }
@@ -172,15 +153,17 @@ enum SECTIONS_AND_ROWS
 									  target:self
 									  action:@selector(refreshAction:)];
 	self.navigationItem.rightBarButtonItem = refreshButton;
-	[refreshButton release];
 
 }
 
 
 - (void)refreshAction:(id)sender
 {
-	[self startLocating];
-    [self reloadData];
+    if (!self.backgroundTask.running)
+    {
+        [self startLocating];
+        [self reloadData];
+    }
 }
 
 - (void)loadView
@@ -225,64 +208,67 @@ enum SECTIONS_AND_ROWS
 
 #pragma mark UI helper functions
 
-- (int)LocationTextTag
+- (int)locationTextTag
 {
 	return TEXT_TAG;
 }
 
 - (UITableViewCell *)accuracyCellWithReuseIdentifier:(NSString *)identifier {
-	
-	/*
-	 Create an instance of UITableViewCell and add tagged subviews for the name, local time, and quarter image of the time zone.
-	 */
-	CGRect rect;
-	
-	UITableViewCell *cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier] autorelease];
-	
+    
+    /*
+     Create an instance of UITableViewCell and add tagged subviews for the name, local time, and quarter image of the time zone.
+     */
+    CGRect rect;
+    
+    UITableViewCell *cell = [self tableView:self.table cellWithReuseIdentifier:identifier];
+    
+    if ([cell.contentView viewWithTag:PROGRESS_TAG]==nil)
+    {
+        
 #define LEFT_COLUMN_OFFSET 20.0
 #define LEFT_COLUMN_WIDTH 30.0
 #define LEFT_COLUMN_HEIGHT 35.0
-	
+        
 #define MAIN_FONT_SIZE 16.0
 #define LABEL_HEIGHT (kLocatingRowHeight - 10.0)
 #define LABEL_COLUMN_OFFSET (LEFT_COLUMN_OFFSET + LEFT_COLUMN_WIDTH + 5.0)
 #define LABEL_COLUMN_WIDTH  (260.0 - LEFT_COLUMN_WIDTH)
-	
-	CGRect frame = CGRectMake(LEFT_COLUMN_OFFSET, (kLocatingRowHeight - LEFT_COLUMN_HEIGHT) / 2.0, LEFT_COLUMN_WIDTH, LEFT_COLUMN_HEIGHT);
-	self.progressInd = [[[UIActivityIndicatorView alloc] initWithFrame:frame] autorelease];
-	self.progressInd.activityIndicatorViewStyle = UIActivityIndicatorViewStyleGray;
-	self.progressInd.hidesWhenStopped = YES;
-	[self.progressInd sizeToFit];
-	self.progressInd.autoresizingMask =  (UIViewAutoresizingFlexibleTopMargin |
-                                          UIViewAutoresizingFlexibleBottomMargin);
-    self.progressInd.tag = PROGRESS_TAG;
-	[cell.contentView addSubview:self.progressInd];
-	
-	
-	/*
-	 Create labels for the text fields; set the highlight color so that when the cell is selected it changes appropriately.
-	 */
-	UILabel *label;
-	
-	rect = CGRectMake(LABEL_COLUMN_OFFSET, (kLocatingRowHeight - LABEL_HEIGHT) / 2.0, LABEL_COLUMN_WIDTH, LABEL_HEIGHT);
-	label = [[UILabel alloc] initWithFrame:rect];
-	label.tag = TEXT_TAG;
-	label.font = [UIFont boldSystemFontOfSize:MAIN_FONT_SIZE];
-	label.adjustsFontSizeToFitWidth = NO;
-	label.numberOfLines = 0;
-	label.lineBreakMode = NSLineBreakByWordWrapping;
-	[cell.contentView addSubview:label];
-	label.highlightedTextColor = [UIColor whiteColor];
-	label.textColor  = [UIColor blackColor];
-	label.autoresizingMask =  (UIViewAutoresizingFlexibleWidth);
-	label.backgroundColor = [UIColor clearColor];
-	[label release];
-	
-	[cell.contentView layoutSubviews];
-	
-	self.progressCell = cell;
-	
-	return cell;
+        
+        CGRect frame = CGRectMake(LEFT_COLUMN_OFFSET, (kLocatingRowHeight - LEFT_COLUMN_HEIGHT) / 2.0, LEFT_COLUMN_WIDTH, LEFT_COLUMN_HEIGHT);
+        self.progressInd = [[UIActivityIndicatorView alloc] initWithFrame:frame];
+        self.progressInd.activityIndicatorViewStyle = UIActivityIndicatorViewStyleGray;
+        self.progressInd.hidesWhenStopped = YES;
+        [self.progressInd sizeToFit];
+        self.progressInd.autoresizingMask =  (UIViewAutoresizingFlexibleTopMargin |
+                                              UIViewAutoresizingFlexibleBottomMargin);
+        self.progressInd.tag = PROGRESS_TAG;
+        [cell.contentView addSubview:self.progressInd];
+        
+        
+        /*
+         Create labels for the text fields; set the highlight color so that when the cell is selected it changes appropriately.
+         */
+        UILabel *label;
+        
+        rect = CGRectMake(LABEL_COLUMN_OFFSET, (kLocatingRowHeight - LABEL_HEIGHT) / 2.0, LABEL_COLUMN_WIDTH, LABEL_HEIGHT);
+        label = [[UILabel alloc] initWithFrame:rect];
+        label.tag = TEXT_TAG;
+        label.font = [UIFont boldSystemFontOfSize:MAIN_FONT_SIZE];
+        label.adjustsFontSizeToFitWidth = NO;
+        label.numberOfLines = 0;
+        label.lineBreakMode = NSLineBreakByWordWrapping;
+        [cell.contentView addSubview:label];
+        label.highlightedTextColor = [UIColor whiteColor];
+        label.textColor  = [UIColor blackColor];
+        label.autoresizingMask =  (UIViewAutoresizingFlexibleWidth);
+        label.backgroundColor = [UIColor clearColor];
+        
+        [cell.contentView layoutSubviews];
+        
+        self.progressCell = cell;
+    }
+    
+    return cell;
 }
 
 - (void)delayedCompletion:(NSTimer*)theTimer
@@ -304,7 +290,7 @@ enum SECTIONS_AND_ROWS
         SimpleAnnotation *annotLoc = [SimpleAnnotation annotation];
     
         annotLoc.pinTitle = @"Here!";
-        annotLoc.pinColor = MKPinAnnotationColorRed;
+        annotLoc.pinColor = MAP_PIN_COLOR_RED;
         annotLoc.coordinate = self.lastLocation.coordinate;
     
         [self.mapView addAnnotation:annotLoc];
@@ -335,11 +321,10 @@ enum SECTIONS_AND_ROWS
 #pragma mark Location Manager callbacks
 
 - (void)locationManager:(CLLocationManager *)manager
-	didUpdateToLocation:(CLLocation *)newLocation
-		   fromLocation:(CLLocation *)oldLocation
+     didUpdateLocations:(NSArray<CLLocation *> *)locations
 {
-	
-	
+    CLLocation *newLocation = locations.lastObject;
+
 	if (newLocation.timestamp.timeIntervalSinceNow < MAX_AGE)
 	{
 		// too old!
@@ -429,12 +414,9 @@ enum SECTIONS_AND_ROWS
     {
         case kLocatingAccuracy:
         {
-            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kLocatingAccuracy)];
-            if (cell == nil) {
-                cell = [self accuracyCellWithReuseIdentifier:MakeCellId(kLocatingAccuracy)];
-            }
-            
-            UILabel* text = (UILabel *)[cell.contentView viewWithTag:[self LocationTextTag]];
+            UITableViewCell *cell =  [self accuracyCellWithReuseIdentifier:MakeCellId(kLocatingAccuracy)];
+        
+            UILabel* text = (UILabel *)[cell.contentView viewWithTag:[self locationTextTag]];
             
             self.progressInd = (UIActivityIndicatorView*)[cell.contentView viewWithTag:PROGRESS_TAG];
             
@@ -467,15 +449,13 @@ enum SECTIONS_AND_ROWS
                 [cell setAccessibilityHint:nil];
             }
             
-            [self updateAccessibility:cell indexPath:indexPath text:text.text alwaysSaySection:YES];
+            [self updateAccessibility:cell];
             return cell;
         }
         case kLocatingStop:
         {
-            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kLocatingStop)];
-            if (cell == nil) {
-                cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kLocatingStop)] autorelease];
-            }
+            UITableViewCell *cell = [self tableView:tableView cellWithReuseIdentifier:MakeCellId(kLocatingStop)];
+
             if (_waitingForLocation)
             {
                 cell.textLabel.text = NSLocalizedString(@"Cancel", @"button text");
@@ -486,10 +466,10 @@ enum SECTIONS_AND_ROWS
             }
             cell.textLabel.textAlignment = NSTextAlignmentCenter;
             cell.accessoryType = UITableViewCellAccessoryNone;
-            // cell.imageView.image = [self getActionIcon:kIconCancel];
+            // cell.imageView.image = [self getIcon:kIconCancel];
             cell.textLabel.font = self.basicFont;
             
-            [self updateAccessibility:cell indexPath:indexPath text:cell.textLabel.text alwaysSaySection:YES];
+            [self updateAccessibility:cell];
             return cell;
         }
         case kLocatingMap:

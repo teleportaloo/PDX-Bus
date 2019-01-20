@@ -26,23 +26,16 @@
 
 #define kSectionVehicles   0
 #define kSectionDisclaimer 1
-#define kSections		   2
+#define kSections           2
 
-@synthesize locator = _locator;
-
-- (void) dealloc
-{
-    self.locator = nil;
-    [super dealloc];
-}
 
 - (instancetype)init {
-	if ((self = [super init]))
-	{
+    if ((self = [super init]))
+    {
         self.title = NSLocalizedString(@"Nearest Vehicles", @"page title");
         _firstTime  = YES;
-	}
-	return self;
+    }
+    return self;
 }
 
 - (void)didReceiveMemoryWarning
@@ -78,81 +71,74 @@
     
 }
 
-- (void)fetchNearestVehiclesAsync:(id<BackgroundTaskProgress>)background location:(CLLocation *)here maxDistance:(double)dist
+- (void)fetchNearestVehiclesAsync:(id<BackgroundTaskController>)task location:(CLLocation *)here maxDistance:(double)dist backgroundRefresh:(bool)backgroundRefresh
 {
-	self.backgroundTask.callbackWhenFetching = background;
-	
-    self.locator = [XMLLocateVehicles xml];
-	
-	self.locator.location = here;
-	self.locator.dist     = dist;
-    
-    [self runAsyncOnBackgroundThread:^{
-        NSThread *thread = [NSThread currentThread];
+    [task taskRunAsync:^{
+        self.backgroundRefresh = backgroundRefresh;
         
-        [self.backgroundTask.callbackWhenFetching backgroundStart:1 title:@"getting vehicles"];
+        self.locator = [XMLLocateVehicles xml];
         
-        [self.locator findNearestVehicles:nil direction:nil blocks:nil];
+        self.locator.location = here;
+        self.locator.dist     = dist;
+        
+        [task taskStartWithItems:1 title:@"getting vehicles"];
+        
+        [self.locator findNearestVehicles:nil direction:nil blocks:nil vehicles:nil];
         
         if (self.locator.count == 0)
         {
-            [thread cancel];
-            [self.self.backgroundTask.callbackWhenFetching backgroundSetErrorMsg:kNoVehicles];
+            [task taskCancel];
+            [task taskSetErrorMsg:kNoVehicles];
         }
-        
-        [self.backgroundTask.callbackWhenFetching backgroundCompleted:self];
-        
+        return self;
     }];
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-	return kSections;
+    return kSections;
 }
 
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-	switch (section)
-	{
-		case kSectionVehicles:
-		{
-			return self.locator.count;
-		}
-		case kSectionDisclaimer:
-			return 1;
-	}
-	return 1;
+    switch (section)
+    {
+        case kSectionVehicles:
+        {
+            return self.locator.count;
+        }
+        case kSectionDisclaimer:
+            return 1;
+    }
+    return 1;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	switch (indexPath.section)
-	{
-		case kSectionVehicles:
+    switch (indexPath.section)
+    {
+        case kSectionVehicles:
             return DEPARTURE_CELL_HEIGHT;
-		case kSectionDisclaimer:
-			return kDisclaimerCellHeight;
-	}
-	return 1;
-	
+        case kSectionDisclaimer:
+            return kDisclaimerCellHeight;
+    }
+    return 1;
+    
 }
 
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-	UITableViewCell *cell = nil;
-	
-	switch (indexPath.section)
-	{
+    UITableViewCell *cell = nil;
+    
+    switch (indexPath.section)
+    {
         case kSectionVehicles:
-		{
-			cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionVehicles)];
-			if (cell == nil) {
-                cell = [DepartureCell genericWithReuseIdentifier:MakeCellId(kSectionVehicles)];
-            }
-            DepartureCell *dcell = (DepartureCell *)cell;
+        {
+            DepartureCell *dcell = [DepartureCell tableView:tableView genericWithReuseIdentifier:MakeCellId(kSectionVehicles)];
+            cell = dcell;
+ 
+            // Configure the cell
+            VehicleData *vehicle = self.locator[indexPath.row];
             
-			// Configure the cell
-			VehicleData *vehicle = self.locator[indexPath.row];
-			
             if (LARGE_SCREEN)
             {
                 dcell.routeLabel.text = vehicle.signMessageLong;
@@ -162,24 +148,20 @@
                 dcell.routeLabel.text = vehicle.signMessage;
             }
 
-            
-            dcell.timeLabel.text = [NSString stringWithFormat:@"Distance %@", [FormatDistance formatMetres:vehicle.distance ]];
-			[dcell.routeColorView setRouteColor:vehicle.routeNumber];
+            dcell.timeLabel.text = [NSString stringWithFormat:@"Vehicle ID %@ Distance %@", vehicle.vehicleID ? vehicle.vehicleID : @"none", [FormatDistance formatMetres:vehicle.distance ]];
+            [dcell.routeColorView setRouteColor:vehicle.routeNumber];
             dcell.blockColorView.color = [[BlockColorDb sharedInstance] colorForBlock:vehicle.block];
             dcell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-
-		}
             break;
+        }
+           
         default:
         case kSectionDisclaimer:
-            cell = [tableView dequeueReusableCellWithIdentifier:kDisclaimerCellId];
-            if (cell == nil) {
-                cell = [self disclaimerCellWithReuseIdentifier:kDisclaimerCellId];
-            }
-			
+            cell = [self disclaimerCell:tableView];
+            
             [self addTextToDisclaimerCell:cell text:[self.locator displayDate:self.locator.cacheTime]];
-			
-            if (self.locator.itemArray == nil)
+            
+            if (self.locator.items == nil)
             {
                 [self noNetworkDisclaimerCell:cell];
             }
@@ -187,62 +169,60 @@
             {
                 cell.accessoryType = UITableViewCellAccessoryNone;
             }
+            [self updateDisclaimerAccessibility:cell];
             break;
-	}
-	return cell;
+    }
+    return cell;
 }
 
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-	switch (indexPath.section)
-	{
-		case kSectionVehicles:
-		{
+    switch (indexPath.section)
+    {
+        case kSectionVehicles:
+        {
             VehicleData *vehicle = self.locator[indexPath.row];
-			 
+             
             [vehicle mapTapped:self.backgroundTask];
-			break;
-		}
-		case kSectionDisclaimer:
-		{
-			if (self.locator.itemArray == nil)
-			{
-				[self networkTips:self.locator.htmlError networkError:self.locator.errorMsg];
+            break;
+        }
+        case kSectionDisclaimer:
+        {
+            if (self.locator.items == nil)
+            {
+                [self networkTips:self.locator.htmlError networkError:self.locator.errorMsg];
                 [self clearSelection];
-			}
-			break;
-		}
-	}
+            }
+            break;
+        }
+    }
 }
 
 #pragma mark View methods
 
 - (void)viewDidLoad {
-	[super viewDidLoad];
-	// Add the following line if you want the list to be editable
-	// self.navigationItem.leftBarButtonItem = self.editButtonItem;
-	// self.title = originalName;
-	
-	// add our custom add button as the nav bar's custom right view
-	UIBarButtonItem *refreshButton = [[UIBarButtonItem alloc]
-									  initWithTitle:NSLocalizedString(@"Refresh", @"")
-									  style:UIBarButtonItemStylePlain
-									  target:self
-									  action:@selector(refreshAction:)];
-	self.navigationItem.rightBarButtonItem = refreshButton;
-	[refreshButton release];
-	self.searchableItems = self.locator.itemArray;
-	
-	[self reloadData];
-	
-	if (self.locator.count> 0)
-	{
-		[self.table scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]
-						  atScrollPosition:UITableViewScrollPositionTop
-								  animated:NO];
-	}
+    [super viewDidLoad];
+    // Add the following line if you want the list to be editable
+    // self.navigationItem.leftBarButtonItem = self.editButtonItem;
+    // self.title = originalName;
     
-	
+    // add our custom add button as the nav bar's custom right view
+    UIBarButtonItem *refreshButton = [[UIBarButtonItem alloc]
+                                      initWithTitle:NSLocalizedString(@"Refresh", @"")
+                                      style:UIBarButtonItemStylePlain
+                                      target:self
+                                      action:@selector(refreshAction:)];
+    self.navigationItem.rightBarButtonItem = refreshButton;
+    self.searchableItems = self.locator.items;
+    
+    [self reloadData];
+    
+    if (self.locator.count> 0)
+    {
+        [self safeScrollToTop];
+    }
+    
+    
 }
 
 
@@ -251,13 +231,13 @@
 
 - (void)refreshAction:(id)sender
 {
-	self.backgroundRefresh = true;
+    if (!self.backgroundTask.running)
+    {
+        XMLLocateVehicles * locator =self.locator;
     
-    XMLLocateVehicles * locator =[self.locator retain];
+        [self fetchNearestVehiclesAsync:self.backgroundTask location:locator.location maxDistance:locator.dist backgroundRefresh:YES];
     
-    [self fetchNearestVehiclesAsync:self.backgroundTask location:locator.location maxDistance:locator.dist];
-    
-    [locator release];
+    }
 }
 
 - (void)updateToolbarItems:(NSMutableArray *)toolbarItems

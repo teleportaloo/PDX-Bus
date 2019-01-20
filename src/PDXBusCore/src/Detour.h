@@ -11,17 +11,27 @@
 
 
 #import "DataFactory.h"
+#import "DetourLocation.h"
+#import "Route.h"
 
-#define kDetourCellHeight 170.0
 
-@interface Detour : DataFactory {
-	NSString *_routeDesc;
-	NSString *_detourDesc;
-	NSString *_route;
-}
 
-@property (nonatomic,retain) NSString *routeDesc;
-@property (nonatomic,retain) NSString *detourDesc;
-@property (nonatomic,retain) NSString *route;
+@interface Detour : DataFactory
+
+@property (nonatomic, strong) NSMutableArray<DetourLocation *> *locations;
+@property (nonatomic, strong) NSMutableArray<NSString *> *embeddedStops;
+@property (nonatomic, strong) NSMutableOrderedSet<Route *> *routes;
+@property (nonatomic,copy) NSString *infoLinkUrl;
+@property (nonatomic,copy) NSString *detourDesc;
+@property (nonatomic,copy) NSString *headerText;
+@property (nonatomic,strong) NSNumber *detourId;
+@property (nonatomic, strong) NSDate *beginDate;
+@property (nonatomic, strong) NSDate *endDate;
+@property (nonatomic) bool systemWideFlag;
+
+- (NSMutableArray<NSString *> *)extractStops;
+- (NSComparisonResult)compare:(Detour *)detour;
+
++ (Detour *)fromAttributeDict:(NSDictionary *)attributeDict allRoutes:(NSMutableDictionary<NSString *, Route*> *)allRoutes;
 
 @end

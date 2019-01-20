@@ -1,0 +1,11 @@
+{
+  "imageProvider" : {
+    "applyScalingAndCircularMask" : true,
+    "fullColorImage" : {
+      "file name" : "CF03BA64-038B-4B08-A24C-FECDDBB28B66.png",
+      "scale" : 2
+    }
+  },
+  "class" : "CLKComplicationTemplateGraphicCornerCircularImage",
+  "version" : 30000
+}

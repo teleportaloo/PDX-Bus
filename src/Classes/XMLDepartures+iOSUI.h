@@ -11,20 +11,21 @@
 
 
 #import "XMLDepartures.h"
-#import <MapKit/MkAnnotation.h>
+
 #import "MapPinColor.h"
 #import "DepartureTimesDataProvider.h"
 
+// #import <MapKit/MkAnnotation.h>
+
 @class DepartureTimes;
 @class DepartureData;
-
 
 @interface XMLDepartures (iOSUI)  <MapPinColor, DepartureTimesDataProvider>
 
 // MapPinColor
 @property (nonatomic, readonly) CLLocationCoordinate2D coordinate;
 @property (nonatomic, readonly, copy) NSString *title; 
-@property (nonatomic, readonly) MKPinAnnotationColor pinColor;
+@property (nonatomic, readonly) MapPinColorValue pinColor;
 @property (nonatomic, readonly, copy) NSString *mapStopId;
 
 @end

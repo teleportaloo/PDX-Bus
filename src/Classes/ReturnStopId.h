@@ -14,12 +14,13 @@
 
 @protocol ReturnStopId <NSObject>
 
-/* if returns YES then also pop */
--(void) selectedStop:(NSString *)stopId;
-@property (nonatomic, getter=getController, readonly, strong) UIViewController *controller;
+@property (nonatomic, readonly, strong) UIViewController *controller;
 @property (nonatomic, readonly, copy) NSString *actionText;
 
+-(void)selectedStop:(NSString *)stopId;
+
 @optional
--(void) selectedStop:(NSString *)stopId desc:(NSString *)desc;
+
+-(void)selectedStop:(NSString *)stopId desc:(NSString *)desc;
 
 @end

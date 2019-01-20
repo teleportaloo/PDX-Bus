@@ -20,26 +20,15 @@
 #import "DepartureData+iOSUI.h"
 
 
-#define kTolerance	30
+#define kTolerance    30
 
 @implementation AlarmFetchArrivalsTask
-
-@synthesize block		= _block;
-@synthesize departures	= _departures;
-@synthesize minsToAlert = _minsToAlert;
-@synthesize lastFetched = _lastFetched;
-@synthesize display     = _display;
 
 - (void)dealloc
 {
     
-    self.block			= nil;
-    self.departures		= nil;
-    self.lastFetched	= nil;
-    self.observer		= nil;
-    self.display        = nil;
+    self.observer        = nil;
     
-    [super dealloc];
 }
 
 - (instancetype)init
@@ -47,9 +36,6 @@
     if ((self = [super init]))
     {
         self.alarmState = AlarmStateFetchArrivals;
-        
-                
-
     }
     return self;
 }
@@ -58,10 +44,10 @@
 
 - (NSDate *)fetch:(AlarmTaskList*)parent
 {
-    bool taskDone			= NO;
-    NSDate *departureDate	= nil;
+    bool taskDone            = NO;
+    NSDate *departureDate    = nil;
     NSTimeInterval waitTime;
-    NSDate *	next		= nil;
+    NSDate *    next        = nil;
     
     [self.departures getDeparturesForLocation:self.stopId block:self.block];
     
@@ -79,12 +65,13 @@
            fireDate:nil
              button:nil
            userInfo:nil
-       defaultSound:YES];
+       defaultSound:YES
+         thisThread:NO];
         taskDone = YES;
     }
     else
     {
-        departureDate = TriMetToNSDate(self.lastFetched.departureTime);
+        departureDate = self.lastFetched.departureTime;
         
         
         // No new data here - the bus has probably come by this point.  If it has then this is the time to stop.
@@ -96,8 +83,8 @@
     
     if (!taskDone)
     {
-        departureDate	= TriMetToNSDate(self.lastFetched.departureTime);
-        waitTime		= departureDate.timeIntervalSinceNow;
+        departureDate    = self.lastFetched.departureTime;
+        waitTime        = departureDate.timeIntervalSinceNow;
         
 #ifdef DEBUG_ALARMS
         DEBUG_LOG(@"Dep time %@\n", [NSDateFormatter localizedStringFromDate:departureDate
@@ -110,8 +97,6 @@
             self.display = nil;
             [self.observer taskUpdate:self];
         }
-        
-        bool externalDisplay = [parent updateAllExternalDisplays:self];
         
         // Update the alert with the time we have
         NSDate *alarmTime = [departureDate dateByAddingTimeInterval:(NSTimeInterval)(-(NSTimeInterval)(self.minsToAlert * 60.0 + 30.0))];
@@ -148,22 +133,78 @@
                userInfo:@{
                           kStopIdNotification   : self.stopId,
                           kAlarmBlock           : self.block }
-           defaultSound:NO];
+           defaultSound:NO
+             thisThread:NO];
         }
         
         
         int secs = (waitTime - (self.minsToAlert * 60));
+        bool late = NO;
         
-        if (secs > 8*60)
+        if (self.lastFetched && self.lastFetched.notToSchedule)
         {
-            next = [NSDate dateWithTimeIntervalSinceNow:4 * 60];
-        }
-        else if (secs > 120)
-        {
-            next = [NSDate dateWithTimeIntervalSinceNow:secs/2];
+            DEBUG_LOG(@"not to schedule");
+            NSDate *scheduled = self.lastFetched.scheduledTime;
             
+            NSTimeInterval scheduledWait = scheduled.timeIntervalSinceNow;
+            
+            int scheduledSecs = scheduledWait - self.minsToAlert;
+            
+            if (scheduledSecs > 0)  // Scheduled time is in the future.
+            {
+                if (scheduledSecs < secs)  // Vehicle is late!
+                {
+                    DEBUG_LOG(@"using scheduled time as vehicle is late");
+                    secs = scheduledSecs;     // Use the scheduled time of the vehicle is late as it may catch up.
+                }
+                else
+                {
+                    DEBUG_LOG(@"using estimated time as vehicle is early");
+                }
+            }
+            else if (secs > 0)
+            {
+                late = YES;         // it is after the scheduled time so it is actually late now.
+                DEBUG_LOG(@"vehicle is now late");
+            }
         }
-        else if (secs > 60)
+        
+        DEBUG_LOGL(secs);
+        
+#define secs_in_mins(x) ((x)*60.0)
+#define UPPER_MINS (20.0)
+        
+        // There is an upper limit to how long we will wait before checking.
+        // That time is the UPPER_MINS/2.
+        // Between 2 mins and the UPPER_MINS we wait a time proportional to how long we have left, but if
+        // the vehicle is actually late already we wait an even shorter time as it may
+        // catch up.
+        
+        if (secs > secs_in_mins(UPPER_MINS))
+        {
+            if (late)
+            {
+                next = [NSDate dateWithTimeIntervalSinceNow:secs_in_mins(UPPER_MINS/3)];
+            }
+            else
+            {
+                next = [NSDate dateWithTimeIntervalSinceNow:secs_in_mins(UPPER_MINS/2)];
+            }
+        }
+        else if (secs > secs_in_mins(2))
+        {
+            // 2 to 15 mins late
+            if (late)
+            {
+                // check a little earlier if it is late as it might catch up.
+                next = [NSDate dateWithTimeIntervalSinceNow:secs/3];
+            }
+            else
+            {
+                next = [NSDate dateWithTimeIntervalSinceNow:secs/2];
+            }
+        }
+        else if (secs > secs_in_mins(1))
         {
             // suspend until the actual time
             next = [NSDate dateWithTimeIntervalSinceNow:30];
@@ -178,25 +219,15 @@
             next = nil;
             self.alarmState = AlarmFired;
         }
-        
-        
-        if (secs > 30 && externalDisplay)
-        {
-            next = [NSDate dateWithTimeIntervalSinceNow:30];
-        }
-        
-        
     }
     
     if (taskDone)
     {
         next = nil;
         self.alarmState = AlarmFired;
-        
-        [parent endExternalDisplayForTask:self];
-        
-       
     }
+    
+    DEBUG_LOGO(next);
     
 #ifdef DEBUG_ALARMS
 #define kLastFetched @"LF"
@@ -232,11 +263,9 @@
 
 - (void)cancelTask
 {
-    [self retain];
     [self cancelNotification];
     [self.observer taskDone:self];
     self.observer = nil;
-    [self release];
 }
 
 #ifdef DEBUG_ALARMS
@@ -260,7 +289,7 @@
         NSDictionary *dict = self.dataReceived[item-1];
         DepartureData *dep = dict[kLastFetched];
         
-        NSDateFormatter *dateFormatter = [NSDateFormatter alloc].init.autorelease;
+        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
         [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
         [dateFormatter setTimeStyle:NSDateFormatterLongStyle];
         
@@ -270,7 +299,7 @@
         
         [str appendFormat:@"QT %@\n", [dateFormatter stringFromDate:TriMetToNSDate(dep.queryTime)]];
         
-        NSDate *departureDate	= TriMetToNSDate(dep.departureTime);
+        NSDate *departureDate    = TriMetToNSDate(dep.departureTime);
         NSDate *alarmTime = [departureDate dateByAddingTimeInterval:(NSTimeInterval)(-(NSTimeInterval)(self.minsToAlert * 60.0 + 30.0))];
         
         [str appendFormat:@"DT %@\n", [dateFormatter stringFromDate: departureDate ]];
@@ -285,7 +314,7 @@
 
 - (void)showToUser:(BackgroundTaskContainer *)backgroundTask
 {
-    [[DepartureTimesView viewController] fetchTimesForLocationAsync:backgroundTask loc:self.stopId block:self.block];
+    [[DepartureDetailView viewController] fetchDepartureAsync:backgroundTask location:self.stopId block:self.block backgroundRefresh:NO];
 }
 
 - (NSString *)cellToGo
@@ -296,10 +325,10 @@
         
         if (self.lastFetched !=nil)
         {
-            NSDateFormatter *dateFormatter = [NSDateFormatter alloc].init.autorelease;
+            NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
             dateFormatter.dateStyle = NSDateFormatterNoStyle;
             dateFormatter.timeStyle = NSDateFormatterShortStyle;
-            NSDate *departureDate = TriMetToNSDate(self.lastFetched.departureTime);
+            NSDate *departureDate = self.lastFetched.departureTime;
             
             NSTimeInterval secs = ((double)self.minsToAlert * (-60.0));
             

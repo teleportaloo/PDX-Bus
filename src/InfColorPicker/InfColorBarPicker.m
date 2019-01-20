@@ -6,7 +6,7 @@
 //  Created by Troy Gaul on 8/9/10.
 //
 //  Copyright (c) 2011 InfinitApps LLC - http://infinitapps.com
-//	Some rights reserved: http://opensource.org/licenses/MIT
+//    Some rights reserved: http://opensource.org/licenses/MIT
 //
 //==============================================================================
 
@@ -27,23 +27,23 @@
 
 static CGImageRef createContentImage()
 {
-	float hsv[] = { 0.0f, 1.0f, 1.0f };
-	return createHSVBarContentImage( InfComponentIndexHue, hsv );
+    float hsv[] = { 0.0f, 1.0f, 1.0f };
+    return createHSVBarContentImage( InfComponentIndexHue, hsv );
 }
 
 //------------------------------------------------------------------------------
 
 - (void) drawRect: (CGRect) rect
 {
-	CGImageRef image = createContentImage();
-	
-	if( image ) {
-		CGContextRef context = UIGraphicsGetCurrentContext();
-		
-		CGContextDrawImage( context, self.bounds , image );
-	
-		CGImageRelease( image );
-	}
+    CGImageRef image = createContentImage();
+    
+    if( image ) {
+        CGContextRef context = UIGraphicsGetCurrentContext();
+        
+        CGContextDrawImage( context, self.bounds , image );
+    
+        CGImageRelease( image );
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -59,79 +59,73 @@ static CGImageRef createContentImage()
 @synthesize value;
 
 //------------------------------------------------------------------------------
-#pragma mark	Lifetime
+#pragma mark    Lifetime
 //------------------------------------------------------------------------------
 
-- (void) dealloc
-{
-	[ indicator release ];
-	
-	[ super dealloc ];
-}
 
 //------------------------------------------------------------------------------
-#pragma mark	Drawing
+#pragma mark    Drawing
 //------------------------------------------------------------------------------
 
 - (void) layoutSubviews
 {
-	if( indicator == nil ) {
-		CGFloat kIndicatorSize = 24.0f;
-		indicator = [ [ InfColorIndicatorView alloc ] initWithFrame: CGRectMake( 0, 0, kIndicatorSize, kIndicatorSize ) ];
-		[ self addSubview: indicator ];
-	}
-	
-	indicator.color = [ UIColor colorWithHue: value saturation: 1.0f 
-								  brightness: 1.0f alpha: 1.0f ];
-	
-	CGFloat indicatorLoc = kContentInsetX + ( self.value * ( self.bounds.size.width - 2 * kContentInsetX ) );
-	indicator.center = CGPointMake( indicatorLoc, CGRectGetMidY( self.bounds ) );
+    if( indicator == nil ) {
+        CGFloat kIndicatorSize = 24.0f;
+        indicator = [ [ InfColorIndicatorView alloc ] initWithFrame: CGRectMake( 0, 0, kIndicatorSize, kIndicatorSize ) ];
+        [ self addSubview: indicator ];
+    }
+    
+    indicator.color = [ UIColor colorWithHue: value saturation: 1.0f 
+                                  brightness: 1.0f alpha: 1.0f ];
+    
+    CGFloat indicatorLoc = kContentInsetX + ( self.value * ( self.bounds.size.width - 2 * kContentInsetX ) );
+    indicator.center = CGPointMake( indicatorLoc, CGRectGetMidY( self.bounds ) );
 }
 
 //------------------------------------------------------------------------------
-#pragma mark	Properties
+#pragma mark    Properties
 //------------------------------------------------------------------------------
 
 - (void) setValue: (float) newValue
 {
-	if( newValue != value ) {
-		value = newValue;
-		
-		[ self sendActionsForControlEvents: UIControlEventValueChanged ];
-		[ self setNeedsLayout ];
-	}
+    if( newValue != value ) {
+        value = newValue;
+        
+        [ self sendActionsForControlEvents: UIControlEventValueChanged ];
+        [ self setNeedsLayout ];
+    }
 }
 
 //------------------------------------------------------------------------------
-#pragma mark	Tracking
+#pragma mark    Tracking
 //------------------------------------------------------------------------------
 
 - (void) trackIndicatorWithTouch: (UITouch*) touch 
 {
-	float percent = ( [ touch locationInView: self ].x - kContentInsetX ) 
-				  / ( self.bounds.size.width - 2 * kContentInsetX );
-	
-	self.value = pin( 0.0f, percent, 1.0f );
+    float percent = ( [ touch locationInView: self ].x - kContentInsetX ) 
+                  / ( self.bounds.size.width - 2 * kContentInsetX );
+    
+    self.value = pin( 0.0f, percent, 1.0f );
 }
 
 //------------------------------------------------------------------------------
 
 - (BOOL) beginTrackingWithTouch: (UITouch*) touch
-					  withEvent: (UIEvent*) event
+                      withEvent: (UIEvent*) event
 {
-	[ self trackIndicatorWithTouch: touch ];
-	
-	return YES;
+    [ self trackIndicatorWithTouch: touch ];
+    
+    return YES;
 }
 
 //------------------------------------------------------------------------------
 
 - (BOOL) continueTrackingWithTouch: (UITouch*) touch 
-						 withEvent: (UIEvent*) event
+                         withEvent: (UIEvent*) event
 {
-	[ self trackIndicatorWithTouch: touch ];
-	
-	return YES;
+    [ self trackIndicatorWithTouch: touch ];
+    
+    return YES;
 }
 
 //------------------------------------------------------------------------------

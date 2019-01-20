@@ -1,0 +1,162 @@
+
+/* Class = "WKInterfaceMenuItem"; title = "Stops near this stop"; ObjectID = "0BT-rK-TVB"; */
+"0BT-rK-TVB.title" = "Stops near this stop";
+
+/* Class = "WKInterfaceLabel"; text = "88"; ObjectID = "0Dj-6A-gs4"; */
+"0Dj-6A-gs4.text" = "88";
+
+/* Class = "WKInterfaceButton"; title = "6"; ObjectID = "0YD-Tb-5in"; */
+"0YD-Tb-5in.title" = "6";
+
+/* Class = "WKInterfaceMenuItem"; title = "Commuter bookmark"; ObjectID = "1CV-IA-Ool"; */
+"1CV-IA-Ool.title" = "Commuter bookmark";
+
+/* Class = "WKInterfaceMenuItem"; title = "Commuter bookmark"; ObjectID = "1MC-eW-deh"; */
+"1MC-eW-deh.title" = "Commuter bookmark";
+
+/* Class = "WKInterfaceButton"; title = "0"; ObjectID = "6nj-jh-hOu"; */
+"6nj-jh-hOu.title" = "0";
+
+/* Class = "WKInterfaceButton"; title = "3"; ObjectID = "7dr-Dq-CIg"; */
+"7dr-Dq-CIg.title" = "3";
+
+/* Class = "WKInterfaceMenuItem"; title = "Enter stop ID"; ObjectID = "8fu-B7-alm"; */
+"8fu-B7-alm.title" = "Enter stop ID";
+
+/* Class = "WKInterfaceButton"; title = "GO"; ObjectID = "8gp-mg-bQc"; */
+"8gp-mg-bQc.title" = "GO";
+
+/* Class = "WKInterfaceButton"; title = "Debug"; ObjectID = "90F-gd-2p1"; */
+"90F-gd-2p1.title" = "Debug";
+
+/* Class = "WKInterfaceController"; title = "Arrivals"; ObjectID = "AgC-eL-Hgc"; */
+"AgC-eL-Hgc.title" = "Arrivals";
+
+/* Class = "WKInterfaceController"; title = "Enter Stop ID"; ObjectID = "B0Z-YD-ji3"; */
+"B0Z-YD-ji3.title" = "Enter Stop ID";
+
+/* Class = "WKInterfaceLabel"; text = "Refreshing"; ObjectID = "CdM-RQ-Vg4"; */
+"CdM-RQ-Vg4.text" = "Refreshing";
+
+/* Class = "WKInterfaceMenuItem"; title = "Clear"; ObjectID = "Cel-UF-a7E"; */
+"Cel-UF-a7E.title" = "Clear";
+
+/* Class = "WKInterfaceLabel"; text = "No arrivals"; ObjectID = "Ghu-0M-BJP"; */
+"Ghu-0M-BJP.text" = "No arrivals";
+
+/* Class = "WKInterfaceLabel"; text = "Loading"; ObjectID = "HUA-WA-OUq"; */
+"HUA-WA-OUq.text" = "Loading";
+
+/* Class = "WKInterfaceLabel"; text = "Commuter Status"; ObjectID = "J8y-Fu-fcu"; */
+"J8y-Fu-fcu.text" = "Commuter Status";
+
+/* Class = "WKInterfaceMenuItem"; title = "Home"; ObjectID = "Ld5-c2-Pi1"; */
+"Ld5-c2-Pi1.title" = "Home";
+
+/* Class = "WKInterfaceButton"; title = "<-"; ObjectID = "Mro-1N-4g2"; */
+"Mro-1N-4g2.title" = "<-";
+
+/* Class = "WKInterfaceLabel"; text = "Bookmarks:"; ObjectID = "NDe-Ka-05t"; */
+"NDe-Ka-05t.text" = "Bookmarks:";
+
+/* Class = "WKInterfaceButton"; title = "5"; ObjectID = "NH6-9F-nvq"; */
+"NH6-9F-nvq.title" = "5";
+
+/* Class = "WKInterfaceController"; title = "Debug"; ObjectID = "PX9-Hv-k1C"; */
+"PX9-Hv-k1C.title" = "Debug";
+
+/* Class = "WKInterfaceButton"; title = "OK"; ObjectID = "RHV-US-EhN"; */
+"RHV-US-EhN.title" = "OK";
+
+/* Class = "WKInterfaceButton"; title = "9"; ObjectID = "RWS-lu-QWI"; */
+"RWS-lu-QWI.title" = "9";
+
+/* Class = "WKInterfaceLabel"; text = "Description"; ObjectID = "THm-Pg-UOG"; */
+"THm-Pg-UOG.text" = "Description";
+
+/* Class = "WKInterfaceMenuItem"; title = "Home"; ObjectID = "Uzn-bg-0NQ"; */
+"Uzn-bg-0NQ.title" = "Home";
+
+/* Class = "WKInterfaceLabel"; text = "!"; ObjectID = "VIo-SE-oTO"; */
+"VIo-SE-oTO.text" = "!";
+
+/* Class = "WKInterfaceMenuItem"; title = "Refresh"; ObjectID = "WXp-2h-kz8"; */
+"WXp-2h-kz8.title" = "Refresh";
+
+/* Class = "WKInterfaceLabel"; text = "Train Heading Long text"; ObjectID = "WaE-Ko-hLi"; */
+"WaE-Ko-hLi.text" = "Train Heading Long text";
+
+/* Class = "WKInterfaceLabel"; text = "Location"; ObjectID = "Y0y-Pk-iKr"; */
+"Y0y-Pk-iKr.text" = "Location";
+
+/* Class = "WKInterfaceController"; title = "Nearby"; ObjectID = "a7b-HT-MQ9"; */
+"a7b-HT-MQ9.title" = "Nearby";
+
+/* Class = "WKInterfaceMenuItem"; title = "Commuter bookmark"; ObjectID = "blE-J5-fi1"; */
+"blE-J5-fi1.title" = "Commuter bookmark";
+
+/* Class = "WKInterfaceLabel"; text = "No bookmarks. Configure on iPhone."; ObjectID = "cKg-N5-fy4"; */
+"cKg-N5-fy4.text" = "No bookmarks. Configure on iPhone.";
+
+/* Class = "WKInterfaceLabel"; text = "."; ObjectID = "ccv-of-0aE"; */
+"ccv-of-0aE.text" = ".";
+
+/* Class = "WKInterfaceLabel"; text = "LOADING"; ObjectID = "dD9-9f-NP6"; */
+"dD9-9f-NP6.text" = "LOADING";
+
+/* Class = "WKInterfaceButton"; title = "7"; ObjectID = "dP3-ZG-59g"; */
+"dP3-ZG-59g.title" = "7";
+
+/* Class = "WKInterfaceController"; title = "Information"; ObjectID = "ed0-6G-j56"; */
+"ed0-6G-j56.title" = "Information";
+
+/* Class = "WKInterfaceButton"; title = "Recent Stops"; ObjectID = "fti-Ms-HLM"; */
+"fti-Ms-HLM.title" = "Recent Stops";
+
+/* Class = "WKInterfaceLabel"; text = "Bookmark"; ObjectID = "gfM-qe-XiI"; */
+"gfM-qe-XiI.text" = "Bookmark";
+
+/* Class = "WKInterfaceButton"; title = "1"; ObjectID = "iem-tQ-HqW"; */
+"iem-tQ-HqW.title" = "1";
+
+/* Class = "WKInterfaceButton"; title = "4"; ObjectID = "jAb-2l-Muq"; */
+"jAb-2l-Muq.title" = "4";
+
+/* Class = "WKInterfaceButton"; title = "Next in bookmark"; ObjectID = "lfz-OV-KHP"; */
+"lfz-OV-KHP.title" = "Next in bookmark";
+
+/* Class = "WKInterfaceLabel"; text = "Distance"; ObjectID = "n3w-p8-oDj"; */
+"n3w-p8-oDj.text" = "Distance";
+
+/* Class = "WKInterfaceLabel"; text = "Arrival Info"; ObjectID = "pdX-6j-hud"; */
+"pdX-6j-hud.text" = "Arrival Info";
+
+/* Class = "WKInterfaceButton"; title = "Clear Commuter Bookmark"; ObjectID = "pgF-Rf-HlA"; */
+"pgF-Rf-HlA.title" = "Clear Commuter Bookmark";
+
+/* Class = "WKInterfaceLabel"; text = "No recent stops."; ObjectID = "pmL-CW-4oa"; */
+"pmL-CW-4oa.text" = "No recent stops.";
+
+/* Class = "WKInterfaceLabel"; text = "Schedule Info Text"; ObjectID = "qZQ-BL-0Cv"; */
+"qZQ-BL-0Cv.text" = "Schedule Info Text";
+
+/* Class = "WKInterfaceButton"; title = "<stop id>"; ObjectID = "rbF-7Z-ywT"; */
+"rbF-7Z-ywT.title" = "<stop id>";
+
+/* Class = "WKInterfaceButton"; title = "Locate Stops"; ObjectID = "sis-up-c3O"; */
+"sis-up-c3O.title" = "Locate Stops";
+
+/* Class = "WKInterfaceButton"; title = "2"; ObjectID = "uV1-cC-bCB"; */
+"uV1-cC-bCB.title" = "2";
+
+/* Class = "WKInterfaceButton"; title = "8"; ObjectID = "vMo-O6-gwE"; */
+"vMo-O6-gwE.title" = "8";
+
+/* Class = "WKInterfaceLabel"; text = "Detour"; ObjectID = "vTj-OL-POd"; */
+"vTj-OL-POd.text" = "Detour";
+
+/* Class = "WKInterfaceMenuItem"; title = "Home"; ObjectID = "zD1-7E-I4i"; */
+"zD1-7E-I4i.title" = "Home";
+
+/* Class = "WKInterfaceMenuItem"; title = "Home"; ObjectID = "zfQ-FG-6Ef"; */
+"zfQ-FG-6Ef.title" = "Home";

@@ -13,25 +13,10 @@
 
 
 #import <UIKit/UIKit.h>
-#import "TableViewWithToolbar.h"
+#import "TableViewControllerWithRefresh.h"
 
 
-
-@interface NetworkTestView : TableViewWithToolbar {
-	bool _trimetQueryStatus;
-	bool _nextbusQueryStatus;
-	bool _internetConnectionStatus;
-	bool _reverseGeoCodeStatus;
-	bool _trimetTripStatus;
-	
-	NSString *_reverseGeoCodeService;
-	NSString *_networkErrorFromQuery;
-	
-	
-	NSString *_diagnosticText;
-}
-
-- (void)fetchNetworkStatusAsync:(id<BackgroundTaskProgress>)background;
+@interface NetworkTestView : TableViewControllerWithRefresh 
 
 @property (nonatomic, copy)   NSString *diagnosticText;
 @property (nonatomic, copy)   NSString *reverseGeoCodeService;
@@ -43,5 +28,6 @@
 @property bool reverseGeoCodeStatus;
 @property bool trimetTripStatus;
 
+- (void)fetchNetworkStatusAsync:(id<BackgroundTaskController>)task backgroundRefresh:(bool)backgroundRefresh;
 
 @end

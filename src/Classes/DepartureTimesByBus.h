@@ -16,11 +16,9 @@
 #import "DepartureTimesDataProvider.h"
 
 
-@interface DepartureTimesByBus : NSObject <DepartureTimesDataProvider> {
-	NSMutableArray *_departureItems;
-}
+@interface DepartureTimesByBus : NSObject <DepartureTimesDataProvider>
 
-@property (nonatomic, retain) NSMutableArray *departureItems;
+@property (nonatomic, strong) NSMutableArray<DepartureData*> *departureItems;
 
 
 @end

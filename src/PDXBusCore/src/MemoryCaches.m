@@ -20,19 +20,13 @@
 @implementation MemoryCaches
 
 - (instancetype)init {
-	if ((self = [super init]))
-	{
-		_caches = [[NSMutableSet alloc] init];
-	}
-	return self;
+    if ((self = [super init]))
+    {
+        _caches = [[NSMutableSet alloc] init];
+    }
+    return self;
 }
 
-- (void)dealloc
-{
-	[_caches release];
-	[super dealloc];
-	
-}
 
 + (MemoryCaches*)sharedInstance
 {
@@ -50,25 +44,21 @@
     DEBUG_LOG(@"Clearing caches\n");
     MemoryCaches *caches = [MemoryCaches sharedInstance];
     
-    for (id<ClearableCache> cache in caches->_caches)
+    for (NSValue* value in caches->_caches)
     {
+        id<ClearableCache> cache = value.nonretainedObjectValue;
         [cache memoryWarning];
     }
 }
 
 + (void)addCache:(id<ClearableCache>)cache
-{
-    MemoryCaches *caches = [MemoryCaches sharedInstance];
-    
-    [caches->_caches addObject:cache];
-    
+{    
+    [[MemoryCaches sharedInstance]->_caches addObject:[NSValue valueWithNonretainedObject:cache]];
 }
 
 + (void)removeCache:(id<ClearableCache>)cache
 {
-    MemoryCaches *caches = [MemoryCaches sharedInstance];
-    
-    [caches->_caches removeObject:cache];
+    [[MemoryCaches sharedInstance]->_caches removeObject:[NSValue valueWithNonretainedObject:cache]];
 }
 
 @end

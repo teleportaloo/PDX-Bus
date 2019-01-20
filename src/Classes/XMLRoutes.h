@@ -15,14 +15,11 @@
 #import "TriMetXML.h"
 
 
-@interface XMLRoutes : TriMetXML<Route*> {
-	Route *_currentRouteObject;
-}
+@interface XMLRoutes : TriMetXML<Route*> 
+
+@property (nonatomic, strong) Route *currentRouteObject;
 
 - (BOOL)getRoutesCacheAction:(CacheAction)cacheAction;
 - (BOOL)getDirections:(NSString *)route cacheAction:(CacheAction)cacheAction;
-
-@property (nonatomic, retain) Route *currentRouteObject;
-
 
 @end

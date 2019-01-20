@@ -15,14 +15,9 @@
 
 #import "RouteColorBlobView.h"
 #import "DebugLogging.h"
-#import "TriMetRouteColors.h"
+#import "TriMetInfo.h"
 
 @implementation RouteColorBlobView
-
-@synthesize red		= _red;
-@synthesize green	= _green;
-@synthesize blue	= _blue;
-@synthesize square  = _square;
 
 - (instancetype)initWithFrame:(CGRect)frame {
     if ((self = [super initWithFrame:frame])) {
@@ -33,50 +28,50 @@
 
 - (bool)setRouteColorLine:(RAILLINES)line
 {
-	const ROUTE_COL *rcol = [TriMetRouteColors rawColorForLine:line];
-	
-	if (rcol !=nil)
-	{
-		_red	= rcol->r;
-		_green	= rcol->g;
-		_blue	= rcol->b;
-        _square = rcol->square;
-		self.hidden	= NO;
-		[self setNeedsDisplay];
-	}
-	else 
-	{
-		self.hidden = YES;
-		[self setNeedsDisplay];
-	}
-	
-	self.backgroundColor = [UIColor clearColor];
-	
-	return !self.hidden;
-	
+    PC_ROUTE_INFO info = [TriMetInfo infoForLine:line];
+    
+    if (info !=nil)
+    {
+        _red    = COL_HTML_R(info->html_color);
+        _green    = COL_HTML_G(info->html_color);
+        _blue    = COL_HTML_B(info->html_color);
+        _square = info->streetcar;
+        self.hidden    = NO;
+        [self setNeedsDisplay];
+    }
+    else 
+    {
+        self.hidden = YES;
+        [self setNeedsDisplay];
+    }
+    
+    self.backgroundColor = [UIColor clearColor];
+    
+    return !self.hidden;
+    
 }
 
 
 - (void)setRouteColor:(NSString *)route
 {
-	const ROUTE_COL *rcol = [TriMetRouteColors rawColorForRoute:route];
+    PC_ROUTE_INFO info = [TriMetInfo infoForRoute:route];
 
-	if (rcol !=nil && route!=nil)
-	{
-		_red	= rcol->r;
-		_green	= rcol->g;
-		_blue	= rcol->b;
-        _square = rcol->square;
-		self.hidden	= NO;
-		[self setNeedsDisplay];
-	}
-	else 
-	{
-		self.hidden = YES;
-		[self setNeedsDisplay];
-	}
-	
-	self.backgroundColor = [UIColor clearColor];
+    if (info !=nil && route!=nil)
+    {
+        _red    = COL_HTML_R(info->html_color);
+        _green    = COL_HTML_G(info->html_color);
+        _blue    = COL_HTML_B(info->html_color);
+        _square = info->streetcar;
+        self.hidden    = NO;
+        [self setNeedsDisplay];
+    }
+    else 
+    {
+        self.hidden = YES;
+        [self setNeedsDisplay];
+    }
+    
+    self.backgroundColor = [UIColor clearColor];
 }
 
 
@@ -84,19 +79,19 @@
 // An empty implementation adversely affects performance during animation.
 - (void)drawRect:(CGRect)rect {
     // Drawing code
-	
-	CGMutablePathRef fillPath = CGPathCreateMutable();
-	
-	// CGPathAddRects(fillPath, NULL, &rect, 1);
-	
-	CGRect outerSquare;
-	
-	CGFloat width = fmin(CGRectGetWidth(rect), CGRectGetHeight(rect));
-	
-	outerSquare.origin.x = CGRectGetMidX(rect) - width/2;
-	outerSquare.origin.y = CGRectGetMidY(rect) - width/2;
-	outerSquare.size.width = width;
-	outerSquare.size.height = width;
+    
+    CGMutablePathRef fillPath = CGPathCreateMutable();
+    
+    // CGPathAddRects(fillPath, NULL, &rect, 1);
+    
+    CGRect outerSquare;
+    
+    CGFloat width = fmin(CGRectGetWidth(rect), CGRectGetHeight(rect));
+    
+    outerSquare.origin.x = CGRectGetMidX(rect) - width/2;
+    outerSquare.origin.y = CGRectGetMidY(rect) - width/2;
+    outerSquare.size.width = width;
+    outerSquare.size.height = width;
     
     if (_square)
     {
@@ -113,16 +108,13 @@
     CGContextAddPath(context, fillPath);
     CGContextFillPath(context);
 
-	
-//	DEBUG_LOG(@"%f %f %f\n", _red, _green, _blue);
-    	
+    
+//    DEBUG_LOG(@"%f %f %f\n", _red, _green, _blue);
+        
     CGPathRelease(fillPath);
 
 }
 
-- (void)dealloc {
-    [super dealloc];
-}
 
 
 @end

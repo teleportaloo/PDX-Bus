@@ -9,10 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @interface FilledCircleView : UIView
-{
-    UIColor *_fillColor;
-}
 
-@property (nonatomic, retain) UIColor *fillColor;
+@property (nonatomic, strong) UIColor *fillColor;
 
 @end

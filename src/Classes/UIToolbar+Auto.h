@@ -19,16 +19,16 @@
 
 }
 
-+ (UIBarButtonItem *)autoFlexSpace;
-+ (UIBarButtonItem *)autoDoneButtonWithTarget:(id)target action:(SEL)action;
-+ (UIBarButtonItem *)autoRedoButtonWithTarget:(id)target action:(SEL)action;
-+ (UIBarButtonItem *)autoFlashButtonWithTarget:(id)target action:(SEL)action;
-+ (UIBarButtonItem *)autoMapButtonWithTarget:(id)target action:(SEL)action;
-+ (UIBarButtonItem *)autoMagnifyButtonWithTarget:(id)target action:(SEL)action;
-+ (UIBarButtonItem *)autoNoSleepWithTarget:(id)target action:(SEL)action;
-+ (UIBarButtonItem *)autoCommuteWithTarget:(id)target action:(SEL)action;
-+ (UIBarButtonItem *)autoLocateWithTarget:(id)target action:(SEL)action;
-+ (UIBarButtonItem *)autoQRScanner:(id)target action:(SEL)action;
++ (UIBarButtonItem *)flexSpace;
++ (UIBarButtonItem *)doneButtonWithTarget:(id)target action:(SEL)action;
++ (UIBarButtonItem *)redoButtonWithTarget:(id)target action:(SEL)action;
++ (UIBarButtonItem *)flashButtonWithTarget:(id)target action:(SEL)action;
++ (UIBarButtonItem *)mapButtonWithTarget:(id)target action:(SEL)action;
++ (UIBarButtonItem *)magnifyButtonWithTarget:(id)target action:(SEL)action;
++ (UIBarButtonItem *)noSleepButtonWithTarget:(id)target action:(SEL)action;
++ (UIBarButtonItem *)commuteButtonWithTarget:(id)target action:(SEL)action;
++ (UIBarButtonItem *)locateButtonWithTarget:(id)target action:(SEL)action;
++ (UIBarButtonItem *)qrScannerButtonWithTarget:(id)target action:(SEL)action;
 
 
 @end

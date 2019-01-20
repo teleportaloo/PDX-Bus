@@ -22,22 +22,21 @@
 
 @interface WatchNearbyInterfaceController : InterfaceControllerWithCommuterBookmark <CLLocationManagerDelegate>
 {
-    CLLocationManager *			_locationManager;
-    NSDate *					_timeStamp;
-    bool                        _waitingForLocation;
-    CLLocation *                _lastLocation;
-    XMLLocateStops *            _stops;
+    bool _waitingForLocation;
 }
+
 @property (strong, nonatomic) IBOutlet WKInterfaceTable *stopTable;
 @property (strong, nonatomic) IBOutlet WKInterfaceMap *map;
-@property (nonatomic, retain) CLLocationManager *locationManager;
-@property (nonatomic, retain) NSDate *timeStamp;
-@property (nonatomic, retain) CLLocation *lastLocation;
-@property (nonatomic, retain) XMLLocateStops *stops;
+@property (nonatomic, strong) CLLocationManager *locationManager;
+@property (nonatomic, strong) NSDate *timeStamp;
+@property (nonatomic, strong) CLLocation *lastLocation;
+@property (nonatomic, strong) XMLLocateStops *stops;
 @property (strong, nonatomic) IBOutlet WKInterfaceGroup *loadingGroup;
 @property (strong, nonatomic) IBOutlet WKInterfaceLabel *loadingLabel;
+@property (strong, nonatomic) IBOutlet WKInterfaceLabel *locationStatusLabel;
+
+- (IBAction)swipeDown:(id)sender;
 - (IBAction)menuItemHome;
 - (IBAction)menuItemCommute;
-@property (strong, nonatomic) IBOutlet WKInterfaceLabel *locationStatusLabel;
 
 @end

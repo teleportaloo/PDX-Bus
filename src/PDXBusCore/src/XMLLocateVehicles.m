@@ -20,76 +20,57 @@
 #import "XMLStreetcarLocations.h"
 #import "StringHelper.h"
 #import "UserPrefs.h"
+#import "CLLocation+Helper.h"
 
 #define MetersInAMile 1609.344
 
 @implementation XMLLocateVehicles
 
-@synthesize location = _location;
-@synthesize dist   = _dist;
-@synthesize direction = _direction;
-@synthesize noErrorAlerts = _noErrorAlerts;
-
-- (void)dealloc
-{
-    self.location = nil;
-    self.direction = nil;
-    
-    [super dealloc];
-}
 
 - (void)cleanup
 {
     int i = 0;
     
-    VehicleData *previous = nil;
-    
-    for (i=0; i<_itemArray.count;)
+    for (i=0; i<self.items.count;)
     {
-        VehicleData *item = _itemArray[i];
+        VehicleData *item = self.items[i];
         
-        if (item.signMessage==nil || item.signMessage.length==0
-            || ((previous!=nil && [previous.block isEqualToString:item.block])))
+        if (item.signMessage==nil || item.signMessage.length==0)
         {
-            [_itemArray removeObjectAtIndex:i];
+            [self.items removeObjectAtIndex:i];
         }
         else
         {
-            previous = item;
             i++;
         }
     }
 }
 
-- (BOOL)findNearestVehicles:(NSSet *)routes direction:(NSString *)direction blocks:(NSSet *)blocks
+- (BOOL)findNearestVehicles:(NSSet<NSString*> *)routes direction:(NSString*) direction blocks:(NSSet<NSString*> *)blocks vehicles:(NSSet<NSString*> *)vehicles
 {
     NSString *query = nil;
     
-    NSMutableString *routeIDs = [NSMutableString string];
+    NSMutableString *routeIDs     = [NSMutableString string];
     NSMutableString *blockQuery   = [NSMutableString string];
+    NSMutableString *vehicleQuery = [NSMutableString string];
     
     if (routes)
     {
         routeIDs = [NSString commaSeparatedStringFromEnumerator:routes selector:@selector(self)];
-        
         [routeIDs insertString:@"/routes/" atIndex:0];
     }
     
     if (blocks)
     {
-        for (NSString *block in blocks)
-        {
-            if (blockQuery.length > 0)
-            {
-                [blockQuery appendFormat:@","];
-            }
-            
-            [blockQuery appendString:block];
-        }
-        
-        [routeIDs insertString:@"/blocks/" atIndex:0];
+        blockQuery = [NSString commaSeparatedStringFromEnumerator:blocks selector:@selector(self)];
+        [blockQuery insertString:@"/blocks/" atIndex:0];
     }
     
+    if (vehicles)
+    {
+        vehicleQuery = [NSString commaSeparatedStringFromEnumerator:vehicles selector:@selector(self)];
+        [vehicleQuery insertString:@"/ids/" atIndex:0];
+    }
     
     if (self.dist > 1.0)
     {
@@ -105,69 +86,57 @@
         double lonmax = fmax(northWestCorner.longitude, southEastCorner.longitude);
         double latmax = fmax(northWestCorner.latitude,  southEastCorner.latitude);
     
-        query = [NSString stringWithFormat:@"vehicles/bbox/%f,%f,%f,%f/xml/true/onRouteOnly/true%@%@",
-   					   lonmin,latmin, lonmax, latmax, routeIDs, blockQuery];
+        query = [NSString stringWithFormat:@"vehicles/bbox/%f,%f,%f,%f/xml/true/onRouteOnly/true%@%@%@",
+                          lonmin,latmin, lonmax, latmax, routeIDs, blockQuery, vehicleQuery];
     }
     else
     {
-        query = [NSString stringWithFormat:@"vehicles/xml/true/onRouteOnly/true%@%@", routeIDs, blockQuery];
+        query = [NSString stringWithFormat:@"vehicles/xml/true/onRouteOnly/true%@%@%@", routeIDs, blockQuery, vehicleQuery];
     }
     
     self.direction = direction;
-	
     
-	bool res =  [self startParsing:query cacheAction:TriMetXMLNoCaching];
+    
+    bool res =  [self startParsing:query cacheAction:TriMetXMLNoCaching];
     
     if (self.gotData)
     {
-        [_itemArray sortUsingSelector:NSSelectorFromString(@"compareUsingDistance:")];
+        [self.items sortUsingSelector:NSSelectorFromString(@"compareUsingDistance:")];
         [self cleanup];
     }
 
-	
-	return res;
+    
+    return res;
 }
 
-- (NSString*)fullAddressForQuery:(NSString *)query
+XML_START_ELEMENT(resultset)
 {
-	NSString *str = nil;
-	
-    str = [NSString stringWithFormat:@"https://developer.trimet.org/ws/v2/%@/appID/%@",
-                query, TRIMET_APP_ID];
-	
-	return str;
-	
-}
-
-START_ELEMENT(resultset)
-{
-    [self initArray];
+    [self initItems];
     _hasData = YES;
 }
 
-START_ELEMENT(vehicle)
+XML_START_ELEMENT(vehicle)
 {
-    NSString *dir = ATRVAL(direction);
+    NSString *dir = ATRSTR(direction);
     
     if (self.direction == nil || [self.direction isEqualToString:dir])
     {
         
-        VehicleData *currentVehicle = [VehicleData alloc].init;
+        VehicleData *currentVehicle = [VehicleData data];
         
-        currentVehicle.block           = ATRVAL(blockID);
-        currentVehicle.nextLocID       = ATRVAL(nextLocID);
-        currentVehicle.lastLocID       = ATRVAL(lastLocID);
-        currentVehicle.routeNumber     = ATRVAL(routeNumber);
+        currentVehicle.block           = ATRSTR(blockID);
+        currentVehicle.nextLocID       = ATRSTR(nextLocID);
+        currentVehicle.lastLocID       = ATRSTR(lastLocID);
+        currentVehicle.routeNumber     = ATRSTR(routeNumber);
         currentVehicle.direction       = dir;
-        currentVehicle.signMessage     = ATRVAL(signMessage);
-        currentVehicle.signMessageLong = ATRVAL(signMessageLong);
-        currentVehicle.type            = ATRVAL(type);
-        currentVehicle.locationTime    = ATRTIM(time);
-        currentVehicle.garage          = ATRVAL(garage);
-        currentVehicle.bearing         = ATRVAL(bearing);
-        
-        currentVehicle.location = [[[CLLocation alloc] initWithLatitude:ATRCOORD(latitude)
-                                                              longitude:ATRCOORD(longitude) ] autorelease];
+        currentVehicle.signMessage     = ATRSTR(signMessage);
+        currentVehicle.signMessageLong = ATRSTR(signMessageLong);
+        currentVehicle.type            = ATRSTR(type);
+        currentVehicle.locationTime    = ATRDAT(time);
+        currentVehicle.garage          = ATRSTR(garage);
+        currentVehicle.bearing         = ATRSTR(bearing);
+        currentVehicle.vehicleID       = ATRSTR(vehicleID);
+        currentVehicle.location        = ATRLOC(latitude,longitude);
         
         if (self.location != nil)
         {
@@ -177,68 +146,8 @@ START_ELEMENT(vehicle)
         
         [self addItem:currentVehicle];
         
-        [currentVehicle release];
     }
 
 }
-
-
-/*
-
-- (bool)displayErrorIfNoneFound:(id<BackgroundTaskProgress>)progress
-{
-	NSThread *thread = [NSThread currentThread];
-    
-    if (self.noErrorAlerts)
-    {
-        return false;
-    }
-	
-	if (self.count == 0 && !self.gotData)
-	{
-		
-		if (![thread isCancelled])
-		{
-			[thread cancel];
-			//UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"Nearby stops"
-			//												   message:@"Network problem: please try again later."
-			//												  delegate:delegate
-			//										 cancelButtonTitle:@"OK"
-			//										 otherButtonTitles:nil] autorelease];
-			//[delegate retain];
-            //[alert show];
-            
-            [progress backgroundSetErrorMsg:@"Network problem: please try again later."];
-            
-			return true;
-		}
-		
-	}
-	else if ([self safeItemCount] == 0)
-	{
-		if (![thread isCancelled])
-		{
-			[thread cancel];
-            
-            
-            [progress backgroundSetErrorMsg:[NSString stringWithFormat:@"No vehicles were found within %0.1f miles, note Streetcar is not supported.",
-                                             self.dist / MetersInAMile]];
-			//UIAlertView *alert = [[[ UIAlertView alloc ] initWithTitle:@"Nearby stops"
-			//												   message:[NSString stringWithFormat:@"No stops were found within %0.1f miles",
-			//															self.minDistance / 1609.344]
-			//
-			//												  delegate:delegate
-			//										 cancelButtonTitle:@"OK"
-			//										 otherButtonTitles:nil] autorelease];
-			//[alert performSelectorOnMainThread:@selector(show) withObject:nil waitUntilDone:NO];
-            // [alert show];
-			return true;
-		}
-	}
-	
-	return false;
-	
-}
-*/
 
 @end

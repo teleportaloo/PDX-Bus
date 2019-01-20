@@ -21,10 +21,11 @@
     UITableViewCellStateMask    _state;
 }
 
-+ (AlarmCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier;
-- (void)populateCellLine1:(NSString *)line1 line2:(NSString *)line2 line2col:(UIColor *)col;
-+ (CGFloat)rowHeight;
-
 @property (nonatomic) bool fired;
+
+- (void)populateCellLine1:(NSString *)line1 line2:(NSString *)line2 line2col:(UIColor *)col;
+
++ (AlarmCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier;
++ (CGFloat)rowHeight;
 
 @end

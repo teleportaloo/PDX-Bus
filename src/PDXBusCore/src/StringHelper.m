@@ -17,24 +17,27 @@
 #import "DebugLogging.h"
 #import "PDXBusCore.h"
 
-
-@implementation NSString(PDXBus)
+@implementation NSString(StringHelper)
 
 - (unichar)firstUnichar
 {
-    // This used to be called firsCharacter but when that is called it fails after creating a UIDocumentInteractionController.  Super weird.
-    return [self characterAtIndex:0];
+    if (self.length>0)
+    {
+        // This used to be called firsCharacter but when that is called it fails after creating a UIDocumentInteractionController.  Super weird.
+        return [self characterAtIndex:0];
+    }
+    return 0;
 }
 
 - (NSMutableAttributedString *)mutableAttributedString
 {
-   return [[NSMutableAttributedString alloc] initWithString:self].autorelease;
+   return [[NSMutableAttributedString alloc] initWithString:self];
 }
 
 - (NSString *)stringWithTrailingSpacesRemoved
 {
-    NSInteger i = 0;
     NSCharacterSet *whitespace = [NSCharacterSet whitespaceAndNewlineCharacterSet];
+    NSInteger i = 0;
     
     for (i = self.length-1 ; i>0; i--)
     {
@@ -47,6 +50,84 @@
     return [self substringToIndex:i+1];
 }
 
+- (NSString *)stringWithLeadingSpacesRemoved
+{
+    NSCharacterSet *whitespace = [NSCharacterSet whitespaceAndNewlineCharacterSet];
+    NSInteger i = 0;
+    
+    for (i = 0 ; i< self.length; i++)
+    {
+        if (![whitespace characterIsMember:[self characterAtIndex:i]])
+        {
+            break;
+        }
+    }
+    
+    return [self substringFromIndex:i];
+}
+
+- (NSString *)stringWithTrailingSpaceIfNeeded
+{
+    if (self.length == 0)
+    {
+        return self;
+    }
+    return [self stringByAppendingString:@" "];
+}
+
+- (NSString *)phonetic
+{
+    NSMutableString *ms = [NSMutableString stringWithString:self];
+    
+#define REG_WORD(X) @"\\b" X @"\\b"
+#define CLEAR(X) X , @""
+    static NSArray *replacements;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        replacements = @[
+                          @[ CLEAR(@"\\(Stop ID \\d+\\)") ],
+                          @[ REG_WORD(@"SW")    , @"southwest"],
+                          @[ REG_WORD(@"NW")    , @"northwest"],
+                          @[ REG_WORD(@"SE")    , @"southeast"],
+                          @[ REG_WORD(@"NE")    , @"northeast"],
+                          @[ REG_WORD(@"N")     , @"north"],
+                          @[ REG_WORD(@"S")     , @"South"],
+                          @[ REG_WORD(@"E")     , @"east"],
+                          @[ REG_WORD(@"W")     , @"west"],
+                          @[ REG_WORD(@"ave")   , @"avenue"],
+                          @[ REG_WORD(@"dr")    , @"drive"],
+                          @[ REG_WORD(@"st")    , @"street"],
+                          @[ REG_WORD(@"pkwy")  , @"parkway"],
+                          @[ REG_WORD(@"ln")    , @"lane"],
+                          @[ REG_WORD(@"ct")    , @"court"],
+                          @[ REG_WORD(@"stn")   , @"station"],
+                          @[ REG_WORD(@"TC")    , @"transit center"],
+                          @[ REG_WORD(@"MAX")   , @"max"],
+                          @[ REG_WORD(@"WES")   , @"wes"],
+                          @[ REG_WORD(@"TriMet"), @"trymet"],
+                          @[ REG_WORD(@"Clackamas"), @"clack-a-mas"],
+                          @[ REG_WORD(@"Ctr"),    @"center"],
+                          @[ REG_WORD(@"ID")    , @" I-D " ]
+                        ];
+    });
+    
+    
+    for (NSArray<NSString*> *rep in replacements)
+    {
+#define isUpper(X) ((X)>='A' && (X)<='Z')
+         
+         unichar decider = rep.lastObject.firstUnichar;
+         NSRegularExpressionOptions opts = isUpper(decider) ? 0 : NSRegularExpressionCaseInsensitive;
+         NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:rep.firstObject
+                                                                                options:opts
+                                                                                  error:nil];
+         [regex replaceMatchesInString:ms options:0
+                                 range:NSMakeRange(0, ms.length)
+                          withTemplate:rep.lastObject];
+    };
+    
+    return ms;
+}
 
 + (NSMutableString *)commaSeparatedStringFromEnumerator:(id<NSFastEnumeration>)container selector:(SEL)selector;
 {
@@ -56,20 +137,27 @@
     {
         if ([obj respondsToSelector:selector])
         {
-             NSObject *item = [obj performSelector:selector];
+            IMP imp = [obj methodForSelector:selector];
+            NSObject * (*func)(id, SEL) = (void *)imp;
+
+            NSObject *item = func(obj, selector);
             
-            if ([item isKindOfClass:[NSString class]])
+            // NSObject *item = [obj performSelector:selector];
+            if (item!=nil)
             {
-                if (string.length>0)
+                if ([item isKindOfClass:[NSString class]])
                 {
-                    [string appendString:@","];
+                    if (string.length>0)
+                    {
+                        [string appendString:@","];
+                    }
+                    [string appendString:(NSString*)item];
                 }
-                [string appendString:(NSString*)item];
-            }
-            else
-            {
-                ERROR_LOG(@"commaSeparatedStringFromEnumerator - selector did not return string %@\n",
-                          NSStringFromSelector(selector));
+                else
+                {
+                    ERROR_LOG(@"commaSeparatedStringFromEnumerator - selector did not return string %@\n",
+                              NSStringFromSelector(selector));
+                }
             }
         }
         else
@@ -82,11 +170,11 @@
     return string;
 }
 
-- (NSMutableArray *)arrayFromCommaSeparatedString
+- (NSMutableArray<NSString*> *)arrayFromCommaSeparatedString
 {
-    NSMutableArray *array   = [NSMutableArray array];
-    NSScanner *scanner      = [NSScanner scannerWithString:self];
-    NSCharacterSet *comma   = [NSCharacterSet characterSetWithCharactersInString:@","];
+    NSCharacterSet *comma = [NSCharacterSet characterSetWithCharactersInString:@","];
+    NSMutableArray<NSString*> *array = [NSMutableArray array];
+    NSScanner *scanner  = [NSScanner scannerWithString:self];
     NSString *item;
     
     while ([scanner scanUpToCharactersFromSet:comma intoString:&item])
@@ -101,130 +189,199 @@
     return array;
 }
 
-+ (void)addSegmentToString:(UIFont *)font bold:(bool)boldText italic:(bool)italicText color:(UIColor *)color substring:(NSString *)substring string:(NSMutableAttributedString**)string
++ (void)addSegmentToString:(UIFont *)font pointSize:(CGFloat)pointSize style:(NSParagraphStyle*)style bold:(bool)boldText italic:(bool)italicText color:(UIColor *)color substring:(NSString *)substring string:(NSMutableAttributedString**)string
 {
-    UIFont *newFont = font;
-    
-    Class fontDesc = (NSClassFromString(@"UIFontDescriptor"));
+    // DEBUG_LOGS(substring);
+    if (font == nil)
+    {
+        NSAttributedString  *segment =  [[NSAttributedString alloc] initWithString:substring];
+        [*string appendAttributedString:segment];
+        return;
+    }
 
-    if ((boldText || italicText) && fontDesc !=nil)
+    if ((boldText || italicText || pointSize!=font.pointSize))
     {
         UIFontDescriptor *fontDescriptor = font.fontDescriptor;
-        // DEBUG_LOGO(fontDescriptor);
-        uint32_t existingTraitsWithNewTrait = (boldText ? UIFontDescriptorTraitBold : 0 ) | (italicText ? UIFontDescriptorTraitItalic : 0);
-        fontDescriptor = [fontDescriptor fontDescriptorWithSymbolicTraits:existingTraitsWithNewTrait];
-        // DEBUG_LOGO(fontDescriptor);
-        UIFont *updatedFont = [UIFont fontWithDescriptor:fontDescriptor size:font.pointSize];
-        newFont = updatedFont;
+        uint32_t traits = (boldText ? UIFontDescriptorTraitBold : 0 ) | (italicText ? UIFontDescriptorTraitItalic : 0);
+        fontDescriptor = [fontDescriptor fontDescriptorWithSymbolicTraits:traits];
+        font = [UIFont fontWithDescriptor:fontDescriptor size:pointSize];
     }
     
-    NSDictionary *attributes = @{NSForegroundColorAttributeName :color,
-                                 NSFontAttributeName            :newFont};
+    NSAttributedString  *segment = nil;
     
-    
-    NSAttributedString  *segment =  [[NSAttributedString alloc] initWithString:substring attributes:attributes];
+    if (style)
+    {
+        segment =  [[NSAttributedString alloc] initWithString:substring attributes:@{NSForegroundColorAttributeName :color,
+                                                                                     NSFontAttributeName            :font,
+                                                                                     NSParagraphStyleAttributeName  :style
+                                                                                     }];
+    }
+    else
+    {
+  
+        
+        segment =  [[NSAttributedString alloc] initWithString:substring attributes:@{NSForegroundColorAttributeName :color,
+                                                                                     NSFontAttributeName            :font}];
+    }
+        
     [*string appendAttributedString:segment];
-    [segment release];
 }
 
-
-// Use # as escape characters
-// #b - bold text on or off
-// #i - italic text on or off
-// #X For colors see the items just below
-
-- (NSAttributedString*)formatAttributedStringWithFont:(UIFont *)regularFont
+- (NSMutableParagraphStyle *)indentStyle:(NSMutableParagraphStyle *)style size:(CGFloat)size
 {
-    NSMutableAttributedString *string = [NSMutableAttributedString alloc].init.autorelease;
-    NSString *substring = nil;
+    if (style == nil)
+    {
+        style = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
+    }
     
-    static NSDictionary *colors = nil;
+    CGFloat indentation = style.headIndent + size;
     
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        colors = @{
-                   @"0" : [UIColor blackColor],
-                   @"O" : [UIColor orangeColor],
-                   @"G" : [UIColor greenColor],
-                   @"A" : [UIColor grayColor],
-                   @"R" : [UIColor redColor],
-                   @"B" : [UIColor blueColor],
-                   @"Y" : [UIColor yellowColor],
-                   @"W" : [UIColor whiteColor] }.retain;
+    style.headIndent = indentation;
+    style.firstLineHeadIndent = indentation;
+    
+    return style;
+}
 
-    });
-    
-    bool boldText   = NO;
-    bool italicText = NO;
-    unichar c;
-    UIColor *currentColor = [UIColor blackColor];
-    
+// See header for formatting markup
+- (NSMutableAttributedString*)formatAttributedStringWithFont:(UIFont *)regularFont
+{
+    NSMutableAttributedString *string = [[NSMutableAttributedString alloc] init];
     NSScanner *escapeScanner = [NSScanner scannerWithString:self];
+    CGFloat pointSize = regularFont ? regularFont.pointSize : 10;
+    UIColor *currentColor = [UIColor blackColor];
+    NSString *substring = nil;
+    bool italicText = NO;
+    bool boldText = NO;
+    NSMutableParagraphStyle *style = nil;
+    unichar c;
     
     escapeScanner.charactersToBeSkipped = nil;
     
     while (!escapeScanner.isAtEnd)
     {
-        [escapeScanner scanUpToString:@"#" intoString:&substring];
-        
-        // DEBUG_LOGS(substring);
-        
-        if (!escapeScanner.isAtEnd)
-        {
-            escapeScanner.scanLocation++;
-        }
-        
-        if (!escapeScanner.isAtEnd)
-        {
-            c = [self characterAtIndex:escapeScanner.scanLocation];
-            escapeScanner.scanLocation++;
+        @autoreleasepool {
             
-            if (c=='#')
+            [escapeScanner scanUpToString:@"#" intoString:&substring];
+            
+            // DEBUG_LOGS(substring);
+            
+            if (!escapeScanner.isAtEnd)
             {
-                if (substring)
-                {
-                    substring = [substring stringByAppendingString:@"#"];
-                }
-                else
-                {
-                    substring = @"#";
-                }
+                escapeScanner.scanLocation++;
             }
             
-            if (substring && substring.length > 0)
+            if (!escapeScanner.isAtEnd)
             {
-                [NSString addSegmentToString:regularFont bold:boldText italic:italicText color:currentColor substring:substring string:&string];
+                c = [self characterAtIndex:escapeScanner.scanLocation];
+                escapeScanner.scanLocation++;
+                
+                if (c=='h')
+                {
+                    if (substring)
+                    {
+                        substring = [substring stringByAppendingString:@"#"];
+                    }
+                    else
+                    {
+                        substring = @"#";
+                    }
+                }
+                
+                if (substring && substring.length > 0)
+                {
+                    [NSString addSegmentToString:regularFont pointSize:pointSize style:style bold:boldText italic:italicText color:currentColor substring:substring string:&string];
+                    substring = nil;
+                }
+                
+                switch (c)
+                {
+                    default: break;
+                    case 'h': break;
+                    case 'b': boldText   = !boldText;    break;
+                    case 'i': italicText = !italicText;  break;
+                    case '-': if (pointSize>1.0) { pointSize--; } break;
+                    case '(': if (pointSize>2.0) { pointSize-=2; } break;
+                    case '[': if (pointSize>4.0) { pointSize-=4; } break;
+                    case '+': pointSize++; break;
+                    case ')': pointSize+=2; break;
+                    case ']': pointSize+=4; break;
+                    case '0': currentColor = [UIColor blackColor];  break;
+                    case 'O': currentColor = [UIColor orangeColor]; break;
+                    case 'G': currentColor = [UIColor greenColor];  break;
+                    case 'A': currentColor = [UIColor grayColor];   break;
+                    case 'R': currentColor = [UIColor redColor];    break;
+                    case 'B': currentColor = [UIColor blueColor];   break;
+                    case 'Y': currentColor = [UIColor yellowColor]; break;
+                    case 'N': currentColor = [UIColor brownColor];  break;
+                    case 'M': currentColor = [UIColor magentaColor];break;
+                    case 'W': currentColor = [UIColor whiteColor];  break;
+                    case '>': style = [self indentStyle:style size:pointSize]; break;
+                    case '<': style = [self indentStyle:style size:-pointSize]; break;
+                }
+            }
+            else
+            {
+                [NSString addSegmentToString:regularFont pointSize:pointSize style:style bold:boldText italic:italicText color:currentColor substring:substring string:&string];
                 substring = nil;
             }
-            
-            if (c=='b')
-            {
-                boldText = !boldText;
-            }
-            else if (c=='i')
-            {
-                italicText = !italicText;
-            }
-            else if (c!='#')
-            {
-                NSString *colorKey = [NSString stringWithCharacters:&c length:1];
-                
-                UIColor *newColor = colors[colorKey];
-                
-                if (newColor!=nil)
-                {
-                    currentColor = newColor;
-                }
-            }
-        }
-        else
-        {
-            [NSString addSegmentToString:regularFont bold:boldText italic:italicText color:currentColor substring:substring string:&string];
-            substring = nil;
         }
     }
     
     return string;
+}
+
+
+- (NSString*)removeFormatting
+{
+    return [self formatAttributedStringWithFont:nil].string;
+}
+
+- (NSMutableAttributedString *)appendToAttributedString:(NSMutableAttributedString *)attr;
+{
+    if (attr.length > 0)
+    {
+        NSDictionary *formatting = [attr attributesAtIndex:attr.length-1 effectiveRange:nil];
+        
+        if (formatting)
+        {
+            [attr appendAttributedString:[[NSAttributedString alloc] initWithString:self attributes:formatting]];
+        }
+        else
+        {
+            [attr appendAttributedString:[[NSAttributedString alloc] initWithString:self]];
+        }
+    }
+    else
+    {
+        [attr appendAttributedString:[[NSAttributedString alloc] initWithString:self]];
+    }
+    return attr;
+}
+
+- (bool)hasCaseInsensitiveSubstring:(NSString *)search
+{
+    return [self rangeOfString:search options:NSCaseInsensitiveSearch].location != NSNotFound;
+}
+
+
+- (NSString *)justNumbers
+{
+    NSMutableString *res = [NSMutableString string];
+    
+    int i=0;
+    unichar c;
+    
+    for (i=0; i< self.length; i++)
+    {
+        c = [self characterAtIndex:i];
+        
+        if (isnumber(c))
+        {
+            [res appendFormat:@"%C", c];
+        }
+    }
+    
+    return res;
 }
 
 @end

@@ -6,7 +6,7 @@
 //  Created by Troy Gaul on 7 Aug 2010.
 //
 //  Copyright (c) 2011 InfinitApps LLC - http://infinitapps.com
-//	Some rights reserved: http://opensource.org/licenses/MIT
+//    Some rights reserved: http://opensource.org/licenses/MIT
 //
 //==============================================================================
 
@@ -20,22 +20,22 @@
 
 static void HSVFromUIColor( UIColor* color, float* h, float* s, float* v )
 {
-	CGColorRef colorRef = color.CGColor ;
-	
-	const CGFloat* components = CGColorGetComponents( colorRef );
-	size_t numComponents = CGColorGetNumberOfComponents( colorRef );
-	
-	CGFloat r, g, b;
-	if( numComponents < 3 ) {
-		r = g = b = components[ 0 ];
-	}
-	else {
-		r = components[ 0 ];
-		g = components[ 1 ];
-		b = components[ 2 ];
-	}
-	
-	RGBToHSV( r, g, b, h, s, v, YES );
+    CGColorRef colorRef = color.CGColor ;
+    
+    const CGFloat* components = CGColorGetComponents( colorRef );
+    size_t numComponents = CGColorGetNumberOfComponents( colorRef );
+    
+    CGFloat r, g, b;
+    if( numComponents < 3 ) {
+        r = g = b = components[ 0 ];
+    }
+    else {
+        r = components[ 0 ];
+        g = components[ 1 ];
+        b = components[ 2 ];
+    }
+    
+    RGBToHSV( r, g, b, h, s, v, YES );
 }
 
 //==============================================================================
@@ -66,235 +66,190 @@ static void HSVFromUIColor( UIColor* color, float* h, float* s, float* v )
 @synthesize navController;
 
 //------------------------------------------------------------------------------
-#pragma mark	Class methods
+#pragma mark    Class methods
 //------------------------------------------------------------------------------
 
 + (InfColorPickerController*) colorPickerViewController
 {
-	return [ [ [ self alloc ] initWithNibName: @"InfColorPickerView" bundle: nil ] autorelease ];
+    return [ [ self alloc ] initWithNibName: @"InfColorPickerView" bundle: nil ];
 }
 
 //------------------------------------------------------------------------------
 
 + (CGSize) idealSizeForViewInPopover
 {
-	return CGSizeMake( 256 + ( 1 + 20 ) * 2, 420 );
+    return CGSizeMake( 256 + ( 1 + 20 ) * 2, 420 );
 }
 
 //------------------------------------------------------------------------------
-#pragma mark	Memory management
+#pragma mark    Memory management
 //------------------------------------------------------------------------------
 
-- (void) dealloc
-{
-	[ barView release ];
-	[ squareView release ];
-	[ barPicker release ];
-	[ squarePicker release ];
-	[ sourceColorView release ];
-	[ resultColorView release ];
-	[ navController release ];
-	
-	[ sourceColor release ];
-	[ resultColor release ];
-	
-	[ super dealloc ];
-}
 
 //------------------------------------------------------------------------------
-#pragma mark	Creation
+#pragma mark    Creation
 //------------------------------------------------------------------------------
 
 - (instancetype) initWithNibName: (NSString*) nibNameOrNil bundle: (NSBundle*) nibBundleOrNil
 {
-	self = [ super initWithNibName: nibNameOrNil bundle: nibBundleOrNil ];
-	
-	if( self ) {
-		self.navigationItem.title = NSLocalizedString( @"Set Color", 
-									@"InfColorPicker default nav item title" );
-	}
-	
-	return self;
+    self = [ super initWithNibName: nibNameOrNil bundle: nibBundleOrNil ];
+    
+    if( self ) {
+        self.navigationItem.title = NSLocalizedString( @"Set Color", 
+                                    @"InfColorPicker default nav item title" );
+    }
+    
+    return self;
 }
 
 //------------------------------------------------------------------------------
 
 - (void) viewDidLoad
 {
-	[ super viewDidLoad ];
+    [ super viewDidLoad ];
 
-	self.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
+    self.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
 
-	barPicker.value = hue;
-	squareView.hue = hue;
-	squarePicker.hue = hue;
-	squarePicker.value = CGPointMake( saturation, brightness );
+    barPicker.value = hue;
+    squareView.hue = hue;
+    squarePicker.hue = hue;
+    squarePicker.value = CGPointMake( saturation, brightness );
 
-	if( sourceColor )
-		sourceColorView.backgroundColor = sourceColor;
-	
-	if( resultColor )
-		resultColorView.backgroundColor = resultColor;
-}
-
-//------------------------------------------------------------------------------
-
-- (void) viewDidUnload
-{
-	[ super viewDidUnload ];
-	
-	// Release any retained subviews of the main view.
-	
-	self.barView = nil;
-	self.squareView = nil;
-	self.barPicker = nil;
-	self.squarePicker = nil;
-	self.sourceColorView = nil;
-	self.resultColorView = nil;
-	self.navController = nil;
-}
-
-//------------------------------------------------------------------------------
-
-- (BOOL) shouldAutorotateToInterfaceOrientation: (UIInterfaceOrientation) interfaceOrientation
-{
-	return interfaceOrientation == UIInterfaceOrientationPortrait;
+    if( sourceColor )
+        sourceColorView.backgroundColor = sourceColor;
+    
+    if( resultColor )
+        resultColorView.backgroundColor = resultColor;
+    
+    
+    self.preferredContentSize = [InfColorPickerController idealSizeForViewInPopover];
 }
 
 //------------------------------------------------------------------------------
 
 - (void) presentModallyOverViewController: (UIViewController*) controller
 {
-	UINavigationController* nav = [ [ [ UINavigationController alloc ] initWithRootViewController: self ] autorelease ];
-	
-	nav.navigationBar.barStyle = UIBarStyleBlackOpaque;
-	
-	self.navigationItem.rightBarButtonItem = [ [ [ UIBarButtonItem alloc ] initWithBarButtonSystemItem: UIBarButtonSystemItemDone target: self action: @selector( done: ) ] autorelease ];
-				
-	[ controller presentViewController: nav animated: YES completion:nil];
+    UINavigationController* nav = [ [ UINavigationController alloc ] initWithRootViewController: self ];
+    
+    nav.navigationBar.barStyle = UIBarStyleBlackOpaque;
+    
+    self.navigationItem.rightBarButtonItem = [ [ UIBarButtonItem alloc ] initWithBarButtonSystemItem: UIBarButtonSystemItemDone target: self action: @selector( done: ) ];
+                
+    [ controller presentViewController: nav animated: YES completion:nil];
 }
 
 //------------------------------------------------------------------------------
-#pragma mark	IB actions
+#pragma mark    IB actions
 //------------------------------------------------------------------------------
 
 - (IBAction) takeBarValue: (InfColorBarPicker*) sender
 {
-	hue = sender.value;
-	
-	squareView.hue = hue;
-	squarePicker.hue = hue;
-	
-	[ self updateResultColor ];
+    hue = sender.value;
+    
+    squareView.hue = hue;
+    squarePicker.hue = hue;
+    
+    [ self updateResultColor ];
 }
 
 //------------------------------------------------------------------------------
 
 - (IBAction) takeSquareValue: (InfColorSquarePicker*) sender
 {
-	saturation = sender.value.x;
-	brightness = sender.value.y;
+    saturation = sender.value.x;
+    brightness = sender.value.y;
 
-	[ self updateResultColor ];
+    [ self updateResultColor ];
 }
 
 //------------------------------------------------------------------------------
 
 - (IBAction) takeBackgroundColor: (UIView*) sender
 {
-	self.resultColor = sender.backgroundColor;
+    self.resultColor = sender.backgroundColor;
 }
 
 //------------------------------------------------------------------------------
 
 - (IBAction) done: (id) sender
 {
-	[ self.delegate colorPickerControllerDidFinish: self ];	
+    [ self.delegate colorPickerControllerDidFinish: self ];
+    
+    if (self.completionBlock)
+    {
+        self.completionBlock(self);
+    }
 }
 
 //------------------------------------------------------------------------------
-#pragma mark	Properties
+#pragma mark    Properties
 //------------------------------------------------------------------------------
 
 - (void) informDelegateDidChangeColor
 {
-	if( self.delegate && [ (id) self.delegate respondsToSelector: @selector( colorPickerControllerDidChangeColor: ) ] )
-		[ self.delegate colorPickerControllerDidChangeColor: self ];
+    if( self.delegate && [ (id) self.delegate respondsToSelector: @selector( colorPickerControllerDidChangeColor: ) ] )
+        [ self.delegate colorPickerControllerDidChangeColor: self ];
 }
 
 //------------------------------------------------------------------------------
 
 - (void) updateResultColor
 {
-	// This is used when code internally causes the update.  We do this so that
-	// we don't cause push-back on the HSV values in case there are rounding
-	// differences or anything.  However, given protections from hue and sat
-	// changes when not necessary elsewhere it's probably not actually needed.
-	
-	[ self willChangeValueForKey: @"resultColor" ];
-	
-	[ resultColor release ];
-	resultColor = [ [ UIColor colorWithHue: hue saturation: saturation 
-								brightness: brightness alpha: 1.0f ] retain ];
-	
-	[ self didChangeValueForKey: @"resultColor" ];
-	
-	resultColorView.backgroundColor = resultColor;
-	
-	[ self informDelegateDidChangeColor ];
+    // This is used when code internally causes the update.  We do this so that
+    // we don't cause push-back on the HSV values in case there are rounding
+    // differences or anything.  However, given protections from hue and sat
+    // changes when not necessary elsewhere it's probably not actually needed.
+    
+    [ self willChangeValueForKey: @"resultColor" ];
+    
+    resultColor = [ UIColor colorWithHue: hue saturation: saturation 
+                                brightness: brightness alpha: 1.0f ];
+    
+    [ self didChangeValueForKey: @"resultColor" ];
+    
+    resultColorView.backgroundColor = resultColor;
+    
+    [ self informDelegateDidChangeColor ];
 }
 
 //------------------------------------------------------------------------------
 
 - (void) setResultColor: (UIColor*) newValue
 {
-	if( ![ resultColor isEqual: newValue ] ) {
-		[ resultColor release ];
-		resultColor = [ newValue retain ];
-		
-		float h = hue;
-		HSVFromUIColor( newValue, &h, &saturation, &brightness );
-		
-		if( h != hue ) {
-			hue = h;
-			
-			barPicker.value = hue;
-			squareView.hue = hue;
-			squarePicker.hue = hue;
-		}
-		
-		squarePicker.value = CGPointMake( saturation, brightness );
+    if( ![ resultColor isEqual: newValue ] ) {
+        resultColor = newValue;
+        
+        float h = hue;
+        HSVFromUIColor( newValue, &h, &saturation, &brightness );
+        
+        if( h != hue ) {
+            hue = h;
+            
+            barPicker.value = hue;
+            squareView.hue = hue;
+            squarePicker.hue = hue;
+        }
+        
+        squarePicker.value = CGPointMake( saturation, brightness );
 
-		resultColorView.backgroundColor = resultColor;
+        resultColorView.backgroundColor = resultColor;
 
-		[ self informDelegateDidChangeColor ];
-	}
+        [ self informDelegateDidChangeColor ];
+    }
 }
 
 //------------------------------------------------------------------------------
 
 - (void) setSourceColor: (UIColor*) newValue
 {
-	if( ![ sourceColor isEqual: newValue ] ) {
-		[ sourceColor release ];
-		sourceColor = [ newValue retain ];
-		
-		sourceColorView.backgroundColor = sourceColor;
-		
-		self.resultColor = newValue;
-	}
+    if( ![ sourceColor isEqual: newValue ] ) {
+        sourceColor = newValue;
+        
+        sourceColorView.backgroundColor = sourceColor;
+        
+        self.resultColor = newValue;
+    }
 }
-
-//------------------------------------------------------------------------------
-#pragma mark	UIViewController( UIPopoverController ) methods
-//------------------------------------------------------------------------------
-
-- (CGSize) contentSizeForViewInPopover
-{
-	return [ [ self class ] idealSizeForViewInPopover ];
-}
-
-//------------------------------------------------------------------------------
 
 @end
 

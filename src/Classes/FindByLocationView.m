@@ -22,6 +22,7 @@
 #import "SimpleAnnotation.h"
 #import "BearingAnnotationView.h"
 #import "LocationAuthorization.h"
+#import <Intents/Intents.h>
 
 enum SECTIONS_AND_ROWS
 {
@@ -32,57 +33,51 @@ enum SECTIONS_AND_ROWS
     kShowSection,
     kAutoSection,
     kNoteSection,
-    kMapSection
+    kMapSection,
+    kSiriSection
 };
 
 
-#define kShowArrivals		0
-#define kShowMap			1
-#define kShowRoute			2
+#define kShowArrivals        0
+#define kShowMap            1
+#define kShowRoute            2
 
-#define kDistanceNextToMe	0
+#define kDistanceNextToMe    0
 #define kDistanceHalfMile   1
-#define kDistanceMile		2
-#define kDistance3Miles		3
+#define kDistanceMile        2
+#define kDistance3Miles        3
 
-#define kSegRowWidth		320
-#define kSegRowHeight		40
-#define kUISegHeight		40
-#define kUISegWidth			320
+#define kSegRowWidth        320
+#define kSegRowHeight        40
+#define kUISegHeight        40
+#define kUISegWidth            320
 
 #define kAutoAsk            0
 #define kAutoPrevious       1
+
+#define SEGMENT_TAG         5
 
 #define kHelpText           @"\nNote: Using previous settings chosen in 'Locate nearby stops' main menu."
 
 @implementation FindByLocationView
 
-@synthesize cachedRoutes = _cachedRoutes;
-@synthesize lastLocate   = _lastLocate;
-@synthesize autoLaunch   = _autoLaunch;
-@synthesize startingLocationName = _startingLocationName;
-@synthesize startingLocation = _startingLocation;
-@synthesize circle      = _circle;
-
 // @synthesize progressText = _progressText;
 
 - (void)dealloc {
-	self.cachedRoutes = nil;
-	self.lastLocate   = nil;
-    self.startingLocation = nil;
-    self.startingLocationName = nil;
-    self.circle = nil;
+    
+    if (self.userActivity)
+    {
+        [self.userActivity invalidate];
+    }
     
     if (self.mapUpdateTimer)
     {
         [self.mapUpdateTimer invalidate];
-        self.mapUpdateTimer = nil;
     }
 
-	[super dealloc];
 }
 
-- (void) basicInit
+- (void)basicInit
 {
     self.title = NSLocalizedString(@"Locate Stops", @"page title");
     _maxRouteCount = 1;
@@ -101,11 +96,11 @@ enum SECTIONS_AND_ROWS
     }
 }
 
-- (instancetype) initWithLocation:(CLLocation*)location description:(NSString*)locationName
+- (instancetype)initWithLocation:(CLLocation*)location description:(NSString*)locationName
 {
     if ((self = [super init]))
-	{
-		[self basicInit];
+    {
+        [self basicInit];
         
         self.startingLocation = location;
         self.startingLocationName = locationName;
@@ -123,16 +118,16 @@ enum SECTIONS_AND_ROWS
         
         [self addSectionType:kShowSection];
         [self addRowType:kShowSection];
-	}
+    }
     
     return self;
 }
 
-- (instancetype) init
+- (instancetype)init
 {
-	if ((self = [super init]))
-	{
-		[self basicInit];
+    if ((self = [super init]))
+    {
+        [self basicInit];
         
         [self clearSectionMaps];
         
@@ -150,28 +145,115 @@ enum SECTIONS_AND_ROWS
         [self addSectionType:kShowSection];
         [self addRowType:kShowSection];
         
+        [self addSectionType:kSiriSection];
+        [self addRowType:kSiriSection];
+        
         [self addSectionType:kAutoSection];
         [self addRowType:kAutoSection];
         
         
         
         [self addSectionType:kNoteSection];
-	}
-	return self;
+    }
+    return self;
 }
+
+static NSDictionary<NSString*, NSNumber*>  *dmap;
+static NSDictionary<NSString*, NSNumber*>  *mmap;
+static NSDictionary<NSString*, NSNumber*>  *smap;
+static NSDictionary<NSNumber*, NSString*>  *ui_mmap;
+static NSDictionary<NSNumber*, NSString*>  *ui_dmap;
+static NSDictionary<NSNumber*, NSString*>  *ui_smap;
+
+
+- (void)initMappings
+{
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        smap = @{
+                         @"Arrivals"  : @kShowArrivals,
+                         @"arrivals"  : @kShowArrivals,
+                         @"map"       : @kShowMap,
+                         @"Map"       : @kShowMap,
+                         @"routes"    : @kShowRoute,
+                         @"Routes"    : @kShowRoute};
+        
+        ui_smap = @{
+                    @kShowArrivals : NSLocalizedString(@"Arrivals",     @"screen type"),
+                    @kShowMap      : NSLocalizedString(@"Map",          @"screen type"),
+                    @kShowRoute    : NSLocalizedString(@"Routes",       @"screen type")};
+    
+        dmap = @{
+                 @"closest"   : @kDistanceNextToMe,
+                 @"Closest"   : @kDistanceNextToMe,
+                 @"0.5"       : @kDistanceHalfMile,
+                 @"1"         : @kDistanceMile,
+                 @"3"         : @kDistance3Miles };
+        
+        ui_dmap = @{
+                    @kDistanceNextToMe : NSLocalizedString(@"that are nearby",          @"location distance"),
+                    @kDistanceHalfMile : NSLocalizedString(@"that are within ½ mile",   @"location distance"),
+                    @kDistanceMile     : NSLocalizedString(@"that are within 1 mile",   @"location distance"),
+                    @kDistance3Miles   : NSLocalizedString(@"that are within 3 miles",  @"location distance")};
+        
+        mmap = @{
+                 @"Bus"               : @(TripModeBusOnly),
+                 @"bus"               : @(TripModeBusOnly),
+                 @"Busses"            : @(TripModeBusOnly),
+                 @"busses"            : @(TripModeBusOnly),
+                 @"Buses"             : @(TripModeBusOnly),
+                 @"buses"             : @(TripModeBusOnly),
+                 @"Train"             : @(TripModeTrainOnly),
+                 @"train"             : @(TripModeTrainOnly),
+                 @"Trains"            : @(TripModeTrainOnly),
+                 @"trains"            : @(TripModeTrainOnly),
+                 @"both"              : @(TripModeAll),
+                 @"Both"              : @(TripModeAll),
+                 @"BusAndTrain"       : @(TripModeAll),
+                 @"busandtrain"       : @(TripModeAll),
+                 @"BussesAndTrains"   : @(TripModeAll),
+                 @"bussesandtrains"   : @(TripModeAll),
+                 @"BusesAndTrains"    : @(TripModeAll),
+                 @"busesandtrains"    : @(TripModeAll)};
+        
+        ui_mmap = @{
+                    @(TripModeBusOnly)      : @"bus stops",
+                    @(TripModeTrainOnly)    : @"train stations",
+                    @(TripModeAll)          : @"bus stops and stations"};
+        });
+    
+}
+
++ (NSString *)mapValue:(NSInteger)value in:(NSDictionary<NSString*, NSNumber*>*)dict
+{
+    __block NSString *found = @"";
+    [dict enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSNumber * _Nonnull obj, BOOL * _Nonnull stop) {
+        if (obj.integerValue == value)
+        {
+            found = key;
+            *stop = YES;
+        }
+    }];
+    
+    return found;
+    
+}
+
+#define kLocationDistance   @"distance"
+#define kLocationMode       @"mode"
+#define kLocationShow       @"show"
+#define kLocationCoords     @"coords"
 
 - (void)actionArgs:(NSDictionary *)args
 {
-    NSString *arg = args[@"distance"];
+    [self initMappings];
+    
+    _autoLaunch = YES;
+    
+    NSString *arg = args[kLocationDistance];
     
     if (arg !=nil)
     {
-        NSDictionary *dmap = @{
-                               @"closest"   : @kDistanceNextToMe,
-                               @"Closest"   : @kDistanceNextToMe,
-                               @"0.5"       : @kDistanceHalfMile,
-                               @"1"         : @kDistanceMile,
-                               @"3"         : @kDistance3Miles };
         NSNumber *num = dmap[arg];
         if (num)
         {
@@ -179,50 +261,22 @@ enum SECTIONS_AND_ROWS
         }
     }
     
-    arg = args[@"mode"];
+    arg = args[kLocationMode];
     
     if (arg !=nil)
-    {       
-        NSDictionary *dmap = @{
-                               @"Bus"               : @(TripModeBusOnly),
-                               @"bus"               : @(TripModeBusOnly),
-                               @"Busses"            : @(TripModeBusOnly),
-                               @"busses"            : @(TripModeBusOnly),
-                               @"Buses"             : @(TripModeBusOnly),
-                               @"buses"             : @(TripModeBusOnly),
-                               @"Train"             : @(TripModeTrainOnly),
-                               @"train"             : @(TripModeTrainOnly),
-                               @"Trains"            : @(TripModeTrainOnly),
-                               @"trains"            : @(TripModeTrainOnly),
-                               @"both"              : @(TripModeAll),
-                               @"Both"              : @(TripModeAll),
-                               @"BusAndTrain"       : @(TripModeAll),
-                               @"busandtrain"       : @(TripModeAll),
-                               @"BussesAndTrains"   : @(TripModeAll),
-                               @"bussesandtrains"   : @(TripModeAll),
-                               @"BusesAndTrains"    : @(TripModeAll),
-                               @"busesandtrains"    : @(TripModeAll)};
-        
-        NSNumber *num = dmap[arg];
+    {
+        NSNumber *num = mmap[arg];
         if (num)
         {
             _mode = (TripMode)num.integerValue;
         }
     }
     
-    arg = args[@"show"];
+    arg = args[kLocationShow];
     
     if (arg !=nil)
     {
-        NSDictionary *dmap = @{
-                               @"Arrivals"  : @kShowArrivals,
-                               @"arrivals"  : @kShowArrivals,
-                               @"map"       : @kShowMap,
-                               @"Map"       : @kShowMap,
-                               @"routes"    : @kShowRoute,
-                               @"Routes"    : @kShowRoute};
-        
-        NSNumber *num = dmap[arg];
+        NSNumber *num = smap[arg];
         if (num)
         {
             _show = (int)num.integerValue;
@@ -230,11 +284,12 @@ enum SECTIONS_AND_ROWS
     }
 }
 
+
 - (instancetype) initAutoLaunch
 {
     _autoLaunch = YES;
     
-	return [self init];
+    return [self init];
 }
 
 - (void)setDistance
@@ -257,6 +312,45 @@ enum SECTIONS_AND_ROWS
             _minDistance = kDistMile * 3;
             _maxToFind = kMaxStops;
             break;
+    }
+}
+
++ (NSDictionary *)nearbyArrivalInfo
+{
+    return @{
+             kLocationMode :     [FindByLocationView mapValue:TripModeAll       in:mmap],
+             kLocationShow :     [FindByLocationView mapValue:kShowArrivals     in:smap],
+             kLocationDistance:  [FindByLocationView mapValue:kDistanceHalfMile in:dmap]
+             };
+}
+
+- (void)createUserActivity
+{
+    if (@available(iOS 12.0, *))
+    {
+        if (self.userActivity != nil)
+        {
+            [self.userActivity invalidate];
+        }
+        
+        self.userActivity = [[NSUserActivity alloc] initWithActivityType:kHandoffUserActivityLocation];
+        
+        NSMutableDictionary *info = [NSMutableDictionary dictionary];
+        
+        [self initMappings];
+        
+        info[kLocationMode] =       [FindByLocationView mapValue:_mode in:mmap];
+        info[kLocationShow] =       [FindByLocationView mapValue:_show in:smap];
+        info[kLocationDistance] =   [FindByLocationView mapValue:_dist in:dmap];
+        
+        
+        self.userActivity.eligibleForSearch = YES;
+        self.userActivity.eligibleForPrediction = YES;
+        
+        self.userActivity.title = [NSString stringWithFormat:@"Launch PDX Bus & show %@ for %@ %@", ui_smap[@(_show)], ui_mmap[@(_mode)], ui_dmap[@(_dist)]];
+        
+        self.userActivity.userInfo = info;
+        [self.userActivity becomeCurrent];
     }
 }
 
@@ -283,6 +377,11 @@ enum SECTIONS_AND_ROWS
             break;
     }
     
+    if (@available(iOS 12.0, *))
+    {
+        [self createUserActivity];
+    }
+    
     [self.navigationController pushViewController:locator animated:YES];
 }
 
@@ -300,31 +399,52 @@ enum SECTIONS_AND_ROWS
 
 - (void)updateToolbarItems:(NSMutableArray *)toolbarItems
 {
-    UIBarButtonItem *resetButton = [[[UIBarButtonItem alloc]
+    UIBarButtonItem *resetButton = [[UIBarButtonItem alloc]
                               initWithTitle:NSLocalizedString(@"Reset Options", @"button text") style:UIBarButtonItemStylePlain
-                              target:self action:@selector(resetButton:)] autorelease];
+                              target:self action:@selector(resetButton:)];
     
     
     [toolbarItems addObject:resetButton];
     
 }
 
-- (UITableViewStyle) getStyle
+- (UITableViewStyle) style
 {
-	return UITableViewStyleGrouped;
+    return UITableViewStyleGrouped;
 }
 
 #pragma mark UI Helper functions
 
 -(void)backButton:(id)sender
 {
-	[super backButton:sender];
+    [super backButton:sender];
 }
+
 
 - (void)locatingViewFinished:(LocatingView *)locatingView
 {
     if (!locatingView.failed && !locatingView.cancelled)
     {
+#if 0
+        if (@available(iOS 12.0, *))
+        {
+            if (_show == kShowArrivals)
+            {
+                LocateArrivalsIntent *intent = [[LocateArrivalsIntent alloc] init];
+                
+                intent.suggestedInvocationPhrase = @"Nearby arrivals";
+                
+                INInteraction *interaction = [[INInteraction alloc] initWithIntent:intent response:nil];
+                
+                [interaction donateInteractionWithCompletion:^(NSError * _Nullable error) {
+                    LOG_NSERROR(error);
+                }];
+            }
+            
+        }
+#endif
+        
+        
         [self searchAndDisplay:locatingView.backgroundTask location:locatingView.lastLocation];
     }
     else if (locatingView.cancelled)
@@ -335,27 +455,27 @@ enum SECTIONS_AND_ROWS
 
 - (void)searchAndDisplay:(BackgroundTaskContainer *)background location:(CLLocation *)here
 {
-	switch (_show)
-	{
-		case kShowMap:
-		{
+    switch (_show)
+    {
+        case kShowMap:
+        {
             NearestVehiclesMap *mapView = [NearestVehiclesMap viewController];
             mapView.circle = [MKCircle circleWithCenterCoordinate:here.coordinate radius:_minDistance];
-			[mapView fetchNearestVehiclesAndStopsAsync:background location:here maxToFind:_maxToFind minDistance:_minDistance mode:_mode];
+            [mapView fetchNearestVehiclesAndStopsAsync:background location:here maxToFind:_maxToFind minDistance:_minDistance mode:_mode];
             
-			break;
-		}
-		case kShowRoute:
-		{
+            break;
+        }
+        case kShowRoute:
+        {
             [[NearestRoutesView viewController] fetchNearestRoutesAsync:background location:here maxToFind:_maxToFind minDistance:_minDistance mode:_mode];
-			break;
-		}
-		case kShowArrivals:
-		{
-			[[DepartureTimesView viewController] fetchTimesForNearestStopsAsync:background location:here maxToFind:_maxToFind minDistance:_minDistance mode:_mode];
-			break;
-		}
-	}
+            break;
+        }
+        case kShowArrivals:
+        {
+            [[DepartureTimesView viewController] fetchTimesForNearestStopsAsync:background location:here maxToFind:_maxToFind minDistance:_minDistance mode:_mode];
+            break;
+        }
+    }
     
     if (_autoLaunch)
     {
@@ -368,43 +488,42 @@ enum SECTIONS_AND_ROWS
 
 - (UISegmentedControl*) createSegmentedControl:(NSArray *)segmentTextContent parent:(UIView *)parent action:(SEL)action
 {
-	UISegmentedControl *segmentedControl = [[UISegmentedControl alloc] initWithItems:segmentTextContent];
-	CGRect frame = CGRectMake((kSegRowWidth-kUISegWidth)/2, (kSegRowHeight - kUISegHeight)/2 , kUISegWidth, kUISegHeight);
-	
-	segmentedControl.frame = frame;
-	[segmentedControl addTarget:self action:action forControlEvents:UIControlEventValueChanged];
-	segmentedControl.autoresizingMask =   UIViewAutoresizingFlexibleWidth;
-	[parent addSubview:segmentedControl];
-	[parent layoutSubviews];
-	[segmentedControl autorelease];
-	return segmentedControl;
+    UISegmentedControl *segmentedControl = [[UISegmentedControl alloc] initWithItems:segmentTextContent];
+    CGRect frame = CGRectMake((kSegRowWidth-kUISegWidth)/2, (kSegRowHeight - kUISegHeight)/2 , kUISegWidth, kUISegHeight);
+    
+    segmentedControl.frame = frame;
+    [segmentedControl addTarget:self action:action forControlEvents:UIControlEventValueChanged];
+    segmentedControl.autoresizingMask =   UIViewAutoresizingFlexibleWidth;
+    [parent addSubview:segmentedControl];
+    [parent layoutSubviews];
+    return segmentedControl;
 }
 
 - (void)modeSegmentChanged:(id)sender
 {
-	UISegmentedControl *seg = (UISegmentedControl *)sender;
-	_mode = (TripMode)seg.selectedSegmentIndex;
+    UISegmentedControl *seg = (UISegmentedControl *)sender;
+    _mode = (TripMode)seg.selectedSegmentIndex;
 }
 
 - (void)showSegmentChanged:(id)sender
 {
-	UISegmentedControl *seg = (UISegmentedControl *)sender;
-	_show = (int)seg.selectedSegmentIndex;
+    UISegmentedControl *seg = (UISegmentedControl *)sender;
+    _show = (int)seg.selectedSegmentIndex;
 }
 
 
 - (void)distSegmentChanged:(id)sender
 {
-	UISegmentedControl *seg = (UISegmentedControl *)sender;
-	_dist = (int)seg.selectedSegmentIndex;
+    UISegmentedControl *seg = (UISegmentedControl *)sender;
+    _dist = (int)seg.selectedSegmentIndex;
     [self setDistance];
     [self updateCircle];
 }
 
 - (void)autoSegmentChanged:(id)sender
 {
-	UISegmentedControl *seg = (UISegmentedControl *)sender;
-	
+    UISegmentedControl *seg = (UISegmentedControl *)sender;
+    
     UserPrefs *prefs = [UserPrefs sharedInstance];
     
     switch (seg.selectedSegmentIndex)
@@ -424,101 +543,106 @@ enum SECTIONS_AND_ROWS
 #pragma mark TableViewWithToolbar methods
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-	
+    
     return self.sections;
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-	
-	switch ([self sectionType:section])
-	{
-		case kDistanceSection:
+    
+    switch ([self sectionType:section])
+    {
+        case kDistanceSection:
             return NSLocalizedString(@"Search radius:", @"Section title");
-		case kModeSection:
+        case kModeSection:
             return NSLocalizedString(@"Mode of travel:", @"Section title");
-		case kShowSection:
+        case kShowSection:
             return NSLocalizedString(@"Show:",  @"Section title");
         case kNoteSection:
             return NSLocalizedString(@"Note: This page is always shown when 'Locate nearby stops' is selected from the main list.", @"Page note");
         case kAutoSection:
             return NSLocalizedString(@"Locate toolbar button behavior:", @"Section title");
-		case kGpsLocateSection:
-			return nil; // [NSString stringWithFormat:@"Choosing 'Arrivals' will show a maximum of %d stops.", kMaxStops];
+        case kSiriSection:
+            return NSLocalizedString(@"Add to Siri", @"Section title");
+        case kGpsLocateSection:
+            return nil; // [NSString stringWithFormat:@"Choosing 'Arrivals' will show a maximum of %d stops.", kMaxStops];
         case kNoGpsLocateSection:
             return self.startingLocationName;
-	}
-	return nil;
+    }
+    return nil;
 }
 
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-	
+    
     return [self rowsInSection:section];
 }
 
-#define kUIProgressBarWidth		240.0
-#define kUIProgressBarHeight	10.0
-#define kRowHeight				40.0
+#define kUIProgressBarWidth        240.0
+#define kUIProgressBarHeight    10.0
+#define kRowHeight                40.0
 
-#define kRowWidth				300.0
+#define kRowWidth                300.0
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	CGFloat result = 0.0;
+    CGFloat result = 0.0;
 
-	switch ([self rowType:indexPath])
-	{
+    switch ([self rowType:indexPath])
+    {
         case kDistanceSection:
-		case kModeSection:
-		case kShowSection:
+        case kModeSection:
+        case kShowSection:
         case kAutoSection:
             
-			result = kSegRowHeight;
-			break;
-		case kGpsLocateSection:
+            result = kSegRowHeight;
+            break;
+        case kGpsLocateSection:
         case kNoGpsLocateSection:
         case kNoteSection:
-			result = [self basicRowHeight];
-			break;
+        case kSiriSection:
+            result = [self basicRowHeight];
+            break;
         case kMapSection:
             result = self.mapCellHeight;
             break;
-	}
-	return result;
+    }
+    return result;
 }
 
 - (UITableViewCell *)segCell:(NSString*)cellId items:(NSArray*)items action:(SEL)action
 {
-	UITableViewCell *cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellId] autorelease];
-	
-	UISegmentedControl *segmentedControl = [[UISegmentedControl alloc] initWithItems:items];
-	CGRect frame = CGRectMake((kSegRowWidth-kUISegWidth)/2, (kSegRowHeight - kUISegHeight)/2 , kUISegWidth, kUISegHeight);
-	segmentedControl.frame = frame;
-	[segmentedControl addTarget:self action:action forControlEvents:UIControlEventValueChanged];
-	segmentedControl.autoresizingMask =   UIViewAutoresizingFlexibleWidth;
-	[cell.contentView addSubview:segmentedControl];
-	[segmentedControl autorelease];
-	
-	[cell layoutSubviews];
-	cell.selectionStyle = UITableViewCellSelectionStyleNone;
-	cell.isAccessibilityElement = NO;
-	cell.backgroundView = [self clearView];
-	
-	return cell;
-	
+    UITableViewCell *cell = [self tableView:self.table cellWithReuseIdentifier:cellId];
+    
+    if ([cell.contentView viewWithTag:SEGMENT_TAG] == nil)
+    {
+        UISegmentedControl *segmentedControl = [[UISegmentedControl alloc] initWithItems:items];
+        segmentedControl.tag = SEGMENT_TAG;
+        CGRect frame = CGRectMake((kSegRowWidth-kUISegWidth)/2, (kSegRowHeight - kUISegHeight)/2 , kUISegWidth, kUISegHeight);
+        segmentedControl.frame = frame;
+        [segmentedControl addTarget:self action:action forControlEvents:UIControlEventValueChanged];
+        segmentedControl.autoresizingMask =   UIViewAutoresizingFlexibleWidth;
+        [cell.contentView addSubview:segmentedControl];
+        
+        [cell layoutSubviews];
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        cell.isAccessibilityElement = NO;
+        cell.backgroundView = [self clearView];
+    }
+    return cell;
+    
 }
 
 - (UISegmentedControl *)getSeg:(UITableViewCell *)cell
 {
-	for (UIView *v in cell.contentView.subviews)
-	{
-		if ([v isKindOfClass:[UISegmentedControl class]])
-		{
-			return (UISegmentedControl *)v;
-		}
-	}
-	
-	return nil;
+    for (UIView *v in cell.contentView.subviews)
+    {
+        if ([v isKindOfClass:[UISegmentedControl class]])
+        {
+            return (UISegmentedControl *)v;
+        }
+    }
+    
+    return nil;
 }
 
 - (void)updateCircle
@@ -585,12 +709,12 @@ enum SECTIONS_AND_ROWS
         MKCircleRenderer *circleView = [[MKCircleRenderer alloc] initWithCircle:overlay];
         circleView.strokeColor = [UIColor greenColor];
         circleView.lineWidth = 3.0;
-        return [circleView autorelease];
+        return circleView;
         
     }
     
     // Can't reurn nil so make a dummy one
-    return [[[MKCircleRenderer alloc] initWithCircle:[MKCircle circleWithMapRect:MKMapRectNull]] autorelease];
+    return [[MKCircleRenderer alloc] initWithCircle:[MKCircle circleWithMapRect:MKMapRectNull]];
 }
 
 - (void)startCircleTimer
@@ -614,49 +738,42 @@ enum SECTIONS_AND_ROWS
     {
         case kDistanceSection:
         {
-            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kDistanceSection)];
-            if (cell == nil) {
-                cell = [self segCell:MakeCellId(kDistanceSection)
-                               items:@[
-                                       NSLocalizedString(@"Closest",   @"Short segment button text"),
-                                       NSLocalizedString(@"½ mile",    @"Short segment button text"),
-                                       NSLocalizedString(@"1 mile",    @"Short segment button text"),
-                                       NSLocalizedString(@"3 miles",   @"Short segment button text"),
-                                       ]
-                              action:@selector(distSegmentChanged:)];
-            }
+            UITableViewCell *cell = [self segCell:MakeCellId(kDistanceSection)
+                                            items:@[
+                                                    NSLocalizedString(@"Closest",   @"Short segment button text"),
+                                                    NSLocalizedString(@"½ mile",    @"Short segment button text"),
+                                                    NSLocalizedString(@"1 mile",    @"Short segment button text"),
+                                                    NSLocalizedString(@"3 miles",   @"Short segment button text"),
+                                                    ]
+                                           action:@selector(distSegmentChanged:)];
             
             [self getSeg:cell].selectedSegmentIndex = _dist;
             return cell;
         }
         case kShowSection:
         {
-            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kShowSection)];
-            if (cell == nil) {
-                cell = [self segCell:MakeCellId(kShowSection)
-                               items:@[
-                                       NSLocalizedString(@"Arrivals",  @"Short segment button text"),
-                                       NSLocalizedString(@"Map",       @"Short segment button text"),
-                                       NSLocalizedString(@"Routes",    @"Short segment button text"),
-                                       ]
-                              action:@selector(showSegmentChanged:)];
-            }
+            UITableViewCell *cell = [self segCell:MakeCellId(kShowSection)
+                                            items:@[
+                                                    NSLocalizedString(@"Arrivals",  @"Short segment button text"),
+                                                    NSLocalizedString(@"Map",       @"Short segment button text"),
+                                                    NSLocalizedString(@"Routes",    @"Short segment button text"),
+                                                    ]
+                                           action:@selector(showSegmentChanged:)];
+            
             
             [self getSeg:cell].selectedSegmentIndex = _show;
             return cell;
         }
         case kModeSection:
         {
-            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kModeSection)];
-            if (cell == nil) {
-                cell = [self segCell:MakeCellId(kModeSection)
-                               items:@[
-                                       NSLocalizedString(@"Bus only",          @"Short segment button text"),
-                                       NSLocalizedString(@"Rail only",         @"Short segment button text"),
-                                       NSLocalizedString(@"Bus or Rail",       @"Short segment button text"),
-                                       ]
-                              action:@selector(modeSegmentChanged:)];
-            }
+            UITableViewCell *cell = [self segCell:MakeCellId(kModeSection)
+                                            items:@[
+                                                    NSLocalizedString(@"Bus only",          @"Short segment button text"),
+                                                    NSLocalizedString(@"Rail only",         @"Short segment button text"),
+                                                    NSLocalizedString(@"Bus or Rail",       @"Short segment button text"),
+                                                    ]
+                                           action:@selector(modeSegmentChanged:)];
+            
             
             [self getSeg:cell].selectedSegmentIndex = _mode;
             return cell;
@@ -684,12 +801,23 @@ enum SECTIONS_AND_ROWS
             }
             return cell;
         }
+        case kSiriSection:
+        {
+            UITableViewCell *cell = [self tableView:tableView cellWithReuseIdentifier:MakeCellId(kSiriSection)];
+            
+            cell.textLabel.text = NSLocalizedString(@"Add to Siri", @"Button text");
+            cell.textLabel.textAlignment = NSTextAlignmentLeft;
+            cell.imageView.image = [self getIcon:kIconSiri];
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            cell.textLabel.font = self.basicFont;
+            
+            [self updateAccessibility:cell];
+            return cell;
+            
+        }
         case kGpsLocateSection:
         {
-            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kGpsLocateSection)];
-            if (cell == nil) {
-                cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kGpsLocateSection)] autorelease];
-            }
+            UITableViewCell *cell = [self tableView:tableView cellWithReuseIdentifier:MakeCellId(kGpsLocateSection)];
             
             if ([LocationAuthorization locationAuthorizedOrNotDeterminedShowMsg:NO backgroundRequired:NO])
             {
@@ -703,21 +831,18 @@ enum SECTIONS_AND_ROWS
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             cell.textLabel.font = self.basicFont;
             
-            [self updateAccessibility:cell indexPath:indexPath text:cell.textLabel.text alwaysSaySection:YES];
+            [self updateAccessibility:cell];
             return cell;
         }
         case kNoGpsLocateSection:
         {
-            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kNoGpsLocateSection)];
-            if (cell == nil) {
-                cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MakeCellId(kNoGpsLocateSection)] autorelease];
-            }
+            UITableViewCell *cell = [self tableView:tableView cellWithReuseIdentifier:MakeCellId(kNoGpsLocateSection)];
             cell.textLabel.text = NSLocalizedString(@"Find nearby stops", @"Button text");
             cell.textLabel.textAlignment = NSTextAlignmentCenter;
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             cell.textLabel.font = self.basicFont;
             
-            [self updateAccessibility:cell indexPath:indexPath text:cell.textLabel.text alwaysSaySection:YES];
+            [self updateAccessibility:cell];
             return cell;
         }
         case kMapSection:
@@ -729,7 +854,7 @@ enum SECTIONS_AND_ROWS
                 SimpleAnnotation *annotLoc = [SimpleAnnotation annotation];
                 
                 annotLoc.pinTitle = self.startingLocationName;
-                annotLoc.pinColor = MKPinAnnotationColorRed;
+                annotLoc.pinColor = MAP_PIN_COLOR_RED;
                 annotLoc.coordinate = self.startingLocation.coordinate;
                 
                 [self.mapView addAnnotation:annotLoc];
@@ -747,20 +872,49 @@ enum SECTIONS_AND_ROWS
     
 }
 
+- (void)addToSiri
+{
+    if (@available(iOS 12.0, *))
+    {
+        [self createUserActivity];
+        INShortcut *shortCut = [[INShortcut alloc] initWithUserActivity:self.userActivity];
+        
+        INUIAddVoiceShortcutViewController *viewController = [[INUIAddVoiceShortcutViewController alloc] initWithShortcut:shortCut];
+        viewController.modalPresentationStyle = UIModalPresentationFormSheet;
+        viewController.delegate = self;
+        
+        [self presentViewController:viewController animated:YES completion:nil];
+    }
+}
 
+- (void)addVoiceShortcutViewController:(INUIAddVoiceShortcutViewController *)controller didFinishWithVoiceShortcut:(nullable INVoiceShortcut *)voiceShortcut error:(nullable NSError *)error
+API_AVAILABLE(ios(12.0))
+{
+    [controller dismissViewControllerAnimated:YES completion:nil];
+    
+}
+
+- (void)addVoiceShortcutViewControllerDidCancel:(INUIAddVoiceShortcutViewController *)controller
+API_AVAILABLE(ios(12.0))
+{
+    [controller dismissViewControllerAnimated:YES completion:nil];
+}
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-	
-	switch ([self sectionType:indexPath.section])
-	{
-		case kGpsLocateSection:
+    
+    switch ([self sectionType:indexPath.section])
+    {
+        case kSiriSection:
+            [self addToSiri];
+            break;
+        case kGpsLocateSection:
             [self startLocating];
-			break;
+            break;
         case kNoGpsLocateSection:
             [self setDistance];
             [self searchAndDisplay:self.backgroundTask location:self.startingLocation];
             break;
-	}
+    }
 }
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath 
@@ -768,12 +922,12 @@ enum SECTIONS_AND_ROWS
     [super tableView:tableView willDisplayCell:cell forRowAtIndexPath:indexPath];
     
     if ([cell.reuseIdentifier isEqualToString:MakeCellId(kGpsLocateSection)])
-	{
+    {
         if (![LocationAuthorization locationAuthorizedOrNotDeterminedShowMsg:NO backgroundRequired:NO])
         {
             cell.backgroundColor = [UIColor redColor];
         }
-	}
+    }
 }
 
 
@@ -783,9 +937,9 @@ enum SECTIONS_AND_ROWS
 {
     // if (!_autoLaunch)
     {
-        self.lastLocate = [@{ kLocateMode : @(_mode),
+        self.lastLocate = @{ kLocateMode : @(_mode),
                              kLocateDist : @(_dist),
-                             kLocateShow : @(_show) }.mutableCopy autorelease];
+                             kLocateShow : @(_show) }.mutableCopy;
         
         _userData.lastLocate = self.lastLocate;
     }
@@ -831,12 +985,12 @@ enum SECTIONS_AND_ROWS
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-	[super viewWillAppear:animated];
+    [super viewWillAppear:animated];
 }
 
 
 - (void)didReceiveMemoryWarning {
-	[super didReceiveMemoryWarning];
+    [super didReceiveMemoryWarning];
 }
 
 

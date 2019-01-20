@@ -19,7 +19,7 @@
 
 + (instancetype)data
 {
-    return [[[[self class] alloc] init] autorelease];
+    return [[[self class] alloc] init];
 }
 
 @end

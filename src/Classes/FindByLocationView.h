@@ -15,45 +15,39 @@
 #import "LocatingView.h"
 #import "TriMetTypes.h"
 #import "MapKit/Mapkit.h"
+#import <IntentsUI/IntentsUI.h>
 
 
-@interface FindByLocationView : TableViewWithToolbar<LocatingViewDelegate,MKMapViewDelegate>  {
-	int                                             _maxToFind;
-	TripMode                                        _mode;
-	int                                             _show;
-	int                                             _dist;
-	double                                          _minDistance;
-	int                                             _routeCount;
-	int                                             _maxRouteCount;
-	NSArray *                                       _cachedRoutes;
-    int                                             _autoLaunch;
-    NSDictionary *                                  _launchArgs;
-    int                                             _firstDisplay;
-    NSString *                                      _startingLocationName;
-    CLLocation *                                    _startingLocation;
-    MKCircle *                                      _circle;
-    NSTimer *                                       _mapUpdateTimer;
-    bool                                            _locationAuthorized;
-    NSMutableDictionary<NSString*, NSNumber*> *     _lastLocate;
+
+@interface FindByLocationView : TableViewWithToolbar<LocatingViewDelegate,MKMapViewDelegate,INUIAddVoiceShortcutViewControllerDelegate>  {
+    int _maxToFind;
+    int _maxRouteCount;
+    TripMode _mode;
+    int _show;
+    int _dist;
+    double _minDistance;
+    int _routeCount;
+    int _firstDisplay;
+    bool _locationAuthorized;
 }
 
-- (instancetype) initWithLocation:(CLLocation*)location description:(NSString*)locationName;
-- (instancetype) init;
-- (instancetype) initAutoLaunch;
-
-
-@property (nonatomic, retain) NSArray *cachedRoutes;
-@property (nonatomic, retain) NSMutableDictionary<NSString*, NSNumber*> *lastLocate;
+@property (nonatomic, strong) NSArray *cachedRoutes;
+@property (nonatomic, strong) NSMutableDictionary<NSString*, NSNumber*> *lastLocate;
 @property (nonatomic)         int autoLaunch;
 @property (nonatomic, copy)   NSString *startingLocationName;
-@property (nonatomic, retain) CLLocation *startingLocation;
-@property (nonatomic, retain) MKCircle *circle;
-@property (nonatomic, retain) NSTimer *mapUpdateTimer;
+@property (nonatomic, strong) CLLocation *startingLocation;
+@property (nonatomic, strong) MKCircle *circle;
+@property (nonatomic, strong) NSTimer *mapUpdateTimer;
+@property (nonatomic, strong) NSUserActivity *userActivity;
 
-
+- (instancetype)initWithLocation:(CLLocation*)location description:(NSString*)locationName;
+- (instancetype)init;
 - (void)distSegmentChanged:(id)sender;
 - (void)modeSegmentChanged:(id)sender;
 - (void)showSegmentChanged:(id)sender;
 - (void)actionArgs:(NSDictionary *)args;
+
++ (NSDictionary *)nearbyArrivalInfo;
+
 
 @end

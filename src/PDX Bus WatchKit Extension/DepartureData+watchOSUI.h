@@ -22,8 +22,8 @@
 
 @interface DepartureData (watchOSUI) <WatchPinColor>
 
-@property (nonatomic, getter=getFontColor, readonly, copy) UIColor *fontColor;
-@property (nonatomic, getter=getRouteColorImage, readonly, strong) UIImage *routeColorImage;
+@property (nonatomic, readonly, copy) UIColor *fontColor;
+@property (nonatomic, readonly, strong) UIImage *routeColorImage;
 @property (nonatomic, readonly, copy) NSString *formattedMinsToArrival;
 @property (nonatomic, readonly) bool hasRouteColor;
 @property (nonatomic, readonly, strong) UIImage *blockImageColor;

@@ -17,11 +17,5 @@
 
 @implementation WatchStop
 
-- (void)dealloc
-{
-    self.stopName = nil;
-    
-    [super dealloc];
-}
 
 @end

@@ -15,37 +15,30 @@
 
 #import "SegmentCell.h"
 
-#define kSegRowWidth		320.0
-#define kSegRowHeight		50.0
-#define kUISegHeight		40.0
-#define kUISegWidth			310.0
-// #define kUISegWidth			200.0
+#define kSegRowWidth        320.0
+#define kSegRowHeight        50.0
+#define kUISegHeight        40.0
+#define kUISegWidth            310.0
+// #define kUISegWidth            200.0
 
 @implementation SegmentCell
 
-@synthesize segment = _segment;
-
 - (void)createSegmentWithContent:(NSArray*)content target:(NSObject *)target action:(SEL)action
 {
-	CGRect frame = CGRectMake((kSegRowWidth-kUISegWidth)/2, (kSegRowHeight - kUISegHeight)/2 , kUISegWidth, kUISegHeight);
-	
-	self.segment						= [[[UISegmentedControl alloc] initWithItems:content] autorelease];
-	self.segment.frame					= frame;
-	self.segment.autoresizingMask		= UIViewAutoresizingFlexibleWidth;
-	[self.segment addTarget:target action:action forControlEvents:UIControlEventValueChanged];
-	[self.contentView addSubview:self.segment];
-	[self layoutSubviews];
+    CGRect frame = CGRectMake((kSegRowWidth-kUISegWidth)/2, (kSegRowHeight - kUISegHeight)/2 , kUISegWidth, kUISegHeight);
+    
+    self.segment                        = [[UISegmentedControl alloc] initWithItems:content];
+    self.segment.frame                    = frame;
+    self.segment.autoresizingMask        = UIViewAutoresizingFlexibleWidth;
+    [self.segment addTarget:target action:action forControlEvents:UIControlEventValueChanged];
+    [self.contentView addSubview:self.segment];
+    [self layoutSubviews];
 }
 
-- (void)dealloc {
-    
-	self.segment = nil;
-    [super dealloc];
-}
 
 + (CGFloat)segmentCellHeight
 {
-	return kSegRowHeight;
+    return kSegRowHeight;
 }
 
 

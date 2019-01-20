@@ -16,13 +16,8 @@
 
 #import <UIKit/UIKit.h>
 #import "XMLTrips.h"
-#import "TableViewWithToolbar.h"
+#import "HistoryView.h"
 
-@interface TripPlannerCacheView : TableViewWithToolbar  {
-	
-}
-
-
-
+@interface TripPlannerCacheView : HistoryView
 
 @end

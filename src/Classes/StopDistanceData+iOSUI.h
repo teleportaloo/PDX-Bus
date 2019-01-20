@@ -26,8 +26,6 @@
 @property (nonatomic, readonly, copy) NSString *subtitle;
 
 // From MapPinColor
-@property (nonatomic, readonly) MKPinAnnotationColor pinColor;
-
-
+@property (nonatomic, readonly) MapPinColorValue pinColor;
 
 @end

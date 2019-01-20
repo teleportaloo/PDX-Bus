@@ -21,11 +21,11 @@
 
 @interface WatchBookmarksContext : WatchContext
 
-@property (retain, nonatomic) NSString *title;
-@property (retain, nonatomic) NSArray  *singleBookmark;
+@property (strong, nonatomic) NSString *title;
+@property (strong, nonatomic) NSArray  *singleBookmark;
 @property (nonatomic)         bool recents;
 @property (nonatomic)         bool dictated;
-@property (retain, nonatomic) NSString *location;
+@property (strong, nonatomic) NSString *location;
 @property (nonatomic)         bool oneTimeShowFirst;
 
 + (WatchBookmarksContext *)contextWithBookmark:(NSArray *)bookmark title:(NSString *)title locationString:(NSString *)location;

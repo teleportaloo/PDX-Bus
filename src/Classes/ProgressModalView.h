@@ -16,56 +16,46 @@
 
 @protocol ProgressDelegate <NSObject>
 
-- (void) ProgressDelegateCancel;
+- (void) progressDelegateCancel;
 
 @end
 
 
-@interface ProgressModalView : UIView {
-	UIActivityIndicatorView *   _whirly;
-	UIProgressView *            _progress;
-	id<ProgressDelegate>        _progressDelegate;
-	UILabel *                   _subText;
-    UILabel *                   _helpText;
-   	int                         _totalItems;
-    int                         _itemsDone;
-}
+@interface ProgressModalView : UIView 
 
-- (void) itemsDone:(int)itemsDone;
-- (void) totalItems:(int)total;
-+ (ProgressModalView *)initWithSuper:(UIView *)back items:(int)items title:(NSString *)title delegate:(id<ProgressDelegate>)delegate
-						 orientation:(UIInterfaceOrientation)orientation;
+@property (nonatomic, weak) id<ProgressDelegate> progressDelegate;
+@property (nonatomic) NSInteger totalItems;
+@property (nonatomic) NSInteger itemsDone;
+@property (nonatomic, strong) UIActivityIndicatorView *whirly;
+@property (nonatomic, strong) UIProgressView *progress;
+@property (nonatomic, strong) UILabel *subText;
+@property (nonatomic, strong) UILabel *helpText;
+@property (nonatomic, strong) UIView *helpFrame;
+
+- (void) itemsDone:(NSInteger)itemsDone;
+- (void) subItemsDone:(NSInteger)subItemsDone totalSubs:(NSInteger)totalSubs;
+- (void) totalItems:(NSInteger)total;
 - (void) addSubtext:(NSString *)subtext;
 - (void) addHelpText:(NSString *)helpText;
 
-
-@property (nonatomic, assign) id<ProgressDelegate> progressDelegate;
-@property (nonatomic) int totalItems;
-@property (nonatomic) int itemsDone;
-@property (nonatomic, retain) UIActivityIndicatorView *whirly;
-@property (nonatomic, retain) UIProgressView *progress;
-@property (nonatomic, retain) UILabel *subText;
-@property (nonatomic, retain) UILabel *helpText;
-@property (nonatomic, retain) UIView *helpFrame;
-
++ (ProgressModalView *)initWithSuper:(UIView *)back items:(NSInteger)items title:(NSString *)title delegate:(id<ProgressDelegate>)delegate
+                         orientation:(UIInterfaceOrientation)orientation;
 
 @end
 
 
 @interface RoundedTransparentRect : UIView 
 {
-	CGFloat BACKGROUND_OPACITY;
-	CGFloat R;
-	CGFloat G;
-	CGFloat B;
+    CGFloat BACKGROUND_OPACITY;
+    CGFloat R;
+    CGFloat G;
+    CGFloat B;
 }
 
 @property (nonatomic) CGFloat BACKGROUND_OPACITY;
 @property (nonatomic) CGFloat R;
 @property (nonatomic) CGFloat G;
 @property (nonatomic) CGFloat B;
-
-
 
 @end
 

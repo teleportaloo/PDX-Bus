@@ -13,30 +13,32 @@
 @class StopDistanceData;
 @class CLLocation;
 @class DepartureCell;
+@class Detour;
 
 @protocol DepartureTimesDataProvider <NSObject>
 
-- (DepartureData *)DTDataGetDeparture:(NSInteger)i;
-- (void)DTDataPopulateCell:(DepartureData *)dd cell:(DepartureCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide;
+- (DepartureData *)depGetDeparture:(NSInteger)i;
+- (void)depPopulateCell:(DepartureData *)dd cell:(DepartureCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide;
 
-@property (nonatomic, readonly) NSInteger DTDataGetSafeItemCount;
-@property (nonatomic, readonly, copy) NSString *DTDataGetSectionHeader;
-@property (nonatomic, readonly, copy) NSString *DTDataGetSectionTitle;
-@property (nonatomic, readonly, copy) NSString *DTDataStaticText;
-@property (nonatomic, readonly, copy) NSString *DTDataDir;
-@property (nonatomic, readonly, strong) StopDistanceData *DTDataDistance;
-@property (nonatomic, readonly) TriMetTime DTDataQueryTime;
-@property (nonatomic, readonly, copy) CLLocation *DTDataLoc;
-@property (nonatomic, readonly, copy) NSString *DTDataLocDesc;
-@property (nonatomic, readonly, copy) NSString *DTDataLocID;
-@property (nonatomic, readonly) BOOL DTDataHasDetails;
-@property (nonatomic, readonly) BOOL DTDataNetworkError;
-@property (nonatomic, readonly, copy) NSString *DTDataNetworkErrorMsg;
-@property (nonatomic, readonly, copy) NSData *DTDataHtmlError;
+@property (nonatomic, readonly)         NSInteger depGetSafeItemCount;
+@property (nonatomic, readonly, copy)   NSString *depGetSectionHeader;
+@property (nonatomic, readonly, copy)   NSString *depGetSectionTitle;
+@property (nonatomic, readonly, copy)   NSString *depStaticText;
+@property (nonatomic, readonly, copy)   NSString *depDir;
+@property (nonatomic, readonly, strong) StopDistanceData *depDistance;
+@property (nonatomic, readonly)         NSDate *depQueryTime;
+@property (nonatomic, readonly, copy)   CLLocation *depLocation;
+@property (nonatomic, readonly, copy)   NSString *depLocDesc;
+@property (nonatomic, readonly, copy)   NSString *depLocId;
+@property (nonatomic, readonly)         bool depHasDetails;
+@property (nonatomic, readonly)         bool depNetworkError;
+@property (nonatomic, readonly, copy)   NSString *depNetworkErrorMsg;
+@property (nonatomic, readonly, copy)   NSData *depHtmlError;
+@property (nonatomic, readonly)         Detour *depDetour;
+@property (nonatomic, readonly)         NSOrderedSet<NSNumber*> *depDetoursPerSection;
 
 @optional
 
-@property (nonatomic, readonly, strong) id DTDataXML;
+@property (nonatomic, readonly, strong) id depXML;
 
 @end
-

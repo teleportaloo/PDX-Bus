@@ -17,48 +17,41 @@
 #import "EditBookMarkView.h"
 #import "SegmentCell.h"
 
-#define kCommuteSectionSegAm		0
-#define kCommuteSectionSegPm		1
+#define kCommuteSectionSegAm        0
+#define kCommuteSectionSegPm        1
 
-#define kAmOrPmId		@"AmOrPm"
-#define kDayOfWeekId	@"DayOfWeek"
+#define kAmOrPmId        @"AmOrPm"
+#define kDayOfWeekId    @"DayOfWeek"
 
 @implementation DayOfTheWeekView
-
-@synthesize originalFave = _originalFave;
 
 #define kMorningOrEvening (1)   // 1 is not used!
 #define kSection          (0)
 
 
-- (void)dealloc {
-	self.originalFave = nil;
-	
-    [super dealloc];
-}
 
 - (int)days
 {
-	NSNumber *num = self.originalFave[kUserFavesDayOfWeek];
-	
-	if (num != nil)
-	{
-		return num.intValue;
-	}
-	return kDayNever;
+    NSNumber *num = self.originalFave[kUserFavesDayOfWeek];
+    
+    if (num != nil)
+    {
+        return num.intValue;
+    }
+    return kDayNever;
 }
 
 - (bool)autoCommuteMorning
 {
-	NSNumber *num = self.originalFave[kUserFavesMorning];
-	bool morning = TRUE;
-	
-	if (num)
-	{
-		morning = num.boolValue;
-	}
-	
-	return morning;
+    NSNumber *num = self.originalFave[kUserFavesMorning];
+    bool morning = TRUE;
+    
+    if (num)
+    {
+        morning = num.boolValue;
+    }
+    
+    return morning;
 }
 
 
@@ -66,22 +59,22 @@
 
 - (void)amOrPmSegmentChanged:(id)sender
 {
-	switch (((UISegmentedControl*)sender).selectedSegmentIndex)
-	{
-		case kCommuteSectionSegAm:
-			self.originalFave[kUserFavesMorning] = @TRUE;
-			break;
-		case kCommuteSectionSegPm:
-			self.originalFave[kUserFavesMorning] = @FALSE;
-			break;
-	}
+    switch (((UISegmentedControl*)sender).selectedSegmentIndex)
+    {
+        case kCommuteSectionSegAm:
+            self.originalFave[kUserFavesMorning] = @TRUE;
+            break;
+        case kCommuteSectionSegPm:
+            self.originalFave[kUserFavesMorning] = @FALSE;
+            break;
+    }
 }
 
 #pragma mark TableViewWithToolbar methods
 
-- (UITableViewStyle) getStyle
+- (UITableViewStyle) style
 {
-	return UITableViewStyleGrouped;
+    return UITableViewStyleGrouped;
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -97,60 +90,56 @@
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     
-	if ([self rowType:indexPath] != kMorningOrEvening)
-	{
-		return [self basicRowHeight];
-	}
-	return  [SegmentCell segmentCellHeight];
+    if ([self rowType:indexPath] != kMorningOrEvening)
+    {
+        return [self basicRowHeight];
+    }
+    return  [SegmentCell segmentCellHeight];
 }
 
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath 
 {
     NSInteger rowType = [self rowType:indexPath];
-	if (rowType != kMorningOrEvening)
-	{    
-		UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kDayOfWeekId];
-		if (cell == nil) {
-			cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kDayOfWeekId] autorelease];
-		}
-		
-		cell.textLabel.text = [NSString stringWithFormat:NSLocalizedString(@"Every %@", @"before a list of the days of the week"), [EditBookMarkView daysString:(int)rowType]];
-		cell.textLabel.font = self.basicFont;
-		
-		if ((self.days & rowType) != 0)
-		{
-			cell.accessoryType = UITableViewCellAccessoryCheckmark;
-		}
-		else
-		{
-			cell.accessoryType = UITableViewCellAccessoryNone;
-		}
-		return cell;
-	}
-	else 
-	{
-		
-		SegmentCell *cell = (SegmentCell*)[tableView dequeueReusableCellWithIdentifier:kAmOrPmId];
-		if (cell == nil) {
-			cell = [[[SegmentCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kAmOrPmId] autorelease];
-			[cell createSegmentWithContent:@[NSLocalizedString(@"Morning", @"commuter bookmark option"),
+    if (rowType != kMorningOrEvening)
+    {    
+        UITableViewCell *cell = [self tableView:tableView cellWithReuseIdentifier:kDayOfWeekId];        
+        cell.textLabel.text = [NSString stringWithFormat:NSLocalizedString(@"Every %@", @"before a list of the days of the week"), [EditBookMarkView daysString:(int)rowType]];
+        cell.textLabel.font = self.basicFont;
+        
+        if ((self.days & rowType) != 0)
+        {
+            cell.accessoryType = UITableViewCellAccessoryCheckmark;
+        }
+        else
+        {
+            cell.accessoryType = UITableViewCellAccessoryNone;
+        }
+        return cell;
+    }
+    else 
+    {
+        
+        SegmentCell *cell = (SegmentCell*)[tableView dequeueReusableCellWithIdentifier:kAmOrPmId];
+        if (cell == nil) {
+            cell = [[SegmentCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kAmOrPmId];
+            [cell createSegmentWithContent:@[NSLocalizedString(@"Morning", @"commuter bookmark option"),
                                                                        NSLocalizedString(@"Afternoon", @"commuter bookmark option")]
-									target:self 
-									action:@selector(amOrPmSegmentChanged:)];
-			cell.isAccessibilityElement = NO;
-			// cell.backgroundView = [self clearView];
-		}	
-		
-		cell.segment.selectedSegmentIndex = [self autoCommuteMorning] ? kCommuteSectionSegAm : kCommuteSectionSegPm;
-		return cell;	
-		
-	}
+                                    target:self 
+                                    action:@selector(amOrPmSegmentChanged:)];
+            cell.isAccessibilityElement = NO;
+            // cell.backgroundView = [self clearView];
+        }    
+        
+        cell.segment.selectedSegmentIndex = [self autoCommuteMorning] ? kCommuteSectionSegAm : kCommuteSectionSegPm;
+        return cell;    
+        
+    }
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	unsigned int days = self.days;
+    unsigned int days = self.days;
     unsigned int rowType = (unsigned int)[self rowType:indexPath];
     
     if (rowType != kMorningOrEvening)
@@ -158,9 +147,9 @@
         days = days ^ rowType;
         self.originalFave[kUserFavesDayOfWeek] = @(days);
     }
-	
-	[self.table deselectRowAtIndexPath:indexPath animated:YES];
-	[self.table reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:NO];
+    
+    [self.table deselectRowAtIndexPath:indexPath animated:YES];
+    [self.table reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:NO];
 }
 
 - (void)viewDidLoad 

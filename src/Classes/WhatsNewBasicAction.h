@@ -22,5 +22,7 @@
 - (NSString*)plainTextIndented:(NSString *)fullText;
 - (NSString*)plainTextNormal:(NSString *)fullText;
 
++ (instancetype)action;
++ (bool)matches:(NSString *)string;
 
 @end

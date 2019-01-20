@@ -21,6 +21,6 @@
 @property (nonatomic, copy)   NSString *sceneName;
 
 - (void)pushFrom:(WKInterfaceController *)parent;
-- (void)delayedPushFrom:(WKInterfaceController *)parent;
+- (void)delayedPushFrom:(WKInterfaceController *)parent completion:(void (^)(void))completion;
 
 @end

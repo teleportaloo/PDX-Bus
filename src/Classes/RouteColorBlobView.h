@@ -14,17 +14,12 @@
 
 
 #import <UIKit/UIKit.h>
-#import "TriMetRouteColors.h"
+#import "TriMetInfo.h"
 
 
 #define ROUTE_COLOR_WIDTH 14.0
 
-@interface RouteColorBlobView : UIView {
-	CGFloat _red;
-	CGFloat _green;
-	CGFloat _blue;
-    bool    _square;
-}
+@interface RouteColorBlobView : UIView 
 
 @property (nonatomic) CGFloat red;
 @property (nonatomic) CGFloat green;

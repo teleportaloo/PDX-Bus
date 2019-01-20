@@ -37,7 +37,7 @@
 + (OpenInChromeController *)sharedInstance;
 
 // Returns YES if Google Chrome is installed in the user's system.
-@property (nonatomic, getter=isChromeInstalled, readonly) BOOL chromeInstalled;
+@property (nonatomic, readonly) BOOL chromeInstalled;
 
 // Opens a URL in Google Chrome.
 - (BOOL)openInChrome:(NSURL *)url;
