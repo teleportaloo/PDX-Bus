@@ -14,12 +14,12 @@
 
 
 #import "XMLMultipleDepartures.h"
-#import "DepartureData.h"
+#import "Departure.h"
 #import "DepartureTrip.h"
 #import "XMLDetours.h"
 #import "DebugLogging.h"
-#import "DepartureData.h"
-#import "StringHelper.h"
+#import "Departure.h"
+#import "NSString+Helper.h"
 #import "CLLocation+Helper.h"
 #import "UserPrefs.h"
 #import "Route+iOS.h"
@@ -257,7 +257,7 @@ XML_START_ELEMENT(detour)
             {
                 // System wide alerts go at the top
                 [self.stops enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, XMLDepartures * _Nonnull xml, BOOL * _Nonnull stop) {
-                    for (DepartureData *dep in xml)
+                    for (Departure *dep in xml)
                     {
                         [dep.detours insertObject:self.currentDetour.detourId atIndex:0];
                         dep.systemWideDetours++;

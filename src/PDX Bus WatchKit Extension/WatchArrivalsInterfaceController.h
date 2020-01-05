@@ -39,7 +39,7 @@
 @property (strong, nonatomic) IBOutlet WKInterfaceLabel *distanceLabel;
 @property (strong, nonatomic) IBOutlet WKInterfaceLabel *stopDescription;
 @property (strong, nonatomic) IBOutlet WKInterfaceGroup *navGroup;
-@property (nonatomic, strong) DepartureData *detailDeparture;
+@property (nonatomic, strong) Departure *detailDeparture;
 @property (nonatomic, copy)   NSString *detailStreetcarId;
 @property (strong, nonatomic) IBOutlet WKInterfaceGroup *loadingGroup;
 @property (nonatomic, copy)   NSString *progressTitle;

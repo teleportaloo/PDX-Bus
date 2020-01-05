@@ -77,7 +77,7 @@
         
         if (col == nil && self.annotationImage.tintableImage)
         {
-            col = kMapAnnotationBusColor;
+            col = [UIColor modeAwareBusColor];
         }
         
         

@@ -24,13 +24,13 @@
 }
 
 
-- (void)populate:(XMLDepartures *)xml departures:(NSArray<DepartureData*>*)deps
+- (void)populate:(XMLDepartures *)xml departures:(NSArray<Departure*>*)deps
 {
     
 }
 
-- (bool)select:(XMLDepartures*)xml from:(WKInterfaceController *)from context:(WatchArrivalsContext*)context 
+- (WatchSelectAction)select:(XMLDepartures*)xml from:(WKInterfaceController *)from context:(WatchArrivalsContext*)context canPush:(bool)push
 {
-    return NO;
+    return WatchSelectAction_None;
 }
 @end

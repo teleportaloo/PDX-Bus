@@ -13,7 +13,7 @@
 
 
 #import "DepartureTimesByBus.h"
-#import "DepartureData.h"
+#import "Departure.h"
 #import "DepartureData+iOSUI.h"
 
 
@@ -30,7 +30,7 @@
 
 #pragma mark Data Accessors
 
-- (DepartureData *)depGetDeparture:(NSInteger)i
+- (Departure *)depGetDeparture:(NSInteger)i
 {
     return self.departureItems[i];
 }
@@ -51,14 +51,14 @@
     return nil;
 }
 
-- (void)depPopulateCell:(DepartureData *)dd cell:(DepartureCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide
+- (void)depPopulateCell:(Departure *)dd cell:(DepartureCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide
 {
     [dd populateCell:cell decorate:decorate busName:NO wide:wide];    
 }
 
 - (NSString *)depStaticText
 {
-    DepartureData *d = [self depGetDeparture:0];
+    Departure *d = [self depGetDeparture:0];
     if (d.block != nil)
     {
         if (d.vehicleIDs && d.vehicleIDs.count > 0)
@@ -71,7 +71,7 @@
     return NSLocalizedString(@"(" kBlockNameC "Trip ID unavailable)", @"error text");
 }
 
-- (StopDistanceData*)depDistance
+- (StopDistance*)depDistance
 {
     return nil;
 }
@@ -87,7 +87,7 @@
 
 - (NSString *)depLocDesc
 {
-    DepartureData *dep = [self depGetDeparture:0];
+    Departure *dep = [self depGetDeparture:0];
     return dep.locationDesc;
 }
 

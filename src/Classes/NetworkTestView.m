@@ -18,18 +18,20 @@
 #import "XMLStreetcarLocations.h"
 #import "ReverseGeoLocator.h"
 #import "CLLocation+Helper.h"
+#import "NSString+Helper.h"
 
 @implementation NetworkTestView
 
 #define KSectionMaybeError        0
-#define kSectionInternet        1
+#define kSectionInternet          1
 #define kSectionTriMet            2
 #define kSectionTriMetTrip        3
-#define kSectionNextBus            4
+#define kSectionNextBus           4
 #define kSectionReverseGeoCode    5
-#define kSectionDiagnose        6
-#define kSections                7
-#define kNoErrorSections        6
+#define kSectionDiagnose          6
+
+#define kSections                 7
+#define kNoErrorSections          6
 
 
 #pragma mark Data fetchers
@@ -267,7 +269,7 @@
             {
                 cell.textLabel.text = NSLocalizedString(@"Internet access is available", @"network error");
                 cell.imageView.image = [TableViewWithToolbar getIcon:kIconNetworkOk];
-                cell.textLabel.textColor = [UIColor blackColor];
+                cell.textLabel.textColor = [UIColor modeAwareText];
                 cell.textLabel.font = self.basicFont;
             }
             break;
@@ -284,7 +286,7 @@
             else
             {
                 cell.textLabel.text = NSLocalizedString(@"TriMet arrival servers are available", @"network errror");
-                cell.textLabel.textColor = [UIColor blackColor];
+                cell.textLabel.textColor = [UIColor modeAwareText];
                 cell.imageView.image = [TableViewWithToolbar getIcon:kIconNetworkOk];
                 cell.textLabel.font = self.basicFont;
             }
@@ -303,7 +305,7 @@
             {
                 cell.textLabel.text = NSLocalizedString(@"TriMet trip servers are available", @"network errror");
 
-                cell.textLabel.textColor = [UIColor blackColor];
+                cell.textLabel.textColor = [UIColor modeAwareText];
                 cell.imageView.image = [TableViewWithToolbar getIcon:kIconNetworkOk];
                 cell.textLabel.font = self.basicFont;
             }
@@ -321,7 +323,7 @@
             else
             {
                 cell.textLabel.text = NSLocalizedString(@"NextBus (Streetcar) servers are available", @"network errror");
-                cell.textLabel.textColor = [UIColor blackColor];
+                cell.textLabel.textColor = [UIColor modeAwareText];
                 cell.imageView.image = [TableViewWithToolbar getIcon:kIconNetworkOk];
                 cell.textLabel.font = self.basicFont;
             }
@@ -332,7 +334,7 @@
             if (self.reverseGeoCodeService == nil)
             {
                 cell.textLabel.text = NSLocalizedString(@"No Reverse GeoCoding service is not supported.", @"network errror");
-                cell.textLabel.textColor = [UIColor grayColor];
+                cell.textLabel.textColor = [UIColor modeAwareText];
                 cell.imageView.image = [TableViewWithToolbar getIcon:kIconNetworkOk];
                 cell.textLabel.font = self.basicFont;
             }
@@ -346,7 +348,7 @@
             else
             {
                 cell.textLabel.text = NSLocalizedString(@"Apple's Geocoding servers are available.", @"network errror");
-                cell.textLabel.textColor = [UIColor blackColor];
+                cell.textLabel.textColor = [UIColor modeAwareText];
                 cell.imageView.image = [TableViewWithToolbar getIcon:kIconNetworkOk];
                 cell.textLabel.font = self.basicFont;
             }

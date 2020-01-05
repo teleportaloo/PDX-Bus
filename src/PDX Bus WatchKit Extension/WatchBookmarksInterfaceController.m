@@ -19,7 +19,7 @@
 #import "TriMetXML.h"
 #import "StopNameCacheManager.h"
 #import "WatchArrivalsContextBookmark.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 #import "DebugLogging.h"
 #import "WatchNearbyInterfaceController.h"
 #import "NumberPadInterfaceController.h"
@@ -368,6 +368,17 @@
     [WatchAppContext writeAppContext:applicationContext];
     
     [self performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
+}
+
+
+- (void)extentionForgrounded {
+    
+}
+
+- (void)session:(WCSession *)session activationDidCompleteWithState:(WCSessionActivationState)activationState error:(nullable NSError *)error
+{
+    
+
 }
 
 

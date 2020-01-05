@@ -12,7 +12,6 @@
 
 #import "DepartureDetailView.h"
 #import "DepartureData+iOSUI.h"
-#import "CellTextView.h"
 #import "XMLDetours.h"
 #import "WebViewController.h"
 #include "Detour.h"
@@ -27,15 +26,15 @@
 #import "AlarmTaskList.h"
 #import "AlarmViewMinutes.h"
 #import "BlockColorDb.h"
-#import "../InfColorPicker/InfColorPickerController.h"
+#import "../3rd Party/InfColorPicker/InfColorPickerController.h"
 #import "BlockColorViewController.h"
 #import "TriMetInfo.h"
 #import "BearingAnnotationView.h"
 #import "XMLLocateVehicles.h"
 #import "FormatDistance.h"
-#import "VehicleData+iOSUI.h"
+#import "Vehicle+iOSUI.h"
 #import "Detour+iOSUI.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 #import "TriMetInfo.h"
 #import "Detour+DTData.h"
 #import "KMLRoutes.h"
@@ -114,7 +113,7 @@ enum SECTIONS_AND_ROWS
     
     PC_ROUTE_INFO info = [TriMetInfo infoForRoute:self.departure.route];
     
-    DepartureData *dep = self.departure;
+    Departure *dep = self.departure;
     
     self.shape = [NSMutableArray array];
     
@@ -208,7 +207,7 @@ enum SECTIONS_AND_ROWS
             
             if (newDep.gotData && newDep.count > 0)
             {
-                DepartureData *oldDep = self.departure;
+                Departure *oldDep = self.departure;
                 self.departure = newDep.items.firstObject;
                 self.departure.streetcarId = oldDep.streetcarId;
                 self.departure.vehicleIDs = [self.departure vehicleIdsForStreetcar];
@@ -246,7 +245,7 @@ enum SECTIONS_AND_ROWS
             
             NSMutableArray *vehicles = [NSMutableArray arrayWithArray:self.departure.vehicleIDs];
             
-            for (VehicleData *vehicle in locator)
+            for (Vehicle *vehicle in locator)
             {
                 bool found = NO;
                 
@@ -289,7 +288,7 @@ enum SECTIONS_AND_ROWS
                 
                 items++;
                 
-                for (DepartureData *vehicle in streetcarArrivals)
+                for (Departure *vehicle in streetcarArrivals)
                 {
                     if ([vehicle.block isEqualToString:self.departure.block])
                     {
@@ -340,7 +339,7 @@ enum SECTIONS_AND_ROWS
             
             if (vehicles.count > 0)
             {
-                VehicleData *data = vehicles.items.firstObject;
+                Vehicle *data = vehicles.items.firstObject;
                 
                 [self.departure insertLocation:data];
             }
@@ -373,7 +372,7 @@ enum SECTIONS_AND_ROWS
         if (!self.departure.shortSign)
         {
             [[NSThread currentThread] cancel];
-            [task taskSetErrorMsg:@"No arrival found - it has already departed."];
+            [task taskSetErrorMsg:@"No departure found - it has already departed."];
         }
         
         [self updateRefreshDate:nil];
@@ -509,7 +508,7 @@ enum SECTIONS_AND_ROWS
 
 - (void)fetchDepartureAsync:(id<BackgroundTaskController>)task location:(NSString *)loc block:(NSString *)block backgroundRefresh:(bool)backgroundRefresh
 {
-    self.departure = [DepartureData data];
+    self.departure = [Departure data];
     self.departure.locid = loc;
     self.departure.block = block;
 
@@ -518,7 +517,7 @@ enum SECTIONS_AND_ROWS
 
 }
 
-- (void)fetchDepartureAsync:(id<BackgroundTaskController>)task dep:(DepartureData *)dep allDepartures:(NSArray*)deps backgroundRefresh:(bool)backgroundRefresh
+- (void)fetchDepartureAsync:(id<BackgroundTaskController>)task dep:(Departure *)dep allDepartures:(NSArray*)deps backgroundRefresh:(bool)backgroundRefresh
 {
     if (!self.backgroundRefresh)
     {
@@ -678,6 +677,27 @@ enum SECTIONS_AND_ROWS
     
 }
 
+- (UITableViewCell *)uniqueTextCell:(UITableView *)tableView identifier:(NSString*)ident text:(NSString*)text image:(UIImage *)image indexPath:(NSIndexPath*)indexPath font:(UIFont*)font
+{
+    UITableViewCell *cell = [self tableView:tableView cellWithReuseIdentifier:ident];
+    
+    if (cell.imageView.image == nil)
+    {
+        cell.textLabel.font = font;
+        cell.imageView.image  = image;
+        cell.textLabel.adjustsFontSizeToFitWidth = YES;
+        cell.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
+        cell.selectionStyle = UITableViewCellSelectionStyleBlue;
+        cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+        cell.textLabel.textColor = [UIColor grayColor];
+        cell.backgroundColor = [UIColor modeAwareCellBackground];
+    }
+    
+     cell.textLabel.text = text;
+    
+    return cell;
+}
+
 - (UITableViewCell *)basicCell:(UITableView *)tableView identifier:(NSString*)ident text:(NSString*)text image:(UIImage *)image indexPath:(NSIndexPath*)indexPath font:(UIFont*)font
 {
     UITableViewCell *cell = [self tableView:tableView cellWithReuseIdentifier:ident];
@@ -689,6 +709,7 @@ enum SECTIONS_AND_ROWS
     cell.selectionStyle = UITableViewCellSelectionStyleBlue;
     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     cell.textLabel.textColor = [UIColor grayColor];
+    cell.backgroundColor = [UIColor modeAwareCellBackground];
     [self updateAccessibility:cell];
     return cell;
 }
@@ -726,7 +747,7 @@ enum SECTIONS_AND_ROWS
         {
             UITableViewCell *cell = [self tableView:tableView cellWithReuseIdentifier:MakeCellId(kRowFullSign)];
             cell.textLabel.font = self.basicFont;
-            cell.textLabel.textColor = [UIColor blackColor];
+            cell.textLabel.textColor = [UIColor modeAwareText];
             cell.textLabel.adjustsFontSizeToFitWidth = YES;
             cell.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
@@ -757,16 +778,16 @@ enum SECTIONS_AND_ROWS
 
         case kSectionRowLocation:
         {
-            NSString *lastSeen = [VehicleData locatedSomeTimeAgo:self.departure.blockPositionAt];
+            NSString *lastSeen = [Vehicle locatedSomeTimeAgo:self.departure.blockPositionAt];
             
             self.indexPathOfLocationCell = indexPath;
             
-            return [self basicCell:tableView
-                        identifier:MakeCellId(kRowLocation)
-                              text:lastSeen
-                             image:[self getIcon:kIconMap7]
-                         indexPath:indexPath
-                              font:[UIFont fontWithName:@"Verdana" size:VerdanaScale(self.basicFont.pointSize)]];
+            return [self uniqueTextCell:tableView
+                             identifier:MakeCellId(kRowLocation)
+                                   text:lastSeen
+                                  image:[self getModeAwareIcon:kIconMap7]
+                              indexPath:indexPath
+                                   font:[UIFont fontWithName:@"Verdana" size:VerdanaScale(self.basicFont.pointSize)]];
         }
         case kRowTag:
         {
@@ -820,7 +841,7 @@ enum SECTIONS_AND_ROWS
             else
             {
                 cell = [self tableView:tableView multiLineCellWithReuseIdentifier:@"detour error"];
-                NSString *text = @"#0#RThe detour description is missing. ☹️";
+                NSString *text = @"#D#RThe detour description is missing. ☹️";
                 cell.textLabel.attributedText = [text formatAttributedStringWithFont:self.paragraphFont];
                 cell.textLabel.accessibilityLabel = text.removeFormatting.phonetic;
             }
@@ -851,7 +872,7 @@ enum SECTIONS_AND_ROWS
             
             if (self.departure.block !=nil)
             {
-                [self addTextToDisclaimerCell:cell text:[NSString stringWithFormat:NSLocalizedString(@"Stop ID %@. Updated: %@\n" kBlockNameC " ID %@", @"infomation at the end of the arrivals"),
+                [self addTextToDisclaimerCell:cell text:[NSString stringWithFormat:NSLocalizedString(@"Stop ID %@. Updated: %@\n" kBlockNameC " ID %@", @"infomation at the end of the departures"),
                                                          self.departure.locid,
                                                          date,
                                                          self.departure.block]
@@ -859,7 +880,7 @@ enum SECTIONS_AND_ROWS
                 
             }
             else {
-                [self addTextToDisclaimerCell:cell text:[NSString stringWithFormat:NSLocalizedString(@"Stop ID %@. Updated: %@", @"infomation at the end of the arrivals"),
+                [self addTextToDisclaimerCell:cell text:[NSString stringWithFormat:NSLocalizedString(@"Stop ID %@. Updated: %@", @"infomation at the end of the departures"),
                                                          self.departure.locid,
                                                          date]];
             }
@@ -884,7 +905,7 @@ enum SECTIONS_AND_ROWS
         case kRowOpposite:
             return [self basicCell:tableView
                         identifier:kCellIdSimple
-                              text:NSLocalizedString(@"Arrivals going the other way", @"menu item")
+                              text:NSLocalizedString(@"Departures going the other way", @"menu item")
                              image:[self getIcon:kIconArrivals]
                          indexPath:indexPath];
         case kRowNoDeeper:
@@ -913,13 +934,13 @@ enum SECTIONS_AND_ROWS
         case kRowDestArrival:
             return [self basicCell:tableView
                         identifier:kCellIdSimple
-                              text:NSLocalizedString(@"Browse for destination arrival time", @"menu item")
+                              text:NSLocalizedString(@"Browse for destination time", @"menu item")
                              image:[self getIcon:kIconArrivals]
                          indexPath:indexPath];
         case kRowNextStops:
             return [self basicCell:tableView
                         identifier:kCellIdSimple
-                              text:NSLocalizedString(@"Show vehicle's next stops before arrival", @"menu item")
+                              text:NSLocalizedString(@"Show vehicle's next stops before departure", @"menu item")
                              image:[self getIcon:kIconArrivals]
                          indexPath:indexPath];
         case kRowAlarm:
@@ -930,7 +951,7 @@ enum SECTIONS_AND_ROWS
             {
                 return [self basicCell:tableView
                             identifier:kCellIdSimple
-                                  text:NSLocalizedString(@"Edit arrival alarm", @"menu item")
+                                  text:NSLocalizedString(@"Edit departure alarm", @"menu item")
                                  image:[self getIcon:kIconAlarm]
                              indexPath:indexPath];
                 
@@ -940,7 +961,7 @@ enum SECTIONS_AND_ROWS
                 
                 return [self basicCell:tableView
                             identifier:kCellIdSimple
-                                  text:NSLocalizedString(@"Set arrival alarm", @"menu item")
+                                  text:NSLocalizedString(@"Set departure alarm", @"menu item")
                                  image:[self getIcon:kIconAlarm]
                              indexPath:indexPath];
                                   // font:[UIFont fontWithName:@"Verdana" size:self.basicFont.pointSize-2]];
@@ -1038,7 +1059,7 @@ enum SECTIONS_AND_ROWS
         case kSectionRoute:
             return self.departure.descAndDir;
         case kSectionTrips:
-            return NSLocalizedString(@"Remaining trips before arrival:", @"section title");
+            return NSLocalizedString(@"Remaining trips before departure:", @"section title");
         case kSectionInfo:
             return self.departure.fullSign;
         case kRowSectionVehicle:
@@ -1237,17 +1258,7 @@ enum SECTIONS_AND_ROWS
         [toolbarItems addObject:[UIToolbar mapButtonWithTarget:self action:@selector(showMap:)]];
         needSpace = YES;
     }
-    
-    if ([UserPrefs sharedInstance].ticketAppIcon)
-    {
-        if (needSpace)
-        {
-            [toolbarItems addObject:[UIToolbar flexSpace]];
-        }
-        [toolbarItems addObject:[self ticketAppButton]];
-        needSpace = YES;
-    }
-    
+        
     if ([UserPrefs sharedInstance].debugXML)
     {
         if (needSpace)
@@ -1267,7 +1278,7 @@ enum SECTIONS_AND_ROWS
     
     magnifyButton.accessibilityHint = NSLocalizedString(@"Bus line indentifier", @"accessibilty hint");
     
-    TOOLBAR_PLACEHOLDER(magnifyButton, @"mag");
+    TOOLBAR_PLACEHOLDER(magnifyButton, NSLocalizedString(@"mag",@"placeholder"));
     
     [toolbarItems addObject:magnifyButton];
     
@@ -1279,7 +1290,7 @@ enum SECTIONS_AND_ROWS
 
 - (NSString *)actionText
 {
-    return NSLocalizedString(@"Show arrivals", @"menu item");
+    return NSLocalizedString(@"Show departures", @"menu item");
 }
 
 - (void)chosenStop:(Stop*)stop progress:(id<BackgroundTaskController>) progress
@@ -1342,8 +1353,18 @@ enum SECTIONS_AND_ROWS
         
         if ([self.table cellForRowAtIndexPath:self.indexPathOfLocationCell]!=nil)
         {
-            [self.table reloadRowsAtIndexPaths:@[self.indexPathOfLocationCell]
-                              withRowAnimation:UITableViewRowAnimationNone];
+            // workaorund for flashing on iOS13 beta
+            if (@available(iOS 13.0, *))
+            {
+                [self.table reloadRowsAtIndexPaths:@[self.indexPathOfLocationCell]
+                                  withRowAnimation:UITableViewRowAnimationAutomatic];
+            }
+            else
+            {
+                [self.table reloadRowsAtIndexPaths:@[self.indexPathOfLocationCell]
+                                  withRowAnimation:UITableViewRowAnimationNone];
+            }
+            
         }
     }
 }

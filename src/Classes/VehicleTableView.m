@@ -17,16 +17,17 @@
 #import "XMLLocateVehicles.h"
 #import "RouteColorBlobView.h"
 #import "DepartureTimesView.h"
-#import "VehicleData+iOSUI.h"
+#import "Vehicle+iOSUI.h"
 #import "FormatDistance.h"
 #import "BlockColorDb.h"
 #import "DepartureCell.h"
 
 @implementation VehicleTableView
 
+
 #define kSectionVehicles   0
 #define kSectionDisclaimer 1
-#define kSections           2
+#define kSections          2
 
 
 - (instancetype)init {
@@ -62,7 +63,7 @@
     
     if (_firstTime && self.locator.count == 1)
     {
-        VehicleData *vehicle = self.locator[0];
+        Vehicle *vehicle = self.locator[0];
         
         [vehicle mapTapped:self.backgroundTask];
     }
@@ -137,7 +138,7 @@
             cell = dcell;
  
             // Configure the cell
-            VehicleData *vehicle = self.locator[indexPath.row];
+            Vehicle *vehicle = self.locator[indexPath.row];
             
             if (LARGE_SCREEN)
             {
@@ -181,7 +182,7 @@
     {
         case kSectionVehicles:
         {
-            VehicleData *vehicle = self.locator[indexPath.row];
+            Vehicle *vehicle = self.locator[indexPath.row];
              
             [vehicle mapTapped:self.backgroundTask];
             break;

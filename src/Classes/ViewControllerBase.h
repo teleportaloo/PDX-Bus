@@ -20,8 +20,7 @@
 #import "UserPrefs.h"
 #import "UserFaves.h"
 #include "Icons.h"
-
-#define SystemWideDetourBackgroundColor HTML_COLOR(0xFFFF99)
+#import "UIColor+DarkMode.h"
 
 @class Detour;
 
@@ -37,6 +36,7 @@
 #define TableViewBasicFont          [UIFont systemFontOfSize:kBasicTextViewFontSize]
 #define TableViewBackFont           [UIFont boldSystemFontOfSize:16.0]
 #define XML_DEBUG_RAW_DATA(X)       if (X.rawData) [self.xml addObject:X];
+#define kSegNoSelectedIndex         -1
 
 @protocol DeselectItemDelegate <NSObject>
 
@@ -62,7 +62,6 @@
 @property (nonatomic, readonly) ScreenInfo screenInfo;
 @property (nonatomic, readonly, copy) UIFont *basicFont;
 @property (nonatomic, readonly, copy) UIFont *paragraphFont;
-@property (nonatomic, readonly) bool iOS8style;
 @property (nonatomic, readonly) bool iOS9style;
 @property (nonatomic, readonly) bool iOS11style;
 @property (nonatomic, readonly) bool videoCaptureSupported;
@@ -80,6 +79,7 @@
 - (void)backButton:(id)sender;
 - (UILabel *)create_UITextView:(UIColor *)backgroundColor font:(UIFont *)font;
 - (UIImage *)getIcon:(NSString *)name;
+- (UIImage *)getModeAwareIcon:(NSString *)name;
 - (UIImage *)getFaveIcon:(NSString *)name;
 - (void)backToRootButtons:(NSMutableArray *)toolbarItems;
 - (void)updateToolbarItems:(NSMutableArray *)toolbarItems;
@@ -98,15 +98,19 @@
 - (void)clearSelection;
 - (void)facebook;
 - (void)facebookTriMet;
-- (bool) ticketAppFrom:(UIView *)source button:(UIBarButtonItem*)button;
 - (bool)openSafariFrom:(UIViewController *)view path:(NSString *)path;
 - (bool)openBrowserFrom:(UIViewController *)view path:(NSString *)path;  // May open chrome
 - (void)updateWatch;
 - (void)favesChanged;
+- (void)displayAlert:(UIAlertController*)alert;
+- (UIBarButtonItem*)segBarButtonWithItems:(NSArray*)items action:(SEL)action selectedIndex:(NSInteger)selectedIndex;
 
 + (UIImage *)getIcon:(NSString *)name;
 + (UIImage *)getToolbarIcon:(NSString *)name;
 + (void)flashScreen:(UINavigationController *)nav button:(UIBarButtonItem *)button;
 + (instancetype)viewController;
+
+
+
 
 @end

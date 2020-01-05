@@ -11,7 +11,7 @@
 
 
 #import "StopLocations.h"
-#import "StopDistanceData.h"
+#import "StopDistance.h"
 #import "UserFaves.h"
 #import "DebugLogging.h"
 #import "CLLocation+Helper.h"

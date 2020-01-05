@@ -66,7 +66,7 @@
         return [NSString stringWithFormat:@"No service at ID %@", self.locid];
     }
     
-     return [NSString stringWithFormat:@"Arrivals at Stop ID %@", self.locid];
+     return [NSString stringWithFormat:@"Departures at Stop ID %@", self.locid];
 }
 
 - (UIColor *)pinTint

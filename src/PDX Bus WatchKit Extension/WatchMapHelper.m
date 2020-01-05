@@ -16,6 +16,7 @@
 #import "WatchMapHelper.h"
 #import "WatchPinColor.h"
 #import "MapAnnotationImage.h"
+#import "UIImage+Tint.h"
 
 #define kIconUp              @"icon_arrow_up.png"
 #define kIconUp2x            @"icon_arrow_up@2x.png"
@@ -71,12 +72,12 @@
                 else if (pin.hasBearing)
                 {
                     
-                    bool bus =  [pin.pinTint isEqual:kMapAnnotationBusColor];
+                    bool bus =  [pin.pinTint isEqual:[UIColor modeAwareBusColor]];
                     UIImage *plainImage  = [mapAnnotionImage getImage:pin.doubleBearing mapRotation:0.0 bus:bus named:mapAnnotionImage.forceRetinaImage ? kIconUp2x : kIconUp];
                     
                     if (!bus || mapAnnotionImage.tintableImage)
                     {
-                        UIImage *tintedImage = [mapAnnotionImage tintImage:plainImage color:pin.pinTint];
+                        UIImage *tintedImage = [plainImage tintImageWithColor:pin.pinTint];
                         [map addAnnotation:loc withImage:tintedImage centerOffset:CGPointZero];
                     }
                     else

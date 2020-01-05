@@ -16,9 +16,9 @@
 #import <Foundation/Foundation.h>
 #import "TriMetXMLv2.h"
 #import <CoreLocation/CoreLocation.h>
-#import "VehicleData.h"
+#import "Vehicle.h"
 
-@interface XMLLocateVehicles : TriMetXMLv2<VehicleData*>
+@interface XMLLocateVehicles : TriMetXMLv2<Vehicle*>
 
 @property (nonatomic, strong) CLLocation *location;
 @property (nonatomic, strong) NSString  *direction;

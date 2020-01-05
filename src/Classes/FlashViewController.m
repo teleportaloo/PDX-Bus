@@ -112,7 +112,7 @@
 #define TOOLBAR_HEIGHT 40
     
     CGRect frame = self.view.frame;
-    CGRect rect = CGRectMake(frame.origin.x, frame.origin.y + frame.size.height - TEXT_HEIGHT - TOOLBAR_HEIGHT*2, frame.size.width, TEXT_HEIGHT);
+    CGRect rect = CGRectMake(frame.origin.x, frame.origin.y + frame.size.height - TEXT_HEIGHT - TOOLBAR_HEIGHT*3, frame.size.width, TEXT_HEIGHT);
     
     label = [[UILabel alloc] initWithFrame:rect];
     label.font = [UIFont boldSystemFontOfSize:20];
@@ -158,10 +158,9 @@
     // Release anything that's not essential, such as cached data
 }
 
-- (void)toggleLed:(id)sender
+- (void)toggleLed:(UISegmentedControl*)sender
 {
-    UISegmentedControl *segControl = sender;
-    switch (segControl.selectedSegmentIndex)
+    switch (sender.selectedSegmentIndex)
     {
         case 0:    
         {
@@ -181,34 +180,11 @@
 {
     if (_torch)
     {
-        // add a segmented control to the button bar
-        UISegmentedControl    *buttonBarSegmentedControl;
-        buttonBarSegmentedControl = [[UISegmentedControl alloc] initWithItems:@[
-                                                                                NSLocalizedString(@"Flash LED", @"Short segment button text"),
-                                                                                NSLocalizedString(@"LED Off",   @"Short segment button text")
-                                                                                ]
-                                     ];
-        [buttonBarSegmentedControl addTarget:self action:@selector(toggleLed:) forControlEvents:UIControlEventValueChanged];
-        
-        if ([UserPrefs sharedInstance].flashLed)
-        {
-            buttonBarSegmentedControl.selectedSegmentIndex = 0.0;    // start by showing the normal picker
-        }
-        else
-        {
-            buttonBarSegmentedControl.selectedSegmentIndex = 1.0;
-        }
-        
-        UIBarButtonItem *segItem = [[UIBarButtonItem alloc] initWithCustomView:buttonBarSegmentedControl];
-        
-        [toolbarItems addObject:segItem];
+        [toolbarItems addObject:[self segBarButtonWithItems:@[NSLocalizedString(@"Flash LED", @"Short segment button text"),
+                                                              NSLocalizedString(@"LED Off",   @"Short segment button text")]
+                                                     action:@selector(toggleLed:)
+                                              selectedIndex:[UserPrefs sharedInstance].flashLed ? 0 : 1]];
         [toolbarItems addObject:[UIToolbar flexSpace]];
-        
-    }
-    
-    if ([UserPrefs sharedInstance].ticketAppIcon)
-    {
-        [toolbarItems addObject:[self ticketAppButton]];
     }
 }
     

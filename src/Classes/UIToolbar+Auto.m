@@ -42,7 +42,7 @@
                              style:UIBarButtonItemStylePlain
                              target:target action:action];
     
-    TOOLBAR_PLACEHOLDER(mag, @"mag");
+    TOOLBAR_PLACEHOLDER(mag, NSLocalizedString(@"mag", @"placeholder"));
     mag.style = UIBarButtonItemStylePlain;
     mag.accessibilityLabel = NSLocalizedString(@"Large bus line identifier", @"accessibility text");
     return mag;
@@ -57,7 +57,7 @@
                             style:UIBarButtonItemStylePlain
                              target:target action:action];
     
-    TOOLBAR_PLACEHOLDER(map, @"map");
+    TOOLBAR_PLACEHOLDER(map, NSLocalizedString(@"map",@"placeholder"));
     map.style = UIBarButtonItemStylePlain;
     map.accessibilityLabel = NSLocalizedString(@"Show Map", @"accessibility text");
     
@@ -72,7 +72,7 @@
                              style:UIBarButtonItemStylePlain
                              target:target action:action];
     
-    TOOLBAR_PLACEHOLDER(flash, @"flash");
+    TOOLBAR_PLACEHOLDER(flash, NSLocalizedString(@"flash", @"placeholder"));
     flash.style = UIBarButtonItemStylePlain;
     flash.accessibilityLabel = NSLocalizedString(@"Flash Screen",@"accessibility text");
     return flash;
@@ -87,7 +87,7 @@
                                style:UIBarButtonItemStylePlain
                                target:target action:action];
     
-    TOOLBAR_PLACEHOLDER(back, @"home");
+    TOOLBAR_PLACEHOLDER(back, NSLocalizedString(@"home",@"placeholder"));
     back.style = UIBarButtonItemStylePlain;
     back.accessibilityLabel = NSLocalizedString(@"Home",@"accessibility text");
     back.accessibilityHint = nil;
@@ -103,7 +103,7 @@
                               style:UIBarButtonItemStylePlain
                               target:target action:action];
     
-    TOOLBAR_PLACEHOLDER(back, @"redo");
+    TOOLBAR_PLACEHOLDER(back, NSLocalizedString(@"redo",@"placeholder"));
     back.style = UIBarButtonItemStylePlain;
     back.accessibilityLabel = NSLocalizedString(@"Redo",@"accessibility text");
     return back;
@@ -117,7 +117,7 @@
                               style:UIBarButtonItemStylePlain
                               target:target action:action];
     
-    TOOLBAR_PLACEHOLDER(back, @"com");
+    TOOLBAR_PLACEHOLDER(back, NSLocalizedString(@"com",@"placeholder"));
     back.style = UIBarButtonItemStylePlain;
     back.accessibilityLabel = NSLocalizedString(@"Commuter Bookmark", @"acessibility text");
     return back;
@@ -131,7 +131,7 @@
                               style:UIBarButtonItemStylePlain
                               target:target action:action];
     
-    TOOLBAR_PLACEHOLDER(back, @"loc");
+    TOOLBAR_PLACEHOLDER(back, NSLocalizedString(@"loc", @"placeholder"));
     back.style = UIBarButtonItemStylePlain;
     back.accessibilityLabel = NSLocalizedString(@"Locate Stops",@"acessibility text");
     return back;
@@ -145,7 +145,7 @@
                               style:UIBarButtonItemStylePlain
                               target:target action:action];
     
-    TOOLBAR_PLACEHOLDER(back, @"QR");
+    TOOLBAR_PLACEHOLDER(back, NSLocalizedString(@"QR",@"placeholder"));
     back.style = UIBarButtonItemStylePlain;
     back.accessibilityLabel = NSLocalizedString(@"QR Scanner",@"acessibility text");
     return back;

@@ -22,17 +22,17 @@
 
 @interface NSDictionary (TriMetCaseInsensitive)
 
-- (NSString *)nullOrSafeValueForKey:(NSString *)key;
-- (TriMetDistance)getDistanceForKey:(NSString *)key;
-- (NSNumber *)nullOrSafeNumForKey:(NSString *)key;
-- (id)objectForCaseInsensitiveKey:(NSString *)key;
-- (NSInteger)zeroOrSafeIntForKey:(NSString *)key;
-- (NSInteger)getNSIntegerForKey:(NSString *)key;
-- (NSString *)safeValueForKey:(NSString *)key;
-- (TriMetTime)getTimeForKey:(NSString *)key;
-- (double)getDoubleForKey:(NSString *)key;
-- (NSDate *)getDateForKey:(NSString *)key;
-- (bool)getBoolForKey:(NSString *)key;
+- (NSString *_Nullable)nullOrSafeValueForKey:(NSString *_Nonnull)key;
+- (id _Nullable)objectForCaseInsensitiveKey:(NSString *_Nonnull)key;
+- (NSNumber *_Nullable)nullOrSafeNumForKey:(NSString *_Nonnull)key;
+- (NSString *_Nonnull)safeValueForKey:(NSString *_Nonnull)key;
+- (TriMetDistance)getDistanceForKey:(NSString *_Nonnull)key;
+- (NSDate *_Nullable)getDateForKey:(NSString *_Nonnull)key;
+- (NSInteger)zeroOrSafeIntForKey:(NSString *_Nonnull)key;
+- (NSInteger)getNSIntegerForKey:(NSString *_Nonnull)key;
+- (TriMetTime)getTimeForKey:(NSString *_Nonnull)key;
+- (double)getDoubleForKey:(NSString *_Nonnull)key;
+- (bool)getBoolForKey:(NSString *_Nonnull)key;
 
 @end
 
@@ -91,12 +91,12 @@ typedef enum  {
 
 @protocol TriMetXMLDelegate<NSObject>
 
-- (void)TriMetXML:(TriMetXML*)xml finishedParsingData:(NSUInteger)size fromCache:(bool)fromCache;
-- (void)TriMetXML:(TriMetXML*)xml startedParsingData:(NSUInteger)size fromCache:(bool)fromCache;
-- (void)TriMetXML:(TriMetXML*)xml startedFetchingData:(bool)fromCache;
-- (void)TriMetXML:(TriMetXML*)xml finishedFetchingData:(bool)fromCache;
-- (void)TriMetXML:(TriMetXML*)xml expectedSize:(long long)expected;
-- (void)TriMetXML:(TriMetXML*)xml progress:(long long)progress of:(long long)expected;
+- (void)TriMetXML:(TriMetXML*_Nonnull)xml finishedParsingData:(NSUInteger)size fromCache:(bool)fromCache;
+- (void)TriMetXML:(TriMetXML*_Nonnull)xml startedParsingData:(NSUInteger)size fromCache:(bool)fromCache;
+- (void)TriMetXML:(TriMetXML*_Nonnull)xml startedFetchingData:(bool)fromCache;
+- (void)TriMetXML:(TriMetXML*_Nonnull)xml finishedFetchingData:(bool)fromCache;
+- (void)TriMetXML:(TriMetXML*_Nonnull)xml expectedSize:(long long)expected;
+- (void)TriMetXML:(TriMetXML*_Nonnull)xml progress:(long long)progress of:(long long)expected;
 
 @end
 
@@ -104,14 +104,14 @@ typedef enum  {
     bool                            _hasData;
 }
 
-@property (nonatomic, strong) NSMutableDictionary<NSString *, NSValue *> *startSels;
-@property (nonatomic, strong) NSMutableDictionary<NSString *, NSValue *> *endSels;
-@property (nonatomic, strong) NSMutableString *contentOfCurrentProperty;
-@property (nonatomic, strong) id<TriMetXMLDelegate> oneTimeDelegate;
-@property (nonatomic, strong) NSMutableArray<ItemType> *items;
-@property (nonatomic, strong) NSData *htmlError;
-@property (nonatomic, strong) NSDate *cacheTime;
-@property (nonatomic, copy) NSString *fullQuery;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, NSValue *> *_Nullable startSels;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, NSValue *> *_Nullable endSels;
+@property (nonatomic, strong) NSMutableString *_Nullable contentOfCurrentProperty;
+@property (nonatomic, strong) id<TriMetXMLDelegate> _Nullable oneTimeDelegate;
+@property (nonatomic, strong) NSMutableArray<ItemType> *_Nullable items;
+@property (nonatomic, strong) NSData *_Nullable htmlError;
+@property (nonatomic, strong) NSDate *_Nullable cacheTime;
+@property (nonatomic, copy) NSString *_Nullable fullQuery;
 @property (nonatomic, readonly) NSInteger count;
 @property (nonatomic, readonly) bool gotData;
 @property (nonatomic) bool itemFromCache;
@@ -121,16 +121,16 @@ typedef enum  {
 @property (nonatomic, retain)     NSArray<NSString *> *testURLs;
 #endif
 
-- (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id __unsafe_unretained _Nullable [_Nonnull])buffer count:(NSUInteger)len;
-- (BOOL)startParsing:(NSString *)query cacheAction:(CacheAction)cacheAction;
-- (ItemType)objectAtIndexedSubscript:(NSInteger)index;
-- (void)appendQueryAndData:(NSMutableData *)buffer;
-- (NSString*)fullAddressForQuery:(NSString *)query;
-- (NSString*)displayTriMetDate:(TriMetTime)time;
-- (NSString*)displayDate:(NSDate *)date;
-- (BOOL)startParsing:(NSString *)query;
-- (bool)parseRawData:(NSError **)error;
-- (void)addItem:(ItemType)item;
+- (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *_Nonnull)state objects:(id __unsafe_unretained _Nullable [_Nonnull])buffer count:(NSUInteger)len;
+- (BOOL)startParsing:(NSString *_Nonnull)query cacheAction:(CacheAction)cacheAction;
+- (ItemType _Nonnull)objectAtIndexedSubscript:(NSInteger)index;
+- (void)appendQueryAndData:(NSMutableData *_Nonnull)buffer;
+- (NSString*_Nonnull)fullAddressForQuery:(NSString *_Nonnull)query;
+- (NSString*_Nonnull)displayTriMetDate:(TriMetTime)time;
+- (NSString*_Nonnull)displayDate:(NSDate *_Nonnull)date;
+- (BOOL)startParsing:(NSString *_Nonnull)query;
+- (bool)parseRawData:(NSError * _Nullable * _Nullable)error;
+- (void)addItem:(ItemType _Nonnull)item;
 - (void)clearRawData;
 - (void)clearItems;
 - (void)initItems;
@@ -138,13 +138,13 @@ typedef enum  {
 // Subclass may override to make static tables
 - (bool)cacheSelectors;
 
-+ (StopNameCacheManager *)getStopNameCacheManager;
-+ (NSString *)replaceXMLcodes:(NSString *)string;
-+ (NSString *)insertXMLcodes:(NSString *)string;
++ (StopNameCacheManager *_Nonnull)getStopNameCacheManager;
++ (NSString *_Nonnull)replaceXMLcodes:(NSString *_Nonnull)string;
++ (NSString *_Nonnull)insertXMLcodes:(NSString *_Nonnull)string;
 + (BOOL)isDataSourceAvailable:(BOOL)forceCheck;
 + (bool)deleteCacheFile;
-+ (instancetype)xml;
-+ (NSString*)appId;
++ (instancetype _Nonnull)xml;
++ (NSString*_Nonnull)appId;
 
 @end
 

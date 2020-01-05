@@ -20,15 +20,15 @@
 
 
 @interface FindByLocationView : TableViewWithToolbar<LocatingViewDelegate,MKMapViewDelegate,INUIAddVoiceShortcutViewControllerDelegate>  {
-    int _maxToFind;
-    int _maxRouteCount;
-    TripMode _mode;
-    int _show;
-    int _dist;
-    double _minDistance;
-    int _routeCount;
-    int _firstDisplay;
-    bool _locationAuthorized;
+    int         _maxToFind;
+    int         _maxRouteCount;
+    TripMode    _mode;
+    int         _show;
+    int         _dist;
+    double      _minMetres;
+    int         _routeCount;
+    int         _firstDisplay;
+    bool        _locationAuthorized;
 }
 
 @property (nonatomic, strong) NSArray *cachedRoutes;

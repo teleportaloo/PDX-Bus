@@ -43,7 +43,7 @@
 
 - (NSString *)noItems
 {
-    return NSLocalizedString(@"These recently viewed stops can be re-used to get current arrivals.", @"section title");
+    return NSLocalizedString(@"These recently viewed stops can be re-used to get current departures.", @"section title");
 }
 
 #pragma mark View methods

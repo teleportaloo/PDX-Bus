@@ -13,28 +13,25 @@
 #import <sqlite3.h>
 #import <CoreLocation/CoreLocation.h>
 #import "DebugLogging.h"
-
+#import "FormatDistance.h"
 
 #define kIncompleteDatabase @"incomplete"
-#define kUnknownDatabase @"unknown"
-#define kOldDatabase2    @"stopLocations2.sql"
-#define kOldDatabase1    @"stopLocations.sql"
-#define kRailOnlyDB      @"railLocations"
-#define kSqlFile         @"sql"
-#define kSqlTrue    1
-#define kSqlFalse    0
+#define kUnknownDatabase    @"unknown"
+#define kOldDatabase2       @"stopLocations2.sql"
+#define kOldDatabase1       @"stopLocations.sql"
+#define kRailOnlyDB         @"railLocations"
+#define kSqlFile            @"sql"
+#define kSqlTrue            1
+#define kSqlFalse           0
 
-#define kDistNextToMe (kDistMile / 10)
-#define kDistHalfMile 804.67200
-#define kDistMile      1609.344
-#define kMaxStops      10
-#define kAccNextToMe  150
-#define kAccHalfMile  150
-#define kAccClosest      250
-#define kAccMile      300
+#define kMetresNextToMe MetresForMiles(0.1)
+#define kMetresHalfMile MetresForMiles(0.5)
+#define kMaxStops       10
+#define kAccNextToMe    150
+#define kAccHalfMile    150
+#define kAccClosest     250
+#define kAccMile        300
 #define kAcc3Miles      800
-#define kDistMax      16093.44  // 10 miles in meters
-// #define kAnyDist      0.0
 
 @interface StopLocations : NSObject {
     sqlite3 *           _database;

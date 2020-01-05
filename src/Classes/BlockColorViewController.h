@@ -16,7 +16,7 @@
 #import <UIKit/UIKit.h>
 #import "TableViewWithToolbar.h"
 #import "BlockColorDb.h"
-#import "../InfColorPicker/InfColorPicker.h"
+#import "../3rd Party/InfColorPicker/InfColorPicker.h"
 
 @interface BlockColorViewController : TableViewWithToolbar <InfColorPickerControllerDelegate> {
     NSArray *           _keys;

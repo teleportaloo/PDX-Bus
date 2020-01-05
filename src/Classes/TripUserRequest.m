@@ -18,15 +18,15 @@
 #import "XMLTrips.h"
 #import "UserFaves.h"
 
-#define kDictUserRequestTripMode        @"tripMode"
+#define kDictUserRequestTripMode           @"tripMode"
 #define kDictUserRequestTripMin            @"tripMin"
-#define kDictUserRequestMaxItineraries    @"maxItineraries"
-#define kDictUserRequestWalk            @"walk"
-#define kDictUserRequestFromPoint        @"fromPoint"
+#define kDictUserRequestMaxItineraries     @"maxItineraries"
+#define kDictUserRequestWalk               @"walk"
+#define kDictUserRequestFromPoint          @"fromPoint"
 #define kDictUserRequestToPoint            @"toPoint"
 #define kDictUserRequestDateAndTime        @"dateAndTime"
 #define kDictUserRequestArrivalTime        @"arrivalTime"
-#define kDictUserRequestTimeChoice        @"timeChoice"
+#define kDictUserRequestTimeChoice         @"timeChoice"
 
 
 @implementation TripUserRequest

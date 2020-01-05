@@ -33,10 +33,11 @@
 #import "XMLLocateVehicles.h"
 #import "FormatDistance.h"
 #import "WatchNearbyInterfaceController.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 #import "ArrivalColors.h"
 #import "WatchSystemWideDetour.h"
 #import "WatchSystemWideHeader.h"
+#import "WatchDetourHeader.h"
 
 #define kRefreshTime 30
 
@@ -68,17 +69,18 @@
     }
     else
     {
-        self.title = @"Arrivals";
+        self.title = @"Departures";
     }
 }
 
 
 
-- (void)loadTableWithDepartures:(XMLDepartures *)newDepartures detailedDeparture:(DepartureData*)newDetailDep
+- (void)loadTableWithDepartures:(XMLDepartures *)newDepartures detailedDeparture:(Departure*)newDetailDep
 {
     bool extrapolate = (newDepartures == nil && self.diff > kStaleTime);
     bool mapShown = NO;
     self.loadingGroup.hidden = YES;
+    UserPrefs *prefs = [UserPrefs sharedInstance];
 
     self.navGroup.hidden = NO;
     
@@ -109,7 +111,7 @@
         newDetailDep = self.detailDeparture;
     }
     
-    NSArray<DepartureData *> *deps = nil;
+    NSArray<Departure *> *deps = nil;
     
     if (newDetailDep)
     {
@@ -146,7 +148,7 @@
             break;
         case 1:
         {
-            DepartureData *first = deps.firstObject;
+            Departure *first = deps.firstObject;
             if (first.errorMessage)
             {
                 [rowTypes addObject:[WatchNoArrivals identifier]];
@@ -154,11 +156,18 @@
             }
             else
             {
+                NSMutableSet* detoursNoLongerFound = prefs.hiddenSystemWideDetours.mutableCopy;
+                
                 for (NSInteger i=0; i<self.systemWideDetours.count; i++)
                 {
                     [rowTypes addObject:[WatchSystemWideHeader identifier]];
                     [rowIndices addObject:self.systemWideDetours[i].detourId];
+                    
+                    [detoursNoLongerFound removeObject:self.systemWideDetours[i].detourId];
                 }
+                
+                [prefs removeOldSystemWideDetours:detoursNoLongerFound];
+                
                 
                 [rowTypes addObject:[WatchArrival identifier]];
                 [rowIndices addObject:@(0)];
@@ -181,17 +190,34 @@
                 if (deps.firstObject.detours && deps.firstObject.detours.count > 0)
                 {
                     NSInteger i;
-                    DepartureData *first = deps.firstObject;
+                    Departure *first = deps.firstObject;
+                    
+                    NSSet* hidden = prefs.hiddenSystemWideDetours;
+                    
                     for (i=0; i< first.systemWideDetours; i++)
                     {
-                        [rowTypes addObject:[WatchSystemWideDetour identifier]];
-                        [rowIndices addObject:first.detours[i]];
+                        if (![hidden containsObject:first.detours[i]])
+                        {
+                            [rowTypes addObject:[WatchSystemWideDetour identifier]];
+                            [rowIndices addObject:first.detours[i]];
+                        }
                     }
                     
-                    for (; i< first.detours.count; i++)
+                    i = first.systemWideDetours;
+                    
+                    if (i< first.detours.count)
                     {
-                        [rowTypes addObject:[WatchDetour identifier]];
-                        [rowIndices addObject:first.detours[i]];
+                        [rowTypes addObject:[WatchDetourHeader identifier]];
+                        [rowIndices addObject:@(first.detours.count - i)];
+    
+                        if (!prefs.hideWatchDetours)
+                        {
+                            for (; i< first.detours.count; i++)
+                            {
+                                [rowTypes addObject:[WatchDetour identifier]];
+                                [rowIndices addObject:first.detours[i]];
+                            }
+                        }
                     }
                 }
             }
@@ -199,11 +225,18 @@
         }
         default:
         {
+            NSMutableSet* detoursNoLongerFound = prefs.hiddenSystemWideDetours.mutableCopy;
+            
             for (Detour *det in self.systemWideDetours)
             {
                 [rowTypes addObject:[WatchSystemWideHeader identifier]];
                 [rowIndices addObject:det.detourId];
+                
+                [detoursNoLongerFound removeObject:det.detourId];
             }
+            
+           [prefs removeOldSystemWideDetours:detoursNoLongerFound];
+            
             
             for (NSInteger i=0; i<deps.count; i++)
             {
@@ -215,11 +248,17 @@
                 }
             }
             
+            NSSet *hidden = prefs.hiddenSystemWideDetours;
+            
             for (Detour *det in self.systemWideDetours)
             {
-                [rowTypes addObject:[WatchSystemWideDetour identifier]];
-                [rowIndices addObject:det.detourId];
+                if (![hidden containsObject:det.detourId])
+                {
+                    [rowTypes addObject:[WatchSystemWideDetour identifier]];
+                    [rowIndices addObject:det.detourId];
+                }
             }
+            
             
             for (Detour *det in self.stopDetours)
             {
@@ -339,7 +378,7 @@
     {
     
         XMLDepartures *departures  = [data objectForKey:NSStringFromClass([XMLDepartures class])];
-        DepartureData *detailedDep = [data objectForKey:NSStringFromClass([DepartureData class])];
+        Departure *detailedDep = [data objectForKey:NSStringFromClass([Departure class])];
     
         [self loadTableWithDepartures:departures detailedDeparture:detailedDep];
     }
@@ -448,7 +487,7 @@
     [self sendProgress:_tasksDone total:_tasks];
     
     XMLDepartures *departures = [XMLDepartures xml];
-    DepartureData *newDetailDep = nil;
+    Departure *newDetailDep = nil;
     
     departures.oneTimeDelegate = self;
     [departures getDeparturesForLocation:self.arrivalsContext.locid];
@@ -484,7 +523,7 @@
                     streetcarArrivals.oneTimeDelegate = self;
                     [streetcarArrivals getDeparturesForLocation:[NSString stringWithFormat:@"predictions&a=portland-sc&stopId=%@",newDetailDep.locid]];
                     
-                    for (DepartureData *vehicle in streetcarArrivals)
+                    for (Departure *vehicle in streetcarArrivals)
                     {
                         if ([vehicle.block isEqualToString:newDetailDep.block])
                         {
@@ -516,7 +555,7 @@
                 
                 if (vehicles.count > 0)
                 {
-                    VehicleData *data = vehicles.items.firstObject;
+                    Vehicle *data = vehicles.items.firstObject;
                     
                     [newDetailDep insertLocation:data];
                 }
@@ -524,15 +563,13 @@
         }
         
     }
-    
-    [self extractDetours:departures];
 
-    
     NSMutableDictionary *result = [NSMutableDictionary dictionary];
     
     if (!self.backgroundThread.cancelled)
     {
         [result setObject:departures forKey:NSStringFromClass(departures.class)];
+        [self extractDetours:departures];
     }
     
     
@@ -637,7 +674,7 @@
         }
         else
         {
-            self.progressTitle = @"Arrivals";
+            self.progressTitle = @"Departures";
         }
     }
     else if (_arrivalsContext.departures !=nil)
@@ -674,10 +711,20 @@
 {
     WatchRow *item = [self.arrivalsTable rowControllerAtIndex:rowIndex];
     NSString *block = _arrivalsContext.detailBlock;
-    if ((block == nil && ![item select:self.departures from:self context:_arrivalsContext])
-        || block != nil)
+    
+    WatchSelectAction action = [item select:self.departures from:self context:_arrivalsContext canPush:block==nil];
+    
+    switch (action)
     {
-       [self refresh:nil];
+        case WatchSelectAction_RefreshUI:
+            [self loadTableWithDepartures:nil detailedDeparture:nil];
+            break;
+        case WatchSelectAction_RefreshData:
+            [self refresh:nil];
+            break;
+        case WatchSelectAction_None:
+        default:
+            break;
     }
 }
 

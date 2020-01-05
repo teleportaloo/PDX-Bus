@@ -18,7 +18,7 @@
 // #import <MapKit/MkAnnotation.h>
 
 @class DepartureTimes;
-@class DepartureData;
+@class Departure;
 
 @interface XMLDepartures (iOSUI)  <MapPinColor, DepartureTimesDataProvider>
 

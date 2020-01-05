@@ -23,7 +23,7 @@
     {
         WatchArrivalsContextNearby *context = [[WatchArrivalsContextNearby alloc] init];
         
-        StopDistanceData *item = stops[index];
+        StopDistance *item = stops[index];
         
         context.locid            = item.locid;
         context.showMap          = YES;

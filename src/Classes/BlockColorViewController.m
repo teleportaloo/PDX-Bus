@@ -15,7 +15,7 @@
 
 #import "BlockColorViewController.h"
 #import "TriMetInfo.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 
 #define kSectionData        0
 #define kSectionNoData      1
@@ -45,9 +45,9 @@
         
         self.table.allowsSelectionDuringEditing = YES;
         _helpText = NSLocalizedString(@kBlockNameC " color tags can be set to highlight a bus or train so that you can follow its progress through several stops. "
-                                                      @"For example, if you tag an arrival at one stop, you can use the color tag to see when it will arrive at your destination. "
+                                                      @"For example, if you tag a departure at one stop, you can use the color tag to see when it will arrive at your destination. "
                                                       @"Also, the tags will remain persistant on each day of the week, so the same bus or train will have the same color the next day.\n\n"
-                                                      @"To set a tag, click 'Tag this " kBlockName " with a color' from the arrival details.", @"Tagging help screen");
+                                                      @"To set a tag, click 'Tag this " kBlockName " with a color' from the departure details.", @"Tagging help screen");
 
     }
     return self;
@@ -108,9 +108,9 @@
     CGRect frame = CGRectMake(0.0, 0.0, 100.0, 100.0);
     
     UILabel *textView = [[UILabel alloc] initWithFrame:frame];
-    textView.textColor = [UIColor blackColor];
+    textView.textColor = [UIColor modeAwareText];
     textView.font = font;
-    textView.backgroundColor = [UIColor whiteColor];
+    textView.backgroundColor = [UIColor modeAwareCellBackground];
     textView.lineBreakMode =   NSLineBreakByWordWrapping;
     textView.adjustsFontSizeToFitWidth = YES;
     textView.baselineAdjustment = UIBaselineAdjustmentAlignCenters;

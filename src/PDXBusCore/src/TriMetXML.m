@@ -316,11 +316,12 @@ static NSMutableDictionary<NSString*, NSNumber*> *testDataIndex = nil;
 
 - (id)objectAtIndexedSubscript:(NSInteger)index
 {
-    if (self.items != nil)
-    {
+    // Let an exception occur
+    // if (self.items != nil)
+    //{
         return self.items[index];
-    }
-    return nil;
+    //}
+    // return nil;
 }
 
 - (void)addItem:(id)item

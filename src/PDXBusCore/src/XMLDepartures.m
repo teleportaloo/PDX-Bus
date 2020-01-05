@@ -11,12 +11,12 @@
 
 
 #import "XMLDepartures.h"
-#import "DepartureData.h"
+#import "Departure.h"
 #import "DepartureTrip.h"
 #import "XMLDetours.h"
 #import "DebugLogging.h"
-#import "DepartureData.h"
-#import "StringHelper.h"
+#import "Departure.h"
+#import "NSString+Helper.h"
 #import "CLLocation+Helper.h"
 #import "UserPrefs.h"
 #import "XMLStreetcarMessages.h"
@@ -63,9 +63,9 @@
     
 }
 
-- (DepartureData*)departureForBlock:(NSString *)block
+- (Departure*)departureForBlock:(NSString *)block
 {
-    for (DepartureData *dep in self) {
+    for (Departure *dep in self) {
         if ([dep.block isEqualToString:block])
         {
             return dep;
@@ -262,7 +262,7 @@ XML_START_ELEMENT(arrival)
     if (((self.blockFilter==nil) || ([self.blockFilter isEqualToString:block])) &&
         ((!DepOption(DepOptionsFirstOnly)|| self.count < 1)))
     {
-        DepartureData *dep = [DepartureData data];
+        Departure *dep = [Departure data];
         
         dep.allDetours = self.allDetours;
         
@@ -274,14 +274,14 @@ XML_START_ELEMENT(arrival)
         dep.cacheTime = self.cacheTime;
         
         // Adjust the query time based on the cache time
-        dep.queryTime =             self.queryTime;
-        dep.route =                    ATRSTR(route);
-        dep.fullSign =                ATRSTR(fullSign);
-        dep.shortSign =                ATRSTR(shortSign);
-        dep.dropOffOnly =           ATRBOOL(dropOffOnly);
+        dep.queryTime           =   self.queryTime;
+        dep.route               =   ATRSTR(route);
+        dep.fullSign            =   ATRSTR(fullSign);
+        dep.shortSign           =   ATRSTR(shortSign);
+        dep.dropOffOnly         =   ATRBOOL(dropOffOnly);
         dep.blockPositionFeet   =   ATRDIST(feet);
 
-        NSString *prefix  = @"Portland Streetcar ";
+        static NSString *prefix    = @"Portland Streetcar ";
         NSInteger prefixLen = prefix.length;
         
         if (dep.shortSign.length > prefixLen && [dep.fullSign isEqualToString:dep.shortSign])
@@ -295,8 +295,8 @@ XML_START_ELEMENT(arrival)
             }
         }
         
-        dep.block =         block;
-        dep.dir =            ATRSTR(dir);
+        dep.block   =         block;
+        dep.dir     =         ATRSTR(dir);
         
         NSString *vehicleID = NATRSTR(vehicleID);
     
@@ -308,12 +308,12 @@ XML_START_ELEMENT(arrival)
         {
             dep.vehicleIDs = @[ vehicleID ];
         }
-        dep.reason =         NATRSTR(reason);
+        dep.reason         = NATRSTR(reason);
         dep.loadPercentage = ZATRINT(loadPercentage);
-        dep.locationDesc =    self.locDesc;
-        dep.locid         =  self.locid;
-        dep.locationDir  =  self.locDir;
-        dep.stopLocation =  self.loc;
+        dep.locationDesc   = self.locDesc;
+        dep.locid          = self.locid;
+        dep.locationDir    = self.locDir;
+        dep.stopLocation   = self.loc;
         
         NSString *status = ATRSTR(status);
         
@@ -363,7 +363,7 @@ XML_START_ELEMENT(arrival)
 
 XML_START_ELEMENT(error)
 {
-    self.currentDepartureObject   = [DepartureData data];
+    self.currentDepartureObject   = [Departure data];
     self.contentOfCurrentProperty = [NSMutableString string];
 }
 
@@ -426,7 +426,8 @@ XML_START_ELEMENT(trackingerror)
 {
     if (self.currentDepartureObject!=nil)
     {
-        self.currentDepartureObject.offRoute = ATRBOOL(offRoute);
+        self.currentDepartureObject.trackingErrorOffRoute = ATRBOOL(offRoute);
+        self.currentDepartureObject.trackingError = YES;
     }
 }
 
@@ -461,7 +462,7 @@ XML_START_ELEMENT(detour)
             {
                 [self.usedDetours addObject:self.currentDetour.detourId];
                 // System wide alerts go at the top            
-                for (DepartureData *dep in self)
+                for (Departure *dep in self)
                 {
                     if ([dep.detours containsObject:self.currentDetour.detourId])
                     {

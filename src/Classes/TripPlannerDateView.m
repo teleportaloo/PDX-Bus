@@ -16,11 +16,16 @@
 #import "TableViewWithToolbar.h"
 #import "TripPlannerLocatingView.h"
 #import "TripPlannerOptions.h"
+#import "DatePickerCell.h"
 
-#define kSectionDateDeparture 1
-#define kSectionDateArrival   2
-#define kSectionDateDepartNow 0
-
+enum
+{
+    kSectionDateButtons,
+    kSectionDateDepartNow,
+    kSectionDateDeparture,
+    kSectionDateArrival,
+    kSectionDatePicker
+};
 
 @implementation TripPlannerDateView
 
@@ -34,12 +39,6 @@
         self.title = NSLocalizedString(@"Date and Time", @"page title");
     }
     return self;
-}
-
-- (CGFloat)heightOffset
-{
-    // return 150.0;
-    return 0;
 }
 
 - (void)initializeFromBookmark:(TripUserRequest *)req
@@ -81,63 +80,6 @@
 }
 
 
-#pragma mark Picker code
-
-// return the picker frame based on its size, positioned at the bottom of the page
-- (CGRect)pickerFrameWithSize:(CGSize)size
-{
-    CGRect screenRect = [UIScreen mainScreen].applicationFrame;
-    
-    
-    // This seems so iOS version specific not sure why!
-    
-    float offset = 20.0;
-    
-    if (!self.iOS8style)
-    {
-        if ([UIApplication sharedApplication].statusBarOrientation == UIInterfaceOrientationLandscapeLeft ||
-            [UIApplication sharedApplication].statusBarOrientation == UIInterfaceOrientationLandscapeRight)
-        {
-            CGFloat temp = screenRect.size.height;
-            screenRect.size.height = screenRect.size.width;
-            screenRect.size.width = temp;
-            
-            offset = 21;
-
-        }
-    }
-    
-    CGRect pickerRect = CGRectMake(    0.0,
-                                   screenRect.size.height - size.height - offset,
-                                   screenRect.size.width,
-                                   size.height);
-    return pickerRect;
-}
-
-- (void)createDatePicker
-{    
-    self.datePickerView = [[UIDatePicker alloc] initWithFrame:CGRectZero];
-    // self.datePickerView.autoresizingMask = UIViewAutoresizingFlexibleWidth; //UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
-    self.datePickerView.datePickerMode = UIDatePickerModeDateAndTime;
-    
-    if (self.tripQuery.userRequest.dateAndTime != nil)
-    {
-        self.datePickerView.date = self.tripQuery.userRequest.dateAndTime;
-    }
-    
-    // note we are using CGRectZero for the dimensions of our picker view,
-    // this is because picker views have a built in optimum size,
-    // you just need to set the correct origin in your view.
-    //
-    // position the picker at the bottom
-    CGSize pickerSize = [self.datePickerView sizeThatFits:CGSizeZero];
-    self.datePickerView.frame = [self pickerFrameWithSize:pickerSize];
-    
-    // add this picker to our view controller, initially hidden
-    
-    
-}
-
 #pragma mark UI Helper functions
 
 -(void)showOptions:(id)sender
@@ -153,53 +95,76 @@
 #pragma mark TableView methods
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return kDatePickerSections;
+    return self.sections;
 }
 
 // Customize the number of rows in the table view.
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return kDatePickerButtonsPerSection;
+    return [self rowsInSection:section];
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return 45.0;
+    return UITableViewAutomaticDimension;
 }
 
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    UITableViewCell *cell = [self tableView:tableView cellWithReuseIdentifier:@"DateType"];
     
-    switch (indexPath.row)
+    NSInteger row = [self rowType:indexPath];
+    NSInteger section = [self sectionType:indexPath.section];
+    UITableViewCell *cell = nil;
+    
+    
+    switch (section)
     {
-        case kSectionDateDepartNow:
-            cell.textLabel.text = NSLocalizedString(@"Depart now", @"button text");
+        default:
+        case kSectionDateButtons:
+        {
+            cell = [self tableView:tableView cellWithReuseIdentifier:MakeCellId(kSectionDateButtons)];
+            switch (row)
+            {
+                case kSectionDateDepartNow:
+                default:
+                    cell.textLabel.text = NSLocalizedString(@"Depart now", @"button text");
+                    break;
+                case kSectionDateDeparture:
+                    cell.textLabel.text = NSLocalizedString(@"Depart after the time below", @"button text");
+                    break;
+                case kSectionDateArrival:
+                    cell.textLabel.text = NSLocalizedString(@"Arrive by the time below", @"button text");
+                    break;
+            }
+            cell.textLabel.font = self.basicFont;
+            cell.accessoryType = self.popBack ? UITableViewCellAccessoryNone  : UITableViewCellAccessoryDisclosureIndicator;
             break;
-        case kSectionDateDeparture:
-            cell.textLabel.text = NSLocalizedString(@"Depart after the time below", @"button text");
+        }
+        case kSectionDatePicker:
+        {
+            cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionDatePicker)];
+            
+            DatePickerCell *datePicker = (DatePickerCell*)cell;
+            
+            self.datePickerView = datePicker.datePickerView;
+            
+            if (self.tripQuery.userRequest.dateAndTime != nil)
+            {
+                self.datePickerView.date = self.tripQuery.userRequest.dateAndTime;
+            }
+            
             break;
-        case kSectionDateArrival:
-            cell.textLabel.text = NSLocalizedString(@"Arrive by the time below", @"button text");
-            break;            
+        }
     }
-    
-    cell.textLabel.font = self.basicFont;
-    cell.accessoryType = self.popBack ? UITableViewCellAccessoryNone  : UITableViewCellAccessoryDisclosureIndicator;
     return cell;
 }
 
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    // Navigation logic may go here. Create and push another view controller.
-    // AnotherViewController *anotherViewController = [[AnotherViewController alloc] initWithNibName:@"AnotherView" bundle:nil];
-    // [self.navigationController pushViewController:anotherViewController];
-    // [anotherViewController release];
-    
-    
+        
     self.tripQuery.userRequest.dateAndTime = self.datePickerView.date;
     
-    switch (indexPath.row)
+    switch ([self rowType:indexPath])
     {
         case kSectionDateDeparture:
             self.tripQuery.userRequest.arrivalTime = false;
@@ -210,6 +175,7 @@
         case kSectionDateDepartNow:
             self.tripQuery.userRequest.arrivalTime = false;
             self.tripQuery.userRequest.dateAndTime = nil;
+            break;
     }
     
     if (self.popBack)
@@ -252,54 +218,31 @@
 
 #pragma mark View Methds
 
-- (void)rotatedTo:(UIInterfaceOrientation)orientation
-{
-    [self.datePickerView removeFromSuperview];
-    self.datePickerView = nil;
-        
-    [self createDatePicker];
-    [self.view addSubview:self.datePickerView];
-    
-    [super rotatedTo:orientation];
-}
 
 -(void)loadView
 {
     [super loadView];
     
-    [self createDatePicker];
-    [self.view addSubview:self.datePickerView];
-    
-}
+    [self clearSectionMaps];
 
-- (void)viewDidAppear:(BOOL)animated
-{
-    CGSize pickerSize = [self.datePickerView sizeThatFits:CGSizeZero];
-    CGRect frame = [self pickerFrameWithSize:pickerSize];
+    
+    [self addSectionType:kSectionDateButtons];
     
     
-    self.datePickerView.frame = frame;
+    [self addRowType:kSectionDateDepartNow];
+    [self addRowType:kSectionDateDeparture];
+    [self addRowType:kSectionDateArrival];
     
-    /*
     
-    if (self.datePickerView)
-    {
-        [self.datePickerView removeFromSuperview];
-        self.datePickerView = nil;
-    }
-    
-    [self createDatePicker];
-    [self.view addSubview:self.datePickerView];
-    */
-
-    [super viewDidAppear:animated];
-    [self reloadData];
+    [self addSectionType:kSectionDatePicker];
+    [self addRowType:kSectionDatePicker];
 
 }
-
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    [self.table registerNib:[DatePickerCell nib] forCellReuseIdentifier:MakeCellId(kSectionDatePicker)];
     
     if (self.tripQuery == nil)
     {

@@ -15,10 +15,10 @@
 #import "DirectionView.h"
 #import "DebugLogging.h"
 #include "Detour+iOSUI.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 #import "TriMetInfo.h"
 #import "WebViewController.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 #import "MapViewWithDetourStops.h"
 #import "XMLDetoursAndMessages.h"
 
@@ -90,12 +90,14 @@
     self.sortedDetours = [NSMutableArray array];
     
     bool found = NO;
-    bool systemWide = NO;
+    
+    NSMutableSet *detoursNoLongerFound = [UserPrefs sharedInstance].hiddenSystemWideDetours.mutableCopy;
+    
     for (Detour *d in self.detours)
     {
         if (d.systemWideFlag)
         {
-            systemWide = YES;
+            [detoursNoLongerFound removeObject:d.detourId];
         }
         for (Route *r in d.routes)
         {
@@ -120,9 +122,9 @@
         }
     }
     
-    if (routes && systemWide==NO)
+    if (routes)
     {
-        [UserPrefs sharedInstance].hideSystemWideDetours = NO;
+        [[UserPrefs sharedInstance] removeOldSystemWideDetours:detoursNoLongerFound];
     }
     
     // Remove any not in our route list
@@ -213,7 +215,7 @@
     
     DetoursForRoute *detours = [self filteredData:tableView][section];
     
-    if (detours.detours.count > 0 && detours.detours.firstObject.systemWideFlag && [UserPrefs sharedInstance].hideSystemWideDetours)
+    if (detours.detours.count > 0 && detours.detours.firstObject.systemWideFlag && [[UserPrefs sharedInstance].hiddenSystemWideDetours containsObject:detours.detours.firstObject.detourId])
     {
          return nil;
     }

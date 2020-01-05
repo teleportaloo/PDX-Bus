@@ -19,6 +19,13 @@
 #import "NSMutableDictionary+MutableElements.h"
 
 
+#define kDefaultFileName @"appData"
+#define kDefaultFileType @"plist"
+
+
+#define kDefaultFile kDefaultFileName @"." kDefaultFileType
+
+
 @implementation SafeUserData
 
 @dynamic faves;
@@ -31,7 +38,7 @@
 @dynamic lastNames;
 @dynamic lastLocate;
 @dynamic lastRun;
-
+@dynamic hasEverChanged;
 
 - (void)memoryWarning
 {
@@ -71,7 +78,7 @@
 - (instancetype)init {
     if ((self = [super init]))
     {
-        self.sharedUserCopyOfPlist = [SharedFile fileWithName:@"appData.plist" initFromBundle:YES];
+        self.sharedUserCopyOfPlist = [SharedFile fileWithName:kDefaultFile initFromBundle:YES];
         self.readOnly = FALSE;
         self.lastRunKey = kLastRunApp;
         [self load];
@@ -91,14 +98,254 @@
     return singleton;
 }
 
+- (NSMutableDictionary *)newFave
+{
+    NSMutableDictionary *newFave = [NSMutableDictionary dictionary];
+    newFave[kUserFavesLocation] = [NSString string];
+    newFave[kUserFavesChosenName] = kNewBookMark;
+    return newFave;
+}
+
+#ifndef PDXBUS_WATCH
+
+- (void)fillGapInFaves:(NSMutableArray*)faves upTo:(NSInteger)total
+{
+    NSUbiquitousKeyValueStore *store =  [NSUbiquitousKeyValueStore defaultStore];
+    
+    while (total > faves.count)
+    {
+        // Next item is item at faves.count
+        
+        NSDictionary *filler = [store objectForKey:kiCloudKey(faves.count)];
+        
+        if (filler == nil)
+        {
+            filler = self.newFave;
+        }
+        [faves addObject:filler.mutableCopy];
+    }
+}
+
+#endif
+
+- (void)clearCloud
+{
+#ifndef PDXBUS_WATCH
+    NSUbiquitousKeyValueStore *store =  [NSUbiquitousKeyValueStore defaultStore];
+    NSDictionary *all = [store dictionaryRepresentation];
+    
+    for (NSString *keys in all)
+    {
+        [store removeObjectForKey:keys];
+    }
+    
+    [store synchronize];
+#endif
+}
+- (void)mergeWithCloud:(NSArray*)changed
+{
+#ifndef PDXBUS_WATCH
+    
+    DEBUG_FUNC();
+    @synchronized (self)
+    {
+        NSMutableArray<NSMutableDictionary *> *faves = self.faves;
+        NSUbiquitousKeyValueStore *store =  [NSUbiquitousKeyValueStore defaultStore];
+        
+        if (changed)
+        {
+            for (NSString *key in changed)
+            {
+                if ([key isEqual:kiCloudTotal])
+                {
+                    NSNumber *total = [store objectForKey:key];
+                    
+                    // Delete any that are not needed
+                    NSInteger items = 0;
+                    
+                    if (total!=nil)
+                    {
+                        items = total.integerValue;
+                    }
+                    
+                    if (items < faves.count)
+                    {
+                        DEBUG_LOGL(faves.count - items);
+                        while (items < faves.count)
+                        {
+                            [self.faves removeLastObject];
+                        }
+                    }
+                    else if (items > faves.count)
+                    {
+                        DEBUG_LOGL(items - faves.count);
+                        
+                        [self fillGapInFaves:faves upTo:items];
+                    }
+                }
+                else if (kisCloudKeyFave(key))
+                {
+                    NSInteger item = kCloudKeyItem(key);
+                    NSDictionary *cloudFave = [store objectForKey:key];
+                    DEBUG_LOGS(key);
+                    
+                    if (cloudFave)
+                    {
+                        // Pad out, but should never happen!
+                        [self fillGapInFaves:faves upTo:item];
+                        faves[item] = [self deepDictionaryCopy:cloudFave];
+                    }
+                }
+            }
+        }
+        else
+        {
+            // Replace them all the first time
+            NSNumber *total = [store objectForKey:kiCloudTotal];
+            
+            if (total!=nil)
+            {
+            
+                [faves removeAllObjects];
+            
+                for (NSInteger item =0; item < total.integerValue; item++)
+                {
+                    NSString *key = kiCloudKey(item);
+                    NSDictionary *fave = [store dictionaryForKey:key];
+                    if (fave)
+                    {
+                        [faves addObject:[self deepDictionaryCopy:fave]];
+                    }
+                    else
+                    {
+                        [faves addObject:self.newFave];
+                    }
+                }
+            }  
+        }
+        [self cacheAppData];
+    }
+#endif
+}
+
+- (NSMutableDictionary *)deepDictionaryCopy:(NSDictionary *)dict
+{
+    NSMutableDictionary *newDict = [NSMutableDictionary dictionary];
+    
+    [dict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        if ([obj isKindOfClass:[NSDictionary class]])
+        {
+            [newDict setObject:[self deepDictionaryCopy:(NSDictionary *)obj] forKey:key];
+        }
+        else if ([obj isKindOfClass:[NSArray class]])
+        {
+            [newDict setObject:[self deepArrayCopy:(NSArray *)obj] forKey:key];
+        }
+        else
+        {
+            [newDict setObject:obj forKey:key];
+        }
+    }];
+    
+    return newDict;
+}
+
+- (NSMutableArray *)deepArrayCopy:(NSArray *)array
+{
+    NSMutableArray *newArray = [NSMutableArray array];
+    
+    for (NSObject *obj in array)
+    {
+        if ([obj isKindOfClass:[NSDictionary class]])
+        {
+            [newArray addObject:[self deepDictionaryCopy:(NSDictionary *)obj]];
+        }
+        else if ([obj isKindOfClass:[NSArray class]])
+        {
+            [newArray addObject:[self deepArrayCopy:(NSArray *)obj]];
+        }
+        else
+        {
+            [newArray addObject:obj];
+        }
+    }
+    
+    return newArray;
+}
+
+- (void)writeToiCloud
+{
+#ifndef PDXBUS_WATCH
+    UserPrefs *prefs = [UserPrefs sharedInstance];
+    if (prefs.iCloudToken && !prefs.firstLaunchWithiCloudAvailable && self.canWriteToCloud)
+    {
+        // Write to iCloud
+        NSUbiquitousKeyValueStore *store =  [NSUbiquitousKeyValueStore defaultStore];
+        
+        if (store)
+        {
+            NSNumber *total = [store objectForKey:kiCloudTotal];
+            NSArray *faves = self.faves;
+            
+            DEBUG_LOGO(total);
+            
+            if (total!=nil)
+            {
+                if (total.intValue > faves.count)
+                {
+                    for (NSInteger item = faves.count;  item < total.intValue; item++)
+                    {
+                        [store removeObjectForKey:kiCloudKey(item)];
+                    }
+                }
+            }
+            
+            
+            if (faves.count == 0 && total==nil)
+            {
+                // Do nothing
+            }
+            else if (faves.count == 0 && total!=nil)
+            {
+                // Leave as is
+            }
+            else
+            {
+                for (NSInteger i=0; i<faves.count; i++)
+                {
+                    NSDictionary *fave = faves[i];
+                    NSString *key = kiCloudKey(i);
+                    NSDictionary *cloudFave = [store dictionaryForKey:key];
+                
+                    if (cloudFave == nil || ![cloudFave isEqualToDictionary:fave])
+                    {
+                        [store setObject:[self deepDictionaryCopy:fave] forKey:key];
+                    }
+                }
+            
+                if (total==nil || total.intValue != self.faves.count)
+                {
+                    total = [NSNumber numberWithInteger:self.faves.count];
+                    [store setObject:total forKey:kiCloudTotal];
+                }
+            }
+            
+            DEBUG_LOGO(total);
+            [store synchronize];
+        }
+        
+    }
+#endif
+}
+
 - (void)cacheAppData
 {
     @synchronized (self)
     {
         if (self.appData && !self.readOnly)
-        {
+        {            
             [self.sharedUserCopyOfPlist writeDictionary:self.appData];
- //           DEBUG_LOGO(self.appData);
+            [self writeToiCloud];
         }
     }
 }
@@ -583,6 +830,25 @@
         self.lastRun = nil;
     }
     return nil;
+}
+
+- (bool)hasEverChanged
+{    
+    NSBundle *bundle = [NSBundle mainBundle];
+    NSString *pathToDefaultPlist = [bundle pathForResource:kDefaultFileName ofType:kDefaultFileType];
+    NSURL *defaultPlist = [[NSURL alloc] initFileURLWithPath:pathToDefaultPlist isDirectory:NO];
+  
+    if (defaultPlist)
+    {
+        NSDictionary *defaultDict = [NSDictionary dictionaryWithContentsOfURL:defaultPlist];
+    
+        if (defaultDict !=nil)
+        {
+            NSArray *faves = defaultDict[kFaves];
+            return ![faves isEqualToArray:self.faves];
+        }
+    }
+    return YES;
 }
 
 

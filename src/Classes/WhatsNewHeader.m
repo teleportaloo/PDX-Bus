@@ -29,7 +29,7 @@
 	
 	if (color == 0xFFFFFF)
     {
-        cell.backgroundColor = [UIColor grayColor];
+        cell.backgroundColor = [UIColor modeAwareGrayBackground];
     }
     else
     {

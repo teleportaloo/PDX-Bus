@@ -19,14 +19,10 @@
 
 @interface TripPlannerOptions : TripPlannerBaseView
 
-@property (nonatomic, strong) UISegmentedControl *walkSegment;
-@property (nonatomic, strong) UISegmentedControl *modeSegment;
-@property (nonatomic, strong) UISegmentedControl *minSegment;
 @property (nonatomic, copy)   NSString *info;
 
 - (void)walkSegmentChanged:(id)sender;
 - (void)modeSegmentChanged:(id)sender;
 - (void)minSegmentChanged:(id)sender;
-- (UISegmentedControl*) createSegmentedControl:(NSArray *)segmentTextContent parent:(UIView *)parent action:(SEL)action;
 
 @end

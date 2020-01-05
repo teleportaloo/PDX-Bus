@@ -24,13 +24,13 @@
     return @"None";
 }
 
-- (void)populate:(XMLDepartures *)xml departures:(NSArray<DepartureData*>*)deps
+- (void)populate:(XMLDepartures *)xml departures:(NSArray<Departure*>*)deps
 {
     if (xml.gotData)
     {
         if (deps.count == 0)
         {
-            self.label.text = @"No arrivals";
+            self.label.text = @"No departures";
         }
         else if (deps.count>0 && deps.firstObject.errorMessage!=nil)
         {

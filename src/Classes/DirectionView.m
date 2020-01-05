@@ -19,7 +19,7 @@
 #import "DebugLogging.h"
 #import "Detour.h"
 #import "Detour+iOSUI.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 
 @implementation DirectionView
 
@@ -189,7 +189,7 @@ enum {
 			{
 				self.directionKeys = [self.route.directions keysSortedByValueUsingSelector:@selector(compare:)];
 			}
-			cell.textLabel.textColor = [UIColor blackColor];
+			cell.textLabel.textColor = [UIColor modeAwareText];
 			cell.textLabel.text = self.route.directions[self.directionKeys[indexPath.row]];
 			cell.textLabel.font = self.basicFont;
 			cell.textLabel.adjustsFontSizeToFitWidth = YES;
@@ -230,7 +230,7 @@ enum {
 					break;
 				case kOtherRowWiki:
 					cell.textLabel.text = NSLocalizedString(@"Wikipedia page", @"Link to English wikipedia page");
-					cell.imageView.image = [self getIcon:kIconWiki];
+					cell.imageView.image = [self getIcon:kIconLink];
 					break;
 			}
             [self updateAccessibility:cell];

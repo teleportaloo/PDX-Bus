@@ -15,7 +15,7 @@
 
 
 #import "XMLLocateStops+iOSUI.h"
-#import "RouteDistanceData.h"
+#import "RouteDistance.h"
 #import "FormatDistance.h"
 
 

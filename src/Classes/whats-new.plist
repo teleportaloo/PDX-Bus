@@ -2,6 +2,27 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <array>
+	<string>.11.3.1 (January 2020)</string>
+	<string>Small fix for maps if they are on the screen when the mode changes from dark to light or vice versa.</string>
+	<string>Fix for the pull-down search in iOS 13, sometimes items at the bottom of the page were hidden behind the keyboard.</string>
+	<string>Fixed the date picker screen in the trip planner - the date picker is now aligned properly.</string>
+	<string>Added information for new 2019 vehicles.</string>
+	<string>Completed changing the descriptions of the times from #iArrivals#i to #iDepartures#i.  The times have always been #ideparture#i times,  even though the internal documentation often calls them #iarrival#i times.  It is clearer if we refer to them as departure times.</string>
+	<string>Re-worked departure and proximity alarms, improved user interface and improved accuracy.</string>
+	<string>Several other small bug fixes and tweaks, including more information when a vehicle goes off route.</string>
+	<string>.11.3 (September 2019)</string>
+	<string>Support for iOS 13 dark mode,  including new icons, reversed colors, changing mode on the fly.</string>
+	<string>$tripPlanner Trip Planner now looks up addresses and landmarks using Apple&apos;s geolocating services (instead of TriMet).   This gives more accurate and up-to-date searches with full addresses.</string>
+	<string>$tripPlanner Trip Planner user-interface for inputing addresses has been enlarged and re-designed.</string>
+	<string>$railMap Updated TriMet MAX map to use the September 2019 version, which highlights that some stops are closing in 2020.</string>
+	<string>Small fix in the color picker, used for tagging vehicles.</string>
+	<string>Minor bug fixes including: fixed issue with creating a bookmark when there is a system wide alert.</string>
+	<string>.11.2 (August 2019)</string>
+	<string>PDX Bus can now use iCloud to share bookmarks between devices, and to restore bookmarks when the app is deleted and reinstalled.</string>
+	<string>User interface tweaks.</string>
+	<string>Added information about the latest new electric busses.</string>
+	<string>Various bug fixes.</string>
+	<string>Watch:  System Wide alert text will hide when touched.</string>
 	<string>.11.1 (January 2019)</string>
 	<string>iOS 12 Siri Shortcuts:  Use the &quot;Add this stop to Siri&quot; menu item to associate a stop with a phrase for Siri, and Siri will say and show all the arrivals for a single stop.</string>
 	<string>iOS 12 Siri Shortcuts:  Use the  &quot;Add to Siri to launch with bookmark&quot; menu item to associate a bookmark with a phrase for Siri, who will launch PDX Bus and show the bookmark. Siri won&apos;t attempt to read all the arrivals in this case, as there could be a lot as each bookmark can have many stops.</string>
@@ -14,20 +35,20 @@
 	<string>All: Now displays the day of the week if arrival time is more than 12 hours away, instead of the date.</string>
 	<string>.11.0.3 (October 2018)</string>
 	<string>Modified route indexing to hopefully stop occasional hang.</string>
-	<string>.11.0.2 (Ocober 2018)</string>
+	<string>.11.0.2 (October 2018)</string>
 	<string>I&apos;ve been looking into the way it hangs for some people, especially when getting routes, and hopefully I have a fix.  Thanks for all the bug reports and pictures, it really helps!</string>
 	<string>.11.0.1 (October 2018)</string>
 	<string>Fixed issue where app will not launch on iOS8 and 9.</string>
 	<string>Fixed issue with Refresh not working on Lookup stop by Route.</string>
 	<string>.11.0 (September 2018)</string>
 	<string>Updated for iOS 12.  Added basic support for Siri Shortcuts.</string>
-	<string>Updated to use new #b#BTriMet#0#b data - may include more details about delays, vehicle IDs, vehicle types and when busses are full.</string>
+	<string>Updated to use new #b#BTriMet#D#b data - may include more details about delays, vehicle IDs, vehicle types and when busses are full.</string>
 	<string>Improved speed of arrival downloads by combining queries.</string>
-	<string>$detours Updated detours to use new #b#BTriMet#0#b alert data - including #+#bsystem wide alerts#-#b. #(#AThey also show the start and end time#)#0. Removed &quot;Rider Alerts&quot; as it was basically the same as the detour list and renamed the detours to be &quot;Detours, delays and closures&quot;.   Detours also include messages about the streetcar.</string>
-	<string>$settings You can adjust how many arrivals are shown. In the settings there is a new setting &quot;Don&apos;t show route after arrival &gt; N mins away&quot;.  Arrivals for each route served at each stop will be shown up to the first that is further than the chosen number of minutes away. </string>
-	<string>$tweet Updated Twitter links, as #b#BTriMet#0#b now has three Twitter accounts. Touch here to see.</string>
-	<string>Late color is now #M#bmagenta#b#0, as #isome people#i thought #N#bbrown#b#0 was a bit close to #A#bgrey#b#0.</string>
-	<string>VoiceOver text for detours improved to pronouce local #b#BTriMet#0#b words better (eg 185th Ave TC MAX Stn).  #i#htest#b!</string>
+	<string>$detours Updated detours to use new #b#BTriMet#D#b alert data - including #+#bsystem wide alerts#-#b. #(#AThey also show the start and end time#)#D. Removed &quot;Rider Alerts&quot; as it was basically the same as the detour list and renamed the detours to be &quot;Detours, delays and closures&quot;.   Detours also include messages about the streetcar.</string>
+	<string>$settings You can adjust how many departures are shown. In the settings there is a new setting &quot;Don&apos;t show route after arrival &gt; N mins away&quot;.  Arrivals for each route served at each stop will be shown up to the first that is further than the chosen number of minutes away. </string>
+	<string>$tweet Updated Twitter links, as #b#BTriMet#D#b now has three Twitter accounts. Touch here to see.</string>
+	<string>Late color is now #M#bmagenta#b#D, as #isome people#i thought #N#bbrown#b#D was a bit close to #A#bgrey#b#D.</string>
+	<string>VoiceOver text for detours improved to pronounce local #b#BTriMet#0#b words better (eg 185th Ave TC MAX Stn).  #i#htest#b!</string>
 	<string>Added search to detours, recent stops, recent trips and this #iWhat&apos;s New#i screen (pull down for search box).</string>
 	<string>$settings Maps:  There is a new option to show the route paths on the maps.  These paths are useful, but they are a 10 MB download so this is off by default.</string>
 	<string>Watch:  Improved commuter bookmark user-interface - it will show when it is active in the title.</string>
@@ -39,7 +60,7 @@
 	<string>Fixed alarm notifications.</string>
 	<string>Fixed additional issues with trip planner results, and calendaring events.</string>
 	<string>Updated trip planner so all vehicles in a trip can be tagged at once with the same color.</string>
-	<string>Late vehicles have their times shown in #N#bbrown#b#0.</string>
+	<string>Late vehicles have their times shown in #N#bbrown#b#D.</string>
 	<string>.10.0 (October 2017)</string>
 	<string>Fixed calendar issue;  trips are now added to the calendar with the correct date.</string>
 	<string>Minor fixes to station names and maps.</string>
@@ -49,11 +70,5 @@
 	<string>Detours are grouped by route and text is more compact.</string>
 	<string>Bigger route color circles and squares for trains.</string>
 	<string>Shortened route names for streetcar arrivals to make them bigger on the screen.</string>
-	<string>.9.2 (August 2017)</string>
-	<string>Several bug fixes from bugs found from crash logs.</string>
-	<string>Fixed bug in which blank arrivals were displayed if commuter bookmark is triggered while already fetching data.</string>
-	<string>Minor user interface text changes.</string>
-	<string>.9.1 (January 2017)</string>
-	<string>Fixed bookmarks so first stop is not duplicated when editing.</string>
 </array>
 </plist>

@@ -142,11 +142,11 @@
             self.startPoint.displayModeText = @"Start";
             [text appendFormat:@"%@%@", nearTo ? @"" : @"#bStart at#b ", firstPoint.xdescription];
         }
-        else if (type == TripTextTypeHTML && firstPoint.xlon!=nil)
+        else if (type == TripTextTypeHTML && firstPoint.loc != nil)
         {
-            [text appendFormat:@"%@<a href=\"http://map.google.com/?q=location@%@,%@\">%@</a>",
+            [text appendFormat:@"%@<a href=\"http://map.google.com/?q=location@%f,%f\">%@</a>",
              nearTo ? @"Start " : @"Start at ",
-             firstPoint.xlat, firstPoint.xlon,  firstPoint.xdescription];
+             firstPoint.coordinate.latitude, firstPoint.coordinate.longitude,  firstPoint.xdescription];
         }
         else
         {

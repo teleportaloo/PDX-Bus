@@ -18,7 +18,7 @@
 #import "DebugLogging.h"
 #import "FormatDistance.h"
 #import "ViewControllerBase.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 
 
 @implementation TripLeg
@@ -52,14 +52,14 @@
     return ret;
 }
 
-- (NSString*)mapLink:(NSString *)desc lat:(NSString *)lat lng:(NSString *)lng textType:(TripTextType)type
+- (NSString*)mapLink:(NSString *)desc loc:(CLLocation*)loc textType:(TripTextType)type
 {
-    if (lat == nil || type != TripTextTypeHTML)
+    if (loc == nil || type != TripTextTypeHTML)
     {
         return desc;
     }
-    return [NSString stringWithFormat:@"<a href=\"http://map.google.com/?q=location@%@,%@\">%@</a>",
-            lat, lng, desc];
+    return [NSString stringWithFormat:@"<a href=\"http://map.google.com/?q=location@%f,%f\">%@</a>",
+            loc.coordinate.latitude, loc.coordinate.longitude, desc];
 }
 
 
@@ -76,7 +76,7 @@
             {
                 
                 self.from.displayTimeText = self.xstartTime;
-                self.from.leftColor = [UIColor blueColor];
+                self.from.leftColor = [UIColor modeAwareBlue];
                 
                 // Bug in response can give streetcar data as MAX Mode.
                 
@@ -100,7 +100,7 @@
                 if (self.from.thruRoute)
                 {
                     self.from.displayModeText = @"Stay on board";
-                    self.from.leftColor = [UIColor blackColor];
+                    self.from.leftColor = [UIColor modeAwareText];
                     
                     [text appendFormat:    @"#bStay on board#b at %@, route changes to '%@'", self.from.xdescription, self.xname];
                 }
@@ -207,7 +207,7 @@
                 if (type == TripTextTypeUI)
                 {
                     self.to.displayModeText = self.mode;
-                    self.to.leftColor = [UIColor purpleColor];
+                    self.to.leftColor = [UIColor modeAwarePurple];
                 }
                 int mins = self.xduration.intValue;
                 
@@ -255,7 +255,7 @@
                 
                 [text appendFormat:@"%@%@",
                  @"to ",
-                 [self mapLink:self.to.xdescription lat:self.to.xlat lng:self.to.xlon textType:type]];
+                 [self mapLink:self.to.xdescription loc:self.to.loc textType:type]];
             }
             
         }
@@ -273,11 +273,11 @@
                 case TripTextTypeClip:
                     if (self.to.thruRoute)
                     {
-                        [text appendFormat:    @"%@ stay on board at %@", self.xendTime, [self mapLink:self.to.xdescription lat:self.to.xlat lng:self.to.xlon textType:type]];
+                        [text appendFormat:    @"%@ stay on board at %@", self.xendTime, [self mapLink:self.to.xdescription loc:self.to.loc textType:type]];
                     }
                     else
                     {
-                        [text appendFormat:    @"%@ get off at %@", self.xendTime, [self mapLink:self.to.xdescription lat:self.to.xlat lng:self.to.xlon textType:type]];
+                        [text appendFormat:    @"%@ get off at %@", self.xendTime, [self mapLink:self.to.xdescription loc:self.to.loc textType:type]];
                     }
                     break;
                 case TripTextTypeUI:

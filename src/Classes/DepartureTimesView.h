@@ -27,7 +27,7 @@
 #define kCacheWarning NSLocalizedString(@"WARNING: No network - extrapolated times", @"error message")
 
 @class XMLDepartures;
-@class DepartureData;
+@class Departure;
 
 typedef NSMutableArray<NSNumber *> SECTIONROWS;
 
@@ -55,7 +55,7 @@ typedef NSMutableArray<NSNumber *> SECTIONROWS;
 @property (nonatomic, strong) NSMutableArray *vehicleStops;
 @property (nonatomic, strong) NSUserActivity *userActivity;
 
-- (void)fetchTimesForVehicleAsync:(id<BackgroundTaskController>)task route:(NSString *)route direction:(NSString *)direction nextLoc:(NSString*)loc block:(NSString *)block targetDeparture:(DepartureData *)targetDep;
+- (void)fetchTimesForVehicleAsync:(id<BackgroundTaskController>)task route:(NSString *)route direction:(NSString *)direction nextLoc:(NSString*)loc block:(NSString *)block targetDeparture:(Departure *)targetDep;
 - (void)fetchTimesForVehicleAsync:(id<BackgroundTaskController>)task vehicleId:(NSString *)vehicleId;
 - (void)fetchTimesForLocationAsync:(id<BackgroundTaskController>)task loc:(NSString*)loc block:(NSString *)block;
 - (void)fetchTimesForLocationAsync:(id<BackgroundTaskController>)task loc:(NSString*)loc title:(NSString *)title;
@@ -63,9 +63,9 @@ typedef NSMutableArray<NSNumber *> SECTIONROWS;
 - (void)fetchTimesForLocationAsync:(id<BackgroundTaskController>)task loc:(NSString*)loc names:(NSArray*)names;
 - (void)fetchTimesForBlockAsync:(id<BackgroundTaskController>)task block:(NSString*)block start:(NSString*)start stop:(NSString*) stop;
 - (void)fetchTimesForNearestStopsAsync:(id<BackgroundTaskController>)task location:(CLLocation *)here maxToFind:(int)max minDistance:(double)min mode:(TripMode)mode;
-- (void)fetchTimesForNearestStopsAsync:(id<BackgroundTaskController>)task stops:(NSArray<StopDistanceData*>*)stops;
+- (void)fetchTimesForNearestStopsAsync:(id<BackgroundTaskController>)task stops:(NSArray<StopDistance*>*)stops;
 - (void)fetchTimesViaQrCodeRedirectAsync:(id<BackgroundTaskController>)task URL:(NSString*)url;
-- (void)fetchTimesForStopInOtherDirectionAsync:(id<BackgroundTaskController>)task departure:(DepartureData*)dep;
+- (void)fetchTimesForStopInOtherDirectionAsync:(id<BackgroundTaskController>)task departure:(Departure*)dep;
 - (void)fetchTimesForStopInOtherDirectionAsync:(id<BackgroundTaskController>)task departures:(XMLDepartures*)deps;
 
 - (void)refreshAction:(id)sender;

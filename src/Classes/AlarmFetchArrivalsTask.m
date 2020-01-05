@@ -26,9 +26,7 @@
 
 - (void)dealloc
 {
-    
     self.observer        = nil;
-    
 }
 
 - (instancetype)init
@@ -61,7 +59,7 @@
     }
     else if (self.lastFetched == nil)
     {
-        [self alert:NSLocalizedString(@"PDX Bus was not able to get the time for this arrival", @"arrival alarm error")
+        [self alert:NSLocalizedString(@"PDX Bus was not able to get the time for this departure", @"departure alarm error")
            fireDate:nil
              button:nil
            userInfo:nil
@@ -129,7 +127,7 @@
         {
             [self alert:alertText
                fireDate:alarmTime
-                 button:NSLocalizedString(@"Show arrivals", @"alert text")
+                 button:NSLocalizedString(@"Show departures", @"alert text")
                userInfo:@{
                           kStopIdNotification   : self.stopId,
                           kAlarmBlock           : self.block }
@@ -342,13 +340,13 @@
                 switch (self.minsToAlert)
                 {
                     case 0:
-                        str = [NSString stringWithFormat:NSLocalizedString(@"Arrival at %@", @"Alarm will be done at time {time}"), [dateFormatter stringFromDate: departureDate]];
+                        str = [NSString stringWithFormat:NSLocalizedString(@"Departure at %@", @"Alarm will be done at time {time}"), [dateFormatter stringFromDate: departureDate]];
                         break;
                     case 1:
-                        str = [NSString stringWithFormat:NSLocalizedString(@"1 min before arrival at %@", @"Alarm will be done at time {time}"), [dateFormatter stringFromDate: departureDate], self.display];
+                        str = [NSString stringWithFormat:NSLocalizedString(@"1 min before departure at %@", @"Alarm will be done at time {time}"), [dateFormatter stringFromDate: departureDate], self.display];
                         break;
                     default:
-                        str = [NSString stringWithFormat:NSLocalizedString(@"%d mins before arrival at %@", @"Alarm will be done at time {time}"), self.minsToAlert, [dateFormatter stringFromDate: departureDate]];
+                        str = [NSString stringWithFormat:NSLocalizedString(@"%d mins before departure at %@", @"Alarm will be done at time {time}"), self.minsToAlert, [dateFormatter stringFromDate: departureDate]];
                         break;
                 }
                 

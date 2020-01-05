@@ -22,11 +22,9 @@
 	BOOL                    _segSetup;
 }
 
-@property (nonatomic, strong) UISegmentedControl *sortSegment;
 @property (nonatomic, copy)   NSString *info;
 @property (nonatomic, strong) DepartureTimesView *depView;
 
 - (void)sortSegmentChanged:(id)sender;
-- (UISegmentedControl*) createSegmentedControl:(NSArray *)segmentTextContent parent:(UIView *)parent action:(SEL)action;
 
 @end

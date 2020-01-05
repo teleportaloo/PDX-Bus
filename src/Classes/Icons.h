@@ -16,7 +16,6 @@
 #ifndef Icons_h
 #define Icons_h
 
-#define kIconTicket          @"Ticket24.png"
 #define kIconDetour          @"Trackback.png"
 #define kIconEarthMap        @"Earth.png"
 #define kIconAlarmFired      @"Alarm.png"
@@ -26,7 +25,6 @@
 #define kIconSrc             @"Source.png"
 #define kIconBrush           @"Brush.png"
 #define kIconRecent          @"Clock.png"
-#define kIconWiki            @"wiki.png"
 #define kIconFave            @"Clock.png"
 #define kIconEnterStopID     @"Find.png"
 #define kIconAlerts          @"Warning.png"
@@ -84,7 +82,7 @@
 #define kIconLocateNear7     @"845-location-target.png"
 #define kIconFindGps         @"network-satellite.png"
 #define kIconFindCell        kIconNetwork
-#define kIconSettings        @"Settings.png"
+#define kIconSettings        @"19-gear.png"
 #define kIconCamera7         @"714-camera.png"
 #define kIconCameraAction7   @"714-cameraa.png"
 #define kIconXml             @"110-bug.png"

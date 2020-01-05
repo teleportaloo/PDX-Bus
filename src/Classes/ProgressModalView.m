@@ -15,6 +15,7 @@
 #import "ProgressModalView.h"
 #import "QuartzCore/QuartzCore.h"
 #import "DebugLogging.h"
+#import "NSString+Helper.h"
 
 CGPathRef CreatePathWithRoundRect(CGRect rect, CGFloat cornerRadius);
 
@@ -61,66 +62,13 @@ CGPathRef CreatePathWithRoundRect(CGRect rect, CGFloat cornerRadius);
     
 }
 
-+ (bool)iOS8style
-{
-    return [UIDevice currentDevice].systemVersion.floatValue >= 8.0;
-}
-
 + (ProgressModalView *)initWithSuper:(UIView *)back items:(NSInteger)items title:(NSString *)title delegate:(id<ProgressDelegate>)delegate
                          orientation:(UIInterfaceOrientation)orientation
 {    
     ProgressModalView *top = [[ProgressModalView alloc] initWithFrame:back.bounds];
 
     CGRect backFrame = back.frame;
-    CGFloat quarterTurns = 0;
-    
-    // We don't have to do this in OS 8.  Whatever.
-    if (![ProgressModalView iOS8style])
-        {
-            switch (orientation)
-            {
-                case UIInterfaceOrientationLandscapeLeft:
-                    quarterTurns = 3;
-                    break;
-                case UIInterfaceOrientationLandscapeRight:
-                    quarterTurns = 1;
-                    break;
-                case UIInterfaceOrientationUnknown:
-                case UIInterfaceOrientationPortrait:
-                    quarterTurns = 0;
-                    break;
-                case UIInterfaceOrientationPortraitUpsideDown:
-                    quarterTurns = 2;
-                    break;
-            }
-    }
-    
-    DEBUG_LOG(@"Quarter turns %f\n", quarterTurns);
 
-    
-    if (quarterTurns > 0)
-    {
-#define swap(X,Y) temp = (X); (X) = (Y); Y = temp;
-        
-        CGAffineTransform trans = CGAffineTransformMakeRotation(quarterTurns * M_PI/2);
-        
-        
-        // top.center = CGPointMake(CGRectGetMidX(frame), CGRectGetMidY(frame));
-        
-        
-    
-        if (quarterTurns != 2)
-        {
-            CGFloat temp;
-            swap(backFrame.size.height, backFrame.size. width);
-            
-            // I found these magic numbers by trial and error. I'm not proud!
-            trans = CGAffineTransformTranslate(trans, -128, 130);
-        //    frame.origin.x = -125;
-        //    frame.origin.y = 140;
-        }
-        top.transform = trans;
-    }
     
     /*
     RoundedTransparentRect *fullScreen = [[RoundedTransparentRect alloc] initWithFrame:CGRectMake(
@@ -162,10 +110,23 @@ CGPathRef CreatePathWithRoundRect(CGRect rect, CGFloat cornerRadius);
 
     RoundedTransparentRect *frontWin = [[RoundedTransparentRect alloc] initWithFrame:frontFrame];
     
-    frontWin.BACKGROUND_OPACITY =  0.80;
-    frontWin.R                    =  112.0/255.0;
-    frontWin.G                    =  138.0/255.0;
-    frontWin.B                    =  144.0/255.0;
+    bool dark = NO;
+    if (@available(iOS 13.0, *))
+    {
+        dark = (frontWin.traitCollection.userInterfaceStyle == UIUserInterfaceStyleDark);
+    }
+    
+    if (dark)
+    {
+        frontWin.BACKGROUND_OPACITY   =  0.80;
+    }
+    else
+    {
+        frontWin.BACKGROUND_OPACITY   =  0.80;
+        frontWin.R                    =  112.0/255.0;
+        frontWin.G                    =  138.0/255.0;
+        frontWin.B                    =  144.0/255.0;
+    }
     
     frontWin.opaque = NO;
     
@@ -225,9 +186,15 @@ CGPathRef CreatePathWithRoundRect(CGRect rect, CGFloat cornerRadius);
     
         UIButton *cancelButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
         
-        [cancelButton setTitle:NSLocalizedString(@"Cancel", @"button text") forState:UIControlStateNormal];
+        static NSAttributedString * cancelText = nil;
         
-
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            cancelText = [@"#b#RCancel" formatAttributedStringWithFont:[UIFont systemFontOfSize:20]];
+        });
+    
+        [cancelButton setAttributedTitle:cancelText forState:UIControlStateNormal];
+    
         cancelButton.frame = CGRectMake(
                                         frontFrame.origin.x,
                                         frontFrame.origin.y + frontFrame.size.height + kButtonGap,
@@ -236,9 +203,8 @@ CGPathRef CreatePathWithRoundRect(CGRect rect, CGFloat cornerRadius);
     
         [cancelButton addTarget:top action:@selector(buttonAction:) forControlEvents:UIControlEventTouchUpInside];    
         
-        cancelButton.backgroundColor = [UIColor whiteColor];
+        cancelButton.backgroundColor = [UIColor colorWithRed:frontWin.R green:frontWin.B blue:frontWin.G alpha:frontWin.BACKGROUND_OPACITY];
         
-        [cancelButton setTitleColor:[UIColor colorWithRed:frontWin.R green:frontWin.G blue:frontWin.B alpha:1.0] forState:UIControlStateNormal];
         [top addSubview:cancelButton];
         
         cancelButton.hidden = NO;

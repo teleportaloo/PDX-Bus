@@ -28,6 +28,7 @@
 #import "XMLMultipleDepartures.h"
 #import "DepartureCell.h"
 #import "DepartureData+iOSUI.h"
+#import "UIColor+DarkMode.h"
 
 // As an example, this extension's Info.plist has been configured to handle interactions for INSendMessageIntent.
 // You will want to replace this or add other intents as appropriate.
@@ -167,7 +168,7 @@
     
     if (indexPath.row < xml.count)
     {
-        DepartureData *departure = xml[indexPath.row];
+        Departure *departure = xml[indexPath.row];
         DepartureCell *dcell = [DepartureCell tableView:tableView cellWithReuseIdentifier:@"departure"];
     
         [xml depPopulateCell:departure cell:dcell decorate:NO wide:NO];

@@ -20,11 +20,12 @@
 #import <MapKit/MapKit.h>
 #include "iOSCompat.h"
 #include "BearingAnnotationView.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 #import "TripPlannerSummaryView.h"
 #import "Detour+iOSUI.h"
 #import "MapViewWithDetourStops.h"
 #import "MainQueueSync.h"
+#import "TintedImageCache.h"
 
 @implementation TableViewWithToolbar
 
@@ -81,11 +82,6 @@ static CGFloat leftInset;
         self.searchController.delegate = nil;
         self.searchController.searchBar.delegate = nil;
     }
-    
-   
-
-    
-    
     [self finishWithMapView];
     
 }
@@ -103,6 +99,9 @@ static CGFloat leftInset;
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    self.edgesForExtendedLayout = UIRectEdgeNone;
+
+    self.table.backgroundColor = [UIColor modeAwareAppBackground];
 }
 
 -(void)recreateNewTable
@@ -140,14 +139,18 @@ static CGFloat leftInset;
         
         searchResultsController.extendedLayoutIncludesOpaqueBars = YES;
        
-        
-        if (@available(iOS 11.0, *)) {
+        if (@available(iOS 13.0, *)) {
+            // searchResultsController.extendedLayoutIncludesOpaqueBars = TRUE;
+            // searchResultsController.edgesForExtendedLayout = UIRectEdgeAll;
+            
+            searchResultsController.tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+        }
+        else if (@available(iOS 11.0, *)) {
             searchResultsController.tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
         }
-        
+    
         self.extendedLayoutIncludesOpaqueBars = YES;
         self.definesPresentationContext = YES;
-        
         
         self.searchController = [[UISearchController alloc] initWithSearchResultsController:searchResultsController];
         self.searchController.searchBar.scopeButtonTitles = [NSArray array];
@@ -155,22 +158,23 @@ static CGFloat leftInset;
         self.searchController.dimsBackgroundDuringPresentation = YES;
         self.searchController.hidesNavigationBarDuringPresentation = NO;
         self.searchController.searchBar.delegate = self;
-
+        self.searchController.searchBar.backgroundImage = [[UIImage alloc] init];
+        self.searchController.searchBar.backgroundColor = UIColor.modeAwareAppBackground;
+        self.searchController.searchBar.searchBarStyle = UISearchBarStyleMinimal;
+        
         self.table.tableHeaderView = self.searchController.searchBar;
         self.definesPresentationContext = YES;
         // self.tableHeaderHeight = [self searchRowHeight];
+        
+        UIView *topView = [[UIView alloc] initWithFrame:CGRectMake(0, -200, self.table.bounds.size.width, 200)];
+        [topView setBackgroundColor:[UIColor modeAwareAppBackground]];
+        [self.table addSubview:topView];
     }
-    
     
     if (@available(iOS 11.0, *)) {
         self.table.contentInsetAdjustmentBehavior = self.neverAdjustContentInset ?   UIScrollViewContentInsetAdjustmentNever :  UIScrollViewContentInsetAdjustmentAutomatic;
     }
-    
-    if (self.style == UITableViewStylePlain)
-    {
-        self.table.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1.0];
-    }
-    
+        
     [self.view addSubview:self.table];
     
     // Hide all the cell lines at the end
@@ -179,7 +183,15 @@ static CGFloat leftInset;
 }
 
 
-
+- (UIBarPosition)positionForBar:(id<UIBarPositioning>)bar
+{
+    if (bar == self.searchController.searchBar) {
+        return UIBarPositionTopAttached;
+    }
+    else { // Handle other cases
+        return UIBarPositionAny;
+    }
+}
 
 
 - (bool)neverAdjustContentInset
@@ -372,15 +384,15 @@ static CGFloat leftInset;
 {
     if ([cell.reuseIdentifier isEqualToString:kDisclaimerCellId])
     {
-        cell.backgroundColor =  [self greyBackground];
+        cell.backgroundColor =  [UIColor modeAwareDisclaimerBackground];
     }
     else if ([cell.reuseIdentifier isEqualToString:kSystemDetourResuseIdentifier])
     {
-        cell.backgroundColor =  SystemWideDetourBackgroundColor;
+        cell.backgroundColor =  [UIColor modeAwareSystemWideAlertBackground];
     }
     else
     {
-        cell.backgroundColor = [UIColor whiteColor];
+        cell.backgroundColor = [UIColor modeAwareCellBackground];
     }
     
     if (cell.layoutMargins.left > leftInset)
@@ -418,7 +430,7 @@ static CGFloat leftInset;
     /*
      Create an instance of UITableViewCell and add tagged subviews for the name, local time, and quarter image of the time zone.
      */
-    
+
 #define MAIN_FONT_SIZE  16.0
 #define SMALL_FONT_SIZE 12.0
     
@@ -446,6 +458,7 @@ static CGFloat leftInset;
         cell.detailTextLabel.backgroundColor = [UIColor clearColor];
         cell.detailTextLabel.numberOfLines = 1;
         cell.detailTextLabel.text = kTriMetDisclaimerText;
+        cell.backgroundColor = [UIColor modeAwareDisclaimerBackground];
     }
     return cell;
 }
@@ -586,6 +599,11 @@ static CGFloat leftInset;
 }
 
 
+- (CGFloat)heightOffset
+{
+    return -[UIApplication sharedApplication].statusBarFrame.size.height;
+}
+
 
 - (CGFloat)basicRowHeight
 {
@@ -605,7 +623,7 @@ static CGFloat leftInset;
     return 40.0;
 }
 
-#pragma mark Background task impleementaion
+#pragma mark Background task implementaion
 
 -(void)backgroundTaskDone:(UIViewController *)viewController cancelled:(bool)cancelled
 {
@@ -790,15 +808,24 @@ static CGFloat leftInset;
 
 - (NSIndexPath*)firstIndexPathOfSectionType:(NSInteger)sectionType rowType:(NSInteger)rowType
 {
-    NSInteger section = [self firstSectionOfType:sectionType];
-    
-    NSInteger row = [self firstRowOfType:rowType inSection:section];
-        
-    if (row!=kNoRowSectionTypeFound)
+    if (self.sectionTypes)
     {
-        return [NSIndexPath indexPathForRow:row inSection:section];
+        for (int section = 0; section < self.sectionTypes.count; section ++)
+        {
+            NSNumber *t = self.sectionTypes[section];
+            
+            if (t.integerValue == sectionType)
+            {
+                NSInteger row = [self firstRowOfType:rowType inSection:section];
+                
+                if (row!=kNoRowSectionTypeFound)
+                {
+                    return [NSIndexPath indexPathForRow:row inSection:section];
+                }
+            }
+        }
     }
-
+    
     return nil;
 }
 
@@ -868,7 +895,7 @@ static CGFloat leftInset;
 {
     NSMutableArray *types = self.perSectionRowTypes.lastObject;
     
-    [types addObject:@(type)];
+    [self.perSectionRowTypes.lastObject addObject:@(type)];
     
     return types.count - 1;
 }
@@ -1035,8 +1062,8 @@ static CGFloat leftInset;
     if (cell == nil)
     {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:resuseIdentifier];
-
     }
+    cell.backgroundColor = [UIColor modeAwareCellBackground];
     return cell;
 }
 
@@ -1049,6 +1076,7 @@ static CGFloat leftInset;
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:resuseIdentifier];
         cell.textLabel.numberOfLines = 0;
     }
+    cell.backgroundColor = [UIColor modeAwareCellBackground];
     return cell;
 }
 
@@ -1062,6 +1090,8 @@ static CGFloat leftInset;
         cell.textLabel.numberOfLines = 0;
         cell.textLabel.font = font;
     }
+    
+    cell.backgroundColor = [UIColor modeAwareCellBackground];
     return cell;
 }
 
@@ -1109,7 +1139,7 @@ static CGFloat leftInset;
             table = ((UITableViewController *)(self.searchController.searchResultsController)).tableView;
         }
         
-        [UserPrefs sharedInstance].hideSystemWideDetours = ![UserPrefs sharedInstance].hideSystemWideDetours;
+        [[UserPrefs sharedInstance] toggleHiddenSystemWideDetour:detour.detourId];
         
         // UITableViewRowAnimation direction =  [UserPrefs sharedInstance].hideSystemWideDetours ? UITableViewRowAnimationRight : UITableViewRowAnimationLeft;
         
@@ -1173,24 +1203,6 @@ static CGFloat leftInset;
     [self tableView:table detourButtonTappedForRowWithIndexPath:ip buttonType:button.tag];
 }
 
-
-- (UIImage *)tintImage:(UIImage *)sourceImage color:(UIColor *)color
-{
-    CGRect rect = { 0,0, sourceImage.size.width, sourceImage.size.height};
-    
-    /* Note:  This is a graphics context block */
-    UIGraphicsBeginImageContextWithOptions(rect.size, NO, 0.0);
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    CGContextSetFillColorWithColor(context, color.CGColor);
-    CGContextFillRect(context, rect); // draw base
-    [sourceImage drawInRect:rect blendMode:kCGBlendModeDestinationIn alpha:1.0]; // draw image
-    UIImage *tintedImage = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    
-    return tintedImage;
-    
-}
-
 - (void)addDetourButtons:(Detour *)detour cell:(UITableViewCell *)cell routeDisclosure:(bool)routeDisclosure
 {
 
@@ -1203,7 +1215,9 @@ static CGFloat leftInset;
     UIButton *button = nil;
     NSMutableArray *buttons = [NSMutableArray array];
     
-    bool hidden = detour.systemWideFlag && [UserPrefs sharedInstance].hideSystemWideDetours;
+    
+    
+    bool hidden = detour.systemWideFlag && [[UserPrefs sharedInstance] isHiddenSystemWideDetour:detour.detourId];
     
     
 // Vertical
@@ -1231,14 +1245,7 @@ static CGFloat leftInset;
     if ((detour.locations.count!=0 || detour.extractStops.count!=0) && !hidden)
     {
         NEXT_GAP;
-        static UIImage *blueMap;
-        
-        static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{
-            blueMap = [self tintImage:[self getIcon:kIconMapAction7] color:[UIColor blueColor]];
-
-        });
-        
+        UIImage *blueMap = [[TintedImageCache sharedInstance] modeAwareBlueIcon:kIconMapAction7];
         button = [UIButton buttonWithType:UIButtonTypeCustom];
         NEXT_RECT(button.frame, ACCESSORY_BUTTON_SIZE);
         [button setImage:blueMap forState:UIControlStateNormal];
@@ -1247,7 +1254,7 @@ static CGFloat leftInset;
         button.accessibilityLabel = @"Show map";
         [button addTarget:self action:@selector(detourButtonAction:) forControlEvents:UIControlEventTouchUpInside];
         [buttons addObject:button];
-        
+
     }
    
     if (detour.systemWideFlag)
@@ -1258,11 +1265,11 @@ static CGFloat leftInset;
         
         if (hidden)
         {
-            [button setImage:[self getIcon:kIconExpand7] forState:UIControlStateNormal];
+            [button setImage:[self getModeAwareIcon:kIconExpand7] forState:UIControlStateNormal];
         }
         else
         {
-            [button setImage:[self getIcon:kIconCollapse7] forState:UIControlStateNormal];
+            [button setImage:[self getModeAwareIcon:kIconCollapse7] forState:UIControlStateNormal];
         }
         
         button.accessibilityLabel = @"Hide or show detour";
@@ -1324,6 +1331,28 @@ static CGFloat leftInset;
     }
 }
 
+- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection
+{
+    [super traitCollectionDidChange:previousTraitCollection];
+    
+    if (@available(iOS 13.0, *))
+    {
+        if (previousTraitCollection.userInterfaceStyle != self.traitCollection.userInterfaceStyle)
+        {
+            // Clear the image cache as half of it is not needed
+            [[TintedImageCache sharedInstance] userInterfaceStyleChanged:self.traitCollection.userInterfaceStyle];
+            
+            if (self.enableSearch && self.searchController)
+            {
+                self.searchController.searchBar.backgroundColor = UIColor.modeAwareAppBackground;
+            }
+            
+            [self reloadData];
+        }
+        
+        self.table.backgroundColor = [UIColor modeAwareAppBackground];
+    }
+}
 
 
 @end

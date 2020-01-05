@@ -14,15 +14,13 @@
 
 
 #import "XMLLocateVehicles.h"
-#import "VehicleData.h"
+#import "Vehicle.h"
 #import <MapKit/MapKit.h>
 #import <MapKit/MKGeometry.h>
 #import "XMLStreetcarLocations.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 #import "UserPrefs.h"
 #import "CLLocation+Helper.h"
-
-#define MetersInAMile 1609.344
 
 @implementation XMLLocateVehicles
 
@@ -33,7 +31,7 @@
     
     for (i=0; i<self.items.count;)
     {
-        VehicleData *item = self.items[i];
+        Vehicle *item = self.items[i];
         
         if (item.signMessage==nil || item.signMessage.length==0)
         {
@@ -122,7 +120,7 @@ XML_START_ELEMENT(vehicle)
     if (self.direction == nil || [self.direction isEqualToString:dir])
     {
         
-        VehicleData *currentVehicle = [VehicleData data];
+        Vehicle *currentVehicle = [Vehicle data];
         
         currentVehicle.block           = ATRSTR(blockID);
         currentVehicle.nextLocID       = ATRSTR(nextLocID);

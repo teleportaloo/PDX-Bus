@@ -24,7 +24,7 @@
     return @"Detour";
 }
 
-- (void)populate:(XMLDepartures *)xml departures:(NSArray<DepartureData*>*)deps
+- (void)populate:(XMLDepartures *)xml departures:(NSArray<Departure*>*)deps
 {
     Detour *det = deps.firstObject.allDetours[self.index];
     self.label.text = det.detourDesc;

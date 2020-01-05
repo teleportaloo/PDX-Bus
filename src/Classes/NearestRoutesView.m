@@ -15,13 +15,16 @@
 
 
 #import "NearestRoutesView.h"
-#import "RouteDistanceData+iOSUI.h"
+#import "RouteDistance+iOSUI.h"
 #import "DepartureTimesView.h"
 #include "DepartureCell.h"
 
-#define kRouteSections        2
-#define kSectionRoutes        0
-#define kSectionDisclaimer    1
+enum
+{
+    kSectionRoutes = 0,
+    kRouteSections,
+    kSectionDisclaimer
+};
 
 @implementation NearestRoutesView
 
@@ -126,7 +129,7 @@
     
     // add our custom add button as the nav bar's custom right view
     UIBarButtonItem *refreshButton = [[UIBarButtonItem alloc]
-                                      initWithTitle:NSLocalizedString(@"Get arrivals", @"button text")
+                                      initWithTitle:NSLocalizedString(@"Get departures", @"button text")
                                       style:UIBarButtonItemStylePlain
                                       target:self
                                       action:@selector(showArrivalsAction:)];
@@ -154,7 +157,7 @@
     
     for (int i=0; i<self.routeData.count; i++)
     {
-        RouteDistanceData *rd = (RouteDistanceData *)self.routeData[i];
+        RouteDistance *rd = (RouteDistance *)self.routeData[i];
         
         if (self.checked[i].boolValue)
         {
@@ -168,7 +171,7 @@
     NSMutableArray *uniqueStops = [NSMutableArray array];
 
     NSString *lastStop = nil;
-    for (StopDistanceData *sd in multipleStops)
+    for (StopDistance *sd in multipleStops)
     {
         if (lastStop == nil || ![sd.locid isEqualToString:lastStop])
         {
@@ -239,7 +242,7 @@
     {
         case kSectionRoutes:
         {
-            RouteDistanceData *rd = (RouteDistanceData*)self.routeData[indexPath.row];
+            RouteDistance *rd = (RouteDistance*)self.routeData[indexPath.row];
             DepartureCell *dcel = [DepartureCell tableView:tableView genericWithReuseIdentifier:MakeCellId(XkSectionRoutes)];
             [rd populateCell:dcel];
             

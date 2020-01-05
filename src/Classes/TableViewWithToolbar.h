@@ -24,10 +24,10 @@
 #define kDisclaimerCellId           MakeCellId(kSectionRowDisclaimerType)
 #define kExceptionCellId            @"Exception"
 
-#define kNoNetwork                NSLocalizedString(@"%@: touch here for info", @"Stop ID and message")
-#define kNoNetworkErrorID        NSLocalizedString(@"(ID %@) %@: touch here for info", @"Stop ID and message")
-#define kNoNetworkID            NSLocalizedString(@"(ID %@) No Network: touch here for info", @"Stop ID and error message")
-#define kNetworkMsg                NSLocalizedString(@"Network error: touch here for info", @"Network error message")
+#define kNoNetwork                  NSLocalizedString(@"%@: touch here for info", @"Stop ID and message")
+#define kNoNetworkErrorID           NSLocalizedString(@"(ID %@) %@: touch here for info", @"Stop ID and message")
+#define kNoNetworkID                NSLocalizedString(@"(ID %@) No Network: touch here for info", @"Stop ID and error message")
+#define kNetworkMsg                 NSLocalizedString(@"Network error: touch here for info", @"Network error message")
 
 #define ACCESSORY_BUTTON_SIZE  35
 

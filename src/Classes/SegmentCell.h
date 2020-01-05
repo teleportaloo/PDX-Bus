@@ -20,8 +20,11 @@
 
 @property (nonatomic, strong) UISegmentedControl *segment;
 
++ (instancetype)tableView:(UITableView*)tableView reuseIdentifier:(NSString*)reuseIdentifier cellWithContent:(NSArray*)content target:(NSObject *)target action:(SEL)action selectedIndex:(NSInteger)index;
+
 - (void)createSegmentWithContent:(NSArray*)content target:(NSObject *)target action:(SEL)action;
 
-+ (CGFloat)segmentCellHeight;
++ (CGFloat)rowHeight;
+
 
 @end

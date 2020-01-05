@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="14109" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="dfG-2e-wGV">
-    <device id="watch38" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="14854.2" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="dfG-2e-wGV">
+    <device id="watch38"/>
     <dependencies>
         <deployment identifier="watchOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="14031"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14806.4"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="14640.1"/>
     </dependencies>
     <scenes>
         <!--Arrivals-->
@@ -89,16 +87,28 @@
                                         <outlet property="label" destination="Ghu-0M-BJP" id="OPs-ys-rkx"/>
                                     </connections>
                                 </tableRow>
-                                <tableRow identifier="Detour" selectable="NO" id="lOE-ne-l4s" customClass="WatchDetour">
+                                <tableRow identifier="DetourHeader" id="lOE-ne-l4s" userLabel="Detour Header" customClass="WatchDetourHeader">
                                     <group key="rootItem" width="1" height="0.0" alignment="left" id="Wjr-gv-RTK">
                                         <items>
-                                            <label alignment="left" text="Detour" textAlignment="left" numberOfLines="100" id="vTj-OL-POd">
+                                            <label alignment="left" text="Header" textAlignment="left" numberOfLines="100" id="vTj-OL-POd">
                                                 <color key="textColor" red="1" green="0.50196078430000002" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                             </label>
                                         </items>
                                     </group>
                                     <connections>
-                                        <outlet property="label" destination="vTj-OL-POd" id="oqQ-jp-WV8"/>
+                                        <outlet property="label" destination="vTj-OL-POd" id="eaO-PY-TsF"/>
+                                    </connections>
+                                </tableRow>
+                                <tableRow identifier="Detour" selectable="NO" id="Z6K-mr-hcC" customClass="WatchDetour">
+                                    <group key="rootItem" width="1" height="0.0" alignment="left" id="Vkv-W6-QFZ">
+                                        <items>
+                                            <label alignment="left" text="Detour" textAlignment="left" numberOfLines="100" id="sJm-To-msj">
+                                                <color key="textColor" red="1" green="0.50196078430000002" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            </label>
+                                        </items>
+                                    </group>
+                                    <connections>
+                                        <outlet property="label" destination="sJm-To-msj" id="oDr-g8-DCp"/>
                                     </connections>
                                 </tableRow>
                                 <tableRow identifier="SWD" selectable="NO" id="xgc-aA-qyA" userLabel="System Wide Detour" customClass="WatchSystemWideDetour">
@@ -114,7 +124,7 @@
                                         <outlet property="label" destination="Adi-sa-x87" id="ccF-uf-scN"/>
                                     </connections>
                                 </tableRow>
-                                <tableRow identifier="SWH" selectable="NO" id="7mK-yl-iDk" userLabel="System Wide Header" customClass="WatchSystemWideHeader">
+                                <tableRow identifier="SWH" id="7mK-yl-iDk" userLabel="System Wide Header" customClass="WatchSystemWideHeader">
                                     <group key="rootItem" width="1" height="0.0" alignment="left" id="AbZ-2Z-hjY">
                                         <items>
                                             <label alignment="left" text="Header" textAlignment="left" numberOfLines="100" id="e1t-nd-8IA">
@@ -230,7 +240,7 @@
                     </connections>
                 </controller>
             </objects>
-            <point key="canvasLocation" x="475" y="60.5"/>
+            <point key="canvasLocation" x="475" y="60"/>
         </scene>
         <!--Nearby-->
         <scene sceneID="KMG-D3-FkS">
@@ -594,5 +604,12 @@
             <point key="canvasLocation" x="264" y="459"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="750-home" width="28" height="28"/>
+        <image name="750-home@2x.png" width="16" height="16"/>
+        <image name="780-building.png" width="16" height="16"/>
+        <image name="845-location-targeta" width="24" height="24"/>
+        <image name="mic-128-000000.png" width="16" height="16"/>
+    </resources>
     <color key="tintColor" red="0.51233841661442159" green="0.75400234875706706" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
 </document>

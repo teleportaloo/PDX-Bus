@@ -14,13 +14,13 @@
 
 
 #import <Foundation/Foundation.h>
-#import "DepartureData.h"
+#import "Departure.h"
 #import <WatchKit/WatchKit.h>
 #import "WatchPinColor.h"
 
 #define kStaleTime   (45)
 
-@interface DepartureData (watchOSUI) <WatchPinColor>
+@interface Departure (watchOSUI) <WatchPinColor>
 
 @property (nonatomic, readonly, copy) UIColor *fontColor;
 @property (nonatomic, readonly, strong) UIImage *routeColorImage;

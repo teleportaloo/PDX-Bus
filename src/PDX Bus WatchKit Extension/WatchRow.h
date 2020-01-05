@@ -17,8 +17,15 @@
 #import <WatchKit/WatchKit.h>
 
 @class XMLDepartures;
-@class DepartureData;
+@class Departure;
 @class WatchArrivalsContext;
+
+typedef enum
+{
+    WatchSelectAction_None,
+    WatchSelectAction_RefreshData,
+    WatchSelectAction_RefreshUI
+} WatchSelectAction;
 
 @interface WatchRow : NSObject
 
@@ -26,7 +33,7 @@
 
 + (NSString *)identifier;
 
-- (void)populate:(XMLDepartures *)xml departures:(NSArray<DepartureData*>*)deps;
-- (bool)select:(XMLDepartures*)xml from:(WKInterfaceController *)from context:(WatchArrivalsContext*)context;
+- (void)populate:(XMLDepartures *)xml departures:(NSArray<Departure*>*)deps;
+- (WatchSelectAction)select:(XMLDepartures*)xml from:(WKInterfaceController *)from context:(WatchArrivalsContext*)context canPush:(bool)push;
 
 @end

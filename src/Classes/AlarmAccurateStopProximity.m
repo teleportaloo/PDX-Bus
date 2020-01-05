@@ -66,6 +66,7 @@
         
         self.locationManager.delegate = self;
         [self.locationManager requestAlwaysAuthorization];
+        self.locationManager.pausesLocationUpdatesAutomatically = NO;
         
         compatSetIfExists(self.locationManager, setAllowsBackgroundLocationUpdates:, YES); // iOS9
         
@@ -221,12 +222,12 @@
 	// We may switch from low power to GPS at this point
 	
 	
-	if (minPossibleDist < (double)kProximity && (newLocation.horizontalAccuracy > kBadAccuracy))
+	if (minPossibleDist < (double)kTargetProximity && (newLocation.horizontalAccuracy > kBadAccuracy))
 	{
 		// Not accurate enough.  Ensure we are using the best we can
 		self.alarmState = AlarmStateAccurateLocationNeeded;
 	}
-	else if (minPossibleDist < (double)kProximity)
+	else if (minPossibleDist < (double)kTargetProximity)
 	{
 		[self alert:[NSString stringWithFormat:NSLocalizedString(@"You are within %@ of %@", @"gives a distance to a stop"), kUserDistanceProximity, self.desc]
 		   fireDate:nil

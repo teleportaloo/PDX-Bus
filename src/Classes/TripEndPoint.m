@@ -21,6 +21,7 @@
 #define kDictEndPointAddtionalInfo        @"additionalInfo"
 #define kDictEndPointLocationLat        @"lat"
 #define kDictEndPointLocationLng        @"lng"
+#define kDictEndPointFromApple          @"apple"
 
 
 @implementation TripEndPoint
@@ -87,7 +88,6 @@
     {
         dict[kDictEndPointLocationLat] = @(self.coordinates.coordinate.latitude);
         dict[kDictEndPointLocationLng] = @(self.coordinates.coordinate.longitude);
-        
     }
     return dict;
     
@@ -139,7 +139,7 @@
     else {
         self.useCurrentLocation = false;
     }
-    
+         
     self.locationDesc = [self forceNSString:dict[kDictEndPointLocationDec]];
     self.additionalInfo = [self forceNSString:dict[kDictEndPointAddtionalInfo]];
     

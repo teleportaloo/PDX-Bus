@@ -15,7 +15,7 @@
 #import "TripPlannerBookmarkView.h"
 #import "XMLDepartures.h"
 #import "StopNameCacheManager.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 
 @implementation TripPlannerBookmarkView
 

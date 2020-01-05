@@ -34,7 +34,8 @@
 #import "MapViewController.h"
 #import "DetourLocation+iOSUI.h"
 #import "MapViewWithDetourStops.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
+#import "TintedImageCache.h"
 
 @implementation UINavigationController (Rotation_IOS6)
 
@@ -79,8 +80,18 @@
 - (void)setTheme
 {
     int color = [UserPrefs sharedInstance].toolbarColors;
+    bool dark = NO;
     
-    if (color == 0xFFFFFF)
+    if (@available(iOS 13.0, *))
+    {
+        if (self.traitCollection.userInterfaceStyle == UIUserInterfaceStyleDark)
+        {
+            dark = YES;
+        }
+    }
+        
+
+    if (color == 0xFFFFFF || dark)
     {
         self.navigationController.toolbar.barTintColor = nil;
         self.navigationController.navigationBar.barTintColor = nil;
@@ -100,13 +111,6 @@
 {
     return [UIDevice currentDevice].systemVersion.floatValue >= 9.0;
 }
-
-
-- (bool)iOS8style
-{
-    return [UIDevice currentDevice].systemVersion.floatValue >= 8.0;
-}
-
 
 - (bool)iOS11style
 {
@@ -373,6 +377,12 @@
     return [ViewControllerBase getIcon:name];
 }
 
+
+- (UIImage *)getModeAwareIcon:(NSString *)name
+{
+   return [[TintedImageCache sharedInstance] modeAwareLightenedIcon:name];
+}
+
 + (UIImage *)getIcon:(NSString *)name
 {
     UIImage *image = [UIImage imageNamed:name];
@@ -449,23 +459,6 @@
 - (UIBarButtonItem *)bigFlashButton
 {
     return [UIToolbar flashButtonWithTarget:self action:@selector(flashButton:)];
-}
-
-
-- (UIBarButtonItem *)ticketAppButton
-{
-    // create the system-defined "OK or Done" button
-    UIBarButtonItem *tix = [[UIBarButtonItem alloc]
-                             // initWithBarButtonSystemItem:UIBarButtonSystemItemRewind
-                             initWithImage:[TableViewWithToolbar getToolbarIcon:kIconTicket]
-                             style:UIBarButtonItemStylePlain
-                             target:self action:@selector(ticketButton:)];
-    
-    tix.style = UIBarButtonItemStylePlain;
-    tix.accessibilityLabel = @"Tickets";
-    
-    TOOLBAR_PLACEHOLDER(tix, @"T");
-    return tix;
 }
 
 - (void)appendXmlData:(NSMutableData *)buffer
@@ -647,11 +640,6 @@
     }
 }
 
--(void)ticketButton:(UIBarButtonItem *)sender
-{
-    [self ticketAppFrom:nil button:sender];
-}
-
 + (void)flashLight:(UINavigationController *)nav
 {
     [nav pushViewController:[FlashViewController viewController] animated:YES];
@@ -813,7 +801,7 @@
     
     
     UILabel *textView = [[UILabel alloc] initWithFrame:frame];
-    textView.textColor = [UIColor blackColor];
+    textView.textColor = [UIColor modeAwareText];
     textView.font = font; // ;
     //    textView.delegate = self;
     //    textView.editable = NO;
@@ -1073,61 +1061,6 @@
     [self clearSelection];
 }
 
-- (bool)ticketAppFrom:(UIView *)source button:(UIBarButtonItem *)button
-{
-
-    static NSString *ticket = @"trimettickets://";
-    
-    
-    if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:ticket]])
-    {
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:ticket]];
-        return YES;
-    }
-    
-    UIAlertController* alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"TriMet Tickets App", @"alert title")
-                                                                   message:nil
-                                                            preferredStyle:UIAlertControllerStyleActionSheet];
-    
-    
-    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Get TriMet Tickets App" , @"button text")
-                                              style:UIAlertActionStyleDefault
-                                            handler:^(UIAlertAction *action){
-                                                [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"itms-apps://www.itunes.com/apps/TriMetTickets"]];
-                                            }]];
-    
-    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Remove ticket icon from toolbar" , @"button text")
-                                              style:UIAlertActionStyleDefault
-                                            handler:^(UIAlertAction *action){
-                                                [UserPrefs sharedInstance].ticketAppIcon = NO;
-                                                [self updateToolbar];
-                                            }]];
-    
-    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"button text") style:UIAlertActionStyleCancel handler:nil]];
-    
-    if (source)
-    {
-        // Make a small rect in the center, just 10,10
-        const CGFloat side = 10;
-        CGRect frame = source.frame;
-        CGRect sourceRect = CGRectMake((frame.size.width - side)/2.0, (frame.size.height-side)/2.0, side, side);
-        
-        alert.popoverPresentationController.sourceView = source;
-        alert.popoverPresentationController.sourceRect = sourceRect;
-    }
-    
-    if (button)
-    {
-        alert.popoverPresentationController.barButtonItem = button;
-    }
-    
-    [self presentViewController:alert animated:YES completion:^{
-        [self clearSelection];
-    }];
-    
-    return NO;
-    
-}
 
 - (void)facebookTriMet
 {
@@ -1193,6 +1126,26 @@
                         itemToDeselect:nil
                               whenDone:self.callbackWhenDone];
     }
+}
+
+- (void)displayAlert:(UIAlertController*)alert
+{
+    alert.popoverPresentationController.sourceView  = self.view;
+    alert.popoverPresentationController.sourceRect = CGRectMake(self.view.frame.size.width/2, self.view.frame.size.height/2, 10, 10);
+    
+    [self.navigationController presentViewController:alert animated:YES completion:nil];
+}
+
+
+- (UIBarButtonItem*)segBarButtonWithItems:(NSArray*)items action:(SEL)action selectedIndex:(NSInteger)selectedIndex
+{
+    UISegmentedControl *seg = [[UISegmentedControl alloc] initWithItems:items];
+    [seg addTarget:self action:action forControlEvents:UIControlEventValueChanged];
+    if (selectedIndex != kSegNoSelectedIndex)
+    {
+        seg.selectedSegmentIndex = selectedIndex;
+    }
+    return [[UIBarButtonItem alloc] initWithCustomView:seg];
 }
 
 @end

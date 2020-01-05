@@ -24,10 +24,8 @@
 
 @property (nonatomic, strong) NSArray *userFaves;
 @property (nonatomic, strong) UIDatePicker *datePickerView;
-@property (nonatomic, strong) UIPickerView *pickerView;
-@property (nonatomic)          bool popBack;
+@property (nonatomic)         bool popBack;
 
-- (CGRect)pickerFrameWithSize:(CGSize)size;
 - (void)initializeFromBookmark:(TripUserRequest *)req;
 - (void)nextScreen:(UINavigationController *)controller taskContainer:(BackgroundTaskContainer*)taskContainer;
 

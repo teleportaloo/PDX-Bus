@@ -19,7 +19,7 @@
 #import "UserFaves.h"
 #import "Detour.h"
 #import "Detour+iOSUI.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 #import "DebugLogging.h"
 
 @implementation TripPlannerCacheView
@@ -57,6 +57,11 @@
 }
 
 #pragma mark  Table View methods
+#define INDENT @"#>"
+#define BACK   @"#<"
+#define TITLE  @"#b#U"
+#define NORMAL @"#b#D"
+
 
 - (NSString *)insertAttributes:(NSString *)string
 {
@@ -64,12 +69,12 @@
     
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        replacements = @{@"From: "               : @"#b#BFrom:#0#b ",
-                         @"\nTo:"               : @"\n#B#bTo:#0#b",
-                         @"\nDepart after"      : @"\n#B#bDepart after#b#0",
-                         @"\nArrive by"         : @"\n#B#bArrive by#b#0",
-                         @"\nArrive"            : @"\n#B#bArrive#b#0",
-                         @"\nDepart"            : @"\n#B#bDepart#b#0"
+        replacements = @{@"From: "                : (           TITLE @"From:"          NORMAL @"\n" INDENT),
+                         @"\nTo: "                : (@"\n" BACK TITLE @"To:"            NORMAL @"\n" INDENT),
+                         @"\nDepart after"        : (@"\n" BACK TITLE @"Depart after:"  NORMAL @"\n" INDENT),
+                         @"\nArrive by"           : (@"\n" BACK TITLE @"Arrive by:"     NORMAL @"\n" INDENT),
+                         // @"\nArrive"              : (@"\n" BACK TITLE @"Arrive:"        NORMAL @"\n" INDENT),
+                         // @"\nDepart"              : (@"\n" BACK TITLE @"Depart:"        NORMAL @"\n" INDENT)
                          };
     });
     

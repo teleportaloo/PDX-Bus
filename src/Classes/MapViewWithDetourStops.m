@@ -16,10 +16,11 @@
 #import "MapViewWithDetourStops.h"
 #import "DebugLogging.h"
 #import "DetourLocation+iOSUI.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 #import "XMLMultipleDepartures.h"
 
 #define kGettingStops @"getting locations"
+#define kTextMargin (3.0)
 
 @implementation MapViewWithDetourStops
 
@@ -49,11 +50,11 @@
             NSArray *stops = self.detours.firstObject.extractStops;
             if (stops.count == 1)
             {
-                textToFormat = [NSString stringWithFormat:NSLocalizedString(@"#b#RNo location found for stop %@.#b#0\n%@", @"error message"), stops.firstObject, textToFormat];
+                textToFormat = [NSString stringWithFormat:NSLocalizedString(@"#b#RNo location found for stop %@.#b#D\n%@", @"error message"), stops.firstObject, textToFormat];
             }
             else
             {
-                textToFormat = [NSString stringWithFormat:NSLocalizedString(@"#b#RNo locations found for stops %@.#b#0\n%@", @"error message"), [NSString commaSeparatedStringFromEnumerator:stops selector:@selector(self)], textToFormat];
+                textToFormat = [NSString stringWithFormat:NSLocalizedString(@"#b#RNo locations found for stops %@.#b#D\n%@", @"error message"), [NSString commaSeparatedStringFromEnumerator:stops selector:@selector(self)], textToFormat];
             }
         }
         
@@ -67,13 +68,26 @@
         
         CGRect textViewFrame = CGRectMake(frame->origin.x, frame->origin.y + frame->size.height - textHeight, frame->size.width, textHeight);
         
+        UIColor *background = nil;
+        
+        if (self.detours.firstObject.systemWideFlag)
+        {
+            background = [UIColor modeAwareSystemWideAlertBackground];
+        }
+        else
+        {
+            background = [UIColor modeAwareAppBackground];
+        }
+        
         if (self.detourText==nil)
         {
             self.detourText = [[UITextView alloc] initWithFrame:textViewFrame];
             self.detourText.editable = NO;
             self.detourText.selectable = NO;
             self.detourText.textAlignment = NSTextAlignmentLeft;
-            self.detourText.backgroundColor = [UIColor whiteColor];
+            self.detourText.backgroundColor = [UIColor clearColor]; //   background;
+            self.detourText.alpha = 1.0;
+            self.view.backgroundColor = background;
             self.detourText.attributedText = text;
             self.detourText.accessibilityLabel = text.string.phonetic;
             self.detourText.accessibilityTraits = UIAccessibilityTraitStaticText;
@@ -83,7 +97,7 @@
         // Now redo the size
         CGSize newSize = [self.detourText sizeThatFits:CGSizeMake(frame->size.width, MAXFLOAT)];
         
-        textHeight = newSize.height > textHeight ? textHeight : newSize.height;
+        textHeight = newSize.height > textHeight ? textHeight : (newSize.height + kTextMargin);
         textViewFrame.size.height = textHeight;
         textViewFrame.origin.y = frame->origin.y + frame->size.height - textHeight;
         
@@ -97,9 +111,9 @@
             [self.view addSubview:self.detourText];
         }
         
-        if (self.detours.firstObject.systemWideFlag)
+        for (UIView *view in self.view.subviews)
         {
-            self.detourText.backgroundColor = SystemWideDetourBackgroundColor;
+            view.backgroundColor = background;
         }
     }
 }

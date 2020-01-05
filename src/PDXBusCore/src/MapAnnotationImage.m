@@ -16,8 +16,9 @@
 #import "MapAnnotationImage.h"
 #import "DebugLogging.h"
 #import "UserPrefs.h"
+#import "UIImage+Tint.h"
 
-#define kIconUp                 @"icon_arrow_up.png"
+#define kIconUp              @"icon_arrow_up.png"
 #define kIconUp2x            @"icon_arrow_up@2x.png"
 
 @implementation MapAnnotationImage
@@ -66,40 +67,7 @@ static __weak MapAnnotationImage *singleton = nil;
 }
 
 
-- (UIImage*)rotatedImage:(UIImage*)sourceImage byDegreesFromNorth:(double)degrees
-{
-    CGSize rotateSize =  sourceImage.size;
-    
-    /* Note:  This is a graphics context block */
-    UIGraphicsBeginImageContextWithOptions(rotateSize, NO, 0.0);
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    CGContextTranslateCTM(context, rotateSize.width/2, rotateSize.height/2);
-    CGContextRotateCTM(context, ( degrees * M_PI/180.0 ) );
-    CGContextScaleCTM(context, 1.0, -1.0);
-    CGContextDrawImage(UIGraphicsGetCurrentContext(),
-                       CGRectMake(-rotateSize.width/2,-rotateSize.height/2,rotateSize.width, rotateSize.height),
-                       sourceImage.CGImage);
-    UIImage *rotatedImage = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    
-    return rotatedImage;
-}
 
-- (UIImage *)tintImage:(UIImage *)sourceImage color:(UIColor *)color
-{
-    CGRect rect = { 0,0, sourceImage.size.width, sourceImage.size.height};
-   
-    /* Note:  This is a graphics context block */
-    UIGraphicsBeginImageContextWithOptions(rect.size, NO, 0.0);
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    CGContextSetFillColorWithColor(context, color.CGColor);
-    CGContextFillRect(context, rect); // draw base
-    [sourceImage drawInRect:rect blendMode:kCGBlendModeDestinationIn alpha:1.0]; // draw image
-    UIImage *tintedImage = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    
-    return tintedImage;
-}
 
 - (UIImage *)getImage:(double)rotation mapRotation:(double)mapRotation bus:(bool)bus named:(NSString*)name
 {
@@ -133,7 +101,7 @@ static __weak MapAnnotationImage *singleton = nil;
     
     if (arrow == nil)
     {
-        arrow = [self rotatedImage:[UIImage imageNamed:name] byDegreesFromNorth:total];
+        arrow = [[UIImage imageNamed:name] rotatedImageByDegreesFromNorth:total];
  
         cachePerName[@(rotation)] = arrow;
         

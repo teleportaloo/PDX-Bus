@@ -11,12 +11,14 @@
 
 
 #import <UIKit/UIKit.h>
+#import "EditableTableViewCell.h"
 
-@interface CellTextView : UITableViewCell
+@interface CellTextView : EditableTableViewCell <UITextViewDelegate>
 {
     UITextView *_view;
 }
 
 @property (nonatomic, strong) UITextView *view;
+@property CGFloat cellLeftOffset;
 
 @end

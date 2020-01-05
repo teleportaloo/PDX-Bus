@@ -15,7 +15,7 @@
 
 #import "NumberPadInterfaceController.h"
 #import "WatchArrivalsContext.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 #import "DebugLogging.h"
 #import "AlertInterfaceController.h"
 #import "UIKit/UIKit.h"

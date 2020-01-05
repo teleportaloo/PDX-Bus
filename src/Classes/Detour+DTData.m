@@ -24,7 +24,7 @@
     return self;
 }
 
-- (DepartureData *)depGetDeparture:(NSInteger)i
+- (Departure *)depGetDeparture:(NSInteger)i
 {
     return nil;
 }
@@ -34,7 +34,7 @@
 }
 - (NSString *)depGetSectionHeader
 {
-    if ([UserPrefs sharedInstance].hideSystemWideDetours)
+    if ([[UserPrefs sharedInstance] isHiddenSystemWideDetour:self.detourId])
     {
         return nil;
     }
@@ -45,7 +45,7 @@
     return nil;
 }
 
-- (void)depPopulateCell:(DepartureData *)dd cell:(DepartureCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide
+- (void)depPopulateCell:(Departure *)dd cell:(DepartureCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide
 {
     // [dd populateCell:cell decorate:decorate busName:YES wide:wide];
 }
@@ -54,7 +54,7 @@
     return nil;
 }
 
-- (StopDistanceData*)depDistance
+- (StopDistance*)depDistance
 {
     return nil;
 }

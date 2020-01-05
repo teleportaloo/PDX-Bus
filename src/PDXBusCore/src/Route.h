@@ -17,7 +17,7 @@
 #define kSystemWideDetour NSLocalizedString(@"System Wide Alert", @"heading")
 
 @interface Route : DataFactory {
-    const ROUTE_INFO     *   _col;
+    const ROUTE_INFO* _col;
 }
 
 @property (nonatomic, strong) NSMutableDictionary<NSString*, NSString*> *directions;

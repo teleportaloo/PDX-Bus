@@ -24,9 +24,9 @@
     return @"Arrival";
 }
 
-- (void)populate:(XMLDepartures *)xml departures:(NSArray<DepartureData*>*)deps
+- (void)populate:(XMLDepartures *)xml departures:(NSArray<Departure*>*)deps
 {
-    DepartureData *dep = deps[self.index.integerValue];
+    Departure *dep = deps[self.index.integerValue];
 
     if (dep.errorMessage)
     {
@@ -62,26 +62,28 @@
     }
 }
 
-- (bool)select:(XMLDepartures *)xml from:(WKInterfaceController *)from context:(WatchArrivalsContext*)context
+- (WatchSelectAction)select:(XMLDepartures *)xml from:(WKInterfaceController *)from context:(WatchArrivalsContext*)context canPush:(bool)push;
 {
-    WatchArrivalsContext *detailContext = [context clone];
-    
-    if (detailContext == nil)
+    if (push)
     {
-        detailContext = [[WatchArrivalsContext alloc] init];
+        WatchArrivalsContext *detailContext = [context clone];
+    
+        if (detailContext == nil)
+        {
+            detailContext = [[WatchArrivalsContext alloc] init];
+        }
+        Departure *data = xml[self.index.integerValue];
+    
+        detailContext.detailBlock   = data.block;
+        detailContext.locid         = context.locid;
+        detailContext.stopDesc      = context.stopDesc;
+        detailContext.navText       = context.navText;
+        detailContext.departures    = xml;
+    
+        [detailContext pushFrom:from];
     }
-    DepartureData *data = xml[self.index.integerValue];
     
-    detailContext.detailBlock   = data.block;
-    detailContext.locid         = context.locid;
-    detailContext.stopDesc      = context.stopDesc;
-    detailContext.navText       = context.navText;
-    detailContext.departures    = xml;
-    
-    [detailContext pushFrom:from];
-    
-    
-    return YES;
+    return WatchSelectAction_RefreshData;
 }
 
 @end

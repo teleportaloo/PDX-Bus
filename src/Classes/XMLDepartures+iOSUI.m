@@ -11,7 +11,7 @@
 
 
 #import "XMLDepartures+iOSUI.h"
-#import "DepartureData.h"
+#import "Departure.h"
 #import "DebugLogging.h"
 #import "DepartureData+iOSUI.h"
 
@@ -54,7 +54,7 @@
 	return self;
 }
 
-- (DepartureData *)depGetDeparture:(NSInteger)i
+- (Departure *)depGetDeparture:(NSInteger)i
 {
 	return self[i];
 }
@@ -75,7 +75,7 @@
 	return self.sectionTitle;
 }
 
-- (void)depPopulateCell:(DepartureData *)dd cell:(DepartureCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide
+- (void)depPopulateCell:(Departure *)dd cell:(DepartureCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide
 {
 	[dd populateCell:cell decorate:decorate busName:YES wide:wide];
 }
@@ -84,7 +84,7 @@
 	return [NSString stringWithFormat:@"Stop ID %@.", self.locid];
 }
 
-- (StopDistanceData*)depDistance
+- (StopDistance*)depDistance
 {
 	return self.distance;
 }

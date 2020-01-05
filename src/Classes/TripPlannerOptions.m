@@ -13,24 +13,18 @@
 
 
 #import "TripPlannerOptions.h"
+#import "SegmentCell.h"
 
 @implementation TripPlannerOptions
 
 #define kSectionWalk        0
 #define kSectionMode        1
-#define kSectionMin            2
-#define kSectionMinRows        2
+#define kSectionMin         2
+#define kSectionMinRows     2
 #define kSectionRows        1
-#define kMinRowSeg            0
-#define kMinRowInfo            1
-#define kTableSections        3
-
-#define kSegRowWidth        320
-#define kSegRowHeight        40
-#define kUISegHeight        40
-#define kUISegWidth            320
-
-#define SEGMENT_TAG 5
+#define kMinRowSeg          0
+#define kMinRowInfo         1
+#define kTableSections      3
 
 
 
@@ -52,34 +46,21 @@
 
 #pragma mark Segmented controls
 
-- (UISegmentedControl*) createSegmentedControl:(NSArray *)segmentTextContent parent:(UIView *)parent action:(SEL)action
+
+- (void)modeSegmentChanged:(UISegmentedControl *)sender
 {
-    UISegmentedControl *segmentedControl = [[UISegmentedControl alloc] initWithItems:segmentTextContent];
-    CGRect frame = CGRectMake((kSegRowWidth-kUISegWidth)/2, (kSegRowHeight - kUISegHeight)/2 , kUISegWidth, kUISegHeight);
-    
-    segmentedControl.frame = frame;
-    segmentedControl.tag = SEGMENT_TAG;
-    [segmentedControl addTarget:self action:action forControlEvents:UIControlEventValueChanged];
-    segmentedControl.autoresizingMask =   UIViewAutoresizingFlexibleWidth;
-    [parent addSubview:segmentedControl];
-    [parent layoutSubviews];
-    return segmentedControl;
+    self.tripQuery.userRequest.tripMode = (TripMode)sender.selectedSegmentIndex;
 }
 
-- (void)modeSegmentChanged:(id)sender
+- (void)minSegmentChanged:(UISegmentedControl *)sender
 {
-    self.tripQuery.userRequest.tripMode = (TripMode)self.modeSegment.selectedSegmentIndex;
-}
-
-- (void)minSegmentChanged:(id)sender
-{
-    self.tripQuery.userRequest.tripMin = (TripMin)self.minSegment.selectedSegmentIndex;
+    self.tripQuery.userRequest.tripMin = (TripMin)sender.selectedSegmentIndex;
 }
 
 
-- (void)walkSegmentChanged:(id)sender
+- (void)walkSegmentChanged:(UISegmentedControl *)sender
 {
-    self.tripQuery.userRequest.walk = [XMLTrips indexToDistance:(int)self.walkSegment.selectedSegmentIndex];
+    self.tripQuery.userRequest.walk = [XMLTrips indexToDistance:(int)sender.selectedSegmentIndex];
 }
 
 
@@ -118,40 +99,21 @@
     {
         case kSectionWalk:
         {
-            UITableViewCell *cell = [self tableView:tableView cellWithReuseIdentifier:MakeCellId(kSectionWalk)];
-            if ([cell.contentView viewWithTag:SEGMENT_TAG]==nil) {
-                self.walkSegment = [self createSegmentedControl:[XMLTrips distanceMapSingleton]
-                                                         parent:cell.contentView
-                                                         action:@selector(walkSegmentChanged:)];
-                
-                [cell layoutSubviews];
-                cell.selectionStyle = UITableViewCellSelectionStyleNone;
-                cell.isAccessibilityElement = NO;
-                
-                cell.backgroundView = [self clearView];
-            }
-            
-            self.walkSegment.selectedSegmentIndex = [XMLTrips distanceToIndex:self.tripQuery.userRequest.walk];
-            
-        
-            return cell;
+            return [SegmentCell tableView:tableView
+                          reuseIdentifier:MakeCellId(kSectionWalk)
+                          cellWithContent:[XMLTrips distanceMapSingleton]
+                                   target:self
+                                   action:@selector(walkSegmentChanged:)
+                            selectedIndex:[XMLTrips distanceToIndex:self.tripQuery.userRequest.walk]];
         }
         case kSectionMode:
         {
-            UITableViewCell *cell = [self tableView:tableView cellWithReuseIdentifier:MakeCellId(kSectionMode)];
-            
-            if ([cell.contentView viewWithTag:SEGMENT_TAG]==nil) {
-                self.modeSegment = [self createSegmentedControl:@[@"Bus only", @"Rail only", @"Bus or Rail"]
-                                                         parent:cell.contentView action:@selector(modeSegmentChanged:)];
-                
-                [cell layoutSubviews];
-                cell.selectionStyle = UITableViewCellSelectionStyleNone;
-                cell.isAccessibilityElement = NO;
-                cell.backgroundView = [self clearView];
-            }    
-            
-            self.modeSegment.selectedSegmentIndex = self.tripQuery.userRequest.tripMode;
-            return cell;    
+            return [SegmentCell tableView:tableView
+                          reuseIdentifier:MakeCellId(kSectionMode)
+                          cellWithContent:@[@"Bus only", @"Rail only", @"Bus or Rail"]
+                                   target:self
+                                   action:@selector(modeSegmentChanged:)
+                            selectedIndex:self.tripQuery.userRequest.tripMode];
         }
         case kSectionMin:
         {
@@ -159,19 +121,12 @@
             {
             case kMinRowSeg:
                 {
-                    UITableViewCell *cell = [self tableView:tableView cellWithReuseIdentifier:MakeCellId(kMinRowSeg)];
-                    
-                    if ([cell.contentView viewWithTag:SEGMENT_TAG]==nil) {
-                        self.minSegment = [self createSegmentedControl:@[@"Quickest trip", @"Fewest transfers", @"Shortest walk"]
-                                                                parent:cell.contentView action:@selector(minSegmentChanged:)];
-                        
-                        [cell layoutSubviews];
-                        cell.selectionStyle = UITableViewCellSelectionStyleNone;
-                        cell.isAccessibilityElement = NO;
-                        cell.backgroundView = [self clearView];
-                    }
-                    self.minSegment.selectedSegmentIndex = self.tripQuery.userRequest.tripMin;
-                    return cell;
+                    return [SegmentCell tableView:tableView
+                                  reuseIdentifier:MakeCellId(kMinRowSeg)
+                                  cellWithContent:@[@"Quickest trip", @"Fewest transfers", @"Shortest walk"]
+                                           target:self
+                                           action:@selector(minSegmentChanged:)
+                                    selectedIndex:self.tripQuery.userRequest.tripMin];
                 }
                 break;
             case kMinRowInfo:
@@ -207,7 +162,7 @@
     {
         return UITableViewAutomaticDimension;
     }
-    return kSegRowHeight;
+    return SegmentCell.rowHeight;
 }
 
 #pragma mark View methods

@@ -17,8 +17,8 @@
 #import "ArrivalsIntentHandler.h"
 #import "XMLLocateStops.h"
 #import "XMLMultipleDepartures.h"
-#import "StringHelper.h"
-#import "DepartureData.h"
+#import "NSString+Helper.h"
+#import "Departure.h"
 #import "UserFaves.h"
 
 @implementation ArrivalsResponseFactory
@@ -72,7 +72,7 @@
         NSMutableArray *routes = [NSMutableArray array];
         NSMutableDictionary *times = [NSMutableDictionary dictionary];
         
-        for (DepartureData *d in dep)
+        for (Departure *d in dep)
         {
             bool found = NO;
             
@@ -127,7 +127,7 @@
                 NSArray *routeTimes = times[route];
                 
                 int i = 0;
-                for (DepartureData *d in routeTimes)
+                for (Departure *d in routeTimes)
                 {
                     i++;
                     if (routeArrivals.length > 0)

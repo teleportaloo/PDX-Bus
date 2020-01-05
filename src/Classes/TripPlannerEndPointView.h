@@ -23,7 +23,7 @@
 #import "TripReturnUserRequest.h"
 #import "TripPlannerBaseView.h"
 #import <ContactsUI/ContactsUI.h>
-
+#import "UIPlaceHolderTextView.h"
 
 @interface TripPlannerEndPointView: TripPlannerBaseView <EditableTableViewCellDelegate, ReturnStopId, ABPeoplePickerNavigationControllerDelegate, CNContactPickerDelegate>
 {
@@ -31,10 +31,10 @@
 }
 
 @property (nonatomic) bool from;
-@property (nonatomic, strong) UITextField *placeNameField;
-@property (nonatomic, strong) CellTextField *editCell;
+@property (nonatomic, strong) UIPlaceHolderTextView *placeNameField;
+@property (nonatomic, strong) CellTextView *editCell;
 @property (nonatomic, strong) UIViewController *popBackTo;
-@property (nonatomic, readonly, strong) UITextField *createTextField_Rounded;
+@property (nonatomic, readonly, strong) UIPlaceHolderTextView *createTextField_Rounded;
 @property (nonatomic, readonly, strong) UIViewController *controller;
 @property (nonatomic, readonly, strong) TripEndPoint *endPoint;
 

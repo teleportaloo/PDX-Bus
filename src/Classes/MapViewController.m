@@ -15,7 +15,7 @@
 #import "MapViewController.h"
 #import <MapKit/MapKit.h>
 #import <MapKit/MkAnnotation.h>
-#import "DepartureData.h"
+#import "Departure.h"
 #import "XMLDepartures.h"
 #import "MapPinColor.h"
 #import "DepartureTimesView.h"
@@ -95,10 +95,9 @@
     }
 }
 
-- (void)prevNext:(id)sender
+- (void)prevNext:(UISegmentedControl*)sender
 {
-    UISegmentedControl *segControl = sender;
-    switch (segControl.selectedSegmentIndex)
+    switch (sender.selectedSegmentIndex)
     {
         case 0:    // UIPickerView
         {
@@ -120,7 +119,7 @@
         }
     }
     
-    [self setSegText:segControl];
+    [self setSegText:sender];
     
     [self.mapView deselectAnnotation:self.annotations[_selectedAnnotation] animated:NO];
     [self.mapView selectAnnotation:self.annotations[_selectedAnnotation] animated:YES];
@@ -129,10 +128,9 @@
 
 #pragma mark UI Callbacks
 
-- (void)toggleMap:(id)sender
+- (void)toggleMap:(UISegmentedControl*)sender
 {
-    UISegmentedControl *segControl = sender;
-    switch (segControl.selectedSegmentIndex)
+    switch (sender.selectedSegmentIndex)
     {
         case 0:    // UIPickerView
         {
@@ -179,7 +177,7 @@
 {
     UIAlertView *alert = [[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"Info", @"alert title")
                                                        message:NSLocalizedString(@"The route path does not reflect future service changes until they come into effect.\n"
-                                                                "Route and arrival data provided by permission of TriMet.", @"trip planner information")
+                                                                "Route and departure data provided by permission of TriMet.", @"trip planner information")
                                                       delegate:nil
                                              cancelButtonTitle:NSLocalizedString(@"OK", @"button text")
                                              otherButtonTitles:nil ];
@@ -190,18 +188,10 @@
 
 - (void) updateToolbarItems:(NSMutableArray *)toolbarItems
 {
-    // add a segmented control to the button bar
-    UISegmentedControl    *buttonBarSegmentedControl;
-    buttonBarSegmentedControl = [[UISegmentedControl alloc] initWithItems:
-                                 @[@"Map", @"Hybrid"]];
-    [buttonBarSegmentedControl addTarget:self action:@selector(toggleMap:) forControlEvents:UIControlEventValueChanged];
-    buttonBarSegmentedControl.selectedSegmentIndex = 0.0;    // start by showing the normal picker
-    
     UIBarButtonItem *zoom = [[UIBarButtonItem alloc]
                               initWithImage:[TableViewWithToolbar getToolbarIcon:kIconEye]
                               style:UIBarButtonItemStylePlain
                               target:self action:@selector(fitToViewAction:)];
-    
     
     
     [toolbarItems addObjectsFromArray:@[[UIToolbar flexSpace],  zoom, [UIToolbar flexSpace]]];
@@ -216,9 +206,7 @@
         [toolbarItems addObjectsFromArray:@[self.compassButton, [UIToolbar flexSpace]]];
     }
     
-    UIBarButtonItem *segItem = [[UIBarButtonItem alloc] initWithCustomView:buttonBarSegmentedControl];
-    
-    [toolbarItems addObject:segItem];
+    [toolbarItems addObject:[self segBarButtonWithItems:@[@"Map", @"Hybrid"] action:@selector(toggleMap:)  selectedIndex:0]];
     
     if (self.lineOptions != MapViewNoLines && self.nextPrevButtons)
     {
@@ -246,13 +234,16 @@
 
 - (void)removeAnnotations
 {
-    NSArray *oldAnnotations = self.mapView.annotations;
-    
-    if (oldAnnotations !=nil && oldAnnotations.count >0)
-    {
-        [self.mapView removeAnnotations:oldAnnotations];
+    DEBUG_FUNC();
+    @autoreleasepool {
+        NSArray *oldAnnotations = self.mapView.annotations;
+        
+        if (oldAnnotations !=nil && oldAnnotations.count >0)
+        {
+            [self.mapView removeAnnotations:oldAnnotations];
+        }
     }
-    
+    DEBUG_FUNCEX();
 }
 
 #pragma mark View functions
@@ -357,34 +348,33 @@
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)addDataToMap:(bool)zoom {
-  
 
     [self removeAnnotations];
     
-    {
+    DEBUG_HERE();
+    
+    @autoreleasepool {
         NSArray *oldOverlays = self.mapView.overlays;
         
         if (oldOverlays !=nil && oldOverlays.count >0)
         {
             [self.mapView removeOverlays:oldOverlays];
         }
-        
     }
     
+    DEBUG_HERE();
 
     if (self.lineCoords != nil && self.nextPrevButtons)
     {
-        _segPrevNext = [[UISegmentedControl alloc] initWithItems:@[kPrev,kNext] ];
+        self.navigationItem.rightBarButtonItem = [self segBarButtonWithItems:@[kPrev,kNext] action:@selector(prevNext:) selectedIndex:kSegNoSelectedIndex];
+
+        _segPrevNext = self.navigationItem.rightBarButtonItem.customView;
         _segPrevNext.frame = CGRectMake(0, 0, 80, 30.0);
         _segPrevNext.momentary = YES;
-        [_segPrevNext addTarget:self action:@selector(prevNext:) forControlEvents:UIControlEventValueChanged];
-        
-        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView: _segPrevNext];
-        
+                
         _selectedAnnotation = 0;
         
         [self setSegText:_segPrevNext];
-        
     }
     
     if (self.annotations != nil)
@@ -444,7 +434,7 @@
  * from http://paulbourke.net/geometry/pointlineplane/DistancePoint.java
  *
  */
-- (double)distanceOfPoint:(MKMapPoint)pt toPoly:(MKPolyline *)poly
+- (double)distanceOfPoint:(MKMapPoint)pt toPoly:(const MKPolyline *)poly
 {
     double distance = MAXFLOAT;
     
@@ -549,7 +539,7 @@
                     
                     // ... get the distance ...
                     float distance = [self distanceOfPoint:MKMapPointForCoordinate(coord)
-                                                    toPoly:overlay];
+                                                    toPoly:(const MKPolyline *)overlay];
                     
                     // ... and find the nearest one
                     if (distance < nearestDistance) {
@@ -719,6 +709,7 @@
     
     [self.mapView addGestureRecognizer:tap];
     
+    
 }
 
 
@@ -853,15 +844,19 @@
         // action = @"Show details";
         if ([tappedAnnot respondsToSelector: @selector(mapTapped:)]) //  && [self.tappedAnnot mapTapped])
         {
-            action = nil;
+            if (([tappedAnnot respondsToSelector: @selector(useMapTapped)] && tappedAnnot.useMapTapped)
+                || !([tappedAnnot respondsToSelector: @selector(useMapTapped)]))
+            {
+                action = nil;
             
-            if ([tappedAnnot respondsToSelector:@selector(tapActionText)])
-            {
-                action = [tappedAnnot tapActionText];
-            }
-            if (action == nil)
-            {
-                action = NSLocalizedString(@"Choose this stop", @"button text");
+                if ([tappedAnnot respondsToSelector:@selector(tapActionText)])
+                {
+                    action = [tappedAnnot tapActionText];
+                }
+                if (action == nil)
+                {
+                    action = NSLocalizedString(@"Choose this stop", @"button text");
+                }
             }
         }
         else if ([tappedAnnot respondsToSelector: @selector(mapDeparture)])
@@ -870,7 +865,7 @@
         }
         
         
-        if ([tappedAnnot respondsToSelector: @selector(mapStopId)])
+        if ([tappedAnnot respondsToSelector: @selector(mapStopId)] && [tappedAnnot mapStopId]!=nil)
         {
             if ([tappedAnnot respondsToSelector: @selector(mapStopIdText)])
             {
@@ -878,7 +873,7 @@
             }
             else
             {
-                stopIdAction = NSLocalizedString(@"Show arrivals", @"button text");
+                stopIdAction = NSLocalizedString(@"Show departures", @"button text");
             }
         }
     }
@@ -916,7 +911,7 @@
                                                     }
                                                     else if ([tappedAnnot respondsToSelector: @selector(mapDeparture)])
                                                     {
-                                                        DepartureData *departure = [tappedAnnot mapDeparture];
+                                                        Departure *departure = [tappedAnnot mapDeparture];
                                                         DepartureDetailView *departureDetailView = [DepartureDetailView viewController];
                                                         departureDetailView.callback = self.callback;
                                                         
@@ -1079,6 +1074,24 @@
         self.previousHeading = self.mapView.camera.heading;
     
         [self updateAnnotations];
+    }
+}
+
+- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection
+{
+    [super traitCollectionDidChange:previousTraitCollection];
+    
+    if (@available(iOS 13.0, *))
+    {
+        DEBUG_LOGL(previousTraitCollection.userInterfaceStyle);
+        DEBUG_LOGL(self.traitCollection.userInterfaceStyle);
+    
+    
+        if (previousTraitCollection.userInterfaceStyle != self.traitCollection.userInterfaceStyle)
+        {
+            [self addDataToMap:NO];
+        
+        };
     }
 }
 

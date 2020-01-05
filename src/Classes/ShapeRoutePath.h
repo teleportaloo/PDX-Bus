@@ -40,15 +40,21 @@
 - (bool)isEqual:(ShapeSegment*)seg;
 - (ShapeCompactSegment *) compact;
 
+@property (nonatomic) NSInteger count;
+
 @end
 
 @interface ShapeCompactSegment : ShapeSegment
+{
+    NSInteger _count;
+}
 
 @property (nonatomic) CLLocationCoordinate2D *coords;
-@property (nonatomic) NSUInteger count;
+
 
 - (RoutePolyline*)polyline:(UIColor *)color dashPatternId:(int)dashPatternId
                  dashPhase:(CGFloat)dashPhase path:(ShapeRoutePath*)path;
+
 
 @end
 

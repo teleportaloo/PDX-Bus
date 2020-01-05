@@ -195,7 +195,7 @@
     
 }
 
-- (void)addTaskForDeparture:(DepartureData *)dep mins:(uint)mins
+- (void)addTaskForDeparture:(Departure *)dep mins:(uint)mins
 {
     @synchronized(_backgroundTasks)
     {
@@ -385,7 +385,7 @@
                 
                 NSDictionary *ignore = @{kDoNotDisplayIfActive : kDoNotDisplayIfActive};
                 int mins = ((remaining + 30) / 60.0);
-                [alertTask alert:[NSString stringWithFormat:NSLocalizedString(@"PDX Bus checks arrivals in the background for only %d mins - then you will be alerted to restart PDX Bus.",
+                [alertTask alert:[NSString stringWithFormat:NSLocalizedString(@"PDX Bus checks departure in the background for only %d mins - then you will be alerted to restart PDX Bus.",
                                                                               @"alarm alert warning"),
                                    mins]
                         fireDate:nil 
@@ -441,25 +441,77 @@
     [self cancelTaskForKey:stopId];
 }
 
+
+- (void)startUpdatingLocation:(CLLocationManager *)manager
+{
+    CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
+
+    if (status == kCLAuthorizationStatusDenied)
+    {
+        NSLog(@"Location services are disabled in settings.");
+    }
+    else
+    {
+        // for iOS 8
+        if ([manager respondsToSelector:@selector(requestAlwaysAuthorization)])
+        {
+            [manager requestAlwaysAuthorization];
+        }
+        // for iOS 9
+        if ([manager respondsToSelector:@selector(setAllowsBackgroundLocationUpdates:)])
+        {
+            [manager setAllowsBackgroundLocationUpdates:YES];
+        }
+
+        [manager startUpdatingLocation];
+    }
+}
+
+- (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
+{
+#ifdef DEBUG_LOGGING
+    CLLocation *mostRecentLocation = locations.lastObject;
+    DEBUG_LOG(@"Current location: %@ %@", @(mostRecentLocation.coordinate.latitude), @(mostRecentLocation.coordinate.longitude));
+#endif
+}
+
+
 - (void)taskLoop
 {
     DEBUG_FUNC();
     // NSRunLoop* runLoop        = [NSRunLoop currentRunLoop];
     self.backgroundThread    = [NSThread currentThread];
     
-    bool        done        = false;
-    AlarmTask *    task        = nil;
-    NSDate    * nextFetch   = nil;
-    NSMutableArray *taskKeys  = [NSMutableArray array];
+    bool done = false;
+    AlarmTask *task = nil;
+    NSDate *nextFetch = nil;
+    NSMutableArray *taskKeys = [NSMutableArray array];
     NSMutableArray *doneTasks = [NSMutableArray array];
-        
+    
+    bool useGps = [UserPrefs sharedInstance].useGpsForAllAlarms;
+    
+    CLLocationManager *manager = nil;
+    
+    if (useGps)
+    {
+        manager = [[CLLocationManager alloc] init];
+        manager.delegate = self;
+        manager.allowsBackgroundLocationUpdates = YES;
+        manager.desiredAccuracy = kCLLocationAccuracyKilometer;
+        manager.pausesLocationUpdatesAutomatically = NO;
+        [self startUpdatingLocation:manager];
+    }
+    
+
     while (!done)
     {
         @autoreleasepool {
             
+            
             // Here is where we check if new tasks have been added or remevoed
             @synchronized (_backgroundTasks)
             {
+                
                 // Add items from the new tasks into my active list
                 [taskKeys addObjectsFromArray:_newTaskKeys];
                 [_newTaskKeys removeAllObjects];
@@ -577,12 +629,14 @@
                 
                 self.nextFetch = nextFetch;
                 
-                if ((waitTime + gap) < remaining)
+                bool okToWait = useGps || (waitTime + gap) < remaining;
+                
+                if (okToWait)
                 {
                     [NSThread sleepUntilDate:sleepUntil];
                 }
                 
-                if ((waitTime + gap)>= remaining || self.backgroundThread.cancelled)
+                if (!okToWait || self.backgroundThread.cancelled)
                 {
                     DEBUG_LOGB(self.backgroundThread.cancelled);
                     DEBUG_LOG(@"We must go to sleep. :-(");
@@ -605,6 +659,11 @@
         }
     }
     
+    if (manager!=nil)
+    {
+        [manager stopUpdatingLocation];
+        manager.delegate = nil;
+    }
     [(NSObject*)self performSelectorOnMainThread:@selector(taskLoopEnded:) withObject:nil waitUntilDone:NO];
         
     DEBUG_FUNCEX();
@@ -632,8 +691,8 @@
         
         DEBUG_LOG(@"Alert in %f", [self.nextFetch timeIntervalSinceNow]);
         
-        [alertTask alert:NSLocalizedString(@"iOS has stopped PDX Bus from checking arrivals, making alarms inaccurate. "
-                                           @"Please restart PDX Bus so it can update the arrival alarms.", @"alarm alert")
+        [alertTask alert:NSLocalizedString(@"iOS has stopped PDX Bus from checking departures, making alarms inaccurate. "
+                                           @"Please restart PDX Bus so it can update the departure alarms.", @"alarm alert")
                 fireDate:self.nextFetch
                   button:NSLocalizedString(@"Back to PDX Bus", @"Button to return to PDX Bus")
                 userInfo:ignore
@@ -714,18 +773,14 @@
 {
     UIAlertController* alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Proximity Alarm", @"alarm alert title")
                                                                    message:[NSString stringWithFormat:
-                                                                            NSLocalizedString(@"PDX Bus can use accurate GPS or low-power cell-towers to"
-                                                                                              " determine your location and alert"
+                                                                            NSLocalizedString(@"PDX Bus will track your locaton "
+                                                                                              " and alert"
                                                                                               " you when you get within %@ of the stop.",
                                                                                               @"alert question"),
                                                                             kUserDistanceProximity]
                                                             preferredStyle:UIAlertControllerStyleAlert];
-    
-    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Use accurate GPS", @"button text") style:UIAlertActionStyleDefault handler:^(UIAlertAction* action){
-        completionHandler(FALSE, YES);
-    }]];
-    
-    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Use low-power cell-towers", @"button text") style:UIAlertActionStyleDefault handler:^(UIAlertAction* action){
+        
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"button text") style:UIAlertActionStyleDefault handler:^(UIAlertAction* action){
         completionHandler(FALSE, NO);
     }]];
     

@@ -13,9 +13,8 @@
 
 
 #import "AddNewStopToBookMark.h"
-#import "CellTextView.h"
 #import "CellTextField.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 
 #define kRowEnter	0
 #define kRowDone	1
@@ -34,10 +33,10 @@
 	UITextField *returnTextField = [[UITextField alloc] initWithFrame:frame];
     
 	returnTextField.borderStyle = UITextBorderStyleRoundedRect;
-    returnTextField.textColor = [UIColor blackColor];
+    returnTextField.textColor = [UIColor modeAwareText];
 	returnTextField.font = [CellTextField editFont];
     returnTextField.placeholder = NSLocalizedString(@"<enter stop ID>", @"default stop id text");
-    returnTextField.backgroundColor = [UIColor whiteColor];
+    returnTextField.backgroundColor = [UIColor modeAwareGrayBackground];
 	returnTextField.autocorrectionType = UITextAutocorrectionTypeNo;	// no auto correction support
 	
 	returnTextField.keyboardType = UIKeyboardTypeNumberPad;
@@ -113,7 +112,7 @@
 				((CellTextField *)sourceCell).delegate = self;
 				self.editWindow = sourceCell.view;
 				[self.editWindow becomeFirstResponder];
-				sourceCell.cellLeftOffset = 40.0;
+				sourceCell.cellLeftOffset = 50.0;
 				sourceCell.imageView.image = [self getIcon:kIconEnterStopID];
 				return sourceCell;
 			}
@@ -189,6 +188,7 @@
 	[self.editWindow resignFirstResponder];
 	[self.navigationController popToViewController:self.callback.controller animated:YES];
 }
+
 
 @end
 

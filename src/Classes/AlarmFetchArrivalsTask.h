@@ -27,7 +27,7 @@
 @property (nonatomic, copy)   NSString *block;
 @property (nonatomic, strong) XMLDepartures *departures;
 @property (nonatomic) uint minsToAlert;
-@property (strong) DepartureData *lastFetched;
+@property (strong) Departure *lastFetched;
 @property (nonatomic, copy)   NSString *display;
 
 - (void) startTask;

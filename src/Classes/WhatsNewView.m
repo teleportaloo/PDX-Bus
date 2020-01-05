@@ -26,9 +26,10 @@
 #import "WhatsNewWeb.h"
 #import "WhatsNewHighlight.h"
 #import "NearestVehiclesMap.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 #import "DebugLogging.h"
 #import "DetoursView.h"
+#import "TripPlannerSummaryView.h"
 
 @implementation WhatsNewView
 
@@ -142,7 +143,7 @@
         
         NSMutableArray *current = [NSMutableArray array];
         [current addObject:@""];
-        [current addObject:[NSString stringWithFormat: NSLocalizedString(@"#bPDX Bus got an upgrade! Here's what's new in version #R%@#0.", @"section header"),
+        [current addObject:[NSString stringWithFormat: NSLocalizedString(@"#bPDX Bus got an upgrade! Here's what's new in version #R%@#D.", @"section header"),
                              [NSBundle mainBundle].infoDictionary[@"CFBundleShortVersionString"]]];
         
         [self.searchableItems addObject:current];
@@ -284,6 +285,7 @@
         cell.textLabel.adjustsFontSizeToFitWidth = YES;
         cell.textLabel.text = NSLocalizedString(@"Back to PDX Bus", @"button text");
         cell.textLabel.textAlignment = NSTextAlignmentCenter;
+        cell.backgroundColor = [UIColor modeAwareCellBackground];
         
         return cell;
     }
@@ -327,11 +329,24 @@
 
 #pragma mark Callback selectors
 
+-(void)tripPlanner
+{
+    TripPlannerSummaryView *tripStart = [TripPlannerSummaryView viewController];
+
+
+    @synchronized (_userData)
+    {
+        [tripStart.tripQuery addStopsFromUserFaves:_userData.faves];
+    }
+    
+    // Push the detail view controller
+    [self.navigationController pushViewController:tripStart animated:YES];
+}
+
 - (void)railMap
 {
     [self.navigationController pushViewController:[RailMapView viewController] animated:YES];
 }
-
 
 - (void)vehicles
 {
@@ -339,7 +354,6 @@
     mapView.title = NSLocalizedString(@"All Vehicles", "page title");
     [mapView fetchNearestVehiclesAsync:self.backgroundTask];
 }
-
 
 - (void)stations
 {

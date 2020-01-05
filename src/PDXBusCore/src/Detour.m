@@ -14,7 +14,7 @@
 #import "DebugLogging.h"
 #import "TriMetXML.h"
 #import "Route.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 
 
 @implementation Detour
@@ -50,9 +50,14 @@
     
     self.embeddedStops = [NSMutableArray array];
     
-    NSCharacterSet *numbersOrBrace = [NSCharacterSet characterSetWithCharactersInString:@"0123456789)"];
+    static NSCharacterSet *numbersOrBrace;
+    static NSArray<NSString*> *searchStrings;
     
-    NSArray<NSString*> *searchStrings = @[ @"(Stop ID",  @"( Stop ID" ];
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        numbersOrBrace = [NSCharacterSet characterSetWithCharactersInString:@"0123456789)"];
+        searchStrings = @[ @"(Stop ID",  @"( Stop ID" ];
+    });
     
     for (NSString *stopIds in searchStrings)
     {
@@ -123,8 +128,8 @@
     Detour *result = [Detour data];
     
     NSNumber *detourId      = @(ATRINT(id));
-    result.detourDesc       = [TriMetXML replaceXMLcodes:ATRSTR(desc)].stringWithTrailingSpacesRemoved.stringWithLeadingSpacesRemoved;
-    result.headerText       = [TriMetXML replaceXMLcodes:ATRSTR(header_text)].stringWithTrailingSpacesRemoved.stringWithLeadingSpacesRemoved; ;
+    result.detourDesc       = [TriMetXML replaceXMLcodes:ATRSTR(desc)].stringByTrimmingWhitespace;
+    result.headerText       = [TriMetXML replaceXMLcodes:ATRSTR(header_text)].stringByTrimmingWhitespace;
     result.infoLinkUrl      = NATRSTR(info_link_url);
     result.detourId         = detourId;
     result.systemWideFlag   = ATRBOOL(system_wide_flag);
@@ -138,6 +143,31 @@
         {
             result.headerText = kSystemWideDetour;
         }
+        
+        static NSDictionary<NSString *, NSString *> *prefixes = nil;
+        
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            prefixes = @{
+                           @"winter"            : @"❄️",
+                           @"high temperature"  : @"☀️",
+                           @"new year"          : @"🎉",
+                           @"construction"      : @"🚧",
+                           @"improvements"      : @"🚧"
+                           };
+        });
+        
+        __block NSString *symbol = @"⚠️";
+        
+        [prefixes enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSString * _Nonnull obj, BOOL * _Nonnull stop) {
+            if ([result.headerText hasCaseInsensitiveSubstring:key])
+            {
+                symbol = obj;
+                *stop = YES;
+            }
+        }];
+        
+        result.headerText = [NSString stringWithFormat:@"%@ %@", symbol, result.headerText];
         
         Route *route  = [Route systemWide:detourId];
         route.desc = result.headerText;

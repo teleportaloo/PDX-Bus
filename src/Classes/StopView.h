@@ -15,18 +15,18 @@
 #import "ReturnStopId.h"
 #import "Stop.h"
 @class XMLStops;
-@class DepartureData;
+@class Departure;
 
 
 @interface StopView : TableViewControllerWithRefresh<ReturnStop>
 
 @property (nonatomic, strong) XMLStops *stopData;
-@property (nonatomic, strong) DepartureData *departure;
+@property (nonatomic, strong) Departure *departure;
 @property (nonatomic, copy)   NSString *directionName;
 
 - (void)refreshAction:(id)sender;
 - (void)fetchStopsAsync:(id<BackgroundTaskController>)task route:(NSString*)routeid direction:(NSString*)dir description:(NSString *)desc
           directionName:(NSString *)dirName backgroundRefresh:(bool)backgroundRefresh;
-- (void)fetchDestinationsAsync:(id<BackgroundTaskController>)task dep:(DepartureData *)dep;
+- (void)fetchDestinationsAsync:(id<BackgroundTaskController>)task dep:(Departure *)dep;
 
 @end

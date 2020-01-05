@@ -50,7 +50,6 @@
 @property (weak, nonatomic, readonly)  NSString *alarmSoundFile;
 @property (nonatomic, readonly)  bool vehicleLocations;
 @property (nonatomic, readonly)  int  vehicleLocatorDistance;
-@property (nonatomic)            bool ticketAppIcon;
 @property (nonatomic)            bool locateToolbarIcon;
 @property (nonatomic, readonly)  bool groupByArrivalsIcon;
 @property (nonatomic)            bool flashingLightIcon;
@@ -63,17 +62,26 @@
 @property (weak, nonatomic, readonly)  NSString *busIcon;
 @property (nonatomic, readonly)  bool showTrips;
 @property (weak, nonatomic, readonly)  NSString *minsForArrivals;
-@property (nonatomic)            bool  hideSystemWideDetours;
+@property (nonatomic)            NSSet<NSNumber*>* hiddenSystemWideDetours;
 @property (nonatomic)            bool  kmlRoutes;
 @property (nonatomic)            int   kmlAgeOut;
 @property (nonatomic)            bool  kmlWifiOnly;
 @property (nonatomic)            bool  showSizes;
 @property (nonatomic)            bool  gitHubRouteShapes;
 @property (nonatomic)            bool  progressDebug;
+@property (nonatomic)            bool  firstLaunchWithiCloudAvailable;
+@property (nonatomic)            id    iCloudToken;
+@property (nonatomic, readonly)  bool  showDetourIds;
+@property (nonatomic)            bool  hideWatchDetours;
+@property (nonatomic, readonly)  bool  useAppleGeoLocator;
+@property (nonatomic)            bool  useGpsForAllAlarms;
 
 - (float)getFloatFromDefaultsForKey:(NSString*)key ifMissing:(float)missing max:(float)max min:(float)min writeToShared:(BOOL)writeToShared;
 - (int) getIntFromDefaultsForKey:(NSString*)key ifMissing:(int)missing max:(int)max min:(int)min writeToShared:(BOOL)writeToShared;
 - (BOOL)getBoolFromDefaultsForKey:(NSString*)key ifMissing:(BOOL)missing writeToShared:(BOOL)writeToShared;
+- (void)removeOldSystemWideDetours:(NSSet *)detoursNoLongerFound;
+- (void)toggleHiddenSystemWideDetour:(NSNumber *)detourId;
+- (bool)isHiddenSystemWideDetour:(NSNumber *)detourId;
 
 + (UserPrefs*)sharedInstance;
 

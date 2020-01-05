@@ -41,7 +41,9 @@
 @property (nonatomic, strong) id            currentObject;
 @property (nonatomic, strong) NSString        *currentTagData;
 @property (nonatomic, strong) NSMutableArray *toList;
+@property (nonatomic)         bool toAppleFailed;
 @property (nonatomic, strong) NSMutableArray *fromList;
+@property (nonatomic)         bool fromAppleFailed;
 @property (nonatomic, strong) NSMutableArray *currentList;
 @property (nonatomic, strong) NSString       *xdate;
 @property (nonatomic, strong) NSString         *xtime;

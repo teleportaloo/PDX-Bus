@@ -17,7 +17,6 @@
 #import "MapViewController.h"
 #import "SimpleAnnotation.h"
 #import <MessageUI/MFMailComposeViewController.h>
-#import "TripPlannerDateView.h"
 #import "DepartureTimesView.h"
 #import "NetworkTestView.h"
 #import "WebViewController.h"
@@ -33,42 +32,45 @@
 #import "AlarmTaskList.h"
 #import "AlarmAccurateStopProximity.h"
 #import "LocationAuthorization.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 #import "BlockColorDb.h"
 #import "BlockColorViewController.h"
 #import "TriMetInfo.h"
 #import <Intents/Intents.h>
 #import <IntentsUI/IntentsUI.h>
 #import "MainQueueSync.h"
+#import "TripPlannerDateView.h"
 
-#define kRowTypeLeg            0
-#define kRowTypeDuration    1
-#define kRowTypeFare        2
-#define kRowTypeMap            3
-#define kRowTypeEmail        4
-#define kRowTypeSMS            5
-#define kRowTypeCal         6
-#define kRowTypeClipboard    7
-#define kRowTypeTag         8
-#define kRowTypeAlarms      9
-#define kRowTypeArrivals    10
-#define kRowTypeDetours        11
-#define kRowTypeError        12
-#define kRowTypeReverse        13
-#define kRowTypeFrom        14
-#define kRowTypeTo            15
-#define kRowTypeOptions        16
-#define kRowTypeDateAndTime 17
+enum
+{
+    kRowTypeLeg = 0,
+    kRowTypeDuration,
+    kRowTypeFare,
+    kRowTypeMap,
+    kRowTypeEmail,
+    kRowTypeSMS,
+    kRowTypeCal,
+    kRowTypeClipboard,
+    kRowTypeTag,
+    kRowTypeAlarms,
+    kRowTypeArrivals,
+    kRowTypeDetours,
+    kRowTypeError,
+    kRowTypeReverse,
+    kRowTypeFrom,
+    kRowTypeTo,
+    kRowTypeOptions,
+    kRowTypeDateAndTime
+};
 
+enum
+{
+    kSectionTypeEndPoints = 0,
+    kSectionTypeOptions,
+    kRowsInDisclaimerSection
+};
 
-#define kSectionTypeEndPoints    0
-#define kSectionTypeOptions        1
-#define kRowsInDisclaimerSection 2
-
-#define kDefaultRowHeight        40.0
-
-
-#define KDisclosure UITableViewCellAccessoryDisclosureIndicator
+#define kDisclosure UITableViewCellAccessoryDisclosureIndicator
 #define kScheduledText @"The trip planner shows scheduled service only. Check below to see how detours may affect your trip."
 
 @implementation TripPlannerResultsView
@@ -196,10 +198,9 @@
 }
 
 
-- (void)upDown:(id)sender
+- (void)upDown:(UISegmentedControl*)sender
 {
-    UISegmentedControl *segControl = sender;
-    switch (segControl.selectedSegmentIndex)
+    switch (sender.selectedSegmentIndex)
     {
         case 0:    // UIPickerView
         {
@@ -221,7 +222,7 @@
             break;
         }
     }
-    [self enableArrows:segControl];
+    [self enableArrows:sender];
 }
 
 - (void)loadView
@@ -328,14 +329,13 @@
     
     if (_recentTripItem >=0)
     {
-        UISegmentedControl *seg = [[UISegmentedControl alloc] initWithItems:@[
-                                            [TableViewWithToolbar getToolbarIcon:kIconUp7],
-                                            [TableViewWithToolbar getToolbarIcon:kIconDown7]] ];
+        self.navigationItem.rightBarButtonItem = [self segBarButtonWithItems:@[[TableViewWithToolbar getToolbarIcon:kIconUp7],
+                                                                               [TableViewWithToolbar getToolbarIcon:kIconDown7]]
+                                                                      action:@selector(upDown:) selectedIndex:kSegNoSelectedIndex];
+        
+        UISegmentedControl *seg = self.navigationItem.rightBarButtonItem.customView;
         seg.frame = CGRectMake(0, 0, 60, 30.0);
         seg.momentary = YES;
-        [seg addTarget:self action:@selector(upDown:) forControlEvents:UIControlEventValueChanged];
-        
-        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView: seg];
         
         [self enableArrows:seg];
         
@@ -389,6 +389,8 @@
     trip.tripQuery = [self.tripQuery createAuto];
     [trip.tripQuery resetCurrentLocation];
     
+    [trip makeSummaryRows];
+    
     [self.navigationController pushViewController:trip animated:YES];
 }
 
@@ -425,12 +427,12 @@
         departureViewController.displayName = @"";
         [departureViewController fetchTimesForLocationAsync:self.backgroundTask loc:stopId];
     }
-    else if (leg.xlat !=0 && leg.xlon !=0)
+    else if (leg.loc!=nil)
     {
         MapViewController *mapPage = [MapViewController viewController];
         SimpleAnnotation *pin = [SimpleAnnotation annotation];
         mapPage.callback = self.callback;
-        pin.coordinate =  leg.loc.coordinate;
+        pin.coordinate =  leg.coordinate;
         pin.pinTitle = leg.xdescription;
         pin.pinColor = MAP_PIN_COLOR_PURPLE;
         
@@ -626,10 +628,10 @@
             //                route:ep.xnumber];
             
             
-            if (ep.xstopId!=nil || ep.xlat !=nil)
+            if (ep.xstopId != nil || ep.loc != nil)
             {
                 cell.selectionStyle = UITableViewCellSelectionStyleBlue;
-                cell.accessoryType = KDisclosure;
+                cell.accessoryType = kDisclosure;
             }
             else
             {
@@ -648,7 +650,7 @@
             // justText = [it getTravelTime];
             break;
         case kRowTypeFare:
-            [cell populateBody:it.fare.stringWithTrailingSpacesRemoved
+            [cell populateBody:it.fare.stringByTrimmingWhitespace
                           mode:@"Fare"
                           time:nil
                      leftColor:nil
@@ -658,13 +660,19 @@
             // justText = it.fare;
             break;
         case kRowTypeFrom:
-            [cell populateBody:self.fromText mode:@"From" time:nil leftColor:nil route:nil];
+            [cell populateBody:self.fromText
+                          mode:@"From"
+                          time:nil
+                     leftColor:[UIColor modeAwareBlue]
+                         route:nil];
             cell.selectionStyle = UITableViewCellSelectionStyleBlue;
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             break;
         case kRowTypeOptions:
-            [cell populateBody:[self.tripQuery.userRequest optionsDisplayText] mode:@"Options" time:nil
-                     leftColor:nil
+            [cell populateBody:[self.tripQuery.userRequest optionsDisplayText]
+                          mode:@"Options"
+                          time:nil
+                     leftColor:[UIColor modeAwareBlue]
                          route:nil];
             
             cell.accessibilityLabel = [self.tripQuery.userRequest optionsAccessability];
@@ -673,18 +681,20 @@
             cell.accessoryType = UITableViewCellAccessoryNone;
             break;
         case kRowTypeTo:
-            [cell populateBody:self.toText mode:@"To" time:nil leftColor:nil route:nil];
+            [cell populateBody:self.toText
+                          mode:@"To"
+                          time:nil
+                     leftColor:[UIColor modeAwareBlue]
+                         route:nil];
             cell.selectionStyle = UITableViewCellSelectionStyleBlue;
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             break;
             
         case kRowTypeDateAndTime:
-            
-            
             [cell populateBody:[self.tripQuery.userRequest getDateAndTime]
                           mode:[self.tripQuery.userRequest timeType]
                           time:nil
-                     leftColor:nil
+                     leftColor:[UIColor modeAwareBlue]
                          route:nil];
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             cell.accessoryType = UITableViewCellAccessoryNone;
@@ -754,7 +764,7 @@
             return [self tableView:tableView
                         actionCell:indexPath
                               text:NSLocalizedString(@"Show on map", @"main menu item")
-                             image:[self getIcon:kIconMapAction7]
+                             image:[self getModeAwareIcon:kIconMapAction7]
                               type:UITableViewCellAccessoryDisclosureIndicator];
         case kRowTypeEmail:
             return [self tableView:tableView
@@ -832,7 +842,7 @@
         case kRowTypeArrivals:
             return [self tableView:tableView
                         actionCell:indexPath
-                              text:NSLocalizedString(@"Arrivals for all stops", @"main menu item")
+                              text:NSLocalizedString(@"Departures for all stops", @"main menu item")
                              image:[self getIcon:kIconArrivals]
                               type:UITableViewCellAccessoryDisclosureIndicator];
         case kRowTypeAlarms:
@@ -940,7 +950,7 @@
     self.event      = [EKEvent eventWithEventStore:self.eventStore];
     self.event.title= [NSString stringWithFormat:@"TriMet Trip\n%@", [self.tripQuery mediumName]];
     self.event.notes= [NSString stringWithFormat:@"Note: ensure you leave early enough to arrive in time for the first connection.\n\n%@"
-                       "\nRoute and arrival data provided by permission of TriMet.",
+                       "\nRoute and departure data provided by permission of TriMet.",
                        [self plainText:it]];
     
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
@@ -1216,10 +1226,10 @@
             
             if (self.tripQuery.resultFrom != nil)
             {
-                if (self.tripQuery.resultFrom.xlat!=nil)
+                if (self.tripQuery.resultFrom.loc!=nil)
                 {
-                    [trip appendFormat:@"From: <a href=\"http://map.google.com/?q=location@%@,%@\">%@<br></a>",
-                     self.tripQuery.resultFrom.xlat, self.tripQuery.resultFrom.xlon,
+                    [trip appendFormat:@"From: <a href=\"http://map.google.com/?q=location@%f,%f\">%@<br></a>",
+                     self.tripQuery.resultFrom.coordinate.latitude, self.tripQuery.resultFrom.coordinate.longitude,
                      self.tripQuery.resultFrom.xdescription
                      ];
                 }
@@ -1231,10 +1241,10 @@
             
             if (self.tripQuery.resultTo != nil)
             {
-                if (self.tripQuery.resultTo.xlat)
+                if (self.tripQuery.resultTo.loc)
                 {
-                    [trip appendFormat:@"To: <a href=\"http://map.google.com/?q=location@%@,%@\">%@<br></a>",
-                     self.tripQuery.resultTo.xlat, self.tripQuery.resultTo.xlon,
+                    [trip appendFormat:@"To: <a href=\"http://map.google.com/?q=location@%f,%f\">%@<br></a>",
+                     self.tripQuery.resultTo.coordinate.latitude, self.tripQuery.resultTo.coordinate.longitude,
                      self.tripQuery.resultTo.xdescription
                      ];
                 }

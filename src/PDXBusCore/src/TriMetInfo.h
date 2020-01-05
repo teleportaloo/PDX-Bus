@@ -14,6 +14,7 @@
 
 
 #import <Foundation/Foundation.h>
+#import "UIColor+DarkMode.h"
 
 @class UIColor;
 
@@ -26,13 +27,7 @@
 #define kDir1       -1
 
 
-#define COL_HTML_R(V)  (((CGFloat)(((V) >> 16  ) & 0xFF))/255.0)
-#define COL_HTML_G(V)  (((CGFloat)(((V) >> 8   ) & 0xFF))/255.0)
-#define COL_HTML_B(V)  (((CGFloat) ((V)          & 0xFF))/255.0)
 
-#define HTML_COLOR(V) [UIColor colorWithRed:COL_HTML_R(V)           \
-                                      green:COL_HTML_G(V)           \
-                                       blue:COL_HTML_B(V) alpha:1.0]
 
 typedef unsigned int RAILLINES;
 
@@ -62,6 +57,7 @@ typedef struct vehicle_info {
     NSString *      model;
     NSString *      first_used;
     bool            check_for_multiple;
+    NSString *      specialInfo;
 } VEHICLE_INFO;
 
 typedef const VEHICLE_INFO *PC_VEHICLE_INFO;

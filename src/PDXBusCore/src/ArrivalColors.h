@@ -18,11 +18,19 @@
 
 #define ArrivalColorSoon        [UIColor redColor]
 #define ArrivalColorLate        [UIColor magentaColor]
+#ifdef PDXBUS_WATCH
 #define ArrivalColorOK          [UIColor blueColor]
+#else
+#define ArrivalColorOK          [UIColor modeAwareBlue]
+#endif
 #define ArrivalColorScheduled   [UIColor grayColor]
-#define ArrivalColorCancelled   [UIColor orangeColor]
+#define ArrivalColorCanceled   [UIColor orangeColor]
+#ifdef PDXBUS_WATCH
 #define ArrivalColorDeparted    [UIColor blackColor]
-#define ArrivalColorDelayed     [UIColor yellowColor]
-#define ArrivalColorOffRoute    [UIColor yellowColor]
+#else
+#define ArrivalColorDeparted    [UIColor modeAwareText]
+#endif
+#define ArrivalColorDelayed     [UIColor orangeColor]
+#define ArrivalColorOffRoute    [UIColor orangeColor]
 
 #endif /* ArrivalColors_h */

@@ -14,12 +14,12 @@
 #import "Stop.h"
 #import "DepartureTimesView.h"
 #import "XMLStops.h"
-#import "DepartureData.h"
+#import "Departure.h"
 #import "MapViewController.h"
 #import "RailStation.h"
 #import "TriMetInfo.h"
 #import "NearestVehiclesMap.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 
 
 #define kGettingStops @"getting stops"
@@ -47,18 +47,10 @@
 
 - (void)updateToolbarItems:(NSMutableArray *)toolbarItems
 {
-    // add a segmented control to the button bar
-    UISegmentedControl    *buttonBarSegmentedControl;
-    buttonBarSegmentedControl = [[UISegmentedControl alloc] initWithItems:
-                                 @[
-                                    NSLocalizedString(@"Line", @"sort stops in line order"),
-                                    NSLocalizedString(@"A-Z" , @"sort stops in A-Z order"),
-                                  ]];
-    [buttonBarSegmentedControl addTarget:self action:@selector(toggleSort:) forControlEvents:UIControlEventValueChanged];
-    buttonBarSegmentedControl.selectedSegmentIndex = 0.0;    // start by showing the normal picker
-
-    UIBarButtonItem *segItem = [[UIBarButtonItem alloc] initWithCustomView:buttonBarSegmentedControl];    
-    
+    UIBarButtonItem *segItem = [self segBarButtonWithItems:@[NSLocalizedString(@"Line", @"sort stops in line order"),
+                                                             NSLocalizedString(@"A-Z" , @"sort stops in A-Z order")]
+                                                    action:@selector(toggleSort:)
+                                             selectedIndex:0];
     
     [toolbarItems addObjectsFromArray:@[
                       [UIToolbar mapButtonWithTarget:self action:@selector(showMap:)],
@@ -72,8 +64,6 @@
     }
     
     [self maybeAddFlashButtonWithSpace:YES buttons:toolbarItems big:NO];
-    
-    
 }
 
 - (void)appendXmlData:(NSMutableData *)buffer
@@ -95,7 +85,7 @@
     }
 }
 
-- (void)fetchDestinationsAsync:(id<BackgroundTaskController>)task dep:(DepartureData *) dep
+- (void)fetchDestinationsAsync:(id<BackgroundTaskController>)task dep:(Departure *) dep
 {
     
     
@@ -112,14 +102,15 @@
     }
     else
     {
+        self.title = NSLocalizedString(@"Destinations", @"page title");
+        
         [task taskRunAsync:^{
             [task taskStartWithItems:1 title:kGettingStops];
             self.stopData.oneTimeDelegate = task;
             [self.stopData getStopsAfterLocation:dep.locid route:dep.route direction:dep.dir
                                      description:dep.shortSign cacheAction:TriMetXMLForceFetchAndUpdateCache];
             self.departure = dep;
-            self.title = NSLocalizedString(@"Destinations", @"page title");
-            
+
             [self updateRefreshDate:self.stopData.cacheTime];
             return (UIViewController*)self;
         }];
@@ -257,7 +248,7 @@
                  */
                 
                 cell.textLabel.font =  self.smallFont;
-                cell.textLabel.textColor = [UIColor blueColor];
+                cell.textLabel.textColor = [UIColor modeAwareBlue];
             }
             else if (stop.locid)
             {
@@ -277,7 +268,7 @@
                  [self newLabelWithPrimaryColor:[UIColor blackColor] selectedColor:[UIColor cyanColor] fontSize:14 bold:YES parentView:[cell contentView]];
                  */
                 cell.textLabel.font =  self.smallFont;
-                cell.textLabel.textColor = [UIColor blackColor];
+                cell.textLabel.textColor = [UIColor modeAwareText];
             }
             else
             {
@@ -289,7 +280,7 @@
                  [self newLabelWithPrimaryColor:[UIColor blackColor] selectedColor:[UIColor cyanColor] fontSize:14 bold:YES parentView:[cell contentView]];
                  */
                 cell.textLabel.font =  self.smallFont;
-                cell.textLabel.textColor = [UIColor blackColor];
+                cell.textLabel.textColor = [UIColor modeAwareText];
             }
             cell.textLabel.text = stop.desc;
             cell.accessibilityLabel = [NSString stringWithFormat:@"%@ %@", stop.desc, stop.tp ? @". Time point" : @""].phonetic;
@@ -314,7 +305,7 @@
         case kTimePointSection:
         {
             cell = [self tableView:tableView multiLineCellWithReuseIdentifier:@"tp" font:self.paragraphFont];
-            cell.textLabel.attributedText = [@"#BBlue stops are #iTime Points#i - one of several stops on each route that serves as a benchmark for whether a trip is running on time.#0" formatAttributedStringWithFont:self.paragraphFont];
+            cell.textLabel.attributedText = [@"#UBlue stops are #iTime Points#i - one of several stops on each route that serves as a benchmark for whether a trip is running on time.#D" formatAttributedStringWithFont:self.paragraphFont];
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             [self updateAccessibility:cell];
             break;
@@ -400,7 +391,7 @@
     {
         return [self.callback actionText];
     }
-    return @"Show arrivals";
+    return @"Show departures";
 }
 
 - (void)chosenStop:(Stop*)stop progress:(id<BackgroundTaskController>) progress
@@ -536,15 +527,13 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
 
-- (void)toggleSort:(id)sender
+- (void)toggleSort:(UISegmentedControl*)sender
 {
-    UISegmentedControl *segControl = sender;
-    
     if (self.stopData.items == nil)
     {
         return;
     }
-    switch (segControl.selectedSegmentIndex)
+    switch (sender.selectedSegmentIndex)
     {
         case 0:    // UIPickerView
         {

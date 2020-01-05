@@ -28,7 +28,7 @@
 #import <CoreSpotlight/CoreSpotlight.h>
 #import <MobileCoreServices/MobileCoreServices.h>
 #include <stdlib.h>
-#include "StringHelper.h"
+#include "NSString+Helper.h"
 
 #ifdef CREATE_MAX_ARRAYS
 static RAILLINES createRailLines0[MAXHOTSPOTS];
@@ -465,7 +465,7 @@ static STOP_TO_HOTSPOT stopToHotspot2[MAXHOTSPOTS * 3];
     {
         return [self.callback actionText];
     }
-    return NSLocalizedString(@"Show arrivals", @"button text");
+    return NSLocalizedString(@"Show departures", @"button text");
 }
 
 #pragma mark Data Creation Methods - not used at runtime

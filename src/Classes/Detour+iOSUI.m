@@ -16,7 +16,8 @@
 #import "Detour+iOSUI.h"
 #import <UIKit/UIStringDrawing.h>
 #import "UserPrefs.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
+#import "UIColor+DarkMode.h"
 
 @implementation Detour (iOSUI)
 
@@ -25,7 +26,7 @@
     CGRect frame = CGRectMake(0.0, 0.0, 100.0, 100.0);
     
     UILabel *textView = [[UILabel alloc] initWithFrame:frame];
-    textView.textColor = [UIColor blackColor];
+    textView.textColor = [UIColor modeAwareText];
     textView.font = font;
     textView.backgroundColor = [UIColor clearColor];
     textView.lineBreakMode =   NSLineBreakByWordWrapping;
@@ -80,6 +81,11 @@
                                                                                                       timeStyle:NSDateFormatterShortStyle]];
     }
     
+    if ([UserPrefs sharedInstance].showDetourIds)
+    {
+        date = [NSString stringWithFormat:@"%@\n#A#(ID:%ld#)", date,(long)self.detourId.integerValue];
+    }
+    
     return date;
 }
 
@@ -87,16 +93,23 @@
 
 - (NSString *)alertColor
 {
-    return self.systemWideFlag ? @"#0" : @"#O";
+    return self.systemWideFlag ? @"#!" : @"#O";
+}
+
+
+- (NSString *)headerColor
+{
+    return self.systemWideFlag ? @"#!" : @"#D";
 }
 
 - (NSString*)formattedDescriptionWithHeader
 {
     NSString *header = self.formattedHeaderNewl;
     
-    return [NSString stringWithFormat:@"%@%@#b%@#b%@",
+    return [NSString stringWithFormat:@"%@%@%@#b%@#b%@",
+            self.headerColor,
             header,
-            self.alertColor ,
+            self.alertColor,
             self.detourDesc,
             self.dateString];
 }
@@ -110,14 +123,14 @@
         header = self.formattedHeaderNewl;
     }
     
-    return [NSString stringWithFormat:@"%@%@#b%@#b%@", header, self.systemWideFlag ? @"#0" : @"#O" ,self.detourDesc, self.dateString];
+    return [NSString stringWithFormat:@"%@%@#b%@#b%@", header, self.systemWideFlag ? @"#!" : @"#O" ,self.detourDesc, self.dateString];
 }
 
 - (NSString *)formattedHeaderNewl
 {
     if (self.headerText && self.headerText.length > 0 && ![self.headerText isEqualToString:self.detourDesc])
     {
-        return [NSString stringWithFormat:@"#0#b%@#b\n", self.headerText];
+        return [NSString stringWithFormat:@"%@#b%@#b\n", self.headerColor, self.headerText];
     }
     return @"";
 }
@@ -127,7 +140,7 @@
 {
     if (self.headerText && self.headerText.length > 0 && ![self.headerText isEqualToString:self.detourDesc])
     {
-        return [NSString stringWithFormat:@"#0#b%@#b", self.headerText];
+            return [NSString stringWithFormat:@"%@#b%@#b", self.headerColor, self.headerText];
     }
     return @"";
 }
@@ -137,7 +150,7 @@
     NSMutableString *str = [NSMutableString string];
     if (self.routes)
     {
-        [str appendString:@"#0"];
+        [str appendString:@"#D"];
         for (Route *route in self.routes)
         {
             if (!route.systemWide)
@@ -163,7 +176,7 @@
 - (void)populateCell:(UITableViewCell *)cell font:(UIFont*)font routeDisclosure:(bool)routeDisclosure
 {
 
-    if (self.systemWideFlag && [UserPrefs sharedInstance].hideSystemWideDetours)
+    if (self.systemWideFlag && [[UserPrefs sharedInstance] isHiddenSystemWideDetour:self.detourId])
     {
         cell.textLabel.attributedText = [self.formattedHeader formatAttributedStringWithFont:font];
     }

@@ -12,13 +12,13 @@
 
 #import "XMLDetours.h"
 #import "Detour.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 #import "CLLocation+Helper.h"
 #import "TriMetInfo.h"
 #import "DebugLogging.h"
 
-static NSString *detourURLStringV2 = @"alerts/route/%@/infolink/true/json/false";
-static NSString *allDetoursURLStringV2 = @"alerts/infolink/true/json/false";
+static NSString *detourURLStringV2      = @"alerts/route/%@/infolink/true/json/false";
+static NSString *allDetoursURLStringV2  = @"alerts/infolink/true/json/false";
 
 @implementation XMLDetours
 
@@ -113,9 +113,9 @@ XML_START_ELEMENT(location)
     
     // <location id="12798" desc="SW Oak & 1st" dir="Westbound" lat="45.5204099477081" lng="-122.671968433183" passengerCode="E" no_service_flag="false"/>
     
-    loc.desc = ATRSTR(desc);
+    loc.desc =  ATRSTR(desc);
     loc.locid = ATRSTR(id);
-    loc.dir = ATRSTR(dir);
+    loc.dir =   ATRSTR(dir);
     
     [loc setPassengerCodeFromString:NATRSTR(passengerCode)];
     

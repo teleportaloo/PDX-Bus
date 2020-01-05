@@ -14,7 +14,7 @@
 
 #import "XMLStreetcarLocations.h"
 #import "XMLDepartures.h"
-#import "VehicleData.h"
+#import "Vehicle.h"
 #import "DebugLogging.h"
 #import "FormatDistance.h"
 #import "CLLocation+Helper.h"
@@ -68,7 +68,7 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
     NSMutableSet<NSString*> *routes = [NSMutableSet set];
     for (XMLDepartures *dep in deps)
     {
-        for (DepartureData *dd in dep.items)
+        for (Departure *dd in dep.items)
         {
             if (dd.streetcar)
             {
@@ -86,7 +86,7 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
         XMLStreetcarLocations *locs = [XMLStreetcarLocations sharedInstanceForRoute:route];
         for (XMLDepartures *dep in deps)
         {
-            for (DepartureData *dd in dep.items)
+            for (Departure *dd in dep.items)
             {
                 if (dd.streetcar && [dd.route isEqualToString:route])
                 {
@@ -122,7 +122,7 @@ XML_START_ELEMENT(vehicle)
 {
     NSString *streetcarId = ATRSTR(id);
     
-    VehicleData *pos = [VehicleData data];
+    Vehicle *pos = [Vehicle data];
     
     pos.location = ATRLOC(lat,lon);
     
@@ -180,9 +180,9 @@ XML_END_ELEMENT(body)
 
 #pragma mark Access location data
 
--(void)insertLocation:(DepartureData *)dep
+-(void)insertLocation:(Departure *)dep
 {
-    VehicleData *pos = self.locations[dep.streetcarId];
+    Vehicle *pos = self.locations[dep.streetcarId];
     
     if (pos !=nil)
     {

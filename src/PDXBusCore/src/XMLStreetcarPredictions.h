@@ -14,12 +14,12 @@
 
 #import <Foundation/Foundation.h>
 #import "NextBusXML.h"
-#import "DepartureData.h"
+#import "Departure.h"
 
 
-@interface XMLStreetcarPredictions : NextBusXML<DepartureData*> 
+@interface XMLStreetcarPredictions : NextBusXML<Departure*> 
 
-@property (nonatomic, strong) DepartureData *currentDepartureObject;
+@property (nonatomic, strong) Departure *currentDepartureObject;
 @property (nonatomic, copy)   NSString *currentDirectionTitle;
 @property (nonatomic, copy)   NSString *currentRouteTitle;
 @property (nonatomic, copy)   NSString *blockFilter;

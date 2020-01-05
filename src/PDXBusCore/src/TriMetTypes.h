@@ -21,7 +21,7 @@ typedef long long TriMetDistance;
 #define SecsToMins(S)           ((NSInteger)(S)/60)
 
 
-#define kTriMetDisclaimerText  NSLocalizedString(@"Route and arrival data provided by permission of TriMet", @"Disclaimer")
+#define kTriMetDisclaimerText  NSLocalizedString(@"Route and departure data provided by permission of TriMet", @"Disclaimer")
 
 typedef enum {
 	TripModeBusOnly,

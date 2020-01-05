@@ -14,7 +14,7 @@
 
 
 #import "BigRouteView.h"
-#import "DepartureData.h"
+#import "Departure.h"
 #import "TriMetInfo.h"
 
 @implementation BigRouteView

@@ -17,6 +17,7 @@
 #include "ScreenConstants.h"
 #import "ViewControllerBase.h"
 #import "DebugLogging.h"
+#import "UIColor+DarkMode.h"
 
 #define kStandardWidth  (320)
 
@@ -233,6 +234,8 @@ static inline CGRect unitRect(DepartureCellAttributes *attr)
     {
         DepartureCellAttributes attr;
         
+        self.backgroundColor = [UIColor modeAwareCellBackground];
+        
         [self initDepartureCellAttributesWithWidth:kStandardWidth attribures:&attr];
         
         BlockColorView *blockColor = [[BlockColorView alloc] initWithFrame:blockColorRect(&attr)];
@@ -246,6 +249,7 @@ static inline CGRect unitRect(DepartureCellAttributes *attr)
         label.adjustsFontSizeToFitWidth = YES;
         label.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
         label.highlightedTextColor = [UIColor whiteColor];
+        label.textColor = [UIColor modeAwareText];
         [self.contentView addSubview:label];
         
         RouteColorBlobView *colorStripe = [[RouteColorBlobView alloc] initWithFrame:[self routeColorRect:&attr]];
@@ -263,6 +267,7 @@ static inline CGRect unitRect(DepartureCellAttributes *attr)
         label.adjustsFontSizeToFitWidth = YES;
         label.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
         label.highlightedTextColor = [UIColor whiteColor];
+    
         [self.contentView addSubview:label];
         
         label = [[UILabel alloc] initWithFrame:[self timeRect:&attr width:attr.shortLeftColumnWidth]];

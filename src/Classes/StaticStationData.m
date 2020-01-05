@@ -22,175 +22,174 @@
 // by the software so the developer does not have to!
 //
 int const stationsAlpha[]={
-    0x056,     /* Albina/Mississippi */
-    0x0c0,     /* Art Museum */
-    0x024,     /* Beaverton Central */
-    0x022,     /* Beaverton Creek */
-    0x025,     /* Beaverton TC */
-    0x061,     /* Cascades */
-    0x0be,     /* Central Library */
-    0x048,     /* City Hall/SW 5th & Jefferson St */
-    0x073,     /* Civic Drive */
-    0x06a,     /* Clackamas Town Center TC */
-    0x076,     /* Cleveland Ave */
-    0x011,     /* Clinton St/SE 12th Ave MAX Station */
-    0x059,     /* Convention Center */
-    0x04f,     /* Delta Park/Vanport */
-    0x06b,     /* E 102nd Ave */
-    0x06c,     /* E 122nd Ave */
-    0x06d,     /* E 148th Ave */
-    0x06e,     /* E 162nd Ave */
-    0x06f,     /* E 172nd */
-    0x070,     /* E 181st */
-    0x020,     /* Elmonica/SW 170th Ave */
-    0x04e,     /* Expo Center */
-    0x01b,     /* Fair Complex/Hillsboro Airport */
-    0x035,     /* Galleria/SW 10th */
-    0x033,     /* Gateway/NE 99th TC */
-    0x02f,     /* Goose Hollow/SW Jefferson St */
-    0x075,     /* Gresham Central TC */
-    0x074,     /* Gresham City Hall */
-    0x029,     /* Hall/Nimbus */
-    0x017,     /* Hatfield Government Center */
-    0x01c,     /* Hawthorn Farm */
-    0x018,     /* Hillsboro Central/SE 3rd TC */
-    0x05c,     /* Hollywood/NE 42nd Ave */
-    0x057,     /* Interstate/Rose Quarter */
-    0x050,     /* Kenton/N Denver */
-    0x030,     /* Kings Hill/SW Salmon St */
-    0x067,     /* Lents/SE Foster Rd */
-    0x038,     /* Library/SW 9th Ave */
-    0x014,     /* Lincoln St/SW 3rd Ave MAX Station */
-    0x05b,     /* Lloyd Center/NE 11th Ave */
-    0x049,     /* Mall/SW 4th Ave */
-    0x045,     /* Mall/SW 5th Ave */
-    0x021,     /* Merlo Rd/SW 158th Ave */
-    0x023,     /* Millikan Way */
-    0x00c,     /* Milwaukie/Main St MAX Station */
-    0x046,     /* Morrison/SW 3rd Ave */
-    0x060,     /* Mt Hood Ave */
-    0x053,     /* N Killingsworth */
-    0x051,     /* N Lombard TC */
-    0x054,     /* N Prescott */
-    0x0a8,     /* N Weidler/N Broadway & Ross */
-    0x05d,     /* NE 60th Ave */
-    0x0a2,     /* NE 7th & Halsey */
-    0x0a1,     /* NE 7th & Holladay */
-    0x05a,     /* NE 7th Ave */
-    0x05e,     /* NE 82nd Ave */
-    0x0a6,     /* NE Broadway & 2nd (Streetcar) */
-    0x0a4,     /* NE Grand & Broadway */
-    0x0a0,     /* NE Grand & Holladay */
-    0x09e,     /* NE Grand & Hoyt */
-    0x0a3,     /* NE Grand & Multnomah */
-    0x09c,     /* NE M L King & E Burnside */
-    0x09d,     /* NE M L King & Hoyt */
-    0x09f,     /* NE Oregon & Grand */
-    0x0a7,     /* NE Weidler & 2nd (Streetcar) */
-    0x0a5,     /* NE Weidler & Grand */
-    0x0bb,     /* NW 10th & Couch */
-    0x0b9,     /* NW 10th & Glisan */
-    0x0b7,     /* NW 10th & Johnson */
-    0x0b5,     /* NW 10th & Northrup */
-    0x0ba,     /* NW 11th & Couch */
-    0x0b8,     /* NW 11th & Glisan */
-    0x0b6,     /* NW 11th & Johnson */
-    0x0aa,     /* NW 11th & Marshall */
-    0x0b4,     /* NW 12th & Northrup */
-    0x0ab,     /* NW 23rd & Marshall */
-    0x042,     /* NW 5th & Couch St */
-    0x03e,     /* NW 6th & Davis St */
-    0x0a9,     /* NW 9th & Lovejoy */
-    0x0b3,     /* NW Lovejoy & 13th */
-    0x0b1,     /* NW Lovejoy & 18th */
-    0x0ae,     /* NW Lovejoy & 21st */
-    0x0ac,     /* NW Lovejoy & 22nd */
-    0x0b2,     /* NW Northrup & 14th */
-    0x0b0,     /* NW Northrup & 18th */
-    0x0af,     /* NW Northrup & 21st */
-    0x0ad,     /* NW Northrup & 22nd */
-    0x04d,     /* Oak/SW 1st Ave */
-    0x0ca,     /* OHSU Commons */
-    0x04b,     /* Old Town/Chinatown */
-    0x012,     /* OMSI/SE Water MAX Station */
-    0x01d,     /* Orenco */
-    0x055,     /* Overlook Park */
-    0x062,     /* Parkrose/Sumner TC */
-    0x037,     /* Pioneer Courthouse/SW 6th Ave */
-    0x043,     /* Pioneer Place/SW 5th Ave */
-    0x036,     /* Pioneer Square North */
-    0x039,     /* Pioneer Square South */
-    0x05f,     /* Portland Int'l Airport */
-    0x031,     /* Providence Park */
-    0x015,     /* PSU South/SW 5th & Jackson */
-    0x016,     /* PSU South/SW 6th & College */
-    0x0c6,     /* PSU Urban Center */
-    0x047,     /* PSU/SW 5th & Mill St */
-    0x03b,     /* PSU/SW 6th & Montgomery */
-    0x01e,     /* Quatama */
-    0x071,     /* Rockwood/E 188th Ave TC */
-    0x052,     /* Rosa Parks */
-    0x058,     /* Rose Quarter TC */
-    0x072,     /* Ruby Junction/E 197th Ave */
-    0x00f,     /* SE 17th Ave & Holgate Blvd MAX Station */
-    0x010,     /* SE 17th Ave & Rhine St MAX Station */
-    0x00e,     /* SE Bybee Blvd MAX Station */
-    0x064,     /* SE Division St */
-    0x068,     /* SE Flavel St */
-    0x069,     /* SE Fuller Rd */
-    0x097,     /* SE Grand & Belmont */
-    0x09b,     /* SE Grand & E Burnside */
-    0x093,     /* SE Grand & Hawthorne */
-    0x091,     /* SE Grand & Mill */
-    0x099,     /* SE Grand & Stark */
-    0x095,     /* SE Grand & Taylor */
-    0x066,     /* SE Holgate Blvd */
-    0x094,     /* SE M L King & Hawthorne */
-    0x092,     /* SE M L King & Mill */
-    0x098,     /* SE M L King & Morrison */
-    0x09a,     /* SE M L King & Stark */
-    0x096,     /* SE M L King & Taylor */
-    0x063,     /* SE Main St */
-    0x00b,     /* SE Park Ave MAX Station */
-    0x065,     /* SE Powell Blvd */
-    0x00d,     /* SE Tacoma/Johnson Creek MAX Station */
-    0x090,     /* SE Water/OMSI (Streetcar) */
-    0x04c,     /* Skidmore Fountain */
-    0x013,     /* South Waterfront/SW Moody MAX Station */
-    0x02d,     /* Sunset TC */
-    0x0bd,     /* SW 10th & Alder */
-    0x0c3,     /* SW 10th & Clay */
-    0x0bc,     /* SW 11th & Alder */
-    0x0c2,     /* SW 11th & Clay */
-    0x0c1,     /* SW 11th & Jefferson */
-    0x0bf,     /* SW 11th & Taylor */
-    0x0c9,     /* SW 3rd & Harrison */
-    0x0c8,     /* SW 5th & Market */
-    0x0c7,     /* SW 5th & Montgomery */
-    0x044,     /* SW 5th & Oak St */
-    0x03a,     /* SW 6th & Madison St */
-    0x03f,     /* SW 6th & Pine St */
-    0x0cf,     /* SW Bond & Lane */
-    0x0cd,     /* SW Harrison Street */
-    0x0d1,     /* SW Lowell & Bond */
-    0x0d0,     /* SW Moody & Gaines */
-    0x0cb,     /* SW Moody & Gibbs */
-    0x0ce,     /* SW Moody & Meade */
-    0x0c4,     /* SW Park & Market */
-    0x0c5,     /* SW Park & Mill */
-    0x0cc,     /* SW River Pkwy & Moody */
-    0x02a,     /* Tigard TC */
-    0x02b,     /* Tualatin */
-    0x019,     /* Tuality Hospital/SE 8th Ave */
-    0x041,     /* Union Station/NW 5th & Glisan St */
-    0x03d,     /* Union Station/NW 6th & Hoyt St */
-    0x02e,     /* Washington Park */
-    0x01a,     /* Washington/SE 12th Ave */
-    0x01f,     /* Willow Creek/SW 185th Ave TC */
-    0x02c,     /* Wilsonville */
-    0x04a,     /* Yamhill District */
+    0x057,     /* Albina/Mississippi */
+    0x0c1,     /* Art Museum */
+    0x025,     /* Beaverton Central */
+    0x023,     /* Beaverton Creek */
+    0x026,     /* Beaverton TC */
+    0x062,     /* Cascades */
+    0x0bf,     /* Central Library */
+    0x049,     /* City Hall/SW 5th & Jefferson St */
+    0x074,     /* Civic Drive */
+    0x06b,     /* Clackamas Town Center TC */
+    0x077,     /* Cleveland Ave */
+    0x012,     /* Clinton St/SE 12th Ave MAX Station */
+    0x05a,     /* Convention Center */
+    0x050,     /* Delta Park/Vanport */
+    0x06c,     /* E 102nd Ave */
+    0x06d,     /* E 122nd Ave */
+    0x06e,     /* E 148th Ave */
+    0x06f,     /* E 162nd Ave */
+    0x070,     /* E 172nd */
+    0x071,     /* E 181st */
+    0x021,     /* Elmonica/SW 170th Ave */
+    0x04f,     /* Expo Center */
+    0x01c,     /* Fair Complex/Hillsboro Airport */
+    0x036,     /* Galleria/SW 10th */
+    0x034,     /* Gateway/NE 99th TC */
+    0x030,     /* Goose Hollow/SW Jefferson St */
+    0x076,     /* Gresham Central TC */
+    0x075,     /* Gresham City Hall */
+    0x02a,     /* Hall/Nimbus */
+    0x018,     /* Hatfield Government Center */
+    0x01d,     /* Hawthorn Farm */
+    0x019,     /* Hillsboro Central/SE 3rd TC */
+    0x05d,     /* Hollywood/NE 42nd Ave */
+    0x058,     /* Interstate/Rose Quarter */
+    0x051,     /* Kenton/N Denver */
+    0x031,     /* Kings Hill/SW Salmon St */
+    0x068,     /* Lents/SE Foster Rd */
+    0x039,     /* Library/SW 9th Ave */
+    0x015,     /* Lincoln St/SW 3rd Ave MAX Station */
+    0x05c,     /* Lloyd Center/NE 11th Ave */
+    0x04a,     /* Mall/SW 4th Ave */
+    0x046,     /* Mall/SW 5th Ave */
+    0x022,     /* Merlo Rd/SW 158th Ave */
+    0x024,     /* Millikan Way */
+    0x00d,     /* Milwaukie/Main St MAX Station */
+    0x047,     /* Morrison/SW 3rd Ave */
+    0x061,     /* Mt Hood Ave */
+    0x054,     /* N Killingsworth */
+    0x052,     /* N Lombard TC */
+    0x055,     /* N Prescott */
+    0x0a9,     /* N Weidler/N Broadway & Ross */
+    0x05e,     /* NE 60th Ave */
+    0x0a3,     /* NE 7th & Halsey */
+    0x0a2,     /* NE 7th & Holladay */
+    0x05b,     /* NE 7th Ave */
+    0x05f,     /* NE 82nd Ave */
+    0x0a7,     /* NE Broadway & 2nd (Streetcar) */
+    0x0a5,     /* NE Grand & Broadway */
+    0x0a1,     /* NE Grand & Holladay */
+    0x09f,     /* NE Grand & Hoyt */
+    0x0a4,     /* NE Grand & Multnomah */
+    0x09d,     /* NE M L King & E Burnside */
+    0x09e,     /* NE M L King & Hoyt */
+    0x0a0,     /* NE Oregon & Grand */
+    0x0a8,     /* NE Weidler & 2nd (Streetcar) */
+    0x0a6,     /* NE Weidler & Grand */
+    0x0bc,     /* NW 10th & Couch */
+    0x0ba,     /* NW 10th & Glisan */
+    0x0b8,     /* NW 10th & Johnson */
+    0x0b6,     /* NW 10th & Northrup */
+    0x0bb,     /* NW 11th & Couch */
+    0x0b9,     /* NW 11th & Glisan */
+    0x0b7,     /* NW 11th & Johnson */
+    0x0ab,     /* NW 11th & Marshall */
+    0x0b5,     /* NW 12th & Northrup */
+    0x0ac,     /* NW 23rd & Marshall */
+    0x043,     /* NW 5th & Couch St */
+    0x03f,     /* NW 6th & Davis St */
+    0x0aa,     /* NW 9th & Lovejoy */
+    0x0b4,     /* NW Lovejoy & 13th */
+    0x0b2,     /* NW Lovejoy & 18th */
+    0x0af,     /* NW Lovejoy & 21st */
+    0x0ad,     /* NW Lovejoy & 22nd */
+    0x0b3,     /* NW Northrup & 14th */
+    0x0b1,     /* NW Northrup & 18th */
+    0x0b0,     /* NW Northrup & 21st */
+    0x0ae,     /* NW Northrup & 22nd */
+    0x04e,     /* Oak/SW 1st Ave */
+    0x0cb,     /* OHSU Commons */
+    0x04c,     /* Old Town/Chinatown */
+    0x013,     /* OMSI/SE Water MAX Station */
+    0x01e,     /* Orenco */
+    0x056,     /* Overlook Park */
+    0x063,     /* Parkrose/Sumner TC */
+    0x038,     /* Pioneer Courthouse/SW 6th Ave */
+    0x044,     /* Pioneer Place/SW 5th Ave */
+    0x037,     /* Pioneer Square North */
+    0x03a,     /* Pioneer Square South */
+    0x060,     /* Portland Int'l Airport */
+    0x032,     /* Providence Park */
+    0x016,     /* PSU South/SW 5th & Jackson */
+    0x017,     /* PSU South/SW 6th & College */
+    0x0c7,     /* PSU Urban Center */
+    0x048,     /* PSU/SW 5th & Mill St */
+    0x03c,     /* PSU/SW 6th & Montgomery */
+    0x01f,     /* Quatama */
+    0x072,     /* Rockwood/E 188th Ave TC */
+    0x053,     /* Rosa Parks */
+    0x059,     /* Rose Quarter TC */
+    0x073,     /* Ruby Junction/E 197th Ave */
+    0x010,     /* SE 17th Ave & Holgate Blvd MAX Station */
+    0x011,     /* SE 17th Ave & Rhine St MAX Station */
+    0x00f,     /* SE Bybee Blvd MAX Station */
+    0x065,     /* SE Division St */
+    0x069,     /* SE Flavel St */
+    0x06a,     /* SE Fuller Rd */
+    0x098,     /* SE Grand & Belmont */
+    0x09c,     /* SE Grand & E Burnside */
+    0x094,     /* SE Grand & Hawthorne */
+    0x092,     /* SE Grand & Mill */
+    0x09a,     /* SE Grand & Stark */
+    0x096,     /* SE Grand & Taylor */
+    0x067,     /* SE Holgate Blvd */
+    0x095,     /* SE M L King & Hawthorne */
+    0x093,     /* SE M L King & Mill */
+    0x099,     /* SE M L King & Morrison */
+    0x09b,     /* SE M L King & Stark */
+    0x097,     /* SE M L King & Taylor */
+    0x064,     /* SE Main St */
+    0x00c,     /* SE Park Ave MAX Station */
+    0x066,     /* SE Powell Blvd */
+    0x00e,     /* SE Tacoma/Johnson Creek MAX Station */
+    0x091,     /* SE Water/OMSI (Streetcar) */
+    0x04d,     /* Skidmore Fountain */
+    0x014,     /* South Waterfront/SW Moody MAX Station */
+    0x02e,     /* Sunset TC */
+    0x0be,     /* SW 10th & Alder */
+    0x0c4,     /* SW 10th & Clay */
+    0x0bd,     /* SW 11th & Alder */
+    0x0c3,     /* SW 11th & Clay */
+    0x0c2,     /* SW 11th & Jefferson */
+    0x0c0,     /* SW 11th & Taylor */
+    0x0ca,     /* SW 3rd & Harrison */
+    0x0c9,     /* SW 5th & Market */
+    0x0c8,     /* SW 5th & Montgomery */
+    0x045,     /* SW 5th & Oak St */
+    0x03b,     /* SW 6th & Madison St */
+    0x040,     /* SW 6th & Pine St */
+    0x0d0,     /* SW Bond & Lane */
+    0x0ce,     /* SW Harrison Street */
+    0x0d2,     /* SW Lowell & Bond */
+    0x0d1,     /* SW Moody & Gaines */
+    0x0cc,     /* SW Moody & Gibbs */
+    0x0cf,     /* SW Moody & Meade */
+    0x0c5,     /* SW Park & Market */
+    0x0c6,     /* SW Park & Mill */
+    0x0cd,     /* SW River Pkwy & Moody */
+    0x02b,     /* Tigard TC */
+    0x02c,     /* Tualatin */
+    0x01a,     /* Tuality Hospital/SE 8th Ave */
+    0x042,     /* Union Station/NW 5th & Glisan St */
+    0x03e,     /* Union Station/NW 6th & Hoyt St */
+    0x02f,     /* Washington Park */
+    0x01b,     /* Washington/SE 12th Ave */
+    0x020,     /* Willow Creek/SW 185th Ave TC */
+    0x02d,     /* Wilsonville */
+    0x04b,     /* Yamhill District */
 };
-
 //
 // These are the colours for the lines of each rail station in the hotspot array.
 // It is calculated by gettng the stops
@@ -200,6 +199,7 @@ int const stationsAlpha[]={
 
 
 static const RAILLINES railLines0[]={
+    0x0000,
     0x0000,
     0x0000,
     0x0000,
@@ -439,7 +439,9 @@ static const RAILLINES railLines0[]={
     0x0000,
 };
 
+
 static const RAILLINES railLines1[]={
+    0x0000,
     0x0000,
     0x0000,
     0x0000,
@@ -720,249 +722,249 @@ static const ALPHA_SECTIONS alphaSections[]={
 //
 
 static const STOP_TO_HOTSPOT stopToHotSpot[]={
-    { 2167, 155},
-    { 2169, 158},
-    { 2171, 145},
-    { 2175, 160},
-    { 3595, 174},
-    { 3596, 172},
-    { 5901, 156},
-    { 5912, 157},
-    { 5933, 146},
-    { 6493, 192},
-    { 7601, 65},
-    { 7606, 21},
-    { 7608, 72},
-    { 7618, 71},
-    { 7627, 68},
-    { 7646, 67},
-    { 7763, 61},
-    { 7774, 59},
-    { 7777, 55},
-    { 7787, 63},
-    { 8333, 56},
-    { 8334, 57},
-    { 8335, 73},
-    { 8336, 74},
-    { 8337, 77},
-    { 8338, 76},
-    { 8339, 75},
-    { 8340, 88},
-    { 8341, 89},
-    { 8342, 90},
-    { 8343, 91},
-    { 8344, 92},
-    { 8345, 93},
-    { 8346, 94},
-    { 8347, 51},
-    { 8348, 107},
-    { 8349, 108},
-    { 8350, 109},
-    { 8351, 110},
-    { 8352, 111},
-    { 8353, 112},
-    { 8354, 113},
-    { 8355, 114},
-    { 8356, 116},
-    { 8357, 117},
-    { 8359, 118},
-    { 8360, 117},
-    { 8361, 116},
-    { 8362, 114},
-    { 8363, 113},
-    { 8364, 112},
-    { 8365, 111},
-    { 8366, 110},
-    { 8367, 109},
-    { 8368, 108},
-    { 8369, 107},
-    { 8370, 51},
-    { 8371, 94},
-    { 8372, 93},
-    { 8373, 92},
-    { 8374, 91},
-    { 8375, 90},
-    { 8376, 89},
-    { 8377, 88},
-    { 8378, 75},
-    { 8379, 76},
-    { 8380, 77},
-    { 8381, 70},
-    { 8382, 69},
-    { 8383, 54},
-    { 8384, 53},
-    { 8989, 171},
-    { 9299, 62},
-    { 9303, 66},
-    { 9343, 163},
-    { 9600, 188},
-    { 9624, 45},
-    { 9633, 191},
-    { 9757, 49},
-    { 9758, 49},
-    { 9759, 48},
-    { 9818, 37},
-    { 9819, 34},
-    { 9820, 48},
-    { 9821, 37},
-    { 9822, 34},
-    { 9823, 36},
-    { 9824, 36},
-    { 9825, 35},
-    { 9826, 35},
-    { 9827, 33},
-    { 9828, 33},
-    { 9829, 32},
-    { 9830, 32},
-    { 9831, 31},
-    { 9832, 31},
-    { 9833, 30},
-    { 9834, 30},
-    { 9835, 29},
-    { 9836, 29},
-    { 9837, 27},
-    { 9838, 27},
-    { 9839, 28},
-    { 9840, 28},
-    { 9841, 26},
-    { 9842, 26},
-    { 9843, 25},
-    { 9844, 25},
-    { 9845, 24},
-    { 9846, 24},
-    { 9848, 23},
-    { 9969, 45},
-    { 10117, 47},
-    { 10118, 47},
-    { 10120, 46},
-    { 10121, 46},
-    { 10293, 22},
-    { 10572, 98},
-    { 10573, 98},
-    { 10574, 97},
-    { 10575, 97},
-    { 10576, 96},
-    { 10577, 96},
-    { 10579, 95},
-    { 10751, 177},
-    { 10752, 179},
-    { 10753, 182},
-    { 10754, 184},
-    { 10756, 186},
-    { 10759, 193},
-    { 10760, 194},
-    { 10762, 200},
-    { 10763, 199},
-    { 10764, 198},
-    { 10765, 195},
-    { 10766, 197},
-    { 10767, 190},
-    { 10768, 189},
-    { 10770, 187},
-    { 10772, 185},
-    { 10773, 183},
-    { 10775, 178},
-    { 10776, 176},
-    { 10777, 175},
-    { 10778, 173},
-    { 11011, 196},
-    { 11483, 149},
-    { 11484, 151},
-    { 11498, 78},
-    { 11499, 79},
-    { 11500, 80},
-    { 11501, 81},
-    { 11502, 82},
-    { 11503, 83},
-    { 11504, 84},
-    { 11505, 85},
-    { 11506, 86},
-    { 11507, 87},
-    { 11508, 87},
-    { 11509, 86},
-    { 11510, 85},
-    { 11511, 84},
-    { 11512, 83},
-    { 11513, 82},
-    { 11514, 81},
-    { 11515, 80},
-    { 11516, 79},
-    { 12375, 201},
-    { 12377, 205},
-    { 12378, 204},
-    { 12379, 204},
-    { 12380, 205},
-    { 12382, 201},
-    { 12760, 203},
-    { 12796, 180},
-    { 12880, 208},
-    { 12881, 209},
-    { 12882, 207},
-    { 12883, 202},
-    { 13066, 37},
-    { 13067, 41},
-    { 13068, 42},
-    { 13069, 43},
-    { 13070, 44},
-    { 13073, 42},
-    { 13123, 58},
-    { 13124, 99},
-    { 13125, 100},
-    { 13126, 101},
-    { 13127, 102},
-    { 13128, 103},
-    { 13129, 104},
-    { 13130, 105},
-    { 13132, 106},
-    { 13133, 105},
-    { 13134, 104},
-    { 13135, 103},
-    { 13136, 102},
-    { 13137, 101},
-    { 13138, 100},
-    { 13139, 99},
-    { 13449, 115},
-    { 13450, 115},
-    { 13584, 152},
-    { 13585, 150},
-    { 13597, 153},
-    { 13601, 206},
-    { 13602, 206},
-    { 13604, 181},
-    { 13606, 169},
-    { 13607, 168},
-    { 13608, 167},
-    { 13609, 165},
-    { 13610, 162},
-    { 13611, 161},
-    { 13612, 159},
-    { 13613, 154},
-    { 13614, 148},
-    { 13615, 144},
-    { 13616, 147},
-    { 13617, 164},
-    { 13618, 166},
-    { 13619, 168},
-    { 13620, 170},
-    { 13709, 144},
-    { 13710, 20},
-    { 13711, 19},
-    { 13712, 18},
-    { 13713, 17},
-    { 13714, 16},
-    { 13715, 15},
-    { 13716, 14},
-    { 13717, 13},
-    { 13718, 12},
-    { 13720, 11},
-    { 13721, 12},
-    { 13722, 13},
-    { 13723, 14},
-    { 13724, 15},
-    { 13725, 16},
-    { 13726, 17},
-    { 13727, 18},
-    { 13728, 19},
-    { 13729, 20},
+    { 2167, 156},
+    { 2169, 159},
+    { 2171, 146},
+    { 2175, 161},
+    { 3595, 175},
+    { 3596, 173},
+    { 5901, 157},
+    { 5912, 158},
+    { 5933, 147},
+    { 6493, 193},
+    { 7601, 66},
+    { 7606, 22},
+    { 7608, 73},
+    { 7618, 72},
+    { 7627, 69},
+    { 7646, 68},
+    { 7763, 62},
+    { 7774, 60},
+    { 7777, 56},
+    { 7787, 64},
+    { 8333, 57},
+    { 8334, 58},
+    { 8335, 74},
+    { 8336, 75},
+    { 8337, 78},
+    { 8338, 77},
+    { 8339, 76},
+    { 8340, 89},
+    { 8341, 90},
+    { 8342, 91},
+    { 8343, 92},
+    { 8344, 93},
+    { 8345, 94},
+    { 8346, 95},
+    { 8347, 52},
+    { 8348, 108},
+    { 8349, 109},
+    { 8350, 110},
+    { 8351, 111},
+    { 8352, 112},
+    { 8353, 113},
+    { 8354, 114},
+    { 8355, 115},
+    { 8356, 117},
+    { 8357, 118},
+    { 8359, 119},
+    { 8360, 118},
+    { 8361, 117},
+    { 8362, 115},
+    { 8363, 114},
+    { 8364, 113},
+    { 8365, 112},
+    { 8366, 111},
+    { 8367, 110},
+    { 8368, 109},
+    { 8369, 108},
+    { 8370, 52},
+    { 8371, 95},
+    { 8372, 94},
+    { 8373, 93},
+    { 8374, 92},
+    { 8375, 91},
+    { 8376, 90},
+    { 8377, 89},
+    { 8378, 76},
+    { 8379, 77},
+    { 8380, 78},
+    { 8381, 71},
+    { 8382, 70},
+    { 8383, 55},
+    { 8384, 54},
+    { 8989, 172},
+    { 9299, 63},
+    { 9303, 67},
+    { 9343, 164},
+    { 9600, 189},
+    { 9624, 46},
+    { 9633, 192},
+    { 9757, 50},
+    { 9758, 50},
+    { 9759, 49},
+    { 9818, 38},
+    { 9819, 35},
+    { 9820, 49},
+    { 9821, 38},
+    { 9822, 35},
+    { 9823, 37},
+    { 9824, 37},
+    { 9825, 36},
+    { 9826, 36},
+    { 9827, 34},
+    { 9828, 34},
+    { 9829, 33},
+    { 9830, 33},
+    { 9831, 32},
+    { 9832, 32},
+    { 9833, 31},
+    { 9834, 31},
+    { 9835, 30},
+    { 9836, 30},
+    { 9837, 28},
+    { 9838, 28},
+    { 9839, 29},
+    { 9840, 29},
+    { 9841, 27},
+    { 9842, 27},
+    { 9843, 26},
+    { 9844, 26},
+    { 9845, 25},
+    { 9846, 25},
+    { 9848, 24},
+    { 9969, 46},
+    { 10117, 48},
+    { 10118, 48},
+    { 10120, 47},
+    { 10121, 47},
+    { 10293, 23},
+    { 10572, 99},
+    { 10573, 99},
+    { 10574, 98},
+    { 10575, 98},
+    { 10576, 97},
+    { 10577, 97},
+    { 10579, 96},
+    { 10751, 178},
+    { 10752, 180},
+    { 10753, 183},
+    { 10754, 185},
+    { 10756, 187},
+    { 10759, 194},
+    { 10760, 195},
+    { 10762, 201},
+    { 10763, 200},
+    { 10764, 199},
+    { 10765, 196},
+    { 10766, 198},
+    { 10767, 191},
+    { 10768, 190},
+    { 10770, 188},
+    { 10772, 186},
+    { 10773, 184},
+    { 10775, 179},
+    { 10776, 177},
+    { 10777, 176},
+    { 10778, 174},
+    { 11011, 197},
+    { 11483, 150},
+    { 11484, 152},
+    { 11498, 79},
+    { 11499, 80},
+    { 11500, 81},
+    { 11501, 82},
+    { 11502, 83},
+    { 11503, 84},
+    { 11504, 85},
+    { 11505, 86},
+    { 11506, 87},
+    { 11507, 88},
+    { 11508, 88},
+    { 11509, 87},
+    { 11510, 86},
+    { 11511, 85},
+    { 11512, 84},
+    { 11513, 83},
+    { 11514, 82},
+    { 11515, 81},
+    { 11516, 80},
+    { 12375, 202},
+    { 12377, 206},
+    { 12378, 205},
+    { 12379, 205},
+    { 12380, 206},
+    { 12382, 202},
+    { 12760, 204},
+    { 12796, 181},
+    { 12880, 209},
+    { 12881, 210},
+    { 12882, 208},
+    { 12883, 203},
+    { 13066, 38},
+    { 13067, 42},
+    { 13068, 43},
+    { 13069, 44},
+    { 13070, 45},
+    { 13073, 43},
+    { 13123, 59},
+    { 13124, 100},
+    { 13125, 101},
+    { 13126, 102},
+    { 13127, 103},
+    { 13128, 104},
+    { 13129, 105},
+    { 13130, 106},
+    { 13132, 107},
+    { 13133, 106},
+    { 13134, 105},
+    { 13135, 104},
+    { 13136, 103},
+    { 13137, 102},
+    { 13138, 101},
+    { 13139, 100},
+    { 13449, 116},
+    { 13450, 116},
+    { 13584, 153},
+    { 13585, 151},
+    { 13597, 154},
+    { 13601, 207},
+    { 13602, 207},
+    { 13604, 182},
+    { 13606, 170},
+    { 13607, 169},
+    { 13608, 168},
+    { 13609, 166},
+    { 13610, 163},
+    { 13611, 162},
+    { 13612, 160},
+    { 13613, 155},
+    { 13614, 149},
+    { 13615, 145},
+    { 13616, 148},
+    { 13617, 165},
+    { 13618, 167},
+    { 13619, 169},
+    { 13620, 171},
+    { 13709, 145},
+    { 13710, 21},
+    { 13711, 20},
+    { 13712, 19},
+    { 13713, 18},
+    { 13714, 17},
+    { 13715, 16},
+    { 13716, 15},
+    { 13717, 14},
+    { 13718, 13},
+    { 13720, 12},
+    { 13721, 13},
+    { 13722, 14},
+    { 13723, 15},
+    { 13724, 16},
+    { 13725, 17},
+    { 13726, 18},
+    { 13727, 19},
+    { 13728, 20},
+    { 13729, 21},
 };
 

@@ -57,9 +57,9 @@
 
 #pragma mark Segmented controls
 
-- (void)amOrPmSegmentChanged:(id)sender
+- (void)amOrPmSegmentChanged:(UISegmentedControl*)sender
 {
-    switch (((UISegmentedControl*)sender).selectedSegmentIndex)
+    switch (sender.selectedSegmentIndex)
     {
         case kCommuteSectionSegAm:
             self.originalFave[kUserFavesMorning] = @TRUE;
@@ -94,7 +94,7 @@
     {
         return [self basicRowHeight];
     }
-    return  [SegmentCell segmentCellHeight];
+    return  [SegmentCell rowHeight];
 }
 
 // Customize the appearance of table view cells.
@@ -119,21 +119,13 @@
     }
     else 
     {
-        
-        SegmentCell *cell = (SegmentCell*)[tableView dequeueReusableCellWithIdentifier:kAmOrPmId];
-        if (cell == nil) {
-            cell = [[SegmentCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kAmOrPmId];
-            [cell createSegmentWithContent:@[NSLocalizedString(@"Morning", @"commuter bookmark option"),
-                                                                       NSLocalizedString(@"Afternoon", @"commuter bookmark option")]
-                                    target:self 
-                                    action:@selector(amOrPmSegmentChanged:)];
-            cell.isAccessibilityElement = NO;
-            // cell.backgroundView = [self clearView];
-        }    
-        
-        cell.segment.selectedSegmentIndex = [self autoCommuteMorning] ? kCommuteSectionSegAm : kCommuteSectionSegPm;
-        return cell;    
-        
+        return  [SegmentCell tableView:tableView
+                       reuseIdentifier:kAmOrPmId
+                       cellWithContent:@[NSLocalizedString(@"Morning",   @"commuter bookmark option"),
+                                         NSLocalizedString(@"Afternoon", @"commuter bookmark option")]
+                                target:self
+                                action:@selector(amOrPmSegmentChanged:)
+                         selectedIndex:[self autoCommuteMorning] ? kCommuteSectionSegAm : kCommuteSectionSegPm];
     }
 }
 

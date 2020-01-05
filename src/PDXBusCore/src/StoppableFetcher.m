@@ -89,8 +89,8 @@
 #else
     NSDate *future = [NSDate dateWithTimeIntervalSinceNow:pollingTime];
     while (!self.dataComplete && [runLoop runMode: NSDefaultRunLoopMode beforeDate:future])
-    future = [NSDate dateWithTimeIntervalSinceNow:pollingTime];
     {
+        future = [NSDate dateWithTimeIntervalSinceNow:pollingTime];
 #endif
         // NSLog(@"Polling...\n");
         pollingCount ++;

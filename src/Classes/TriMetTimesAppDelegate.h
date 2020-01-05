@@ -15,7 +15,7 @@
 #import "UserPrefs.h"
 
 @class RootViewController;
-@class DepartureData;
+@class Departure;
 
 @interface TriMetTimesAppDelegate : NSObject <UIApplicationDelegate> 
 

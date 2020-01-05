@@ -17,10 +17,10 @@
 #import "TriMetInfo.h"
 #import "BlockColorDb.h"
 #import "MapAnnotationImage.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 #import "ArrivalColors.h"
 
-@implementation DepartureData (watchOSUI)
+@implementation Departure (watchOSUI)
 
 @dynamic blockImageColor;
 @dynamic stale;
@@ -270,7 +270,7 @@
     
     if (ret == nil)
     {
-        ret = kMapAnnotationBusColor;
+        ret = [UIColor modeAwareBusColor];
     }
     return ret;
 }

@@ -14,6 +14,7 @@
 
 #import "DepartureSortTableView.h"
 #import "DepartureTimesView.h"
+#import "SegmentCell.h"
 
 @implementation DepartureSortTableView
 
@@ -22,19 +23,13 @@
 #define kSectionInfo 0
 #define kSectionSeg  1
 
-#define SEGMENT_TAG 5
-
-#define kSegRowWidth		320
-#define kSegRowHeight		40
-#define kUISegHeight		40
-#define kUISegWidth			320
 
 - (instancetype) init
 {
 	if ((self = [super init]))
 	{
-		self.title = NSLocalizedString(@"Group Arrivals", @"screen title");
-		self.info = NSLocalizedString(@"Group by stop: shows arrivals for each stop.\n\n"
+		self.title = NSLocalizedString(@"Group departures", @"screen title");
+		self.info = NSLocalizedString(@"Group by stop: shows departures for each stop.\n\n"
 					 "Group by trip: follows a particular bus or train as it passes through each stop.\n\n"
 					 "Tip: 'Group by trip' is only useful with bookmarks containing several close stops on "
                                       "the same route.", @"description of group feature");
@@ -44,9 +39,9 @@
 
 #pragma mark Helper functions
 
-- (void)sortSegmentChanged:(id)sender
+- (void)sortSegmentChanged:(UISegmentedControl*)sender
 {
-	switch (self.sortSegment.selectedSegmentIndex)
+	switch (sender.selectedSegmentIndex)
 	{
 		case 0:
 			self.depView.blockSort = FALSE;
@@ -63,21 +58,6 @@
 	}
 }
 
-- (UISegmentedControl*) createSegmentedControl:(NSArray *)segmentTextContent parent:(UIView *)parent action:(SEL)action
-{
-	UISegmentedControl *segmentedControl = [[UISegmentedControl alloc] initWithItems:segmentTextContent];
-	CGRect frame = CGRectMake((kSegRowWidth-kUISegWidth)/2, (kSegRowHeight - kUISegHeight)/2 , kUISegWidth, kUISegHeight);
-    
-    segmentedControl.tag = SEGMENT_TAG;
-	
-	segmentedControl.frame = frame;
-	[segmentedControl addTarget:self action:action forControlEvents:UIControlEventValueChanged];
-	segmentedControl.autoresizingMask =   UIViewAutoresizingFlexibleWidth;
-	
-	[parent addSubview:segmentedControl];
-	[parent layoutSubviews];
-	return segmentedControl;
-}
 
 #pragma mark View methods
 
@@ -107,27 +87,18 @@
     {
         case kSectionSeg:
         {
-            UITableViewCell *cell = [self tableView:tableView cellWithReuseIdentifier:MakeCellId(kSectionSeg)];
+            _segSetup = YES;
+            UITableViewCell *cell = [SegmentCell tableView:tableView
+                                           reuseIdentifier:MakeCellId(kSectionSeg)
+                                           cellWithContent:@[NSLocalizedString(@"Group by stop", @"button text"),
+                                                             NSLocalizedString(@"Group by trip", @"button text")]
+                                                    target:self
+                                                    action:@selector(sortSegmentChanged:)
+                                             selectedIndex:self.depView.blockSort ? 1 : 0];
             
-            if ([cell.contentView viewWithTag:SEGMENT_TAG]==nil)
-            {
-            
-                self.sortSegment = [self createSegmentedControl:@[
-                                                              NSLocalizedString(@"Group by stop", @"button text"),
-                                                              NSLocalizedString(@"Group by trip", @"button text")]
-                                                     parent:cell.contentView action:@selector(sortSegmentChanged:)];
-                [cell layoutSubviews];
-                cell.selectionStyle = UITableViewCellSelectionStyleNone;
-                cell.isAccessibilityElement = NO;
-                cell.backgroundView = [self clearView];
-            
-            
-                _segSetup = YES;
-                self.sortSegment.selectedSegmentIndex = self.depView.blockSort ? 1 : 0;
-                _segSetup = NO;
-            }
-                return cell;
-                break;
+            _segSetup = NO;
+            return cell;
+            break;
         }
         case kSectionInfo:
         {
@@ -148,7 +119,7 @@
 	{
         return UITableViewAutomaticDimension;
 	}
-	return kSegRowHeight;
+	return SegmentCell.rowHeight;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {

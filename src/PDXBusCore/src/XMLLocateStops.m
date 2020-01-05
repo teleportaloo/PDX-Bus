@@ -15,7 +15,7 @@
 
 
 #import "XMLLocateStops.h"
-#import "RouteDistanceData.h"
+#import "RouteDistance.h"
 #import "CLLocation+Helper.h"
 
 
@@ -70,7 +70,7 @@
         // We are done with this dictionary now may as well deference it.
         self.routes = nil;
         
-        for (RouteDistanceData *rd in self.items)
+        for (RouteDistance *rd in self.items)
         {
             [rd sortStopsByDistance]; 
             
@@ -118,7 +118,7 @@ XML_START_ELEMENT(resultset)
 
 XML_START_ELEMENT(location)
 {
-    self.currentStop = [StopDistanceData data];
+    self.currentStop = [StopDistance data];
     _currentMode = TripModeNone;
     
     self.currentStop.locid = ATRSTR(locid);
@@ -198,13 +198,13 @@ XML_START_ELEMENT(route)
         {
             NSString *xmlRoute = ATRSTR(route);
             
-            RouteDistanceData *rd = self.routes[xmlRoute];
+            RouteDistance *rd = self.routes[xmlRoute];
             
             if (rd == nil)
             {
                 NSString *desc = ATRSTR(desc);
                 
-                rd = [RouteDistanceData data];
+                rd = [RouteDistance data];
                 rd.desc = desc;
                 rd.type = type;
                 rd.route = xmlRoute;

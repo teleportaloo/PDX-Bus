@@ -25,19 +25,20 @@
 {
     TripLegEndPoint *ep = [[ TripLegEndPoint allocWithZone:zone] init];
     
-    ep.xlat                = [self.xlat            copyWithZone:zone];
-    ep.xlon                = [self.xlon            copyWithZone:zone];
-    ep.xdescription        = [self.xdescription    copyWithZone:zone];
-    ep.xstopId            = [self.xstopId        copyWithZone:zone];
-    ep.displayText        = [self.displayText    copyWithZone:zone];
-    ep.displayText        = [self.displayText    copyWithZone:zone];
-    ep.mapText            = [self.mapText        copyWithZone:zone];
-    ep.xnumber            = [self.xnumber        copyWithZone:zone];
-    ep.callback            = self.callback;
+    // ep.xlat               = [self.xlat            copyWithZone:zone];
+    // ep.xlon               = [self.xlon            copyWithZone:zone];
+    ep.loc                = [self.loc             copyWithZone:zone];
+    ep.xdescription       = [self.xdescription    copyWithZone:zone];
+    ep.xstopId            = [self.xstopId         copyWithZone:zone];
+    ep.displayText        = [self.displayText     copyWithZone:zone];
+    ep.displayText        = [self.displayText     copyWithZone:zone];
+    ep.mapText            = [self.mapText         copyWithZone:zone];
+    ep.xnumber            = [self.xnumber         copyWithZone:zone];
+    ep.callback           = self.callback;
     ep.displayModeText    = [self.displayModeText copyWithZone:zone];
     ep.displayTimeText    = [self.displayTimeText copyWithZone:zone];
-    ep.leftColor        = self.leftColor;
-    ep.index            = self.index;
+    ep.leftColor          = self.leftColor;
+    ep.index              = self.index;
     
     return ep;
 }
@@ -59,18 +60,27 @@
     return MAP_PIN_COLOR_GREEN;
 }
 
+
 - (NSString *)mapStopId
 {
     return [self stopId];
 }
 
+- (bool)useMapTapped
+{
+    return self.callback !=nil;
+}
+
+- (bool)mapTapped:(id<BackgroundTaskController>) progress
+{
+    [self.callback chosenEndpoint:self];
+    
+    return YES;
+}
+
 - (CLLocationCoordinate2D)coordinate
 {
-    CLLocationCoordinate2D pos;
-    
-    pos.latitude =  self.xlat.doubleValue;
-    pos.longitude = self.xlon.doubleValue;
-    return pos;
+    return self.loc.coordinate;
 }
 
 - (bool)showActionMenu
@@ -106,11 +116,24 @@
 {
     if (self.xlat!=nil && self.xlon!=nil)
     {
-        return [CLLocation fromStringsLat:self.xlat lng:self.xlon];
+        _loc = [CLLocation fromStringsLat:self.xlat lng:self.xlon];
+        
+        self.xlat = nil;
+        self.xlon = nil;
+        return _loc;
     }
-    
-    return nil;
+    return _loc;
 }
+
+- (void)setLoc:(CLLocation *)loc
+{
+    _loc = loc;
+    
+    self.xlat = nil;
+    self.xlon = nil;
+}
+
+
 
 
 

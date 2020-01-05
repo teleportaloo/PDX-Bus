@@ -75,7 +75,7 @@ XML_START_ELEMENT(prediction)
         
         // There are some bugs in the streetcar feed (e.g. Cl instead of CL)
         
-        self.currentDepartureObject = [DepartureData data];
+        self.currentDepartureObject = [Departure data];
         self.currentDepartureObject.hasBlock       = true;
         self.currentDepartureObject.route          = nil;
         self.currentDepartureObject.fullSign       = name;

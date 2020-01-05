@@ -170,7 +170,7 @@
     [fileManager removeItemAtPath:oldDatabase2 error:&error];
     
 
-    DEBUG_PRINTF("Last arrivals %s clean %d\n", [self.rootViewController.lastArrivalsShown cStringUsingEncoding:NSUTF8StringEncoding],
+    DEBUG_PRINTF("Last departure %s clean %d\n", [self.rootViewController.lastArrivalsShown cStringUsingEncoding:NSUTF8StringEncoding],
                  self.cleanExitLastTime);
     
 
@@ -214,13 +214,15 @@
         }
     }
     
-       [self.window makeKeyAndVisible];
+    [self.window makeKeyAndVisible];
         
 #if defined(MAXCOLORS) && defined(CREATE_MAX_ARRAYS)
     AllRailStationView *station = [AllRailStationView viewController];
     
     [station generateArrays];
 #endif
+
+    
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {

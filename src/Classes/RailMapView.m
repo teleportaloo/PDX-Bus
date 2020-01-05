@@ -25,7 +25,7 @@
 #import "RailStation.h"
 #import "NearestVehiclesMap.h"
 #import "AllRailStationView.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 
 
 static HOTSPOT hotSpotRegions[MAXHOTSPOTS];
@@ -149,7 +149,7 @@ static RAILMAP railmaps[] =
     {
         return [self.callback actionText];
     }
-    return @"Show arrivals";
+    return @"Show departures";
 }
 
 -(void)showMap:(id)sender
@@ -237,16 +237,9 @@ static RAILMAP railmaps[] =
 
 - (void)updateToolbarItems:(NSMutableArray *)toolbarItems
 {
-    // add a segmented control to the button bar
-    UISegmentedControl    *buttonBarSegmentedControl;
-    buttonBarSegmentedControl = [[UISegmentedControl alloc] initWithItems:
-                                  @[@"MAX & WES", @"Streetcar"]];
-    [buttonBarSegmentedControl addTarget:self action:@selector(toggleMap:) forControlEvents:UIControlEventValueChanged];
-    buttonBarSegmentedControl.selectedSegmentIndex = _railMapIndex;    // start by showing the normal picker
+    UIBarButtonItem *segItem = [self segBarButtonWithItems:@[@"MAX & WES", @"Streetcar"] action:@selector(toggleMap:) selectedIndex:_railMapIndex];
     
-    self.railMapSeg = buttonBarSegmentedControl;
-    
-    UIBarButtonItem *segItem = [[UIBarButtonItem alloc] initWithCustomView:buttonBarSegmentedControl];
+    self.railMapSeg = segItem.customView;
     
     [toolbarItems addObjectsFromArray: @[
                  [UIToolbar mapButtonWithTarget:self action:@selector(showMap:)],
@@ -1060,13 +1053,13 @@ static RAILMAP railmaps[] =
                 break;
             case kLinkTypeStop:
             case kLinkTypeDir:
-                col = [UIColor blueColor];
+                col = [UIColor modeAwareBlue];
                 break;
             
             case kLinkType1:
             case kLinkType2:
             case kLinkType3:
-                col = [UIColor blueColor];
+                col = [UIColor modeAwareBlue];
                 break;
             case kLinkTypeNorth:
                 col = [UIColor grayColor];

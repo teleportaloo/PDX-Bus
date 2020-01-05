@@ -54,7 +54,15 @@
 #define kLastRunWatch               @"last_run_watch"
 #define kTakeMeHome                 @"take_me_home"
 
+#define kiCloudTotal                @"total"
+#define kiCloudKeyPrefixSize        4
+#define kiCloudKey(i)               [NSString stringWithFormat:@"fave%ld", (long)(i)]
+#define kisCloudKeyFave(key)        (((key).length > kiCloudKeyPrefixSize) &&  [[key substringToIndex:kiCloudKeyPrefixSize] isEqualToString:@"fave"])
+#define kCloudKeyItem(key)          [[key substringFromIndex:kiCloudKeyPrefixSize] integerValue]
+
+
 #define kLastLocate                 @"last_locate"
+#define kiCloudFaves                @"icloud_faves"
 #define kLocateMode                 @"mode"
 #define kLocateDist                 @"dist"
 #define kLocateShow                 @"show"
@@ -96,6 +104,8 @@
 @property (nonatomic, readonly, copy) NSDictionary *              takeMeHomeUserRequest;
 @property (nonatomic, readonly, copy) NSString *                  locationDatabaseDateString;
 @property (nonatomic, readonly) NSTimeInterval                    locationDatabaseAge;
+@property (nonatomic, readonly) bool                              hasEverChanged;
+@property (atomic)              bool                              canWriteToCloud;
 
 - (void)addToRecentTripsWithUserRequest:(NSDictionary *)userRequest description:(NSString *)desc blob:(NSData *)blob;
 - (NSDictionary *)tripArchive:(NSDictionary *)userRequest description:(NSString *)desc blob:(NSData *)blob;
@@ -105,9 +115,13 @@
 - (NSDictionary *)addToVehicleIds:(NSString *)vehicleId;
 - (void)setLocationDatabaseDate:(NSString *)date;
 - (void)setLastArrivals:(NSString *)locations;
+- (void)mergeWithCloud:(NSArray*)changed;
+- (void)clearCloud;
 - (void)setLastNames:(NSArray *)names;
 - (void)clearLastArrivals;
+- (void)writeToiCloud;
 - (void)cacheAppData;
+
 
 + (SafeUserData *)sharedInstance;
 

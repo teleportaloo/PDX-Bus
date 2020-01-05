@@ -1,0 +1,15 @@
+Git Hub steps
+
+1: Update readme.markdown, commit and push to local git
+2: Clone a local copy of the git hub repo
+3: Copy the README.markdown and src folders over the git hub version
+4: Remove CustomIconDesign files
+5: Remove 2x glyphish graphics
+6: Remove Glyphish 6 graphics
+7: Remove graphics from target
+8: Remove APP_ID, add error text (can revert changes in TriMetTypes.h)
+9: Replace license
+10: Close folders in project, leave TriMetTypes.h open
+
+
+

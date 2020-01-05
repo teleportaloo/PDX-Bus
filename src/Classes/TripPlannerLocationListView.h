@@ -20,7 +20,7 @@
 
 @property (nonatomic, strong) XMLTrips *tripQuery;
 @property (nonatomic) bool from;
-@property (nonatomic, strong) NSMutableArray *locList;
+@property (nonatomic, strong) NSMutableArray<TripLegEndPoint *> *locList;
 
 - (void)chosenEndpoint:(TripLegEndPoint*)endpoint;
 

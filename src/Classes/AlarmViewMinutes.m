@@ -16,229 +16,227 @@
 #import "AlarmViewMinutes.h"
 #import "AlarmTaskList.h"
 #import "InterfaceOrientation.h"
+#import "PickerCell.h"
+#import "SegmentCell.h"
+#import "UserPrefs.h"
+#import "LocationAuthorization.h"
 
-#define kAlertViewSections         1
-#define kAlertViewRowsPerSection 3
-
-#define kAlertViewSectionTitle     0
-#define kAlertViewSectionAlert     1
-#define kAlertViewSectionCancel     2
-
-
-#define kMaxMins                 60
-
+enum
+{
+    kAlertViewRowTitle,
+    kAlertViewRowAlert,
+    kAlertViewRowCancel,
+    kAlertPicker,
+    kAlertGps
+};
 
 @implementation AlarmViewMinutes
-
 
 - (instancetype)init {
     if ((self = [super init]))
     {
         self.title = NSLocalizedString(@"Alert Time", @"screen title");
+        _rowChosen = kAlertViewRowAlert;
     }
     return self;
 }
 
 #pragma mark TableViewWithToolbar methods
 
-
-
 - (UITableViewStyle) style
 {
     return UITableViewStyleGrouped;
 }
 
-#pragma mark Picker methods
-
-// return the picker frame based on its size, positioned at the bottom of the page
-- (CGRect)pickerFrameWithSize:(CGSize)size
-{
-    CGRect screenRect = [UIScreen mainScreen].applicationFrame;
-    
-    DEBUG_LOG(@"%@", (self.view.frame.size.width == ([[UIScreen mainScreen] bounds].size.width*([[UIScreen mainScreen] bounds].size.width<[[UIScreen mainScreen] bounds].size.height))+([[UIScreen mainScreen] bounds].size.height*([[UIScreen mainScreen] bounds].size.width>[[UIScreen mainScreen] bounds].size.height))) ? @"Portrait" : @"Landscape");
-
-
-    
-    if ([InterfaceOrientation getInterfaceOrientation:self]  == UIInterfaceOrientationLandscapeLeft ||
-        [InterfaceOrientation getInterfaceOrientation:self] == UIInterfaceOrientationLandscapeRight)
-    {
-        CGFloat temp = screenRect.size.height;
-        screenRect.size.height = screenRect.size.width;
-        screenRect.size.width = temp;
-    }
-    
-    float offset = 20.0;
-        
-    CGRect pickerRect = CGRectMake(    0.0,
-                                   screenRect.size.height - offset - size.height,
-                                   screenRect.size.width,
-                                   size.height);
-    return pickerRect;
-}
-
-- (void)createDatePicker
-{    
-    self.pickerView = [[UIPickerView alloc] initWithFrame:CGRectZero];
-    // self.datePickerView.autoresizingMask = UIViewAutoresizingFlexibleWidth; //UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
-    self.pickerView.delegate = self;
-    self.pickerView.dataSource = self;
-        
-    // note we are using CGRectZero for the dimensions of our picker view,
-    // this is because picker views have a built in optimum size,
-    // you just need to set the correct origin in your view.
-    //
-    // position the picker at the bottom
-    CGSize pickerSize = [self.pickerView sizeThatFits:CGSizeZero];
-    self.pickerView.frame = [self pickerFrameWithSize:pickerSize];
-    self.pickerView.showsSelectionIndicator = YES;
-    
-    AlarmTaskList *taskList = [AlarmTaskList sharedInstance];
-    
-    if ([taskList hasTaskForStopId:self.dep.locid block:self.dep.block])
-    {
-        int mins = [taskList minsForTaskWithStopId:self.dep.locid block:self.dep.block];
-        [self.pickerView selectRow:mins inComponent:0 animated:NO]; 
-    }
-    
-    
-}
 
 #pragma mark TableView methods
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return kAlertViewSections;
+    return self.sections;
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+{
+    if ([self sectionType:section] == kAlertGps)
+    {
+        
+        if ([LocationAuthorization locationAuthorizedOrNotDeterminedShowMsg:NO backgroundRequired:YES])
+        {
+             return NSLocalizedString(@"Departure alarms are more accurate as the app can track your location in the background while the alarm is active.", @"Title");
+        }
+        else
+        {
+            return NSLocalizedString(@"Departure alarms are not so accurate as the app cannot track your location in the background.", @"Title");
+        }
+    }
+    
+    return nil;
 }
 
 // Customize the number of rows in the table view.
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return kAlertViewRowsPerSection;
+    return [self rowsInSection:section];
 }
 
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (indexPath.row == kAlertViewSectionTitle)
+    switch ([self rowType:indexPath])
     {
-        return [AlarmCell rowHeight];
+        case kAlertViewRowTitle:
+            return [AlarmCell rowHeight];
+        case kAlertPicker:
+        default:
+            return UITableViewAutomaticDimension;
     }
-    return [self basicRowHeight];
+}
+
+- (void)gpsSegmentChanged:(UISegmentedControl*)sender
+{
+    switch (sender.selectedSegmentIndex)
+    {
+        case 0:
+            [UserPrefs sharedInstance].useGpsForAllAlarms = YES;
+            break;
+        case 1:
+            [UserPrefs sharedInstance].useGpsForAllAlarms = NO;
+            break;
+    }
 }
 
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = nil;
     
-    if (indexPath.row == kAlertViewSectionTitle)
+    NSInteger row = [self rowType:indexPath];
+    
+    switch (row)
     {
-        AlarmCell *alarmCell = (AlarmCell *)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kAlertViewSectionTitle)];
-        if (alarmCell == nil) {
-            alarmCell = [AlarmCell tableviewCellWithReuseIdentifier:MakeCellId(kAlertViewSectionTitle)];
-        }
-        
-        [alarmCell populateCellLine1:self.dep.locationDesc line2:self.dep.shortSign line2col:[UIColor blueColor]];
-        
-        alarmCell.imageView.image = [self getIcon:kIconAlarm ];
-        alarmCell.selectionStyle  = UITableViewCellSelectionStyleNone;
-        
-        cell = alarmCell;
-    }
-    else 
-    {
-        cell = [self tableView:tableView cellWithReuseIdentifier:MakeCellId(kAlertViewSectionAlert)];        
-        switch (indexPath.row)
+        default:
+        case kAlertViewRowTitle:
         {
-            case kAlertViewSectionAlert:
-                cell.textLabel.text = NSLocalizedString(@"Set alarm for the time below", @"button text");
-                break;
-            case kAlertViewSectionCancel:
-                cell.textLabel.text = NSLocalizedString(@"Cancel alarm", @"button text");
-                break;
-        }
+            AlarmCell *alarmCell = (AlarmCell *)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kAlertViewSectionTitle)];
+            if (alarmCell == nil) {
+                alarmCell = [AlarmCell tableviewCellWithReuseIdentifier:MakeCellId(kAlertViewSectionTitle)];
+            }
         
-        cell.textLabel.font = self.basicFont;
+            [alarmCell populateCellLine1:self.dep.locationDesc line2:self.dep.shortSign line2col:[UIColor modeAwareBlue]];
+        
+            alarmCell.imageView.image = [self getIcon:kIconAlarm];
+            alarmCell.selectionStyle  = UITableViewCellSelectionStyleNone;
+        
+            cell = alarmCell;
+            break;
+        }
+        case kAlertViewRowAlert:
+        case kAlertViewRowCancel:
+        {
+            cell = [self tableView:tableView cellWithReuseIdentifier:MakeCellId(kAlertViewSectionAlert)];
+            if (row == kAlertViewRowAlert)
+            {
+                cell.textLabel.text = NSLocalizedString(@"Set alarm for the time below", @"button text");
+                cell.textLabel.textColor = [UIColor modeAwareText];
+                cell.imageView.image = [self getIcon:kIconAdd];
+            }
+            else
+            {
+                cell.textLabel.text = NSLocalizedString(@"Cancel alarm", @"button text");
+                cell.imageView.image = [self getIcon:kIconDelete];
+                cell.textLabel.textColor = [UIColor redColor];
+            }
+            cell.textLabel.font = self.basicFont;
+            break;
+        }
+        case kAlertPicker:
+        {
+            cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kAlertPicker)];
+            
+            PickerCell *picker = (PickerCell*)cell;
+            
+            self.pickerView = picker.pickerView;
+            
+            picker.pickerView.delegate = self;
+            
+            picker.pickerView.showsSelectionIndicator = YES;
+            
+            AlarmTaskList *taskList = [AlarmTaskList sharedInstance];
+            
+            if ([taskList hasTaskForStopId:self.dep.locid block:self.dep.block])
+            {
+                int mins = [taskList minsForTaskWithStopId:self.dep.locid block:self.dep.block];
+                [picker.pickerView selectRow:mins inComponent:0 animated:NO];
+            }
+            break;
+        }
     }
     return cell;
 }
 
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    // Navigation logic may go here. Create and push another view controller.
-    // AnotherViewController *anotherViewController = [[AnotherViewController alloc] initWithNibName:@"AnotherView" bundle:nil];
-    // [self.navigationController pushViewController:anotherViewController];
-    // [anotherViewController release];
-    AlarmTaskList *taskList = [AlarmTaskList sharedInstance];
-    
-    switch (indexPath.row)
+    switch ([self rowType:indexPath])
     {
-        case kAlertViewSectionAlert:
+        case kAlertViewRowAlert:
         {
-            int mins = (int)[self.pickerView selectedRowInComponent:0];
-            
-            [taskList addTaskForDeparture:self.dep mins:mins];
+            _rowChosen = kAlertViewRowAlert;
             [self.navigationController popViewControllerAnimated:YES];
-            
             break;
         }
-        case kAlertViewSectionCancel:            
-            [taskList cancelTaskForStopId:self.dep.locid block:self.dep.block];
+        case kAlertViewRowCancel:
+            _rowChosen = kAlertViewRowCancel;
             [self.navigationController popViewControllerAnimated:YES];
             break;
     }
-    
-    // [self.navigationController popViewControllerAnimated:YES];
-    
 }
 
 
 #pragma mark View Methds
 
-- (void)rotatedTo:(UIInterfaceOrientation)orientation
-{
-    [self.pickerView removeFromSuperview];
-    self.pickerView = nil;
-    
-    [self createDatePicker];
-    [self.view addSubview:self.pickerView];
-    
-    [super rotatedTo:orientation];
-}
-
 -(void)loadView
 {
     [super loadView];
     
-    [self createDatePicker];
-    [self.view addSubview:self.pickerView];
-    
-}
+    [self clearSectionMaps];
 
-- (void)viewDidAppear:(BOOL)animated
-{
-    CGSize pickerSize = [self.pickerView sizeThatFits:CGSizeZero];
-    CGRect frame = [self pickerFrameWithSize:pickerSize];
+    [self addSectionType:kAlertViewRowTitle];
+    [self addRowType:kAlertViewRowTitle];
+ 
+    [self addSectionType:kAlertPicker];
+    [self addRowType:kAlertViewRowAlert];
+    [self addRowType:kAlertPicker];
     
+    [self addSectionType:kAlertGps];
     
-    self.pickerView.frame = frame;
-    
-    /*
-     
-     if (self.datePickerView)
-     {
-     [self.datePickerView removeFromSuperview];
-     self.datePickerView = nil;
-     }
-     
-     [self createDatePicker];
-     [self.view addSubview:self.datePickerView];
-     */
-    
-    [super viewDidAppear:animated];
-    [self reloadData];
+    [self addSectionType:kAlertViewRowAlert];
+    [self addRowType:kAlertViewRowCancel];
 }
-
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    [self.table registerNib:[PickerCell nib] forCellReuseIdentifier:MakeCellId(kAlertPicker)];
+}
+
+-(void) viewDidDisappear:(BOOL)animated {
+    
+    NSInteger indexOfWindow = [self.navigationController.viewControllers indexOfObject:self];
+    
+    if (indexOfWindow == NSNotFound || indexOfWindow == 0) {
+        AlarmTaskList *taskList = [AlarmTaskList sharedInstance];
+        switch (_rowChosen)
+        {
+            case kAlertViewRowAlert:
+            {
+                int mins = (int)[self.pickerView selectedRowInComponent:0];
+                [taskList addTaskForDeparture:self.dep mins:mins];
+                break;
+            }
+            case kAlertViewRowCancel:
+                [taskList cancelTaskForStopId:self.dep.locid block:self.dep.block];
+                break;
+        }
+    }
+    [super viewDidDisappear:animated];
 }
 
 
@@ -265,9 +263,9 @@
     case 0:
         return NSLocalizedString(@"when due", @"alarm option");
     case 1:
-        return NSLocalizedString(@"1 minute before arrival", @"alarm option");
+        return NSLocalizedString(@"1 minute before departure", @"alarm option");
     default:
-        return [NSString stringWithFormat:NSLocalizedString(@"%d minutes before arrival", @"alarm option"), (int)row];
+        return [NSString stringWithFormat:NSLocalizedString(@"%d minutes before departure", @"alarm option"), (int)row];
     }
     return nil;
 }

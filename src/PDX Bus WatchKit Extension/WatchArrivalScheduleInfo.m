@@ -17,8 +17,8 @@
 #import "XMLDepartures.h"
 #import "ArrivalColors.h"
 #import "FormatDistance.h"
-#import "StringHelper.h"
-#import "VehicleData.h"
+#import "NSString+Helper.h"
+#import "Vehicle.h"
 
 @implementation WatchArrivalScheduleInfo
 
@@ -28,10 +28,10 @@
     return @"Schedule";
 }
 
-- (void)populate:(XMLDepartures *)xml departures:(NSArray<DepartureData*>*)deps
+- (void)populate:(XMLDepartures *)xml departures:(NSArray<Departure*>*)deps
 {
     NSMutableString *detourText = [NSMutableString string];
-    DepartureData *dep = deps.firstObject;
+    Departure *dep = deps.firstObject;
     
     NSInteger mins = dep.minsToArrival;
     NSDate *depatureDate = dep.departureTime;
@@ -130,15 +130,15 @@
         case kStatusEstimated:
             break;
         case kStatusScheduled:
-            [scheduledText appendString:NSLocalizedString(@"🕔Scheduled - no location information available. ", @"info about arrival time")];
+            [scheduledText appendString:NSLocalizedString(@"🕔Scheduled - no location information available. ", @"info about departure time")];
             timeColor = ArrivalColorScheduled;
             break;
         case kStatusCancelled:
-            [scheduledText appendString:NSLocalizedString(@"❌Canceled ", @"info about arrival time")];
-            timeColor = ArrivalColorCancelled;
+            [scheduledText appendString:NSLocalizedString(@"❌Canceled ", @"info about departure time")];
+            timeColor = ArrivalColorCanceled;
             break;
         case kStatusDelayed:
-            [detourText appendString:NSLocalizedString(@"Delayed ",  @"info about arrival time")];
+            [detourText appendString:NSLocalizedString(@"Delayed ",  @"info about departure time")];
             timeColor = ArrivalColorDelayed;
             break;
     }
@@ -146,7 +146,7 @@
     if (dep.notToSchedule)
     {
         NSDate *scheduledDate = dep.scheduledTime;
-        [scheduledText appendFormat:NSLocalizedString(@"scheduled %@ ",@"info about arrival time"), [dateFormatter stringFromDate:scheduledDate]];;
+        [scheduledText appendFormat:NSLocalizedString(@"scheduled %@ ",@"info about departure time"), [dateFormatter stringFromDate:scheduledDate]];;
     }
     
     NSMutableAttributedString * string = @"".mutableAttributedString;
@@ -186,7 +186,7 @@
     if (dep.blockPosition && dep.blockPositionFeet > 0)
     {
         [distanceText appendFormat:@"\n%@ away\n", [FormatDistance formatFeet:dep.blockPositionFeet]];
-        [distanceText appendString:[VehicleData locatedSomeTimeAgo:dep.blockPositionAt]];
+        [distanceText appendString:[Vehicle locatedSomeTimeAgo:dep.blockPositionAt]];
         attributes = @{NSForegroundColorAttributeName: [UIColor yellowColor]};
         subString = [[NSAttributedString alloc] initWithString:distanceText attributes:attributes];
         [string appendAttributedString:subString];

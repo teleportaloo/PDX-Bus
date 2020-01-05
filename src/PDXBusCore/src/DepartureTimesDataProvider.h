@@ -9,23 +9,23 @@
 #import "TriMetTypes.h"
 
 
-@class DepartureData;
-@class StopDistanceData;
+@class Departure;
+@class StopDistance;
 @class CLLocation;
 @class DepartureCell;
 @class Detour;
 
 @protocol DepartureTimesDataProvider <NSObject>
 
-- (DepartureData *)depGetDeparture:(NSInteger)i;
-- (void)depPopulateCell:(DepartureData *)dd cell:(DepartureCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide;
+- (Departure *)depGetDeparture:(NSInteger)i;
+- (void)depPopulateCell:(Departure *)dd cell:(DepartureCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide;
 
 @property (nonatomic, readonly)         NSInteger depGetSafeItemCount;
 @property (nonatomic, readonly, copy)   NSString *depGetSectionHeader;
 @property (nonatomic, readonly, copy)   NSString *depGetSectionTitle;
 @property (nonatomic, readonly, copy)   NSString *depStaticText;
 @property (nonatomic, readonly, copy)   NSString *depDir;
-@property (nonatomic, readonly, strong) StopDistanceData *depDistance;
+@property (nonatomic, readonly, strong) StopDistance *depDistance;
 @property (nonatomic, readonly)         NSDate *depQueryTime;
 @property (nonatomic, readonly, copy)   CLLocation *depLocation;
 @property (nonatomic, readonly, copy)   NSString *depLocDesc;

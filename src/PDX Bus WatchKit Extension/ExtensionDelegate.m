@@ -18,7 +18,7 @@
 #import "DebugLogging.h"
 #import "ArrivalsIntent.h"
 #import "AlertInterfaceController.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 
 @implementation ExtensionDelegate
 

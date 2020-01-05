@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>526543CD-FBDE-4CA1-B6BD-7E18A99E0754</string>
+	<key>IDESourceControlProjectName</key>
+	<string>project</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>AD28A8E9491C900C550D8676E21661DE18D8C946</key>
+		<string>ssh://islington.local/Volumes/Engineering/iphone/git/PDXBus</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>src/PDX Bus.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>AD28A8E9491C900C550D8676E21661DE18D8C946</key>
+		<string>../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>ssh://islington.local/Volumes/Engineering/iphone/git/PDXBus</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>AD28A8E9491C900C550D8676E21661DE18D8C946</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>AD28A8E9491C900C550D8676E21661DE18D8C946</string>
+			<key>IDESourceControlWCCName</key>
+			<string>PDXBus</string>
+		</dict>
+	</array>
+</dict>
+</plist>

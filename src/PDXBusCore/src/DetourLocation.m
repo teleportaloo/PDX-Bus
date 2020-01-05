@@ -14,7 +14,7 @@
 
 
 #import "DetourLocation.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 
 @implementation DetourLocation
 

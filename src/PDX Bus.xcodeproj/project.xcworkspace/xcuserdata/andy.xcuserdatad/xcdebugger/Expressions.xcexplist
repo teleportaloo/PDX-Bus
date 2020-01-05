@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VariablesViewState
+   version = "1.0">
+   <ContextStates>
+      <ContextState
+         contextName = "-[StoppableFetcher connection:didReceiveResponse:]:StoppableFetcher.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "response.expectedContentLength">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[DepartureDetailView setupShape]:DepartureDetailView.m">
+      </ContextState>
+      <ContextState
+         contextName = "::-[AllRailStationView generateArrays]():AllRailStationView.mm">
+      </ContextState>
+      <ContextState
+         contextName = "-[WatchArrivalsInterfaceController loadTableWithDepartures:detailedDeparture:]:WatchArrivalsInterfaceController.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[StoppableFetcher connection:didReceiveData:]:StoppableFetcher.m">
+      </ContextState>
+      <ContextState
+         contextName = "+[TriMetRouteInfo infoForRouteInt:]:TriMetRouteInfo.m">
+      </ContextState>
+   </ContextStates>
+</VariablesViewState>

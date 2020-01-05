@@ -24,8 +24,10 @@
 
 
 #define kSectionAllStations 0
-#define kSectionRoutes        1
+#define kSectionRoutes      1
 #define kSectionDisclaimer  2
+
+
 #define kMainSections       3
 #define kSearchSections     1
 

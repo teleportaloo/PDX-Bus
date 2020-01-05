@@ -17,9 +17,10 @@
 #import "UserFaves.h"
 #import "TripPlannerEndPointView.h"
 #import "TripPlannerOptions.h"
-#import "TripPlannerDateView.h"
 #import "TripPlannerLocatingView.h"
 #import "TripPlannerCacheView.h"
+#import "SegmentCell.h"
+#import "DatePickerCell.h"
 
 enum
 {
@@ -27,14 +28,20 @@ enum
     kTripSectionRowFrom,
     kTripSectionRowTo,
     kTripSectionRowOptions,
-    kTripSectionRowTime,
+    kTripSectionRowDateSeg,
+    kTripSectionRowDatePicker,
     kTripSectionRowPlan,
     kTripSectionRowHistory
 };
 
+enum
+{
+    kSegTimeNow = 0,
+    kSegDepartureTime,
+    kSegArrivalTime
+};
 
 @implementation TripPlannerSummaryView
-
 
 - (instancetype)init
 {
@@ -57,23 +64,35 @@ enum
 			self.tripQuery.userRequest = req;
 		}
         
-        
         [self makeSummaryRows];
-        
-        
 	}
 	return self;
 }
 
+
 - (void)makeSummaryRows
+{
+    [self makeSummaryRowsWithPicker:self.tripQuery.userRequest.dateAndTime!=nil];
+}
+
+- (void)makeSummaryRowsWithPicker:(bool)hasPicker
 {
     [self clearSectionMaps];
     
-    [self addSectionType:kSectionUserRequest];
+    _pickerSection = [self addSectionType:kSectionUserRequest];
     [self addRowType:kTripSectionRowFrom];
     [self addRowType:kTripSectionRowTo];
     [self addRowType:kTripSectionRowOptions];
-    [self addRowType:kTripSectionRowTime];
+    
+    if (hasPicker)
+    {
+        [self addRowType:kTripSectionRowDateSeg];
+        _pickerRow    = [self addRowType:kTripSectionRowDatePicker];
+    }
+    else
+    {
+        _pickerRow = [self addRowType:kTripSectionRowDateSeg] + 1;
+    }
     
     [self addSectionType:kTripSectionRowPlan];
     [self addRowType:kTripSectionRowPlan];
@@ -85,12 +104,18 @@ enum
 - (void)initQuery
 {
     [self.tripQuery addStopsFromUserFaves:_userData.faves];
+    [self makeSummaryRows];
+}
+
+- (void)reloadData
+{
+    [self makeSummaryRows];
+    [super reloadData];
 }
 
 
 - (void)resetAction:(id)sender
 {
-	
     self.tripQuery = [XMLTrips xml];
 	[self reloadData];
 }
@@ -106,6 +131,9 @@ enum
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    
+    [self.table registerNib:[DatePickerCell nib] forCellReuseIdentifier:MakeCellId(kTripSectionRowDatePicker)];
     
     [self.table registerNib:[TripItemCell nib] forCellReuseIdentifier:kTripItemCellId];
     
@@ -177,10 +205,12 @@ enum
     
     switch ([self rowType:indexPath])
     {
+        case kTripSectionRowDateSeg:
+            return  SegmentCell.rowHeight;
         case kTripSectionRowOptions:
         case kTripSectionRowTo:
         case kTripSectionRowFrom:
-        case kTripSectionRowTime:
+        case kTripSectionRowDatePicker:
             return UITableViewAutomaticDimension;
         case kTripSectionRowPlan:
         case kTripSectionRowHistory:
@@ -221,15 +251,91 @@ enum
     [cell populateBody:text mode:dir time:nil leftColor:nil route:nil];
 }
 
-- (void)populateTime:(TripItemCell *)cell
+- (NSUInteger)timeChoice
 {
-    [cell populateBody:[self.tripQuery.userRequest getDateAndTime]
-                  mode:[self.tripQuery.userRequest timeType]
-                  time:nil
-             leftColor:nil
-                 route:nil];
+    if (self.tripQuery.userRequest.dateAndTime == nil)
+    {
+        return kSegTimeNow;
+    }
     
-    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+    if (self.tripQuery.userRequest.arrivalTime)
+    {
+        return kSegArrivalTime;
+    }
+    
+    return kSegDepartureTime;
+}
+
+- (void)pickerChanged:(id)sender
+{
+    UIDatePicker *datePicker = (UIDatePicker*)sender;
+    
+    self.tripQuery.userRequest.dateAndTime = datePicker.date;
+    
+}
+
+- (void)timeSegmentChanged:(UISegmentedControl*)sender
+{
+    switch (sender.selectedSegmentIndex)
+    {
+        case kSegTimeNow:
+            if (self.tripQuery.userRequest.dateAndTime != nil)
+            {
+                self.tripQuery.userRequest.dateAndTime = nil;
+                
+                NSInteger userRequestSection = [self firstSectionOfType:kSectionUserRequest];
+                
+                if ([self firstRowOfType:kTripSectionRowDatePicker inSection:userRequestSection]!=kNoRowSectionTypeFound)
+                {
+                    [self makeSummaryRows];
+                
+                    [self.table beginUpdates];
+                    [self.table deleteRowsAtIndexPaths:@[ [NSIndexPath indexPathForRow:_pickerRow inSection:_pickerSection] ]
+                                      withRowAnimation:UITableViewRowAnimationRight];
+                    [self.table endUpdates];
+                }
+            }
+            break;
+        case kSegArrivalTime:
+            self.tripQuery.userRequest.arrivalTime = YES;
+            if (self.tripQuery.userRequest.dateAndTime == nil)
+            {
+                self.tripQuery.userRequest.dateAndTime = [NSDate date];
+                
+                NSInteger userRequestSection = [self firstSectionOfType:kSectionUserRequest];
+                
+                if ([self firstRowOfType:kTripSectionRowDatePicker inSection:userRequestSection]==kNoRowSectionTypeFound)
+                {
+                    [self makeSummaryRows];
+                
+                    [self.table beginUpdates];
+                    [self.table insertRowsAtIndexPaths:@[ [NSIndexPath indexPathForRow:_pickerRow inSection:_pickerSection] ]
+                                      withRowAnimation:UITableViewRowAnimationRight];
+                    [self.table endUpdates];
+                }
+            }
+            break;
+        case kSegDepartureTime:
+            self.tripQuery.userRequest.arrivalTime = NO;
+            if (self.tripQuery.userRequest.dateAndTime == nil)
+            {
+                self.tripQuery.userRequest.dateAndTime = [NSDate date];
+                
+                NSInteger userRequestSection = [self firstSectionOfType:kSectionUserRequest];
+                
+                if ([self firstRowOfType:kTripSectionRowDatePicker inSection:userRequestSection]==kNoRowSectionTypeFound)
+                {
+                    [self makeSummaryRows];
+                
+                    [self.table beginUpdates];
+                    [self.table insertRowsAtIndexPaths:@[ [NSIndexPath indexPathForRow:_pickerRow inSection:_pickerSection] ]
+                                      withRowAnimation:UITableViewRowAnimationRight];
+                    [self.table endUpdates];
+                }
+            }
+            break;
+            
+    }
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -253,12 +359,33 @@ enum
 			return cell;
 		}
 			
-		case kTripSectionRowTime:
-		{
-            TripItemCell *cell = (TripItemCell *)[tableView dequeueReusableCellWithIdentifier:kTripItemCellId];
-            [self populateTime:cell];
-			return cell;	
-		}
+		case kTripSectionRowDateSeg:
+        {
+            return [SegmentCell tableView:tableView
+                          reuseIdentifier:MakeCellId(kTripSectionRowDateSeg)
+                          cellWithContent:@[NSLocalizedString(@"Depart now",@"trip time in bookmark"),
+                                            NSLocalizedString(@"Depart after...",@"trip time in bookmark"),
+                                            NSLocalizedString(@"Arrive by...",@"trip time in bookmark")]
+                                   target:self
+                                   action:@selector(timeSegmentChanged:)
+                            selectedIndex:self.timeChoice];
+        }
+        case kTripSectionRowDatePicker:
+            {
+                UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kTripSectionRowDatePicker)];
+                
+                DatePickerCell *datePicker = (DatePickerCell*)cell;
+                self.datePickerView = datePicker.datePickerView;
+                
+                if (self.tripQuery.userRequest.dateAndTime != nil)
+                {
+                   datePicker.datePickerView.date = self.tripQuery.userRequest.dateAndTime;
+                }
+                
+                [datePicker.datePickerView addTarget:self action:@selector(pickerChanged:) forControlEvents:UIControlEventValueChanged];
+                return cell;;
+                break;
+            }
 		case kTripSectionRowPlan:
 		{
 			UITableViewCell *cell = [self tableView:tableView cellWithReuseIdentifier:MakeCellId(kTripSectionRowPlan)];
@@ -324,18 +451,6 @@ enum
 			[self.navigationController pushViewController:options animated:YES];
 			// _reloadTrip = YES;
 			break;
-			
-		}
-		case kTripSectionRowTime:
-		{
-            TripPlannerDateView * date = [TripPlannerDateView viewController];
-			date.tripQuery  = [XMLTrips xml];
-			date.tripQuery.userRequest = self.tripQuery.userRequest;
-			date.popBack = YES;
-			
-			[self.navigationController pushViewController:date animated:YES];
-			break;
-
 		}
 		case kTripSectionRowPlan:
 		{

@@ -140,7 +140,7 @@
     
     const CGFloat margin = 20;
     
-    NSString *text = NSLocalizedString(@"Position a TriMet QR Code in front of the camera to scan it and show the arrivals.", @"QR scanner instructions");
+    NSString *text = NSLocalizedString(@"Position a TriMet QR Code in front of the camera to scan it and show the departures.", @"QR scanner instructions");
     UIFont *font = [UIFont systemFontOfSize:20];
     
     NSStringDrawingOptions options = NSStringDrawingTruncatesLastVisibleLine |
@@ -254,14 +254,11 @@
     
     if (self.torchSupported)
     {
-        self.lightSegControl = [[UISegmentedControl alloc] initWithItems:
-                                      @[@"Light", @"Off"]];
-        [self.lightSegControl addTarget:self action:@selector(toggleFlash:) forControlEvents:UIControlEventValueChanged];
-        self.lightSegControl.selectedSegmentIndex = kLightCtrlOff;
+        UIBarButtonItem *segItem = [self segBarButtonWithItems:@[@"Light", @"Off"] action:@selector(toggleFlash:) selectedIndex:kLightCtrlOff];
+        
+        self.lightSegControl = segItem.customView;
         
         [toolbarItems addObject:[UIToolbar flexSpace]];
-        
-        UIBarButtonItem *segItem = [[UIBarButtonItem alloc] initWithCustomView:self.lightSegControl];
         [toolbarItems addObject:segItem];
     }
     

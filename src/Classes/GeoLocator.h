@@ -17,16 +17,16 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreLocation/CoreLocation.h>
+#import "TripLegEndPoint.h"
 
 @interface GeoLocator : NSObject
 
 @property (atomic) bool waitingForGeocoder;
-@property (atomic, strong) CLLocation *result;
 @property (atomic, strong) NSError *error;
 
-- (CLLocation *)fetchCoordinates:(NSString *)address;
+- (NSMutableArray<TripLegEndPoint*> *)fetchCoordinates:(NSString *)address;
 
-+ (bool) supported;
++ (bool)supported;
 + (bool)addressNeedsCoords:(NSString *)address;
 
 @end

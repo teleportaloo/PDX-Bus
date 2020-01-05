@@ -16,7 +16,7 @@
 #import "TripItemCell.h"
 #import "ViewControllerBase.h"
 #import "DebugLogging.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 
 @implementation TripItemCell
 

@@ -12,7 +12,7 @@
 
 #import "FindByLocationView.h"
 #import "RootViewController.h"
-#import "StopDistanceData.h"
+#import "StopDistance.h"
 #import "DepartureTimesView.h"
 #import "NearestVehiclesMap.h"
 #import "NearestRoutesView.h"
@@ -23,6 +23,7 @@
 #import "BearingAnnotationView.h"
 #import "LocationAuthorization.h"
 #import <Intents/Intents.h>
+#import "SegmentCell.h"
 
 enum SECTIONS_AND_ROWS
 {
@@ -37,25 +38,26 @@ enum SECTIONS_AND_ROWS
     kSiriSection
 };
 
+enum
+{
+    kShowArrivals = 0,
+    kShowMap,
+    kShowRoute
+};
 
-#define kShowArrivals        0
-#define kShowMap            1
-#define kShowRoute            2
+enum
+{
+    kDistanceNextToMe = 0,
+    kDistanceHalfMile,
+    kDistanceMile,
+    kDistance3Miles
+};
 
-#define kDistanceNextToMe    0
-#define kDistanceHalfMile   1
-#define kDistanceMile        2
-#define kDistance3Miles        3
-
-#define kSegRowWidth        320
-#define kSegRowHeight        40
-#define kUISegHeight        40
-#define kUISegWidth            320
-
-#define kAutoAsk            0
-#define kAutoPrevious       1
-
-#define SEGMENT_TAG         5
+enum
+{
+    kAutoAsk = 0,
+    kAutoPrevious
+};
 
 #define kHelpText           @"\nNote: Using previous settings chosen in 'Locate nearby stops' main menu."
 
@@ -171,30 +173,30 @@ static NSDictionary<NSNumber*, NSString*>  *ui_smap;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         smap = @{
-                         @"Arrivals"  : @kShowArrivals,
-                         @"arrivals"  : @kShowArrivals,
-                         @"map"       : @kShowMap,
-                         @"Map"       : @kShowMap,
-                         @"routes"    : @kShowRoute,
-                         @"Routes"    : @kShowRoute};
+                         @"Arrivals"  : @(kShowArrivals),
+                         @"arrivals"  : @(kShowArrivals),
+                         @"map"       : @(kShowMap),
+                         @"Map"       : @(kShowMap),
+                         @"routes"    : @(kShowRoute),
+                         @"Routes"    : @(kShowRoute)};
         
         ui_smap = @{
-                    @kShowArrivals : NSLocalizedString(@"Arrivals",     @"screen type"),
-                    @kShowMap      : NSLocalizedString(@"Map",          @"screen type"),
-                    @kShowRoute    : NSLocalizedString(@"Routes",       @"screen type")};
+                    @(kShowArrivals) : NSLocalizedString(@"Departures",     @"screen type"),
+                    @(kShowMap)      : NSLocalizedString(@"Map",            @"screen type"),
+                    @(kShowRoute)    : NSLocalizedString(@"Routes",         @"screen type")};
     
         dmap = @{
-                 @"closest"   : @kDistanceNextToMe,
-                 @"Closest"   : @kDistanceNextToMe,
-                 @"0.5"       : @kDistanceHalfMile,
-                 @"1"         : @kDistanceMile,
-                 @"3"         : @kDistance3Miles };
+                 @"closest"   : @(kDistanceNextToMe),
+                 @"Closest"   : @(kDistanceNextToMe),
+                 @"0.5"       : @(kDistanceHalfMile),
+                 @"1"         : @(kDistanceMile),
+                 @"3"         : @(kDistance3Miles) };
         
         ui_dmap = @{
-                    @kDistanceNextToMe : NSLocalizedString(@"that are nearby",          @"location distance"),
-                    @kDistanceHalfMile : NSLocalizedString(@"that are within ½ mile",   @"location distance"),
-                    @kDistanceMile     : NSLocalizedString(@"that are within 1 mile",   @"location distance"),
-                    @kDistance3Miles   : NSLocalizedString(@"that are within 3 miles",  @"location distance")};
+                    @(kDistanceNextToMe) : NSLocalizedString(@"that are nearby",          @"location distance"),
+                    @(kDistanceHalfMile) : NSLocalizedString(@"that are within ½ mile",   @"location distance"),
+                    @(kDistanceMile)     : NSLocalizedString(@"that are within 1 mile",   @"location distance"),
+                    @(kDistance3Miles)   : NSLocalizedString(@"that are within 3 miles",  @"location distance")};
         
         mmap = @{
                  @"Bus"               : @(TripModeBusOnly),
@@ -297,19 +299,19 @@ static NSDictionary<NSNumber*, NSString*>  *ui_smap;
     switch (_dist)
     {
         case kDistanceNextToMe:
-            _minDistance = kDistNextToMe;
+            _minMetres = kMetresNextToMe;
             _maxToFind = kMaxStops;
             break;
         case kDistanceHalfMile:
-            _minDistance = kDistHalfMile;
+            _minMetres = kMetresHalfMile;
             _maxToFind = kMaxStops;
             break;
         case kDistanceMile:
-            _minDistance = kDistMile;
+            _minMetres = kMetresInAMile;
             _maxToFind = kMaxStops;
             break;
         case kDistance3Miles:
-            _minDistance = kDistMile * 3;
+            _minMetres = MetresForMiles(3);
             _maxToFind = kMaxStops;
             break;
     }
@@ -432,7 +434,7 @@ static NSDictionary<NSNumber*, NSString*>  *ui_smap;
             {
                 LocateArrivalsIntent *intent = [[LocateArrivalsIntent alloc] init];
                 
-                intent.suggestedInvocationPhrase = @"Nearby arrivals";
+                intent.suggestedInvocationPhrase = @"Nearby departures";
                 
                 INInteraction *interaction = [[INInteraction alloc] initWithIntent:intent response:nil];
                 
@@ -460,19 +462,19 @@ static NSDictionary<NSNumber*, NSString*>  *ui_smap;
         case kShowMap:
         {
             NearestVehiclesMap *mapView = [NearestVehiclesMap viewController];
-            mapView.circle = [MKCircle circleWithCenterCoordinate:here.coordinate radius:_minDistance];
-            [mapView fetchNearestVehiclesAndStopsAsync:background location:here maxToFind:_maxToFind minDistance:_minDistance mode:_mode];
+            mapView.circle = [MKCircle circleWithCenterCoordinate:here.coordinate radius:_minMetres];
+            [mapView fetchNearestVehiclesAndStopsAsync:background location:here maxToFind:_maxToFind minDistance:_minMetres mode:_mode];
             
             break;
         }
         case kShowRoute:
         {
-            [[NearestRoutesView viewController] fetchNearestRoutesAsync:background location:here maxToFind:_maxToFind minDistance:_minDistance mode:_mode];
+            [[NearestRoutesView viewController] fetchNearestRoutesAsync:background location:here maxToFind:_maxToFind minDistance:_minMetres mode:_mode];
             break;
         }
         case kShowArrivals:
         {
-            [[DepartureTimesView viewController] fetchTimesForNearestStopsAsync:background location:here maxToFind:_maxToFind minDistance:_minDistance mode:_mode];
+            [[DepartureTimesView viewController] fetchTimesForNearestStopsAsync:background location:here maxToFind:_maxToFind minDistance:_minMetres mode:_mode];
             break;
         }
     }
@@ -486,47 +488,29 @@ static NSDictionary<NSNumber*, NSString*>  *ui_smap;
 
 #pragma mark Segment Controls
 
-- (UISegmentedControl*) createSegmentedControl:(NSArray *)segmentTextContent parent:(UIView *)parent action:(SEL)action
+- (void)modeSegmentChanged:(UISegmentedControl*)sender
 {
-    UISegmentedControl *segmentedControl = [[UISegmentedControl alloc] initWithItems:segmentTextContent];
-    CGRect frame = CGRectMake((kSegRowWidth-kUISegWidth)/2, (kSegRowHeight - kUISegHeight)/2 , kUISegWidth, kUISegHeight);
-    
-    segmentedControl.frame = frame;
-    [segmentedControl addTarget:self action:action forControlEvents:UIControlEventValueChanged];
-    segmentedControl.autoresizingMask =   UIViewAutoresizingFlexibleWidth;
-    [parent addSubview:segmentedControl];
-    [parent layoutSubviews];
-    return segmentedControl;
+    _mode = (TripMode)sender.selectedSegmentIndex;
 }
 
-- (void)modeSegmentChanged:(id)sender
+- (void)showSegmentChanged:(UISegmentedControl*)sender
 {
-    UISegmentedControl *seg = (UISegmentedControl *)sender;
-    _mode = (TripMode)seg.selectedSegmentIndex;
-}
-
-- (void)showSegmentChanged:(id)sender
-{
-    UISegmentedControl *seg = (UISegmentedControl *)sender;
-    _show = (int)seg.selectedSegmentIndex;
+    _show = (int)sender.selectedSegmentIndex;
 }
 
 
-- (void)distSegmentChanged:(id)sender
+- (void)distSegmentChanged:(UISegmentedControl*)sender
 {
-    UISegmentedControl *seg = (UISegmentedControl *)sender;
-    _dist = (int)seg.selectedSegmentIndex;
+    _dist = (int)sender.selectedSegmentIndex;
     [self setDistance];
     [self updateCircle];
 }
 
-- (void)autoSegmentChanged:(id)sender
+- (void)autoSegmentChanged:(UISegmentedControl*)sender
 {
-    UISegmentedControl *seg = (UISegmentedControl *)sender;
-    
     UserPrefs *prefs = [UserPrefs sharedInstance];
     
-    switch (seg.selectedSegmentIndex)
+    switch (sender.selectedSegmentIndex)
     {
     case kAutoAsk:
             prefs.autoLocateShowOptions = YES;
@@ -560,7 +544,7 @@ static NSDictionary<NSNumber*, NSString*>  *ui_smap;
         case kNoteSection:
             return NSLocalizedString(@"Note: This page is always shown when 'Locate nearby stops' is selected from the main list.", @"Page note");
         case kAutoSection:
-            return NSLocalizedString(@"Locate toolbar button behavior:", @"Section title");
+            return NSLocalizedString(@"Choose what happens when you touch the locate toolbar icon from the main screen.  It can either:", @"Section title");
         case kSiriSection:
             return NSLocalizedString(@"Add to Siri", @"Section title");
         case kGpsLocateSection:
@@ -578,10 +562,10 @@ static NSDictionary<NSNumber*, NSString*>  *ui_smap;
 }
 
 #define kUIProgressBarWidth        240.0
-#define kUIProgressBarHeight    10.0
-#define kRowHeight                40.0
+#define kUIProgressBarHeight        10.0
+#define kRowHeight                  40.0
 
-#define kRowWidth                300.0
+#define kRowWidth                  300.0
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -593,8 +577,7 @@ static NSDictionary<NSNumber*, NSString*>  *ui_smap;
         case kModeSection:
         case kShowSection:
         case kAutoSection:
-            
-            result = kSegRowHeight;
+            result = SegmentCell.rowHeight;
             break;
         case kGpsLocateSection:
         case kNoGpsLocateSection:
@@ -607,42 +590,6 @@ static NSDictionary<NSNumber*, NSString*>  *ui_smap;
             break;
     }
     return result;
-}
-
-- (UITableViewCell *)segCell:(NSString*)cellId items:(NSArray*)items action:(SEL)action
-{
-    UITableViewCell *cell = [self tableView:self.table cellWithReuseIdentifier:cellId];
-    
-    if ([cell.contentView viewWithTag:SEGMENT_TAG] == nil)
-    {
-        UISegmentedControl *segmentedControl = [[UISegmentedControl alloc] initWithItems:items];
-        segmentedControl.tag = SEGMENT_TAG;
-        CGRect frame = CGRectMake((kSegRowWidth-kUISegWidth)/2, (kSegRowHeight - kUISegHeight)/2 , kUISegWidth, kUISegHeight);
-        segmentedControl.frame = frame;
-        [segmentedControl addTarget:self action:action forControlEvents:UIControlEventValueChanged];
-        segmentedControl.autoresizingMask =   UIViewAutoresizingFlexibleWidth;
-        [cell.contentView addSubview:segmentedControl];
-        
-        [cell layoutSubviews];
-        cell.selectionStyle = UITableViewCellSelectionStyleNone;
-        cell.isAccessibilityElement = NO;
-        cell.backgroundView = [self clearView];
-    }
-    return cell;
-    
-}
-
-- (UISegmentedControl *)getSeg:(UITableViewCell *)cell
-{
-    for (UIView *v in cell.contentView.subviews)
-    {
-        if ([v isKindOfClass:[UISegmentedControl class]])
-        {
-            return (UISegmentedControl *)v;
-        }
-    }
-    
-    return nil;
 }
 
 - (void)updateCircle
@@ -658,11 +605,11 @@ static NSDictionary<NSNumber*, NSString*>  *ui_smap;
         
         if (self.self.startingLocation != nil)
         {
-            self.circle = [MKCircle circleWithCenterCoordinate:self.startingLocation.coordinate radius:_minDistance];
+            self.circle = [MKCircle circleWithCenterCoordinate:self.startingLocation.coordinate radius:_minMetres];
         }
         else if (self.mapView.userLocation!=nil)
         {
-            self.circle = [MKCircle circleWithCenterCoordinate:self.mapView.userLocation.location.coordinate radius:_minDistance];
+            self.circle = [MKCircle circleWithCenterCoordinate:self.mapView.userLocation.location.coordinate radius:_minMetres];
         }
             
         self.mapView.delegate = self;
@@ -738,67 +685,51 @@ static NSDictionary<NSNumber*, NSString*>  *ui_smap;
     {
         case kDistanceSection:
         {
-            UITableViewCell *cell = [self segCell:MakeCellId(kDistanceSection)
-                                            items:@[
-                                                    NSLocalizedString(@"Closest",   @"Short segment button text"),
-                                                    NSLocalizedString(@"½ mile",    @"Short segment button text"),
-                                                    NSLocalizedString(@"1 mile",    @"Short segment button text"),
-                                                    NSLocalizedString(@"3 miles",   @"Short segment button text"),
-                                                    ]
-                                           action:@selector(distSegmentChanged:)];
-            
-            [self getSeg:cell].selectedSegmentIndex = _dist;
-            return cell;
+            return [SegmentCell tableView:tableView
+                                       reuseIdentifier:MakeCellId(kDistanceSection)
+                                       cellWithContent:@[NSLocalizedString(@"Closest",   @"Short segment button text"),
+                                                         NSLocalizedString(@"½ mile",    @"Short segment button text"),
+                                                         NSLocalizedString(@"1 mile",    @"Short segment button text"),
+                                                         NSLocalizedString(@"3 miles",   @"Short segment button text")]
+                                                target:self
+                                                action:@selector(distSegmentChanged:)
+                                         selectedIndex:_dist];
         }
         case kShowSection:
         {
-            UITableViewCell *cell = [self segCell:MakeCellId(kShowSection)
-                                            items:@[
-                                                    NSLocalizedString(@"Arrivals",  @"Short segment button text"),
-                                                    NSLocalizedString(@"Map",       @"Short segment button text"),
-                                                    NSLocalizedString(@"Routes",    @"Short segment button text"),
-                                                    ]
-                                           action:@selector(showSegmentChanged:)];
-            
-            
-            [self getSeg:cell].selectedSegmentIndex = _show;
-            return cell;
+            return [SegmentCell tableView:tableView
+                          reuseIdentifier:MakeCellId(kShowSection)
+                          cellWithContent:@[NSLocalizedString(@"Departures",  @"Short segment button text"),
+                                            NSLocalizedString(@"Map",         @"Short segment button text"),
+                                            NSLocalizedString(@"Routes",      @"Short segment button text")]
+                                   target:self
+                                   action:@selector(showSegmentChanged:)
+                            selectedIndex:_show];
         }
         case kModeSection:
         {
-            UITableViewCell *cell = [self segCell:MakeCellId(kModeSection)
-                                            items:@[
-                                                    NSLocalizedString(@"Bus only",          @"Short segment button text"),
-                                                    NSLocalizedString(@"Rail only",         @"Short segment button text"),
-                                                    NSLocalizedString(@"Bus or Rail",       @"Short segment button text"),
-                                                    ]
-                                           action:@selector(modeSegmentChanged:)];
+            return [SegmentCell tableView:tableView
+                          reuseIdentifier:MakeCellId(kModeSection)
+                          cellWithContent:@[NSLocalizedString(@"Bus only",          @"Short segment button text"),
+                                            NSLocalizedString(@"Rail only",         @"Short segment button text"),
+                                            NSLocalizedString(@"Bus or Rail",       @"Short segment button text")]
+                                   target:self
+                                   action:@selector(modeSegmentChanged:)
+                            selectedIndex:_mode];
             
-            
-            [self getSeg:cell].selectedSegmentIndex = _mode;
-            return cell;
         }
         case kAutoSection:
         {
-            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kAutoSection)];
-            if (cell == nil) {
-                cell = [self segCell:MakeCellId(kAutoSection)
-                               items:@[
-                                       NSLocalizedString(@"Show this page",@"Short segment button text"),
-                                       NSLocalizedString(@"Show results", @"Short segment button text"),
-                                       ]
-                              action:@selector(autoSegmentChanged:)];
-            }
+            SegmentCell *cell = [SegmentCell tableView:tableView
+                                       reuseIdentifier:MakeCellId(kAutoSection)
+                                       cellWithContent:@[NSLocalizedString(@"Show this page",@"Short segment button text"),
+                                                         NSLocalizedString(@"Show results",  @"Short segment button text")]
+                                                target:self
+                                                action:@selector(autoSegmentChanged:)
+                                         selectedIndex: [UserPrefs sharedInstance].autoLocateShowOptions ? kAutoAsk : kAutoPrevious];
             
-            if ([UserPrefs sharedInstance].autoLocateShowOptions)
-            {
-                [self getSeg:cell].selectedSegmentIndex = kAutoAsk;
-            }
-            else
-            {
-                [self getSeg:cell].selectedSegmentIndex = kAutoPrevious;
-                
-            }
+            cell.imageView.image = [self getModeAwareIcon:kIconLocateNear7];
+            [cell layoutSubviews];
             return cell;
         }
         case kSiriSection:

@@ -264,7 +264,7 @@
     {
         case AlarmStateFetchArrivals:
         case AlarmStateNearlyArrived:
-            return [UIColor blueColor];
+            return [UIColor modeAwareBlue];
         case AlarmStateAccurateLocationNeeded:
         case AlarmStateAccurateInitiallyThenInaccurate:
             return [UIColor orangeColor];

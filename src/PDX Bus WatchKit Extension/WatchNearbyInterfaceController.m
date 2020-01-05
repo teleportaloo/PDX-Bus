@@ -21,7 +21,7 @@
 #import "WatchMapHelper.h"
 #import "WatchArrivalsContextNearby.h"
 #import "UserFaves.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 #import "FormatDistance.h"
 
 #define MAX_AGE                    -30.0
@@ -179,7 +179,7 @@
     
 }
 
-- (NSAttributedString *)stopName:(StopDistanceData*)item
+- (NSAttributedString *)stopName:(StopDistance*)item
 {
     NSString *dir = @"";
     
@@ -220,7 +220,7 @@
         
         WatchStop *row = [self.stopTable rowControllerAtIndex:i];
         
-        StopDistanceData *item = (StopDistanceData*)self.stops[i];
+        StopDistance *item = (StopDistance*)self.stops[i];
     
         row.stopName.attributedText = [self stopName:item];
     }
@@ -247,7 +247,7 @@
     
     for(int i = 0; i < self.stops.count && i < 6; i++)
     {
-        StopDistanceData *sd = (StopDistanceData*)self.stops[i];
+        StopDistance *sd = (StopDistance*)self.stops[i];
         
         SimpleWatchPin *pin = [[SimpleWatchPin alloc] init];
         
@@ -265,7 +265,7 @@
     XMLLocateStops *stops = [XMLLocateStops xml];
     
     stops.maxToFind             = 4;
-    stops.minDistance           = kDistMile;
+    stops.minDistance           = kMetresInAMile;
     stops.mode                  = TripModeAll;
     stops.location              = self.lastLocation;
     stops.includeRoutesInStops  = YES;

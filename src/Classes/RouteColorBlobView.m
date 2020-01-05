@@ -16,6 +16,7 @@
 #import "RouteColorBlobView.h"
 #import "DebugLogging.h"
 #import "TriMetInfo.h"
+#import "UIColor+DarkMode.h"
 
 @implementation RouteColorBlobView
 
@@ -33,8 +34,8 @@
     if (info !=nil)
     {
         _red    = COL_HTML_R(info->html_color);
-        _green    = COL_HTML_G(info->html_color);
-        _blue    = COL_HTML_B(info->html_color);
+        _green  = COL_HTML_G(info->html_color);
+        _blue   = COL_HTML_B(info->html_color);
         _square = info->streetcar;
         self.hidden    = NO;
         [self setNeedsDisplay];
@@ -59,8 +60,8 @@
     if (info !=nil && route!=nil)
     {
         _red    = COL_HTML_R(info->html_color);
-        _green    = COL_HTML_G(info->html_color);
-        _blue    = COL_HTML_B(info->html_color);
+        _green  = COL_HTML_G(info->html_color);
+        _blue   = COL_HTML_B(info->html_color);
         _square = info->streetcar;
         self.hidden    = NO;
         [self setNeedsDisplay];
@@ -88,10 +89,10 @@
     
     CGFloat width = fmin(CGRectGetWidth(rect), CGRectGetHeight(rect));
     
-    outerSquare.origin.x = CGRectGetMidX(rect) - width/2;
-    outerSquare.origin.y = CGRectGetMidY(rect) - width/2;
-    outerSquare.size.width = width;
-    outerSquare.size.height = width;
+    outerSquare.origin.x = 1 + CGRectGetMidX(rect) - width/2;
+    outerSquare.origin.y = 1 + CGRectGetMidY(rect) - width/2;
+    outerSquare.size.width = width-2;
+    outerSquare.size.height = width-2;
     
     if (_square)
     {
@@ -104,9 +105,25 @@
     }
     
     CGContextRef context = UIGraphicsGetCurrentContext();
+    
+    if (_red == 0.0 && _green == 0.0 && _blue == 0.0)
+    {
+        CGContextSetRGBStrokeColor(context, 255,255,255, 1.0);
+    }
+    else
+    {
+         CGContextSetRGBStrokeColor(context, _red, _green ,_blue, 1.0);
+    }
+    
+    CGContextSetLineWidth(context, 0.5);
     CGContextSetRGBFillColor(context, _red , _green, _blue, self.hidden ? 0.0 : 1.0);
     CGContextAddPath(context, fillPath);
-    CGContextFillPath(context);
+    
+    // CGContextFillPath(context);
+    // CGContextStrokePath(context);
+    
+    CGContextDrawPath(context, kCGPathFillStroke);
+    
 
     
 //    DEBUG_LOG(@"%f %f %f\n", _red, _green, _blue);

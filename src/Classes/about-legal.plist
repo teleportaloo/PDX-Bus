@@ -36,11 +36,9 @@
 	</dict>
 	<dict>
 		<key>Title</key>
-		<string>Some toolbar icons by TWG</string>
+		<string>Some toolbar icons by TWG (link no longer valid).</string>
 		<key>Icon</key>
 		<string>Brush.png</string>
-		<key>LinkM</key>
-		<string>http://blog.twg.ca/2009/09/free-iphone-toolbar-icons/</string>
 	</dict>
 	<dict>
 		<key>Title</key>
@@ -70,7 +68,7 @@
 		<key>Icon</key>
 		<string>Source.png</string>
 		<key>LinkM</key>
-		<string>http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html</string>
+		<string>https://wrf.ecse.rpi.edu//Research/Short_Notes/pnpoly.html</string>
 	</dict>
 	<dict>
 		<key>Title</key>

@@ -15,12 +15,11 @@
 
 #import <Foundation/Foundation.h>
 #import "PDXBusCore.h"
-
-#define kMapAnnotationBusColor [UIColor grayColor]
+#import "UIColor+DarkMode.h"
 
 @interface MapAnnotationImage : NSObject
 {
-    int                     _hits;
+    int _hits;
 }
 
 @property (nonatomic, strong) NSMutableDictionary *imageCache;
@@ -30,7 +29,6 @@
 @property (nonatomic) bool forceRetinaImage;
 
 - (UIImage *)getImage:(double)rotation mapRotation:(double)mapRotation bus:(bool)bus named:(NSString*)name;
-- (UIImage *)tintImage:(UIImage *)sourceImage color:(UIColor *)color;
 - (void)clearCache;
 
 + (MapAnnotationImage*)autoSingleton;   // zero or one instances can exist - is refrence counted.

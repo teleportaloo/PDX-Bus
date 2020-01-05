@@ -15,19 +15,18 @@
 #import "EditBookMarkView.h"
 #import "UserFaves.h"
 #import "CellTextField.h"
-#import "CellTextView.h"
 #import "DepartureTimesView.h"
 #import "RouteView.h"
 #import "AddNewStopToBookMark.h"
 #import "RailMapView.h"
 #import "TripPlannerEndPointView.h"
-#import "TripPlannerDateView.h"
 #import "TripPlannerOptions.h"
 #import "AllRailStationView.h"
 #import "DayOfTheWeekView.h"
 #import "SegmentCell.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 #import <Intents/Intents.h>
+#import "TripPlannerDateView.h"
 
 
 enum SECTIONS_AND_ROWS
@@ -51,7 +50,7 @@ enum SECTIONS_AND_ROWS
 } ;
 
 
-#define kTakeMeHomeText NSLocalizedString(@"This page enables you to create a bookmark that will search for a route from your #icurrent location#i to a destination, leaving immediately.\n\nFor example, use it to create a #BTake Me Home Now#0 trip.", \
+#define kTakeMeHomeText NSLocalizedString(@"This page enables you to create a bookmark that will search for a route from your #icurrent location#i to a destination, leaving immediately.\n\nFor example, use it to create a #BTake Me Home Now#D trip.", \
                                           @"take me home text")
 
 
@@ -321,10 +320,9 @@ enum SECTIONS_AND_ROWS
 
 #pragma mark Segmented controls
 
-- (void)timeSegmentChanged:(id)sender
+- (void)timeSegmentChanged:(UISegmentedControl*)sender
 {
-    UISegmentedControl *seg = (UISegmentedControl*)sender;
-    self.userRequest.timeChoice = (TripTimeChoice)seg.selectedSegmentIndex;
+    self.userRequest.timeChoice = (TripTimeChoice)sender.selectedSegmentIndex;
     self.originalFave[kUserFavesTrip] = self.userRequest.toDictionary;
 }
 
@@ -462,10 +460,10 @@ enum SECTIONS_AND_ROWS
     UITextField *returnTextField = [[UITextField alloc] initWithFrame:frame];
     
     returnTextField.borderStyle = UITextBorderStyleRoundedRect;
-    returnTextField.textColor = [UIColor blackColor];
+    returnTextField.textColor = [UIColor modeAwareText];
     returnTextField.font = [CellTextField editFont];
     returnTextField.placeholder = @"";
-    returnTextField.backgroundColor = [UIColor whiteColor];
+    returnTextField.backgroundColor = [UIColor modeAwareGrayBackground];
     returnTextField.autocorrectionType = UITextAutocorrectionTypeNo;    // no auto correction support
     
     returnTextField.keyboardType = UIKeyboardTypeDefault;
@@ -521,26 +519,11 @@ enum SECTIONS_AND_ROWS
 
 - (BOOL) updateStopsInFave
 {
-    if (self.originalFave !=nil)    {
-        NSMutableString *locations = [[NSMutableString alloc] init];
-        
-        if (self.stops.count > 0)
-        {
-            for (NSString *stop in self.stops)
-            {
-                if (locations.length>0)
-                {
-                    [locations appendString:@","];
-                }
-                [locations appendFormat:@"%@",stop];
-            }
-        }
-        
-        self.originalFave[kUserFavesLocation] = locations;
+    if (self.originalFave !=nil) {
+        self.originalFave[kUserFavesLocation] = [NSString commaSeparatedStringFromEnumerator:self.stops selector:@selector(self)];
         return YES;
     }
     return NO;
-    
 }
 
 #pragma mark TableView methods
@@ -593,7 +576,7 @@ enum SECTIONS_AND_ROWS
             result = UITableViewAutomaticDimension;
             break;
         case kTableRowTime:
-            result = [SegmentCell segmentCellHeight];
+            result = [SegmentCell rowHeight];
             break;
         case kTableRun:
         case kTableStops:
@@ -725,20 +708,14 @@ enum SECTIONS_AND_ROWS
             
         case kTableRowTime:
         {
-            SegmentCell *cell = (SegmentCell*)[tableView dequeueReusableCellWithIdentifier:MakeCellId(kTableRowTime)];
-            if (cell == nil) {
-                cell = [[SegmentCell alloc] initWithStyle:UITableViewCellStyleDefault
-                                           reuseIdentifier:MakeCellId(kTableRowTime)];
-                
-                [cell createSegmentWithContent:@[
-                                                NSLocalizedString(@"Ask for Time",@"trip time in bookmark"),
-                                                NSLocalizedString(@"Depart Now",@"trip time in bookmark")]
-                                        target:self
-                                        action:@selector(timeSegmentChanged:)];
-                cell.isAccessibilityElement = NO;
-            }
-            cell.segment.selectedSegmentIndex = self.userRequest.timeChoice;
-            return cell;
+            return [SegmentCell tableView:tableView
+                          reuseIdentifier:MakeCellId(kTableRowTime)
+                          cellWithContent:@[
+                                            NSLocalizedString(@"Ask for Time",@"trip time in bookmark"),
+                                            NSLocalizedString(@"Depart Now",  @"trip time in bookmark")]
+                                   target:self
+                                   action:@selector(timeSegmentChanged:)
+                            selectedIndex:self.userRequest.timeChoice];
         }
         case kTableDelete:
         {
@@ -1132,6 +1109,14 @@ API_AVAILABLE(ios(12.0))
     
 }
 
+-(void) viewWillDisappear:(BOOL)animated {
+    if ([self.navigationController.viewControllers indexOfObject:self]==NSNotFound) {
+        [self favesChanged];
+        [_userData cacheAppData];
+    }
+    [super viewWillDisappear:animated];
+}
+
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
@@ -1277,5 +1262,17 @@ API_AVAILABLE(ios(12.0))
     [self reloadData];
 }
 
+- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection
+{
+    if (@available(iOS 13.0, *))
+    {
+        if (previousTraitCollection.userInterfaceStyle != self.traitCollection.userInterfaceStyle)
+        {
+            self.editCell = nil;
+        }
+    }
+    
+    [super traitCollectionDidChange:previousTraitCollection];
+}
 
 @end

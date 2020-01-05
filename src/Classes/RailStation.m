@@ -20,7 +20,7 @@
 #import "TriMetInfo.h"
 #import "RouteColorBlobView.h"
 #import "AllRailStationView.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 
 @implementation RailStation
 

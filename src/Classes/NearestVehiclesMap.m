@@ -15,7 +15,7 @@
 
 #import "NearestVehiclesMap.h"
 #import "XMLLocateVehicles.h"
-#import "VehicleData+iOSUI.h"
+#import "Vehicle+iOSUI.h"
 #import "XMLStreetcarLocations.h"
 #import "SimpleAnnotation.h"
 #import "TriMetInfo.h"
@@ -23,7 +23,7 @@
 #import "MapAnnotationImage.h"
 #import "DebugLogging.h"
 #import "XMLLocateStops+iOSUI.h"
-#import "StopDistanceData+iOSUI.h"
+#import "StopDistance+iOSUI.h"
 #import "CLLocation+Helper.h"
 #import "KMLRoutes.h"
 #import "ShapeRoutePath.h"
@@ -209,7 +209,7 @@
             {
                 for (int i=0; i< locator.count && !task.taskCancelled; i++)
                 {
-                    VehicleData *ui = locator.items[i];
+                    Vehicle *ui = locator.items[i];
                     
                     if ([ui typeMatchesMode:mode] && (self.stopLocator == nil || [ui.location distanceFromLocation:self.stopLocator.location] <= self.stopLocator.minDistance))
                     {
@@ -233,7 +233,7 @@
                 
                 [task taskItemsDone:++taskCount];
                 
-                [loc.locations enumerateKeysAndObjectsUsingBlock:^(NSString *streecarId, VehicleData *vehicle, BOOL *stop)
+                [loc.locations enumerateKeysAndObjectsUsingBlock:^(NSString *streecarId, Vehicle *vehicle, BOOL *stop)
                  {
                      if (self.direction==nil || vehicle.direction == nil || [vehicle.direction isEqualToString:self.direction])
                      {
@@ -313,10 +313,9 @@
     
     for (id<MapPinColor> annot in annotions)
     {
-        if ([annot isKindOfClass:[VehicleData class]])
+        if ([annot isKindOfClass:[Vehicle class]])
         {
             [self.mapView removeAnnotation:annot];
-            [self.annotations removeObject:annot];
         }
     }
 }
@@ -326,6 +325,7 @@
     if (!self.backgroundRefresh)
     {
         [self removeAnnotations];
+        [self.annotations removeAllObjects];
     
         [self fetchNearestVehiclesAsync:self.backgroundTask backgroundRefresh:YES];
     }

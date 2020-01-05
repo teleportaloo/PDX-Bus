@@ -1,0 +1,32 @@
+
+
+/* INSERT_LICENSE */
+
+//
+// Prefix header for all source files of the 'TriMetTimes' target in the 'TriMetTimes' project
+//
+
+#ifdef __OBJC__
+	#import <Foundation/Foundation.h>
+	#import <UIKit/UIKit.h>
+    #import <CoreLocation/CoreLocation.h>
+    #import <MobileCoreServices/MobileCoreServices.h>
+    #import <AudioToolbox/AudioToolbox.h>
+    #import <AVFoundation/AVFoundation.h>
+    #import <CoreSpotlight/CoreSpotlight.h>
+    #import <Foundation/Foundation.h>
+    #import <SystemConfiguration/SystemConfiguration.h>
+    #import <netinet/in.h>
+    #import <arpa/inet.h>
+    #import <ifaddrs.h>
+    #import <netdb.h>
+    #import <sys/socket.h>
+    #import <Intents/Intents.h>
+    #import <MapKit/MapKit.h>
+    #import <IntentsUI/IntentsUI.h>
+    #import <sqlite3.h>
+
+    #import "DebugLogging.h"
+#endif
+
+#define SDK3

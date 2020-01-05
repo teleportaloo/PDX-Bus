@@ -30,26 +30,32 @@
 // #define XML_TEST_DATA "KML"
 // #define XML_TEST_DATA "Complex Streetcar Messages"
 
-
-#define DEBUG_PRINTF(format, args...) printf(format, ##args)
-#define DEBUG_LOG(s, ...)       NSLog(@"<%s:%d> %@", __func__, __LINE__, [NSString stringWithFormat:(s), ##__VA_ARGS__])
-#define DEBUG_LOG_RAW(s, ...)   NSLog(s, ##__VA_ARGS__)
-#define DEBUG 1
-#define DEBUG_MODE @"(debug on)"
+#define DEBUG_AND(X)                    ((X))
+#define DEBUG_PRINTF(format, args...)   printf(format, ##args)
+#define DEBUG_LOG(s, ...)               NSLog(@"<%s:%d> %@", __func__, __LINE__, [NSString stringWithFormat:(s), ##__VA_ARGS__])
+#define DEBUG_LOG_RAW(s, ...)           NSLog(s, ##__VA_ARGS__)
+#define DEBUG                           1
+#define DEBUG_MODE                      @"(debug on)"
+#define DEBUG_BREAK                     raise(SIGINT)
 
 #else
 
+#define DEBUG_AND(X)                    (FALSE)
 #define DEBUG_PRINTF(format, args...)
 #define DEBUG_LOG(format, args...)
 #define DEBUG_LOG_RAW(s, ...)
 
 #undef DEBUG
 #define DEBUG_MODE @""
+#define DEBUG_BREAK
 
 #endif
 
-#define DEBUG_FUNC()   DEBUG_LOG(@"enter")
-#define DEBUG_HERE()   DEBUG_LOG(@"here")
+#define DEBUG_FUNC()      DEBUG_LOG(@"enter")
+#define DEBUG_HERE()      DEBUG_LOG(@"here")
+#define DEBUG_CASE(x)     DEBUG_LOG(@"Case    %s: %lu",#x, (unsigned long)(x))
+#define DEBUG_DEFAULT(x)  DEBUG_LOG(@"Default %s: %lu",#x, (unsigned long)(x))
+
 #define DEBUG_FUNCEX() DEBUG_LOG(@"exit")
 #define DEBUG_LOGF(x)  DEBUG_LOG(@"%s: %f", #x, (float)(x))
 #define DEBUG_LOGD(x)  DEBUG_LOG(@"%s: %f", #x, (double)(x))
@@ -58,16 +64,16 @@
 #define DEBUG_LOGL(x)  DEBUG_LOG(@"%s: %ld",#x,  (long)(x))
 #define DEBUG_LOGS(x)  DEBUG_LOG(@"%s: %@", #x, (x))
 #define DEBUG_LOGB(x)  DEBUG_LOG(@"%s: %@", #x, ((x)? @"TRUE" : @"FALSE"))
-#define DEBUG_LOGO(x)  DEBUG_LOG(@"%s: %@", #x, (x).debugDescription);
+#define DEBUG_LOGO(x)  DEBUG_LOG(@"%s: %@", #x, ((x)!=nil) ? (x).debugDescription : @"nil");
 #define DEBUG_LOGR(R)  DEBUG_LOG(@"%s: (%f,%f,%f,%f)", #R, (R).origin.x, (R).origin.y, (R).size.width, (R).size.height);
 #define DEBUG_LOGRC(R)
 #define DEBUG_LOGIP(I) DEBUG_LOG(@"%s: section %d row %d", #I, (int)((I).section), (int)((I).row));
 #define DEBUG_LOGP(P)  DEBUG_LOG(@"%s: %p", #P, (void*)P)
 
 
-#define ERROR_LOG(s, ...) NSLog(@"**** ERROR **** <%s:%d> %@", __func__, __LINE__, [NSString stringWithFormat:(s), ##__VA_ARGS__])
-#define LOG_PARSE_ERROR(error) if (error) ERROR_LOG(@"Parse error: %@\n", error.debugDescription)
-#define LOG_NSERROR(error) if (error) ERROR_LOG(@"NSError: %@\n", error.description)
+#define ERROR_LOG(s, ...)       { NSLog(@"**** ERROR **** <%s:%d> %@", __func__, __LINE__, [NSString stringWithFormat:(s), ##__VA_ARGS__]); DEBUG_BREAK; }
+#define LOG_PARSE_ERROR(error)  if (error) ERROR_LOG(@"Parse error: %@\n", error.debugDescription)
+#define LOG_NSERROR(error)      if (error) ERROR_LOG(@"NSError: %@\n", error.description)
 
 // The following define is used to make the app create some arrays and databases
 // used for the Rail Stations view and Rail Map Screen - don't ever ship with this

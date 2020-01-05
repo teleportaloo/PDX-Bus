@@ -14,7 +14,7 @@
 
 
 #import "WhatsNewBasicAction.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 
 @implementation WhatsNewBasicAction
 
@@ -35,7 +35,7 @@
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell text:(NSString*)text
 {
-    cell.backgroundColor = [UIColor whiteColor];
+    cell.backgroundColor = [UIColor modeAwareCellBackground];
 }
 
 - (void)updateCell:(UITableViewCell *)cell tableView:(UITableView *)tableView

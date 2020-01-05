@@ -31,6 +31,7 @@
 #import <QuartzCore/QuartzCore.h>
 #import "PullRefreshTableViewController.h"
 #import "DebugLogging.h"
+#import "TintedImageCache.h"
 
 #define REFRESH_HEADER_HEIGHT 52.0f
 
@@ -94,12 +95,26 @@
     return bounds.size.width;
 }
 
+- (void)addRefreshArrow
+{
+    if (refreshArrow!=nil)
+    {
+        [refreshArrow removeFromSuperview];
+    }
+    
+    refreshArrow = [[UIImageView alloc] initWithImage:[[TintedImageCache sharedInstance] modeAwareLightenedIcon:@"arrow.png"]];
+    refreshArrow.frame = CGRectMake(floorf((REFRESH_HEADER_HEIGHT - 27) / 2),
+                                    (floorf(REFRESH_HEADER_HEIGHT - 44) / 2),
+                                    27, 44);
+    [refreshHeaderView addSubview:refreshArrow];
+}
+
 - (void)addPullToRefreshHeader {
     
     _width = [self widthNow];
     
     refreshHeaderView = [[UIView alloc] initWithFrame:CGRectMake(0, 0 - REFRESH_HEADER_HEIGHT, _width, REFRESH_HEADER_HEIGHT)];
-    refreshHeaderView.backgroundColor = self.table.backgroundColor;
+    refreshHeaderView.backgroundColor = self.table.superview.backgroundColor;
     refreshHeaderView.autoresizesSubviews = YES;
     
     refreshLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, _width, REFRESH_HEADER_HEIGHT)];
@@ -111,12 +126,8 @@
     refreshLabel.numberOfLines = 2;
     
     self.table.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1.0];
-    
-    
-    refreshArrow = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"arrow.png"]];
-    refreshArrow.frame = CGRectMake(floorf((REFRESH_HEADER_HEIGHT - 27) / 2),
-                                    (floorf(REFRESH_HEADER_HEIGHT - 44) / 2),
-                                    27, 44);
+
+    [self addRefreshArrow];
     
     refreshSpinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
     refreshSpinner.frame = CGRectMake(floorf(floorf(REFRESH_HEADER_HEIGHT - 20) / 2), floorf((REFRESH_HEADER_HEIGHT - 20) / 2), 20, 20);
@@ -289,6 +300,18 @@
 }
 
 
+- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection
+{
+    [super traitCollectionDidChange:previousTraitCollection];
+    
+    if (@available(iOS 13.0, *))
+    {
+        if (previousTraitCollection.userInterfaceStyle != self.traitCollection.userInterfaceStyle)
+        {
+             [self addRefreshArrow];
+        }
+    }
+}
 
 
 @end

@@ -72,12 +72,12 @@
                 
                 ShapeCoord *start = [ShapeCoord data];
                 
-                start.latitude  = leg.from.xlat.doubleValue;
-                start.longitude = leg.from.xlon.doubleValue;
+                start.latitude  = leg.from.coordinate.latitude;
+                start.longitude = leg.from.coordinate.longitude;
                 
                 ShapeCoord *end = [ShapeCoord data];
-                end.latitude  = leg.to.xlat.doubleValue;
-                end.longitude = leg.to.xlon.doubleValue;
+                end.latitude  = leg.to.coordinate.latitude;
+                end.longitude = leg.to.coordinate.longitude;
                 
                 [seg.coords addObject:start];
                 [seg.coords addObject:end];

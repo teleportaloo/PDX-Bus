@@ -15,6 +15,7 @@
 
 #import "WatchSystemWideHeader.h"
 #import "XMLDepartures.h"
+#import "UserPrefs.h"
 
 @implementation WatchSystemWideHeader
 
@@ -24,10 +25,26 @@
     return @"SWH";
 }
 
-- (void)populate:(XMLDepartures *)xml departures:(NSArray<DepartureData*>*)deps
+- (void)populate:(XMLDepartures *)xml departures:(NSArray<Departure*>*)deps
 {
+    UserPrefs *prefs = [UserPrefs sharedInstance];
     Detour *det = xml.allDetours[self.index];
-    self.label.text = det.headerText;
+    
+    if (![prefs isHiddenSystemWideDetour:det.detourId])
+    {
+        self.label.text = [NSString stringWithFormat:NSLocalizedString(@"△ %@", @"Hide system alert"), det.headerText];
+    }
+    else
+    {
+        self.label.text = NSLocalizedString(@"▽ ⚠️System Alert", @"Hide system alert");
+    }
+}
+
+- (WatchSelectAction)select:(XMLDepartures*)xml from:(WKInterfaceController *)from context:(WatchArrivalsContext*)context canPush:(bool)push
+{
+    [[UserPrefs sharedInstance] toggleHiddenSystemWideDetour:xml.allDetours[self.index].detourId];
+    
+    return WatchSelectAction_RefreshUI;
 }
 
 @end

@@ -15,7 +15,7 @@
 
 #import "PullRefreshTableViewController.h"
 
-#define kRefreshText        NSLocalizedString(@"Refresh", @"Refresh arrivals button")
+#define kRefreshText        NSLocalizedString(@"Refresh", @"Refresh departure button")
 
 #define kRefreshButton  0x01
 #define kRefreshTimer   0x02

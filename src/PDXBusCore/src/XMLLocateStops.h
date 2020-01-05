@@ -15,13 +15,13 @@
 
 #import <Foundation/Foundation.h>
 #import "TriMetXML.h"
-#import "StopDistanceData.h"
+#import "StopDistance.h"
 
-@interface XMLLocateStops : TriMetXML<StopDistanceData*> {
+@interface XMLLocateStops : TriMetXML<StopDistance*> {
     TripMode                _currentMode;
 }
 
-@property (nonatomic, strong) StopDistanceData *currentStop;
+@property (nonatomic, strong) StopDistance *currentStop;
 @property (nonatomic, strong) NSMutableDictionary *routes;
 @property (nonatomic, readonly) BOOL findNearestRoutes;
 @property (nonatomic, readonly) BOOL findNearestStops;

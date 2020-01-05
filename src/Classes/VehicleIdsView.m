@@ -16,7 +16,7 @@
 #import "VehicleIdsView.h"
 #import "TriMetInfo.h"
 #import "DepartureTimesView.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 
 #define kSearchSections         1
 #define kSectionSearchHistory   0
@@ -36,7 +36,7 @@
 
 - (NSString *)noItems
 {
-    return NSLocalizedString(@"These recently viewed vehicle IDs can be re-used to get current arrivals.", @"section title");
+    return NSLocalizedString(@"These recently viewed vehicle IDs can be re-used to get current departures.", @"section title");
 }
 
 
@@ -170,7 +170,7 @@
     else
     {
         UIAlertController* alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Enter Vehicle ID", @"Alert title")
-                                                                       message:NSLocalizedString(@"Show next arrivals for a vehicle (not streetcar).", @"Alert text")
+                                                                       message:NSLocalizedString(@"Show next departures for a vehicle (not streetcar).", @"Alert text")
                                                                 preferredStyle:UIAlertControllerStyleAlert];
         
         [alert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {

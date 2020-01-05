@@ -20,7 +20,7 @@
 
 - (void)getCurrentTimelineEntryForComplication:(nonnull CLKComplication *)complication withHandler:(nonnull void (^)(CLKComplicationTimelineEntry * _Nullable))handler {
     
-    [self getPlaceholderTemplateForComplication:complication withHandler:^(CLKComplicationTemplate * _Nullable complicationTemplate) {
+    [self getLocalizableSampleTemplateForComplication:complication withHandler:^(CLKComplicationTemplate * _Nullable complicationTemplate) {
         CLKComplicationTimelineEntry *entry = [[CLKComplicationTimelineEntry alloc] init];
         
         entry.complicationTemplate = complicationTemplate;
@@ -52,12 +52,7 @@
 
 - (void)getLocalizableSampleTemplateForComplication:(CLKComplication *)complication withHandler:(void(^)(CLKComplicationTemplate * __nullable complicationTemplate))handler CLK_AVAILABLE_WATCHOS_IOS(3_0, 10_0);
 {
-    return [self getPlaceholderTemplateForComplication:complication withHandler:handler];
-}
-
-- (void)getPlaceholderTemplateForComplication:(CLKComplication *)complication withHandler:(void (^)(CLKComplicationTemplate * _Nullable))handler
-{
-    CLKComplicationTemplate *template;
+     CLKComplicationTemplate *template;
     
     DEBUG_HERE();
     DEBUG_LOGD(complication.family);

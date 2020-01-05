@@ -21,12 +21,13 @@
 #import <AddressBook/ABPerson.h>
 #include "UserFaves.h"
 #import "TripPlannerBookmarkView.h"
-#import "TripPlannerDateView.h"
 #import "TripPlannerOptions.h"
 #import "RailMapView.h"
 #import "AllRailStationView.h"
 #import "TripPlannerLocatingView.h"
 #import <ContactsUI/ContactsUI.h>
+
+#define kTextMultiple (2.5)
 
 enum
 {
@@ -165,24 +166,59 @@ enum
     }
 }
 
-
-
-- (UITextField *)createTextField_Rounded
+- (void)doneButtonPressed
 {
-    CGRect frame = CGRectMake(0.0, 0.0, 80.0, [CellTextField editHeight]);
-    UITextField *returnTextField = [[UITextField alloc] initWithFrame:frame];
+    [self.editCell stopEditing];
+}
+
+
+- (void)clearButtonPressed
+{
+    self.editCell.view.text=@"";
+}
+
+
+- (UIPlaceHolderTextView *)createTextField_Rounded
+{
+    CGRect frame = CGRectMake(0.0, 0.0, 80.0, [CellTextField editHeight] * kTextMultiple);
+    UIPlaceHolderTextView *returnTextField = [[UIPlaceHolderTextView alloc] initWithFrame:frame];
     
-    returnTextField.borderStyle = UITextBorderStyleRoundedRect;
-    returnTextField.textColor = [UIColor blackColor];
+    // returnTextField.borderStyle = UITextBorderStyleRoundedRect;
+    returnTextField.textColor = [UIColor modeAwareText];
     returnTextField.font = [CellTextField editFont];
     returnTextField.placeholder = @"";
-    returnTextField.backgroundColor = [UIColor whiteColor];
-    returnTextField.autocorrectionType = UITextAutocorrectionTypeNo;    // no auto correction support
+    returnTextField.backgroundColor = [UIColor modeAwareGrayBackground];
+    returnTextField.autocorrectionType = UITextAutocorrectionTypeYes;    // no auto correction support
     
     returnTextField.keyboardType = UIKeyboardTypeASCIICapable;
-    returnTextField.returnKeyType = UIReturnKeyDone;
+    returnTextField.returnKeyType = UIReturnKeyDefault;
+    returnTextField.editable = YES;
     
-    returnTextField.clearButtonMode = UITextFieldViewModeWhileEditing;    // has a clear 'x' button to the right
+    returnTextField.layer.borderWidth = 2.0f;
+    returnTextField.layer.borderColor = [[UIColor lightGrayColor] CGColor];
+    
+    returnTextField.clipsToBounds = YES;
+    returnTextField.layer.cornerRadius = 10.0f;
+    
+    
+    UIToolbar* keyboardToolbar = [[UIToolbar alloc] init];
+    [keyboardToolbar sizeToFit];
+    UIBarButtonItem *clearBarButton = [[UIBarButtonItem alloc]
+                                      initWithTitle:NSLocalizedString(@"Clear", @"Button")
+                                       style:UIBarButtonItemStylePlain
+                                       target:self
+                                       action:@selector(clearButtonPressed)];
+    
+    UIBarButtonItem *flexBarButton = [[UIBarButtonItem alloc]
+                                      initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
+                                      target:nil action:nil];
+    UIBarButtonItem *doneBarButton = [[UIBarButtonItem alloc]
+                                      initWithBarButtonSystemItem:UIBarButtonSystemItemDone
+                                      target:self action:@selector(doneButtonPressed)];
+    keyboardToolbar.items = @[clearBarButton, flexBarButton, doneBarButton];
+    returnTextField.inputAccessoryView = keyboardToolbar;
+    
+    // returnTextField.clearButtonMode = UITextFieldViewModeWhileEditing;    // has a clear 'x' button to the right
     self.placeNameField = returnTextField;
     
     return returnTextField;
@@ -214,8 +250,11 @@ enum
 
 - (void)gotPlace:(NSString *)place setUiText:(bool)setText additionalInfo:(NSString *)info
 {
-    if (place.length !=0)
+    place = [place stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    
+    if (place.length != 0)
     {
+        
         if (self.from)
         {
             self.placeNameField.placeholder=kStartTextDescPlaceHolder;
@@ -274,10 +313,6 @@ enum
         [self gotPlace:textView.text setUiText:NO additionalInfo:nil];
         self.navigationItem.rightBarButtonItem = nil;
         _keyboardUp = NO;
-    }
-    else
-    {
-        [self reloadData];
     }
 }
 
@@ -420,25 +455,26 @@ enum
             
             if (self.editCell == nil)
             {
-                self.editCell =  [[CellTextField alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kTextFieldId];
-                self.editCell.view = [self createTextField_Rounded];
+                self.editCell =  [[CellTextView alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kTextFieldId];
+                self.placeNameField = [self createTextField_Rounded];
                 self.editCell.delegate = self;
-                self.placeNameField = self.editCell.view;
+                self.editCell.view = self.placeNameField;
+    
                 // self.editCell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
                 self.editCell.imageView.image = [TableViewWithToolbar getIcon:kIconEnterStopID];
-                self.editCell.cellLeftOffset = 40.0;
+                self.editCell.cellLeftOffset = 50.0;
                 
                 if ([self endPoint].useCurrentLocation)
                 {
-                    self.editCell.view.placeholder=kTextGPSPlaceHolder;
+                    self.placeNameField.placeholder=kTextGPSPlaceHolder;
                 }
                 else
                 {
                     if (self.from)
                     {
-                        self.editCell.view.placeholder=kStartTextDescPlaceHolder;
+                        self.placeNameField.placeholder=kStartTextDescPlaceHolder;
                     } else {
-                        self.editCell.view.placeholder=kDestinationTextDescPlaceHolder;
+                        self.placeNameField.placeholder=kDestinationTextDescPlaceHolder;
                     }
                 }
             }
@@ -554,7 +590,7 @@ enum
             }
             cell.textLabel.font = self.basicFont;
             cell.accessoryType = UITableViewCellAccessoryNone;
-            cell.imageView.image = [self getIcon:kIconLocate7];
+            cell.imageView.image = [self getModeAwareIcon:kIconLocate7];
             cell.textLabel.adjustsFontSizeToFitWidth = YES;
             cell.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
             return cell;
@@ -571,7 +607,7 @@ enum
     switch (rowType)
     {
         case kTableEnterRowEnter:
-            return [CellTextField cellHeight];
+            return [CellTextField cellHeight] * kTextMultiple;
         case   kTableEnterRowRailStations:
         case   kTableEnterRowRailMap:
         case   kTableEnterRowBrowse:
@@ -672,7 +708,7 @@ enum
                 [self initEndPoint];
                 [self endPoint].useCurrentLocation = YES;
                 self.placeNameField.text =@"";
-                self.placeNameField.placeholder=kTextGPSPlaceHolder;
+                // self.placeNameField.placeholder=kTextGPSPlaceHolder;
                 
                 [self nextScreen];
                 break;
@@ -978,6 +1014,18 @@ enum
     [self getAddress:postalAddress description:nil];
 }
 
+- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection
+{
+    if (@available(iOS 13.0, *))
+    {
+        if (previousTraitCollection.userInterfaceStyle != self.traitCollection.userInterfaceStyle)
+        {
+            self.editCell = nil;
+        }
+    }
+    
+    [super traitCollectionDidChange:previousTraitCollection];
+}
 
 @end
 

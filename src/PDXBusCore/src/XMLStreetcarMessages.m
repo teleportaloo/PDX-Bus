@@ -15,7 +15,7 @@
 
 #import "XMLStreetcarMessages.h"
 #import "TriMetInfo.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 #import "XMLDepartures.h"
 
 @implementation XMLStreetcarMessages
@@ -190,7 +190,7 @@ XML_END_ELEMENT(text)
 {
     if (self.curentDetour)
     {
-        self.curentDetour.detourDesc = [TriMetXML replaceXMLcodes:self.contentOfCurrentProperty].stringWithTrailingSpacesRemoved.stringWithLeadingSpacesRemoved;
+        self.curentDetour.detourDesc = [TriMetXML replaceXMLcodes:self.contentOfCurrentProperty].stringByTrimmingWhitespace;
         self.curentDetour.routes = [NSMutableOrderedSet orderedSet];
         
         if (self.currentRoute)
@@ -238,7 +238,7 @@ XML_START_ELEMENT(stop)
 
 - (void)insertDetoursIntoDepartureArray:(XMLDepartures *)departures
 {
-    for (DepartureData *dep in departures)
+    for (Departure *dep in departures)
     {
         for (Detour *detour in self)
         {

@@ -21,6 +21,7 @@
 #import "DebugLogging.h"
 #import "ReverseGeoLocator.h"
 #import "GeoLocator.h"
+#import "MainQueueSync.h"
 
 @implementation TripPlannerLocatingView
 
@@ -98,15 +99,19 @@
             [geoNamesRequired addObject:self.tripQuery.userRequest.fromPoint];
         }
         
-        if (canGeocode && [GeoLocator addressNeedsCoords:self.tripQuery.userRequest.toPoint.locationDesc])
+        if (canGeocode && [GeoLocator addressNeedsCoords:self.tripQuery.userRequest.toPoint.locationDesc] && self.tripQuery.userRequest.toPoint.coordinates==nil)
         {
             [geoCoordsRequired addObject:self.tripQuery.userRequest.toPoint];
         }
         
-        if (canGeocode && [GeoLocator addressNeedsCoords:self.tripQuery.userRequest.fromPoint.locationDesc])
+        if (canGeocode && [GeoLocator addressNeedsCoords:self.tripQuery.userRequest.fromPoint.locationDesc] && self.tripQuery.userRequest.fromPoint.coordinates==nil)
         {
             [geoCoordsRequired addObject:self.tripQuery.userRequest.fromPoint];
         }
+         
+         self.tripQuery.toAppleFailed = NO;
+         self.tripQuery.fromAppleFailed = NO;
+         
         
         if (geoNamesRequired.count > 0 || geoCoordsRequired.count > 0 )
         {
@@ -127,23 +132,67 @@
                 [task taskItemsDone:taskCounter];
             }
             
+            NSMutableArray<TripLegEndPoint*> *toList = nil;
+            NSMutableArray<TripLegEndPoint*> *fromList = nil;
+            
+            
             for (TripEndPoint *point in geoCoordsRequired)
             {
                 GeoLocator *geoLocator = [[GeoLocator alloc] init];
                 
-                if ([geoLocator fetchCoordinates:point.locationDesc])
+                NSMutableArray<TripLegEndPoint*> *results = [geoLocator fetchCoordinates:point.locationDesc];
+                
+                if (results.count==1)
                 {
-                    point.coordinates = geoLocator.result;
+                    point.coordinates = results.lastObject.loc;
+                    point.locationDesc = results.lastObject.displayText;
+                }
+                else if (results.count!=0)
+                {
+                    if (point == self.tripQuery.userRequest.toPoint)
+                    {
+                        toList = results;
+                        self.tripQuery.toList = results;
+                    }
+                    else
+                    {
+                        self.tripQuery.fromList = results;
+                        fromList = results;
+                    }
+                }
+                else
+                {
+                    if (point == self.tripQuery.userRequest.toPoint)
+                    {
+                        self.tripQuery.toList = nil;
+                        self.tripQuery.toAppleFailed = YES;
+                    }
+                    else
+                    {
+                        self.tripQuery.fromList = nil;
+                        self.tripQuery.fromAppleFailed = YES;
+                    }
                 }
                 
                 taskCounter++;
                 [task taskItemsDone:taskCounter];
             }
             
-            [task taskSubtext:@"planning trip"];
-            self.tripQuery.oneTimeDelegate = task;
-            [self.tripQuery fetchItineraries:nil];
-            
+            if (self.tripQuery.toList==nil || self.tripQuery.fromList==nil)
+            {
+                [task taskSubtext:@"planning trip"];
+                self.tripQuery.oneTimeDelegate = task;
+                [self.tripQuery fetchItineraries:nil];
+                
+                if (toList)
+                {
+                    self.tripQuery.toList = toList;
+                }
+                if (fromList)
+                {
+                    self.tripQuery.fromList = fromList;
+                }
+            }
             [task taskItemsDone:2];
         }
         else {
@@ -156,31 +205,41 @@
         
         if (self.tripQuery.fromList != nil && !self.backgroundTaskForceResults && !self.tripQuery.userRequest.fromPoint.useCurrentLocation)
         {
-            TripPlannerLocationListView *locView = [TripPlannerLocationListView viewController];
+            __block TripPlannerLocationListView *locView =nil;
             
-            locView.tripQuery = self.tripQuery;
-            locView.from = true;
+            [MainQueueSync runSyncOnMainQueueWithoutDeadlocking:^{
+                locView = [TripPlannerLocationListView viewController];
             
+                locView.tripQuery = self.tripQuery;
+                
+                
+                locView.from = true;
+            }];
             // Push the detail view controller
             return (UIViewController *)locView;
         }
         else if (self.tripQuery.toList != nil && !self.backgroundTaskForceResults && !self.tripQuery.userRequest.toPoint.useCurrentLocation)
         {
-            TripPlannerLocationListView *locView = [TripPlannerLocationListView viewController];
+            __block TripPlannerLocationListView *locView = nil;
             
-            locView.tripQuery = self.tripQuery;
-            locView.from = false;
-            
+            [MainQueueSync runSyncOnMainQueueWithoutDeadlocking:^{
+                locView = [TripPlannerLocationListView viewController];
+                locView.tripQuery = self.tripQuery;
+                locView.from = false;
+            }];
             // Push the detail view controller
             return (UIViewController *)locView;
         }
         else
         {
-            TripPlannerResultsView *tripResults = [TripPlannerResultsView viewController];
+            __block TripPlannerResultsView *tripResults = nil;
             
-            tripResults.tripQuery = self.tripQuery;
+            [MainQueueSync runSyncOnMainQueueWithoutDeadlocking:^{
+                tripResults = [TripPlannerResultsView viewController];
+                tripResults.tripQuery = self.tripQuery;
             
-            [tripResults.tripQuery saveTrip];
+                [tripResults.tripQuery saveTrip];
+            }];
             
             
             // Push the detail view controller

@@ -236,7 +236,23 @@ enum SECTIONS_AND_ROWS
         
         CGRect frame = CGRectMake(LEFT_COLUMN_OFFSET, (kLocatingRowHeight - LEFT_COLUMN_HEIGHT) / 2.0, LEFT_COLUMN_WIDTH, LEFT_COLUMN_HEIGHT);
         self.progressInd = [[UIActivityIndicatorView alloc] initWithFrame:frame];
-        self.progressInd.activityIndicatorViewStyle = UIActivityIndicatorViewStyleGray;
+        
+        if (@available(iOS 13.0,*))
+        {
+            if (IOS_DARK_MODE)
+            {
+                self.progressInd.activityIndicatorViewStyle = UIActivityIndicatorViewStyleWhite;
+            }
+            else
+            {
+                self.progressInd.activityIndicatorViewStyle = UIActivityIndicatorViewStyleGray;
+            }
+        }
+        else
+        {
+            self.progressInd.activityIndicatorViewStyle = UIActivityIndicatorViewStyleGray;
+        }
+       
         self.progressInd.hidesWhenStopped = YES;
         [self.progressInd sizeToFit];
         self.progressInd.autoresizingMask =  (UIViewAutoresizingFlexibleTopMargin |
@@ -258,11 +274,12 @@ enum SECTIONS_AND_ROWS
         label.numberOfLines = 0;
         label.lineBreakMode = NSLineBreakByWordWrapping;
         [cell.contentView addSubview:label];
-        label.highlightedTextColor = [UIColor whiteColor];
-        label.textColor  = [UIColor blackColor];
+        label.highlightedTextColor = [UIColor modeAwareText];
+        label.textColor  = [UIColor modeAwareText];
         label.autoresizingMask =  (UIViewAutoresizingFlexibleWidth);
         label.backgroundColor = [UIColor clearColor];
         
+        cell.backgroundColor = [UIColor modeAwareCellBackground];
         [cell.contentView layoutSubviews];
         
         self.progressCell = cell;
@@ -434,7 +451,7 @@ enum SECTIONS_AND_ROWS
                 text.text = [NSString stringWithFormat:@"Accuracy acquired:\n+/- %@",
                              [FormatDistance formatMetres:self.lastLocation.horizontalAccuracy]];
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-                cell.accessibilityHint = @"Double-tap for arrivals";
+                cell.accessibilityHint = @"Double-tap for departures";
             }
             else if (!_failed)
             {

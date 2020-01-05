@@ -16,7 +16,7 @@
 #import "WhatsNewView.h"
 #import "SupportView.h"
 #import "DebugLogging.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 
 #include <sys/types.h>
 #include <sys/sysctl.h>
@@ -75,8 +75,8 @@ enum INTRO_ROWS {
         
         NSString *text = [NSString stringWithFormat:
                           NSLocalizedString(
-                                            @"Route and arrival data provided by permission of #B#bTriMet#b#0.\n\n"
-                                            "This app was developed as a volunteer effort to provide a service for #B#bTriMet#b#0 riders. The developer has no affiliation with #B#bTriMet#b#0, or Apple.\n\n"
+                                            @"Route and departure data provided by permission of #B#bTriMet#b#D.\n\n"
+                                            "This app was developed as a volunteer effort to provide a service for #B#bTriMet#b#D riders. The developer has no affiliation with #B#bTriMet#b#D, or Apple.\n\n"
                                             "Lots of #ithanks#i...\n\n"
                                             "...to #ihttp://www.portlandtransport.com#i for help and advice;\n\n"
                                             "...to #iScott#i, #iTim#i and #iMike#i for beta testing and suggestions;\n\n"
@@ -84,23 +84,23 @@ enum INTRO_ROWS {
                                             "...to #iScott#i (again 😃) for feedback on the watch app;\n\n"
                                             "...to #iRob Alan#i for the stylish icon; and\n\n"
                                             "...to #iCivicApps.org#i for Awarding PDX Bus the #i#bMost Appealing#b#i and #b#iBest in Show#b#i awards in July 2010.\n\n"
-                                            "Special thanks to #R#b#iKen#i#b#0 for putting up with all this.\n\n"
-                                            "\nCopyright (c) 2008-2018\nAndrew Wallace\n(See legal section above for other copyright owners and attrbutions).",
+                                            "Special thanks to #R#b#iKen#i#b#D for putting up with all this.\n\n"
+                                            "\nCopyright (c) 2008-2019\nAndrew Wallace\n(See legal section above for other copyright owners and attrbutions).",
                                             @"Dedication text")
                           ];
         
         versions = @[
-                     [NSString stringWithFormat:@"#0App: #b#B%@.%@", [NSBundle mainBundle].infoDictionary[@"CFBundleShortVersionString"], [NSBundle mainBundle].infoDictionary[@"CFBundleVersion"]],
-                     [NSString stringWithFormat:@"#0Type: #b#B%@", UIDevice.currentDevice.model],
-                     [NSString stringWithFormat:@"#0iOS: #b#B%@", UIDevice.currentDevice.systemVersion],
-                     [NSString stringWithFormat:@"#0Device: #b#B%@", self.platform],
-                     [NSString stringWithFormat:@"#0Build: #b#B%lu bits %@", sizeof(NSInteger) * 8, DEBUG_MODE]
+                     [NSString stringWithFormat:@"#DApp: #b#B%@.%@", [NSBundle mainBundle].infoDictionary[@"CFBundleShortVersionString"], [NSBundle mainBundle].infoDictionary[@"CFBundleVersion"]],
+                     [NSString stringWithFormat:@"#DType: #b#B%@", UIDevice.currentDevice.model],
+                     [NSString stringWithFormat:@"#DiOS: #b#B%@", UIDevice.currentDevice.systemVersion],
+                     [NSString stringWithFormat:@"#DDevice: #b#B%@", self.platform],
+                     [NSString stringWithFormat:@"#DBuild: #b#B%lu bits %@", sizeof(NSInteger) * 8, DEBUG_MODE]
                      ];
     
         thanksText = [text formatAttributedStringWithFont:self.paragraphFont];
         
-        introText = [@"One developer writes #bPDX Bus#b as a #ivolunteer effort#i, with a little help from friends and the local community. He has no affiliation with #b#BTriMet#b#0, but he happens to ride buses and MAX on most days.\n\n"
-                     "This is free because I do it for fun. #i#b#GReally#i#b#0." formatAttributedStringWithFont:self.paragraphFont];
+        introText = [@"One developer writes #bPDX Bus#b as a #ivolunteer effort#i, with a little help from friends and the local community. He has no affiliation with #b#BTriMet#b#D, but he happens to ride buses and MAX on most days.\n\n"
+                     "This is free because I do it for fun. #i#b#GReally#i#b#D." formatAttributedStringWithFont:self.paragraphFont];
         
         links = [NSArray arrayWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"about-links" ofType:@"plist"]];
         legal = [NSArray arrayWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"about-legal" ofType:@"plist"]];
@@ -183,7 +183,7 @@ enum INTRO_ROWS {
     UITableViewCell *cell = [self tableView:tableView multiLineCellWithReuseIdentifier:linkId];
     
     cell.textLabel.font =  self.basicFont; //  [UIFont fontWithName:@"Ariel" size:14];
-    cell.textLabel.textColor = [UIColor blueColor];
+    cell.textLabel.textColor = [UIColor modeAwareBlue];
     // cell.textLabel.adjustsFontSizeToFitWidth = YES;
     
     if (item[kLinkFull]==nil && item[kLinkMobile]==nil)

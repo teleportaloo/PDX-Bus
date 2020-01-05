@@ -12,14 +12,14 @@
 
 #import "TriMetXMLv2.h"
 #import "DepartureTrip.h"
-#import "StopDistanceData.h"
+#import "StopDistance.h"
 // #import <MapKit/MkAnnotation.h>
 // #import "MapPinColor.h"
 // #import "DepartureTimesDataProvider.h"
 #import "XMLStreetcarPredictions.h"
 
 @class DepartureTimes;
-@class DepartureData;
+@class Departure;
 
 
 #define DepOptionsFirstOnly    0x01
@@ -28,9 +28,9 @@
 
 #define DepOption(X) ((self.options & (X)) == (X))
 
-@interface XMLDepartures : TriMetXMLv2<DepartureData*> 
+@interface XMLDepartures : TriMetXMLv2<Departure*> 
 
-@property (nonatomic, strong) StopDistanceData *distance;
+@property (nonatomic, strong) StopDistance *distance;
 @property (nonatomic, copy)   NSString *locDesc;
 @property (nonatomic, copy)   NSString *locid;
 @property (nonatomic, strong) CLLocation *loc;
@@ -38,7 +38,7 @@
 @property (nonatomic, copy)   NSString *blockFilter;
 @property (nonatomic, copy)   NSString *sectionTitle;
 @property (nonatomic, strong) NSDate *queryTime;
-@property (nonatomic, strong) DepartureData *currentDepartureObject;
+@property (nonatomic, strong) Departure *currentDepartureObject;
 @property (nonatomic, strong) DepartureTrip *currentTrip;
 @property (nonatomic, strong) NSMutableData *streetcarData;
 @property (nonatomic)         unsigned int options;
@@ -52,7 +52,7 @@
 
 - (BOOL)getDeparturesForLocation:(NSString *)location block:(NSString*)block;
 - (BOOL)getDeparturesForLocation:(NSString *)location;
-- (DepartureData*)departureForBlock:(NSString *)block;
+- (Departure*)departureForBlock:(NSString *)block;
 - (void)startFromMultiple;
 - (bool)hasError;
 - (void)reload;

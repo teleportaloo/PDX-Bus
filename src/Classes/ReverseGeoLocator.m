@@ -116,7 +116,7 @@
     
     while (self.waitingForGeocoder & ![NSThread currentThread].isCancelled)
     {
-        [NSThread sleepForTimeInterval:0.5];
+        [NSThread sleepForTimeInterval:0.25];
         DEBUG_LOG(@"Waiting for Geocoder\n");
     }
     

@@ -21,7 +21,14 @@
 
 
 @interface TripPlannerSummaryView : TripPlannerBaseView
+{
+    NSUInteger _pickerRow;
+    NSUInteger _pickerSection;
+}
+
+@property (nonatomic, strong) UIDatePicker *datePickerView;
 
 -(void)initQuery;
+-(void)makeSummaryRows;
 
 @end

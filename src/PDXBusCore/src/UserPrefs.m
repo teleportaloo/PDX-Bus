@@ -18,6 +18,7 @@
 #import "TriMetTypes.h"
 #include "DebugLogging.h"
 #import "PDXBusCore.h"
+#import "FormatDistance.h"
 
 
 @implementation UserPrefs
@@ -35,17 +36,19 @@
 @dynamic useGpsWithin;
 @dynamic commuteButton;
 @dynamic autoLocateShowOptions;
-@dynamic hideSystemWideDetours;
+@dynamic hiddenSystemWideDetours;
+@dynamic firstLaunchWithiCloudAvailable;
+@dynamic showDetourIds;
 
 #define kPreferencesDomain      @"org.teleportaloo.PDXBus"
 #define kWatchSuite             @"group.teleportaloo.pdxbus"
 
 
-#define kDefaultRecentStops 10
-#define kDefaultTripHistory 10
-#define kDefaultRouteCache  1
-#define kDefaultNetworkTimeout 0
-#define kDefaultUseGpsWithin 3218.688
+#define kDefaultRecentStops     10
+#define kDefaultTripHistory     10
+#define kDefaultRouteCache      1
+#define kDefaultNetworkTimeout  0
+#define kDefaultUseGpsWithin    3218.688
 
 
 
@@ -287,18 +290,6 @@
     [_defaults setBool:icon forKey:@"locate_toolbar_icon"];
 }
 
-
-- (bool) ticketAppIcon
-{
-    return [self getBoolFromDefaultsForKey:@"ticket_app_icon"           ifMissing:YES writeToShared:NO];
-}
-
-- (void)setTicketAppIcon:(_Bool)icon
-{
-    [_defaults setBool:icon forKey:@"ticket_app_icon"];
-}
-
-
 - (bool) showStreetcarMapFirst
 {
     return [self getBoolFromDefaultsForKey:@"streetcar_map_first"        ifMissing:NO writeToShared:NO];
@@ -312,7 +303,7 @@
 
 - (float)useGpsWithin
 {
-    return [self getFloatFromDefaultsForKey:@"use_gps_within"            ifMissing:4828.032 max:8046.72 min:1609.344 writeToShared:NO];
+    return [self getFloatFromDefaultsForKey:@"use_gps_within"            ifMissing:MetresForMiles(3) max:MetresForMiles(5) min:MetresForMiles(1) writeToShared:NO];
 }    
 - (int)  travelBy
 {
@@ -441,6 +432,11 @@
 
 - (bool)showTrips
 {
+    // iOS 13 beta bug
+    if (@available(iOS 13.0, *))
+    {
+        return TRUE;
+    }
     return [self getBoolFromDefaultsForKey:@"show_trips" ifMissing:NO writeToShared:NO];
 }
 
@@ -449,18 +445,65 @@
     return @"icon_arrow_up.png";
 }
 
-- (bool)hideSystemWideDetours
+- (NSSet<NSNumber*>*)hiddenSystemWideDetours
 {
-    return [self getBoolFromDefaultsForKey:@"hide_system_wide_detours" ifMissing:NO writeToShared:NO];
+    NSArray *array = [_defaults objectForKey:@"hidden_system_wide_detours"];
+    
+    if (array == nil)
+    {
+        return [NSMutableSet set];
+    }
+    
+    return [NSSet setWithArray:array];
 }
 
-
-- (void)setHideSystemWideDetours:(_Bool)hide
+- (void)removeOldSystemWideDetours:(NSSet *)detoursNoLongerFound
 {
-    if (self.hideSystemWideDetours!=hide)
+    NSMutableSet* hidden = self.hiddenSystemWideDetours.mutableCopy;
+    
+    for (NSNumber *oldId in detoursNoLongerFound)
     {
-        [_defaults setBool:hide forKey:@"hide_system_wide_detours"];
+        [hidden removeObject:oldId];
     }
+    
+    self.hiddenSystemWideDetours = hidden;
+}
+
+- (void)setHideWatchDetours:(bool)hideWatchDetours
+{
+    [_defaults setBool:hideWatchDetours forKey:@"watch_hidden_detours"];
+}
+
+- (bool)hideWatchDetours
+{
+    return [self getBoolFromDefaultsForKey:@"watch_hidden_detours" ifMissing:NO writeToShared:NO];
+}
+
+- (void)setHiddenSystemWideDetours:(NSSet<NSNumber*>*)set
+{
+    NSArray<NSNumber*> *array = [set allObjects];
+    [_defaults setObject:array forKey:@"hidden_system_wide_detours"];
+}
+
+- (void)toggleHiddenSystemWideDetour:(NSNumber *)detourId
+{
+    NSMutableSet<NSNumber *> *hidden = self.hiddenSystemWideDetours.mutableCopy;
+
+    if ([hidden containsObject:detourId])
+    {
+        [hidden removeObject:detourId];
+    }
+    else
+    {
+        [hidden addObject:detourId];
+    }
+
+    self.hiddenSystemWideDetours = hidden;
+}
+
+- (bool)isHiddenSystemWideDetour:(NSNumber *)detourId
+{
+    return [self.hiddenSystemWideDetours containsObject:detourId];
 }
 
 - (int)kmlAgeOut
@@ -492,6 +535,64 @@
 - (bool)progressDebug
 {
     return [self getBoolFromDefaultsForKey:@"progress_debug" ifMissing:NO writeToShared:NO];
+}
+
+- (bool)firstLaunchWithiCloudAvailable
+{
+    return [self getBoolFromDefaultsForKey:@"first_launch_with_icloud" ifMissing:YES writeToShared:NO];
+}
+
+
+- (void)setFirstLaunchWithiCloudAvailable:(_Bool)first
+{
+    if (self.firstLaunchWithiCloudAvailable!=first)
+    {
+        [_defaults setBool:first forKey:@"first_launch_with_icloud"];
+    }
+}
+
+- (id)iCloudToken
+{
+    
+    return [_defaults objectForKey:@"org.teleportaloo.PDXBus.UbiquityIdentityToken"];
+}
+
+- (void)setICloudToken:(id)iCloudToken
+{
+    if (iCloudToken) {
+        NSData *newTokenData = [NSKeyedArchiver archivedDataWithRootObject: iCloudToken];
+        [_defaults
+            setObject: newTokenData
+            forKey: @"org.teleportaloo.PDXBus.UbiquityIdentityToken"];
+    } else {
+        [_defaults
+         removeObjectForKey: @"org.teleportaloo.PDXBus.UbiquityIdentityToken"];
+    }
+}
+
+
+
+- (bool)showDetourIds
+{
+    return [self getBoolFromDefaultsForKey:@"show_detour_ids" ifMissing:NO writeToShared:NO];
+}
+
+- (bool)useAppleGeoLocator
+{
+    return [self getBoolFromDefaultsForKey:@"use_apple_geolocator" ifMissing:YES writeToShared:NO];
+}
+
+-(bool)useGpsForAllAlarms
+{
+    return [self getBoolFromDefaultsForKey:@"use_gps_for_all_alarms" ifMissing:YES writeToShared:NO];
+}
+
+- (void)setUseGpsForAllAlarms:(_Bool)gps
+{
+    if (self.useGpsForAllAlarms!=gps)
+    {
+        [_defaults setBool:gps forKey:@"use_gps_for_all_alarms"];
+    }
 }
 
 

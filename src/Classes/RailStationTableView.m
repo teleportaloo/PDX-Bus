@@ -25,7 +25,7 @@
 #import "TripPlannerSummaryView.h"
 #import "FindByLocationView.h"
 #import "VehicleTableView.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 #import "KMLRoutes.h"
 
 @implementation RailStationTableView
@@ -248,7 +248,7 @@ enum SECTIONS_AND_ROWS {
             {
                 return NSLocalizedString(@"Choose from one of these stop(s):", @"section header");
             }
-            return NSLocalizedString(@"Arrivals", @"section header");
+            return NSLocalizedString(@"Departures", @"section header");
         case kSectionWikiLink:
             return NSLocalizedString(@"More Information", @"section header");
         case kSectionAlarm:
@@ -329,7 +329,7 @@ enum SECTIONS_AND_ROWS {
             break;
         case kRowAllArrivals:
             cell = [self plainCell:tableView];
-            cell.textLabel.text = NSLocalizedString(@"All arrivals", @"main menu item");
+            cell.textLabel.text = NSLocalizedString(@"All departures", @"main menu item");
             cell.selectionStyle = UITableViewCellSelectionStyleBlue;
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             cell.imageView.image = [self getIcon:kIconRecent];
@@ -353,7 +353,7 @@ enum SECTIONS_AND_ROWS {
             cell.textLabel.text = NSLocalizedString(@"Nearby stops", @"main menu item");
             cell.selectionStyle = UITableViewCellSelectionStyleBlue;
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-            cell.imageView.image = [self getIcon:kIconLocate7];
+            cell.imageView.image = [self getModeAwareIcon:kIconLocate7];
             cell.accessibilityLabel = cell.textLabel.text.phonetic;
             break;
         case kRowNearbyVehicles:
@@ -361,7 +361,7 @@ enum SECTIONS_AND_ROWS {
             cell.textLabel.text = NSLocalizedString(@"Nearby vehicles", @"main menu item");
             cell.selectionStyle = UITableViewCellSelectionStyleBlue;
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-            cell.imageView.image = [self getIcon:kIconLocate7];
+            cell.imageView.image = [self getModeAwareIcon:kIconLocate7];
             cell.accessibilityLabel = cell.textLabel.text.phonetic;
             break;
         case kRowWikiLink:
@@ -369,7 +369,7 @@ enum SECTIONS_AND_ROWS {
             cell.textLabel.text = NSLocalizedString(@"Wikipedia article", @"main menu item");
             cell.selectionStyle = UITableViewCellSelectionStyleBlue;
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-            cell.imageView.image = [self getIcon:kIconWiki];
+            cell.imageView.image = [self getIcon:kIconLink];
             cell.accessibilityLabel = cell.textLabel.text.phonetic;
             break;
         case kRowProximityAlarm:
@@ -696,7 +696,7 @@ enum SECTIONS_AND_ROWS {
     {
         return [self.callback actionText];
     }
-    return @"Show arrivals";
+    return @"Show departures";
     
 }
 
@@ -741,4 +741,3 @@ enum SECTIONS_AND_ROWS {
 }
 
 @end
-

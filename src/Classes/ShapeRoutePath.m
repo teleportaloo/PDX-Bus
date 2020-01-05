@@ -16,10 +16,9 @@
 #import "ShapeRoutePath.h"
 #import "RoutePolyline.h"
 #import "TriMetInfo.h"
+#import "UIColor+DarkMode.h"
 
 #pragma mark ShapeCoord
-
-#define kMapAnnotationBusColor [UIColor grayColor]
 
 @implementation ShapeCoord
 
@@ -71,6 +70,7 @@
 
 @implementation ShapeSegment
 
+@dynamic count;
 
 -  (ShapeCompactSegment *) compact
 {
@@ -101,11 +101,23 @@
     return self;
 }
 
+- (NSInteger)count
+{
+    return 0;
+}
+
+- (void)setCount:(NSInteger)count
+{
+    
+}
+
 @end
 
 #pragma mark ShapeCompactSegment
 
 @implementation ShapeCompactSegment
+
+@synthesize count = _count;
 
 - (void) dealloc
 {
@@ -130,11 +142,14 @@
 {
     if (seg)
     {
-        ShapeCompactSegment *compact = seg.compact;
-        
-        if (compact && compact.coords && self.coords)
+        if (self.count == seg.count)
         {
-            return memcmp(self.coords, compact.coords, _count * sizeof(_coords[0])) == 0;
+            ShapeCompactSegment *compact = seg.compact;
+        
+            if (compact && compact.coords && self.coords)
+            {
+                return memcmp(self.coords, compact.coords, _count * sizeof(_coords[0])) == 0;
+            }
         }
     }
     return NO;
@@ -155,6 +170,8 @@
     }
     return polyLine;
 }
+
+
 
 #define kKeyRoute         @"r"
 #define kKeyCoords        @"c"
@@ -230,6 +247,11 @@
     return compact;
 }
 
+- (NSInteger)count
+{
+    return self.coords.count;
+}
+
 @end
 
 #pragma mark ShapeRoutePath
@@ -265,7 +287,7 @@
         
         if (info == nil)
         {
-            color = kMapAnnotationBusColor;
+            color = [UIColor modeAwareBusColor];
             dashPatternId = 1;
             dashPhase = 0;
         }

@@ -33,8 +33,13 @@
 - (void)setView:(UITextView *)inView
 {
     _view = nil;
-	[self.contentView addSubview:inView];
+    _view.delegate = nil;
+    _view = inView;
+    _view.delegate = self;
+    
+    [self.contentView addSubview:inView];
 	[self layoutSubviews];
+    
 }
 
 - (UITextView *)view
@@ -51,11 +56,50 @@
 	// inset the text view within the cell
 	if (contentRect.size.width > (kInsertValue*2))	// but not if the width is too small
 	{
-		self.view.frame  = CGRectMake(contentRect.origin.x + kInsertValue,
+		self.view.frame  = CGRectMake(contentRect.origin.x + kInsertValue + self.cellLeftOffset,
 									  contentRect.origin.y + kInsertValue,
-									  contentRect.size.width - (kInsertValue*2),
+									  contentRect.size.width - (kInsertValue*2) - self.cellLeftOffset,
 									  contentRect.size.height - (kInsertValue*2));
 	}
+}
+
+#pragma mark -
+#pragma mark <UITextViewDelegate> Methods
+
+- (BOOL)textViewShouldBeginEditing:(UITextField *)textField
+{
+    BOOL beginEditing = YES;
+    // Allow the cell delegate to override the decision to begin editing.
+    if (self.delegate && [self.delegate respondsToSelector:@selector(cellShouldBeginEditing:)])
+    {
+        beginEditing = [self.delegate cellShouldBeginEditing:self];
+    }
+    // Update internal state.
+    if (beginEditing)
+        self.isInlineEditing = YES;
+    return beginEditing;
+}
+
+- (void)textViewDidEndEditing:(UITextField *)textField
+{
+    // Notify the cell delegate that editing ended.
+    if (self.delegate && [self.delegate respondsToSelector:@selector(cellDidEndEditing:)])
+    {
+        [self.delegate cellDidEndEditing:self];
+    }
+    // Update internal state.
+    self.isInlineEditing = NO;
+}
+
+- (BOOL)textViewdShouldReturn:(UITextField *)textField
+{
+    [self stopEditing];
+    return YES;
+}
+
+- (void)stopEditing
+{
+    [_view resignFirstResponder];
 }
 
 @end

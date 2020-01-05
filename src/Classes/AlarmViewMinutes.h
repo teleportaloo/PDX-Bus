@@ -17,11 +17,12 @@
 #import "TableViewWithToolbar.h"
 #import "XMLDepartures.h"
 
-@interface AlarmViewMinutes : TableViewWithToolbar <UIPickerViewDelegate, UIPickerViewDataSource> 
+@interface AlarmViewMinutes : TableViewWithToolbar <UIPickerViewDelegate, UIPickerViewDataSource>
+{
+    NSInteger _rowChosen;
+}
 
 @property (nonatomic, strong) UIPickerView *pickerView;
-@property (nonatomic, strong) DepartureData *dep;
-
-- (CGRect)pickerFrameWithSize:(CGSize)size;
+@property (nonatomic, strong) Departure *dep;
 
 @end

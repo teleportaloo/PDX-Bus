@@ -15,20 +15,18 @@
 
 #import <Foundation/Foundation.h>
 #import "AlarmFetchArrivalsTask.h"
-#import "DepartureData.h"
+#import "Departure.h"
 #import <CoreLocation/CoreLocation.h>
+#import "FormatDistance.h"
 
-#define kMileProximity            (1609.344)
-#define kHalfMile                (kMileProximity/2)
-#define kThirdMile                (kMileProximity/3)
-#define kProximity                kThirdMile
-#define kBadAccuracy            (800.0)
-#define kUserDistanceProximity  NSLocalizedString(@"⅓ mile", @"proximity alarm distance")
-#define kUserProximityCellText  NSLocalizedString(@"Proximity alarm (⅓ mile)",@"proximity alarm distance")
-#define kUserProximityDeniedCellText NSLocalizedString(@"Proximity alarm (not authorized)",@"proximity alarm error")
+#define kTargetProximity                (kMetresInAMile / 3)
+#define kBadAccuracy                    (800.0)
+#define kUserDistanceProximity          NSLocalizedString(@"⅓ mile", @"proximity alarm distance")
+#define kUserProximityCellText          NSLocalizedString(@"Proximity alarm (⅓ mile)",@"proximity alarm distance")
+#define kUserProximityDeniedCellText    NSLocalizedString(@"Proximity alarm (not authorized)",@"proximity alarm error")
 
 
-@interface AlarmTaskList : NSObject <AlarmObserver>
+@interface AlarmTaskList : NSObject <AlarmObserver, CLLocationManagerDelegate>
 {
     NSMutableDictionary *       _backgroundTasks;
     NSMutableArray *            _orderedTaskKeys;
@@ -44,7 +42,7 @@
 @property (nonatomic, readonly) NSInteger taskCount;
 @property (nonatomic, readonly, copy) NSArray *taskKeys;
 
-- (void)addTaskForDeparture:(DepartureData *)dep mins:(uint)mins;
+- (void)addTaskForDeparture:(Departure *)dep mins:(uint)mins;
 - (bool)hasTaskForStopId:(NSString *)stopId block:(NSString *)block;
 - (int)minsForTaskWithStopId:(NSString *)stopId block:(NSString *)block;
 - (void)cancelTaskForKey:(NSString *)key;

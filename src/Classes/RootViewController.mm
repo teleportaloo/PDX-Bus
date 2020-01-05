@@ -57,13 +57,14 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 #import "WatchConnectivity/WatchConnectivity.h"
 #import "WatchAppContext.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 #import "CLLocation+Helper.h"
 #import <Intents/Intents.h>
 #import "MainQueueSync.h"
 #import "KMLRoutes.h"
 #import "VehicleIdsView.h"
 #import "CLLocation+Helper.h"
+#import "TintedImageCache.h"
 
 enum SECTIONS_AND_ROWS
 {
@@ -82,7 +83,6 @@ enum SECTIONS_AND_ROWS
     kTableTriMetCustomerService,
     kTableTriMetCall,
     kTableTriMetTweet,
-    kTableTriMetTicketApp,
     kTableStreetcarTweet,
     
     kTableAboutSettings,
@@ -186,17 +186,7 @@ enum TRIP_ROWS
         [toolbarItems addObject:[UIToolbar qrScannerButtonWithTarget:self action:@selector(QRScannerAction:)]];
         spaceNeeded = YES;
     }
-    
-    if ([UserPrefs sharedInstance].ticketAppIcon)
-    {
-        if (spaceNeeded)
-        {
-             [toolbarItems addObject:[UIToolbar flexSpace]];
-        }
-        [toolbarItems addObject:[self ticketAppButton]];
-        spaceNeeded = YES;
-    }
-    
+        
     [self maybeAddFlashButtonWithSpace:spaceNeeded buttons:toolbarItems big:YES];
     
     
@@ -648,7 +638,7 @@ enum TRIP_ROWS
 
 - (void)executeInitialAction
 {
-    // DEBUG_PRINTF("Last arrivals: %s", [self.lastArrivalsShown cStringUsingEncoding:NSUTF8StringEncoding]);
+    // DEBUG_PRINTF("Last departure: %s", [self.lastArrivalsShown cStringUsingEncoding:NSUTF8StringEncoding]);
     DEBUG_LOGB(self.commuterBookmark);
     
     if (!self.viewLoaded)
@@ -786,10 +776,10 @@ enum TRIP_ROWS
     UITextField *returnTextField = [[UITextField alloc] initWithFrame:frame];
     
     returnTextField.borderStyle = UITextBorderStyleRoundedRect;
-    returnTextField.textColor = [UIColor blackColor];
+    returnTextField.textColor = [UIColor modeAwareText];
     returnTextField.font = [CellTextField editFont];
     returnTextField.placeholder = NSLocalizedString(@"<enter stop ID>", @"default text");
-    returnTextField.backgroundColor = [UIColor whiteColor];
+    returnTextField.backgroundColor = [UIColor modeAwareGrayBackground];
     returnTextField.autocorrectionType = UITextAutocorrectionTypeNo;    // no auto correction support
     
     returnTextField.keyboardType = UIKeyboardTypeNumberPad;
@@ -991,11 +981,6 @@ enum TRIP_ROWS
     [self addRowType:kTableTriMetTweet];
     [self addRowType:kTableStreetcarTweet];
     [self addRowType:kTableTriMetFacebook];
-    
-    if ([UserPrefs sharedInstance].ticketAppIcon)
-    {
-        [self addRowType:kTableTriMetTicketApp];
-    }
     [self addRowType:kTableTriMetLink];
     
     if ([self canCallTriMet])
@@ -1074,7 +1059,7 @@ enum TRIP_ROWS
                 if (bookmark[kUserFavesLocation] != nil)
                 {
                     
-                    attributeSet.contentDescription = @"Arrival bookmark";
+                    attributeSet.contentDescription = @"Departure bookmark";
                 }
                 else
                 {
@@ -1119,7 +1104,7 @@ enum TRIP_ROWS
             if (bookmark[kUserFavesLocation] != nil)
             {
                 
-                aMutableShortcutItem.localizedSubtitle = NSLocalizedString(@"Arrival bookmark",@"button text");
+                aMutableShortcutItem.localizedSubtitle = NSLocalizedString(@"Departure bookmark",@"button text");
             }
             else
             {
@@ -1212,6 +1197,57 @@ enum TRIP_ROWS
     
 }
 
+- (void)setupiCloud
+{
+    // iCloud Data
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    
+    id currentiCloudToken = fileManager.ubiquityIdentityToken;
+    
+    
+    UserPrefs *prefs = [UserPrefs sharedInstance];
+    
+     // Archiving iCloud availability in the user defaults database
+    prefs.iCloudToken = currentiCloudToken;
+    
+    NSUbiquitousKeyValueStore * store = [NSUbiquitousKeyValueStore defaultStore];
+    
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        [[NSNotificationCenter defaultCenter]
+         addObserver: self
+         selector: @selector (handleiCloudStateChange:)
+         name: NSUbiquityIdentityDidChangeNotification
+         object: nil];
+    
+        [[NSNotificationCenter defaultCenter]
+         addObserver: self
+         selector: @selector (handleChangesFromiCloud:)
+         name: NSUbiquitousKeyValueStoreDidChangeExternallyNotification
+         object: store];
+    });
+    
+    if (currentiCloudToken && prefs.firstLaunchWithiCloudAvailable)
+    {
+        [store synchronize];
+        self.iCloudFaves = YES;
+        [self iCloudInitialMerge];
+    }
+    else if (currentiCloudToken)
+    {
+        [store synchronize];
+        self.iCloudFaves = YES;
+        self->_userData.canWriteToCloud = YES;
+        [self->_userData mergeWithCloud:nil];
+    }
+    else // no iCloud
+    {
+        self.iCloudFaves = NO;
+        self->_userData.canWriteToCloud = NO;
+        prefs.firstLaunchWithiCloudAvailable = YES;
+    }
+}
+
 
 - (void)viewDidLoad {
 #ifndef LOADINGSCREEN
@@ -1235,6 +1271,8 @@ enum TRIP_ROWS
         
         }];
     }
+    
+    [self setupiCloud];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -1251,7 +1289,7 @@ enum TRIP_ROWS
 
 }
 
-- (void) handleChangeInUserSettings:(id)obj
+- (void)handleChangeInUserSettings:(id)obj
 {
     [MainQueueSync runSyncOnMainQueueWithoutDeadlocking:^{
         [self reloadData];
@@ -1298,10 +1336,134 @@ enum TRIP_ROWS
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleChangeInUserSettings:) name:NSUserDefaultsDidChangeNotification object:[NSUserDefaults standardUserDefaults]];
     
-    
     [self iOS7workaroundPromptGap];
     
     DEBUG_FUNCEX();
+}
+
+
+
+- (void)cloudToLocal
+{
+    [UserPrefs sharedInstance].firstLaunchWithiCloudAvailable = NO;
+    _userData.canWriteToCloud = YES;
+    [_userData mergeWithCloud:nil];
+    self.iCloudFaves = YES;
+    [_userData cacheAppData];
+    [self favesChanged];
+    [self reloadData];
+}
+
+- (void)iCloudInitialMerge
+{
+    NSUbiquitousKeyValueStore *store =  [NSUbiquitousKeyValueStore defaultStore];
+    NSNumber *total = [store objectForKey:kiCloudTotal];
+    
+    DEBUG_FUNC();
+    
+    if (total!=nil && _userData.faves.count == 0)
+    {
+        DEBUG_LOG(@"Found iCloud bookmarks; merging");
+        [self cloudToLocal];
+    }
+    else if (total!=nil)
+    {
+        if (!_userData.hasEverChanged)
+        {
+            DEBUG_LOG(@"Found iCloud bookmarks; local ones are unchanged so merging.");
+            [self cloudToLocal];
+        }
+        else
+        {
+            DEBUG_LOG(@"Found iCloud bookmarks; local ones are changed - using local.");
+            [UserPrefs sharedInstance].firstLaunchWithiCloudAvailable = NO;
+            self->_userData.canWriteToCloud = YES;
+            self.iCloudFaves = YES;
+            [self->_userData cacheAppData];
+            [self favesChanged];
+            [self reloadData];
+        }
+    }
+    else
+    {
+        // Just write it now.  We will get an initial sync warning.
+        DEBUG_LOG(@"No iCloud bookmarks; writing local and hopng for sync.");
+        [UserPrefs sharedInstance].firstLaunchWithiCloudAvailable = NO;
+        self->_userData.canWriteToCloud = YES;
+        self.iCloudFaves = YES;
+        [self->_userData cacheAppData];
+        [self favesChanged];
+        [self reloadData];
+    }
+}
+
+- (void)handleiCloudStateChange:(NSNotification*)notification
+{
+    DEBUG_FUNC();
+    [MainQueueSync runSyncOnMainQueueWithoutDeadlocking:^{
+        [self setupiCloud];
+    }];
+}
+
+
+- (void)handleChangesFromiCloud:(NSNotification*)notification
+{
+    DEBUG_FUNC();
+    [MainQueueSync runSyncOnMainQueueWithoutDeadlocking:^{
+        NSDictionary * userInfo = [notification userInfo];
+        NSInteger reason = [[userInfo objectForKey:NSUbiquitousKeyValueStoreChangeReasonKey] integerValue];
+        NSArray * keys = [userInfo objectForKey:NSUbiquitousKeyValueStoreChangedKeysKey];
+        
+        DEBUG_LOGL(reason);
+        // 4 reasons:
+        switch (reason) {
+            
+            case NSUbiquitousKeyValueStoreInitialSyncChange:
+                DEBUG_CASE(NSUbiquitousKeyValueStoreInitialSyncChange);
+                // First launch and the default bookmarks were overwritten
+                [self->_userData mergeWithCloud:nil];
+                [self favesChanged];
+                [self reloadData];
+                break;
+            case NSUbiquitousKeyValueStoreServerChange:
+                // Updated values
+                DEBUG_CASE(NSUbiquitousKeyValueStoreServerChange);
+                [self->_userData mergeWithCloud:keys];
+                [self favesChanged];
+                [self reloadData];
+                break;
+            case NSUbiquitousKeyValueStoreQuotaViolationChange:
+            {
+                DEBUG_CASE(NSUbiquitousKeyValueStoreQuotaViolationChange);
+                // No free space
+                // Probably delete items from the store
+                UIAlertView *alert = [[ UIAlertView alloc ] initWithTitle:NSLocalizedString(@"iCloud", @"alert title")
+                                                                  message:NSLocalizedString(@"You have too many bookmarks to store in the cloud.   You should delete some bookmarks.", @"error message")
+                                                                 delegate:nil
+                                                        cancelButtonTitle:NSLocalizedString(@"OK", "button text")
+                                                        otherButtonTitles:nil];
+                [alert show];
+                
+                self.iCloudFaves = NO;
+                break;
+            }
+            case NSUbiquitousKeyValueStoreAccountChange:
+                DEBUG_CASE(NSUbiquitousKeyValueStoreAccountChange);
+                // iCloud account changed
+                // Ask the user what to do
+                [self setupiCloud];
+                break;
+            default:
+                DEBUG_DEFAULT(reason);
+                break;
+        }
+#ifdef DEBUGLOGGING
+        for (NSString * key in keys)
+        {
+            DEBUG_LOG(@"Value for key %@ changed", key);
+        }
+#endif
+    }];
 }
 
 - (void)viewWillLayoutSubviews
@@ -1315,7 +1477,7 @@ enum TRIP_ROWS
         _taskList.observer = nil;
     }
     
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSUserDefaultsDidChangeNotification object:[NSUserDefaults standardUserDefaults]];
     
     DEBUG_LOGL(self.table.contentOffset.y);
     
@@ -1432,13 +1594,20 @@ enum TRIP_ROWS
     switch ([self sectionType:section])
     {
         case kTableSectionStopId:
-            return NSLocalizedString(@"Show arrivals for stop:",@"section header");
+            return NSLocalizedString(@"Show departures for stop:",@"section header");
         case kTableSectionVehicleId:
             return NSLocalizedString(@"Locate vehicle you are on (not Streetcar)",@"section header");
         case kTableSectionAlarms:
             return NSLocalizedString(@"Alarms:",@"section header");
         case kTableSectionFaves:
-            return NSLocalizedString(@"Bookmarks:",@"section header");
+            if (self.iCloudFaves)
+            {
+                return NSLocalizedString(@"iCloud Bookmarks:",@"section header");
+            }
+            else
+            {
+                 return NSLocalizedString(@"Bookmarks:",@"section header");
+            }
         case kTableSectionTriMet:
             return NSLocalizedString(@"More info from TriMet:",@"section header");
         case kTableSectionAbout:
@@ -1505,11 +1674,12 @@ enum TRIP_ROWS
                 }
                 else
                 {
-                    cell.backgroundColor =  [UIColor whiteColor]; 
+                    cell.backgroundColor =  [UIColor modeAwareCellBackground];
                 }
             }
             break;
-            default:
+        default:
+            cell.backgroundColor = [UIColor modeAwareCellBackground];
             break;
     }
     
@@ -1673,10 +1843,11 @@ enum TRIP_ROWS
     cell.textLabel.font = self.basicFont;
     cell.textLabel.adjustsFontSizeToFitWidth = YES;
     cell.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
-    cell.textLabel.textColor = [UIColor blackColor];
+    cell.textLabel.textColor = [UIColor modeAwareText];
     cell.imageView.image = image;
     cell.textLabel.text = text;
     cell.accessoryType = accType;
+    cell.backgroundColor = [UIColor modeAwareCellBackground];
     [self updateAccessibility:cell];
     
     return cell;
@@ -1736,21 +1907,21 @@ enum TRIP_ROWS
                 case kTableFindRowVehicle:
                 {
                     return [self plainCell:tableView
-                                     image:[self getIcon:kIconLocate7]
+                                     image:[self getModeAwareIcon:kIconLocate7]
                                       text:NSLocalizedString(@"Locate the vehicle you're on", @"main menu item")
                                  accessory:UITableViewCellAccessoryDisclosureIndicator];
                 }
                 case kTableFindRowVehicleId:
                 {
                     return [self plainCell:tableView
-                                     image:[self getIcon:kIconLocate7]
+                                     image:[self getModeAwareIcon:kIconLocate7]
                                       text:NSLocalizedString(@"Locate the vehicle by ID", @"main menu item")
                                  accessory:UITableViewCellAccessoryDisclosureIndicator];
                 }
                 case kTableFindRowLocate:
                 {
                     return [self plainCell:tableView
-                                     image:[self getIcon:kIconLocate7]
+                                     image:[self getModeAwareIcon:kIconLocate7]
                                       text:NSLocalizedString(@"Locate nearby stops", @"main menu item")
                                  accessory:UITableViewCellAccessoryDisclosureIndicator];
                 }
@@ -1765,7 +1936,7 @@ enum TRIP_ROWS
                 case kTableFindRowQR:
                 {
                     return [self plainCell:tableView
-                                     image:[self getIcon:kIconCameraAction7]
+                                     image:[self getModeAwareIcon:kIconCameraAction7]
                                       text:NSLocalizedString(@"Scan TriMet QR Code", @"main menu item")
                                  accessory:UITableViewCellAccessoryDisclosureIndicator];
                 }
@@ -1931,11 +2102,6 @@ enum TRIP_ROWS
                     cell.imageView.image = [self getIcon:kIconTwitter];
                     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                     break;
-                case kTableTriMetTicketApp:
-                    cell.textLabel.text = NSLocalizedString(@"TriMet Tickets app",@"main menu item");
-                    cell.imageView.image = [self getIcon:kIconTicket];
-                    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-                    break;
                 case kTableTriMetDetours:
                     cell.textLabel.attributedText = ATTR(NSLocalizedString(@"#RDetours, delays and closures",@"main menu item"));
                     cell.imageView.image = [self getIcon:kIconDetour];
@@ -1967,7 +2133,7 @@ enum TRIP_ROWS
                 case kTableAboutSettings:
                     cell.textLabel.text = NSLocalizedString(@"Settings",@"main menu item");
                     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-                    cell.imageView.image = [self getIcon:kIconSettings];
+                    cell.imageView.image = [self getModeAwareIcon:kIconSettings];
                     break;
                 case kTableAboutRowAbout:
                     cell.textLabel.text = NSLocalizedString(@"About & legal",@"main menu item");
@@ -1976,7 +2142,7 @@ enum TRIP_ROWS
                     break;
                 case kTableAboutSupport:
                     cell.textLabel.text = NSLocalizedString(@"Help, Tips & support",@"main menu item");
-                    cell.imageView.image = [self getIcon:kIconXml];
+                    cell.imageView.image = [self getModeAwareIcon:kIconXml];
                     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                     break;
                 case kTableAboutFacebook:
@@ -2116,11 +2282,18 @@ enum TRIP_ROWS
     
     NSInteger rowType = [self rowType:[NSIndexPath indexPathForRow:index inSection:_faveSection]];
     
+    DEBUG_LOGL(_userData.faves.count);
+    
+    if (DEBUG_AND(self.iCloudFaves))
+    {
+        DEBUG_LOGL(((NSNumber*)[[NSUbiquitousKeyValueStore defaultStore] objectForKey:kiCloudTotal]).integerValue);
+    }
+    
     if (rowType == kTableFaveBookmark)
     {
         @synchronized (_userData)
         {
-            item = (NSMutableDictionary *)(_userData.faves[index]);
+            item = _userData.faves[index];
             location = item[kUserFavesLocation];
             tripItem = item[kUserFavesTrip];
             req = [TripUserRequest fromDictionary:tripItem];
@@ -2402,13 +2575,7 @@ enum TRIP_ROWS
                     [self triMetTweetFrom:cell.imageView];
                     break;
                 }
-                    
-                case kTableTriMetTicketApp:
-                {
-                    [self ticketAppFrom:[self.table cellForRowAtIndexPath:indexPath].contentView button:nil];
-                    break;
-                }
-                    
+                                        
                 case kTableTriMetCall:
                 {
                     [self callTriMet];
@@ -2838,7 +3005,10 @@ enum TRIP_ROWS
 }
 
 //Watch Kit delegate
-
+- (void)session:(WCSession *)session activationDidCompleteWithState:(WCSessionActivationState)activationState error:(nullable NSError *)error
+{
+    
+}
 
 /** Called when the session can no longer be used to modify or add any new transfers and, all interactive messages will be cancelled, but delegate callbacks for background transfers can still occur. This will happen when the selected watch is being changed. */
 - (void)sessionDidBecomeInactive:(WCSession *)session
@@ -2884,6 +3054,20 @@ enum TRIP_ROWS
         }
     }
 }
+
+- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection
+{
+    if (@available(iOS 13.0, *))
+    {
+        if (previousTraitCollection.userInterfaceStyle != self.traitCollection.userInterfaceStyle)
+        {
+            self.editCell = nil;
+        }
+    }
+    
+    [super traitCollectionDidChange:previousTraitCollection];
+}
+
 
 @end
 

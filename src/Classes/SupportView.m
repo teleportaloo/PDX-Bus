@@ -21,7 +21,7 @@
 #import <CoreLocation/CoreLocation.h>
 #import <AVFoundation/AVFoundation.h>
 #import "NearestVehiclesMap.h"
-#import "StringHelper.h"
+#import "NSString+Helper.h"
 #import "KMLRoutes.h"
 #import "MainQueueSync.h"
 
@@ -35,6 +35,10 @@ enum
     kSectionTriMetSupport,
     kSectionTriMetTweet,
     kSectionRowNetwork,
+    kSectioniCloud,
+    kRowWriteToiCloud,
+    kRowReadFromiCloud,
+    kRowDeleteiCloud,
     kSectionRowCache,
     kSectionRowHighlights,
     kSectionRowShortcuts,
@@ -187,7 +191,7 @@ enum
         
         supportText = ATTR(
                            @"#bPDX Bus#b uses real-time tracking information from #bTriMet#b to display bus, MAX, WES and streetcar times for the Portland, Oregon, metro area.\n\n"
-                           "Every #bTriMet#b bus stop and rail station has its own unique #iStop ID#i number, up to five digits. Enter the #iStop ID#i to get the arrivals for that stop.\n\n"
+                           "Every #bTriMet#b bus stop and rail station has its own unique #iStop ID#i number, up to five digits. Enter the #iStop ID#i to get the departures for that stop.\n\n"
                            "#bPDX Bus#b offers several ways to discover #iStop IDs#i:\n"
                            "- Browse a list of routes and stops;\n"
                            "- Use the #bGPS#b to locate nearby stops;\n"
@@ -195,10 +199,10 @@ enum
                            "- Use the maps of the rail systems;\n"
                            "- or scan a #bQR code#b (found at some stops).\n\n"
                            "Once you have found your stops - #ibookmark#i them to use them again later.\n\n"
-                           "The #iTrip Planner#i feature uses #ischeduled times#i to arrange a journey with several transfers, always check the #bcurrent arrivals#b.\n\n"
+                           "The #iTrip Planner#i feature uses #ischeduled times#i to arrange a journey with several transfers, always check the #bcurrent departures#b.\n\n"
                            "See below for other tips and links, touch here to start using #bPDX Bus#b."
-                           "\n\nThe arrival data is provided by #bTriMet#b and #bPortland Streetcar#b and is the same as the transit tracker data. "
-                           "#b#RPlease contact TriMet for issues about late buses or other transit issues as the app developer cannot help.#b#0"
+                           "\n\nThe departure data is provided by #bTriMet#b and #bPortland Streetcar#b and is the same as the transit tracker data. "
+                           "#b#RPlease contact TriMet for issues about late buses or other transit issues as the app developer cannot help.#b#D"
                            "\n\nFor app support or feature requests please leave a comment on the blog; alternatively use twitter, Facebook or Github. The app developer is not able to respond to app store reviews, "
                            "so please do not use these for support or feature requests. ", @"Main help description");
         
@@ -206,19 +210,19 @@ enum
         tipText = [[NSArray alloc] initWithObjects:
                    ATTR(@"There are #bLOTS#b of settings for #bPDX Bus#b - take a look at the settings on the home screen to change colors, move the #ibookmarks#i to the top of the screen or change other options.", @"info text"),
                    ATTR(@"Use the top-left #bEdit#b button on the home screen to re-order or modify the #ibookmarks#i.  #iBookmarks#i can be re-ordered, they can also include multiple stops and can be made to show themselves automatically in the morning or evening.", @"info text"),
-                   ATTR(@"When the time is shown in #Rred#0 the vehicle will depart in 5 minutes or less.", @"info text"),
-                   ATTR(@"When the time is shown in #Bblue#0 the vehicle will depart in more than 5 minutes.", @"info text"),
-                   ATTR(@"When the time is shown in #Agray#0 no location infomation is available - the scheduled time is shown.", @"info text"),
-                   ATTR(@"When the time is shown in #Mmagenta#0 the vehicle is late.", @"info text"),
-                   ATTR(@"When the time is shown in #Oorange#0 and crossed out the vehicle was canceled.  The original scheduled time is shown for reference.", @"info text"),
-                   ATTR(@"#bStop IDs:#b Every #bTriMet#b bus stop and rail station has its own unique #iStop ID#i number, up to five digits. Enter the #iStop ID#i to get the arrivals for that stop.", @"info text"),
-                   ATTR(@"#bVehicle IDs:#b Every #bTriMet#b bus or train has an ID posted inside (except for the Streetcar). This is the #bVehicle ID#b. The #bVehicle ID#b is shown on the arrival details.  This can help to tell if a MAX car has a low-foor.",  @"info text"),
+                   ATTR(@"When the time is shown in #Rred#D the vehicle will depart in 5 minutes or less.", @"info text"),
+                   ATTR(@"When the time is shown in #Ublue#D the vehicle will depart in more than 5 minutes.", @"info text"),
+                   ATTR(@"When the time is shown in #Agray#D no location infomation is available - the scheduled time is shown.", @"info text"),
+                   ATTR(@"When the time is shown in #Mmagenta#D the vehicle is late.", @"info text"),
+                   ATTR(@"When the time is shown in #Oorange#D and crossed out the vehicle was canceled.  The original scheduled time is shown for reference.", @"info text"),
+                   ATTR(@"#bStop IDs:#b Every #bTriMet#b bus stop and rail station has its own unique #iStop ID#i number, up to five digits. Enter the #iStop ID#i to get the departures for that stop.", @"info text"),
+                   ATTR(@"#bVehicle IDs:#b Every #bTriMet#b bus or train has an ID posted inside (except for the Streetcar). This is the #bVehicle ID#b. The #bVehicle ID#b is shown on the departure details.  This can help to tell if a MAX car has a low-foor.",  @"info text"),
                    ATTR(@"#b" kBlockNameC " IDs:#b This is an ID given to a specific timetabled movement, internally this is known as a #iblock#i.  You can tag a #b" kBlockNameC " ID#b with a color. "
                         @"#b" kBlockNameC " ID#b color tags can be set to highlight a bus or train so that you can follow its progress through several stops. "
-                        @"For example, if you tag an arrival at one stop, you can use the color tag to see when it will arrive at your destination. "
+                        @"For example, if you tag a departure at one stop, you can use the color tag to see when it will arrive at your destination. "
                         @"Also, the tags will remain persistant on each day of the week, so the same bus or train will have the same color the next day.", @"info text"),
-                   ATTR(@"Sometimes the scheduled time is also shown in #Agray#0 when the vehicle is not running to schedule.", @"info text"),
-                   ATTR(@"Shake the device to #brefresh#b the arrival times.", @"info text"),
+                   ATTR(@"Sometimes the scheduled time is also shown in #Agray#D when the vehicle is not running to schedule.", @"info text"),
+                   ATTR(@"Shake the device to #brefresh#b the departure times.", @"info text"),
                    ATTR(@"Backup your bookmarks by #iemailing#i them to yourself.", @"info text"),
                    ATTR(@"Keep an eye on the #btoolbar#b at the bottom - there are maps, options, and other features to explore.", @"info text"),
                    ATTR(@"At night, #bTriMet#b recommends holding up a cell phone or flashing light so the driver can see you.", @"info text"),
@@ -274,15 +278,24 @@ enum
         
         [self addSectionType:kSectionRowCache];
         [self addRowType:kSectionRowCache];
-        [self addSectionType:kSectionRowHighlights];
-        [self addRowType:kSectionRowHighlights];
-
+        
         if (@available(iOS 12.0, *))
         {
             [self addSectionType:kSectionRowShortcuts];
             [self addRowType:kSectionRowShortcuts];
         }
         
+        if ([UserPrefs sharedInstance].iCloudToken!=nil)
+        {
+            [self addSectionType:kSectioniCloud];
+            [self addRowType:kRowWriteToiCloud];
+            [self addRowType:kRowReadFromiCloud];
+            [self addRowType:kRowDeleteiCloud];
+        }
+        
+        [self addSectionType:kSectionRowHighlights];
+        [self addRowType:kSectionRowHighlights];
+
         
         [self addSectionType:kSectionRowLocations];
         [self addRowType:kSectionRowLocations];
@@ -338,6 +351,8 @@ enum
             return NSLocalizedString(@"Vehicle highlights", @"section header");
         case kSectionRowShortcuts:
             return NSLocalizedString(@"Siri Shortcuts", @"section header");
+        case kSectioniCloud:
+            return NSLocalizedString(@"iCloud debugging", @"section header");
         case kSectionRowLocations:
             if ([UserPrefs sharedInstance].kmlRoutes)
             {
@@ -366,7 +381,7 @@ enum
     UITableViewCell *cell = [self tableView:tableView cellWithReuseIdentifier:MakeCellId(kSectionLinks)];
     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     cell.textLabel.font =  self.basicFont; //  [UIFont fontWithName:@"Ariel" size:14];
-    cell.textLabel.textColor = [UIColor blueColor];
+    cell.textLabel.textColor = [UIColor modeAwareBlue];
     cell.textLabel.adjustsFontSizeToFitWidth = YES;
     cell.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
     cell.selectionStyle = UITableViewCellSelectionStyleBlue;
@@ -428,6 +443,42 @@ enum
             return cell;
             break;
         }
+        case kRowWriteToiCloud:
+        {
+            UITableViewCell *cell = [self tableView:tableView cellWithReuseIdentifier:MakeCellId(kSectionHighlights)];
+            cell.textLabel.font =  self.basicFont; //  [UIFont fontWithName:@"Ariel" size:14];
+            cell.textLabel.adjustsFontSizeToFitWidth = YES;
+            cell.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
+            cell.textLabel.text = NSLocalizedString(@"Replace iCloud bookmarks with local bookmarks", @"main menu item");
+            cell.textLabel.textAlignment = NSTextAlignmentLeft;
+            cell.imageView.image = [self getIcon:kIconDelete];
+            return cell;
+            break;
+        }
+        case kRowReadFromiCloud:
+        {
+            UITableViewCell *cell = [self tableView:tableView cellWithReuseIdentifier:MakeCellId(kSectionHighlights)];
+            cell.textLabel.font =  self.basicFont; //  [UIFont fontWithName:@"Ariel" size:14];
+            cell.textLabel.adjustsFontSizeToFitWidth = YES;
+            cell.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
+            cell.textLabel.text = NSLocalizedString(@"Replace local bookmarks with iCloud bookmarks", @"main menu item");
+            cell.textLabel.textAlignment = NSTextAlignmentLeft;
+            cell.imageView.image = [self getIcon:kIconDelete];
+            return cell;
+            break;
+        }
+        case kRowDeleteiCloud:
+        {
+            UITableViewCell *cell = [self tableView:tableView cellWithReuseIdentifier:MakeCellId(kSectionHighlights)];
+            cell.textLabel.font =  self.basicFont; //  [UIFont fontWithName:@"Ariel" size:14];
+            cell.textLabel.adjustsFontSizeToFitWidth = YES;
+            cell.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
+            cell.textLabel.text = NSLocalizedString(@"Delete all in iCloud", @"main menu item");
+            cell.textLabel.textAlignment = NSTextAlignmentLeft;
+            cell.imageView.image = [self getIcon:kIconDelete];
+            return cell;
+            break;
+        }
         case kSectionRowLocations:
         {
             UITableViewCell *cell = [self tableView:tableView cellWithReuseIdentifier:MakeCellId(kSectionLocations)];
@@ -441,7 +492,7 @@ enum
                 cell.textLabel.text = NSLocalizedString(@"Show vehicle locations", @"main menu item");
             }
             cell.textLabel.textAlignment = NSTextAlignmentLeft;
-            cell.imageView.image = [self getIcon:kIconMap7];
+            cell.imageView.image = [self getModeAwareIcon:kIconMap7];
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             return cell;
             break;
@@ -667,6 +718,82 @@ enum
                     }];
                 }];
             }
+            [self clearSelection];
+            break;
+        }
+        case kRowWriteToiCloud:
+        {
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Force Overwrite to iCloud", @"Alert title")
+                                                                           message:NSLocalizedString(@"This will write your local bookmarks to the cloud.", @"Alert text")
+                                                 preferredStyle:UIAlertControllerStyleAlert];
+            
+            [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"Button text") style:UIAlertActionStyleDestructive handler:^(UIAlertAction* action){
+                
+                NSUbiquitousKeyValueStore *store = [NSUbiquitousKeyValueStore defaultStore];
+                
+                NSDictionary *cloud = [store dictionaryRepresentation];
+                
+                for (NSString *key in cloud)
+                {
+                    [store removeObjectForKey:key];
+                }
+                
+                DEBUG_LOGO(cloud);
+                
+                [[SafeUserData sharedInstance] writeToiCloud];
+                [self favesChanged];
+                [self clearSelection];
+            }]];
+            
+            [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"Button text") style:UIAlertActionStyleCancel handler:^(UIAlertAction* action){
+                 [self clearSelection];
+            }]];
+            
+            [self displayAlert:alert];
+            break;
+        }
+        case kRowReadFromiCloud:
+        {
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Force Read from iCloud", @"Alert title")
+                                                                           message:NSLocalizedString(@"This will overwrite your local bookmarks.", @"Alert text")
+                                                                    preferredStyle:UIAlertControllerStyleAlert];
+            
+            [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"Button text") style:UIAlertActionStyleDestructive handler:^(UIAlertAction* action){
+                SafeUserData *userData = [SafeUserData sharedInstance];
+                [userData mergeWithCloud:nil];
+                [self favesChanged];
+                [self clearSelection];
+            }]];
+            
+            [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"Button text") style:UIAlertActionStyleCancel handler:^(UIAlertAction* action){
+                 [self clearSelection];
+            }]];
+            
+            [self displayAlert:alert];
+            break;
+        }
+        case kRowDeleteiCloud:
+        {
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Delete iCloud bookmarks", @"Alert title")
+                                                                           message:NSLocalizedString(@"This will delete all iCloud items.", @"Alert text")
+                                                                    preferredStyle:UIAlertControllerStyleAlert];
+            
+            [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"Button text") style:UIAlertActionStyleDestructive handler:^(UIAlertAction* action){
+                SafeUserData *userData = [SafeUserData sharedInstance];
+                [userData clearCloud];
+                
+                // When debugging, we may want to exit here.
+                // exit(0);
+                
+                [self clearSelection];
+            }]];
+            
+            [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"Button text") style:UIAlertActionStyleCancel handler:^(UIAlertAction* action){
+                [self clearSelection];
+            }]];
+            
+            [self displayAlert:alert];
+            
             break;
         }
         case kSectionRowLocations:

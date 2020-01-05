@@ -20,6 +20,9 @@
 @protocol ReturnTripLegEndPoint;
 
 @interface TripLegEndPoint: DataFactory <MapPinColor, NSCopying>
+{
+    CLLocation *_loc;
+}
 
 @property (nonatomic, strong) id<ReturnTripLegEndPoint> callback;
 @property (nonatomic, copy) NSString *xlat;
@@ -38,7 +41,8 @@
 @property (nonatomic, readonly, copy) NSString *stopId;
 @property (nonatomic) MapPinColorValue pinColor;
 @property (nonatomic, readonly, copy) NSString *mapStopId;
-@property (nonatomic, readonly, copy) CLLocation *loc;
+@property (nonatomic, copy) CLLocation *loc;
+@property (nonatomic) bool fromAppleMaps;
 
 - (id)copyWithZone:(NSZone *)zone;
 

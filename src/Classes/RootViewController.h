@@ -15,7 +15,6 @@
 #import "TableViewWithToolbar.h"
 #import <MessageUI/MFMailComposeViewController.h>
 #import "CellTextField.h"
-#import "CellTextView.h"
 #import "AlarmTaskList.h"
 #import "ProgressModalView.h"
 #import  <CoreLocation/CoreLocation.h>
@@ -73,6 +72,7 @@ typedef enum InitialAction_tag
 @property (nonatomic, strong) UIButton *editBookmarksButton;
 @property (nonatomic, strong) UIButton *emailBookmarksButton;
 @property (nonatomic, strong) WCSession *session;
+@property (nonatomic)         bool      iCloudFaves;
 
 - (void)postEditingAction:(UITextView *)textView;
 - (void)commuteAction:(id)sender;
