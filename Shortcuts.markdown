@@ -8,6 +8,9 @@ PDX Bus is scriptable using either Shortcuts and URL schemes.  The shortcuts app
 
 [The Apple shortcuts app](https://support.apple.com/en-us/HT208309) allows users to write scrips on their devices. Here are some examples of what is availabe.  Be nice.
 
+Note:  to load any shortcuts you need to change the "Allow Untrusted Shortcuts" setting for the Shortcuts app.  I suggest turning that back off again when you are done.
+
+
 # PDX Bus URL to Launch And Show Arrivals For Stops 
 Launches PDXBus and displays arrivals for the listed stops.
 
