@@ -1,29 +1,31 @@
 # Some features require PDX Bus 11.3.2 - still in development
 # Some links are being updated and may not work yet.
 
-PDX Bus is scriptable with using ShortCuts and URL schemes, using the shortcuts app or other apps that can access URL schemes.
 
 # Introduction
-[The Apple shortcuts app](https://support.apple.com/en-us/HT208309) allows users to write scrips on their devices. PDX Bus is scriptable.  Here are some examples of what is availabe.  Be nice.
 
-# PDXBus URL Stops 
-Opens PDXBus and displays arrivals for the listed stops.
+PDX Bus is scriptable using either Shortcuts and URL schemes.  The shortcuts app or other apps  can access URL schemes.
+
+[The Apple shortcuts app](https://support.apple.com/en-us/HT208309) allows users to write scrips on their devices. Here are some examples of what is availabe.  Be nice.
+
+# PDX Bus URL to Launch And Show Arrivals For Stops 
+Launches PDXBus and displays arrivals for the listed stops.
 
 Example:  <pdxbus:://355,366>
 
-[An example shortcut link](https://www.icloud.com/shortcuts/2a56477b997e484b87d4644316cd31e8) 
+[An example shortcut link](https://www.icloud.com/shortcuts/4e7aa0543d9a4a52a200f4bd933d875e) 
 
-
-# PDXBus URL Nearby 
+# PDX Bus URL To Launch And Show Nearby Stops 
 Opens PDXBus and locates nearby stops of a certain type within a certain distance.
 
 Example: <pdxbus://nearby&show=maps&distance=0.5&mode=both>
 
-[An example shortcut link](https://www.icloud.com/shortcuts/18b1a2994c8f46eaa2769a8685f3e3a5)
+
+[An example shortcut link](https://www.icloud.com/shortcuts/ec23d7f7e21849ad8d34313b2940f623)
 
 ## Arguments for Nearby command:
 
-### mode
+### mode=
 * bus
 * busses
 * buses
@@ -32,115 +34,126 @@ Example: <pdxbus://nearby&show=maps&distance=0.5&mode=both>
 * both
 * busandtrain
 
-### distance
+### distance=
 * closest
 * 0.5
 * 1
 * 3
 
-### show
-* arrivals"
+### show=
+* departures
 * map
 * routes
 
 
-# PDXBus URL Map 
+# PDX Bus URL To Launch and Show Map 
 Opens PDXBus and shows a map with all routes and vehicles.
 
 Example: <pdxbus://map>
 
-[An example shortcut link](https://www.icloud.com/shortcuts/ece0a620361b41e19f63563752b4a229)
+[An example shortcut link](https://www.icloud.com/shortcuts/984c2d2f096a4bbc87681b2698cc86b4)
 
-# PDXBus URL Bookmark Name
+# PDX Bus URL To Launch and Show Bookmark
 Opens PDXBus and opens a bookmark based on the name.
 
 Example: <pdxbus://bookmark=4T%20Trail>
 
-[An example shortcut link](https://www.icloud.com/shortcuts/8d975f7476c348aca2fa9b4f446e8189)
+[An example shortcut link](https://www.icloud.com/shortcuts/d051eda5ebaf464990465589f219f4b5)
 
-# PDXBus URL Bookmark Number
+# PDX Bus URL To Launch and Show Bookmark By Number
 Opens PDXBus and opens a bookmark based on the number, starting with 0.
 
 Example: <pdxbus://bookmarknumber=0>
 
-[An example shortcut link](https://www.icloud.com/shortcuts/5f2a6ea26b3c4ed69df37ef5a9b017fa)
+[An example shortcut link](https://www.icloud.com/shortcuts/ba09895d463c412f8214a771e23085d5)
 
 
-# PDXBus URL Commute
-Opens PDXBus and shows the commuter bookmark.
+# PDX Bus URL To Launch and Show Commuter Bookmark
+Opens PDXBus and shows the commuter bookmark based on the current time.
 
 Example: <pdxbus://commute>
 
-[An example shortcut link](https://www.icloud.com/shortcuts/603d52d0f69e4e7a96436f85a3abbb80)
+[An example shortcut link](https://www.icloud.com/shortcuts/8bd75e96a5ec49b2939fcbd245ab4c79)
 
-# PDXBus URL QR Code
-Opens PDXBus and shows QR reader.
+# PDX Bus URL To Launch and QR Code Reader
+Opens PDXBus and displays the QR code reader.
 
 Example: <pdxbus://qrcode>
 
-[An example shortcut link](https://www.icloud.com/shortcuts/90488a82a2dc4ba39a0f4ff7a19140c7)
+[An example shortcut link](https://www.icloud.com/shortcuts/a9701d50b0874626a56dcd97cf025343)
 
-# PDXBus URL Trip Planner
+# PDX Bus URL To Launch And Show Trip Planner
 Opens PDXBus and launches trip planner.
 
 Example: <pdxbus://trippplanner>
 
-[An example shortcut link](https://www.icloud.com/shortcuts/6ea5920fbae342548f1e310b3d511a4f)
+[An example shortcut link](https://www.icloud.com/shortcuts/f93c6e0ec066461383789480b62634c1)
 
 
-# PDXBus URL Trip Planner with arguments
+# PDX Bus URL To Launch and Plan A Trip
+
+Opens PDX Bus and plans a trip based on the arguements.   This was originally implemented to integrate with the BlindSquare application.
+
+Note:  the "?" is a required part of the synax.
 
 Example: <pdxbusroute://?to_lat=45.5149925&to_lon=-122.6785488&from_here>
 
-[An example shortcut link](https://www.icloud.com/shortcuts/b48a1063245d4f9aaea67b6aac0c7fc7)
+[An example shortcut link](https://www.icloud.com/shortcuts/981f6f65cd6e4479a448085036d7e44d)
 
-## Arguments
-* from_lat
-* from_lon
+## Supported Arguments
+* from_lat=<number>
+* from_lon=<number>
+* to_lat=<number>
+* to_lon=<number>
 * to_here
 * from_here
 * from_name
 * to_name
 
 
-# Shortcuts - Get nearest TriMet Stops
+# PDX Bus Siri Shortcut To Get Nearest TriMet Stops
 This is an action accessible from the Shortcuts app, and can be used to write a Siri shortcut.  The shortcut itself cam get the location from
 a contact or the current location.
 
 Arguments:  Location
 
-[An exmple shortcut link](https://www.icloud.com/shortcuts/58eeb246627246c49fe605fea0fbec05)
+The following shortcut uses this action, then also get and say the arrivals at the nearet stop.
 
-# Shortcuts - Get location of a TriMet Stop ID
+[An example shortcut link](https://www.icloud.com/shortcuts/2c3d380624254d33af1d1418c1752446)
+
+# PDX Bus Siri Shortcut To Locate A Stop ID
 This is an action accessible from the Shortcuts app, and can be used to write a Siri shortcut.   The shortcut returns a location object for a 
 specific stop ID.  This can then be passed along to another action.
 
 Arguments:  Stop IDs
 
-[An exmple shortcut link](https://www.icloud.com/shortcuts/6b3982506afc48f680d3570153e15e93) 
+The following shortcut uses this action, then shows a map centered on the location.
 
-# Shortcuts - Get TriMet Alerts for a route
-This is an action accessible from the Shortcuts app, and can be used to write a Siri shortcut.   This shortcut returns the alerts for a specific
-route.  THe route can be a bus number or a MAX color or streetcar line name.
+[An example shortcut link](https://www.icloud.com/shortcuts/1a5500eb6273424084b56d09cb4dc540) 
 
-[An example shortcut link](https://www.icloud.com/shortcuts/9b6a6f72a0fc431e8a3d2d5dd7d21696)
-
-Arguments:  Route
-
-# Shortcuts - Get TriMet departures for a Stop ID
+# PDX Bus Siri Shortcut To Get TriMet Departures (Orderd By Time) For A Stop ID
 This is an action accessible from the Shortcuts app, and can be used to write a Siri shortcut.  This shortcut returns the departures for a stop
 orderd by time.
 
-[An example shortcut link](https://www.icloud.com/shortcuts/cb8c5831601a4c1988d8c333b924c4d4)
+[An example shortcut link](https://www.icloud.com/shortcuts/67790699dd2946e0accc8bb88bac12a9)
 
 Arguments:  Stop ID
 
 
-# Shortcuts - Get TriMet routes and departures for a Stop ID
+# PDX Bus Siri Shortcut To Get Alerts For A Route
+This is an action accessible from the Shortcuts app, and can be used to write a Siri shortcut.   This shortcut returns the alerts for a specific
+route.  The route can be a bus number or a MAX color or streetcar line name.
+
+
+
+[An example shortcut link](https://www.icloud.com/shortcuts/590e607c7b6845368ab10dcd25da4682)
+
+Arguments:  Route
+
+# PDX Bus Siri Shortcut To Get TriMet Departures (Ordered By Route) For A Stop ID
 This is an action accessible from the Shortcuts app, and can be used to write a Siri shortcut.  This shortcut returns the departures for a stop
 orderd by route.
 
 Arguments: Stop ID
 
-[An exmple shortcut link](https://www.icloud.com/shortcuts/58eeb246627246c49fe605fea0fbec05)
-
+[An exmple shortcut link](https://www.icloud.com/shortcuts/2c3d380624254d33af1d1418c1752446)
