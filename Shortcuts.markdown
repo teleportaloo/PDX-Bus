@@ -4,12 +4,11 @@
 
 # Introduction
 
-PDX Bus is scriptable using either Shortcuts and URL schemes.  The shortcuts app or other apps  can access URL schemes.
+PDX Bus is scriptable using either Shortcuts and URL schemes.  The shortcuts app or other apps can also access URL schemes.
 
-[The Apple shortcuts app](https://support.apple.com/en-us/HT208309) allows users to write scrips on their devices. Here are some examples of what is availabe.  Be nice.
+[The Apple shortcuts app](https://support.apple.com/en-us/HT208309) allows users to write scrips on their devices. Here are some examples of what is available.  Be nice.
 
 Note:  to load any shortcuts you need to change the "Allow Untrusted Shortcuts" setting for the Shortcuts app.  I suggest turning that back off again when you are done.
-
 
 # PDX Bus URL to Launch And Show Arrivals For Stops 
 Launches PDXBus and displays arrivals for the listed stops.
@@ -95,9 +94,9 @@ Example: <pdxbus://trippplanner>
 
 # PDX Bus URL To Launch and Plan A Trip
 
-Opens PDX Bus and plans a trip based on the arguements.   This was originally implemented to integrate with the BlindSquare application.
+Opens PDX Bus and plans a trip based on the arguments.   This was originally implemented to integrate with the BlindSquare application.
 
-Note:  the "?" is a required part of the synax.
+Note:  the "?" is a required part of the syntax.
 
 Example: <pdxbusroute://?to_lat=45.5149925&to_lon=-122.6785488&from_here>
 
@@ -120,7 +119,7 @@ a contact or the current location.
 
 Arguments:  Location
 
-The following shortcut uses this action, then also get and say the arrivals at the nearet stop.
+The following shortcut uses this action, then also get and say the arrivals at the nearest stop.
 
 [An example shortcut link](https://www.icloud.com/shortcuts/2c3d380624254d33af1d1418c1752446)
 
@@ -134,9 +133,9 @@ The following shortcut uses this action, then shows a map centered on the locati
 
 [An example shortcut link](https://www.icloud.com/shortcuts/1a5500eb6273424084b56d09cb4dc540) 
 
-# PDX Bus Siri Shortcut To Get TriMet Departures (Orderd By Time) For A Stop ID
+# PDX Bus Siri Shortcut To Get TriMet Departures (Ordered By Time) For A Stop ID
 This is an action accessible from the Shortcuts app, and can be used to write a Siri shortcut.  This shortcut returns the departures for a stop
-orderd by time.
+ordered by time.
 
 [An example shortcut link](https://www.icloud.com/shortcuts/67790699dd2946e0accc8bb88bac12a9)
 
@@ -155,8 +154,9 @@ Arguments:  Route
 
 # PDX Bus Siri Shortcut To Get TriMet Departures (Ordered By Route) For A Stop ID
 This is an action accessible from the Shortcuts app, and can be used to write a Siri shortcut.  This shortcut returns the departures for a stop
-orderd by route.
+ordered by route.
 
 Arguments: Stop ID
 
-[An exmple shortcut link](https://www.icloud.com/shortcuts/2c3d380624254d33af1d1418c1752446)
+[An example shortcut link](https://www.icloud.com/shortcuts/2c3d380624254d33af1d1418c1752446)
+
