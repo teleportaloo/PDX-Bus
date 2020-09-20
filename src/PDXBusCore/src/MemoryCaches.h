@@ -21,11 +21,9 @@
 
 @end
 
-@interface MemoryCaches : NSObject {
-        NSMutableSet<NSValue*> *_caches;
-}
+@interface MemoryCaches : NSObject
 
-+ (MemoryCaches*)sharedInstance;
++ (MemoryCaches *)sharedInstance;
 + (void)memoryWarning;
 + (void)addCache:(id<ClearableCache>)cache;
 + (void)removeCache:(id<ClearableCache>)cache;

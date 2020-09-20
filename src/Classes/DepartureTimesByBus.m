@@ -16,121 +16,109 @@
 #import "Departure.h"
 #import "DepartureData+iOSUI.h"
 
+@interface DepartureTimesByBus ()
+
+@end
 
 @implementation DepartureTimesByBus
 
 
 - (instancetype)init {
-    if ((self = [super init]))
-    {
+    if ((self = [super init])) {
         self.departureItems = [NSMutableArray array];
     }
+    
     return self;
 }
 
 #pragma mark Data Accessors
 
-- (Departure *)depGetDeparture:(NSInteger)i
-{
+- (Departure *)depGetDeparture:(NSInteger)i {
     return self.departureItems[i];
 }
-- (NSInteger)depGetSafeItemCount
-{
-    if (self.departureItems == nil)
-    {
+
+- (NSInteger)depGetSafeItemCount {
+    if (self.departureItems == nil) {
         return 0;
     }
+    
     return self.departureItems.count;
 }
-- (NSString *)depGetSectionHeader
-{
+
+- (NSString *)depGetSectionHeader {
     return self.departureItems.lastObject.shortSign;
 }
-- (NSString *)depGetSectionTitle
-{
+
+- (NSString *)depGetSectionTitle {
     return nil;
 }
 
-- (void)depPopulateCell:(Departure *)dd cell:(DepartureCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide
-{
-    [dd populateCell:cell decorate:decorate busName:NO wide:wide];    
+- (void)depPopulateCell:(Departure *)dd cell:(DepartureCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide {
+    [dd populateCell:cell decorate:decorate busName:NO wide:wide];
 }
 
-- (NSString *)depStaticText
-{
+- (NSString *)depStaticText {
     Departure *d = [self depGetDeparture:0];
-    if (d.block != nil)
-    {
-        if (d.vehicleIDs && d.vehicleIDs.count > 0)
-        {
-            return [NSString stringWithFormat:NSLocalizedString(@"(Vehicle ID %@) ", @"trip info small text"), d.vehicleIDs[0]];
+    
+    if (d.block != nil) {
+        if (d.vehicleIds && d.vehicleIds.count > 0) {
+            return [NSString stringWithFormat:NSLocalizedString(@"(Vehicle ID %@) ", @"trip info small text"), d.vehicleIds[0]];
         }
-        return @"(No Vehicle ID)";
         
+        return @"(No Vehicle ID)";
     }
+    
     return NSLocalizedString(@"(" kBlockNameC "Trip ID unavailable)", @"error text");
 }
 
-- (StopDistance*)depDistance
-{
+- (StopDistance *)depDistance {
     return nil;
 }
-- (NSDate *)depQueryTime
-{
+
+- (NSDate *)depQueryTime {
     return [self depGetDeparture:0].queryTime;
 }
 
-- (NSString *)depLocation
-{
+- (NSString *)depLocation {
     return nil;
 }
 
-- (NSString *)depLocDesc
-{
+- (NSString *)depLocDesc {
     Departure *dep = [self depGetDeparture:0];
+    
     return dep.locationDesc;
 }
 
-- (NSString *)depLocId
-{
-    return [self depGetDeparture:0].locid;
+- (NSString *)depStopId {
+    return [self depGetDeparture:0].stopId;
 }
 
-- (NSString *)depDir
-{
+- (NSString *)depDir {
     return [self depGetDeparture:0].locationDir;
 }
 
-- (bool)depHasDetails
-{
+- (bool)depHasDetails {
     return FALSE;
 }
 
-- (bool)depNetworkError
-{
+- (bool)depNetworkError {
     return self.departureItems == nil;
 }
 
-- (NSString *)depNetworkErrorMsg
-{
+- (NSString *)depNetworkErrorMsg {
     return nil;
 }
 
-- (Detour *)depDetour
-{
+- (Detour *)depDetour {
     return nil;
 }
 
-- (NSData *) depHtmlError
-{
+- (NSData *)depHtmlError {
     return nil;
 }
 
--(NSOrderedSet<NSNumber*>*) depDetoursPerSection
-{
+- (NSOrderedSet<NSNumber *> *)depDetoursPerSection {
     return [NSOrderedSet orderedSet];
 }
-
-
 
 @end

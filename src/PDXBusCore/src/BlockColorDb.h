@@ -24,17 +24,16 @@
 
 @interface BlockColorDb : NSObject <ClearableCache>
 
-@property (nonatomic, strong) NSMutableDictionary *colorCache;
+@property (nonatomic, copy) NSDictionary *db;
 @property (nonatomic, strong) NSMutableDictionary *colorMap;
 @property (nonatomic, readonly, copy) NSArray *keys;
-@property (nonatomic, strong) SharedFile *file;
-@property (nonatomic, copy) NSDictionary *db;
 
-- (void)addColor:(UIColor *)color forBlock:(NSString *)block description:(NSString*)desc;
+- (void)addColor:(UIColor *)color forBlock:(NSString *)block description:(NSString *)desc;
 - (UIColor *)colorForBlock:(NSString *)block;
 - (NSString *)descForBlock:(NSString *)block;
 - (NSDate *)timeForBlock:(NSString *)block;
 - (void)memoryWarning;
+
 - (void)clearAll;
 - (void)openFile;
 

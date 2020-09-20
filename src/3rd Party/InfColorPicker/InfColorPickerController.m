@@ -130,9 +130,11 @@ static void HSVFromUIColor( UIColor* color, float* h, float* s, float* v )
 - (void) presentModallyOverViewController: (UIViewController*) controller
 {
     UINavigationController* nav = [ [ UINavigationController alloc ] initWithRootViewController: self ];
-    
+#if TARGET_OS_MACCATALYST
+    nav.navigationBar.barStyle = UIBarStyleBlack;
+#else
     nav.navigationBar.barStyle = UIBarStyleBlackOpaque;
-    
+#endif
     self.navigationItem.rightBarButtonItem = [ [ UIBarButtonItem alloc ] initWithBarButtonSystemItem: UIBarButtonSystemItemDone target: self action: @selector( done: ) ];
                 
     [ controller presentViewController: nav animated: YES completion:nil];

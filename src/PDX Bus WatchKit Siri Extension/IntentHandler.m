@@ -23,13 +23,12 @@
 
 @implementation IntentHandler
 
-- (id)handlerForIntent:(INIntent *)intent  API_AVAILABLE(watchos(3.2)){
+- (id)handlerForIntent:(INIntent *)intent  API_AVAILABLE(watchos(3.2)) {
     // This is the default implementation.  If you want different objects to handle different intents,
     // you can override this and return the handler you want for that particular intent.
     
     if (@available(watchOS 5.0, *)) {
-        if ([intent isKindOfClass:[ArrivalsIntent class]])
-        {
+        if ([intent isKindOfClass:[ArrivalsIntent class]]) {
             DEBUG_HERE();
             return [[WatchArrivalsIntentHandler alloc] init];
         }

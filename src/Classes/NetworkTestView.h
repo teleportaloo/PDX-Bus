@@ -15,19 +15,10 @@
 #import <UIKit/UIKit.h>
 #import "TableViewControllerWithRefresh.h"
 
+@interface NetworkTestView : TableViewControllerWithRefresh
 
-@interface NetworkTestView : TableViewControllerWithRefresh 
-
-@property (nonatomic, copy)   NSString *diagnosticText;
-@property (nonatomic, copy)   NSString *reverseGeoCodeService;
 @property (nonatomic, copy)   NSString *networkErrorFromQuery;
 
-@property bool trimetQueryStatus;
-@property bool nextbusQueryStatus;
-@property bool internetConnectionStatus;
-@property bool reverseGeoCodeStatus;
-@property bool trimetTripStatus;
-
-- (void)fetchNetworkStatusAsync:(id<BackgroundTaskController>)task backgroundRefresh:(bool)backgroundRefresh;
+- (void)fetchNetworkStatusAsync:(id<TaskController>)taskController backgroundRefresh:(bool)backgroundRefresh;
 
 @end

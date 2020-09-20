@@ -16,11 +16,10 @@
 #import "TableViewWithToolbar.h"
 
 
-@interface TripPlannerBookmarkView : TableViewWithToolbar 
+@interface TripPlannerBookmarkView : TableViewWithToolbar
 
-@property (nonatomic, strong) NSMutableArray *locList;
 @property (nonatomic) bool from;
 
-- (void)fetchNamesForLocationsAsync:(id<BackgroundTaskController>)task loc:(NSString*) loc;
+- (void)fetchNamesForStopIdsAsync:(id<TaskController>)taskController stopIds:(NSString *)stopIds;
 
 @end

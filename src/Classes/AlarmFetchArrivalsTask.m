@@ -20,69 +20,56 @@
 #import "DepartureData+iOSUI.h"
 
 
-#define kTolerance    30
+#define kTolerance 30
 
 @implementation AlarmFetchArrivalsTask
 
-- (void)dealloc
-{
-    self.observer        = nil;
+- (void)dealloc {
+    self.observer = nil;
 }
 
-- (instancetype)init
-{
-    if ((self = [super init]))
-    {
+- (instancetype)init {
+    if ((self = [super init])) {
         self.alarmState = AlarmStateFetchArrivals;
     }
+    
     return self;
 }
 
-
-
-- (NSDate *)fetch:(AlarmTaskList*)parent
-{
-    bool taskDone            = NO;
-    NSDate *departureDate    = nil;
+- (NSDate *)fetch:(AlarmTaskList *)parent {
+    bool taskDone = NO;
+    NSDate *departureDate = nil;
     NSTimeInterval waitTime;
-    NSDate *    next        = nil;
+    NSDate *next = nil;
     
-    [self.departures getDeparturesForLocation:self.stopId block:self.block];
+    [self.departures getDeparturesForStopId:self.stopId block:self.block];
     
-    if (self.departures.gotData && self.departures.count >0)
-    {
+    if (self.departures.gotData && self.departures.count > 0) {
         @synchronized (self.lastFetched)
         {
             self.lastFetched = self.departures[0];
         }
         _queryTime = self.departures.queryTime;
-    }
-    else if (self.lastFetched == nil)
-    {
+    } else if (self.lastFetched == nil) {
         [self alert:NSLocalizedString(@"PDX Bus was not able to get the time for this departure", @"departure alarm error")
            fireDate:nil
-             button:nil
+             button:AlarmButtonNone
            userInfo:nil
        defaultSound:YES
          thisThread:NO];
         taskDone = YES;
-    }
-    else
-    {
+    } else {
         departureDate = self.lastFetched.departureTime;
         
-        
         // No new data here - the bus has probably come by this point.  If it has then this is the time to stop.
-        if (departureDate == nil || [departureDate compare:[NSDate date]] != NSOrderedDescending)
-        {
+        if (departureDate == nil || [departureDate compare:[NSDate date]] != NSOrderedDescending) {
             taskDone = YES;
         }
     }
     
-    if (!taskDone)
-    {
-        departureDate    = self.lastFetched.departureTime;
-        waitTime        = departureDate.timeIntervalSinceNow;
+    if (!taskDone) {
+        departureDate = self.lastFetched.departureTime;
+        waitTime = departureDate.timeIntervalSinceNow;
         
 #ifdef DEBUG_ALARMS
         DEBUG_LOG(@"Dep time %@\n", [NSDateFormatter localizedStringFromDate:departureDate
@@ -90,8 +77,7 @@
                                                                    timeStyle:NSDateFormatterLongStyle]);
 #endif
         
-        if (self.observer)
-        {
+        if (self.observer) {
             self.display = nil;
             [self.observer taskUpdate:self];
         }
@@ -100,22 +86,17 @@
         NSDate *alarmTime = [departureDate dateByAddingTimeInterval:(NSTimeInterval)(-(NSTimeInterval)(self.minsToAlert * 60.0 + 30.0))];
         NSString *alertText = nil;
         
-        if (self.minsToAlert <= 0)
-        {
+        if (self.minsToAlert <= 0) {
             alertText = [NSString stringWithFormat:NSLocalizedString(@"\"%@\" is due at %@", @"alarm message"),
                          self.lastFetched.shortSign,
                          self.lastFetched.locationDesc
                          ];
-        }
-        else if (self.minsToAlert == 1)
-        {
+        } else if (self.minsToAlert == 1) {
             alertText = [NSString stringWithFormat:NSLocalizedString(@"\"%@\" 1 minute way from %@", @"alarm message"),
                          self.lastFetched.shortSign,
                          self.lastFetched.locationDesc
                          ];
-        }
-        else
-        {
+        } else {
             alertText = [NSString stringWithFormat:NSLocalizedString(@"\"%@\" is %d minutes away from %@", @"alarm message"),
                          self.lastFetched.shortSign,
                          self.minsToAlert,
@@ -127,10 +108,11 @@
         {
             [self alert:alertText
                fireDate:alarmTime
-                 button:NSLocalizedString(@"Show departures", @"alert text")
+                 button:AlarmButtonDepartures
                userInfo:@{
-                          kStopIdNotification   : self.stopId,
-                          kAlarmBlock           : self.block }
+                   kStopIdNotification: self.stopId,
+                   kAlarmBlock: self.block
+               }
            defaultSound:NO
              thisThread:NO];
         }
@@ -139,8 +121,7 @@
         int secs = (waitTime - (self.minsToAlert * 60));
         bool late = NO;
         
-        if (self.lastFetched && self.lastFetched.notToSchedule)
-        {
+        if (self.lastFetched && self.lastFetched.notToSchedule) {
             DEBUG_LOG(@"not to schedule");
             NSDate *scheduled = self.lastFetched.scheduledTime;
             
@@ -148,20 +129,14 @@
             
             int scheduledSecs = scheduledWait - self.minsToAlert;
             
-            if (scheduledSecs > 0)  // Scheduled time is in the future.
-            {
-                if (scheduledSecs < secs)  // Vehicle is late!
-                {
+            if (scheduledSecs > 0) { // Scheduled time is in the future.
+                if (scheduledSecs < secs) { // Vehicle is late!
                     DEBUG_LOG(@"using scheduled time as vehicle is late");
                     secs = scheduledSecs;     // Use the scheduled time of the vehicle is late as it may catch up.
-                }
-                else
-                {
+                } else {
                     DEBUG_LOG(@"using estimated time as vehicle is early");
                 }
-            }
-            else if (secs > 0)
-            {
+            } else if (secs > 0) {
                 late = YES;         // it is after the scheduled time so it is actually late now.
                 DEBUG_LOG(@"vehicle is now late");
             }
@@ -169,7 +144,7 @@
         
         DEBUG_LOGL(secs);
         
-#define secs_in_mins(x) ((x)*60.0)
+#define secs_in_mins(x) ((x) * 60.0)
 #define UPPER_MINS (20.0)
         
         // There is an upper limit to how long we will wait before checking.
@@ -178,49 +153,33 @@
         // the vehicle is actually late already we wait an even shorter time as it may
         // catch up.
         
-        if (secs > secs_in_mins(UPPER_MINS))
-        {
-            if (late)
-            {
-                next = [NSDate dateWithTimeIntervalSinceNow:secs_in_mins(UPPER_MINS/3)];
+        if (secs > secs_in_mins(UPPER_MINS)) {
+            if (late) {
+                next = [NSDate dateWithTimeIntervalSinceNow:secs_in_mins(UPPER_MINS / 3)];
+            } else {
+                next = [NSDate dateWithTimeIntervalSinceNow:secs_in_mins(UPPER_MINS / 2)];
             }
-            else
-            {
-                next = [NSDate dateWithTimeIntervalSinceNow:secs_in_mins(UPPER_MINS/2)];
-            }
-        }
-        else if (secs > secs_in_mins(2))
-        {
+        } else if (secs > secs_in_mins(2)) {
             // 2 to 15 mins late
-            if (late)
-            {
+            if (late) {
                 // check a little earlier if it is late as it might catch up.
-                next = [NSDate dateWithTimeIntervalSinceNow:secs/3];
+                next = [NSDate dateWithTimeIntervalSinceNow:secs / 3];
+            } else {
+                next = [NSDate dateWithTimeIntervalSinceNow:secs / 2];
             }
-            else
-            {
-                next = [NSDate dateWithTimeIntervalSinceNow:secs/2];
-            }
-        }
-        else if (secs > secs_in_mins(1))
-        {
+        } else if (secs > secs_in_mins(1)) {
             // suspend until the actual time
             next = [NSDate dateWithTimeIntervalSinceNow:30];
-        }
-        else if (secs > 0)
-        {
+        } else if (secs > 0) {
             next = alarmTime;
             self.alarmState = AlarmStateNearlyArrived;
-        }
-        else
-        {
+        } else {
             next = nil;
             self.alarmState = AlarmFired;
         }
     }
     
-    if (taskDone)
-    {
+    if (taskDone) {
         next = nil;
         self.alarmState = AlarmFired;
     }
@@ -229,12 +188,13 @@
     
 #ifdef DEBUG_ALARMS
 #define kLastFetched @"LF"
-#define kNextFetch @"NF"
-#define kAppState @"AppState"
+#define kNextFetch   @"NF"
+#define kAppState    @"AppState"
     NSDictionary *dict = @{
-                           kLastFetched     : self.lastFetched,
-                           kNextFetch       : (next ? next : [NSDate date]),
-                           kAppState        : [self appState] };
+        kLastFetched: self.lastFetched,
+        kNextFetch: (next ? next : [NSDate date]),
+        kAppState: [self appState]
+    };
     [self.dataReceived addObject:dict];
 #endif
     
@@ -242,87 +202,74 @@
     return next;
 }
 
-- (void)startTask
-{
+- (void)startTask {
     self.departures = [XMLDepartures xml];
     self.departures.giveUp = 30;  // the background task must never be blocked for more that 30 seconds.
     
-    if (self.observer)
-    {
+    if (self.observer) {
         [self.observer taskStarted:self];
     }
 }
 
-
-- (NSString *)key
-{
+- (NSString *)key {
     return [NSString stringWithFormat:@"%@+%@", self.stopId, self.block];
 }
 
-- (void)cancelTask
-{
+- (void)cancelTask {
     [self cancelNotification];
     [self.observer taskDone:self];
     self.observer = nil;
 }
 
 #ifdef DEBUG_ALARMS
-- (int)internalDataItems
-{
-    return (int)self.dataReceived.count+1;
+- (int)internalDataItems {
+    return (int)self.dataReceived.count + 1;
 }
 
-- (NSString *)internalData:(int)item
-{
+- (NSString *)internalData:(int)item {
     NSMutableString *str = [NSMutableString string];
     
     
-    if (item == 0)
-    {
-        UIApplication*    app = [UIApplication sharedApplication];
+    if (item == 0) {
+        UIApplication *app = [UIApplication sharedApplication];
         [str appendFormat:@"alerts: %u", (int)app.scheduledLocalNotifications.count];
-    }
-    else
-    {
-        NSDictionary *dict = self.dataReceived[item-1];
-        DepartureData *dep = dict[kLastFetched];
+    } else {
+        NSDictionary *dict = self.dataReceived[item - 1];
+        Departure *dep = dict[kLastFetched];
         
         NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
         [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
         [dateFormatter setTimeStyle:NSDateFormatterLongStyle];
         
-        [str appendFormat:@"%@\n", dep.routeName];
+        [str appendFormat:@"%@\n", dep.route];
         [str appendFormat:@"mins %d\n", dep.minsToArrival];
-        [str appendFormat:@"secs %lld\n", dep.secondsToArrival];
+        [str appendFormat:@"secs %lld\n", (long long)dep.secondsToArrival];
         
-        [str appendFormat:@"QT %@\n", [dateFormatter stringFromDate:TriMetToNSDate(dep.queryTime)]];
+        [str appendFormat:@"QT %@\n", [dateFormatter stringFromDate:dep.queryTime]];
         
-        NSDate *departureDate    = TriMetToNSDate(dep.departureTime);
-        NSDate *alarmTime = [departureDate dateByAddingTimeInterval:(NSTimeInterval)(-(NSTimeInterval)(self.minsToAlert * 60.0 + 30.0))];
+        NSDate *alarmTime = [dep.departureTime dateByAddingTimeInterval:(NSTimeInterval)(-(NSTimeInterval)(self.minsToAlert * 60.0 + 30.0))];
         
-        [str appendFormat:@"DT %@\n", [dateFormatter stringFromDate: departureDate ]];
-        [str appendFormat:@"AT %@\n", [dateFormatter stringFromDate: alarmTime ]];
-        [str appendFormat:@"NF %@\n", [dateFormatter stringFromDate: dict[kNextFetch]]];
+        [str appendFormat:@"DT %@\n", [dateFormatter stringFromDate:dep.departureTime ]];
+        [str appendFormat:@"AT %@\n", [dateFormatter stringFromDate:alarmTime ]];
+        [str appendFormat:@"NF %@\n", [dateFormatter stringFromDate:dict[kNextFetch]]];
         [str appendFormat:@"AS %@\n", dict[kAppState]];
     }
-    return str;
     
-}
-#endif
-
-- (void)showToUser:(BackgroundTaskContainer *)backgroundTask
-{
-    [[DepartureDetailView viewController] fetchDepartureAsync:backgroundTask location:self.stopId block:self.block backgroundRefresh:NO];
+    return str;
 }
 
-- (NSString *)cellToGo
-{
+#endif // ifdef DEBUG_ALARMS
+
+- (void)showToUser:(BackgroundTaskContainer *)backgroundTask {
+    [[DepartureDetailView viewController] fetchDepartureAsync:backgroundTask stopId:self.stopId block:self.block backgroundRefresh:NO];
+}
+
+- (NSString *)cellToGo {
     NSString *str = @"";
+    
     @synchronized (self.lastFetched)
     {
-        
-        if (self.lastFetched !=nil)
-        {
+        if (self.lastFetched != nil) {
             NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
             dateFormatter.dateStyle = NSDateFormatterNoStyle;
             dateFormatter.timeStyle = NSDateFormatterShortStyle;
@@ -331,27 +278,25 @@
             NSTimeInterval secs = ((double)self.minsToAlert * (-60.0));
             
             NSDate *alarmDate = [NSDate dateWithTimeInterval:secs sinceDate:departureDate];
-            if (self.alarmState == AlarmFired)
-            {
-                str = [NSString stringWithFormat:NSLocalizedString(@"Alarm sounded at %@", @"Alarm was done at time {time}"), [dateFormatter stringFromDate: alarmDate]];
-            }
-            else
-            {
-                switch (self.minsToAlert)
-                {
+            
+            if (self.alarmState == AlarmFired) {
+                str = [NSString stringWithFormat:NSLocalizedString(@"Alarm sounded at %@", @"Alarm was done at time {time}"), [dateFormatter stringFromDate:alarmDate]];
+            } else {
+                switch (self.minsToAlert) {
                     case 0:
-                        str = [NSString stringWithFormat:NSLocalizedString(@"Departure at %@", @"Alarm will be done at time {time}"), [dateFormatter stringFromDate: departureDate]];
+                        str = [NSString stringWithFormat:NSLocalizedString(@"Departure at %@", @"Alarm will be done at time {time}"), [dateFormatter stringFromDate:departureDate]];
                         break;
+                        
                     case 1:
-                        str = [NSString stringWithFormat:NSLocalizedString(@"1 min before departure at %@", @"Alarm will be done at time {time}"), [dateFormatter stringFromDate: departureDate], self.display];
+                        str = [NSString stringWithFormat:NSLocalizedString(@"1 min before departure at %@", @"Alarm will be done at time {time}"), [dateFormatter stringFromDate:departureDate]];
                         break;
+                        
                     default:
-                        str = [NSString stringWithFormat:NSLocalizedString(@"%d mins before departure at %@", @"Alarm will be done at time {time}"), self.minsToAlert, [dateFormatter stringFromDate: departureDate]];
+                        str = [NSString stringWithFormat:NSLocalizedString(@"%d mins before departure at %@", @"Alarm will be done at time {time}"), self.minsToAlert, [dateFormatter stringFromDate:departureDate]];
                         break;
                 }
                 
-                if (self.display)
-                {
+                if (self.display) {
                     str = [str stringByAppendingFormat:@" (%@)", self.display];
                 }
             }
@@ -360,12 +305,8 @@
     return str;
 }
 
-- (int)threadReferenceCount
-{
+- (int)threadReferenceCount {
     return 1;
 }
 
 @end
-
-
-

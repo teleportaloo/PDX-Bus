@@ -18,53 +18,42 @@
 @implementation StopDistance (iOSUI)
 
 
-- (MapPinColorValue) pinColor
-{
+- (MapPinColorValue)pinColor {
     return MAP_PIN_COLOR_GREEN;
 }
 
-- (bool) showActionMenu
-{
+- (bool)showActionMenu {
     return YES;
 }
 
-- (CLLocationCoordinate2D)coordinate
-{
+- (CLLocationCoordinate2D)coordinate {
     return self.location.coordinate;
 }
 
-- (NSString *)title
-{
-    
+- (NSString *)title {
     return self.desc;
 }
 
-- (NSString *)subtitle
-{
+- (NSString *)subtitle {
     NSString *dir = @"";
     
-    if (self.dir != nil)
-    {
+    if (self.dir != nil) {
         dir = self.dir;
     }
     
-    return [NSString stringWithFormat:NSLocalizedString(@"Stop ID %@ %@", @"TriMet Stop identifer <number>"), self.locid, dir];
+    return [NSString stringWithFormat:NSLocalizedString(@"Stop ID %@ %@", @"TriMet Stop identifer <number>"), self.stopId, dir];
 }
 
-- (NSString *) mapStopId
-{
-    return self.locid;
+- (NSString *)mapStopId {
+    return self.stopId;
 }
 
-- (UIColor *)pinTint
-{
+- (UIColor *)pinTint {
     return nil;
 }
 
-- (bool)hasBearing
-{
+- (bool)hasBearing {
     return NO;
 }
-
 
 @end

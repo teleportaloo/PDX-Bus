@@ -21,12 +21,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property NSMutableArray<NSDictionary *> *localRecents;
 
-- (bool)tableView:(UITableView*)tableView isHistorySection:(NSInteger)section;
-- (NSInteger)historySection:(UITableView*)tableView;
+- (bool)tableView:(UITableView *)tableView isHistorySection:(NSInteger)section;
+- (NSInteger)historySection:(UITableView *)tableView;
 - (NSMutableArray<NSDictionary *> *)loadItems;
-- (NSString  *)noItems;
-- (NSDictionary*)tableView:(UITableView*)tableView filteredDict:(NSInteger)item;
-
+- (NSString *)noItems;
+- (NSDictionary *)tableView:(UITableView *)tableView filteredDict:(NSInteger)item;
 
 @end
 

@@ -19,33 +19,24 @@
 @implementation WatchArrivalInfo
 
 
-+ (NSString*)identifier
-{
++ (NSString *)identifier {
     return @"Info";
 }
 
-- (void)populate:(XMLDepartures *)xml departures:(NSArray<Departure*>*)deps
-{
-    if (xml.gotData)
-    {
+- (void)populate:(XMLDepartures *)xml departures:(NSArray<Departure *> *)deps {
+    if (xml.gotData) {
         NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
         dateFormatter.dateStyle = NSDateFormatterNoStyle;
         dateFormatter.timeStyle = NSDateFormatterMediumStyle;
-    // NSString *shortDir = [StopNameCacheManager shortDirection:newDepartures.locDir];
-    
-    
-        if (xml.locDir.length > 0)
-        {
-            self.label.text = [NSString stringWithFormat:@"🆔%@\n⤵️%@\n➡️%@", xml.locid, [dateFormatter stringFromDate:xml.cacheTime], xml.locDir];
+        // NSString *shortDir = [StopNameCacheManager shortDirection:newDepartures.locDir];
+        
+        if (xml.locDir.length > 0) {
+            self.label.text = [NSString stringWithFormat:@"🆔%@\n⤵️%@\n➡️%@", xml.stopId, [dateFormatter stringFromDate:xml.cacheTime], xml.locDir];
+        } else {
+            self.label.text = [NSString stringWithFormat:@"🆔%@\n⤵️%@", xml.stopId, [dateFormatter stringFromDate:xml.cacheTime]];
         }
-        else
-        {
-            self.label.text = [NSString stringWithFormat:@"🆔%@\n⤵️%@", xml.locid, [dateFormatter stringFromDate:xml.cacheTime]];
-        }
-    }
-    else
-    {
-        self.label.text = [NSString stringWithFormat:@"🆔%@", xml.locid];
+    } else {
+        self.label.text = [NSString stringWithFormat:@"🆔%@", xml.stopId];
     }
 }
 

@@ -21,16 +21,16 @@
 #import "DebugLogging.h"
 #import "DataFactory.h"
 
-#define kStopIdNotification @"stopId"
-#define kAlarmBlock            @"alarmBlock"
-#define kStopMapDescription @"stopDesc"
-#define kStopMapLat            @"mapLat"
-#define kStopMapLng            @"mapLng"
-#define kCurrLocLat            @"curLat"
-#define kCurrLocLng            @"curLng"
+#define kStopIdNotification   @"stopId"
+#define kAlarmBlock           @"alarmBlock"
+#define kStopMapDescription   @"stopDesc"
+#define kStopMapLat           @"mapLat"
+#define kStopMapLng           @"mapLng"
+#define kCurrLocLat           @"curLat"
+#define kCurrLocLng           @"curLng"
 #define kCurrTimestamp        @"curTimestamp"
 #define kDoNotDisplayIfActive @"not if active"
-#define kNoBadge            @"no badge"
+#define kNoBadge              @"no badge"
 
 typedef enum AlarmStateTag {
     AlarmStateFetchArrivals,
@@ -41,11 +41,19 @@ typedef enum AlarmStateTag {
     AlarmFired
 } AlarmLocationNeeded;
 
+typedef enum AlarmButtonTag
+{
+    AlarmButtonNone,
+    AlarmButtonBack,
+    AlarmButtonMap,
+    AlarmButtonDepartures,
+} AlarmButton;
+
 #ifdef DEBUGLOGGING
 // #define DEBUG_ALARMS
 #endif
 
-@protocol AlarmObserver <NSObject> 
+@protocol AlarmObserver <NSObject>
 
 - (void)taskStarted:(id)task;
 - (void)taskUpdate:(id)task;
@@ -55,46 +63,40 @@ typedef enum AlarmStateTag {
 
 @class AlarmTaskList;
 
-@interface AlarmTask : DataFactory
-{    
+@interface AlarmTask : DataFactory {
 #ifdef DEBUG_ALARMS
-    NSMutableArray *            _dataReceived;
-    bool                        _done;
+    bool _done;
 #endif
-    
 }
 
-@property (nonatomic, copy)        NSString *desc;
-@property (atomic)                AlarmLocationNeeded alarmState;
-@property (nonatomic, strong)   NSDate *nextFetch;
-@property (nonatomic, copy)        NSString * stopId;
-@property (nonatomic, weak)    id<AlarmObserver> observer; // weak
-@property (strong)                UILocalNotification *alarm;
-@property (readonly, nonatomic) int threadReferenceCount;
-@property (nonatomic)           bool alarmWarningDisplayed;
+@property (nonatomic, weak)           id<AlarmObserver> observer; // weak
+@property (nonatomic, copy)           NSString *desc;
+@property (atomic)                    AlarmLocationNeeded alarmState;
+@property (nonatomic, strong)         NSDate *nextFetch;
+@property (nonatomic, copy)           NSString *stopId;
 @property (nonatomic, readonly, copy) NSString *key;
-@property (nonatomic, readonly) int internalDataItems;
-@property (nonatomic, readonly, copy) NSString *cellDescription;
-@property (nonatomic, readonly, copy) NSString *cellToGo;
 @property (nonatomic, readonly, copy) NSString *icon;
-@property (nonatomic, readonly, copy) UIColor *color;
+
+// Debugging helpers
 @property (nonatomic, readonly, copy) NSString *appState;
+@property (nonatomic, readonly)       int internalDataItems;
+
 
 - (void)cancelTask;
 - (void)startTask;
 - (NSString *)internalData:(int)item;
-- (NSDate *)fetch:(AlarmTaskList*)parent;
+- (NSDate *)fetch:(AlarmTaskList *)parent;
 - (void)locationManager:(CLLocationManager *)manager
     didUpdateToLocation:(CLLocation *)newLocation
            fromLocation:(CLLocation *)oldLocation;
-- (void)alert:(NSString *)string 
-     fireDate:(NSDate*)fireDate button:(NSString *)button userInfo:(NSDictionary *)userInfo defaultSound:(bool)defaultSound
-   thisThread:(bool)thisThread;
+- (void) alert:(NSString *)string
+      fireDate:(NSDate *)fireDate button:(AlarmButton)button userInfo:(NSDictionary *)userInfo defaultSound:(bool)defaultSound
+    thisThread:(bool)thisThread;
 - (void)cancelNotification;
 - (void)showToUser:(BackgroundTaskContainer *)backgroundTask;
 - (NSString *)cellReuseIdentifier:(NSString *)identifier width:(ScreenWidth)width;
 - (void)populateCell:(AlarmCell *)cell;
-- (NSDate*)earlierAlert:(NSDate *)alert;
+- (NSDate *)earlierAlert:(NSDate *)alert;
 
 #ifdef DEBUG_ALARMS
 @property (strong) NSMutableArray *dataReceived;

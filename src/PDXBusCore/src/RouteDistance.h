@@ -20,12 +20,12 @@
 
 @interface RouteDistance : DataFactory
 
-@property (nonatomic, strong) NSMutableArray<StopDistance*> *stops;
+@property (nonatomic, strong) NSMutableArray<StopDistance *> *stops;
 @property (nonatomic, copy)   NSString *route;
 @property (nonatomic, copy)   NSString *desc;
 @property (nonatomic, copy)   NSString *type;
 
-- (NSComparisonResult)compareUsingDistance:(RouteDistance*)inStop;
+- (NSComparisonResult)compareUsingDistance:(RouteDistance *)inStop;
 - (void)sortStopsByDistance;
 
 @end

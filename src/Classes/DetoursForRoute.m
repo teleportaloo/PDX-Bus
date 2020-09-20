@@ -17,14 +17,12 @@
 
 @implementation DetoursForRoute
 
-- (instancetype)init
-{
-    if (self = [super init])
-    {
+- (instancetype)init {
+    if (self = [super init]) {
         self.detours = [NSMutableArray array];
     }
+    
     return self;
 }
-
 
 @end

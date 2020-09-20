@@ -18,10 +18,4 @@
 
 @interface QrCodeReaderViewController : ViewControllerBase <AVCaptureMetadataOutputObjectsDelegate>
 
-@property (nonatomic, strong) AVCaptureSession *captureSession;
-@property (nonatomic, strong) AVCaptureVideoPreviewLayer *videoPreviewLayer;
-@property (nonatomic, strong) UIView *viewPreview;
-@property (nonatomic) bool isReading;
-@property (nonatomic, strong) UISegmentedControl *lightSegControl;
-
 @end

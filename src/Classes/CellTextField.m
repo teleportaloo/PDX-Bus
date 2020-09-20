@@ -9,49 +9,49 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
- 
+
 #import "CellTextField.h"
 #import "ScreenConstants.h"
 
 // UITableView row heights
-#define kUIRowHeight            50.0
-#define kUIBigRowHeight            60.0
-#define kUIRowLabelHeight        22.0
+#define kUIRowHeight        50.0
+#define kUIBigRowHeight     60.0
+#define kUIRowLabelHeight   22.0
 
 // table view cell content offsets
-#define kCellLeftOffset            8.0
+#define kCellLeftOffset     8.0
+#define kCellTopOffset      12.0
+#define kTextFieldHeight    30.0
+#define kBigTextFieldHeight 40.0
 
-#define kCellTopOffset            12.0
+@interface CellTextField () {
+    UITextField *_view;
+}
 
-#define kTextFieldHeight        30.0
-#define kBigTextFieldHeight        40.0
+@end
 
 @implementation CellTextField
-
-@dynamic view;
 
 static CGRect bounds;
 static bool bigScreen;
 
-- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)identifier
-{
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)identifier {
     self = [super initWithStyle:style reuseIdentifier:identifier];
-    if (self)
-    {
+    
+    if (self) {
         // turn off selection use
         self.selectionStyle = UITableViewCellSelectionStyleNone;
         self.cellLeftOffset = kCellLeftOffset;
-        
     }
+    
     return self;
 }
 
-- (void)setView:(UITextField *)inView
-{
-    if (_view != nil)
-    {
+- (void)setView:(UITextField *)inView {
+    if (_view != nil) {
         _view = nil;
-    } 
+    }
+    
     _view = inView;
     _view.delegate = self;
     
@@ -59,111 +59,100 @@ static bool bigScreen;
     [self layoutSubviews];
 }
 
-- (UITextField *)view
-{
+- (UITextField *)view {
     return _view;
 }
 
-- (void)layoutSubviews
-{
+- (void)layoutSubviews {
     [super layoutSubviews];
     
     CGRect contentRect = self.contentView.bounds;
     
-    CGRect frame = CGRectMake(    contentRect.origin.x + self.cellLeftOffset,
-                                contentRect.origin.y + (([CellTextField cellHeight] - [CellTextField editHeight])/2),
-                                contentRect.size.width - (self.cellLeftOffset + 8.0),
-                                [CellTextField editHeight]);
-    self.view.frame  = frame;
+    CGRect frame = CGRectMake(contentRect.origin.x + self.cellLeftOffset,
+                              contentRect.origin.y + (([CellTextField cellHeight] - [CellTextField editHeight]) / 2),
+                              contentRect.size.width - (self.cellLeftOffset + 8.0),
+                              [CellTextField editHeight]);
+    
+    self.view.frame = frame;
 }
 
-
-- (void)stopEditing
-{
+- (void)stopEditing {
     [_view resignFirstResponder];
 }
 
-+(void)initHeight
-{
-    if (bounds.size.width == 0)
-    {
++ (void)initHeight {
+    if (bounds.size.width == 0) {
         bounds = [UIScreen mainScreen].bounds;
         
         // Small devices do not need to orient
-        if (bounds.size.width <= MaxiPhoneWidth)
-        {
+        if (bounds.size.width <= MaxiPhoneWidth) {
             bigScreen = false;
-        }
-        else {
+        } else {
             bigScreen = true;
         }
     }
 }
 
-+(CGFloat)cellHeight
-{
++ (CGFloat)cellHeight {
     [CellTextField initHeight];
     
-    if (bigScreen)
-    {
+    if (bigScreen) {
         return kUIBigRowHeight;
     }
+    
     return kUIRowHeight;
 }
-                              
-+(CGFloat)editHeight
-{
+
++ (CGFloat)editHeight {
     [CellTextField initHeight];
     
-    if (bigScreen)
-    {
+    if (bigScreen) {
         return kBigTextFieldHeight;
     }
+    
     return kTextFieldHeight;
 }
-                              
-+(UIFont *)editFont
-{
+
++ (UIFont *)editFont {
     [CellTextField initHeight];
     
-    if (bigScreen)
-    {
+    if (bigScreen) {
         return [UIFont systemFontOfSize:24.0];
     }
-    return [UIFont systemFontOfSize:17.0];
     
+    return [UIFont systemFontOfSize:17.0];
 }
 
 #pragma mark -
 #pragma mark <UITextFieldDelegate> Methods
 
-- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField
-{
+- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField {
     BOOL beginEditing = YES;
+    
     // Allow the cell delegate to override the decision to begin editing.
-    if (self.delegate && [self.delegate respondsToSelector:@selector(cellShouldBeginEditing:)])
-    {
+    if (self.delegate && [self.delegate respondsToSelector:@selector(cellShouldBeginEditing:)]) {
         beginEditing = [self.delegate cellShouldBeginEditing:self];
     }
+    
     // Update internal state.
-    if (beginEditing)
+    if (beginEditing) {
         self.isInlineEditing = YES;
+    }
+    
     return beginEditing;
 }
 
-- (void)textFieldDidEndEditing:(UITextField *)textField
-{
+- (void)textFieldDidEndEditing:(UITextField *)textField {
     // Notify the cell delegate that editing ended.
-    if (self.delegate && [self.delegate respondsToSelector:@selector(cellDidEndEditing:)])
-    {
+    if (self.delegate && [self.delegate respondsToSelector:@selector(cellDidEndEditing:)]) {
         [self.delegate cellDidEndEditing:self];
     }
+    
     // Update internal state.
     self.isInlineEditing = NO;
 }
 
-- (BOOL)textFieldShouldReturn:(UITextField *)textField
-{
+- (BOOL)textFieldShouldReturn:(UITextField *)textField {
     [self stopEditing];
     return YES;
 }

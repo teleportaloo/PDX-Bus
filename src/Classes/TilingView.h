@@ -1,7 +1,7 @@
 /*
-     File: TilingView.h
+ File: TilingView.h
  Abstract: Handles tile drawing and tile image loading.
-  Version: 1.1
+ Version: 1.1
  
  Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
  Inc. ("Apple") in consideration of your agreement to the following
@@ -48,14 +48,9 @@
 #import <UIKit/UIKit.h>
 
 
-@interface TilingView : UIView {
-    BOOL      _annotates;
-}
+@interface TilingView : UIView
 
 @property (assign) BOOL annotates;
-@property (nonatomic, copy)   NSString *imageName;
-@property (nonatomic, strong) CATiledLayer *tiledLayer;
-@property (nonatomic) CGRect safeBounds;
 
 - (instancetype)initWithImageName:(NSString *)name size:(CGSize)size;
 - (UIImage *)tileForScale:(CGFloat)scale row:(int)row col:(int)col;

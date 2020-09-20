@@ -19,6 +19,6 @@
 
 @interface WatchMapHelper : NSObject
 
-+ (void)displayMap:(WKInterfaceMap*)map purplePin:(CLLocation*)purplePin otherPins:(NSArray<id<WatchPinColor>>*)pins;
++ (void)displayMap:(WKInterfaceMap *)map purplePin:(CLLocation *)purplePin otherPins:(NSArray<id<WatchPinColor> > *)pins;
 
 @end

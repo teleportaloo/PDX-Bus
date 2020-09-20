@@ -68,7 +68,7 @@
       <RemoteRunnable
          runnableDebuggingMode = "2"
          BundleIdentifier = "com.apple.Carousel"
-         RemotePath = "/PDXBus Siri Watch Extension">
+         RemotePath = "/PDXBus WatchKit Extension">
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A100597021797F8000B0F8ED"
@@ -88,7 +88,7 @@
       <RemoteRunnable
          runnableDebuggingMode = "2"
          BundleIdentifier = "com.apple.Carousel"
-         RemotePath = "/PDXBus Siri Watch Extension">
+         RemotePath = "/PDXBus WatchKit Extension">
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A100597021797F8000B0F8ED"

@@ -28,23 +28,25 @@
 
 */
 
+#define kLargeScreenWidth   694
+
+#ifdef PDXBUS_EXTENSION
+#define LARGE_SCREEN        NO
+#else
+#define LARGE_SCREEN        ([UIApplication sharedApplication].delegate.window.bounds.size.width >= kLargeScreenWidth)
+#endif
+
+#define SMALL_SCREEN            !(LARGE_SCREEN)
 
 
 typedef enum {
 	WidthiPhone         = 320,
     WidthiPhone6        = 375,
     WidthiPhone6Plus    = 414,
-    WidthSmallVariable  = 413,    // Not a real value
     MaxiPhoneWidth      = 414,
 	WidthBigVariable	= 768,
 	WidthiPadWide	    = 1024
 } ScreenWidth;
-
-
-
-// #define SmallScreenStyle(X) (((X) <= MaxiPhoneWidth) !=0)
-// #define LargeScreenStyle(X) (((X) >  MaxiPhoneWidth) !=0)
-
 
 #define ScaleFromiPhone(X, W) ((( (double)X) / (double)WidthiPhone) * (double)(W) )
 

@@ -21,5 +21,4 @@
 
 @property (nonatomic, strong) XMLTrips *tripQuery;
 
-
 @end

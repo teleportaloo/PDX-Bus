@@ -1,3 +1,7 @@
+//
+//  DepartureTimesDataProvider.h
+//  PDXBus
+//
 
 
 
@@ -29,7 +33,7 @@
 @property (nonatomic, readonly)         NSDate *depQueryTime;
 @property (nonatomic, readonly, copy)   CLLocation *depLocation;
 @property (nonatomic, readonly, copy)   NSString *depLocDesc;
-@property (nonatomic, readonly, copy)   NSString *depLocId;
+@property (nonatomic, readonly, copy)   NSString *depStopId;
 @property (nonatomic, readonly)         bool depHasDetails;
 @property (nonatomic, readonly)         bool depNetworkError;
 @property (nonatomic, readonly, copy)   NSString *depNetworkErrorMsg;

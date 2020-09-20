@@ -16,11 +16,11 @@
 		<key>Icon</key>
 		<string>Blog.png</string>
 		<key>LinkM</key>
-		<string>http:/pdxbus.teleportaloo.org</string>
+		<string>http://pdxbus.teleportaloo.org</string>
 	</dict>
 	<dict>
 		<key>Title</key>
-		<string>TriMet.org</string>
+		<string>TriMet</string>
 		<key>Icon</key>
 		<string>TriMet.png</string>
 		<key>LinkM</key>

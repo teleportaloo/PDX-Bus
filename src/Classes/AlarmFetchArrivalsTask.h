@@ -19,17 +19,15 @@
 
 #define DEBUG_BACKGROUND_FETCH
 
-
-
 @interface AlarmFetchArrivalsTask : AlarmTask
 
 @property (nonatomic, strong) NSDate *queryTime;
 @property (nonatomic, copy)   NSString *block;
 @property (nonatomic, strong) XMLDepartures *departures;
-@property (nonatomic) uint minsToAlert;
-@property (strong) Departure *lastFetched;
+@property (nonatomic)         uint minsToAlert;
+@property (strong)            Departure *lastFetched;
 @property (nonatomic, copy)   NSString *display;
 
-- (void) startTask;
+- (void)startTask;
 
 @end

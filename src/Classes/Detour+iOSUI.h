@@ -15,17 +15,16 @@
 
 #import "Detour.h"
 
-#define kDetourResuseIdentifier @"Detour"
+#define kDetourResuseIdentifier       @"Detour"
 #define kSystemDetourResuseIdentifier @"SystemAlert"
 
 @interface Detour (iOSUI)
 
-- (NSString*)reuseIdentifer;
-- (NSString*)formattedHeader;
-- (NSString*)formattedDescription;
-- (NSString*)formattedDescriptionWithHeader;
-- (NSString*)formattedDescriptionWithoutInfo;
-- (void)populateCell:(UITableViewCell *)cell font:(UIFont*)font routeDisclosure:(bool)routeDisclosure;
+- (NSString *)reuseIdentifer;
+- (NSString *)formattedHeader;
+- (NSString *)formattedDescription:(NSString *)additionalText;
+- (NSString *)formattedDescriptionWithHeader:(NSString *)additionalText;
+- (NSString *)formattedDescriptionWithoutInfo:(NSString *)additionalText;
 - (bool)hasInfo;
 
 + (UILabel *)create_UITextView:(UIFont *)font;

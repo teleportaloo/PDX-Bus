@@ -16,9 +16,11 @@
 #import <Foundation/Foundation.h>
 #import "StoppableFetcher.h"
 #import "TriMetInfo.h"
-#import "ShapeRoutePath.h"
+#import "ShapeMutableSegment.h"
 
-@interface LegShapeParser : StoppableFetcher 
+
+
+@interface LegShapeParser : StoppableFetcher
 
 @property (nonatomic, strong) ShapeMutableSegment *segment;
 @property (nonatomic, copy)   NSString *lineURL;

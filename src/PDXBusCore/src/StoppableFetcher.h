@@ -15,34 +15,20 @@
 
 #import <Foundation/Foundation.h>
 
+@interface StoppableFetcher : NSObject <NSURLSessionDelegate>
 
-
-@interface StoppableFetcher : NSObject
-    <NSURLSessionDelegate
-#ifdef BASE_IOS12
-        ,NSURLSessionDelegate
-#endif
-    >
-{
-    long long           _expected;
-    long long           _progress;
-}
 
 @property (nonatomic, copy) NSString *errorMsg;
-
-#ifdef BASE_IOS12
-@property (strong) NSURLSessionDataTask *connection;
-#else
-@property (strong) NSURLConnection *connection;
-#endif
 @property (strong) NSMutableData *rawData;
 @property (nonatomic) bool timedOut;
 @property (nonatomic) float giveUp;
-@property bool dataComplete;
+@property (atomic) bool dataComplete;
+
 
 - (void)fetchDataByPolling:(NSString *)query;
 - (instancetype)init;
 - (void)expectedSize:(long long)expected;
-- (void)progressed:(long long)progress;
+- (void)progressed:(long long)progress expected:(long long)expected;
+- (void)cancel;
 
 @end

@@ -20,8 +20,8 @@
 
 @interface RailStation : NSObject <SearchFilter>
 
-@property (nonatomic, strong) NSMutableArray *locList;
-@property (nonatomic, strong) NSMutableArray *dirList;
+@property (nonatomic, strong) NSMutableArray *stopIdArray;
+@property (nonatomic, strong) NSMutableArray *dirArray;
 @property (nonatomic, copy)   NSString *station;
 @property (nonatomic, copy)   NSString *wikiLink;
 @property (nonatomic) int index;
@@ -31,11 +31,11 @@
 @property (nonatomic, readonly, copy) NSString *stringToFilter;
 
 - (instancetype)initFromHotSpot:(HOTSPOT *)hotspot index:(int)index;
-- (NSComparisonResult)compareUsingStation:(RailStation*)inStation;
+- (NSComparisonResult)compareUsingStation:(RailStation *)inStation;
 
 + (NSString *)nameFromHotspot:(HOTSPOT *)hotspot;
-+ (UITableViewCell *)tableView:(UITableView*)tableView cellWithReuseIdentifier:(NSString *)identifier rowHeight:(CGFloat)height;
-+ (void)populateCell:(UITableViewCell*)cell station:(NSString *)station lines:(RAILLINES)lines;
++ (UITableViewCell *)tableView:(UITableView *)tableView cellWithReuseIdentifier:(NSString *)identifier rowHeight:(CGFloat)height;
++ (void)populateCell:(UITableViewCell *)cell station:(NSString *)station lines:(RAILLINES)lines;
 + (instancetype)fromHotSpot:(HOTSPOT *)hotspot index:(int)index;
 
 @end

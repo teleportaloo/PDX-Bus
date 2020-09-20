@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>mins_for_arrivals</key>
+	<string>30</string>
+	<key>route_cache</key>
+	<integer>1</integer>
+	<key>debug_xml3</key>
+	<integer>0</integer>
+	<key>debug_commuter</key>
+	<false/>
+	<key>use_caching</key>
+	<true/>
+	<key>network_timeout2</key>
+	<integer>20</integer>
+	<key>watch_hidden_detours</key>
+	<false/>
+</dict>
+</plist>

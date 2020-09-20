@@ -15,14 +15,14 @@
 
 #import <MapKit/MapKit.h>
 #import "MapPinColor.h"
-#import "MapAnnotationImage.h"
+#import "MapAnnotationImageFactory.h"
 
 @interface BearingAnnotationView : MKAnnotationView
 
-@property (nonatomic, strong) MapAnnotationImage *annotationImage;
+@property (nonatomic, strong) MapAnnotationImageFactory *annotationImage;
 
 - (void)updateDirectionalAnnotationView:(MKMapView *)mapView;
 
-+ (MKAnnotationView*)viewForPin:(id<MapPinColor>)pin mapView:(MKMapView*)mapView;
++ (MKAnnotationView *)viewForPin:(id<MapPinColor>)pin mapView:(MKMapView *)mapView;
 
 @end

@@ -15,13 +15,12 @@
 
 #import <Foundation/Foundation.h>
 #import "InterfaceOrientation.h"
+#import "UIApplication+Compat.h"
 
 @implementation InterfaceOrientation
 
-+ (UIInterfaceOrientation) getInterfaceOrientation:(UIViewController*)controller
-{
-    return [UIApplication sharedApplication].statusBarOrientation;
++ (UIInterfaceOrientation)getInterfaceOrientation:(UIViewController *)controller {
+    return [UIApplication sharedApplication].compatStatusBarOrientation;
 }
-
 
 @end

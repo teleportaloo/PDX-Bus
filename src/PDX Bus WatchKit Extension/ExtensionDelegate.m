@@ -23,110 +23,85 @@
 @implementation ExtensionDelegate
 
 
-- (void)applicationDidFinishLaunching
-{
+- (void)applicationDidFinishLaunching {
     self.justLaunched = YES;
     
-    DEBUG_LOG(@"Watch: %d-bit",(int)(sizeof(NSInteger) * 8));
+    DEBUG_LOG(@"Watch: %d-bit", (int)(sizeof(NSInteger) * 8));
 }
 
-- (void)applicationDidBecomeActive
-{
+- (void)applicationDidBecomeActive {
     DEBUG_FUNC();
     WKExtension *extension = [WKExtension sharedExtension];
     
-    if (extension.rootInterfaceController != nil)
-    {
-        WatchBookmarksInterfaceController *root = (WatchBookmarksInterfaceController*)extension.rootInterfaceController;
+    if (extension.rootInterfaceController != nil) {
+        WatchBookmarksInterfaceController *root = (WatchBookmarksInterfaceController *)extension.rootInterfaceController;
         
         [root applicationDidBecomeActive];
     }
     
     self.backgrounded = NO;
     
-    if (self.wakeDelegate)
-    {
+    if (self.wakeDelegate) {
         DEBUG_LOG(@"Found a wake delegate");
         [_wakeDelegate extentionForgrounded];
         self.wakeDelegate = nil;
     }
 }
 
-- (void)applicationWillResignActive
-{
+- (void)applicationWillResignActive {
     DEBUG_FUNC();
     self.backgrounded = YES;
 }
 
-- (void)applicationWillEnterForeground
-{
-   DEBUG_FUNC();
+- (void)applicationWillEnterForeground {
+    DEBUG_FUNC();
 }
 
-- (void)applicationDidEnterBackground
-{
+- (void)applicationDidEnterBackground {
     DEBUG_FUNC();
     self.backgrounded = YES;
 }
 
-
-- (void)handleActivity:(NSUserActivity *)userActivity
-{
+- (void)handleActivity:(NSUserActivity *)userActivity {
     DEBUG_FUNC();
+    
     if (@available(watchOS 5.0, *)) {
-    
-    
         WKExtension *extension = [WKExtension sharedExtension];
-    
+        
         INInteraction *interaction = userActivity.interaction;
         INIntent *intent = nil;
         
-        WatchBookmarksInterfaceController *root = (WatchBookmarksInterfaceController*)extension.rootInterfaceController;
+        WatchBookmarksInterfaceController *root = (WatchBookmarksInterfaceController *)extension.rootInterfaceController;
         
         DEBUG_LOGO(userActivity.userInfo);
         
-        if (interaction)
-        {
+        if (interaction) {
             intent = interaction.intent;
         }
         
-        
-        if (intent && [intent isKindOfClass:[ArrivalsIntent class]])
-        {
-            ArrivalsIntent *arrivals = (ArrivalsIntent *) intent;
+        if (intent && [intent isKindOfClass:[ArrivalsIntent class]]) {
+            ArrivalsIntent *arrivals = (ArrivalsIntent *)intent;
             root.userActivity = [[NSUserActivity alloc] initWithActivityType:kHandoffUserActivityBookmark];
             root.userActivity.userInfo = @{ kUserFavesLocation: arrivals.stops, kUserFavesChosenName: arrivals.locationName  };
             [root processUserActivity];
-        }
-        else if ([userActivity.activityType isEqualToString:kHandoffUserActivityBookmark])
-        {
-            if (userActivity.userInfo && userActivity.userInfo[kUserFavesTrip]!=nil)
-            {
+        } else if ([userActivity.activityType isEqualToString:kHandoffUserActivityBookmark]) {
+            if (userActivity.userInfo && userActivity.userInfo[kUserFavesTrip] != nil) {
                 [root pushControllerWithName:kAlertScene context:
                  [@"#b#WSorry, the PDX Bus watch app does not support Trip Planing." formatAttributedStringWithFont:[UIFont systemFontOfSize:16]]];
-            }
-            else
-            {
+            } else {
                 root.userActivity = userActivity;
                 [root processUserActivity];
             }
-        }
-        else if ([userActivity.activityType isEqualToString:kHandoffUserActivityLocation])
-        {
+        } else if ([userActivity.activityType isEqualToString:kHandoffUserActivityLocation]) {
             root.userActivity = userActivity;
             [root processUserActivity];
         }
-        
     } else {
         // Fallback on earlier versions
     }
 }
 
-
-- (void)handleIntent:(INIntent *)intent completionHandler:(void(^)(INIntentResponse *intentResponse))completionHandler
-{
-    
-    
+- (void)handleIntent:(INIntent *)intent completionHandler:(void (^)(INIntentResponse *intentResponse))completionHandler {
 }
 
 @end

@@ -13,10 +13,7 @@
 #import <UIKit/UIKit.h>
 #import "EditableTableViewCell.h"
 
-@interface CellTextView : EditableTableViewCell <UITextViewDelegate>
-{
-    UITextView *_view;
-}
+@interface CellTextView : EditableTableViewCell <UITextViewDelegate> 
 
 @property (nonatomic, strong) UITextView *view;
 @property CGFloat cellLeftOffset;

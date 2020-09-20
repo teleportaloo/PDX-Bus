@@ -89,7 +89,7 @@
       allowLocationSimulation = "YES">
       <RemoteRunnable
          runnableDebuggingMode = "2"
-         BundleIdentifier = "com.apple.springboard"
+         BundleIdentifier = "com.apple.Carousel"
          RemotePath = "/PDX Bus">
          <BuildableReference
             BuildableIdentifier = "primary"
@@ -108,7 +108,7 @@
       debugDocumentVersioning = "YES">
       <RemoteRunnable
          runnableDebuggingMode = "2"
-         BundleIdentifier = "com.apple.springboard"
+         BundleIdentifier = "com.apple.Carousel"
          RemotePath = "/PDX Bus">
          <BuildableReference
             BuildableIdentifier = "primary"

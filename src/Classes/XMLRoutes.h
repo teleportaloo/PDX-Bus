@@ -1,6 +1,6 @@
 //
 //  XMLRoutes.h
-//  TriMetTimes
+//  PDXBus
 //
 
 
@@ -15,9 +15,7 @@
 #import "TriMetXML.h"
 
 
-@interface XMLRoutes : TriMetXML<Route*> 
-
-@property (nonatomic, strong) Route *currentRouteObject;
+@interface XMLRoutes : TriMetXML<Route *>
 
 - (BOOL)getRoutesCacheAction:(CacheAction)cacheAction;
 - (BOOL)getDirections:(NSString *)route cacheAction:(CacheAction)cacheAction;

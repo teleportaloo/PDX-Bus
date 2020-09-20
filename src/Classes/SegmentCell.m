@@ -15,34 +15,37 @@
 
 #import "SegmentCell.h"
 
-#define kSegRowWidth            320.0
-#define kSegRowHeight           50.0
-#define kUISegHeight            40.0
-#define kUISegWidth             310.0
+#define kSegRowWidth  320.0
+#define kSegRowHeight 50.0
+#define kUISegHeight  40.0
+#define kUISegWidth   310.0
 // #define kUISegWidth          200.0
+
+@interface SegmentCell ()
+
+@property (nonatomic, strong) UISegmentedControl *segment;
+
+@end
 
 @implementation SegmentCell
 
-- (void)createSegmentWithContent:(NSArray*)content target:(NSObject *)target action:(SEL)action
-{
-    CGRect frame = CGRectMake((kSegRowWidth-kUISegWidth)/2, (kSegRowHeight - kUISegHeight)/2 , kUISegWidth, kUISegHeight);
+- (void)createSegmentWithContent:(NSArray *)content target:(NSObject *)target action:(SEL)action {
+    CGRect frame = CGRectMake((kSegRowWidth - kUISegWidth) / 2, (kSegRowHeight - kUISegHeight) / 2, kUISegWidth, kUISegHeight);
     
-    self.segment                         = [[UISegmentedControl alloc] initWithItems:content];
-    self.segment.frame                   = frame;
-    self.segment.autoresizingMask        = UIViewAutoresizingFlexibleWidth;
-    self.selectionStyle                  = UITableViewCellSelectionStyleNone;
-    self.isAccessibilityElement          = NO;
+    self.segment = [[UISegmentedControl alloc] initWithItems:content];
+    self.segment.frame = frame;
+    self.segment.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+    self.selectionStyle = UITableViewCellSelectionStyleNone;
+    self.isAccessibilityElement = NO;
     [self.segment addTarget:target action:action forControlEvents:UIControlEventValueChanged];
     [self.contentView addSubview:self.segment];
     [self layoutSubviews];
 }
 
-+ (instancetype)tableView:(UITableView*)tableView reuseIdentifier:(NSString*)reuseIdentifier cellWithContent:(NSArray*)content target:(NSObject *)target action:(SEL)action selectedIndex:(NSInteger)index
-{
-    SegmentCell* cell  = (SegmentCell*)[tableView dequeueReusableCellWithIdentifier:reuseIdentifier];
++ (instancetype)tableView:(UITableView *)tableView reuseIdentifier:(NSString *)reuseIdentifier cellWithContent:(NSArray *)content target:(NSObject *)target action:(SEL)action selectedIndex:(NSInteger)index {
+    SegmentCell *cell = (SegmentCell *)[tableView dequeueReusableCellWithIdentifier:reuseIdentifier];
     
-    if (cell == nil)
-    {
+    if (cell == nil) {
         cell = [[[self class] alloc] initWithStyle:UITableViewCellStyleDefault
                                    reuseIdentifier:reuseIdentifier];
         [cell createSegmentWithContent:content
@@ -54,34 +57,27 @@
     return cell;
 }
 
-- (void)layoutSubviews
-{
+- (void)layoutSubviews {
     [super layoutSubviews];
     
-    if (self.imageView)
-    {
+    if (self.imageView) {
         CGFloat imageRight = self.imageView.frame.origin.x + self.imageView.frame.size.width;
         
-        if (self.segment.frame.origin.x <= imageRight)
-        {
+        if (self.segment.frame.origin.x <= imageRight) {
             CGFloat adjustment = imageRight - self.segment.frame.origin.x + 5;
-        
+            
             CGRect frame = self.segment.frame;
-        
+            
             frame.origin.x += adjustment;
             frame.size.width -= adjustment;
-        
+            
             self.segment.frame = frame;
         }
     }
-    
 }
 
-
-+ (CGFloat)rowHeight
-{
++ (CGFloat)rowHeight {
     return kSegRowHeight;
 }
-
 
 @end

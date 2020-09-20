@@ -16,7 +16,15 @@
 #import "InterfaceControllerWithBackgroundThread.h"
 #import "DebugLogging.h"
 
-@interface InterfaceControllerWithBackgroundThread ()
+@interface InterfaceControllerWithBackgroundThread () {
+    int _progress;
+    int _total;
+}
+
+
+@property (nonatomic, strong)   WatchContext *delayedContext;
+@property (nonatomic, copy)     void (^ delayedBlock)(void);
+@property (nonatomic)           bool displayed;
 
 @end
 
@@ -25,27 +33,22 @@
 
 
 
-- (id)backgroundTask
-{
+- (id)backgroundTask {
     return nil;
 }
 
-- (bool)backgroundThreadRunning
-{
+- (bool)backgroundThreadRunning {
     @synchronized(self)
     {
-        return self.backgroundThread !=nil;
+        return self.backgroundThread != nil;
     }
 }
 
-- (void)executebackgroundTask:(id)unused
-{
+- (void)executebackgroundTask:(id)unused {
     @autoreleasepool {
-    
         @synchronized(self)
         {
-            if (self.backgroundThread !=nil)
-            {
+            if (self.backgroundThread != nil) {
                 return;
             }
             
@@ -54,16 +57,12 @@
         
         id result = [self backgroundTask];
         
-        if (![NSThread currentThread].isCancelled)
-        {
+        if (![NSThread currentThread].isCancelled) {
             [self performSelectorOnMainThread:@selector(taskFinishedMainThread:) withObject:result waitUntilDone:NO];
-        }
-        else
-        {
-            ExtensionDelegate  *extensionDelegate = (ExtensionDelegate*)[WKExtension sharedExtension].delegate;
+        } else {
+            ExtensionDelegate *extensionDelegate = (ExtensionDelegate *)[WKExtension sharedExtension].delegate;
             
-            if (extensionDelegate.backgrounded)
-            {
+            if (extensionDelegate.backgrounded) {
                 DEBUG_LOG(@"Saving for wake\n");
                 extensionDelegate.wakeDelegate = self;
             }
@@ -75,59 +74,45 @@
         {
             self.backgroundThread = nil;
         }
-    
     }
 }
 
-- (void)extentionForgrounded
-{
+- (void)extentionForgrounded {
     [self startBackgroundTask];
 }
 
--(void)receiveProgress:(id)unused
-{
+- (void)receiveProgress:(id)unused {
     [self progress:_progress total:_total];
 }
 
-- (void)sendProgress:(int)progress total:(int)total
-{
+- (void)sendProgress:(int)progress total:(int)total {
     _progress = progress;
     _total = total;
     
     [self performSelectorOnMainThread:@selector(receiveProgress:) withObject:nil waitUntilDone:NO];
-
 }
 
-
-- (void)startBackgroundTask
-{
+- (void)startBackgroundTask {
     @synchronized(self)
     {
         [NSThread detachNewThreadSelector:@selector(executebackgroundTask:) toTarget:self withObject:nil];
     }
 }
 
-- (void)cancelBackgroundTask
-{
+- (void)cancelBackgroundTask {
     @synchronized(self)
     {
         [self.backgroundThread cancel];
     }
 }
 
-- (void)progress:(int)state total:(int)total
-{
-    
+- (void)progress:(int)state total:(int)total {
 }
 
-- (void)taskFinishedMainThread:(id)result
-{
-    
+- (void)taskFinishedMainThread:(id)result {
 }
 
-- (void)taskFailedMainThread:(id)result
-{
-    
+- (void)taskFailedMainThread:(id)result {
 }
 
 - (void)awakeWithContext:(id)context {
@@ -147,25 +132,19 @@
     [super didDeactivate];
 }
 
-- (void)delayedPush:(WatchContext *)context completion:(void (^)(void))block
-{
-    if (!self.displayed)
-    {
+- (void)delayedPush:(WatchContext *)context completion:(void (^)(void))block {
+    if (!self.displayed) {
         self.delayedContext = context;
         self.delayedBlock = block;
-    }
-    else
-    {
+    } else {
         [context delayedPushFrom:self completion:block];
     }
 }
 
-- (void)didAppear
-{
+- (void)didAppear {
     self.displayed = YES;
-
-    if (self.delayedContext)
-    {
+    
+    if (self.delayedContext) {
         [self.delayedContext delayedPushFrom:self completion:self.delayedBlock];
         self.delayedContext = nil;
         self.delayedBlock = nil;
@@ -173,6 +152,3 @@
 }
 
 @end
-
-
-

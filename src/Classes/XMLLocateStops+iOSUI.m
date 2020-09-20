@@ -22,42 +22,33 @@
 @implementation XMLLocateStops (iOSUI)
 
 
-#pragma mark Error check 
+#pragma mark Error check
 
 
-- (bool)displayErrorIfNoneFound:(id<BackgroundTaskController>)progress
-{
-	NSThread *thread = [NSThread currentThread]; 
-	
-	if (self.count == 0 && !self.gotData)
-	{
-		
-		if (!thread.cancelled) 
-		{
-			[thread cancel];
-            [progress taskSetErrorMsg:@"Network problem: please try again later."];
+- (bool)displayErrorIfNoneFound:(id<TaskController>)progress {
+    NSThread *thread = [NSThread currentThread];
+    
+    if (self.count == 0 && !self.gotData) {
+        if (!thread.cancelled) {
+            [thread cancel];
+            [progress taskSetErrorMsg:NSLocalizedString(@"Network problem: please try again later.", @"error message")];
             
-			return true;
-		}	
-		
-	}
-	else if (self.count == 0)
-	{
-		if (!thread.cancelled) 
-		{
-			[thread cancel];
+            return true;
+        }
+    } else if (self.count == 0) {
+        if (!thread.cancelled) {
+            [thread cancel];
             
             NSArray *modes = @[@"bus stops", @"train stops", @"bus or train stops"];
-        
+            
             [progress taskSetErrorMsg:[NSString stringWithFormat:@"No %@ were found within %@.",
-                                             modes[self.mode],
-                                             [FormatDistance formatMetres:self.minDistance]]];
-			return true;
-		}
-	}
-	
-	return false;
-	
+                                       modes[self.mode],
+                                       [FormatDistance formatMetres:self.minDistance]]];
+            return true;
+        }
+    }
+    
+    return false;
 }
 
 @end

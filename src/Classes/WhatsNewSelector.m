@@ -17,41 +17,36 @@
 
 @implementation WhatsNewSelector
 
-+ (NSNumber*)getPrefix
-{
++ (NSNumber *)getPrefix {
     return @'$';
 }
 
-- (void)updateCell:(UITableViewCell *)cell tableView:(UITableView *)tableView
-{
-    cell.textLabel.backgroundColor   = [UIColor clearColor];
-    cell.accessoryType               = UITableViewCellAccessoryDisclosureIndicator;
-    cell.textLabel.textAlignment     = NSTextAlignmentLeft;
-    cell.selectionStyle              = UITableViewCellSelectionStyleBlue;
+- (void)updateCell:(LinkCell *)cell tableView:(UITableView *)tableView {
+    cell.textView.backgroundColor = [UIColor clearColor];
+    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+    cell.textView.textAlignment = NSTextAlignmentLeft;
+    cell.selectionStyle = UITableViewCellSelectionStyleBlue;
 }
 
-- (void)processAction:(NSString *)text parent:(ViewControllerBase*)parent
-{
+- (void)processAction:(NSString *)text parent:(ViewControllerBase *)parent {
     NSString *selector = [self prefix:text restOfText:nil];
     
-    SEL action = NSSelectorFromString(selector);
+    NSString *fullSelector = [NSString stringWithFormat:@"xxx%@", selector];
     
-    if ([parent respondsToSelector:action])
-    {
+    SEL action = NSSelectorFromString(fullSelector);
+    
+    if ([parent respondsToSelector:action]) {
         IMP imp = [parent methodForSelector:action];
         void (*func)(id, SEL) = (void *)imp;
         func(parent, action);
-        
-        // [parent performSelector:action];
     }
 }
 
-- (NSString*)displayText:(NSString*)fullText
-{
+- (NSString *)displayText:(NSString *)fullText {
     NSString *rest = nil;
+    
     [self prefix:fullText restOfText:&rest];
     return rest;
 }
-
 
 @end

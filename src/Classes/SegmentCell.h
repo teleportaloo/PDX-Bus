@@ -16,15 +16,11 @@
 #import <UIKit/UIKit.h>
 
 
-@interface SegmentCell : UITableViewCell 
+@interface SegmentCell : UITableViewCell
 
-@property (nonatomic, strong) UISegmentedControl *segment;
+- (void)createSegmentWithContent:(NSArray *)content target:(NSObject *)target action:(SEL)action;
 
-+ (instancetype)tableView:(UITableView*)tableView reuseIdentifier:(NSString*)reuseIdentifier cellWithContent:(NSArray*)content target:(NSObject *)target action:(SEL)action selectedIndex:(NSInteger)index;
-
-- (void)createSegmentWithContent:(NSArray*)content target:(NSObject *)target action:(SEL)action;
-
-+ (CGFloat)rowHeight;
-
++ (instancetype)tableView:(UITableView *)tableView reuseIdentifier:(NSString *)reuseIdentifier cellWithContent:(NSArray *)content target:(NSObject *)target action:(SEL)action selectedIndex:(NSInteger)index;
++ (CGFloat)     rowHeight;
 
 @end

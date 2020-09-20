@@ -24,7 +24,7 @@
 @property (atomic) bool waitingForGeocoder;
 @property (atomic, strong) NSError *error;
 
-- (NSMutableArray<TripLegEndPoint*> *)fetchCoordinates:(NSString *)address;
+- (NSMutableArray<TripLegEndPoint *> *)fetchCoordinates:(NSString *)address;
 
 + (bool)supported;
 + (bool)addressNeedsCoords:(NSString *)address;

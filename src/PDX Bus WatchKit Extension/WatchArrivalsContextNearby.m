@@ -15,62 +15,63 @@
 
 #import "WatchArrivalsContextNearby.h"
 
+@interface WatchArrivalsContextNearby ()
+
+@property (nonatomic, strong) XMLLocateStops *stops;
+@property (nonatomic)         NSInteger index;
+
+@end
+
 @implementation WatchArrivalsContextNearby
 
-
-+ (WatchArrivalsContextNearby*)contextFromNearbyStops:(XMLLocateStops *)stops index:(NSInteger)index;
-{
++ (WatchArrivalsContextNearby *)contextFromNearbyStops:(XMLLocateStops *)stops index:(NSInteger)index; {
     {
         WatchArrivalsContextNearby *context = [[WatchArrivalsContextNearby alloc] init];
         
         StopDistance *item = stops[index];
         
-        context.locid            = item.locid;
-        context.showMap          = YES;
-        context.showDistance     = YES;
-        context.stops            = stops;
-        context.index            = index;
-        context.navText          = @"Next nearest swipe ←";
-        context.distance         = item.distance;
-       
+        context.stopId = item.stopId;
+        context.showMap = YES;
+        context.showDistance = YES;
+        context.stops = stops;
+        context.index = index;
+        context.navText = @"Next nearest swipe ←";
+        context.distance = item.distance;
+        
         return context;
     }
 }
 
-- (instancetype)init
-{
-    if ((self = [super init]))
-    {
-        self.sceneName  = kArrivalsScene;
+- (instancetype)init {
+    if ((self = [super init])) {
+        self.sceneName = kArrivalsScene;
     }
+    
     return self;
 }
 
-- (bool)hasNext
-{
-    return self.index < (self.stops.count-1);
+- (bool)hasNext {
+    return self.index < (self.stops.count - 1);
 }
 
-- (WatchArrivalsContext *)next
-{
+- (WatchArrivalsContext *)next {
     WatchArrivalsContext *next = nil;
-    if (self.hasNext)
-    {
-        next = [WatchArrivalsContextNearby contextFromNearbyStops:self.stops index:self.index+1];
+    
+    if (self.hasNext) {
+        next = [WatchArrivalsContextNearby contextFromNearbyStops:self.stops index:self.index + 1];
     }
+    
     return next;
 }
 
-
-- (WatchArrivalsContext *)clone
-{
+- (WatchArrivalsContext *)clone {
     WatchArrivalsContext *next = nil;
-    if (self.hasNext)
-    {
+    
+    if (self.hasNext) {
         next = [WatchArrivalsContextNearby contextFromNearbyStops:self.stops index:self.index];
     }
+    
     return next;
 }
-
 
 @end

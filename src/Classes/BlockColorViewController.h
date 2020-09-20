@@ -18,14 +18,6 @@
 #import "BlockColorDb.h"
 #import "../3rd Party/InfColorPicker/InfColorPicker.h"
 
-@interface BlockColorViewController : TableViewWithToolbar <InfColorPickerControllerDelegate> {
-    NSArray *           _keys;
-    BlockColorDb *      _db;
-    NSString *          _changingColor;
-    NSString *          _helpText;
-}
-
-- (void) colorPickerControllerDidFinish: (InfColorPickerController*) controller;
-
+@interface BlockColorViewController : TableViewWithToolbar <InfColorPickerControllerDelegate>
 
 @end

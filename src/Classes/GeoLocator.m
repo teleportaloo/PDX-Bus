@@ -17,37 +17,32 @@
 #import "DebugLogging.h"
 #import "ReverseGeoLocator.h"
 #import "CLLocation+Helper.h"
-#import "UserPrefs.h"
+#import "Settings.h"
 #import <MapKit/MapKit.h>
 #import "NSString+Helper.h"
-
+#import "CLPlacemark+SimpleAddress.h"
 
 @implementation GeoLocator
 
 
 
-+ (bool)supported
-{
-    if ([UserPrefs sharedInstance].useAppleGeoLocator)
-    {
-        // This API does not work well and so is always off for now.
++ (bool)supported {
+    if (Settings.useAppleGeoLocator) {
         Class geocoderClass = (NSClassFromString(@"MKLocalSearchRequest"));
-    
+        
         return geocoderClass != nil;
     }
     
     return NO;
 }
 
-+ (bool)addressNeedsCoords:(NSString *)address
-{
++ (bool)addressNeedsCoords:(NSString *)address {
     unichar c = 0;
-    for (NSUInteger i=0; i < address.length; i++)
-    {
+    
+    for (NSUInteger i = 0; i < address.length; i++) {
         c = [address characterAtIndex:i];
         
-        if (c < '0' || c > '9')
-        {
+        if (c < '0' || c > '9') {
             return YES;
         }
     }
@@ -55,10 +50,8 @@
     return NO;
 }
 
-
-- (NSMutableArray<TripLegEndPoint*> *)fetchCoordinates:(NSString *)address
-{
-    NSMutableArray<TripLegEndPoint*> * results = [NSMutableArray array];
+- (NSMutableArray<TripLegEndPoint *> *)fetchCoordinates:(NSString *)address {
+    NSMutableArray<TripLegEndPoint *> *results = [NSMutableArray array];
     
     self.waitingForGeocoder = true;
     
@@ -71,18 +64,18 @@
     const CLLocationDegrees Y1 = -122.249926;
     
     static dispatch_once_t onceToken;
+    
     dispatch_once(&onceToken, ^{
-
-        
         CLLocationCoordinate2D triMetCenter = { (X0 + X1) / 2.0, (Y0 + Y1) / 2.0  };
         
         region.center = triMetCenter;
-        region.span.latitudeDelta  = X1-X0;
-        region.span.longitudeDelta = Y1-Y0;
+        region.span.latitudeDelta = X1 - X0;
+        region.span.longitudeDelta = Y1 - Y0;
     });
     
     
-    MKLocalSearchRequest* request = [[MKLocalSearchRequest alloc] init];
+    MKLocalSearchRequest *request = [[MKLocalSearchRequest alloc] init];
+    
     request.naturalLanguageQuery = address;
     
     // Set the region to an associated map view's region
@@ -90,42 +83,31 @@
     
     MKLocalSearch *search = [[MKLocalSearch alloc] initWithRequest:request];
     
-    [search startWithCompletionHandler:^(MKLocalSearchResponse * _Nullable response, NSError * _Nullable error) {
-        if (!error)
-        {
-            for (MKMapItem *mapItem in response.mapItems)
-            {
+    [search startWithCompletionHandler:^(MKLocalSearchResponse *_Nullable response, NSError *_Nullable error) {
+        if (!error) {
+            for (MKMapItem *mapItem in response.mapItems) {
                 MKPlacemark *p = mapItem.placemark;
                 
                 if (p.coordinate.latitude >= X0 &&
                     p.coordinate.latitude <= X1 &&
                     p.coordinate.longitude >= Y0 &&
-                    p.coordinate.longitude <= Y1)
-                {
+                    p.coordinate.longitude <= Y1) {
                     DEBUG_LOG(@"Placemark %@", mapItem.placemark.description);
                     
                     TripLegEndPoint *ep = [TripLegEndPoint data];
                     
-                    NSArray *lines = p.addressDictionary[@"FormattedAddressLines"];
+                    NSArray *lines = p.simpleAddressLines;
                     NSString *addressString = [lines componentsJoinedByString:@"\n"];
-                    
-                    if (addressString != nil)
-                    {
-                        if ([p.name isEqualToString:lines.firstObject])
-                        {
+            
+                    if (addressString != nil) {
+                        if ([p.name isEqualToString:lines.firstObject]) {
                             ep.displayText = addressString;
-                        }
-                        else
-                        {
+                        } else {
                             ep.displayText = [NSString stringWithFormat:@"%@\n%@", p.name, addressString];
                         }
-                    }
-                    else if (p.name != nil)
-                    {
+                    } else if (p.name != nil) {
                         ep.displayText = p.name;
-                    }
-                    else
-                    {
+                    } else {
                         ep.displayText = address;
                     }
                     
@@ -143,9 +125,7 @@
                     //@property (nonatomic, readonly, copy) NSString *stopId;
                     //@property (nonatomic) MapPinColorValue pinColor;
                     //@property (nonatomic, readonly, copy) NSString *mapStopId;
-                }
-                else
-                {
+                } else {
                     DEBUG_LOG(@"Out of bounds %@", mapItem.placemark.description);
                 }
             }
@@ -156,20 +136,16 @@
         self.waitingForGeocoder = FALSE;
     }];
     
-    while (self.waitingForGeocoder & ![NSThread currentThread].isCancelled)
-    {
+    while (self.waitingForGeocoder & ![NSThread currentThread].isCancelled) {
         [NSThread sleepForTimeInterval:0.2];
         DEBUG_LOG(@"Waiting for Geocoder\n");
     }
     
-    
-    if ([NSThread currentThread].isCancelled)
-    {
+    if ([NSThread currentThread].isCancelled) {
         [search cancel];
     }
     
     return results;
 }
-
 
 @end

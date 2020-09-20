@@ -19,7 +19,7 @@
 #import "Vehicle.h"
 #import "MapPinColor.h"
 
-#define kNoVehicles @"PDX Bus could not find a bus or train close by. Note - Streetcar is not supported.  Try again in a few moments as the vehicle locations may be updated."
+#define kNoVehicles           @"PDX Bus could not find a bus or train close by. Note - Streetcar is not supported.  Try again in a few moments as the vehicle locations may be updated."
 
 #define kVehicleTypeBus       @"bus"
 #define kVehicleTypeTrain     @"train"
@@ -39,6 +39,6 @@
 @property (nonatomic, readonly) bool showActionMenu;
 @property (nonatomic, readonly, copy) NSString *tapActionText;
 
-- (bool) mapTapped:(id<BackgroundTaskController>) progress;
+- (bool)mapTapped:(id<TaskController>)progress;
 
 @end

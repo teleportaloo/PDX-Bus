@@ -14,11 +14,10 @@
 
 #import <UIKit/UIKit.h>
 
-#define TOOLBAR_PLACEHOLDER(X, Y) if (X.image==nil) { X.title=Y; }
+#define TOOLBAR_PLACEHOLDER(X, Y) if (X.image == nil) { X.title = Y; }
 
 
 @interface UIToolbar (Auto) {
-
 }
 
 + (UIBarButtonItem *)flexSpace;
@@ -29,6 +28,7 @@
 + (UIBarButtonItem *)magnifyButtonWithTarget:(id)target action:(SEL)action;
 + (UIBarButtonItem *)noSleepButtonWithTarget:(id)target action:(SEL)action;
 + (UIBarButtonItem *)commuteButtonWithTarget:(id)target action:(SEL)action;
++ (UIBarButtonItem *)settingsButtonWithTarget:(id)target action:(SEL)action;
 + (UIBarButtonItem *)locateButtonWithTarget:(id)target action:(SEL)action;
 + (UIBarButtonItem *)qrScannerButtonWithTarget:(id)target action:(SEL)action;
 

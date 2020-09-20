@@ -22,9 +22,6 @@
 
 @interface ArrivalsIntentHandler : NSObject
 
-@property (strong, nonatomic) NSMutableArray<XMLDepartures *> *departures;
-@property (atomic) bool responded;
-
-- (void)handleArrivals:(ArrivalsIntent *)intent completion:(void (^)(ArrivalsIntentResponse *response))completion API_AVAILABLE(ios(12.0));
+- (void)handleArrivals:(ArrivalsIntent *)intent
+            completion:(void (^)(ArrivalsIntentResponse *response))completion API_AVAILABLE(ios(12.0));
 @end
-

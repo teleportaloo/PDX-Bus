@@ -20,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface PickerCell : UITableViewCell
 @property (strong, nonatomic) IBOutlet UIPickerView *pickerView;
 
-+ (UINib*)nib;
++ (UINib *)nib;
 
 @end
 

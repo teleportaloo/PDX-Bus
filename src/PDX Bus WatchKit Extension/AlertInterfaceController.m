@@ -26,10 +26,9 @@
     [self popToRootController];
 }
 
-
 - (void)awakeWithContext:(id)context {
     [super awakeWithContext:context];
-
+    
     self.alertLabel.attributedText = (NSAttributedString *)context;
 }
 

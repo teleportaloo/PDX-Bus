@@ -19,15 +19,13 @@
 
 @interface NearestVehiclesMap : MapViewController
 
-@property (nonatomic, strong) NSSet<NSString*> *streetcarRoutes;
-@property (nonatomic, strong) NSSet<NSString*> *trimetRoutes;
+@property (nonatomic, strong) NSSet<NSString *> *streetcarRoutes;
+@property (nonatomic, strong) NSSet<NSString *> *trimetRoutes;
 @property (nonatomic, copy)   NSString *direction;
-@property (nonatomic) bool alwaysFetch;
-@property (nonatomic, strong) XMLLocateStops *stopLocator;
-@property (nonatomic)  bool allRoutes;
-@property (nonatomic, strong) XMLLocateVehicles *locator;
+@property (nonatomic)         bool alwaysFetch;
+@property (nonatomic)         bool allRoutes;
 
-- (void)fetchNearestVehiclesAsync:(id<BackgroundTaskController>)task;
-- (void)fetchNearestVehiclesAndStopsAsync:(id<BackgroundTaskController>)task location:(CLLocation *)here maxToFind:(int)max minDistance:(double)min mode:(TripMode)mode;
+- (void)fetchNearestVehiclesAsync:(id<TaskController>)taskController;
+- (void)fetchNearestVehiclesAndStopsAsync:(id<TaskController>)taskController location:(CLLocation *)here maxToFind:(int)max minDistance:(double)min mode:(TripMode)mode;
 
 @end

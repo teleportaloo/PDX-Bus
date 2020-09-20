@@ -15,66 +15,63 @@
 
 #import "MapViewWithStops.h"
 #import "DebugLogging.h"
+#import "TaskState.h"
 
 #define kGettingStops @"getting stops"
 
+@interface MapViewWithStops ()
+
+@property (nonatomic, strong) XMLStops *stopData;
+@property (nonatomic, copy)   NSString *stopId;
+
+@end
+
 @implementation MapViewWithStops
 
-
-
-- (void)viewDidLoad
-{
+- (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
 }
 
-- (void)didReceiveMemoryWarning
-{
+- (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
 
-- (void)addStops:(id<ReturnStop>)returnStop
-{
-    for (Stop *stop in self.stopData.items)
-    {
-        if (![stop.locid isEqualToString:self.locId])
-        {
+- (void)addStops:(id<ReturnStop>)returnStop {
+    for (Stop *stop in self.stopData.items) {
+        if (![stop.stopId isEqualToString:self.stopId]) {
             stop.callback = returnStop;
             [self addPin:stop];
         }
     }
 }
 
-- (void)fetchStopsAsync:(id<BackgroundTaskController>)task route:(NSString*)routeid direction:(NSString*)dir
-                    returnStop:(id<ReturnStop>)returnStop
-{
+- (void)fetchStopsAsync:(id<TaskController>)taskController route:(NSString *)routeid direction:(NSString *)dir
+             returnStop:(id<ReturnStop>)returnStop {
     self.stopData = [XMLStops xml];
     
     if (!self.backgroundRefresh && [self.stopData getStopsForRoute:routeid
                                                          direction:dir
                                                        description:@""
-                                                       cacheAction:TriMetXMLCheckCache])
-    {
+                                                       cacheAction:TriMetXMLCheckRouteCache]) {
         [self addStops:returnStop];
-        [task taskCompleted:self];
-    }
-    else
-    {
-        [task taskRunAsync:^{
-            [task taskStartWithItems:1 title:kGettingStops];
+        [taskController taskCompleted:self];
+    } else {
+        [taskController taskRunAsync:^(TaskState *taskState) {
+            [taskState startAtomicTask:kGettingStops];
             
             [self.stopData getStopsForRoute:routeid
                                   direction:dir
                                 description:@""
-                                cacheAction:TriMetXMLForceFetchAndUpdateCache];
+                                cacheAction:TriMetXMLForceFetchAndUpdateRouteCache];
             
             [self addStops:returnStop];
+            [taskState atomicTaskItemDone];
             
-            return (UIViewController*)self;
+            return (UIViewController *)self;
         }];
     }
 }
-
 
 @end

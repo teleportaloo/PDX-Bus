@@ -17,28 +17,25 @@
 #import "XMLDepartures.h"
 
 #define kMultipleDepsMaxStops (10)
-#define kMultipleDepsBatches(X)  (1 + (((int)(X))-1) / kMultipleDepsMaxStops)
+#define kMultipleDepsBatches(X) (1 + (((int)(X)) - 1) / kMultipleDepsMaxStops)
 
-@interface XMLMultipleDepartures : TriMetXMLv2<XMLDepartures*> 
+@interface XMLMultipleDepartures : TriMetXMLv2<XMLDepartures *>
 
-@property (nonatomic, strong) NSMutableDictionary<NSString *, XMLDepartures*> *stops;
-@property (nonatomic, strong) NSMutableDictionary<NSNumber *, Detour*> *allDetours;
-@property (nonatomic, strong) NSMutableSet<NSNumber*> *usedDetours;
-@property (nonatomic, strong) NSMutableDictionary<NSString *, Route*> *allRoutes;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, XMLDepartures *> *stops;
+@property (nonatomic, strong) NSMutableDictionary<NSNumber *, Detour *> *allDetours;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, Route *> *allRoutes;
 @property (nonatomic)         bool nextBusFeedInTriMetData;
-@property (nonatomic, strong) XMLDepartures *currentStop;
 @property (nonatomic, copy)   NSString *blockFilter;
-@property (nonatomic, strong) Detour *currentDetour;
-@property (nonatomic)         unsigned int options;
 @property (nonatomic, strong) NSDate *queryTime;
-@property (nonatomic, copy)   NSString *locs;
+@property (nonatomic, copy)   NSString *stopIds;
 
-- (BOOL)getDeparturesForLocations:(NSString *)locations block:(NSString*)block;
-- (BOOL)getDeparturesForLocations:(NSString *)locations;
+- (BOOL)getDeparturesForStopIds:(NSString *)stopIds block:(NSString *)block;
+- (BOOL)getDeparturesForStopIds:(NSString *)stopIds;
 - (void)reload;
 - (void)reparse:(NSMutableData *)data;
 
-+ (NSArray<NSString*> *)batchesFromEnumerator:(id<NSFastEnumeration>)container selector:(SEL)selector max:(NSInteger)max;
++ (NSArray<NSString *> *)batchesFromEnumerator:(id<NSFastEnumeration>)container selector:(SEL)selector max:(NSInteger)max;
 + (instancetype)xmlWithOptions:(unsigned int)options;
++ (instancetype)xmlWithOptions:(unsigned int)options oneTimeDelegate:(id<TriMetXMLDelegate> _Nonnull)delegate;
 
 @end

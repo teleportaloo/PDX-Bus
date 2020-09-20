@@ -17,9 +17,9 @@
 #import "BackgroundTaskContainer.h"
 
 
-@interface XMLLocateStops(iOSUI) 
+@interface XMLLocateStops (iOSUI)
 
-- (bool)displayErrorIfNoneFound:(id<BackgroundTaskController>)progress;
+- (bool)displayErrorIfNoneFound:(id<TaskController>)progress;
 
 
 @end

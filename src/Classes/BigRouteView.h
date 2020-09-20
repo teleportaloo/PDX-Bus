@@ -18,9 +18,9 @@
 #import "Departure.h"
 
 
-@interface BigRouteView : ViewControllerBase 
+@interface BigRouteView : ViewControllerBase
 
 @property (nonatomic, strong) Departure *departure;
-@property (nonatomic, strong) UIView *textView;
+
 
 @end

@@ -20,7 +20,7 @@
 #import "DepartureCell.h"
 
 
-#define kRouteCellHeight	 55
+#define kRouteCellHeight     55
 #define kRouteWideCellHeight 85
 
 @interface RouteDistance (iOSUI)

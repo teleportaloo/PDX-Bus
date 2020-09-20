@@ -19,106 +19,83 @@
 @implementation RoutePin
 
 
-- (MapPinColorValue)pinColor
-{
+- (MapPinColorValue)pinColor {
     return MAP_PIN_COLOR_GREEN;
 }
 
-- (UIColor*)pinTint
-{
+- (UIColor *)pinTint {
     return self.color;
 }
 
-- (bool)showActionMenu
-{
-    if (self.route!=nil)
-    {
+- (bool)showActionMenu {
+    if (self.route != nil) {
         return YES;
     }
+    
     return NO;
 }
 
--(bool)hasBearing
-{
+- (bool)hasBearing {
     return NO;
 }
 
-- (CLLocationCoordinate2D)coordinate
-{
+- (CLLocationCoordinate2D)coordinate {
     return _touchPosition;
 }
 
-- (NSString*)title
-{
+- (NSString *)title {
     return self.desc;
 }
 
-- (NSString *)subtitle
-{
+- (NSString *)subtitle {
     return self.dir;
 }
 
-- (NSString*)tapActionText
-{
+- (NSString *)tapActionText {
     return @"Route info";
 }
 
-- (bool)mapTapped:(id<BackgroundTaskController>) progress
-{
+- (bool)mapTapped:(id<TaskController>)progress {
     [[DirectionView viewController] fetchDirectionsAsync:progress route:self.route];
     return true;
 }
 
-- (NSUInteger)hash
-{
+- (NSUInteger)hash {
     return self.route.hash ^ self.dir.hash;
 }
 
-- (BOOL)isEqualToRoutePin:(RoutePin *)pin
-{
-    if (self.route == nil)
-    {
-        if (pin.route == nil)
-        {
+- (BOOL)isEqualToRoutePin:(RoutePin *)pin {
+    if (self.route == nil) {
+        if (pin.route == nil) {
             return [self.desc isEqualToString:pin.desc];
         }
-    }
-    else if ([self.route isEqualToString:pin.route])
-    {
-        if (self.dir && pin.dir)
-        {
+    } else if ([self.route isEqualToString:pin.route]) {
+        if (self.dir && pin.dir) {
             return [self.dir isEqualToString:pin.dir];
-        }
-        else
-        {
+        } else {
             return self.dir == pin.dir;
         }
     }
-
+    
     return NO;
 }
 
-- (BOOL)isEqual:(id)object
-{
-    if (self == object)
-    {
+- (BOOL)isEqual:(id)object {
+    if (self == object) {
         return YES;
     }
     
-    if (![object isKindOfClass:[RoutePin class]])
-    {
+    if (![object isKindOfClass:[RoutePin class]]) {
         return NO;
     }
     
-    return [self isEqualToRoutePin:(RoutePin*)object];
+    return [self isEqualToRoutePin:(RoutePin *)object];
 }
 
-- (NSComparisonResult)compare:(RoutePin *)other
-{
+- (NSComparisonResult)compare:(RoutePin *)other {
     NSComparisonResult result = [self.desc compare:other.desc];
     
-    if (result == NSOrderedSame)
-    {
+    if (result == NSOrderedSame) {
         result = [self.dir compare:other.dir];
     }
     

@@ -15,54 +15,54 @@
 
 #import "TintedImageCache.h"
 #import "MemoryCaches.h"
-#import "ViewControllerBase.h"
 #import "UIColor+DarkMode.h"
 #import "UIImage+Tint.h"
+#import "Icons.h"
+
+@interface TintedImageCache ()
+
+@property NSMutableDictionary<NSString *, UIImage *> *cache;
+@property NSInteger style;
+
+@end
 
 @implementation TintedImageCache
 
-
-- (instancetype)init
-{
-    if ((self = [super init]))
-    {
+- (instancetype)init {
+    if ((self = [super init])) {
         self.cache = [[NSMutableDictionary alloc] init];
         [MemoryCaches addCache:self];
     }
+    
     return self;
 }
 
-- (void)memoryWarning
-{
+- (void)memoryWarning {
     [self.cache removeAllObjects];
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     [MemoryCaches removeCache:self];
 }
 
-+ (TintedImageCache *)sharedInstance
-{
++ (TintedImageCache *)sharedInstance {
     static TintedImageCache *singleton = nil;
     
     static dispatch_once_t onceToken;
+    
     dispatch_once(&onceToken, ^{
         singleton = [[TintedImageCache alloc] init];
-        
     });
     return singleton;
 }
 
-- (UIImage*)icon:(NSString *)name color:(UIColor*)tint designation:(NSString*)designation
-{
+- (UIImage *)icon:(NSString *)name color:(UIColor *)tint designation:(NSString *)designation {
     NSString *key = [NSString stringWithFormat:@"%@/%@", designation, name];
     
     UIImage *image = self.cache[key];
     
-    if (image == nil)
-    {
-        image = [ViewControllerBase getIcon:name];
+    if (image == nil) {
+        image = [Icons getIcon:name];
         image = [image tintImageWithColor:tint];
         [self.cache setObject:image forKey:key];
     }
@@ -70,37 +70,29 @@
     return image;
 }
 
-- (UIImage*)modeAwareLightenedIcon:(NSString *)name
-{
-    if (@available(iOS 13.0, *))
-    {
-        if (IOS_DARK_MODE)
-        {
+- (UIImage *)modeAwareLightenedIcon:(NSString *)name {
+    if (@available(iOS 13.0, *)) {
+        if (IOS_DARK_MODE) {
             return [self icon:name color:[UIColor whiteColor] designation:TINT_FOR_IOS_DARK_MODE];
         }
-
     }
-    return [ViewControllerBase getIcon:name];
+    
+    return [Icons getIcon:name];
 }
 
-
-- (UIImage*)modeAwareBlueIcon:(NSString *)name
-{
+- (UIImage *)modeAwareBlueIcon:(NSString *)name {
     // These colors are based in the "information icon" (i) color
-    if (@available(iOS 13.0, *))
-    {
-        if (IOS_DARK_MODE)
-        {
+    if (@available(iOS 13.0, *)) {
+        if (IOS_DARK_MODE) {
             return [self icon:name color:HTML_COLOR(0x0099FF) designation:TINT_FOR_DARK_BLUE];
         }
     }
+    
     return [self icon:name color:HTML_COLOR(0x0066FF) designation:TINT_FOR_BLUE];
 }
 
-- (void)userInterfaceStyleChanged:(NSInteger)style
-{
-    if (style != self.style)
-    {
+- (void)userInterfaceStyleChanged:(NSInteger)style {
+    if (style != self.style) {
         [self.cache removeAllObjects];
         self.style = style;
     }

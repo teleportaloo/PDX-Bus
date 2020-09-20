@@ -18,11 +18,12 @@
 
 @class UIFont;
 
-@interface  NSString(Helper)
+@interface  NSString (Helper)
 
-@property (nonatomic, readonly, copy) NSMutableAttributedString *mutableAttributedString;
-@property (nonatomic, readonly) NSString *stringWithTrailingSpaceIfNeeded;
-@property (nonatomic, readonly) NSString *stringByTrimmingWhitespace;
+@property (nonatomic, readonly, copy) NSMutableAttributedString *_Nonnull mutableAttributedString;
+@property (nonatomic, readonly, copy) NSAttributedString *_Nonnull attributedString;
+@property (nonatomic, readonly) NSString *_Nonnull stringWithTrailingSpaceIfNeeded;
+@property (nonatomic, readonly) NSString *_Nonnull stringByTrimmingWhitespace;
 @property (nonatomic, readonly) unichar firstUnichar;
 
 // Formatting - a simple markup for basic text formatting.
@@ -30,6 +31,7 @@
 // #b - bold text on or off
 // #i - italic text on or off
 // #h is used to escape - e.g. #h becomes #
+// ## is also an escape
 // #+ increases font size by 1 point
 // #( decreases font size by 2 points
 // #[ decreases font size by 4 points
@@ -49,6 +51,7 @@
 //  #A - gray
 //  #R - red
 //  #B - blue
+//  #C - cyan
 //  #Y - yellow
 //  #N - brown
 //  #M - magenta
@@ -56,17 +59,28 @@
 //  #> - indent all by font point size
 //  #< - decrease indentatation
 
-- (NSMutableAttributedString*)formatAttributedStringWithFont:(UIFont *)regularFont;
-- (NSString*)removeFormatting;
+// Links - there is a space after the URL to indicate the end
+// #Lhttp://apple.com Text#T
 
-- (NSMutableAttributedString *)appendToAttributedString:(NSMutableAttributedString *)attr;
-- (NSMutableArray<NSString*> *)arrayFromCommaSeparatedString;
-- (bool)hasCaseInsensitiveSubstring:(NSString *)search;
-- (NSMutableString *)phonetic;
-- (NSString *)justNumbers;
+- (NSMutableAttributedString *_Nonnull)formatAttributedStringWithFont:(UIFont *_Nullable)regularFont;
+- (NSString *_Nonnull)removeFormatting;
+- (NSString *_Nonnull)encodeUrlForFormatting;
+- (NSString *_Nonnull)decodeUrlForFormatting;
 
-+ (NSMutableString *)commaSeparatedStringFromEnumerator:(id<NSFastEnumeration>)container selector:(SEL)selector;
+- (NSMutableArray<NSString *> *_Nonnull)arrayFromCommaSeparatedString;
+- (bool)hasCaseInsensitiveSubstring:(NSString *_Nonnull)search;
+- (NSMutableString *_Nonnull)phonetic;
+- (NSString *_Nonnull)justNumbers;
+
++ (NSMutableString *_Nonnull)commaSeparatedStringFromStringEnumerator:(id<NSFastEnumeration> _Nonnull)container;
+
++ (NSMutableString *_Nonnull)commaSeparatedStringFromEnumerator:(id<NSFastEnumeration> _Nonnull)container
+                                                       selector:(SEL _Nonnull)selector;
+
++ (NSMutableString *_Nonnull)textSeparatedStringFromEnumerator:(id<NSFastEnumeration> _Nonnull)container
+                                                      selector:(SEL _Nonnull)selector
+                                                     separator:(NSString *_Nonnull)separator;
+
+- (NSAttributedString *_Nonnull)attributedStringWithAttributes:(nullable NSDictionary<NSAttributedStringKey, id> *)attrs;
 
 @end
-
-

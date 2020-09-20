@@ -1,6 +1,6 @@
 //
 //  Route.h
-//  TriMetTimes
+//  PDXBus
 //
 
 
@@ -14,20 +14,21 @@
 #import "TriMetInfo.h"
 
 #define kSystemWideRouteId @"SWRID"
-#define kSystemWideDetour NSLocalizedString(@"System Wide Alert", @"heading")
+#define kSystemWideDetour  NSLocalizedString(@"System Wide Alert", @"heading")
 
 @interface Route : DataFactory {
-    const ROUTE_INFO* _col;
 }
 
-@property (nonatomic, strong) NSMutableDictionary<NSString*, NSString*> *directions;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, NSString *> *directions;
 @property (nonatomic, readonly) bool systemWide;
+@property (nonatomic, readonly) NSInteger systemWideId;
+
 @property (nonatomic, copy) NSString *route;
 @property (nonatomic, copy) NSString *desc;
 
 - (NSComparisonResult)compare:(Route *)route2;
-- (BOOL)isEqualToRoute:(Route*)route;
-- (PC_ROUTE_INFO )rawColor;
+- (BOOL)isEqualToRoute:(Route *)route;
+- (PC_ROUTE_INFO)rawColor;
 
 + (instancetype)systemWide:(NSNumber *)detourId;
 

@@ -15,6 +15,10 @@
 
 #import "PickerCell.h"
 
+@interface PickerCell ()
+
+@end
+
 @implementation PickerCell
 
 - (void)awakeFromNib {
@@ -22,15 +26,13 @@
     // Initialization code
 }
 
-
-+ (UINib*)nib
-{
++ (UINib *)nib {
     return [UINib nibWithNibName:@"PickerCell" bundle:nil];
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
     [super setSelected:selected animated:animated];
-
+    
     // Configure the view for the selected state
 }
 

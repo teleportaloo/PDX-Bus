@@ -13,16 +13,9 @@
 
 
 #import <UIKit/UIKit.h>
-#import "TorchController.h"
 #import "ViewControllerBase.h"
-#include "UserPrefs.h"
 
-@interface FlashViewController : ViewControllerBase {
-    int                 _color;
-    TorchController *   _torch;
-}
 
-@property (nonatomic, strong) NSTimer *flashTimer;
-
+@interface FlashViewController : ViewControllerBase
 
 @end

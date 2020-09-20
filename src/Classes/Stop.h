@@ -1,6 +1,6 @@
 //
 //  Stop.h
-//  TriMetTimes
+//  PDXBus
 //
 
 
@@ -17,13 +17,11 @@
 
 
 @protocol ReturnStop;
-@protocol BackgroundTaskController;
+@protocol TaskController;
 
+@interface Stop : DataFactory <MapPinColor, SearchFilter>
 
-
-@interface Stop : DataFactory <MapPinColor, SearchFilter> 
-
-@property (nonatomic, copy)   NSString *locid;
+@property (nonatomic, copy)   NSString *stopId;
 @property (nonatomic, copy)   NSString *desc;
 @property (nonatomic, copy)   NSString *dir;
 @property (nonatomic)         bool tp;
@@ -35,12 +33,14 @@
 @property (nonatomic, readonly) bool showActionMenu;
 @property (nonatomic, readonly, copy) NSString *stringToFilter;
 
-- (bool) mapTapped:(id<BackgroundTaskController>) progress;
+- (bool)mapTapped:(id<TaskController>)progress;
 
 @end
 
 @protocol ReturnStop
-- (void) chosenStop:(Stop *)stop progress:(id<BackgroundTaskController>) progress;
-@property (nonatomic, readonly, copy) NSString *actionText;
-@end
 
+@property (nonatomic, readonly, copy) NSString *actionText;
+
+- (void)chosenStop:(Stop *)stop progress:(id<TaskController>)progress;
+
+@end

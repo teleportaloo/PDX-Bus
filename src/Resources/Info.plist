@@ -9,10 +9,10 @@
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
-			<key>LSHandlerRank</key>
-			<string>Default</string>
 			<key>CFBundleTypeName</key>
 			<string>MKDirectionsRequest</string>
+			<key>LSHandlerRank</key>
+			<string>Default</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>com.apple.maps.directionsrequest</string>
@@ -30,7 +30,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>11.3.1</string>
+	<string>11.4</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -47,7 +47,9 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>43</string>
+	<string>48</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.travel</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>comgooglemaps</string>
@@ -64,7 +66,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
-	<false/>
+	<true/>
 	<key>MKDirectionsApplicationSupportedModes</key>
 	<array>
 		<string>MKDirectionsModeBus</string>
@@ -103,7 +105,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>The app only uses the camera when scanning for QR codes.</string>
 	<key>NSContactsUsageDescription</key>
-	<string>User can select a contact&apos;s address to plan a trip, and for placing a trip on a calendar.</string>
+	<string>User can select a contact's address to plan a trip, and for placing a trip on a calendar.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>This is used for locating stops and vehicles. This may also be used for proximity alarms that trigger when you are near to a stop.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
@@ -120,8 +122,13 @@
 	<string>Stop information will be sent to Siri.</string>
 	<key>NSUserActivityTypes</key>
 	<array>
+		<string>AlertsForRouteIntent</string>
+		<string>ArrivalsAtStopIdIntent</string>
 		<string>ArrivalsIntent</string>
 		<string>LocateIntent</string>
+		<string>LocateStopsIntent</string>
+		<string>RoutesAtStopIdIntent</string>
+		<string>StopLocationIntent</string>
 		<string>org.teleportaloo.pdxbus.bookmark</string>
 	</array>
 	<key>UIBackgroundModes</key>

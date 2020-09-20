@@ -18,7 +18,7 @@
 #import "DepartureData+watchOSUI.h"
 #import "WatchRow.h"
 
-@interface WatchArrival: WatchRow
+@interface WatchArrival : WatchRow
 
 @property (strong, nonatomic) IBOutlet WKInterfaceImage *lineColor;
 @property (strong, nonatomic) IBOutlet WKInterfaceLabel *heading;

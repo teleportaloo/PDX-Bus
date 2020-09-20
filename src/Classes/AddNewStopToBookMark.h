@@ -17,8 +17,6 @@
 #import "ReturnStopId.h"
 #import "TableViewWithToolbar.h"
 
-@interface AddNewStopToBookMark : TableViewWithToolbar <EditableTableViewCellDelegate> 
-
-@property (nonatomic, strong) UITextField *editWindow;
+@interface AddNewStopToBookMark : TableViewWithToolbar <EditableTableViewCellDelegate>
 
 @end

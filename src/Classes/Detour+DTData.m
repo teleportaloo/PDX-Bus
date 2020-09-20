@@ -14,104 +14,88 @@
 
 
 #import "Detour+DTData.h"
-#import "UserPrefs.h"
+#import "Settings.h"
 
 @implementation Detour (DTData)
 
 
-- (id)depXML
-{
+- (id)depXML {
     return self;
 }
 
-- (Departure *)depGetDeparture:(NSInteger)i
-{
+- (Departure *)depGetDeparture:(NSInteger)i {
     return nil;
 }
-- (NSInteger)depGetSafeItemCount
-{
+
+- (NSInteger)depGetSafeItemCount {
     return 0;
 }
-- (NSString *)depGetSectionHeader
-{
-    if ([[UserPrefs sharedInstance] isHiddenSystemWideDetour:self.detourId])
-    {
+
+- (NSString *)depGetSectionHeader {
+    if ([Settings isHiddenSystemWideDetour:self.detourId]) {
         return nil;
     }
+    
     return self.headerText;
 }
-- (NSString *)depGetSectionTitle
-{
+
+- (NSString *)depGetSectionTitle {
     return nil;
 }
 
-- (void)depPopulateCell:(Departure *)dd cell:(DepartureCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide
-{
+- (void)depPopulateCell:(Departure *)dd cell:(DepartureCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide {
     // [dd populateCell:cell decorate:decorate busName:YES wide:wide];
 }
-- (NSString *)depStaticText
-{
+
+- (NSString *)depStaticText {
     return nil;
 }
 
-- (StopDistance*)depDistance
-{
+- (StopDistance *)depDistance {
     return nil;
 }
 
-- (NSDate *)depQueryTime
-{
-     return nil;
+- (NSDate *)depQueryTime {
+    return nil;
 }
 
-- (CLLocation *)depLocation
-{
-     return nil;
+- (CLLocation *)depLocation {
+    return nil;
 }
 
-- (NSString *)depLocDesc
-{
-     return nil;
+- (NSString *)depLocDesc {
+    return nil;
 }
 
-- (NSString *)depLocId
-{
-     return nil;
+- (NSString *)depStopId {
+    return nil;
 }
 
-- (bool)depHasDetails
-{
+- (bool)depHasDetails {
     return NO;
 }
 
-- (bool)depNetworkError
-{
+- (bool)depNetworkError {
     return NO;
 }
 
-- (NSString *)depNetworkErrorMsg
-{
+- (NSString *)depNetworkErrorMsg {
     return nil;
 }
 
-- (NSString *)depDir
-{
+- (NSString *)depDir {
     return nil;
 }
 
-- (NSData *)depHtmlError
-{
+- (NSData *)depHtmlError {
     return nil;
 }
 
-
-- (Detour *)depDetour
-{
+- (Detour *)depDetour {
     return self;
 }
 
--(NSOrderedSet<NSNumber*>*)depDetoursPerSection
-{
+- (NSOrderedSet<NSNumber *> *)depDetoursPerSection {
     return [NSOrderedSet orderedSet];
 }
 

@@ -1,5 +1,5 @@
 //
-//  DeviceOrientation.h
+//  InterfaceOrientation.h
 //  PDX Bus
 //
 //  Created by Andrew Wallace on 9/27/14.
@@ -18,7 +18,7 @@
 
 @interface InterfaceOrientation : NSObject
 
-+ (UIInterfaceOrientation) getInterfaceOrientation:(UIViewController*)controller;
++ (UIInterfaceOrientation)getInterfaceOrientation:(UIViewController *)controller;
 
 
 @end

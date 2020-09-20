@@ -1,6 +1,6 @@
 //
 //  About.h
-//  TriMetTimes
+//  PDXBus
 //
 
 
@@ -14,15 +14,7 @@
 #import <UIKit/UIKit.h>
 #import "TableViewWithToolbar.h"
 
-#define kTips					2
-
-@interface AboutView : TableViewWithToolbar {
-	NSAttributedString *thanksText;
-	NSAttributedString *introText;
-    NSArray<NSDictionary<NSString*, NSString*>*> *links;
-    NSArray<NSDictionary<NSString*, NSString*>*> *legal;
-    NSArray<NSString*> *versions;
-}
+@interface AboutView : TableViewWithToolbar
 
 @property (nonatomic) bool hideButton;
 

@@ -14,7 +14,7 @@
 
 
 #import "DebugInterfaceController.h"
-#import "UserFaves.h"
+#import "UserState.h"
 #import "DebugLogging.h"
 
 @interface DebugInterfaceController ()
@@ -25,44 +25,32 @@
 
 
 
-- (void)reloadData
-{
-    NSDictionary *commuter = [[SafeUserData sharedInstance] checkForCommuterBookmarkShowOnlyOnce:NO];
+- (void)reloadData {
+    NSDictionary *commuter = [UserState.sharedInstance checkForCommuterBookmarkShowOnlyOnce:NO];
     
-    if (commuter == nil)
-    {
+    if (commuter == nil) {
         self.CommuterStatus.text = @"No commuter bookmark configured for this time.";
-    }
-    else
-    {
-        NSDate *lastRun = [SafeUserData sharedInstance].lastRun;
+    } else {
+        NSDate *lastRun = UserState.sharedInstance.lastRun;
         
         self.CommuterStatus.text = commuter[kUserFavesChosenName];
         
-        if (lastRun !=nil)
-        {            
+        if (lastRun != nil) {
             self.CommuterStatus.text = [NSString stringWithFormat:@"%@ last run %@",
                                         commuter[kUserFavesChosenName],
                                         [NSDateFormatter localizedStringFromDate:lastRun dateStyle:NSDateFormatterMediumStyle timeStyle:NSDateFormatterMediumStyle]];
-            
-            
-        }
-        else
-        {
-            
+        } else {
             self.CommuterStatus.text = commuter[kUserFavesChosenName];
-            
         }
     }
-
-    
 }
+
 - (void)awakeWithContext:(id)context {
     [super awakeWithContext:context];
     
     // Configure interface objects here.
     [self reloadData];
-   }
+}
 
 - (void)willActivate {
     // This method is called when watch view controller is about to be visible to user
@@ -75,18 +63,15 @@
 }
 
 - (IBAction)ClearCommuterBookmark {
-    SafeUserData *prefs = [SafeUserData sharedInstance];
+    UserState *prefs = UserState.sharedInstance;
     
     prefs.readOnly = NO;
     
-    [[SafeUserData sharedInstance] setLastRun:nil];
+    [UserState.sharedInstance setLastRun:nil];
     
-     prefs.readOnly = YES;
+    prefs.readOnly = YES;
     
     [self reloadData];
-
 }
+
 @end
-
-
-

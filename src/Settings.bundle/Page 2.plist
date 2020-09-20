@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>ApplicationGroupContainerIdentifier</key>
+	<string>group.teleportaloo.pdxbus</string>
+	<key>PreferenceSpecifiers</key>
+	<array>
+		<dict>
+			<key>Title</key>
+			<string>Arrivals screen:</string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<true/>
+			<key>Key</key>
+			<string>auto_refresh</string>
+			<key>Title</key>
+			<string>Auto refresh</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Group by Arrivals icon</string>
+			<key>Key</key>
+			<string>group_by_arrivals_icon</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Stop Locator Toolbar behavior:</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Always show options</string>
+			<key>Key</key>
+			<string>auto_locate_show_options</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>Title</key>
+			<string>Default Trip Planner Options:</string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Use Apple to find addresses</string>
+			<key>Key</key>
+			<string>use_apple_geolocator</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<real>0.75</real>
+			<key>Key</key>
+			<string>max_walking_distance</string>
+			<key>Title</key>
+			<string>Max walking distance</string>
+			<key>Titles</key>
+			<array>
+				<string>1/10 mile</string>
+				<string>1/4 mile</string>
+				<string>1/2 mile</string>
+				<string>3/4 mile</string>
+				<string>1 mile</string>
+				<string>2 miles</string>
+			</array>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Values</key>
+			<array>
+				<real>0.1</real>
+				<real>0.25</real>
+				<real>0.5</real>
+				<real>0.75</real>
+				<integer>1</integer>
+				<real>2</real>
+			</array>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<integer>2</integer>
+			<key>Key</key>
+			<string>travel_by</string>
+			<key>Title</key>
+			<string>Travel by</string>
+			<key>Titles</key>
+			<array>
+				<string>Bus only</string>
+				<string>Train only</string>
+				<string>Bus or train</string>
+			</array>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Values</key>
+			<array>
+				<integer>0</integer>
+				<integer>1</integer>
+				<integer>2</integer>
+			</array>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<integer>0</integer>
+			<key>Key</key>
+			<string>min</string>
+			<key>Title</key>
+			<string>Show me the</string>
+			<key>Titles</key>
+			<array>
+				<string>Quickest Trip</string>
+				<string>Fewest Transfers</string>
+				<string>Shortest Walk</string>
+			</array>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Values</key>
+			<array>
+				<integer>0</integer>
+				<integer>1</integer>
+				<integer>2</integer>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Alarm Warnings</string>
+		</dict>
+		<dict>
+			<key>Values</key>
+			<array>
+				<string>default_sound.wav</string>
+				<string>Train_Honk_Horn_2x-Mike_Koenig-157974048.aif</string>
+				<string>Pager Beeps-SoundBible.com-260751720.aiff</string>
+			</array>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Alarm Sound</string>
+			<key>Key</key>
+			<string>alarm_sound</string>
+			<key>Titles</key>
+			<array>
+				<string>Default Notification Sound</string>
+				<string>Train Honk</string>
+				<string>Pager Sound</string>
+			</array>
+			<key>DefaultValue</key>
+			<string>Train_Honk_Horn_2x-Mike_Koenig-157974048.aif</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Rail map</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Streetcar map first</string>
+			<key>Key</key>
+			<string>streetcar_map_first</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+	</array>
+	<key>StringsTable</key>
+	<string>Root</string>
+	<key>Title</key>
+	<string>PDX Bus</string>
+</dict>
+</plist>

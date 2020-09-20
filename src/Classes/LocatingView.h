@@ -27,23 +27,13 @@
 @end
 
 @interface LocatingView : TableViewWithToolbar <CLLocationManagerDelegate>
-{
-	bool						_waitingForLocation;
-    bool                        _triedToAuthorize;
-}
 
-@property (nonatomic, strong) UIActivityIndicatorView * progressInd;
-@property (nonatomic, strong) UITableViewCell *         progressCell;
-@property (nonatomic, strong) CLLocationManager *       locationManager;
-@property (nonatomic, strong) CLLocation *              lastLocation;
-@property (nonatomic, strong) NSDate *                  timeStamp;
-@property (nonatomic)         bool                      failed;
-@property (nonatomic)         bool                      cancelled;
-@property (nonatomic)         double                    accuracy;
+@property (nonatomic)         bool failed;
+@property (nonatomic)         bool cancelled;
+@property (nonatomic)         double accuracy;
 @property (nonatomic, strong) id<LocatingViewDelegate>  delegate;
-@property (nonatomic, strong) id<MKAnnotation>          annotation;
-@property (nonatomic, readonly) int locationTextTag;
-@property (nonatomic, readonly) bool checkLocation;
+@property (nonatomic, strong) CLLocation *lastLocation;
+@property (nonatomic, strong) CLLocationManager *locationManager;
 
 - (UITableViewCell *)accuracyCellWithReuseIdentifier:(NSString *)identifier;
 - (void)located;

@@ -1,8 +1,8 @@
-"BxYILy" = "View arrivals at TriMet stop";
+"BxYILy" = "View departures at TriMet stop";
 
 "Iw741b" = "Stop ID ${stops}";
 
-"KbDHMh" = "No arrivals were found for that stop.";
+"KbDHMh" = "No departures were found for that stop.";
 
 "LX7jhP" = "No information for that stop.";
 
@@ -12,11 +12,11 @@
 
 "TqSNOp" = "At ${stopName} there were no arrivals.";
 
-"Ud9d7v" = "${numberOfRoutes} Here's the arrivals at ${stopName}  ${arrivals}";
+"Ud9d7v" = "${numberOfRoutes} Here's the departures at ${stopName}  ${arrivals}";
 
-"kdzRJK" = "Touch here to see arrivals at ${stopName}.";
+"kdzRJK" = "Touch here to see departures at ${stopName}.";
 
-"wEz8sE" = "Here's the arrivals at ${stopName}  ${arrivals}";
+"wEz8sE" = "Here's the departures at ${stopName}  ${arrivals}";
 
 "wnTYWL" = "Get arrivals at Stop ID ${stops}";
 

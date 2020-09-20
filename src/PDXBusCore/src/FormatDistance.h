@@ -15,10 +15,10 @@
 
 #import <Foundation/Foundation.h>
 
-#define kMetresInAMile       (1609.344)
-#define kFeetInAMile         (5280.0)
-#define kFeetInAMetre        (kFeetInAMile / kMetresInAMile)
-#define MetresForMiles(X)    (kMetresInAMile * (X))
+#define kMetresInAMile (1609.344)
+#define kFeetInAMile   (5280.0)
+#define kFeetInAMetre  (kFeetInAMile / kMetresInAMile)
+#define MetresForMiles(X) (kMetresInAMile * (X))
 
 @interface FormatDistance : NSObject
 

@@ -16,10 +16,34 @@
 #import "QuartzCore/QuartzCore.h"
 #import "DebugLogging.h"
 #import "NSString+Helper.h"
-
-CGPathRef CreatePathWithRoundRect(CGRect rect, CGFloat cornerRadius);
+#import "RoundedTransparentRectView.h"
 
 #pragma mark ProgressModalView
+
+#define kActivityViewWidth  200
+#define kActivityViewHeight 200
+#define kProgressWidth      65
+#define kProgressHeight     65
+#define kTextHeight         25
+#define kTextSpaceOffset    (kActivityViewHieght - ((kActivityViewHieght + kProgressHeight) / 2))
+#define kBarHeight          10
+#define kTextWidth          kBarWidth
+#define kBarWidth           (kActivityViewWidth - 20)
+#define kBarGap             10
+#define kMargin             0
+#define kTopMargin          (15 + kMargin)
+#define kButtonHeight       40
+#define kButtonGap          5
+
+@interface ProgressModalView ()
+
+@property (nonatomic) NSInteger itemsDone;
+@property (nonatomic, strong) UIProgressView *progress;
+@property (nonatomic, strong) UILabel *subLabel;
+@property (nonatomic, strong) UILabel *helpLabel;
+@property (nonatomic, strong) UIView *helpFrame;
+
+@end
 
 @implementation ProgressModalView
 
@@ -27,409 +51,291 @@ CGPathRef CreatePathWithRoundRect(CGRect rect, CGFloat cornerRadius);
     self.progressDelegate = nil;
 }
 
-
-/*
- // The designated initializer.  Override if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-    if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
-        // Custom initialization
-    }
-    return self;
-}
-*/
-
-#define kActivityViewWidth                200
-#define kActivityViewHeight                200
-#define kProgressWidth                    65
-#define kProgressHeight                    65
-#define kTextHeight                        25
-#define kTextSpaceOffset                (kActivityViewHieght - ((kActivityViewHieght + kProgressHeight)/2))
-#define kBarHeight                        10
-#define kTextWidth                        kBarWidth
-#define kBarWidth                        (kActivityViewWidth - 20)
-#define kBarGap                            10
-#define kMargin                            0
-#define kTopMargin                        (15 + kMargin)
-#define kButtonHeight                    40
-#define kButtonGap                        5
-
-- (void)buttonAction:(id)sender
-{
+- (void)cancelButtonAction:(id)sender {
     UIButton *button = sender;
+    
     button.hidden = true;
     
-    [self.progressDelegate progressDelegateCancel]; 
-    
+    [self.progressDelegate progressDelegateCancel];
 }
 
-+ (ProgressModalView *)initWithSuper:(UIView *)back items:(NSInteger)items title:(NSString *)title delegate:(id<ProgressDelegate>)delegate
-                         orientation:(UIInterfaceOrientation)orientation
-{    
-    ProgressModalView *top = [[ProgressModalView alloc] initWithFrame:back.bounds];
-
+- (UIView *)createScreenBlockView:(UIView *)back {
     CGRect backFrame = back.frame;
+    
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(
+                                                            backFrame.origin.x + kMargin,
+                                                            backFrame.origin.y + kTopMargin,
+                                                            (backFrame.size.width  - kMargin * 2),
+                                                            (backFrame.size.height - kTopMargin - kMargin)
+                                                            )];
+    
+    view.backgroundColor = [UIColor colorWithRed:0.5 green:0.5 blue:0.5 alpha:0.6];
+    
+    view.opaque = NO;
+    
+    return view;
+}
 
+- (RoundedTransparentRectView *)createRoundedRect:(const CGSize)backSize
+                                            title:(NSString *)title {
+    CGRect roundedFrame = CGRectMake(
+                                     (backSize.width - kActivityViewWidth) / 2,
+                                     (backSize.height - kActivityViewHeight) / 2 - (kButtonGap + kButtonHeight) / 2,
+                                     kActivityViewWidth,
+                                     kActivityViewHeight
+                                     );
     
-    /*
-    RoundedTransparentRect *fullScreen = [[RoundedTransparentRect alloc] initWithFrame:CGRectMake(
-                                                                            backFrame.origin.x + kMargin,
-                                                                            backFrame.origin.y + kTopMargin,
-                                                                            (backFrame.size.width  - kMargin *2),
-                                                                            (backFrame.size.height - kTopMargin - kMargin)
-                                                                            )];
-    
-    fullScreen.BACKGROUND_OPACITY  = 0.60;
-    fullScreen.R                   = 0.5;
-    fullScreen.G                   = 0.5;
-    fullScreen.B                   = 0.5;
-    
-    fullScreen.opaque = NO;
-    */
-    
-    UIView *fullScreen = [[UIView alloc] initWithFrame:CGRectMake(
-                                                                                                  backFrame.origin.x + kMargin,
-                                                                                                  backFrame.origin.y + kTopMargin,
-                                                                                                  (backFrame.size.width  - kMargin *2),
-                                                                                                  (backFrame.size.height - kTopMargin - kMargin)
-                                                                                                  )];
-    
-    fullScreen.backgroundColor = [UIColor colorWithRed:0.5 green:0.5 blue:0.5 alpha:0.6];
-    
-    fullScreen.opaque = NO;
-     
-     
-     [top addSubview:fullScreen];
-    
-    
-    CGRect frontFrame = CGRectMake(
-                                   (backFrame.size.width - kActivityViewWidth) /2,
-                                   (backFrame.size.height - kActivityViewHeight) /2 - (kButtonGap+kButtonHeight)/2,
-                                   kActivityViewWidth,
-                                   kActivityViewHeight                                        
-                                   );
-
-    RoundedTransparentRect *frontWin = [[RoundedTransparentRect alloc] initWithFrame:frontFrame];
+    RoundedTransparentRectView *view = [[RoundedTransparentRectView alloc] initWithFrame:roundedFrame];
     
     bool dark = NO;
-    if (@available(iOS 13.0, *))
-    {
-        dark = (frontWin.traitCollection.userInterfaceStyle == UIUserInterfaceStyleDark);
+    
+    if (@available(iOS 13.0, *)) {
+        dark = (view.traitCollection.userInterfaceStyle == UIUserInterfaceStyleDark);
     }
     
-    if (dark)
-    {
-        frontWin.BACKGROUND_OPACITY   =  0.80;
-    }
-    else
-    {
-        frontWin.BACKGROUND_OPACITY   =  0.80;
-        frontWin.R                    =  112.0/255.0;
-        frontWin.G                    =  138.0/255.0;
-        frontWin.B                    =  144.0/255.0;
+    if (dark) {
+        view.color = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:0.80];
+    } else {
+        view.color = [UIColor colorWithRed:112.0 / 255.0 green:138.0 / 255.0 blue:144.0 / 255.0 alpha:0.80];
     }
     
-    frontWin.opaque = NO;
+    view.opaque = NO;
     
-    [top addSubview:frontWin];
+    if (title != nil) {
+        [view addSubview:[self createTitleView:title]];
+    }
     
-    top.whirly = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-    top.whirly.frame = CGRectMake((kActivityViewWidth - kProgressWidth)/2,
-                                  (kActivityViewHeight -kProgressHeight)/2,  
-                                  kProgressWidth,
-                                  kProgressHeight);
+    return view;
+}
+
+- (UIActivityIndicatorView *)createWhirly {
+
+#if TARGET_OS_MACCATALYST
+    UIActivityIndicatorView *whirly = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleLarge];
+#else
+    UIActivityIndicatorView *whirly = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+#endif
     
+    whirly.frame = CGRectMake((kActivityViewWidth - kProgressWidth) / 2,
+                              (kActivityViewHeight - kProgressHeight) / 2,
+                              kProgressWidth,
+                              kProgressHeight);
+    return whirly;
+}
+
+- (UILabel *)createSubtext:(RoundedTransparentRectView *)frontWin
+                 yPosition:(CGFloat)y {
+    CGRect frame = CGRectMake((kActivityViewWidth - kTextWidth) / 2,
+                              ((y + kProgressHeight) + (kActivityViewWidth - kBarHeight - kBarGap)) / 2 - kTextHeight / 2,
+                              kTextWidth,
+                              kTextHeight);
     
+    UILabel *label = [[UILabel alloc] initWithFrame:frame];
     
-    [frontWin addSubview:top.whirly];
-                   
-        
-    [top.whirly startAnimating];
+    label.text = nil;
+    label.opaque = NO;
+    label.backgroundColor = [UIColor clearColor];
+    label.textColor = [UIColor whiteColor];
+    label.textAlignment = NSTextAlignmentCenter;
+    label.adjustsFontSizeToFitWidth = NO;
+    label.font = [UIFont boldSystemFontOfSize:12];
     
-    CGRect subframe = CGRectMake((kActivityViewWidth-kTextWidth)/2, 
-                                 ((top.whirly.frame.origin.y + kProgressHeight) + (kActivityViewWidth - kBarHeight-kBarGap)) / 2 - kTextHeight/2, 
-                                 kTextWidth, 
-                                 kTextHeight);
-    
-    UILabel *subtextView = [[UILabel alloc] initWithFrame:subframe];
-    
-    subtextView.text = nil;
-    subtextView.opaque = NO;
-    subtextView.backgroundColor = [UIColor clearColor];
-    subtextView.textColor = [UIColor whiteColor];
-    subtextView.textAlignment = NSTextAlignmentCenter;
-    subtextView.adjustsFontSizeToFitWidth = NO;
-    subtextView.font = [UIFont boldSystemFontOfSize:12];
-    top.subText = subtextView;
-    
-    [frontWin addSubview:subtextView];
-    
-    top.totalItems = items;
-    
-    CGRect frame = CGRectMake((kActivityViewWidth-kBarWidth)/2,
-                              (kActivityViewHeight - kBarHeight-kBarGap) ,
+    return label;
+}
+
+- (UIProgressView *)createProgress:(RoundedTransparentRectView *)frontWin items:(NSInteger)items {
+    CGRect frame = CGRectMake((kActivityViewWidth - kBarWidth) / 2,
+                              (kActivityViewHeight - kBarHeight - kBarGap),
                               kBarWidth,
                               kBarHeight);
-    top.progress = [[UIProgressView alloc] initWithFrame:frame];
-    top.progress.progressViewStyle = UIProgressViewStyleDefault;
-    top.progress.progress = 0.0;
     
-    if (items == 1)
-    {
-        top.progress.hidden = YES;
+    UIProgressView *view = [[UIProgressView alloc] initWithFrame:frame];
+    
+    view.progressViewStyle = UIProgressViewStyleDefault;
+    view.progress = 0.0;
+    
+    if (items == 1) {
+        view.hidden = YES;
     }
     
-    [frontWin addSubview:top.progress];
+    return view;
+}
+
+- (UIButton *)createCancelButton:(const CGRect)frontFrame backgroundColor:(UIColor *)backgroundColor {
+    UIButton *cancelButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
     
-    if (delegate)
-    {
-        top.progressDelegate = delegate;
+    static NSAttributedString *cancelText = nil;
     
-        UIButton *cancelButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-        
-        static NSAttributedString * cancelText = nil;
-        
-        static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{
-            cancelText = [@"#b#RCancel" formatAttributedStringWithFont:[UIFont systemFontOfSize:20]];
-        });
+    static dispatch_once_t onceToken;
     
-        [cancelButton setAttributedTitle:cancelText forState:UIControlStateNormal];
+    dispatch_once(&onceToken, ^{
+        cancelText = [@"#b#RCancel" formatAttributedStringWithFont:[UIFont systemFontOfSize:20]];
+    });
     
-        cancelButton.frame = CGRectMake(
-                                        frontFrame.origin.x,
-                                        frontFrame.origin.y + frontFrame.size.height + kButtonGap,
-                                        kActivityViewWidth,
-                                        kButtonHeight);
+    [cancelButton setAttributedTitle:cancelText forState:UIControlStateNormal];
     
-        [cancelButton addTarget:top action:@selector(buttonAction:) forControlEvents:UIControlEventTouchUpInside];    
-        
-        cancelButton.backgroundColor = [UIColor colorWithRed:frontWin.R green:frontWin.B blue:frontWin.G alpha:frontWin.BACKGROUND_OPACITY];
-        
-        [top addSubview:cancelButton];
-        
-        cancelButton.hidden = NO;
-        
-        [top bringSubviewToFront:cancelButton];
-        
-    }
+    cancelButton.frame = CGRectMake(
+                                    frontFrame.origin.x,
+                                    frontFrame.origin.y + frontFrame.size.height + kButtonGap,
+                                    kActivityViewWidth,
+                                    kButtonHeight);
     
+    cancelButton.backgroundColor = backgroundColor;
+    
+    cancelButton.hidden = NO;
+    
+    return cancelButton;
+}
+
+- (UILabel *)createHelpText:(const CGRect)frontFrame {
     double y = frontFrame.origin.y + frontFrame.size.height + 2 * kButtonGap + kButtonHeight;
     double width = kActivityViewWidth * 1.5;
-    CGRect helpOuterFrame = CGRectMake(frontFrame.origin.x - (width-kActivityViewWidth)/2,
-                                 y,
-                                 width,
-                                 kButtonHeight * 2 );
+    CGRect helpOuterFrame = CGRectMake(frontFrame.origin.x - (width - kActivityViewWidth) / 2,
+                                       y,
+                                       width,
+                                       kButtonHeight * 2);
     
     CGRect helpInnerFrame = CGRectInset(helpOuterFrame, 5, 5);
     
+    UILabel *label = [[UILabel alloc] initWithFrame:helpInnerFrame];
     
-    UILabel *helpTextView = [[UILabel alloc] initWithFrame:helpInnerFrame];
+    label.text = nil;
+    label.opaque = NO;
+    label.backgroundColor = [UIColor clearColor];
+    label.lineBreakMode = NSLineBreakByWordWrapping;
+    label.numberOfLines = 10;
+    label.textColor = [UIColor whiteColor];
+    label.textAlignment = NSTextAlignmentCenter;
+    label.adjustsFontSizeToFitWidth = NO;
+    label.font = [UIFont boldSystemFontOfSize:16];
+    label.hidden = YES;
     
-    helpTextView.text = nil;
-    helpTextView.opaque = NO;
-    helpTextView.backgroundColor = [UIColor clearColor];
-    helpTextView.lineBreakMode = NSLineBreakByWordWrapping;
-    helpTextView.numberOfLines = 10;
-    helpTextView.textColor = [UIColor whiteColor];
-    helpTextView.textAlignment = NSTextAlignmentCenter;
-    helpTextView.adjustsFontSizeToFitWidth = NO;
-    helpTextView.font = [UIFont boldSystemFontOfSize:16];
-    helpTextView.hidden = YES;
-    top.helpText = helpTextView;
-    helpTextView.layer.masksToBounds = YES;
-    helpTextView.layer.cornerRadius = 5.0;
+    label.layer.masksToBounds = YES;
+    label.layer.cornerRadius = 5.0;
     
-    [top addSubview:helpTextView];
-
-    
-    if (title !=nil)
-    {
-        CGRect titleFrame = CGRectMake((kActivityViewWidth-kTextWidth)/2, (kBarGap) , kTextWidth, kTextHeight);
-        
-        UILabel *textView = [[UILabel alloc] initWithFrame:titleFrame];
-        
-        textView.text = title;
-        textView.opaque = NO;
-        textView.backgroundColor = [UIColor clearColor];
-        textView.textColor = [UIColor whiteColor];
-        textView.textAlignment = NSTextAlignmentCenter;
-        textView.adjustsFontSizeToFitWidth = YES;
-        textView.font = [UIFont boldSystemFontOfSize:17];
-        // top.subText = textView;
-        
-        [frontWin addSubview:textView];
-        
-    }
-
-    return top;
+    return label;
 }
 
-- (void) addSubtext:(NSString *)subtext
-{
-    if (self.subText)
-    {
-        self.subText.text = subtext;
+- (UILabel *)createTitleView:(NSString *)title {
+    CGRect titleFrame = CGRectMake((kActivityViewWidth - kTextWidth) / 2, (kBarGap), kTextWidth, kTextHeight);
+    
+    UILabel *label = [[UILabel alloc] initWithFrame:titleFrame];
+    
+    label.text = title;
+    label.opaque = NO;
+    label.backgroundColor = [UIColor clearColor];
+    label.textColor = [UIColor whiteColor];
+    label.textAlignment = NSTextAlignmentCenter;
+    label.adjustsFontSizeToFitWidth = YES;
+    label.font = [UIFont boldSystemFontOfSize:17];
+    
+    return label;
+}
+
+- (instancetype)initWithParent:(UIView *)back
+                         items:(NSInteger)items
+                         title:(NSString *)title
+                      delegate:(id<ProgressDelegate>)delegate
+                   orientation:(UIInterfaceOrientation)orientation {
+    if (self = [super initWithFrame:back.frame]) {
+        self.totalItems = items < 1 ? 1 : items;
+        
+        [self addSubview:[self createScreenBlockView:back]];
+        
+        RoundedTransparentRectView *roundedRect = [self createRoundedRect:back.frame.size
+                                                                    title:title];
+        
+        UIActivityIndicatorView *whirly = [self createWhirly];
+        [roundedRect addSubview:whirly];
+        [whirly startAnimating];
+        
+        self.subLabel = [self createSubtext:roundedRect yPosition:whirly.frame.origin.y];
+        [roundedRect addSubview:self.subLabel];
+        
+        self.progress = [self createProgress:roundedRect items:items];
+        [roundedRect addSubview:self.progress];
+        
+        [self addSubview:roundedRect];
+        
+        UILabel *helpTextView = [self createHelpText:roundedRect.frame];
+        self.helpLabel = helpTextView;
+        [self addSubview:helpTextView];
+        
+        if (delegate) {
+            self.progressDelegate = delegate;
+            UIButton *cancelButton = [self createCancelButton:roundedRect.frame backgroundColor:roundedRect.color];
+            
+            [cancelButton addTarget:self
+                             action:@selector(cancelButtonAction:)
+                   forControlEvents:UIControlEventTouchUpInside];
+            
+            [self addSubview:cancelButton];
+            [self bringSubviewToFront:cancelButton];
+        }
+    }
+    
+    return self;
+}
+
+- (void)addSubtext:(NSString *)subtext {
+    if (self.subLabel) {
+        self.subLabel.text = subtext;
     }
 }
 
-- (void) addHelpText:(NSString *)helpText
-{
-    self.helpText.text = helpText;
+- (void)addHelpText:(NSString *)helpText {
+    self.helpLabel.text = helpText;
     
-    if (helpText == nil)
-    {
-        self.helpText.hidden = YES;
+    if (helpText == nil) {
+        self.helpLabel.hidden = YES;
         self.helpFrame.hidden = YES;
-    }
-    else
-    {
-        CGRect rect = self.helpText.frame;
+    } else {
+        CGRect rect = self.helpLabel.frame;
         
         NSStringDrawingOptions options = NSStringDrawingTruncatesLastVisibleLine |
-            NSStringDrawingUsesLineFragmentOrigin;
+        NSStringDrawingUsesLineFragmentOrigin;
         
-        NSDictionary *attr = @{NSFontAttributeName: self.helpText.font};
+        NSDictionary *attr = @{ NSFontAttributeName: self.helpLabel.font };
         rect = [helpText boundingRectWithSize:rect.size
-                                           options:options
-                                        attributes:attr
-                                           context:nil];
-
+                                      options:options
+                                   attributes:attr
+                                      context:nil];
         
-        rect.origin = self.helpText.frame.origin;
+        rect.origin = self.helpLabel.frame.origin;
         rect.size.height += 10;
         
-        self.helpText.frame = rect;
+        self.helpLabel.frame = rect;
         
-        self.helpText.hidden = NO;
+        self.helpLabel.hidden = NO;
         self.helpFrame.hidden = NO;
-        
     }
-    
-
 }
 
-- (void)totalItems:(NSInteger)total
-{
-    self.totalItems = total;
+- (void)totalItems:(NSInteger)total {
     
-    if (total == 0)
-    {
-        self.totalItems = 1;
-    }
+    self.totalItems = total < 1 ? 1 : total;
     
-    if (self.totalItems > 1)
-    {
+    if (self.totalItems > 1) {
         self.progress.hidden = NO;
-    }
-    else
-    {
+    } else {
         self.progress.hidden = YES;
     }
     
     [self itemsDone:self.itemsDone];
 }
 
-- (void) itemsDone:(NSInteger)done
-{
+- (void)itemsDone:(NSInteger)done {
     self.itemsDone = done;
-    self.progress.progress = (float)done/(float)self.totalItems;
+    self.progress.progress = (float)done / (float)self.totalItems;
 }
 
-- (void) subItemsDone:(NSInteger)subItemsDone totalSubs:(NSInteger)totalSubs;
-{
-    if (totalSubs==0)
-    {
-        totalSubs=1;
+- (void)subItemsDone:(NSInteger)subItemsDone totalSubs:(NSInteger)totalSubs; {
+    if (totalSubs == 0) {
+        totalSubs = 1;
     }
+    
     self.progress.hidden = NO;
-    self.progress.progress = ((float)(self.itemsDone) + ((float)subItemsDone/(float)totalSubs)) /(float)self.totalItems;
-}
-
-
-
-
-@end
-
-#pragma mark -
-#pragma mark RoundedTransparentRect
-
-@implementation RoundedTransparentRect
-
-@synthesize BACKGROUND_OPACITY;
-@synthesize R;
-@synthesize G;
-@synthesize B;
-
-
-- (instancetype)initWithFrame:(CGRect)frame
-{
-    return [super initWithFrame:frame];
-}
-
-
-CGPathRef CreatePathWithRoundRect(CGRect rect, CGFloat cornerRadius)
-{
-
-    CGMutablePathRef path = CGPathCreateMutable();
-    CGPathMoveToPoint(path, NULL,
-                      rect.origin.x,
-                      rect.origin.y + rect.size.height - cornerRadius);
-    
-    // Top left
-    CGPathAddArcToPoint(path, NULL,
-                        rect.origin.x,
-                        rect.origin.y,
-                        rect.origin.x + rect.size.width,
-                        rect.origin.y,
-                        cornerRadius);
-    
-    // Top right
-    CGPathAddArcToPoint(path, NULL,
-                        rect.origin.x + rect.size.width,
-                        rect.origin.y,
-                        rect.origin.x + rect.size.width,
-                        rect.origin.y + rect.size.height,
-                        cornerRadius);
-    
-    // Bottom right
-    CGPathAddArcToPoint(path, NULL,
-                        rect.origin.x + rect.size.width,
-                        rect.origin.y + rect.size.height,
-                        rect.origin.x,
-                        rect.origin.y + rect.size.height,
-                        cornerRadius);
-    
-    // Bottom left
-    CGPathAddArcToPoint(path, NULL,
-                        rect.origin.x,
-                        rect.origin.y + rect.size.height,
-                        rect.origin.x,
-                        rect.origin.y,
-                        cornerRadius);
-    
-    CGPathCloseSubpath(path);
-    
-    return path;
-}
-
-- (void)drawRect:(CGRect)rect
-{
-    const CGFloat ROUND_RECT_CORNER_RADIUS = 10.0;
-    CGPathRef roundRectPath =
-        CreatePathWithRoundRect(rect, ROUND_RECT_CORNER_RADIUS);
-    
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    
-    CGContextSetRGBFillColor(context, R, G, B, BACKGROUND_OPACITY);
-    CGContextAddPath(context, roundRectPath);
-    CGContextFillPath(context);
-    
-    const CGFloat STROKE_OPACITY = 0.25;
-    CGContextSetRGBStrokeColor(context, 1, 1, 1, STROKE_OPACITY);
-    CGContextAddPath(context, roundRectPath);
-    CGContextStrokePath(context);
-    
-    CGPathRelease(roundRectPath);
+    self.progress.progress = ((float)(self.itemsDone) + ((float)subItemsDone / (float)totalSubs)) / (float)self.totalItems;
 }
 
 @end

@@ -14,11 +14,8 @@
 
 @implementation DepartureTrip
 
-
-- (instancetype)init
-{
-    if ((self = [super init]))
-    {
+- (instancetype)init {
+    if ((self = [super init])) {
         self.distance = 0;
         self.progress = 0;
         self.startTime = 0;
@@ -26,7 +23,7 @@
         self.dir = nil;
         self.route = nil;
     }
-        
+    
     return self;
 }
 

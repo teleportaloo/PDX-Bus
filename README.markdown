@@ -1,8 +1,8 @@
-PDX Bus is an award winning application that displays arrival times for public transport in Portland, Oregon.
+PDX Bus is an award winning application that displays departure times for public transport in Portland, Oregon.
 
 (PDX Bus won Best in Show at the [CivicApps.org](http://www.CivicApps.org) awards)
 
-This little application uses the Internet to quickly access TriMet's live tracking data to display arrival times perfectly formatted for the iPhone. It allows you to bookmark frequently used stops, displays recently accessed stops, and gives details for arrivals which are en-route.
+This little application uses the Internet to quickly access TriMet's live tracking data to display departure times perfectly formatted for the iPhone. It allows you to bookmark frequently used stops, displays recently accessed stops, and gives details for departures which are en-route.
 
 You can enter the stop "id" of the stop (as displayed at each stop or station) or you can browse the routes for the stop.
 
@@ -18,7 +18,7 @@ Features include:
 * Trip Planning - now you can use the same trip planning feature that is available on TriMet's web site.
 * Specially formatted text to work with the iPhone 3GS VoiceOver accessibility feature to speak arrivals.
 
-Route and arrival data provided by permission of TriMet.
+Route and departure data provided by permission of TriMet.
 
 PDX Bus sources
 ===============
@@ -66,7 +66,7 @@ Links
 
 Things to know before building
 ------------------------------
-* PDX Bus is built with iPhone SDK 12.0 and Xcode 10.1 - available free
+* PDX Bus is built with iPhone SDK 13.0 and Xcode 11.7 - available free
 from [Apple](http://developer.apple.com) in their Mac App store.
 * Before building this code you will need to register with TriMet 
 to get a free "AppID" from [TriMet](http://developer.trimet.org/registration/),
@@ -81,10 +81,6 @@ folders for the particular licenses used.
 * The data feed from [Next Bus](http://www.civicapps.org/datasets/portland-streetcar-routes-arrivals) 
 has terms and conditions (including a non-commercial clause) but does 
 not need an application ID.
-* This builds with one warning - "All interface orientations must be supported 
-unless the app requires full screen". This is because on the iPhone we don't 
-want the app to go into landscape mode.
-
 
 Graphics
 --------
@@ -183,6 +179,58 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Change log
 ----------
+### Version 11.4 (August 2020)
+* Added shortcut intents to get arrivals, routes, and locations. 
+* Added new map sharing option to share the map URL
+* Updated XML debug sharing to use sharing sheet
+* Refactored to use an Extension for most classes (e.g. private members)
+* Updated rail map to March 2020.
+* Refactored settings
+* Renamed UserFaves to be UserState and reconciled.
+* Added uncrustify configuration file.
+* Refactored tasks to use a task state object
+* Refactored tasks to use smaller methods
+* General refactoring all around!
+* Network connection test improved with subtask messages
+* Detours now use a UITextView with a link recognizer.  Custom code makes other touches pass through to the parent.
+* Removed all UIAlertViews realy for Mac app work.
+* Updated for Mac Catalyst - lots of #defines and addition on the UNNotification framework.
+* Reworked KML route code to get routes in the background.
+
+### Version 11.3.1 (January 2020)
+* Fix for map annotations when changing mode
+* Fiddled with the tableview classes to get the search bar to work properly.  Edges and positioning is very fragile.
+* Moved date picker to a cell for the Trip Planner Date view
+* Refectored segment controls.
+* Removed Core Bluetooth library dependency.
+* Added info for 2019 vehicles
+* Debug mode will check integrity of sorted TriMet tables
+* LOG_ERROR will now cause a debug break in debug mode
+* Modified dealing with tracking errors and off route vehicles.
+* Fixed departure alarm GUI, now uses GPS to keep alive.
+* Departure alarms always use now power GPS initially.
+
+### Version 11.3 (September 2019)
+* iOS 13 support / Xcode 11 support
+* Dark mode support
+* Dark mode icons support
+* Changed Arrivals to Departures
+* Fixed bug in fetcher when network is down
+* Fixed bug where bookmark toolbar icon does not work for a single stop with a system wide alert.
+* Fixed UI around setting location toolbar default behavior.
+* Removed all code for pre-iOS 8 support.
+* Now uses MKLocalSearchRequest instead of TriMet's geolocating.
+
+### Version 11.2 (August 2019)
+* Added emojii to system wide detours
+* Fixed comparison of KML shapes
+* Added feedback for Trip Planner
+* Added bookmarks in the cloud
+* Updated for Xcode 10.2
+* Added Easter Egg for Bus 3745.
+* System wide alerts on the watch are collapsable.
+* System wide alerts are separately collapsable; the default is for it to be displayed.
+
 ### Version 11.1 (January 2019)
 * Added Siri extensions
 * Added Add to Siri buttons

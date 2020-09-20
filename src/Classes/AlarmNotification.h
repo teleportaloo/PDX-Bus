@@ -13,21 +13,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-
-
 #import <Foundation/Foundation.h>
 #import "MapPinColor.h"
-#import <AudioToolbox/AudioToolbox.h>
+#import <UserNotifications/UserNotifications.h>
 
+@interface AlarmNotification : NSObject <MapPinColor>
 
+@property (nonatomic) UIApplicationState previousState;
 
-@interface AlarmNotification : NSObject <MapPinColor> {
-    SystemSoundID           _soundID;
-}
-
-@property (nonatomic, strong)    UILocalNotification *notification;
-@property (nonatomic)            UIApplicationState previousState;
-
-- (void)application:(UIApplication *)app didReceiveLocalNotification:(UILocalNotification *)notif;
+- (void)application:(UIApplication *)app didReceiveLocalNotification:(UNNotificationRequest *)notif;
 
 @end

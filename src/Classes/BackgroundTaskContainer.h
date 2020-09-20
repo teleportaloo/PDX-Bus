@@ -13,14 +13,14 @@
 
 
 #import <Foundation/Foundation.h>
-#import "BackgroundTaskController.h"
+#import "TaskController.h"
 #import "ProgressModalView.h"
 
 @protocol BackgroundTaskDone <NSObject>
 
 @property (nonatomic, readonly) UIInterfaceOrientation backgroundTaskOrientation;
 
-- (void)backgroundTaskDone:(UIViewController*)viewController cancelled:(bool)cancelled;
+- (void)backgroundTaskDone:(UIViewController *)viewController cancelled:(bool)cancelled;
 
 @optional
 
@@ -30,29 +30,27 @@
 
 @end
 
+@class TaskState;
 
-@interface BackgroundTaskContainer : NSObject  <BackgroundTaskController,ProgressDelegate>
+@interface BackgroundTaskContainer : NSObject  <TaskController, ProgressDelegate>
 
-@property (atomic, strong)      NSString *                 title;
-@property (strong)              ProgressModalView *        progressModal;     // atomic for thread safety
+@property (atomic, strong)      NSString *title;
+@property (strong)              ProgressModalView *progressModal;             // atomic for thread safety
 @property (atomic, weak)        id<BackgroundTaskDone>     callbackComplete;  // weak
-@property (atomic, strong)      NSString *                 errMsg;
-@property (atomic, strong)      UIViewController *         controllerToPop;
-@property (atomic, strong)      NSString *                 help;
-@property (atomic, strong)      NSThread *                 backgroundThread;
-@property (nonatomic, readonly) bool                       taskCancelled;
-@property (nonatomic, readonly) bool                       running;
-@property (atomic)              bool                       debugMessages;
+@property (atomic, strong)      UIViewController *controllerToPop;
+@property (atomic, strong)      NSString *help;
+@property (nonatomic, readonly) bool taskCancelled;
+@property (nonatomic, readonly) bool running;
+@property (atomic)              bool debugMessages;
 
-- (void)taskStartWithItems:(NSInteger)items title:(NSString *)title;
+- (void)taskStartWithTotal:(NSInteger)total title:(NSString *)title;
 - (void)taskItemsDone:(NSInteger)itemsDone;
-- (void)taskCompleted:(UIViewController*)viewController;
+- (void)taskCompleted:(UIViewController *)viewController;
 - (void)taskSetErrorMsg:(NSString *)errMsg;
-- (void)taskSetHelpText:(NSString*)helpText;
+- (void)taskSetHelpText:(NSString *)helpText;
 - (void)taskCancel;
-- (void)taskRunAsync:(UIViewController * (^)(void)) block;
+- (void)taskRunAsync:(UIViewController * (^)(TaskState *taskState))block;
 
-
-+ (BackgroundTaskContainer*) create:(id<BackgroundTaskDone>) done;
++ (BackgroundTaskContainer *)create:(id<BackgroundTaskDone>)done;
 
 @end

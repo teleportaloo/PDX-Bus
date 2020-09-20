@@ -15,9 +15,6 @@
 #import <Foundation/Foundation.h>
 #import "TriMetXML.h"
 
-
-@interface NextBusXML<ItemType> : TriMetXML<ItemType> {
-
-}
+@interface NextBusXML<ItemType> : TriMetXML<ItemType>
 
 @end

@@ -18,19 +18,17 @@
 @implementation TriMetXMLv2
 
 
-- (NSString*)fullAddressForQuery:(NSString *)query
-{
+- (NSString *)fullAddressForQuery:(NSString *)query {
     NSString *str = nil;
-    if ([query characterAtIndex:query.length-1] == '&')
-    {
+    
+    if ([query characterAtIndex:query.length - 1] == '&') {
         str = [NSString stringWithFormat:@"https://developer.trimet.org/ws/V2/%@appID=%@&json=false",
                query, [TriMetXML appId]];
-    }
-    else
-    {
+    } else {
         str = [NSString stringWithFormat:@"https://developer.trimet.org/ws/V2/%@/appID/%@/json/false",
                query, [TriMetXML appId]];
     }
+    
     return str;
 }
 

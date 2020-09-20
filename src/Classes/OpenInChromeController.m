@@ -30,6 +30,7 @@
 #import <UIKit/UIKit.h>
 
 #import "OpenInChromeController.h"
+#import "UIApplication+Compat.h"
 
 static NSString * const kGoogleChromeHTTPScheme = @"googlechrome:";
 static NSString * const kGoogleChromeHTTPSScheme = @"googlechromes:";
@@ -37,14 +38,7 @@ static NSString * const kGoogleChromeCallbackScheme =
     @"googlechrome-x-callback:";
 
 static NSString * encodeByAddingPercentEscapes(NSString *input) {
-  NSString *encodedValue =
-      (NSString *)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(
-          kCFAllocatorDefault,
-          (CFStringRef)input,
-          NULL,
-          (CFStringRef)@"!*'();:@&=+$,/?%#[]",
-          kCFStringEncodingUTF8));
-  return encodedValue;
+    return [input stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet characterSetWithCharactersInString:@"!*'();:@&=+$,/?%#[]"]];
 }
 
 @implementation OpenInChromeController
@@ -102,7 +96,8 @@ static NSString * encodeByAddingPercentEscapes(NSString *input) {
       NSURL *chromeURL = [NSURL URLWithString:chromeURLString];
 
       // Open the URL with Google Chrome.
-      return [[UIApplication sharedApplication] openURL:chromeURL];
+      [[UIApplication sharedApplication] compatOpenURL:chromeURL];
+      return YES;
     }
   } else if ([[UIApplication sharedApplication] canOpenURL:chromeSimpleURL]) {
     NSString *scheme = url.scheme.lowercaseString;
@@ -126,7 +121,8 @@ static NSString * encodeByAddingPercentEscapes(NSString *input) {
       NSURL *chromeURL = [NSURL URLWithString:chromeURLString];
 
       // Open the URL with Google Chrome.
-      return [[UIApplication sharedApplication] openURL:chromeURL];
+      [[UIApplication sharedApplication] compatOpenURL:chromeURL];
+      return YES;
     }
   }
   return NO;

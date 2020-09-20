@@ -15,132 +15,187 @@
 #import "TriMetXML.h"
 #import "Route.h"
 #import "NSString+Helper.h"
+#import "NSDictionary+TriMetCaseInsensitive.h"
+#import "TriMetXMLSelectors.h"
 
+@interface Detour ()
+
+@property (nonatomic, copy) NSString *detourWithDetectedStopIds;
+
+@end
 
 @implementation Detour
 
-- (instancetype)init
-{
-    if (self = [super init])
-    {
+- (instancetype)init {
+    if (self = [super init]) {
         self.locations = [NSMutableArray array];
     }
     
     return self;
 }
 
-
-- (BOOL)isEqual:(id)anObject
-{
-    return self.detourId.unsignedIntegerValue == ((Detour*)anObject).detourId.unsignedIntegerValue;
+- (BOOL)isEqual:(id)anObject {
+    return self.detourId.unsignedIntegerValue == ((Detour *)anObject).detourId.unsignedIntegerValue;
     // If it's an object. Otherwise use a simple comparison like self.personId == anObject.personId
 }
 
-- (NSUInteger)hash
-{
+- (NSUInteger)hash {
     return self.detourId.unsignedIntegerValue;
 }
 
-- (NSMutableArray<NSString *> *)extractStops
-{
-    if (self.embeddedStops)
+- (NSArray<NSString *> *)extractStops {
+    if (self.embeddedStops == nil)
     {
-        return self.embeddedStops;
+        [self stopScanner];
+    }
+
+    return self.embeddedStops.allObjects;
+}
+
+- (NSString *)detectStops {
+    if (self.detourWithDetectedStopIds == nil)
+    {
+        [self stopScanner];
     }
     
-    self.embeddedStops = [NSMutableArray array];
+    return self.detourWithDetectedStopIds;
+}
+
+
+
+- (void)skipSpaces:(NSMutableString *)result scanString:(NSString *)scanString scanner:(NSScanner *)scanner {
+    while (!scanner.isAtEnd && [scanString characterAtIndex:scanner.scanLocation] == ' ') {
+        [result appendString:@" "];
+        scanner.scanLocation++;
+    }
+}
+
+- (void)stopScanner {
+    self.embeddedStops = [NSMutableSet set];
     
     static NSCharacterSet *numbersOrBrace;
-    static NSArray<NSString*> *searchStrings;
+    static NSCharacterSet *numbers;
+    static NSArray<NSString *> *searchStrings;
     
     static dispatch_once_t onceToken;
+    
     dispatch_once(&onceToken, ^{
         numbersOrBrace = [NSCharacterSet characterSetWithCharactersInString:@"0123456789)"];
-        searchStrings = @[ @"(Stop ID",  @"( Stop ID" ];
+        numbers = [NSCharacterSet characterSetWithCharactersInString:@"0123456789"];
+        
+        searchStrings = @[ @"(stop id",  @"( stop id"];    // String is made lower case
     });
     
-    for (NSString *stopIds in searchStrings)
-    {
-        NSScanner *scanner      = [NSScanner scannerWithString:self.detourDesc];
-        long long stop = 0;
-        scanner.scanLocation = 0;
+    NSMutableString *result = self.detourDesc.mutableCopy;
+    NSString *segment = nil;
+    NSString *scanString = nil;
+    long long stop = 0;
+    
+    for (NSString *stopIds in searchStrings) {
+        scanString = result;
+        result = [NSMutableString string];
         
-        while (!scanner.isAtEnd && [scanner scanUpToString:stopIds intoString:nil])
-        {
-            if (scanner.scanLocation + stopIds.length < self.detourDesc.length)
-            {
+        NSScanner *scanner = [NSScanner scannerWithString:scanString];
+        scanner.caseSensitive = NO;
+        scanner.scanLocation = 0;
+        segment = nil;
+        
+        while (!scanner.isAtEnd && [scanner scanUpToString:stopIds intoString:&segment]) {
+            if (segment) {
+                [result appendString:segment];
+            }
+            
+            if (scanner.scanLocation + stopIds.length < scanString.length) {
+                NSString *text = [scanString substringWithRange:NSMakeRange(scanner.scanLocation, stopIds.length)];
+                
                 scanner.scanLocation += stopIds.length;
                 
-                while (!scanner.isAtEnd)
-                {
-                    [scanner scanUpToCharactersFromSet:numbersOrBrace intoString:nil];
+                [result appendString:text];
+                
+                while (!scanner.isAtEnd) {
+                    segment = nil;
                     
-                    if (!scanner.isAtEnd)
-                    {
-                        if ([self.detourDesc characterAtIndex:scanner.scanLocation]==')')
-                        {
+                    [scanner scanUpToCharactersFromSet:numbersOrBrace intoString:&segment];
+                    
+                    if (segment) {
+                        [result appendString:segment];
+                    }
+                    
+                    [self skipSpaces:result scanString:scanString scanner:scanner];
+                    
+                    if (!scanner.isAtEnd) {
+                        if ([scanString characterAtIndex:scanner.scanLocation] == ')') {
                             break;
                         }
                         
-                        stop = 0;
-                        if ([scanner scanLongLong:&stop])
-                        {
-                            if (stop > 0)
-                            {
+                        segment = nil;
+                        
+                        if ([scanner scanCharactersFromSet:numbers intoString:&segment]) {
+                            stop = segment.longLongValue;
+                            
+                            if (stop > 0) {
+                                [result appendFormat:@"#Lid:%lld %@#T", stop, segment];
                                 [self.embeddedStops addObject:[NSString stringWithFormat:@"%lld", stop]];
+                            } else if (segment) {
+                                [result appendString:segment];
                             }
-                        }
-                        else
-                        {
+                        } else {
                             break;
                         }
+                        
+                        [self skipSpaces:result scanString:scanString scanner:scanner];
                     }
                 }
             }
+            segment = nil;
         }
     }
     
-    return self.embeddedStops;
+    // This line is for debugging - it adds a stop to every detour so we can test a stop with
+    // other detour combinations.
+    
+    // [self.embeddedStops addObject:[NSString stringWithFormat:@"%lld", (long long)365]];
+    
+    self.detourWithDetectedStopIds = result;
 }
 
-- (NSComparisonResult)compare:(Detour *)detour
-{
-    if (self.systemWideFlag && detour.systemWideFlag)
+- (NSComparisonResult)compare:(Detour *)other {
+    
+    if (self.systemWide == other.systemWide)
     {
-        return [self.beginDate compare:detour.beginDate];
+        NSInteger t1 = self.detourId.integerValue & DETOUR_ID_TAG_MASK;
+        NSInteger t2 = other.detourId.integerValue & DETOUR_ID_TAG_MASK;
+    
+        return (t1 == t2)   ? [self.detourId compare:other.detourId]
+                            : t1 - t2;
+   
     }
     
-    if (self.systemWideFlag)
-    {
+    if (self.systemWide) {
         return NSOrderedAscending;
     }
     
-    if (detour.systemWideFlag)
-    {
-        return NSOrderedDescending;
-    }
+    // other.systemWide must be true
     
-    return [self.beginDate compare:detour.beginDate];
+    return NSOrderedDescending;
 }
 
-+ (Detour*)fromAttributeDict:(NSDictionary *)attributeDict allRoutes:(NSMutableDictionary<NSString *, Route*> *)allRoutes
-{
++ (Detour *)fromAttributeDict:(NSDictionary *)attributeDict allRoutes:(NSMutableDictionary<NSString *, Route *> *)allRoutes {
     Detour *result = [Detour data];
     
-    NSNumber *detourId      = @(ATRINT(id));
-    result.detourDesc       = [TriMetXML replaceXMLcodes:ATRSTR(desc)].stringByTrimmingWhitespace;
-    result.headerText       = [TriMetXML replaceXMLcodes:ATRSTR(header_text)].stringByTrimmingWhitespace;
-    result.infoLinkUrl      = NATRSTR(info_link_url);
-    result.detourId         = detourId;
-    result.systemWideFlag   = ATRBOOL(system_wide_flag);
-    result.endDate          = ATRDAT(end);
-    result.beginDate        = ATRDAT(begin);
-    result.routes           = [NSMutableOrderedSet orderedSet];
+    NSNumber *detourId = @(TRIMET_DETOUR_ID(XML_ATR_INT(@"id")));
     
-    if (result.systemWideFlag)
-    {
-        if (result.headerText == nil || result.headerText.length == 0)
-        {
+    result.detourDesc = [TriMetXML replaceXMLcodes:XML_NON_NULL_ATR_STR(@"desc")].stringByTrimmingWhitespace;
+    result.headerText = [TriMetXML replaceXMLcodes:XML_NON_NULL_ATR_STR(@"header_text")].stringByTrimmingWhitespace;
+    result.infoLinkUrl = XML_NULLABLE_ATR_STR(@"info_link_url");
+    result.detourId = detourId;
+    result.systemWide = XML_ATR_BOOL(@"system_wide_flag");
+    result.endDate = XML_ATR_DATE(@"end");
+    result.beginDate = XML_ATR_DATE(@"begin");
+    result.routes = [NSMutableOrderedSet orderedSet];
+    
+    if (result.systemWide) {
+        if (result.headerText == nil || result.headerText.length == 0) {
             result.headerText = kSystemWideDetour;
         }
         
@@ -148,20 +203,13 @@
         
         static dispatch_once_t onceToken;
         dispatch_once(&onceToken, ^{
-            prefixes = @{
-                           @"winter"            : @"❄️",
-                           @"high temperature"  : @"☀️",
-                           @"new year"          : @"🎉",
-                           @"construction"      : @"🚧",
-                           @"improvements"      : @"🚧"
-                           };
+            prefixes = [[NSDictionary alloc] initWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"DetourEmoji" ofType:@"plist"]];
         });
         
         __block NSString *symbol = @"⚠️";
         
-        [prefixes enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSString * _Nonnull obj, BOOL * _Nonnull stop) {
-            if ([result.headerText hasCaseInsensitiveSubstring:key])
-            {
+        [prefixes enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull key, NSString *_Nonnull obj, BOOL *_Nonnull stop) {
+            if ([result.headerText hasCaseInsensitiveSubstring:key]) {
                 symbol = obj;
                 *stop = YES;
             }
@@ -169,21 +217,18 @@
         
         result.headerText = [NSString stringWithFormat:@"%@ %@", symbol, result.headerText];
         
-        Route *route  = [Route systemWide:detourId];
+        Route *route = [Route systemWide:detourId];
         route.desc = result.headerText;
         
         Route *cached = allRoutes[route.route];
         
-        if (cached==nil)
-        {
-            allRoutes[route.route]=route;
-            cached=route;
+        if (cached == nil) {
+            allRoutes[route.route] = route;
+            cached = route;
         }
         
         [result.routes addObject:cached];
-    }
-    else if (result.headerText.length > result.detourDesc.length /2)
-    {
+    } else if (result.headerText.length > result.detourDesc.length / 2) {
         result.headerText = @"";
     }
     

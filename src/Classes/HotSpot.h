@@ -18,78 +18,73 @@
 #import "TriMetInfo.h"
 
 
-#define MAXHOTSPOTS 278
-#define MAXSTRIPES   40
+#define MAXHOTSPOTS    278
+#define MAXSTRIPES     40
 
-#define kLinkTypeHttp	'h'
-#define kLinkTypeWiki	'w'
-#define kLinkTypeStop	's'
-#define kLinkTypeNorth	'n'
-#define kLinkType1		'1'
-#define kLinkType2		'2'
-#define kLinkType3		'3'
-#define kLinkTypeDir	'd'
-#define kLinkTypeMap    'm'
+#define kLinkTypeHttp  'h'
+#define kLinkTypeWiki  'w'
+#define kLinkTypeStop  's'
+#define kLinkTypeNorth 'n'
+#define kLinkType1     '1'
+#define kLinkType2     '2'
+#define kLinkType3     '3'
+#define kLinkTypeDir   'd'
+#define kLinkTypeMap   'm'
 
-typedef struct hotspot_struct
-{
-    union
-    {
+typedef struct hotspot_struct {
+    union {
         const CGPoint *vertices;
-        const CGRect  *rect;
+        const CGRect *rect;
     } coords;
-    NSString *      action;
-	unsigned char   nVertices: 6;
-    unsigned char   touched  : 1;
-    unsigned char   isRect   : 1;
+    NSString *action;
+    unsigned char nVertices : 6;
+    unsigned char touched  : 1;
+    unsigned char isRect   : 1;
 } HOTSPOT;
 
-#define HOTSPOT_IS_RECT(X) ((X)->isRect==1)
-#define HOTSPOT_IS_POLY(X) ((X)->isRect==0)
+#define HOTSPOT_IS_RECT(X) ((X)->isRect == 1)
+#define HOTSPOT_IS_POLY(X) ((X)->isRect == 0)
 
 #define MAP_LAST_INDEX 0xFF
 
 
-typedef struct alpha_section_struct
-{
-	const char *title;
-	int offset;
-	int items;
+typedef struct alpha_section_struct {
+    const char *title;
+    int offset;
+    int items;
 } ALPHA_SECTIONS;
 
 typedef const unsigned char HOTSPOT_INDEX;
 
 
-typedef struct stoptohotspot
-{
+typedef struct stopinfo {
     unsigned long stopId;
     int hotspot;
-} STOP_TO_HOTSPOT;
+    double lat;
+    double lng;
+} STOP_INFO;
 
-typedef struct tile_array
-{
+typedef struct tile_array {
     HOTSPOT_INDEX *hotspots;
 }  RAILMAP_TILE;
 
-typedef struct railmap_struct
-{
+typedef struct railmap_struct {
     NSString *title;
     NSString *fileName;
-    CGSize   size;
-    int      firstHotspot;
-    int      lastHotspot;
-    int      xTiles;
-    int      yTiles;
+    CGSize size;
+    int firstHotspot;
+    int lastHotspot;
+    int xTiles;
+    int yTiles;
     
     RAILMAP_TILE **tiles;
     
-    CGSize   tileSize;
-
+    CGSize tileSize;
 } RAILMAP;
-   
-#define kRailMapMaxWes          0
-#define kRailMapPdxStreetcar    1
-#define kRailMaps               2
+
+#define kRailMapMaxWes       0
+#define kRailMapPdxStreetcar 1
+#define kRailMaps            2
 
 
-#define MAXCOLORS  1
+#define MAXCOLORS            1

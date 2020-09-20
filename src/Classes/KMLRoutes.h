@@ -16,31 +16,31 @@
 #import "TriMetXML.h"
 #import "KMLPlacemark.h"
 
-#define kKmlNoRouteNumber       @"None"
+#define kKmlNoRouteNumber     @"None"
 
-#define kKmlFirstDirection      @"0"
-#define kKmlOptionalDirection   @"1"
+#define kKmlFirstDirection    @"0"
+#define kKmlOptionalDirection @"1"
 
-#define kKmlkey(R,D)            [R stringByAppendingString:D]
+#define kKmlkey(R, D) [R stringByAppendingString:D]
 
 @class ShapeRoutePath;
 
-@interface KMLRoutes : TriMetXML<NSArray*>
-{
-    bool _gitHubRouteShapes;
-    SEL _currentSelector;
-}
+@interface KMLRoutes : TriMetXML<NSArray *>
 
-@property (nonatomic, strong) KMLPlacemark *currentPlacemark;
-@property (nonatomic, copy) NSString *currentAttribute;
-@property (nonatomic, strong) NSMutableDictionary <NSString *, KMLPlacemark*> *routes;
-@property (weak, nonatomic, readonly) NSEnumerator<NSString *> * keyEnumerator;
-@property (nonatomic, strong) NSMutableDictionary<NSString *, NSValue*> *selsForProps;
+@property (weak, nonatomic, readonly) NSEnumerator<NSString *> *keyEnumerator;
 
-- (void)fetch;
-- (ShapeRoutePath*)lineCoordsForKey:(NSString *)key;
-- (ShapeRoutePath*)lineCoordsForRoute:(NSString *)route direction:(NSString *)dir;
+
+- (void)fetchForced:(bool)always;
+- (void)fetchInBackground:(bool)always;
+- (NSString *)downloadProgress;
+- (void)cancelBackgroundFetch;
+- (ShapeRoutePath *)lineCoordsForKey:(NSString *)key;
+- (ShapeRoutePath *)lineCoordsForRoute:(NSString *)route direction:(NSString *)dir;
 - (bool)cached;
+- (int)cacheAgeInDays;
+- (NSDate *)cacheDate;
+- (int)daysToAutoload;
+- (NSUInteger)sizeInBytes;
 
 + (void)initCaches;
 + (void)deleteCacheFile;

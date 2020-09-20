@@ -19,20 +19,16 @@
 
 @class Vehicle;
 
-@interface XMLStreetcarLocations : NextBusXML <ClearableCache> {
-    TriMetTime _lastTime;
-}
- 
+@interface XMLStreetcarLocations : NextBusXML <ClearableCache>
 
-@property (nonatomic, strong) NSMutableDictionary<NSString*, Vehicle*> *locations;
-@property (nonatomic, copy)   NSString *route;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, Vehicle *> *locations;
 
-- (instancetype) initWithRoute:(NSString *)route;
+- (instancetype)initWithRoute:(NSString *)route;
 - (void)insertLocation:(Departure *)dep;
 - (BOOL)getLocations;
 
-+ (void)insertLocationsIntoDepartureArray:(NSArray *)deps forRoutes:(NSSet<NSString*> *)routes;
-+ (NSSet<NSString*> *)getStreetcarRoutesInDepartureArray:(NSArray *)deps;
-+ (XMLStreetcarLocations*) sharedInstanceForRoute:(NSString *)route;
++ (void)insertLocationsIntoDepartureArray:(NSArray *)deps forRoutes:(NSSet<NSString *> *)routes;
++ (NSSet<NSString *> *)getStreetcarRoutesInDepartureArray:(NSArray *)deps;
++ (XMLStreetcarLocations *)sharedInstanceForRoute:(NSString *)route;
 
 @end

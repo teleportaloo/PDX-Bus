@@ -19,50 +19,41 @@
 #import <CoreLocation/CoreLocation.h>
 #import "FormatDistance.h"
 
-#define kTargetProximity                (kMetresInAMile / 3)
-#define kBadAccuracy                    (800.0)
-#define kUserDistanceProximity          NSLocalizedString(@"⅓ mile", @"proximity alarm distance")
-#define kUserProximityCellText          NSLocalizedString(@"Proximity alarm (⅓ mile)",@"proximity alarm distance")
-#define kUserProximityDeniedCellText    NSLocalizedString(@"Proximity alarm (not authorized)",@"proximity alarm error")
+#define kTargetProximity             (kMetresInAMile / 3)
+#define kBadAccuracy                 (800.0)
+#define kUserDistanceProximity       NSLocalizedString(@"⅓ mile", @"proximity alarm distance")
+#define kUserProximityCellText       NSLocalizedString(@"Proximity alarm (⅓ mile)", @"proximity alarm distance")
+#define kUserProximityDeniedCellText NSLocalizedString(@"Proximity alarm (not authorized)", @"proximity alarm error")
 
 
 @interface AlarmTaskList : NSObject <AlarmObserver, CLLocationManagerDelegate>
-{
-    NSMutableDictionary *       _backgroundTasks;
-    NSMutableArray *            _orderedTaskKeys;
-    NSMutableArray *            _newTaskKeys;
-    UIBackgroundTaskIdentifier  _taskId;
-    bool                        _batchUpdate;
-}
 
-@property (nonatomic, strong) id<AlarmObserver> observer;
-@property (strong) NSThread *backgroundThread;
-@property (atomic) bool atomicTaskRunning;
-@property (atomic, strong) NSDate *nextFetch;
-@property (nonatomic, readonly) NSInteger taskCount;
 @property (nonatomic, readonly, copy) NSArray *taskKeys;
+@property (nonatomic, readonly) NSInteger taskCount;
+@property (nonatomic, strong) id<AlarmObserver> observer;
 
-- (void)addTaskForDeparture:(Departure *)dep mins:(uint)mins;
-- (bool)hasTaskForStopId:(NSString *)stopId block:(NSString *)block;
-- (int)minsForTaskWithStopId:(NSString *)stopId block:(NSString *)block;
 - (void)cancelTaskForKey:(NSString *)key;
-- (void)cancelTaskForStopId:(NSString *)stopId block:(NSString *)block;
-- (void)addTaskForStopIdProximity:(NSString *)stopId loc:(CLLocation *)loc desc:(NSString *)desc
-                         accurate:(bool)accurate;
-- (bool)hasTaskForStopIdProximity:(NSString *)stopId;
-- (void)cancelTaskForStopIdProximity:(NSString*)stopId;
-- (void)runTask;
+- (AlarmTask __strong *)taskForKey:(NSString *)key;
 
-- (void)taskUpdate:(id)task;
-- (void)taskDone:(id)task;
-- (void)taskStarted:(id)task;
-- ( AlarmTask __strong *)taskForKey:(NSString *)key;
-- (void)userAlertForProximity:(UIViewController *)parent source:(UIView *)source completion:(void (^)(bool cancelled, bool accurate))completionHandler;
 - (void)resumeOnActivate;
-- (void)checkForLongAlarms;
 - (void)updateBadge;
 
-+ (AlarmTaskList*)sharedInstance;
+- (bool)hasTaskForStopIdProximity:(NSString *)stopId;
+- (void)cancelTaskForStopIdProximity:(NSString *)stopId;
+- (void)userAlertForProximity:(UIViewController *)parent
+                       source:(UIView *)source
+                   completion:(void (^)(bool cancelled, bool accurate))completionHandler;
+- (void)addTaskForStopIdProximity:(NSString *)stopId
+                              loc:(CLLocation *)loc
+                             desc:(NSString *)desc
+                         accurate:(bool)accurate;
+
+- (bool)hasTaskForStopId:(NSString *)stopId block:(NSString *)block;
+- (void)addTaskForDeparture:(Departure *)dep mins:(uint)mins;
+- (int)minsForTaskWithStopId:(NSString *)stopId block:(NSString *)block;
+- (void)cancelTaskForStopId:(NSString *)stopId block:(NSString *)block;
+
++ (AlarmTaskList *)sharedInstance;
 + (bool)supported;
 + (bool)proximitySupported;
 

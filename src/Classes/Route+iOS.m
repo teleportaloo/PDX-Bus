@@ -1,6 +1,6 @@
 //
 //  Route.m
-//  TriMetTimes
+//  PDXBus
 //
 
 
@@ -15,9 +15,8 @@
 
 @implementation Route (iOS)
 
-- (NSString*)stringToFilter
-{
-	return self.desc;
+- (NSString *)stringToFilter {
+    return self.desc;
 }
 
 @end

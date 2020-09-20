@@ -16,13 +16,12 @@
 #import <CoreLocation/CoreLocation.h>
 #import "DataFactory.h"
 
-typedef enum DetourPassengerCode
-{
-    PassengerCodeUnknown        =  0,
-    PassengerCodeEither         = 'E',
-    PassengerCodeAlightingOnly  = 'A',
-    PassengerCodeBoardingOnly   = 'B',
-    PassengerCodeNeither        = 'N'
+typedef enum DetourPassengerCode {
+    PassengerCodeUnknown       = 0,
+    PassengerCodeEither        = 'E',
+    PassengerCodeAlightingOnly = 'A',
+    PassengerCodeBoardingOnly  = 'B',
+    PassengerCodeNeither       = 'N'
 } DetourPassengerCode;
 
 @interface DetourLocation : DataFactory
@@ -30,10 +29,10 @@ typedef enum DetourPassengerCode
 @property (nonatomic)         DetourPassengerCode passengerCode;
 @property (nonatomic)         bool noServiceFlag;
 @property (nonatomic, strong) CLLocation *location;
-@property (nonatomic, copy)   NSString *locid;
+@property (nonatomic, copy)   NSString *stopId;
 @property (nonatomic, copy)   NSString *desc;
 @property (nonatomic, copy)   NSString *dir;
 
-- (void)setPassengerCodeFromString:(NSString*)string;
+- (void)setPassengerCodeFromString:(NSString *)string;
 
 @end

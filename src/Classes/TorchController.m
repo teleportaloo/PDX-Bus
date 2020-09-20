@@ -17,97 +17,78 @@
 
 @implementation TorchController
 
-+(bool)supported
-{
++ (bool)supported {
     static bool checkDone = NO;
     static bool supported = NO;
     
-    if (!checkDone)
-    {
+    if (!checkDone) {
         Class captureDeviceClass = NSClassFromString(@"AVCaptureDevice");
-        if (captureDeviceClass != nil)
-        {
+        
+        if (captureDeviceClass != nil) {
             AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
             
-            if (device.hasTorch && device.hasFlash)
-            {
+            if (device.hasTorch && device.hasFlash) {
                 supported = YES;
             }
         }
+        
         checkDone = YES;
     }
+    
     return supported;
 }
 
-- (instancetype)init
-{
-    if ((self = [super init]))
-    {
-
+- (instancetype)init {
+    if ((self = [super init])) {
     }
     
     return self;
-    
 }
 
-- (void)on
-{
-    
-    if ([TorchController supported] && [UserPrefs sharedInstance].flashLed) {
-        
+- (void)on {
+    if ([TorchController supported] && Settings.flashLed) {
         AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
         
         [device lockForConfiguration:nil];
         
         device.torchMode = AVCaptureTorchModeOn;
-        device.flashMode = AVCaptureFlashModeOn;
+        // device.flashMode = AVCaptureFlashModeOn;
+    
         
         [device unlockForConfiguration];
-        
     }
-
 }
 
-- (void)off
-{
+- (void)off {
     if ([TorchController supported]) {
-     
         AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
         
         [device lockForConfiguration:nil];
         
         device.torchMode = AVCaptureTorchModeOff;
-        device.flashMode = AVCaptureFlashModeOff;
+        // device.flashMode = AVCaptureFlashModeOff;
         
         [device unlockForConfiguration];
-        
     }
 }
 
-- (void)toggle
-{
+- (void)toggle {
     if ([TorchController supported]) {
-        
         AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
         
         [device lockForConfiguration:nil];
         
-        if (device.torchMode != AVCaptureTorchModeOn && [UserPrefs sharedInstance].flashLed)
-        {
+        if (device.torchMode != AVCaptureTorchModeOn && Settings.flashLed) {
             device.torchMode = AVCaptureTorchModeOn;
-            device.flashMode = AVCaptureFlashModeOn;            
-        }
-        else
-        {
+            // device.flashMode = AVCaptureFlashModeOn;
+        } else {
             device.torchMode = AVCaptureTorchModeOff;
-            device.flashMode = AVCaptureFlashModeOff;
- 
+            // device.flashMode = AVCaptureFlashModeOff;
         }
     }
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     [self off];
 }
 

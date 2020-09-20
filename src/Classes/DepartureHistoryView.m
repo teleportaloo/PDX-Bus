@@ -16,33 +16,33 @@
 
 #import "DepartureHistoryView.h"
 #import "DepartureTimesView.h"
-#import "UserFaves.h"
+#import "UserState.h"
+#import "Icons.h"
 
 #define kPlainId @"plain"
 
+@interface DepartureHistoryView ()
+
+@end
+
 @implementation DepartureHistoryView
 
-
-
--(NSString*)stringToFilter:(NSObject*)i
-{
-    NSNumber *n = (NSNumber*)i;
+- (NSString *)stringToFilter:(NSObject *)i {
+    NSNumber *n = (NSNumber *)i;
     NSDictionary *item = self.localRecents[n.integerValue];
+    
     return item[kUserFavesOriginalName];
 }
 
-- (NSMutableArray *)loadItems
-{
-    return _userData.recents;
+- (NSMutableArray *)loadItems {
+    return _userState.recents;
 }
 
-- (bool)tableView:(UITableView*)tableView isHistorySection:(NSInteger)section
-{
+- (bool)tableView:(UITableView *)tableView isHistorySection:(NSInteger)section {
     return YES;
 }
 
-- (NSString *)noItems
-{
+- (NSString *)noItems {
     return NSLocalizedString(@"These recently viewed stops can be re-used to get current departures.", @"section title");
 }
 
@@ -59,20 +59,19 @@
 
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    
     UITableViewCell *cell = [self tableView:tableView cellWithReuseIdentifier:kPlainId];
-
+    
     cell.editingAccessoryType = UITableViewCellAccessoryNone;
     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     // Set up the cell
-
-    NSDictionary *item =[self tableView:tableView filteredDict:indexPath.row];
+    
+    NSDictionary *item = [self tableView:tableView filteredDict:indexPath.row];
     
     cell.textLabel.text = item[kUserFavesOriginalName];
     cell.textLabel.font = self.basicFont;
     cell.textLabel.numberOfLines = 0;
     [self updateAccessibility:cell];
-    cell.imageView.image = [self getFaveIcon:kIconRecent]; 
+    cell.imageView.image = [Icons getIcon:kIconRecent];
     cell.textLabel.adjustsFontSizeToFitWidth = YES;
     cell.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
     return cell;
@@ -86,12 +85,12 @@
     
     // [self chosenEndpoint:[self.locList objectAtIndex:indexPath.row] ];
     DepartureTimesView *departureViewController = [DepartureTimesView viewController];
-    NSDictionary *item =[self tableView:tableView filteredDict:indexPath.row];
+    NSDictionary *item = [self tableView:tableView filteredDict:indexPath.row];
     
     departureViewController.displayName = item[kUserFavesOriginalName];
-    [departureViewController fetchTimesForLocationAsync:self.backgroundTask 
-                                                    loc:item[kUserFavesLocation]
-                                                  title:item[kUserFavesOriginalName]];    
+    [departureViewController fetchTimesForLocationAsync:self.backgroundTask
+                                                 stopId:item[kUserFavesLocation]
+                                                  title:item[kUserFavesOriginalName]];
 }
 
 @end

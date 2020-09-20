@@ -18,7 +18,7 @@
 #import "TripEndPoint.h"
 #import "TripLegEndPoint.h"
 
-@interface TripItinerary : NSObject 
+@interface TripItinerary : NSObject
 
 @property (nonatomic, copy) NSString *xwaitingTime;
 @property (nonatomic, copy) NSString *xdate;
@@ -32,7 +32,7 @@
 @property (nonatomic, copy) NSString *xwalkingTime;
 @property (nonatomic, copy) NSString *xtransitTime;
 @property (nonatomic, strong) NSMutableArray<TripLeg *> *legs;
-@property (nonatomic, strong) NSMutableArray<TripLegEndPoint*> *displayEndPoints;
+@property (nonatomic, strong) NSMutableArray<TripLegEndPoint *> *displayEndPoints;
 @property (nonatomic, strong) NSMutableString *fare;
 @property (nonatomic, strong) TripLegEndPoint *startPoint;
 @property (nonatomic, readonly) NSInteger legCount;
@@ -40,8 +40,8 @@
 @property (nonatomic, readonly, copy) NSString *shortTravelTime;
 @property (nonatomic, readonly) bool hasFare;
 
-- (TripLeg*)getLeg:(int)item;
+- (TripLeg *)getLeg:(int)item;
 - (NSString *)startPointText:(TripTextType)type;
-- (bool)hasBlocks;
+- (bool)      hasBlocks;
 
 @end

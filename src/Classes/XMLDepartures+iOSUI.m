@@ -1,6 +1,6 @@
 //
 //  XMLDeparturesUI.m
-//  TriMetTimes
+//  PDXBus
 //
 
 
@@ -15,144 +15,119 @@
 #import "DebugLogging.h"
 #import "DepartureData+iOSUI.h"
 
-
 @implementation XMLDepartures (iOSUI)
 
 #pragma mark Map Pin callbacks
 
-- (NSString *)mapStopId
-{
-	return self.locid;
+- (NSString *)mapStopId {
+    return self.stopId;
 }
 
-- (bool)showActionMenu
-{
-	return YES;
+- (bool)showActionMenu {
+    return YES;
 }
 
 // MK Annotate
-- (CLLocationCoordinate2D)coordinate
-{
-	return self.loc.coordinate;
+- (CLLocationCoordinate2D)coordinate {
+    return self.loc.coordinate;
 }
 
-- (NSString *)title
-{
-	return self.locDesc;
+- (NSString *)title {
+    return self.locDesc;
 }
 
-- (MapPinColorValue) pinColor
-{
-	return MAP_PIN_COLOR_GREEN;
+- (MapPinColorValue)pinColor {
+    return MAP_PIN_COLOR_GREEN;
 }
-
 
 #pragma mark Data accessors
 
-- (id)depXML
-{
-	return self;
+- (id)depXML {
+    return self;
 }
 
-- (Departure *)depGetDeparture:(NSInteger)i
-{
-	return self[i];
+- (Departure *)depGetDeparture:(NSInteger)i {
+    return self[i];
 }
-- (NSInteger)depGetSafeItemCount
-{
-	return self.count;
+
+- (NSInteger)depGetSafeItemCount {
+    return self.count;
 }
-- (NSString *)depGetSectionHeader
-{
-    if (self.locDir!=nil && self.locDir.length!=0)
-    {
+
+- (NSString *)depGetSectionHeader {
+    if (self.locDir != nil && self.locDir.length != 0) {
         return [NSString stringWithFormat:@"%@ (%@)", self.locDesc, self.locDir];
     }
+    
     return self.locDesc;
 }
-- (NSString *)depGetSectionTitle
-{
-	return self.sectionTitle;
+
+- (NSString *)depGetSectionTitle {
+    return self.sectionTitle;
 }
 
-- (void)depPopulateCell:(Departure *)dd cell:(DepartureCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide
-{
-	[dd populateCell:cell decorate:decorate busName:YES wide:wide];
-}
-- (NSString *)depStaticText
-{
-	return [NSString stringWithFormat:@"Stop ID %@.", self.locid];
+- (void)depPopulateCell:(Departure *)dd cell:(DepartureCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide {
+    [dd populateCell:cell decorate:decorate busName:YES wide:wide];
 }
 
-- (StopDistance*)depDistance
-{
-	return self.distance;
+- (NSString *)depStaticText {
+    return [NSString stringWithFormat:@"Stop ID %@.", self.stopId];
 }
 
-- (NSDate *)depQueryTime
-{
-	return self.queryTime;
+- (StopDistance *)depDistance {
+    return self.distance;
 }
 
-- (CLLocation *)depLocation
-{
-	return self.loc;
+- (NSDate *)depQueryTime {
+    return self.queryTime;
 }
 
-- (NSString *)depLocDesc
-{
-	return self.locDesc;
+- (CLLocation *)depLocation {
+    return self.loc;
 }
 
-- (NSString *)depLocId
-{
-	return self.locid;
+- (NSString *)depLocDesc {
+    return self.locDesc;
 }
 
-- (bool)depHasDetails
-{
-	return TRUE;
+- (NSString *)depStopId {
+    return self.stopId;
 }
 
-- (bool)depNetworkError
-{
-	return !self.gotData;
+- (bool)depHasDetails {
+    return TRUE;
 }
 
-- (NSString *)depNetworkErrorMsg
-{
-	return self.errorMsg;
+- (bool)depNetworkError {
+    return !self.gotData;
 }
 
-- (NSString *)depDir
-{
-	return self.locDir;
+- (NSString *)depNetworkErrorMsg {
+    return self.errorMsg;
 }
 
-- (NSData *)depHtmlError
-{
-	return self.htmlError;
+- (NSString *)depDir {
+    return self.locDir;
 }
 
-- (UIColor *)pinTint
-{
+- (NSData *)depHtmlError {
+    return self.htmlError;
+}
+
+- (UIColor *)pinTint {
     return nil;
 }
 
-- (bool)hasBearing
-{
+- (bool)hasBearing {
     return NO;
 }
 
-- (Detour *)depDetour
-{
+- (Detour *)depDetour {
     return nil;
 }
 
-- (NSOrderedSet<NSNumber*>*) depDetoursPerSection
-{
-    return self.locDetours;
+- (NSOrderedSet<NSNumber *> *)depDetoursPerSection {
+    return self.detourSorter.detourIds;
 }
-
 
 @end

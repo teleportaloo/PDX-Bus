@@ -1,7 +1,7 @@
 /*
-     File: TilingView.m
+ File: TilingView.m
  Abstract: Handles tile drawing and tile image loading.
-  Version: 1.1
+ Version: 1.1
  
  Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
  Inc. ("Apple") in consideration of your agreement to the following
@@ -49,6 +49,16 @@
 #import <QuartzCore/CATiledLayer.h>
 #import "DebugLogging.h"
 
+@interface TilingView () {
+    BOOL _annotates;
+}
+
+
+@property (nonatomic, copy)   NSString *imageName;
+@property (nonatomic, strong) CATiledLayer *tiledLayer;
+@property (nonatomic) CGRect safeBounds;
+
+@end
 
 @implementation TilingView
 
@@ -57,16 +67,16 @@
     return [CATiledLayer class];
 }
 
-- (instancetype)initWithImageName:(NSString *)name size:(CGSize)size
-{
+- (instancetype)initWithImageName:(NSString *)name size:(CGSize)size {
     if ((self = [super initWithFrame:CGRectMake(0, 0, size.width, size.height)])) {
         self.imageName = name;
-
+        
         self.tiledLayer = (CATiledLayer *)self.layer;
         self.tiledLayer.levelsOfDetail = 4;
         self.safeBounds = self.bounds;
         DEBUG_LOGR(self.bounds);
     }
+    
     return self;
 }
 
@@ -75,15 +85,13 @@
 // to 2.0 on retina displays, which is the right call in most cases, but since we're backed
 // by a CATiledLayer it will actually cause us to load the wrong sized tiles.
 //
-- (void)setContentScaleFactor:(CGFloat)contentScaleFactor
-{
+- (void)setContentScaleFactor:(CGFloat)contentScaleFactor {
     super.contentScaleFactor = 1.f;
 }
 
-- (void)drawRect:(CGRect)rect
-{
+- (void)drawRect:(CGRect)rect {
 #if 0
-     CGContextRef context = UIGraphicsGetCurrentContext();
+    CGContextRef context = UIGraphicsGetCurrentContext();
     
     // get the scale from the context by getting the current transform matrix, then asking
     // for its "a" component, which is one of the two scale components. We could also ask
@@ -106,9 +114,9 @@
     
     // calculate the rows and columns of tiles that intersect the rect we have been asked to draw
     int firstCol = floorf(CGRectGetMinX(rect) / tileSize.width);
-    int lastCol = floorf((CGRectGetMaxX(rect)-1) / tileSize.width);
+    int lastCol = floorf((CGRectGetMaxX(rect) - 1) / tileSize.width);
     int firstRow = floorf(CGRectGetMinY(rect) / tileSize.height);
-    int lastRow = floorf((CGRectGetMaxY(rect)-1) / tileSize.height);
+    int lastRow = floorf((CGRectGetMaxY(rect) - 1) / tileSize.height);
     
     for (int row = firstRow; row <= lastRow; row++) {
         for (int col = firstCol; col <= lastCol; col++) {
@@ -123,7 +131,8 @@
             [tile drawInRect:tileRect];
         }
     }
-#endif
+    
+#endif // if 0
     CGContextRef context = UIGraphicsGetCurrentContext();
     
     // get the scale from the context by getting the current transform matrix, then asking for
@@ -147,9 +156,9 @@
     
     // calculate the rows and columns of tiles that intersect the rect we have been asked to draw
     int firstCol = floorf(CGRectGetMinX(rect) / tileSize.width);
-    int lastCol = floorf((CGRectGetMaxX(rect)-1) / tileSize.width);
+    int lastCol = floorf((CGRectGetMaxX(rect) - 1) / tileSize.width);
     int firstRow = floorf(CGRectGetMinY(rect) / tileSize.height);
-    int lastRow = floorf((CGRectGetMaxY(rect)-1) / tileSize.height);
+    int lastRow = floorf((CGRectGetMaxY(rect) - 1) / tileSize.height);
     
     for (int row = firstRow; row <= lastRow; row++) {
         for (int col = firstCol; col <= lastCol; col++) {
@@ -167,9 +176,8 @@
             [tile drawInRect:tileRect];
             
             /// change this to yes to annotate
-
-            if (self.annotates)
-            {
+            
+            if (self.annotates) {
                 [[UIColor redColor] set];
                 CGContextSetLineWidth(context, 6.0 / _scaleX);
                 CGContextStrokeRect(context, tileRect);
@@ -178,18 +186,18 @@
     }
 }
 
-- (UIImage *)tileForScale:(CGFloat)scale row:(int)row col:(int)col
-{
+- (UIImage *)tileForScale:(CGFloat)scale row:(int)row col:(int)col {
     NSString *tileName = [NSString stringWithFormat:@"%@_%d_%d_%d", self.imageName, (int)(scale * 100), col, row];
     // NSLog(@"%@\n", tileName);
     NSString *path = [[NSBundle mainBundle] pathForResource:tileName ofType:@"gif" inDirectory:self.imageName];
     UIImage *image = [UIImage imageWithContentsOfFile:path];
+    
     // NSLog(@"%@ %p\n", tileName, image);
     return image;
-
+    
 #if 0
-     // we use "imageWithContentsOfFile:" instead of "imageNamed:" here because we don't want UIImage to cache our tiles
-
+    // we use "imageWithContentsOfFile:" instead of "imageNamed:" here because we don't want UIImage to cache our tiles
+    
     
     // Scale 1    maps to 4
     // Scale 1/2  maps to 3
@@ -201,21 +209,24 @@
     //int scale2   = scale1 + 60;
     //int scale3   = scale2 / 125;
     //int scaleInt = scale3 * 125;
-    int scaleInt = (((((int)(scale*1000)) + 60) / 125 ) * 125);
+    int scaleInt = (((((int)(scale * 1000)) + 60) / 125) * 125);
     
     
-    switch (scaleInt)
-    {
+    switch (scaleInt) {
         case 1000: level = 4; break;
+            
         case 500:  level = 3; break;
+            
         case 250:  level = 2; break;
+            
         case 125:  level = 1; break;
+            
         default:
             level = 0;
             break;
     }
     
-
+    
     
     NSString *tileName = [NSString stringWithFormat:@"%d-%d-%d", level, col, row];
     // NSLog(@"%@\n", tileName);
@@ -223,9 +234,10 @@
     
     
     UIImage *image = [UIImage imageWithContentsOfFile:path];
-       
+    
     return image;
-#endif
+    
+#endif // if 0
 }
 
 @end

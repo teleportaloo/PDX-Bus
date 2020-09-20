@@ -19,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MainQueueSync : NSObject
 
-+(void) runSyncOnMainQueueWithoutDeadlocking:(void (^)(void))block;
++ (void)runSyncOnMainQueueWithoutDeadlocking:(void (^)(void))block;
 
 @end
 

@@ -1,6 +1,6 @@
 //
 //  XMLDetours.h
-//  TriMetTimes
+//  PDXBus
 //
 
 
@@ -15,15 +15,12 @@
 #import "Route.h"
 
 
-@interface XMLDetours : TriMetXMLv2<Detour*>
+@interface XMLDetours : TriMetXMLv2<Detour *>
 
-@property (nonatomic, strong) NSMutableDictionary<NSString *, Route *> * allRoutes;
-@property (nonatomic, strong) Detour *currentDetour;
-@property (nonatomic, copy) NSString *route;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, Route *> *allRoutes;
 
-- (BOOL)getDetoursForRoutes:(NSArray *)routes;
+- (BOOL)getDetoursForRoutes:(NSArray<NSString *> *)routeIdArray;
 - (BOOL)getDetoursForRoute:(NSString *)route;
 - (BOOL)getDetours;
 
 @end
-

@@ -22,8 +22,8 @@
 @property (atomic, strong) NSString *result;
 @property (atomic, strong) NSError *error;
 
-- (NSString *)fetchAddress:(CLLocation*)loc;
+- (NSString *)fetchAddress:(CLLocation *)loc;
 
-+ (bool) supported;
++ (bool)supported;
 
 @end

@@ -30,14 +30,14 @@ typedef enum {
 
 @property (nonatomic, strong) TripEndPoint *fromPoint;
 @property (nonatomic, strong) TripEndPoint *toPoint;
-@property (nonatomic)          TripMode        tripMode;
-@property (nonatomic)          TripMin        tripMin;
-@property (nonatomic)          int            maxItineraries;
-@property (nonatomic)          float            walk;
-@property (nonatomic)          bool            arrivalTime;
-@property (nonatomic, strong) NSDate *      dateAndTime;
+@property (nonatomic)          TripMode tripMode;
+@property (nonatomic)          TripMin tripMin;
+@property (nonatomic)          int maxItineraries;
+@property (nonatomic)          float walk;
+@property (nonatomic)          bool arrivalTime;
+@property (nonatomic, strong)  NSDate *dateAndTime;
 @property (nonatomic)          TripTimeChoice timeChoice;
-@property (nonatomic)         bool          historical;
+@property (nonatomic)          bool historical;
 @property (nonatomic, readonly, copy) NSString *mode;
 @property (nonatomic, readonly, copy) NSString *min;
 @property (nonatomic, readonly, copy) NSString *minToString;
@@ -52,11 +52,10 @@ typedef enum {
 - (instancetype)init;
 - (void)clearGpsNames;
 - (bool)readDictionary:(NSDictionary *)dict;
-- (bool)equalsTripUserRequest:(TripUserRequest*)userRequest;
-- (NSString*)getDateAndTime;
-- (NSUserActivity*)userActivityWithTitle:(NSString*)title;
+- (bool)equalsTripUserRequest:(TripUserRequest *)userRequest;
+- (NSString *)getDateAndTime;
+- (NSUserActivity *)userActivityWithTitle:(NSString *)title;
 
 + (instancetype)fromDictionary:(NSDictionary *)dict;
 
 @end
-

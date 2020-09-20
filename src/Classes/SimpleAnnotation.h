@@ -17,8 +17,8 @@
 
 
 @interface SimpleAnnotation : NSObject <MapPinColor> {
-    bool                    _hasBearing;
-    double                  _bearing;
+    bool _hasBearing;
+    double _bearing;
 }
 
 @property (nonatomic, readonly, copy) NSString *title;

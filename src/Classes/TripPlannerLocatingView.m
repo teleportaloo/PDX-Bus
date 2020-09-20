@@ -12,26 +12,37 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#import <Foundation/Foundation.h>
 #import "TripPlannerLocatingView.h"
 #import "TripPlannerLocationListView.h"
 #import "TripPlannerResultsView.h"
-#import "AddressBookUI/ABAddressFormatting.h"
-#import "AddressBook/AddressBook.h"
-#import <AddressBook/ABPerson.h>
 #import "DebugLogging.h"
 #import "ReverseGeoLocator.h"
 #import "GeoLocator.h"
 #import "MainQueueSync.h"
+#import "TaskState.h"
+
+@interface TripPlannerLocatingView () {
+    UIInterfaceOrientation _cachedOrientation;
+    bool _useCachedOrientation;
+    bool _appeared;
+}
+
+@property (nonatomic, strong) UINavigationController *backgroundTaskController;
+@property (nonatomic) bool backgroundTaskForceResults;
+@property (atomic) bool waitingForGeocoder;
+
+
+
+@end
 
 @implementation TripPlannerLocatingView
 
 
 #pragma mark UI helpers
 
-- (void)refreshAction:(id)sender
-{
-    if (!self.backgroundTask.running)
-    {
+- (void)refreshAction:(id)sender {
+    if (!self.backgroundTask.running) {
         self.currentEndPoint.locationDesc = nil;
         [super refreshAction:sender];
     }
@@ -42,43 +53,109 @@
 - (void)nextScreen:(UINavigationController *)controller
       forceResults:(bool)forceResults postQuery:(bool)postQuery
        orientation:(UIInterfaceOrientation)orientation
-     taskContainer:(BackgroundTaskContainer*)taskContainer
-{    
+     taskContainer:(BackgroundTaskContainer *)taskContainer {
     bool findLocation = false;
     
     if (self.tripQuery.userRequest.fromPoint.useCurrentLocation == false
-        && self.tripQuery.userRequest.toPoint.useCurrentLocation == false)
-    {
+        && self.tripQuery.userRequest.toPoint.useCurrentLocation == false) {
         findLocation = false;
-    }
-    else if (self.tripQuery.userRequest.fromPoint.useCurrentLocation == true && !postQuery)
-    {
+    } else if (self.tripQuery.userRequest.fromPoint.useCurrentLocation == true && !postQuery) {
         findLocation = true; // (self.tripQuery.fromPoint.lat==nil);
         self.currentEndPoint = self.tripQuery.userRequest.fromPoint;
-    }
-    else if (self.tripQuery.userRequest.toPoint.useCurrentLocation == true && !postQuery)
-    {
+    } else if (self.tripQuery.userRequest.toPoint.useCurrentLocation == true && !postQuery) {
         findLocation = true; // (self.tripQuery.toPoint.lat==nil);
         self.currentEndPoint = self.tripQuery.userRequest.toPoint;
     }
-        
-    if (findLocation && !forceResults)
-    {
+    
+    if (findLocation && !forceResults) {
         [controller pushViewController:self animated:YES];
-    }
-    else
-    {
+    } else {
         _cachedOrientation = orientation;
         _useCachedOrientation = true;
         [self fetchAndDisplay:controller forceResults:forceResults taskContainer:taskContainer];
     }
 }
 
--(void)fetchAndDisplay:(UINavigationController *)controller
-          forceResults:(bool)forceResults
-         taskContainer:(BackgroundTaskContainer *)task
-{
-     [task taskRunAsync:^{
+- (void)subTaskFetchNames:(NSMutableArray *)geoNamesRequired taskState:(TaskState *)taskState {
+    for (TripEndPoint *point in geoNamesRequired) {
+        ReverseGeoLocator *geocoder = [[ReverseGeoLocator alloc] init];
+        
+        if ([geocoder fetchAddress:point.coordinates]) {
+            point.locationDesc = geocoder.result;
+        }
+        
+        [taskState incrementItemsDoneAndDisplay];
+    }
+}
+
+- (void)subTaskFetchCoordsFrom:(NSMutableArray<TripLegEndPoint *> **)fromList
+                            to:(NSMutableArray<TripLegEndPoint *> **)toList
+             geoCoordsRequired:(NSMutableArray *)geoCoordsRequired
+                     taskState:(TaskState *)taskState  {
+    for (TripEndPoint *point in geoCoordsRequired) {
+        GeoLocator *geoLocator = [[GeoLocator alloc] init];
+        
+        NSMutableArray<TripLegEndPoint *> *results = [geoLocator fetchCoordinates:point.locationDesc];
+        
+        if (results.count == 1) {
+            point.coordinates = results.lastObject.loc;
+            point.locationDesc = results.lastObject.displayText;
+        } else if (results.count != 0) {
+            if (point == self.tripQuery.userRequest.toPoint) {
+                *toList = results;
+                self.tripQuery.toList = results;
+            } else {
+                self.tripQuery.fromList = results;
+                *fromList = results;
+            }
+        } else {
+            if (point == self.tripQuery.userRequest.toPoint) {
+                self.tripQuery.toList = nil;
+                self.tripQuery.toAppleFailed = YES;
+            } else {
+                self.tripQuery.fromList = nil;
+                self.tripQuery.fromAppleFailed = YES;
+            }
+        }
+        
+        [taskState incrementItemsDoneAndDisplay];
+    }
+}
+
+- (void)subTaskFetchGeosAndTrip:(NSMutableArray *)geoCoordsRequired geoNamesRequired:(NSMutableArray *)geoNamesRequired taskState:(TaskState *)taskState {
+    [taskState taskStartWithTotal:1 + (int)geoNamesRequired.count + (int)geoCoordsRequired.count title:NSLocalizedString(@"getting trip", @"progress message")];
+    [taskState taskSubtext:NSLocalizedString(@"geolocating", @"progress message")];
+    
+    taskState.itemsDone = 0;
+    
+    [self subTaskFetchNames:geoNamesRequired taskState:taskState];
+    
+    NSMutableArray<TripLegEndPoint *> *toList = nil;
+    NSMutableArray<TripLegEndPoint *> *fromList = nil;
+    
+    [self subTaskFetchCoordsFrom:&fromList to:&toList geoCoordsRequired:geoCoordsRequired taskState:taskState ];
+    
+    if (self.tripQuery.toList == nil || self.tripQuery.fromList == nil) {
+        [taskState taskSubtext:NSLocalizedString(@"planning trip", @"progress message")];
+        self.tripQuery.oneTimeDelegate = taskState;
+        [self.tripQuery fetchItineraries:nil];
+        
+        if (toList) {
+            self.tripQuery.toList = toList;
+        }
+        
+        if (fromList) {
+            self.tripQuery.fromList = fromList;
+        }
+    }
+    
+    [taskState incrementItemsDoneAndDisplay];
+}
+
+- (void)fetchAndDisplay:(UINavigationController *)controller
+           forceResults:(bool)forceResults
+          taskContainer:(BackgroundTaskContainer *)taskController {
+    [taskController taskRunAsync:^(TaskState *taskState) {
         NSMutableArray *geoNamesRequired  = [NSMutableArray array];
         NSMutableArray *geoCoordsRequired = [NSMutableArray array];
         
@@ -89,137 +166,50 @@
         bool canReverseGeocode = [ReverseGeoLocator supported];
         bool canGeocode        = [GeoLocator supported];
         
-        if (canReverseGeocode && (self.tripQuery.userRequest.toPoint.useCurrentLocation || self.tripQuery.userRequest.toPoint.coordinates!=nil) && self.tripQuery.userRequest.toPoint.locationDesc == nil)
-        {
+        if (canReverseGeocode && (self.tripQuery.userRequest.toPoint.useCurrentLocation || self.tripQuery.userRequest.toPoint.coordinates != nil) && self.tripQuery.userRequest.toPoint.locationDesc == nil) {
             [geoNamesRequired addObject:self.tripQuery.userRequest.toPoint];
         }
         
-        if (canReverseGeocode && (self.tripQuery.userRequest.fromPoint.useCurrentLocation || self.tripQuery.userRequest.fromPoint.coordinates!=nil) && self.tripQuery.userRequest.fromPoint.locationDesc == nil)
-        {
+        if (canReverseGeocode && (self.tripQuery.userRequest.fromPoint.useCurrentLocation || self.tripQuery.userRequest.fromPoint.coordinates != nil) && self.tripQuery.userRequest.fromPoint.locationDesc == nil) {
             [geoNamesRequired addObject:self.tripQuery.userRequest.fromPoint];
         }
         
-        if (canGeocode && [GeoLocator addressNeedsCoords:self.tripQuery.userRequest.toPoint.locationDesc] && self.tripQuery.userRequest.toPoint.coordinates==nil)
-        {
+        if (canGeocode && [GeoLocator addressNeedsCoords:self.tripQuery.userRequest.toPoint.locationDesc] && self.tripQuery.userRequest.toPoint.coordinates == nil) {
             [geoCoordsRequired addObject:self.tripQuery.userRequest.toPoint];
         }
         
-        if (canGeocode && [GeoLocator addressNeedsCoords:self.tripQuery.userRequest.fromPoint.locationDesc] && self.tripQuery.userRequest.fromPoint.coordinates==nil)
-        {
+        if (canGeocode && [GeoLocator addressNeedsCoords:self.tripQuery.userRequest.fromPoint.locationDesc] && self.tripQuery.userRequest.fromPoint.coordinates == nil) {
             [geoCoordsRequired addObject:self.tripQuery.userRequest.fromPoint];
         }
-         
-         self.tripQuery.toAppleFailed = NO;
-         self.tripQuery.fromAppleFailed = NO;
-         
         
-        if (geoNamesRequired.count > 0 || geoCoordsRequired.count > 0 )
-        {
-            [task taskStartWithItems:1+(int)geoNamesRequired.count+(int)geoCoordsRequired.count title:@"getting trip"];
-            [task taskSubtext:@"geolocating"];
-            
-            int taskCounter = 0;
-            for (TripEndPoint *point in geoNamesRequired)
-            {
-                ReverseGeoLocator *geocoder = [[ReverseGeoLocator alloc] init];
-                
-                if ([geocoder fetchAddress:point.coordinates])
-                {
-                    point.locationDesc = geocoder.result;
-                }
-                
-                taskCounter++;
-                [task taskItemsDone:taskCounter];
-            }
-            
-            NSMutableArray<TripLegEndPoint*> *toList = nil;
-            NSMutableArray<TripLegEndPoint*> *fromList = nil;
-            
-            
-            for (TripEndPoint *point in geoCoordsRequired)
-            {
-                GeoLocator *geoLocator = [[GeoLocator alloc] init];
-                
-                NSMutableArray<TripLegEndPoint*> *results = [geoLocator fetchCoordinates:point.locationDesc];
-                
-                if (results.count==1)
-                {
-                    point.coordinates = results.lastObject.loc;
-                    point.locationDesc = results.lastObject.displayText;
-                }
-                else if (results.count!=0)
-                {
-                    if (point == self.tripQuery.userRequest.toPoint)
-                    {
-                        toList = results;
-                        self.tripQuery.toList = results;
-                    }
-                    else
-                    {
-                        self.tripQuery.fromList = results;
-                        fromList = results;
-                    }
-                }
-                else
-                {
-                    if (point == self.tripQuery.userRequest.toPoint)
-                    {
-                        self.tripQuery.toList = nil;
-                        self.tripQuery.toAppleFailed = YES;
-                    }
-                    else
-                    {
-                        self.tripQuery.fromList = nil;
-                        self.tripQuery.fromAppleFailed = YES;
-                    }
-                }
-                
-                taskCounter++;
-                [task taskItemsDone:taskCounter];
-            }
-            
-            if (self.tripQuery.toList==nil || self.tripQuery.fromList==nil)
-            {
-                [task taskSubtext:@"planning trip"];
-                self.tripQuery.oneTimeDelegate = task;
-                [self.tripQuery fetchItineraries:nil];
-                
-                if (toList)
-                {
-                    self.tripQuery.toList = toList;
-                }
-                if (fromList)
-                {
-                    self.tripQuery.fromList = fromList;
-                }
-            }
-            [task taskItemsDone:2];
-        }
-        else {
-            [task taskStartWithItems:1 title:@"getting trip"];
-            self.tripQuery.oneTimeDelegate = task;
+        self.tripQuery.toAppleFailed = NO;
+        self.tripQuery.fromAppleFailed = NO;
+        
+        if (geoNamesRequired.count > 0 || geoCoordsRequired.count > 0) {
+            [self subTaskFetchGeosAndTrip:geoCoordsRequired
+                          geoNamesRequired:geoNamesRequired
+                                 taskState:taskState];
+        } else {
+            [taskState startAtomicTask:@"getting trip"];
+            self.tripQuery.oneTimeDelegate = taskState;
             [self.tripQuery fetchItineraries:nil];
+            [taskState atomicTaskItemDone];
         }
         
-        // Here we should create the objects and not do it in our own background task complete
         
-        if (self.tripQuery.fromList != nil && !self.backgroundTaskForceResults && !self.tripQuery.userRequest.fromPoint.useCurrentLocation)
-        {
-            __block TripPlannerLocationListView *locView =nil;
+        if (self.tripQuery.fromList != nil && !self.backgroundTaskForceResults
+            && !self.tripQuery.userRequest.fromPoint.useCurrentLocation) {
+            __block TripPlannerLocationListView *locView = nil;
             
             [MainQueueSync runSyncOnMainQueueWithoutDeadlocking:^{
                 locView = [TripPlannerLocationListView viewController];
-            
                 locView.tripQuery = self.tripQuery;
-                
-                
                 locView.from = true;
             }];
             // Push the detail view controller
             return (UIViewController *)locView;
-        }
-        else if (self.tripQuery.toList != nil && !self.backgroundTaskForceResults && !self.tripQuery.userRequest.toPoint.useCurrentLocation)
-        {
+        } else if (self.tripQuery.toList != nil && !self.backgroundTaskForceResults
+                   && !self.tripQuery.userRequest.toPoint.useCurrentLocation) {
             __block TripPlannerLocationListView *locView = nil;
             
             [MainQueueSync runSyncOnMainQueueWithoutDeadlocking:^{
@@ -229,53 +219,43 @@
             }];
             // Push the detail view controller
             return (UIViewController *)locView;
-        }
-        else
-        {
+        } else {
             __block TripPlannerResultsView *tripResults = nil;
             
             [MainQueueSync runSyncOnMainQueueWithoutDeadlocking:^{
                 tripResults = [TripPlannerResultsView viewController];
                 tripResults.tripQuery = self.tripQuery;
-            
                 [tripResults.tripQuery saveTrip];
             }];
-            
             
             // Push the detail view controller
             return (UIViewController *)tripResults;
         }
-        
     }];
 }
-    
+
 #pragma mark Background task callbacks
 
 
-- (UIInterfaceOrientation)backgroundTaskOrientation
-{
-    if (_useCachedOrientation)
-    {
+- (UIInterfaceOrientation)backgroundTaskOrientation {
+    if (_useCachedOrientation) {
         return _cachedOrientation;
     }
-    return [super backgroundTaskOrientation];    
+    
+    return [super backgroundTaskOrientation];
 }
 
 #pragma mark View callbacks
 
 
-- (void)viewDidAppear:(BOOL)animated
-{
+- (void)viewDidAppear:(BOOL)animated {
     self.delegate = self;
     self.accuracy = 200.0;
     
-    if (self.currentEndPoint.coordinates == nil || !_appeared)
-    {
+    if (self.currentEndPoint.coordinates == nil || !_appeared) {
         [self startLocating];
         _appeared = YES;
-    }
-    else
-    {
+    } else {
         self.lastLocation = self.currentEndPoint.coordinates;
         [self stopLocating];
         [self reloadData];
@@ -284,8 +264,7 @@
     [super viewDidAppear:animated];
 }
 
-- (void)viewDidDisappear:(BOOL)animated
-{
+- (void)viewDidDisappear:(BOOL)animated {
     self.delegate = nil;
     [super viewDidDisappear:animated];
 }
@@ -300,34 +279,23 @@
 #pragma mark LocatingTableView callbacks
 
 
-- (void)locatingViewFinished:(LocatingView *)locatingView
-{
-    if (!locatingView.failed && !locatingView.cancelled)
-    {
+- (void)locatingViewFinished:(LocatingView *)locatingView {
+    if (!locatingView.failed && !locatingView.cancelled) {
         TripEndPoint *point = nil;
-    
-        if (self.tripQuery.userRequest.fromPoint.useCurrentLocation)
-        {
+        
+        if (self.tripQuery.userRequest.fromPoint.useCurrentLocation) {
             point = self.tripQuery.userRequest.fromPoint;
-        }
-        else
-        {
+        } else {
             point = self.tripQuery.userRequest.toPoint;
         }
-    
-        point.coordinates = self.lastLocation;
-    
-    
-        [self fetchAndDisplay:locatingView.navigationController forceResults:NO taskContainer:locatingView.backgroundTask];
         
-    } else if (locatingView.cancelled)
-    {
+        point.coordinates = self.lastLocation;
+        
+        
+        [self fetchAndDisplay:locatingView.navigationController forceResults:NO taskContainer:locatingView.backgroundTask];
+    } else if (locatingView.cancelled) {
         [locatingView.navigationController popViewControllerAnimated:YES];
     }
 }
 
-
-
-
 @end
-

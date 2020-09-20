@@ -19,12 +19,12 @@
 #import "ScreenConstants.h"
 #import "BlockColorView.h"
 
-#define kDepartureCellHeight         55
-#define kLargeDepartureCellHeight    85
-#define kLargeWidth                  kLargeScreenWidth
+#define kDepartureCellHeight      55
+#define kLargeDepartureCellHeight 85
+#define kLargeWidth               kLargeScreenWidth
 
-#define DEPARTURE_CELL_USE_LARGE     LARGE_SCREEN
-#define DEPARTURE_CELL_HEIGHT        (DEPARTURE_CELL_USE_LARGE ? kLargeDepartureCellHeight : kDepartureCellHeight)
+#define DEPARTURE_CELL_USE_LARGE  LARGE_SCREEN
+#define DEPARTURE_CELL_HEIGHT     (DEPARTURE_CELL_USE_LARGE ? kLargeDepartureCellHeight : kDepartureCellHeight)
 
 
 @interface DepartureCell : UITableViewCell
@@ -44,7 +44,7 @@
 - (DepartureCell *)initWithReuseIdentifier:(NSString *)identifier;
 - (DepartureCell *)initGenericWithReuseIdentifier:(NSString *)identifier;
 
-+ (instancetype)tableView:(UITableView*)tableView cellWithReuseIdentifier:(NSString *)identifier;
-+ (instancetype)tableView:(UITableView*)tableView genericWithReuseIdentifier:(NSString *)identifier;
++ (instancetype)tableView:(UITableView *)tableView cellWithReuseIdentifier:(NSString *)identifier;
++ (instancetype)tableView:(UITableView *)tableView genericWithReuseIdentifier:(NSString *)identifier;
 
 @end

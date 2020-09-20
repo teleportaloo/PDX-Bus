@@ -13,16 +13,8 @@
 
 
 #import <UIKit/UIKit.h>
-#import "TableViewWithToolbar.h"
-#import "XMLTrips.h"
 #import "TripPlannerBaseView.h"
 
 @interface TripPlannerOptions : TripPlannerBaseView
-
-@property (nonatomic, copy)   NSString *info;
-
-- (void)walkSegmentChanged:(id)sender;
-- (void)modeSegmentChanged:(id)sender;
-- (void)minSegmentChanged:(id)sender;
 
 @end

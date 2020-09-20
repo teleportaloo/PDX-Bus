@@ -16,7 +16,7 @@
 #import <Foundation/Foundation.h>
 #import "TableViewWithToolbar.h"
 
-@interface DayOfTheWeekView : TableViewWithToolbar 
+@interface DayOfTheWeekView : TableViewWithToolbar
 
 @property (nonatomic, strong) NSMutableDictionary *originalFave;
 

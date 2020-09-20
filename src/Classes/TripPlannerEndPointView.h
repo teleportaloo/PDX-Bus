@@ -17,7 +17,9 @@
 #import "XMLTrips.h"
 #import "EditableTableViewCell.h"
 #import "ReturnStopId.h"
+#if !TARGET_OS_MACCATALYST
 #import <AddressBookUI/ABPeoplePickerNavigationController.h>
+#endif
 #import "CellTextField.h"
 #import "CellTextView.h"
 #import "TripReturnUserRequest.h"
@@ -25,20 +27,16 @@
 #import <ContactsUI/ContactsUI.h>
 #import "UIPlaceHolderTextView.h"
 
-@interface TripPlannerEndPointView: TripPlannerBaseView <EditableTableViewCellDelegate, ReturnStopId, ABPeoplePickerNavigationControllerDelegate, CNContactPickerDelegate>
-{
-    bool                _keyboardUp;
-}
+@interface TripPlannerEndPointView : TripPlannerBaseView <EditableTableViewCellDelegate, ReturnStopId,
+#if !TARGET_OS_MACCATALYST
+    ABPeoplePickerNavigationControllerDelegate,
+#endif
+    CNContactPickerDelegate>
 
-@property (nonatomic) bool from;
-@property (nonatomic, strong) UIPlaceHolderTextView *placeNameField;
-@property (nonatomic, strong) CellTextView *editCell;
-@property (nonatomic, strong) UIViewController *popBackTo;
-@property (nonatomic, readonly, strong) UIPlaceHolderTextView *createTextField_Rounded;
 @property (nonatomic, readonly, strong) UIViewController *controller;
-@property (nonatomic, readonly, strong) TripEndPoint *endPoint;
+@property (nonatomic) bool from;
+@property (nonatomic, strong) UIViewController *popBackTo;
 
-- (void)cellDidEndEditing:(EditableTableViewCell *)cell;
 - (void)browseForStop;
 - (void)selectFromRailMap;
 - (void)selectedStop:(NSString *)stopId;

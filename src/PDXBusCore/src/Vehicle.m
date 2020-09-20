@@ -18,83 +18,57 @@
 
 @implementation Vehicle
 
-
-
--(NSComparisonResult)compareUsingDistance:(Vehicle*)inVehicle
-{
-    if (self.distance < inVehicle.distance)
-    {
+- (NSComparisonResult)compareUsingDistance:(Vehicle *)inVehicle {
+    if (self.distance < inVehicle.distance) {
         return NSOrderedAscending;
     }
     
-    if (self.distance > inVehicle.distance)
-    {
+    if (self.distance > inVehicle.distance) {
         return NSOrderedDescending;
     }
     
     return NSOrderedSame;
 }
 
-- (bool)typeMatchesMode:(TripMode)mode
-{
-    if (mode == TripModeAll)
-    {
+- (bool)typeMatchesMode:(TripMode)mode {
+    if (mode == TripModeAll) {
         return YES;
-    }
-    else if (mode == TripModeBusOnly)
-    {
-        if ([self.type caseInsensitiveCompare:@"bus"] == NSOrderedSame)
-        {
+    } else if (mode == TripModeBusOnly) {
+        if ([self.type caseInsensitiveCompare:@"bus"] == NSOrderedSame) {
+            return YES;
+        }
+    } else if (mode == TripModeTrainOnly) {
+        if ([self.type caseInsensitiveCompare:@"rail"] == NSOrderedSame) {
             return YES;
         }
     }
-    else if (mode == TripModeTrainOnly)
-    {
-        if ([self.type caseInsensitiveCompare:@"rail"] == NSOrderedSame)
-        {
-            return YES;
-        }
-    }
+    
     return NO;
 }
 
-+ (NSString *)locatedSomeTimeAgo:(NSDate *)date
-{
++ (NSString *)locatedSomeTimeAgo:(NSDate *)date {
     NSString *lastSeen = nil;
     NSInteger seconds = -date.timeIntervalSinceNow;
     
-    if (seconds < 0)
-    {
+    if (seconds < 0) {
         lastSeen = @"";
-    }
-    else if (seconds == 1)
-    {
+    } else if (seconds == 1) {
         lastSeen = @"Located 1s ago";
-    }
-    else if (seconds < 120)
-    {
+    } else if (seconds < 120) {
         lastSeen = [NSString stringWithFormat:@"Located %lus ago", (unsigned long)seconds];
-    }
-    else if (seconds > (3600))
-    {
+    } else if (seconds > (3600)) {
         lastSeen = @"Located over an hour ago";
-    }
-    else if (seconds >= 120)
-    {
-        NSInteger mins = ((seconds+30)/60);
+    } else if (seconds >= 120) {
+        NSInteger mins = ((seconds + 30) / 60);
         
-        if (mins == 1)
-        {
+        if (mins == 1) {
             lastSeen = @"Located 1 min ago";
-        }
-        else
-        {
+        } else {
             lastSeen = [NSString stringWithFormat:@"Located %lu mins ago", (unsigned long)mins];
         }
     }
-
+    
     return lastSeen;
 }
-
 
 @end

@@ -1,6 +1,6 @@
 //
 //  XMLStops.h
-//  TriMetTimes
+//  PDXBus
 //
 
 
@@ -14,20 +14,23 @@
 #import "Stop.h"
 #import "TriMetXML.h"
 
+@interface XMLStops : TriMetXML<Stop *>
 
-@interface XMLStops : TriMetXML<Stop*> 
-
-@property (nonatomic, strong) Stop *currentStopObject;
 @property (nonatomic, copy)   NSString *direction;
 @property (nonatomic, copy)   NSString *routeId;
 @property (nonatomic, copy)   NSString *routeDescription;
-@property (nonatomic, copy)   NSString *afterStop;
+@property (nonatomic, copy)   NSString *afterStopId;
 @property (nonatomic, copy)   NSString *staticQuery;
 
-- (BOOL)getStopsForRoute:(NSString *)route direction:(NSString *)dir 
-             description:(NSString *)desc cacheAction:(CacheAction)cacheAction;
-- (BOOL)getStopsAfterLocation:(NSString *)locid route:(NSString *)route direction:(NSString *)dir 
-                  description:(NSString *)desc cacheAction:(CacheAction)cacheAction;
+- (BOOL)getStopsForRoute:(NSString *)route
+               direction:(NSString *)dir
+             description:(NSString *)desc
+             cacheAction:(CacheAction)cacheAction;
 
+- (BOOL)getStopsAfterStopId:(NSString *)stopId
+                      route:(NSString *)route
+                  direction:(NSString *)dir
+                description:(NSString *)desc
+                cacheAction:(CacheAction)cacheAction;
 
 @end

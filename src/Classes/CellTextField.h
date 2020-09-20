@@ -14,17 +14,14 @@
 #import <UIKit/UIKit.h>
 #import "EditableTableViewCell.h"
 
-@interface CellTextField : EditableTableViewCell <UITextFieldDelegate>
-{
-    UITextField *   _view;
-}
+@interface CellTextField : EditableTableViewCell <UITextFieldDelegate> 
 
 @property (nonatomic, strong) UITextField *view;
 @property CGFloat cellLeftOffset;
 
-+(CGFloat)cellHeight;
-+(CGFloat)editHeight;
-+(void)initHeight;
-+(UIFont *)editFont;
++ (CGFloat)cellHeight;
++ (CGFloat)editHeight;
++ (void)initHeight;
++ (UIFont *)editFont;
 
 @end

@@ -18,11 +18,6 @@
 
 @interface ProcessQRCodeString : StoppableFetcher
 
-@property (nonatomic, copy)   NSString *stopId;
-
 - (NSString *)extractStopId:(NSString *)originalURL;
 
 @end
-
-
-

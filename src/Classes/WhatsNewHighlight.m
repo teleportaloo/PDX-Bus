@@ -17,29 +17,23 @@
 
 @implementation WhatsNewHighlight
 
-+ (NSNumber*)getPrefix
-{
++ (NSNumber *)getPrefix {
     return @'!';
 }
 
-- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell text:(NSString*)text
-{
+- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell text:(NSString *)text {
     cell.backgroundColor = [UIColor redColor];
 }
 
-- (void)updateCell:(UITableViewCell *)cell tableView:(UITableView *)tableView
-{
-    cell.textLabel.backgroundColor  = [UIColor clearColor];
-    cell.textLabel.textAlignment    = NSTextAlignmentLeft;
-    cell.accessoryType              = UITableViewCellAccessoryNone;
-    cell.selectionStyle             = UITableViewCellSelectionStyleNone;
+- (void)updateCell:(LinkCell *)cell tableView:(UITableView *)tableView {
+    cell.textView.backgroundColor = [UIColor clearColor];
+    cell.textView.textAlignment = NSTextAlignmentLeft;
+    cell.accessoryType = UITableViewCellAccessoryNone;
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
 }
 
-- (NSString*)displayText:(NSString*)fullText
-{
+- (NSString *)displayText:(NSString *)fullText {
     return [fullText substringFromIndex:1];
 }
 
-
 @end
-

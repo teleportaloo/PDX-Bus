@@ -15,17 +15,19 @@
 
 #import "MapViewController.h"
 #import "XMLDepartures.h"
-#import "BackgroundTaskController.h"
+#import "TaskController.h"
+
+@class TaskState;
 
 @interface MapViewWithRoutes : MapViewController
 
 @property (nonatomic, strong) NSSet *pinClassesToFit;
 
-- (void)fetchRoutesAsync:(id<BackgroundTaskController>)task
-                  routes:(NSArray<NSString*>*)routes
-              directions:(NSArray<NSString*>*)directions
+- (void)fetchRoutesAsync:(id<TaskController>)taskController
+                  routes:(NSArray<NSString *> *)routes
+              directions:(NSArray<NSString *> *)directions
          additionalTasks:(NSInteger)tasks
-                    task:(void (^)( id<BackgroundTaskController> background )) block;
+                    task:(void (^)(TaskState *taskState))action;
 
 
 @end

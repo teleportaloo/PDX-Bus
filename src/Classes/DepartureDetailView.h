@@ -1,6 +1,6 @@
 //
 //  ArrivalDetail.h
-//  TriMetTimes
+//  PDXBus
 //
 
 
@@ -29,25 +29,21 @@
 
 @end
 
-@interface DepartureDetailView : TableViewControllerWithRefresh <InfColorPickerControllerDelegate,ReturnStop>  {
-    NSInteger                       _firstDetourRow;
-}
+@interface DepartureDetailView : TableViewControllerWithRefresh <InfColorPickerControllerDelegate, ReturnStop>
 
-@property (nonatomic, strong) Departure *departure;
-@property (nonatomic, copy)   NSString *stops;
-@property (nonatomic, strong) NSArray *allDepartures;
 @property (nonatomic, weak) id<DepartureDetailDelegate> delegate;
+@property (nonatomic, copy)   NSString *stops;
 @property (nonatomic, assign) bool allowBrowseForDestination;
-@property (nonatomic) CLLocationDirection previousHeading;
-@property (nonatomic, strong) CADisplayLink *displayLink;
-@property (nonatomic, copy)   NSIndexPath *indexPathOfLocationCell;
-@property (nonatomic, strong) NSMutableArray<ShapeRoutePath*> *shape;
 
-- (void)fetchDepartureAsync:(id<BackgroundTaskController>)task dep:(Departure *)dep allDepartures:(NSArray*)deps backgroundRefresh:(bool)backgroundRefresh;
-- (void)fetchDepartureAsync:(id<BackgroundTaskController>)task location:(NSString *)loc block:(NSString *)block backgroundRefresh:(bool)backgroundRefresh;
-- (void)showMap:(id)sender;
-- (void)colorPickerControllerDidFinish: (InfColorPickerController*) controller;
-- (void)refreshAction:(id)unused;
-- (void)updateSections;
+- (void)fetchDepartureAsync:(id<TaskController>)taskController
+                        dep:(Departure *)dep
+              allDepartures:(NSArray *)deps
+          backgroundRefresh:(bool)backgroundRefresh;
+
+- (void)fetchDepartureAsync:(id<TaskController>)taskController
+                     stopId:(NSString *)loc
+                      block:(NSString *)block
+          backgroundRefresh:(bool)backgroundRefresh;
+
 
 @end

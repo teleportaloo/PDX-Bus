@@ -1,6 +1,6 @@
 //
 //  DirectionView.h
-//  TriMetTimes
+//  PDXBus
 //
 
 
@@ -20,17 +20,7 @@
 #define kSearchItemRoute @"org.teleportaloo.pdxbus.route"
 
 @interface DirectionView : TableViewControllerWithRefresh
-{
-    CacheAction _cacheAction;
-    bool        _appeared;
-}
 
-@property (nonatomic, strong) Route *route;
-@property (nonatomic, strong) NSArray *directionKeys;
-@property (nonatomic, strong) XMLRoutes *directionData;
-@property (nonatomic, strong) XMLDetoursAndMessages *detourData;
-@property (nonatomic, copy)   NSString *routeId;
-
-- (void)fetchDirectionsAsync:(id<BackgroundTaskController>)task route:(NSString *)route backgroundRefresh:(bool)backgroundRefresh;
-- (void)fetchDirectionsAsync:(id<BackgroundTaskController>)task route:(NSString *)route;
+- (void)fetchDirectionsAsync:(id<TaskController>)taskController route:(NSString *)route backgroundRefresh:(bool)backgroundRefresh;
+- (void)fetchDirectionsAsync:(id<TaskController>)taskController route:(NSString *)route;
 @end

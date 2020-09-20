@@ -1,6 +1,6 @@
 //
 //  XMLRoutes.m
-//  TriMetTimes
+//  PDXBus
 //
 
 
@@ -11,58 +11,53 @@
 
 
 #import "XMLRoutes.h"
+#import "NSDictionary+TriMetCaseInsensitive.h"
+#import "TriMetXMLSelectors.h"
 
-//static NSString *routesURLString = @"routeConfig/dir/true";
 static NSString *routesURLString = @"routeConfig";
 static NSString *oneRouteURLString = @"routeConfig/route/%@/dir/true";
 
-@implementation XMLRoutes
+@interface XMLRoutes ()
 
+@property (nonatomic, strong) Route *currentRouteObject;
+
+@end
+
+@implementation XMLRoutes
 
 #pragma mark Data fetchers
 
-- (BOOL)getRoutesCacheAction:(CacheAction)cacheAction;
-{    
+- (BOOL)getRoutesCacheAction:(CacheAction)cacheAction {
     return [self startParsing:routesURLString cacheAction:cacheAction];
 }
 
-- (BOOL)getDirections:(NSString *)route cacheAction:(CacheAction)cacheAction
-{    
+- (BOOL)getDirections:(NSString *)route cacheAction:(CacheAction)cacheAction {
     return [self startParsing:[NSString stringWithFormat:oneRouteURLString, route] cacheAction:cacheAction];
 }
 
 #pragma mark Parser callbacks
 
-- (void)parserDidStartDocument:(NSXMLParser *)parser
-{
-    
-}
-
 #pragma mark Start Elements
 
-XML_START_ELEMENT(resultset)
-{
+XML_START_ELEMENT(resultset) {
     [self initItems];
     _hasData = YES;
 }
 
-XML_START_ELEMENT(route)
-{
+XML_START_ELEMENT(route) {
     self.currentRouteObject = [Route data];
     
-    self.currentRouteObject.route = ATRSTR(route);
-    self.currentRouteObject.desc =  ATRSTR(desc);
+    self.currentRouteObject.route = XML_NON_NULL_ATR_STR(@"route");
+    self.currentRouteObject.desc = XML_NON_NULL_ATR_STR(@"desc");
 }
 
-XML_START_ELEMENT(dir)
-{
-    self.currentRouteObject.directions[ATRSTR(dir)] = ATRSTR(desc);
+XML_START_ELEMENT(dir) {
+    self.currentRouteObject.directions[XML_NON_NULL_ATR_STR(@"dir")] = XML_NON_NULL_ATR_STR(@"desc");
 }
 
 #pragma mark End Elements
 
-XML_END_ELEMENT(route)
-{
+XML_END_ELEMENT(route) {
     [self addItem:self.currentRouteObject];
     self.currentRouteObject = nil;
 }

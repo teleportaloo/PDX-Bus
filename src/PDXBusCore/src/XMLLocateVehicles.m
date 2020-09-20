@@ -19,133 +19,122 @@
 #import <MapKit/MKGeometry.h>
 #import "XMLStreetcarLocations.h"
 #import "NSString+Helper.h"
-#import "UserPrefs.h"
+#import "Settings.h"
 #import "CLLocation+Helper.h"
+#import "NSDictionary+TriMetCaseInsensitive.h"
+#import "TriMetXMLSelectors.h"
+
+@interface XMLLocateVehicles () {
+}
+
+@property (nonatomic, strong) NSString *direction;
+
+@end
 
 @implementation XMLLocateVehicles
 
-
-- (void)cleanup
-{
+- (void)cleanup {
     int i = 0;
     
-    for (i=0; i<self.items.count;)
-    {
+    for (i = 0; i < self.items.count;) {
         Vehicle *item = self.items[i];
         
-        if (item.signMessage==nil || item.signMessage.length==0)
-        {
+        if (item.signMessage == nil || item.signMessage.length == 0) {
             [self.items removeObjectAtIndex:i];
-        }
-        else
-        {
+        } else {
             i++;
         }
     }
 }
 
-- (BOOL)findNearestVehicles:(NSSet<NSString*> *)routes direction:(NSString*) direction blocks:(NSSet<NSString*> *)blocks vehicles:(NSSet<NSString*> *)vehicles
-{
+- (bool)findNearestVehicles:(NSSet<NSString *> *)routeIdSet
+                  direction:(NSString *)direction
+                     blocks:(NSSet<NSString *> *)blockIdSet
+                   vehicles:(NSSet<NSString *> *)vehicleIdSet {
     NSString *query = nil;
     
-    NSMutableString *routeIDs     = [NSMutableString string];
-    NSMutableString *blockQuery   = [NSMutableString string];
+    NSMutableString *routeQuery = [NSMutableString string];
+    NSMutableString *blockQuery = [NSMutableString string];
     NSMutableString *vehicleQuery = [NSMutableString string];
     
-    if (routes)
-    {
-        routeIDs = [NSString commaSeparatedStringFromEnumerator:routes selector:@selector(self)];
-        [routeIDs insertString:@"/routes/" atIndex:0];
+    if (routeIdSet) {
+        routeQuery = [NSString commaSeparatedStringFromStringEnumerator:routeIdSet];
+        [routeQuery insertString:@"/routes/" atIndex:0];
     }
     
-    if (blocks)
-    {
-        blockQuery = [NSString commaSeparatedStringFromEnumerator:blocks selector:@selector(self)];
+    if (blockIdSet) {
+        blockQuery = [NSString commaSeparatedStringFromStringEnumerator:blockIdSet];
         [blockQuery insertString:@"/blocks/" atIndex:0];
     }
     
-    if (vehicles)
-    {
-        vehicleQuery = [NSString commaSeparatedStringFromEnumerator:vehicles selector:@selector(self)];
+    if (vehicleIdSet) {
+        vehicleQuery = [NSString commaSeparatedStringFromStringEnumerator:vehicleIdSet];
         [vehicleQuery insertString:@"/ids/" atIndex:0];
     }
     
-    if (self.dist > 1.0)
-    {
+    if (self.dist > 1.0) {
         MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(self.location.coordinate, self.dist * 2.0, self.dist * 2.0);
         CLLocationCoordinate2D northWestCorner, southEastCorner;
-        northWestCorner.latitude  = self.location.coordinate.latitude  - (region.span.latitudeDelta  / 2.0);
+        northWestCorner.latitude = self.location.coordinate.latitude  - (region.span.latitudeDelta  / 2.0);
         northWestCorner.longitude = self.location.coordinate.longitude + (region.span.longitudeDelta / 2.0);
-        southEastCorner.latitude  = self.location.coordinate.latitude  + (region.span.latitudeDelta  / 2.0);
+        southEastCorner.latitude = self.location.coordinate.latitude  + (region.span.latitudeDelta  / 2.0);
         southEastCorner.longitude = self.location.coordinate.longitude - (region.span.longitudeDelta / 2.0);
-    
+        
         double lonmin = fmin(northWestCorner.longitude, southEastCorner.longitude);
         double latmin = fmin(northWestCorner.latitude,  southEastCorner.latitude);
         double lonmax = fmax(northWestCorner.longitude, southEastCorner.longitude);
         double latmax = fmax(northWestCorner.latitude,  southEastCorner.latitude);
-    
+        
         query = [NSString stringWithFormat:@"vehicles/bbox/%f,%f,%f,%f/xml/true/onRouteOnly/true%@%@%@",
-                          lonmin,latmin, lonmax, latmax, routeIDs, blockQuery, vehicleQuery];
-    }
-    else
-    {
-        query = [NSString stringWithFormat:@"vehicles/xml/true/onRouteOnly/true%@%@%@", routeIDs, blockQuery, vehicleQuery];
+                 lonmin, latmin, lonmax, latmax, routeQuery, blockQuery, vehicleQuery];
+    } else {
+        query = [NSString stringWithFormat:@"vehicles/xml/true/onRouteOnly/true%@%@%@", routeQuery, blockQuery, vehicleQuery];
     }
     
     self.direction = direction;
     
     
-    bool res =  [self startParsing:query cacheAction:TriMetXMLNoCaching];
+    bool res = [self startParsing:query cacheAction:TriMetXMLNoCaching];
     
-    if (self.gotData)
-    {
+    if (self.gotData) {
         [self.items sortUsingSelector:NSSelectorFromString(@"compareUsingDistance:")];
         [self cleanup];
     }
-
     
     return res;
 }
 
-XML_START_ELEMENT(resultset)
-{
+XML_START_ELEMENT(resultset) {
     [self initItems];
     _hasData = YES;
 }
 
-XML_START_ELEMENT(vehicle)
-{
-    NSString *dir = ATRSTR(direction);
+XML_START_ELEMENT(vehicle) {
+    NSString *dir = XML_NON_NULL_ATR_STR(@"direction");
     
-    if (self.direction == nil || [self.direction isEqualToString:dir])
-    {
-        
+    if (self.direction == nil || [self.direction isEqualToString:dir]) {
         Vehicle *currentVehicle = [Vehicle data];
         
-        currentVehicle.block           = ATRSTR(blockID);
-        currentVehicle.nextLocID       = ATRSTR(nextLocID);
-        currentVehicle.lastLocID       = ATRSTR(lastLocID);
-        currentVehicle.routeNumber     = ATRSTR(routeNumber);
-        currentVehicle.direction       = dir;
-        currentVehicle.signMessage     = ATRSTR(signMessage);
-        currentVehicle.signMessageLong = ATRSTR(signMessageLong);
-        currentVehicle.type            = ATRSTR(type);
-        currentVehicle.locationTime    = ATRDAT(time);
-        currentVehicle.garage          = ATRSTR(garage);
-        currentVehicle.bearing         = ATRSTR(bearing);
-        currentVehicle.vehicleID       = ATRSTR(vehicleID);
-        currentVehicle.location        = ATRLOC(latitude,longitude);
+        currentVehicle.block = XML_NON_NULL_ATR_STR(@"blockID");
+        currentVehicle.nextStopId = XML_NON_NULL_ATR_STR(@"nextLocID");
+        currentVehicle.lastStopId = XML_NON_NULL_ATR_STR(@"lastLocID");
+        currentVehicle.routeNumber = XML_NON_NULL_ATR_STR(@"routeNumber");
+        currentVehicle.direction = dir;
+        currentVehicle.signMessage = XML_NON_NULL_ATR_STR(@"signMessage");
+        currentVehicle.signMessageLong = XML_NON_NULL_ATR_STR(@"signMessageLong");
+        currentVehicle.type = XML_NON_NULL_ATR_STR(@"type");
+        currentVehicle.locationTime = XML_ATR_DATE(@"time");
+        currentVehicle.garage = XML_NON_NULL_ATR_STR(@"garage");
+        currentVehicle.bearing = XML_NON_NULL_ATR_STR(@"bearing");
+        currentVehicle.vehicleId = XML_NON_NULL_ATR_STR(@"vehicleID");
+        currentVehicle.location = XML_ATR_LOCATION(@"latitude", @"longitude");
         
-        if (self.location != nil)
-        {
+        if (self.location != nil) {
             currentVehicle.distance = [currentVehicle.location distanceFromLocation:self.location];
         }
         
-        
         [self addItem:currentVehicle];
-        
     }
-
 }
 
 @end

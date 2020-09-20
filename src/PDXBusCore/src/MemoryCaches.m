@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 Andrew Wallace
 //
 
-#include "DebugLogging.h"
+#import "DebugLogging.h"
 
 
 
@@ -17,47 +17,48 @@
 
 #import "MemoryCaches.h"
 
+@interface MemoryCaches () {
+    NSMutableSet<NSValue *> *_caches;
+}
+
+@end
+
 @implementation MemoryCaches
 
 - (instancetype)init {
-    if ((self = [super init]))
-    {
+    if ((self = [super init])) {
         _caches = [[NSMutableSet alloc] init];
     }
+    
     return self;
 }
 
-
-+ (MemoryCaches*)sharedInstance
-{
++ (MemoryCaches *)sharedInstance {
     static MemoryCaches *caches = nil;
     
     static dispatch_once_t onceToken;
+    
     dispatch_once(&onceToken, ^{
         caches = [[MemoryCaches alloc] init];
     });
     return caches;
 }
 
-+ (void)memoryWarning
-{
++ (void)memoryWarning {
     DEBUG_LOG(@"Clearing caches\n");
     MemoryCaches *caches = [MemoryCaches sharedInstance];
     
-    for (NSValue* value in caches->_caches)
-    {
+    for (NSValue *value in caches->_caches) {
         id<ClearableCache> cache = value.nonretainedObjectValue;
         [cache memoryWarning];
     }
 }
 
-+ (void)addCache:(id<ClearableCache>)cache
-{    
++ (void)addCache:(id<ClearableCache>)cache {
     [[MemoryCaches sharedInstance]->_caches addObject:[NSValue valueWithNonretainedObject:cache]];
 }
 
-+ (void)removeCache:(id<ClearableCache>)cache
-{
++ (void)removeCache:(id<ClearableCache>)cache {
     [[MemoryCaches sharedInstance]->_caches removeObject:[NSValue valueWithNonretainedObject:cache]];
 }
 

@@ -1,6 +1,6 @@
 //
 //  Stop.m
-//  TriMetTimes
+//  PDXBus
 //
 
 
@@ -17,92 +17,73 @@
 
 @dynamic  pinTint;
 
-- (void) dealloc
-{
-    self.tp        = nil;
-    
+- (void)dealloc {
+    self.tp = nil;
 }
 
-- (MapPinColorValue)pinColor
-{
+- (MapPinColorValue)pinColor {
     return MAP_PIN_COLOR_PURPLE;
 }
 
--(bool)hasBearing
-{
+- (bool)hasBearing {
     return NO;
 }
 
-- (bool) showActionMenu
-{
+- (bool)showActionMenu {
     return YES;
 }
 
-- (bool)mapTapped:(id<BackgroundTaskController>) progress
-{
+- (bool)mapTapped:(id<TaskController>)progress {
     [self.callback chosenStop:self progress:progress];
     return YES;
 }
 
-- (NSString *)tapActionText
-{
+- (NSString *)tapActionText {
     return [self.callback actionText];
 }
 
-
-- (CLLocationCoordinate2D)coordinate
-{
+- (CLLocationCoordinate2D)coordinate {
     CLLocationCoordinate2D pos;
     
-    pos.latitude =  self.lat.doubleValue;
+    pos.latitude = self.lat.doubleValue;
     pos.longitude = self.lng.doubleValue;
     return pos;
 }
 
-- (NSString *)title
-{
+- (NSString *)title {
     return self.desc;
 }
 
-- (NSString *)subtitle
-{
-    if (self.dir == nil)
-    {
-        return [NSString stringWithFormat:NSLocalizedString(@"Stop ID %@", @"TriMet Stop identifer <number>"), self.locid];
+- (NSString *)subtitle {
+    if (self.dir == nil) {
+        return [NSString stringWithFormat:NSLocalizedString(@"Stop ID %@", @"TriMet Stop identifer <number>"), self.stopId];
     }
     
-    return [NSString stringWithFormat:@"%@ ID %@", self.dir, self.locid];
+    return [NSString stringWithFormat:@"%@ ID %@", self.dir, self.stopId];
 }
 
--(NSComparisonResult)compareUsingStopName:(Stop*)inStop
-{
+- (NSComparisonResult)compareUsingStopName:(Stop *)inStop {
     return [self.desc compare:inStop.desc];
 }
 
--(NSComparisonResult)compareUsingIndex:(Stop*)inStop
-{
-    if (self.index < inStop.index)
-    {
+- (NSComparisonResult)compareUsingIndex:(Stop *)inStop {
+    if (self.index < inStop.index) {
         return NSOrderedAscending;
     }
     
-    if (self.index > inStop.index)
-    {
+    if (self.index > inStop.index) {
         return NSOrderedDescending;
     }
     
     return NSOrderedSame;
 }
 
--(NSString*)stringToFilter
-{
+- (NSString *)stringToFilter {
     return self.desc;
 }
 
-- (UIColor *)pinTint
-{
+- (UIColor *)pinTint {
     return nil;
 }
-
 
 @end

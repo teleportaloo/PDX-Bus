@@ -19,67 +19,56 @@
 @implementation WatchArrival
 
 
-+ (NSString *)identifier
-{
++ (NSString *)identifier {
     return @"Arrival";
 }
 
-- (void)populate:(XMLDepartures *)xml departures:(NSArray<Departure*>*)deps
-{
+- (void)populate:(XMLDepartures *)xml departures:(NSArray<Departure *> *)deps {
     Departure *dep = deps[self.index.integerValue];
-
-    if (dep.errorMessage)
-    {
+    
+    if (dep.errorMessage) {
         [self.heading setText:dep.errorMessage];
         self.exception.hidden = YES;
         self.stale.hidden = YES;
         self.blockColor.image = nil;
         [self.mins setText:nil];
-    }
-    else
-    {
+    } else {
         [self.heading setAttributedText:dep.headingWithStatus];
-        [self.mins    setText:dep.formattedMinsToArrival];
-        [self.mins    setTextColor:dep.fontColor];
+        [self.mins setText:dep.formattedMinsToArrival];
+        [self.mins setTextColor:dep.fontColor];
         [self.lineColor setImage:dep.routeColorImage];
-
+        
         self.blockColor.image = dep.blockImageColor;
-    
+        
         NSString *exception = dep.exception;
-    
-        if (exception)
-        {
+        
+        if (exception) {
             self.exception.text = exception;
             self.exception.hidden = NO;
-        }
-        else
-        {
+        } else {
             self.exception.hidden = YES;
         }
         
         self.stale.hidden = !dep.stale;
-        
     }
 }
 
-- (WatchSelectAction)select:(XMLDepartures *)xml from:(WKInterfaceController *)from context:(WatchArrivalsContext*)context canPush:(bool)push;
-{
-    if (push)
-    {
+- (WatchSelectAction)select:(XMLDepartures *)xml from:(WKInterfaceController *)from context:(WatchArrivalsContext *)context canPush:(bool)push; {
+    if (push) {
         WatchArrivalsContext *detailContext = [context clone];
-    
-        if (detailContext == nil)
-        {
+        
+        if (detailContext == nil) {
             detailContext = [[WatchArrivalsContext alloc] init];
         }
+        
         Departure *data = xml[self.index.integerValue];
-    
-        detailContext.detailBlock   = data.block;
-        detailContext.locid         = context.locid;
-        detailContext.stopDesc      = context.stopDesc;
-        detailContext.navText       = context.navText;
-        detailContext.departures    = xml;
-    
+        
+        detailContext.detailBlock = data.block;
+        detailContext.stopId = context.stopId;
+        detailContext.stopDesc = context.stopDesc;
+        detailContext.navText = context.navText;
+        detailContext.departures = xml;
+        
         [detailContext pushFrom:from];
     }
     

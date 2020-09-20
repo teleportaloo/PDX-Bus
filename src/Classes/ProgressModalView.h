@@ -16,46 +16,26 @@
 
 @protocol ProgressDelegate <NSObject>
 
-- (void) progressDelegateCancel;
+- (void)progressDelegateCancel;
 
 @end
 
 
-@interface ProgressModalView : UIView 
+@interface ProgressModalView : UIView
 
 @property (nonatomic, weak) id<ProgressDelegate> progressDelegate;
 @property (nonatomic) NSInteger totalItems;
-@property (nonatomic) NSInteger itemsDone;
-@property (nonatomic, strong) UIActivityIndicatorView *whirly;
-@property (nonatomic, strong) UIProgressView *progress;
-@property (nonatomic, strong) UILabel *subText;
-@property (nonatomic, strong) UILabel *helpText;
-@property (nonatomic, strong) UIView *helpFrame;
 
-- (void) itemsDone:(NSInteger)itemsDone;
-- (void) subItemsDone:(NSInteger)subItemsDone totalSubs:(NSInteger)totalSubs;
-- (void) totalItems:(NSInteger)total;
-- (void) addSubtext:(NSString *)subtext;
-- (void) addHelpText:(NSString *)helpText;
+- (void)itemsDone:(NSInteger)itemsDone;
+- (void)subItemsDone:(NSInteger)subItemsDone totalSubs:(NSInteger)totalSubs;
+- (void)totalItems:(NSInteger)total;
+- (void)addSubtext:(NSString *)subtext;
+- (void)addHelpText:(NSString *)helpText;
 
-+ (ProgressModalView *)initWithSuper:(UIView *)back items:(NSInteger)items title:(NSString *)title delegate:(id<ProgressDelegate>)delegate
-                         orientation:(UIInterfaceOrientation)orientation;
+- (ProgressModalView *)initWithParent:(UIView *)back
+                                items:(NSInteger)items
+                                title:(NSString *)title
+                             delegate:(id<ProgressDelegate>)delegate
+                          orientation:(UIInterfaceOrientation)orientation;
 
 @end
-
-
-@interface RoundedTransparentRect : UIView 
-{
-    CGFloat BACKGROUND_OPACITY;
-    CGFloat R;
-    CGFloat G;
-    CGFloat B;
-}
-
-@property (nonatomic) CGFloat BACKGROUND_OPACITY;
-@property (nonatomic) CGFloat R;
-@property (nonatomic) CGFloat G;
-@property (nonatomic) CGFloat B;
-
-@end
-

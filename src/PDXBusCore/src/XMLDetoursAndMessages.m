@@ -18,48 +18,38 @@
 @implementation XMLDetoursAndMessages
 
 
-- (void)checkRoutesForStreetcar:(NSArray<NSString *>*)routes
-{
+- (void)checkRoutesForStreetcar:(NSArray<NSString *> *)routes {
     bool needMessages = NO;
+    
     self.routes = routes;
-
-    if (self.routes == nil)
-    {
+    
+    if (self.routes == nil) {
         needMessages = YES;
-    }
-    else
-    {
-        NSSet<NSString*> *streetcarRoutes = [TriMetInfo streetcarRoutes];
-        for (NSString *route in self.routes)
-        {
-            if ([streetcarRoutes containsObject:route])
-            {
+    } else {
+        NSSet<NSString *> *streetcarRoutes = [TriMetInfo streetcarRoutes];
+        
+        for (NSString *route in self.routes) {
+            if ([streetcarRoutes containsObject:route]) {
                 needMessages = YES;
                 break;
             }
         }
     }
     
-    if (needMessages)
-    {
+    if (needMessages) {
         self.messages = [XMLStreetcarMessages sharedInstance];
         self.messages.allRoutes = self.detours.allRoutes;
-    }
-    else
-    {
+    } else {
         self.messages = nil;
     }
 }
 
-+ (instancetype)XmlWithRoutes:(NSArray<NSString *>*)routes
-{
++ (instancetype)xmlWithRoutes:(NSArray<NSString *> *)routes {
     return [[[self class] alloc] initWithRoutes:routes];
 }
 
-- (instancetype)initWithRoutes:(NSArray *)routes
-{
-    if (self = [super init])
-    {
+- (instancetype)initWithRoutes:(NSArray *)routes {
+    if (self = [super init]) {
         self.detours = [XMLDetours xml];
         [self checkRoutesForStreetcar:routes];
     }
@@ -67,56 +57,44 @@
     return self;
 }
 
-- (NSInteger)itemsNeeded
-{
+- (NSInteger)itemsNeeded {
     NSInteger items = 1;
     
-    if (self.messages && self.messages.needToGetMessages)
-    {
+    if (self.messages && self.messages.needToGetMessages) {
         items++;
     }
+    
     return items;
 }
 
-- (void)fetchDetoursAndMessages
-{
+- (void)fetchDetoursAndMessages {
     _hasData = NO;
-    if (self.routes && self.routes.count == 1)
-    {
+    
+    if (self.routes && self.routes.count == 1) {
         [self.detours getDetoursForRoute:self.routes.firstObject];
-    }
-    else if (self.routes && self.routes.count > 1)
-    {
+    } else if (self.routes && self.routes.count > 1) {
         [self.detours getDetoursForRoutes:self.routes];
-    }
-    else if (self.routes == nil)
-    {
+    } else if (self.routes == nil) {
         [self.detours getDetours];
     }
     
     _hasData = self.detours.gotData;
     
     self.items = self.detours.items;
-        
-    if (self.messages)
-    {
-        [self.messages getMessages];
     
+    if (self.messages) {
+        [self.messages getMessages];
+        
         _hasData = _hasData | self.messages.gotData;
         
-        if (self.routes == nil)
-        {
+        if (self.routes == nil) {
             [self.items addObjectsFromArray:self.messages.items];
-        }
-        else
-        {
-            NSSet<NSString*> *routeSet = [NSSet setWithArray:self.routes];
-            for (Detour *detour in self.messages)
-            {
-                for (Route *route in detour.routes)
-                {
-                    if ([routeSet containsObject:route.route])
-                    {
+        } else {
+            NSSet<NSString *> *routeSet = [NSSet setWithArray:self.routes];
+            
+            for (Detour *detour in self.messages) {
+                for (Route *route in detour.routes) {
+                    if ([routeSet containsObject:route.route]) {
                         [self.items addObject:detour];
                         break;
                     }
@@ -126,11 +104,10 @@
     }
 }
 
--(void)appendQueryAndData:(NSMutableData *)buffer
-{
+- (void)appendQueryAndData:(NSMutableData *)buffer {
     [self.detours appendQueryAndData:buffer];
-    if (self.messages)
-    {
+    
+    if (self.messages) {
         [self.messages appendQueryAndData:buffer];
     }
 }

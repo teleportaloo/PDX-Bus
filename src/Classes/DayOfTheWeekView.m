@@ -17,11 +17,16 @@
 #import "EditBookMarkView.h"
 #import "SegmentCell.h"
 
-#define kCommuteSectionSegAm        0
-#define kCommuteSectionSegPm        1
+#define kCommuteSectionSegAm 0
+#define kCommuteSectionSegPm 1
 
-#define kAmOrPmId        @"AmOrPm"
-#define kDayOfWeekId    @"DayOfWeek"
+#define kAmOrPmId            @"AmOrPm"
+#define kDayOfWeekId         @"DayOfWeek"
+
+@interface DayOfTheWeekView ()
+
+
+@end
 
 @implementation DayOfTheWeekView
 
@@ -30,40 +35,35 @@
 
 
 
-- (int)days
-{
+- (int)days {
     NSNumber *num = self.originalFave[kUserFavesDayOfWeek];
     
-    if (num != nil)
-    {
+    if (num != nil) {
         return num.intValue;
     }
+    
     return kDayNever;
 }
 
-- (bool)autoCommuteMorning
-{
+- (bool)autoCommuteMorning {
     NSNumber *num = self.originalFave[kUserFavesMorning];
     bool morning = TRUE;
     
-    if (num)
-    {
+    if (num) {
         morning = num.boolValue;
     }
     
     return morning;
 }
 
-
 #pragma mark Segmented controls
 
-- (void)amOrPmSegmentChanged:(UISegmentedControl*)sender
-{
-    switch (sender.selectedSegmentIndex)
-    {
+- (void)amOrPmSegmentChanged:(UISegmentedControl *)sender {
+    switch (sender.selectedSegmentIndex) {
         case kCommuteSectionSegAm:
             self.originalFave[kUserFavesMorning] = @TRUE;
             break;
+            
         case kCommuteSectionSegPm:
             self.originalFave[kUserFavesMorning] = @FALSE;
             break;
@@ -72,8 +72,7 @@
 
 #pragma mark TableViewWithToolbar methods
 
-- (UITableViewStyle) style
-{
+- (UITableViewStyle)style {
     return UITableViewStyleGrouped;
 }
 
@@ -81,61 +80,51 @@
     return [self sections];
 }
 
-
 // Customize the number of rows in the table view.
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     return [self rowsInSection:section];
 }
 
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    
-    if ([self rowType:indexPath] != kMorningOrEvening)
-    {
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    if ([self rowType:indexPath] != kMorningOrEvening) {
         return [self basicRowHeight];
     }
-    return  [SegmentCell rowHeight];
+    
+    return [SegmentCell rowHeight];
 }
 
 // Customize the appearance of table view cells.
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath 
-{
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     NSInteger rowType = [self rowType:indexPath];
-    if (rowType != kMorningOrEvening)
-    {    
-        UITableViewCell *cell = [self tableView:tableView cellWithReuseIdentifier:kDayOfWeekId];        
+    
+    if (rowType != kMorningOrEvening) {
+        UITableViewCell *cell = [self tableView:tableView cellWithReuseIdentifier:kDayOfWeekId];
         cell.textLabel.text = [NSString stringWithFormat:NSLocalizedString(@"Every %@", @"before a list of the days of the week"), [EditBookMarkView daysString:(int)rowType]];
         cell.textLabel.font = self.basicFont;
         
-        if ((self.days & rowType) != 0)
-        {
+        if ((self.days & rowType) != 0) {
             cell.accessoryType = UITableViewCellAccessoryCheckmark;
-        }
-        else
-        {
+        } else {
             cell.accessoryType = UITableViewCellAccessoryNone;
         }
+        
         return cell;
-    }
-    else 
-    {
-        return  [SegmentCell tableView:tableView
-                       reuseIdentifier:kAmOrPmId
-                       cellWithContent:@[NSLocalizedString(@"Morning",   @"commuter bookmark option"),
-                                         NSLocalizedString(@"Afternoon", @"commuter bookmark option")]
-                                target:self
-                                action:@selector(amOrPmSegmentChanged:)
-                         selectedIndex:[self autoCommuteMorning] ? kCommuteSectionSegAm : kCommuteSectionSegPm];
+    } else {
+        return [SegmentCell tableView:tableView
+                      reuseIdentifier:kAmOrPmId
+                      cellWithContent:@[NSLocalizedString(@"Morning",   @"commuter bookmark option"),
+                                        NSLocalizedString(@"Afternoon", @"commuter bookmark option")]
+                               target:self
+                               action:@selector(amOrPmSegmentChanged:)
+                        selectedIndex:[self autoCommuteMorning] ? kCommuteSectionSegAm : kCommuteSectionSegPm];
     }
 }
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
-{
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     unsigned int days = self.days;
     unsigned int rowType = (unsigned int)[self rowType:indexPath];
     
-    if (rowType != kMorningOrEvening)
-    {
+    if (rowType != kMorningOrEvening) {
         days = days ^ rowType;
         self.originalFave[kUserFavesDayOfWeek] = @(days);
     }
@@ -144,8 +133,7 @@
     [self.table reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:NO];
 }
 
-- (void)viewDidLoad 
-{
+- (void)viewDidLoad {
     self.title = NSLocalizedString(@"Days of the week", @"screen title");
     
     [self clearSectionMaps];
@@ -161,6 +149,5 @@
     
     [super viewDidLoad];
 }
-
 
 @end

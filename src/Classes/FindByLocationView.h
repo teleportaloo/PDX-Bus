@@ -11,40 +11,25 @@
 
 
 #import <UIKit/UIKit.h>
-#import "StopLocations.h"
 #import "LocatingView.h"
 #import "TriMetTypes.h"
 #import "MapKit/Mapkit.h"
 #import <IntentsUI/IntentsUI.h>
 
+#define kMetresNextToMe MetresForMiles(0.1)
+#define kMetresHalfMile MetresForMiles(0.5)
+#define kMaxStops       20
+#define kAccNextToMe    150
+#define kAccHalfMile    150
+#define kAccClosest     250
+#define kAccMile        300
+#define kAcc3Miles      800
 
+@interface FindByLocationView : TableViewWithToolbar<LocatingViewDelegate, MKMapViewDelegate, INUIAddVoiceShortcutViewControllerDelegate>
 
-@interface FindByLocationView : TableViewWithToolbar<LocatingViewDelegate,MKMapViewDelegate,INUIAddVoiceShortcutViewControllerDelegate>  {
-    int         _maxToFind;
-    int         _maxRouteCount;
-    TripMode    _mode;
-    int         _show;
-    int         _dist;
-    double      _minMetres;
-    int         _routeCount;
-    int         _firstDisplay;
-    bool        _locationAuthorized;
-}
+- (instancetype)initWithLocation:(CLLocation *)location description:(NSString *)locationName;
+- (instancetype)  init;
 
-@property (nonatomic, strong) NSArray *cachedRoutes;
-@property (nonatomic, strong) NSMutableDictionary<NSString*, NSNumber*> *lastLocate;
-@property (nonatomic)         int autoLaunch;
-@property (nonatomic, copy)   NSString *startingLocationName;
-@property (nonatomic, strong) CLLocation *startingLocation;
-@property (nonatomic, strong) MKCircle *circle;
-@property (nonatomic, strong) NSTimer *mapUpdateTimer;
-@property (nonatomic, strong) NSUserActivity *userActivity;
-
-- (instancetype)initWithLocation:(CLLocation*)location description:(NSString*)locationName;
-- (instancetype)init;
-- (void)distSegmentChanged:(id)sender;
-- (void)modeSegmentChanged:(id)sender;
-- (void)showSegmentChanged:(id)sender;
 - (void)actionArgs:(NSDictionary *)args;
 
 + (NSDictionary *)nearbyArrivalInfo;

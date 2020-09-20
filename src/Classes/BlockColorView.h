@@ -16,9 +16,6 @@
 #import <UIKit/UIKit.h>
 
 @interface BlockColorView : UIView
-{
-    UIColor *_color;
-}
 
 @property (nonatomic, strong) UIColor *color;
 

@@ -15,7 +15,7 @@
 
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
-#import "UserPrefs.h"
+#import "Settings.h"
 
 
 @interface TorchController : NSObject

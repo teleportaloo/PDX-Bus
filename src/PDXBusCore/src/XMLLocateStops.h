@@ -17,18 +17,15 @@
 #import "TriMetXML.h"
 #import "StopDistance.h"
 
-@interface XMLLocateStops : TriMetXML<StopDistance*> {
-    TripMode                _currentMode;
-}
+@interface XMLLocateStops : TriMetXML<StopDistance *>
 
-@property (nonatomic, strong) StopDistance *currentStop;
-@property (nonatomic, strong) NSMutableDictionary *routes;
-@property (nonatomic, readonly) BOOL findNearestRoutes;
-@property (nonatomic, readonly) BOOL findNearestStops;
-@property (nonatomic, strong) CLLocation *location;
+@property (nonatomic) unsigned int maxToFind;
 @property (nonatomic) double minDistance;
 @property (nonatomic) TripMode mode;
-@property (nonatomic) int maxToFind;
+@property (nonatomic, strong) CLLocation *location;
 @property (nonatomic) bool includeRoutesInStops;
+
+- (bool)findNearestRoutes;
+- (bool)findNearestStops;
 
 @end

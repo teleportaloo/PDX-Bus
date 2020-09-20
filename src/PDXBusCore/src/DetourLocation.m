@@ -19,17 +19,12 @@
 @implementation DetourLocation
 
 
-- (void)setPassengerCodeFromString:(NSString*)string
-{
-    if (string == nil || string.length==0)
-    {
+- (void)setPassengerCodeFromString:(NSString *)string {
+    if (string == nil || string.length == 0) {
         self.passengerCode = PassengerCodeUnknown;
-    }
-    else
-    {
+    } else {
         self.passengerCode = string.firstUnichar;
     }
 }
-
 
 @end

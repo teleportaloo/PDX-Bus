@@ -1,6 +1,6 @@
 //
 //  SupportView.h
-//  TriMetTimes
+//  PDXBus
 //
 
 
@@ -13,21 +13,9 @@
 
 #import <UIKit/UIKit.h>
 #import "TableViewWithToolbar.h"
-#import <CoreLocation/CoreLocation.h>
 
-#define kTips                    2
-
-@interface SupportView : TableViewWithToolbar  <CLLocationManagerDelegate> {
-    NSAttributedString *supportText;
-    NSArray *tipText;
-
-    bool _cameraGoesToSettings;
-    bool _locationGoesToSettings;
-}
+@interface SupportView : TableViewWithToolbar  <CLLocationManagerDelegate>
 
 @property (nonatomic) bool hideButton;
-@property (nonatomic, strong) CLLocationManager *locMan;
-@property (nonatomic, copy)   NSString *locationText;
-@property (nonatomic, copy)   NSString *cameraText;
 
 @end

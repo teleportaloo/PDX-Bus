@@ -18,19 +18,15 @@
 @implementation WatchRow
 
 
-+ (NSString *)identifier
-{
++ (NSString *)identifier {
     return @"None";
 }
 
-
-- (void)populate:(XMLDepartures *)xml departures:(NSArray<Departure*>*)deps
-{
-    
+- (void)populate:(XMLDepartures *)xml departures:(NSArray<Departure *> *)deps {
 }
 
-- (WatchSelectAction)select:(XMLDepartures*)xml from:(WKInterfaceController *)from context:(WatchArrivalsContext*)context canPush:(bool)push
-{
+- (WatchSelectAction)select:(XMLDepartures *)xml from:(WKInterfaceController *)from context:(WatchArrivalsContext *)context canPush:(bool)push {
     return WatchSelectAction_None;
 }
+
 @end

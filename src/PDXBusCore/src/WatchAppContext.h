@@ -18,9 +18,7 @@
 #import "WatchConnectivity/WCSession.h"
 #import "MemoryCaches.h"
 
-@interface WatchAppContext : NSObject
-{
- 
+@interface WatchAppContext : NSObject {
 }
 
 + (bool)writeAppContext:(NSDictionary *)appContext;

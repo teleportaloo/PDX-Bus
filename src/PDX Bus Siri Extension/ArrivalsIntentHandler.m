@@ -18,19 +18,15 @@
 
 @implementation ArrivalsIntentHandler
 
-
-
-- (void)handleArrivals:(ArrivalsIntent *)intent completion:(void (^)(ArrivalsIntentResponse *response))completion
-{
+- (void)handleArrivals:(ArrivalsIntent *)intent completion:(void (^)(ArrivalsIntentResponse *response))completion {
     DEBUG_FUNC();
-    if (intent.stops == nil)
-    {
+    
+    if (intent.stops == nil) {
         completion([ArrivalsResponseFactory arrivalsRespond:ArrivalsIntentResponseCodeFailure]);
         return;
     }
     
-    completion ([ArrivalsResponseFactory responseForStops:intent.stops]);
-    
+    completion([ArrivalsResponseFactory responseForStops:intent.stops]);
 }
 
 @end

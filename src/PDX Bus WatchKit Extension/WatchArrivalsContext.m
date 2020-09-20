@@ -14,89 +14,80 @@
 
 
 #import "WatchArrivalsContext.h"
-#import "UserFaves.h"
+#import "UserState.h"
 #import "WatchArrivalsInterfaceController.h"
+
+@interface WatchArrivalsContext ()
+
+@end
 
 @implementation WatchArrivalsContext
 
-+ (WatchArrivalsContext*)contextWithLocation:(NSString *)location
-{
++ (WatchArrivalsContext *)contextWithStopId:(NSString *)stopId {
     WatchArrivalsContext *context = [[WatchArrivalsContext alloc] init];
     
-    context.locid           = location;
-    context.showMap         = NO;
-    context.showDistance    = NO;
-    context.navText         = nil;
-    
-    return context;
-}
-+ (WatchArrivalsContext*)contextWithLocation:(NSString *)location distance:(double)distance
-{
-    WatchArrivalsContext *context = [[WatchArrivalsContext alloc] init];
-
-    context.locid           = location;
-    context.showMap         = YES;
-    context.showDistance    = YES;
-    context.distance        = distance;
+    context.stopId = stopId;
+    context.showMap = NO;
+    context.showDistance = NO;
+    context.navText = nil;
     
     return context;
 }
 
-
-+ (WatchArrivalsContext*)contextWithLocation:(NSString *)location distance:(double)distance stopDesc:(NSString *)stopDesc
-{
++ (WatchArrivalsContext *)contextWithStopId:(NSString *)stopId distance:(double)distance {
     WatchArrivalsContext *context = [[WatchArrivalsContext alloc] init];
     
-    context.locid           = location;
-    context.showMap         = YES;
-    context.showDistance    = YES;
-    context.distance        = distance;
-    context.stopDesc        = stopDesc;
+    context.stopId = stopId;
+    context.showMap = YES;
+    context.showDistance = YES;
+    context.distance = distance;
     
     return context;
 }
 
-- (instancetype)init
-{
-    if ((self = [super init]))
-    {
-        self.sceneName  = kArrivalsScene;
++ (WatchArrivalsContext *)contextWithStopId:(NSString *)stopId distance:(double)distance stopDesc:(NSString *)stopDesc {
+    WatchArrivalsContext *context = [[WatchArrivalsContext alloc] init];
+    
+    context.stopId = stopId;
+    context.showMap = YES;
+    context.showDistance = YES;
+    context.distance = distance;
+    context.stopDesc = stopDesc;
+    
+    return context;
+}
+
+- (instancetype)init {
+    if ((self = [super init])) {
+        self.sceneName = kArrivalsScene;
     }
+    
     return self;
 }
 
-- (void)updateUserActivity:(WKInterfaceController *)controller
-{
-    
+- (void)updateUserActivity:(WKInterfaceController *)controller {
     NSMutableDictionary *info = [NSMutableDictionary dictionary];
     
-    info[kUserFavesChosenName] = self.locid;
-    info[kUserFavesLocation]   = self.locid;
+    info[kUserFavesChosenName] = self.stopId;
+    info[kUserFavesLocation] = self.stopId;
     
-    if (self.detailBlock)
-    {
+    if (self.detailBlock) {
         info[kUserFavesBlock] = self.detailBlock;
     }
     
-    [controller updateUserActivity:kHandoffUserActivityBookmark userInfo:info webpageURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://trimet.org/arrivals/small/tracker?locationID=%@", self.locid]]];
-
+    [controller updateUserActivity:kHandoffUserActivityBookmark userInfo:info webpageURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://trimet.org/arrivals/small/tracker?locationID=%@", self.stopId]]];
 }
 
-- (bool)hasNext
-{
+- (bool)hasNext {
     return NO;
 }
 
-- (WatchArrivalsContext *)next
-{
+- (WatchArrivalsContext *)next {
     return nil;
 }
 
-- (WatchArrivalsContext *)clone
-{
+- (WatchArrivalsContext *)clone {
     return nil;
 }
-
-
 
 @end

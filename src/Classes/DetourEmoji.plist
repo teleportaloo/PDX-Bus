@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>new year</key>
+	<string>🎉</string>
+	<key>cold weather</key>
+	<string>❄️</string>
+	<key>winter</key>
+	<string>❄️</string>
+	<key>low temperature</key>
+	<string>❄️</string>
+	<key>high temperature</key>
+	<string>☀️</string>
+	<key>hot weather</key>
+	<string>☀️</string>
+	<key>construction</key>
+	<string>🚧</string>
+	<key>face covering</key>
+	<string>😷</string>
+	<key>wind</key>
+	<string>💨</string>
+	<key>power</key>
+	<string>⚡️</string>
+	<key>Labor Day</key>
+	<string>🇺🇸</string>
+	<key>Christmas</key>
+	<string>🎄</string>
+	<key>Independence Day</key>
+	<string>🇺🇸</string>
+	<key>President&apos;s Day</key>
+	<string>🇺🇸</string>
+	<key>Presidents Day</key>
+	<string>🇺🇸</string>
+	<key>Presidents&apos; Day</key>
+	<string>🇺🇸</string>
+	<key>Martin Luther King</key>
+	<string>🇺🇸</string>
+	<key>Memorial Day</key>
+	<string>🇺🇸</string>
+	<key>Thanksgiving</key>
+	<string>🦃</string>
+	<key>Juneteenth</key>
+	<string>🇺🇸</string>
+</dict>
+</plist>

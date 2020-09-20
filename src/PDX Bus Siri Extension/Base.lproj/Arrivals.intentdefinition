@@ -5,20 +5,22 @@
 	<key>INEnums</key>
 	<array/>
 	<key>INIntentDefinitionModelVersion</key>
-	<string>1.0</string>
+	<string>1.1</string>
+	<key>INIntentDefinitionNamespace</key>
+	<string>mW0wwY</string>
 	<key>INIntentDefinitionSystemVersion</key>
-	<string>17G65</string>
+	<string>19G73</string>
 	<key>INIntentDefinitionToolsBuildVersion</key>
-	<string>10A254a</string>
+	<string>11E801a</string>
 	<key>INIntentDefinitionToolsVersion</key>
-	<string>10.0</string>
+	<string>11.7</string>
 	<key>INIntents</key>
 	<array>
 		<dict>
 			<key>INIntentCategory</key>
 			<string>information</string>
 			<key>INIntentDescription</key>
-			<string>View arrivals at TriMet stop</string>
+			<string>View departures at TriMet stop</string>
 			<key>INIntentDescriptionID</key>
 			<string>BxYILy</string>
 			<key>INIntentLastParameterTag</key>
@@ -31,10 +33,6 @@
 				<dict>
 					<key>INIntentParameterCombinationIsPrimary</key>
 					<true/>
-					<key>INIntentParameterCombinationSubtitle</key>
-					<string></string>
-					<key>INIntentParameterCombinationSubtitleID</key>
-					<string>d17WCK</string>
 					<key>INIntentParameterCombinationSupportsBackgroundExecution</key>
 					<true/>
 					<key>INIntentParameterCombinationTitle</key>
@@ -44,8 +42,6 @@
 				</dict>
 				<key>stops,locationName</key>
 				<dict>
-					<key>INIntentParameterCombinationIsPrimary</key>
-					<false/>
 					<key>INIntentParameterCombinationSubtitle</key>
 					<string>Stop ID ${stops}</string>
 					<key>INIntentParameterCombinationSubtitleID</key>
@@ -61,24 +57,38 @@
 			<key>INIntentParameters</key>
 			<array>
 				<dict>
+					<key>INIntentParameterDisplayName</key>
+					<string>Stops</string>
+					<key>INIntentParameterDisplayNameID</key>
+					<string>oHef7q</string>
 					<key>INIntentParameterDisplayPriority</key>
 					<integer>1</integer>
+					<key>INIntentParameterMetadata</key>
+					<dict>
+						<key>INIntentParameterMetadataCapitalization</key>
+						<string>Sentences</string>
+					</dict>
 					<key>INIntentParameterName</key>
 					<string>stops</string>
-					<key>INIntentParameterSupportsMultipleValues</key>
-					<false/>
 					<key>INIntentParameterTag</key>
 					<integer>1</integer>
 					<key>INIntentParameterType</key>
 					<string>String</string>
 				</dict>
 				<dict>
+					<key>INIntentParameterDisplayName</key>
+					<string>Location name</string>
+					<key>INIntentParameterDisplayNameID</key>
+					<string>4MlNI1</string>
 					<key>INIntentParameterDisplayPriority</key>
 					<integer>2</integer>
+					<key>INIntentParameterMetadata</key>
+					<dict>
+						<key>INIntentParameterMetadataCapitalization</key>
+						<string>Sentences</string>
+					</dict>
 					<key>INIntentParameterName</key>
 					<string>locationName</string>
-					<key>INIntentParameterSupportsMultipleValues</key>
-					<false/>
 					<key>INIntentParameterTag</key>
 					<integer>2</integer>
 					<key>INIntentParameterType</key>
@@ -91,17 +101,7 @@
 				<array>
 					<dict>
 						<key>INIntentResponseCodeFormatString</key>
-						<string>No arrivals were found for that stop.</string>
-						<key>INIntentResponseCodeFormatStringID</key>
-						<string>KbDHMh</string>
-						<key>INIntentResponseCodeName</key>
-						<string>failure</string>
-						<key>INIntentResponseCodeSuccess</key>
-						<false/>
-					</dict>
-					<dict>
-						<key>INIntentResponseCodeFormatString</key>
-						<string>Here's the arrivals at ${stopName}  ${arrivals}</string>
+						<string>Here's the departures at ${stopName}  ${arrivals}</string>
 						<key>INIntentResponseCodeFormatStringID</key>
 						<string>wEz8sE</string>
 						<key>INIntentResponseCodeName</key>
@@ -111,17 +111,23 @@
 					</dict>
 					<dict>
 						<key>INIntentResponseCodeFormatString</key>
+						<string>No departures were found for that stop.</string>
+						<key>INIntentResponseCodeFormatStringID</key>
+						<string>KbDHMh</string>
+						<key>INIntentResponseCodeName</key>
+						<string>failure</string>
+					</dict>
+					<dict>
+						<key>INIntentResponseCodeFormatString</key>
 						<string>No information for that stop.</string>
 						<key>INIntentResponseCodeFormatStringID</key>
 						<string>LX7jhP</string>
 						<key>INIntentResponseCodeName</key>
 						<string>queryFailure</string>
-						<key>INIntentResponseCodeSuccess</key>
-						<false/>
 					</dict>
 					<dict>
 						<key>INIntentResponseCodeFormatString</key>
-						<string>At ${stopName} there were no arrivals.</string>
+						<string>At ${stopName} there were no departures.</string>
 						<key>INIntentResponseCodeFormatStringID</key>
 						<string>TqSNOp</string>
 						<key>INIntentResponseCodeName</key>
@@ -131,7 +137,7 @@
 					</dict>
 					<dict>
 						<key>INIntentResponseCodeFormatString</key>
-						<string>${numberOfRoutes} Here's the arrivals at ${stopName}  ${arrivals}</string>
+						<string>${numberOfRoutes} Here's the departures at ${stopName}  ${arrivals}</string>
 						<key>INIntentResponseCodeFormatStringID</key>
 						<string>Ud9d7v</string>
 						<key>INIntentResponseCodeName</key>
@@ -141,7 +147,7 @@
 					</dict>
 					<dict>
 						<key>INIntentResponseCodeFormatString</key>
-						<string>Touch here to see arrivals at ${stopName}.</string>
+						<string>Touch here to see departures at ${stopName}.</string>
 						<key>INIntentResponseCodeFormatStringID</key>
 						<string>kdzRJK</string>
 						<key>INIntentResponseCodeName</key>
@@ -159,8 +165,6 @@
 						<integer>1</integer>
 						<key>INIntentResponseParameterName</key>
 						<string>arrivals</string>
-						<key>INIntentResponseParameterSupportsMultipleValues</key>
-						<false/>
 						<key>INIntentResponseParameterTag</key>
 						<integer>5</integer>
 						<key>INIntentResponseParameterType</key>
@@ -171,8 +175,6 @@
 						<integer>2</integer>
 						<key>INIntentResponseParameterName</key>
 						<string>alerts</string>
-						<key>INIntentResponseParameterSupportsMultipleValues</key>
-						<false/>
 						<key>INIntentResponseParameterTag</key>
 						<integer>3</integer>
 						<key>INIntentResponseParameterType</key>
@@ -183,8 +185,6 @@
 						<integer>3</integer>
 						<key>INIntentResponseParameterName</key>
 						<string>stopName</string>
-						<key>INIntentResponseParameterSupportsMultipleValues</key>
-						<false/>
 						<key>INIntentResponseParameterTag</key>
 						<integer>4</integer>
 						<key>INIntentResponseParameterType</key>
@@ -195,8 +195,6 @@
 						<integer>4</integer>
 						<key>INIntentResponseParameterName</key>
 						<string>numberOfRoutes</string>
-						<key>INIntentResponseParameterSupportsMultipleValues</key>
-						<false/>
 						<key>INIntentResponseParameterTag</key>
 						<integer>6</integer>
 						<key>INIntentResponseParameterType</key>
@@ -204,19 +202,844 @@
 					</dict>
 				</array>
 			</dict>
-			<key>INIntentRestrictions</key>
-			<integer>0</integer>
 			<key>INIntentTitle</key>
 			<string>View TriMet arrivals</string>
 			<key>INIntentTitleID</key>
 			<string>R4ael4</string>
 			<key>INIntentType</key>
 			<string>Custom</string>
-			<key>INIntentUserConfirmationRequired</key>
-			<false/>
+			<key>INIntentVerb</key>
+			<string>View</string>
+		</dict>
+		<dict>
+			<key>INIntentCategory</key>
+			<string>information</string>
+			<key>INIntentConfigurable</key>
+			<true/>
+			<key>INIntentDescription</key>
+			<string>Get departure at a specific TriMet stop</string>
+			<key>INIntentDescriptionID</key>
+			<string>jGe2ru</string>
+			<key>INIntentIneligibleForSuggestions</key>
+			<true/>
+			<key>INIntentInput</key>
+			<string>stop</string>
+			<key>INIntentKeyParameter</key>
+			<string>stop</string>
+			<key>INIntentLastParameterTag</key>
+			<integer>5</integer>
+			<key>INIntentManagedParameterCombinations</key>
+			<dict>
+				<key>stop</key>
+				<dict>
+					<key>INIntentParameterCombinationSupportsBackgroundExecution</key>
+					<true/>
+					<key>INIntentParameterCombinationTitle</key>
+					<string>Get TriMet departures (ordered by time) for Stop ID</string>
+					<key>INIntentParameterCombinationTitleID</key>
+					<string>6C0ETl</string>
+				</dict>
+			</dict>
+			<key>INIntentName</key>
+			<string>ArrivalsAtStopId</string>
+			<key>INIntentParameters</key>
+			<array>
+				<dict>
+					<key>INIntentParameterDisplayName</key>
+					<string>Stop ID</string>
+					<key>INIntentParameterDisplayNameID</key>
+					<string>WqHsqs</string>
+					<key>INIntentParameterDisplayPriority</key>
+					<integer>1</integer>
+					<key>INIntentParameterMetadata</key>
+					<dict>
+						<key>INIntentParameterMetadataDefaultValue</key>
+						<integer>1</integer>
+						<key>INIntentParameterMetadataMaximumValue</key>
+						<integer>999999</integer>
+						<key>INIntentParameterMetadataMinimumValue</key>
+						<integer>1</integer>
+						<key>INIntentParameterMetadataType</key>
+						<string>Field</string>
+					</dict>
+					<key>INIntentParameterName</key>
+					<string>stop</string>
+					<key>INIntentParameterPromptDialogs</key>
+					<array>
+						<dict>
+							<key>INIntentParameterPromptDialogCustom</key>
+							<true/>
+							<key>INIntentParameterPromptDialogFormatString</key>
+							<string>Stop ID?</string>
+							<key>INIntentParameterPromptDialogFormatStringID</key>
+							<string>J0zrAn</string>
+							<key>INIntentParameterPromptDialogType</key>
+							<string>Primary</string>
+						</dict>
+					</array>
+					<key>INIntentParameterSupportsResolution</key>
+					<true/>
+					<key>INIntentParameterTag</key>
+					<integer>2</integer>
+					<key>INIntentParameterType</key>
+					<string>Integer</string>
+					<key>INIntentParameterUnsupportedReasons</key>
+					<array>
+						<dict>
+							<key>INIntentParameterUnsupportedReasonCode</key>
+							<string>negativeNumbersNotSupported</string>
+							<key>INIntentParameterUnsupportedReasonDefault</key>
+							<true/>
+							<key>INIntentParameterUnsupportedReasonFormatString</key>
+							<string>${displayName} can't be negative.</string>
+							<key>INIntentParameterUnsupportedReasonFormatStringID</key>
+							<string>KzUypz</string>
+						</dict>
+						<dict>
+							<key>INIntentParameterUnsupportedReasonCode</key>
+							<string>greaterThanMaximumValue</string>
+							<key>INIntentParameterUnsupportedReasonDefault</key>
+							<true/>
+							<key>INIntentParameterUnsupportedReasonFormatString</key>
+							<string>${displayName} can't be higher than ${maximumValue}.</string>
+							<key>INIntentParameterUnsupportedReasonFormatStringID</key>
+							<string>M9E01T</string>
+						</dict>
+						<dict>
+							<key>INIntentParameterUnsupportedReasonCode</key>
+							<string>lessThanMinimumValue</string>
+							<key>INIntentParameterUnsupportedReasonDefault</key>
+							<true/>
+							<key>INIntentParameterUnsupportedReasonFormatString</key>
+							<string>${displayName} can't be lower than ${minimumValue}.</string>
+							<key>INIntentParameterUnsupportedReasonFormatStringID</key>
+							<string>otS05B</string>
+						</dict>
+					</array>
+				</dict>
+			</array>
+			<key>INIntentResponse</key>
+			<dict>
+				<key>INIntentResponseCodes</key>
+				<array>
+					<dict>
+						<key>INIntentResponseCodeName</key>
+						<string>success</string>
+						<key>INIntentResponseCodeSuccess</key>
+						<true/>
+					</dict>
+					<dict>
+						<key>INIntentResponseCodeName</key>
+						<string>failure</string>
+					</dict>
+					<dict>
+						<key>INIntentResponseCodeConciseFormatString</key>
+						<string>There was no data for that Stop ID.</string>
+						<key>INIntentResponseCodeConciseFormatStringID</key>
+						<string>dex3Yp</string>
+						<key>INIntentResponseCodeFormatString</key>
+						<string>There was no data for that Stop ID.</string>
+						<key>INIntentResponseCodeFormatStringID</key>
+						<string>SMk0gj</string>
+						<key>INIntentResponseCodeName</key>
+						<string>noData</string>
+					</dict>
+					<dict>
+						<key>INIntentResponseCodeConciseFormatString</key>
+						<string>Unknown Stop ID.</string>
+						<key>INIntentResponseCodeConciseFormatStringID</key>
+						<string>tUNU1a</string>
+						<key>INIntentResponseCodeFormatString</key>
+						<string>Unknown Stop ID.</string>
+						<key>INIntentResponseCodeFormatStringID</key>
+						<string>cfhTi6</string>
+						<key>INIntentResponseCodeName</key>
+						<string>unknownStop</string>
+					</dict>
+				</array>
+				<key>INIntentResponseLastParameterTag</key>
+				<integer>9</integer>
+				<key>INIntentResponseOutput</key>
+				<string>arrivals</string>
+				<key>INIntentResponseParameters</key>
+				<array>
+					<dict>
+						<key>INIntentResponseParameterDisplayName</key>
+						<string>Departures</string>
+						<key>INIntentResponseParameterDisplayNameID</key>
+						<string>aPDFMc</string>
+						<key>INIntentResponseParameterDisplayPriority</key>
+						<integer>1</integer>
+						<key>INIntentResponseParameterName</key>
+						<string>arrivals</string>
+						<key>INIntentResponseParameterSupportsMultipleValues</key>
+						<true/>
+						<key>INIntentResponseParameterTag</key>
+						<integer>8</integer>
+						<key>INIntentResponseParameterType</key>
+						<string>String</string>
+					</dict>
+				</array>
+			</dict>
+			<key>INIntentTitle</key>
+			<string>Get TriMet departures (ordered by time) for Stop ID</string>
+			<key>INIntentTitleID</key>
+			<string>dkBqYo</string>
+			<key>INIntentType</key>
+			<string>Custom</string>
+			<key>INIntentVerb</key>
+			<string>View</string>
+		</dict>
+		<dict>
+			<key>INIntentCategory</key>
+			<string>information</string>
+			<key>INIntentConfigurable</key>
+			<true/>
+			<key>INIntentDescription</key>
+			<string>Get any TriMet alerts for a route. </string>
+			<key>INIntentDescriptionID</key>
+			<string>S2qJ4y</string>
+			<key>INIntentIneligibleForSuggestions</key>
+			<true/>
+			<key>INIntentInput</key>
+			<string>routeNumber</string>
+			<key>INIntentKeyParameter</key>
+			<string>routeNumber</string>
+			<key>INIntentLastParameterTag</key>
+			<integer>3</integer>
+			<key>INIntentManagedParameterCombinations</key>
+			<dict>
+				<key>routeNumber</key>
+				<dict>
+					<key>INIntentParameterCombinationSupportsBackgroundExecution</key>
+					<true/>
+					<key>INIntentParameterCombinationTitle</key>
+					<string>Get TriMet alerts for a route</string>
+					<key>INIntentParameterCombinationTitleID</key>
+					<string>kmt8OZ</string>
+					<key>INIntentParameterCombinationUpdatesLinked</key>
+					<true/>
+				</dict>
+			</dict>
+			<key>INIntentName</key>
+			<string>AlertsForRoute</string>
+			<key>INIntentParameters</key>
+			<array>
+				<dict>
+					<key>INIntentParameterCustomDisambiguation</key>
+					<true/>
+					<key>INIntentParameterDisplayName</key>
+					<string>Route</string>
+					<key>INIntentParameterDisplayNameID</key>
+					<string>l1RNJV</string>
+					<key>INIntentParameterDisplayPriority</key>
+					<integer>1</integer>
+					<key>INIntentParameterMetadata</key>
+					<dict>
+						<key>INIntentParameterMetadataCapitalization</key>
+						<string>Words</string>
+						<key>INIntentParameterMetadataDefaultValue</key>
+						<string>Max Blue Line</string>
+						<key>INIntentParameterMetadataDefaultValueID</key>
+						<string>1VNYqv</string>
+						<key>INIntentParameterMetadataDisableAutocorrect</key>
+						<true/>
+					</dict>
+					<key>INIntentParameterName</key>
+					<string>routeNumber</string>
+					<key>INIntentParameterPromptDialogs</key>
+					<array>
+						<dict>
+							<key>INIntentParameterPromptDialogCustom</key>
+							<true/>
+							<key>INIntentParameterPromptDialogFormatString</key>
+							<string>Route number or name?</string>
+							<key>INIntentParameterPromptDialogFormatStringID</key>
+							<string>18pCO4</string>
+							<key>INIntentParameterPromptDialogType</key>
+							<string>Primary</string>
+						</dict>
+						<dict>
+							<key>INIntentParameterPromptDialogCustom</key>
+							<true/>
+							<key>INIntentParameterPromptDialogFormatString</key>
+							<string>There are ${count} options matching ‘${routeNumber}’.</string>
+							<key>INIntentParameterPromptDialogFormatStringID</key>
+							<string>ro4KxT</string>
+							<key>INIntentParameterPromptDialogType</key>
+							<string>DisambiguationIntroduction</string>
+						</dict>
+						<dict>
+							<key>INIntentParameterPromptDialogFormatString</key>
+							<string>Which one?</string>
+							<key>INIntentParameterPromptDialogFormatStringID</key>
+							<string>16cV69</string>
+							<key>INIntentParameterPromptDialogType</key>
+							<string>DisambiguationSelection</string>
+						</dict>
+						<dict>
+							<key>INIntentParameterPromptDialogCustom</key>
+							<true/>
+							<key>INIntentParameterPromptDialogFormatString</key>
+							<string>Just to confirm, you wanted ‘${routeNumber}’?</string>
+							<key>INIntentParameterPromptDialogFormatStringID</key>
+							<string>yeyfa2</string>
+							<key>INIntentParameterPromptDialogType</key>
+							<string>Confirmation</string>
+						</dict>
+					</array>
+					<key>INIntentParameterSupportsResolution</key>
+					<true/>
+					<key>INIntentParameterTag</key>
+					<integer>3</integer>
+					<key>INIntentParameterType</key>
+					<string>String</string>
+				</dict>
+			</array>
+			<key>INIntentResponse</key>
+			<dict>
+				<key>INIntentResponseCodes</key>
+				<array>
+					<dict>
+						<key>INIntentResponseCodeName</key>
+						<string>success</string>
+						<key>INIntentResponseCodeSuccess</key>
+						<true/>
+					</dict>
+					<dict>
+						<key>INIntentResponseCodeName</key>
+						<string>failure</string>
+					</dict>
+					<dict>
+						<key>INIntentResponseCodeConciseFormatString</key>
+						<string>Unknown route.</string>
+						<key>INIntentResponseCodeConciseFormatStringID</key>
+						<string>DmbBFO</string>
+						<key>INIntentResponseCodeFormatString</key>
+						<string>Unknown route.</string>
+						<key>INIntentResponseCodeFormatStringID</key>
+						<string>JgF9I1</string>
+						<key>INIntentResponseCodeName</key>
+						<string>unknownRoute</string>
+					</dict>
+				</array>
+				<key>INIntentResponseLastParameterTag</key>
+				<integer>4</integer>
+				<key>INIntentResponseOutput</key>
+				<string>alerts</string>
+				<key>INIntentResponseParameters</key>
+				<array>
+					<dict>
+						<key>INIntentResponseParameterDisplayName</key>
+						<string>Alerts</string>
+						<key>INIntentResponseParameterDisplayNameID</key>
+						<string>FYXMTv</string>
+						<key>INIntentResponseParameterDisplayPriority</key>
+						<integer>1</integer>
+						<key>INIntentResponseParameterName</key>
+						<string>alerts</string>
+						<key>INIntentResponseParameterSupportsMultipleValues</key>
+						<true/>
+						<key>INIntentResponseParameterTag</key>
+						<integer>4</integer>
+						<key>INIntentResponseParameterType</key>
+						<string>String</string>
+					</dict>
+				</array>
+			</dict>
+			<key>INIntentTitle</key>
+			<string>Get TriMet Alerts for a route</string>
+			<key>INIntentTitleID</key>
+			<string>9jTLIY</string>
+			<key>INIntentType</key>
+			<string>Custom</string>
+			<key>INIntentVerb</key>
+			<string>View</string>
+		</dict>
+		<dict>
+			<key>INIntentCategory</key>
+			<string>information</string>
+			<key>INIntentConfigurable</key>
+			<true/>
+			<key>INIntentDescription</key>
+			<string>Get nearest TriMet stops</string>
+			<key>INIntentDescriptionID</key>
+			<string>9Cd6BR</string>
+			<key>INIntentIneligibleForSuggestions</key>
+			<true/>
+			<key>INIntentInput</key>
+			<string>location</string>
+			<key>INIntentKeyParameter</key>
+			<string>location</string>
+			<key>INIntentLastParameterTag</key>
+			<integer>4</integer>
+			<key>INIntentManagedParameterCombinations</key>
+			<dict>
+				<key>location</key>
+				<dict>
+					<key>INIntentParameterCombinationSupportsBackgroundExecution</key>
+					<true/>
+					<key>INIntentParameterCombinationTitle</key>
+					<string>Get nearest TriMet stops</string>
+					<key>INIntentParameterCombinationTitleID</key>
+					<string>CeC8Is</string>
+					<key>INIntentParameterCombinationUpdatesLinked</key>
+					<true/>
+				</dict>
+			</dict>
+			<key>INIntentName</key>
+			<string>LocateStops</string>
+			<key>INIntentParameters</key>
+			<array>
+				<dict>
+					<key>INIntentParameterDisplayName</key>
+					<string>Location</string>
+					<key>INIntentParameterDisplayNameID</key>
+					<string>A1oLC3</string>
+					<key>INIntentParameterDisplayPriority</key>
+					<integer>1</integer>
+					<key>INIntentParameterMetadata</key>
+					<dict>
+						<key>INIntentParameterMetadataType</key>
+						<string>Name</string>
+					</dict>
+					<key>INIntentParameterName</key>
+					<string>location</string>
+					<key>INIntentParameterPromptDialogs</key>
+					<array>
+						<dict>
+							<key>INIntentParameterPromptDialogCustom</key>
+							<true/>
+							<key>INIntentParameterPromptDialogFormatString</key>
+							<string>Location?</string>
+							<key>INIntentParameterPromptDialogFormatStringID</key>
+							<string>Xm5RXv</string>
+							<key>INIntentParameterPromptDialogType</key>
+							<string>Primary</string>
+						</dict>
+					</array>
+					<key>INIntentParameterSupportsResolution</key>
+					<true/>
+					<key>INIntentParameterTag</key>
+					<integer>4</integer>
+					<key>INIntentParameterType</key>
+					<string>Placemark</string>
+				</dict>
+			</array>
+			<key>INIntentResponse</key>
+			<dict>
+				<key>INIntentResponseCodes</key>
+				<array>
+					<dict>
+						<key>INIntentResponseCodeName</key>
+						<string>success</string>
+						<key>INIntentResponseCodeSuccess</key>
+						<true/>
+					</dict>
+					<dict>
+						<key>INIntentResponseCodeFormatString</key>
+						<string>Failed to get Stop IDs</string>
+						<key>INIntentResponseCodeFormatStringID</key>
+						<string>h0A8sh</string>
+						<key>INIntentResponseCodeName</key>
+						<string>failure</string>
+					</dict>
+					<dict>
+						<key>INIntentResponseCodeFormatString</key>
+						<string>Unknown location!</string>
+						<key>INIntentResponseCodeFormatStringID</key>
+						<string>Zy0tlm</string>
+						<key>INIntentResponseCodeName</key>
+						<string>noLocation</string>
+					</dict>
+				</array>
+				<key>INIntentResponseLastParameterTag</key>
+				<integer>3</integer>
+				<key>INIntentResponseOutput</key>
+				<string>stopIds</string>
+				<key>INIntentResponseParameters</key>
+				<array>
+					<dict>
+						<key>INIntentResponseParameterDisplayName</key>
+						<string>Stop IDs</string>
+						<key>INIntentResponseParameterDisplayNameID</key>
+						<string>CghUfo</string>
+						<key>INIntentResponseParameterDisplayPriority</key>
+						<integer>1</integer>
+						<key>INIntentResponseParameterName</key>
+						<string>stopIds</string>
+						<key>INIntentResponseParameterSupportsMultipleValues</key>
+						<true/>
+						<key>INIntentResponseParameterTag</key>
+						<integer>2</integer>
+						<key>INIntentResponseParameterType</key>
+						<string>String</string>
+					</dict>
+				</array>
+			</dict>
+			<key>INIntentTitle</key>
+			<string>Get nearest TriMet stops</string>
+			<key>INIntentTitleID</key>
+			<string>xtkzQe</string>
+			<key>INIntentType</key>
+			<string>Custom</string>
+			<key>INIntentVerb</key>
+			<string>View</string>
+		</dict>
+		<dict>
+			<key>INIntentCategory</key>
+			<string>information</string>
+			<key>INIntentConfigurable</key>
+			<true/>
+			<key>INIntentDescription</key>
+			<string>Get routes at a specific TriMet stop</string>
+			<key>INIntentDescriptionID</key>
+			<string>51zxIv</string>
+			<key>INIntentIneligibleForSuggestions</key>
+			<true/>
+			<key>INIntentLastParameterTag</key>
+			<integer>3</integer>
+			<key>INIntentManagedParameterCombinations</key>
+			<dict>
+				<key>stop</key>
+				<dict>
+					<key>INIntentParameterCombinationSupportsBackgroundExecution</key>
+					<true/>
+					<key>INIntentParameterCombinationTitle</key>
+					<string>Get TriMet departures (orderd by route) for Stop ID</string>
+					<key>INIntentParameterCombinationTitleID</key>
+					<string>XkRs6B</string>
+					<key>INIntentParameterCombinationUpdatesLinked</key>
+					<true/>
+				</dict>
+			</dict>
+			<key>INIntentName</key>
+			<string>RoutesAtStopId</string>
+			<key>INIntentParameters</key>
+			<array>
+				<dict>
+					<key>INIntentParameterDisplayName</key>
+					<string>Stop ID</string>
+					<key>INIntentParameterDisplayNameID</key>
+					<string>GXD0aK</string>
+					<key>INIntentParameterDisplayPriority</key>
+					<integer>1</integer>
+					<key>INIntentParameterMetadata</key>
+					<dict>
+						<key>INIntentParameterMetadataDefaultValue</key>
+						<integer>1</integer>
+						<key>INIntentParameterMetadataMaximumValue</key>
+						<integer>999999</integer>
+						<key>INIntentParameterMetadataMinimumValue</key>
+						<integer>1</integer>
+						<key>INIntentParameterMetadataType</key>
+						<string>Field</string>
+					</dict>
+					<key>INIntentParameterName</key>
+					<string>stop</string>
+					<key>INIntentParameterPromptDialogs</key>
+					<array>
+						<dict>
+							<key>INIntentParameterPromptDialogCustom</key>
+							<true/>
+							<key>INIntentParameterPromptDialogFormatString</key>
+							<string>Stop ID?</string>
+							<key>INIntentParameterPromptDialogFormatStringID</key>
+							<string>ZQ0r7P</string>
+							<key>INIntentParameterPromptDialogType</key>
+							<string>Primary</string>
+						</dict>
+					</array>
+					<key>INIntentParameterSupportsResolution</key>
+					<true/>
+					<key>INIntentParameterTag</key>
+					<integer>3</integer>
+					<key>INIntentParameterType</key>
+					<string>Integer</string>
+					<key>INIntentParameterUnsupportedReasons</key>
+					<array>
+						<dict>
+							<key>INIntentParameterUnsupportedReasonCode</key>
+							<string>negativeNumbersNotSupported</string>
+							<key>INIntentParameterUnsupportedReasonDefault</key>
+							<true/>
+							<key>INIntentParameterUnsupportedReasonFormatString</key>
+							<string>${displayName} can't be negative.</string>
+							<key>INIntentParameterUnsupportedReasonFormatStringID</key>
+							<string>CY3LzI</string>
+						</dict>
+						<dict>
+							<key>INIntentParameterUnsupportedReasonCode</key>
+							<string>greaterThanMaximumValue</string>
+							<key>INIntentParameterUnsupportedReasonDefault</key>
+							<true/>
+							<key>INIntentParameterUnsupportedReasonFormatString</key>
+							<string>${displayName} can't be higher than ${maximumValue}.</string>
+							<key>INIntentParameterUnsupportedReasonFormatStringID</key>
+							<string>LzRWkg</string>
+						</dict>
+						<dict>
+							<key>INIntentParameterUnsupportedReasonCode</key>
+							<string>lessThanMinimumValue</string>
+							<key>INIntentParameterUnsupportedReasonDefault</key>
+							<true/>
+							<key>INIntentParameterUnsupportedReasonFormatString</key>
+							<string>${displayName} can't be lower than ${minimumValue}.</string>
+							<key>INIntentParameterUnsupportedReasonFormatStringID</key>
+							<string>Do5x8l</string>
+						</dict>
+					</array>
+				</dict>
+			</array>
+			<key>INIntentResponse</key>
+			<dict>
+				<key>INIntentResponseCodes</key>
+				<array>
+					<dict>
+						<key>INIntentResponseCodeName</key>
+						<string>success</string>
+						<key>INIntentResponseCodeSuccess</key>
+						<true/>
+					</dict>
+					<dict>
+						<key>INIntentResponseCodeName</key>
+						<string>failure</string>
+					</dict>
+					<dict>
+						<key>INIntentResponseCodeConciseFormatString</key>
+						<string>There was no data for that Stop ID.</string>
+						<key>INIntentResponseCodeConciseFormatStringID</key>
+						<string>ILvK1X</string>
+						<key>INIntentResponseCodeFormatString</key>
+						<string>There was no data for that Stop ID.</string>
+						<key>INIntentResponseCodeFormatStringID</key>
+						<string>lOPpx8</string>
+						<key>INIntentResponseCodeName</key>
+						<string>noData</string>
+					</dict>
+					<dict>
+						<key>INIntentResponseCodeConciseFormatString</key>
+						<string>Unknown Stop ID.</string>
+						<key>INIntentResponseCodeConciseFormatStringID</key>
+						<string>Y95Etv</string>
+						<key>INIntentResponseCodeFormatString</key>
+						<string>Unknown Stop ID.</string>
+						<key>INIntentResponseCodeFormatStringID</key>
+						<string>XWjDo0</string>
+						<key>INIntentResponseCodeName</key>
+						<string>unknownStop</string>
+					</dict>
+				</array>
+				<key>INIntentResponseLastParameterTag</key>
+				<integer>3</integer>
+				<key>INIntentResponseOutput</key>
+				<string>routes</string>
+				<key>INIntentResponseParameters</key>
+				<array>
+					<dict>
+						<key>INIntentResponseParameterDisplayName</key>
+						<string>Departures</string>
+						<key>INIntentResponseParameterDisplayNameID</key>
+						<string>fLy0Bu</string>
+						<key>INIntentResponseParameterDisplayPriority</key>
+						<integer>1</integer>
+						<key>INIntentResponseParameterName</key>
+						<string>routes</string>
+						<key>INIntentResponseParameterSupportsMultipleValues</key>
+						<true/>
+						<key>INIntentResponseParameterTag</key>
+						<integer>2</integer>
+						<key>INIntentResponseParameterType</key>
+						<string>String</string>
+					</dict>
+				</array>
+			</dict>
+			<key>INIntentTitle</key>
+			<string>Get TriMet departures (ordered by route) for Stop ID</string>
+			<key>INIntentTitleID</key>
+			<string>dNTgkd</string>
+			<key>INIntentType</key>
+			<string>Custom</string>
+			<key>INIntentVerb</key>
+			<string>View</string>
+		</dict>
+		<dict>
+			<key>INIntentCategory</key>
+			<string>information</string>
+			<key>INIntentConfigurable</key>
+			<true/>
+			<key>INIntentDescription</key>
+			<string>Get location of a TriMet Stop ID</string>
+			<key>INIntentDescriptionID</key>
+			<string>iZ07LP</string>
+			<key>INIntentIneligibleForSuggestions</key>
+			<true/>
+			<key>INIntentInput</key>
+			<string>stop</string>
+			<key>INIntentKeyParameter</key>
+			<string>stop</string>
+			<key>INIntentLastParameterTag</key>
+			<integer>2</integer>
+			<key>INIntentManagedParameterCombinations</key>
+			<dict>
+				<key>stop</key>
+				<dict>
+					<key>INIntentParameterCombinationSupportsBackgroundExecution</key>
+					<true/>
+					<key>INIntentParameterCombinationTitle</key>
+					<string>Get location of a TriMet Stop ID</string>
+					<key>INIntentParameterCombinationTitleID</key>
+					<string>P1xjDn</string>
+					<key>INIntentParameterCombinationUpdatesLinked</key>
+					<true/>
+				</dict>
+			</dict>
+			<key>INIntentName</key>
+			<string>StopLocation</string>
+			<key>INIntentParameters</key>
+			<array>
+				<dict>
+					<key>INIntentParameterDisplayName</key>
+					<string>Stop ID</string>
+					<key>INIntentParameterDisplayNameID</key>
+					<string>Xr81TK</string>
+					<key>INIntentParameterDisplayPriority</key>
+					<integer>1</integer>
+					<key>INIntentParameterMetadata</key>
+					<dict>
+						<key>INIntentParameterMetadataDefaultValue</key>
+						<integer>1</integer>
+						<key>INIntentParameterMetadataMaximumValue</key>
+						<integer>999999</integer>
+						<key>INIntentParameterMetadataMinimumValue</key>
+						<integer>1</integer>
+						<key>INIntentParameterMetadataType</key>
+						<string>Field</string>
+					</dict>
+					<key>INIntentParameterName</key>
+					<string>stop</string>
+					<key>INIntentParameterPromptDialogs</key>
+					<array>
+						<dict>
+							<key>INIntentParameterPromptDialogCustom</key>
+							<true/>
+							<key>INIntentParameterPromptDialogFormatString</key>
+							<string>Stop ID?</string>
+							<key>INIntentParameterPromptDialogFormatStringID</key>
+							<string>QXghlH</string>
+							<key>INIntentParameterPromptDialogType</key>
+							<string>Primary</string>
+						</dict>
+					</array>
+					<key>INIntentParameterSupportsResolution</key>
+					<true/>
+					<key>INIntentParameterTag</key>
+					<integer>2</integer>
+					<key>INIntentParameterType</key>
+					<string>Integer</string>
+					<key>INIntentParameterUnsupportedReasons</key>
+					<array>
+						<dict>
+							<key>INIntentParameterUnsupportedReasonCode</key>
+							<string>negativeNumbersNotSupported</string>
+							<key>INIntentParameterUnsupportedReasonDefault</key>
+							<true/>
+							<key>INIntentParameterUnsupportedReasonFormatString</key>
+							<string>${displayName} can't be negative.</string>
+							<key>INIntentParameterUnsupportedReasonFormatStringID</key>
+							<string>9DUFph</string>
+						</dict>
+						<dict>
+							<key>INIntentParameterUnsupportedReasonCode</key>
+							<string>greaterThanMaximumValue</string>
+							<key>INIntentParameterUnsupportedReasonDefault</key>
+							<true/>
+							<key>INIntentParameterUnsupportedReasonFormatString</key>
+							<string>${displayName} can't be higher than ${maximumValue}.</string>
+							<key>INIntentParameterUnsupportedReasonFormatStringID</key>
+							<string>ZH9oXZ</string>
+						</dict>
+						<dict>
+							<key>INIntentParameterUnsupportedReasonCode</key>
+							<string>lessThanMinimumValue</string>
+							<key>INIntentParameterUnsupportedReasonDefault</key>
+							<true/>
+							<key>INIntentParameterUnsupportedReasonFormatString</key>
+							<string>${displayName} can't be lower than ${minimumValue}.</string>
+							<key>INIntentParameterUnsupportedReasonFormatStringID</key>
+							<string>HsHlQQ</string>
+						</dict>
+					</array>
+				</dict>
+			</array>
+			<key>INIntentResponse</key>
+			<dict>
+				<key>INIntentResponseCodes</key>
+				<array>
+					<dict>
+						<key>INIntentResponseCodeName</key>
+						<string>success</string>
+						<key>INIntentResponseCodeSuccess</key>
+						<true/>
+					</dict>
+					<dict>
+						<key>INIntentResponseCodeConciseFormatString</key>
+						<string>Failed to get location for the stop.</string>
+						<key>INIntentResponseCodeConciseFormatStringID</key>
+						<string>aAu2gm</string>
+						<key>INIntentResponseCodeFormatString</key>
+						<string>Failed to get location for the stop.</string>
+						<key>INIntentResponseCodeFormatStringID</key>
+						<string>1DLXFi</string>
+						<key>INIntentResponseCodeName</key>
+						<string>failure</string>
+					</dict>
+					<dict>
+						<key>INIntentResponseCodeConciseFormatString</key>
+						<string>Unknown Stop ID.</string>
+						<key>INIntentResponseCodeConciseFormatStringID</key>
+						<string>6Dhx5D</string>
+						<key>INIntentResponseCodeFormatString</key>
+						<string>Unknown Stop ID.</string>
+						<key>INIntentResponseCodeFormatStringID</key>
+						<string>64zAFW</string>
+						<key>INIntentResponseCodeName</key>
+						<string>unknownStop</string>
+					</dict>
+				</array>
+				<key>INIntentResponseLastParameterTag</key>
+				<integer>2</integer>
+				<key>INIntentResponseOutput</key>
+				<string>location</string>
+				<key>INIntentResponseParameters</key>
+				<array>
+					<dict>
+						<key>INIntentResponseParameterDisplayName</key>
+						<string>Location</string>
+						<key>INIntentResponseParameterDisplayNameID</key>
+						<string>k5spdH</string>
+						<key>INIntentResponseParameterDisplayPriority</key>
+						<integer>1</integer>
+						<key>INIntentResponseParameterName</key>
+						<string>location</string>
+						<key>INIntentResponseParameterTag</key>
+						<integer>2</integer>
+						<key>INIntentResponseParameterType</key>
+						<string>Placemark</string>
+					</dict>
+				</array>
+			</dict>
+			<key>INIntentTitle</key>
+			<string>Get location of a TriMet Stop ID</string>
+			<key>INIntentTitleID</key>
+			<string>Fld45P</string>
+			<key>INIntentType</key>
+			<string>Custom</string>
 			<key>INIntentVerb</key>
 			<string>View</string>
 		</dict>
 	</array>
+	<key>INTypes</key>
+	<array/>
 </dict>
 </plist>

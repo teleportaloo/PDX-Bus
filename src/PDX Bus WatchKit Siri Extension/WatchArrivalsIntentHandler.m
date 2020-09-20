@@ -14,29 +14,26 @@
 
 
 #import "WatchArrivalsIntentHandler.h"
-#import "UserFaves.h"
+#import "UserState.h"
 #import "DebugLogging.h"
 #import "ArrivalsResponseFactory.h"
 
 @implementation WatchArrivalsIntentHandler
 
 
-- (void)handleArrivals:(ArrivalsIntent *)intent completion:(void (^)(ArrivalsIntentResponse *response))completion
-{
+- (void)handleArrivals:(ArrivalsIntent *)intent completion:(void (^)(ArrivalsIntentResponse *response))completion {
     DEBUG_FUNC();
+    
     if (@available(watchOS 5.0, *)) {
-        ArrivalsIntentResponse * response = [ArrivalsResponseFactory responseForStops:intent.stops];
+        ArrivalsIntentResponse *response = [ArrivalsResponseFactory responseForStops:intent.stops];
         completion(response);
     } else {
         // Fallback on earlier versions
     }
-    
-    
 }
 
 #ifdef DEBUGLOGGING
-- (bool)respondsToSelector:(SEL)aSelector
-{
+- (bool)respondsToSelector:(SEL)aSelector {
     bool responds = [super respondsToSelector:aSelector];
     
     DEBUG_LOGS(NSStringFromSelector(aSelector));
@@ -44,6 +41,7 @@
     
     return responds;
 }
+
 #endif
 
 @end

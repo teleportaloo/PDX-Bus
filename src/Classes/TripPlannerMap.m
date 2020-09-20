@@ -15,99 +15,94 @@
 
 #import "TripPlannerMap.h"
 #import "TriMetInfo.h"
-#import "MapAnnotationImage.h"
+#import "MapAnnotationImageFactory.h"
+#import "TaskState.h"
 
 #define kBusyText @"getting route details"
 
 @implementation TripPlannerMap
 
+- (void)subTaskFetchLegShape:(TripLeg *)leg lineCoords:(NSMutableArray<ShapeRoutePath *> *)lineCoords taskState:(TaskState *)taskState {
+    if (leg.legShape.segment.coords.count == 0) {
+        [leg.legShape fetchCoords];
+    }
+    
+    if (leg.legShape.segment) {
+        ShapeRoutePath *path = [ShapeRoutePath data];
+        ShapeCompactSegment *seg = leg.legShape.segment.compact;
+        
+        [path.segments addObject:seg];
+        
+        if (leg.xinternalNumber == nil) {
+            path.route = kShapeNoRoute;
+            path.desc = leg.xname;
+        } else {
+            path.route = leg.xinternalNumber.integerValue;
+            path.desc = leg.xname;
+        }
+        
+        [lineCoords addObject:path];
+    }
+    
+    [taskState incrementItemsDoneAndDisplay];
+}
 
+- (void)createStraightLineLeg:(TripLeg *)leg lineCoords:(NSMutableArray<ShapeRoutePath *> *)lineCoords {
+    ShapeRoutePath *path = [ShapeRoutePath data];
+    ShapeMutableSegment *seg = [ShapeMutableSegment data];
+    
+    ShapeCoord *start = [ShapeCoord data];
+    
+    start.latitude  = leg.from.coordinate.latitude;
+    start.longitude = leg.from.coordinate.longitude;
+    
+    ShapeCoord *end = [ShapeCoord data];
+    end.latitude  = leg.to.coordinate.latitude;
+    end.longitude = leg.to.coordinate.longitude;
+    
+    [seg.coords addObject:start];
+    [seg.coords addObject:end];
+    
+    
+    [path.segments addObject:seg.compact];
+    
+    if (leg.xinternalNumber == nil) {
+        path.route = kShapeNoRoute;
+    } else {
+        path.route = leg.xinternalNumber.integerValue;
+    }
+    
+    if (leg.xname != nil) {
+        path.desc = leg.xname;
+    } else {
+        path.desc = [leg createFromText:NO textType:TripTextTypeMap];
+    }
+    
+    path.direct = YES;
+    
+    [lineCoords addObject:path];
+    
+    self.msgText = @"Detailed paths not all available.";
+}
 
-- (void)fetchShapesAsync:(id<BackgroundTaskController>)task
-{
-    [task taskRunAsync:^{
-        [task taskStartWithItems:self.it.legCount title:kBusyText];
+- (void)fetchShapesAsync:(id<TaskController>)taskController {
+    [taskController taskRunAsync:^(TaskState *taskState) {
+        
+        [taskState taskStartWithTotal:self.it.legCount title:kBusyText];
         
         NSMutableArray<ShapeRoutePath *> *lineCoords = [NSMutableArray array];
         
         int i;
         
-        for (i=0; i< self.it.legCount; i++)
-        {
+        for (i = 0; i < self.it.legCount; i++) {
             TripLeg *leg = [self.it getLeg:i];
-            if (leg.legShape)
-            {
-                if (leg.legShape.segment.coords.count == 0)
-                {
-                    [leg.legShape fetchCoords];
-                }
-                
-                if (leg.legShape.segment)
-                {
-                    ShapeRoutePath *path =  [ShapeRoutePath data];
-                    ShapeCompactSegment *seg = leg.legShape.segment.compact;
-                    
-                    [path.segments addObject:seg];
-                    
-                    if (leg.xinternalNumber == nil)
-                    {
-                        path.route = kShapeNoRoute;
-                        path.desc = leg.xname;
-                    }
-                    else
-                    {
-                        path.route = leg.xinternalNumber.integerValue;
-                        path.desc = leg.xname;
-                    }
-                
-                    [lineCoords addObject:path];
-                }
-                [task taskItemsDone:i+1];
+            
+            if (leg.legShape != nil) {
+                [self subTaskFetchLegShape:leg lineCoords:lineCoords taskState:taskState];
             }
             
-            if(leg.legShape==nil || leg.legShape.segment==nil || leg.legShape.segment.coords.count==0)
-            {
-                ShapeRoutePath *path =  [ShapeRoutePath data];
-                ShapeMutableSegment *seg = [ShapeMutableSegment data];
-                
-                ShapeCoord *start = [ShapeCoord data];
-                
-                start.latitude  = leg.from.coordinate.latitude;
-                start.longitude = leg.from.coordinate.longitude;
-                
-                ShapeCoord *end = [ShapeCoord data];
-                end.latitude  = leg.to.coordinate.latitude;
-                end.longitude = leg.to.coordinate.longitude;
-                
-                [seg.coords addObject:start];
-                [seg.coords addObject:end];
-                
-         
-                [path.segments addObject:seg.compact];
-                
-                if (leg.xinternalNumber == nil)
-                {
-                    path.route = kShapeNoRoute;
-                }
-                else
-                {
-                    path.route = leg.xinternalNumber.integerValue;
-                }
-                
-                if (leg.xname!=nil)
-                {
-                    path.desc = leg.xname;
-                }
-                else
-                {
-                    path.desc = [leg createFromText:NO textType:TripTextTypeMap];
-                }
-                
-                path.direct = YES;
-                
-                [lineCoords addObject:path];
-                
-                self.msgText = @"Detailed paths not all available.";
+            if (leg.legShape == nil || leg.legShape.segment == nil || leg.legShape.segment.coords.count == 0) {
+                [self createStraightLineLeg:leg lineCoords:lineCoords];
             }
         }
         
@@ -116,6 +111,5 @@
         return (UIViewController *)self;
     }];
 }
-
 
 @end

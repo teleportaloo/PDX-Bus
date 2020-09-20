@@ -18,10 +18,7 @@
 
 @interface WatchArrivalsContextBookmark : WatchArrivalsContext
 
-@property (nonatomic, strong) WatchBookmarksContext *bookmarksContext;
-@property (nonatomic)         NSInteger             index;
-
-+ (WatchArrivalsContextBookmark*)contextFromBookmark:(WatchBookmarksContext *)bookmarksContext index:(NSInteger)index;
-+ (WatchArrivalsContextBookmark*)contextFromRecents:(WatchBookmarksContext *)bookmarksContext index:(NSInteger)index;
++ (WatchArrivalsContextBookmark *)contextFromBookmark:(WatchBookmarksContext *)bookmarksContext index:(NSInteger)index;
++ (WatchArrivalsContextBookmark *)contextFromRecents:(WatchBookmarksContext *)bookmarksContext index:(NSInteger)index;
 
 @end

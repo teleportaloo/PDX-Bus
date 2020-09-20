@@ -19,30 +19,20 @@
 @implementation WatchNoArrivals
 
 
-+ (NSString *)identifier
-{
++ (NSString *)identifier {
     return @"None";
 }
 
-- (void)populate:(XMLDepartures *)xml departures:(NSArray<Departure*>*)deps
-{
-    if (xml.gotData)
-    {
-        if (deps.count == 0)
-        {
+- (void)populate:(XMLDepartures *)xml departures:(NSArray<Departure *> *)deps {
+    if (xml.gotData) {
+        if (deps.count == 0) {
             self.label.text = @"No departures";
-        }
-        else if (deps.count>0 && deps.firstObject.errorMessage!=nil)
-        {
+        } else if (deps.count > 0 && deps.firstObject.errorMessage != nil) {
             self.label.text = deps.firstObject.errorMessage;
-        }
-        else
-        {
+        } else {
             self.label.text = @"Internal error";
         }
-    }
-    else
-    {
+    } else {
         self.label.text = @"Network timeout";
     }
 }

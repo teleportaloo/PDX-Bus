@@ -1,6 +1,6 @@
 //
 //  RootViewController.h
-//  TriMetTimes
+//  PDXBus
 //
 
 
@@ -22,13 +22,12 @@
 #import "WatchConnectivity/WCSession.h"
 
 #define kRootMaxSections 7
-#define kVersion        @"Version"
+#define kVersion         @"Version"
 #define kAboutVersion    @"2"
 
 @class UITextField;
 
-typedef enum InitialAction_tag
-{
+typedef enum InitialAction_tag {
     InitialAction_None,
     InitialAction_Locate,
     InitialAction_Commute,
@@ -36,43 +35,26 @@ typedef enum InitialAction_tag
     InitialAction_QRCode,
     InitialAction_BookmarkIndex,
     InitialAction_UserActivityBookmark,
-    InitialAction_UserActivitySearch
+    InitialAction_UserActivitySearch,
+    InitialAction_Map
 } InitialAction;
 
 
-@interface RootViewController : TableViewWithToolbar <EditableTableViewCellDelegate, 
-                                    MFMailComposeViewControllerDelegate,
-                                    AlarmObserver,
-                                    WCSessionDelegate>
-{
-    NSInteger _faveSection;
-    NSInteger _editSection;
-    AlarmTaskList *_taskList;
-    bool _keyboardUp;
-    bool _showingLast;
-    bool _updatedWatch;
-}
+@interface RootViewController : TableViewWithToolbar <EditableTableViewCellDelegate,
+    MFMailComposeViewControllerDelegate,
+    AlarmObserver,
+    WCSessionDelegate>
 
-@property (nonatomic, strong) UITextField *editWindow;
 @property (nonatomic, copy)   NSString *lastArrivalsShown;
 @property (nonatomic, strong) NSArray *lastArrivalNames;
-@property (nonatomic, strong) CellTextField *editCell;
-@property (nonatomic, strong) NSArray *alarmKeys;
 @property (nonatomic, strong) NSDictionary *commuterBookmark;
-@property (nonatomic, strong) ProgressModalView *progressView;
+@property (nonatomic, strong) NSDictionary *initialActionArgs;
+@property (nonatomic)         InitialAction initialAction;
 @property (nonatomic, copy)   NSString *launchStops;
 @property (nonatomic, strong) NSURL *routingURL;
-@property (nonatomic)         bool delayedInitialAction;
-@property (nonatomic)         InitialAction initialAction;
 @property (nonatomic, copy)   NSString *initialBookmarkName;
-@property (nonatomic)         int       initialBookmarkIndex;
-@property (nonatomic, strong) NSDictionary *initialActionArgs;
-@property (nonatomic, strong) UIBarButtonItem *goButton;
-@property (nonatomic, strong) UIBarButtonItem *helpButton;
-@property (nonatomic, strong) UIButton *editBookmarksButton;
-@property (nonatomic, strong) UIButton *emailBookmarksButton;
+@property (nonatomic)         int initialBookmarkIndex;
 @property (nonatomic, strong) WCSession *session;
-@property (nonatomic)         bool      iCloudFaves;
 
 - (void)postEditingAction:(UITextView *)textView;
 - (void)commuteAction:(id)sender;

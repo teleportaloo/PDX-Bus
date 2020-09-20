@@ -11,23 +11,22 @@
 
 
 
-typedef long long TriMetTime;
-typedef long long TriMetDistance;
+typedef long long   TriMetTime;
+typedef long long   TriMetDistance;
 
-#define TriMetToUnixTime(X)     ((X)/1000)
-#define UnixToTriMetTime(X)     ((X)*1000)
-#define TriMetToNSDate(X)       [NSDate dateWithTimeIntervalSince1970:TriMetToUnixTime(X)]
-#define MinsBetweenDates(T, Q)  ([(T) timeIntervalSinceDate:(Q)]/60)
-#define SecsToMins(S)           ((NSInteger)(S)/60)
+#define TriMetToUnixTime(X)    ((X) / 1000)
+#define UnixToTriMetTime(X)    ((X) * 1000)
+#define TriMetToNSDate(X)      [NSDate dateWithTimeIntervalSince1970:TriMetToUnixTime(X)]
+#define MinsBetweenDates(T, Q) ([(T) timeIntervalSinceDate:(Q)] / 60)
+#define SecsToMins(S)          ((NSInteger)(S) / 60)
 
-
-#define kTriMetDisclaimerText  NSLocalizedString(@"Route and departure data provided by permission of TriMet", @"Disclaimer")
+#define kTriMetDisclaimerText NSLocalizedString(@"Route and departure data provided by permission of TriMet", @"Disclaimer")
 
 typedef enum {
-	TripModeBusOnly,
+    TripModeBusOnly,
     TripModeTrainOnly,
     TripModeAll,
-	TripModeNone
+    TripModeNone
 } TripMode;
 
 typedef enum {
@@ -35,6 +34,3 @@ typedef enum {
     TripMinFewestTransfers,
     TripMinShortestWalk
 } TripMin;
-
-
-

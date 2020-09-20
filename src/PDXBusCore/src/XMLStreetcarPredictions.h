@@ -17,16 +17,13 @@
 #import "Departure.h"
 
 
-@interface XMLStreetcarPredictions : NextBusXML<Departure*> 
+@interface XMLStreetcarPredictions : NextBusXML<Departure *>
 
-@property (nonatomic, strong) Departure *currentDepartureObject;
-@property (nonatomic, copy)   NSString *currentDirectionTitle;
-@property (nonatomic, copy)   NSString *currentRouteTitle;
 @property (nonatomic, copy)   NSString *blockFilter;
 @property (nonatomic, copy)   NSString *copyright;
 @property (nonatomic, copy)   NSString *nextBusRouteId;
 @property (nonatomic, copy)   NSString *stopTitle;
 
-- (BOOL)getDeparturesForLocation:(NSString *)location;
+- (BOOL)getDeparturesForStopId:(NSString *)location;
 
 @end

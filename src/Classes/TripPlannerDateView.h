@@ -13,20 +13,14 @@
 
 
 #import <UIKit/UIKit.h>
-#import "UIToolbar+Auto.h"
-#import "ReturnStopId.h"
-#import "TableViewWithToolbar.h"
-#import "XMLTrips.h"
 #import "TripPlannerBaseView.h"
-
 
 @interface TripPlannerDateView : TripPlannerBaseView
 
 @property (nonatomic, strong) NSArray *userFaves;
-@property (nonatomic, strong) UIDatePicker *datePickerView;
 @property (nonatomic)         bool popBack;
 
 - (void)initializeFromBookmark:(TripUserRequest *)req;
-- (void)nextScreen:(UINavigationController *)controller taskContainer:(BackgroundTaskContainer*)taskContainer;
+- (void)nextScreen:(UINavigationController *)controller taskContainer:(BackgroundTaskContainer *)taskContainer;
 
 @end

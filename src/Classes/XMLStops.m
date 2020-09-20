@@ -1,6 +1,6 @@
 //
 //  XMLStops.m
-//  TriMetTimes
+//  PDXBus
 //
 
 
@@ -11,92 +11,84 @@
 
 
 #import "XMLStops.h"
+#import "NSDictionary+TriMetCaseInsensitive.h"
+#import "TriMetXMLSelectors.h"
 
 static NSString *stopsURLString = @"routeConfig/route/%@/dir/%@/stops/true";
 
-@implementation XMLStops
+@interface XMLStops ()
 
+@property (nonatomic, strong) Stop *currentStopObject;
+
+@end
+
+@implementation XMLStops
 
 #pragma mark Data fetchers
 
-- (BOOL)getStopsAfterLocation:(NSString *)locid route:(NSString *)route direction:(NSString *)dir 
-                  description:(NSString *)desc cacheAction:(CacheAction)cacheAction
-{
+- (BOOL)getStopsAfterStopId:(NSString *)stopId
+                      route:(NSString *)route
+                  direction:(NSString *)dir
+                description:(NSString *)desc
+                cacheAction:(CacheAction)cacheAction {
     self.routeId = route;
     self.direction = dir;
     self.routeDescription = desc;
-    self.afterStop = locid;
+    self.afterStopId = stopId;
     
     return [self startParsing:[NSString stringWithFormat:stopsURLString, route, dir] cacheAction:cacheAction];
-    
 }
 
-- (BOOL)getStopsForRoute:(NSString *)route direction:(NSString *)dir 
-             description:(NSString *)desc cacheAction:(CacheAction)cacheAction
-{    
+- (BOOL)getStopsForRoute:(NSString *)route
+               direction:(NSString *)dir
+             description:(NSString *)desc
+             cacheAction:(CacheAction)cacheAction {
     self.routeId = route;
     self.direction = dir;
     self.routeDescription = desc;
-    self.afterStop = nil;
+    self.afterStopId = nil;
     
     return [self startParsing:[NSString stringWithFormat:stopsURLString, route, dir] cacheAction:cacheAction];
 }
 
 #pragma mark Parser callbacks
 
-- (void)parserDidStartDocument:(NSXMLParser *)parser
-{
-    
-}
-
-- (NSString*)fullAddressForQuery:(NSString *)query
-{
+- (NSString *)fullAddressForQuery:(NSString *)query {
     NSString *str = nil;
     
-    if (self.staticQuery !=nil)
-    {
+    if (self.staticQuery != nil) {
         str = self.staticQuery;
-    }
-    else
-    {
+    } else {
         str = [super fullAddressForQuery:query];
     }
     
     return str;
-    
 }
 
-XML_START_ELEMENT(resultset)
-{
+XML_START_ELEMENT(resultset) {
     [self initItems];
     _hasData = YES;
 }
 
-XML_START_ELEMENT(stop)
-{
-    NSString *locid = ATRSTR(locid);
+XML_START_ELEMENT(stop) {
+    NSString *stopId = XML_NON_NULL_ATR_STR(@"locid");
     
-    if (self.afterStop !=nil && [locid isEqualToString:self.afterStop])
-    {
-        self.afterStop = nil;
+    if (self.afterStopId != nil && [stopId isEqualToString:self.afterStopId]) {
+        self.afterStopId = nil;
         self.currentStopObject = nil;
-    }
-    else if (self.afterStop == nil)
-    {
+    } else if (self.afterStopId == nil) {
         self.currentStopObject = [Stop data];
         
-        self.currentStopObject.locid =    ATRSTR(locid);
-        self.currentStopObject.desc =    ATRSTR(desc);
-        self.currentStopObject.tp =        ATRBOOL(tp);
-        self.currentStopObject.lat =    ATRSTR(lat);
-        self.currentStopObject.lng =    ATRSTR(lng);
+        self.currentStopObject.stopId = XML_NON_NULL_ATR_STR(@"locid");
+        self.currentStopObject.desc = XML_NON_NULL_ATR_STR(@"desc");
+        self.currentStopObject.tp = XML_ATR_BOOL(@"tp");
+        self.currentStopObject.lat = XML_NON_NULL_ATR_STR(@"lat");
+        self.currentStopObject.lng = XML_NON_NULL_ATR_STR(@"lng");
     }
 }
 
-XML_END_ELEMENT(stop)
-{
-    if (self.currentStopObject !=nil)
-    {
+XML_END_ELEMENT(stop) {
+    if (self.currentStopObject != nil) {
         [self addItem:self.currentStopObject];
         self.currentStopObject.index = (int)self.items.count;
         self.currentStopObject = nil;

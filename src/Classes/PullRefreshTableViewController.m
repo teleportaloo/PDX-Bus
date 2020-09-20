@@ -32,6 +32,7 @@
 #import "PullRefreshTableViewController.h"
 #import "DebugLogging.h"
 #import "TintedImageCache.h"
+#import "UIApplication+Compat.h"
 
 #define REFRESH_HEADER_HEIGHT 52.0f
 
@@ -60,7 +61,7 @@
 
 - (CGFloat)heightOffset
 {
-    return -[UIApplication sharedApplication].statusBarFrame.size.height;
+    return -[UIApplication sharedApplication].compatStatusBarFrame.size.height;
 }
 
 - (void)viewDidLoad {
@@ -129,7 +130,12 @@
 
     [self addRefreshArrow];
     
+
+#if TARGET_OS_MACCATALYST
+    refreshSpinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleMedium];
+#else
     refreshSpinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+#endif
     refreshSpinner.frame = CGRectMake(floorf(floorf(REFRESH_HEADER_HEIGHT - 20) / 2), floorf((REFRESH_HEADER_HEIGHT - 20) / 2), 20, 20);
     refreshSpinner.hidesWhenStopped = YES;
     
@@ -182,16 +188,19 @@
     } else if (isDragging && scrollView.contentOffset.y < 0) {
         // Update the arrow direction and label
         [self.table bringSubviewToFront:refreshHeaderView];
-        [UIView beginAnimations:nil context:NULL];
-        if (scrollView.contentOffset.y < -REFRESH_HEADER_HEIGHT) {
-            // User is scrolling above the header
-            refreshLabel.text = [NSString stringWithFormat:@"%@\n%@", self.textRelease, self.secondLine];
-            refreshArrow.layer.transform = CATransform3DMakeRotation(M_PI, 0, 0, 1);
-        } else { // User is scrolling somewhere within the header
-            refreshLabel.text = [NSString stringWithFormat:@"%@\n%@", self.textPull, self.secondLine];
-            refreshArrow.layer.transform = CATransform3DMakeRotation(M_PI * 2, 0, 0, 1);
-        }
-        [UIView commitAnimations];
+        
+        [UIView animateWithDuration:0.2 animations:^{  // default duration
+            if (scrollView.contentOffset.y < -REFRESH_HEADER_HEIGHT) {
+                // User is scrolling above the header
+                self.refreshLabel.text = [NSString stringWithFormat:@"%@\n%@", self.textRelease, self.secondLine];
+                self.refreshArrow.layer.transform = CATransform3DMakeRotation(M_PI, 0, 0, 1);
+            } else { // User is scrolling somewhere within the header
+                self.refreshLabel.text = [NSString stringWithFormat:@"%@\n%@", self.textPull, self.secondLine];
+                self.refreshArrow.layer.transform = CATransform3DMakeRotation(M_PI * 2, 0, 0, 1);
+            }
+        } completion:^(BOOL finished){
+        }];
+
     }
 }
 
@@ -217,14 +226,14 @@
 - (void)startLoading {
     isLoading = YES;
     
-    // Show the header
-    [UIView beginAnimations:nil context:NULL];
-    [UIView setAnimationDuration:0.3];
-    self.table.contentInset = UIEdgeInsetsMake(REFRESH_HEADER_HEIGHT, 0, 0, 0);
-    refreshLabel.text = [NSString stringWithFormat:@"%@\n%@", self.textLoading, self.secondLine];
-    refreshArrow.hidden = YES;
-    [refreshSpinner startAnimating];
-    [UIView commitAnimations];
+    
+    [UIView animateWithDuration:0.3 animations:^{  // default duration
+        self.table.contentInset = UIEdgeInsetsMake(REFRESH_HEADER_HEIGHT, 0, 0, 0);
+        self.refreshLabel.text = [NSString stringWithFormat:@"%@\n%@", self.textLoading, self.secondLine];
+        self.refreshArrow.hidden = YES;
+        [self.refreshSpinner startAnimating];
+    } completion:^(BOOL finished){
+    }];
     
     // Refresh action!
     [self refresh];
@@ -234,30 +243,24 @@
     isLoading = NO;
     
     // Hide the header
-    [UIView beginAnimations:nil context:NULL];
-    [UIView setAnimationDelegate:self];
-    [UIView setAnimationDuration:0.3];
-    [UIView setAnimationDidStopSelector:@selector(stopLoadingComplete:finished:context:)];
-    self.table.contentInset = UIEdgeInsetsZero;
-    refreshArrow.layer.transform = CATransform3DMakeRotation(M_PI * 2, 0, 0, 1);
-    
-    DEBUG_LOGF(self.table.contentOffset.y);
-    DEBUG_LOGF(self.table.contentInset.bottom);
-    
-    if (self.searchController && !self.searchController.searchBar.hidden)
-    {
-        self.table.contentOffset = CGPointMake(0, self.searchController.searchBar.frame.size.height);
-    }
-    DEBUG_LOGF(self.table.contentOffset.y);
-    
-    [UIView commitAnimations];
-}
-
-- (void)stopLoadingComplete:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context {
-    // Reset the header
-    refreshLabel.text = self.textPull;
-    refreshArrow.hidden = NO;
-    [refreshSpinner stopAnimating];
+    [UIView animateWithDuration:0.3 animations:^{  // default duration
+        self.table.contentInset = UIEdgeInsetsZero;
+        self.refreshArrow.layer.transform = CATransform3DMakeRotation(M_PI * 2, 0, 0, 1);
+        
+        DEBUG_LOGF(self.table.contentOffset.y);
+        DEBUG_LOGF(self.table.contentInset.bottom);
+        
+        if (self.searchController && !self.searchController.searchBar.hidden)
+        {
+            self.table.contentOffset = CGPointMake(0, self.searchController.searchBar.frame.size.height);
+        }
+        DEBUG_LOGF(self.table.contentOffset.y);
+    } completion:^(BOOL finished){
+        // Reset the header
+        self.refreshLabel.text = self.textPull;
+        self.refreshArrow.hidden = NO;
+        [self.refreshSpinner stopAnimating];
+    }];
 }
 
 - (void)refresh {

@@ -21,16 +21,9 @@
 #define kNearbyScene @"Nearby"
 
 @interface WatchNearbyInterfaceController : InterfaceControllerWithCommuterBookmark <CLLocationManagerDelegate>
-{
-    bool _waitingForLocation;
-}
 
 @property (strong, nonatomic) IBOutlet WKInterfaceTable *stopTable;
 @property (strong, nonatomic) IBOutlet WKInterfaceMap *map;
-@property (nonatomic, strong) CLLocationManager *locationManager;
-@property (nonatomic, strong) NSDate *timeStamp;
-@property (nonatomic, strong) CLLocation *lastLocation;
-@property (nonatomic, strong) XMLLocateStops *stops;
 @property (strong, nonatomic) IBOutlet WKInterfaceGroup *loadingGroup;
 @property (strong, nonatomic) IBOutlet WKInterfaceLabel *loadingLabel;
 @property (strong, nonatomic) IBOutlet WKInterfaceLabel *locationStatusLabel;

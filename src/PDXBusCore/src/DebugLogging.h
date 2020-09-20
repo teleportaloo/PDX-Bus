@@ -1,5 +1,5 @@
 //
-//  AppDelegateMethods.h
+//  DebugLogging.h
 //
 
 
@@ -23,71 +23,61 @@
 
 // The test data accesses TestData.plist which is copied over to the debug version.
 // It contains an array of URLs to use per class, the URLs will be used in order and then
-// starts all over again.  
+// starts all over again.
 // #define XML_TEST_DATA "System Wide Detours"
 // #define XML_TEST_DATA "Departure"
 // #define XML_TEST_DATA "Streetcar Messages"
 // #define XML_TEST_DATA "KML"
 // #define XML_TEST_DATA "Complex Streetcar Messages"
 
-#define DEBUG_AND(X)                    ((X))
-#define DEBUG_PRINTF(format, args...)   printf(format, ##args)
-#define DEBUG_LOG(s, ...)               NSLog(@"<%s:%d> %@", __func__, __LINE__, [NSString stringWithFormat:(s), ##__VA_ARGS__])
-#define DEBUG_LOG_RAW(s, ...)           NSLog(s, ##__VA_ARGS__)
-#define DEBUG                           1
-#define DEBUG_MODE                      @"(debug on)"
-#define DEBUG_BREAK                     raise(SIGINT)
+#define DEBUG_AND(X)                   ((X))
+#define DEBUG_PRINTF(format, args ...) printf(format, ## args)
+#define DEBUG_LOG(s, ...)              NSLog(@"<%s:%d> %@", __func__, __LINE__, [NSString stringWithFormat:(s), ## __VA_ARGS__])
+#define DEBUG_LOG_RAW(s, ...)          NSLog(s, ## __VA_ARGS__)
+#define DEBUG       1
+#define DEBUG_MODE  @"(debug on)"
+#define DEBUG_BREAK raise(SIGINT)
+#define DEBUG_LOG_MAYBE(C, s, ...)      if ((C)) { NSLog(@"<%s:%d> %@", __func__, __LINE__, [NSString stringWithFormat:(s), ## __VA_ARGS__]); }
 
-#else
+#else // ifdef DEBUGLOGGING
 
-#define DEBUG_AND(X)                    (FALSE)
-#define DEBUG_PRINTF(format, args...)
-#define DEBUG_LOG(format, args...)
+#define DEBUG_AND(X)                   (FALSE)
+#define DEBUG_PRINTF(format, args ...)
+#define DEBUG_LOG(format, args ...)
 #define DEBUG_LOG_RAW(s, ...)
+#define DEBUG_LOG_MAYBE(C, s, ...)  
 
 #undef DEBUG
 #define DEBUG_MODE @""
-#define DEBUG_BREAK
 
-#endif
+#endif // ifdef DEBUGLOGGING
 
-#define DEBUG_FUNC()      DEBUG_LOG(@"enter")
-#define DEBUG_HERE()      DEBUG_LOG(@"here")
-#define DEBUG_CASE(x)     DEBUG_LOG(@"Case    %s: %lu",#x, (unsigned long)(x))
-#define DEBUG_DEFAULT(x)  DEBUG_LOG(@"Default %s: %lu",#x, (unsigned long)(x))
+#define DEBUG_FUNC()           DEBUG_LOG(@"enter")
+#define DEBUG_HERE()           DEBUG_LOG(@"here")
+#define DEBUG_CASE(x)          DEBUG_LOG(@"Case    %s: %lu",#x, (unsigned long)(x))
+#define DEBUG_DEFAULT(x)       DEBUG_LOG(@"Default %s: %lu",#x, (unsigned long)(x))
 
-#define DEBUG_FUNCEX() DEBUG_LOG(@"exit")
-#define DEBUG_LOGF(x)  DEBUG_LOG(@"%s: %f", #x, (float)(x))
-#define DEBUG_LOGD(x)  DEBUG_LOG(@"%s: %f", #x, (double)(x))
-#define DEBUG_LOGLU(x) DEBUG_LOG(@"%s: %lu",#x, (unsigned long)(x))
-#define DEBUG_LOGLX(x) DEBUG_LOG(@"%s: %lx",#x, (unsigned long)(x))
-#define DEBUG_LOGL(x)  DEBUG_LOG(@"%s: %ld",#x,  (long)(x))
-#define DEBUG_LOGS(x)  DEBUG_LOG(@"%s: %@", #x, (x))
-#define DEBUG_LOGB(x)  DEBUG_LOG(@"%s: %@", #x, ((x)? @"TRUE" : @"FALSE"))
-#define DEBUG_LOGO(x)  DEBUG_LOG(@"%s: %@", #x, ((x)!=nil) ? (x).debugDescription : @"nil");
-#define DEBUG_LOGR(R)  DEBUG_LOG(@"%s: (%f,%f,%f,%f)", #R, (R).origin.x, (R).origin.y, (R).size.width, (R).size.height);
+#define DEBUG_FUNCEX()         DEBUG_LOG(@"exit")
+#define DEBUG_LOGF(x)          DEBUG_LOG(@"%s: %f", #x, (float)(x))
+#define DEBUG_LOGD(x)          DEBUG_LOG(@"%s: %f", #x, (double)(x))
+#define DEBUG_LOGLU(x)         DEBUG_LOG(@"%s: %lu",#x, (unsigned long)(x))
+#define DEBUG_LOGLX(x)         DEBUG_LOG(@"%s: %lx",#x, (unsigned long)(x))
+#define DEBUG_LOGL(x)          DEBUG_LOG(@"%s: %ld",#x,  (long)(x))
+#define DEBUG_LOGS(x)          DEBUG_LOG(@"%s: %@", #x, (x))
+#define DEBUG_LOGB(x)          DEBUG_LOG(@"%s: %@", #x, ((x) ? @"TRUE" : @"FALSE"))
+#define DEBUG_LOGO(x)          DEBUG_LOG(@"%s: %@", #x, ((x) != nil) ? (x).debugDescription : @"nil");
+#define DEBUG_LOGR(R)          DEBUG_LOG(@"%s: (%f,%f,%f,%f)", #R, (R).origin.x, (R).origin.y, (R).size.width, (R).size.height);
+#define DEBUG_LOGPT(P)         DEBUG_LOG(@"%s: (%f,%f)", #P, (P).x, (P).y);
+
 #define DEBUG_LOGRC(R)
-#define DEBUG_LOGIP(I) DEBUG_LOG(@"%s: section %d row %d", #I, (int)((I).section), (int)((I).row));
-#define DEBUG_LOGP(P)  DEBUG_LOG(@"%s: %p", #P, (void*)P)
+#define DEBUG_LOGIP(I)         DEBUG_LOG(@"%s: section %d row %d", #I, (int)((I).section), (int)((I).row));
+#define DEBUG_LOGP(P)          DEBUG_LOG(@"%s: %p", #P, (void *)P)
+#define DEBUG_LOGC(X)          DEBUG_LOG(@"%s: %s", #X, object_getClassName(X))
 
+#define ERROR_LOG(s, ...)      { NSLog(@"**** ERROR **** <%s:%d> %@", __func__, __LINE__, [NSString stringWithFormat:(s), ## __VA_ARGS__]); }
+#define LOG_PARSE_ERROR(error) if (error) ERROR_LOG(@"Parse error: %@\n", error.debugDescription)
+#define LOG_NSERROR(error)     if (error) ERROR_LOG(@"NSError: %@\n", error.description)
 
-#define ERROR_LOG(s, ...)       { NSLog(@"**** ERROR **** <%s:%d> %@", __func__, __LINE__, [NSString stringWithFormat:(s), ##__VA_ARGS__]); DEBUG_BREAK; }
-#define LOG_PARSE_ERROR(error)  if (error) ERROR_LOG(@"Parse error: %@\n", error.debugDescription)
-#define LOG_NSERROR(error)      if (error) ERROR_LOG(@"NSError: %@\n", error.description)
-
-// The following define is used to make the app create some arrays and databases
-// used for the Rail Stations view and Rail Map Screen - don't ever ship with this
-// on as it does some odd logging and creates a database that won't be used.
-
-// #define CREATE_MAX_ARRAYS 1
-
-#ifdef CREATE_MAX_ARRAYS
-#define CODE_PRINTF(format, args...) printf(format, ##args)
-#define CODE_LOG(format, args...) NSLog(format, ##args)
-#else
-#define CODE_PRINTF(format, args...)
-#define CODE_LOG(format, args...)
-#endif
 
 // This can be used for trivial profiling - it will show the accumilated time in
 // a function.
@@ -96,11 +86,11 @@
 #ifndef PDXBUS_WATCH
 #import <QuartzCore/QuartzCore.h>
 
-#define PROFILING_ENTER_FUNCTION  double startTime = CACurrentMediaTime();
-#define PROFILING_EXIT_FUNCTION \
-    static double inHere;       \
-    double endTime = CACurrentMediaTime(); \
-    inHere += (endTime-startTime); \
+#define PROFILING_ENTER_FUNCTION double startTime = CACurrentMediaTime();
+#define PROFILING_EXIT_FUNCTION             \
+    static double inHere;                   \
+    double endTime = CACurrentMediaTime();  \
+    inHere += (endTime - startTime);        \
     DEBUG_LOGD(inHere);
 #else
 #define PROFILING_ENTER_FUNCTION
@@ -111,7 +101,20 @@
 #define PROFILING_ENTER_FUNCTION
 #define PROFILING_EXIT_FUNCTION
 #endif
+#endif // ifndef __DEBUG_H
+
+// The following define is used to make the app create some arrays and databases
+// used for the Rail Stations view and Rail Map Screen - don't ever ship with this
+// on as it does some odd logging and creates a database that won't be used.
+
+// #define CREATE_MAX_ARRAYS 1
+
+#ifdef CREATE_MAX_ARRAYS
+#import "CodeWriter.h"
+#else
+#define CODE_COMMENT(A)
+#define CODE_LOG(format, args ...)
+#define CODE_STRING(S)
+#define CODE_DUMP
+#define CODE_FILE(X)
 #endif
-
-
-

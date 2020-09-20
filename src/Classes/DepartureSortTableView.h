@@ -18,11 +18,8 @@
 @class DepartureTimesView;
 
 
-@interface DepartureSortTableView : TableViewWithToolbar {
-	BOOL                    _segSetup;
-}
+@interface DepartureSortTableView : TableViewWithToolbar
 
-@property (nonatomic, copy)   NSString *info;
 @property (nonatomic, strong) DepartureTimesView *depView;
 
 - (void)sortSegmentChanged:(id)sender;

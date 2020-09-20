@@ -18,20 +18,17 @@
 
 @implementation WhatsNewStopIDs
 
-+ (NSNumber*)getPrefix
-{
++ (NSNumber *)getPrefix {
     return @'-';
 }
 
-- (void)processAction:(NSString *)text parent:(ViewControllerBase*)parent
-{
-    NSString *ids = [self prefix:text restOfText:nil];
+- (void)processAction:(NSString *)text parent:(ViewControllerBase *)parent {
+    NSString *stopIds = [self prefix:text restOfText:nil];
     
     DepartureTimesView *departureViewController = [DepartureTimesView viewController];
     
     departureViewController.displayName = @"";
-    [departureViewController fetchTimesForLocationAsync:parent.backgroundTask loc:ids];
+    [departureViewController fetchTimesForLocationAsync:parent.backgroundTask stopId:stopIds];
 }
-
 
 @end

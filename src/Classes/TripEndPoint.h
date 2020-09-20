@@ -20,11 +20,11 @@
 
 #define kAcquiredLocation @"<Acquired GPS Location>"
 
-@interface TripEndPoint : DataFactory 
+@interface TripEndPoint : DataFactory
 
-@property (nonatomic, strong) NSString  *locationDesc;
-@property (nonatomic, strong) NSString  *additionalInfo;
-@property (nonatomic, strong) CLLocation  *coordinates;
+@property (nonatomic, strong) NSString *locationDesc;
+@property (nonatomic, strong) NSString *additionalInfo;
+@property (nonatomic, strong) CLLocation *coordinates;
 @property (nonatomic) bool useCurrentLocation;
 @property (nonatomic, readonly, copy) NSDictionary *toDictionary;
 @property (nonatomic, readonly, copy) NSString *displayText;
@@ -32,8 +32,8 @@
 
 - (NSString *)toQuery:(NSString *)toOrFrom;
 - (bool)readDictionary:(NSDictionary *)dict;
-- (bool)equalsTripEndPoint:(TripEndPoint*)endPoint;
-- (void)resetCurrentLocation;
+- (bool)equalsTripEndPoint:(TripEndPoint *)endPoint;
+- (void)        resetCurrentLocation;
 
 + (instancetype)fromDictionary:(NSDictionary *)dict;
 

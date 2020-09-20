@@ -18,40 +18,31 @@
 
 @implementation RouteDistance
 
-- (instancetype)init
-{
-    if ((self = [super init]))
-    {    
+- (instancetype)init {
+    if ((self = [super init])) {
         self.stops = [NSMutableArray array];
     }
+    
     return self;
 }
 
-
-
-
--(void)sortStopsByDistance
-{
+- (void)sortStopsByDistance {
     [_stops sortUsingSelector:@selector(compareUsingDistance:)];
 }
 
--(NSComparisonResult)compareUsingDistance:(RouteDistance*)inRoute
-{
-    StopDistance *stop =   self.stops.firstObject;
+- (NSComparisonResult)compareUsingDistance:(RouteDistance *)inRoute {
+    StopDistance *stop = self.stops.firstObject;
     StopDistance *inStop = inRoute.stops.firstObject;
     
-    if (stop.distance < inStop.distance)
-    {
+    if (stop.distance < inStop.distance) {
         return NSOrderedAscending;
     }
-
-    if (stop.distance > inStop.distance)
-    {
+    
+    if (stop.distance > inStop.distance) {
         return NSOrderedDescending;
     }
-
+    
     return NSOrderedSame;
 }
-
 
 @end

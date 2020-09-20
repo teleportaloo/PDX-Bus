@@ -24,12 +24,11 @@
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
     [super setSelected:selected animated:animated];
-
+    
     // Configure the view for the selected state
 }
 
-+ (UINib*)nib
-{
++ (UINib *)nib {
     return [UINib nibWithNibName:@"DatePickerCell" bundle:nil];
 }
 

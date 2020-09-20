@@ -17,14 +17,10 @@
 #import "XMLDepartures.h"
 #import "Detour+iOSUI.h"
 
-@interface MapViewWithDetourStops : MapViewWithRoutes
-{
-    NSMutableArray<XMLDepartures*> *_stopData;
-}
+@interface MapViewWithDetourStops : MapViewWithRoutes <UITextViewDelegate>
 
-@property (nonatomic, strong) NSArray<Detour*> *detours;
-@property (nonatomic, strong) UITextView *detourText;
-
-- (void)fetchLocationsMaybeAsync:(id<BackgroundTaskController>)task detours:(NSArray<Detour *>*)detours nav:(UINavigationController *)nav;
+- (void)fetchLocationsMaybeAsync:(id<TaskController>)taskController
+                         detours:(NSArray<Detour *> *)detours
+                             nav:(UINavigationController *)nav;
 
 @end

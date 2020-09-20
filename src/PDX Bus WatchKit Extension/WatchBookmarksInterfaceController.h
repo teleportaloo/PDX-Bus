@@ -15,30 +15,21 @@
 
 #import <WatchKit/WatchKit.h>
 #import <Foundation/Foundation.h>
-#import "UserFaves.h"
+#import "UserState.h"
 #import "WatchBookmarksContext.h"
 #import "InterfaceControllerWithCommuterBookmark.h"
 #import "WatchConnectivity/WatchConnectivity.h"
 
 @interface WatchBookmarksInterfaceController : InterfaceControllerWithCommuterBookmark<WCSessionDelegate>
 
+@property (strong, nonatomic) NSUserActivity *userActivity;
+
 @property (strong, nonatomic) IBOutlet WKInterfaceTable *bookmarkTable;
-@property (strong, nonatomic) WCSession *session;
-@property (strong, nonatomic) WatchBookmarksContext *bookmarksContext;
-@property (strong, nonatomic) NSArray *displayedItems;
 @property (strong, nonatomic) IBOutlet WKInterfaceGroup *topGroup;
 @property (strong, nonatomic) IBOutlet WKInterfaceLabel *mainTextLabel;
 @property (strong, nonatomic) IBOutlet WKInterfaceLabel *bookmarkLabel;
-@property (strong, nonatomic) NSUserActivity *userActivity;
 
 - (void)applicationDidBecomeActive;
 - (void)processUserActivity;
-- (IBAction)swipeDown:(id)sender;
-- (IBAction)menuItemHome;
-- (IBAction)enterStopId;
-- (IBAction)menuItemCommute;
-- (IBAction)topRecentStops;
-- (IBAction)topLocateStops;
-- (void)displayStopsInBookmark;
 
 @end

@@ -18,8 +18,10 @@
 
 @interface NumberPadInterfaceController : WKInterfaceController
 
-@property (strong, nonatomic) IBOutlet WKInterfaceButton *buttonStopId;
 @property (nonatomic, strong) NSMutableString *stopId;
+
+@property (strong, nonatomic) IBOutlet WKInterfaceButton *buttonStopId;
+
 - (IBAction)button1;
 - (IBAction)button2;
 - (IBAction)button3;

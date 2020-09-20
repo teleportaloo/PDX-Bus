@@ -14,7 +14,6 @@
 
 #import <UIKit/UIKit.h>
 #import "TableViewWithToolbar.h"
-#import "StopLocations.h"
 #import "Stop.h"
 #import "RailStation.h"
 
@@ -23,19 +22,14 @@
 
 
 @interface RailStationTableView : TableViewWithToolbar <ReturnStop>
-{
-    NSInteger                           _firstLocationRow;
-}
 
 @property (nonatomic, strong) RailMapView *map;
 @property (nonatomic, strong) RailStation *station;
-@property (nonatomic) bool from;
-@property (nonatomic, strong) StopLocations *locationsDb;
-@property (nonatomic, strong) NSMutableArray<NSNumber*> *routes;
-@property (nonatomic, readonly, copy) NSString *actionText;
-@property (nonatomic, strong) NSMutableArray<ShapeRoutePath*>* shapes;
+@property (nonatomic)         bool from;
 
-- (void) chosenStop:(Stop *)stop progress:(id<BackgroundTaskController>) progress;
-- (void)maybeFetchRouteShapesAsync:(id<BackgroundTaskController>)task;
+@property (nonatomic, readonly, copy) NSString *actionText;
+
+- (void)chosenStop:(Stop *)stop progress:(id<TaskController>)progress;
+- (void)maybeFetchRouteShapesAsync:(id<TaskController>)taskController;
 
 @end

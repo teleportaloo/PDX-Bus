@@ -16,26 +16,24 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import "TableViewWithToolbar.h"
+#import "LinkCell.h"
 
 @protocol WhatsNewSpecialAction <NSObject>
 
-- (void)processAction:(NSString *)text parent:(ViewControllerBase*)parent;
-- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell text:(NSString*)text;
-- (void)updateCell:(UITableViewCell *)cell tableView:(UITableView *)tableView;
-- (NSString*)displayText:(NSString *)fullText;
-- (NSString*)plainText:(NSString *)fullText;
+- (void)processAction:(NSString *)text parent:(ViewControllerBase *)parent;
+- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell text:(NSString *)text;
+- (void)updateCell:(LinkCell *)cell tableView:(UITableView *)tableView;
+- (NSString *)displayText:(NSString *)fullText;
+- (NSString *)plainText:(NSString *)fullText;
 
-+ (NSNumber*)getPrefix;
++ (NSNumber *)getPrefix;
 
 @end
 
-typedef NSMutableArray<NSString*> WHATS_NEW_SECTION;
+typedef NSMutableArray<NSString *> WHATS_NEW_SECTION;
 
-	
-@interface WhatsNewView : TableViewWithToolbar<WHATS_NEW_SECTION *> {
-    NSDictionary *                  _specialActions;
-    id<WhatsNewSpecialAction>       _basicAction;
-}
+
+@interface WhatsNewView : TableViewWithToolbar<WHATS_NEW_SECTION *>
 
 + (NSString *)version;
 

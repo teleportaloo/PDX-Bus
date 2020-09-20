@@ -16,33 +16,28 @@
 
 @implementation SimpleWatchPin
 
-- (WKInterfaceMapPinColor)pinColor
-{
+- (WKInterfaceMapPinColor)pinColor {
     return self.simplePinColor;
 }
 
-- (UIColor*)pinTint
-{
+- (UIColor *)pinTint {
     return nil;
 }
-- (bool)hasBearing
-{
+
+- (bool)hasBearing {
     return NO;
 }
-- (double)doubleBearing
-{
+
+- (double)doubleBearing {
     return 0.0;
 }
-- (CLLocationCoordinate2D)coord
-{
+
+- (CLLocationCoordinate2D)coord {
     return self.simpleCoord;
 }
 
-- (bool)hasCoord
-{
+- (bool)hasCoord {
     return YES;
 }
 
-
 @end
-

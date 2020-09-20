@@ -19,10 +19,7 @@
 
 @protocol ReturnTripLegEndPoint;
 
-@interface TripLegEndPoint: DataFactory <MapPinColor, NSCopying>
-{
-    CLLocation *_loc;
-}
+@interface TripLegEndPoint : DataFactory <MapPinColor, NSCopying>
 
 @property (nonatomic, strong) id<ReturnTripLegEndPoint> callback;
 @property (nonatomic, copy) NSString *xlat;
@@ -52,7 +49,6 @@
 
 @property (nonatomic, readonly, copy) NSString *actionText;
 
-- (void)chosenEndpoint:(TripLegEndPoint*)endpoint;
+- (void)chosenEndpoint:(TripLegEndPoint *)endpoint;
 
 @end
-

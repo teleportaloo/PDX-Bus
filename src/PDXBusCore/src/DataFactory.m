@@ -17,8 +17,7 @@
 
 @implementation DataFactory
 
-+ (instancetype)data
-{
++ (instancetype)data {
     return [[[self class] alloc] init];
 }
 

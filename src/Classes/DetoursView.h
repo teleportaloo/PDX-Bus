@@ -15,16 +15,15 @@
 #import "XMLDetoursAndMessages.h"
 #import "DetoursForRoute.h"
 
-@interface DetoursView : TableViewControllerWithRefresh<DetoursForRoute *>  {
-    NSInteger   _disclaimerSection;
-}
+@interface DetoursView : TableViewControllerWithRefresh<DetoursForRoute *>
 
-- (void)fetchDetoursAsync:(id<BackgroundTaskController>)task;
-- (void)fetchDetoursAsync:(id<BackgroundTaskController>)task route:(NSString *)route;
-- (void)fetchDetoursAsync:(id<BackgroundTaskController>)task routes:(NSArray *)routes backgroundRefresh:(bool)backgroundRefresh;
+- (void)fetchDetoursAsync:(id<TaskController>)taskController;
 
-@property (nonatomic, strong) XMLDetoursAndMessages *detours;
-@property (nonatomic, strong) NSMutableArray<DetoursForRoute *> *sortedDetours;
-@property (nonatomic, strong) NSArray *routes;
+- (void)fetchDetoursAsync:(id<TaskController>)taskController
+                    route:(NSString *)route;
+
+- (void)fetchDetoursAsync:(id<TaskController>)taskController
+                   routes:(NSArray *)routes
+        backgroundRefresh:(bool)backgroundRefresh;
 
 @end

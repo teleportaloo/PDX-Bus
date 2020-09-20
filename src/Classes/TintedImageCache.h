@@ -18,19 +18,16 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-#define TINT_FOR_IOS_DARK_MODE  @"D"
-#define TINT_FOR_BLUE           @"B"
-#define TINT_FOR_DARK_BLUE      @"L"
+#define TINT_FOR_IOS_DARK_MODE @"D"
+#define TINT_FOR_BLUE          @"B"
+#define TINT_FOR_DARK_BLUE     @"L"
 
 @interface TintedImageCache : NSObject<ClearableCache>
 
-@property NSMutableDictionary<NSString *, UIImage *> * cache;
-@property NSInteger style;
-
 + (instancetype)sharedInstance;
-- (UIImage*)icon:(NSString *)name color:(UIColor*)tint designation:(NSString*)designation;
-- (UIImage*)modeAwareLightenedIcon:(NSString *)name;
-- (UIImage*)modeAwareBlueIcon:(NSString *)name;
+- (UIImage *)   icon:(NSString *)name color:(UIColor *)tint designation:(NSString *)designation;
+- (UIImage *)modeAwareLightenedIcon:(NSString *)name;
+- (UIImage *)modeAwareBlueIcon:(NSString *)name;
 - (void)userInterfaceStyleChanged:(NSInteger)style;
 
 @end

@@ -18,15 +18,10 @@
 
 @end
 
-
-@interface SimpleWatchPin <WatchPinColor> : NSObject
-{
-    
+@interface SimpleWatchPin <WatchPinColor> : NSObject {
 }
 
 @property (nonatomic)   WKInterfaceMapPinColor simplePinColor;
 @property (nonatomic)   CLLocationCoordinate2D simpleCoord;
 
 @end
-
-

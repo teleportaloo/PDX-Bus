@@ -21,15 +21,6 @@
 #import "ShapeRoutePath.h"
 #import "RoutePolyline.h"
 
-@interface LinesAnnotation : NSObject <MKAnnotation>
-{
-    CLLocationCoordinate2D _middle;
-}
-
-@property (nonatomic) CLLocationCoordinate2D middle;
-
-
-@end
 
 typedef enum _mapViewlineOptions {
     MapViewNoLines,
@@ -37,34 +28,17 @@ typedef enum _mapViewlineOptions {
     MapViewNoFitLines
 } MapViewLineOptions;
 
-@interface MapViewController : ViewControllerBase <MKMapViewDelegate, BackgroundTaskDone> {
-    int                                 _selectedAnnotation;
-    UISegmentedControl *                _segPrevNext;
-    CGRect                              _portraitMapRect;
-    bool                                _backgroundRefresh;
-}
+@interface MapViewController : ViewControllerBase <MKMapViewDelegate, BackgroundTaskDone>
 
-@property (nonatomic, strong) MKMapView *mapView;
-@property (nonatomic, strong) NSMutableArray *routePolyLines;
-@property (nonatomic, strong) NSMutableArray<id<MapPinColor>> *annotations;
-@property (nonatomic) MapViewLineOptions lineOptions;
-@property (nonatomic, strong) NSMutableArray<ShapeRoutePath*>* lineCoords;
-@property (nonatomic, strong) MKCircle *circle;
-@property (nonatomic, strong) UIBarButtonItem *compassButton;
-@property (atomic)            bool animating;
-@property (nonatomic)         bool backgroundRefresh;
-@property (readonly)          bool hasXML;
-@property (nonatomic) CLLocationDirection previousHeading;
-@property (nonatomic, strong) CADisplayLink *displayLink;
 @property (nonatomic, copy)   NSString *msgText;
+@property (nonatomic, strong) NSMutableArray<ShapeRoutePath *> *lineCoords;
+@property (nonatomic)         MapViewLineOptions lineOptions;
 @property (nonatomic)         bool nextPrevButtons;
-@property (nonatomic, strong)  NSMutableSet<RoutePin*>* overlayAnnotations;
+@property (nonatomic, strong) NSMutableArray<id<MapPinColor> > *annotations;
+@property (nonatomic, strong) MKMapView *mapView;
+@property (nonatomic)         bool backgroundRefresh;
+@property (nonatomic, strong) MKCircle *circle;
 
-// - (void)setMapLocationLat:(NSString *)lat lng:(NSString *)lng title:(NSString *)title;
-- (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation;
-- (void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)view calloutAccessoryControlTapped:(UIControl *)control;
-- (void)addPin:(id<MapPinColor>) pin;
-- (void)removeAnnotations;
-- (void)modifyMapViewFrame:(CGRect *)frame;
+- (void)addPin:(id<MapPinColor>)pin;
 
 @end

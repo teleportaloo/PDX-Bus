@@ -18,70 +18,56 @@
 @implementation DetourLocation (iOSUI)
 
 
-- (CLLocationCoordinate2D) coordinate
-{
+- (CLLocationCoordinate2D)coordinate {
     return self.location.coordinate;
 }
 
-- (NSString*)title
-{
+- (NSString *)title {
     return self.desc;
 }
 
-
-- (NSString*)subtitle
-{
-    if (self.noServiceFlag)
-    {
-        return [NSString stringWithFormat:@"No service at Stop ID %@", self.locid];
+- (NSString *)subtitle {
+    if (self.noServiceFlag) {
+        return [NSString stringWithFormat:@"No service at Stop ID %@", self.stopId];
     }
-    return [NSString stringWithFormat:@"Stop ID %@", self.locid];
+    
+    return [NSString stringWithFormat:@"Stop ID %@", self.stopId];
 }
 
 // From MapPinColor
-- (MapPinColorValue) pinColor
-{
-    if (self.noServiceFlag)
-    {
+- (MapPinColorValue)pinColor {
+    if (self.noServiceFlag) {
         return MAP_PIN_COLOR_RED;
     }
+    
     return MAP_PIN_COLOR_GREEN;
 }
-- (bool)showActionMenu
-{
+
+- (bool)showActionMenu {
     return YES;
 }
 
-
-
-- (NSString *)mapStopId
-{
-    return self.locid;
+- (NSString *)mapStopId {
+    return self.stopId;
 }
 
-- (NSString *)mapStopIdText
-{
-    if (self.noServiceFlag)
-    {
-        return [NSString stringWithFormat:@"No service at ID %@", self.locid];
+- (NSString *)mapStopIdText {
+    if (self.noServiceFlag) {
+        return [NSString stringWithFormat:@"No service at ID %@", self.stopId];
     }
     
-     return [NSString stringWithFormat:@"Departures at Stop ID %@", self.locid];
+    return [NSString stringWithFormat:@"Departures at Stop ID %@", self.stopId];
 }
 
-- (UIColor *)pinTint
-{
+- (UIColor *)pinTint {
     return nil;
 }
 
-
-- (bool)hasBearing
-{
+- (bool)hasBearing {
     return NO;
 }
 
-- (double)doubleBearing
-{
+- (double)doubleBearing {
     return 0.0;
 }
 

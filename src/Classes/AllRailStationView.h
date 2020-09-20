@@ -20,20 +20,17 @@
 #import "TableViewWithToolbar.h"
 #import "ReturnStopId.h"
 #import "Stop.h"
-#import "HotSpot.h"
 #import "RailStation.h"
 
+#define kSearchItemStation @"org.teleportaloo.pdxbus.station"
 
-#define kSearchItemStation  @"org.teleportaloo.pdxbus.station"
-
-@interface AllRailStationView : TableViewWithToolbar <ReturnStop> {
-	HOTSPOT *_hotSpots;
-}
+@interface AllRailStationView : TableViewWithToolbar <ReturnStop>
 
 - (void)generateArrays;
 - (void)indexStations;
 
 + (RailStation *)railstationFromStopId:(NSString *)stopId;
++ (CLLocation *)locationFromStopId:(NSString *)stopId;
 + (RAILLINES)railLines:(int)index;
 + (RAILLINES)railLines0:(int)index;
 + (RAILLINES)railLines1:(int)index;

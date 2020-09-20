@@ -19,13 +19,11 @@
 
 @implementation WhatsNewWeb
 
-+ (NSNumber*)getPrefix
-{
++ (NSNumber *)getPrefix {
     return @'+';
 }
 
-- (void)processAction:(NSString *)text parent:(ViewControllerBase*)parent
-{
+- (void)processAction:(NSString *)text parent:(ViewControllerBase *)parent {
     NSString *url = [self prefix:text restOfText:nil];
     
     [WebViewController displayPage:url
@@ -33,8 +31,6 @@
                          navigator:parent.navigationController
                     itemToDeselect:nil
                           whenDone:nil];
-    
 }
-
 
 @end

@@ -19,10 +19,10 @@
 
 @interface NearestRoutesView : TableViewWithToolbar
 
-@property (nonatomic, strong) XMLLocateStops *routeData;
-@property (nonatomic, strong) NSMutableArray<NSNumber*> *checked;
-
-- (void)showArrivalsAction:(id)sender;
-- (void)fetchNearestRoutesAsync:(id<BackgroundTaskController>)task location:(CLLocation *)here maxToFind:(int)max minDistance:(double)min mode:(TripMode)mode;
+- (void)fetchNearestRoutesAsync:(id<TaskController>)taskController
+                       location:(CLLocation *)here
+                      maxToFind:(int)max
+                    minDistance:(double)min
+                           mode:(TripMode)mode;
 
 @end

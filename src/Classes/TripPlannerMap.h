@@ -17,10 +17,10 @@
 #import "MapViewController.h"
 #import "XMLTrips.h"
 
-@interface TripPlannerMap : MapViewController 
+@interface TripPlannerMap : MapViewController
 
 @property (nonatomic, strong) TripItinerary *it;
 
-- (void)fetchShapesAsync:(id<BackgroundTaskController>)task;
+- (void)fetchShapesAsync:(id<TaskController>)taskController;
 
 @end

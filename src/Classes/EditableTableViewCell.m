@@ -15,8 +15,8 @@
 
 @implementation EditableTableViewCell
 
-// To be implemented by subclasses. 
-- (void)stopEditing
-{}
+// To be implemented by subclasses.
+- (void)stopEditing {
+}
 
 @end

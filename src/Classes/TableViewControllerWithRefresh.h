@@ -15,7 +15,7 @@
 
 #import "PullRefreshTableViewController.h"
 
-#define kRefreshText        NSLocalizedString(@"Refresh", @"Refresh departure button")
+#define kRefreshText    NSLocalizedString(@"Refresh", @"Refresh departure button")
 
 #define kRefreshButton  0x01
 #define kRefreshTimer   0x02
@@ -24,19 +24,13 @@
 #define kRefreshAll     (kRefreshButton | kRefreshTimer | kRefreshPull | kRefreshShake)
 #define kRefreshNoTimer (kRefreshButton | kRefreshPull | kRefreshShake)
 
-@interface TableViewControllerWithRefresh<FilteredItemType>  : PullRefreshTableViewController<FilteredItemType> 
-{
-    bool                _timerPaused;
-}
+@interface TableViewControllerWithRefresh<FilteredItemType>  : PullRefreshTableViewController<FilteredItemType>
 
-@property (nonatomic, strong) NSTimer *             refreshTimer;
-@property (nonatomic, strong) NSDate *              lastRefresh;
-@property (nonatomic, strong) UIBarButtonItem *     refreshButton;
-@property (nonatomic)         NSInteger             refreshFlags;
+@property (nonatomic) NSInteger refreshFlags;
 
 - (void)stopTimer;
 - (void)startTimer;
-- (void)setRefreshButtonText:(NSString*)text;
+- (void)setRefreshButtonText:(NSString *)text;
 - (void)refreshAction:(id)unused;
 - (void)countDownTimer;
 

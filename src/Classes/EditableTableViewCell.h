@@ -20,7 +20,7 @@
 @property (nonatomic, weak) id <EditableTableViewCellDelegate> delegate;
 @property (nonatomic, assign) BOOL isInlineEditing;
 
-// Informs the cell to stop editing, resulting in keyboard/pickers/etc. being ordered out 
+// Informs the cell to stop editing, resulting in keyboard/pickers/etc. being ordered out
 // and first responder status resigned.
 - (void)stopEditing;
 

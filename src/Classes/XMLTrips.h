@@ -29,31 +29,27 @@
 @interface XMLTrips : TriMetXML
 
 @property (nonatomic, strong) TripUserRequest *userRequest;
-@property (nonatomic)          bool reversed;
 @property (nonatomic, strong) NSArray *userFaves;
+
 @property (nonatomic, strong) TripLegEndPoint *resultFrom;
 @property (nonatomic, strong) TripLegEndPoint *resultTo;
 
-// @property (nonatomic, retain) NSString      **currentProperty;
-@property (nonatomic, strong) TripItinerary *currentItinerary;
-@property (nonatomic, strong) TripLeg        *currentLeg;
-// @property (nonatomic, retain) NSMutableArray *itineraries;
-@property (nonatomic, strong) id            currentObject;
-@property (nonatomic, strong) NSString        *currentTagData;
-@property (nonatomic, strong) NSMutableArray *toList;
-@property (nonatomic)         bool toAppleFailed;
-@property (nonatomic, strong) NSMutableArray *fromList;
-@property (nonatomic)         bool fromAppleFailed;
-@property (nonatomic, strong) NSMutableArray *currentList;
-@property (nonatomic, strong) NSString       *xdate;
-@property (nonatomic, strong) NSString         *xtime;
-@property (nonatomic, strong) NSDictionary <NSString *, NSValue *> *selsForProps;
+@property (nonatomic)         bool reversed;
+
+@property (nonatomic, strong) NSString *xdate;
+@property (nonatomic, strong) NSString *xtime;
+
 @property (nonatomic, readonly, copy) NSString *shortName;
 @property (nonatomic, readonly, copy) NSString *longName;
 @property (nonatomic, readonly, copy) NSString *mediumName;
 
-- (SEL)selForProp:(NSString *)element;
-- (void)fetchItineraries:(NSData*)rawData;
+@property (nonatomic, strong) NSMutableArray *toList;
+@property (nonatomic, strong) NSMutableArray *fromList;
+
+@property (nonatomic)         bool toAppleFailed;
+@property (nonatomic)         bool fromAppleFailed;
+
+- (void)fetchItineraries:(NSData *)rawData;
 - (XMLTrips *)createReverse;
 - (XMLTrips *)createAuto;
 - (void)saveTrip;
@@ -62,8 +58,8 @@
 - (instancetype)init;
 - (NSUserActivity *)userActivity;
 
-+(NSArray *)distanceMapSingleton;
-+(int)distanceToIndex:(float)distance;
-+(float)indexToDistance:(int)index;
++ (NSArray *)distanceMapSingleton;
++ (int)distanceToIndex:(float)distance;
++ (float)indexToDistance:(int)index;
 
 @end

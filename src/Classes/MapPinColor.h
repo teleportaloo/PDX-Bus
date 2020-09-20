@@ -9,7 +9,7 @@
 #import <MapKit/MapKit.h>
 
 @class Departure;
-@protocol BackgroundTaskController;
+@protocol TaskController;
 
 @protocol MapPinColor <MKAnnotation>
 
@@ -34,5 +34,5 @@ typedef enum MapPinColorEnum {
 @property (nonatomic, readonly, copy) UIColor *pinSubTint;
 @property (nonatomic, readonly)  bool useMapTapped;
 
-- (bool)mapTapped:(id<BackgroundTaskController>) progress;
+- (bool)mapTapped:(id<TaskController>)progress;
 @end

@@ -18,23 +18,19 @@
 
 @implementation NSMutableDictionary (MutableElements)
 
-+ (NSMutableDictionary *)mutableContainersWithContentsOfURL:(NSURL *)url
-{
++ (NSMutableDictionary *)mutableContainersWithContentsOfURL:(NSURL *)url {
     NSData *data = [NSData dataWithContentsOfURL:url];
     
-    if (data)
-    {
+    if (data) {
         NSError *error = nil;
-        NSMutableDictionary * result = [NSPropertyListSerialization propertyListWithData:data
-                                                                                 options:NSPropertyListMutableContainers
-                                                                                  format:nil error:nil];
+        NSMutableDictionary *result = [NSPropertyListSerialization propertyListWithData:data
+                                                                                options:NSPropertyListMutableContainers
+                                                                                 format:nil error:nil];
         
         LOG_NSERROR(error);
         
-        
-        if ([result isKindOfClass:[NSMutableDictionary class]])
-        {
-            return  result;
+        if ([result isKindOfClass:[NSMutableDictionary class]]) {
+            return result;
         }
     }
     

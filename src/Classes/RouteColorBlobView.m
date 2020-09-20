@@ -18,30 +18,32 @@
 #import "TriMetInfo.h"
 #import "UIColor+DarkMode.h"
 
+@interface RouteColorBlobView ()
+
+@property (nonatomic) UIColor *color;
+@property (nonatomic) bool square;
+
+@end
+
 @implementation RouteColorBlobView
 
 - (instancetype)initWithFrame:(CGRect)frame {
     if ((self = [super initWithFrame:frame])) {
         // Initialization code
     }
+    
     return self;
 }
 
-- (bool)setRouteColorLine:(RAILLINES)line
-{
+- (bool)setRouteColorLine:(RAILLINES)line {
     PC_ROUTE_INFO info = [TriMetInfo infoForLine:line];
     
-    if (info !=nil)
-    {
-        _red    = COL_HTML_R(info->html_color);
-        _green  = COL_HTML_G(info->html_color);
-        _blue   = COL_HTML_B(info->html_color);
+    if (info != nil) {
+        self.color = [TriMetInfo cachedColor:info->html_color];
         _square = info->streetcar;
-        self.hidden    = NO;
+        self.hidden = NO;
         [self setNeedsDisplay];
-    }
-    else 
-    {
+    } else {
         self.hidden = YES;
         [self setNeedsDisplay];
     }
@@ -49,25 +51,17 @@
     self.backgroundColor = [UIColor clearColor];
     
     return !self.hidden;
-    
 }
 
-
-- (void)setRouteColor:(NSString *)route
-{
+- (void)setRouteColor:(NSString *)route {
     PC_ROUTE_INFO info = [TriMetInfo infoForRoute:route];
-
-    if (info !=nil && route!=nil)
-    {
-        _red    = COL_HTML_R(info->html_color);
-        _green  = COL_HTML_G(info->html_color);
-        _blue   = COL_HTML_B(info->html_color);
+    
+    if (info != nil && route != nil) {
+        self.color = [TriMetInfo cachedColor:info->html_color];
         _square = info->streetcar;
-        self.hidden    = NO;
+        self.hidden = NO;
         [self setNeedsDisplay];
-    }
-    else 
-    {
+    } else {
         self.hidden = YES;
         [self setNeedsDisplay];
     }
@@ -75,63 +69,48 @@
     self.backgroundColor = [UIColor clearColor];
 }
 
-
 // Only override drawRect: if you perform custom drawing.
 // An empty implementation adversely affects performance during animation.
 - (void)drawRect:(CGRect)rect {
-    // Drawing code
-    
-    CGMutablePathRef fillPath = CGPathCreateMutable();
-    
-    // CGPathAddRects(fillPath, NULL, &rect, 1);
-    
-    CGRect outerSquare;
-    
-    CGFloat width = fmin(CGRectGetWidth(rect), CGRectGetHeight(rect));
-    
-    outerSquare.origin.x = 1 + CGRectGetMidX(rect) - width/2;
-    outerSquare.origin.y = 1 + CGRectGetMidY(rect) - width/2;
-    outerSquare.size.width = width-2;
-    outerSquare.size.height = width-2;
-    
-    if (_square)
-    {
-        CGRect innerSquare = CGRectInset(outerSquare, 1, 1);
-        CGPathAddRect(fillPath, NULL, innerSquare);
-    }
-    else
-    {
-        CGPathAddEllipseInRect(fillPath, NULL, outerSquare);
-    }
-    
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    
-    if (_red == 0.0 && _green == 0.0 && _blue == 0.0)
-    {
-        CGContextSetRGBStrokeColor(context, 255,255,255, 1.0);
-    }
-    else
-    {
-         CGContextSetRGBStrokeColor(context, _red, _green ,_blue, 1.0);
-    }
-    
-    CGContextSetLineWidth(context, 0.5);
-    CGContextSetRGBFillColor(context, _red , _green, _blue, self.hidden ? 0.0 : 1.0);
-    CGContextAddPath(context, fillPath);
-    
-    // CGContextFillPath(context);
-    // CGContextStrokePath(context);
-    
-    CGContextDrawPath(context, kCGPathFillStroke);
-    
-
-    
-//    DEBUG_LOG(@"%f %f %f\n", _red, _green, _blue);
+    if (!self.hidden) {
+        CGMutablePathRef fillPath = CGPathCreateMutable();
+        CGRect outerSquare;
         
-    CGPathRelease(fillPath);
-
+        CGFloat width = fmin(CGRectGetWidth(rect), CGRectGetHeight(rect));
+        
+        outerSquare.origin.x = 1 + CGRectGetMidX(rect) - width / 2;
+        outerSquare.origin.y = 1 + CGRectGetMidY(rect) - width / 2;
+        outerSquare.size.width = width - 2;
+        outerSquare.size.height = width - 2;
+        
+        if (_square) {
+            CGRect innerSquare = CGRectInset(outerSquare, 1, 1);
+            CGPathAddRect(fillPath, NULL, innerSquare);
+        } else {
+            CGPathAddEllipseInRect(fillPath, NULL, outerSquare);
+        }
+        
+        CGContextRef context = UIGraphicsGetCurrentContext();
+        
+        const CGFloat *components = CGColorGetComponents(self.color.CGColor);
+        
+        if (components == nil) {
+            static const CGFloat black[] = { 0.0, 0.0, 0.0 };
+            components = black;
+        }
+        
+        if (components[0] == 0.0 && components[1] == 0.0 && components[2] == 0.0) {
+            CGContextSetRGBStrokeColor(context, 1.0, 1.0, 1.0, 1.0);
+        } else {
+            CGContextSetRGBStrokeColor(context, components[0], components[1], components[2], 1.0);
+        }
+        
+        CGContextSetLineWidth(context, 0.5);
+        CGContextSetRGBFillColor(context, components[0], components[1], components[2], self.hidden ? 0.0 : 1.0);
+        CGContextAddPath(context, fillPath);
+        CGContextDrawPath(context, kCGPathFillStroke);
+        CGPathRelease(fillPath);
+    }
 }
-
-
 
 @end

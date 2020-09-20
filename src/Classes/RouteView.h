@@ -1,6 +1,6 @@
 //
 //  RouteView.h
-//  TriMetTimes
+//  PDXBus
 //
 
 
@@ -19,9 +19,9 @@
 
 @interface RouteView : TableViewControllerWithRefresh
 
-@property (nonatomic, strong) XMLRoutes *routeData;
 
-- (void)fetchRoutesAsync:(id<BackgroundTaskController>)task backgroundRefresh:(bool)backgroundRefresh;
-- (void)refreshAction:(id)sender;
+
+- (void)fetchRoutesAsync:(id<TaskController>)taskController backgroundRefresh:(bool)backgroundRefresh;
+
 
 @end

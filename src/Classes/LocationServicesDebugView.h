@@ -19,7 +19,7 @@
 
 #ifdef DEBUG_ALARMS
 
-@interface LocationServicesDebugView : TableViewWithToolbar 
+@interface LocationServicesDebugView : TableViewWithToolbar
 
 @property (nonatomic, strong)  AlarmTask *data;
 

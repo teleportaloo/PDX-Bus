@@ -19,8 +19,8 @@
 
 @interface DetoursForRoute : DataFactory
 
-@property (nonatomic, strong)   NSMutableArray<Detour *> *  detours;
-@property (nonatomic, strong)   Route *                     route;
+@property (nonatomic, strong)   NSMutableArray<Detour *> *detours;
+@property (nonatomic, strong)   Route *route;
 
 
 @end

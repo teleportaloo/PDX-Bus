@@ -21,13 +21,11 @@
 @implementation WatchArrivalMap
 
 
-+ (NSString*)identifier
-{
++ (NSString *)identifier {
     return @"Map";
 }
 
-- (void)populate:(XMLDepartures *)xml departures:(NSArray<Departure*>*)deps
-{
+- (void)populate:(XMLDepartures *)xml departures:(NSArray<Departure *> *)deps {
     [WatchMapHelper displayMap:self.map purplePin:xml.loc otherPins:deps];
 }
 

@@ -17,12 +17,10 @@
 #import "XMLLocateVehicles.h"
 
 @interface VehicleTableView : TableViewWithToolbar
-{
-    bool                _firstTime;
-}
+
 
 @property (nonatomic, strong) XMLLocateVehicles *locator;
 
-- (void)fetchNearestVehiclesAsync:(id<BackgroundTaskController>)task location:(CLLocation *)here maxDistance:(double)dist backgroundRefresh:(bool)backgroundRefresh;
+- (void)fetchNearestVehiclesAsync:(id<TaskController>)taskController location:(CLLocation *)here maxDistance:(double)dist backgroundRefresh:(bool)backgroundRefresh;
 
 @end

@@ -1,6 +1,6 @@
 //
 //  XMLDepartures+iOSUI.h
-//  TriMetTimes
+//  PDXBus
 //
 
 
@@ -24,7 +24,7 @@
 
 // MapPinColor
 @property (nonatomic, readonly) CLLocationCoordinate2D coordinate;
-@property (nonatomic, readonly, copy) NSString *title; 
+@property (nonatomic, readonly, copy) NSString *title;
 @property (nonatomic, readonly) MapPinColorValue pinColor;
 @property (nonatomic, readonly, copy) NSString *mapStopId;
 

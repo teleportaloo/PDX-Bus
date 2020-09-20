@@ -3,7 +3,7 @@
 //  PDX Bus
 //
 //  Created by Andrew Wallace on 3/28/10.
-//  
+//
 //
 
 
@@ -15,13 +15,10 @@
 
 #import "NextBusXML.h"
 
-
 @implementation NextBusXML
 
-- (NSString*)fullAddressForQuery:(NSString *)query
-{
-	return [NSString stringWithFormat:@"http://webservices.nextbus.com/service/publicXMLFeed?command=%@", query];
+- (NSString *)fullAddressForQuery:(NSString *)query {
+    return [NSString stringWithFormat:@"http://webservices.nextbus.com/service/publicXMLFeed?command=%@", query];
 }
-
 
 @end

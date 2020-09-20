@@ -21,17 +21,16 @@
 
 @interface WatchBookmarksContext : WatchContext
 
-@property (strong, nonatomic) NSString *title;
-@property (strong, nonatomic) NSArray  *singleBookmark;
-@property (nonatomic)         bool recents;
+@property (strong, nonatomic) NSArray *singleBookmark;
 @property (nonatomic)         bool dictated;
+@property (strong, nonatomic) NSString *title;
+@property (nonatomic)         bool recents;
 @property (strong, nonatomic) NSString *location;
 @property (nonatomic)         bool oneTimeShowFirst;
 
+- (void)updateUserActivity:(WKInterfaceController *)controller;
+
 + (WatchBookmarksContext *)contextWithBookmark:(NSArray *)bookmark title:(NSString *)title locationString:(NSString *)location;
 + (WatchBookmarksContext *)contextForRecents;
-- (void)updateUserActivity:(WKInterfaceController*)controller;
-
-
 
 @end

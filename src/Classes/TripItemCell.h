@@ -19,9 +19,7 @@
 #define kTripItemCellId @"TripItemCellId"
 
 @interface TripItemCell : UITableViewCell
-{
-    NSString *_formattedBodyText;
-}
+
 @property (strong, nonatomic) IBOutlet RouteColorBlobView *routeColorView;
 @property (strong, nonatomic) IBOutlet UILabel *modeLabel;
 @property (strong, nonatomic) IBOutlet UILabel *bodyLabel;
@@ -36,6 +34,6 @@
            leftColor:(UIColor *)col
                route:(NSString *)route;
 
-+ (UINib*)nib;
++ (UINib *)nib;
 
 @end

@@ -15,12 +15,15 @@
 
 #import "ArrivalsIntent.h"
 
+@class XMLDepartures;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface ArrivalsResponseFactory : NSObject
 
-+ (ArrivalsIntentResponse *)arrivalsRespond:(ArrivalsIntentResponseCode)code API_AVAILABLE(ios(12.0));
-+ (ArrivalsIntentResponse *)responseForStops:(NSString*)stopsString API_AVAILABLE(ios(12.0));
++ (ArrivalsIntentResponse *_Nullable)arrivalsRespond:(ArrivalsIntentResponseCode)code API_AVAILABLE(ios(12.0));
++ (ArrivalsIntentResponse *)responseForStops:(NSString *)stopsString API_AVAILABLE(ios(12.0));
++ (NSMutableArray<NSString *> *_Nullable)arrivals:(XMLDepartures *)dep stopId:(NSString *)stopId;
 
 @end
 

@@ -12,36 +12,28 @@
 
 #import "StopDistance.h"
 
-
 @implementation StopDistance
 
-
-
--(instancetype)initWithLocId:(int)loc distance:(CLLocationDistance)dist accuracy:(CLLocationAccuracy)acc
-{
-    if ((self = [super init]))
-    {
-        
-        self.locid = [NSString stringWithFormat:@"%d", loc];
-        self.distance = dist;        
+- (instancetype)initWithStopId:(int)stopId distance:(CLLocationDistance)dist accuracy:(CLLocationAccuracy)acc {
+    if ((self = [super init])) {
+        self.stopId = [NSString stringWithFormat:@"%d", stopId];
+        self.distance = dist;
         self.accuracy = acc;
     }
+    
     return self;
 }
 
--(NSComparisonResult)compareUsingDistance:(StopDistance*)inStop
-{
-    if (self.distance < inStop.distance)
-    {
+- (NSComparisonResult)compareUsingDistance:(StopDistance *)inStop {
+    if (self.distance < inStop.distance) {
         return NSOrderedAscending;
     }
     
-    if (self.distance > inStop.distance)
-    {
+    if (self.distance > inStop.distance) {
         return NSOrderedDescending;
     }
     
-    return [self.locid compare:inStop.locid];
+    return [self.stopId compare:inStop.stopId];
 }
 
 @end

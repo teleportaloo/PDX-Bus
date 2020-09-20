@@ -19,9 +19,8 @@
 
 @interface MapViewWithStops : MapViewController
 
-@property (nonatomic, strong) XMLStops *stopData;
-@property (nonatomic, copy)   NSString *locId;
-
-- (void)fetchStopsAsync:(id<BackgroundTaskController>)task route:(NSString*)routeid direction:(NSString*)dir
-                    returnStop:(id<ReturnStop>)returnStop;
+- (void)fetchStopsAsync:(id<TaskController>)taskController
+                  route:(NSString *)routeid
+              direction:(NSString *)dir
+             returnStop:(id<ReturnStop>)returnStop;
 @end

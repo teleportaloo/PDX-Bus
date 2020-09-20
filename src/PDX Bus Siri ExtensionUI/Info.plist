@@ -17,16 +17,21 @@
 	<key>CFBundlePackageType</key>
 	<string>XPC!</string>
 	<key>CFBundleShortVersionString</key>
-	<string>11.3.1</string>
+	<string>11.4</string>
 	<key>CFBundleVersion</key>
-	<string>43</string>
+	<string>48</string>
 	<key>NSExtension</key>
 	<dict>
 		<key>NSExtensionAttributes</key>
 		<dict>
 			<key>IntentsSupported</key>
 			<array>
+				<string>AlertsForRouteIntent</string>
+				<string>ArrivalsAtStopIdIntent</string>
 				<string>ArrivalsIntent</string>
+				<string>LocateStopsIntent</string>
+				<string>RoutesAtStopIdIntent</string>
+				<string>StopLocationIntent</string>
 			</array>
 		</dict>
 		<key>NSExtensionMainStoryboard</key>

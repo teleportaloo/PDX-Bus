@@ -21,11 +21,6 @@
 
 @interface RouteColorBlobView : UIView 
 
-@property (nonatomic) CGFloat red;
-@property (nonatomic) CGFloat green;
-@property (nonatomic) CGFloat blue;
-@property (nonatomic) bool square;
-
 - (void)setRouteColor:(NSString *)route;
 - (bool)setRouteColorLine:(RAILLINES)line;
 

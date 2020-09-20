@@ -23,29 +23,11 @@
 
 
 @interface TripPlannerResultsView : TableViewWithToolbar <MFMessageComposeViewControllerDelegate, MFMailComposeViewControllerDelegate,
-                                                            InfColorPickerControllerDelegate, EKEventViewDelegate,INUIAddVoiceShortcutViewControllerDelegate>
-{
-    int             _itinerarySectionOffset;
-    bool            _sms;
-    bool            _cal;
-    int             _recentTripItem;
-}
+InfColorPickerControllerDelegate, EKEventViewDelegate, INUIAddVoiceShortcutViewControllerDelegate>
 
 @property (nonatomic, strong) XMLTrips *tripQuery;
 @property (nonatomic, strong) NSUserActivity *userActivity;
-@property (nonatomic, strong) TripItemCell *prototypeTripCell;
-@property (nonatomic, strong) EKEvent *event;
-@property (nonatomic, strong) EKEventStore *eventStore;
-@property (nonatomic, readonly, copy) NSString *fromText;
-@property (nonatomic, readonly, copy) NSString *toText;
 
-- (NSString *)getTextForLeg:(NSIndexPath *)indexPath;
-- (NSInteger)legRows:(TripItinerary *)it;
-- (TripItinerary *)getSafeItinerary:(NSInteger)section;
-- (void)mailComposeController:(MFMailComposeViewController*)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError*)error;
-- (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult)result;
 - (instancetype)initWithHistoryItem:(int)item;
-- (void)setItemFromHistory:(int)item;
-- (void)setItemFromArchive:(NSDictionary *)archive;
 
 @end

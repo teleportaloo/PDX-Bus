@@ -25,7 +25,7 @@
 - (instancetype)initWithFileName:(NSString *)shortFileNamem initFromBundle:(bool)initFromBundle;
 - (void)writeDictionary:(NSDictionary *)dict;
 - (void)writeDictionaryBinary:(NSDictionary *)dict;
-- (NSMutableDictionary*)readFromFile:(NSPropertyListFormat*)format;
+- (NSMutableDictionary *)readFromFile:(NSPropertyListFormat *)format;
 - (void)deleteFile;
 
 + (instancetype)fileWithName:(NSString *)shortFileName initFromBundle:(bool)initFromBundle;

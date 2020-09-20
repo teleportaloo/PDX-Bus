@@ -15,40 +15,52 @@
 
 #import "QrCodeReaderViewController.h"
 #import "DepartureTimesView.h"
+#import "RoundedTransparentRectView.h"
+#import "UIColor+DarkMode.h"
+#import "Settings.h"
+#import "MainQueueSync.h"
 
 #define kLightCtrlOn  (0)
 #define kLightCtrlOff (1)
 
+@interface QrCodeReaderViewController ()
+
+@property (nonatomic, strong) AVCaptureSession *captureSession;
+@property (nonatomic, strong) AVCaptureVideoPreviewLayer *videoPreviewLayer;
+@property (nonatomic, strong) UIView *viewPreview;
+@property (nonatomic) bool isReading;
+@property (nonatomic, strong) UISegmentedControl *lightSegControl;
+@property (nonatomic, strong) RoundedTransparentRectView *qrCodeHighlight;
+
+@end
+
 @implementation QrCodeReaderViewController
 
 
--(bool)torchSupported
-{
+- (bool)torchSupported {
     static bool checkDone = NO;
     static bool supported = NO;
     
-    if (!checkDone)
-    {
+    if (!checkDone) {
         Class captureDeviceClass = NSClassFromString(@"AVCaptureDevice");
-        if (captureDeviceClass != nil)
-        {
+        
+        if (captureDeviceClass != nil) {
             AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
             
-            if (device.hasTorch && device.hasFlash)
-            {
+            if (device.hasTorch && device.hasFlash) {
                 supported = YES;
             }
         }
+        
         checkDone = YES;
     }
+    
     return supported;
 }
 
-- (bool)startReading
-{
-    if (!_isReading)
-    {
-         _isReading = YES;
+- (bool)startReading {
+    if (!_isReading) {
+        _isReading = YES;
         
         NSError *error = nil;
         
@@ -78,49 +90,47 @@
         [self.videoPreviewLayer setFrame:self.viewPreview.layer.bounds];
         [self.viewPreview.layer addSublayer:self.videoPreviewLayer];
         
-       
-        [_captureSession startRunning];
         
+        [_captureSession startRunning];
     }
     
     return YES;
 }
 
-
-
--(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects fromConnection:(AVCaptureConnection *)connection{
+- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects fromConnection:(AVCaptureConnection *)connection {
     if (metadataObjects != nil && [metadataObjects count] > 0 && _isReading) {
         AVMetadataMachineReadableCodeObject *metadataObj = [metadataObjects objectAtIndex:0];
+        
         if ([[metadataObj type] isEqualToString:AVMetadataObjectTypeQRCode]) {
-           _isReading = NO;
+            _isReading = NO;
             dispatch_sync(dispatch_get_main_queue(), ^{
+                AVMetadataObject * displayObj = [self.videoPreviewLayer transformedMetadataObjectForMetadataObject:metadataObj];
+                self.qrCodeHighlight.frame = displayObj.bounds;
+                [self.qrCodeHighlight setNeedsDisplay];
+                
                 [self stopReading];
-                [[DepartureTimesView viewController] fetchTimesViaQrCodeRedirectAsync:self.backgroundTask URL:metadataObj.stringValue];
+                [[DepartureTimesView viewController] fetchTimesViaQrCodeRedirectAsync:self.backgroundTask
+                                                                                  URL:metadataObj.stringValue];
             });
         }
     }
 }
 
-- (void)backgroundTaskDone:(UIViewController *)viewController cancelled:(bool)cancelled
-{
-    if (!cancelled)
-    {
+- (void)backgroundTaskDone:(UIViewController *)viewController cancelled:(bool)cancelled {
+    self.qrCodeHighlight.frame = CGRectNull;
+    if (!cancelled) {
         [super backgroundTaskDone:viewController cancelled:cancelled];
-    }
-    else
-    {
+    } else {
         [self startReading];
     }
 }
 
--(void)stopReading
-{
-    if (self.isReading)
-    {
+- (void)stopReading {
+    if (self.isReading) {
         self.isReading = NO;
         [self.captureSession stopRunning];
         self.captureSession = nil;
-    
+        
         [self.videoPreviewLayer removeFromSuperlayer];
     }
 }
@@ -144,19 +154,22 @@
     UIFont *font = [UIFont systemFontOfSize:20];
     
     NSStringDrawingOptions options = NSStringDrawingTruncatesLastVisibleLine |
-                                            NSStringDrawingUsesLineFragmentOrigin;
+    NSStringDrawingUsesLineFragmentOrigin;
     
     CGFloat width = viewRect.size.width - margin * 2;
     
-    NSDictionary *attr = @{NSFontAttributeName: font};
+    NSDictionary *attr = @{ NSFontAttributeName: font };
     CGRect bounds = [text boundingRectWithSize:CGSizeMake(width, MAXFLOAT)
                                        options:options
                                     attributes:attr
                                        context:nil];
     
-    CGRect labelRect = CGRectMake(margin,100, width, bounds.size.height + 20);
+    CGRect labelRect = CGRectMake(margin, 100, width, bounds.size.height + 20);
     
     UILabel *label = [[UILabel alloc] initWithFrame:labelRect];
+    
+    label.layer.masksToBounds = true;
+    label.layer.cornerRadius = 10;
     
     label.font = font;
     label.textAlignment = NSTextAlignmentCenter;
@@ -168,26 +181,43 @@
     label.text = text;
     
     [self.view addSubview:label];
+    
+    
+    RoundedTransparentRectView *view =  [[RoundedTransparentRectView alloc] init];
+    
+    view.backgroundColor = [UIColor clearColor];
+
+    view.color = [HTML_COLOR(Settings.toolbarColors) colorWithAlphaComponent:0.75];
+    
+    self.qrCodeHighlight = view;
+    
+    [self.view addSubview:self.qrCodeHighlight];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleChangeInColor:) name:NSUserDefaultsDidChangeNotification object:[NSUserDefaults standardUserDefaults]];
+    
 }
 
-- (void)viewDidAppear:(BOOL)animated
-{
+- (void)handleChangeInColor:(id)obj {
+
+    [MainQueueSync runSyncOnMainQueueWithoutDeadlocking:^{
+        self.qrCodeHighlight.color = [HTML_COLOR(Settings.toolbarColors) colorWithAlphaComponent:0.75];
+    }];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     [self startReading];
 }
 
-- (void)viewDidDisappear:(BOOL)animated
-{
+- (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
     [self off];
     
-    if (self.lightSegControl)
-    {
+    if (self.lightSegControl) {
         self.lightSegControl.selectedSegmentIndex = kLightCtrlOff;
     }
+    
     [self stopReading];
-    
-    
 }
 
 - (void)didReceiveMemoryWarning {
@@ -199,61 +229,46 @@
     [self.navigationController popViewControllerAnimated:YES];
 }
 
-
-- (void)on
-{
-    
+- (void)on {
     if (self.torchSupported) {
-        
         AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
         
         [device lockForConfiguration:nil];
         
         device.torchMode = AVCaptureTorchModeOn;
-        device.flashMode = AVCaptureFlashModeOn;
+        // device.flashMode = AVCaptureFlashModeOn;
         
         [device unlockForConfiguration];
-        
     }
-    
 }
 
-- (void)off
-{
+- (void)off {
     if (self.torchSupported) {
-        
         AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
         
         [device lockForConfiguration:nil];
         
         device.torchMode = AVCaptureTorchModeOff;
-        device.flashMode = AVCaptureFlashModeOff;
+        // device.flashMode = AVCaptureFlashModeOff;
         
         [device unlockForConfiguration];
-        
     }
 }
 
-- (void)toggleFlash:(UISegmentedControl *)ctrl
-{
-    if (ctrl.selectedSegmentIndex == 0)
-    {
+- (void)toggleFlash:(UISegmentedControl *)ctrl {
+    if (ctrl.selectedSegmentIndex == 0) {
         [self on];
-    }
-    else
-    {
+    } else {
         [self off];
     }
 }
 
-- (void) updateToolbarItems:(NSMutableArray *)toolbarItems
-{
+- (void)updateToolbarItems:(NSMutableArray *)toolbarItems {
     [toolbarItems addObject:[[UIBarButtonItem alloc]
-                              initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
-                              target:self action:@selector(cancel:)]];
+                             initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
+                             target:self action:@selector(cancel:)]];
     
-    if (self.torchSupported)
-    {
+    if (self.torchSupported) {
         UIBarButtonItem *segItem = [self segBarButtonWithItems:@[@"Light", @"Off"] action:@selector(toggleFlash:) selectedIndex:kLightCtrlOff];
         
         self.lightSegControl = segItem.customView;
@@ -262,17 +277,17 @@
         [toolbarItems addObject:segItem];
     }
     
-    
-    [self maybeAddFlashButtonWithSpace:YES buttons:toolbarItems big:NO];    
+    [self maybeAddFlashButtonWithSpace:YES buttons:toolbarItems big:NO];
 }
-/*
-#pragma mark - Navigation
 
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
+/*
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
 
 @end

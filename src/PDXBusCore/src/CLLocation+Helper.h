@@ -1,5 +1,5 @@
 //
-//  LatLng.h
+//  CLLocation+Helper.h
 //  PDX Bus
 //
 //  Created by Andrew Wallace on 2/25/18.
@@ -16,15 +16,9 @@
 #import <Foundation/Foundation.h>
 #import <CoreLocation/CoreLocation.h>
 
-@interface  CLLocation(Helper)
-
-@property (readonly) CLLocationDegrees lat;
-@property (readonly) CLLocationDegrees lng;
+@interface  CLLocation (Helper)
 
 + (instancetype)withLat:(CLLocationDegrees)lat lng:(CLLocationDegrees)lng;
-+ (instancetype)fromStringsLat:(NSString*) lat lng:(NSString*)lng;
++ (instancetype)fromStringsLat:(NSString *)lat lng:(NSString *)lng;
 
 @end
-
-
-

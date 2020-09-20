@@ -1,6 +1,6 @@
 //
-//  DepartureData.h
-//  TriMetTimes
+//  Departure.h
+//  PDXBus
 //
 
 
@@ -16,6 +16,7 @@
 #import "DataFactory.h"
 #import "TriMetInfo.h"
 #import "Detour.h"
+#import "DetourSorter.h"
 
 #define kLongDateFormat          @"E, h:mm a"
 #define kLongDateFormatWeekday   @"EEEE, h:mm a"
@@ -32,7 +33,7 @@ typedef enum
 @class DepartureTrip;
 
 typedef enum {
-    kStatusEstimated =0,
+    kStatusEstimated = 0,
     kStatusScheduled,
     kStatusDelayed,
     kStatusCancelled
@@ -48,10 +49,10 @@ typedef enum {
 @property (nonatomic, readonly, copy) NSString *timeToArrival;
 @property (nonatomic, readonly, copy) NSString *descAndDir;
 @property (nonatomic, readonly) const VEHICLE_INFO *vehicleInfo;
-@property (nonatomic, copy)   NSString *locid;
+@property (nonatomic, copy)   NSString *stopId;
 @property (nonatomic, copy)   NSString *block;
 @property (nonatomic, copy)   NSString *reason;
-@property (nonatomic, strong) NSArray<NSString *> *vehicleIDs;
+@property (nonatomic, strong) NSArray<NSString *> *vehicleIds;
 @property (nonatomic)         bool  fetchedAdditionalVehicles;
 @property (nonatomic)         NSInteger loadPercentage;
 @property (nonatomic)         bool      trackingErrorOffRoute;
@@ -70,14 +71,12 @@ typedef enum {
 @property (nonatomic, copy)   NSString *shortSign;
 @property (nonatomic, copy)   NSString *route;
 @property (nonatomic, copy)   NSString *fullSign;
-@property (nonatomic, copy)   NSString *nextLocid;
+@property (nonatomic, copy)   NSString *nextStopId;
 @property (nonatomic, copy)   NSString *locationDesc;
 @property (nonatomic, copy)   NSString *locationDir;
 @property (nonatomic, strong) NSDate *departureTime;
 @property (nonatomic, strong) NSDate *scheduledTime;
 @property (nonatomic)         kStatus status;
-@property (nonatomic, strong) NSMutableOrderedSet<NSNumber*> *detours;
-@property (nonatomic, strong) NSMutableDictionary<NSNumber*, Detour*> *allDetours;
 @property (nonatomic)         bool dropOffOnly;
 @property (nonatomic)         bool streetcar;
 @property (nonatomic)         NSInteger nextBusMins;
@@ -89,8 +88,7 @@ typedef enum {
 @property (nonatomic) NSTimeInterval timeAdjustment;
 @property (nonatomic) bool    invalidated;
 @property (nonatomic) bool    detour;
-@property (nonatomic) NSInteger systemWideDetours;
-
+@property (nonatomic) DetourSorter *sortedDetours;
 
 - (instancetype)init;
 - (NSString *)formatLayoverTime:(NSTimeInterval)t;

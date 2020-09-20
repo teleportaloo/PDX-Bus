@@ -14,25 +14,20 @@
 
 
 #import "InterfaceControllerWithBackgroundThread.h"
-#import "UserFaves.h"
+#import "UserState.h"
 
 #define kNextScreenTitle @"➡️Commuter"
 
 @interface InterfaceControllerWithCommuterBookmark : InterfaceControllerWithBackgroundThread
-{
-    bool _nextScreen;
-}
 
+@property (nonatomic) bool nextScreen;
 @property (copy, nonatomic) NSString *baseTitle;
-@property (strong, nonatomic) SafeUserData *faves;
-@property (nonatomic, readonly) bool autoCommute;
-@property (nonatomic, readonly) bool delayedDisplayOfCommuterBookmark;
+@property (strong, nonatomic) UserState *state;
 
-
-- (void)processLocation:(NSDictionary*)location;
-- (void)processBookmark:(NSDictionary*)bookmark;
-- (bool)runCommuterBookmarkOnlyOnce:(bool)onlyOnce;
+- (bool)autoCommute;
+- (bool)delayedDisplayOfCommuterBookmark;
+- (void)processLocation:(NSDictionary *)location;
+- (void)processBookmark:(NSDictionary *)bookmark;
 - (void)forceCommute;
-- (bool)atRoot;
 
 @end

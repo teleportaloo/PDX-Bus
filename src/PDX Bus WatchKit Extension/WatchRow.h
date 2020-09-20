@@ -20,8 +20,7 @@
 @class Departure;
 @class WatchArrivalsContext;
 
-typedef enum
-{
+typedef enum {
     WatchSelectAction_None,
     WatchSelectAction_RefreshData,
     WatchSelectAction_RefreshUI
@@ -33,7 +32,7 @@ typedef enum
 
 + (NSString *)identifier;
 
-- (void)populate:(XMLDepartures *)xml departures:(NSArray<Departure*>*)deps;
-- (WatchSelectAction)select:(XMLDepartures*)xml from:(WKInterfaceController *)from context:(WatchArrivalsContext*)context canPush:(bool)push;
+- (void)populate:(XMLDepartures *)xml departures:(NSArray<Departure *> *)deps;
+- (WatchSelectAction)select:(XMLDepartures *)xml from:(WKInterfaceController *)from context:(WatchArrivalsContext *)context canPush:(bool)push;
 
 @end

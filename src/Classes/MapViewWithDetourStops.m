@@ -18,72 +18,67 @@
 #import "DetourLocation+iOSUI.h"
 #import "NSString+Helper.h"
 #import "XMLMultipleDepartures.h"
+#import "TaskState.h"
+#import "LinkResponsiveTextView.h"
+#import "ViewControllerBase+DetourTableViewCell.h"
+#import "UIApplication+Compat.h"
 
 #define kGettingStops @"getting locations"
-#define kTextMargin (3.0)
+#define kTextMargin   (50.0)
+
+@interface MapViewWithDetourStops () {
+    NSMutableArray<XMLDepartures *> *_stopData;
+}
+
+@property (nonatomic, strong) NSArray<Detour *> *detours;
+@property (nonatomic, strong) LinkResponsiveTextView *detourText;
+
+@end
 
 @implementation MapViewWithDetourStops
 
 
-- (void)reloadData
-{
+- (void)reloadData {
     [self.detourText removeFromSuperview];
     self.detourText = nil;
     [super reloadData];
 }
 
-- (CGFloat)heightOffset
-{
-    return [UIApplication sharedApplication].statusBarFrame.size.height;
-}
-
-- (void)modifyMapViewFrame:(CGRect *)frame
-{
-    if (self.detours.count == 1)
-    {
+- (void)modifyMapViewFrame:(CGRect *)frame {
+    if (self.detours.count == 1) {
         const CGFloat mapRatio = 0.5;
         
-        NSString *textToFormat = self.detours.firstObject.formattedDescriptionWithoutInfo;
+        NSString *textToFormat = [self.detours.firstObject formattedDescriptionWithoutInfo:nil];
         
-        if (self.annotations.count == 0)
-        {
-            NSArray *stops = self.detours.firstObject.extractStops;
-            if (stops.count == 1)
-            {
-                textToFormat = [NSString stringWithFormat:NSLocalizedString(@"#b#RNo location found for stop %@.#b#D\n%@", @"error message"), stops.firstObject, textToFormat];
-            }
-            else
-            {
-                textToFormat = [NSString stringWithFormat:NSLocalizedString(@"#b#RNo locations found for stops %@.#b#D\n%@", @"error message"), [NSString commaSeparatedStringFromEnumerator:stops selector:@selector(self)], textToFormat];
+        if (self.annotations.count == 0) {
+            NSArray<NSString *> *stopIdArray = self.detours.firstObject.extractStops;
+            
+            if (stopIdArray.count == 1) {
+                textToFormat = [NSString stringWithFormat:NSLocalizedString(@"#b#RNo location found for stop %@.#b#D\n%@", @"error message"), stopIdArray.firstObject, textToFormat];
+            } else {
+                textToFormat = [NSString stringWithFormat:NSLocalizedString(@"#b#RNo locations found for stops %@.#b#D\n%@", @"error message"), [NSString commaSeparatedStringFromStringEnumerator:stopIdArray], textToFormat];
             }
         }
         
-        
-        NSAttributedString *text  = [textToFormat formatAttributedStringWithFont:self.paragraphFont];
+        NSAttributedString *text = [textToFormat formatAttributedStringWithFont:self.paragraphFont];
         
         // CGRect textSize = [text boundingRectWithSize:CGSizeMake(frame->size.width, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading context:nil];
         
-        CGFloat textHeight = frame->size.height * (1-mapRatio);
+        CGFloat textHeight = frame->size.height * (1 - mapRatio);
         // CGFloat textHeight = textSize.size.height > maxTextHeight ? maxTextHeight : textSize.size.height;
         
         CGRect textViewFrame = CGRectMake(frame->origin.x, frame->origin.y + frame->size.height - textHeight, frame->size.width, textHeight);
         
         UIColor *background = nil;
         
-        if (self.detours.firstObject.systemWideFlag)
-        {
+        if (self.detours.firstObject.systemWide) {
             background = [UIColor modeAwareSystemWideAlertBackground];
-        }
-        else
-        {
+        } else {
             background = [UIColor modeAwareAppBackground];
         }
         
-        if (self.detourText==nil)
-        {
-            self.detourText = [[UITextView alloc] initWithFrame:textViewFrame];
-            self.detourText.editable = NO;
-            self.detourText.selectable = NO;
+        if (self.detourText == nil) {
+            self.detourText = [[LinkResponsiveTextView alloc] initWithFrame:textViewFrame];
             self.detourText.textAlignment = NSTextAlignmentLeft;
             self.detourText.backgroundColor = [UIColor clearColor]; //   background;
             self.detourText.alpha = 1.0;
@@ -92,129 +87,111 @@
             self.detourText.accessibilityLabel = text.string.phonetic;
             self.detourText.accessibilityTraits = UIAccessibilityTraitStaticText;
             self.detourText.accessibilityValue = @"";
+            self.detourText.delegate = self;
+
         }
         
         // Now redo the size
         CGSize newSize = [self.detourText sizeThatFits:CGSizeMake(frame->size.width, MAXFLOAT)];
         
-        textHeight = newSize.height > textHeight ? textHeight : (newSize.height + kTextMargin);
+        textHeight =  newSize.height > textHeight ? textHeight : (newSize.height + kTextMargin);
         textViewFrame.size.height = textHeight;
         textViewFrame.origin.y = frame->origin.y + frame->size.height - textHeight;
         
-        frame->size.height =  frame->size.height - textHeight;
+        frame->size.height -=  textHeight;
         
         
         self.detourText.frame = textViewFrame;
         
-        if (self.detourText.superview == nil)
-        {
+        if (self.detourText.superview == nil) {
             [self.view addSubview:self.detourText];
         }
         
-        for (UIView *view in self.view.subviews)
-        {
+        for (UIView *view in self.view.subviews) {
             view.backgroundColor = background;
         }
     }
 }
 
-- (void)viewDidLoad
-{
+- (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
 }
 
-- (void)didReceiveMemoryWarning
-{
+- (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
 
-- (void)fetchLocationsMaybeAsync:(id<BackgroundTaskController>)task detours:(NSArray<Detour *>*)detours nav:(UINavigationController*)nav
-{
+- (void)fetchLocationsMaybeAsync:(id<TaskController>)taskController detours:(NSArray<Detour *> *)detours nav:(UINavigationController *)nav {
     self.title = NSLocalizedString(@"Detour Map", @"screen title");
     self.detours = detours;
-
     
     NSMutableArray<NSString *> *locs = [NSMutableArray array];
     NSMutableArray<NSString *> *routes = [NSMutableArray array];
     
-    for (Detour *detour in self.detours)
-    {
-        if (detour.routes)
-        {
-            for (Route *route in detour.routes)
-            {
+    for (Detour *detour in self.detours) {
+        if (detour.routes) {
+            for (Route *route in detour.routes) {
                 [routes addObject:route.route];
             }
         }
-        if (detour.locations!=nil && detour.locations.count!=0)
-        {
-            for (DetourLocation *loc in detour.locations)
-            {
+        
+        if (detour.locations != nil && detour.locations.count != 0) {
+            for (DetourLocation *loc in detour.locations) {
                 [self addPin:loc];
             }
-        }
-        else
-        {
+        } else {
             [locs addObjectsFromArray:detour.extractStops];
         }
     }
     
-    if (locs.count == 0 && self.annotations.count > 0)
-    {
-        [self fetchRoutesAsync:task routes:routes directions:nil additionalTasks:0 task:nil];
+    if (locs.count == 0 && self.annotations.count > 0) {
+        [self fetchRoutesAsync:taskController routes:routes directions:nil additionalTasks:0 task:nil];
+    } else if (locs.count > 0) {
+        NSArray<NSString *> *batches = [XMLMultipleDepartures batchesFromEnumerator:locs
+                                                                           selector:@selector(self) max:INT_MAX];
         
-    } else if (locs.count >0)
-    {
-        NSArray<NSString *>* batches = [XMLMultipleDepartures batchesFromEnumerator:locs selector:@selector((self)) max:INT_MAX];
-        
-        [self fetchRoutesAsync:task routes:routes directions:nil additionalTasks:batches.count task:^( id<BackgroundTaskController> background ){
-            
+        [self fetchRoutesAsync:taskController routes:routes directions:nil additionalTasks:batches.count
+                          task:^(TaskState *taskState) {
             [XMLDepartures clearCache];
             
-            [background taskSubtext:@"getting stops"];
+            [taskState taskSubtext:NSLocalizedString(@"getting stops", @"progress message")];
             
-            // int total = (int)locs.count;
-            
-            int item = 0;
-            for (NSString *allLocs in batches)
-            {
-                item++;
-                XMLMultipleDepartures *allDeps = [XMLMultipleDepartures xmlWithOptions:DepOptionsNoDetours | DepOptionsOneMin];
-                allDeps.oneTimeDelegate = background;
-                [allDeps getDeparturesForLocations:allLocs];
+            for (NSString *allLocs in batches) {
+                XMLMultipleDepartures *allDeps = [XMLMultipleDepartures xmlWithOptions:DepOptionsNoDetours | DepOptionsOneMin
+                                                                       oneTimeDelegate:taskState];
+                [allDeps getDeparturesForStopIds:allLocs];
                 
-                for (XMLDepartures *dep in allDeps)
-                {
-                    if (dep.loc!=nil)
-                    {
+                for (XMLDepartures *dep in allDeps) {
+                    if (dep.loc != nil) {
                         DetourLocation *dloc = [DetourLocation data];
                         
-                        dloc.locid = dep.locid;
+                        dloc.stopId = dep.stopId;
                         dloc.location = dep.loc;
                         dloc.desc = dep.locDesc;
                         dloc.dir = dep.locDir;
                         
-                        if (!dep.gotData || dep.items.count == 0)
-                        {
+                        if (!dep.gotData || dep.items.count == 0) {
                             dloc.passengerCode = 0;
                             dloc.noServiceFlag = YES;
-                        }
-                        else
-                        {
+                        } else {
                             dloc.noServiceFlag = NO;
                         }
                         
                         [self addPin:dloc];
                     }
                 }
-                [background taskItemsDone:item];
+                
+                [taskState incrementItemsDoneAndDisplay];
             }
-            
         }];
     }
 }
 
+- (BOOL)textView:(UITextView *)textView shouldInteractWithURL:(NSURL *)URL inRange:(NSRange)characterRange interaction:(UITextItemInteraction)interaction
+{
+    return [self detourLink:URL.absoluteString detour:self.detours.firstObject];
+}
 
 @end

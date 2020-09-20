@@ -18,8 +18,7 @@
 @implementation SimpleAnnotation
 
 
-+ (instancetype)annotation
-{
++ (instancetype)annotation {
     return [[[self class] alloc] init];
 }
 
@@ -27,35 +26,29 @@
 
 #pragma mark Getters
 
-- (NSString *)title
-{
+- (NSString *)title {
     return self.pinTitle;
 }
-- (NSString *)subtitle
-{
+
+- (NSString *)subtitle {
     return self.pinSubtitle;
 }
 
-- (bool)showActionMenu
-{
+- (bool)showActionMenu {
     return false;
 }
 
-- (bool)hasBearing
-{
+- (bool)hasBearing {
     return _hasBearing;
 }
 
-- (void)setDoubleBearing:(double)bearing
-{
+- (void)setDoubleBearing:(double)bearing {
     _bearing = bearing;
     _hasBearing = YES;
 }
 
-- (double)doubleBearing
-{
+- (double)doubleBearing {
     return _bearing;
 }
-
 
 @end

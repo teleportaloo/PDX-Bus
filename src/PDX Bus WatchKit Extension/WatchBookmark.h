@@ -18,6 +18,6 @@
 
 @interface WatchBookmark : NSObject
 
-@property (strong, nonatomic) IBOutlet WKInterfaceLabel* bookmarkName;
+@property (strong, nonatomic) IBOutlet WKInterfaceLabel *bookmarkName;
 
 @end

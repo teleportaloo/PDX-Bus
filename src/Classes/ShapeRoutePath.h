@@ -16,66 +16,20 @@
 #import <Foundation/Foundation.h>
 #import "DataFactory.h"
 #import <CoreLocation/CoreLocation.h>
-
-@class RoutePolyline;
-
-@interface ShapeCoord : DataFactory
-{
-    CLLocationCoordinate2D _coord;
-}
-
-@property (nonatomic) CLLocationDegrees latitude;
-@property (nonatomic) CLLocationDegrees longitude;
-@property (nonatomic) CLLocationCoordinate2D coord;
-
-+ (instancetype) coordWithLat:(CLLocationDegrees)lat lng:(CLLocationDegrees)lng;
-
-@end
-
-@class ShapeCompactSegment;
-@class ShapeRoutePath;
-
-@interface ShapeSegment : DataFactory <NSCoding>
-
-- (bool)isEqual:(ShapeSegment*)seg;
-- (ShapeCompactSegment *) compact;
-
-@property (nonatomic) NSInteger count;
-
-@end
-
-@interface ShapeCompactSegment : ShapeSegment
-{
-    NSInteger _count;
-}
-
-@property (nonatomic) CLLocationCoordinate2D *coords;
-
-
-- (RoutePolyline*)polyline:(UIColor *)color dashPatternId:(int)dashPatternId
-                 dashPhase:(CGFloat)dashPhase path:(ShapeRoutePath*)path;
-
-
-@end
-
-@interface ShapeMutableSegment : ShapeSegment
-
-@property (nonatomic, strong) NSMutableArray<ShapeCoord *> *coords;
-
-- (ShapeCompactSegment *) compact;
-
-@end
+#import "ShapeCoord.h"
+#import "ShapeSegment.h"
+#import "ShapeCompactSegment.h"
 
 #define kShapeNoRoute (-1)
 
-@interface ShapeRoutePath : DataFactory <NSCoding>
+@interface ShapeRoutePath : DataFactory <NSSecureCoding>
 
-@property (nonatomic, strong) NSMutableArray<ShapeSegment *> *segments;
+@property (nonatomic, strong) NSMutableArray<id<ShapeSegment>> *segments;
 @property (nonatomic, copy) NSString *dirDesc;
 @property (nonatomic, copy) NSString *desc;
 @property (nonatomic)  NSInteger route;
 @property (nonatomic)  bool direct;
 
-- (NSMutableArray<RoutePolyline*>*) addPolylines:(NSMutableArray<RoutePolyline*>*)lines;
+- (NSMutableArray<RoutePolyline *> *)addPolylines:(NSMutableArray<RoutePolyline *> *)lines;
 
 @end

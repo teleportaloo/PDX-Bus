@@ -1,6 +1,6 @@
 //
 //  main.m
-//  TriMetTimes
+//  PDXBus
 //
 //  Created by Andrew Wallace on 8/16/08.
 //  Copyright A R Wallace 2008. All rights reserved.

@@ -14,21 +14,11 @@
 
 
 #import <Foundation/Foundation.h>
-#import "TableViewWithToolbar.h"
-#import "XMLTrips.h"
 #import "TripPlannerBaseView.h"
-#import "TripItemCell.h"
-
 
 @interface TripPlannerSummaryView : TripPlannerBaseView
-{
-    NSUInteger _pickerRow;
-    NSUInteger _pickerSection;
-}
 
-@property (nonatomic, strong) UIDatePicker *datePickerView;
-
--(void)initQuery;
--(void)makeSummaryRows;
+- (void)initQuery;
+- (void)makeSummaryRows;
 
 @end

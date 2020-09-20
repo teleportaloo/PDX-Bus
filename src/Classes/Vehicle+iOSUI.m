@@ -24,128 +24,103 @@
 @implementation Vehicle (VehicleUI)
 
 
-- (CLLocationCoordinate2D) coordinate
-{
+- (CLLocationCoordinate2D)coordinate {
     return self.location.coordinate;
 }
 
-- (NSString*)title
-{
-    if (self.signMessage)
-    {
+- (NSString *)title {
+    if (self.signMessage) {
         // DEBUG_LOG(@"Sign Message %@ b %@ %f %f\n", self.signMessage, self.block, self.location.coordinate.latitude, self.location.coordinate.latitude);
         return self.signMessage;
     }
     
-    if ([self.type isEqualToString:kVehicleTypeStreetcar])
-    {
+    if ([self.type isEqualToString:kVehicleTypeStreetcar]) {
         PC_ROUTE_INFO info = [TriMetInfo infoForRoute:self.routeNumber];
         
-        if (info)
-        {
+        if (info) {
             return info->full_name;
         }
+        
         return @"Portland Streetcar";
     }
     
-    if (self.garage)
-    {
+    if (self.garage) {
         return [NSString stringWithFormat:@"Garage %@", self.garage];
     }
     
     return @"no title";
 }
 
-
-- (NSString*)subtitle
-{
+- (NSString *)subtitle {
     NSString *located = [Vehicle locatedSomeTimeAgo:self.locationTime];
     
-    if (self.vehicleID)
-    {
-        return [NSString stringWithFormat:@"ID %@ %@", self.vehicleID, located];
+    if (self.vehicleId) {
+        return [NSString stringWithFormat:@"ID %@ %@", self.vehicleId, located];
     }
     
     return located;
 }
 
 // From MapPinColor
-- (MapPinColorValue) pinColor
-{
-        if ([self.type isEqualToString:kVehicleTypeBus])
-        {
-            return MAP_PIN_COLOR_PURPLE;
-        }
-        
-        if ([self.type isEqualToString:kVehicleTypeStreetcar])
-        {
-            return MAP_PIN_COLOR_GREEN;
-        }
-        
-        return MAP_PIN_COLOR_RED;
+- (MapPinColorValue)pinColor {
+    if ([self.type isEqualToString:kVehicleTypeBus]) {
+        return MAP_PIN_COLOR_PURPLE;
+    }
+    
+    if ([self.type isEqualToString:kVehicleTypeStreetcar]) {
+        return MAP_PIN_COLOR_GREEN;
+    }
+    
+    return MAP_PIN_COLOR_RED;
 }
-- (bool)showActionMenu
-{
-    if (self.lastLocID)
-    {
+
+- (bool)showActionMenu {
+    if (self.lastStopId) {
         return YES;
     }
+    
     return NO;
 }
 
-- (bool)mapTapped:(id<BackgroundTaskController>) progress
-{
-    [[DepartureTimesView viewController]  fetchTimesForVehicleAsync:progress route:self.routeNumber direction:self.direction nextLoc:self.lastLocID block:self.block targetDeparture:nil];
+- (bool)mapTapped:(id<TaskController>)progress {
+    [[DepartureTimesView viewController] fetchTimesForVehicleAsync:progress route:self.routeNumber direction:self.direction nextStopId:self.lastStopId block:self.block targetDeparture:nil];
     return true;
 }
 
-- (NSString *)mapStopId
-{
-    return self.nextLocID;
+- (NSString *)mapStopId {
+    return self.nextStopId;
 }
 
-- (NSString *)mapStopIdText
-{
-    return [NSString stringWithFormat:@"Departures at next stop - ID %@", self.nextLocID];
+- (NSString *)mapStopIdText {
+    return [NSString stringWithFormat:@"Departures at next stop - ID %@", self.nextStopId];
 }
 
-
-
-- (NSString *)tapActionText
-{
+- (NSString *)tapActionText {
     return @"Show next stops";
 }
 
-- (UIColor *)pinTint
-{
+- (UIColor *)pinTint {
     return [TriMetInfo colorForRoute:self.routeNumber];
 }
 
-
-- (UIColor*)pinSubTint
-{
-    if (self.block!=nil)
-    {
+- (UIColor *)pinSubTint {
+    if (self.block != nil) {
         BlockColorDb *db = [BlockColorDb sharedInstance];
         return [db colorForBlock:self.block];
-        
     }
+    
     return nil;
 }
 
-
-
-- (bool)hasBearing
-{
+- (bool)hasBearing {
     return self.bearing != nil;
 }
 
-- (double)doubleBearing
-{
-    if (self.bearing)
-    {
+- (double)doubleBearing {
+    if (self.bearing) {
         return self.bearing.doubleValue;
     }
+    
     return 0.0;
 }
 

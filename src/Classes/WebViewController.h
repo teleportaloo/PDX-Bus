@@ -13,34 +13,21 @@
 #import <UIKit/UIKit.h>
 #import "ViewControllerBase.h"
 #import <WebKit/WebKit.h>
+#import "DeselectItemDelegate.h"
 
-@interface WebViewController : ViewControllerBase <WKNavigationDelegate>{
-    int                 _depth;
-    bool               _navigated;
-}
+@interface WebViewController : ViewControllerBase <WKNavigationDelegate>
 
-@property (nonatomic, strong) NSData *rawDataToDisplay;
+@property (nonatomic, copy)   NSString *javsScriptCommand;
 @property (nonatomic, copy)   NSString *urlToDisplay;
-@property (nonatomic, copy)   NSString *dataToDisplay;
-@property (nonatomic, strong) WKWebView *webView;
-@property (nonatomic, strong) UIBarButtonItem *webBack;
-@property (nonatomic, strong) UIBarButtonItem *webForward;
-@property (nonatomic, strong) UIBarButtonItem *safari;
-@property (nonatomic, strong) UIViewController *whenDone;
-@property (nonatomic) bool showErrors;
-@property (nonatomic, strong) NSURL *localURL;
-@property (nonatomic)          NSInteger rssLinkItem;
-@property (nonatomic,copy)    NSString *javsScriptCommand;
 
-- (void)updateToolbarItems:(NSMutableArray*)toolbarItems;
 - (void)setURLmobile:(NSString *)url full:(NSString *)full;
 - (void)setRawData:(NSData *)rawData title:(NSString *)title;
 - (void)displayPage:(UINavigationController *)nav animated:(BOOL)animated itemToDeselect:(id<DeselectItemDelegate>)deselect;
 
 + (void)displayPage:(NSString *)url
-               full:(NSString*)full
+               full:(NSString *)full
           navigator:(UINavigationController *)nav
      itemToDeselect:(id<DeselectItemDelegate>)deselect
-           whenDone:(UIViewController*)whenDone;
+           whenDone:(UIViewController *)whenDone;
 
 @end

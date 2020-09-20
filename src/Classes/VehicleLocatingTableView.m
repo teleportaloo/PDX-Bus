@@ -17,6 +17,9 @@
 #import "VehicleTableView.h"
 #import "NearestVehiclesMap.h"
 
+@interface VehicleLocatingTableView ()
+
+@end
 
 @implementation VehicleLocatingTableView
 
@@ -26,57 +29,45 @@
 
 #pragma mark View callbacks
 
-- (void)viewDidLoad
-{
+- (void)viewDidLoad {
     self.accuracy = 200.0;
     [super viewDidLoad];
 }
 
-- (void)viewDidAppear:(BOOL)animated
-{
+- (void)viewDidAppear:(BOOL)animated {
     self.delegate = self;
     [super viewDidAppear:animated];
 }
 
-- (void)viewDidDisappear:(BOOL)animated
-{
+- (void)viewDidDisappear:(BOOL)animated {
     self.delegate = nil;
     [super viewDidDisappear:animated];
 }
 
-
-- (void)showMap:(id)unused
-{
+- (void)showMap:(id)unused {
     NearestVehiclesMap *mapView = [NearestVehiclesMap viewController];
-    mapView.trimetRoutes    = nil;
+    
+    mapView.trimetRoutes = nil;
     mapView.streetcarRoutes = [NSSet set];
     mapView.title = NSLocalizedString(@"Nearest Vehicles", @"page title");
     
     [mapView fetchNearestVehiclesAsync:self.backgroundTask];
 }
 
-- (void)updateToolbarItems:(NSMutableArray *)toolbarItems
-{
-	[toolbarItems addObject:[UIToolbar mapButtonWithTarget:self action:@selector(showMap:)]];
+- (void)updateToolbarItems:(NSMutableArray *)toolbarItems {
+    [toolbarItems addObject:[UIToolbar mapButtonWithTarget:self action:@selector(showMap:)]];
     [self maybeAddFlashButtonWithSpace:YES buttons:toolbarItems big:NO];
 }
 
-
 #pragma mark LocatingTableView callbacks
 
-- (void)locatingViewFinished:(LocatingView *)locatingView
-{
-    
-    if (!locatingView.failed && !locatingView.cancelled)
-    {
+- (void)locatingViewFinished:(LocatingView *)locatingView {
+    if (!locatingView.failed && !locatingView.cancelled) {
         [[VehicleTableView viewController] fetchNearestVehiclesAsync:locatingView.backgroundTask
                                                             location:self.locationManager.location
-                                                         maxDistance:[UserPrefs sharedInstance].vehicleLocatorDistance
+                                                         maxDistance:Settings.vehicleLocatorDistance
                                                    backgroundRefresh:NO];
-    
-    }
-    else if (locatingView.cancelled)
-    {
+    } else if (locatingView.cancelled) {
         [locatingView.navigationController popViewControllerAnimated:YES];
     }
 }

@@ -18,40 +18,32 @@
 
 @implementation WhatsNewHeader
 
-+ (NSNumber*)getPrefix
-{
++ (NSNumber *)getPrefix {
     return @'.';
 }
 
-- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell text:(NSString*)text
-{
-    int color = [UserPrefs sharedInstance].toolbarColors;
-	
-	if (color == 0xFFFFFF)
-    {
+- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell text:(NSString *)text {
+    int color = Settings.toolbarColors;
+    
+    if (color == 0xFFFFFF) {
         cell.backgroundColor = [UIColor modeAwareGrayBackground];
-    }
-    else
-    {
+    } else {
         cell.backgroundColor = HTML_COLOR(color);
     }
 }
 
-- (void)updateCell:(UITableViewCell *)cell tableView:(UITableView *)tableView
-{
-    cell.textLabel.backgroundColor = [UIColor clearColor];
-    cell.textLabel.textAlignment   = NSTextAlignmentCenter;
-    cell.accessoryType             = UITableViewCellAccessoryNone;
-    cell.selectionStyle            = UITableViewCellSelectionStyleNone;
+- (void)updateCell:(LinkCell *)cell tableView:(UITableView *)tableView {
+    cell.textView.backgroundColor = [UIColor clearColor];
+    cell.textView.textAlignment = NSTextAlignmentCenter;
+    cell.accessoryType = UITableViewCellAccessoryNone;
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
 }
 
-- (NSString*)displayText:(NSString*)fullText
-{
+- (NSString *)displayText:(NSString *)fullText {
     return [fullText substringFromIndex:1];
 }
 
-- (NSString*)plainText:(NSString*)fullText
-{
+- (NSString *)plainText:(NSString *)fullText {
     return [self plainTextNormal:fullText];
 }
 

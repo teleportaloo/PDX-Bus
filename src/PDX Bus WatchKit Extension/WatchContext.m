@@ -19,25 +19,20 @@
 @implementation WatchContext
 
 
-- (void)pushFrom:(WKInterfaceController *)parent
-{
+- (void)pushFrom:(WKInterfaceController *)parent {
     [parent pushControllerWithName:self.sceneName context:self];
 }
 
-- (void)delayedPushFrom:(WKInterfaceController *)parent completion:(void (^)(void))completion
-{
+- (void)delayedPushFrom:(WKInterfaceController *)parent completion:(void (^)(void))completion {
     DEBUG_LOG(@"delayedPushFrom: %@\n", self.sceneName);
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.4 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
         [parent pushControllerWithName:self.sceneName context:self];
-        if (completion)
-        {
+        
+        if (completion) {
             completion();
         }
     });
-    
 }
-
-
 
 @end

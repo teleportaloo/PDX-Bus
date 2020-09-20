@@ -19,23 +19,17 @@
 #import "ExtensionDelegate.h"
 
 @interface InterfaceControllerWithBackgroundThread : WKInterfaceController<ExtentionWakeDelegate>
-{
-    int             _progress;
-    int             _total;
-}
 
 @property (atomic, strong)      NSThread *backgroundThread;
-@property (nonatomic, strong)   WatchContext *delayedContext;
-@property (nonatomic, copy)     void (^delayedBlock)(void);
-@property (nonatomic)           bool displayed;
+@property (nonatomic, readonly) bool backgroundThreadRunning;
 
 - (void)startBackgroundTask;
 - (void)cancelBackgroundTask;
-@property (nonatomic, readonly) bool backgroundThreadRunning;
+
 - (void)delayedPush:(WatchContext *)context completion:(void (^)(void))completion;
 - (void)sendProgress:(int)progress total:(int)total;
 
-- (id)backgroundTask;
+- (id)  backgroundTask;
 - (void)taskFinishedMainThread:(id)result;
 - (void)taskFailedMainThread:(id)result;
 - (void)progress:(int)state total:(int)total;
