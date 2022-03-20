@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resultSet xmlns="urn:trimet:schedule">
+    <route desc="MAX Blue Line" route="100" id="100" type="R" routeColor="084C8D" routeSortOrder="100" frequentService="true" detour="true" />
+    <route desc="MAX Green Line" route="200" id="200" type="R" routeColor="008852" routeSortOrder="110" frequentService="true" />
+    <route desc="MAX Orange Line" route="290" id="290" type="R" routeColor="F58220" routeSortOrder="115" frequentService="true" />
+    <route desc="MAX Red Line" route="90" id="90" type="R" routeColor="D81526" routeSortOrder="120" frequentService="true" detour="true" />
+    <route desc="MAX Yellow Line" route="190" id="190" type="R" routeColor="F8C213" routeSortOrder="130" frequentService="true" />
+    <route desc="WES Commuter Rail" route="203" id="203" type="R" routeColor="000000" routeSortOrder="150" frequentService="false" detour="true" />
+    <route desc="Portland Streetcar - NS Line" route="193" id="193" type="R" routeColor="84BD00" routeSortOrder="200" frequentService="false" detour="true" />
+    <route desc="Portland Streetcar - A Loop" route="194" id="194" type="R" routeColor="CE0F69" routeSortOrder="250" frequentService="false" detour="true" />
+    <route desc="Portland Streetcar - B Loop" route="195" id="195" type="R" routeColor="0093B2" routeSortOrder="275" frequentService="false" detour="true" />
+    <route desc="1-Vermont" route="1" id="1" type="B" routeColor="" routeSortOrder="400" frequentService="false" />
+    <route desc="2-Division" route="2" id="2" type="B" routeColor="" routeSortOrder="500" frequentService="true" detour="true" />
+    <route desc="4-Fessenden" route="4" id="4" type="B" routeColor="" routeSortOrder="600" frequentService="true" detour="true" />
+    <route desc="6-Martin Luther King Jr Blvd" route="6" id="6" type="B" routeColor="" routeSortOrder="800" frequentService="true" detour="true" />
+    <route desc="8-Jackson Park/NE 15th" route="8" id="8" type="B" routeColor="" routeSortOrder="1000" frequentService="true" detour="true" />
+    <route desc="9-Powell Blvd" route="9" id="9" type="B" routeColor="" routeSortOrder="1100" frequentService="true" detour="true" />
+    <route desc="10-Harold St" route="10" id="10" type="B" routeColor="" routeSortOrder="1300" frequentService="false" detour="true" />
+    <route desc="11-Rivergate/Marine Dr" route="11" id="11" type="B" routeColor="" routeSortOrder="1400" frequentService="false" />
+    <route desc="12-Barbur/Sandy Blvd" route="12" id="12" type="B" routeColor="" routeSortOrder="1500" frequentService="true" detour="true" />
+    <route desc="14-Hawthorne" route="14" id="14" type="B" routeColor="" routeSortOrder="1700" frequentService="true" />
+    <route desc="15-Belmont/NW 23rd" route="15" id="15" type="B" routeColor="" routeSortOrder="1800" frequentService="true" detour="true" />
+    <route desc="16-Front Ave/St Helens Rd" route="16" id="16" type="B" routeColor="" routeSortOrder="1900" frequentService="false" />
+    <route desc="17-Holgate/Broadway" route="17" id="17" type="B" routeColor="" routeSortOrder="2000" frequentService="false" detour="true" />
+    <route desc="18-Hillside" route="18" id="18" type="B" routeColor="" routeSortOrder="2300" frequentService="false" />
+    <route desc="19-Woodstock/Glisan" route="19" id="19" type="B" routeColor="" routeSortOrder="2400" frequentService="false" detour="true" />
+    <route desc="20-Burnside/Stark" route="20" id="20" type="B" routeColor="" routeSortOrder="2600" frequentService="true" detour="true" />
+    <route desc="21-Sandy Blvd/223rd" route="21" id="21" type="B" routeColor="" routeSortOrder="2650" frequentService="false" detour="true" />
+    <route desc="22-Parkrose" route="22" id="22" type="B" routeColor="" routeSortOrder="2700" frequentService="false" detour="true" />
+    <route desc="23-San Rafael" route="23" id="23" type="B" routeColor="" routeSortOrder="2800" frequentService="false" />
+    <route desc="24-Fremont/NW 18th" route="24" id="24" type="B" routeColor="" routeSortOrder="2850" frequentService="false" detour="true" />
+    <route desc="25-Glisan/Rockwood" route="25" id="25" type="B" routeColor="" routeSortOrder="2900" frequentService="false" />
+    <route desc="29-Lake/Webster Rd" route="29" id="29" type="B" routeColor="" routeSortOrder="3200" frequentService="false" />
+    <route desc="30-Estacada" route="30" id="30" type="B" routeColor="" routeSortOrder="3250" frequentService="false" detour="true" />
+    <route desc="31-Webster Rd" route="31" id="31" type="B" routeColor="" routeSortOrder="3325" frequentService="false" />
+    <route desc="32-Oatfield" route="32" id="32" type="B" routeColor="" routeSortOrder="3400" frequentService="false" detour="true" />
+    <route desc="33-McLoughlin/King Rd" route="33" id="33" type="B" routeColor="" routeSortOrder="3500" frequentService="true" detour="true" />
+    <route desc="34-Linwood/River Rd" route="34" id="34" type="B" routeColor="" routeSortOrder="3600" frequentService="false" />
+    <route desc="35-Macadam/Greeley" route="35" id="35" type="B" routeColor="" routeSortOrder="3750" frequentService="false" detour="true" />
+    <route desc="36-South Shore" route="36" id="36" type="B" routeColor="" routeSortOrder="3900" frequentService="false" />
+    <route desc="37-Lake Grove" route="37" id="37" type="B" routeColor="" routeSortOrder="4000" frequentService="false" detour="true" />
+    <route desc="38-Boones Ferry Rd" route="38" id="38" type="B" routeColor="" routeSortOrder="4100" frequentService="false" detour="true" />
+    <route desc="39-Lewis &amp; Clark" route="39" id="39" type="B" routeColor="" routeSortOrder="4200" frequentService="false" />
+    <route desc="43-Taylors Ferry Rd" route="43" id="43" type="B" routeColor="" routeSortOrder="4500" frequentService="false" detour="true" />
+    <route desc="44-Capitol Hwy/Mocks Crest" route="44" id="44" type="B" routeColor="" routeSortOrder="4650" frequentService="false" detour="true" />
+    <route desc="45-Garden Home" route="45" id="45" type="B" routeColor="" routeSortOrder="4700" frequentService="false" detour="true" />
+    <route desc="46-North Hillsboro" route="46" id="46" type="B" routeColor="" routeSortOrder="4800" frequentService="false" detour="true" />
+    <route desc="47-Main/Evergreen" route="47" id="47" type="B" routeColor="" routeSortOrder="4900" frequentService="false" detour="true" />
+    <route desc="48-Cornell" route="48" id="48" type="B" routeColor="" routeSortOrder="5000" frequentService="false" detour="true" />
+    <route desc="50-Cedar Mill" route="50" id="50" type="B" routeColor="" routeSortOrder="5200" frequentService="false" />
+    <route desc="51-Vista" route="51" id="51" type="B" routeColor="" routeSortOrder="5300" frequentService="false" />
+    <route desc="52-Farmington/185th" route="52" id="52" type="B" routeColor="" routeSortOrder="5400" frequentService="false" />
+    <route desc="53-Arctic/Allen" route="53" id="53" type="B" routeColor="" routeSortOrder="5500" frequentService="false" />
+    <route desc="54-Beaverton-Hillsdale Hwy" route="54" id="54" type="B" routeColor="" routeSortOrder="5600" frequentService="true" detour="true" />
+    <route desc="55-Hamilton" route="55" id="55" type="B" routeColor="" routeSortOrder="5700" frequentService="false" detour="true" />
+    <route desc="56-Scholls Ferry Rd" route="56" id="56" type="B" routeColor="" routeSortOrder="5800" frequentService="true" detour="true" />
+    <route desc="57-TV Hwy/Forest Grove" route="57" id="57" type="B" routeColor="" routeSortOrder="5900" frequentService="true" detour="true" />
+    <route desc="58-Canyon Rd" route="58" id="58" type="B" routeColor="" routeSortOrder="6000" frequentService="false" />
+    <route desc="59-Walker/Park Way" route="59" id="59" type="B" routeColor="" routeSortOrder="6100" frequentService="false" />
+    <route desc="61-Marquam Hill/Beaverton" route="61" id="61" type="B" routeColor="" routeSortOrder="6300" frequentService="false" detour="true" />
+    <route desc="62-Murray Blvd" route="62" id="62" type="B" routeColor="" routeSortOrder="6400" frequentService="false" detour="true" />
+    <route desc="63-Washington Park/Arlington Hts" route="63" id="63" type="B" routeColor="" routeSortOrder="6500" frequentService="false" />
+    <route desc="64-Marquam Hill/Tigard" route="64" id="64" type="B" routeColor="" routeSortOrder="6600" frequentService="false" detour="true" />
+    <route desc="65-Marquam Hill/Barbur Blvd" route="65" id="65" type="B" routeColor="" routeSortOrder="6700" frequentService="false" detour="true" />
+    <route desc="66-Marquam Hill/Hollywood" route="66" id="66" type="B" routeColor="" routeSortOrder="6800" frequentService="false" detour="true" />
+    <route desc="67-Bethany/158th" route="67" id="67" type="B" routeColor="" routeSortOrder="6900" frequentService="false" detour="true" />
+    <route desc="68-Marquam Hill/Collins Circle" route="68" id="68" type="B" routeColor="" routeSortOrder="7000" frequentService="false" detour="true" />
+    <route desc="70-12th/NE 33rd Ave" route="70" id="70" type="B" routeColor="" routeSortOrder="7100" frequentService="false" detour="true" />
+    <route desc="71-60th Ave" route="71" id="71" type="B" routeColor="" routeSortOrder="7200" frequentService="false" detour="true" />
+    <route desc="72-Killingsworth/82nd Ave" route="72" id="72" type="B" routeColor="" routeSortOrder="7300" frequentService="true" detour="true" />
+    <route desc="73-122nd Ave" route="73" id="73" type="B" routeColor="" routeSortOrder="7400" frequentService="true" detour="true" />
+    <route desc="74-162nd Ave" route="74" id="74" type="B" routeColor="" routeSortOrder="7450" frequentService="false" />
+    <route desc="75-Cesar Chavez/Lombard" route="75" id="75" type="B" routeColor="" routeSortOrder="7500" frequentService="true" />
+    <route desc="76-Hall/Greenburg" route="76" id="76" type="B" routeColor="" routeSortOrder="7600" frequentService="true" />
+    <route desc="77-Broadway/Halsey" route="77" id="77" type="B" routeColor="" routeSortOrder="7700" frequentService="false" detour="true" />
+    <route desc="78-Denney/Kerr Pkwy" route="78" id="78" type="B" routeColor="" routeSortOrder="7800" frequentService="false" detour="true" />
+    <route desc="79-Clackamas/Oregon City" route="79" id="79" type="B" routeColor="" routeSortOrder="7900" frequentService="false" />
+    <route desc="80-Kane/Troutdale Rd" route="80" id="80" type="B" routeColor="" routeSortOrder="8000" frequentService="false" />
+    <route desc="81-Kane/257th" route="81" id="81" type="B" routeColor="" routeSortOrder="8100" frequentService="false" detour="true" />
+    <route desc="82-South Gresham" route="82" id="82" type="B" routeColor="" routeSortOrder="8200" frequentService="false" detour="true" />
+    <route desc="84-Powell Valley/Orient Dr" route="84" id="84" type="B" routeColor="" routeSortOrder="8400" frequentService="false" />
+    <route desc="85-Swan Island" route="85" id="85" type="B" routeColor="" routeSortOrder="8500" frequentService="false" detour="true" />
+    <route desc="87-Airport Way/181st" route="87" id="87" type="B" routeColor="" routeSortOrder="8600" frequentService="false" />
+    <route desc="88-Hart/198th" route="88" id="88" type="B" routeColor="" routeSortOrder="8700" frequentService="false" detour="true" />
+    <route desc="92-South Beaverton Express" route="92" id="92" type="B" routeColor="" routeSortOrder="8900" frequentService="false" detour="true" />
+    <route desc="93-Tigard/Sherwood" route="93" id="93" type="B" routeColor="" routeSortOrder="9000" frequentService="false" detour="true" />
+    <route desc="94-Pacific Hwy/Sherwood" route="94" id="94" type="B" routeColor="" routeSortOrder="9100" frequentService="false" detour="true" />
+    <route desc="96-Tualatin/I-5" route="96" id="96" type="B" routeColor="" routeSortOrder="9200" frequentService="false" detour="true" />
+    <route desc="97-Tualatin-Sherwood Rd" route="97" id="97" type="B" routeColor="" routeSortOrder="9250" frequentService="false" />
+    <route desc="99-Macadam/McLoughlin" route="99" id="99" type="B" routeColor="" routeSortOrder="9300" frequentService="false" />
+    <route desc="152-Milwaukie" route="152" id="152" type="B" routeColor="" routeSortOrder="9400" frequentService="false" />
+    <route desc="154-Willamette/Clackamas Heights" route="154" id="154" type="B" routeColor="" routeSortOrder="9500" frequentService="false" detour="true" />
+    <route desc="155-Sunnyside" route="155" id="155" type="B" routeColor="" routeSortOrder="9600" frequentService="false" />
+    <route desc="156-Mather Rd" route="156" id="156" type="B" routeColor="" routeSortOrder="9700" frequentService="false" />
+    <route desc="291-Orange Night Bus" route="291" id="291" type="B" routeColor="" routeSortOrder="9850" frequentService="false" />
+    <route desc="MAX Shuttle" route="98" id="98" type="B" routeColor="" routeSortOrder="9900" frequentService="false" />
+    <route desc="PDX Shuttle" route="298" id="298" type="B" routeColor="" routeSortOrder="900000" frequentService="false" />
+</resultSet>

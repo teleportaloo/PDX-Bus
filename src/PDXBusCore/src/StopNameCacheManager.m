@@ -16,6 +16,7 @@
 #import "StopNameCacheManager.h"
 #import "XMLDepartures.h"
 #import "XMLMultipleDepartures.h"
+#import "RunParallelBlocks.h"
 
 #define kStopNameCacheLocation                      0
 #define kStopNameCacheLongDescription               1
@@ -39,7 +40,9 @@
 + (NSString *)shortDirection:(NSString *)dir {
     static NSDictionary *directions = nil;
     
-    if (directions == nil) {
+    static dispatch_once_t onceToken;
+    
+    dispatch_once(&onceToken, ^{
         directions = @{
             @"Northbound":      @"N",
             @"Southbound":      @"S",
@@ -50,7 +53,7 @@
             @"Southwestbound":  @"SW",
             @"Northwestbound":  @"NW"
         };
-    }
+    });
     
     if (dir == nil) {
         return @"";
@@ -94,118 +97,127 @@
 }
 
 - (NSDictionary *)getStopNames:(NSArray<NSString *> *)stopIds fetchAndCache:(bool)fetchAndCache updated:(bool *)updated completion:(void (^__nullable)(int item))completion {
-    NSMutableArray<NSString *> *itemsToFetch = [NSMutableArray array];
-    NSMutableDictionary<NSString *, NSArray *> *names = [NSMutableDictionary dictionary];
-    int items = 0;
-    
-    for (NSString *stopId in stopIds) {
-        NSArray *cachedData = [self getCachedQuery:stopId];
-        NSArray *result = nil;
+        NSMutableArray<NSString *> *itemsToFetch = [NSMutableArray array];
+        NSMutableDictionary<NSString *, NSArray *> *names = [NSMutableDictionary dictionary];
+        __block int items = 0;
         
-        // Need to check if this is an old cache with only two items in it, if so
-        // we read it again.
-        
-        if (cachedData == nil) {
-            if (fetchAndCache) {
-                [itemsToFetch addObject:stopId];
-            } else {
-                NSString *name = [NSString stringWithFormat:@"Stop ID %@ (getting full name)", stopId];
-                result = @[stopId, name, name];
-                
-                if (updated) {
-                    *updated = NO;
-                }
-                
-                names[stopId] = result;
-            }
-        } else {
-            NSData *data = cachedData[kCacheData];
-#if defined(BASE_IOS12) || TARGET_OS_MACCATALYST
-            // Untested
-            NSError *error = nil;
-            result = [NSKeyedUnarchiver unarchivedObjectOfClass:[NSArray class] fromData:data error:&error];
-#else
-            result = [NSKeyedUnarchiver unarchiveObjectWithData:data];
-#endif
+        for (NSString *stopId in stopIds) {
+            NSArray *cachedData = [self getCachedQuery:stopId];
+            NSArray *result = nil;
             
-            if (fetchAndCache && result && result.count < (kStopNameCacheArraySizeWithShortDescription)) {
-                [itemsToFetch addObject:stopId];
+            // Need to check if this is an old cache with only two items in it, if so
+            // we read it again.
+            
+            if (cachedData == nil) {
+                if (fetchAndCache) {
+                    [itemsToFetch addObject:stopId];
+                } else {
+                    NSString *name = [NSString stringWithFormat:@"Stop ID %@ (getting full name)", stopId];
+                    result = @[stopId, name, name];
+                    
+                    if (updated) {
+                        *updated = NO;
+                    }
+                    
+                    names[stopId] = result;
+                }
             } else {
-                names[stopId] = result;
+                NSData *data = cachedData[kCacheData];
+#ifndef PDXBUS_WATCH
+                // Untested
+                NSError *error = nil;
+                result = [NSKeyedUnarchiver unarchivedObjectOfClass:[NSArray class] fromData:data error:&error];
+#else
+                result = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+#endif
                 
-                if (completion) {
-                    completion(items);
-                    items++;
+                if (fetchAndCache && result && result.count < (kStopNameCacheArraySizeWithShortDescription)) {
+                    [itemsToFetch addObject:stopId];
+                } else {
+                    names[stopId] = result;
+                    
+                    if (completion) {
+                        completion(items);
+                        items++;
+                    }
                 }
             }
         }
-    }
-    
-    if (itemsToFetch.count > 0 && fetchAndCache) {
-        NSArray *batches = [XMLMultipleDepartures batchesFromEnumerator:stopIds selector:@selector(self)  max:INT_MAX];
-        int batch = 0;
         
-        while (batch < batches.count) {
-            XMLMultipleDepartures *multiple = [XMLMultipleDepartures xmlWithOptions:DepOptionsOneMin | DepOptionsNoDetours];
+        if (itemsToFetch.count > 0 && fetchAndCache) {
+            __block NSArray *batches = [XMLMultipleDepartures batchesFromEnumerator:stopIds selToGetStopId:@selector(self)  max:INT_MAX];
+            int batch = 0;
             
-            [multiple getDeparturesForStopIds:batches[batch]];
+            RunParallelBlocks *parallelBlocks = [RunParallelBlocks instance];
             
-            for (XMLDepartures *dep in multiple) {
-                if (dep.stopId) {
-                    NSString *longDesc = nil;
-                    NSString *shortDesc = nil;
-                    NSString *stopId = dep.stopId;
+            while (batch < batches.count) {
+                [parallelBlocks startBlock:^{
+                    XMLMultipleDepartures *multiple = [XMLMultipleDepartures xmlWithOptions:DepOptionsOneMin | DepOptionsNoDetours];
                     
-                    bool cache = NO;
+                    [multiple getDeparturesForStopIds:batches[batch]];
                     
-                    if (dep.locDesc != nil) {
-                        if (dep.locDir.length > 0) {
-                            longDesc = [NSString stringWithFormat:@"%@ (%@)", dep.locDesc, dep.locDir];
-                            shortDesc = [NSString stringWithFormat:@"%@: %@", [StopNameCacheManager shortDirection:dep.locDir], dep.locDesc];
-                        } else {
-                            longDesc = dep.locDesc;
-                            shortDesc = longDesc;
-                        }
-                        
-                        cache = YES;
-                    } else {
-                        longDesc = [NSString stringWithFormat:@"Stop ID - %@", dep.stopId];
-                        shortDesc = longDesc;
-                    }
-                    
-                    if (dep.stopId && longDesc && shortDesc) {
-                        NSArray *result = @[dep.stopId, longDesc, shortDesc];
-                        
-                        if (updated) {
-                            *updated = YES;
-                        }
-                        
-                        names[stopId] = result;
-                        
-                        if (cache) {
-#if defined(BASE_IOS12) || TARGET_OS_MACCATALYST
-                            // Untested
-                            NSError *error = nil;
-                            NSData *data = [NSKeyedArchiver archivedDataWithRootObject:result requiringSecureCoding:NO error:&error];
+                    @synchronized (self) {
+                        for (XMLDepartures *deps in multiple) {
+                            if (deps.stopId) {
+                                NSString *longDesc = nil;
+                                NSString *shortDesc = nil;
+                                NSString *stopId = deps.stopId;
+                                
+                                bool cache = NO;
+                                
+                                if (deps.locDesc != nil) {
+                                    if (deps.locDir.length > 0) {
+                                        longDesc = [NSString stringWithFormat:@"%@ (%@)", deps.locDesc, deps.locDir];
+                                        shortDesc = [NSString stringWithFormat:@"%@: %@", [StopNameCacheManager shortDirection:deps.locDir], deps.locDesc];
+                                    } else {
+                                        longDesc = deps.locDesc;
+                                        shortDesc = longDesc;
+                                    }
+                                    
+                                    cache = YES;
+                                } else {
+                                    longDesc = [NSString stringWithFormat:@"Stop ID - %@", deps.stopId];
+                                    shortDesc = longDesc;
+                                }
+                                
+                                if (deps.stopId && longDesc && shortDesc) {
+                                    NSArray *result = @[deps.stopId, longDesc, shortDesc];
+                                    
+                                    if (updated) {
+                                        *updated = YES;
+                                    }
+                                    
+                                    names[stopId] = result;
+                                    
+                                    if (cache) {
+#ifndef PDXBUS_WATCH
+                                        // Untested
+                                        NSError *error = nil;
+                                        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:result requiringSecureCoding:NO error:&error];
 #else
-                            NSData *data = [NSKeyedArchiver archivedDataWithRootObject:result];
+                                        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:result];
 #endif
-                            [self addToCache:stopId item:data write:YES];
+                                        [self addToCache:stopId item:data write:YES];
+                                    }
+                                }
+                            }
+                            
+                            if (completion) {
+                                completion(items);
+                                items++;
+                            }
                         }
                     }
-                }
+                }];
                 
-                if (completion) {
-                    completion(items);
-                    items++;
-                }
+                
+                batch++;
             }
             
-            batch++;
+            [parallelBlocks waitForBlocks];
         }
-    }
-    
-    return names;
+        
+        return names;
 }
 
 @end

@@ -13,6 +13,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+
 #import "InterfaceControllerWithCommuterBookmark.h"
 #import "UserState.h"
 #import "WatchBookmarksContext.h"
@@ -62,7 +64,7 @@ static NSDictionary *delayedLocate;
                                                @"#CTo create a commuter bookmark, go to the iPhone to edit a bookmark to set which days to use it for the morning or evening commute.", @"commuter bookmark error");
         
         [self pushControllerWithName:kAlertScene
-                             context:[errorMsg formatAttributedStringWithFont:[UIFont systemFontOfSize:16.0]]];
+                             context:[errorMsg attributedStringFromMarkUpWithFont:[UIFont systemFontOfSize:16.0]]];
     }
 }
 
@@ -98,11 +100,7 @@ static NSDictionary *delayedLocate;
             [self popToRootController];
             DEBUG_LOG(@"runCommuterBookmarkOnlyOnce: popped\n");
         } else {
-            WatchContext *context = [[WatchContext alloc] init];
-            
-            context.sceneName = kNearbyScene;
-            
-            [context delayedPushFrom:self completion:nil];
+            [[WatchContext contextWithSceneName:kNearbyScene] delayedPushFrom:self completion:nil];
         }
     }
 }
@@ -152,7 +150,7 @@ static NSDictionary *delayedLocate;
         
         NSString *location = bookmark[kUserFavesLocation];
         NSString *title = bookmark[kUserFavesChosenName];
-        NSArray<NSString *> *stopIdArray = location.arrayFromCommaSeparatedString;
+        NSArray<NSString *> *stopIdArray = location.mutableArrayFromCommaSeparatedString;
         
         WatchBookmarksContext *context = [WatchBookmarksContext contextWithBookmark:stopIdArray title:title locationString:location];
         context.oneTimeShowFirst = YES;

@@ -19,11 +19,11 @@
 
 @implementation ViewControllerBase (LinkCell)
 
-- (urlAction)urlActionCalback {
+- (UrlAction)urlActionCalback {
     __weak __typeof__(self) weakSelf = self;
     
     return ^bool (LinkCell *cell, NSString *url) {
-        return [weakSelf linkAction:url];
+        return [weakSelf linkAction:url source:cell];
     };
 }
 

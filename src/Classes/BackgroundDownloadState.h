@@ -13,19 +13,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import "DataFactory.h"
-
 @class TriMetXML;
 
-typedef void (^backgroundFinalCompletion) (void);
-typedef void (^backgroundCompletionHandler) (TriMetXML *xml, backgroundFinalCompletion completion);
+typedef void (^BackgroundFinalCompletion) (void);
+typedef void (^BackgroundCompletionHandler) (TriMetXML *xml, BackgroundFinalCompletion completion);
 
 
-@interface BackgroundDownloadState : DataFactory
+@interface BackgroundDownloadState : NSObject
 
 @property (nonatomic, copy) NSString *progress;
-@property (nonatomic, retain) NSURLSessionDownloadTask *task;
-@property (nonatomic, retain) TriMetXML *xml;
-@property (nonatomic, copy) backgroundCompletionHandler handler;
+@property (nonatomic, strong) NSURLSessionDownloadTask *task;
+@property (nonatomic, strong) TriMetXML *xml;
+@property (nonatomic, copy) BackgroundCompletionHandler handler;
 
 @end

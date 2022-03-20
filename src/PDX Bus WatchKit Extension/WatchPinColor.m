@@ -24,19 +24,19 @@
     return nil;
 }
 
-- (bool)hasBearing {
+- (bool)pinHasBearing {
     return NO;
 }
 
-- (double)doubleBearing {
+- (double)pinBearing {
     return 0.0;
 }
 
-- (CLLocationCoordinate2D)coord {
+- (CLLocationCoordinate2D)pinCoord {
     return self.simpleCoord;
 }
 
-- (bool)hasCoord {
+- (bool)pinHasCoord {
     return YES;
 }
 

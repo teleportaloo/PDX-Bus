@@ -44,7 +44,7 @@
         dashPhase = 0;
         dashPatternId = kPolyLinePatternBus;
     } else {
-        PC_ROUTE_INFO info = [TriMetInfo infoForRouteNum:self.route];
+        PtrConstRouteInfo info = [TriMetInfo infoForRouteNum:self.route];
         
         if (info == nil) {
             color = [UIColor modeAwareBusColor];
@@ -89,7 +89,7 @@
         self.dirDesc = [aDecoder decodeObjectOfClass:[NSString class] forKey:kKeyDirDesc];
         self.desc = [aDecoder decodeObjectOfClass:[NSString class] forKey:kKeyDesc];
         self.route = [aDecoder decodeIntegerForKey:kKeyRoute];
-        self.direct = [aDecoder decodeObjectOfClass:[NSString class] forKey:kKeyDirect];
+        self.direct = [aDecoder decodeBoolForKey:kKeyDirect];
     }
     
     return self;

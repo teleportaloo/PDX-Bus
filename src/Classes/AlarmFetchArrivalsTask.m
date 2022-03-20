@@ -13,6 +13,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogAlarms
+
 #import "AlarmFetchArrivalsTask.h"
 #import "DebugLogging.h"
 #import "DepartureTimesView.h"
@@ -44,10 +46,11 @@
     
     [self.departures getDeparturesForStopId:self.stopId block:self.block];
     
-    if (self.departures.gotData && self.departures.count > 0) {
-        @synchronized (self.lastFetched)
-        {
-            self.lastFetched = self.departures[0];
+    Departure *newDep = [self.departures getFirstDepartureForDirection:self.dir];
+    
+    if (newDep) {
+        @synchronized (self.lastFetched) {
+            self.lastFetched = newDep;
         }
         _queryTime = self.departures.queryTime;
     } else if (self.lastFetched == nil) {
@@ -111,7 +114,8 @@
                  button:AlarmButtonDepartures
                userInfo:@{
                    kStopIdNotification: self.stopId,
-                   kAlarmBlock: self.block
+                   kAlarmBlock:         self.block,
+                   kAlarmDir:           self.dir
                }
            defaultSound:NO
              thisThread:NO];
@@ -212,7 +216,7 @@
 }
 
 - (NSString *)key {
-    return [NSString stringWithFormat:@"%@+%@", self.stopId, self.block];
+    return [NSString stringWithFormat:@"%@+%@+%@", self.stopId, self.block, self.dir];
 }
 
 - (void)cancelTask {
@@ -261,14 +265,13 @@
 #endif // ifdef DEBUG_ALARMS
 
 - (void)showToUser:(BackgroundTaskContainer *)backgroundTask {
-    [[DepartureDetailView viewController] fetchDepartureAsync:backgroundTask stopId:self.stopId block:self.block backgroundRefresh:NO];
+    [[DepartureDetailView viewController] fetchDepartureAsync:backgroundTask stopId:self.stopId block:self.block dir:self.dir backgroundRefresh:NO];
 }
 
 - (NSString *)cellToGo {
     NSString *str = @"";
     
-    @synchronized (self.lastFetched)
-    {
+    @synchronized (self.lastFetched) {
         if (self.lastFetched != nil) {
             NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
             dateFormatter.dateStyle = NSDateFormatterNoStyle;

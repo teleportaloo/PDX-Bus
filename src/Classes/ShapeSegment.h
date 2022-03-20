@@ -13,8 +13,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import "DataFactory.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
 @class ShapeCompactSegment;

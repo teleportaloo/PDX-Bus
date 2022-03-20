@@ -5,7 +5,7 @@
 #   sudo port install ImageMagick
 file=MAXWESMap.gif
 function tile() {
-convert $file -scale ${s}%x -crop 256x256 \
+/opt/local/bin/convert $file -scale ${s}%x -crop 256x256 \
 -set filename:tile "%[fx:page.x/256]_%[fx:page.y/256]" \
 +repage +adjoin "${file%.*}/${file%.*}_${s}_%[filename:tile].${file#*.}"
 }

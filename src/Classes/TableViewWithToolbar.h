@@ -12,13 +12,13 @@
 
 #import <UIKit/UIKit.h>
 #import "ViewControllerBase.h"
-#import "ReturnStopId.h"
 #import "UIToolbar+Auto.h"
 #import "TaskController.h"
 #import "ProgressModalView.h"
 #import "BackgroundTaskContainer.h"
 #import "MapKit/MapKit.h"
 #import "DeselectItemDelegate.h"
+#import <IntentsUI/IntentsUI.h>
 
 #define kDisclaimerCellHeight     UITableViewAutomaticDimension
 #define kSectionRowDisclaimerType 0xFFFFFF
@@ -42,14 +42,12 @@
 
 #define kNoRowSectionTypeFound (-1)
 
-#define FormatTextBasic(X)                       [(X) formatAttributedStringWithFont:self.basicFont]
-#define FormatTextPara(X)                        [(X) formatAttributedStringWithFont:self.paragraphFont]
-
 @class MKMapView;
 @class Detour;
 
+
 @interface TableViewWithToolbar<FilteredItemType> : ViewControllerBase <UITableViewDelegate, UITableViewDataSource, UISearchResultsUpdating, UISearchControllerDelegate,
-DeselectItemDelegate, MKMapViewDelegate, UISearchBarDelegate> {
+DeselectItemDelegate, MKMapViewDelegate, UISearchBarDelegate, INUIAddVoiceShortcutViewControllerDelegate> {
     bool _reloadOnAppear;
 }
 
@@ -73,6 +71,7 @@ DeselectItemDelegate, MKMapViewDelegate, UISearchBarDelegate> {
 - (NSInteger)sectionType:(NSInteger)section;
 - (NSInteger)rowType:(NSIndexPath *)index;
 - (NSInteger)addSectionType:(NSInteger)type;
+- (NSInteger)addSectionTypeWithRow:(NSInteger)type;
 - (NSInteger)addRowType:(NSInteger)type;
 - (NSInteger)addRowType:(NSInteger)type count:(NSInteger)count;
 - (NSInteger)sections;
@@ -83,6 +82,7 @@ DeselectItemDelegate, MKMapViewDelegate, UISearchBarDelegate> {
 - (NSInteger)firstSectionOfType:(NSInteger)type;
 - (NSInteger)firstRowOfType:(NSInteger)type inSection:(NSInteger)section;
 - (NSIndexPath *)firstIndexPathOfSectionType:(NSInteger)sectionType rowType:(NSInteger)rowType;
+- (void)removeRowAtIndexPath:(NSIndexPath *)index;
 
 // Other methods
 - (CGFloat)leftInset;
@@ -118,5 +118,8 @@ DeselectItemDelegate, MKMapViewDelegate, UISearchBarDelegate> {
 - (void)detourAction:(Detour *)detour buttonType:(NSInteger)buttonType indexPath:(NSIndexPath *)ip reloadSection:(bool)reloadSection;
 - (void)detourToggle:(Detour *)detour indexPath:(NSIndexPath *)ip reloadSection:(bool)reloadSection;
 - (void)safeScrollToTop;
+
+- (void)tableView:(UITableView *)table siriAlertsForRoute:(NSString *)routeName routeNumner:(NSString*)routeNumber;
+
 
 @end

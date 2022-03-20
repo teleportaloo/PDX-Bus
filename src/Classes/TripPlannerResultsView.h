@@ -23,7 +23,7 @@
 
 
 @interface TripPlannerResultsView : TableViewWithToolbar <MFMessageComposeViewControllerDelegate, MFMailComposeViewControllerDelegate,
-InfColorPickerControllerDelegate, EKEventViewDelegate, INUIAddVoiceShortcutViewControllerDelegate>
+InfColorPickerControllerDelegate, EKEventViewDelegate>
 
 @property (nonatomic, strong) XMLTrips *tripQuery;
 @property (nonatomic, strong) NSUserActivity *userActivity;

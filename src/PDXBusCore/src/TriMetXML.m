@@ -11,6 +11,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogXML
+
+#ifndef DEBUGLOGGING
+#pragma clang diagnostic ignored "-Wunreachable-code"
+#endif
+
 #import "TriMetXML.h"
 #import "TriMetTypes.h"
 #ifndef PDXBUS_WATCH
@@ -22,28 +28,46 @@
 #import "StopNameCacheManager.h"
 #import "TriMetAppId.h"
 #import "TriMetXMLSelectors.h"
+#import <objc/runtime.h>
+#import "SessionSingleton.h"
+#import "NSHTTPURLResponse+Headers.h"
 
 #define kShortTermCacheAge (20 * 60)  // 15 mins
 
-
+#ifdef DEBUGLOGGING
+#define DEBUG_XML(s, ...) if (DEBUG_ON_FOR_FILE) { NSLog(@"XML: %@ %@", NSStringFromClass([self class]), [NSString stringWithFormat:(s), ## __VA_ARGS__]); }
+#else
+#define DEBUG_XML(s, ...)
+#endif
 
 @interface TriMetXML<ItemType>() {
+    
 }
 
 @property (nonatomic, strong) NSMutableDictionary<NSString *, NSValue *> *_Nullable startSels;
 @property (nonatomic, strong) NSMutableDictionary<NSString *, NSValue *> *_Nullable endSels;
+@property (nonatomic) CacheAction currentCacheAction;
 
 @end
 
 
 #pragma mark Cache
 
-static QueryCacheManager *routeCache = nil;
-static QueryCacheManager *shortTermCache = nil;
 static StopNameCacheManager *stopNameCache = nil;
-
+static NSMutableData *staticParseSyncObject = nil;
 
 @implementation TriMetXML
+
++ (NSObject *)parseSyncObject
+{
+    static dispatch_once_t onceToken;
+    
+    dispatch_once(&onceToken, ^{
+        staticParseSyncObject = [[NSMutableData alloc] initWithLength:1];
+    });
+    
+    return staticParseSyncObject;
+}
 
 
 + (instancetype)xml {
@@ -61,13 +85,11 @@ static StopNameCacheManager *stopNameCache = nil;
     static dispatch_once_t onceToken;
     
     dispatch_once(&onceToken, ^{
-        routeCache = [QueryCacheManager cacheWithFileName:@"queryCache.plist"];
-        routeCache.maxSize = 25;
-        
-        shortTermCache = [QueryCacheManager cacheWithFileName:@"shortTermCache.plist"];
-        shortTermCache.maxSize = 20;
-        
         stopNameCache = [StopNameCacheManager cache];
+        
+        // Old caches.
+        [SharedFile removeFileWithName: @"queryCache.plist"];
+        [SharedFile removeFileWithName: @"shortTermCache.plist"];
     });
 }
 
@@ -79,8 +101,7 @@ static StopNameCacheManager *stopNameCache = nil;
 + (bool)deleteCacheFile {
     [TriMetXML initCaches];
     
-    [routeCache deleteCacheFile];
-    [shortTermCache deleteCacheFile];
+    [SessionSingleton clearCache];
     [stopNameCache deleteCacheFile];
     
     return YES;
@@ -88,15 +109,25 @@ static StopNameCacheManager *stopNameCache = nil;
 
 + (NSUInteger)cacheSizeInBytes {
     [TriMetXML initCaches];
+
+    NSUInteger httpCacheSize = [SessionSingleton cacheSizeInBytes];
+    NSUInteger stopNameCacheSize = stopNameCache.sizeInBytes;
     
-    return routeCache.sizeInBytes + shortTermCache.sizeInBytes + stopNameCache.sizeInBytes;
-}
+    DEBUG_LOGL(httpCacheSize);
+    DEBUG_LOGL(stopNameCacheSize);
+
+    return httpCacheSize + stopNameCacheSize;
+ }
 
 #ifdef PDXBUS_WATCH
 - (id)init {
     if (self = [super init]) {
         self.giveUp = 30.0;
         [self setTestData];
+        
+        self.queryBlock = ^(TriMetXML *xml, NSString *query) {
+            return [xml fullAddressForQuery:query];
+        };
     }
     
     return self;
@@ -107,6 +138,10 @@ static StopNameCacheManager *stopNameCache = nil;
 - (id)init {
     if (self = [super init]) {
         [self setTestData];
+        
+        self.queryBlock = ^(TriMetXML *xml, NSString *query) {
+            return [xml fullAddressForQuery:query];
+        };
     }
     
     return self;
@@ -253,10 +288,10 @@ static NSMutableDictionary<NSString *, NSNumber *> *testDataIndex = nil;
 
 #define ENCODED_APPID(L01, L02, L03, L04, L05, L06, L07, L08, L09, L10, L11, L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22, L23, L24, L25) \
 {  (ENC(0x ## L01, SEED, 2)),      (ENC(0x ## L02, 0x ## L01, 4)), (ENC(0x ## L03, 0x ## L02, 3)), (ENC(0x ## L04, 0x ## L03, F)), (ENC(0x ## L05, 0x ## L04, 6)),  \
-   (ENC(0x ## L06, 0x ## L05, A)), (ENC(0x ## L07, 0x ## L06, 8)), (ENC(0x ## L08, 0x ## L07, 8)), (ENC(0x ## L09, 0x ## L08, 8)), (ENC(0x ## L10, 0x ## L09, 5)),  \
-   (ENC(0x ## L11, 0x ## L10, A)), (ENC(0x ## L12, 0x ## L11, 3)), (ENC(0x ## L13, 0x ## L12, 0)), (ENC(0x ## L14, 0x ## L13, 8)), (ENC(0x ## L15, 0x ## L14, D)),  \
-   (ENC(0x ## L16, 0x ## L15, 3)), (ENC(0x ## L17, 0x ## L16, 1)), (ENC(0x ## L18, 0x ## L17, 3)), (ENC(0x ## L19, 0x ## L18, 1)), (ENC(0x ## L20, 0x ## L19, 9)),  \
-   (ENC(0x ## L21, 0x ## L20, 8)), (ENC(0x ## L22, 0x ## L21, A)), (ENC(0x ## L23, 0x ## L22, 2)), (ENC(0x ## L24, 0x ## L23, E)), (ENC(0x ## L25, 0x ## L24, 0)) }
+(ENC(0x ## L06, 0x ## L05, A)), (ENC(0x ## L07, 0x ## L06, 8)), (ENC(0x ## L08, 0x ## L07, 8)), (ENC(0x ## L09, 0x ## L08, 8)), (ENC(0x ## L10, 0x ## L09, 5)),  \
+(ENC(0x ## L11, 0x ## L10, A)), (ENC(0x ## L12, 0x ## L11, 3)), (ENC(0x ## L13, 0x ## L12, 0)), (ENC(0x ## L14, 0x ## L13, 8)), (ENC(0x ## L15, 0x ## L14, D)),  \
+(ENC(0x ## L16, 0x ## L15, 3)), (ENC(0x ## L17, 0x ## L16, 1)), (ENC(0x ## L18, 0x ## L17, 3)), (ENC(0x ## L19, 0x ## L18, 1)), (ENC(0x ## L20, 0x ## L19, 9)),  \
+(ENC(0x ## L21, 0x ## L20, 8)), (ENC(0x ## L22, 0x ## L21, A)), (ENC(0x ## L23, 0x ## L22, 2)), (ENC(0x ## L24, 0x ## L23, E)), (ENC(0x ## L25, 0x ## L24, 0)) }
 
 + (NSString *)appId {
     static NSMutableString *appId;
@@ -269,7 +304,7 @@ static NSMutableDictionary<NSString *, NSNumber *> *testDataIndex = nil;
         char *pRaw = raw;
         char previous = SEED;
         char current;
-       
+        
         for (int i = 0; i < APP_ID_SIZE; i++) {
             current = DE_ENC(*pRaw, previous);
             previous = current;
@@ -311,45 +346,23 @@ static NSMutableDictionary<NSString *, NSNumber *> *testDataIndex = nil;
 #if defined XML_TEST_DATA
     str = [self nextTestUrl:str];
 #endif
-    [self fetchDataByPolling:str];
+    [self fetchDataByPolling:str cachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
     
     if (self.oneTimeDelegate) {
         [self.oneTimeDelegate triMetXML:self finishedFetchingData:FALSE];
     }
 }
 
-- (void)makeRouteCacheRequest:(CacheAction)cacheAction cacheKey:(NSString *)cacheKey {
-    routeCache.ageOutDays = cacheAction == TriMetXMLForceFetchAndUpdateRouteCache ? kAlwaysAgeOut : Settings.routeCacheDays;
-    NSArray *cachedArray = [routeCache getCachedQuery:cacheKey];
-    
-    if (cachedArray) {
-        self.rawData = cachedArray[kCacheData];
-        self.itemFromCache = YES;
-        self.cacheTime = cachedArray[kCacheDateAndTime];
-    }
+- (void)makeRouteCacheRequest:(NSString *)cacheKey {
+    [self fetchDataByPolling:cacheKey cachePolicy:NSURLRequestReturnCacheDataDontLoad];
+    self.itemFromCache = YES;
+    self.cacheTime = self.httpDate;
 }
 
 - (bool)makeShortTermCacheRequest:(NSString *)cacheKey  {
-    NSArray *cachedArray = [shortTermCache getCachedQuery:cacheKey];
-    bool succeeded = NO;
-    
-    if (cachedArray != nil) {
-        NSDate *itemDate = cachedArray[kCacheDateAndTime];
-        
-        NSTimeInterval cacheAge = itemDate.timeIntervalSinceNow;
-        
-        if ((-cacheAge) < kShortTermCacheAge) {
-            self.rawData = cachedArray[kCacheData];
-            self.itemFromCache = YES;
-            self.cacheTime = itemDate;
-            NSError *parseError = nil;
-            succeeded = [self parseRawData:&parseError];
-            LOG_PARSE_ERROR(parseError);
-        } else {
-            [shortTermCache removeFromCache:cacheKey];
-        }
-    }
-    return succeeded;
+    [self fetchDataByPolling:cacheKey cachePolicy:NSURLRequestReturnCacheDataDontLoad];
+    self.itemFromCache = YES;
+    return self.rawData != nil;
 }
 
 - (bool)parseWithProgress {
@@ -358,13 +371,7 @@ static NSMutableDictionary<NSString *, NSNumber *> *testDataIndex = nil;
         [self.oneTimeDelegate triMetXML:self finishedFetchingData:TRUE];
     }
     
-    NSError *parseError = nil;
-    succeeded = [self parseRawData:&parseError];
-    LOG_PARSE_ERROR(parseError);
-    
-    if (self.oneTimeDelegate) {
-        [self.oneTimeDelegate triMetXML:self finishedParsingData:self.rawData.length fromCache:self.itemFromCache];
-    }
+    succeeded = [self parseRawData];
     
     return succeeded;
 }
@@ -376,14 +383,15 @@ static NSMutableDictionary<NSString *, NSNumber *> *testDataIndex = nil;
         self.itemFromCache = NO;
         
         _hasData = NO;
+        self.currentCacheAction = cacheAction;
         [self clearItems];
         
-        NSString *str = [self fullAddressForQuery:query];
-        NSString *cacheKey = [QueryCacheManager getCacheKey:str];
+        NSString *str = self.queryBlock(self, query);
+        NSString *cacheKey = str;
         
         [TriMetXML initCaches];
         
-        DEBUG_LOG(@"Query: %@\n", str);
+        DEBUG_LOG(@"%@ Query: %@\n", NSStringFromClass([self class]), str);
         
         if ((Settings.debugXML)) {
             self.fullQuery = str;
@@ -398,13 +406,15 @@ static NSMutableDictionary<NSString *, NSNumber *> *testDataIndex = nil;
             case TriMetXMLCheckRouteCache:
                 tries = 0;
                 // pass through
-            case TriMetXMLForceFetchAndUpdateRouteCache:
+            
             case TrIMetXMLRouteCacheReadOrFetch:
-                [self makeRouteCacheRequest:cacheAction cacheKey:cacheKey];
+                [self makeRouteCacheRequest:cacheKey];
                 
                 if (self.rawData != nil) {
                     succeeded = [self parseWithProgress];
                 }
+                break;
+            case TriMetXMLForceFetchAndUpdateRouteCache:
                 break;
         }
         
@@ -423,9 +433,11 @@ static NSMutableDictionary<NSString *, NSNumber *> *testDataIndex = nil;
         }
         
         if (!_hasData && cacheAction == TriMetXMLUseShortTermCache) {
-            succeeded = [self makeShortTermCacheRequest:cacheKey];
+            if ([self makeShortTermCacheRequest:cacheKey]) {
+                succeeded = [self parseWithProgress];
+            }
         }
-                
+        
         if (!_hasData && ![NSThread currentThread].isCancelled) {
             self.htmlError = self.rawData;
             
@@ -438,20 +450,7 @@ static NSMutableDictionary<NSString *, NSNumber *> *testDataIndex = nil;
             
 #endif
         } else if (![NSThread currentThread].isCancelled && !self.itemFromCache) {
-            switch (cacheAction)
-            {
-                case TriMetXMLNoCaching:
-                    break;
-                case TriMetXMLUseShortTermCache:
-                    [shortTermCache addToCache:cacheKey item:self.rawData write:YES];
-                    break;
-                case TriMetXMLForceFetchAndUpdateRouteCache:
-                case TrIMetXMLRouteCacheReadOrFetch:
-                    [routeCache addToCache:cacheKey item:self.rawData write:(routeCache.ageOutDays > 0)];
-                    break;
-                case TriMetXMLCheckRouteCache:
-                    break;
-            }
+            
         }
         
         [self clearRawData];
@@ -463,12 +462,10 @@ static NSMutableDictionary<NSString *, NSNumber *> *testDataIndex = nil;
 }
 
 - (bool)cacheSelectors {
-#ifdef XMLLOGGING
-    return YES;
-    
+#ifdef DEBUGLOGGING
+    return DEBUG_ON_FOR_FILE;
 #else
     return NO;
-    
 #endif
 }
 
@@ -505,50 +502,56 @@ static NSMutableDictionary<NSString *, NSNumber *> *testDataIndex = nil;
     }
 }
 
-- (bool)parseRawData:(NSError **)error {
-    bool succeeded = NO;
-    
-    // Moved from synchronous to asyncronous calls
-    // NSURL *URL = [NSURL URLWithString:str];
-    // NSXMLParser *parser = [[NSXMLParser alloc] initWithContentsOfURL:URL];
-    // Set self as the delegate of the parser so that it will receive the parser delegate methods callbacks.
-    NSXMLParser *parser = [[NSXMLParser alloc] initWithData:self.rawData];
-    
-    parser.delegate = self;
-    // Depending on the XML document you're parsing, you may want to enable these features of NSXMLParser.
-    [parser setShouldProcessNamespaces:NO];
-    [parser setShouldReportNamespacePrefixes:NO];
-    [parser setShouldResolveExternalEntities:NO];
-    
-    [self clearItems];
-    
-    [self initSelectors];
-    
-    [parser parse];
-    
-    NSError *parseError = parser.parserError;
-    
-    if (parseError && error && ![NSThread currentThread].isCancelled) {
-        *error = parseError;
+- (bool)parseRawData {
+    XmlParseSync() {
+        
+        bool succeeded = NO;
+        
+        // Moved from synchronous to asyncronous calls
+        // NSURL *URL = [NSURL URLWithString:str];
+        // NSXMLParser *parser = [[NSXMLParser alloc] initWithContentsOfURL:URL];
+        // Set self as the delegate of the parser so that it will receive the parser delegate methods callbacks.
+        NSXMLParser *parser = [[NSXMLParser alloc] initWithData:self.rawData];
+        
+        parser.delegate = self;
+        // Depending on the XML document you're parsing, you may want to enable these features of NSXMLParser.
+        [parser setShouldProcessNamespaces:NO];
+        [parser setShouldReportNamespacePrefixes:NO];
+        [parser setShouldResolveExternalEntities:NO];
+        
+        [self clearItems];
+        
+        [self initSelectors];
+        
+        [parser parse];
+        
+        NSError *parseError = parser.parserError;
+        
+        if (parseError && ![NSThread currentThread].isCancelled) {
+            self.parseError = parseError;
+        }
+        
+        LOG_PARSE_ERROR(parser.parserError);
+        
+        if (parseError == nil) {
+            succeeded = YES;
+        }
+        
+        
+        if (DEBUG_ON_FOR_FILE)
+        {
+            [self.startSels enumerateKeysAndObjectsUsingBlock: ^void (NSString *element, NSValue *sel, BOOL *stop)
+             {
+                DEBUG_XML(@"start element %@ %p", element, sel.pointerValue);
+            }];
+            
+            [self.endSels enumerateKeysAndObjectsUsingBlock: ^void (NSString *element, NSValue *sel, BOOL *stop)
+             {
+                DEBUG_XML(@"end element %@ %p", element, sel.pointerValue);
+            }];
+        }
+        return succeeded;
     }
-    
-    if (parseError == nil) {
-        succeeded = YES;
-    }
-    
-#ifdef XMLLOGGING
-    [self.startSels enumerateKeysAndObjectsUsingBlock: ^void (NSString *element, NSValue *sel, BOOL *stop)
-     {
-        DEBUG_LOG_RAW(@"start element %@ %p", element, sel.pointerValue);
-    }];
-    
-    [self.endSels enumerateKeysAndObjectsUsingBlock: ^void (NSString *element, NSValue *sel, BOOL *stop)
-     {
-        DEBUG_LOG_RAW(@"end element %@ %p", element, sel.pointerValue);
-    }];
-#endif
-    
-    return succeeded;
 }
 
 - (void)clearRawData {
@@ -657,47 +660,42 @@ static NSDictionary *replacements = nil;
 
 - (SEL)selectorForElement:(NSString *)elementName format:(NSString *)format cache:(NSMutableDictionary<NSString *, NSValue *> *)cache debug:(NSString *)debug {
     // PROFILING_ENTER_FUNCTION;
-    
-    NSString *lowerElName = [elementName lowercaseString];
-    NSValue *selValue = [cache objectForKey:lowerElName];
+    NSValue *selValue = [cache objectForKey:elementName];
     SEL elementSelector = nil;
     
     if (selValue == nil) {
-        NSString *selName = [NSString stringWithFormat:format, lowerElName];
+        NSString *selName = [NSString stringWithFormat:format, elementName];
         elementSelector = NSSelectorFromString(selName);
         
         if (![self respondsToSelector:elementSelector]) {
             elementSelector = nil;
-#ifdef XMLLOGGING
-            DEBUG_LOG_RAW(@"XML:%@ <- not %@\n", debug, elementName);
-#endif
+            if (DEBUG_ON_FOR_FILE) {
+                DEBUG_XML(@"%@ <- not %@\n", debug, elementName);
+            }
+        } else if (DEBUG_ON_FOR_FILE) {
+            DEBUG_XML(@"%@ <-     %@\n", debug, elementName);
         }
-        
-#ifdef XMLLOGGING
-        else {
-            DEBUG_LOG_RAW(@"XML:%@ <-     %@\n", debug, elementName);
-        }
-#endif
-        [cache setObject:[NSValue valueWithPointer:elementSelector] forKey:lowerElName];
+        [cache setObject:[NSValue valueWithPointer:elementSelector] forKey:elementName];
     } else if (selValue.pointerValue != nil) {
         elementSelector = selValue.pointerValue;
-#ifdef XMLLOGGING
-        DEBUG_LOG_RAW(@"XML:%@ ->    %@\n", debug, elementName);
-#endif
+        
+        if (DEBUG_ON_FOR_FILE) {
+            DEBUG_XML(@"%@ ->    %@\n", debug, elementName);
+        }
+    } else if (DEBUG_ON_FOR_FILE) {
+        DEBUG_XML(@"%@ -> not %@\n", debug, elementName);
     }
     
-#ifdef XMLLOGGING
-    else {
-        DEBUG_LOG_RAW(@"XML:%@ -> not %@\n", debug, elementName);
-    }
-#endif
     
     // PROFILING_EXIT_FUNCTION;
-    
     return elementSelector;
 }
 
-- (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict {
+- (void) parser:(NSXMLParser *)parser
+didStartElement:(NSString *)elementName
+   namespaceURI:(NSString *)namespaceURI
+  qualifiedName:(NSString *)qName
+     attributes:(NSDictionary *)attributeDict {
     if ([NSThread currentThread].isCancelled) {
         [parser abortParsing];
         return;
@@ -707,37 +705,26 @@ static NSDictionary *replacements = nil;
         elementName = qName;
     }
     
-#ifdef XMLLOGGING
-    DEBUG_LOG_RAW(@"XML: %@", elementName);
-    
-    NSEnumerator *i = attributeDict.keyEnumerator;
-    NSString *key = nil;
-    
-    while ((key = i.nextObject)) {
-        DEBUG_LOG_RAW(@"XML:  %@ = %@\n", key, attributeDict[key]);
+    if (DEBUG_ON_FOR_FILE) {
+        DEBUG_XML(@" %@", elementName);
+        
+        NSEnumerator *i = attributeDict.keyEnumerator;
+        NSString *key = nil;
+        
+        while ((key = i.nextObject)) {
+            DEBUG_XML(@"  %@ = %@\n", key, attributeDict[key]);
+        }
     }
-#endif
     
     SEL elementSelector = [self selectorForElement:elementName format:XML_START_SELECTOR cache:self.startSels debug:@"start"];
     
     if (elementSelector != nil) {
 #ifdef XML_SHORT_SELECTORS
-        IMP imp = [self methodForSelector:elementSelector];
-        void (*func)(id, SEL, NSDictionary *) = (void *)imp;
-        func(self, elementSelector, attributeDict);
-        
-        // [self performSelector:elementSelector withObject:attributeDict];
+        void (*processStartElement)(id, SEL, NSDictionary *) = (void *)[self methodForSelector:elementSelector];
+        processStartElement(self, elementSelector, attributeDict);
 #else
-        NSInvocation *inv = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:elementSelector]];
-        [inv setSelector:elementSelector];
-        [inv setTarget:self];
-        [inv setArgument:&(parser) atIndex:2]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
-        [inv setArgument:&(elementName) atIndex:3]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
-        [inv setArgument:&(namespaceURI) atIndex:4]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
-        [inv setArgument:&(qName) atIndex:5]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
-        [inv setArgument:&(attributeDict) atIndex:6]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
-        
-        [inv invoke];
+        void (*processStartElement)(id, SEL, NSXMLParser *, NSString *, NSString *, NSString *, NSDictionary *) = (void *)[self methodForSelector:elementSelector];
+        processStartElement(self, elementSelector, parser, elementName, namespaceURI, qName, attributeDict);
 #endif
     }
 }
@@ -752,45 +739,87 @@ static NSDictionary *replacements = nil;
         elementName = qName;
     }
     
-#ifdef XMLLOGGING
-    
-    if (self.contentOfCurrentProperty != nil) {
+    if (DEBUG_ON_FOR_FILE && self.contentOfCurrentProperty != nil) {
         DEBUG_LOG_RAW(@"  Content: %@\n", self.contentOfCurrentProperty);
     }
-    
-#endif
     
     SEL elementSelector = [self selectorForElement:elementName format:XML_END_SELECTOR cache:self.endSels debug:@"end  "];
     
     if (elementSelector != nil) {
 #ifdef XML_SHORT_SELECTORS
-        IMP imp = [self methodForSelector:elementSelector];
-        void (*func)(id, SEL) = (void *)imp;
-        func(self, elementSelector);
-        // [self performSelector:elementSelector];
+        void (*processEndElement)(id, SEL) = (void *)[self methodForSelector:elementSelector];
+        processEndElement(self, elementSelector);
 #else
-        NSInvocation *inv = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:elementSelector]];
-        [inv setSelector:elementSelector];
-        [inv setTarget:self];
-        [inv setArgument:&(parser) atIndex:2]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
-        [inv setArgument:&(elementName) atIndex:3]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
-        [inv setArgument:&(namespaceURI) atIndex:4]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
-        [inv setArgument:&(qName) atIndex:5]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
-        
-        [inv invoke];
+        void (*processEndElement)(id, SEL, NSXMLParser *, NSString *, NSString *, NSString *) = (void *)[self methodForSelector:elementSelector];
+        processEndElement(self, elementSelector, parser, elementName, namespaceURI, qName);
 #endif
     }
 }
 
-- (void)expectedSize:(long long)expected {
+- (void)incrementalBytes:(long long)incremental {
     if (self.oneTimeDelegate) {
-        [self.oneTimeDelegate triMetXML:self expectedSize:expected];
+        [self.oneTimeDelegate triMetXML:self incrementalBytes:incremental];
     }
 }
 
-- (void)progressed:(long long)progress expected:(long long)expected {
-    if (self.oneTimeDelegate) {
-        [self.oneTimeDelegate triMetXML:self progress:progress of:expected];
+- (NSTimeInterval)secondsUntilEndOfServiceSunday:(NSDate *)date {
+    
+    NSCalendar *cal = [NSCalendar currentCalendar];
+    int units = NSCalendarUnitWeekOfYear  | NSCalendarUnitYearForWeekOfYear | NSCalendarUnitWeekday | NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
+    
+    NSDateComponents *nowDateComponents = [cal components:units fromDate:date];
+
+    DEBUG_LOGL(nowDateComponents.yearForWeekOfYear);
+    DEBUG_LOGL(nowDateComponents.weekOfYear);
+    nowDateComponents.weekOfYear++;
+    
+    nowDateComponents.weekday = 1;
+    nowDateComponents.hour = 3;
+    nowDateComponents.minute = 30;
+    nowDateComponents.second = 0;
+    
+    NSDate *sunday = [cal dateFromComponents:nowDateComponents];
+    
+    DEBUG_LOGDATE(sunday);
+    DEBUG_LOGF([sunday timeIntervalSinceDate:date]);
+    
+    return [sunday timeIntervalSinceDate:date];
+}
+
+
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask
+                                  willCacheResponse:(NSCachedURLResponse *)proposedResponse
+                                  completionHandler:(void (^)(NSCachedURLResponse * _Nullable cachedResponse))completionHandler {
+    if ([proposedResponse.response isKindOfClass:[NSHTTPURLResponse class]])
+    {
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*)proposedResponse.response;
+        self.httpDate = httpResponse.headerDate;
+    
+        switch (self.currentCacheAction)
+        {
+            case TriMetXMLCheckRouteCache:
+            case TriMetXMLForceFetchAndUpdateRouteCache:
+            case TrIMetXMLRouteCacheReadOrFetch:
+                if (httpResponse.hasMaxAge) {
+                    completionHandler(proposedResponse);
+                } else {
+                    completionHandler([SessionSingleton response:proposedResponse withExpirationDuration:[self secondsUntilEndOfServiceSunday:self.httpDate]]);
+                }
+                break;
+            case TriMetXMLNoCaching:
+                completionHandler(nil);
+                break;
+            case TriMetXMLUseShortTermCache:
+                completionHandler([SessionSingleton response:proposedResponse withExpirationDuration:15 * 60]);
+                break;
+            default:
+                completionHandler(proposedResponse);
+                break;
+        }
+    
+    } else {
+        self.httpDate = nil;
+        completionHandler(nil);
     }
 }
 

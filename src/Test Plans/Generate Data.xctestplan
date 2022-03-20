@@ -1,0 +1,32 @@
+{
+  "configurations" : [
+    {
+      "id" : "1DBBEBF1-E2E8-46C8-B0BE-8260D01EBCA1",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "selectedTests" : [
+        "GenerateArrays\/testMakeTiles",
+        "GenerateArrays\/testOnlineCreateArrays",
+        "GenerateArrays\/testOnline_CreateArrays",
+        "GenerateArrays\/test_makeTiles",
+        "MachineGeneratedArrays\/test_Online_GenerateStaticArrays",
+        "MachineGeneratedArrays\/test_generate_HotSpot_Tiles"
+      ],
+      "target" : {
+        "containerPath" : "container:PDX Bus.xcodeproj",
+        "identifier" : "A17DFCB5251E852E001BE290",
+        "name" : "PDX BusTests"
+      }
+    }
+  ],
+  "version" : 1
+}

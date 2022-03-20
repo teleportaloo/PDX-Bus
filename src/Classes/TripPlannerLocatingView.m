@@ -21,6 +21,7 @@
 #import "GeoLocator.h"
 #import "MainQueueSync.h"
 #import "TaskState.h"
+#import "RunParallelBlocks.h"
 
 @interface TripPlannerLocatingView () {
     UIInterfaceOrientation _cachedOrientation;
@@ -128,12 +129,20 @@
     
     taskState.itemsDone = 0;
     
-    [self subTaskFetchNames:geoNamesRequired taskState:taskState];
+    RunParallelBlocks *parallelBlocks =  [RunParallelBlocks instance];
     
-    NSMutableArray<TripLegEndPoint *> *toList = nil;
-    NSMutableArray<TripLegEndPoint *> *fromList = nil;
+    [parallelBlocks startBlock:^{
+        [self subTaskFetchNames:geoNamesRequired taskState:taskState];
+    }];
     
-    [self subTaskFetchCoordsFrom:&fromList to:&toList geoCoordsRequired:geoCoordsRequired taskState:taskState ];
+    __block NSMutableArray<TripLegEndPoint *> *toList = nil;
+    __block NSMutableArray<TripLegEndPoint *> *fromList = nil;
+    
+    [parallelBlocks startBlock:^{
+        [self subTaskFetchCoordsFrom:&fromList to:&toList geoCoordsRequired:geoCoordsRequired taskState:taskState ];
+    }];
+    
+    [parallelBlocks waitForBlocks];
     
     if (self.tripQuery.toList == nil || self.tripQuery.fromList == nil) {
         [taskState taskSubtext:NSLocalizedString(@"planning trip", @"progress message")];

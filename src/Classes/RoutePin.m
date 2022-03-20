@@ -27,7 +27,7 @@
     return self.color;
 }
 
-- (bool)showActionMenu {
+- (bool)pinActionMenu {
     if (self.route != nil) {
         return YES;
     }
@@ -35,8 +35,13 @@
     return NO;
 }
 
-- (bool)hasBearing {
+- (bool)pinHasBearing {
     return NO;
+}
+
+- (NSString *)pinMarkedUpType
+{
+    return [NSString stringWithFormat:@"#D#Lroute:%@ Route info#T", self.route];
 }
 
 - (CLLocationCoordinate2D)coordinate {
@@ -48,16 +53,16 @@
 }
 
 - (NSString *)subtitle {
-    return self.dir;
+    return nil;
 }
 
-- (NSString *)tapActionText {
-    return @"Route info";
-}
-
-- (bool)mapTapped:(id<TaskController>)progress {
-    [[DirectionView viewController] fetchDirectionsAsync:progress route:self.route];
-    return true;
+- (NSString*)pinMarkedUpSubtitle
+{
+    if (self.dir)
+    {
+        return [NSString stringWithFormat:@"#D%@", self.dir];
+    }
+    return nil;
 }
 
 - (NSUInteger)hash {

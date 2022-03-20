@@ -14,8 +14,8 @@
 
 
 #import <Foundation/Foundation.h>
-#import "TripReturnUserRequest.h"
 #import "TableViewWithToolbar.h"
+#import "XMLTrips.h"
 
 @interface TripPlannerBaseView : TableViewWithToolbar
 

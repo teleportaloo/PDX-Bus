@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resultSet xmlns="urn:trimet:schedule">
+    <route desc="19-Woodstock/Glisan" route="19" id="19" type="B" routeColor="" routeSortOrder="2400" frequentService="false" detour="true">
+        <dir dir="0" desc="To Mt. Scott &amp; 112th" />
+        <dir dir="1" desc="To Gateway Transit Center" />
+    </route>
+</resultSet>

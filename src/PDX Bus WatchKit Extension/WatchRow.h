@@ -20,7 +20,7 @@
 @class Departure;
 @class WatchArrivalsContext;
 
-typedef enum {
+typedef enum WatchSelectActionEnum {
     WatchSelectAction_None,
     WatchSelectAction_RefreshData,
     WatchSelectAction_RefreshUI

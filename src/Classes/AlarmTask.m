@@ -13,6 +13,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogAlarms
 
 #import "AlarmTask.h"
 #import "RootViewController.h"
@@ -219,17 +220,15 @@
         content.userInfo = userInfo;
         content.badge = nil;
         
-        if (@available(iOS 12.0, *)) {
-            content.sound = defaultSound            ? UNNotificationSound.defaultCriticalSound
-                                                    : [UNNotificationSound criticalSoundNamed:Settings.alarmSoundFile];
-        } else {
-            // Fallback on earlier versions
-            content.sound =  defaultSound           ? UNNotificationSound.defaultSound
-                                                    : [UNNotificationSound soundNamed:Settings.alarmSoundFile];
-            
-        }
+        content.sound = defaultSound            ? UNNotificationSound.defaultCriticalSound
+                                                : [UNNotificationSound criticalSoundNamed:Settings.alarmSoundFile];
+        
         
         content.categoryIdentifier = [self buttonCat:button];
+        
+        if (@available(iOS 15.0, *)) {
+            content.interruptionLevel =  UNNotificationInterruptionLevelTimeSensitive;
+        } 
         
         NSString *identifier = [NSString stringWithFormat:@"org.teleportaloo.PDXBus %p", self];
         

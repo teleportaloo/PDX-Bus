@@ -104,7 +104,7 @@
         }
             
         case kSectionInfo: {
-            UITableViewCell *cell = [self tableView:tableView multiLineCellWithReuseIdentifier:MakeCellId(kSectionInfo) font:self.paragraphFont];
+            UITableViewCell *cell = [self tableView:tableView multiLineCellWithReuseIdentifier:MakeCellId(kSectionInfo) font:self.smallFont];
             cell.textLabel.text = self.info;
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             cell.backgroundView = [self clearView];

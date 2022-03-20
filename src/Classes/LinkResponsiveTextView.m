@@ -13,9 +13,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+
 #import "LinkResponsiveTextView.h"
 
 @implementation LinkResponsiveTextView
+
+- (instancetype)init {
+    if ((self = [super init])) {
+        [self setupLinkDetection];
+    }
+    
+    return self;
+}
 
 - (instancetype)initWithFrame:(CGRect)frame {
     if ((self = [super initWithFrame:frame])) {
@@ -63,7 +73,50 @@
     }
     
     // otherwise return nil so the tap goes on to the next receiver
-    return nil;
+    return self.allowSelection ? self : nil;
 }
+
+- (BOOL)textView:(UITextView *)textView shouldInteractWithURL:(NSURL *)URL inRange:(NSRange)characterRange interaction:(UITextItemInteraction)interaction
+{
+    if (self.linkAction)
+    {
+        return self.linkAction(self, URL, characterRange, interaction);
+    }
+    
+    return NO;
+}
+
+- (bool)canBecomeFirstResponder {
+    return YES;
+}
+
+/*
+- (BOOL)canPerformAction:(SEL)action withSender:(id)sender {
+    NSString *selectorString = NSStringFromSelector(action);
+    
+    
+    NSSet *selectors = [NSSet setWithArray:@[ @"_accessibilitySpeak:",  @"copy:", @"_translate:", @"_share:" ]];;
+    
+    BOOL canDo = [selectors containsObject:selectorString];
+    
+    DEBUG_LOGB(canDo);
+    
+    if (canDo) {
+        //(re)add menuItems to UIMenuController
+        DEBUG_LOG(@"Can do action %@", selectorString);
+        return YES;
+    } else if ([super canPerformAction:action withSender:sender]) {
+        DEBUG_LOG(@"Would do action %@", selectorString);
+    } else {
+        DEBUG_LOG(@"Won't ever do action %@", selectorString);
+    }
+
+    return NO;
+}
+ */
+
+
+
+
 
 @end

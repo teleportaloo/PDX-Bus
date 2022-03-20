@@ -22,19 +22,22 @@
 
 @property (strong, nonatomic) IBOutlet WKInterfaceButton *buttonStopId;
 
-- (IBAction)button1;
-- (IBAction)button2;
-- (IBAction)button3;
-- (IBAction)button4;
-- (IBAction)button5;
-- (IBAction)button6;
-- (IBAction)button7;
-- (IBAction)button8;
-- (IBAction)button9;
-- (IBAction)button0;
-- (IBAction)buttonBack;
-- (IBAction)buttonGo;
-- (IBAction)menuClear;
-- (IBAction)sayStopId;
+- (IBAction)buttonAction1;
+- (IBAction)buttonAction2;
+- (IBAction)buttonAction3;
+- (IBAction)buttonAction4;
+- (IBAction)buttonAction5;
+- (IBAction)buttonAction6;
+- (IBAction)buttonAction7;
+- (IBAction)buttonAction8;
+- (IBAction)buttonAction9;
+- (IBAction)buttonAction0;
+- (IBAction)buttonBackAction;
+- (IBAction)buttonGoAction;
+- (IBAction)menuClearAction;
+- (IBAction)sayStopIdAction;
+
+@property (unsafe_unretained, nonatomic) IBOutlet WKInterfaceButton *goButton;
+@property (unsafe_unretained, nonatomic) IBOutlet WKInterfaceButton *backButton;
 
 @end

@@ -89,15 +89,6 @@ enum {
 
 #pragma mark TableView methods
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return self.sections;
-}
-
-// Customize the number of rows in the table view.
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [self rowsInSection:section];
-}
-
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     return UITableViewAutomaticDimension;
 }

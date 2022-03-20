@@ -14,6 +14,7 @@
 
 
 #import "DetourLocation+iOSUI.h"
+#import "NSString+Helper.h"
 
 @implementation DetourLocation (iOSUI)
 
@@ -34,7 +35,7 @@
     return [NSString stringWithFormat:@"Stop ID %@", self.stopId];
 }
 
-// From MapPinColor
+// From MapPin
 - (MapPinColorValue)pinColor {
     if (self.noServiceFlag) {
         return MAP_PIN_COLOR_RED;
@@ -43,32 +44,37 @@
     return MAP_PIN_COLOR_GREEN;
 }
 
-- (bool)showActionMenu {
+- (bool)pinActionMenu {
     return YES;
 }
 
-- (NSString *)mapStopId {
+- (NSString *)pinStopId {
     return self.stopId;
 }
 
-- (NSString *)mapStopIdText {
+- (NSString *)pinMarkedUpStopId {
     if (self.noServiceFlag) {
-        return [NSString stringWithFormat:@"No service at ID %@", self.stopId];
+        return [NSString stringWithFormat:@"#DNo service at %@", self.stopId.markedUpLinkToStopId];
     }
     
-    return [NSString stringWithFormat:@"Departures at Stop ID %@", self.stopId];
+    return [NSString stringWithFormat:@"#D%@", self.stopId.markedUpLinkToStopId];
 }
 
 - (UIColor *)pinTint {
     return nil;
 }
 
-- (bool)hasBearing {
+- (bool)pinHasBearing {
     return NO;
 }
 
-- (double)doubleBearing {
+- (double)pinBearing {
     return 0.0;
+}
+
+- (NSString *)pinMarkedUpType
+{
+    return nil;
 }
 
 @end

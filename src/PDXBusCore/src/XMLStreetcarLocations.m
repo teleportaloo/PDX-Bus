@@ -12,13 +12,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogParsing
+
 #import "XMLStreetcarLocations.h"
 #import "XMLDepartures.h"
 #import "Vehicle.h"
 #import "DebugLogging.h"
 #import "FormatDistance.h"
 #import "CLLocation+Helper.h"
-#import "NSDictionary+TriMetCaseInsensitive.h"
+#import "NSDictionary+Types.h"
 
 @interface XMLStreetcarLocations () {
     TriMetTime _lastTime;
@@ -50,7 +52,7 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
 #pragma mark Singleton
 
 + (XMLStreetcarLocations *)sharedInstanceForRoute:(NSString *)route {
-    @synchronized (self) {
+    XmlParseSync() {
         if (singleLocationsPerLine == nil) {
             singleLocationsPerLine = [[NSMutableDictionary alloc] init];
         }
@@ -67,13 +69,13 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
     }
 }
 
-+ (NSSet<NSString *> *)getStreetcarRoutesInDepartureArray:(NSArray *)deps {
++ (NSSet<NSString *> *)getStreetcarRoutesInXMLDeparturesArray:(NSArray *)xmlDeps {
     NSMutableSet<NSString *> *routes = [NSMutableSet set];
     
-    for (XMLDepartures *dep in deps) {
-        for (Departure *dd in dep.items) {
-            if (dd.streetcar) {
-                [routes addObject:dd.route];
+    for (XMLDepartures *deps in xmlDeps) {
+        for (Departure *departure in deps.items) {
+            if (departure.streetcar) {
+                [routes addObject:departure.route];
             }
         }
     }
@@ -81,14 +83,16 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
     return routes;
 }
 
-+ (void)insertLocationsIntoDepartureArray:(NSArray *)deps forRoutes:(NSSet<NSString *> *)routes {
-    for (NSString *route in routes) {
-        XMLStreetcarLocations *locs = [XMLStreetcarLocations sharedInstanceForRoute:route];
-        
-        for (XMLDepartures *dep in deps) {
-            for (Departure *dd in dep.items) {
-                if (dd.streetcar && [dd.route isEqualToString:route]) {
-                    [locs insertLocation:dd];
++ (void)insertLocationsIntoXmlDeparturesArray:(NSArray *)xmlDeps forRoutes:(NSSet<NSString *> *)routes {
+    XmlParseSync() {
+        for (NSString *route in routes) {
+            XMLStreetcarLocations *locs = [XMLStreetcarLocations sharedInstanceForRoute:route];
+            
+            for (XMLDepartures *deps in xmlDeps) {
+                for (Departure *departure in deps.items) {
+                    if (departure.streetcar && [departure.route isEqualToString:route]) {
+                        [locs insertLocation:departure];
+                    }
                 }
             }
         }
@@ -117,13 +121,15 @@ XML_START_ELEMENT(body) {
 XML_START_ELEMENT(vehicle) {
     NSString *streetcarId = XML_NON_NULL_ATR_STR(@"id");
     
-    Vehicle *pos = [Vehicle data];
+    Vehicle *pos = [Vehicle new];
     
     pos.location = XML_ATR_LOCATION(@"lat", @"lon");
     
     pos.type = kVehicleTypeStreetcar;
     pos.block = streetcarId;
+    pos.vehicleId = [TriMetInfo vehicleIdFromStreetcarId:streetcarId];
     pos.routeNumber = self.route;
+    pos.speedKmHr = XML_NULLABLE_ATR_STR(@"speedKmHr");
     NSInteger secs = XML_ATR_INT(@"secsSinceReport");
     
     // Weird issue - just reversing the sign is something to do with the weird data.
@@ -133,6 +139,7 @@ XML_START_ELEMENT(vehicle) {
     
     pos.locationTime = [[NSDate date] dateByAddingTimeInterval:-secs];
     pos.bearing = XML_NON_NULL_ATR_STR(@"heading");
+    DEBUG_LOGS(pos.bearing);
     
     NSString *dirTag = XML_NON_NULL_ATR_STR(@"dirTag");
     
@@ -179,9 +186,11 @@ XML_END_ELEMENT(body) {
 }
 
 - (void)memoryWarning {
-    DEBUG_LOG(@"Clearing streetcar location cache %p\n", self.locations);
-    self.locations = nil;
-    _lastTime = 0;
+    @synchronized (self) {
+        DEBUG_LOG(@"Clearing streetcar location cache %p\n", self.locations);
+        self.locations = nil;
+        _lastTime = 0;
+    }
 }
 
 @end

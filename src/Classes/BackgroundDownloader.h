@@ -6,7 +6,6 @@
 //  Copyright © 2020 Andrew Wallace. All rights reserved.
 //
 
-#import "DataFactory.h"
 #import "TriMetXML.h"
 #import "BackgroundDownloadState.h"
 
@@ -19,11 +18,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface BackgroundDownloader : DataFactory <NSURLSessionDelegate>
+@interface BackgroundDownloader : NSObject <NSURLSessionDelegate>
 
 + (BackgroundDownloader *)sharedInstance;
 
-- (bool)startFetchInBackground:(TriMetXML *)xml query:(NSString*)query completion:(backgroundCompletionHandler)completionHander;
+- (bool)startFetchInBackground:(TriMetXML *)xml query:(NSString*)query completion:(BackgroundCompletionHandler)completionHander;
 - (bool)isFetching:(NSString*)query;
 - (void)cancel:(NSString*)query;
 - (NSString * _Nullable)progess:(NSString*)query;

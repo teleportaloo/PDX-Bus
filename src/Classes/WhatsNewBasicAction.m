@@ -61,19 +61,19 @@
     return prefix;
 }
 
-- (NSString *)displayText:(NSString *)fullText {
+- (NSString *)displayMarkedUpText:(NSString *)fullText {
     return fullText;
 }
 
 - (NSString *)plainTextNormal:(NSString *)fullText {
-    return [self displayText:fullText].removeFormatting;
+    return [self displayMarkedUpText:fullText].removeMarkUp;
 }
 
 - (NSString *)plainTextIndented:(NSString *)fullText {
-    return [NSString stringWithFormat:@"- %@", [self displayText:fullText].removeFormatting];
+    return [NSString stringWithFormat:@"- %@", [self displayMarkedUpText:fullText].removeMarkUp];
 }
 
-- (NSString *)plainText:(NSString *)fullText {
+- (NSString *)plainTextFromMarkUp:(NSString *)fullText {
     return [self plainTextIndented:fullText];
 }
 

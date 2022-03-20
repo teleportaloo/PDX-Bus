@@ -96,7 +96,7 @@
     
     UITableViewCell *cell = [self tableView:tableView multiLineCellWithReuseIdentifier:@"Trip"];
     
-    cell.textLabel.attributedText = FormatTextPara([self insertAttributes:text]);
+    cell.textLabel.attributedText = [self insertAttributes:text].smallAttributedStringFromMarkUp;
     cell.selectionStyle = UITableViewCellSelectionStyleBlue;
     cell.backgroundColor = [UIColor whiteColor];
     cell.accessibilityLabel = text.phonetic;

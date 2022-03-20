@@ -10,25 +10,29 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import "DataFactory.h"
 #import "TriMetInfo.h"
+#import "Direction.h"
+#import "Stop.h"
 
 #define kSystemWideRouteId @"SWRID"
-#define kSystemWideDetour  NSLocalizedString(@"System Wide Alert", @"heading")
+#define kSystemWideDetour  NSLocalizedString(@"System-wide Alert", @"heading")
 
-@interface Route : DataFactory {
+@interface Route : NSObject {
 }
 
-@property (nonatomic, strong) NSMutableDictionary<NSString *, NSString *> *directions;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, Direction *> *directions;
 @property (nonatomic, readonly) bool systemWide;
 @property (nonatomic, readonly) NSInteger systemWideId;
 
 @property (nonatomic, copy) NSString *route;
 @property (nonatomic, copy) NSString *desc;
+@property (nonatomic)       NSInteger routeSortOrder;
+@property (nonatomic)       NSInteger routeColor;
+@property (nonatomic)       NSNumber *frequentService;
 
 - (NSComparisonResult)compare:(Route *)route2;
 - (BOOL)isEqualToRoute:(Route *)route;
-- (PC_ROUTE_INFO)rawColor;
+- (PtrConstRouteInfo)rawColor;
 
 + (instancetype)systemWide:(NSNumber *)detourId;
 

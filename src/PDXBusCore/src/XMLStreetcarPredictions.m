@@ -13,7 +13,7 @@
 
 
 #import "XMLStreetcarPredictions.h"
-#import "NSDictionary+TriMetCaseInsensitive.h"
+#import "NSDictionary+Types.h"
 #import "TriMetXMLSelectors.h"
 
 @interface XMLStreetcarPredictions ()
@@ -49,9 +49,7 @@ XML_START_ELEMENT(predictions) {
     self.currentRouteTitle = XML_NON_NULL_ATR_STR(@"routeTitle");
     
     self.currentDirectionTitle = XML_ZERO_LEN_ATR_STR(@"dirTitleBecauseNoPredictions");
-#ifdef DEBUGLOGGING
     self.stopTitle = XML_ZERO_LEN_ATR_STR(@"stopTitle");
-#endif
     
     if (self.currentDirectionTitle != nil && self.items == nil) {
         [self initItems];
@@ -77,13 +75,13 @@ XML_START_ELEMENT(prediction) {
         
         // There are some bugs in the streetcar feed (e.g. Cl instead of CL)
         
-        self.currentDepartureObject = [Departure data];
+        self.currentDepartureObject = [Departure new];
         self.currentDepartureObject.hasBlock = true;
         self.currentDepartureObject.route = nil;
         self.currentDepartureObject.fullSign = name;
         self.currentDepartureObject.shortSign = name;
         self.currentDepartureObject.block = block;
-        self.currentDepartureObject.status = kStatusEstimated;
+        self.currentDepartureObject.status = ArrivalStatusEstimated;
         self.currentDepartureObject.nextBusMins = XML_ATR_INT(@"minutes");
         self.currentDepartureObject.streetcar = true;
         self.currentDepartureObject.dir = nil;

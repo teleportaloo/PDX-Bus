@@ -15,18 +15,20 @@
 
 #import <UIKit/UIKit.h>
 #import "LinkResponsiveTextView.h"
+#import "SelectableTextViewCell.h"
 
 @class LinkCell;
 
-typedef bool (^urlAction) (LinkCell *cell,  NSString *url);
+typedef bool (^UrlAction) (LinkCell *cell,  NSString *url);
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface LinkCell : UITableViewCell <UITextViewDelegate, UIGestureRecognizerDelegate>
+@interface LinkCell : SelectableTextViewCell <UITextViewDelegate, UIGestureRecognizerDelegate>
 @property (strong, nonatomic) IBOutlet LinkResponsiveTextView *textView;
-@property (nonatomic, copy) urlAction urlCallback;
+@property (nonatomic, copy) UrlAction urlCallback;
 
 + (UINib *)nib;
++ (NSString *)identifier;
 
 
 @end

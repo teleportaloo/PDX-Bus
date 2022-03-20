@@ -17,7 +17,7 @@
 #import "TriMetInfo.h"
 #import "NSString+Helper.h"
 #import "XMLDepartures.h"
-#import "NSDictionary+TriMetCaseInsensitive.h"
+#import "NSDictionary+Types.h"
 
 @implementation XMLStreetcarMessages
 
@@ -38,9 +38,9 @@
     Route *result = self.allRoutes[route];
     
     if (result == nil) {
-        result = [Route data];
+        result = [Route new];
         result.route = route;
-        PC_ROUTE_INFO info = [result rawColor];
+        PtrConstRouteInfo info = [result rawColor];
         
         if (info != nil) {
             result.desc = info->full_name;
@@ -50,7 +50,6 @@
         
         [self.allRoutes setObject:result forKey:route];
     }
-    
     return result;
 }
 
@@ -152,8 +151,8 @@ XML_END_ELEMENT(route) {
 }
 
 XML_START_ELEMENT(message) {
-    self.curentDetour = [Detour data];
-    self.curentDetour.detourId = @(STREETCAR_DETOUR_ID(XML_ATR_INT(@"id"))); 
+    self.curentDetour = [Detour new];
+    self.curentDetour.detourId = @(STREETCAR_DETOUR_ID(XML_ATR_INT(@"id")));
 }
 
 XML_END_ELEMENT(message) {
@@ -208,31 +207,31 @@ XML_START_ELEMENT(stop) {
 
 
 - (void)insertDetoursIntoDepartureArray:(XMLDepartures *)departures {
-    for (Departure *dep in departures) {
+    XmlParseSync() {
+        for (Departure *dep in departures) {
+            for (Detour *detour in self) {
+                for (Route *route in detour.routes) {
+                    if ([route.route isEqualToString:dep.route]) {
+                        dep.detour = YES;
+                        [dep.sortedDetours safeAddDetour:detour];
+                        [departures.allRoutes setObject:route forKey:route.route];
+                        break;
+                    }
+                }
+            }
+            [dep.sortedDetours sort];
+        }
+        
         for (Detour *detour in self) {
-            for (Route *route in detour.routes) {
-                if ([route.route isEqualToString:dep.route]) {
-                    dep.detour = YES;
-                    [dep.sortedDetours add:detour];
-                    [departures.allRoutes setObject:route forKey:route.route];
-                    break;
-                }
-            }
-        }
-        [dep.sortedDetours sort];
-    }
-    
-    for (Detour *detour in self) {
-        if (detour.extractStops) {
-            for (NSString *stop in detour.extractStops) {
-                if ([stop isEqualToString:departures.stopId]) {
-                    [departures.detourSorter add:detour];
+            if (detour.extractStops) {
+                for (NSString *stop in detour.extractStops) {
+                    if ([stop isEqualToString:departures.stopId]) {
+                        [departures.detourSorter safeAddDetour:detour];
+                    }
                 }
             }
         }
     }
-    
-    
 }
 
 @end

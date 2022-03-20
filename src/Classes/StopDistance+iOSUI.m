@@ -22,7 +22,7 @@
     return MAP_PIN_COLOR_GREEN;
 }
 
-- (bool)showActionMenu {
+- (bool)pinActionMenu {
     return YES;
 }
 
@@ -44,7 +44,7 @@
     return [NSString stringWithFormat:NSLocalizedString(@"Stop ID %@ %@", @"TriMet Stop identifer <number>"), self.stopId, dir];
 }
 
-- (NSString *)mapStopId {
+- (NSString *)pinStopId {
     return self.stopId;
 }
 
@@ -52,8 +52,13 @@
     return nil;
 }
 
-- (bool)hasBearing {
+- (bool)pinHasBearing {
     return NO;
+}
+
+- (NSString *)pinMarkedUpType
+{
+    return nil;
 }
 
 @end

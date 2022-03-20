@@ -15,10 +15,9 @@
 
 
 #import <Foundation/Foundation.h>
-#import "DataFactory.h"
 #import "StopDistance.h"
 
-@interface RouteDistance : DataFactory
+@interface RouteDistance : NSObject
 
 @property (nonatomic, strong) NSMutableArray<StopDistance *> *stops;
 @property (nonatomic, copy)   NSString *route;

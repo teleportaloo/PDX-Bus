@@ -15,12 +15,10 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreLocation/CoreLocation.h>
-#import "DataFactory.h"
-
 
 #define kAcquiredLocation @"<Acquired GPS Location>"
 
-@interface TripEndPoint : DataFactory
+@interface TripEndPoint : NSObject
 
 @property (nonatomic, strong) NSString *locationDesc;
 @property (nonatomic, strong) NSString *additionalInfo;
@@ -28,12 +26,12 @@
 @property (nonatomic) bool useCurrentLocation;
 @property (nonatomic, readonly, copy) NSDictionary *toDictionary;
 @property (nonatomic, readonly, copy) NSString *displayText;
-@property (nonatomic, readonly, copy) NSString *userInputDisplayText;
+@property (nonatomic, readonly, copy) NSString *markedUpUserInputDisplayText;
 
 - (NSString *)toQuery:(NSString *)toOrFrom;
 - (bool)readDictionary:(NSDictionary *)dict;
 - (bool)equalsTripEndPoint:(TripEndPoint *)endPoint;
-- (void)        resetCurrentLocation;
+- (void)resetCurrentLocation;
 
 + (instancetype)fromDictionary:(NSDictionary *)dict;
 

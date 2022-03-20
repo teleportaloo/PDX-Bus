@@ -23,6 +23,6 @@
 + (NSString *_Nullable)getLongName:(NSArray *_Nullable)data;
 + (NSString *_Nullable)getStopId:(NSArray *_Nullable)data;
 + (NSString *_Nonnull)shortDirection:(NSString *_Nullable)dir;
-+ (instancetype _Nonnull) cache;
++ (instancetype _Nonnull)cache;
 
 @end

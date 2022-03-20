@@ -13,6 +13,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogSettings
+
 #import "UserState.h"
 #import "DebugLogging.h"
 #import "NSMutableDictionary+MutableElements.h"
@@ -27,7 +29,7 @@
 
 @interface NSArray (DeepCopy)
 
-- (NSMutableArray *)     mutableDeepCopy;
+- (NSMutableArray *)mutableDeepCopy;
 
 @end
 
@@ -176,8 +178,7 @@
 #ifndef PDXBUS_WATCH
     
     DEBUG_FUNC();
-    @synchronized (self)
-    {
+    @synchronized (self) {
         NSMutableArray<NSMutableDictionary *> *faves = self.faves;
         NSUbiquitousKeyValueStore *store = [NSUbiquitousKeyValueStore defaultStore];
         
@@ -292,8 +293,7 @@
 }
 
 - (void)cacheState {
-    @synchronized (self)
-    {
+    @synchronized (self) {
         if (self.rawData && !self.readOnly) {
             [self.sharedUserCopyOfPlist writeDictionary:self.rawData];
             [self writeToiCloud];
@@ -302,8 +302,7 @@
 }
 
 - (void)clearLastArrivals {
-    @synchronized (self)
-    {
+    @synchronized (self) {
         [self load];
         self.rawData[kLast] = @"";
         [self.rawData removeObjectForKey:kLastNames];
@@ -311,8 +310,7 @@
 }
 
 - (void)setLastArrivals:(NSString *)locations {
-    @synchronized (self)
-    {
+    @synchronized (self) {
         [self load];
         self.rawData[kLast] = locations;
         
@@ -322,8 +320,7 @@
 }
 
 - (void)setLastNames:(NSArray *)names {
-    @synchronized (self)
-    {
+    @synchronized (self) {
         [self load];
         
         if (names != nil) {
@@ -337,8 +334,7 @@
 }
 
 - (NSDictionary *)takeMeHomeUserRequest {
-    @synchronized (self)
-    {
+    @synchronized (self) {
         [self load];
         NSMutableDictionary *takeMeHome = self.rawData[kTakeMeHome];
         
@@ -347,8 +343,7 @@
 }
 
 - (void)saveTakeMeHomeUserRequest:(NSDictionary *)userRequest {
-    @synchronized (self)
-    {
+    @synchronized (self) {
         [self load];
         self.rawData[kTakeMeHome] = userRequest;
         
@@ -366,9 +361,38 @@
     return newItem;
 }
 
+- (NSUInteger)watchSequence
+{
+    @synchronized (self) {
+        [self load];
+        NSNumber *seq = self.rawData[kWatchSequenceNumber];
+        
+        if (seq == nil)
+        {
+            seq = @(0);
+        }
+        
+        return (NSUInteger)seq.integerValue;
+    }
+}
+
+- (void)incrementWatchSequence
+{
+    @synchronized (self) {
+        [self load];
+        NSNumber *seq = self.rawData[kWatchSequenceNumber];
+        
+        if (seq == nil)
+        {
+            seq = @(0);
+        }
+        self.rawData[kWatchSequenceNumber] = @((seq.integerValue + 1) % 0xFFFFFFFF);
+        [self cacheState];
+    }
+}
+
 - (void)addToRecentTripsWithUserRequest:(NSDictionary *)userRequest description:(NSString *)desc blob:(NSData *)blob {
-    @synchronized (self)
-    {
+    @synchronized (self) {
         [self load];
         
         NSMutableArray *recentTrips = [self getOrInitItem:kRecentTrips];
@@ -386,8 +410,7 @@
 }
 
 - (NSDictionary *)addToRecentsWithStopId:(NSString *)stopId description:(NSString *)desc {
-    @synchronized (self)
-    {
+    @synchronized (self) {
         [self load];
         
         NSMutableDictionary *newItem = nil;
@@ -426,8 +449,7 @@
 }
 
 - (NSDictionary *)addToVehicleIds:(NSString *)vehicleId {
-    @synchronized (self)
-    {
+    @synchronized (self) {
         [self load];
         
         NSMutableDictionary *newItem = nil;
@@ -462,16 +484,14 @@
 }
 
 - (NSMutableArray *)faves {
-    @synchronized (self)
-    {
+    @synchronized (self) {
         [self load];
         return self.rawData[kFaves];
     }
 }
 
 - (NSArray *)favesArrivalsOnly {
-    @synchronized (self)
-    {
+    @synchronized (self) {
         [self load];
         
         NSMutableArray *favesArrivalsOnly = [NSMutableArray array];
@@ -490,8 +510,7 @@
 }
 
 - (NSMutableArray *)recents {
-    @synchronized (self)
-    {
+    @synchronized (self) {
         self.rawData = nil;
         [self load];
         return self.rawData[kRecents];
@@ -499,8 +518,7 @@
 }
 
 - (NSMutableArray *)vehicleIds {
-    @synchronized (self)
-    {
+    @synchronized (self) {
         self.rawData = nil;
         [self load];
         return self.rawData[kVehicleIds];
@@ -508,32 +526,28 @@
 }
 
 - (NSMutableArray *)recentTrips {
-    @synchronized (self)
-    {
+    @synchronized (self) {
         [self load];
         return self.rawData[kRecentTrips];
     }
 }
 
 - (NSString *)last {
-    @synchronized (self)
-    {
+    @synchronized (self) {
         [self load];
         return self.rawData[kLast];
     }
 }
 
 - (NSArray *)lastNames {
-    @synchronized (self)
-    {
+    @synchronized (self) {
         [self load];
         return self.rawData[kLastNames];
     }
 }
 
 - (void)setLastRun:(NSDate *)last {
-    @synchronized (self)
-    {
+    @synchronized (self) {
         [self load];
         
         if (last != nil) {
@@ -547,8 +561,7 @@
 }
 
 - (NSDate *)lastRun {
-    @synchronized (self)
-    {
+    @synchronized (self) {
         self.rawData = nil;
         [self load];
         return self.rawData[self.lastRunKey];
@@ -556,16 +569,14 @@
 }
 
 - (NSMutableDictionary *)lastTrip {
-    @synchronized (self)
-    {
+    @synchronized (self) {
         [self load];
         return self.rawData[kLastTrip];
     }
 }
 
 - (void)setLastTrip:(NSMutableDictionary *)dict {
-    @synchronized (self)
-    {
+    @synchronized (self) {
         [self load];
         self.rawData[kLastTrip] = dict;
     }
@@ -575,16 +586,14 @@
 }
 
 - (NSMutableDictionary *)lastLocate {
-    @synchronized (self)
-    {
+    @synchronized (self) {
         [self load];
         return self.rawData[kLastLocate];
     }
 }
 
 - (void)setLastLocate:(NSMutableDictionary *)dict {
-    @synchronized (self)
-    {
+    @synchronized (self) {
         [self load];
         self.rawData[kLastLocate] = dict;
     }

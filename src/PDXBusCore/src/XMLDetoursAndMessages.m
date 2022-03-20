@@ -14,6 +14,7 @@
 
 
 #import "XMLDetoursAndMessages.h"
+#import "RunParallelBlocks.h"
 
 @implementation XMLDetoursAndMessages
 
@@ -70,21 +71,36 @@
 - (void)fetchDetoursAndMessages {
     _hasData = NO;
     
-    if (self.routes && self.routes.count == 1) {
-        [self.detours getDetoursForRoute:self.routes.firstObject];
-    } else if (self.routes && self.routes.count > 1) {
-        [self.detours getDetoursForRoutes:self.routes];
-    } else if (self.routes == nil) {
-        [self.detours getDetours];
+    self.detours.oneTimeDelegate = self.oneTimeDelegate;
+    self.messages.oneTimeDelegate = self.oneTimeDelegate;
+    self.oneTimeDelegate = nil;
+    
+    RunParallelBlocks *parallelBlocks = [RunParallelBlocks instance];
+    
+    [parallelBlocks startBlock:^{
+        if (self.routes && self.routes.count == 1) {
+            [self.detours getDetoursForRoute:self.routes.firstObject];
+        } else if (self.routes && self.routes.count > 1) {
+            [self.detours getDetoursForRoutes:self.routes];
+        } else if (self.routes == nil) {
+            [self.detours getDetours];
+        }
+    }];
+    
+    if (self.messages) {
+        [parallelBlocks startBlock:^{
+            [self.messages getMessages];
+        }];
     }
+    
+    [parallelBlocks waitForBlocks];
     
     _hasData = self.detours.gotData;
     
     self.items = self.detours.items;
     
-    if (self.messages) {
-        [self.messages getMessages];
-        
+    if (self.messages)
+    {
         _hasData = _hasData | self.messages.gotData;
         
         if (self.routes == nil) {

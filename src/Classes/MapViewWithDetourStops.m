@@ -48,7 +48,7 @@
     if (self.detours.count == 1) {
         const CGFloat mapRatio = 0.5;
         
-        NSString *textToFormat = [self.detours.firstObject formattedDescriptionWithoutInfo:nil];
+        NSString *textToFormat = [self.detours.firstObject markedUpDescriptionWithoutInfo:nil];
         
         if (self.annotations.count == 0) {
             NSArray<NSString *> *stopIdArray = self.detours.firstObject.extractStops;
@@ -60,7 +60,7 @@
             }
         }
         
-        NSAttributedString *text = [textToFormat formatAttributedStringWithFont:self.paragraphFont];
+        NSAttributedString *text = textToFormat.smallAttributedStringFromMarkUp;
         
         // CGRect textSize = [text boundingRectWithSize:CGSizeMake(frame->size.width, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading context:nil];
         
@@ -127,7 +127,7 @@
     self.title = NSLocalizedString(@"Detour Map", @"screen title");
     self.detours = detours;
     
-    NSMutableArray<NSString *> *locs = [NSMutableArray array];
+    NSMutableArray<NSString *> *stopIds = [NSMutableArray array];
     NSMutableArray<NSString *> *routes = [NSMutableArray array];
     
     for (Detour *detour in self.detours) {
@@ -142,15 +142,15 @@
                 [self addPin:loc];
             }
         } else {
-            [locs addObjectsFromArray:detour.extractStops];
+            [stopIds addObjectsFromArray:detour.extractStops];
         }
     }
     
-    if (locs.count == 0 && self.annotations.count > 0) {
+    if (stopIds.count == 0 && self.annotations.count > 0) {
         [self fetchRoutesAsync:taskController routes:routes directions:nil additionalTasks:0 task:nil];
-    } else if (locs.count > 0) {
-        NSArray<NSString *> *batches = [XMLMultipleDepartures batchesFromEnumerator:locs
-                                                                           selector:@selector(self) max:INT_MAX];
+    } else if (stopIds.count > 0) {
+        NSArray<NSString *> *batches = [XMLMultipleDepartures batchesFromEnumerator:stopIds
+                                                                     selToGetStopId:@selector(self) max:INT_MAX];
         
         [self fetchRoutesAsync:taskController routes:routes directions:nil additionalTasks:batches.count
                           task:^(TaskState *taskState) {
@@ -163,16 +163,16 @@
                                                                        oneTimeDelegate:taskState];
                 [allDeps getDeparturesForStopIds:allLocs];
                 
-                for (XMLDepartures *dep in allDeps) {
-                    if (dep.loc != nil) {
-                        DetourLocation *dloc = [DetourLocation data];
+                for (XMLDepartures *deps in allDeps) {
+                    if (deps.loc != nil) {
+                        DetourLocation *dloc = [DetourLocation new];
                         
-                        dloc.stopId = dep.stopId;
-                        dloc.location = dep.loc;
-                        dloc.desc = dep.locDesc;
-                        dloc.dir = dep.locDir;
+                        dloc.stopId = deps.stopId;
+                        dloc.location = deps.loc;
+                        dloc.desc = deps.locDesc;
+                        dloc.dir = deps.locDir;
                         
-                        if (!dep.gotData || dep.items.count == 0) {
+                        if (!deps.gotData || deps.items.count == 0) {
                             dloc.passengerCode = 0;
                             dloc.noServiceFlag = YES;
                         } else {
@@ -191,7 +191,7 @@
 
 - (BOOL)textView:(UITextView *)textView shouldInteractWithURL:(NSURL *)URL inRange:(NSRange)characterRange interaction:(UITextItemInteraction)interaction
 {
-    return [self detourLink:URL.absoluteString detour:self.detours.firstObject];
+    return [self detourLink:URL.absoluteString detour:self.detours.firstObject source:textView];
 }
 
 @end

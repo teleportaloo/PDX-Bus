@@ -14,13 +14,15 @@
 
 #import <UIKit/UIKit.h>
 #import "BackgroundTaskContainer.h"
-#import "ReturnStopId.h"
+#import "ReturnStopIdString.h"
 #import "ScreenConstants.h"
 #import "UserState.h"
 
 #define kSegNoSelectedIndex     (-1)
 
-@interface ViewControllerBase : UIViewController <BackgroundTaskDone> {
+#define kNoAction @""
+
+@interface ViewControllerBase : UIViewController <BackgroundTaskDone, UITextViewDelegate> {
     UserState *_userState;
 }
 
@@ -31,14 +33,14 @@
 
 // Callback with stop ID support
 @property (nonatomic, readonly, strong) UIBarButtonItem *doneButton;
-@property (nonatomic, strong) id<ReturnStopId> stopIdCallback;
+@property (nonatomic, strong) id<ReturnStopIdString> stopIdStringCallback;
 @property (nonatomic, readonly) bool forceRedoButton;
 @property (nonatomic, readonly, strong) UIViewController *callbackWhenDone;
 - (void)backButton:(id)sender;
 - (void)backToRootButtons:(NSMutableArray *)toolbarItems;
 
 // XML Debug support
-#define XML_DEBUG_RAW_DATA(X)   if (X.rawData) [self.xml addObject:X];
+#define XML_DEBUG_RAW_DATA(X)   if (X.rawData) { @synchronized(self) { [self.xml addObject:X]; } }
 @property (nonatomic, readonly, strong) UIBarButtonItem *debugXmlButton;
 @property (atomic, strong) NSMutableArray<TriMetXML *> *xml;
 - (void)appendXmlData:(NSMutableData *)buffer;
@@ -63,7 +65,7 @@
 
 // Helpers for fonts
 @property (nonatomic, readonly, copy) UIFont *basicFont;
-@property (nonatomic, readonly, copy) UIFont *paragraphFont;
+@property (nonatomic, readonly, copy) UIFont *smallFont;
 
 // Video capture
 @property (nonatomic, readonly) bool videoCaptureSupported;
@@ -82,6 +84,8 @@
 - (bool)openBrowserFrom:(UIViewController *)view path:(NSString *)path;  // May open chrome
 - (void)tweetAt:(NSString *)twitterUser;
 - (void)triMetTweetFrom:(UIView *)view;
+- (void)buyMeACoffeeCell:(UITableViewCell *)cell;
+- (void)buyMeACoffee;
 
 // Toolbar helpers
 - (void)updateToolbarItems:(NSMutableArray *)toolbarItems;
@@ -94,7 +98,7 @@
 
 // UI stuff
 - (void)displayActionSheet:(UIAlertController *)alert;
-- (void)rotatedTo:(UIInterfaceOrientation)orientation;
+- (void)willRotateTo:(UIInterfaceOrientation)orientation;
 - (void)clearSelection;
 - (void)setTheme;
 
@@ -103,7 +107,9 @@
 - (void)favesChanged;
 
 // Links
-- (bool)linkAction:(NSString *)link;
+- (bool)linkAction:(NSString *)link source:(UIView *)source;
+
+- (void)handleChangeInUserSettingsOnMainThread:(NSNotification *)notfication;
 
 
 @end

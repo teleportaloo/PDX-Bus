@@ -40,6 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (UIColor *)modeAwareText;
 + (UIColor *)modeAwareBlue;
 + (UIColor *)modeAwarePurple;
++ (UIColor *)modeAwareGrayText;
 
 - (NSString *)string;
 

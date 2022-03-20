@@ -17,7 +17,7 @@
 
 @interface TaskState ()
 
-@property (nonatomic, retain)  id<TaskController> taskController;
+@property (nonatomic, strong)  id<TaskController> taskController;
 
 @end
 
@@ -32,102 +32,132 @@
 }
 
 - (void)displayTotal {
-    [self.taskController taskTotalItems:self.total];
+    @synchronized (self) {
+        [self.taskController taskTotalItems:self.total];
+    }
 }
 
 - (void)displayItemsDone {
-    [self.taskController taskItemsDone:self.itemsDone];
+    @synchronized (self) {
+        [self.taskController taskItemsDone:self.itemsDone];
+    }
 }
 
 - (void)startAtomicTask:(NSString *)title {
-    self.total = 1;
-    [self startTask:title];
+    @synchronized (self) {
+        self.total = 1;
+        [self startTask:title];
+    }
 }
 
 - (void)atomicTaskItemDone {
-    self.itemsDone = 1;
-    [self displayItemsDone];
+    @synchronized (self) {
+        self.itemsDone = 1;
+        [self displayItemsDone];
+    }
 }
 
 - (void)startTask:(NSString *)title {
-    [self.taskController taskStartWithTotal:self.total title:title];
+    @synchronized (self) {
+        [self.taskController taskStartWithTotal:self.total title:title];
+    }
 }
 
 - (void)decrementTotalAndDisplay {
-    self.total--;
-    [self displayTotal];
+    @synchronized (self) {
+        self.total--;
+        [self displayTotal];
+    }
 }
 
 - (void)incrementItemsDoneAndDisplay {
-    self.itemsDone++;
-    [self displayItemsDone];
+    @synchronized (self) {
+        self.itemsDone++;
+        [self displayItemsDone];
+    }
 }
 
 - (void)taskStartWithTotal:(NSInteger)total title:(NSString *)title {
-    self.total = total;
-    [self.taskController taskStartWithTotal:total title:title];
+    @synchronized (self) {
+        self.total = total;
+        [self.taskController taskStartWithTotal:total title:title];
+    }
 }
 
 - (void)taskItemsDone:(NSInteger)itemsDone {
-    self.itemsDone = itemsDone;
-    [self.taskController taskItemsDone:itemsDone];
+    @synchronized (self) {
+        self.itemsDone = itemsDone;
+        [self.taskController taskItemsDone:itemsDone];
+    }
 }
 
 - (void)taskTotalItems:(NSInteger)totalItems {
-    self.total = totalItems;
-    [self.taskController taskTotalItems:totalItems];
+    @synchronized (self) {
+        self.total = totalItems;
+        [self.taskController taskTotalItems:totalItems];
+    }
 }
 
 - (void)taskSubtext:(NSString *)subtext {
-    [self.taskController taskSubtext:subtext];
+    @synchronized (self) {
+        [self.taskController taskSubtext:subtext];
+    }
 }
 
 - (void)taskCompleted:(UIViewController *)viewController {
-    [self.taskController taskCompleted:viewController];
+    @synchronized (self) {
+        [self.taskController taskCompleted:viewController];
+    }
 }
 
 - (void)taskSetErrorMsg:(NSString *)errMsg {
-    [self.taskController taskSetErrorMsg:errMsg];
+    @synchronized (self) {
+        [self.taskController taskSetErrorMsg:errMsg];
+    }
 }
 
 - (void)taskRunAsync:(UIViewController * (^)(TaskState *))block {
-    [self.taskController taskRunAsync:block];
+    @synchronized (self) {
+        [self.taskController taskRunAsync:block];
+    }
 }
 
 - (void)taskCancel {
-    [self.taskController taskCancel];
+    @synchronized (self) {
+        [self.taskController taskCancel];
+    }
 }
 
 - (bool)taskCancelled {
-    return [self.taskController taskCancelled];
+    @synchronized (self) {
+        return [self.taskController taskCancelled];
+    }
 }
 
 - (bool)debugMessages {
-    return [self.taskController debugMessages];
-}
-
-- (void)triMetXML:(TriMetXML *_Nonnull)xml finishedParsingData:(NSUInteger)size fromCache:(bool)fromCache {
-    [self.taskController triMetXML:xml finishedParsingData:size fromCache:fromCache];
-}
-
-- (void)triMetXML:(TriMetXML *_Nonnull)xml startedParsingData:(NSUInteger)size fromCache:(bool)fromCache {
-    [self.taskController triMetXML:xml startedParsingData:size fromCache:fromCache];
+    @synchronized (self) {
+        return [self.taskController debugMessages];
+    }
 }
 
 - (void)triMetXML:(TriMetXML *_Nonnull)xml startedFetchingData:(bool)fromCache {
-    [self.taskController triMetXML:xml startedFetchingData:fromCache];
+    @synchronized (self) {
+        [self.taskController triMetXML:xml startedFetchingData:fromCache];
+    }
 }
 
 - (void)triMetXML:(TriMetXML *_Nonnull)xml finishedFetchingData:(bool)fromCache {
-    [self.taskController triMetXML:xml finishedFetchingData:fromCache];
+    @synchronized (self) {
+        [self.taskController triMetXML:xml finishedFetchingData:fromCache];
+    }
 }
 
-- (void)triMetXML:(TriMetXML *_Nonnull)xml expectedSize:(long long)expected {
-    [self.taskController triMetXML:xml expectedSize:expected];
+
+- (void)triMetXML:(TriMetXML * _Nonnull)xml incrementalBytes:(long long)incremental {
+    @synchronized (self) {
+        [self.taskController triMetXML:xml incrementalBytes:incremental];
+    }
 }
 
-- (void)triMetXML:(TriMetXML *_Nonnull)xml progress:(long long)progress of:(long long)expected {
-    [self.taskController triMetXML:xml progress:progress of:expected];
-}
 
 @end

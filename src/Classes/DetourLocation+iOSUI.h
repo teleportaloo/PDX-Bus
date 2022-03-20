@@ -14,17 +14,13 @@
 
 
 #import "DetourLocation.h"
-#import "MapPinColor.h"
+#import "MapPin.h"
 
-@interface DetourLocation (iOSUI) <MapPinColor>
+@interface DetourLocation (iOSUI) <MapPin>
 
 // From Annotation
 @property (nonatomic, readonly) CLLocationCoordinate2D coordinate;
 @property (nonatomic, readonly, copy) NSString *title;
 @property (nonatomic, readonly, copy) NSString *subtitle;
-
-// From MapPinColor
-@property (nonatomic, readonly) MapPinColorValue pinColor;
-@property (nonatomic, readonly) bool showActionMenu;
 
 @end

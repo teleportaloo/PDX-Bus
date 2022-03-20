@@ -10,6 +10,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+
 #import "TableViewWithToolbar.h"
 #import "WebViewController.h"
 #import "FlashViewController.h"
@@ -29,6 +31,9 @@
 #import "DetourTableViewCell.h"
 #import "DepartureTimesView.h"
 #import "UIApplication+Compat.h"
+#import "ViewControllerBase+MapPinAction.h"
+#import "AlertsForRouteIntent.h"
+#import "UIFont+Utility.h"
 
 @interface TableViewWithToolbar<FilteredItemType>() {
     NSMutableArray<FilteredItemType> *_filteredItems;
@@ -74,7 +79,7 @@ static CGFloat leftInset;
 
 - (void)dealloc {
     self.table.tableHeaderView = nil;
-    self.stopIdCallback = nil;
+    self.stopIdStringCallback = nil;
     
     if (self.searchController) {
         self.searchController.delegate = nil;
@@ -98,6 +103,11 @@ static CGFloat leftInset;
     self.edgesForExtendedLayout = UIRectEdgeNone;
     
     self.table.backgroundColor = [UIColor modeAwareAppBackground];
+    
+    if (@available(iOS 15.0, *)) {
+        self.table.sectionHeaderTopPadding = 0;
+    }
+        
 }
 
 - (void)recreateNewTable {
@@ -137,7 +147,7 @@ static CGFloat leftInset;
             // searchResultsController.edgesForExtendedLayout = UIRectEdgeAll;
             
             searchResultsController.tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
-        } else if (@available(iOS 11.0, *)) {
+        } else {
             searchResultsController.tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
         }
         
@@ -166,10 +176,8 @@ static CGFloat leftInset;
         [topView setBackgroundColor:[UIColor modeAwareAppBackground]];
         [self.table addSubview:topView];
     }
-    
-    if (@available(iOS 11.0, *)) {
-        self.table.contentInsetAdjustmentBehavior = self.neverAdjustContentInset ? UIScrollViewContentInsetAdjustmentNever : UIScrollViewContentInsetAdjustmentAutomatic;
-    }
+
+    self.table.contentInsetAdjustmentBehavior = self.neverAdjustContentInset ? UIScrollViewContentInsetAdjustmentNever : UIScrollViewContentInsetAdjustmentAutomatic;
     
     [self.view addSubview:self.table];
     
@@ -326,10 +334,6 @@ static CGFloat leftInset;
     return cell;
 }
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return 0;
-}
-
 - (CGFloat)leftInset {
     return leftInset;
 }
@@ -379,7 +383,7 @@ static CGFloat leftInset;
     if (cell == nil) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:kDisclaimerCellId];
         
-        cell.textLabel.font = [UIFont boldSystemFontOfSize:MAIN_FONT_SIZE];
+        cell.textLabel.font = [UIFont monospacedDigitSystemFontOfSize:MAIN_FONT_SIZE weight:UIFontWeightBold];
         cell.textLabel.adjustsFontSizeToFitWidth = YES;
         cell.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
         cell.textLabel.highlightedTextColor = [UIColor whiteColor];
@@ -389,11 +393,11 @@ static CGFloat leftInset;
         
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
         
-        cell.detailTextLabel.font = [UIFont systemFontOfSize:SMALL_FONT_SIZE];
+        cell.detailTextLabel.font = [UIFont monospacedDigitSystemFontOfSize:SMALL_FONT_SIZE];
         cell.detailTextLabel.adjustsFontSizeToFitWidth = YES;
         cell.detailTextLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
         cell.detailTextLabel.highlightedTextColor = [UIColor whiteColor];
-        cell.detailTextLabel.textColor = [UIColor grayColor];
+        cell.detailTextLabel.textColor = [UIColor modeAwareGrayText];
         cell.detailTextLabel.backgroundColor = [UIColor clearColor];
         cell.detailTextLabel.numberOfLines = 1;
         cell.detailTextLabel.text = kTriMetDisclaimerText;
@@ -460,14 +464,6 @@ static CGFloat leftInset;
 - (void)noNetworkDisclaimerCell:(UITableViewCell *)cell {
     [self addTextToDisclaimerCell:cell text:kNetworkMsg];
     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-}
-
-- (UIFont *)systemFontBold:(bool)bold size:(CGFloat)size {
-    if (bold) {
-        return [UIFont boldSystemFontOfSize:size];
-    }
-    
-    return [UIFont systemFontOfSize:size];
 }
 
 - (CGFloat)heightOffset {
@@ -707,6 +703,13 @@ static CGFloat leftInset;
     return self.sectionTypes.count - 1;
 }
 
+- (NSInteger)addSectionTypeWithRow:(NSInteger)type {
+    [self addSectionType:type];
+    [self addRowType:type];
+    
+    return self.sectionTypes.count - 1;
+}
+
 - (NSInteger)addRowType:(NSInteger)type {
     NSMutableArray *types = self.perSectionRowTypes.lastObject;
     
@@ -728,11 +731,15 @@ static CGFloat leftInset;
 }
 
 - (NSInteger)rowsInLastSection {
-    return self.perSectionRowTypes.lastObject.count;
+    if (self.perSectionRowTypes != nil) {
+        return self.perSectionRowTypes.lastObject.count;
+    }
+    
+    return 0;
 }
 
 - (NSInteger)rowsInSection:(NSInteger)section {
-    if (section < self.perSectionRowTypes.count) {
+    if (self.perSectionRowTypes != nil && section < self.perSectionRowTypes.count) {
         return self.perSectionRowTypes[section].count;
     }
     
@@ -745,6 +752,28 @@ static CGFloat leftInset;
     }
     
     return self.sectionTypes.count;
+}
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return self.sections;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return [self rowsInSection:section];
+}
+
+
+- (void)removeRowAtIndexPath:(NSIndexPath *)index {
+    if (self.perSectionRowTypes) {
+        if (index.section < self.perSectionRowTypes.count) {
+            NSMutableArray *types = self.perSectionRowTypes[index.section];
+            
+            
+            if (index.row < types.count) {
+                [types removeObjectAtIndex:index.row];
+            }
+        }
+    }
 }
 
 - (CGFloat)mapCellHeight {
@@ -762,7 +791,7 @@ static CGFloat leftInset;
     
     UITableViewCell *cell = [self tableView:self.table cellWithReuseIdentifier:MakeCellId(kRowMap)];
     
-    MKMapView *map = (MKMapView *)[cell viewWithTag:MAP_TAG];
+    MKMapView *map = (MKMapView *)[cell.contentView viewWithTag:MAP_TAG];
     
     if (map == nil) {
         [self finishWithMapView];
@@ -772,7 +801,7 @@ static CGFloat leftInset;
         _mapShowsUserLocation = userLocation;
         map.showsUserLocation = userLocation;
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
-        [cell addSubview:map];
+        [cell.contentView addSubview:map];
         
         self.mapView = map;
         
@@ -814,8 +843,10 @@ static CGFloat leftInset;
     
     if (annotation == mv.userLocation) {
         return nil;
-    } else if ([annotation conformsToProtocol:@protocol(MapPinColor)]) {
-        retView = [BearingAnnotationView viewForPin:(id<MapPinColor>)annotation mapView:mv];
+    } else if ([annotation conformsToProtocol:@protocol(MapPin)]) {
+        retView = [BearingAnnotationView viewForPin:(id<MapPin>)annotation
+                                            mapView:mv
+                                          urlAction:self.linkActionForPin];
         
         retView.canShowCallout = YES;
     }
@@ -910,7 +941,7 @@ static CGFloat leftInset;
 
 - (UITableViewCell *)tableViewMultiLineParaCell:(UITableView *)tableView
 {
-    return  [self tableViewMultiLineCell:tableView font:self.paragraphFont];
+    return  [self tableViewMultiLineCell:tableView font:self.smallFont];
 }
 
 
@@ -999,5 +1030,36 @@ static CGFloat leftInset;
         self.table.backgroundColor = [UIColor modeAwareAppBackground];
     }
 }
+
+
+- (void)tableView:(UITableView *)table siriAlertsForRoute:(NSString *)routeName routeNumner:(NSString*)routeNumber {
+    AlertsForRouteIntent *intent = [[AlertsForRouteIntent alloc] init];
+    
+    intent.suggestedInvocationPhrase = [NSString stringWithFormat:@"TriMet alerts for %@", routeName];
+    intent.routeNumber = routeNumber;
+    
+    if (@available(iOS 13.0, *)) {
+        intent.includeSystemWideAlerts = @(NO);
+    } else {
+        // Fallback on earlier versions
+    }
+    
+    INShortcut *shortCut = [[INShortcut alloc] initWithIntent:intent];
+    
+    INUIAddVoiceShortcutViewController *viewController = [[INUIAddVoiceShortcutViewController alloc] initWithShortcut:shortCut];
+    viewController.modalPresentationStyle = UIModalPresentationFormSheet;
+    viewController.delegate = self;
+    
+    [self presentViewController:viewController animated:YES completion:nil];
+}
+
+- (void)addVoiceShortcutViewController:(INUIAddVoiceShortcutViewController *)controller didFinishWithVoiceShortcut:(nullable INVoiceShortcut *)voiceShortcut error:(nullable NSError *)error API_AVAILABLE(ios(12.0)) {
+    [controller dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void)addVoiceShortcutViewControllerDidCancel:(INUIAddVoiceShortcutViewController *)controller API_AVAILABLE(ios(12.0)) {
+    [controller dismissViewControllerAnimated:YES completion:nil];
+}
+
 
 @end

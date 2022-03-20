@@ -15,9 +15,9 @@
 
 
 #import "XMLLocateStops.h"
-#import "RouteDistance.h"
+
 #import "CLLocation+Helper.h"
-#import "NSDictionary+TriMetCaseInsensitive.h"
+#import "NSDictionary+Types.h"
 #import "TriMetXMLSelectors.h"
 
 @interface XMLLocateStops () {
@@ -25,7 +25,7 @@
 }
 
 @property (nonatomic, strong) StopDistance *currentStop;
-@property (nonatomic, strong) NSMutableDictionary *routes;
+@property (nonatomic, strong) NSMutableDictionary *routeStore;
 
 @end
 
@@ -34,8 +34,8 @@
 #pragma mark Data fetchers
 
 - (bool)findNearestStops {
-    NSString *query = [NSString stringWithFormat:@"stops/ll/%f,%f%@%@%@",
-                       self.location.coordinate.longitude, self.location.coordinate.latitude,
+    NSString *query = [NSString stringWithFormat:@"stops/ll/%@%@%@%@",
+                       COORD_TO_LNG_LAT_STR(self.location.coordinate),
                        (self.minDistance > 0.0 ? [NSString stringWithFormat:@"/meters/%f", self.minDistance] : @""),
                        ((self.mode != TripModeAll || self.includeRoutesInStops) ? @"/showRoutes/true" : @""),
                        self.includeRoutesInStops ? @"/showRouteDirs/true" : @""
@@ -55,28 +55,24 @@
 }
 
 - (bool)findNearestRoutes {
-    NSString *query = [NSString stringWithFormat:@"stops/ll/%f,%f%@%@",
-                       self.location.coordinate.longitude, self.location.coordinate.latitude,
+    NSString *query = [NSString stringWithFormat:@"stops/ll/%@%@%@",
+                       COORD_TO_LNG_LAT_STR(self.location.coordinate),
                        (self.minDistance > 0.0 ? [NSString stringWithFormat:@"/meters/%f", self.minDistance] : @""),
                        @"/showRoutes/true"];
     
-    self.routes = [NSMutableDictionary dictionary];
-    
+    self.routeStore = [NSMutableDictionary dictionary];
     
     bool res = [self startParsing:query cacheAction:TriMetXMLNoCaching];
     
     if (_hasData) {
-        // We don't care about the stops stored in the array! We ditch 'em and replace with
-        // a sorted routes kinda thing.
-        
-        self.items = [NSMutableArray array];
-        
-        [self.items addObjectsFromArray:self.routes.allValues];
+        // We don't care about the stops stored in the array!
+        self.routes = [NSMutableArray array];
+        [self.routes addObjectsFromArray:self.routeStore.allValues];
         
         // We are done with this dictionary now may as well deference it.
-        self.routes = nil;
+        self.routeStore = nil;
         
-        for (RouteDistance *rd in self.items) {
+        for (RouteDistance *rd in self.routes) {
             [rd sortStopsByDistance];
             
             // Truncate array - this can get far too big
@@ -85,7 +81,7 @@
             }
         }
         
-        [self.items sortUsingSelector:@selector(compareUsingDistance:)];
+        [self.routes sortUsingSelector:@selector(compareUsingDistance:)];
     }
     
     return res;
@@ -105,13 +101,13 @@
     return false;
 }
 
-XML_START_ELEMENT(resultset) {
+XML_START_ELEMENT(resultSet) {
     [self initItems];
     _hasData = YES;
 }
 
 XML_START_ELEMENT(location) {
-    self.currentStop = [StopDistance data];
+    self.currentStop = [StopDistance new];
     _currentMode = TripModeNone;
     
     self.currentStop.stopId = XML_NON_NULL_ATR_STR(@"locid");
@@ -120,7 +116,7 @@ XML_START_ELEMENT(location) {
     
     self.currentStop.location = XML_ATR_LOCATION(@"lat", @"lng");
     
-    self.currentStop.distance = [self.location distanceFromLocation:self.currentStop.location];
+    self.currentStop.distanceMeters = [self.location distanceFromLocation:self.currentStop.location];
     
     if (self.includeRoutesInStops) {
         self.currentStop.routes = [NSMutableArray array];
@@ -135,7 +131,7 @@ XML_START_ELEMENT(route) {
         NSString *desc = XML_NON_NULL_ATR_STR(@"desc");
         
         if (desc) {
-            Route *route = [Route data];
+            Route *route = [Route new];
             route.desc = desc;
             [self.currentStop.routes addObject:route];
         }
@@ -182,20 +178,20 @@ XML_START_ELEMENT(route) {
             }
         }
         
-        if (self.routes != nil && [self modeMatch:_currentMode second:_mode]) {
+        if (self.routeStore != nil && [self modeMatch:_currentMode second:_mode]) {
             NSString *xmlRoute = XML_NON_NULL_ATR_STR(@"route");
             
-            RouteDistance *rd = self.routes[xmlRoute];
+            RouteDistance *rd = self.routeStore[xmlRoute];
             
             if (rd == nil) {
                 NSString *desc = XML_NON_NULL_ATR_STR(@"desc");
                 
-                rd = [RouteDistance data];
+                rd = [RouteDistance new];
                 rd.desc = desc;
                 rd.type = type;
                 rd.route = xmlRoute;
                 
-                self.routes[xmlRoute] = rd;
+                self.routeStore[xmlRoute] = rd;
             }
             
             [rd.stops addObject:self.currentStop];
@@ -210,7 +206,7 @@ XML_START_ELEMENT(dir) {
         
         if (dir != nil & desc != nil) {
             Route *route = self.currentStop.routes.lastObject;
-            route.directions[dir] = desc;
+            route.directions[dir] = [Direction withDir:dir desc:desc];
         }
     }
 }
@@ -223,6 +219,5 @@ XML_END_ELEMENT(location) {
     
     self.currentStop = nil;
 }
-
 
 @end

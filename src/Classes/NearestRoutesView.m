@@ -21,9 +21,8 @@
 #import "FindByLocationView.h"
 #import "TaskState.h"
 
-enum {
-    kSectionRoutes = 0,
-    kRouteSections,
+enum SECTION_ROWS {
+    kSectionRoutes,
     kSectionDisclaimer
 };
 
@@ -143,6 +142,17 @@ enum {
                                       action:@selector(showArrivalsAction:)];
     
     self.navigationItem.rightBarButtonItem = refreshButton;
+    
+    [self createSections];
+}
+
+- (void)createSections {
+    [self clearSectionMaps];
+    
+    [self addSectionType:kSectionRoutes];
+    [self addRowType:kSectionRoutes count:self.routeData.routes.count];
+    
+    [self addSectionTypeWithRow:kSectionDisclaimer];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -160,8 +170,8 @@ enum {
 - (void)showArrivalsAction:(id)sender {
     NSMutableArray *multipleStops = [NSMutableArray array];
     
-    for (int i = 0; i < self.routeData.count; i++) {
-        RouteDistance *rd = (RouteDistance *)self.routeData[i];
+    for (int i = 0; i < self.routeData.routes.count; i++) {
+        RouteDistance *rd = (RouteDistance *)self.routeData.routes[i];
         
         if (self.checked[i].boolValue) {
             [multipleStops addObjectsFromArray:rd.stops];
@@ -196,7 +206,7 @@ enum {
 #pragma mark Table view data source
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    switch (indexPath.section) {
+    switch ([self rowType:indexPath]) {
         case kSectionRoutes:
             
             if (LARGE_SCREEN) {
@@ -211,32 +221,15 @@ enum {
     return 1;
 }
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    // Return the number of sections.
-    return kRouteSections;
-}
-
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    // Return the number of rows in the section.
-    switch (section) {
-        case kSectionRoutes:
-            return self.routeData.count;
-            
-        case kSectionDisclaimer:
-            return 1;
-    }
-    
-    return 0;
-}
 
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = nil;
     
     
-    switch (indexPath.section) {
+    switch ([self rowType:indexPath]) {
         case kSectionRoutes: {
-            RouteDistance *rd = (RouteDistance *)self.routeData[indexPath.row];
+            RouteDistance *rd = (RouteDistance *)self.routeData.routes[indexPath.row];
             DepartureCell *dcel = [DepartureCell tableView:tableView genericWithReuseIdentifier:MakeCellId(XkSectionRoutes)];
             [rd populateCell:dcel];
             
@@ -257,7 +250,7 @@ enum {
             
             [self addTextToDisclaimerCell:cell text:[self.routeData displayDate:self.routeData.cacheTime]];
             
-            if (self.routeData.items == nil) {
+            if (self.routeData.routes == nil) {
                 [self noNetworkDisclaimerCell:cell];
             } else {
                 cell.accessoryType = UITableViewCellAccessoryNone;
@@ -313,7 +306,7 @@ enum {
 #pragma mark Table view delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    switch (indexPath.section) {
+    switch ([self rowType:indexPath]) {
         case kSectionRoutes: {
             self.checked[indexPath.row] = self.checked[indexPath.row].boolValue ? @NO : @YES;
             [self reloadData];
@@ -328,8 +321,8 @@ enum {
         }
             
         case kSectionDisclaimer: {
-            if (self.routeData.items == nil) {
-                [self networkTips:self.routeData.htmlError networkError:self.routeData.errorMsg];
+            if (self.routeData.routes == nil) {
+                [self networkTips:self.routeData.htmlError networkError:self.routeData.networkErrorMsg];
                 [self clearSelection];
             }
         }

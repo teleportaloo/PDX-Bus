@@ -18,6 +18,8 @@
 #import "TriMetInfo.h"
 #import "DebugLogging.h"
 #import "BlockColorDb.h"
+#import "NSString+Helper.h"
+#import "FormatDistance.h"
 
 @class DepartureTimesView;
 
@@ -30,12 +32,12 @@
 
 - (NSString *)title {
     if (self.signMessage) {
-        // DEBUG_LOG(@"Sign Message %@ b %@ %f %f\n", self.signMessage, self.block, self.location.coordinate.latitude, self.location.coordinate.latitude);
+        // DEBUG_LOG(@"Sign Message %@ b %@ %@\n", self.signMessage, self.block, COORD_TO_LAT_LNG_STR(self.location.coordinate));
         return self.signMessage;
     }
     
     if ([self.type isEqualToString:kVehicleTypeStreetcar]) {
-        PC_ROUTE_INFO info = [TriMetInfo infoForRoute:self.routeNumber];
+        PtrConstRouteInfo info = [TriMetInfo infoForRoute:self.routeNumber];
         
         if (info) {
             return info->full_name;
@@ -74,7 +76,7 @@
     return MAP_PIN_COLOR_RED;
 }
 
-- (bool)showActionMenu {
+- (bool)pinActionMenu {
     if (self.lastStopId) {
         return YES;
     }
@@ -82,20 +84,24 @@
     return NO;
 }
 
-- (bool)mapTapped:(id<TaskController>)progress {
+- (bool)pinAction:(id<TaskController>)progress {
     [[DepartureTimesView viewController] fetchTimesForVehicleAsync:progress route:self.routeNumber direction:self.direction nextStopId:self.lastStopId block:self.block targetDeparture:nil];
     return true;
 }
 
-- (NSString *)mapStopId {
+- (NSString *)pinStopId {
     return self.nextStopId;
 }
 
-- (NSString *)mapStopIdText {
-    return [NSString stringWithFormat:@"Departures at next stop - ID %@", self.nextStopId];
+- (NSString *)pinMarkedUpStopId {
+    if (self.nextStopId != nil)
+    {
+        return [NSString stringWithFormat:@"#DNext %@", self.nextStopId.markedUpLinkToStopId];
+    }
+    return nil;
 }
 
-- (NSString *)tapActionText {
+- (NSString *)pinActionText {
     return @"Show next stops";
 }
 
@@ -103,7 +109,7 @@
     return [TriMetInfo colorForRoute:self.routeNumber];
 }
 
-- (UIColor *)pinSubTint {
+- (UIColor *)pinBlobColor {
     if (self.block != nil) {
         BlockColorDb *db = [BlockColorDb sharedInstance];
         return [db colorForBlock:self.block];
@@ -112,16 +118,105 @@
     return nil;
 }
 
-- (bool)hasBearing {
+- (bool)pinHasBearing {
     return self.bearing != nil;
 }
 
-- (double)doubleBearing {
+- (double)pinBearing {
     if (self.bearing) {
         return self.bearing.doubleValue;
     }
     
     return 0.0;
+}
+
+- (NSString *)pinMarkedUpType
+{
+    static NSDictionary<NSString *, NSString*> *types;
+    
+    static dispatch_once_t onceToken;
+    
+    dispatch_once(&onceToken, ^{
+        types = @{
+            kVehicleTypeBus         : kPinTypeBus,
+            kVehicleTypeTrain       : kPinTypeTrain,
+            kVehicleTypeStreetcar   : kPinTypeStreetcar };
+                    
+    });
+    
+    return types[self.type];
+}
+
+- (NSString *)pinMarkedUpSubtitle
+{
+    NSMutableString *vehicleInfo = [NSMutableString stringWithString:[TriMetInfo markedUpVehicleString:self.vehicleId]];
+    
+    if (self.garage!=nil)
+    {
+        [vehicleInfo appendFormat:NSLocalizedString(@"\n#DGarage: #b%@#b", @"garage"), self.garage];
+    }
+  
+    if (self.offRoute)
+    {
+        [vehicleInfo appendFormat:NSLocalizedString(@"\n#D#bOff Route#b", @"off route")];
+    }
+    
+    if (self.loadPercentage > 0)
+    {
+        [vehicleInfo appendFormat:NSLocalizedString(@"\n#DLoad percentage: %d%%",@"load"), (int)self.loadPercentage];
+    }
+    
+    if (self.speedKmHr != nil)
+    {
+        [vehicleInfo appendFormat:NSLocalizedString(@"\n#DSpeed: %0.1f mph (%0.1f km/h)", @"speed"), MilesForKm(self.speedKmHr.doubleValue), self.speedKmHr.doubleValue];
+    }
+    
+    if (self.lastStopId != nil)
+    {
+        [vehicleInfo appendFormat:NSLocalizedString(@"\n#DLast %@", @"stop id"),  self.lastStopId.markedUpLinkToStopId];
+    }
+    
+    if (self.routeNumber != nil)
+    {
+        [vehicleInfo appendFormat:NSLocalizedString(@"\n#D#Lroute:%@ Route Info#T", @"speed"),  self.routeNumber];
+    }
+    
+    if (self.locationTime != nil)
+    {
+        [vehicleInfo appendFormat:NSLocalizedString(@"\n#DLocated at: %@", @"speed"),
+         [NSDateFormatter localizedStringFromDate:self.locationTime dateStyle:NSDateFormatterNoStyle timeStyle:NSDateFormatterMediumStyle]];
+    }
+    
+    if (self.delay != nil)
+    {
+        NSInteger delay = self.delay.integerValue;
+        NSInteger mins =  labs((long)(delay/60));
+        NSString *minsString = nil;
+        
+        if (mins == 0)
+        {
+            minsString =  @"less than a minute";
+        } else if (mins == 1) {
+            minsString = @"1 minute";
+        } else
+        {
+            minsString = [NSString stringWithFormat:NSLocalizedString(@"%d minutes",@"mins"), (int)mins];
+        }
+        
+        
+        if (delay < 0)
+        {
+            [vehicleInfo appendFormat:NSLocalizedString(@"\n#RDelayed: %@", @"delayed"), minsString];
+        } else if (delay > 0)
+        {
+            [vehicleInfo appendFormat:NSLocalizedString(@"\n#MAhead: %@", @"ahead"),minsString];
+        } else
+        {
+            [vehicleInfo appendFormat:NSLocalizedString(@"\n#GOn time", @"on time")];
+        }
+    }
+    
+    return vehicleInfo;
 }
 
 @end

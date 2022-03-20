@@ -79,7 +79,7 @@
     return NO;
 }
 
-- (NSString *)depNetworkErrorMsg {
+- (NSString *)depErrorMsg {
     return nil;
 }
 

@@ -15,15 +15,15 @@
 
 #import <Foundation/Foundation.h>
 #import "ShapeRoutePath.h"
-#import "DataFactory.h"
 
-@interface KMLPlacemark : DataFactory
+@interface KMLPlacemark : NSObject
 
-@property (nonatomic, copy) NSString *xroute_number;
-@property (nonatomic, copy) NSString *xdirection;
-@property (nonatomic, copy) NSString *xroute_description;
-@property (nonatomic, copy) NSString *xpublic_route_number;
-@property (nonatomic, copy) NSString *xdirection_description;
+@property (nonatomic, copy, setter = setXml_route_number:) NSString *strInternalRouteNumber;
+@property (nonatomic) NSInteger internalRouteNumber;
+@property (nonatomic, copy, setter = setXml_direction:) NSString *dir;
+@property (nonatomic, copy, setter = setXml_route_description:) NSString *routeDescription;
+@property (nonatomic, copy, setter = setXml_public_route_number:) NSString *displayRouteNumber;
+@property (nonatomic, copy, setter = setXml_direction_description:) NSString *dirDesc;
 @property (nonatomic, strong) ShapeRoutePath *path;
 
 // Not used - could be later

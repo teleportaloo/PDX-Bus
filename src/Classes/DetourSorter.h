@@ -18,13 +18,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface DetourSorter : DataFactory
+typedef NSMutableDictionary<NSNumber*, Detour*> AllTriMetDetours;
+
+@interface DetourSorter : NSObject
 
 @property (nonatomic, strong) NSMutableOrderedSet<NSNumber*> *detourIds;
-@property (nonatomic, strong) NSMutableDictionary<NSNumber*, Detour*> *allDetours;
+@property (atomic, strong)    AllTriMetDetours *allDetours;
 @property (nonatomic) NSInteger systemWideCount;
 
-- (void)add:(Detour *)detour;
+- (void)safeAddDetour:(Detour *)detour;
 - (void)sort;
 - (void)clear;
 

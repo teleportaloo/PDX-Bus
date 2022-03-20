@@ -22,8 +22,8 @@
 
 @implementation ViewControllerBase (DetourTableViewCell)
 
-- (bool)detourLink:(NSString *)link detour:(Detour *)detour {
-    if ([self linkAction:link]) {
+- (bool)detourLink:(NSString *)link detour:(Detour *)detour source:(UIView*)view {
+    if ([self linkAction:link source:view]) {
         if ([link isEqualToString:@"detourmap:"]) {
             if ([self canGoDeeperAlert]) {
                 [[MapViewWithDetourStops viewController] fetchLocationsMaybeAsync:self.backgroundTask
@@ -41,11 +41,11 @@
     return NO;
 }
 
-- (detourUrlAction)detourActionCalback {
+- (DetourUrlAction)detourActionCalback {
     __weak __typeof__(self) weakSelf = self;
     
     return ^bool (DetourTableViewCell *cell, NSString *url) {
-        return [weakSelf detourLink:url detour:cell.detour];
+        return [weakSelf detourLink:url detour:cell.detour source:cell];
     };
 }
 

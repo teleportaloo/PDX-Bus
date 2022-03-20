@@ -10,6 +10,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+
 #import "RootViewController.h"
 #import "PDXBusAppDelegate+Methods.h"
 #import "DepartureTimesView.h"
@@ -80,6 +82,7 @@ enum SECTIONS_AND_ROWS {
     kTableTriMetDetours,
     kTableTriMetLink,
     kTableTriMetFacebook,
+    
     kTableTriMetCustomerService,
     kTableTriMetCall,
     kTableTriMetTweet,
@@ -91,6 +94,7 @@ enum SECTIONS_AND_ROWS {
     kTableAboutSupport,
     kTableAboutFacebook,
     kTableAboutRate,
+    kTableBuyMeACoffee,
     
     kTableFindRowId,
     kTableFindRowBrowse,
@@ -186,7 +190,6 @@ enum TRIP_ROWS {
     [toolbarItems addObject:[UIToolbar settingsButtonWithTarget:self action:@selector(settingsAction:)]];
     spaceNeeded = YES;
     
-    
     if (Settings.commuteButton) {
         if (spaceNeeded) {
             [toolbarItems addObject:[UIToolbar flexSpace]];
@@ -207,9 +210,7 @@ enum TRIP_ROWS {
     
     [self maybeAddFlashButtonWithSpace:spaceNeeded buttons:toolbarItems big:YES];
     
-    
-    if (toolbarItems.count == 1 && !Settings.locateToolbarIcon)
-    {
+    if (toolbarItems.count == 1 && !Settings.locateToolbarIcon) {
         [toolbarItems insertObject:[UIToolbar flexSpace] atIndex:0];
         [toolbarItems addObject:[UIToolbar flexSpace]];
     }
@@ -241,9 +242,8 @@ enum TRIP_ROWS {
         
         [self.navigationController pushViewController:qrView animated:YES];
     } else {
-        
-        UIAlertController * alert = [UIAlertController simpleOkWithTitle:nil
-                                                                 message:NSLocalizedString(@"QR Scanning is not supported in this version of iOS. :-(", @"error")];
+        UIAlertController *alert = [UIAlertController simpleOkWithTitle:nil
+                                                                message:NSLocalizedString(@"The camera is not currently available.", @"error")];
         
         [self presentViewController:alert animated:YES completion:nil];
         return NO;
@@ -254,9 +254,20 @@ enum TRIP_ROWS {
 
 - (bool)showMapWithAll {
     NearestVehiclesMap *mapView = [NearestVehiclesMap viewController];
+    
     mapView.alwaysFetch = YES;
     mapView.allRoutes = YES;
     [mapView fetchNearestVehiclesAsync:self.backgroundTask];
+    return YES;
+}
+
+- (bool)showDetoursForRoute:(NSString *)route {
+    if (route == nil) {
+        [[DetoursView viewController] fetchDetoursAsync:self.backgroundTask];
+    } else {
+        [[DetoursView viewController] fetchDetoursAsync:self.backgroundTask route:route];
+    }
+    
     return YES;
 }
 
@@ -264,7 +275,7 @@ enum TRIP_ROWS {
     if (mapItem.name != nil) {
         return mapItem.name;
     }
-
+    
     return mapItem.placemark.simpleAddress;
 }
 
@@ -495,7 +506,7 @@ enum TRIP_ROWS {
 
 - (void)launchFromURL {
     [[DepartureTimesView viewController] fetchTimesForLocationAsync:self.backgroundTask
-                                                                stopId:self.launchStops
+                                                             stopId:self.launchStops
                                                               title:NSLocalizedString(@"Launching...", @"progress message")];
     self.launchStops = nil;
 }
@@ -559,7 +570,7 @@ enum TRIP_ROWS {
     }
     
     NSDateComponents *nowDateComponents = [[NSCalendar currentCalendar] components:(NSCalendarUnitWeekOfYear | NSCalendarUnitYear)
-                                                                           fromDate:[NSDate date]];
+                                                                          fromDate:[NSDate date]];
     
     
     bool showHelp = [self newVersion:@"lastRun.plist"  version:kAboutVersion];
@@ -623,11 +634,14 @@ enum TRIP_ROWS {
     } else if (self.initialAction == InitialAction_UserActivitySearch) {
         [self openSearchItem:self.initialActionArgs];
         self.initialActionArgs = nil;
+    } else if (self.initialAction == InitialAction_UserActivityAlerts) {
+        [self.navigationController popToRootViewControllerAnimated:NO];
+        [self showDetoursForRoute:self.initialActionArgs[kUserInfoAlertRoute]];
+        self.initialActionArgs = nil;
     } else if (self.initialBookmarkName != nil) {
         bool found = NO;
         int foundItem = 0;
-        @synchronized (_userState)
-        {
+        @synchronized (_userState) {
             for (int i = 0; i < _userState.faves.count; i++) {
                 NSMutableDictionary *item = (NSMutableDictionary *)(_userState.faves[i]);
                 NSString *name = item[kUserFavesChosenName];
@@ -681,8 +695,7 @@ enum TRIP_ROWS {
     // tripStart.tripQuery = self.tripQuery;
     
     // tripStart.tripQuery.userFaves = self.userFaves;
-    @synchronized (_userState)
-    {
+    @synchronized (_userState) {
         [tripStart.tripQuery addStopsFromUserFaves:_userState.faves];
     }
     
@@ -696,8 +709,6 @@ enum TRIP_ROWS {
         [NSIndexPath indexPathForRow:_userState.faves.count + 1 inSection:_faveSection],
         [NSIndexPath indexPathForRow:_userState.faves.count + 2 inSection:_faveSection]
     ];
-    
-    //    NSInteger rows = [self.table numberOfRowsInSection:faveSection];
     
     NSInteger addRow = [self firstRowOfType:kTableFaveAddStop inSection:_faveSection];
     
@@ -852,6 +863,10 @@ enum TRIP_ROWS {
     [self addRowType:kTableAboutSupport];
     [self addRowType:kTableAboutFacebook];
     [self addRowType:kTableAboutRate];
+    
+#ifdef COFFEE
+    [self addRowType:kTableBuyMeACoffee];
+#endif
 }
 
 - (bool)initMembers {
@@ -971,7 +986,7 @@ enum TRIP_ROWS {
     
     @try {
         written = [dict writeToFile:lastRun atomically:YES];
-    } @catch (NSException *exception)   {
+    } @catch (NSException *exception) {
         ERROR_LOG(@"Exception: %@ %@\n", exception.name, exception.reason);
     }
     
@@ -1069,11 +1084,10 @@ enum TRIP_ROWS {
         [self executeInitialAction];
         self.delayedInitialAction = NO;
     }
+    
 #if !TARGET_OS_MACCATALYST
-    if (@available(ios 12.0, *)) {
-        [INPreferences requestSiriAuthorization:^(INSiriAuthorizationStatus status) {
-        }];
-    }
+    [INPreferences requestSiriAuthorization:^(INSiriAuthorizationStatus status) {
+    }];
 #endif
     
     [self setupiCloud];
@@ -1091,10 +1105,8 @@ enum TRIP_ROWS {
     DEBUG_FUNC();
 }
 
-- (void)handleChangeInUserSettings:(id)obj {
-    [MainQueueSync runSyncOnMainQueueWithoutDeadlocking:^{
-        [self reloadData];
-    }];
+- (void)handleChangeInUserSettingsOnMainThread:(NSNotification *)notfication {
+    [self reloadData];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -1130,9 +1142,7 @@ enum TRIP_ROWS {
     [self reloadData];
     [self updateToolbar];
     _showingLast = false;
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleChangeInUserSettings:) name:NSUserDefaultsDidChangeNotification object:[NSUserDefaults standardUserDefaults]];
-    
+        
     [self iOS7workaroundPromptGap];
     
     DEBUG_FUNCEX();
@@ -1220,8 +1230,8 @@ enum TRIP_ROWS {
                 // No free space
                 // Probably delete items from the store
                 
-                UIAlertController *alert = [UIAlertController simpleOkWithTitle:NSLocalizedString(@"iCloud", @"alert title")
-                                                                        message:NSLocalizedString(@"You have too many bookmarks to store in the cloud. You should delete some bookmarks.", @"error message")];
+                UIAlertController *alert = [UIAlertController        simpleOkWithTitle:NSLocalizedString(@"iCloud", @"alert title")
+                                                                               message:NSLocalizedString(@"You have too many bookmarks to store in the cloud. You should delete some bookmarks.", @"error message")];
                 
                 [self presentViewController:alert animated:YES completion:nil];
                 
@@ -1259,7 +1269,6 @@ enum TRIP_ROWS {
         _taskList.observer = nil;
     }
     
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSUserDefaultsDidChangeNotification object:[NSUserDefaults standardUserDefaults]];
     
     DEBUG_LOGL(self.table.contentOffset.y);
     
@@ -1268,7 +1277,7 @@ enum TRIP_ROWS {
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning]; // Releases the view if it doesn't have a superview
-                                     // Release anything that's not essential, such as cached data
+    // Release anything that's not essential, such as cached data
 }
 
 #pragma mark Editing callbacks
@@ -1313,10 +1322,6 @@ enum TRIP_ROWS {
 }
 
 #pragma mark TableView methods
-
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return [self sections];
-}
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     NSInteger rows = 0;
@@ -1474,8 +1479,7 @@ enum TRIP_ROWS {
 
 - (void)emailBookmarks:(id)sender {
     {
-        @synchronized (_userState)
-        {
+        @synchronized (_userState) {
             if (_userState.faves.count > 0) {
                 if (![MFMailComposeViewController canSendMail]) {
                     UIAlertController *alert = [UIAlertController simpleOkWithTitle:NSLocalizedString(@"email", @"alert title")
@@ -1684,8 +1688,7 @@ enum TRIP_ROWS {
                     
                 case kTableFaveBookmark: {
                     // Set up the cell
-                    @synchronized (_userState)
-                    {
+                    @synchronized (_userState) {
                         NSDictionary *item = _userState.faves[indexPath.row];
                         // printf("item %p\n", item);
                         
@@ -1794,43 +1797,48 @@ enum TRIP_ROWS {
             switch (rowType) {
                 case kTableTriMetCustomerService:
                     cell.textLabel.text = NSLocalizedString(@"TriMet Customer Service", @"main menu item");
+                    cell.textLabel.textColor = [UIColor modeAwareText];
                     cell.imageView.image = [Icons getIcon:kIconTriMetLink];
                     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                     break;
                     
                 case kTableTriMetCall:
                     cell.textLabel.text = NSLocalizedString(@"Call TriMet on 503-238-RIDE", @"main menu item");
+                    cell.textLabel.textColor = [UIColor modeAwareText];
                     cell.imageView.image = [Icons getIcon:kIconPhone];
                     cell.accessoryType = UITableViewCellAccessoryNone;
                     break;
                     
                 case kTableTriMetLink:
                     cell.textLabel.text = NSLocalizedString(@"Visit TriMet online", @"main menu item");
+                    cell.textLabel.textColor = [UIColor modeAwareText];
                     cell.imageView.image = [Icons getIcon:kIconTriMetLink];
                     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                     break;
                     
                 case kTableTriMetTweet:
                     cell.textLabel.text = NSLocalizedString(@"@TriMet on Twitter", @"main menu item");
-                    
+                    cell.textLabel.textColor = [UIColor modeAwareText];
                     cell.imageView.image = [Icons getIcon:kIconTwitter];
                     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                     break;
+                    
                 case kTableTriMetCovid:
                     cell.textLabel.text = NSLocalizedString(@"TriMet Covid-19 Updates", @"main menu item");
-            
+                    cell.textLabel.textColor = [UIColor modeAwareText];
                     cell.imageView.image = [Icons characterIcon:@"🦠" placeholder:[Icons getIcon:kIconTriMetLink]];
                     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                     break;
                     
                 case kTableStreetcarTweet:
                     cell.textLabel.text = NSLocalizedString(@"@PDXStreetcar on Twitter", @"main menu item");
+                    cell.textLabel.textColor = [UIColor modeAwareText];
                     cell.imageView.image = [Icons getIcon:kIconTwitter];
                     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                     break;
                     
                 case kTableTriMetDetours:
-                    cell.textLabel.attributedText = FormatTextBasic(NSLocalizedString(@"#RDetours, delays and closures", @"main menu item"));
+                    cell.textLabel.attributedText = NSLocalizedString(@"#RDetours, delays and closures", @"main menu item").attributedStringFromMarkUp;
                     cell.imageView.image = [Icons getIcon:kIconDetour];
                     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                     cell.textLabel.adjustsFontSizeToFitWidth = YES;
@@ -1839,6 +1847,7 @@ enum TRIP_ROWS {
                     
                 case kTableTriMetFacebook:
                     cell.textLabel.text = NSLocalizedString(@"TriMet's Facebook Page", @"main menu item");
+                    cell.textLabel.textColor = [UIColor modeAwareText];
                     cell.imageView.image = [Icons getIcon:kIconFacebook];
                     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                     break;
@@ -1858,34 +1867,42 @@ enum TRIP_ROWS {
             switch (rowType) {
                 case kTableAboutSettings:
                     cell.textLabel.text = NSLocalizedString(@"Settings", @"main menu item");
+                    cell.textLabel.textColor = [UIColor modeAwareText];
                     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                     cell.imageView.image = [Icons getModeAwareIcon:kIconSettings];
                     break;
                     
                 case kTableAboutRowAbout:
                     cell.textLabel.text = NSLocalizedString(@"About & legal", @"main menu item");
+                    cell.textLabel.textColor = [UIColor modeAwareText];
                     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                     cell.imageView.image = [Icons getIcon:kIconAbout];
                     break;
                     
                 case kTableAboutSupport:
                     cell.textLabel.text = NSLocalizedString(@"Help, Tips & support", @"main menu item");
+                    cell.textLabel.textColor = [UIColor modeAwareText];
                     cell.imageView.image = [Icons getModeAwareIcon:kIconXml];
                     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                     break;
                     
                 case kTableAboutFacebook:
                     cell.textLabel.text = NSLocalizedString(@"PDX Bus Fan Page", @"main menu item");
+                    cell.textLabel.textColor = [UIColor modeAwareText];
                     cell.imageView.image = [Icons getIcon:kIconFacebook];
                     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                     break;
                     
                 case kTableAboutRate:
                     cell.textLabel.text = NSLocalizedString(@"Rate PDX Bus in the App Store", @"main menu item");
+                    cell.textLabel.textColor = [UIColor modeAwareText];
                     cell.textLabel.adjustsFontSizeToFitWidth = YES;
                     cell.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
                     cell.imageView.image = [Icons getIcon:kIconAward];
                     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+                    break;
+                case kTableBuyMeACoffee:
+                    [self buyMeACoffeeCell:cell];
                     break;
             }
             cell.textLabel.font = self.basicFont;
@@ -1915,10 +1932,8 @@ enum TRIP_ROWS {
             
             if (cell  == nil) {
                 cell = [self tableView:tableView cellWithReuseIdentifier:kAboutId];
-                
-                cell.textLabel.text = nil;
-                
                 cell.textLabel.text = NSLocalizedString(@"Alarm completed", @"button text");
+                cell.textLabel.textColor = [UIColor modeAwareText];
                 cell.imageView.image = nil;
                 cell.accessoryType = UITableViewCellAccessoryNone;
             }
@@ -2006,8 +2021,7 @@ enum TRIP_ROWS {
     }
     
     if (rowType == kTableFaveBookmark) {
-        @synchronized (_userState)
-        {
+        @synchronized (_userState) {
             item = _userState.faves[index];
             stopIds = item[kUserFavesLocation];
             tripItem = item[kUserFavesTrip];
@@ -2064,8 +2078,7 @@ enum TRIP_ROWS {
         TripPlannerDateView *tripDate = [TripPlannerDateView viewController];
         
         [tripDate initializeFromBookmark:req];
-        @synchronized (_userState)
-        {
+        @synchronized (_userState) {
             [tripDate.tripQuery addStopsFromUserFaves:_userState.faves];
         }
         
@@ -2090,7 +2103,7 @@ enum TRIP_ROWS {
         
         if ([scanner scanInt:&arg]) {
             if ([prefix isEqualToString:kSearchItemStation]) {
-                HOTSPOT *hotSpots = [RailMapView hotspotRecords];
+                HotSpot *hotSpots = [RailMapView hotspotRecords];
                 [RailMapView initHotspotData];
                 
                 RailStation *station = [RailStation fromHotSpot:hotSpots + arg index:arg];
@@ -2115,9 +2128,14 @@ enum TRIP_ROWS {
     NSString *location = item[kUserFavesLocation];
     NSMutableDictionary *tripItem = item[kUserFavesTrip];;
     NSString *block = item[kUserFavesBlock];
+    NSString *dir   = item[kUserFavesDir];
     
     if (location != nil && block != nil) {
-        [[DepartureDetailView viewController] fetchDepartureAsync:self.backgroundTask stopId:location block:block backgroundRefresh:NO];
+        [[DepartureDetailView viewController] fetchDepartureAsync:self.backgroundTask
+                                                           stopId:location
+                                                            block:block
+                                                              dir:dir
+                                                backgroundRefresh:NO];
     } else if (location != nil) {
         [[DepartureTimesView viewController] fetchTimesForLocationAsync:self.backgroundTask
                                                                  stopId:location
@@ -2130,8 +2148,7 @@ enum TRIP_ROWS {
         TripPlannerDateView *tripDate = [TripPlannerDateView viewController];
         
         [tripDate initializeFromBookmark:req];
-        @synchronized (_userState)
-        {
+        @synchronized (_userState) {
             [tripDate.tripQuery addStopsFromUserFaves:_userState.faves];
         }
         
@@ -2255,29 +2272,26 @@ enum TRIP_ROWS {
                 }
                     
                 case kTableTriMetCustomerService: {
-                    [WebViewController displayPage:@"https://trimet.org/contact/customerservice.htm"
-                                              full:nil
-                                         navigator:self.navigationController
-                                    itemToDeselect:self
-                                          whenDone:self.callbackWhenDone];
+                    [WebViewController displayNamedPage:@"TriMet Customer Service"
+                                              navigator:self.navigationController
+                                         itemToDeselect:self
+                                               whenDone:self.callbackWhenDone];
                     break;
                 }
                     
                 case kTableTriMetLink: {
-                    [WebViewController displayPage:@"https://trimet.org"
-                                              full:nil
-                                         navigator:self.navigationController
-                                    itemToDeselect:self
-                                          whenDone:self.callbackWhenDone];
+                    [WebViewController displayNamedPage:@"TriMet"
+                                              navigator:self.navigationController
+                                         itemToDeselect:self
+                                               whenDone:self.callbackWhenDone];
                     break;
                 }
                     
                 case kTableTriMetCovid: {
-                    [WebViewController displayPage:@"https://trimet.org/health/index.htm"
-                                              full:nil
-                                         navigator:self.navigationController
-                                    itemToDeselect:self
-                                          whenDone:self.callbackWhenDone];
+                    [WebViewController displayNamedPage:@"TriMet Covid"
+                                              navigator:self.navigationController
+                                         itemToDeselect:self
+                                               whenDone:self.callbackWhenDone];
                     break;
                 }
                     
@@ -2293,6 +2307,7 @@ enum TRIP_ROWS {
             }
             break;
         }
+            
         case kTableSectionAbout: {
             NSInteger rowType = [self rowType:indexPath];
             
@@ -2313,10 +2328,13 @@ enum TRIP_ROWS {
                 }
                     
                 case kTableAboutRate: {
-                    [[UIApplication sharedApplication] compatOpenURL:[NSURL URLWithString:
-                                                                @"https://itunes.apple.com/us/app/pdx-bus-max-streetcar-and-wes/id289814055?action=write-review"]];
-                    // @"itms-apps://www.itunes.com/apps/pdx-bus-max-streetcar-and-wes/id289814055?mt=8"]];
+                    [WebViewController openNamedURL:@"PDXBus App Store Review"];
                     [self.table deselectRowAtIndexPath:indexPath animated:YES];
+                    break;
+                }
+                    
+                case kTableBuyMeACoffee: {
+                    [self buyMeACoffee];
                     break;
                 }
                     
@@ -2335,6 +2353,7 @@ enum TRIP_ROWS {
             } else {
                 [self.navigationController pushViewController:[TripPlannerHistoryView viewController] animated:YES];
             }
+            
             break;
     }
 }
@@ -2477,8 +2496,7 @@ enum TRIP_ROWS {
     switch ([self sectionType:fromIndexPath.section]) {
         case kTableSectionFaves: {
             if ([self sectionType:toIndexPath.section] == kTableSectionFaves) {
-                @synchronized (_userState)
-                {
+                @synchronized (_userState) {
                     NSMutableDictionary *move = _userState.faves[fromIndexPath.row];
                     
                     if (fromIndexPath.row < toIndexPath.row) {
@@ -2574,19 +2592,10 @@ enum TRIP_ROWS {
 - (void)taskUpdate:(id)task {
     AlarmTask *realTask = (AlarmTask *)task;
     
-    int alarmSection = -1;
-    int i = 0;
+    NSInteger alarmSection = [self firstSectionOfType:kTableSectionAlarms];
     
-    // Find the alarm section
-    for (i = 0; i < [self sections]; i++) {
-        if ([self sectionType:i] == kTableSectionAlarms) {
-            alarmSection = i;
-            break;
-        }
-    }
-    
-    if (alarmSection != -1) {
-        i = 0;
+    if (alarmSection != kNoRowSectionTypeFound) {
+        int i = 0;
         
         for (NSString *key in self.alarmKeys) {
             if ([key isEqualToString:[realTask key]]) {

@@ -54,13 +54,13 @@
 - (bool)plainStringMatch:(NSString *)markup search:(NSString *)search {
     id<WhatsNewSpecialAction> action = [self getAction:markup];
     
-    return [FormatTextPara([action displayText:markup]).string hasCaseInsensitiveSubstring:search];
+    return [[action displayMarkedUpText:markup].removeMarkUp hasCaseInsensitiveSubstring:search];
 }
 
 - (id)filteredObject:(id)i
         searchString:(NSString *)searchText index:(NSInteger)index {
     NSMutableArray *results = [NSMutableArray array];
-    WHATS_NEW_SECTION *section = (WHATS_NEW_SECTION *)i;
+    WhatsNewSection *section = (WhatsNewSection *)i;
     
     if (section.count == 0 || index == 0) {
         return nil;
@@ -113,7 +113,7 @@
         self.title = NSLocalizedString(@"What's new?", @"page title");
         NSArray *newTextArray = [[NSArray alloc] initWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"whats-new" ofType:@"plist"]];
         
-        _basicAction = [[WhatsNewBasicAction alloc] init];
+        _basicAction = [WhatsNewBasicAction action];
         
 #define ACTION(X) [X getPrefix]: [X action]
         
@@ -131,7 +131,7 @@
         
         for (NSString *markup in newTextArray) {
             id<WhatsNewSpecialAction> action = [self getAction:markup];
-            [output appendFormat:@"%@\n", [action plainText:markup]];
+            [output appendFormat:@"%@\n", [action plainTextFromMarkUp:markup]];
         }
         
         NSLog(@"%@\n", output);
@@ -160,10 +160,10 @@
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-    NSMutableArray<WHATS_NEW_SECTION *> *items = [self filteredData:tableView];
+    NSMutableArray<WhatsNewSection *> *items = [self filteredData:tableView];
     
     if (section < items.count) {
-        WHATS_NEW_SECTION *sectionArray = [self filteredData:tableView][section];
+        WhatsNewSection *sectionArray = [self filteredData:tableView][section];
         
         if (sectionArray.firstObject.length > 0) {
             return sectionArray.firstObject;
@@ -176,10 +176,10 @@
 - (void)tableView:(UITableView *)tableView willDisplayHeaderView:(UIView *)view forSection:(NSInteger)section {
     UITableViewHeaderFooterView *header = (UITableViewHeaderFooterView *)view;
     
-    NSMutableArray<WHATS_NEW_SECTION *> *items = [self filteredData:tableView];
+    NSMutableArray<WhatsNewSection *> *items = [self filteredData:tableView];
     
     if (section < items.count) {
-        WHATS_NEW_SECTION *sectionArray = [self filteredData:tableView][section];
+        WhatsNewSection *sectionArray = [self filteredData:tableView][section];
         NSString *markup = sectionArray.firstObject;
         
         if (markup.length > 0) {
@@ -187,7 +187,7 @@
             
             header.textLabel.adjustsFontSizeToFitWidth = YES;
             
-            header.textLabel.attributedText = FormatTextBasic(([action displayText:markup]));
+            header.textLabel.attributedText = [action displayMarkedUpText:markup].attributedStringFromMarkUp;
             header.accessibilityLabel = header.textLabel.text.phonetic;
             
             
@@ -211,7 +211,7 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    NSMutableArray<WHATS_NEW_SECTION *> *items = [self filteredData:tableView];
+    NSMutableArray<WhatsNewSection *> *items = [self filteredData:tableView];
     
     if (section < items.count) {
         return items[section].count - 1;
@@ -223,7 +223,7 @@
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
     [super tableView:tableView willDisplayCell:cell forRowAtIndexPath:indexPath];
     
-    NSMutableArray<WHATS_NEW_SECTION *> *items = [self filteredData:tableView];
+    NSMutableArray<WhatsNewSection *> *items = [self filteredData:tableView];
     
     if (indexPath.section < items.count) {
         NSString *markup = items[indexPath.section][indexPath.row + 1];
@@ -235,14 +235,14 @@
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    NSMutableArray<WHATS_NEW_SECTION *> *items = [self filteredData:tableView];
+    NSMutableArray<WhatsNewSection *> *items = [self filteredData:tableView];
     
     if (indexPath.section < items.count) {
         NSString *fullText = [self filteredData:tableView][indexPath.section][indexPath.row + 1];
         
         id<WhatsNewSpecialAction> action = [self getAction:fullText];
         
-        NSAttributedString *text = FormatTextPara([action displayText:fullText]);
+        NSAttributedString *text = [action displayMarkedUpText:fullText].smallAttributedStringFromMarkUp;
         
         LinkCell *cell = (LinkCell *)[self.table dequeueReusableCellWithIdentifier:MakeCellId(kSectionText)];
         
@@ -271,7 +271,7 @@
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    NSMutableArray<WHATS_NEW_SECTION *> *items = [self filteredData:tableView];
+    NSMutableArray<WhatsNewSection *> *items = [self filteredData:tableView];
     
     if (indexPath.section < items.count) {
         return UITableViewAutomaticDimension;
@@ -281,7 +281,7 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    NSMutableArray<WHATS_NEW_SECTION *> *items = [self filteredData:tableView];
+    NSMutableArray<WhatsNewSection *> *items = [self filteredData:tableView];
     
     if (indexPath.section < items.count) {
         NSString *markup = items[indexPath.section][indexPath.row + 1];
@@ -308,8 +308,7 @@
     TripPlannerSummaryView *tripStart = [TripPlannerSummaryView viewController];
     
     
-    @synchronized (_userState)
-    {
+    @synchronized (_userState) {
         [tripStart.tripQuery addStopsFromUserFaves:_userState.faves];
     }
     
@@ -318,6 +317,12 @@
 }
 
 - (void)xxxRailMap {
+    Settings.showStreetcarMapFirst = NO;
+    [self.navigationController pushViewController:[RailMapView viewController] animated:YES];
+}
+
+- (void)xxxStreetcarMap {
+    Settings.showStreetcarMapFirst = YES;
     [self.navigationController pushViewController:[RailMapView viewController] animated:YES];
 }
 

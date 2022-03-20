@@ -58,7 +58,7 @@
 }
 
 - (RoutePin *)routePin {
-    RoutePin *pin = [RoutePin data];
+    RoutePin *pin = [RoutePin new];
     
     pin.desc = self.desc;
     pin.dir = self.dir;

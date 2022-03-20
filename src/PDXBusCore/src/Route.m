@@ -14,8 +14,10 @@
 #import "TriMetInfo.h"
 #import "DebugLogging.h"
 
+#define DEBUG_LEVEL_FOR_FILE kLogDataManagement
+
 @interface Route () {
-    const ROUTE_INFO *_col;
+    const RouteInfo *_col;
 }
 
 @end
@@ -23,7 +25,7 @@
 @implementation Route
 
 + (instancetype)systemWide:(NSNumber *)detourId {
-    Route *route = [Route data];
+    Route *route = [Route new];
     
     route.route = [NSString stringWithFormat:@"%@ %d", kSystemWideRouteId, detourId.intValue];
     route.desc = kSystemWideDetour;
@@ -51,9 +53,9 @@
     return self;
 }
 
-- (PC_ROUTE_INFO)rawColor {
+- (PtrConstRouteInfo)rawColor {
     // Placeholder - the address is used to signify no raw color
-    static const ROUTE_INFO noRoute;
+    static const RouteInfo noRoute;
     
     if(_col == &noRoute) {
         return nil;
@@ -112,11 +114,16 @@
         return NSOrderedDescending;
     }
     
+    if (self.routeSortOrder !=0 && route2.routeSortOrder != 0)
+    {
+        return self.routeSortOrder - route2.routeSortOrder;
+    }
+    
     NSString *r1 = self.route;
     NSString *r2 = route2.route;
     
-    PC_ROUTE_INFO c1 = self.rawColor;
-    PC_ROUTE_INFO c2 = route2.rawColor;
+    PtrConstRouteInfo c1 = self.rawColor;
+    PtrConstRouteInfo c2 = route2.rawColor;
     
     if(c1 == nil && c2 == nil) {
         return r1.integerValue - r2.integerValue;

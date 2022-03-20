@@ -98,17 +98,11 @@ enum {
     return NSLocalizedString(@"Enter stop ID:", @"stop id section header");
 }
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return self.sections;
-}
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     return [CellTextField cellHeight];
 }
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [self rowsInSection:section];
-}
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString *CellIdentifier = @"SimpleEdit";
@@ -180,11 +174,11 @@ enum {
     NSString *editText = [textView.text justNumbers];
     
     if (editText.length != 0 && self.navigationItem.rightBarButtonItem != nil) {
-        if (self.stopIdCallback.controller != nil) {
-            [self.navigationController popToViewController:self.stopIdCallback.controller animated:YES];
+        if (self.stopIdStringCallback.returnStopIdStringController != nil) {
+            [self.navigationController popToViewController:self.stopIdStringCallback.returnStopIdStringController animated:YES];
         }
         
-        [self.stopIdCallback selectedStop:editText];
+        [self.stopIdStringCallback returnStopIdString:editText desc:nil];
     }
     
     self.navigationItem.rightBarButtonItem = nil;
@@ -193,7 +187,7 @@ enum {
 - (void)cancelAction:(id)sender {
     self.navigationItem.rightBarButtonItem = nil;
     [self.editWindow resignFirstResponder];
-    [self.navigationController popToViewController:self.stopIdCallback.controller animated:YES];
+    [self.navigationController popToViewController:self.stopIdStringCallback.returnStopIdStringController animated:YES];
 }
 
 @end

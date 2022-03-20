@@ -16,6 +16,7 @@
 #import "Icons.h"
 #import "UIColor+DarkMode.h"
 #import "TintedImageCache.h"
+#import "UIFont+Utility.h"
 
 @implementation Icons
 
@@ -23,7 +24,22 @@
     UIImage *icon = [UIImage imageNamed:name];
     
     if (icon == nil) {
-        icon = [UIImage imageNamed:kIconAppIconAction];
+        static NSDictionary *replacements;
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            replacements = @{ kIconExpand7      : @"▽",
+                              kIconCollapse7    : @"△" };
+        });
+        NSString *replacement = replacements[name];
+        
+        if (replacement!=nil)
+        {
+            icon = [Icons characterIcon:replacement fg:[UIColor blackColor]];
+        }
+        else
+        {
+            icon = [UIImage imageNamed:kIconAppIconAction];
+        }
     }
     
     icon.accessibilityHint = nil;
@@ -58,9 +74,9 @@
     UIFont *font = nil;
     
     if ([text characterAtIndex:0] < 128) {
-        font = [UIFont systemFontOfSize:26];
+        font = [UIFont monospacedDigitSystemFontOfSize:26];
     } else {
-        font = [UIFont systemFontOfSize:22];
+        font = [UIFont monospacedDigitSystemFontOfSize:22];
     }
     
     NSMutableParagraphStyle *paragraphStyle = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
@@ -128,7 +144,5 @@
 + (UIImage *)getModeAwareIcon:(NSString *)name {
     return [[TintedImageCache sharedInstance] modeAwareLightenedIcon:name];
 }
-
-
 
 @end

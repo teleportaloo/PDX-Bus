@@ -10,6 +10,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+
 #import "FindByLocationView.h"
 #import "RootViewController.h"
 #import "StopDistance.h"
@@ -346,30 +348,28 @@ static NSDictionary<NSNumber *, NSString *> *ui_smap;
 }
 
 - (void)createUserActivity {
-    if (@available(iOS 12.0, *)) {
-        if (self.userActivity != nil) {
-            [self.userActivity invalidate];
-        }
-        
-        self.userActivity = [[NSUserActivity alloc] initWithActivityType:kHandoffUserActivityLocation];
-        
-        NSMutableDictionary *info = [NSMutableDictionary dictionary];
-        
-        [self initMappings];
-        
-        info[kLocationMode] = [FindByLocationView mapValue:_mode in:mode_map];
-        info[kLocationShow] = [FindByLocationView mapValue:_show in:show_map];
-        info[kLocationDistance] = [FindByLocationView mapValue:_dist in:dist_map];
-        
-        
-        self.userActivity.eligibleForSearch = YES;
-        self.userActivity.eligibleForPrediction = YES;
-        
-        self.userActivity.title = [NSString stringWithFormat:@"Launch PDX Bus & show %@ for %@ %@", ui_smap[@(_show)], ui_mmap[@(_mode)], ui_dmap[@(_dist)]];
-        
-        self.userActivity.userInfo = info;
-        [self.userActivity becomeCurrent];
+    if (self.userActivity != nil) {
+        [self.userActivity invalidate];
     }
+    
+    self.userActivity = [[NSUserActivity alloc] initWithActivityType:kHandoffUserActivityLocation];
+    
+    NSMutableDictionary *info = [NSMutableDictionary dictionary];
+    
+    [self initMappings];
+    
+    info[kLocationMode] = [FindByLocationView mapValue:_mode in:mode_map];
+    info[kLocationShow] = [FindByLocationView mapValue:_show in:show_map];
+    info[kLocationDistance] = [FindByLocationView mapValue:_dist in:dist_map];
+    
+    
+    self.userActivity.eligibleForSearch = YES;
+    self.userActivity.eligibleForPrediction = YES;
+    
+    self.userActivity.title = [NSString stringWithFormat:@"Launch PDX Bus & show %@ for %@ %@", ui_smap[@(_show)], ui_mmap[@(_mode)], ui_dmap[@(_dist)]];
+    
+    self.userActivity.userInfo = info;
+    [self.userActivity becomeCurrent];
 }
 
 - (void)startLocating {
@@ -396,10 +396,7 @@ static NSDictionary<NSNumber *, NSString *> *ui_smap;
             break;
     }
     
-    if (@available(iOS 12.0, *)) {
-        [self createUserActivity];
-    }
-    
+    [self createUserActivity];
     [self.navigationController pushViewController:locator animated:YES];
 }
 
@@ -434,25 +431,6 @@ static NSDictionary<NSNumber *, NSString *> *ui_smap;
 
 - (void)locatingViewFinished:(LocatingView *)locatingView {
     if (!locatingView.failed && !locatingView.cancelled) {
-#if 0
-        
-        if (@available(iOS 12.0, *)) {
-            if (_show == kShowArrivals) {
-                LocateArrivalsIntent *intent = [[LocateArrivalsIntent alloc] init];
-                
-                intent.suggestedInvocationPhrase = @"Nearby departures";
-                
-                INInteraction *interaction = [[INInteraction alloc] initWithIntent:intent response:nil];
-                
-                [interaction donateInteractionWithCompletion:^(NSError *_Nullable error) {
-                    LOG_NSERROR(error);
-                }];
-            }
-        }
-        
-#endif
-        
-        
         [self searchAndDisplay:locatingView.backgroundTask location:locatingView.lastLocation];
     } else if (locatingView.cancelled) {
         [locatingView.navigationController popViewControllerAnimated:YES];
@@ -516,10 +494,6 @@ static NSDictionary<NSNumber *, NSString *> *ui_smap;
 
 #pragma mark TableViewWithToolbar methods
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return self.sections;
-}
-
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
     switch ([self sectionType:section]) {
         case kDistanceSection:
@@ -549,9 +523,6 @@ static NSDictionary<NSNumber *, NSString *> *ui_smap;
     return nil;
 }
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [self rowsInSection:section];
-}
 
 #define kUIProgressBarWidth  240.0
 #define kUIProgressBarHeight 10.0
@@ -773,26 +744,14 @@ static NSDictionary<NSNumber *, NSString *> *ui_smap;
 }
 
 - (void)addToSiri {
-    if (@available(iOS 12.0, *)) {
-        [self createUserActivity];
-        INShortcut *shortCut = [[INShortcut alloc] initWithUserActivity:self.userActivity];
-        
-        INUIAddVoiceShortcutViewController *viewController = [[INUIAddVoiceShortcutViewController alloc] initWithShortcut:shortCut];
-        viewController.modalPresentationStyle = UIModalPresentationFormSheet;
-        viewController.delegate = self;
-        
-        [self presentViewController:viewController animated:YES completion:nil];
-    }
-}
-
-- (void)addVoiceShortcutViewController:(INUIAddVoiceShortcutViewController *)controller didFinishWithVoiceShortcut:(nullable INVoiceShortcut *)voiceShortcut error:(nullable NSError *)error
-API_AVAILABLE(ios(12.0)) {
-    [controller dismissViewControllerAnimated:YES completion:nil];
-}
-
-- (void)addVoiceShortcutViewControllerDidCancel:(INUIAddVoiceShortcutViewController *)controller
-API_AVAILABLE(ios(12.0)) {
-    [controller dismissViewControllerAnimated:YES completion:nil];
+    [self createUserActivity];
+    INShortcut *shortCut = [[INShortcut alloc] initWithUserActivity:self.userActivity];
+    
+    INUIAddVoiceShortcutViewController *viewController = [[INUIAddVoiceShortcutViewController alloc] initWithShortcut:shortCut];
+    viewController.modalPresentationStyle = UIModalPresentationFormSheet;
+    viewController.delegate = self;
+    
+    [self presentViewController:viewController animated:YES completion:nil];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {

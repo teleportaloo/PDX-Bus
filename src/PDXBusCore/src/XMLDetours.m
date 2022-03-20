@@ -16,11 +16,12 @@
 #import "CLLocation+Helper.h"
 #import "TriMetInfo.h"
 #import "DebugLogging.h"
-#import "NSDictionary+TriMetCaseInsensitive.h"
+#import "NSDictionary+Types.h"
 #import "TriMetXMLSelectors.h"
 
-static NSString *detourURLStringV2 = @"alerts/route/%@/infolink/true/json/false";
-static NSString *allDetoursURLStringV2 = @"alerts/infolink/true/json/false";
+static NSString *detourURLStringV2 = @"alerts/route/%@/infolink/true";
+static NSString *allDetoursURLStringV2 = @"alerts/infolink/true";
+static NSString *systemWideDetoursOnlyV2 = @"alerts/infolink/true/systemWideOnly/true";
 
 @interface XMLDetours ()
 
@@ -43,7 +44,7 @@ static NSString *allDetoursURLStringV2 = @"alerts/infolink/true/json/false";
     Route *result = self.allRoutes[route];
     
     if (result == nil) {
-        result = [Route data];
+        result = [Route new];
         result.desc = desc;
         result.route = route;
         [self.allRoutes setObject:result forKey:route];
@@ -75,15 +76,19 @@ static NSString *allDetoursURLStringV2 = @"alerts/infolink/true/json/false";
     return [self startParsing:allDetoursURLStringV2];
 }
 
+- (BOOL)getSystemWideDetours {
+    return [self startParsing:systemWideDetoursOnlyV2];
+}
+
 #pragma mark Parser callbacks
 
-XML_START_ELEMENT(resultset) {
+XML_START_ELEMENT(resultSet) {
     [self initItems];
     _hasData = YES;
 }
 
 XML_START_ELEMENT(alert) {
-    self.currentDetour = [Detour fromAttributeDict:XML_ATR_DICT allRoutes:self.allRoutes];
+    self.currentDetour = [Detour fromAttributeDict:XML_ATR_DICT allRoutes:self.allRoutes addEmoji:!self.noEmojis];
 }
 
 XML_START_ELEMENT(detour) {
@@ -99,7 +104,7 @@ XML_START_ELEMENT(route) {
 }
 
 XML_START_ELEMENT(location) {
-    DetourLocation *loc = [DetourLocation data];
+    DetourLocation *loc = [DetourLocation new];
     
     // <location id="12798" desc="SW Oak & 1st" dir="Westbound" lat="45.5204099477081" lng="-122.671968433183" passengerCode="E" no_service_flag="false"/>
     
@@ -109,7 +114,7 @@ XML_START_ELEMENT(location) {
     
     [loc setPassengerCodeFromString:XML_NULLABLE_ATR_STR(@"passengerCode")];
     
-    loc.noServiceFlag = XML_ATR_BOOL(@"no_service_flag");
+    loc.noServiceFlag = XML_ATR_BOOL_DEFAULT_FALSE(@"no_service_flag");
     loc.location = XML_ATR_LOCATION(@"lat", @"lng");
     
     [self.currentDetour.locations addObject:loc];
@@ -122,6 +127,5 @@ XML_END_ELEMENT(alert) {
 XML_END_ELEMENT(detour) {
     CALL_XML_END_ELEMENT(alert);
 }
-
 
 @end

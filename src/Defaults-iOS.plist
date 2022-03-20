@@ -50,12 +50,10 @@
 	<integer>0</integer>
 	<key>kml_route_only_wifi</key>
 	<true/>
-	<key>vehicle_locator_distance</key>
-	<integer>0</integer>
+	<key>vehicle_locator_distance2</key>
+	<integer>322</integer>
 	<key>proximity_gps</key>
 	<real>3218.688</real>
-	<key>route_cache</key>
-	<integer>1</integer>
 	<key>debug_xml3</key>
 	<integer>0</integer>
 	<key>progress_debug</key>
@@ -66,8 +64,8 @@
 	<false/>
 	<key>debug_commuter</key>
 	<false/>
-	<key>use_caching</key>
-	<true/>
+	<key>clear_cache</key>
+	<false/>
 	<key>use_beta_vehicle_locator</key>
 	<true/>
 	<key>show_trips</key>
@@ -82,5 +80,7 @@
 	<true/>
 	<key>hidden_transitioned</key>
 	<false/>
+	<key>network_in_parallel</key>
+	<true/>
 </dict>
 </plist>

@@ -28,6 +28,7 @@
 #import "KMLRoutes.h"
 #import "ShapeRoutePath.h"
 #import "TaskState.h"
+#import "RunParallelBlocks.h"
 
 @interface NearestVehiclesMap ()
 
@@ -37,9 +38,6 @@
 @end
 
 @implementation NearestVehiclesMap
-
-#define XML_DEBUG_RAW_DATA(X) if (X.rawData) [self.xml addObject:X];
-
 
 - (bool)displayErrorIfNoneFound:(XMLLocateVehicles *)locator progress:(id<TaskController>)progress {
     NSThread *thread = [NSThread currentThread];
@@ -106,13 +104,18 @@
     NSSet<NSString *> *all = [self.streetcarRoutes setByAddingObjectsFromSet:self.trimetRoutes];
         
     if (self.allRoutes) {
-        [kml fetchInBackground:NO];
+        [kml fetchInBackgroundForced:NO];
         
         for (NSString *key in kml.keyEnumerator) {
-            [self.lineCoords addObject:[kml lineCoordsForKey:key]];
+            ShapeRoutePath *path = [kml lineCoordsForKey:key];
+
+            if (path)
+            {
+                [self.lineCoords addObject:path];
+            }
         }
     } else {
-        [kml fetchInBackground:NO];
+        [kml fetchInBackgroundForced:NO];
         
         for (NSString *route in all) {
             if (self.direction) {
@@ -153,35 +156,41 @@
     
     [taskState incrementItemsDoneAndDisplay];
     
-    if (![self displayErrorIfNoneFound:locator progress:taskState]) {
-        for (int i = 0; i < locator.count && !taskState.taskCancelled; i++) {
-            Vehicle *ui = locator.items[i];
+    @synchronized (self) {
+        if (![self displayErrorIfNoneFound:locator progress:taskState]) {
+            for (int i = 0; i < locator.count && !taskState.taskCancelled; i++) {
+                Vehicle *ui = locator.items[i];
             
-            if ([ui typeMatchesMode:mode] && (self.stopLocator == nil || [ui.location distanceFromLocation:self.stopLocator.location] <= self.stopLocator.minDistance)) {
-                [self addPin:ui];
+                if ([ui typeMatchesMode:mode] && (self.stopLocator == nil || [ui.location distanceFromLocation:self.stopLocator.location] <= self.stopLocator.minDistance)) {
+                    [self addPin:ui];
+                }
             }
         }
     }
 }
 
-- (void)subTaskLocateStreetcarVehicles:(NSSet<NSString *> *)streetcarRoutesForVehicles taskState:(TaskState *)taskState {
+- (void)subTaskLocateStreetcarVehicles:(NSSet<NSString *> *)streetcarRoutesForVehicles taskState:(TaskState *)taskState parallelBlocks:(RunParallelBlocks *)parallelBlocks {
     for (NSString *route in streetcarRoutesForVehicles) {
-        XMLStreetcarLocations *loc = [XMLStreetcarLocations sharedInstanceForRoute:route];
-        
-        [taskState taskSubtext:NSLocalizedString(@"locating Streetcar vehicles", @"progress message")];
-        loc.oneTimeDelegate = taskState;
-        [loc getLocations];
-        
-        XML_DEBUG_RAW_DATA(loc);
-        
-        [taskState incrementItemsDoneAndDisplay];
-        
-        [loc.locations enumerateKeysAndObjectsUsingBlock:^(NSString *streecarId, Vehicle *vehicle, BOOL *stop)
-         {
-            if (self.direction == nil || vehicle.direction == nil || [vehicle.direction isEqualToString:self.direction]) {
-                if (self.stopLocator == nil || [vehicle.location distanceFromLocation:self.stopLocator.location] <= self.stopLocator.minDistance) {
-                    [self addPin:vehicle];
-                }
+        [parallelBlocks startBlock:^{
+            XMLStreetcarLocations *loc = [XMLStreetcarLocations sharedInstanceForRoute:route];
+            
+            [taskState taskSubtext:NSLocalizedString(@"locating Streetcar vehicles", @"progress message")];
+            loc.oneTimeDelegate = taskState;
+            [loc getLocations];
+            
+            @synchronized (self) {
+                XML_DEBUG_RAW_DATA(loc);
+                
+                [taskState incrementItemsDoneAndDisplay];
+                
+                [loc.locations enumerateKeysAndObjectsUsingBlock:^(NSString *streecarId, Vehicle *vehicle, BOOL *stop)
+                 {
+                    if (self.direction == nil || vehicle.direction == nil || [vehicle.direction isEqualToString:self.direction]) {
+                        if (self.stopLocator == nil || [vehicle.location distanceFromLocation:self.stopLocator.location] <= self.stopLocator.minDistance) {
+                            [self addPin:vehicle];
+                        }
+                    }
+                }];
             }
         }];
     }
@@ -194,9 +203,11 @@
     
     [taskState incrementItemsDoneAndDisplay];
     
-    if (![self.stopLocator displayErrorIfNoneFound:taskState]) {
-        for (int i = 0; i < self.stopLocator.count && !taskState.taskCancelled; i++) {
-            [self addPin:self.stopLocator.items[i]];
+    @synchronized (self) {
+        if (![self.stopLocator displayErrorIfNoneFound:taskState]) {
+            for (int i = 0; i < self.stopLocator.count && !taskState.taskCancelled; i++) {
+                [self addPin:self.stopLocator.items[i]];
+            }
         }
     }
 }
@@ -231,17 +242,27 @@
             [self subTaskFetchShapes:taskState];
         }
         
+        RunParallelBlocks *parallelBlocks = [RunParallelBlocks instance];
+        
         if ((self.trimetRoutes == nil || self.trimetRoutes.count > 0) && fetchVehicles) {
-            [self subTaskLocateTriMetVehicles:locator mode:mode taskState:taskState];
+            [parallelBlocks startBlock:^{
+                [self subTaskLocateTriMetVehicles:locator mode:mode taskState:taskState];
+            }];
         }
         
         if (streetcarRoutesForVehicles.count > 0 && mode != TripModeBusOnly && fetchVehicles) {
-            [self subTaskLocateStreetcarVehicles:streetcarRoutesForVehicles taskState:taskState];
+            [self subTaskLocateStreetcarVehicles:streetcarRoutesForVehicles
+                                       taskState:taskState
+                                  parallelBlocks:parallelBlocks];
         }
         
         if (includeStops && !self.stopLocator.gotData) {
-            [self subTaskLocateStops:taskState];
+            [parallelBlocks startBlock:^{
+                [self subTaskLocateStops:taskState];
+            }];
         }
+        
+        [parallelBlocks waitForBlocks];
         
         return (UIViewController *)self;
     }];
@@ -281,7 +302,7 @@
 - (void)removeAnnotations {
     NSArray *annotions = self.mapView.annotations;
     
-    for (id<MapPinColor> annot in annotions) {
+    for (id<MapPin> annot in annotions) {
         if ([annot isKindOfClass:[Vehicle class]]) {
             [self.mapView removeAnnotation:annot];
         }

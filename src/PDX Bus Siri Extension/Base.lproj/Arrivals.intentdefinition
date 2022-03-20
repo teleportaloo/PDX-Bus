@@ -5,15 +5,15 @@
 	<key>INEnums</key>
 	<array/>
 	<key>INIntentDefinitionModelVersion</key>
-	<string>1.1</string>
+	<string>1.2</string>
 	<key>INIntentDefinitionNamespace</key>
 	<string>mW0wwY</string>
 	<key>INIntentDefinitionSystemVersion</key>
-	<string>19G73</string>
+	<string>20D91</string>
 	<key>INIntentDefinitionToolsBuildVersion</key>
-	<string>11E801a</string>
+	<string>12E262</string>
 	<key>INIntentDefinitionToolsVersion</key>
-	<string>11.7</string>
+	<string>12.5</string>
 	<key>INIntents</key>
 	<array>
 		<dict>
@@ -100,6 +100,10 @@
 				<key>INIntentResponseCodes</key>
 				<array>
 					<dict>
+						<key>INIntentResponseCodeConciseFormatString</key>
+						<string>Here's the departures at ${stopName}  ${arrivals}</string>
+						<key>INIntentResponseCodeConciseFormatStringID</key>
+						<string>5uDGPz</string>
 						<key>INIntentResponseCodeFormatString</key>
 						<string>Here's the departures at ${stopName}  ${arrivals}</string>
 						<key>INIntentResponseCodeFormatStringID</key>
@@ -245,6 +249,8 @@
 			<key>INIntentParameters</key>
 			<array>
 				<dict>
+					<key>INIntentParameterConfigurable</key>
+					<true/>
 					<key>INIntentParameterDisplayName</key>
 					<string>Stop ID</string>
 					<key>INIntentParameterDisplayNameID</key>
@@ -291,7 +297,7 @@
 							<key>INIntentParameterUnsupportedReasonDefault</key>
 							<true/>
 							<key>INIntentParameterUnsupportedReasonFormatString</key>
-							<string>${displayName} can't be negative.</string>
+							<string>${displayName} can’t be negative.</string>
 							<key>INIntentParameterUnsupportedReasonFormatStringID</key>
 							<string>KzUypz</string>
 						</dict>
@@ -301,7 +307,7 @@
 							<key>INIntentParameterUnsupportedReasonDefault</key>
 							<true/>
 							<key>INIntentParameterUnsupportedReasonFormatString</key>
-							<string>${displayName} can't be higher than ${maximumValue}.</string>
+							<string>${displayName} can’t be higher than ${maximumValue}.</string>
 							<key>INIntentParameterUnsupportedReasonFormatStringID</key>
 							<string>M9E01T</string>
 						</dict>
@@ -311,7 +317,7 @@
 							<key>INIntentParameterUnsupportedReasonDefault</key>
 							<true/>
 							<key>INIntentParameterUnsupportedReasonFormatString</key>
-							<string>${displayName} can't be lower than ${minimumValue}.</string>
+							<string>${displayName} can’t be lower than ${minimumValue}.</string>
 							<key>INIntentParameterUnsupportedReasonFormatStringID</key>
 							<string>otS05B</string>
 						</dict>
@@ -323,6 +329,14 @@
 				<key>INIntentResponseCodes</key>
 				<array>
 					<dict>
+						<key>INIntentResponseCodeConciseFormatString</key>
+						<string>${arrivals}</string>
+						<key>INIntentResponseCodeConciseFormatStringID</key>
+						<string>U1ZIvg</string>
+						<key>INIntentResponseCodeFormatString</key>
+						<string>${arrivals}</string>
+						<key>INIntentResponseCodeFormatStringID</key>
+						<string>jnvI5q</string>
 						<key>INIntentResponseCodeName</key>
 						<string>success</string>
 						<key>INIntentResponseCodeSuccess</key>
@@ -406,10 +420,10 @@
 			<key>INIntentKeyParameter</key>
 			<string>routeNumber</string>
 			<key>INIntentLastParameterTag</key>
-			<integer>3</integer>
+			<integer>5</integer>
 			<key>INIntentManagedParameterCombinations</key>
 			<dict>
-				<key>routeNumber</key>
+				<key>routeNumber,includeSystemWideAlerts</key>
 				<dict>
 					<key>INIntentParameterCombinationSupportsBackgroundExecution</key>
 					<true/>
@@ -426,6 +440,8 @@
 			<key>INIntentParameters</key>
 			<array>
 				<dict>
+					<key>INIntentParameterConfigurable</key>
+					<true/>
 					<key>INIntentParameterCustomDisambiguation</key>
 					<true/>
 					<key>INIntentParameterDisplayName</key>
@@ -470,14 +486,6 @@
 							<string>DisambiguationIntroduction</string>
 						</dict>
 						<dict>
-							<key>INIntentParameterPromptDialogFormatString</key>
-							<string>Which one?</string>
-							<key>INIntentParameterPromptDialogFormatStringID</key>
-							<string>16cV69</string>
-							<key>INIntentParameterPromptDialogType</key>
-							<string>DisambiguationSelection</string>
-						</dict>
-						<dict>
 							<key>INIntentParameterPromptDialogCustom</key>
 							<true/>
 							<key>INIntentParameterPromptDialogFormatString</key>
@@ -495,12 +503,70 @@
 					<key>INIntentParameterType</key>
 					<string>String</string>
 				</dict>
+				<dict>
+					<key>INIntentParameterConfigurable</key>
+					<true/>
+					<key>INIntentParameterDisplayName</key>
+					<string>Include System-wide Alerts</string>
+					<key>INIntentParameterDisplayNameID</key>
+					<string>ooYmlB</string>
+					<key>INIntentParameterDisplayPriority</key>
+					<integer>2</integer>
+					<key>INIntentParameterMetadata</key>
+					<dict>
+						<key>INIntentParameterMetadataDefaultValue</key>
+						<true/>
+						<key>INIntentParameterMetadataFalseDisplayName</key>
+						<string>false</string>
+						<key>INIntentParameterMetadataFalseDisplayNameID</key>
+						<string>Y1KANY</string>
+						<key>INIntentParameterMetadataTrueDisplayName</key>
+						<string>true</string>
+						<key>INIntentParameterMetadataTrueDisplayNameID</key>
+						<string>4H6MNr</string>
+					</dict>
+					<key>INIntentParameterName</key>
+					<string>includeSystemWideAlerts</string>
+					<key>INIntentParameterPromptDialogs</key>
+					<array>
+						<dict>
+							<key>INIntentParameterPromptDialogCustom</key>
+							<true/>
+							<key>INIntentParameterPromptDialogType</key>
+							<string>Configuration</string>
+						</dict>
+						<dict>
+							<key>INIntentParameterPromptDialogCustom</key>
+							<true/>
+							<key>INIntentParameterPromptDialogFormatString</key>
+							<string>Include system-wide alerts?</string>
+							<key>INIntentParameterPromptDialogFormatStringID</key>
+							<string>fkAcOY</string>
+							<key>INIntentParameterPromptDialogType</key>
+							<string>Primary</string>
+						</dict>
+					</array>
+					<key>INIntentParameterSupportsResolution</key>
+					<true/>
+					<key>INIntentParameterTag</key>
+					<integer>5</integer>
+					<key>INIntentParameterType</key>
+					<string>Boolean</string>
+				</dict>
 			</array>
 			<key>INIntentResponse</key>
 			<dict>
 				<key>INIntentResponseCodes</key>
 				<array>
 					<dict>
+						<key>INIntentResponseCodeConciseFormatString</key>
+						<string>${alerts}</string>
+						<key>INIntentResponseCodeConciseFormatStringID</key>
+						<string>Ng3Bi9</string>
+						<key>INIntentResponseCodeFormatString</key>
+						<string>${alerts}</string>
+						<key>INIntentResponseCodeFormatStringID</key>
+						<string>pnGqvp</string>
 						<key>INIntentResponseCodeName</key>
 						<string>success</string>
 						<key>INIntentResponseCodeSuccess</key>
@@ -522,9 +588,40 @@
 						<key>INIntentResponseCodeName</key>
 						<string>unknownRoute</string>
 					</dict>
+					<dict>
+						<key>INIntentResponseCodeConciseFormatString</key>
+						<string>No alerts for ${route}.</string>
+						<key>INIntentResponseCodeConciseFormatStringID</key>
+						<string>wpFA1d</string>
+						<key>INIntentResponseCodeFormatString</key>
+						<string>No alerts for ${route}.</string>
+						<key>INIntentResponseCodeFormatStringID</key>
+						<string>0zh7Ro</string>
+						<key>INIntentResponseCodeName</key>
+						<string>none</string>
+						<key>INIntentResponseCodeSuccess</key>
+						<true/>
+					</dict>
+					<dict>
+						<key>INIntentResponseCodeConciseFormatString</key>
+						<string>There are several alerts for ${route} - this may take a while.
+ ${alerts}</string>
+						<key>INIntentResponseCodeConciseFormatStringID</key>
+						<string>WhgjOQ</string>
+						<key>INIntentResponseCodeFormatString</key>
+						<string>There are several alerts for ${route} - this may take a while. 
+ 
+${alerts}</string>
+						<key>INIntentResponseCodeFormatStringID</key>
+						<string>pFPpbI</string>
+						<key>INIntentResponseCodeName</key>
+						<string>bigSuccess</string>
+						<key>INIntentResponseCodeSuccess</key>
+						<true/>
+					</dict>
 				</array>
 				<key>INIntentResponseLastParameterTag</key>
-				<integer>4</integer>
+				<integer>6</integer>
 				<key>INIntentResponseOutput</key>
 				<string>alerts</string>
 				<key>INIntentResponseParameters</key>
@@ -542,6 +639,20 @@
 						<true/>
 						<key>INIntentResponseParameterTag</key>
 						<integer>4</integer>
+						<key>INIntentResponseParameterType</key>
+						<string>String</string>
+					</dict>
+					<dict>
+						<key>INIntentResponseParameterDisplayName</key>
+						<string>Route</string>
+						<key>INIntentResponseParameterDisplayNameID</key>
+						<string>SJLR9K</string>
+						<key>INIntentResponseParameterDisplayPriority</key>
+						<integer>2</integer>
+						<key>INIntentResponseParameterName</key>
+						<string>route</string>
+						<key>INIntentResponseParameterTag</key>
+						<integer>6</integer>
 						<key>INIntentResponseParameterType</key>
 						<string>String</string>
 					</dict>
@@ -592,6 +703,8 @@
 			<key>INIntentParameters</key>
 			<array>
 				<dict>
+					<key>INIntentParameterConfigurable</key>
+					<true/>
 					<key>INIntentParameterDisplayName</key>
 					<string>Location</string>
 					<key>INIntentParameterDisplayNameID</key>
@@ -631,6 +744,14 @@
 				<key>INIntentResponseCodes</key>
 				<array>
 					<dict>
+						<key>INIntentResponseCodeConciseFormatString</key>
+						<string>${stopIds}</string>
+						<key>INIntentResponseCodeConciseFormatStringID</key>
+						<string>ZHgeN5</string>
+						<key>INIntentResponseCodeFormatString</key>
+						<string>${stopIds}</string>
+						<key>INIntentResponseCodeFormatStringID</key>
+						<string>Cb3tR2</string>
 						<key>INIntentResponseCodeName</key>
 						<string>success</string>
 						<key>INIntentResponseCodeSuccess</key>
@@ -718,6 +839,8 @@
 			<key>INIntentParameters</key>
 			<array>
 				<dict>
+					<key>INIntentParameterConfigurable</key>
+					<true/>
 					<key>INIntentParameterDisplayName</key>
 					<string>Stop ID</string>
 					<key>INIntentParameterDisplayNameID</key>
@@ -764,7 +887,7 @@
 							<key>INIntentParameterUnsupportedReasonDefault</key>
 							<true/>
 							<key>INIntentParameterUnsupportedReasonFormatString</key>
-							<string>${displayName} can't be negative.</string>
+							<string>${displayName} can’t be negative.</string>
 							<key>INIntentParameterUnsupportedReasonFormatStringID</key>
 							<string>CY3LzI</string>
 						</dict>
@@ -774,7 +897,7 @@
 							<key>INIntentParameterUnsupportedReasonDefault</key>
 							<true/>
 							<key>INIntentParameterUnsupportedReasonFormatString</key>
-							<string>${displayName} can't be higher than ${maximumValue}.</string>
+							<string>${displayName} can’t be higher than ${maximumValue}.</string>
 							<key>INIntentParameterUnsupportedReasonFormatStringID</key>
 							<string>LzRWkg</string>
 						</dict>
@@ -784,7 +907,7 @@
 							<key>INIntentParameterUnsupportedReasonDefault</key>
 							<true/>
 							<key>INIntentParameterUnsupportedReasonFormatString</key>
-							<string>${displayName} can't be lower than ${minimumValue}.</string>
+							<string>${displayName} can’t be lower than ${minimumValue}.</string>
 							<key>INIntentParameterUnsupportedReasonFormatStringID</key>
 							<string>Do5x8l</string>
 						</dict>
@@ -796,6 +919,14 @@
 				<key>INIntentResponseCodes</key>
 				<array>
 					<dict>
+						<key>INIntentResponseCodeConciseFormatString</key>
+						<string>${routes}</string>
+						<key>INIntentResponseCodeConciseFormatStringID</key>
+						<string>qz1Mcn</string>
+						<key>INIntentResponseCodeFormatString</key>
+						<string>${routes}</string>
+						<key>INIntentResponseCodeFormatStringID</key>
+						<string>wnu5Or</string>
 						<key>INIntentResponseCodeName</key>
 						<string>success</string>
 						<key>INIntentResponseCodeSuccess</key>
@@ -899,6 +1030,8 @@
 			<key>INIntentParameters</key>
 			<array>
 				<dict>
+					<key>INIntentParameterConfigurable</key>
+					<true/>
 					<key>INIntentParameterDisplayName</key>
 					<string>Stop ID</string>
 					<key>INIntentParameterDisplayNameID</key>
@@ -945,7 +1078,7 @@
 							<key>INIntentParameterUnsupportedReasonDefault</key>
 							<true/>
 							<key>INIntentParameterUnsupportedReasonFormatString</key>
-							<string>${displayName} can't be negative.</string>
+							<string>${displayName} can’t be negative.</string>
 							<key>INIntentParameterUnsupportedReasonFormatStringID</key>
 							<string>9DUFph</string>
 						</dict>
@@ -955,7 +1088,7 @@
 							<key>INIntentParameterUnsupportedReasonDefault</key>
 							<true/>
 							<key>INIntentParameterUnsupportedReasonFormatString</key>
-							<string>${displayName} can't be higher than ${maximumValue}.</string>
+							<string>${displayName} can’t be higher than ${maximumValue}.</string>
 							<key>INIntentParameterUnsupportedReasonFormatStringID</key>
 							<string>ZH9oXZ</string>
 						</dict>
@@ -965,7 +1098,7 @@
 							<key>INIntentParameterUnsupportedReasonDefault</key>
 							<true/>
 							<key>INIntentParameterUnsupportedReasonFormatString</key>
-							<string>${displayName} can't be lower than ${minimumValue}.</string>
+							<string>${displayName} can’t be lower than ${minimumValue}.</string>
 							<key>INIntentParameterUnsupportedReasonFormatStringID</key>
 							<string>HsHlQQ</string>
 						</dict>
@@ -977,6 +1110,14 @@
 				<key>INIntentResponseCodes</key>
 				<array>
 					<dict>
+						<key>INIntentResponseCodeConciseFormatString</key>
+						<string>${location}</string>
+						<key>INIntentResponseCodeConciseFormatStringID</key>
+						<string>jbvF87</string>
+						<key>INIntentResponseCodeFormatString</key>
+						<string>${location}</string>
+						<key>INIntentResponseCodeFormatStringID</key>
+						<string>jlN1AT</string>
 						<key>INIntentResponseCodeName</key>
 						<string>success</string>
 						<key>INIntentResponseCodeSuccess</key>
@@ -1033,6 +1174,111 @@
 			<string>Get location of a TriMet Stop ID</string>
 			<key>INIntentTitleID</key>
 			<string>Fld45P</string>
+			<key>INIntentType</key>
+			<string>Custom</string>
+			<key>INIntentVerb</key>
+			<string>View</string>
+		</dict>
+		<dict>
+			<key>INIntentCategory</key>
+			<string>information</string>
+			<key>INIntentConfigurable</key>
+			<true/>
+			<key>INIntentDescription</key>
+			<string>Get any TriMet system-wide alerts</string>
+			<key>INIntentDescriptionID</key>
+			<string>MGjkM0</string>
+			<key>INIntentManagedParameterCombinations</key>
+			<dict>
+				<key></key>
+				<dict>
+					<key>INIntentParameterCombinationSupportsBackgroundExecution</key>
+					<true/>
+					<key>INIntentParameterCombinationUpdatesLinked</key>
+					<true/>
+				</dict>
+			</dict>
+			<key>INIntentName</key>
+			<string>SystemWideAlerts</string>
+			<key>INIntentParameterCombinations</key>
+			<dict>
+				<key></key>
+				<dict>
+					<key>INIntentParameterCombinationIsPrimary</key>
+					<true/>
+					<key>INIntentParameterCombinationSupportsBackgroundExecution</key>
+					<true/>
+					<key>INIntentParameterCombinationTitle</key>
+					<string>Get TriMet System-wide Alerts</string>
+					<key>INIntentParameterCombinationTitleID</key>
+					<string>v1lDgT</string>
+				</dict>
+			</dict>
+			<key>INIntentResponse</key>
+			<dict>
+				<key>INIntentResponseCodes</key>
+				<array>
+					<dict>
+						<key>INIntentResponseCodeConciseFormatString</key>
+						<string>${alerts}</string>
+						<key>INIntentResponseCodeConciseFormatStringID</key>
+						<string>8HWGo6</string>
+						<key>INIntentResponseCodeFormatString</key>
+						<string>${alerts}</string>
+						<key>INIntentResponseCodeFormatStringID</key>
+						<string>gHdSsZ</string>
+						<key>INIntentResponseCodeName</key>
+						<string>success</string>
+						<key>INIntentResponseCodeSuccess</key>
+						<true/>
+					</dict>
+					<dict>
+						<key>INIntentResponseCodeName</key>
+						<string>failure</string>
+					</dict>
+					<dict>
+						<key>INIntentResponseCodeConciseFormatString</key>
+						<string>No system-wide alerts.</string>
+						<key>INIntentResponseCodeConciseFormatStringID</key>
+						<string>52FYYa</string>
+						<key>INIntentResponseCodeFormatString</key>
+						<string>No system-wide alerts.</string>
+						<key>INIntentResponseCodeFormatStringID</key>
+						<string>xNorLU</string>
+						<key>INIntentResponseCodeName</key>
+						<string>none</string>
+						<key>INIntentResponseCodeSuccess</key>
+						<true/>
+					</dict>
+				</array>
+				<key>INIntentResponseLastParameterTag</key>
+				<integer>2</integer>
+				<key>INIntentResponseOutput</key>
+				<string>alerts</string>
+				<key>INIntentResponseParameters</key>
+				<array>
+					<dict>
+						<key>INIntentResponseParameterDisplayName</key>
+						<string>Alerts</string>
+						<key>INIntentResponseParameterDisplayNameID</key>
+						<string>6LhZkK</string>
+						<key>INIntentResponseParameterDisplayPriority</key>
+						<integer>1</integer>
+						<key>INIntentResponseParameterName</key>
+						<string>alerts</string>
+						<key>INIntentResponseParameterSupportsMultipleValues</key>
+						<true/>
+						<key>INIntentResponseParameterTag</key>
+						<integer>2</integer>
+						<key>INIntentResponseParameterType</key>
+						<string>String</string>
+					</dict>
+				</array>
+			</dict>
+			<key>INIntentTitle</key>
+			<string>Get TriMet System-wide Alerts</string>
+			<key>INIntentTitleID</key>
+			<string>NVHhqU</string>
 			<key>INIntentType</key>
 			<string>Custom</string>
 			<key>INIntentVerb</key>

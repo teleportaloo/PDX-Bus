@@ -11,10 +11,10 @@
 
 @property (nonatomic, readonly) WKInterfaceMapPinColor pinColor;
 @property (nonatomic, readonly, copy) UIColor *pinTint;
-@property (nonatomic, readonly) bool hasBearing;
-@property (nonatomic, readonly) double doubleBearing;
-@property (nonatomic, readonly) CLLocationCoordinate2D coord;
-@property (nonatomic, readonly) bool hasCoord;
+@property (nonatomic, readonly) bool pinHasBearing;
+@property (nonatomic, readonly) double pinBearing;
+@property (nonatomic, readonly) CLLocationCoordinate2D pinCoord;
+@property (nonatomic, readonly) bool pinHasCoord;
 
 @end
 

@@ -47,11 +47,10 @@ static int depthCount = 0;
                                                             preferredStyle:UIAlertControllerStyleAlert];
     
     [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Trip Planneer Feedback", @"Button text") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-        [WebViewController                                                                                                                                              displayPage:@"https://trimet.org/contact/tripfeedback.htm"
-                                                                                                                                                                               full:nil
-                                                                                                                                                                          navigator:self.navigationController
-                                                                                                                                                                     itemToDeselect:self
-                                                                                                                                                                           whenDone:self.callbackWhenDone];
+        [WebViewController displayNamedPage:@"TriMet Trip Planner Feedback"
+                                  navigator:self.navigationController
+                             itemToDeselect:self
+                                   whenDone:self.callbackWhenDone];
     }]];
     
     [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"Button text") style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
@@ -130,7 +129,7 @@ static int depthCount = 0;
     bool displayResults = true;
     
     if (self.from) {
-        self.tripQuery.userRequest.fromPoint.locationDesc = endpoint.xdescription;
+        self.tripQuery.userRequest.fromPoint.locationDesc = endpoint.desc;
         self.tripQuery.userRequest.fromPoint.coordinates = endpoint.loc;
         
         if (self.tripQuery.toList && !self.tripQuery.userRequest.toPoint.useCurrentLocation) {
@@ -144,7 +143,7 @@ static int depthCount = 0;
             displayResults = false;
         }
     } else {
-        self.tripQuery.userRequest.toPoint.locationDesc = endpoint.xdescription;
+        self.tripQuery.userRequest.toPoint.locationDesc = endpoint.desc;
         self.tripQuery.userRequest.toPoint.coordinates = endpoint.loc;
     }
     
@@ -163,8 +162,8 @@ static int depthCount = 0;
 - (void)showMap:(id)sender {
     MapViewController *mapPage = [MapViewController viewController];
     
-    mapPage.stopIdCallback = self.stopIdCallback;
-    mapPage.annotations = (NSMutableArray<id<MapPinColor> > *)self.locList;
+    mapPage.stopIdStringCallback = self.stopIdStringCallback;
+    mapPage.annotations = (NSMutableArray<id<MapPin> > *)self.locList;
     
     if (self.from) {
         mapPage.title = NSLocalizedString(@"Uncertain Start", @"page title");
@@ -224,11 +223,11 @@ static int depthCount = 0;
     
     TripLegEndPoint *p = self.locList[indexPath.row];
     
-    cell.textLabel.text = p.xdescription;
+    cell.textLabel.text = p.desc;
     cell.textLabel.font = self.basicFont;
     cell.textLabel.adjustsFontSizeToFitWidth = true;
     cell.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
-    cell.accessibilityLabel = p.xdescription.phonetic;
+    cell.accessibilityLabel = p.desc.phonetic;
     
     return cell;
 }

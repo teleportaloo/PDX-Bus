@@ -11,6 +11,7 @@
 
 
 #import "Stop.h"
+#import "NSString+Helper.h"
 
 
 @implementation Stop
@@ -18,36 +19,36 @@
 @dynamic  pinTint;
 
 - (void)dealloc {
-    self.tp = nil;
+    self.timePoint = nil;
 }
 
 - (MapPinColorValue)pinColor {
+    if (self.timePoint)
+    {
+        return MAP_PIN_COLOR_BLUE;
+    }
     return MAP_PIN_COLOR_PURPLE;
 }
 
-- (bool)hasBearing {
+- (bool)pinHasBearing {
     return NO;
 }
 
-- (bool)showActionMenu {
+- (bool)pinActionMenu {
     return YES;
 }
 
-- (bool)mapTapped:(id<TaskController>)progress {
-    [self.callback chosenStop:self progress:progress];
+- (bool)pinAction:(id<TaskController>)progress {
+    [self.stopObjectCallback returnStopObject:self progress:progress];
     return YES;
 }
 
-- (NSString *)tapActionText {
-    return [self.callback actionText];
+- (NSString *)pinActionText {
+    return [self.stopObjectCallback returnStopObjectActionText];
 }
 
 - (CLLocationCoordinate2D)coordinate {
-    CLLocationCoordinate2D pos;
-    
-    pos.latitude = self.lat.doubleValue;
-    pos.longitude = self.lng.doubleValue;
-    return pos;
+    return self.location.coordinate;
 }
 
 - (NSString *)title {
@@ -62,8 +63,24 @@
     return [NSString stringWithFormat:@"%@ ID %@", self.dir, self.stopId];
 }
 
+- (NSString *)pinMarkedUpSubtitle {
+    NSString *tp = @"";
+    
+    if (self.timePoint)
+    {
+        tp = @"\n#Linfo:timepoint Time point#T";
+    }
+    
+    if (self.dir == nil) {
+        return [NSString stringWithFormat:NSLocalizedString(@"#D%@", @"TriMet Stop identifer <number>"),tp];
+    }
+    
+    return [NSString stringWithFormat:@"#D%@%@", self.dir, tp];
+}
+
 - (NSComparisonResult)compareUsingStopName:(Stop *)inStop {
-    return [self.desc compare:inStop.desc];
+    return [self.desc compare:inStop.desc
+                      options:(NSNumericSearch | NSCaseInsensitiveSearch)];
 }
 
 - (NSComparisonResult)compareUsingIndex:(Stop *)inStop {
@@ -83,6 +100,16 @@
 }
 
 - (UIColor *)pinTint {
+    return nil;
+}
+
+- (NSString *)pinStopId
+{
+    return self.stopId;
+}
+
+- (NSString *)pinMarkedUpType
+{
     return nil;
 }
 

@@ -34,6 +34,6 @@
 @property (nonatomic, copy) NSString *dir;
 
 - (MKPolylineRenderer *)renderer;
-- (RoutePin *)          routePin;
+- (RoutePin *)routePin;
 
 @end

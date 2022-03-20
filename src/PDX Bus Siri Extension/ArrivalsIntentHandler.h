@@ -15,13 +15,18 @@
 
 #import <Foundation/Foundation.h>
 #import "ArrivalsIntent.h"
+#import "ArrivalsAtStopIdIntent.h"
 #import "XMLDepartures.h"
 
 #define kMaxRoutesToSpeak 6
 
 
-@interface ArrivalsIntentHandler : NSObject
+@interface ArrivalsIntentHandler<ArrivalsIntentHandling, ArrivalsAtStopIdIntentHandling> : NSObject
 
 - (void)handleArrivals:(ArrivalsIntent *)intent
             completion:(void (^)(ArrivalsIntentResponse *response))completion API_AVAILABLE(ios(12.0));
+
+- (void)handleArrivalsAtStopId:(ArrivalsAtStopIdIntent *)intent
+                    completion:(void (^)(ArrivalsAtStopIdIntentResponse *response))completion API_AVAILABLE(ios(12.0));
+
 @end

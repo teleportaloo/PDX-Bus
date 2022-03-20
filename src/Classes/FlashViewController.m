@@ -16,6 +16,8 @@
 #import "Settings.h"
 #import "UIToolbar+Auto.h"
 #import "UIAlertController+SimpleMessages.h"
+#import "UIFont+Utility.h"
+
 
 @interface FlashViewController () {
     int _color;
@@ -116,7 +118,7 @@
     CGRect rect = CGRectMake(frame.origin.x, frame.origin.y + frame.size.height - TEXT_HEIGHT - TOOLBAR_HEIGHT * 3, frame.size.width, TEXT_HEIGHT);
     
     label = [[UILabel alloc] initWithFrame:rect];
-    label.font = [UIFont boldSystemFontOfSize:20];
+    label.font = [UIFont boldMonospacedDigitSystemFontOfSize:20];
     label.adjustsFontSizeToFitWidth = YES;
     label.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
     label.numberOfLines = 1;

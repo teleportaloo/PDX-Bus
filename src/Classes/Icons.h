@@ -22,6 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 #define kIconAlarmFired       @"Alarm.png"
 #define kIconAlarm            @"Alarm clock.png"
 #define kIconFacebook         @"Facebook.png"
+#define kIconBuyMeACoffee     @"BuyMeACoffee.png"
 #define kIconAward            @"Award.png"
 #define kIconSrc              @"Source.png"
 #define kIconBrush            @"Brush.png"             // Used only in pLists

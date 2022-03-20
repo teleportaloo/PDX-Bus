@@ -21,18 +21,18 @@
 #import "QueryCacheManager.h"
 #import "Reachability.h"
 #import "ShapeMutableSegment.h"
-#import "NSDictionary+TriMetCaseInsensitive.h"
+#import "NSDictionary+Types.h"
 #import "TriMetXMLSelectors.h"
 #import "BackgroundDownloader.h"
 
 #define kQuery @""
 
 #define kProbeKey kKmlkey(@"100", @"0")
+#define kLastAttemptKey     @"lastAttempt"
 
 @interface KMLRoutes () {
     SEL _currentSelector;
 }
-
 
 @property (nonatomic, strong) KMLPlacemark *currentPlacemark;
 @property (nonatomic, copy) NSString *currentAttribute;
@@ -66,6 +66,7 @@ static QueryCacheManager *kmlCache = nil;
         kmlCache = [QueryCacheManager cacheWithFileName:@"kmlCache.plist"];
         kmlCache.setAgedOutFlagIfOld = YES;
         kmlCache.maxSize = INT_MAX;
+        kmlCache.ageOutDays = Settings.kmlAgeOut;
     });
 }
 
@@ -95,38 +96,33 @@ static QueryCacheManager *kmlCache = nil;
     return [kmlCache keyEnumerator];
 }
 
-XML_START_ELEMENT(document) {
+XML_START_ELEMENT(Document) {
     self.routes = [NSMutableDictionary dictionary];
     _hasData = YES;
 }
 
-XML_END_ELEMENT(document) {
+XML_END_ELEMENT(Document) {
     [self.routes enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull key, KMLPlacemark *_Nonnull obj, BOOL *_Nonnull stop) {
-        
-#if !TARGET_OS_MACCATALYST
-        NSData *archive = [NSKeyedArchiver archivedDataWithRootObject:obj.path];
-#else
+
         NSError *error = nil;
         NSData *archive = [NSKeyedArchiver archivedDataWithRootObject:obj.path requiringSecureCoding:NO error:&error];
         LOG_NSERROR(error);
 
-#endif
         [kmlCache addToCache:key item:archive write:NO];
                 
     }];
     
-    [kmlCache writeCache];
     self.routes = nil;
 }
 
-XML_START_ELEMENT(placemark) {
-    self.currentPlacemark = [KMLPlacemark data];
-    self.currentPlacemark.path = [ShapeRoutePath data];
+XML_START_ELEMENT(Placemark) {
+    self.currentPlacemark = [KMLPlacemark new];
+    self.currentPlacemark.path = [ShapeRoutePath new];
 }
 
-XML_END_ELEMENT(placemark) {
-    NSString *route = self.currentPlacemark.xroute_number;
-    NSString *direction = self.currentPlacemark.xdirection;
+XML_END_ELEMENT(Placemark) {
+    NSString *route = self.currentPlacemark.strInternalRouteNumber;
+    NSString *direction = self.currentPlacemark.dir;
     
     if (route && direction && self.currentPlacemark.path.segments && self.currentPlacemark.path.segments.count > 0) {
         NSString *key = kKmlkey(route, direction);
@@ -134,17 +130,17 @@ XML_END_ELEMENT(placemark) {
         
         if (item == nil) {
             [self.routes setObject:self.currentPlacemark forKey:key];
-            self.currentPlacemark.path.route = self.currentPlacemark.xroute_number.integerValue;
+            self.currentPlacemark.path.route = self.currentPlacemark.internalRouteNumber;
             
-            NSString *publicRoute = self.currentPlacemark.xpublic_route_number;
+            NSString *publicRoute = self.currentPlacemark.displayRouteNumber;
             
             if (publicRoute == nil || [publicRoute isEqualToString:kKmlNoRouteNumber]) {
-                self.currentPlacemark.path.desc = self.currentPlacemark.xroute_description;
+                self.currentPlacemark.path.desc = self.currentPlacemark.routeDescription;
             } else {
-                self.currentPlacemark.path.desc = [NSString stringWithFormat:@"%@ %@", self.currentPlacemark.xpublic_route_number, self.currentPlacemark.xroute_description];
+                self.currentPlacemark.path.desc = [NSString stringWithFormat:@"%@ %@", self.currentPlacemark.displayRouteNumber, self.currentPlacemark.routeDescription];
             }
             
-            self.currentPlacemark.path.dirDesc = self.currentPlacemark.xdirection_description;
+            self.currentPlacemark.path.dirDesc = self.currentPlacemark.dirDesc;
         } else {
             [item.path.segments addObjectsFromArray:self.currentPlacemark.path.segments];
         }
@@ -153,21 +149,20 @@ XML_END_ELEMENT(placemark) {
     self.currentPlacemark = nil;
 }
 
-XML_START_ELEMENT(data) {
+XML_START_ELEMENT(Data) {
     self.currentAttribute = XML_NON_NULL_ATR_STR(@"name");
 }
 
-XML_END_ELEMENT(data) {
+XML_END_ELEMENT(Data) {
     self.currentAttribute = nil;
 }
 
 - (SEL)selForProp:(NSString *)elementName {
-    NSString *lowerElement = elementName.lowercaseString;
-    NSValue *cache = self.selsForProps[lowerElement];
+    NSValue *cache = self.selsForProps[elementName];
     
     if (cache == nil) {
-        SEL selector = NSSelectorFromString([NSString stringWithFormat:@"setX%@:", lowerElement]);
-        self.selsForProps[lowerElement] = [NSValue valueWithPointer:selector];
+        SEL selector = NSSelectorFromString([NSString stringWithFormat:@"setXml_%@:", elementName]);
+        self.selsForProps[elementName] = [NSValue valueWithPointer:selector];
         return selector;
     }
     
@@ -185,9 +180,8 @@ XML_START_ELEMENT(value) {
 XML_END_ELEMENT(value) {
     if (self.contentOfCurrentProperty) {
         if (_currentSelector != nil) {
-            IMP imp = [self.currentPlacemark methodForSelector:_currentSelector];
-            void (*func)(id, SEL, NSString *) = (void *)imp;
-            func(self.currentPlacemark, _currentSelector, self.contentOfCurrentProperty);
+            void (*setter)(id, SEL, NSString *) = (void *)[self.currentPlacemark methodForSelector:_currentSelector];
+            setter(self.currentPlacemark, _currentSelector, self.contentOfCurrentProperty);
             // [self.currentPlacemark performSelector:_currentSelector withObject:self.contentOfCurrentProperty];
         }
         
@@ -249,14 +243,19 @@ XML_END_ELEMENT(coordinates) {
     return [NSString stringWithFormat:@"https://developer.trimet.org/gis/data/tm_routes.kml" ];
 }
 
+- (bool)parseRawData {
+    [kmlCache addToCache:kLastAttemptKey item:[NSData new] write:NO];
+    bool result = [super parseRawData];
+    [kmlCache writeCache];
+    return result;
+}
+
 
 - (void)createCacheFromBackground
 {
     @synchronized (kmlCache) {
         self.oneTimeDelegate = nil;
-        NSError *parseError = nil;
-        [self parseRawData:&parseError];
-        LOG_PARSE_ERROR(parseError);
+        [self parseRawData];
     }
 }
 
@@ -269,17 +268,23 @@ XML_END_ELEMENT(coordinates) {
     return [downloader isFetching:query];
 }
 
-- (void)fetchInBackground:(bool)always
+- (void)fetchInBackgroundForced:(bool)always
 {
     @synchronized (kmlCache) {
-        if (!self.cached || always) {
+        
+        // If the file is missing or corrupt don't keep trying, we actually put an item in the cache
+        // to say when the last attempt was.  Try once a day.
+        
+        int lastTriedDaysAgo = [kmlCache cacheAgeInDays:kLastAttemptKey];
+        
+        if ((!self.cached && (lastTriedDaysAgo >= 1 || lastTriedDaysAgo == kNoCache)) || always) {
             BackgroundDownloader *downloader = [BackgroundDownloader sharedInstance];
     
-            [downloader startFetchInBackground:self query:kQuery completion:^(TriMetXML *xml, backgroundFinalCompletion comptionHandler) {
+            [downloader startFetchInBackground:self query:kQuery completion:^(TriMetXML *xml, BackgroundFinalCompletion completionHandler) {
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                     KMLRoutes *kml = (KMLRoutes *)xml;
                     [kml createCacheFromBackground];
-                    comptionHandler();
+                    completionHandler();
                 });
             }];
         }
@@ -315,7 +320,7 @@ XML_END_ELEMENT(coordinates) {
     }
 }
 
-- (void)fetchForced:(bool)always {
+- (void)fetchNowForced:(bool)always {
     @synchronized (kmlCache) {
         if ((!self.cached || always) && !self.backgroundFetching) {
             // Maybe only do this on wifi
@@ -358,16 +363,12 @@ XML_END_ELEMENT(coordinates) {
         NSArray *archive = [kmlCache getCachedQuery:key];
     
         if (archive) {
-#if !TARGET_OS_MACCATALYST
-            return [NSKeyedUnarchiver unarchiveObjectWithData:archive[kCacheData]];
-#else
             NSError *error = nil;
             ShapeRoutePath *path = (ShapeRoutePath *) [NSKeyedUnarchiver unarchivedObjectOfClass:[ShapeRoutePath class]
                                                                                         fromData:archive[kCacheData]
-                                                                                           error:&error];
+                                                                                    error:&error];
             LOG_NSERROR(error);
             return path;
-#endif
                 
         }
     

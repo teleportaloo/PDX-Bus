@@ -13,7 +13,6 @@
 
 
 #import <UIKit/UIKit.h>
-#import "ReturnStopId.h"
 #import "TapDetectingImageView.h"
 #import "SimpleAnnotation.h"
 #import "Stop.h"
@@ -22,14 +21,18 @@
 #import "HotSpot.h"
 #import "DeselectItemDelegate.h"
 
-@interface RailMapView : ViewControllerBase <ReturnStop, UIScrollViewDelegate, TapDetectingImageViewDelegate, DeselectItemDelegate>
+#define NO_HOTSPOT_FOUND (-1)
+
+@interface RailMapView : ViewControllerBase <ReturnStopObject, UIScrollViewDelegate, TapDetectingImageViewDelegate, DeselectItemDelegate>
 
 @property (nonatomic) bool from;
 @property (nonatomic) bool showNextOnAppearance;
 
-+ (void)     initHotspotData;
++ (void)initHotspotData;
 
-+ (int)      nHotspotRecords;
-+ (HOTSPOT *)hotspotRecords;
++ (int)findHotSpotInMap:(RailMap *)map tile:(RailMapTile *)tile point:(CGPoint)tapPoint;
++ (RailMap *)railMap:(int)n;
++ (int)nHotspotRecords;
++ (HotSpot *)hotspotRecords;
 
 @end

@@ -14,31 +14,38 @@
 
 
 #import <Foundation/Foundation.h>
-#import "MapPinColor.h"
-#import "DataFactory.h"
+#import "MapPin.h"
 
 @protocol ReturnTripLegEndPoint;
 
-@interface TripLegEndPoint : DataFactory <MapPinColor, NSCopying>
+// XML Atributes starting with setX are read directly from XML, setters match XML exactly.
+
+@interface TripLegEndPoint : NSObject <MapPin, NSCopying>
 
 @property (nonatomic, strong) id<ReturnTripLegEndPoint> callback;
-@property (nonatomic, copy) NSString *xlat;
-@property (nonatomic, copy) NSString *xlon;
-@property (nonatomic, copy) NSString *xdescription;
-@property (nonatomic, copy) NSString *xstopId;
+@property (nonatomic, copy, setter = setXml_lat:) NSString *lat;
+@property (nonatomic, copy, setter = setXml_lon:) NSString *lon;
+- (NSString *)lat UNAVAILABLE_ATTRIBUTE;
+- (NSString *)lon UNAVAILABLE_ATTRIBUTE;
+// Use the loc to read the location not the strings.
+@property (nonatomic, copy) CLLocation *loc;
+
+@property (nonatomic, copy, setter = setXml_description:) NSString *desc;
+@property (nonatomic, copy, setter = setXml_stopId:) NSString *strStopId;
+@property (nonatomic, readonly, copy) NSString *stopId;
+
+@property (nonatomic, copy, setter = setXml_number:) NSString *displayRouteNumber;
+
 @property (nonatomic, copy) NSString *displayText;
 @property (nonatomic, copy) NSString *mapText;
 @property (nonatomic, copy) NSString *displayModeText;
 @property (nonatomic, copy) NSString *displayTimeText;
 @property (nonatomic, copy) UIColor *leftColor;
-@property (nonatomic, copy) NSString *xnumber;
+
 @property (nonatomic) int index;
 @property (nonatomic) bool thruRoute;
 @property (nonatomic) bool deboard;
-@property (nonatomic, readonly, copy) NSString *stopId;
-@property (nonatomic) MapPinColorValue pinColor;
-@property (nonatomic, readonly, copy) NSString *mapStopId;
-@property (nonatomic, copy) CLLocation *loc;
+
 @property (nonatomic) bool fromAppleMaps;
 
 - (id)copyWithZone:(NSZone *)zone;

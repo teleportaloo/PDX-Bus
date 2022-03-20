@@ -13,11 +13,25 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+
 #import "WatchContext.h"
 #import "DebugLogging.h"
 
 @implementation WatchContext
 
++ (instancetype)contextWithSceneName:(NSString *)sceneName
+{
+    return [[[self class] alloc] initWithSceneName:sceneName];
+}
+
+- (instancetype)initWithSceneName:(NSString *)sceneName
+{
+    if ((self = [super init])) {
+        self.sceneName = sceneName;
+    }
+    return self;
+}
 
 - (void)pushFrom:(WKInterfaceController *)parent {
     [parent pushControllerWithName:self.sceneName context:self];

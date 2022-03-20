@@ -15,12 +15,11 @@
 
 #import "NextBusXML.h"
 #import "Detour.h"
-
-@class XMLDepartures;
+#import "XMLDepartures.h"
 
 @interface XMLStreetcarMessages : NextBusXML<Detour*>
 
-@property (nonatomic, strong) NSMutableDictionary <NSString *, Route *>* allRoutes;
+@property (nonatomic, strong) AllTriMetRoutes* allRoutes;
 @property (nonatomic, strong) NSMutableArray<Route *> *allStreetcarRoutes;
 @property (nonatomic, strong) Route * currentRoute;
 @property (nonatomic, strong) Detour *curentDetour;

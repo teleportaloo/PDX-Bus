@@ -25,14 +25,14 @@
 @property (strong, nonatomic) IBOutlet UILabel *bodyLabel;
 @property (strong, nonatomic) IBOutlet NSLayoutConstraint *modeLabelWidth;
 @property (nonatomic, readonly) bool large;
-@property (nonatomic, copy) NSString *formattedBodyText;
+@property (nonatomic, copy) NSString *markedUpBodyText;
 
 - (void)update;
-- (void)populateBody:(NSString *)body
-                mode:(NSString *)mode
-                time:(NSString *)time
-           leftColor:(UIColor *)col
-               route:(NSString *)route;
+- (void)populateMarkedUpBody:(NSString *)markedUpBody
+                        mode:(NSString *)mode
+                        time:(NSString *)time
+                   leftColor:(UIColor *)col
+                       route:(NSString *)route;
 
 + (UINib *)nib;
 

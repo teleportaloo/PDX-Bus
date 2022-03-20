@@ -12,11 +12,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+
 #import "ProgressModalView.h"
 #import "QuartzCore/QuartzCore.h"
 #import "DebugLogging.h"
 #import "NSString+Helper.h"
 #import "RoundedTransparentRectView.h"
+#import "UIFont+Utility.h"
 
 #pragma mark ProgressModalView
 
@@ -138,7 +141,7 @@
     label.textColor = [UIColor whiteColor];
     label.textAlignment = NSTextAlignmentCenter;
     label.adjustsFontSizeToFitWidth = NO;
-    label.font = [UIFont boldSystemFontOfSize:12];
+    label.font = [UIFont boldMonospacedDigitSystemFontOfSize:12];
     
     return label;
 }
@@ -169,7 +172,7 @@
     static dispatch_once_t onceToken;
     
     dispatch_once(&onceToken, ^{
-        cancelText = [@"#b#RCancel" formatAttributedStringWithFont:[UIFont systemFontOfSize:20]];
+        cancelText = [@"#b#RCancel" attributedStringFromMarkUpWithFont:[UIFont systemFontOfSize:20]];
     });
     
     [cancelButton setAttributedTitle:cancelText forState:UIControlStateNormal];
@@ -207,7 +210,7 @@
     label.textColor = [UIColor whiteColor];
     label.textAlignment = NSTextAlignmentCenter;
     label.adjustsFontSizeToFitWidth = NO;
-    label.font = [UIFont boldSystemFontOfSize:16];
+    label.font = [UIFont boldMonospacedDigitSystemFontOfSize:16];
     label.hidden = YES;
     
     label.layer.masksToBounds = YES;
@@ -227,7 +230,7 @@
     label.textColor = [UIColor whiteColor];
     label.textAlignment = NSTextAlignmentCenter;
     label.adjustsFontSizeToFitWidth = YES;
-    label.font = [UIFont boldSystemFontOfSize:17];
+    label.font = [UIFont boldMonospacedDigitSystemFontOfSize:17];
     
     return label;
 }
@@ -278,7 +281,7 @@
 }
 
 - (void)addSubtext:(NSString *)subtext {
-    if (self.subLabel) {
+    if (self.subLabel && subtext) {
         self.subLabel.text = subtext;
     }
 }
@@ -326,7 +329,11 @@
 
 - (void)itemsDone:(NSInteger)done {
     self.itemsDone = done;
-    self.progress.progress = (float)done / (float)self.totalItems;
+    float newProgress = (float)done / (float)self.totalItems;
+    
+    DEBUG_LOG_MAYBE(newProgress < self.progress.progress, @"Backwards:  %f, %f", newProgress, self.progress.progress);
+   
+    self.progress.progress = newProgress;
 }
 
 - (void)subItemsDone:(NSInteger)subItemsDone totalSubs:(NSInteger)totalSubs; {
@@ -335,7 +342,11 @@
     }
     
     self.progress.hidden = NO;
-    self.progress.progress = ((float)(self.itemsDone) + ((float)subItemsDone / (float)totalSubs)) / (float)self.totalItems;
+    float newProgress = ((float)(self.itemsDone) + ((float)subItemsDone / (float)totalSubs)) / (float)self.totalItems;
+    
+    DEBUG_LOG_MAYBE(newProgress < self.progress.progress, @"Backwards:  %f, %f", newProgress, self.progress.progress);
+    
+    self.progress.progress = newProgress;
 }
 
 @end

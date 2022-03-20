@@ -270,9 +270,9 @@ enum {
 
 - (void)initEndPoint {
     if (self.from) {
-        self.tripQuery.userRequest.fromPoint = [TripEndPoint data];
+        self.tripQuery.userRequest.fromPoint = [TripEndPoint new];
     } else {
-        self.tripQuery.userRequest.toPoint = [TripEndPoint data];
+        self.tripQuery.userRequest.toPoint = [TripEndPoint new];
     }
 }
 
@@ -307,7 +307,7 @@ enum {
 - (void)selectFromRailStations {
     AllRailStationView *rmView = [AllRailStationView viewController];
     
-    rmView.stopIdCallback = self;
+    rmView.stopIdStringCallback = self;
     
     // Push the detail view controller
     [self.navigationController pushViewController:rmView animated:YES];
@@ -316,7 +316,7 @@ enum {
 - (void)selectFromRailMap {
     RailMapView *railMapView = [RailMapView viewController];
     
-    railMapView.stopIdCallback = self;
+    railMapView.stopIdStringCallback = self;
     
     railMapView.from = self.from;
     
@@ -327,15 +327,12 @@ enum {
 - (void)browseForStop {
     RouteView *routeViewController = [RouteView viewController];
     
-    routeViewController.stopIdCallback = self;
+    routeViewController.stopIdStringCallback = self;
     [routeViewController fetchRoutesAsync:self.backgroundTask backgroundRefresh:NO];
 }
 
 #pragma mark Table view methods
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return self.sections;
-}
 
 - (NSInteger)rowsInSection:(NSInteger)section {
     NSInteger sectionType = [self sectionType:section];
@@ -351,10 +348,6 @@ enum {
     return [super rowsInSection:section];
 }
 
-// Customize the number of rows in the table view.
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [self rowsInSection:section];
-}
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
     NSInteger sectionType = [self sectionType:section];
@@ -608,7 +601,7 @@ enum {
                 [self gotPlace:location setUiText:YES additionalInfo:item[kUserFavesChosenName]];
             } else {
                 TripPlannerBookmarkView *bmView = [TripPlannerBookmarkView viewController];
-                bmView.stopIdCallback = self;
+                bmView.stopIdStringCallback = self;
                 bmView.from = self.from;
                 
                 // bmView.displayName = item[kUserFavesOriginalName];
@@ -645,26 +638,23 @@ enum {
     }
 }
 
-#pragma mark ReturnStopID methods
+#pragma mark ReturnStopIdString methods
 
-- (NSString *)actionText {
+- (NSString *)returnStopIdStringActionText {
     if (self.from) {
-        return @"Set as starting stop";
+        return @"Set as Trip starting stop";
     }
     
-    return @"Set as destination";
+    return @"Set as Trip destination stop";
 }
 
-- (void)selectedStop:(NSString *)stopId {
-}
-
-- (void)selectedStop:(NSString *)stopId desc:(NSString *)stopDesc {
+- (void)returnStopIdString:(NSString *)stopId desc:(NSString *)stopDesc {
     if (stopId != nil) {
         [self gotPlace:stopId setUiText:YES additionalInfo:stopDesc];
     }
 }
 
-- (UIViewController *)controller {
+- (UIViewController *)returnStopIdStringController {
     return self;
 }
 

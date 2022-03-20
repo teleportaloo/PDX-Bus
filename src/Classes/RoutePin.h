@@ -15,10 +15,9 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreLocation/CoreLocation.h>
-#import "MapPinColor.h"
-#import "DataFactory.h"
+#import "MapPin.h"
 
-@interface RoutePin : DataFactory<MapPinColor>
+@interface RoutePin : NSObject<MapPin>
 
 @property (nonatomic, readonly) CLLocationCoordinate2D coordinate;
 @property (nonatomic) CLLocationCoordinate2D touchPosition;

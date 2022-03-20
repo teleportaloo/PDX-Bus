@@ -16,7 +16,7 @@
 		<key>Icon</key>
 		<string>ActionIcon.png</string>
 		<key>LinkM</key>
-		<string>http://robalan.com</string>
+		<string>https://twitter.com/robalan</string>
 	</dict>
 	<dict>
 		<key>Title</key>
@@ -24,7 +24,7 @@
 		<key>Icon</key>
 		<string>Brush.png</string>
 		<key>LinkM</key>
-		<string>http://openiconlibrary.sourceforge.net/</string>
+		<string>https://sourceforge.net/projects/openiconlibrary/</string>
 	</dict>
 	<dict>
 		<key>Title</key>
@@ -32,7 +32,7 @@
 		<key>Icon</key>
 		<string>Brush.png</string>
 		<key>LinkM</key>
-		<string>http://glyphish.com/</string>
+		<string>https://glyphish.com/</string>
 	</dict>
 	<dict>
 		<key>Title</key>
@@ -52,7 +52,7 @@
 		<key>Icon</key>
 		<string>Brush.png</string>
 		<key>LinkM</key>
-		<string>http://gentleface.com/free_icon_set.html</string>
+		<string>https://gentleface.com/free_icon_set.html</string>
 	</dict>
 	<dict>
 		<key>Title</key>

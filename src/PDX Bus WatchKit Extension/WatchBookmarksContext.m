@@ -50,10 +50,9 @@
 }
 
 - (instancetype)init {
-    if ((self = [super init])) {
-        self.sceneName = kBookmarksScene;
-    }
-    
+    if ((self = [super initWithSceneName:kBookmarksScene])) {
+
+    }    
     return self;
 }
 

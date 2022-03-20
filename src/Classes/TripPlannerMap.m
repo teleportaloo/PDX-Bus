@@ -28,17 +28,17 @@
     }
     
     if (leg.legShape.segment) {
-        ShapeRoutePath *path = [ShapeRoutePath data];
+        ShapeRoutePath *path = [ShapeRoutePath new];
         ShapeCompactSegment *seg = leg.legShape.segment.compact;
         
         [path.segments addObject:seg];
         
-        if (leg.xinternalNumber == nil) {
+        if (leg.internalRouteNumber == nil) {
             path.route = kShapeNoRoute;
-            path.desc = leg.xname;
+            path.desc = leg.routeName;
         } else {
-            path.route = leg.xinternalNumber.integerValue;
-            path.desc = leg.xname;
+            path.route = leg.internalRouteNumber.integerValue;
+            path.desc = leg.routeName;
         }
         
         [lineCoords addObject:path];
@@ -48,15 +48,15 @@
 }
 
 - (void)createStraightLineLeg:(TripLeg *)leg lineCoords:(NSMutableArray<ShapeRoutePath *> *)lineCoords {
-    ShapeRoutePath *path = [ShapeRoutePath data];
-    ShapeMutableSegment *seg = [ShapeMutableSegment data];
+    ShapeRoutePath *path = [ShapeRoutePath new];
+    ShapeMutableSegment *seg = [ShapeMutableSegment new];
     
-    ShapeCoord *start = [ShapeCoord data];
+    ShapeCoord *start = [ShapeCoord new];
     
     start.latitude  = leg.from.coordinate.latitude;
     start.longitude = leg.from.coordinate.longitude;
     
-    ShapeCoord *end = [ShapeCoord data];
+    ShapeCoord *end = [ShapeCoord new];
     end.latitude  = leg.to.coordinate.latitude;
     end.longitude = leg.to.coordinate.longitude;
     
@@ -66,14 +66,14 @@
     
     [path.segments addObject:seg.compact];
     
-    if (leg.xinternalNumber == nil) {
+    if (leg.internalRouteNumber == nil) {
         path.route = kShapeNoRoute;
     } else {
-        path.route = leg.xinternalNumber.integerValue;
+        path.route = leg.internalRouteNumber.integerValue;
     }
     
-    if (leg.xname != nil) {
-        path.desc = leg.xname;
+    if (leg.routeName != nil) {
+        path.desc = leg.routeName;
     } else {
         path.desc = [leg createFromText:NO textType:TripTextTypeMap];
     }

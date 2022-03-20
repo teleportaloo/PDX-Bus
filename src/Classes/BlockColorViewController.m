@@ -17,9 +17,10 @@
 #import "TriMetInfo.h"
 #import "NSString+Helper.h"
 
-#define kSectionData   0
-#define kSectionNoData 1
-#define kSections      2
+enum SECTION_ROW {
+    kSectionData,
+    kSectionNoData
+};
 
 @interface BlockColorViewController () {
     NSArray *_keys;
@@ -55,9 +56,22 @@
                                       @"For example, if you tag a departure at one stop, you can use the color tag to see when it will arrive at your destination. "
                                       @"Also, the tags will remain persistant on each day of the week, so the same bus or train will have the same color the next day.\n\n"
                                       @"To set a tag, click 'Tag this " kBlockName " with a color' from the departure details.", @"Tagging help screen");
+        
+        [self createSections];
     }
     
     return self;
+}
+
+- (void)createSections {
+    [self clearSectionMaps];
+    
+    if (_keys.count > 0) {
+        [self addSectionType:kSectionData];
+        [self addRowType:kSectionData count:_keys.count];
+    } else {
+        [self addSectionTypeWithRow:kSectionNoData];
+    }
 }
 
 - (void)viewDidLoad {
@@ -84,23 +98,6 @@
 
 #pragma mark - Table view data source
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    // Return the number of sections.
-    return kSections;
-}
-
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    // Return the number of rows in the section.
-    switch (section) {
-        case kSectionData:
-            return _keys.count;
-            
-        case kSectionNoData:
-            return (_keys.count > 0 ? 0 : 1);
-    }
-    return 0;
-}
-
 - (UILabel *)create_UITextView:(UIFont *)font {
     CGRect frame = CGRectMake(0.0, 0.0, 100.0, 100.0);
     
@@ -118,7 +115,7 @@
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (indexPath.section == kSectionData) {
+    if ([self rowType:indexPath] == kSectionData) {
         UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MakeCellId(kSectionData)];
         
         if (cell == nil) {
@@ -138,7 +135,7 @@
         
         return cell;
     } else {
-        UITableViewCell *cell = [self tableView:tableView multiLineCellWithReuseIdentifier:@"HelpCell" font:self.paragraphFont];
+        UITableViewCell *cell = [self tableView:tableView multiLineCellWithReuseIdentifier:@"HelpCell" font:self.smallFont];
         cell.textLabel.text = _helpText;
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
         cell.accessibilityLabel = _helpText.phonetic;
@@ -188,7 +185,7 @@
 #pragma mark - Table view delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (indexPath.section == kSectionData) {
+    if ([self rowType:indexPath] == kSectionData) {
         _changingColor = _keys[indexPath.row];
         
         InfColorPickerController *picker = [ InfColorPickerController colorPickerViewController ];
@@ -204,7 +201,7 @@
 
 // Override if you support editing the list
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (indexPath.section == kSectionData) {
+    if ([self rowType:indexPath] == kSectionData) {
         if (editingStyle == UITableViewCellEditingStyleDelete) {
             NSString *block = _keys[indexPath.row];
             
@@ -215,9 +212,11 @@
             [tableView beginUpdates];
             
             [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:YES];
+            [self removeRowAtIndexPath:indexPath];
             
             if (_keys.count == 0) {
-                NSIndexPath *ip = [NSIndexPath indexPathForRow:0 inSection:kSectionNoData];
+                [self createSections];
+                NSIndexPath *ip = [NSIndexPath indexPathForRow:0 inSection:[self firstSectionOfType:kSectionNoData]];
                 [tableView insertRowsAtIndexPaths:@[ip] withRowAnimation:YES];
             }
             
@@ -227,7 +226,7 @@
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (indexPath.section == kSectionNoData) {
+    if ([self rowType:indexPath] == kSectionNoData) {
         return UITableViewAutomaticDimension;
     }
     

@@ -25,10 +25,10 @@
 #define kAccMile        300
 #define kAcc3Miles      800
 
-@interface FindByLocationView : TableViewWithToolbar<LocatingViewDelegate, MKMapViewDelegate, INUIAddVoiceShortcutViewControllerDelegate>
+@interface FindByLocationView : TableViewWithToolbar<LocatingViewDelegate, MKMapViewDelegate>
 
 - (instancetype)initWithLocation:(CLLocation *)location description:(NSString *)locationName;
-- (instancetype)  init;
+- (instancetype)init;
 
 - (void)actionArgs:(NSDictionary *)args;
 

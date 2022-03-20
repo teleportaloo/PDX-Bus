@@ -30,7 +30,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>11.4</string>
+	<string>11.4.2</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -47,7 +47,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>48</string>
+	<string>54</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.travel</string>
 	<key>LSApplicationQueriesSchemes</key>
@@ -77,11 +77,34 @@
 	<dict>
 		<key>NSExceptionDomains</key>
 		<dict>
-			<key>nextbus.com</key>
+			<key>www.small-icons.com</key>
 			<dict>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
 				<true/>
-				<key>NSIncludesSubdomains</key>
+			</dict>
+			<key>civicapps.org</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+			</dict>
+			<key>portlandtransport.com</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+			</dict>
+			<key>pdxbus.teleportaloo.org</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+			</dict>
+			<key>omsi.edu</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+			</dict>
+			<key>www.gobytram.com</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
 				<true/>
 			</dict>
 			<key>qr2.it</key>
@@ -105,7 +128,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>The app only uses the camera when scanning for QR codes.</string>
 	<key>NSContactsUsageDescription</key>
-	<string>User can select a contact's address to plan a trip, and for placing a trip on a calendar.</string>
+	<string>User can select a contact&apos;s address to plan a trip, and for placing a trip on a calendar.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>This is used for locating stops and vehicles. This may also be used for proximity alarms that trigger when you are near to a stop.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
@@ -129,6 +152,7 @@
 		<string>LocateStopsIntent</string>
 		<string>RoutesAtStopIdIntent</string>
 		<string>StopLocationIntent</string>
+		<string>SystemWideAlertsIntent</string>
 		<string>org.teleportaloo.pdxbus.bookmark</string>
 	</array>
 	<key>UIBackgroundModes</key>

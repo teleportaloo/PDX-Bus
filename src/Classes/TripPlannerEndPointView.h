@@ -16,18 +16,17 @@
 #import "TableViewWithToolbar.h"
 #import "XMLTrips.h"
 #import "EditableTableViewCell.h"
-#import "ReturnStopId.h"
+#import "ReturnStopIdString.h"
 #if !TARGET_OS_MACCATALYST
 #import <AddressBookUI/ABPeoplePickerNavigationController.h>
 #endif
 #import "CellTextField.h"
 #import "CellTextView.h"
-#import "TripReturnUserRequest.h"
 #import "TripPlannerBaseView.h"
 #import <ContactsUI/ContactsUI.h>
 #import "UIPlaceHolderTextView.h"
 
-@interface TripPlannerEndPointView : TripPlannerBaseView <EditableTableViewCellDelegate, ReturnStopId,
+@interface TripPlannerEndPointView : TripPlannerBaseView <EditableTableViewCellDelegate, ReturnStopIdString,
 #if !TARGET_OS_MACCATALYST
     ABPeoplePickerNavigationControllerDelegate,
 #endif
@@ -39,7 +38,6 @@
 
 - (void)browseForStop;
 - (void)selectFromRailMap;
-- (void)selectedStop:(NSString *)stopId;
 - (void)gotPlace:(NSString *)place setUiText:(bool)setText additionalInfo:(NSString *)info;
 - (void)cancelAction:(id)sender;
 - (void)initEndPoint;

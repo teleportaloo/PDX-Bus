@@ -33,13 +33,13 @@
 
 + (UIColor *)modeAwareBusColor {
 #ifndef PDXBUS_WATCH
-    
+
     if (@available(iOS 13.0, *)) {
         if (IOS_DARK_MODE) {
             return [UIColor whiteColor];
         }
     }
-    
+
 #endif
     return [UIColor grayColor];
 }
@@ -88,7 +88,7 @@
     
     if (@available(iOS 13.0, *)) {
         if (IOS_DARK_MODE) {
-            return [UIColor quaternarySystemFillColor];
+            return [UIColor blackColor];
         }
     }
     
@@ -101,7 +101,7 @@
     
     if (@available(iOS 13.0, *)) {
         if (IOS_DARK_MODE) {
-            return [UIColor quaternarySystemFillColor];
+            return [UIColor blackColor];
         }
     }
     
@@ -131,6 +131,21 @@
     
 #endif
     return [UIColor blackColor];
+}
+
+
++ (UIColor *)modeAwareGrayText {
+#ifndef PDXBUS_WATCH
+    
+    if (@available(iOS 13.0, *)) {
+        if (IOS_DARK_MODE)
+        {
+            return [UIColor lightGrayColor];
+        }
+    }
+    
+#endif
+    return [UIColor grayColor];
 }
 
 + (UIColor *)modeAwareBlue {

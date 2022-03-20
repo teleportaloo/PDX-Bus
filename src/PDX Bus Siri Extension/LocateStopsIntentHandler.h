@@ -16,7 +16,7 @@
 #import <Foundation/Foundation.h>
 #import "LocateStopsIntent.h"
 
-@interface LocateStopsIntentHandler : NSObject
+@interface LocateStopsIntentHandler<LocateStopsIntentHandling>  : NSObject
 
 - (void)handleLocateStops:(LocateStopsIntent *)intent
                completion:(void (^)(LocateStopsIntentResponse *response))completion API_AVAILABLE(ios(12.0));

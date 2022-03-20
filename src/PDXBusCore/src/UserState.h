@@ -27,6 +27,7 @@
 #define kUserFavesDayOfWeek          @"DayOfWeek"
 #define kUserFavesMorning            @"AM"
 #define kUserFavesBlock              @"Block"
+#define kUserFavesDir                @"Dir"
 #define kMaxFaves                    30
 #define kNoBookmark                  -1
 #define kDayNever                    0
@@ -54,6 +55,7 @@
 #define kLastRunApp                  @"last_run"
 #define kLastRunWatch                @"last_run_watch"
 #define kTakeMeHome                  @"take_me_home"
+#define kWatchSequenceNumber         @"watch_sequence"
 
 #define kiCloudTotal                 @"total"
 #define kiCloudKeyPrefixSize         4
@@ -81,6 +83,10 @@
 
 #define kHandoffUserActivityBookmark @"org.teleportaloo.pdxbus.bookmark"
 #define kHandoffUserActivityLocation @"org.teleportaloo.pdxbus.location"
+#define kHandoffUserActivityAlerts   @"org.teleportaloo.pdxbus.alerts"
+
+#define kUserInfoAlertRoute          @"route"
+#define kUserInfoAlertSystem         @"system"
 
 #define kMaxRecentStops              25
 #define kMaxRecentTrips              25
@@ -108,6 +114,8 @@
 @property (nonatomic, readonly) bool hasEverChanged;
 @property (atomic)              bool canWriteToCloud;
 
+- (void)incrementWatchSequence;
+- (NSUInteger)watchSequence;
 - (void)addToRecentTripsWithUserRequest:(NSDictionary *)userRequest description:(NSString *)desc blob:(NSData *)blob;
 - (NSDictionary *)tripArchive:(NSDictionary *)userRequest description:(NSString *)desc blob:(NSData *)blob;
 - (NSDictionary *)addToRecentsWithStopId:(NSString *)stopId description:(NSString *)desc;

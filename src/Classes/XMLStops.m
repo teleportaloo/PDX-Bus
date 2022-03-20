@@ -11,8 +11,11 @@
 
 
 #import "XMLStops.h"
-#import "NSDictionary+TriMetCaseInsensitive.h"
+#import "NSDictionary+Types.h"
 #import "TriMetXMLSelectors.h"
+#import "CLLocation+Helper.h"
+#import "XMLRoutes.h"
+#import <TriMetInfo.h>
 
 static NSString *stopsURLString = @"routeConfig/route/%@/dir/%@/stops/true";
 
@@ -25,6 +28,8 @@ static NSString *stopsURLString = @"routeConfig/route/%@/dir/%@/stops/true";
 @implementation XMLStops
 
 #pragma mark Data fetchers
+
+
 
 - (BOOL)getStopsAfterStopId:(NSString *)stopId
                       route:(NSString *)route
@@ -65,7 +70,7 @@ static NSString *stopsURLString = @"routeConfig/route/%@/dir/%@/stops/true";
     return str;
 }
 
-XML_START_ELEMENT(resultset) {
+XML_START_ELEMENT(resultSet) {
     [self initItems];
     _hasData = YES;
 }
@@ -77,20 +82,20 @@ XML_START_ELEMENT(stop) {
         self.afterStopId = nil;
         self.currentStopObject = nil;
     } else if (self.afterStopId == nil) {
-        self.currentStopObject = [Stop data];
+        self.currentStopObject = [Stop new];
         
         self.currentStopObject.stopId = XML_NON_NULL_ATR_STR(@"locid");
         self.currentStopObject.desc = XML_NON_NULL_ATR_STR(@"desc");
-        self.currentStopObject.tp = XML_ATR_BOOL(@"tp");
-        self.currentStopObject.lat = XML_NON_NULL_ATR_STR(@"lat");
-        self.currentStopObject.lng = XML_NON_NULL_ATR_STR(@"lng");
+        self.currentStopObject.timePoint = XML_ATR_BOOL_DEFAULT_FALSE(@"tp");
+        self.currentStopObject.location = XML_ATR_LOCATION(@"lat", @"lng");
+        self.currentStopObject.dir = XML_NON_NULL_ATR_STR(@"dir");
     }
 }
 
 XML_END_ELEMENT(stop) {
     if (self.currentStopObject != nil) {
         [self addItem:self.currentStopObject];
-        self.currentStopObject.index = (int)self.items.count;
+        self.currentStopObject.index = self.items.count;
         self.currentStopObject = nil;
     }
 }

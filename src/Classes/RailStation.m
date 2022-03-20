@@ -29,20 +29,21 @@
 @dynamic line1;
 
 
-- (RAILLINES)line {
+- (RailLines)line {
     return [AllRailStationView railLines:self.index];
 }
 
-- (RAILLINES)line0 {
+- (RailLines)line0 {
     return [AllRailStationView railLines0:self.index];
 }
 
-- (RAILLINES)line1 {
+- (RailLines)line1 {
     return [AllRailStationView railLines1:self.index];
 }
 
 - (NSComparisonResult)compareUsingStation:(RailStation *)inStation {
-    return [self.station caseInsensitiveCompare:inStation.station];
+    return [self.station compare:inStation.station
+                         options:(NSNumericSearch | NSCaseInsensitiveSearch)];
 }
 
 + (void)scannerInc:(NSScanner *)scanner {
@@ -89,7 +90,7 @@
     return obj;
 }
 
-+ (NSString *)nameFromHotspot:(HOTSPOT *)hotspot {
++ (NSString *)nameFromHotspot:(HotSpot *)hotspot {
     NSScanner *scanner = [NSScanner scannerWithString:hotspot->action];
     NSCharacterSet *colon = [NSCharacterSet characterSetWithCharactersInString:@":"];
     
@@ -108,11 +109,11 @@
     return [stationName stringByRemovingPercentEncoding];
 }
 
-+ (instancetype)fromHotSpot:(HOTSPOT *)hotspot index:(int)index {
++ (instancetype)fromHotSpot:(HotSpot *)hotspot index:(int)index {
     return [[[self class] alloc] initFromHotSpot:hotspot index:index];
 }
 
-- (instancetype)initFromHotSpot:(HOTSPOT *)hotspot index:(int)index {
+- (instancetype)initFromHotSpot:(HotSpot *)hotspot index:(int)index {
     if ((self = [super init])) {
         NSScanner *scanner = [NSScanner scannerWithString:hotspot->action];
         NSCharacterSet *colon = [NSCharacterSet characterSetWithCharactersInString:@":"];
@@ -137,6 +138,7 @@
         self.wikiLink = (wiki != nil ? [wiki stringByRemovingPercentEncoding] : nil);
         self.stopIdArray = [NSMutableArray array];
         self.dirArray = [NSMutableArray array];
+        self.transferStopIdArray = [NSMutableArray array];
         
         // NSString *stop = nil;
         NSString *dir = nil;
@@ -149,9 +151,13 @@
             
             [scanner scanUpToCharactersFromSet:slash intoString:&stopId];
             
-            [self.dirArray addObject:[self longDirectionFromTableName:dir]];
-            [self.stopIdArray addObject:stopId];
-            
+            if ([dir isEqualToString:@"T"]) {
+                [self.transferStopIdArray addObject:stopId];
+            } else {
+                [self.dirArray addObject:[self longDirectionFromTableName:dir]];
+                [self.stopIdArray addObject:stopId];
+            }
+                
             if (!scanner.atEnd) {
                 scanner.scanLocation++;
             }
@@ -161,6 +167,46 @@
     }
     
     return self;
+}
+
+
+- (void)findTransfers {
+    if (self.transferStopIdArray.count != 0 &&  self.transferNameArray == nil) {
+        self.transferNameArray = [NSMutableArray array];
+        self.transferDirArray = [NSMutableArray array];
+        self.transferHotSpotIndexArray = [NSMutableArray array];
+    
+        for (NSString *stopId in self.transferStopIdArray) {
+            
+            RailStation *station = [AllRailStationView railstationFromStopId:stopId];
+            
+            if (station != nil) {
+                NSInteger i;
+                
+                bool found = NO;
+                
+                for (i = 0;  i < station.stopIdArray.count; i++) {
+                    if ([station.stopIdArray[i] isEqualToString:stopId]) {
+                        [self.transferNameArray addObject:station.station];
+                        [self.transferDirArray addObject:station.dirArray[i]];
+                        [self.transferHotSpotIndexArray addObject:@(station.index)];
+                        found = YES;
+                        break;
+                    }
+                }
+                
+                
+                if (!found) {
+                    [self.transferNameArray addObject:@"unknown"];
+                    [self.transferDirArray addObject:@"unknown"];
+                    [self.transferHotSpotIndexArray addObject:@(0)];
+                }
+            }
+            
+            
+            
+        }
+    }
 }
 
 #define MAX_TAG       2
@@ -187,12 +233,13 @@
         
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
         cell.accessoryView = maxColors;
+        cell.textLabel.font = [UIFont fontWithName:@"HelveticaNeue" size:cell.textLabel.font.pointSize];
     }
     
     return cell;
 }
 
-+ (int)addLine:(UITableViewCell *)cell tag:(int)tag line:(RAILLINES)line lines:(RAILLINES)lines {
++ (int)addLine:(UITableViewCell *)cell tag:(int)tag line:(RailLines)line lines:(RailLines)lines {
     if (tag - MAX_TAG > MAX_LINES) {
         return tag;
     }
@@ -209,18 +256,18 @@
     return tag;
 }
 
-+ (void)populateCell:(UITableViewCell *)cell station:(NSString *)station lines:(RAILLINES)lines {
++ (void)populateCell:(UITableViewCell *)cell station:(NSString *)station lines:(RailLines)lines {
     // [self label:cell tag:TEXT_TAG].text = station;
     
     int tag = MAX_TAG;
     
     // UILabel *label = (UILabel*)[cell.contentView viewWithTag:TEXT_TAG];
-    cell.textLabel.text = station;
+    cell.textLabel.attributedText = station.attributedStringFromMarkUp;
     cell.textLabel.adjustsFontSizeToFitWidth = YES;
     cell.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
     cell.accessibilityLabel = station.phonetic;
     
-    for (PC_ROUTE_INFO info = [TriMetInfo allColoredLines]; info->route_number != kNoRoute; info++) {
+    for (PtrConstRouteInfo info = [TriMetInfo allColoredLines]; info->route_number != kNoRoute; info++) {
         tag = [RailStation addLine:cell tag:tag line:info->line_bit lines:lines];
     }
     
@@ -232,6 +279,23 @@
 
 - (NSString *)stringToFilter {
     return self.station;
+}
+
+
+- (BOOL)isEqual:(id)other {
+    if (self == other) {
+        return TRUE;
+    }
+    
+    if ([other isKindOfClass:RailStation.class]) {
+        return [self.station isEqualToString: ((RailStation *)other).station];
+    }
+    
+    return NO;
+}
+
+- (NSUInteger)hash {
+    return self.station.hash;
 }
 
 @end

@@ -56,8 +56,8 @@ NSLocalizedString(@"This page enables you to create a bookmark that will search 
 @"take me home text")
 
 
-#define kIncompleteStopMsg NSLocalizedString(@"#RThe bookmark was incomplete. Please add a stop.", @"error text")
-#define kIncompleteTripMsg NSLocalizedString(@"#RThe bookmark was incomplete. Please check locations.", @"error text")
+#define kMarkedUpIncompleteStopMsg NSLocalizedString(@"#RThe bookmark was incomplete. Please add a stop.", @"error text")
+#define kMarkedUpIncompleteTripMsg NSLocalizedString(@"#RThe bookmark was incomplete. Please check locations.", @"error text")
 
 #define kUIEditHeight      55.0
 #define kUIRowHeight       40.0
@@ -69,7 +69,7 @@ NSLocalizedString(@"This page enables you to create a bookmark that will search 
     bool _updateNameFromDestination;
 }
 
-@property (nonatomic, copy) NSString *msg;
+@property (nonatomic, copy) NSString *markedUpMsg;
 
 @property (nonatomic, strong) NSMutableArray<NSString *> *stopIdArray;
 @property (nonatomic, strong) NSMutableDictionary *originalFave;
@@ -103,7 +103,7 @@ NSLocalizedString(@"This page enables you to create a bookmark that will search 
     if (self.invalidItem) {
         [self addSectionType:kTableMessage];
         [self addRowType:kTableMessage];
-        self.msg = kIncompleteStopMsg;
+        self.markedUpMsg = kMarkedUpIncompleteStopMsg;
     }
     
     [self addSectionType:kTableName];
@@ -122,10 +122,8 @@ NSLocalizedString(@"This page enables you to create a bookmark that will search 
     [self addRowType:kTableCommute];
     
 #if !TARGET_OS_MACCATALYST
-    if (@available(iOS 12.0, *)) {
-        [self addSectionType:kTableSiri];
-        [self addRowType:kTableSiri];
-    }
+    [self addSectionType:kTableSiri];
+    [self addRowType:kTableSiri];
 #endif
     
     [self addSectionType:kTableDelete];
@@ -138,7 +136,7 @@ NSLocalizedString(@"This page enables you to create a bookmark that will search 
     if (self.invalidItem) {
         [self addSectionType:kTableMessage];
         [self addRowType:kTableMessage];
-        self.msg = kIncompleteTripMsg;
+        self.markedUpMsg = kMarkedUpIncompleteTripMsg;
     }
     
     [self addSectionType:kTableName];
@@ -153,10 +151,8 @@ NSLocalizedString(@"This page enables you to create a bookmark that will search 
     [self addSectionType:kTableRun];
     [self addRowType:kTableRun];
     
-    if (@available(iOS 12.0, *)) {
-        [self addSectionType:kTableSiri];
-        [self addRowType:kTableSiri];
-    }
+    [self addSectionType:kTableSiri];
+    [self addRowType:kTableSiri];
     
     [self addSectionType:kTableDelete];
     [self addRowType:kTableDelete];
@@ -169,7 +165,7 @@ NSLocalizedString(@"This page enables you to create a bookmark that will search 
     
     [self addSectionType:kTableMessage];
     [self addRowType:kTableMessage];
-    self.msg = kTakeMeHomeText;
+    self.markedUpMsg = kTakeMeHomeText;
     
     [self addSectionType:kTableName];
     [self addRowType:kTableName];
@@ -181,10 +177,8 @@ NSLocalizedString(@"This page enables you to create a bookmark that will search 
     [self addSectionType:kTableRun];
     [self addRowType:kTableRun];
     
-    if (@available(iOS 12.0, *)) {
-        [self addSectionType:kTableSiri];
-        [self addRowType:kTableSiri];
-    }
+    [self addSectionType:kTableSiri];
+    [self addRowType:kTableSiri];
     
     [self addSectionType:kTableDelete];
     [self addRowType:kTableDelete];
@@ -346,8 +340,7 @@ spacing = space;                        \
 #pragma mark Helper functions
 
 - (void)makeNewFave {
-    @synchronized (_userState)
-    {
+    @synchronized (_userState) {
         self.originalFave = [NSMutableDictionary dictionary];
         [_userState.faves addObject:self.originalFave];
         self.item = _userState.faves.count - 1;
@@ -374,7 +367,7 @@ spacing = space;                        \
         self.userRequest.dateAndTime = nil;
         self.userRequest.arrivalTime = NO;
     } else {
-        self.userRequest = [TripUserRequest data];
+        self.userRequest = [TripUserRequest new];
     }
     
     self.userRequest.timeChoice = TripDepartAfterTime;
@@ -389,7 +382,7 @@ spacing = space;                        \
     
     _updateNameFromDestination = YES;
     self.originalFave[kUserFavesChosenName] = kNewTakeMeSomewhereBookMark;
-    self.userRequest = [TripUserRequest data];
+    self.userRequest = [TripUserRequest new];
     self.userRequest.timeChoice = TripDepartAfterTime;
     self.userRequest.fromPoint.useCurrentLocation = YES;
     [self.userRequest clearGpsNames];
@@ -400,7 +393,7 @@ spacing = space;                        \
 }
 
 - (void)processStops:(NSString *)stopIds {
-    self.stopIdArray = stopIds.arrayFromCommaSeparatedString;
+    self.stopIdArray = stopIds.mutableArrayFromCommaSeparatedString;
 }
 
 - (void)addBookMarkFromStop:(NSString *)desc stopId:(NSString *)stopId {
@@ -469,7 +462,7 @@ spacing = space;                        \
 - (void)selectFromRailMap {
     RailMapView *rmView = [RailMapView viewController];
     
-    rmView.stopIdCallback = self;
+    rmView.stopIdStringCallback = self;
     
     // Push the detail view controller
     [self.navigationController pushViewController:rmView animated:YES];
@@ -480,7 +473,7 @@ spacing = space;                        \
 - (void)selectFromRailStations {
     AllRailStationView *rmView = [AllRailStationView viewController];
     
-    rmView.stopIdCallback = self;
+    rmView.stopIdStringCallback = self;
     
     // Push the detail view controller
     [self.navigationController pushViewController:rmView animated:YES];
@@ -490,7 +483,7 @@ spacing = space;                        \
 - (void)browseForStop {
     RouteView *routeViewController = [RouteView viewController];
     
-    routeViewController.stopIdCallback = self;
+    routeViewController.stopIdStringCallback = self;
     
     [routeViewController fetchRoutesAsync:self.backgroundTask backgroundRefresh:NO];
     _reloadArrival = YES;
@@ -499,7 +492,7 @@ spacing = space;                        \
 - (void)enterStopId {
     AddNewStopToBookMark *add = [AddNewStopToBookMark viewController];
     
-    add.stopIdCallback = self;
+    add.stopIdStringCallback = self;
     // Push the detail view controller
     [self.navigationController pushViewController:add animated:YES];
     _reloadArrival = YES;
@@ -516,13 +509,6 @@ spacing = space;                        \
 
 #pragma mark TableView methods
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return [self sections];
-}
-
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [self rowsInSection:section];
-}
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
     switch ([self sectionType:section]) {
@@ -606,7 +592,7 @@ spacing = space;                        \
     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     cell.imageView.image = nil;
     
-    [cell populateBody:[self.userRequest optionsDisplayText] mode:NSLocalizedString(@"Options", @"trip options") time:nil leftColor:nil route:nil];
+    [cell populateMarkedUpBody:[self.userRequest optionsDisplayText] mode:NSLocalizedString(@"Options", @"trip options") time:nil leftColor:nil route:nil];
 }
 
 - (void)populateEndCell:(TripItemCell *)cell from:(bool)from {
@@ -617,14 +603,14 @@ spacing = space;                        \
     NSString *dir;
     
     if (from) {
-        text = [self.userRequest.fromPoint userInputDisplayText];
+        text = [self.userRequest.fromPoint markedUpUserInputDisplayText];
         dir = NSLocalizedString(@"From", @"trip starting from");
     } else {
-        text = [self.userRequest.toPoint userInputDisplayText];
+        text = [self.userRequest.toPoint markedUpUserInputDisplayText];
         dir = NSLocalizedString(@"To", @"trip ending at");
     }
     
-    [cell populateBody:text mode:dir time:nil leftColor:nil route:nil];
+    [cell populateMarkedUpBody:text mode:dir time:nil leftColor:nil route:nil];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -634,7 +620,7 @@ spacing = space;                        \
         case kTableMessage: {
             NSString *cellId = MakeCellIdW(kTableMessage, self.screenInfo.appWinWidth);
             
-            NSAttributedString *text = FormatTextPara(self.msg);
+            NSAttributedString *text = self.markedUpMsg.smallAttributedStringFromMarkUp;
             
             UITableViewCell *cell = [self tableView:tableView multiLineCellWithReuseIdentifier:cellId];
             cell.textLabel.attributedText = text;
@@ -776,42 +762,29 @@ spacing = space;                        \
 }
 
 - (void)addToSiri {
-    if (@available(iOS 12.0, *)) {
-        NSUserActivity *activity = [[NSUserActivity alloc] initWithActivityType:kHandoffUserActivityBookmark];
-        
-        if (self.userRequest == nil) {
-            activity.title = [NSString stringWithFormat:kUserFavesDescription,  self.originalFave[kUserFavesChosenName]];
-            activity.userInfo = self.originalFave;
-        } else {
-            activity = [self.userRequest userActivityWithTitle:self.originalFave[kUserFavesChosenName]];
-        }
-        
-        INShortcut *shortCut = [[INShortcut alloc] initWithUserActivity:activity];
-        
-        INUIAddVoiceShortcutViewController *viewController = [[INUIAddVoiceShortcutViewController alloc] initWithShortcut:shortCut];
-        viewController.modalPresentationStyle = UIModalPresentationFormSheet;
-        viewController.delegate = self;
-        
-        [self presentViewController:viewController animated:YES completion:nil];
+    NSUserActivity *activity = [[NSUserActivity alloc] initWithActivityType:kHandoffUserActivityBookmark];
+
+    if (self.userRequest == nil) {
+        activity.title = [NSString stringWithFormat:kUserFavesDescription,  self.originalFave[kUserFavesChosenName]];
+        activity.userInfo = self.originalFave;
+    } else {
+        activity = [self.userRequest userActivityWithTitle:self.originalFave[kUserFavesChosenName]];
     }
-}
 
-- (void)addVoiceShortcutViewController:(INUIAddVoiceShortcutViewController *)controller didFinishWithVoiceShortcut:(nullable INVoiceShortcut *)voiceShortcut error:(nullable NSError *)error
-API_AVAILABLE(ios(12.0)) {
-    [controller dismissViewControllerAnimated:YES completion:nil];
-}
+    INShortcut *shortCut = [[INShortcut alloc] initWithUserActivity:activity];
 
-- (void)addVoiceShortcutViewControllerDidCancel:(nonnull INUIAddVoiceShortcutViewController *)controller
-API_AVAILABLE(ios(12.0)) {
-    [controller dismissViewControllerAnimated:YES completion:nil];
-}
+    INUIAddVoiceShortcutViewController *viewController = [[INUIAddVoiceShortcutViewController alloc] initWithShortcut:shortCut];
+    viewController.modalPresentationStyle = UIModalPresentationFormSheet;
+    viewController.delegate = self;
 
+    [self presentViewController:viewController animated:YES completion:nil];
+}
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     switch ([self rowType:indexPath]) {
         case kTableStops: {
             DepartureTimesView *departureViewController = [DepartureTimesView viewController];
-            departureViewController.stopIdCallback = self;
+            departureViewController.stopIdStringCallback = self;
             [departureViewController fetchTimesForLocationAsync:self.backgroundTask
                                                          stopId:self.stopIdArray[indexPath.row]
                                                           title:self.originalFave[kUserFavesChosenName]];
@@ -842,8 +815,7 @@ API_AVAILABLE(ios(12.0)) {
             tripEnd.from = ([self rowType:indexPath] == kTableTripRowFrom);
             tripEnd.tripQuery = [XMLTrips xml];
             tripEnd.tripQuery.userRequest = self.userRequest;
-            @synchronized (_userState)
-            {
+            @synchronized (_userState) {
                 [tripEnd.tripQuery addStopsFromUserFaves:_userState.faves];
             }
             tripEnd.popBackTo = self;
@@ -890,8 +862,7 @@ API_AVAILABLE(ios(12.0)) {
         }
             
         case kTableDelete: {
-            @synchronized (_userState)
-            {
+            @synchronized (_userState) {
                 [_userState.faves removeObjectAtIndex:self.item];
                 
                 [self.navigationController popViewControllerAnimated:YES];
@@ -1133,23 +1104,20 @@ API_AVAILABLE(ios(12.0)) {
     [self.editWindow resignFirstResponder];
 }
 
-#pragma mark ReturnStopId methods
+#pragma mark ReturnStopIdString methods
 
-- (NSString *)actionText {
+- (NSString *)returnStopIdStringActionText {
     return NSLocalizedString(@"Add stop to bookmark", @"Button text");
 }
 
-- (void)selectedStop:(NSString *)stopId {
-    [self.navigationController popToViewController:self animated:YES];
-    [self.stopIdArray addObject:stopId];
-    [self updateStopsInFave];
-    [self reloadData];
-}
 
-- (void)selectedStop:(NSString *)stopId desc:(NSString *)stopDesc {
-    if ([self.editCell.view.text isEqualToString:kNewBookMark]) {
-        self.originalFave[kUserFavesChosenName] = stopDesc;
-        self.editCell.view.text = stopDesc;
+- (void)returnStopIdString:(NSString *)stopId desc:(NSString *)stopDesc {
+    if (stopDesc != nil)
+    {
+        if ([self.editCell.view.text isEqualToString:kNewBookMark]) {
+            self.originalFave[kUserFavesChosenName] = stopDesc;
+            self.editCell.view.text = stopDesc;
+        }
     }
     
     [self.navigationController popToViewController:self animated:YES];
@@ -1158,23 +1126,8 @@ API_AVAILABLE(ios(12.0)) {
     [self reloadData];
 }
 
-- (UIViewController *)controller {
+- (UIViewController *)returnStopIdStringController {
     return self;
-}
-
-#pragma mark TripReturnUserRequest methods
-
-- (void)userRequest:(TripUserRequest *)userRequest {
-    self.userRequest = userRequest;
-    
-    if ([self.editCell.view.text isEqualToString:kNewTripBookMark]) {
-        self.originalFave[kUserFavesChosenName] = userRequest.shortName;
-        self.editCell.view.text = [userRequest shortName];
-    }
-    
-    self.originalFave[kUserFavesTrip] = userRequest.toDictionary;
-    
-    [self reloadData];
 }
 
 - (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {

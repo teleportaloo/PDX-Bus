@@ -10,6 +10,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+
 #import "PDXBusAppDelegate+Methods.h"
 #import "RootViewController.h"
 #import <SystemConfiguration/SystemConfiguration.h>
@@ -28,7 +30,10 @@
 #import <CoreSpotlight/CoreSpotlight.h>
 #import "KMLRoutes.h"
 #import "ArrivalsIntent.h"
+#import "AlertsForRouteIntent.h"
+#import "SystemWideAlertsIntent.h"
 #import "FindByLocationView.h"
+#import "NSString+Helper.h"
 
 #if TARGET_OS_MACCATALYST
 #import <UserNotifications/UserNotifications.h>
@@ -120,8 +125,11 @@
         
         // If the app crashed we should assume the cache file may be bad
         // best to delete it just in case.
-        [TriMetXML deleteCacheFile];
-        [KMLRoutes deleteCacheFile];
+        
+        if (Settings.clearCacheOnUnexpectedRestart) {
+            [TriMetXML deleteCacheFile];
+            [KMLRoutes deleteCacheFile];
+        }
     } else {
         self.cleanExitLastTime = YES;
         NSString *str = @"clean";
@@ -138,8 +146,8 @@
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = paths.firstObject;
     NSError *error = nil;
-
-   
+    
+    
     
     self.pathToCleanExit = [documentsDirectory stringByAppendingPathComponent:@"cleanExit.txt"];
     
@@ -157,10 +165,11 @@
                  self.cleanExitLastTime);
     
     
-
+    
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+    
     [center requestAuthorizationWithOptions:(UNAuthorizationOptionBadge | UNAuthorizationOptionSound | UNAuthorizationOptionAlert)
-                          completionHandler:^(BOOL granted, NSError * _Nullable error) {
+                          completionHandler:^(BOOL granted, NSError *_Nullable error) {
         if (!error) {
             // NSLog(@"request authorization succeeded!");
             // [self showAlert];
@@ -170,7 +179,7 @@
     center.delegate = self;
     
     [center removeAllPendingNotificationRequests];
-        
+    
     
     self.rootViewController.lastArrivalsShown = UserState.sharedInstance.last;
     self.rootViewController.lastArrivalNames = UserState.sharedInstance.lastNames;
@@ -205,12 +214,6 @@
     }
     
     [self.window makeKeyAndVisible];
-    
-#if defined(MAXCOLORS) && defined(CREATE_MAX_ARRAYS)
-    AllRailStationView *station = [AllRailStationView viewController];
-    
-    [station generateArrays];
-#endif
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
@@ -221,23 +224,45 @@
     return YES;
 }
 
-- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray<id<UIUserActivityRestoring> > *__nullable restorableObjects))restorationHandler {
+- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray<id<UIUserActivityRestoring>> *__nullable restorableObjects))restorationHandler {
     DEBUG_FUNC();
     
     bool siri = NO;
     
-    if (@available(ios 12.0, *)) {
-        if ([userActivity.interaction.intent isKindOfClass:[ArrivalsIntent class]]) {
-            self.rootViewController.initialActionArgs = @{ kUserFavesLocation: userActivity.userInfo[@"locs"] };
-            
-            self.rootViewController.initialAction = InitialAction_UserActivityBookmark;
-            
-            if (self.rootViewController != nil) {
-                [self.rootViewController executeInitialAction];
-            }
-            
-            siri = YES;
+    if ([userActivity.interaction.intent isKindOfClass:[ArrivalsIntent class]]) {
+        self.rootViewController.initialActionArgs = @{ kUserFavesLocation: userActivity.userInfo[@"locs"] };
+        
+        self.rootViewController.initialAction = InitialAction_UserActivityBookmark;
+        
+        if (self.rootViewController != nil) {
+            [self.rootViewController executeInitialAction];
         }
+        
+        siri = YES;
+    } else if ([userActivity.interaction.intent isKindOfClass:[AlertsForRouteIntent class]]) {
+        self.rootViewController.initialAction = InitialAction_UserActivityAlerts;
+        
+        AlertsForRouteIntent *intent = (AlertsForRouteIntent *)userActivity.interaction.intent;
+        
+        NSString *routeNumber = [TriMetInfo routeNumberFromInput:intent.routeNumber];
+            
+        if (routeNumber) {
+            self.rootViewController.initialActionArgs = @{ kUserInfoAlertRoute: routeNumber };
+        }
+        
+        if (self.rootViewController != nil) {
+            [self.rootViewController executeInitialAction];
+        }
+        
+        siri = YES;
+    } else if ([userActivity.interaction.intent isKindOfClass:[SystemWideAlertsIntent class]]) {
+        self.rootViewController.initialAction = InitialAction_UserActivityAlerts;
+        
+        if (self.rootViewController != nil) {
+            [self.rootViewController executeInitialAction];
+        }
+        
+        siri = YES;
     }
     
     if (siri) {
@@ -288,8 +313,6 @@
     
     completionHandler(YES);
 }
-
-
 
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options {
     return [self compatApplication:application handleOpenURL:url];
@@ -549,8 +572,7 @@
             }
         }
     } else if ([stops characterAtIndex:0] != 'd') {
-        @synchronized (userData)
-        {
+        @synchronized (userData) {
             if (name == nil || name.length == 0) {
                 name = kNewBookMark;
             }
@@ -574,10 +596,8 @@
     return YES;
 }
 
-
 // The method will be called on the delegate only if the application is in the foreground. If the method is not implemented or the handler is not called in a timely manner then the notification will not be presented. The application can choose to have the notification presented as a sound, badge, alert and/or in the notification list. This decision should be based on whether the information in the notification is otherwise visible to the user.
-- (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
-{
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler {
     AlarmNotification *notify = [[AlarmNotification alloc] init];
     
     UIApplicationState previousState = [UIApplication sharedApplication].applicationState;
@@ -590,23 +610,21 @@
 }
 
 // The method will be called on the delegate when the user responded to the notification by opening the application, dismissing the notification or choosing a UNNotificationAction. The delegate must be set before the application returns from application:didFinishLaunchingWithOptions:.
-- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void(^)(void))completionHandler
-{
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
     AlarmNotification *notify = [[AlarmNotification alloc] init];
-
+    
     
     UIApplicationState previousState = [UIApplication sharedApplication].applicationState;
     
     notify.previousState = previousState;
     
     [notify application:[UIApplication sharedApplication] didReceiveLocalNotification:response.notification.request];
-     
+    
     completionHandler();
 }
 
 // The method will be called on the delegate when the application is launched in response to the user's request to view in-app notification settings. Add UNAuthorizationOptionProvidesAppNotificationSettings as an option in requestAuthorizationWithOptions:completionHandler: to add a button to inline notification settings view and the notification settings view in Settings. The notification will be nil when opened from Settings.
-- (void)userNotificationCenter:(UNUserNotificationCenter *)center openSettingsForNotification:(nullable UNNotification *)notification
-{
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center openSettingsForNotification:(nullable UNNotification *)notification {
     AlarmNotification *notify = [[AlarmNotification alloc] init];
     
     UIApplicationState previousState = [UIApplication sharedApplication].applicationState;
@@ -615,7 +633,6 @@
     
     [notify application:[UIApplication sharedApplication] didReceiveLocalNotification:notification.request];
 }
-
 
 + (PDXBusAppDelegate *)sharedInstance {
     return (PDXBusAppDelegate *)[UIApplication sharedApplication].delegate;

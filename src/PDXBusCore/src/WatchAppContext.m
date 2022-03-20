@@ -13,6 +13,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+
 #import "WatchAppContext.h"
 #import "BlockColorDb.h"
 #import "UserState.h"
@@ -47,9 +49,11 @@
 #ifndef PDXBUS_WATCH
 - (void)updateWatch:(WCSession *)session API_AVAILABLE(ios(9.0)) {
     NSDictionary *blockColorData = [BlockColorDb sharedInstance].db;
-    NSDictionary *appData = UserState.sharedInstance.rawData;
     
     if (session != nil && session.isWatchAppInstalled) {
+        [UserState.sharedInstance incrementWatchSequence];
+        NSDictionary *appData = UserState.sharedInstance.rawData;
+        
         Class uuidClass = (NSClassFromString(@"NSUUID"));
         NSString *UUID = nil;
         NSError *error = nil;

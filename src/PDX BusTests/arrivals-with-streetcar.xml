@@ -1,0 +1,42 @@
+<resultSet xmlns="urn:trimet:rt" queryTime="1602013947837">
+    <location id="8989" desc="NW 23rd &amp; Marshall" dir="Southbound" lat="45.5306116478909" lng="-122.698688376761" passengerCode="E"/>
+    <arrival id="10210069_46620_6" blockID="1504" departed="false" dir="1" status="estimated" estimated="1602014224000" showMilesAway="false" dropOffOnly="false" fullSign="15 Belmont/NW 23rd to Gateway TC" piece="1" route="15" scheduled="1602014220000" shortSign="15 Gateway TC" locid="8989" tripID="10210069" newTrip="false" detoured="true" feet="3747" vehicleID="3515" loadPercentage="" inCongestion="false">
+        <detour id="70993"/>
+        <blockPosition id="1504" vehicleID="3515" routeNumber="15" direction="1" tripID="10210069" newTrip="false" signMessage="15 Gateway TC" signMessageLong="15 Belmont/NW 23rd to Gateway TC" lastLocID="" lastStopSeq="" nextLocID="5836" nextStopSeq="1" at="1602013924382" heading="88" lat="45.5353517" lng="-122.706568">
+            <trip id="10210069" newTrip="false" desc="Gateway Layover" dir="1" route="15" destDist="3747" pattern="25" progress="0"/>
+        </blockPosition>
+    </arrival>
+    <arrival id="10210070_47520_6" blockID="1505" departed="false" dir="1" status="estimated" estimated="1602015120000" showMilesAway="false" dropOffOnly="false" fullSign="15 Belmont/NW 23rd to Gateway TC" piece="1" route="15" scheduled="1602015120000" shortSign="15 Gateway TC" locid="8989" tripID="10210070" newTrip="false" detoured="true" feet="16365" vehicleID="3573" loadPercentage="" inCongestion="false">
+        <detour id="70993"/>
+        <blockPosition id="1505" vehicleID="3573" routeNumber="15" direction="1" tripID="10210070" newTrip="false" signMessage="15 Gateway TC" signMessageLong="15 Belmont/NW 23rd to Gateway TC" lastLocID="" lastStopSeq="" nextLocID="6470" nextStopSeq="1" at="1602013939391" heading="120" lat="45.5538172" lng="-122.7305323">
+            <trip id="10210070" newTrip="false" desc="Gateway Layover" dir="1" route="15" destDist="16365" pattern="13" progress="0"/>
+        </blockPosition>
+    </arrival>
+    <arrival id="10210071_48420_6" blockID="1506" departed="false" dir="1" status="estimated" estimated="1602016020000" showMilesAway="false" dropOffOnly="false" fullSign="15 Belmont/NW 23rd to Gateway TC" piece="1" route="15" scheduled="1602016020000" shortSign="15 Gateway TC" locid="8989" tripID="10210071" newTrip="false" detoured="true" feet="9559" vehicleID="3152" loadPercentage="" inCongestion="false">
+        <detour id="70993"/>
+        <blockPosition id="1506" vehicleID="3152" routeNumber="15" direction="0" tripID="10209822" newTrip="false" signMessage="15 To Thurman" signMessageLong="15 NW 23rd Ave to NW Thurman St" lastLocID="5839" lastStopSeq="72" nextLocID="5841" nextStopSeq="73" at="1602013921332" heading="285" lat="45.5358783" lng="-122.7144129">
+            <trip id="10209822" newTrip="false" desc="Thurman &amp; 27th" dir="0" route="15" destDist="64850" pattern="36" progress="59038"/>
+            <trip id="10210071" newTrip="false" desc="Gateway Layover" dir="1" route="15" destDist="3747" pattern="25" progress="0"/>
+        </blockPosition>
+    </arrival>
+    
+    <!-- This is he arrival to check -->
+    <arrival blockID="76" id="760_47280_6" newTrip="false" streetCar="true" nextBusFeed="true" route="193" dir="1" scheduled="1602014880000" estimated="1602014880000" status="estimated" fullSign="Portland Streetcar NS Line to South Waterfront" shortSign="Portland Streetcar NS Line to South Waterfront" locid="8989" detoured="true">
+        <detour id="74434"/>
+    </arrival>
+    <arrival blockID="77" id="771_48480_6" newTrip="false" streetCar="true" nextBusFeed="true" route="193" dir="1" scheduled="1602016080000" estimated="1602016080000" status="estimated" fullSign="Portland Streetcar NS Line to South Waterfront" shortSign="Portland Streetcar NS Line to South Waterfront" locid="8989" detoured="true">
+        <detour id="74434"/>
+    </arrival>
+    <detour begin="1585093573281" end="" id="74434" info_link_url="https://portlandstreetcar.org/news/2020/03/streetcar-service-will-reduce-to-20-minute-headways-beginning-march-24" header_text="" system_wide_flag="false" desc="Streetcar has reduced regular weekday service to every 20 minutes between about 5:30 a.m. and about 11:30 p.m. For more info:">
+        <route xmlns="urn:trimet:schedule" desc="Portland Streetcar - NS Line" route="193" id="193" type="R" routeColor="84BD00" routeSortOrder="200" frequentService="false" no_service_flag="false"/>
+        <route xmlns="urn:trimet:schedule" desc="Portland Streetcar - A Loop" route="194" id="194" type="R" routeColor="CE0F69" routeSortOrder="250" frequentService="false" no_service_flag="false"/>
+        <route xmlns="urn:trimet:schedule" desc="Portland Streetcar - B Loop" route="195" id="195" type="R" routeColor="0093B2" routeSortOrder="275" frequentService="false" no_service_flag="false"/>
+    </detour>
+    <detour begin="1582249544497" end="" id="70993" info_link_url="" header_text="No service to westbound NW Thurman &amp; 28th (Stop ID 5837) due to long term stop closure. " system_wide_flag="false" desc="No service to westbound NW Thurman &amp; 28th (Stop ID 5837) due to long term stop closure. ">
+        <route xmlns="urn:trimet:schedule" desc="15-Belmont/NW 23rd" route="15" id="15" type="B" routeColor="" routeSortOrder="1800" frequentService="true" no_service_flag="false"/>
+        <location id="5837" desc="NW Thurman &amp; 28th" dir="Westbound" lat="45.5353626851944" lng="-122.709082336019" passengerCode="E" no_service_flag="false"/>
+    </detour>
+    <detour begin="1601663460000" end="" id="72332" info_link_url="http://trimet.org/health" header_text="Face covering required on TriMet" system_wide_flag="true" desc="To help keep transit safe for riders and employees, face coverings are required on board.">
+        <system_wide_message type="normal"/>
+    </detour>
+</resultSet>

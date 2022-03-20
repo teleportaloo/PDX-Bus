@@ -21,13 +21,13 @@
 #import "NSString+Helper.h"
 #import "Settings.h"
 #import "CLLocation+Helper.h"
-#import "NSDictionary+TriMetCaseInsensitive.h"
+#import "NSDictionary+Types.h"
 #import "TriMetXMLSelectors.h"
 
 @interface XMLLocateVehicles () {
 }
 
-@property (nonatomic, strong) NSString *direction;
+@property (nonatomic, copy) NSString *direction;
 
 @end
 
@@ -85,8 +85,14 @@
         double lonmax = fmax(northWestCorner.longitude, southEastCorner.longitude);
         double latmax = fmax(northWestCorner.latitude,  southEastCorner.latitude);
         
-        query = [NSString stringWithFormat:@"vehicles/bbox/%f,%f,%f,%f/xml/true/onRouteOnly/true%@%@%@",
-                 lonmin, latmin, lonmax, latmax, routeQuery, blockQuery, vehicleQuery];
+        query = [NSString stringWithFormat:@"vehicles/bbox/%@,%@,%@,%@/xml/true/onRouteOnly/true%@%@%@",
+                 COORD_TO_STR(lonmin),
+                 COORD_TO_STR(latmin),
+                 COORD_TO_STR(lonmax),
+                 COORD_TO_STR(latmax),
+                 routeQuery,
+                 blockQuery,
+                 vehicleQuery];
     } else {
         query = [NSString stringWithFormat:@"vehicles/xml/true/onRouteOnly/true%@%@%@", routeQuery, blockQuery, vehicleQuery];
     }
@@ -104,7 +110,7 @@
     return res;
 }
 
-XML_START_ELEMENT(resultset) {
+XML_START_ELEMENT(resultSet) {
     [self initItems];
     _hasData = YES;
 }
@@ -113,11 +119,11 @@ XML_START_ELEMENT(vehicle) {
     NSString *dir = XML_NON_NULL_ATR_STR(@"direction");
     
     if (self.direction == nil || [self.direction isEqualToString:dir]) {
-        Vehicle *currentVehicle = [Vehicle data];
+        Vehicle *currentVehicle = [Vehicle new];
         
         currentVehicle.block = XML_NON_NULL_ATR_STR(@"blockID");
         currentVehicle.nextStopId = XML_NON_NULL_ATR_STR(@"nextLocID");
-        currentVehicle.lastStopId = XML_NON_NULL_ATR_STR(@"lastLocID");
+        currentVehicle.lastStopId = XML_NULLABLE_ATR_STR(@"lastLocID");
         currentVehicle.routeNumber = XML_NON_NULL_ATR_STR(@"routeNumber");
         currentVehicle.direction = dir;
         currentVehicle.signMessage = XML_NON_NULL_ATR_STR(@"signMessage");
@@ -128,6 +134,10 @@ XML_START_ELEMENT(vehicle) {
         currentVehicle.bearing = XML_NON_NULL_ATR_STR(@"bearing");
         currentVehicle.vehicleId = XML_NON_NULL_ATR_STR(@"vehicleID");
         currentVehicle.location = XML_ATR_LOCATION(@"latitude", @"longitude");
+        currentVehicle.loadPercentage = XML_ATR_INT_OR_MISSING(@"loadPercentage", kNoLoadPercentage);
+        currentVehicle.inCongestion = XML_ATR_BOOL_DEFAULT_FALSE(@"inCongestion");
+        currentVehicle.offRoute = XML_ATR_BOOL_DEFAULT_FALSE(@"offRoute");
+        currentVehicle.delay = XML_NULLABLE_ATR_STR(@"delay");
         
         if (self.location != nil) {
             currentVehicle.distance = [currentVehicle.location distanceFromLocation:self.location];

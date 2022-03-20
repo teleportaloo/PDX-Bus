@@ -28,7 +28,7 @@
     // cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     cell.selectionStyle = UITableViewCellSelectionStyleBlue;
     cell.routeLabel.text = self.desc;
-    cell.timeLabel.text = [FormatDistance formatMetres:self.stops.firstObject.distance];
+    cell.timeLabel.text = [FormatDistance formatMetres:self.stops.firstObject.distanceMeters];
     cell.timeLabel.textColor = [UIColor modeAwareBlue];
     
     cell.accessibilityLabel = [NSString stringWithFormat:@"%@, %@",

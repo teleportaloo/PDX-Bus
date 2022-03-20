@@ -20,6 +20,7 @@
 @property (nonatomic, copy)   NSString *javsScriptCommand;
 @property (nonatomic, copy)   NSString *urlToDisplay;
 
+- (void)setNamedUrl:(NSString *)name;
 - (void)setURLmobile:(NSString *)url full:(NSString *)full;
 - (void)setRawData:(NSData *)rawData title:(NSString *)title;
 - (void)displayPage:(UINavigationController *)nav animated:(BOOL)animated itemToDeselect:(id<DeselectItemDelegate>)deselect;
@@ -29,5 +30,22 @@
           navigator:(UINavigationController *)nav
      itemToDeselect:(id<DeselectItemDelegate>)deselect
            whenDone:(UIViewController *)whenDone;
+
+
++ (void)displayNamedPage:(NSString *)name
+               navigator:(UINavigationController *)nav
+          itemToDeselect:(id<DeselectItemDelegate>)deselect
+                whenDone:(UIViewController *)whenDone;
+
+
++ (void)displayNamedPage:(NSString *)name
+               parameter:(NSString *)param
+               navigator:(UINavigationController *)nav
+          itemToDeselect:(id<DeselectItemDelegate>)deselect
+                whenDone:(UIViewController *)whenDone;
+
++ (NSString *)namedURL:(NSString *)name;
++ (NSString *)namedURL:(NSString *)name param:(NSString *)param;
++ (void)openNamedURL:(NSString *)name;
 
 @end

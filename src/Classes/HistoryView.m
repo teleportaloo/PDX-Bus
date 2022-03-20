@@ -13,6 +13,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+
 #import "HistoryView.h"
 #import "UserState.h"
 
@@ -125,8 +127,7 @@
 
 // Override if you support editing the list
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-    @synchronized (_userState)
-    {
+    @synchronized (_userState) {
         if (editingStyle == UITableViewCellEditingStyleDelete) {
             [self.localRecents removeObjectAtIndex:indexPath.row];
             [self favesChanged];
@@ -155,8 +156,7 @@
         DEBUG_LOGIP(fromIndexPath);
         DEBUG_LOGIP(toIndexPath);
         
-        @synchronized (_userState)
-        {
+        @synchronized (_userState) {
             self.localRecents = [self loadItems];
             NSDictionary *move = self.localRecents[fromIndexPath.row];
             

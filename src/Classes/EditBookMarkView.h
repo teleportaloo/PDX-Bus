@@ -15,15 +15,14 @@
 #import <UIKit/UIKit.h>
 #import "TableViewWithToolbar.h"
 #import "EditableTableViewCell.h"
-#import "ReturnStopId.h"
+#import "ReturnStopIdString.h"
 #import "CellTextField.h"
 #import "XMLTrips.h"
-#import "TripReturnUserRequest.h"
 #import "UserState.h"
 #import "TripItemCell.h"
 #import <IntentsUI/IntentsUI.h>
 
-@interface EditBookMarkView : TableViewWithToolbar <EditableTableViewCellDelegate, ReturnStopId, TripReturnUserRequest, INUIAddVoiceShortcutViewControllerDelegate>
+@interface EditBookMarkView : TableViewWithToolbar <EditableTableViewCellDelegate, ReturnStopIdString>
 
 @property (nonatomic) bool invalidItem;
 

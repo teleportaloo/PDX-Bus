@@ -24,6 +24,7 @@
 #import "DetourTableViewCell.h"
 #import "ViewControllerBase+DetourTableViewCell.h"
 #import "Icons.h"
+#import "RunParallelBlocks.h"
 
 @interface DirectionView () {
     CacheAction _cacheAction;
@@ -45,6 +46,7 @@ enum {
     kSectionRowDirection,
     kSectionOther,
     kSectionRowDetour,
+    kRowSiriDetour,
     kSectionRowDisclaimer,
     kOtherRowMap,
     kOtherRowWiki
@@ -79,7 +81,7 @@ enum {
     }
     
     if (taskState.total > 1) {
-        [taskState taskItemsDone:1];
+        [taskState incrementItemsDoneAndDisplay];
     }
 }
 
@@ -91,7 +93,7 @@ enum {
     [self.detourData.items sortUsingSelector:@selector(compare:)];
     
     if (taskState.total > 1) {
-        [taskState taskItemsDone:2];
+        [taskState incrementItemsDoneAndDisplay];
     }
 }
 
@@ -109,9 +111,17 @@ enum {
             taskState.total = 1;
         }
         
-        [self subTaskFetchDirections:route taskState:taskState];
+        RunParallelBlocks *parallelBlocks = [RunParallelBlocks instance];
         
-        [self subTaskFetchDetours:taskState];
+        [parallelBlocks startBlock:^{
+            [self subTaskFetchDirections:route taskState:taskState];
+        }];
+        
+        [parallelBlocks startBlock:^{
+            [self subTaskFetchDetours:taskState];
+        }];
+        
+        [parallelBlocks waitForBlocks];
         
         [self clearSectionMaps];
         
@@ -128,17 +138,20 @@ enum {
         [self addRowType:kOtherRowMap];
         
         if (self.route) {
-            PC_ROUTE_INFO info = self.route.rawColor;
+            PtrConstRouteInfo info = self.route.rawColor;
             
             if (info != nil && info->wiki != nil) {
                 [self addRowType:kOtherRowWiki];
             }
         }
         
+        [self addSectionType:kSectionRowDetour];
+        
         if (self.detourData.count > 0) {
-            [self addSectionType:kSectionRowDetour];
             [self addRowType:kSectionRowDetour count:self.detourData.count];
         }
+        
+        [self addRowType:kRowSiriDetour];
         
         [self addRowType:kSectionRowDisclaimer];
         
@@ -160,14 +173,6 @@ enum {
 #pragma mark TableView callbacks
 
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return self.sections;
-}
-
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [self rowsInSection:section];
-}
-
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = nil;
     
@@ -180,9 +185,9 @@ enum {
                   cellWithReuseIdentifier:MakeCellId(kSectionRowName)
                                 rowHeight:[self tableView:tableView heightForRowAtIndexPath:indexPath]];
             
-            PC_ROUTE_INFO info = self.route.rawColor;
+            PtrConstRouteInfo info = self.route.rawColor;
             [RailStation populateCell:cell
-                              station:self.route.desc
+                              station:self.route.desc.safeEscapeForMarkUp
                                 lines:info ? info->line_bit : 0];
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             //    DEBUG_LOG(@"Section %d row %d offset %d index %d name %@ line %x\n", indexPath.section,
@@ -199,7 +204,7 @@ enum {
             }
             
             cell.textLabel.textColor = [UIColor modeAwareText];
-            cell.textLabel.text = self.route.directions[self.directionKeys[indexPath.row]];
+            cell.textLabel.text = self.route.directions[self.directionKeys[indexPath.row]].desc;
             cell.textLabel.font = self.basicFont;
             cell.textLabel.adjustsFontSizeToFitWidth = YES;
             cell.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
@@ -223,25 +228,31 @@ enum {
         }
             
         case kOtherRowMap:
-        case kOtherRowWiki: {
+        case kOtherRowWiki:
+        case kRowSiriDetour: {
             cell = [self tableView:tableView cellWithReuseIdentifier:kDirectionId];
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-            cell.textLabel.textColor = [UIColor darkGrayColor];
+            cell.textLabel.textColor = [UIColor modeAwareText];
             cell.textLabel.font = self.basicFont;
             switch (rowType) {
                 case kOtherRowMap:
-                    cell.textLabel.text = NSLocalizedString(@"Map & schedule page", @"button text");
-                    cell.imageView.image = [Icons getIcon:kIconLink];
+                    cell.textLabel.text = NSLocalizedString(@"TriMet Map & schedule page", @"menu item");
+                    cell.imageView.image = [Icons getIcon:kIconTriMetLink];
                     break;
                     
                 case kOtherRowWiki:
                     cell.textLabel.text = NSLocalizedString(@"Wikipedia page", @"Link to English wikipedia page");
                     cell.imageView.image = [Icons characterIcon:@"W"];
                     break;
+                case kRowSiriDetour:
+                    cell.textLabel.text = NSLocalizedString(@"Add route alerts to Siri", @"menu item");
+                    cell.imageView.image = [Icons getIcon:kIconSiri];
+                    break;
             }
             [self updateAccessibility:cell];
             break;
         }
+            
             
         case kSectionRowDetour: {
             DetourTableViewCell *cell = nil;
@@ -253,7 +264,7 @@ enum {
                 
                 cell.includeHeaderInDescription = YES;
              
-                [cell populateCell:det font:self.paragraphFont route:nil];
+                [cell populateCell:det route:nil];
                 
                  __weak __typeof__(self) weakSelf = self;
                 
@@ -280,7 +291,7 @@ enum {
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     if (self.route == nil) {
-        [self networkTips:self.directionData.htmlError networkError:self.directionData.errorMsg];
+        [self networkTips:self.directionData.htmlError networkError:self.directionData.networkErrorMsg];
         [self clearSelection];
         return;
     }
@@ -298,10 +309,10 @@ enum {
             NSString *dr = self.directionKeys[indexPath.row];
             NSString *rd = self.route.desc;
             
-            stopViewController.stopIdCallback = self.stopIdCallback;
+            stopViewController.stopIdStringCallback = self.stopIdStringCallback;
             [stopViewController fetchStopsAsync:self.backgroundTask route:rt direction:dr
                                     description:rd
-                                  directionName:self.route.directions[self.directionKeys[indexPath.row]]
+                                  directionName:self.route.directions[self.directionKeys[indexPath.row]].desc
                               backgroundRefresh:NO];
             break;
         }
@@ -309,11 +320,11 @@ enum {
         case kOtherRowWiki: {
             NSString *wiki = [TriMetInfo infoForRoute:self.route.route]->wiki;
             
-            [WebViewController displayPage:[NSString stringWithFormat:@"https://en.m.wikipedia.org/wiki/%@", wiki]
-                                      full:[NSString stringWithFormat:@"https://en.wikipedia.org/wiki/%@", wiki ]
-                                 navigator:self.navigationController
-                            itemToDeselect:self
-                                  whenDone:self.callbackWhenDone];
+            [WebViewController displayNamedPage:@"Wikipedia"
+                                      parameter:wiki
+                                      navigator:self.navigationController
+                                 itemToDeselect:self
+                                       whenDone:self.callbackWhenDone];
         }
             break;
             
@@ -322,9 +333,15 @@ enum {
             [self clearSelection];
             break;
             
+        case kRowSiriDetour:
+            [self tableView:tableView siriAlertsForRoute:self.route.desc routeNumner:self.route.route];
+            [self showRouteSchedule:self.route.route];
+            [self clearSelection];
+            break;
+            
         case kSectionRowDisclaimer: {
             if (self.directionData.items == nil) {
-                [self networkTips:self.directionData.htmlError networkError:self.directionData.errorMsg];
+                [self networkTips:self.directionData.htmlError networkError:self.directionData.networkErrorMsg];
                 [self clearSelection];
             }
             
@@ -380,6 +397,7 @@ enum {
         case kSectionRowDirection:
         case kOtherRowMap:
         case kOtherRowWiki:
+        case kRowSiriDetour:
             return [self basicRowHeight];
             
         case kSectionRowDisclaimer:

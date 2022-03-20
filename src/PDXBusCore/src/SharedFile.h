@@ -18,7 +18,7 @@
 
 @interface SharedFile : NSObject
 
-@property (nonatomic, readonly) bool canUseSharedFilePath;
+@property (class, nonatomic, readonly) bool canUseSharedFilePath;
 @property (strong) NSURL *urlToSharedFile;
 @property (nonatomic, copy) NSString *shortName;
 
@@ -29,5 +29,6 @@
 - (void)deleteFile;
 
 + (instancetype)fileWithName:(NSString *)shortFileName initFromBundle:(bool)initFromBundle;
++ (void)removeFileWithName:(NSString *)shortFileName;
 
 @end

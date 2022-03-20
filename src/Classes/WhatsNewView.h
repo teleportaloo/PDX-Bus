@@ -23,17 +23,17 @@
 - (void)processAction:(NSString *)text parent:(ViewControllerBase *)parent;
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell text:(NSString *)text;
 - (void)updateCell:(LinkCell *)cell tableView:(UITableView *)tableView;
-- (NSString *)displayText:(NSString *)fullText;
-- (NSString *)plainText:(NSString *)fullText;
+- (NSString *)displayMarkedUpText:(NSString *)fullText;
+- (NSString *)plainTextFromMarkUp:(NSString *)fullText;
 
 + (NSNumber *)getPrefix;
 
 @end
 
-typedef NSMutableArray<NSString *> WHATS_NEW_SECTION;
+typedef NSMutableArray<NSString *> WhatsNewSection;
 
 
-@interface WhatsNewView : TableViewWithToolbar<WHATS_NEW_SECTION *>
+@interface WhatsNewView : TableViewWithToolbar<WhatsNewSection *>
 
 + (NSString *)version;
 

@@ -13,6 +13,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+
 #import "TripPlannerSummaryView.h"
 #import "UserState.h"
 #import "TripPlannerEndPointView.h"
@@ -155,14 +157,6 @@ enum {
     [self reloadData];
 }
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return self.sections;
-}
-
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [self rowsInSection:section];
-}
-
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
     if ([self sectionType:section] == kSectionUserRequest) {
         return NSLocalizedString(@"Enter trip details:", @"section header");
@@ -214,7 +208,7 @@ enum {
     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     cell.imageView.image = nil;
     
-    [cell populateBody:[self.tripQuery.userRequest optionsDisplayText] mode:@"Options" time:nil leftColor:nil route:nil];
+    [cell populateMarkedUpBody:[self.tripQuery.userRequest optionsDisplayText] mode:@"Options" time:nil leftColor:nil route:nil];
 }
 
 - (void)populateEnd:(TripItemCell *)cell from:(bool)from {
@@ -225,14 +219,14 @@ enum {
     NSString *dir;
     
     if (from) {
-        text = [self.tripQuery.userRequest.fromPoint userInputDisplayText];
+        text = [self.tripQuery.userRequest.fromPoint markedUpUserInputDisplayText];
         dir = @"From";
     } else {
-        text = [self.tripQuery.userRequest.toPoint userInputDisplayText];
+        text = [self.tripQuery.userRequest.toPoint markedUpUserInputDisplayText];
         dir = @"To";
     }
     
-    [cell populateBody:text mode:dir time:nil leftColor:nil route:nil];
+    [cell populateMarkedUpBody:text mode:dir time:nil leftColor:nil route:nil];
 }
 
 - (NSUInteger)timeChoice {
@@ -396,8 +390,7 @@ enum {
             tripEnd.from = (rowType != kTripSectionRowTo);
             tripEnd.tripQuery = [XMLTrips xml];
             tripEnd.tripQuery.userRequest = self.tripQuery.userRequest;
-            @synchronized (_userState)
-            {
+            @synchronized (_userState) {
                 [tripEnd.tripQuery addStopsFromUserFaves:_userState.faves];
             }
             tripEnd.popBackTo = self;

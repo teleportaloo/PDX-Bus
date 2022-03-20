@@ -33,7 +33,12 @@
         self.blockColor.image = nil;
         [self.mins setText:nil];
     } else {
-        [self.heading setAttributedText:dep.headingWithStatus];
+        if (deps.count == 1)
+        {
+            [self.heading setAttributedText:[dep headingWithStatusFullSign:YES]];
+        } else {
+            [self.heading setAttributedText:[dep headingWithStatusFullSign:NO]];
+        }
         [self.mins setText:dep.formattedMinsToArrival];
         [self.mins setTextColor:dep.fontColor];
         [self.lineColor setImage:dep.routeColorImage];
@@ -64,6 +69,7 @@
         Departure *data = xml[self.index.integerValue];
         
         detailContext.detailBlock = data.block;
+        detailContext.detailDir = data.dir;
         detailContext.stopId = context.stopId;
         detailContext.stopDesc = context.stopDesc;
         detailContext.navText = context.navText;

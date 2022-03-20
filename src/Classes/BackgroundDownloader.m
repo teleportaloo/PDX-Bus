@@ -77,7 +77,7 @@
     }
 }
 
-- (bool)startFetchInBackground:(TriMetXML *)xml query:(NSString *)query completion:(backgroundCompletionHandler)completionHander; {
+- (bool)startFetchInBackground:(TriMetXML *)xml query:(NSString *)query completion:(BackgroundCompletionHandler)completionHander; {
     @synchronized (self.absQueryFromOriginal) {
         if (self.absQueryFromOriginal[query] != nil) {
             return NO;
@@ -101,7 +101,7 @@
         
         self.absQueryFromOriginal[fullQuery] = absQuery;
         
-        BackgroundDownloadState *state = [BackgroundDownloadState data];
+        BackgroundDownloadState *state = [BackgroundDownloadState new];
         
         state.task = task;
         state.handler = completionHander;
@@ -169,8 +169,7 @@
 }
 
 - (void)remove:(NSString *)absQuery {
-    @synchronized (self.absQueryFromOriginal)
-    {
+    @synchronized (self.absQueryFromOriginal) {
         [self.stateForAbsQuery removeObjectForKey:absQuery];
         
         [self.absQueryFromOriginal enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull key, NSString *_Nonnull obj, BOOL *_Nonnull stop) {
@@ -183,8 +182,7 @@
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(nullable NSError *)error {
-    @synchronized (self.absQueryFromOriginal)
-    {
+    @synchronized (self.absQueryFromOriginal) {
         if ([task isKindOfClass:[NSURLSessionDownloadTask class]]) {
             NSURLSessionDownloadTask *downloadTask = (NSURLSessionDownloadTask *)task;
             
@@ -198,8 +196,7 @@
 }
 
 - (NSString *)progess:(NSString *)query {
-    @synchronized (self.absQueryFromOriginal)
-    {
+    @synchronized (self.absQueryFromOriginal) {
         NSString *absQuery = self.absQueryFromOriginal[query];
         
         if (absQuery) {

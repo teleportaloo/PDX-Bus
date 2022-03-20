@@ -48,33 +48,31 @@
 			<key>Type</key>
 			<string>PSGroupSpecifier</string>
 			<key>Title</key>
-			<string>The vehicle locator is an experimental feature that will try to find which vehicle you are currently on. The search distance may need tuning.</string>
+			<string>The vehicle locator is a feature that will try to find which vehicle you are currently on. The search distance may need tuning.</string>
 		</dict>
 		<dict>
 			<key>Values</key>
 			<array>
 				<integer>0</integer>
-				<integer>200</integer>
-				<real>400</real>
-				<real>600</real>
-				<integer>800</integer>
+				<integer>161</integer>
+				<integer>322</integer>
+				<integer>643</integer>
 			</array>
 			<key>Titles</key>
 			<array>
 				<string>OFF</string>
-				<string>200 meters</string>
-				<string>400 meters</string>
-				<string>600 meters</string>
-				<string>800 meters</string>
+				<string>0.1 miles</string>
+				<string>0.2 miles</string>
+				<string>0.4 miles</string>
 			</array>
 			<key>Type</key>
 			<string>PSMultiValueSpecifier</string>
 			<key>Title</key>
 			<string>Vehicle Locator</string>
 			<key>Key</key>
-			<string>vehicle_locator_distance</string>
+			<string>vehicle_locator_distance2</string>
 			<key>DefaultValue</key>
-			<integer>0</integer>
+			<integer>322</integer>
 		</dict>
 		<dict>
 			<key>Title</key>
@@ -113,28 +111,6 @@
 			<string>Route &amp; Stop Data Cache:</string>
 			<key>Type</key>
 			<string>PSGroupSpecifier</string>
-		</dict>
-		<dict>
-			<key>DefaultValue</key>
-			<integer>1</integer>
-			<key>Key</key>
-			<string>route_cache</string>
-			<key>Title</key>
-			<string>Keep data until</string>
-			<key>Titles</key>
-			<array>
-				<string>app quits</string>
-				<string>end of day</string>
-				<string>end of week</string>
-			</array>
-			<key>Type</key>
-			<string>PSMultiValueSpecifier</string>
-			<key>Values</key>
-			<array>
-				<integer>0</integer>
-				<integer>1</integer>
-				<integer>7</integer>
-			</array>
 		</dict>
 		<dict>
 			<key>Type</key>

@@ -21,6 +21,8 @@
 #import "UIAlertController+SimpleMessages.h"
 #import "UIApplication+Compat.h"
 
+#define DEBUG_LEVEL_FOR_FILE kLogWeb
+
 @interface WebViewController () {
     int _depth;
     bool _navigated;
@@ -74,6 +76,11 @@
         self.urlToDisplay = url;
     }
     
+    self.title = NSLocalizedString(@"Loading page...", @"Initial web page title");
+}
+
+- (void)setNamedUrl:(NSString *)name {
+    self.urlToDisplay = [WebViewController namedURL:name];
     self.title = NSLocalizedString(@"Loading page...", @"Initial web page title");
 }
 
@@ -313,11 +320,7 @@
 }
 
 - (bool)openSafariFrom:(UIViewController *)view path:(NSString *)path {
-    if (@available(iOS 9.0, *)) {
-        return [super openSafariFrom:view path:path];
-    }
-    
-    return FALSE;
+    return [super openSafariFrom:view path:path];
 }
 
 + (void)displayPage:(NSString *)mobile
@@ -347,6 +350,52 @@
     }
 }
 
+
++ (void)displayNamedPage:(NSString *)name
+               navigator:(UINavigationController *)nav
+          itemToDeselect:(id<DeselectItemDelegate>)deselect
+                whenDone:(UIViewController *)whenDone {
+    @try {
+        WebViewController *webPage = [WebViewController viewController];
+        
+        webPage.urlToDisplay = [WebViewController namedURL:name];
+        webPage.whenDone = whenDone;
+        webPage.showErrors = NO;
+        
+        [webPage displayPage:nav animated:YES itemToDeselect:deselect];
+    } @catch (NSException *exception)   {
+        ERROR_LOG(@"Exception: %@ %@\n", exception.name, exception.reason);
+        UIAlertController * alert = [UIAlertController simpleOkWithTitle:NSLocalizedString(@"Unable to open link", @"error")
+                                                                 message:[NSString stringWithFormat:@"Reason: %@", exception.reason]];
+        [nav.topViewController presentViewController:alert animated:YES completion:nil];
+        
+    }
+}
+
+
++ (void)displayNamedPage:(NSString *)name
+               parameter:(NSString *)param
+               navigator:(UINavigationController *)nav
+          itemToDeselect:(id<DeselectItemDelegate>)deselect
+                whenDone:(UIViewController *)whenDone {
+    @try {
+        WebViewController *webPage = [WebViewController viewController];
+        
+        webPage.urlToDisplay = [WebViewController namedURL:name param:param];
+        webPage.whenDone = whenDone;
+        webPage.showErrors = NO;
+        
+        [webPage displayPage:nav animated:YES itemToDeselect:deselect];
+    } @catch (NSException *exception)   {
+        ERROR_LOG(@"Exception: %@ %@\n", exception.name, exception.reason);
+        UIAlertController * alert = [UIAlertController simpleOkWithTitle:NSLocalizedString(@"Unable to open link", @"error")
+                                                                 message:[NSString stringWithFormat:@"Reason: %@", exception.reason]];
+        [nav.topViewController presentViewController:alert animated:YES completion:nil];
+        
+    }
+}
+
+
 - (void)displayPage:(UINavigationController *)nav animated:(BOOL)animated itemToDeselect:(id<DeselectItemDelegate>)deselect {
     if (Settings.useChrome && [OpenInChromeController sharedInstance].chromeInstalled && self.urlToDisplay != nil) {
         [[OpenInChromeController sharedInstance] openInChrome:[NSURL URLWithString:self.urlToDisplay]
@@ -363,6 +412,76 @@
     } else {
         [nav pushViewController:self animated:animated];
     }
+}
+
++ (NSString *)namedURL:(NSString *)name param:(NSString *)param {
+    NSString *url = [WebViewController namedURL:name];
+    
+    if (url) {
+        return [NSString stringWithFormat:url, param];
+    }
+    
+    return nil;
+}
+
++ (void)openNamedURL:(NSString *)name {
+    [[UIApplication sharedApplication] compatOpenURL:[NSURL URLWithString:[WebViewController namedURL:name]]];
+}
++ (NSString *)namedURL:(NSString *)name {
+    static dispatch_once_t once;
+    static NSDictionary *links;
+    
+#ifdef DEBUGLOGGING
+    static NSMutableSet *itemsLeft;
+#endif
+    
+    dispatch_once(&once, ^{
+        links = [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"web-links" ofType:@"plist"]];
+    
+#ifdef DEBUGLOGGING
+        itemsLeft = [NSMutableSet setWithArray:links.allKeys];
+#endif
+    });
+        
+    NSDictionary *item = links[name];
+    
+    if (item == nil) {
+        ERROR_LOG(@"Named URL not found: %@", name);
+        return nil;
+    }
+    
+    NSString *full   = item[@"LinkF"];
+    NSString *mobile = item[@"LinkM"];
+    NSString *final  = nil;
+    
+    if (LARGE_SCREEN && full != nil) {
+        final = full;
+    }
+    
+    if (final == nil) {
+        final = mobile;
+    }
+    
+    if (final == nil) {
+        final = full;
+    }
+    
+    if (final == nil) {
+        ERROR_LOG(@"No link for named URL: %@", name);
+    }
+    
+#ifdef DEBUGLOGGING
+    [itemsLeft removeObject:name];
+    
+    DEBUG_LOG(@"Link %@", name);
+    DEBUG_LOG(@"Links to go %ld", (long)itemsLeft.count);
+    
+    for (NSString *left in itemsLeft) {
+        DEBUG_LOG(@"Not used: %@", left);
+    }
+#endif
+    
+    return final;
 }
 
 @end

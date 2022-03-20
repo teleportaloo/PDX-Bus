@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<body copyright="All data copyright Portland Streetcar 2018.">
+    <route tag="all">
+    </route>
+    <route tag="195">
+        <message id="6487" startBoundary="1527200357567" startBoundaryStr="Thu, May 24 15:19:17 PDT 2018" endBoundary="1527214757567" endBoundaryStr="Thu, May 24 19:19:17 PDT 2018" sendToBuses="false" priority="Normal">
+            <routeConfiguredForMessage tag="195"></routeConfiguredForMessage>
+            <routeConfiguredForMessage tag="194"></routeConfiguredForMessage>
+            <routeConfiguredForMessage tag="193"></routeConfiguredForMessage>
+            <text>A &amp; B Loop being served by buses.</text>
+        </message>
+        <message id="6486" startBoundary="1527198447123" startBoundaryStr="Thu, May 24 14:47:27 PDT 2018" endBoundary="1527212847123" endBoundaryStr="Thu, May 24 18:47:27 PDT 2018" sendToBuses="false" priority="Normal">
+            <routeConfiguredForMessage tag="195"></routeConfiguredForMessage>
+            <routeConfiguredForMessage tag="194"></routeConfiguredForMessage>
+            <routeConfiguredForMessage tag="193"></routeConfiguredForMessage>
+            <text>A &amp; B Loop being served by buses.</text>
+        </message>
+        <message id="6489" startBoundary="1527203160000" startBoundaryStr="Thu, May 24 16:06:00 PDT 2018" endBoundary="1527231960000" endBoundaryStr="Fri, May 25 00:06:00 PDT 2018" sendToBuses="false" priority="Normal">
+            <routeConfiguredForMessage tag="195">        <stop tag="11484" title="SE Grand &amp; Belmont" />
+                <stop tag="9343" title="NE Grand &amp; Multnomah" />
+                <stop tag="13616" title="SE Grand &amp; Hawthorne" />
+                <stop tag="13619" title="NE Broadway &amp; Ross" />
+                <stop tag="13617" title="NE Grand &amp; Broadway" />
+                <stop tag="13618" title="NE Broadway &amp; 2nd" />
+                <stop tag="13615" title="SE Water/OMSI" />
+                <stop tag="13597" title="SE Grand &amp; Stark" />
+                <stop tag="2167" title="SE Grand &amp; E Burnside" />
+                <stop tag="13604" title="NW 10th &amp; Northrup" />
+                <stop tag="2175" title="NE Grand &amp; Holladay" />
+                <stop tag="13601" title="SW Moody &amp; Meade South" />
+                <stop tag="2171" title="SE Grand &amp; Mill" />
+                <stop tag="13620_ar" title="NW 11th &amp; Marshall" />
+                <stop tag="11483" title="SE Grand &amp; Taylor" />
+                <stop tag="2169" title="NE Grand &amp; Hoyt" />
+            </routeConfiguredForMessage>
+            <text>Please board B Loop Buses on the Max Platform</text>
+        </message>
+        <message id="6485" startBoundary="1527198399066" startBoundaryStr="Thu, May 24 14:46:39 PDT 2018" endBoundary="1527212799066" endBoundaryStr="Thu, May 24 18:46:39 PDT 2018" sendToBuses="false" priority="Normal">
+            <routeConfiguredForMessage tag="195"></routeConfiguredForMessage>
+            <routeConfiguredForMessage tag="194"></routeConfiguredForMessage>
+            <routeConfiguredForMessage tag="193"></routeConfiguredForMessage>
+            <text>A &amp; B Loop being served by buses.</text>
+        </message>
+    </route>
+    <route tag="194">
+        <message id="6487" startBoundary="1527200357567" startBoundaryStr="Thu, May 24 15:19:17 PDT 2018" endBoundary="1527214757567" endBoundaryStr="Thu, May 24 19:19:17 PDT 2018" sendToBuses="false" priority="Normal">
+            <routeConfiguredForMessage tag="195"></routeConfiguredForMessage>
+            <routeConfiguredForMessage tag="194"></routeConfiguredForMessage>
+            <routeConfiguredForMessage tag="193"></routeConfiguredForMessage>
+            <text>A &amp; B Loop being served by buses.</text>
+        </message>
+        <message id="6486" startBoundary="1527198447123" startBoundaryStr="Thu, May 24 14:47:27 PDT 2018" endBoundary="1527212847123" endBoundaryStr="Thu, May 24 18:47:27 PDT 2018" sendToBuses="false" priority="Normal">
+            <routeConfiguredForMessage tag="195"></routeConfiguredForMessage>
+            <routeConfiguredForMessage tag="194"></routeConfiguredForMessage>
+            <routeConfiguredForMessage tag="193"></routeConfiguredForMessage>
+            <text>A &amp; B Loop being served by buses.</text>
+        </message>
+        <message id="6485" startBoundary="1527198399066" startBoundaryStr="Thu, May 24 14:46:39 PDT 2018" endBoundary="1527212799066" endBoundaryStr="Thu, May 24 18:46:39 PDT 2018" sendToBuses="false" priority="Normal">
+            <routeConfiguredForMessage tag="195"></routeConfiguredForMessage>
+            <routeConfiguredForMessage tag="194"></routeConfiguredForMessage>
+            <routeConfiguredForMessage tag="193"></routeConfiguredForMessage>
+            <text>A &amp; B Loop being served by buses.</text>
+        </message>
+    </route>
+    <route tag="193">
+        <message id="6487" startBoundary="1527200357567" startBoundaryStr="Thu, May 24 15:19:17 PDT 2018" endBoundary="1527214757567" endBoundaryStr="Thu, May 24 19:19:17 PDT 2018" sendToBuses="false" priority="Normal">
+            <routeConfiguredForMessage tag="195"></routeConfiguredForMessage>
+            <routeConfiguredForMessage tag="194"></routeConfiguredForMessage>
+            <routeConfiguredForMessage tag="193"></routeConfiguredForMessage>
+            <text>A &amp; B Loop being served by buses.</text>
+        </message>
+        <message id="6486" startBoundary="1527198447123" startBoundaryStr="Thu, May 24 14:47:27 PDT 2018" endBoundary="1527212847123" endBoundaryStr="Thu, May 24 18:47:27 PDT 2018" sendToBuses="false" priority="Normal">
+            <routeConfiguredForMessage tag="195"></routeConfiguredForMessage>
+            <routeConfiguredForMessage tag="194"></routeConfiguredForMessage>
+            <routeConfiguredForMessage tag="193"></routeConfiguredForMessage>
+            <text>A &amp; B Loop being served by buses.</text>
+        </message>
+        <message id="6485" startBoundary="1527198399066" startBoundaryStr="Thu, May 24 14:46:39 PDT 2018" endBoundary="1527212799066" endBoundaryStr="Thu, May 24 18:46:39 PDT 2018" sendToBuses="false" priority="Normal">
+            <routeConfiguredForMessage tag="195"></routeConfiguredForMessage>
+            <routeConfiguredForMessage tag="194"></routeConfiguredForMessage>
+            <routeConfiguredForMessage tag="193"></routeConfiguredForMessage>
+            <text>A &amp; B Loop being served by buses.</text>
+        </message>
+    </route>
+</body>

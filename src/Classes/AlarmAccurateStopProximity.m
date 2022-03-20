@@ -13,6 +13,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogAlarms
+
 #import "AlarmAccurateStopProximity.h"
 #import "AlarmTaskList.h"
 #import "PDXBusAppDelegate+Methods.h"
@@ -24,6 +26,7 @@
 #import "UIViewController+LocationAuthorization.h"
 #import "iOSCompat.h"
 #import "RootViewController.h"
+#import "CLLocation+Helper.h"
 
 #ifdef DEBUG_ALARMS
 #define kDataDictLoc      @"loc"
@@ -335,7 +338,7 @@
     CLLocation *loc = dict[kDataDictLoc];
     
     if (loc != nil) {
-        [str appendFormat:@"%f %f\n", loc.coordinate.latitude, loc.coordinate.longitude];
+        [str appendFormat:@"%@\n", COORD_TO_LAT_LNG_STR(loc.coordinate.latitude)];
         [str appendFormat:@"dist: %f\n", [self distanceFromLocation:loc]];
         [str appendFormat:@"accuracy: %f\n", loc.horizontalAccuracy];
         
@@ -397,7 +400,7 @@
     return MAP_PIN_COLOR_GREEN;
 }
 
-- (bool)showActionMenu {
+- (bool)pinActionMenu {
     return YES;
 }
 
@@ -413,8 +416,13 @@
     return [NSString stringWithFormat:NSLocalizedString(@"Stop ID %@", @"TriMet Stop identifer <number>"), self.stopId];
 }
 
-- (NSString *)mapStopId {
+- (NSString *)pinStopId {
     return self.stopId;
+}
+
+- (NSString *)pinMarkedUpType
+{
+    return nil;
 }
 
 - (NSString *)cellToGo {
@@ -469,8 +477,8 @@
     }
     
     if (coords.count > 0) {
-        ShapeRoutePath *path = [ShapeRoutePath data];
-        ShapeMutableSegment *seg = [ShapeMutableSegment data];
+        ShapeRoutePath *path = [ShapeRoutePath new];
+        ShapeMutableSegment *seg = [ShapeMutableSegment new];
         
         path.route = kShapeNoRoute;
         
@@ -510,7 +518,7 @@
     return nil;
 }
 
-- (bool)hasBearing {
+- (bool)pinHasBearing {
     return NO;
 }
 

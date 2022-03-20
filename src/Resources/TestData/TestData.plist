@@ -16,7 +16,7 @@
 			<string>https://raw.githubusercontent.com/teleportaloo/TriMetTestData/master/tm_routes_v3.kml</string>
 		</array>
 	</dict>
-	<key>System Wide Detours</key>
+	<key>System-wide Detours</key>
 	<dict>
 		<key>XMLDetours</key>
 		<array>

@@ -92,25 +92,25 @@
     return self.systemWide ? @"#!" : @"#O";
 }
 
-- (NSString *)formattedDescriptionWithHeader:(NSString *)additionalText {
-    NSString *header = self.formattedHeaderNewl;
+- (NSString *)markedUpDescriptionWithHeader:(NSString *)additionalText {
+    NSString *header = self.markedUpHeaderNewl;
     
     return [NSString stringWithFormat:@"%@%@%@%@%@%@%@",
             self.headerColor,
             header,
             self.alertColor,
             self.detectStops,
-            self.formattedLink,
+            self.markedUpLink,
             additionalText ?  additionalText : @"",
             self.dateString];
 }
 
-- (NSString *)formattedLink {
+- (NSString *)markedUpLink {
     NSMutableString *url = [NSMutableString string];
     
     if (self.infoLinkUrl)
     {
-        [url appendFormat:@" #L%@ More#T",self.infoLinkUrl.encodeUrlForFormatting];
+        [url appendFormat:@" #L%@ More#T",self.infoLinkUrl.percentEncodeUrl];
     }
     
     if ((self.locations.count != 0 || self.extractStops.count != 0))
@@ -121,50 +121,50 @@
     return url;
 }
 
-- (NSString *)formattedLinkNoMap {
+- (NSString *)markedUpNoMap {
     NSMutableString *url = [NSMutableString string];
     
     if (self.infoLinkUrl)
     {
-        [url appendFormat:@" #L%@ More#T",self.infoLinkUrl.encodeUrlForFormatting];
+        [url appendFormat:@" #L%@ More#T",self.infoLinkUrl.percentEncodeUrl];
     }
 
     return url;
 }
 
-- (NSString *)formattedDescription:(NSString *)additionalText {
+- (NSString *)markedUpDescription:(NSString *)additionalText {
     NSString *header = @"";
     
     if (!self.systemWide) {
-        header = self.formattedHeaderNewl;
+        header = self.markedUpHeaderNewl;
     }
             
     return [NSString stringWithFormat:@"%@%@%@%@%@%@",
             header,
             self.systemWide ? @"#!" : @"#O",
             self.detectStops,
-            self.formattedLink,
+            self.markedUpLink,
             additionalText ?  additionalText : @"",
             self.dateString];
 }
 
-- (NSString *)formattedHeaderNewl {
+- (NSString *)markedUpHeaderNewl {
     if (self.headerText && self.headerText.length > 0 && ![self.headerText isEqualToString:self.detourDesc]) {
-        return [NSString stringWithFormat:@"%@#b%@#b\n", self.headerColor, self.headerText];
+        return [NSString stringWithFormat:@"%@#b%@#b\n", self.headerColor, self.headerText.safeEscapeForMarkUp];
     }
     
     return @"";
 }
 
-- (NSString *)formattedHeader {
+- (NSString *)markedUpHeader {
     if (self.headerText && self.headerText.length > 0 && ![self.headerText isEqualToString:self.detourDesc]) {
-        return [NSString stringWithFormat:@"%@#b%@#b", self.headerColor, self.headerText];
+        return [NSString stringWithFormat:@"%@#b%@#b", self.headerColor, self.headerText.safeEscapeForMarkUp];
     }
     
     return @"";
 }
 
-- (NSString *)formattedRoutes {
+- (NSString *)markedUpRoutes {
     NSMutableString *str = [NSMutableString string];
     
     if (self.routes) {
@@ -172,7 +172,7 @@
         
         for (Route *route in self.routes) {
             if (!route.systemWide) {
-                [str appendFormat:@"%@\n", route.desc];
+                [str appendFormat:@"%@\n", route.desc.safeEscapeForMarkUp];
             }
         }
     }
@@ -180,13 +180,13 @@
     return str;
 }
 
-- (NSString *)formattedDescriptionWithoutInfo:(NSString *)additionalText {
+- (NSString *)markedUpDescriptionWithoutInfo:(NSString *)additionalText {
     return [NSString stringWithFormat:@"%@%@%@%@%@%@%@#(#A (ID %d) #)",
-            self.formattedRoutes,
-            self.formattedHeaderNewl,
+            self.markedUpRoutes,
+            self.markedUpHeaderNewl,
             self.alertColor,
             self.detectStops,
-            self.formattedLinkNoMap,
+            self.markedUpNoMap,
             additionalText ? additionalText : @"",
             self.dateString,
             ABS(self.detourId.intValue)];

@@ -58,10 +58,9 @@
 }
 
 - (instancetype)init {
-    if ((self = [super init])) {
-        self.sceneName = kArrivalsScene;
-    }
-    
+    if ((self = [super initWithSceneName:kArrivalsScene])) {
+
+    }    
     return self;
 }
 
@@ -73,6 +72,10 @@
     
     if (self.detailBlock) {
         info[kUserFavesBlock] = self.detailBlock;
+    }
+    
+    if (self.detailDir) {
+        info[kUserFavesDir] = self.detailDir;
     }
     
     [controller updateUserActivity:kHandoffUserActivityBookmark userInfo:info webpageURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://trimet.org/arrivals/small/tracker?locationID=%@", self.stopId]]];

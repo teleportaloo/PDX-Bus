@@ -23,6 +23,7 @@
 
 @property (nonatomic, strong) NSDate *queryTime;
 @property (nonatomic, copy)   NSString *block;
+@property (nonatomic, copy)   NSString *dir;
 @property (nonatomic, strong) XMLDepartures *departures;
 @property (nonatomic)         uint minsToAlert;
 @property (strong)            Departure *lastFetched;

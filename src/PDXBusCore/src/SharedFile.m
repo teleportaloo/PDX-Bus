@@ -13,14 +13,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogSettings
+
 
 #import "SharedFile.h"
 #import "DebugLogging.h"
 
+#define PDXBUS_GROUP @"group.teleportaloo.pdxbus"
 
 @implementation SharedFile
 
-- (bool)canUseSharedFilePath {
++ (bool)canUseSharedFilePath {
 #ifdef PDXBUS_WATCH
     return NO;
     
@@ -34,6 +37,38 @@
     return [[[self class] alloc] initWithFileName:shortFileName initFromBundle:initFromBundle];
 }
 
+
++ (void)removeFileWithName:(NSString *)shortFileName {
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString *documentsDirectory = paths.firstObject;
+    
+    NSString *fullPathName = [documentsDirectory stringByAppendingPathComponent:shortFileName];
+    
+    if ([fileManager fileExistsAtPath:fullPathName]) {
+        NSURL *oldFilePath = [NSURL fileURLWithPath:fullPathName isDirectory:NO];
+        
+        @try {
+            [fileManager removeItemAtPath:oldFilePath.path error:nil];
+        } @catch (NSException *exception)   {
+            ERROR_LOG(@"moveItemAtURL exception: %@ %@\n", exception.name, exception.reason);
+        }
+    }
+    
+    if ([SharedFile canUseSharedFilePath]) {
+        NSURL *sharedContainer = [fileManager containerURLForSecurityApplicationGroupIdentifier:PDXBUS_GROUP];
+        NSURL *urlToSharedFile = [sharedContainer URLByAppendingPathComponent:shortFileName];
+        
+        if ([fileManager fileExistsAtPath:urlToSharedFile.path]) {
+            @try {
+                [fileManager removeItemAtPath:urlToSharedFile.path error:nil];
+            } @catch (NSException *exception)   {
+                ERROR_LOG(@"removeItemAtPath exception: %@ %@\n", exception.name, exception.reason);
+            }
+        }
+    }
+}
+
 - (instancetype)initWithFileName:(NSString *)shortFileName initFromBundle:(bool)initFromBundle {
     if ((self = [super init])) {
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
@@ -44,8 +79,8 @@
         
         NSString *fullPathName = [documentsDirectory stringByAppendingPathComponent:shortFileName];
         
-        if ([self canUseSharedFilePath]) {
-            NSURL *sharedContainer = [fileManager containerURLForSecurityApplicationGroupIdentifier:@"group.teleportaloo.pdxbus"];
+        if ([SharedFile canUseSharedFilePath]) {
+            NSURL *sharedContainer = [fileManager containerURLForSecurityApplicationGroupIdentifier:PDXBUS_GROUP];
             
             self.urlToSharedFile = [sharedContainer URLByAppendingPathComponent:shortFileName];
             
@@ -120,9 +155,16 @@
     NSString *documentsDirectory = paths.firstObject;
     NSString *fullPathName = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"debug_%@", self.shortName]];
     
+    NSError *error = nil;
+    NSURL *debugFilePath = [NSURL fileURLWithPath:fullPathName isDirectory:NO];
+    
     @try {
-        NSError *error = nil;
-        NSURL *debugFilePath = [NSURL fileURLWithPath:fullPathName isDirectory:NO];
+        [fileManager removeItemAtURL:debugFilePath error:&error];
+    } @catch (NSException *exception)   {
+        ERROR_LOG(@"removeItemAtURL exception: %@ %@\n", exception.name, exception.reason);
+    }
+    
+    @try {
         [fileManager copyItemAtURL:self.urlToSharedFile toURL:debugFilePath error:&error];
     } @catch (NSException *exception)   {
         ERROR_LOG(@"copyItemAtURL exception: %@ %@\n", exception.name, exception.reason);

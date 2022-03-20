@@ -10,6 +10,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+
 #import "DepartureData+iOSUI.h"
 #import "DepartureTrip.h"
 #import "ViewControllerBase.h"
@@ -22,29 +24,29 @@
 #import "ArrivalColors.h"
 #import "NSString+Helper.h"
 
-#define kVehicleDepartedText      NSLocalizedString(@"#DThe time is shown in this color as the vehicle has departed.",                                                            @"Infomation text")
-#define kVehicleOffRouteText      NSLocalizedString(@"#OThe time is shown in #borange#b as the vehicle is off route.",                                                            @"Infomation text")
-#define kVehicleTrackingError     NSLocalizedString(@"#OThe time is shown in #borange#b as there is an issue tracking the vehicle.",                                              @"Infomation text")
-#define kVehicleSoonText          NSLocalizedString(@"#RThe time is shown in #bred#b as the vehicle will depart in 5 minutes or less.",                                           @"Infomation text")
-#define kVehicleLateText          NSLocalizedString(@"#MThe time is shown in #bmagenta#b as the vehicle is late.",                                                                @"Infomation text")
-#define kVehicleComingText        NSLocalizedString(@"#UThe time is shown in #bblue#b as the vehicle will depart in more than 5 minutes.",                                        @"Infomation text")
-#define kVehicleLongText          kVehicleComingText
-#define kVehicleScheduled         NSLocalizedString(@"#AThe time is shown in #bgray#b as no location infomation is available - the scheduled time is shown.",                     @"Infomation text")
-#define kVehicleCanceled          NSLocalizedString(@"#OThe time is shown in #borange#b and crossed out as the vehicle was canceled.  #AThe original scheduled time is shown for reference.",     @"Infomation text")
-#define kVehicleDelayed           NSLocalizedString(@"#OThe Time is shown in #borange#b as the vehicle is delayed.",                                                              @"Infomation text")
-#define kVehicleNotToSchedule     NSLocalizedString(@"#AThe scheduled time is also shown in #bgray#b as the vehicle is not running to schedule.",                                 @"Infomation text")
-#define kVehicleNotToScheduleLate NSLocalizedString(@"#AThe scheduled time is also shown in #bgray#b.",                                                                           @"Infomation text")
+#define kMarkedUpVehicleDepartedText        NSLocalizedString(@"#DThe time is shown in this color as the vehicle has departed.",                                                            @"Infomation text")
+#define kMarkedUpVehicleOffRouteText        NSLocalizedString(@"#OThe time is shown in #borange#b as the vehicle is off route.",                                                            @"Infomation text")
+#define kMarkedUpVehicleTrackingError       NSLocalizedString(@"#OThe time is shown in #borange#b as there is an issue tracking the vehicle.",                                              @"Infomation text")
+#define kMarkedUpVehicleSoonText            NSLocalizedString(@"#RThe time is shown in #bred#b as the vehicle will depart in 5 minutes or less.",                                           @"Infomation text")
+#define kMarkedUpVehicleLateText            NSLocalizedString(@"#MThe time is shown in #bmagenta#b as the vehicle is late.",                                                                @"Infomation text")
+#define kMarkedUpVehicleComingText          NSLocalizedString(@"#UThe time is shown in #bblue#b as the vehicle will depart in more than 5 minutes.",                                        @"Infomation text")
+#define kMarkedUpVehicleLongText            kMarkedUpVehicleComingText
+#define kMarkedUpVehicleScheduled           NSLocalizedString(@"#AThe time is shown in #bgray#b as no location infomation is available - the scheduled time is shown.",                     @"Infomation text")
+#define kMarkedUpVehicleCanceled            NSLocalizedString(@"#OThe time is shown in #borange#b and crossed out as the vehicle was canceled.  #AThe original scheduled time is shown for reference.",     @"Infomation text")
+#define kMarkedUpVehicleDelayed             NSLocalizedString(@"#OThe Time is shown in #borange#b as the vehicle is delayed.",                                                              @"Infomation text")
+#define kMarkedUpVehicleNotToSchedule       NSLocalizedString(@"#AThe scheduled time is also shown in #bgray#b as the vehicle is not running to schedule.",                                 @"Infomation text")
+#define kMarkedUpVehicleNotToScheduleLate   NSLocalizedString(@"#AThe scheduled time is also shown in #bgray#b.",                                                                           @"Infomation text")
 
 @implementation Departure (iOSUI)
 
 #pragma mark User Interface
 
-- (void)populateCell:(DepartureCell *)cell decorate:(BOOL)decorate busName:(BOOL)busName wide:(BOOL)wide {
-    [self populateCellAndGetExplaination:cell decorate:decorate busName:busName wide:wide];
+- (void)populateCell:(DepartureCell *)cell decorate:(BOOL)decorate busName:(BOOL)busName fullSign:(BOOL)wide {
+    [self populateCellAndGetMarkedUpExplaination:cell decorate:decorate busName:busName wide:wide];
 }
 
-- (NSString *)getFormattedExplaination {
-    return [self populateCellAndGetExplaination:nil decorate:NO busName:NO wide:NO];;
+- (NSString *)getMarkedUpExplaination {
+    return [self populateCellAndGetMarkedUpExplaination:nil decorate:NO busName:NO wide:NO];;
 }
 
 - (NSString *)padding:(NSString *)old {
@@ -59,7 +61,7 @@
     return pad;
 }
 
-- (void)populateErrorMessagbe:(DepartureCell *)cell messageDetails:(NSString **)messageDetails {
+- (void)populateErrorMessage:(DepartureCell *)cell messageDetails:(NSString **)messageDetails {
     if (cell != nil) {
         cell.routeLabel.text = self.errorMessage;
         cell.timeLabel.text = nil;
@@ -76,6 +78,8 @@
     
     cell.accessoryType = UITableViewCellAccessoryNone;
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    
+    [cell resetConstraints];
 }
 
 - (int)extrapolation
@@ -87,11 +91,11 @@
     return extrapolation;
 }
 
-- (NSString *)populateCellAndGetExplaination:(DepartureCell *)cell decorate:(BOOL)decorate busName:(BOOL)busName wide:(BOOL)wide {
-    NSString *messageDetails = @"";
+- (NSString *)populateCellAndGetMarkedUpExplaination:(DepartureCell *)cell decorate:(BOOL)decorate busName:(BOOL)busName wide:(BOOL)wide {
+    NSString *markedUpMessageDetails = @"";
     
     if (self.errorMessage != nil) {
-        [self populateErrorMessagbe:cell messageDetails:&messageDetails];
+        [self populateErrorMessage:cell messageDetails:&markedUpMessageDetails];
     } else {
         NSDate *depatureDate = self.departureTime;
         TriMetTime mins = MinsBetweenDates(depatureDate, self.queryTime);
@@ -119,45 +123,45 @@
             minsText = NSLocalizedString(@"--", @"DNL");
             unitText = NSLocalizedString(@"gone", @"text displayed for departure time if the bus has gone already");
             timeColor = ArrivalColorDeparted;
-            messageDetails = kVehicleDepartedText;
+            markedUpMessageDetails = kMarkedUpVehicleDepartedText;
             showLate = NO;
         } else if ((mins < 0 || self.invalidated) && self.trackingErrorOffRoute) {
             minsText = NSLocalizedString(@"OFF  ", @"off route");
             unitText = NSLocalizedString(@"ROUTE", @"off route");
             timeColor = ArrivalColorOffRoute;
-            messageDetails = kVehicleOffRouteText;
+            markedUpMessageDetails = kMarkedUpVehicleOffRouteText;
             showLate = NO;
         } else if ((mins < 0 || self.invalidated) && self.trackingError) {
             minsText = NSLocalizedString(@"??",    @"error message");
             unitText = NSLocalizedString(@"",      @"error message");
             timeColor = ArrivalColorOffRoute;
-            messageDetails = kVehicleTrackingError;
+            markedUpMessageDetails = kMarkedUpVehicleTrackingError;
             showLate = NO;
         } else if (mins <= 0) {
             minsText = NSLocalizedString(@"Due", @"first line of text to display when bus is due");
             unitText = NSLocalizedString(@"now", @"second line of test to display when bus is due");
             timeColor = ArrivalColorSoon;
-            messageDetails = kVehicleSoonText;
+            markedUpMessageDetails = kMarkedUpVehicleSoonText;
         } else if (mins == 1) {
             minsText = NSLocalizedString(@"1", @"first line of text to display when bus is due in 1 minute");
             unitText = NSLocalizedString(@"min", @"second line of text to display when bus is due in 1 minute");
             timeColor = ArrivalColorSoon;
-            messageDetails = kVehicleSoonText;
+            markedUpMessageDetails = kMarkedUpVehicleSoonText;
         } else if (mins < 6) {
             minsText = [NSString stringWithFormat:@"%lld", mins];
             unitText = NSLocalizedString(@"mins", @"plural number of minutes to display for bus departure time");
             timeColor = ArrivalColorSoon;
-            messageDetails = kVehicleSoonText;
+            markedUpMessageDetails = kMarkedUpVehicleSoonText;
         } else if (mins < 60) {
             minsText = [NSString stringWithFormat:@"%lld", mins];
             unitText = NSLocalizedString(@"mins", @"plural number of minutes to display for bus departure time");
             timeColor = ArrivalColorOK;
-            messageDetails = kVehicleComingText;
+            markedUpMessageDetails = kMarkedUpVehicleComingText;
         } else {
             switch (arrivalWindow) {
                 case ArrivalThisWeek: {
                     NSDateFormatter *dayFormatter = [[NSDateFormatter alloc] init];
-                    dayFormatter.dateStyle = kCFDateFormatterMediumStyle;
+                    dayFormatter.dateStyle = NSDateFormatterMediumStyle;
                     dayFormatter.timeStyle = NSDateFormatterNoStyle;
                     
                     dayFormatter.dateFormat = @"E";
@@ -169,7 +173,7 @@
                     
                 case ArrivalSoon: {
                     NSDateFormatter *dayFormatter = [[NSDateFormatter alloc] init];
-                    dayFormatter.dateStyle = kCFDateFormatterMediumStyle;
+                    dayFormatter.dateStyle = NSDateFormatterMediumStyle;
                     dayFormatter.timeStyle = NSDateFormatterNoStyle;
                     
                     dayFormatter.dateFormat = @"h:mm";
@@ -189,49 +193,49 @@
         
         // Override color based on status or lateness
         switch (self.status) {
-            case kStatusEstimated:
+            case ArrivalStatusEstimated:
                 
                 if (self.trackingErrorOffRoute) {
                     timeColor = ArrivalColorOffRoute;
-                    messageDetails = kVehicleOffRouteText;;
+                    markedUpMessageDetails = kMarkedUpVehicleOffRouteText;;
                 } else if (self.trackingError) {
                     timeColor = ArrivalColorOffRoute;
-                    messageDetails = kVehicleTrackingError;
+                    markedUpMessageDetails = kMarkedUpVehicleTrackingError;
                 } else if (self.actuallyLate && showLate) {
                     timeColor = ArrivalColorLate;
-                    messageDetails = kVehicleLateText;
+                    markedUpMessageDetails = kMarkedUpVehicleLateText;
                 } else if (timeColor == nil) {
                     timeColor = ArrivalColorOK;
-                    messageDetails = kVehicleComingText;
+                    markedUpMessageDetails = kMarkedUpVehicleComingText;
                 }
                 
                 break;
                 
-            case kStatusScheduled:
+            case ArrivalStatusScheduled:
                 [scheduledText appendString:NSLocalizedString(@"scheduled ", @"info about departure time")];
                 timeColor = ArrivalColorScheduled;
-                messageDetails = kVehicleScheduled;
+                markedUpMessageDetails = kMarkedUpVehicleScheduled;
                 break;
                 
-            case kStatusCancelled:
+            case ArrivalStatusCancelled:
                 [detourText appendString:NSLocalizedString(@"canceled ", @"info about departure time")];
                 timeColor = ArrivalColorCanceled;
-                messageDetails = kVehicleCanceled;
+                markedUpMessageDetails = kMarkedUpVehicleCanceled;
                 canceled = YES;
                 break;
                 
-            case kStatusDelayed:
+            case ArrivalStatusDelayed:
                 [detourText appendString:NSLocalizedString(@"delayed ",  @"info about departure time")];
                 timeColor = ArrivalColorDelayed;
-                messageDetails = kVehicleDelayed;
+                markedUpMessageDetails = kMarkedUpVehicleDelayed;
                 break;
         }
         
         if (self.detour) {
             if (self.sortedDetours.detourIds.count == 1) {
-                [detourText appendString:NSLocalizedString(@"⚠️alert ", @"info about departure time")];
+                [detourText appendString:NSLocalizedString(@"⚠️ alert ", @"info about departure time")];
             } else {
-                [detourText appendString:NSLocalizedString(@"⚠️alerts ", @"info about departure time")];
+                [detourText appendString:NSLocalizedString(@"⚠️ alerts ", @"info about departure time")];
             }
         }
         
@@ -242,24 +246,24 @@
         // Append additional text to message details
         
         if (self.reason) {
-            NSString *pad = [self padding:messageDetails];
-            messageDetails = [NSString stringWithFormat:NSLocalizedString(@"%@%@#b#OStatus:\"%@#b.\"", @"status"), messageDetails, pad, self.reason];
+            NSString *pad = [self padding:markedUpMessageDetails];
+            markedUpMessageDetails = [NSString stringWithFormat:NSLocalizedString(@"%@%@#b#OStatus:\"%@#b.\"", @"status"), markedUpMessageDetails, pad, self.reason];
         }
         
         if (self.loadPercentage > 0) {
-            NSString *pad = [self padding:messageDetails];
-            messageDetails = [NSString stringWithFormat:NSLocalizedString(@"%@%@#b#DThe vehicle is loaded to %d%% of capacity#b.", @"status"), messageDetails, pad, (int)self.loadPercentage];
+            NSString *pad = [self padding:markedUpMessageDetails];
+            markedUpMessageDetails = [NSString stringWithFormat:NSLocalizedString(@"%@%@#b#DThe vehicle is loaded to %d%% of capacity#b.", @"status"), markedUpMessageDetails, pad, (int)self.loadPercentage];
         }
         
         if (self.dropOffOnly) {
-            NSString *pad = [self padding:messageDetails];
-            messageDetails = [NSString stringWithFormat:NSLocalizedString(@"%@%@#b#RDrop off only#D#b", @"status"), messageDetails, pad];
+            NSString *pad = [self padding:markedUpMessageDetails];
+            markedUpMessageDetails = [NSString stringWithFormat:NSLocalizedString(@"%@%@#b#RDrop off only#D#b", @"status"), markedUpMessageDetails, pad];
         }
         
         if (self.notToSchedule) {
             [scheduledText appendFormat:NSLocalizedString(@"scheduled %@ ", @"info about departure time"), [dateFormatter stringFromDate:self.scheduledTime]];;
-            messageDetails = [NSString stringWithFormat:@"%@ %@", messageDetails, self.actuallyLate ? kVehicleNotToScheduleLate
-                                                       : kVehicleNotToSchedule];
+            markedUpMessageDetails = [NSString stringWithFormat:@"%@ %@", markedUpMessageDetails, self.actuallyLate ? kMarkedUpVehicleNotToScheduleLate
+                                                       : kMarkedUpVehicleNotToSchedule];
         }
         
         // Finally populate cell
@@ -333,7 +337,9 @@
         [cell.routeColorView setRouteColor:self.route];
     }
     
-    return messageDetails;
+    [cell resetConstraints];
+    
+    return markedUpMessageDetails;
 }
 
 - (void)populateCellGeneric:(DepartureCell *)cell first:(NSString *)first second:(NSString *)second col1:(UIColor *)col1 col2:(UIColor *)col2; {
@@ -346,6 +352,7 @@
     cell.scheduledLabel.text = nil;
     cell.detourLabel.text = nil;
     cell.fullLabel.text = nil;
+    [cell resetConstraints];
 }
 
 - (void)populateTripCell:(DepartureCell *)cell item:(NSInteger)item {
@@ -364,18 +371,18 @@
         
         cell.routeLabel.hidden = NO;
         
-        if (trip.distance > 0) {
-            TriMetDistance toGo = trip.distance - trip.progress;
+        if (trip.distanceFeet > 0) {
+            TriMetDistance toGoFeet = trip.distanceFeet - trip.progressFeet;
             
-            if (trip.progress > 0) {
+            if (trip.progressFeet > 0) {
                 cell.routeLabel.text = [NSString stringWithFormat:NSLocalizedString(@"Current trip: %@", @"trip details"), trip.name];
                 cell.routeLabel.textColor = [UIColor modeAwareText];
-                timeText = [NSString stringWithFormat:NSLocalizedString(@"%@ left to go", @"distance remaining"), [FormatDistance formatFeet:(int)toGo]];
+                timeText = [NSString stringWithFormat:NSLocalizedString(@"%@ left to go", @"distance remaining"), [FormatDistance formatFeet:(int)toGoFeet]];
                 timeColor = [UIColor modeAwareBlue];
             } else {
                 cell.routeLabel.text = [NSString stringWithFormat:NSLocalizedString(@"Trip: %@", @"name of trip"), trip.name];
                 cell.routeLabel.textColor = [UIColor modeAwareText];
-                timeText = [NSString stringWithFormat:NSLocalizedString(@"%@ total", @"total distance"), [FormatDistance formatFeet:(int)toGo]];
+                timeText = [NSString stringWithFormat:NSLocalizedString(@"%@ total", @"total distance"), [FormatDistance formatFeet:(int)toGoFeet]];
                 timeColor = [UIColor grayColor];
             }
             
@@ -451,17 +458,16 @@
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
         
         [cell setNeedsLayout];
+       
     }
+    
+    [cell resetConstraints];
 }
 
 #pragma mark Map callbacks
 
-- (bool)showActionMenu {
+- (bool)pinActionMenu {
     return YES;
-}
-
-- (Departure *)mapDeparture {
-    return self;
 }
 
 - (NSString *)description {
@@ -479,6 +485,11 @@
 }
 
 - (NSString *)subtitle {
+    return [self.pinMarkedUpSubtitle removeMarkUp];
+}
+
+- (NSString *)pinMarkedUpSubtitle {
+    
     NSMutableString *text = [NSMutableString string];
     
     if (self.errorMessage == nil) {
@@ -496,15 +507,19 @@
         dateFormatter.timeStyle = NSDateFormatterMediumStyle;
         
         if (mins <= 0) {
-            [text appendFormat:NSLocalizedString(@"Due - %@ at %@", @"bus due <time> at <location>"), [dateFormatter stringFromDate:self.departureTime], loc];
+            [text appendFormat:NSLocalizedString(@"#DDue - #b%@#b at %@", @"bus due <time> at <location>"), [dateFormatter stringFromDate:self.departureTime], loc];
         } else if (mins == 1) {
-            [text appendFormat:NSLocalizedString(@"1 min - %@ to %@", @"bus due <time> at <location>"), [dateFormatter stringFromDate:self.departureTime], loc];
+            [text appendFormat:NSLocalizedString(@"#D1 min - #b%@#b to %@", @"bus due <time> at <location>"), [dateFormatter stringFromDate:self.departureTime], loc];
         } else if (mins < 60) {
-            [text appendFormat:NSLocalizedString(@"%lld mins - %@ to %@ ", @"in <mins> minutes bus is due <time> at <location>"), mins, [dateFormatter stringFromDate:self.departureTime], loc];
+            [text appendFormat:NSLocalizedString(@"#D%lld mins - #b%@#b to %@ ", @"in <mins> minutes bus is due <time> at <location>"), mins, [dateFormatter stringFromDate:self.departureTime], loc];
         } else {
-            [text appendFormat:NSLocalizedString(@"%@ to %@", @"at <time> bus will departure at <location>"), [dateFormatter stringFromDate:self.departureTime], loc];
+            [text appendFormat:NSLocalizedString(@"#D%@ to #b%@#b", @"at <time> bus will departure at <location>"), [dateFormatter stringFromDate:self.departureTime], loc];
         }
     }
+    
+    [text appendFormat:NSLocalizedString(@"\n#D%@ away\nLocated at #b%@", @"<distance> of vehicle"),
+                                [FormatDistance formatFeet:self.blockPositionFeet],
+                                [NSDateFormatter localizedStringFromDate:self.blockPositionAt dateStyle:NSDateFormatterNoStyle timeStyle:NSDateFormatterMediumStyle]];
     
     return text;
 }
@@ -517,7 +532,7 @@
     return [TriMetInfo colorForRoute:self.route];
 }
 
-- (UIColor *)pinSubTint {
+- (UIColor *)pinBlobColor {
     if (self.block != nil) {
         BlockColorDb *db = [BlockColorDb sharedInstance];
         return [db colorForBlock:self.block];
@@ -526,16 +541,31 @@
     return nil;
 }
 
-- (bool)hasBearing {
+- (bool)pinHasBearing {
     return self.blockPositionHeading != nil;
 }
 
-- (double)doubleBearing {
-    if ([self hasBearing]) {
+- (double)pinBearing {
+    if ([self pinHasBearing]) {
         return self.blockPositionHeading.doubleValue;
     }
     
     return 0.0;
+}
+
+- (NSString *)pinMarkedUpType
+{
+    PtrConstRouteInfo route = [TriMetInfo infoForRoute:self.route];
+    if (route && route->streetcar)
+    {
+        return kPinTypeStreetcar;
+    }
+    else if (route)
+    {
+        return kPinTypeTrain;
+    }
+    
+    return kPinTypeVehicle;
 }
 
 @end

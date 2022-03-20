@@ -41,7 +41,7 @@
     [taskController taskRunAsync:^(TaskState *taskState) {
         self.locList = [NSMutableArray array];
         
-        NSArray<NSString*> *stopIdArray  = stopIds.arrayFromCommaSeparatedString;
+        NSArray<NSString*> *stopIdArray  = stopIds.mutableArrayFromCommaSeparatedString;
         
         [taskState taskStartWithTotal:stopIdArray.count title:NSLocalizedString(@"getting stop names", @"progress message")];
         
@@ -129,18 +129,7 @@
     // [anotherViewController release];
     
     NSArray *stopInfo = self.locList[indexPath.row];
-    
-    /*    if ([self.callback getController] != nil)
-     {
-     [self.navigationController popToViewController:[self.callback getController] animated:YES];
-     } */
-    
-    if ([self.stopIdCallback respondsToSelector:@selector(selectedStop:desc:)]) {
-        // cell.textLabel.text = dep.locDesc;
-        [self.stopIdCallback selectedStop:[StopNameCacheManager getStopId:stopInfo] desc:[StopNameCacheManager getLongName:stopInfo]];
-    } else {
-        [self.stopIdCallback selectedStop:[StopNameCacheManager getStopId:stopInfo]];
-    }
+    [self.stopIdStringCallback returnStopIdString:[StopNameCacheManager getStopId:stopInfo] desc:[StopNameCacheManager getLongName:stopInfo]];
 }
 
 @end

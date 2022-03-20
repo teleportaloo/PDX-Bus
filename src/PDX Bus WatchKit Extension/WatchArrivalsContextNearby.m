@@ -36,7 +36,7 @@
         context.stops = stops;
         context.index = index;
         context.navText = @"Next nearest swipe ←";
-        context.distance = item.distance;
+        context.distance = item.distanceMeters;
         
         return context;
     }

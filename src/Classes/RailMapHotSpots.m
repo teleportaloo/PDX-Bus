@@ -13,6 +13,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+
 #import "RailMapHotSpots.h"
 #import "RailMapView.h"
 #import "NSString+Helper.h"
@@ -21,7 +23,7 @@
 
 @interface RailMapHotSpots () {
     CGPoint _touchPoint;
-    RAILMAP *_railMap;
+    RailMap *_railMap;
 }
 
 @property (nonatomic) int selectedItem;
@@ -31,9 +33,9 @@
 
 @implementation RailMapHotSpots
 
-static HOTSPOT *hotSpotRegions;
+static HotSpot *hotSpotRegions;
 
-- (instancetype)initWithImageView:(UIView *)mapView map:(RAILMAP *)map {
+- (instancetype)initWithImageView:(UIView *)mapView map:(RailMap *)map {
     self = [super initWithFrame:CGRectMake(0, 0, mapView.frame.size.width, mapView.frame.size.height)];
     self.backgroundColor = [UIColor clearColor];
     
@@ -76,7 +78,7 @@ static HOTSPOT *hotSpotRegions;
         case kLinkType1:
         case kLinkType2:
         case kLinkType3:
-            
+        case kLinkTypeTest:
             self.alpha = 1.0;
             [self setNeedsDisplay];
             break;
@@ -95,21 +97,30 @@ static HOTSPOT *hotSpotRegions;
     } 
 }
 
-- (void)drawHotspot:(HOTSPOT *)hs context:(CGContextRef)context; {
++ (void)setFillAndStrokeColor:(CGContextRef)context color:(UIColor *)col {
+    CGFloat red, green, blue, alpha;
+    [col getRed:&red green:&green blue:&blue alpha:&alpha];
+    CGContextSetRGBFillColor(context, red, green, blue, 0.5);
+    CGContextSetStrokeColorWithColor(context, col.CGColor);
+}
+
+- (void)drawHotspot:(HotSpot *)hs context:(CGContextRef)context {
     DEBUG_LOGB(self.showAll);
     
     if (hs->action.firstUnichar == '#') {
-        CGContextSetRGBFillColor(context, 0.0, 1.0, 0.0, 0.5);
-        CGContextSetStrokeColorWithColor(context, [UIColor greenColor].CGColor);
-    } else if (hs->touched && self.showAll) {
-        CGContextSetRGBFillColor(context, 0.0, 1.0, 0.0, 0.5);
-        CGContextSetStrokeColorWithColor(context, [UIColor yellowColor].CGColor);
+        [RailMapHotSpots setFillAndStrokeColor:context color:[UIColor greenColor]];
+    } else if (hs->touched && self.showAll && hs->action.firstUnichar != kLinkTypeTest ) {
+        [RailMapHotSpots setFillAndStrokeColor:context color:[UIColor yellowColor]];
     } else {
         UIColor *col;
         switch (hs->action.firstUnichar) {
             default:
             case kLinkTypeHttp:
                 col = [UIColor orangeColor];
+                break;
+                
+            case kLinkTypeTest:
+                col = [UIColor blackColor];
                 break;
                 
             case kLinkTypeWiki:
@@ -131,11 +142,7 @@ static HOTSPOT *hotSpotRegions;
                 col = [UIColor grayColor];
                 break;
         }
-        
-        const CGFloat *components = CGColorGetComponents(col.CGColor);
-        // printf("%f %f %f\n", components[0], components[1], components[2]);
-        CGContextSetRGBFillColor(context, components[0], components[1], components[2], 0.5);
-        CGContextSetStrokeColorWithColor(context, col.CGColor);
+        [RailMapHotSpots setFillAndStrokeColor:context color:col];
     }
     
     if (HOTSPOT_IS_POLY(hs)) {
@@ -203,7 +210,7 @@ static HOTSPOT *hotSpotRegions;
         CGContextSetLineWidth(context, 1.0);
         
         
-        HOTSPOT *hs;
+        HotSpot *hs;
         
         if (!self.showAll) {
             if (self.selectedItem != -1) {
@@ -249,7 +256,7 @@ static HOTSPOT *hotSpotRegions;
                     CGFloat xp = x * _railMap->tileSize.width  + _railMap->tileSize.width / 2.0;
                     CGFloat yp = y * _railMap->tileSize.height + _railMap->tileSize.height / 2.0;
                     
-                    HOTSPOT_INDEX *index = _railMap->tiles[x][y].hotspots;
+                    ConstHotSpotIndex *index = _railMap->tiles[x][y].hotspots;
                     
                     int count = 0;
                     

@@ -14,6 +14,7 @@
 #import <UIKit/UIKit.h>
 #import "TableViewWithToolbar.h"
 
+
 @interface AboutView : TableViewWithToolbar
 
 @property (nonatomic) bool hideButton;

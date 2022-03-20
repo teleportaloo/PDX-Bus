@@ -13,6 +13,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+
 #import "InterfaceControllerWithBackgroundThread.h"
 #import "DebugLogging.h"
 
@@ -38,16 +40,14 @@
 }
 
 - (bool)backgroundThreadRunning {
-    @synchronized(self)
-    {
+    @synchronized (self) {
         return self.backgroundThread != nil;
     }
 }
 
 - (void)executebackgroundTask:(id)unused {
     @autoreleasepool {
-        @synchronized(self)
-        {
+        @synchronized (self) {
             if (self.backgroundThread != nil) {
                 return;
             }
@@ -70,8 +70,7 @@
             [self performSelectorOnMainThread:@selector(taskFailedMainThread:) withObject:result waitUntilDone:NO];
         }
         
-        @synchronized(self)
-        {
+        @synchronized (self) {
             self.backgroundThread = nil;
         }
     }
@@ -93,15 +92,13 @@
 }
 
 - (void)startBackgroundTask {
-    @synchronized(self)
-    {
+    @synchronized (self) {
         [NSThread detachNewThreadSelector:@selector(executebackgroundTask:) toTarget:self withObject:nil];
     }
 }
 
 - (void)cancelBackgroundTask {
-    @synchronized(self)
-    {
+    @synchronized (self) {
         [self.backgroundThread cancel];
     }
 }

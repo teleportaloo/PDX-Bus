@@ -26,6 +26,8 @@
 
 #define DepOption(X) ((self.options & (X)) == (X))
 
+
+
 @interface XMLDepartures : TriMetXMLv2<Departure*> 
 
 @property (nonatomic, strong) StopDistance *distance;
@@ -38,12 +40,13 @@
 @property (nonatomic, strong) NSDate *queryTime;
 @property (nonatomic, strong) Detour *currentDetour;
 @property (nonatomic, strong) DetourSorter *detourSorter;
-@property (nonatomic, strong) NSMutableDictionary<NSString *, Route*> *allRoutes;
+@property (atomic, strong)    AllTriMetRoutes *allRoutes;
 @property (nonatomic)         bool nextBusFeedInTriMetData;
 
 - (BOOL)getDeparturesForStopId:(NSString *)stopId block:(NSString*)block;
+- (Departure * _Nullable)getFirstDepartureForDirection:(NSString * _Nullable)dir;
 - (BOOL)getDeparturesForStopId:(NSString *)StopId;
-- (Departure*)departureForBlock:(NSString *)block;
+- (Departure*)departureForBlock:(NSString *)block dir:(NSString *)dir;
 - (void)startFromMultiple;
 - (bool)hasError;
 - (void)reload;
@@ -52,20 +55,21 @@
 + (instancetype)xmlWithOptions:(unsigned int)options;
 + (void)clearCache;
 + (NSString *)fixLocationForSpeaking:(NSString *)loc;
++ (instancetype)xmlWithOneTimeDelegate:(id<TriMetXMLDelegate> _Nonnull)delegate sharedDetours:(AllTriMetDetours *) allDetours sharedRoutes:(AllTriMetRoutes *) allRoutes;
 
-XML_START_ELEMENT(resultset);
+XML_START_ELEMENT(resultSet);
 XML_START_ELEMENT(location);
 XML_START_ELEMENT(arrival);
-XML_START_ELEMENT(blockposition);
+XML_START_ELEMENT(blockPosition);
 XML_START_ELEMENT(trip);
 XML_START_ELEMENT(layover);
-XML_START_ELEMENT(trackingerror);
+XML_START_ELEMENT(trackingError);
 XML_START_ELEMENT(detour);
 XML_START_ELEMENT(error);
 
 XML_END_ELEMENT(detour);
 XML_END_ELEMENT(arrival);
 XML_END_ELEMENT(error);
-XML_END_ELEMENT(resultset);
+XML_END_ELEMENT(resultSet);
 
 @end

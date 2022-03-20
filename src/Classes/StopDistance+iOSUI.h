@@ -14,18 +14,15 @@
 
 
 #import <Foundation/Foundation.h>
-#import "MapPinColor.h"
+#import "MapPin.h"
 #import "StopDistance.h"
 
-@interface StopDistance (iOSUI) <MapPinColor>
+@interface StopDistance (iOSUI) <MapPin>
 
 
 // From Annotation
 @property (nonatomic, readonly) CLLocationCoordinate2D coordinate;
 @property (nonatomic, readonly, copy) NSString *title;
 @property (nonatomic, readonly, copy) NSString *subtitle;
-
-// From MapPinColor
-@property (nonatomic, readonly) MapPinColorValue pinColor;
 
 @end

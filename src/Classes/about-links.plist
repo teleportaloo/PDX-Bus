@@ -8,7 +8,15 @@
 		<key>Icon</key>
 		<string>Globe.png</string>
 		<key>LinkM</key>
-		<string>http://trimet.org/transittracker/about.htm</string>
+		<string>https://trimet.org/transittracker/about.htm</string>
+	</dict>
+	<dict>
+		<key>Title</key>
+		<string>Please be a beta tester!  You&apos;ll get to try out the new features and new versions before everyone else.</string>
+		<key>Icon</key>
+		<string>Globe.png</string>
+		<key>LinkM</key>
+		<string>https://testflight.apple.com/join/0sTZ53wU</string>
 	</dict>
 	<dict>
 		<key>Title</key>
@@ -24,9 +32,9 @@
 		<key>Icon</key>
 		<string>TriMet.png</string>
 		<key>LinkM</key>
-		<string>http://m.trimet.org/</string>
+		<string>https://trimet.org/m/</string>
 		<key>LinkF</key>
-		<string>http://www.trimet.org/</string>
+		<string>https://www.trimet.org/</string>
 	</dict>
 	<dict>
 		<key>Title</key>

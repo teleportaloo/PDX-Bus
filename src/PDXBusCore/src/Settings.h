@@ -22,12 +22,12 @@
 // Settings are not actually shared.
 
 @property (class, weak, nonatomic, readonly)  NSString *minsForArrivals;
-@property (class, nonatomic, readonly)  int routeCacheDays;
 @property (class, nonatomic, readonly)  bool debugXML;
 @property (class, nonatomic, readonly)  bool debugCommuter;
-@property (class, nonatomic, readonly)  bool useCaching;
+
 @property (class, nonatomic, readonly)  int networkTimeout;
 @property (class, nonatomic)            bool hideWatchDetours;
+@property (class, nonatomic, readonly)  bool networkInParallel;
 
 @property (class, nonatomic)            NSSet<NSNumber *> *hiddenSystemWideDetours;
 + (void)toggleHiddenSystemWideDetour:(NSNumber *)detourId;
@@ -37,6 +37,7 @@
 // iOS only settings
 #ifndef PDXBUS_WATCH
 
+@property (class, nonatomic, readonly)  bool clearCacheOnUnexpectedRestart;
 @property (class, nonatomic, readonly)  bool autoCommute;
 @property (class, nonatomic, readonly)  bool bookmarksAtTheTop;
 @property (class, nonatomic)            bool locateToolbarIcon;

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="14854.2" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="dfG-2e-wGV">
+<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="18122" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="dfG-2e-wGV">
     <device id="watch38"/>
     <dependencies>
         <deployment identifier="watchOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14806.4"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="14640.1"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="18022"/>
     </dependencies>
     <scenes>
         <!--Arrivals-->
@@ -111,7 +111,7 @@
                                         <outlet property="label" destination="sJm-To-msj" id="oDr-g8-DCp"/>
                                     </connections>
                                 </tableRow>
-                                <tableRow identifier="SWD" selectable="NO" id="xgc-aA-qyA" userLabel="System Wide Detour" customClass="WatchSystemWideDetour">
+                                <tableRow identifier="SWD" selectable="NO" id="xgc-aA-qyA" userLabel="System-wide Detour" customClass="WatchSystemWideDetour">
                                     <group key="rootItem" width="1" height="0.0" alignment="left" id="2aU-cN-C3J">
                                         <items>
                                             <label alignment="left" text="Detour" textAlignment="left" numberOfLines="100" id="Adi-sa-x87">
@@ -124,7 +124,7 @@
                                         <outlet property="label" destination="Adi-sa-x87" id="ccF-uf-scN"/>
                                     </connections>
                                 </tableRow>
-                                <tableRow identifier="SWH" id="7mK-yl-iDk" userLabel="System Wide Header" customClass="WatchSystemWideHeader">
+                                <tableRow identifier="SWH" id="7mK-yl-iDk" userLabel="System-wide Header" customClass="WatchSystemWideHeader">
                                     <group key="rootItem" width="1" height="0.0" alignment="left" id="AbZ-2Z-hjY">
                                         <items>
                                             <label alignment="left" text="Header" textAlignment="left" numberOfLines="100" id="e1t-nd-8IA">
@@ -185,48 +185,49 @@
                                 </swipeGestureRecognizer>
                             </gestureRecognizers>
                         </table>
-                        <group width="1" alignment="left" id="O5g-9C-ceF" userLabel="Navigation Group">
+                        <group width="1" alignment="left" layout="vertical" radius="0.0" id="O5g-9C-ceF" userLabel="Navigation Group">
                             <items>
-                                <button width="35" height="35" alignment="left" backgroundImage="750-home@2x.png" id="4LI-2c-hKe">
-                                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                    <connections>
-                                        <action selector="homeButtonTapped" destination="AgC-eL-Hgc" id="aXc-an-jsS"/>
-                                    </connections>
-                                </button>
-                                <button width="1" widthAdjustment="-35" height="35" alignment="left" title="Next" id="lfz-OV-KHP">
-                                    <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                    <color key="backgroundColor" red="0.25" green="0.25" blue="0.25" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                    <connections>
-                                        <action selector="nextButtonTapped" destination="AgC-eL-Hgc" id="ET9-BN-cqO"/>
-                                    </connections>
-                                </button>
+                                <group width="1" alignment="left" radius="0.0" id="lfU-8C-hcE" userLabel="Next Group">
+                                    <items>
+                                        <button width="35" height="35" alignment="left" backgroundImage="750-home" id="4LI-2c-hKe">
+                                            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                            <connections>
+                                                <action selector="homeButtonTapped" destination="AgC-eL-Hgc" id="aXc-an-jsS"/>
+                                            </connections>
+                                        </button>
+                                        <button width="1" widthAdjustment="-35" height="35" alignment="left" title="Next" id="lfz-OV-KHP">
+                                            <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            <color key="backgroundColor" red="0.25" green="0.25" blue="0.25" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            <connections>
+                                                <action selector="nextButtonTapped" destination="AgC-eL-Hgc" id="ET9-BN-cqO"/>
+                                            </connections>
+                                        </button>
+                                    </items>
+                                    <edgeInsets key="margins" left="0.0" right="0.0" top="3" bottom="0.0"/>
+                                </group>
+                                <group width="1" alignment="left" radius="0.0" id="ube-8B-XXw" userLabel="Menu Group">
+                                    <items>
+                                        <button width="35" height="35" alignment="left" title="⇩ " id="PbG-22-XAJ">
+                                            <fontDescription key="font" type="system" pointSize="25"/>
+                                            <connections>
+                                                <action selector="doRefreshMenuItem" destination="AgC-eL-Hgc" id="Q3U-t7-w9w"/>
+                                            </connections>
+                                        </button>
+                                        <button width="35" height="35" alignment="center" backgroundImage="780-building" id="U0g-NO-T4E">
+                                            <connections>
+                                                <action selector="menuItemCommute" destination="AgC-eL-Hgc" id="JLQ-2g-3cn"/>
+                                            </connections>
+                                        </button>
+                                        <button width="35" height="35" alignment="right" backgroundImage="852-mapa" id="zlW-5u-aYk">
+                                            <connections>
+                                                <action selector="menuItemNearby" destination="AgC-eL-Hgc" id="4BB-Ps-bGJ"/>
+                                            </connections>
+                                        </button>
+                                    </items>
+                                </group>
                             </items>
                         </group>
                     </items>
-                    <menu key="menu" id="225-fd-WD6">
-                        <items>
-                            <menuItem title="Home" image="750-home" id="zD1-7E-I4i">
-                                <connections>
-                                    <action selector="menuItemHome" destination="AgC-eL-Hgc" id="0AD-Is-2Vy"/>
-                                </connections>
-                            </menuItem>
-                            <menuItem title="Refresh" icon="repeat" id="WXp-2h-kz8">
-                                <connections>
-                                    <action selector="doRefreshMenuItem" destination="AgC-eL-Hgc" id="4bD-Zj-g6c"/>
-                                </connections>
-                            </menuItem>
-                            <menuItem title="Stops near this stop" image="845-location-targeta" id="0BT-rK-TVB">
-                                <connections>
-                                    <action selector="menuItemNearby" destination="AgC-eL-Hgc" id="WSk-9C-PMh"/>
-                                </connections>
-                            </menuItem>
-                            <menuItem title="Commuter bookmark" image="780-building.png" id="1CV-IA-Ool">
-                                <connections>
-                                    <action selector="menuItemCommute" destination="AgC-eL-Hgc" id="bpQ-ir-Rpu"/>
-                                </connections>
-                            </menuItem>
-                        </items>
-                    </menu>
                     <edgeInsets key="margins" left="0.0" right="0.0" top="0.0" bottom="0.0"/>
                     <connections>
                         <outlet property="arrivalsTable" destination="4zg-1C-Dxb" id="dOj-ni-spg"/>
@@ -234,6 +235,7 @@
                         <outlet property="labelRefreshing" destination="CdM-RQ-Vg4" id="otP-lZ-Gx7"/>
                         <outlet property="loadingGroup" destination="GET-md-68r" id="5dw-Xa-I0c"/>
                         <outlet property="loadingLabel" destination="HUA-WA-OUq" id="FMG-1M-3dg"/>
+                        <outlet property="locateButton" destination="zlW-5u-aYk" id="rGD-dq-9bG"/>
                         <outlet property="navGroup" destination="O5g-9C-ceF" id="MD1-ka-nSV"/>
                         <outlet property="nextButton" destination="lfz-OV-KHP" id="gEX-7D-pBu"/>
                         <outlet property="stopDescription" destination="THm-Pg-UOG" id="AEt-gM-Z5U"/>
@@ -290,30 +292,34 @@
                             <items>
                                 <label alignment="center" verticalAlignment="center" text="LOADING" textAlignment="center" numberOfLines="4" id="dD9-9f-NP6" userLabel="LoadingLabel">
                                     <color key="textColor" red="1" green="0.962157649" blue="0.43400017870000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                    <fontDescription key="font" type="system" pointSize="23"/>
+                                    <fontDescription key="font" type="system" pointSize="15"/>
                                 </label>
+                                <map height="100" alignment="left" id="zK6-SU-kO8"/>
                             </items>
                         </group>
+                        <group width="1" alignment="left" radius="0.0" id="R5i-do-3KL" userLabel="Menu Group">
+                            <items>
+                                <button width="35" height="35" alignment="left" backgroundImage="750-home" id="Osd-kO-r5x">
+                                    <connections>
+                                        <action selector="menuItemHome" destination="a7b-HT-MQ9" id="v4a-XQ-lmP"/>
+                                    </connections>
+                                </button>
+                                <button width="35" height="35" alignment="right" backgroundImage="780-building" id="lzD-gJ-Ugj">
+                                    <connections>
+                                        <action selector="menuItemCommute" destination="a7b-HT-MQ9" id="RWg-cU-nJu"/>
+                                    </connections>
+                                </button>
+                            </items>
+                            <edgeInsets key="margins" left="0.0" right="0.0" top="3" bottom="0.0"/>
+                        </group>
                     </items>
-                    <menu key="menu" id="LdX-zd-zLR">
-                        <items>
-                            <menuItem title="Home" image="750-home" id="Uzn-bg-0NQ" userLabel="Home">
-                                <connections>
-                                    <action selector="menuItemHome" destination="a7b-HT-MQ9" id="83h-IO-3xU"/>
-                                </connections>
-                            </menuItem>
-                            <menuItem title="Commuter bookmark" image="780-building.png" id="1MC-eW-deh">
-                                <connections>
-                                    <action selector="menuItemCommute" destination="a7b-HT-MQ9" id="kmg-5l-kAE"/>
-                                </connections>
-                            </menuItem>
-                        </items>
-                    </menu>
                     <connections>
                         <outlet property="loadingGroup" destination="Caz-uk-rTc" id="ng5-uJ-hRS"/>
                         <outlet property="loadingLabel" destination="dD9-9f-NP6" id="uiC-bL-Q8L"/>
+                        <outlet property="locatingMap" destination="zK6-SU-kO8" id="Ub7-Bp-SAS"/>
                         <outlet property="locationStatusLabel" destination="Y0y-Pk-iKr" id="bG5-OS-lDb"/>
                         <outlet property="map" destination="nRp-ot-zCs" id="ZsG-Zd-IRX"/>
+                        <outlet property="menuGroup" destination="R5i-do-3KL" id="afT-Z9-NPA"/>
                         <outlet property="stopTable" destination="tQC-Gk-mRt" id="kid-as-TK4"/>
                     </connections>
                 </controller>
@@ -326,21 +332,23 @@
                 <controller identifier="Alert" title="Information" id="ed0-6G-j56" customClass="AlertInterfaceController">
                     <items>
                         <label alignment="left" textAlignment="left" numberOfLines="0" id="e7g-QK-das"/>
-                        <button width="1" alignment="left" title="OK" id="RHV-US-EhN">
-                            <connections>
-                                <action selector="okButtonTapped" destination="ed0-6G-j56" id="31Z-KN-rFA"/>
-                            </connections>
-                        </button>
+                        <group width="1" alignment="left" id="hgV-ba-OvB" userLabel="Menu Group">
+                            <items>
+                                <button width="35" height="35" alignment="left" backgroundImage="750-home" id="0Gb-Sb-n4N">
+                                    <connections>
+                                        <action selector="menuItemHome" destination="ed0-6G-j56" id="Kkr-S1-Iay"/>
+                                    </connections>
+                                </button>
+                                <button width="90" height="1" alignment="right" verticalAlignment="center" title="OK" id="RHV-US-EhN">
+                                    <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <connections>
+                                        <action selector="okButtonTapped" destination="ed0-6G-j56" id="31Z-KN-rFA"/>
+                                    </connections>
+                                </button>
+                            </items>
+                            <edgeInsets key="margins" left="8" right="8" top="0.0" bottom="0.0"/>
+                        </group>
                     </items>
-                    <menu key="menu" id="PA7-2y-lM5">
-                        <items>
-                            <menuItem title="Home" image="750-home" id="zfQ-FG-6Ef">
-                                <connections>
-                                    <action selector="menuItemHome" destination="ed0-6G-j56" id="OSt-oP-HhN"/>
-                                </connections>
-                            </menuItem>
-                        </items>
-                    </menu>
                     <connections>
                         <outlet property="alertLabel" destination="e7g-QK-das" id="8Fz-jk-GJm"/>
                     </connections>
@@ -353,23 +361,31 @@
             <objects>
                 <controller identifier="Bookmarks" spacing="0.0" id="dfG-2e-wGV" customClass="WatchBookmarksInterfaceController">
                     <items>
-                        <group width="1" alignment="left" hidden="YES" id="DVq-zt-JpJ">
+                        <group width="1" alignment="left" id="DVq-zt-JpJ">
                             <items>
-                                <button width="0.5" alignment="left" title="Recent Stops" id="fti-Ms-HLM">
+                                <button height="35" alignment="center" title="Recent Stops" id="fti-Ms-HLM">
                                     <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     <color key="backgroundColor" red="0.25" green="0.25" blue="0.25" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                    <fontDescription key="font" type="system" pointSize="14"/>
                                     <connections>
                                         <action selector="topRecentStops" destination="dfG-2e-wGV" id="swV-N5-Wtt"/>
                                     </connections>
                                 </button>
-                                <button width="0.5" alignment="left" title="Locate Stops" id="sis-up-c3O">
+                                <button width="35" height="35" alignment="center" backgroundImage="845-location-targeta" id="sis-up-c3O">
                                     <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     <color key="backgroundColor" red="0.25" green="0.25" blue="0.25" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     <connections>
                                         <action selector="topLocateStops" destination="dfG-2e-wGV" id="pT9-zT-wmb"/>
                                     </connections>
                                 </button>
+                                <button width="35" height="35" alignment="center" title="ID" id="Y3U-R1-O4E">
+                                    <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <connections>
+                                        <action selector="enterStopId" destination="dfG-2e-wGV" id="zsd-5c-AxK"/>
+                                    </connections>
+                                </button>
                             </items>
+                            <edgeInsets key="margins" left="0.0" right="0.0" top="0.0" bottom="3"/>
                         </group>
                         <label width="1" alignment="left" hidden="YES" text="Bookmarks:" textAlignment="left" id="NDe-Ka-05t">
                             <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -428,40 +444,40 @@
                                 </button>
                             </items>
                         </group>
+                        <group width="1" alignment="left" radius="0.0" spacing="0.0" id="sDf-Uw-qNA" userLabel="Menu Group">
+                            <items>
+                                <button width="35" height="35" alignment="left" verticalAlignment="center" backgroundImage="750-home" id="w70-zU-I0G">
+                                    <connections>
+                                        <action selector="menuItemHome" destination="dfG-2e-wGV" id="tat-7t-Cum"/>
+                                    </connections>
+                                </button>
+                                <button width="35" height="35" alignment="right" verticalAlignment="center" backgroundImage="780-building" id="2Xs-Ov-PoQ">
+                                    <accessibilityTraits key="accessibilityTraits" button="YES" image="YES"/>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <connections>
+                                        <action selector="menuItemCommute" destination="dfG-2e-wGV" id="hzM-sG-Pfv"/>
+                                    </connections>
+                                </button>
+                            </items>
+                            <edgeInsets key="margins" left="0.0" right="0.0" top="3" bottom="0.0"/>
+                        </group>
                     </items>
-                    <menu key="menu" id="4VP-I7-nTd">
-                        <items>
-                            <menuItem title="Home" image="750-home" id="Ld5-c2-Pi1" userLabel="Home">
-                                <connections>
-                                    <action selector="menuItemHome" destination="dfG-2e-wGV" id="fUm-Ax-Mqh"/>
-                                </connections>
-                            </menuItem>
-                            <menuItem title="Commuter bookmark" image="780-building.png" id="blE-J5-fi1">
-                                <connections>
-                                    <action selector="menuItemCommute" destination="dfG-2e-wGV" id="irX-fF-GxH"/>
-                                </connections>
-                            </menuItem>
-                            <menuItem title="Enter stop ID" icon="more" id="8fu-B7-alm">
-                                <connections>
-                                    <action selector="enterStopId" destination="dfG-2e-wGV" id="69Z-pb-Akr"/>
-                                </connections>
-                            </menuItem>
-                        </items>
-                    </menu>
                     <connections>
                         <outlet property="bookmarkLabel" destination="NDe-Ka-05t" id="W3c-pq-cFS"/>
                         <outlet property="bookmarkTable" destination="cLB-Zb-uri" id="XW4-h4-44e"/>
                         <outlet property="mainTextLabel" destination="ccv-of-0aE" id="mUl-ks-k8v"/>
+                        <outlet property="menuCommuteButton" destination="2Xs-Ov-PoQ" id="Bx7-HS-o0x"/>
+                        <outlet property="menuHomeButton" destination="w70-zU-I0G" id="iDX-ia-loD"/>
                         <outlet property="topGroup" destination="DVq-zt-JpJ" id="l06-Qe-NSN"/>
                     </connections>
                 </controller>
             </objects>
-            <point key="canvasLocation" x="264" y="54.5"/>
+            <point key="canvasLocation" x="264" y="54"/>
         </scene>
         <!--Enter Stop ID-->
         <scene sceneID="Gf9-rl-YAa">
             <objects>
-                <controller identifier="Number Pad" title="Enter Stop ID" id="B0Z-YD-ji3" customClass="NumberPadInterfaceController">
+                <controller identifier="Number Pad" title="Enter Stop ID" fullBounds="YES" id="B0Z-YD-ji3" customClass="NumberPadInterfaceController">
                     <items>
                         <group width="1" height="1" alignment="left" layout="vertical" id="eSq-wg-NY4">
                             <items>
@@ -471,7 +487,7 @@
                                             <items>
                                                 <button width="22" height="60" alignment="center" verticalAlignment="center" backgroundImage="mic-128-000000.png" id="ren-nO-NJ3">
                                                     <connections>
-                                                        <action selector="sayStopId" destination="B0Z-YD-ji3" id="KbL-g0-QUQ"/>
+                                                        <action selector="sayStopIdAction" destination="B0Z-YD-ji3" id="KbL-g0-QUQ"/>
                                                     </connections>
                                                 </button>
                                             </items>
@@ -480,7 +496,7 @@
                                             <color key="titleColor" red="0.62801516056060791" green="0.62801516056060791" blue="0.62801516056060791" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                             <color key="backgroundColor" red="0.0" green="0.01035292832" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                             <connections>
-                                                <action selector="buttonGo" destination="B0Z-YD-ji3" id="1zK-mK-FIe"/>
+                                                <action selector="buttonGoAction" destination="B0Z-YD-ji3" id="1zK-mK-FIe"/>
                                             </connections>
                                         </button>
                                     </items>
@@ -489,17 +505,17 @@
                                     <items>
                                         <button width="0.33300000000000002" height="1" alignment="left" title="1" id="iem-tQ-HqW">
                                             <connections>
-                                                <action selector="button1" destination="B0Z-YD-ji3" id="L1Z-tH-83B"/>
+                                                <action selector="buttonAction1" destination="B0Z-YD-ji3" id="L1Z-tH-83B"/>
                                             </connections>
                                         </button>
                                         <button width="0.33300000000000002" height="1" alignment="center" title="2" id="uV1-cC-bCB">
                                             <connections>
-                                                <action selector="button2" destination="B0Z-YD-ji3" id="vgd-6D-DOJ"/>
+                                                <action selector="buttonAction2" destination="B0Z-YD-ji3" id="vgd-6D-DOJ"/>
                                             </connections>
                                         </button>
                                         <button width="0.33300000000000002" height="1" alignment="right" title="3" id="7dr-Dq-CIg">
                                             <connections>
-                                                <action selector="button3" destination="B0Z-YD-ji3" id="zxu-o6-hA2"/>
+                                                <action selector="buttonAction3" destination="B0Z-YD-ji3" id="zxu-o6-hA2"/>
                                             </connections>
                                         </button>
                                     </items>
@@ -508,17 +524,17 @@
                                     <items>
                                         <button width="0.33300000000000002" height="1" alignment="left" title="4" id="jAb-2l-Muq">
                                             <connections>
-                                                <action selector="button4" destination="B0Z-YD-ji3" id="D1r-VO-3nC"/>
+                                                <action selector="buttonAction4" destination="B0Z-YD-ji3" id="D1r-VO-3nC"/>
                                             </connections>
                                         </button>
                                         <button width="0.33300000000000002" height="1" alignment="left" title="5" id="NH6-9F-nvq">
                                             <connections>
-                                                <action selector="button5" destination="B0Z-YD-ji3" id="1ui-WO-uWe"/>
+                                                <action selector="buttonAction5" destination="B0Z-YD-ji3" id="1ui-WO-uWe"/>
                                             </connections>
                                         </button>
                                         <button width="0.33300000000000002" height="1" alignment="left" title="6" id="0YD-Tb-5in">
                                             <connections>
-                                                <action selector="button6" destination="B0Z-YD-ji3" id="u3g-Iz-ccs"/>
+                                                <action selector="buttonAction6" destination="B0Z-YD-ji3" id="u3g-Iz-ccs"/>
                                             </connections>
                                         </button>
                                     </items>
@@ -527,40 +543,42 @@
                                     <items>
                                         <button width="0.33300000000000002" height="1" alignment="left" title="7" id="dP3-ZG-59g">
                                             <connections>
-                                                <action selector="button7" destination="B0Z-YD-ji3" id="LtS-kT-CXW"/>
+                                                <action selector="buttonAction7" destination="B0Z-YD-ji3" id="LtS-kT-CXW"/>
                                             </connections>
                                         </button>
                                         <button width="0.33300000000000002" height="1" alignment="left" title="8" id="vMo-O6-gwE">
                                             <connections>
-                                                <action selector="button8" destination="B0Z-YD-ji3" id="52X-3K-fgA"/>
+                                                <action selector="buttonAction8" destination="B0Z-YD-ji3" id="52X-3K-fgA"/>
                                             </connections>
                                         </button>
                                         <button width="0.33300000000000002" height="1" alignment="left" title="9" id="RWS-lu-QWI">
                                             <connections>
-                                                <action selector="button9" destination="B0Z-YD-ji3" id="pBA-1S-Ubv"/>
+                                                <action selector="buttonAction9" destination="B0Z-YD-ji3" id="pBA-1S-Ubv"/>
                                             </connections>
                                         </button>
                                     </items>
                                 </group>
                                 <group width="1" height="0.20000000000000001" alignment="left" id="pRs-VV-6Y7">
                                     <items>
-                                        <button width="0.33300000000000002" height="1" alignment="left" title="&lt;-" id="Mro-1N-4g2">
-                                            <color key="titleColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                            <color key="backgroundColor" red="1" green="0.50196078430000002" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <button width="0.33300000000000002" height="1" alignment="left" title="OK" id="8gp-mg-bQc">
+                                            <color key="titleColor" red="0.04492635572664605" green="1" blue="0.092009483096904598" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            <fontDescription key="font" type="boldSystem" pointSize="20"/>
                                             <connections>
-                                                <action selector="buttonBack" destination="B0Z-YD-ji3" id="pgW-fl-Bo2"/>
+                                                <action selector="buttonGoAction" destination="B0Z-YD-ji3" id="GgZ-Ta-BCh"/>
                                             </connections>
                                         </button>
-                                        <button width="0.33300000000000002" height="1" alignment="left" title="0" id="6nj-jh-hOu">
+                                        <button width="0.33300000000000002" height="1" alignment="center" title="0" id="6nj-jh-hOu">
                                             <connections>
-                                                <action selector="button0" destination="B0Z-YD-ji3" id="uvj-9s-YLE"/>
+                                                <action selector="buttonAction0" destination="B0Z-YD-ji3" id="uvj-9s-YLE"/>
                                             </connections>
                                         </button>
-                                        <button width="0.33300000000000002" height="1" alignment="left" title="GO" id="8gp-mg-bQc">
-                                            <color key="titleColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                            <color key="backgroundColor" red="0.1640763495" green="1" blue="0.34283108919999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <button width="0.33300000000000002" height="1" alignment="right" title=" ←" id="Mro-1N-4g2">
+                                            <color key="titleColor" red="1" green="0.19169315076331861" blue="0.21006564255164739" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            <fontDescription key="font" type="system" pointSize="25"/>
                                             <connections>
-                                                <action selector="buttonGo" destination="B0Z-YD-ji3" id="GgZ-Ta-BCh"/>
+                                                <action selector="buttonBackAction" destination="B0Z-YD-ji3" id="pgW-fl-Bo2"/>
                                             </connections>
                                         </button>
                                     </items>
@@ -568,17 +586,11 @@
                             </items>
                         </group>
                     </items>
-                    <menu key="menu" id="luv-qQ-5Xu">
-                        <items>
-                            <menuItem title="Clear" icon="trash" id="Cel-UF-a7E">
-                                <connections>
-                                    <action selector="menuClear" destination="B0Z-YD-ji3" id="gwG-rP-ZFv"/>
-                                </connections>
-                            </menuItem>
-                        </items>
-                    </menu>
+                    <edgeInsets key="margins" left="1" right="1" top="0.0" bottom="10"/>
                     <connections>
+                        <outlet property="backButton" destination="Mro-1N-4g2" id="2xG-df-cuv"/>
                         <outlet property="buttonStopId" destination="rbF-7Z-ywT" id="MNX-Dl-uGj"/>
+                        <outlet property="goButton" destination="8gp-mg-bQc" id="Tzu-SB-uQg"/>
                     </connections>
                 </controller>
             </objects>
@@ -604,12 +616,12 @@
             <point key="canvasLocation" x="264" y="459"/>
         </scene>
     </scenes>
+    <color key="tintColor" red="0.51233841661442159" green="0.75400234875706706" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
     <resources>
         <image name="750-home" width="28" height="28"/>
-        <image name="750-home@2x.png" width="16" height="16"/>
-        <image name="780-building.png" width="16" height="16"/>
+        <image name="780-building" width="23" height="28"/>
         <image name="845-location-targeta" width="24" height="24"/>
+        <image name="852-mapa" width="24" height="24"/>
         <image name="mic-128-000000.png" width="16" height="16"/>
     </resources>
-    <color key="tintColor" red="0.51233841661442159" green="0.75400234875706706" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
 </document>

@@ -13,6 +13,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogIntents
+
 #ifdef PDXBUS_EXTENSION
 #define LARGE_SCREEN NO
 #else
@@ -67,13 +69,9 @@
     
     NSUserActivity *activity = nil;
     
-    if (@available(iOS 12.0, *)) {
-        if ([interaction.intent isKindOfClass:[ArrivalsIntent class]]) {
-            ArrivalsIntentResponse *response = (ArrivalsIntentResponse *)interaction.intentResponse;
-            activity = response.userActivity;
-        }
-    } else {
-        // Fallback on earlier versions
+    if ([interaction.intent isKindOfClass:[ArrivalsIntent class]]) {
+        ArrivalsIntentResponse *response = (ArrivalsIntentResponse *)interaction.intentResponse;
+        activity = response.userActivity;
     }
     
     if (parameters == nil || activity == nil) {
@@ -110,11 +108,11 @@
     
     for (XMLDepartures *xml in self.departures) {
         h += self.tableView.sectionHeaderHeight;
-        h += DEPARTURE_CELL_HEIGHT * xml.count;
+        h += [DepartureCell cellHeightWithTallRouteLabel:NO] * xml.count;
     }
     
     if (h > 0) {
-        h += DEPARTURE_CELL_HEIGHT;
+        h += [DepartureCell cellHeightWithTallRouteLabel:NO];
     }
     
     sz.height = h;
@@ -140,7 +138,7 @@
         cell.detailTextLabel.text = kTriMetDisclaimerText;
         cell.detailTextLabel.adjustsFontSizeToFitWidth = YES;
         cell.detailTextLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
-        cell.detailTextLabel.textColor = [UIColor grayColor];
+        cell.detailTextLabel.textColor = [UIColor modeAwareGrayText];
         cell.detailTextLabel.backgroundColor = [UIColor clearColor];
         cell.detailTextLabel.numberOfLines = 1;
     }
@@ -154,7 +152,7 @@
     
     if (indexPath.row < xml.count) {
         Departure *departure = xml[indexPath.row];
-        DepartureCell *dcell = [DepartureCell tableView:tableView cellWithReuseIdentifier:@"departure"];
+        DepartureCell *dcell = [DepartureCell tableView:tableView cellWithReuseIdentifier:@"departure" tallRouteLabel:NO];
         
         [xml depPopulateCell:departure cell:dcell decorate:NO wide:NO];
         cell = dcell;
@@ -165,7 +163,7 @@
                                [NSDateFormatter localizedStringFromDate:xml.depQueryTime
                                                               dateStyle:NSDateFormatterNoStyle
                                                               timeStyle:NSDateFormatterMediumStyle]];
-        cell.textLabel.textColor = [UIColor grayColor];
+        cell.textLabel.textColor = [UIColor modeAwareGrayText];
     }
     
     return cell;
@@ -178,7 +176,7 @@
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return DEPARTURE_CELL_HEIGHT;
+    return [DepartureCell cellHeightWithTallRouteLabel:NO];
 }
 
 - (void)tableView:(UITableView *)tableView willDisplayHeaderView:(UIView *)view forSection:(NSInteger)section {

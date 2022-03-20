@@ -13,12 +13,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+
 #import "NumberPadInterfaceController.h"
 #import "WatchArrivalsContext.h"
 #import "NSString+Helper.h"
 #import "DebugLogging.h"
 #import "AlertInterfaceController.h"
 #import "UIKit/UIKit.h"
+#import "UIFont+Utility.h"
 
 @interface NumberPadInterfaceController ()
 
@@ -30,7 +33,7 @@
     [super awakeWithContext:context];
     
     self.stopId = [NSMutableString string];
-    [self setLabel];
+    [self updateUI];
 }
 
 - (void)willActivate {
@@ -43,82 +46,87 @@
     [super didDeactivate];
 }
 
-- (void)setLabel {
+- (void)updateUI {
     if (self.stopId.length == 0) {
         [self.buttonStopId setAttributedTitle:
-         [@"#A#i<stop ID>" formatAttributedStringWithFont:[UIFont systemFontOfSize:16]]];
+         [@"#A#i<stop ID>" attributedStringFromMarkUpWithFont:[UIFont monospacedDigitSystemFontOfSize:16]]];
+        self.goButton.hidden = YES;
+        self.backButton.hidden = YES;
     } else {
         [self.buttonStopId setAttributedTitle:
-         [[NSString stringWithFormat:@"#W#b%@", self.stopId] formatAttributedStringWithFont:[UIFont systemFontOfSize:18]]];
+         [[NSString stringWithFormat:@"#W#b%@", self.stopId] attributedStringFromMarkUpWithFont:[UIFont monospacedDigitSystemFontOfSize:18]]];
+        
+        self.goButton.hidden = NO;
+        self.backButton.hidden = NO;
     }
 }
 
 - (void)addDigit:(NSString *)digit {
     [self.stopId appendString:digit];
-    [self  setLabel];
+    [self  updateUI];
 }
 
-- (IBAction)button1 {
+- (IBAction)buttonAction1 {
     [self addDigit:@"1"];
 }
 
-- (IBAction)button2 {
+- (IBAction)buttonAction2 {
     [self addDigit:@"2"];
 }
 
-- (IBAction)button3 {
+- (IBAction)buttonAction3 {
     [self addDigit:@"3"];
 }
 
-- (IBAction)button4 {
+- (IBAction)buttonAction4 {
     [self addDigit:@"4"];
 }
 
-- (IBAction)button5 {
+- (IBAction)buttonAction5 {
     [self addDigit:@"5"];
 }
 
-- (IBAction)button6 {
+- (IBAction)buttonAction6 {
     [self addDigit:@"6"];
 }
 
-- (IBAction)button7 {
+- (IBAction)buttonAction7 {
     [self addDigit:@"7"];
 }
 
-- (IBAction)button8 {
+- (IBAction)buttonAction8 {
     [self addDigit:@"8"];
 }
 
-- (IBAction)button9 {
+- (IBAction)buttonAction9 {
     [self addDigit:@"9"];
 }
 
-- (IBAction)button0 {
+- (IBAction)buttonAction0 {
     [self addDigit:@"0"];
 }
 
-- (IBAction)buttonBack {
+- (IBAction)buttonBackAction {
     if (self.stopId.length > 0) {
         NSRange lastCharacter = { self.stopId.length - 1, 1 };
         [self.stopId deleteCharactersInRange:lastCharacter];
-        [self  setLabel];
+        [self  updateUI];
     }
 }
 
-- (IBAction)buttonGo {
+- (IBAction)buttonGoAction {
     if (self.stopId.length > 0) {
         WatchArrivalsContext *context = [ WatchArrivalsContext contextWithStopId:self.stopId ];
         [context pushFrom:self];
     }
 }
 
-- (IBAction)menuClear {
+- (IBAction)menuClearAction {
     [self.stopId setString:@""];
-    [self setLabel];
+    [self updateUI];
 }
 
-- (IBAction)sayStopId {
+- (IBAction)sayStopIdAction {
     [self presentTextInputControllerWithSuggestions:nil allowedInputMode:WKTextInputModePlain completion:^(NSArray *_Nullable results) {
         if (results != nil) {
             NSCharacterSet *numbers  = [NSCharacterSet characterSetWithCharactersInString:@"0123456789"];
@@ -190,11 +198,11 @@
             
             if (stops.count >= 1) {
                 [self.stopId setString:stops.firstObject];
-                [self setLabel];
-                [self buttonGo];
+                [self updateUI];
+                [self buttonGoAction];
             } else {
                 [self pushControllerWithName:kAlertScene context:
-                 [@"#b#RNot sure what that was.#W Was it a stop ID?#b Saying each digit works best. This app can only do stop ID #inumbers#i right now." formatAttributedStringWithFont:[UIFont systemFontOfSize:16]]];
+                 [@"#b#RNot sure what that was.#W Was it a stop ID?#b Saying each digit works best. This app can only do stop ID #inumbers#i right now." attributedStringFromMarkUpWithFont:[UIFont monospacedDigitSystemFontOfSize:16]]];
             }
         }
     }];

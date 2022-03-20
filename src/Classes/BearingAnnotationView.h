@@ -14,7 +14,7 @@
 
 
 #import <MapKit/MapKit.h>
-#import "MapPinColor.h"
+#import "MapPin.h"
 #import "MapAnnotationImageFactory.h"
 
 @interface BearingAnnotationView : MKAnnotationView
@@ -23,6 +23,8 @@
 
 - (void)updateDirectionalAnnotationView:(MKMapView *)mapView;
 
-+ (MKAnnotationView *)viewForPin:(id<MapPinColor>)pin mapView:(MKMapView *)mapView;
++ (MKAnnotationView *)viewForPin:(id<MapPin>)pin
+                         mapView:(MKMapView *)mapView
+                       urlAction:(bool (^__nullable)(id<MapPin>, NSURL *url, UIView *source)) urlAction;
 
 @end

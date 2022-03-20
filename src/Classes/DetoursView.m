@@ -24,6 +24,7 @@
 #import "TaskState.h"
 #import "DetourTableViewCell.h"
 #import "ViewControllerBase+DetourTableViewCell.h"
+#import "SystemWideAlertsIntent.h"
 
 #define kGettingDetours NSLocalizedString(@"getting detours", @"progress message")
 
@@ -48,7 +49,7 @@
 }
 
 - (id)filteredObject:(id)i searchString:(NSString *)searchText index:(NSInteger)index {
-    DetoursForRoute *result = [DetoursForRoute data];
+    DetoursForRoute *result = [DetoursForRoute new];
     DetoursForRoute *item = (DetoursForRoute *)i;
     
     if ([item.route.desc hasCaseInsensitiveSubstring:searchText]) {
@@ -58,8 +59,8 @@
     result.route = item.route;
     
     for (Detour *d in item.detours) {
-        if ([[d formattedDescription:nil].removeFormatting hasCaseInsensitiveSubstring:searchText]
-            || [d.formattedHeader.removeFormatting hasCaseInsensitiveSubstring:searchText]) {
+        if ([[d markedUpDescription:nil].removeMarkUp hasCaseInsensitiveSubstring:searchText]
+            || [d.markedUpHeader.removeMarkUp hasCaseInsensitiveSubstring:searchText]) {
             [result.detours addObject:d];
         }
     }
@@ -111,7 +112,7 @@
             }
             
             if (!found) {
-                DetoursForRoute *detours = [DetoursForRoute data];
+                DetoursForRoute *detours = [DetoursForRoute new];
                 detours.route = r;
                 [detours.detours addObject:d];
                 [self.sortedDetours addObject:detours];
@@ -265,7 +266,7 @@
         DetourTableViewCell *cell = [self.table dequeueReusableCellWithIdentifier:detour.reuseIdentifer];
         DetoursForRoute *detours = [self filteredData:tableView][indexPath.section];
         
-        [cell populateCell:detours.detours[indexPath.row] font:self.paragraphFont route:detours.route.route];
+        [cell populateCell:detours.detours[indexPath.row] route:detours.route.route];
 
          __weak __typeof__(self) weakSelf = self;
         
@@ -287,7 +288,7 @@
         Detour *detour = detours.detours[indexPath.row];
         [self detourToggle:detour indexPath:indexPath reloadSection:YES];
     } else if (self.detours.items == nil) {
-        [self networkTips:self.detours.htmlError networkError:self.detours.errorMsg];
+        [self networkTips:self.detours.htmlError networkError:self.detours.networkErrorMsg];
         [self clearSelection];
     }
 }
@@ -320,6 +321,36 @@
     [super didReceiveMemoryWarning];
 }
 
+- (void)buttonAction:(UIBarButtonItem *)sender  {
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Siri"
+                                                                   message:nil
+                                                            preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Add TriMet system-wide alerts to Siri", @"menu")
+                                              style:UIAlertActionStyleDefault
+                                            handler:^(UIAlertAction *action) {
+        SystemWideAlertsIntent *intent = [[SystemWideAlertsIntent alloc] init];
+        
+        intent.suggestedInvocationPhrase = NSLocalizedString(@"TriMet system-wide alerts", @"menu");
+        
+        INShortcut *shortCut = [[INShortcut alloc] initWithIntent:intent];
+        
+        INUIAddVoiceShortcutViewController *viewController = [[INUIAddVoiceShortcutViewController alloc] initWithShortcut:shortCut];
+        viewController.modalPresentationStyle = UIModalPresentationFormSheet;
+        viewController.delegate = self;
+        
+        [self presentViewController:viewController animated:YES completion:nil];
+        
+    }]];
+        
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"button text") style:UIAlertActionStyleCancel handler:nil]];
+    
+    alert.popoverPresentationController.barButtonItem = sender;
+    
+    [self presentViewController:alert animated:YES completion:nil];
+    
+}
+
 - (void)mapAction:(id)unused {
     [[MapViewWithDetourStops viewController] fetchLocationsMaybeAsync:self.backgroundTask detours:self.detours.items nav:self.navigationController];
 }
@@ -329,6 +360,13 @@
         [toolbarItems addObject:[UIToolbar mapButtonWithTarget:self action:@selector(mapAction:)]];
         [toolbarItems addObject:[UIToolbar flexSpace]];
     }
+    
+#if !TARGET_OS_MACCATALYST
+    [toolbarItems addObject:[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction
+                                                                           target:self
+                                                                           action:@selector(buttonAction:)]];
+    [toolbarItems addObject:[UIToolbar flexSpace]];
+#endif
     
     [self updateToolbarItemsWithXml:toolbarItems];
 }

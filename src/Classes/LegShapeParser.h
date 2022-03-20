@@ -18,12 +18,15 @@
 #import "TriMetInfo.h"
 #import "ShapeMutableSegment.h"
 
+@class LegShapeParser;
 
+typedef NSString * _Nonnull (^ReplacementForShapeQueryBlock) (LegShapeParser *_Nonnull xml, NSString * _Nonnull query);
 
 @interface LegShapeParser : StoppableFetcher
 
 @property (nonatomic, strong) ShapeMutableSegment *segment;
 @property (nonatomic, copy)   NSString *lineURL;
+@property (nonatomic, copy)   ReplacementForShapeQueryBlock replaceQueryBlock;
 
 - (void)fetchCoords;
 

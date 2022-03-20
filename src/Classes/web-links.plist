@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>TriMet</key>
+	<dict>
+		<key>Title</key>
+		<string>TriMet</string>
+		<key>Icon</key>
+		<string>TriMet.png</string>
+		<key>LinkM</key>
+		<string>https://www.trimet.org/</string>
+	</dict>
+	<key>XML Viewer 2</key>
+	<dict>
+		<key>Title</key>
+		<string>TriMet</string>
+		<key>Icon</key>
+		<string>TriMet.png</string>
+		<key>LinkM</key>
+		<string>https://www.freeformatter.com/xml-formatter.html</string>
+	</dict>
+	<key>XML Viewer 3</key>
+	<dict>
+		<key>Title</key>
+		<string>TriMet</string>
+		<key>Icon</key>
+		<string>TriMet.png</string>
+		<key>LinkM</key>
+		<string>https://www.samltool.com/prettyprint.php</string>
+	</dict>
+	<key>Twitter</key>
+	<dict>
+		<key>Title</key>
+		<string>TriMet</string>
+		<key>Icon</key>
+		<string>TriMet.png</string>
+		<key>LinkM</key>
+		<string>https://mobile.twitter.com/%@</string>
+		<key>TestString</key>
+		<string>PDXBus</string>
+	</dict>
+	<key>Buy Me A Coffee</key>
+	<dict>
+		<key>Title</key>
+		<string>TriMet</string>
+		<key>Icon</key>
+		<string>TriMet.png</string>
+		<key>LinkM</key>
+		<string>https://buymeacoffee.com/pdxbus</string>
+	</dict>
+	<key>Facebook TriMet</key>
+	<dict>
+		<key>LinkM</key>
+		<string>https://m.facebook.com/TriMet</string>
+	</dict>
+	<key>Facebook PDXBus</key>
+	<dict>
+		<key>LinkM</key>
+		<string>https://m.facebook.com/PDXBus</string>
+	</dict>
+	<key>TriMet Dashboard</key>
+	<dict>
+		<key>LinkM</key>
+		<string>https://trimet.org/dashboard</string>
+	</dict>
+	<key>TriMet Customer Service</key>
+	<dict>
+		<key>LinkM</key>
+		<string>https://trimet.org/contact/customerservice.htm</string>
+	</dict>
+	<key>TriMet Covid</key>
+	<dict>
+		<key>LinkM</key>
+		<string>https://trimet.org/health/index.htm</string>
+	</dict>
+	<key>PDXBus App Store Review</key>
+	<dict>
+		<key>LinkM</key>
+		<string>https://apps.apple.com/app/id289814055?action=write-review</string>
+	</dict>
+	<key>PDXBus GitHub</key>
+	<dict>
+		<key>LinkM</key>
+		<string>https://trimet.org/contact/customerservice.htm</string>
+	</dict>
+	<key>PDXBus Shortcut Documentation</key>
+	<dict>
+		<key>LinkM</key>
+		<string>https://github.com/teleportaloo/PDX-Bus/blob/master/Shortcuts.markdown#introduction</string>
+	</dict>
+	<key>TriMet How To Ride</key>
+	<dict>
+		<key>LinkM</key>
+		<string>https://trimet.org/howtoride/index.htm</string>
+	</dict>
+	<key>TriMet Stop Info</key>
+	<dict>
+		<key>LinkM</key>
+		<string>https://trimet.org/go/cgi-bin/cstops.pl?action=entry&amp;resptype=U&amp;lang=pdaen&amp;noCat=Landmark&amp;Loc=%@</string>
+		<key>TestString</key>
+		<string>365</string>
+	</dict>
+	<key>TriMet Arrivals</key>
+	<dict>
+		<key>LinkM</key>
+		<string>https://trimet.org/arrivals/small/tracker?locationID=%@</string>
+		<key>TestString</key>
+		<string>365</string>
+	</dict>
+	<key>Waze</key>
+	<dict>
+		<key>LinkM</key>
+		<string>https://waze.com/ul?ll=%@&amp;z=6</string>
+		<key>TestString</key>
+		<string>45.530612,-122.698688</string>
+	</dict>
+	<key>Google Maps</key>
+	<dict>
+		<key>LinkM</key>
+		<string>https://www.google.com/maps?q=@%@</string>
+		<key>TestString</key>
+		<string>45.530612,-122.698688</string>
+	</dict>
+	<key>Apple Maps</key>
+	<dict>
+		<key>LinkM</key>
+		<string>https://maps.apple.com?ll=%@</string>
+		<key>TestString</key>
+		<string>45.530612,-122.698688</string>
+	</dict>
+	<key>Wikipedia</key>
+	<dict>
+		<key>LinkM</key>
+		<string>https://en.m.wikipedia.org/wiki/%@</string>
+		<key>LinkF</key>
+		<string>https://en.wikipedia.org/wiki/%@</string>
+		<key>TestString</key>
+		<string>TriMet</string>
+	</dict>
+	<key>TriMet Trip Planner Feedback</key>
+	<dict>
+		<key>LinkM</key>
+		<string>https://trimet.org/contact/tripfeedback.htm</string>
+	</dict>
+	<key>Portland Streetcar</key>
+	<dict>
+		<key>LinkM</key>
+		<string>https://portlandstreetcar.org</string>
+	</dict>
+	<key>TriMet Route</key>
+	<dict>
+		<key>LinkM</key>
+		<string>https://www.trimet.org/schedules/r%@.htm</string>
+		<key>TestString</key>
+		<string>100</string>
+	</dict>
+	<key>PDXBus Blog</key>
+	<dict>
+		<key>LinkM</key>
+		<string>http:/pdxbus.teleportaloo.org</string>
+	</dict>
+	<key>Apple Maps 2</key>
+	<dict>
+		<key>LinkM</key>
+		<string>http://maps.apple.com/?q=%@&amp;ll=%@</string>
+		<key>TestString</key>
+		<string>Title</string>
+		<key>TestString2</key>
+		<string>45.530612,-122.698688</string>
+	</dict>
+</dict>
+</plist>

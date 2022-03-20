@@ -10,6 +10,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+
 #import "SupportView.h"
 #import "WebViewController.h"
 #import "TriMetXML.h"
@@ -33,10 +35,14 @@
 #import "UIAlertController+SimpleMessages.h"
 #import "UIApplication+Compat.h"
 #import "BackgroundDownloader.h"
+#import "LinkCell.h"
 
 
-#define kBytesToKB(B) ((B) / 1024)
+#define kBytesToKB(B) ((double)(B) / 1024)
 #define kBytesToMB(B) (((double)(B)) / (1024 * 1024))
+#define kBytesBigSize(B) ((kBytesToKB(B) > 512) ? [NSString stringWithFormat:@"%.2f MB", kBytesToMB(B)] : [NSString stringWithFormat:@"%.2f KB", kBytesToKB(B)])
+#define kBytesSize(B) (((B) <= 1024) ? [NSString stringWithFormat:@"%i bytes", (int)(B)] : kBytesBigSize(B))
+
 
 enum {
     kSectionSupport,
@@ -73,7 +79,7 @@ enum {
 
 @interface SupportView () {
     NSAttributedString *_supportText;
-    NSArray *_tipText;
+    NSArray<NSAttributedString *> *_tipText;
     
     bool _cameraGoesToSettings;
     bool _locationGoesToSettings;
@@ -97,6 +103,12 @@ enum {
 
 - (UITableViewStyle)style {
     return UITableViewStyleGrouped;
+}
+
+- (void)reloadData
+{
+    [super reloadData];
+    [self makeText];
 }
 
 #pragma mark Table view methods
@@ -169,53 +181,57 @@ enum {
     }
 }
 
+- (void)makeText
+{
+    _supportText = NSLocalizedString(
+                        @"#bPDX Bus#b uses real-time tracking information from #bTriMet#b to display bus, MAX, WES and streetcar times for the Portland, Oregon, metro area.\n\n"
+                        "Every #bTriMet#b bus stop and rail station has its own unique #iStop ID#i number, up to five digits. Enter the #iStop ID#i to get the departures for that stop.\n\n"
+                        "#bPDX Bus#b offers several ways to discover #iStop IDs#i:\n"
+                        "- Browse a list of routes and stops;\n"
+                        "- Use the #bGPS#b to locate nearby stops;\n"
+                        "- Search though the rail stations;\n"
+                        "- Use the maps of the rail systems;\n"
+                        "- or scan a #bQR code#b (found at some stops).\n\n"
+                        "Once you have found your stops - #ibookmark#i them to use them again later.\n\n"
+                        "The #iTrip Planner#i feature uses #ischeduled times#i to arrange a journey with several transfers, always check the #bcurrent departures#b.\n\n"
+                        "See below for other tips and links, touch here to start using #bPDX Bus#b."
+                        "\n\nThe departure data is provided by #bTriMet#b and #bPortland Streetcar#b and is the same as the transit tracker data. "
+                        "#b#RPlease contact TriMet for issues about late buses or other transit issues as the app developer cannot help.#b#D"
+                        "\n\nFor app support or feature requests please leave a comment on the blog; alternatively use twitter, Facebook or Github. The app developer is not able to respond to app store reviews, "
+                        "so please do not use these for support or feature requests. ", @"Main help description").smallAttributedStringFromMarkUp;
+    
+    
+    _tipText = [[NSArray alloc] initWithObjects:
+                NSLocalizedString(@"There are #bLOTS#b of settings for #bPDX Bus#b - take a look at the settings on the home screen to change colors, move the #ibookmarks#i to the top of the screen or change other options.", @"info text").smallAttributedStringFromMarkUp,
+                NSLocalizedString(@"Use the top-left #bEdit#b button on the home screen to re-order or modify the #ibookmarks#i.  #iBookmarks#i can be re-ordered, they can also include multiple stops and can be made to show themselves automatically in the morning or evening.", @"info text").smallAttributedStringFromMarkUp,
+                NSLocalizedString(@"When the time is shown in #Rred#D the vehicle will depart in 5 minutes or less.", @"info text").smallAttributedStringFromMarkUp,
+                NSLocalizedString(@"When the time is shown in #Ublue#D the vehicle will depart in more than 5 minutes.", @"info text").smallAttributedStringFromMarkUp,
+                NSLocalizedString(@"When the time is shown in #Agray#D no location infomation is available - the scheduled time is shown.", @"info text").smallAttributedStringFromMarkUp,
+                NSLocalizedString(@"When the time is shown in #Mmagenta#D the vehicle is late.", @"info text").smallAttributedStringFromMarkUp,
+                NSLocalizedString(@"When the time is shown in #Oorange#D and crossed out the vehicle was canceled.  The original scheduled time is shown for reference.", @"info text").smallAttributedStringFromMarkUp,
+                NSLocalizedString(@"#bStop IDs:#b Every #bTriMet#b bus stop and rail station has its own unique #iStop ID#i number, up to five digits. Enter the #iStop ID#i to get the departures for that stop.", @"info text").smallAttributedStringFromMarkUp,
+                NSLocalizedString(@"#bVehicle IDs:#b Every #bTriMet#b bus or train has an ID posted inside (except for the Streetcar). This is the #bVehicle ID#b. The #bVehicle ID#b is shown on the departure details.  This can help to tell if a MAX car has a low-foor.",  @"info text").smallAttributedStringFromMarkUp,
+                NSLocalizedString(@"#b" kBlockNameC " IDs:#b This is an ID given to a specific timetabled movement, internally this is known as a #iblock#i.  You can tag a #b" kBlockNameC " ID#b with a color. "
+                     @"#b" kBlockNameC " ID#b color tags can be set to highlight a bus or train so that you can follow its progress through several stops. "
+                     @"For example, if you tag a departure at one stop, you can use the color tag to see when it will arrive at your destination. "
+                     @"Also, the tags will remain persistant on each day of the week, so the same bus or train will have the same color the next day.", @"info text").smallAttributedStringFromMarkUp,
+                NSLocalizedString(@"Sometimes the scheduled time is also shown in #Agray#D when the vehicle is not running to schedule.", @"info text").smallAttributedStringFromMarkUp,
+                NSLocalizedString(@"Shake the device to #brefresh#b the departure times.", @"info text").smallAttributedStringFromMarkUp,
+                NSLocalizedString(@"Backup your bookmarks by #iemailing#i them to yourself.", @"info text").smallAttributedStringFromMarkUp,
+                NSLocalizedString(@"Keep an eye on the #btoolbar#b at the bottom - there are maps, options, and other features to explore.", @"info text").smallAttributedStringFromMarkUp,
+                NSLocalizedString(@"At night, #bTriMet#b recommends holding up a cell phone or flashing light so the driver can see you.", @"info text").smallAttributedStringFromMarkUp,
+                NSLocalizedString(@"Many issues can be solved by deleting the app and reinstalling - be sure to #iemail the bookmarks to yourself#i first so you can restore them.", @"info text").smallAttributedStringFromMarkUp,
+                // ATTR(@"Bad escape#"),
+                // ATTR(@"## started ## pound"),
+                nil];
+    
+}
+
 - (instancetype)init {
     if ((self = [super init])) {
         self.title = NSLocalizedString(@"Help and Support", @"page title");
-        
-#define ATTR(X, Y) [NSLocalizedString(X, Y) formatAttributedStringWithFont:self.paragraphFont]
-        
-        _supportText = ATTR(
-                            @"#bPDX Bus#b uses real-time tracking information from #bTriMet#b to display bus, MAX, WES and streetcar times for the Portland, Oregon, metro area.\n\n"
-                            "Every #bTriMet#b bus stop and rail station has its own unique #iStop ID#i number, up to five digits. Enter the #iStop ID#i to get the departures for that stop.\n\n"
-                            "#bPDX Bus#b offers several ways to discover #iStop IDs#i:\n"
-                            "- Browse a list of routes and stops;\n"
-                            "- Use the #bGPS#b to locate nearby stops;\n"
-                            "- Search though the rail stations;\n"
-                            "- Use the maps of the rail systems;\n"
-                            "- or scan a #bQR code#b (found at some stops).\n\n"
-                            "Once you have found your stops - #ibookmark#i them to use them again later.\n\n"
-                            "The #iTrip Planner#i feature uses #ischeduled times#i to arrange a journey with several transfers, always check the #bcurrent departures#b.\n\n"
-                            "See below for other tips and links, touch here to start using #bPDX Bus#b."
-                            "\n\nThe departure data is provided by #bTriMet#b and #bPortland Streetcar#b and is the same as the transit tracker data. "
-                            "#b#RPlease contact TriMet for issues about late buses or other transit issues as the app developer cannot help.#b#D"
-                            "\n\nFor app support or feature requests please leave a comment on the blog; alternatively use twitter, Facebook or Github. The app developer is not able to respond to app store reviews, "
-                            "so please do not use these for support or feature requests. ", @"Main help description");
-        
-        
-        _tipText = [[NSArray alloc] initWithObjects:
-                    ATTR(@"There are #bLOTS#b of settings for #bPDX Bus#b - take a look at the settings on the home screen to change colors, move the #ibookmarks#i to the top of the screen or change other options.", @"info text"),
-                    ATTR(@"Use the top-left #bEdit#b button on the home screen to re-order or modify the #ibookmarks#i.  #iBookmarks#i can be re-ordered, they can also include multiple stops and can be made to show themselves automatically in the morning or evening.", @"info text"),
-                    ATTR(@"When the time is shown in #Rred#D the vehicle will depart in 5 minutes or less.", @"info text"),
-                    ATTR(@"When the time is shown in #Ublue#D the vehicle will depart in more than 5 minutes.", @"info text"),
-                    ATTR(@"When the time is shown in #Agray#D no location infomation is available - the scheduled time is shown.", @"info text"),
-                    ATTR(@"When the time is shown in #Mmagenta#D the vehicle is late.", @"info text"),
-                    ATTR(@"When the time is shown in #Oorange#D and crossed out the vehicle was canceled.  The original scheduled time is shown for reference.", @"info text"),
-                    ATTR(@"#bStop IDs:#b Every #bTriMet#b bus stop and rail station has its own unique #iStop ID#i number, up to five digits. Enter the #iStop ID#i to get the departures for that stop.", @"info text"),
-                    ATTR(@"#bVehicle IDs:#b Every #bTriMet#b bus or train has an ID posted inside (except for the Streetcar). This is the #bVehicle ID#b. The #bVehicle ID#b is shown on the departure details.  This can help to tell if a MAX car has a low-foor.",  @"info text"),
-                    ATTR(@"#b" kBlockNameC " IDs:#b This is an ID given to a specific timetabled movement, internally this is known as a #iblock#i.  You can tag a #b" kBlockNameC " ID#b with a color. "
-                         @"#b" kBlockNameC " ID#b color tags can be set to highlight a bus or train so that you can follow its progress through several stops. "
-                         @"For example, if you tag a departure at one stop, you can use the color tag to see when it will arrive at your destination. "
-                         @"Also, the tags will remain persistant on each day of the week, so the same bus or train will have the same color the next day.", @"info text"),
-                    ATTR(@"Sometimes the scheduled time is also shown in #Agray#D when the vehicle is not running to schedule.", @"info text"),
-                    ATTR(@"Shake the device to #brefresh#b the departure times.", @"info text"),
-                    ATTR(@"Backup your bookmarks by #iemailing#i them to yourself.", @"info text"),
-                    ATTR(@"Keep an eye on the #btoolbar#b at the bottom - there are maps, options, and other features to explore.", @"info text"),
-                    ATTR(@"At night, #bTriMet#b recommends holding up a cell phone or flashing light so the driver can see you.", @"info text"),
-                    ATTR(@"Many issues can be solved by deleting the app and reinstalling - be sure to #iemail the bookmarks to yourself#i first so you can restore them.", @"info text"),
-                    // ATTR(@"Bad escape#"),
-                    // ATTR(@"## started ## pound"),
-                    nil];
+    
+        [self makeText];
         
         [self initLocationText];
         [self initCameraText];
@@ -268,11 +284,9 @@ enum {
         }
 
 #if !TARGET_OS_MACCATALYST
-        if (@available(iOS 12.0, *)) {
-            [self addSectionType:kSectionRowShortcuts];
-            [self addRowType:kSectionRowShortcuts];
-            [self addRowType:kRowShortcutDocumentation];
-        }
+        [self addSectionType:kSectionRowShortcuts];
+        [self addRowType:kSectionRowShortcuts];
+        [self addRowType:kRowShortcutDocumentation];
 #endif
         
         if (Settings.iCloudToken != nil) {
@@ -312,6 +326,13 @@ enum {
         
         self.navigationItem.rightBarButtonItem = info;
     }
+}
+
+- (void)viewDidLoad
+{
+    [self.table registerNib:LinkCell.nib forCellReuseIdentifier:LinkCell.identifier];
+    
+    [super viewDidLoad];
 }
 
 - (void)infoAction:(id)sender {
@@ -369,13 +390,6 @@ enum {
     return nil;
 }
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return self.sections;
-}
-
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [self rowsInSection:section];
-}
 
 - (UITableViewCell *)tableView:(UITableView *)tableView linkCell:(NSString *)text image:(UIImage *)image {
     UITableViewCell *cell = [self tableViewCell:tableView];
@@ -411,9 +425,9 @@ enum {
             NSUInteger size = kBytesToKB([TriMetXML cacheSizeInBytes]);
             
             if (size > 0) {
-                cell.textLabel.attributedText = FormatTextBasic(([NSString stringWithFormat:NSLocalizedString(@"#b#RDelete Cached Routes and Stops#b\n#ACache size %ld KB", @"main menu item"), (long)kBytesToKB([TriMetXML cacheSizeInBytes])]));
+                cell.textLabel.attributedText = ([NSString stringWithFormat:NSLocalizedString(@"#b#RDelete Cached Routes and Stops#b\n#ACache size %@", @"main menu item"), kBytesSize([TriMetXML cacheSizeInBytes])]).attributedStringFromMarkUp;
             } else {
-                cell.textLabel.attributedText = FormatTextBasic(NSLocalizedString(@"#b#RDelete Cached Routes and Stops", @"main menu item"));
+                cell.textLabel.attributedText = NSLocalizedString(@"#b#RDelete Cached Routes and Stops", @"main menu item").attributedStringFromMarkUp;
             }
             
             cell.imageView.image = [Icons getIcon:kIconDelete];
@@ -449,19 +463,19 @@ enum {
             }
             
             if (kml.cacheAgeInDays == kNoCache) {
-                cell.textLabel.attributedText = FormatTextBasic(([NSString stringWithFormat:NSLocalizedString(@"#bFetch route shapes#b\n#ANone cached%@", @"main menu item"),
-                                                                  downloadProgress]));
+                cell.textLabel.attributedText = ([NSString stringWithFormat:NSLocalizedString(@"#bFetch route shapes#b\n#ANone cached%@", @"main menu item"),
+                                                                  downloadProgress]).attributedStringFromMarkUp;
             } else if (Settings.kmlManual) {
-                cell.textLabel.attributedText = FormatTextBasic(([NSString stringWithFormat:NSLocalizedString(@"#bFetch route shapes#b\n#ACache is %ld days old\nCache size %.1f MB%@%@", @"main menu item"),
+                cell.textLabel.attributedText = ([NSString stringWithFormat:NSLocalizedString(@"#bFetch route shapes#b\n#ACache is %ld days old\nCache size %@%@%@", @"main menu item"),
                                                                   (long)kml.cacheAgeInDays,
-                                                                  kBytesToMB(kml.sizeInBytes),
-                                                                  cacheDate, downloadProgress]));
+                                                                  kBytesSize(kml.sizeInBytes),
+                                                                  cacheDate, downloadProgress]).attributedStringFromMarkUp;
             } else {
-                cell.textLabel.attributedText = FormatTextBasic(([NSString stringWithFormat:NSLocalizedString(@"#bFetch route shapes#b\n#ACache is %d days old\n%ld days until reload\nCache size %.1f MB%@%@", @"main menu item"),
+                cell.textLabel.attributedText = ([NSString stringWithFormat:NSLocalizedString(@"#bFetch route shapes#b\n#ACache is %d days old\n%ld days until reload\nCache %@%@%@", @"main menu item"),
                                                                   (int)kml.cacheAgeInDays,
                                                                   (long)kml.daysToAutoload,
-                                                                  kBytesToMB(kml.sizeInBytes),
-                                                                  cacheDate,downloadProgress]));
+                                                                  kBytesSize(kml.sizeInBytes),
+                                                                  cacheDate,downloadProgress]).attributedStringFromMarkUp;
             }
             cell.imageView.image = [Icons getIcon:kIconRedo];
             return cell;
@@ -490,16 +504,17 @@ enum {
             if (root.session) {
 #define BOOL2STR(X) ((X) ? @"#b#UYes#D#b" : @"#b#RNo#D#b")
                 NSString *str = [NSString stringWithFormat:
-                                 NSLocalizedString(@"#DWatch paired:%@\nApp installed:%@\nComplication installed:%@", @"watch info"),
+                                 NSLocalizedString(@"#DWatch paired:%@\nApp installed:%@\nComplication installed:%@\nSequence:#b##%ld", @"watch info"),
                                  BOOL2STR(root.session.paired),
                                  BOOL2STR(root.session.isWatchAppInstalled),
-                                 BOOL2STR(root.session.isComplicationEnabled)
+                                 BOOL2STR(root.session.isComplicationEnabled),
+                                 (long)UserState.sharedInstance.watchSequence
                                  ];
-                cell.textLabel.attributedText = FormatTextBasic(str);
+                cell.textLabel.attributedText = str.attributedStringFromMarkUp;
                 cell.selectionStyle = UITableViewCellSelectionStyleBlue;
             } else {
                 cell.selectionStyle = UITableViewCellSelectionStyleNone;
-                cell.textLabel.attributedText = FormatTextBasic(NSLocalizedString(@"#DNo watch support.", @"error message"));
+                cell.textLabel.attributedText = NSLocalizedString(@"#DNo watch support.", @"error message").attributedStringFromMarkUp;
             }
             return cell;
             
@@ -508,7 +523,7 @@ enum {
             
         case kSectionRowShortcuts: {
             UITableViewCell *cell = [self tableViewCell:tableView];
-            cell.textLabel.attributedText = FormatTextBasic(NSLocalizedString(@"#b#RDelete all Siri Shortcuts", @"main menu item"));
+            cell.textLabel.attributedText = NSLocalizedString(@"#b#RDelete all Siri Shortcuts", @"main menu item").attributedStringFromMarkUp;
             cell.imageView.image = [Icons getIcon:kIconDelete];
             cell.selectionStyle = UITableViewCellSelectionStyleBlue;
             return cell;
@@ -525,7 +540,7 @@ enum {
             
         case kRowWriteToiCloud: {
             UITableViewCell *cell = [self tableViewMultiLineBasicCell:tableView];
-            cell.textLabel.attributedText = FormatTextBasic(NSLocalizedString(@"#bReplace#b iCloud bookmarks with local bookmarks", @"main menu item"));
+            cell.textLabel.attributedText = NSLocalizedString(@"#bReplace#b iCloud bookmarks with local bookmarks", @"main menu item").attributedStringFromMarkUp;
             cell.imageView.image = [Icons getIcon:kIconDelete];
             cell.selectionStyle = UITableViewCellSelectionStyleBlue;
             return cell;
@@ -535,7 +550,7 @@ enum {
             
         case kRowReadFromiCloud: {
             UITableViewCell *cell = [self tableViewMultiLineBasicCell:tableView];
-            cell.textLabel.attributedText = FormatTextBasic(NSLocalizedString(@"#bReplace#b local bookmarks with iCloud bookmarks", @"main menu item"));
+            cell.textLabel.attributedText = NSLocalizedString(@"#bReplace#b local bookmarks with iCloud bookmarks", @"main menu item").attributedStringFromMarkUp;
             cell.imageView.image = [Icons getIcon:kIconDelete];
             cell.selectionStyle = UITableViewCellSelectionStyleBlue;
             return cell;
@@ -545,7 +560,7 @@ enum {
             
         case kRowDeleteiCloud: {
             UITableViewCell *cell = [self tableViewCell:tableView];
-            cell.textLabel.attributedText = FormatTextBasic(NSLocalizedString(@"#b#RDelete all in iCloud", @"main menu item"));
+            cell.textLabel.attributedText = NSLocalizedString(@"#b#RDelete all in iCloud", @"main menu item").attributedStringFromMarkUp;
             cell.imageView.image = [Icons getIcon:kIconDelete];
             cell.selectionStyle = UITableViewCellSelectionStyleBlue;
             return cell;
@@ -571,13 +586,12 @@ enum {
         }
             
         case kSectionSupportRowSupport: {
-                UITableViewCell *cell = [self tableViewMultiLineParaCell:tableView];
-                
+                LinkCell *cell = (LinkCell *)[self.table dequeueReusableCellWithIdentifier:LinkCell.identifier];
+                [cell resetForReuse];
                 cell.selectionStyle = UITableViewCellSelectionStyleNone;
-                cell.textLabel.attributedText = _supportText;
+                cell.textView.attributedText = _supportText;
                 DEBUG_LOG(@"width:  %f\n", cell.textLabel.bounds.size.width);
                 
-                [self updateAccessibility:cell];
                 // cell.backgroundView = [self clearView];
                 return cell;
             }
@@ -667,9 +681,11 @@ enum {
         default: {
             if (row >= kSectionRowTip && (row - kSectionRowTip) < _tipText.count) {
                 NSUInteger tipNumber = row - kSectionRowTip;
-                UITableViewCell *cell = [self tableViewMultiLineParaCell:tableView];
-                cell.textLabel.attributedText = _tipText[tipNumber];
-                [self updateAccessibility:cell];
+
+                LinkCell *cell = (LinkCell *)[self.table dequeueReusableCellWithIdentifier:LinkCell.identifier];
+                [cell resetForReuse];
+                cell.textView.attributedText = _tipText[tipNumber];
+                cell.selectionStyle = UITableViewCellSelectionStyleNone;
                 return cell;
                 
                 break;
@@ -693,27 +709,24 @@ enum {
     }
     
     switch ([self rowType:indexPath]) {
-        case kSectionLinkBlog: {
-            WebViewController *webPage = [WebViewController viewController];
-            [webPage setURLmobile:@"http:/pdxbus.teleportaloo.org" full:nil];
-            [webPage displayPage:self.navigationController animated:YES itemToDeselect:self];
+        case kSectionLinkBlog:
+            [WebViewController displayNamedPage:@"PDXBus Blog"
+                                      navigator:self.navigationController
+                                 itemToDeselect:self
+                                       whenDone:self.callbackWhenDone];
             break;
-        }
-            
-        case kSectionLinkGitHub: {
-            WebViewController *webPage = [WebViewController viewController];
-            [webPage setURLmobile:@"https:/github.com/teleportaloo/PDX-Bus" full:nil];
-            [webPage displayPage:self.navigationController animated:YES itemToDeselect:self];
+        case kSectionLinkGitHub:
+            [WebViewController displayNamedPage:@"PDXBus GitHub"
+                                      navigator:self.navigationController
+                                 itemToDeselect:self
+                                       whenDone:self.callbackWhenDone];
             break;
-        }
-            
-        case kSectionTriMetSupport: {
-            WebViewController *webPage = [WebViewController viewController];
-            [webPage setURLmobile:@"https://trimet.org/contact/customerservice.htm" full:nil];
-            [webPage displayPage:self.navigationController animated:YES itemToDeselect:self];
+        case kSectionTriMetSupport:
+            [WebViewController displayNamedPage:@"TriMet Customer Service"
+                                      navigator:self.navigationController
+                                 itemToDeselect:self
+                                       whenDone:self.callbackWhenDone];
             break;
-        }
-            
         case kSectionTriMetTweet: {
             UITableViewCell *cell = [self.table cellForRowAtIndexPath:indexPath];
             [self triMetTweetFrom:cell.imageView];
@@ -758,11 +771,11 @@ enum {
                 NSString *title = nil;
                 if (kml.cacheAgeInDays == kNoCache)
                 {
-                    title = NSLocalizedString(@"Download route shapes in background?", @"Alert title");
+                    title = NSLocalizedString(@"Download route shapes?", @"Alert title");
                 }
                 else
                 {
-                    title = NSLocalizedString(@"Route shapes have finished downloading. Download again in background?", @"Alert title");
+                    title = NSLocalizedString(@"Route shapes have finished downloading. Download again?", @"Alert title");
                 }
                 
                 UIAlertController *alert = [UIAlertController alertControllerWithTitle:title
@@ -770,8 +783,19 @@ enum {
                                                                         preferredStyle:UIAlertControllerStyleAlert];
                 
                 [alert addAction:[UIAlertAction actionWithTitle:kAlertViewOK style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-                    [kml fetchInBackground:YES];
-                    [self reloadData];
+                    [self.backgroundTask taskRunAsync:^(TaskState *taskState) {
+                        self.backgroundRefresh = YES;
+                        [taskState startAtomicTask:@"Getting shapes"];
+                        
+                        kml.oneTimeDelegate = taskState;
+                        
+                        [kml fetchNowForced:YES];
+                        
+                        [taskState atomicTaskItemDone];
+                        
+                        return (UIViewController *)nil;
+                    }];
+    
                 }]];
                 
                 [alert addAction:[UIAlertAction actionWithTitle:kAlertViewCancel style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
@@ -827,35 +851,31 @@ enum {
         }
             
         case kSectionRowShortcuts: {
-            if (@available(iOS 12, *)) {
-                [NSUserActivity deleteAllSavedUserActivitiesWithCompletionHandler:^{
-                    [MainQueueSync runSyncOnMainQueueWithoutDeadlocking:^{
-                        [self.table deselectRowAtIndexPath:indexPath animated:YES];
-                        UIAlertController *alert = [UIAlertController simpleOkWithTitle:NSLocalizedString(@"Siri Shortcuts", @"alert title")
-                                                                                message:NSLocalizedString(@"All shortcuts deleted", @"information text")];
-                        [self presentViewController:alert animated:YES completion:nil];
-                    }];
+            [NSUserActivity deleteAllSavedUserActivitiesWithCompletionHandler:^{
+                [MainQueueSync runSyncOnMainQueueWithoutDeadlocking:^{
+                    [self.table deselectRowAtIndexPath:indexPath animated:YES];
+                    UIAlertController *alert = [UIAlertController simpleOkWithTitle:NSLocalizedString(@"Siri Shortcuts", @"alert title")
+                                                                            message:NSLocalizedString(@"All shortcuts deleted", @"information text")];
+                    [self presentViewController:alert animated:YES completion:nil];
                 }];
-            }
-            
+            }];
+
             [self clearSelection];
             break;
         }
             
         case kRowShortcutDocumentation:
-            [WebViewController displayPage:@"https://github.com/teleportaloo/PDX-Bus/blob/master/Shortcuts.markdown#introduction"
-                                      full:nil
-                                 navigator:self.navigationController
-                            itemToDeselect:self
-                                  whenDone:self.callbackWhenDone];
+            [WebViewController displayNamedPage:@"PDXBus Shortcut Documentation"
+                                      navigator:self.navigationController
+                                 itemToDeselect:self
+                                       whenDone:self.callbackWhenDone];
             break;
             
         case kSectionSupportHowToRide:
-            [WebViewController displayPage:@"https://trimet.org/howtoride/index.htm"
-                                      full:nil
-                                 navigator:self.navigationController
-                            itemToDeselect:self
-                                  whenDone:self.callbackWhenDone];
+            [WebViewController displayNamedPage:@"TriMet How To Ride"
+                                      navigator:self.navigationController
+                                 itemToDeselect:self
+                                       whenDone:self.callbackWhenDone];
             break;
             
         case kRowWriteToiCloud: {
@@ -967,16 +987,18 @@ enum {
                 [[UIApplication sharedApplication] compatOpenURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
             } else {
                 [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
-                    if (granted) {
-                        DEBUG_LOG(@"Granted access to %@", AVMediaTypeVideo);
-                    } else {
-                        DEBUG_LOG(@"Not granted access to %@", AVMediaTypeVideo);
-                    }
-                    
-                    [self initCameraText];
-                    [self reloadData];
-                }
-                 ];
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                                        
+                                            if (granted) {
+                                                DEBUG_LOG(@"Granted access to %@", AVMediaTypeVideo);
+                                            } else {
+                                                DEBUG_LOG(@"Not granted access to %@", AVMediaTypeVideo);
+                                            }
+                                        
+                                            [self initCameraText];
+                                            [self reloadData];
+                    });
+                }];
             }
             
             break;

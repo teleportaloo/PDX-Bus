@@ -13,6 +13,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogIntents
+
 #import "LocateStopsIntentHandler.h"
 #import "LocateStopsResponseFactory.h"
 #import "DebugLogging.h"

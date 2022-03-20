@@ -10,6 +10,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+
 #import "RouteView.h"
 #import "Route+iOS.h"
 #import "XMLRoutes.h"
@@ -20,6 +22,8 @@
 #import "DebugLogging.h"
 #import "AllRailStationView.h"
 #import "TaskState.h"
+#import "UIToolbar+Auto.h"
+#import "UIAlertController+SimpleMessages.h"
 
 @interface RouteView ()
 
@@ -77,6 +81,8 @@
             [self.routeData getRoutesCacheAction:TriMetXMLForceFetchAndUpdateRouteCache];
             
             DEBUG_PROGRESS(taskController, @"indexing");
+            
+            [self.routeData.items sortUsingSelector:@selector(compare:)];
             
             if (self.routeData.gotData && self.routeData.count > 0) {
                 dispatch_async(dispatch_get_main_queue(), ^{
@@ -168,6 +174,15 @@
             cell.textLabel.text = route.desc;
             cell.textLabel.font = self.basicFont;
             cell.textLabel.adjustsFontSizeToFitWidth = YES;
+            
+            if (route.frequentService && route.frequentService.boolValue)
+            {
+                cell.textLabel.textColor = [UIColor modeAwareBlue];
+            }
+            else
+            {
+                cell.textLabel.textColor = [UIColor modeAwareText];
+            }
             cell.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
             RouteColorBlobView *colorStripe = (RouteColorBlobView *)[cell.contentView viewWithTag:COLOR_STRIPE_TAG];
             [colorStripe setRouteColor:route.route];
@@ -197,7 +212,7 @@
     switch ([self tableView:tableView sectionType:indexPath.section]) {
         case kSectionAllStations: {
             AllRailStationView *view = [AllRailStationView viewController];
-            view.stopIdCallback = self.stopIdCallback;
+            view.stopIdStringCallback = self.stopIdStringCallback;
             [self.navigationController pushViewController:view animated:YES];
             break;
         }
@@ -206,14 +221,14 @@
             DirectionView *directionViewController = [DirectionView viewController];
             Route *route = [self filteredData:tableView][indexPath.row];
             // directionViewController.route = [self.routeData itemAtIndex:indexPath.row];
-            directionViewController.stopIdCallback = self.stopIdCallback;
+            directionViewController.stopIdStringCallback = self.stopIdStringCallback;
             [directionViewController fetchDirectionsAsync:self.backgroundTask route:route.route backgroundRefresh:NO];
             break;
         }
             
         case kSectionDisclaimer: {
             if (self.routeData.items == nil) {
-                [self networkTips:self.routeData.htmlError networkError:self.routeData.errorMsg];
+                [self networkTips:self.routeData.htmlError networkError:self.routeData.networkErrorMsg];
                 [self clearSelection];
             }
             
@@ -301,11 +316,31 @@
 }
 
 - (void)updateToolbarItems:(NSMutableArray *)toolbarItems {
-    [self updateToolbarItemsWithXml:toolbarItems];
+    
+    UIBarButtonItem *info = [[UIBarButtonItem alloc]
+                             initWithTitle:NSLocalizedString(@"info", @"button text")
+                             style:UIBarButtonItemStylePlain
+                             target:self action:@selector(infoAction:)];
+    
+    [toolbarItems addObjectsFromArray:@[[UIToolbar flexSpace],  info]];
+    
+    if (Settings.debugXML) {
+        [toolbarItems addObject:[UIToolbar flexSpace]];
+        [toolbarItems addObject:[self debugXmlButton]];
+    }
+    
+    [self maybeAddFlashButtonWithSpace:YES buttons:toolbarItems big:NO];
 }
 
 - (void)appendXmlData:(NSMutableData *)buffer {
     [self.routeData appendQueryAndData:buffer];
+}
+
+- (void)infoAction:(id)sender {
+    UIAlertController *alert = [UIAlertController simpleOkWithTitle:NSLocalizedString(@"Frequent Service", @"Alert title")
+                                                            message:NSLocalizedString(@"Routes with blue text have frequent service.", @"route info")];
+    [self presentViewController:alert animated:YES completion:nil];
+    
 }
 
 @end

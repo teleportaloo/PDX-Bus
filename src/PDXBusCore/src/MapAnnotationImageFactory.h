@@ -16,11 +16,12 @@
 #import <Foundation/Foundation.h>
 #import "PDXBusCore.h"
 #import "UIColor+DarkMode.h"
+#import "MemoryCaches.h"
 
-@interface MapAnnotationImageFactory : NSObject
+@interface MapAnnotationImageFactory : NSObject<ClearableCache>
 
 @property (nonatomic, readonly) bool tintableImage;
-@property (nonatomic, strong) NSString *imageFile;
+@property (nonatomic, copy) NSString *imageFile;
 
 @property (nonatomic) bool forceRetinaImage;
 

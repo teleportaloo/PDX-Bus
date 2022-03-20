@@ -15,6 +15,7 @@
 
 #import "TripEndPoint.h"
 #import "CLLocation+Helper.h"
+#import "NSString+Helper.h"
 
 #define kDictEndPointUseCurrentLocation @"useCurrentLocation"
 #define kDictEndPointLocationDec        @"locationDesc"
@@ -38,7 +39,7 @@
     
     NSMutableString *ms = [NSMutableString string];
     
-    [ms appendString:[desc stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet alphanumericCharacterSet]]];
+    [ms appendString:desc.fullyPercentEncodeString];
     
     
     [ms replaceOccurrencesOfString:@"/"
@@ -55,7 +56,7 @@
     [ret appendFormat:@"%@Place=%@", toOrFrom, ms];
     
     if (self.coordinates != nil) {
-        [ret appendFormat:@"&%@Coord=%f,%f", toOrFrom, self.coordinates.coordinate.longitude, self.coordinates.coordinate.latitude];
+        [ret appendFormat:@"&%@Coord=%@", toOrFrom, COORD_TO_LNG_LAT_STR(self.coordinates.coordinate)];
     }
     
     return ret;
@@ -158,7 +159,7 @@
     return self.locationDesc;
 }
 
-- (NSString *)userInputDisplayText {
+- (NSString *)markedUpUserInputDisplayText {
     if (self.useCurrentLocation) {
         return @"#iCurrent Location (GPS)#i";
     }
@@ -171,15 +172,15 @@
         unichar c = [self.locationDesc characterAtIndex:i];
         
         if ((c > '9' || c < '0') && c != ' ') {
-            return self.locationDesc;
+            return self.locationDesc.safeEscapeForMarkUp;
         }
     }
     
     if (self.additionalInfo) {
-        return [NSString stringWithFormat:@"%@ - Stop ID %@",  self.additionalInfo, self.locationDesc];
+        return [NSString stringWithFormat:@"%@ - Stop ID %@",  self.additionalInfo.safeEscapeForMarkUp, self.locationDesc.safeEscapeForMarkUp];
     }
     
-    return [NSString stringWithFormat:NSLocalizedString(@"Stop ID %@", @"TriMet Stop identifer <number>"), self.locationDesc];
+    return [NSString stringWithFormat:NSLocalizedString(@"Stop ID %@", @"TriMet Stop identifer <number>"), self.locationDesc.safeEscapeForMarkUp];
 }
 
 @end

@@ -13,6 +13,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+
 #import "LocatingView.h"
 #import "RootViewController.h"
 #import "DebugLogging.h"
@@ -22,6 +24,7 @@
 #import "BearingAnnotationView.h"
 #import "UIViewController+LocationAuthorization.h"
 #import "iOSCompat.h"
+#import "UIFont+Utility.h"
 
 #define kLocatingRowHeight 60.0
 #define MAX_AGE            -30.0
@@ -250,7 +253,7 @@ enum SECTIONS_AND_ROWS {
         rect = CGRectMake(LABEL_COLUMN_OFFSET, (kLocatingRowHeight - LABEL_HEIGHT) / 2.0, LABEL_COLUMN_WIDTH, LABEL_HEIGHT);
         label = [[UILabel alloc] initWithFrame:rect];
         label.tag = TEXT_TAG;
-        label.font = [UIFont boldSystemFontOfSize:MAIN_FONT_SIZE];
+        label.font = [UIFont boldMonospacedDigitSystemFontOfSize:MAIN_FONT_SIZE];
         label.adjustsFontSizeToFitWidth = NO;
         label.numberOfLines = 0;
         label.lineBreakMode = NSLineBreakByWordWrapping;
@@ -354,14 +357,6 @@ enum SECTIONS_AND_ROWS {
 
 #pragma mark Table view methods
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return self.sections;
-}
-
-// Customize the number of rows in the table view.
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [self rowsInSection:section];
-}
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     switch ([self rowType:indexPath]) {

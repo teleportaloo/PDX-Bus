@@ -21,10 +21,10 @@
 @interface Detour (iOSUI)
 
 - (NSString *)reuseIdentifer;
-- (NSString *)formattedHeader;
-- (NSString *)formattedDescription:(NSString *)additionalText;
-- (NSString *)formattedDescriptionWithHeader:(NSString *)additionalText;
-- (NSString *)formattedDescriptionWithoutInfo:(NSString *)additionalText;
+- (NSString *)markedUpHeader;
+- (NSString *)markedUpDescription:(NSString *)additionalText;
+- (NSString *)markedUpDescriptionWithHeader:(NSString *)additionalText;
+- (NSString *)markedUpDescriptionWithoutInfo:(NSString *)additionalText;
 - (bool)hasInfo;
 
 + (UILabel *)create_UITextView:(UIFont *)font;

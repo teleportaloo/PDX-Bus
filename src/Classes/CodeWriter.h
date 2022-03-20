@@ -16,21 +16,19 @@
 #import <Foundation/Foundation.h>
 #import "NSString+Helper.h"
 
-#ifdef CREATE_MAX_ARRAYS
-#define CODE_COMMENT(A)            CODE_LOG(@"\n%@\n",  [NSString textSeparatedStringFromEnumerator:(A) selector:@selector(self) separator:@"\n"])
-#define CODE_FILE(X)               CODE_RULE; CODE_LOG(@"// FILE :%@", (X)); CODE_RULE;
-#define CODE_RULE         CODE_STRING(@"//------------------------------------------------------------------------------")
-#define CODE_LOG(format, args ...) [CodeWriter write:[NSString stringWithFormat:(format), ## args]]
-#define CODE_STRING(S)             [CodeWriter write:(S)]
-#define CODE_LOG_FILE_END [CodeWriter dump]
-#endif
+#define CODE_COMMENT(A)             CODE_LOG(@"\n%@\n",  [NSString textSeparatedStringFromEnumerator:(A) selToGetString:@selector(self) separator:@"\n"])
+#define CODE_FILE(X)                CODE_RULE; CODE_LOG(@"// FILE: %@", (X)); CODE_RULE;
+#define CODE_RULE                   CODE_STRING(@"//------------------------------------------------------------------------------")
+#define CODE_LOG(format, args ...)  [CodeWriter write:[NSString stringWithFormat:(format), ## args]]
+#define CODE_STRING(S)              [CodeWriter write:(S)]
+#define CODE_LOG_FILE_END           [CodeWriter dump]
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface CodeWriter : NSObject
 
 + (void)write:(NSString *)str;
-+ (void)        dump;
++ (void)dump;
 + (CodeWriter *)sharedInstance;
 
 @end

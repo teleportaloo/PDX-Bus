@@ -14,9 +14,15 @@
 	<string>☀️</string>
 	<key>hot weather</key>
 	<string>☀️</string>
+	<key>heat advisory</key>
+	<string>☀️</string>
 	<key>construction</key>
 	<string>🚧</string>
+	<key>maintenance</key>
+	<string>🚧</string>
 	<key>face covering</key>
+	<string>😷</string>
+	<key>masks</key>
 	<string>😷</string>
 	<key>wind</key>
 	<string>💨</string>

@@ -14,6 +14,9 @@
 
 
 #import "TripItinerary.h"
+#import "FormatDistance.h"
+#import "CLLocation+Helper.h"
+#import "NSString+Helper.h"
 
 @implementation TripItinerary
 
@@ -26,6 +29,41 @@
     return self;
 }
 
+- (double)distanceMiles
+{
+    return self.strDistanceMiles.doubleValue;
+}
+
+- (NSInteger)waitingTimeMins
+{
+    return self.strWaitingTimeMins.integerValue;
+}
+
+- (NSInteger)durationMins
+{
+    return self.strDurationMins.integerValue;
+}
+
+- (NSInteger)numberOfTransfers
+{
+    return self.strNumberOfTransfers.integerValue;
+}
+
+- (NSInteger)numberOfTripLegs
+{
+    return self.strNumberOfTripLegs.integerValue;
+}
+
+- (NSInteger)walkingTimeMins
+{
+    return self.strWalkingTimeMins.integerValue;
+}
+
+- (NSInteger)transitTimeMins
+{
+    return self.strTransitTimeMins.integerValue;
+}
+
 - (bool)hasFare {
     return self.fare != nil && self.fare.length != 0;
 }
@@ -36,32 +74,31 @@
 
 - (NSString *)shortTravelTime {
     NSMutableString *strTime = [NSMutableString string];
-    int t = self.xduration.intValue;
-    int h = t / 60;
-    int m = t % 60;
+    NSInteger t = self.durationMins;
+    NSInteger h = t / 60;
+    NSInteger m = t % 60;
     
-    [strTime appendFormat:NSLocalizedString(@"Travel time: %d:%02d", @"hours, mins"), h, m];
+    [strTime appendFormat:NSLocalizedString(@"Travel time: %ld:%02ld", @"hours, mins"), (long)h, (long)m];
     return strTime;
 }
 
-- (NSString *)mins:(int)t {
+- (NSString *)mins:(NSInteger)t {
     if (t == 1) {
         return @"1 min";
     }
     
-    return [NSString stringWithFormat:NSLocalizedString(@"%d mins", @"minutes"), t];
+    return [NSString stringWithFormat:NSLocalizedString(@"%ld mins", @"minutes"), (long)t];
 }
 
 - (NSString *)travelTime {
     NSMutableString *strTime = [NSMutableString string];
-    int t = self.xduration.intValue;
     
-    [strTime appendString:[self mins:t]];
+    [strTime appendString:[self mins:self.durationMins]];
     
     bool inc = false;
     
-    if (self.xwalkingTime != nil) {
-        int walking = self.xwalkingTime.intValue;
+    if (self.strWalkingTimeMins != nil) {
+        NSInteger walking = self.walkingTimeMins;
         
         if (walking > 0) {
             [strTime appendFormat:NSLocalizedString(@", including %@ walking", @"time info, minutes"), [self mins:walking]];
@@ -69,8 +106,8 @@
         }
     }
     
-    if (self.xwaitingTime != nil) {
-        int waiting = self.xwaitingTime.intValue;
+    if (self.strWaitingTimeMins != nil) {
+        NSInteger waiting = self.waitingTimeMins;
         
         if (waiting > 0) {
             if (!inc) {
@@ -112,27 +149,27 @@
     }
     
     if (firstPoint != nil && type != TripTextTypeMap) {
-        bool nearTo = [firstPoint.xdescription hasPrefix:kNearTo];
+        bool nearTo = [firstPoint.desc hasPrefix:kNearTo];
         
         if (type == TripTextTypeUI) {
             self.startPoint.displayModeText = @"Start";
-            [text appendFormat:@"%@%@", nearTo ? @"" : @"#bStart at#b ", firstPoint.xdescription];
+            [text appendFormat:@"%@%@", nearTo ? @"" : @"#bStart at#b ", firstPoint.desc.safeEscapeForMarkUp];
         } else if (type == TripTextTypeHTML && firstPoint.loc != nil) {
-            [text appendFormat:@"%@<a href=\"http://map.google.com/?q=location@%f,%f\">%@</a>",
+            [text appendFormat:@"%@<a href=\"http://map.google.com/?q=location@%@\">%@</a>",
              nearTo ? @"Start " : @"Start at ",
-             firstPoint.coordinate.latitude, firstPoint.coordinate.longitude,  firstPoint.xdescription];
+             COORD_TO_LAT_LNG_STR(firstPoint.coordinate),  firstPoint.desc];
         } else {
-            [text appendFormat:@"%@%@", nearTo ? @"Starting " : @"Starting at ", firstPoint.xdescription];
+            [text appendFormat:@"%@%@", nearTo ? @"Starting " : @"Starting at ", firstPoint.desc];
         }
     }
     
-    if (self.startPoint.xstopId != nil) {
+    if (self.startPoint.strStopId != nil) {
         if (type == TripTextTypeHTML) {
             [text appendFormat:@" (Stop ID <a href=\"pdxbus://%@?%@/\">%@</a>)",
-             [self.startPoint.xdescription stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet alphanumericCharacterSet]],
-             [self.startPoint stopId], [firstPoint stopId]];
+             self.startPoint.desc.fullyPercentEncodeString,
+             [self.startPoint stopId], firstPoint.stopId];
         } else {
-            [text appendFormat:@" (Stop ID %@)", [self.startPoint stopId]];
+            [text appendFormat:@" (Stop ID %@)", self.startPoint.stopId];
         }
     }
     
@@ -161,12 +198,18 @@
 
 - (bool)hasBlocks {
     for (TripLeg *leg in self.legs) {
-        if (leg.xblock != nil && leg.xblock.length != 0) {
+        if (leg.block != nil && leg.block.length != 0) {
             return YES;
         }
     }
     
     return NO;
+}
+
+- (NSString *)formattedDistance
+{
+    return [FormatDistance formatMiles:self.distanceMiles];
+    
 }
 
 @end

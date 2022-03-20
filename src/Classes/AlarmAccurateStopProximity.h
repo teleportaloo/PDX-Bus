@@ -15,10 +15,10 @@
 
 #import <Foundation/Foundation.h>
 #import "AlarmTask.h"
-#import "MapPinColor.h"
+#import "MapPin.h"
 #import "Settings.h"
 
-@interface AlarmAccurateStopProximity : AlarmTask <CLLocationManagerDelegate, MapPinColor>
+@interface AlarmAccurateStopProximity : AlarmTask <CLLocationManagerDelegate, MapPin>
 
 - (void)setStop:(NSString *)stopId loc:(CLLocation *)loc desc:(NSString *)desc;
 - (instancetype)initWithAccuracy:(bool)accurate;

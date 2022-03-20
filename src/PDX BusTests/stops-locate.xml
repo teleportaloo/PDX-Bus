@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resultSet xmlns="urn:trimet:arrivals" queryTime="1602097786751">
+    <location desc="NW 23rd &amp; Marshall" dir="Southbound" lat="45.5306116478909" lng="-122.698688376761" locid="8989" feetDistance="1" metersDistance="0" />
+    <location desc="NW 23rd &amp; Lovejoy" dir="Northbound" lat="45.5296938470841" lng="-122.698521827" locid="7163" feetDistance="337" metersDistance="102" />
+    <location desc="NW 23rd &amp; Overton" dir="Southbound" lat="45.5320287369524" lng="-122.698762732352" locid="10287" feetDistance="518" metersDistance="157" />
+    <location desc="NW 23rd &amp; Overton" dir="Northbound" lat="45.5321282167295" lng="-122.698636746364" locid="8981" feetDistance="552" metersDistance="168" />
+    <location desc="NW 22nd &amp; Lovejoy" dir="Eastbound" lat="45.5297941340411" lng="-122.696697765325" locid="3596" feetDistance="590" metersDistance="180" />
+    <location desc="NW 22nd &amp; Northrup" dir="Westbound" lat="45.531308" lng="-122.696445" locid="10778" feetDistance="628" metersDistance="191" />
+    <location desc="NW 23rd &amp; Irving" dir="Southbound" lat="45.5277370152819" lng="-122.698583225683" locid="7162" feetDistance="1047" metersDistance="319" />
+    <location desc="NW 25th &amp; Lovejoy" dir="Northbound" lat="45.529635999998" lng="-122.70256999998" locid="9125" feetDistance="1056" metersDistance="322" />
+    <location desc="NW 21st &amp; Lovejoy" dir="Eastbound" lat="45.5298329830986" lng="-122.694676019495" locid="3595" feetDistance="1066" metersDistance="324" />
+    <location desc="NW 21st &amp; Lovejoy" dir="Southbound" lat="45.5299704041429" lng="-122.694628393292" locid="7121" feetDistance="1066" metersDistance="325" />
+    <location desc="NW 21st &amp; Northrup" dir="Southbound" lat="45.5313872902806" lng="-122.694660257251" locid="7127" feetDistance="1070" metersDistance="326" />
+    <location desc="NW 21st &amp; Northrup" dir="Northbound" lat="45.5312082456887" lng="-122.694535153178" locid="7128" feetDistance="1086" metersDistance="331" />
+    <location desc="NW 21st &amp; Lovejoy" dir="Northbound" lat="45.530113999998" lng="-122.69447499998" locid="7122" feetDistance="1094" metersDistance="333" />
+    <location desc="NW 23rd &amp; Irving" dir="Northbound" lat="45.5275617520366" lng="-122.698469232405" locid="7161" feetDistance="1112" metersDistance="338" />
+    <location desc="NW 21st &amp; Northrup" dir="Westbound" lat="45.531346" lng="-122.694455" locid="10777" feetDistance="1117" metersDistance="340" />
+    <location desc="NW 23rd &amp; Raleigh" dir="Southbound" lat="45.5338878635451" lng="-122.698810544901" locid="9030" feetDistance="1194" metersDistance="364" />
+    <location desc="NW 23rd &amp; Raleigh" dir="Northbound" lat="45.5339909014936" lng="-122.698701762202" locid="9031" feetDistance="1231" metersDistance="375" />
+    <location desc="NW 21st &amp; Pettygrove" dir="Southbound" lat="45.5328327365031" lng="-122.694736409063" locid="13899" feetDistance="1296" metersDistance="395" />
+    <location desc="NW 21st &amp; Pettygrove" dir="Northbound" lat="45.5329592373533" lng="-122.694583889294" locid="7130" feetDistance="1356" metersDistance="413" />
+    <location desc="2400 Block NW Westover" dir="Northbound" lat="45.527512" lng="-122.701799" locid="10314" feetDistance="1383" metersDistance="421" />
+    <location desc="NW 21st &amp; Irving" dir="Southbound" lat="45.5278182319198" lng="-122.694538648389" locid="7114" feetDistance="1471" metersDistance="448" />
+    <location desc="NW 21st &amp; Irving" dir="Northbound" lat="45.527647999998" lng="-122.69440699998" locid="7113" feetDistance="1539" metersDistance="469" />
+    <location desc="NW Cornell &amp; Marshall" dir="Northbound" lat="45.530414" lng="-122.705242" locid="9126" feetDistance="1681" metersDistance="512" />
+    <location desc="NW 23rd &amp; Thurman" dir="Southbound" lat="45.5352347902374" lng="-122.698885836562" locid="8986" feetDistance="1686" metersDistance="513" />
+    <location desc="NW Thurman &amp; 23rd" dir="Eastbound" lat="45.5354455684917" lng="-122.69838813115" locid="14032" feetDistance="1764" metersDistance="537" />
+    <location desc="NW Thurman &amp; 23rd Pl" dir="Westbound" lat="45.5355354638237" lng="-122.699655111294" locid="8984" feetDistance="1812" metersDistance="552" />
+    <location desc="NW 23rd &amp; Flanders" dir="Southbound" lat="45.5255928585616" lng="-122.698513487209" locid="8963" feetDistance="1829" metersDistance="557" />
+    <location desc="NW Thurman &amp; 24th" dir="Eastbound" lat="45.535396" lng="-122.700964" locid="10808" feetDistance="1839" metersDistance="560" />
+    <location desc="NW 21st &amp; Glisan" dir="Southbound" lat="45.5264076707427" lng="-122.694502916513" locid="7112" feetDistance="1869" metersDistance="569" />
+    <location desc="NW 23rd &amp; Thurman" dir="Northbound" lat="45.5357520703372" lng="-122.69871389035" locid="7169" feetDistance="1874" metersDistance="571" />
+    <location desc="NW 23rd &amp; Flanders" dir="Northbound" lat="45.5254066182044" lng="-122.698385992583" locid="7157" feetDistance="1899" metersDistance="578" />
+    <location desc="NW Glisan &amp; 21st" dir="Westbound" lat="45.5263725854662" lng="-122.693786772274" locid="2099" feetDistance="1991" metersDistance="607" />
+    <location desc="NW Thurman &amp; 21st" dir="Eastbound" lat="45.5355221721282" lng="-122.69497334153" locid="4787" feetDistance="2027" metersDistance="618" />
+    <location desc="NW Thurman &amp; 21st" dir="Westbound" lat="45.5356203320058" lng="-122.695078429841" locid="14040" feetDistance="2046" metersDistance="623" />
+    <location desc="NW 19th &amp; Marshall" dir="Southbound" lat="45.530436457025" lng="-122.690576150536" locid="14034" feetDistance="2079" metersDistance="633" />
+    <location desc="NW Cornell &amp; Summit Ct" dir="Northbound" lat="45.531952999998" lng="-122.70736599998" locid="9127" feetDistance="2277" metersDistance="694" />
+    <location desc="NW Thurman &amp; 26th" dir="Eastbound" lat="45.535341999998" lng="-122.70451599998" locid="5832" feetDistance="2281" metersDistance="695" />
+    <location desc="NW 23rd Pl &amp; Westover" dir="Northbound" lat="45.524321999998" lng="-122.69940199998" locid="9404" feetDistance="2300" metersDistance="701" />
+    <location desc="NW Vaughn &amp; 24th" dir="Eastbound" lat="45.536803132988" lng="-122.70095166652" locid="6013" feetDistance="2330" metersDistance="710" />
+    <location desc="NW Thurman &amp; 26th" dir="Westbound" lat="45.535444999998" lng="-122.70468599998" locid="5831" feetDistance="2338" metersDistance="712" />
+    <location desc="NW 18th &amp; Lovejoy" dir="Eastbound" lat="45.5299254165705" lng="-122.689587149344" locid="10751" feetDistance="2345" metersDistance="714" />
+    <location desc="NW 23rd &amp; Westover" dir="Southbound" lat="45.5241389934785" lng="-122.698465816931" locid="7174" feetDistance="2360" metersDistance="719" />
+    <location desc="NW Macleay &amp; Beuhla Vista" dir="Southbound" lat="45.525578" lng="-122.704515" locid="9137" feetDistance="2366" metersDistance="721" />
+    <location desc="NW Vaughn &amp; 24th" dir="Westbound" lat="45.53695642456" lng="-122.7007491895" locid="6014" feetDistance="2372" metersDistance="723" />
+    <location desc="NW 19th &amp; Raleigh" dir="Southbound" lat="45.5340235576858" lng="-122.690726286662" locid="14033" feetDistance="2389" metersDistance="728" />
+    <location desc="NW 18th &amp; Northrup" dir="Westbound" lat="45.5314335086312" lng="-122.689416558363" locid="10776" feetDistance="2394" metersDistance="729" />
+    <location desc="NW 18th &amp; Lovejoy" dir="Northbound" lat="45.5298245600737" lng="-122.689399996262" locid="14038" feetDistance="2397" metersDistance="730" />
+    <location desc="NW Everett &amp; 21st" dir="Eastbound" lat="45.524832908004" lng="-122.693980050533" locid="1615" feetDistance="2426" metersDistance="739" />
+    <location desc="NW Cumberland &amp; Fairfax" dir="Southbound" lat="45.530491999998" lng="-122.70826399998" locid="9130" feetDistance="2454" metersDistance="748" />
+    <location desc="NW Cumberland &amp; Culpepper" dir="Westbound" lat="45.529435999998" lng="-122.70816499998" locid="9214" feetDistance="2466" metersDistance="751" />
+    <location desc="W Burnside &amp; NW 24th Pl" dir="Westbound" lat="45.5241355810478" lng="-122.701652426929" locid="14009" feetDistance="2480" metersDistance="756" />
+    <location desc="W Burnside &amp; SW Osage" dir="Eastbound" lat="45.5237767362254" lng="-122.700989373997" locid="9354" feetDistance="2561" metersDistance="780" />
+    <location desc="W Burnside &amp; NW 23rd" dir="Westbound" lat="45.5234914028264" lng="-122.69799527604" locid="755" feetDistance="2602" metersDistance="793" />
+    <location desc="NW Thurman &amp; 27th" dir="Eastbound" lat="45.535293100332" lng="-122.706505152723" locid="5836" feetDistance="2631" metersDistance="802" />
+</resultSet>

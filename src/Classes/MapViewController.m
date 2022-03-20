@@ -12,12 +12,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+
 #import "MapViewController.h"
 #import <MapKit/MapKit.h>
 #import <MapKit/MkAnnotation.h>
 #import "Departure.h"
 #import "XMLDepartures.h"
-#import "MapPinColor.h"
+#import "MapPin.h"
 #import "DepartureTimesView.h"
 #import "DepartureDetailView.h"
 #import "QuartzCore/QuartzCore.h"
@@ -29,6 +31,10 @@
 #import "Icons.h"
 #import "UIAlertController+SimpleMessages.h"
 #import "UIApplication+Compat.h"
+#import "ViewControllerBase+MapPinAction.h"
+#import "CLLocation+Helper.h"
+#import "NSString+Helper.h"
+#import "WebViewController.h"
 
 #define kPrev     NSLocalizedString(@"Prev", @"Short button text for previous")
 #define kStart    NSLocalizedString(@"Start", @"Short button text for start")
@@ -56,7 +62,7 @@
 - (void)modifyMapViewFrame:(CGRect *)frame;
 - (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation;
 - (void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)view calloutAccessoryControlTapped:(UIControl *)control;
-- (void)              removeAnnotations;
+- (void)removeAnnotations;
 
 @end
 
@@ -73,7 +79,6 @@
     
     // A bug in the SDK means that releasing a mapview can cause a crash as it may be animating
     // we delay 4 seconds for the release.
-    // [_mapView retain];
     [_mapView performSelector:@selector(self) withObject:nil afterDelay:(NSTimeInterval)4.0];
 }
 
@@ -88,7 +93,7 @@
 
 #pragma mark Helper functions
 
-- (void)addPin:(id<MapPinColor>)pin {
+- (void)addPin:(id<MapPin>)pin {
     [self.annotations addObject:pin];
 }
 
@@ -152,12 +157,6 @@
             break;
         }
     }
-}
-
-- (NSMutableString *)safeString:(NSString *)str {
-    NSMutableString *newStr = [str stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet alphanumericCharacterSet]].mutableCopy;
-    
-    return newStr;
 }
 
 #pragma mark ViewControllerBase methods
@@ -225,15 +224,15 @@
     [self fitToView];
 }
 
-- (bool)fitAnnotation:(id<MapPinColor>)pin {
+- (bool)fitAnnotation:(id<MapPin>)pin {
     return YES;
 }
 
 - (void)fitToView {
-    NSMutableArray<id<MapPinColor> > *pinsToFit = [NSMutableArray array];
+    NSMutableArray<id<MapPin> > *pinsToFit = [NSMutableArray array];
     
     if (self.annotations != nil) {
-        for (id<MapPinColor> pin in self.annotations) {
+        for (id<MapPin> pin in self.annotations) {
             if ([self fitAnnotation:pin]) {
                 [pinsToFit addObject:pin];
             }
@@ -270,8 +269,8 @@
     } else {
         MKMapRect flyTo = MKMapRectNull;
         
-        for (id<MapPinColor> pin in pinsToFit) {
-            DEBUG_LOG(@"Coords %f %f %@\n", pin.coordinate.latitude, pin.coordinate.longitude, [pin title]);
+        for (id<MapPin> pin in pinsToFit) {
+            DEBUG_LOG(@"Coords %@ %@\n", COORD_TO_LAT_LNG_STR(pin.coordinate), [pin title]);
             MKMapPoint annotationPoint = MKMapPointForCoordinate(pin.coordinate);
             MKMapRect pointRect = MakeMapRectWithPointAtCenter(annotationPoint.x, annotationPoint.y, 300, 1000);
             flyTo = MKMapRectUnion(flyTo, pointRect);
@@ -691,11 +690,13 @@
     if (annotation == self.mapView.userLocation) {
         return nil;
     } else {
-        if ([annotation conformsToProtocol:@protocol(MapPinColor)]) {
-            retView = [BearingAnnotationView viewForPin:(id<MapPinColor>)annotation mapView:self.mapView];
+        if ([annotation conformsToProtocol:@protocol(MapPin)]) {
+            retView = [BearingAnnotationView viewForPin:(id<MapPin>)annotation
+                                                mapView:self.mapView
+                                              urlAction:self.linkActionForPin];
         }
         
-        if ([ DepartureTimesView canGoDeeper ]) { // && [pin showActionMenu])
+        if ([ DepartureTimesView canGoDeeper ]) {
             retView.rightCalloutAccessoryView = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
         } else {
             retView.rightCalloutAccessoryView = nil;
@@ -708,7 +709,7 @@
 }
 
 - (void)mapView:(MKMapView *)mapView didSelectAnnotationView:(MKAnnotationView *)view {
-    if (_segPrevNext && ([view.annotation conformsToProtocol:@protocol(MapPinColor)])) {
+    if (_segPrevNext && ([view.annotation conformsToProtocol:@protocol(MapPin)])) {
         for (int i = 0; i < self.annotations.count; i++) {
             if (view.annotation == self.annotations[i]) {
                 _selectedAnnotation = i;
@@ -719,82 +720,35 @@
     }
 }
 
-- (void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)view calloutAccessoryControlTapped:(UIControl *)control {
-    id<MapPinColor> tappedAnnot = (id<MapPinColor>)view.annotation;
++ (void)actionIfAppInstalled:(UIAlertController *)alert url:(NSString *)url title:(NSString *)title action:(void (^ __nullable)(UIAlertAction *action))handler {
+    DEBUG_LOGS(url);
+    DEBUG_LOGS(title);
     
-    NSString *action = nil;
-    NSString *stopIdAction = nil;
-    
-    if ([tappedAnnot showActionMenu]) {
-        // action = @"Show details";
-        if ([tappedAnnot respondsToSelector:@selector(mapTapped:)]) { //  && [self.tappedAnnot mapTapped])
-            if (([tappedAnnot respondsToSelector:@selector(useMapTapped)] && tappedAnnot.useMapTapped)
-                || !([tappedAnnot respondsToSelector:@selector(useMapTapped)])) {
-                action = nil;
-                
-                if ([tappedAnnot respondsToSelector:@selector(tapActionText)]) {
-                    action = [tappedAnnot tapActionText];
-                }
-                
-                if (action == nil) {
-                    action = NSLocalizedString(@"Choose this stop", @"button text");
-                }
-            }
-        } else if ([tappedAnnot respondsToSelector:@selector(mapDeparture)]) {
-            action = NSLocalizedString(@"Show details", @"button text");
-        }
-        
-        if ([tappedAnnot respondsToSelector:@selector(mapStopId)] && [tappedAnnot mapStopId] != nil) {
-            if ([tappedAnnot respondsToSelector:@selector(mapStopIdText)]) {
-                stopIdAction = [tappedAnnot mapStopIdText];
-            } else {
-                stopIdAction = NSLocalizedString(@"Show departures", @"button text");
-            }
-        }
+    if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:url]]) {
+        DEBUG_LOG(@"open");
+        [alert addAction:[UIAlertAction actionWithTitle:title
+                                                  style:UIAlertActionStyleDefault
+                                                handler:handler]];
     }
+}
+        
+
+- (void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)view calloutAccessoryControlTapped:(UIControl *)control {
+    id<MapPin> tappedAnnot = (id<MapPin>)view.annotation;
     
+   
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:tappedAnnot.title
                                                                    message:nil
                                                             preferredStyle:UIAlertControllerStyleActionSheet];
     
     
-    
-    
-    if (stopIdAction != nil) {
-        [alert addAction:[UIAlertAction actionWithTitle:stopIdAction
-                                                  style:UIAlertActionStyleDefault
-                                                handler:^(UIAlertAction *action) {
-            if ([tappedAnnot respondsToSelector:@selector(mapStopId)]) {
-                DepartureTimesView *departureViewController = [DepartureTimesView viewController];
-                departureViewController.stopIdCallback = self.stopIdCallback;
-                [departureViewController fetchTimesForLocationAsync:self.backgroundTask stopId:[tappedAnnot mapStopId]];
-            }
-        }]];
-    }
-    
-    if (action != nil) {
-        [alert addAction:[UIAlertAction actionWithTitle:action
-                                                  style:UIAlertActionStyleDefault
-                                                handler:^(UIAlertAction *action) {
-            if ([tappedAnnot respondsToSelector:@selector(mapTapped:)] && [tappedAnnot mapTapped:self.backgroundTask]) {
-            } else if ([tappedAnnot respondsToSelector:@selector(mapDeparture)]) {
-                Departure *departure = [tappedAnnot mapDeparture];
-                DepartureDetailView *departureDetailView = [DepartureDetailView viewController];
-                departureDetailView.stopIdCallback = self.stopIdCallback;
-                
-                [departureDetailView fetchDepartureAsync:self.backgroundTask dep:departure allDepartures:nil backgroundRefresh:NO];
-            }
-        }]];
-    }
-    
     [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Show in Apple map app", "map action")
                                               style:UIAlertActionStyleDefault
                                             handler:^(UIAlertAction *action) {
         NSString *url = nil;
-        url = [NSString stringWithFormat:@"http://maps.apple.com/?q=%f,%f&ll=%f,%f",
-               //[self.tappedAnnot.title stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
-               tappedAnnot.coordinate.latitude, tappedAnnot.coordinate.longitude,
-               tappedAnnot.coordinate.latitude, tappedAnnot.coordinate.longitude];
+        url = [NSString stringWithFormat:[WebViewController namedURL:@"Apple Maps 2"],
+               tappedAnnot.title.fullyPercentEncodeString,
+               COORD_TO_LAT_LNG_STR(tappedAnnot.coordinate)];
         
         [[UIApplication sharedApplication] compatOpenURL:[NSURL URLWithString:url]];
     }]];
@@ -806,86 +760,61 @@
     CGRect frame = control.frame;
     CGRect sourceRect = CGRectMake((frame.size.width - side) / 2.0, (frame.size.height - side) / 2.0, side, side);
     
+#define PROTOCOL_GOOGLE_MAPS @"https:"
     
-    typedef void (^external_app_block)(NSString *url, NSString *title, void (^ handler)(UIAlertAction *action) );
+    [MapViewController actionIfAppInstalled:alert url:PROTOCOL_GOOGLE_MAPS
+                                      title:NSLocalizedString(@"Show in Google maps", "map action")
+                                     action:^(UIAlertAction *action) {
+        NSString *url = [WebViewController namedURL:@"Google Maps" param: COORD_TO_LAT_LNG_STR(tappedAnnot.coordinate)];
+        
+        [app compatOpenURL:[NSURL URLWithString:url]];
+    }];
     
-    external_app_block external_app = ^(NSString *url, NSString *title, void (^handler)(UIAlertAction *handler))
-    {
-        DEBUG_LOGS(url);
-        DEBUG_LOGS(title);
-        
-        if ([app canOpenURL:[NSURL URLWithString:url]]) {
-            DEBUG_LOG(@"open");
-            [alert addAction:[UIAlertAction actionWithTitle:title
-                                                      style:UIAlertActionStyleDefault
-                                                    handler:handler]];
-        }
-    };
+#define PROTOCOL_WAZE @"https:"
     
-    external_app(@"comgooglemaps:",
-                 NSLocalizedString(@"Show in Google map app", "map action"),
-                 ^(UIAlertAction *action) {
-        NSString *url = [NSString stringWithFormat:@"comgooglemaps://?q=%f,%f@%f,%f",
-                         tappedAnnot.coordinate.latitude, tappedAnnot.coordinate.longitude,
-                         tappedAnnot.coordinate.latitude, tappedAnnot.coordinate.longitude];
+    [MapViewController actionIfAppInstalled:alert
+                                        url:PROTOCOL_WAZE
+                                      title:NSLocalizedString(@"Navigate here using Waze", "map action")
+                                     action:^(UIAlertAction *action) {
+        NSString *url = [WebViewController namedURL:@"Waze" param:COORD_TO_LAT_LNG_STR(tappedAnnot.coordinate)];
         
         [app compatOpenURL:[NSURL URLWithString:url]];
-    });
-    external_app(@"waze:",
-                 NSLocalizedString(@"Show in Waze map app", "map action"),
-                 ^(UIAlertAction *action) {
-        NSString *url = [NSString stringWithFormat:@"waze://?ll=%f,%f",
-                         tappedAnnot.coordinate.latitude, tappedAnnot.coordinate.longitude];
+    }];
+    
+#define PROTOCOL_MOTION_X_GPS @"motionxgps:"
+    
+    [MapViewController actionIfAppInstalled:alert
+                                        url:PROTOCOL_MOTION_X_GPS
+                                      title:NSLocalizedString(@"Import to MotionX-GPS", "map action")
+                                     action:^(UIAlertAction *action) {
+        NSString *url = [NSString stringWithFormat:PROTOCOL_MOTION_X_GPS @"//addWaypoint?name=%@&lat=%@&lon=%@",
+                         tappedAnnot.title.fullyPercentEncodeString,
+                         COORD_TO_STR(tappedAnnot.coordinate.latitude),
+                         COORD_TO_STR(tappedAnnot.coordinate.longitude)];
         
         [app compatOpenURL:[NSURL URLWithString:url]];
-    });
-    external_app(@"motionxgps:",
-                 NSLocalizedString(@"Import to MotionX-GPS", "map action"),
-                 ^(UIAlertAction *action) {
-        NSString *url = [NSString stringWithFormat:@"motionxgps://addWaypoint?name=%@&lat=%f&lon=%f",
-                         [self safeString:tappedAnnot.title],
-                         tappedAnnot.coordinate.latitude, tappedAnnot.coordinate.longitude];
+    }];
+    
+#define PROTOCOL_MOTION_X_GPS_HD @"motionxgpshd:"
+    
+    [MapViewController actionIfAppInstalled:alert
+                                        url:PROTOCOL_MOTION_X_GPS_HD
+                                      title:NSLocalizedString(@"Import to MotionX-GPS HD", "map action")
+                                     action:^(UIAlertAction *action) {
+        NSString *url = [NSString stringWithFormat:PROTOCOL_MOTION_X_GPS_HD @"//addWaypoint?name=%@&lat=%@&lon=%@",
+                         tappedAnnot.title.fullyPercentEncodeString,
+                         COORD_TO_STR(tappedAnnot.coordinate.latitude),
+                         COORD_TO_STR(tappedAnnot.coordinate.longitude)];
         
         [app compatOpenURL:[NSURL URLWithString:url]];
-    });
-    external_app(@"motionxgpshd:",
-                 NSLocalizedString(@"Import to MotionX-GPS HD", "map action"),
-                 ^(UIAlertAction *action) {
-        NSString *url = [NSString stringWithFormat:@"motionxgpshd://addWaypoint?name=%@&lat=%f&lon=%f",
-                         [self safeString:tappedAnnot.title],
-                         tappedAnnot.coordinate.latitude, tappedAnnot.coordinate.longitude];
-        
-        [app compatOpenURL:[NSURL URLWithString:url]];
-    });
+    }];
     
     
     [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Share...", @"button text")
                                               style:UIAlertActionStyleDefault
                                             handler:^(UIAlertAction *action) {
-        /*
-         NSString *vCard = [@[
-         @"BEGIN:VCARD",
-         @"VERSION:3.0",
-         [NSString stringWithFormat:@"N:;%@;;;",tappedAnnot.title],
-         [NSString stringWithFormat:@"FN:%@",tappedAnnot.title],
-         [NSString stringWithFormat:@"item1.URL;type=pref:https://maps.apple.com?ll=%f,%f", tappedAnnot.coordinate.latitude, tappedAnnot.coordinate.longitude],
-         @"item1.X-ABLabel:map url",
-         @"END:VCARD" ] componentsJoinedByString:@"\n"];
-         
-         
-         NSURL *docs = [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
-         
-         NSString *path = [docs.path stringByAppendingPathComponent:@"PDX BUS Pin.vcf"];
-         
-         [vCard writeToFile:path atomically:YES
-         encoding:NSUTF8StringEncoding error:nil];
-         */
         
-        NSArray *activities = @[[NSURL URLWithString:[NSString stringWithFormat:@"https://maps.apple.com?ll=%f,%f", tappedAnnot.coordinate.latitude, tappedAnnot.coordinate.longitude]]];
-        
-        // NSData *vCardData = [vCard dataUsingEncoding:NSUTF8StringEncoding];
-        // NSItemProvider *item = [[NSItemProvider alloc] initWithItem:vCardData typeIdentifier:(NSString *)kUTTypeVCard];
-        // NSArray *activities = @[item];
+        NSArray *activities = @[[NSURL URLWithString:[WebViewController namedURL:@"Apple Maps" param:COORD_TO_LAT_LNG_STR(tappedAnnot.coordinate)]]];
         
         UIActivityViewController *activityViewControntroller = [[UIActivityViewController alloc] initWithActivityItems:activities applicationActivities:nil];
         activityViewControntroller.excludedActivityTypes = @[];
@@ -899,10 +828,7 @@
     }]];
     
     
-    
     [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"button text") style:UIAlertActionStyleCancel handler:nil]];
-    
-    
     
     alert.popoverPresentationController.sourceView = control;
     alert.popoverPresentationController.sourceRect = sourceRect;

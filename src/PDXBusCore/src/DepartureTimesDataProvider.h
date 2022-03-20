@@ -36,7 +36,7 @@
 @property (nonatomic, readonly, copy)   NSString *depStopId;
 @property (nonatomic, readonly)         bool depHasDetails;
 @property (nonatomic, readonly)         bool depNetworkError;
-@property (nonatomic, readonly, copy)   NSString *depNetworkErrorMsg;
+@property (nonatomic, readonly, copy)   NSString *depErrorMsg;
 @property (nonatomic, readonly, copy)   NSData *depHtmlError;
 @property (nonatomic, readonly)         Detour *depDetour;
 @property (nonatomic, readonly)         NSOrderedSet<NSNumber*> *depDetoursPerSection;

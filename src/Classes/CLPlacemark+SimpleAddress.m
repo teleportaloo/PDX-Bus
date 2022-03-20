@@ -13,6 +13,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogParsing
+
 #import "CLPlacemark+SimpleAddress.h"
 
 #import <Contacts/Contacts.h>
@@ -83,12 +85,8 @@
 }
 
 - (NSArray *)simpleAddressLines {
-#if !TARGET_OS_MACCATALYST
-    return self.addressDictionary[@"FormattedAddressLines"];
-#else
     NSString *address = [CNPostalAddressFormatter stringFromPostalAddress:self.postalAddress style:CNPostalAddressFormatterStyleMailingAddress];
     return [address componentsSeparatedByString:@"/n"];
-#endif
 }
 
 @end

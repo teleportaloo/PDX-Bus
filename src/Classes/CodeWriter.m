@@ -40,11 +40,17 @@
     fclose(fp);
 }
 
+
+#define NSLogCode(FORMAT, ...) printf("%s\n", [[NSString stringWithFormat:FORMAT, ##__VA_ARGS__] UTF8String]);
+
 + (void)dump {
-    NSString *code = [NSString stringWithContentsOfFile:CodeWriter.sharedInstance.filename encoding:NSUTF8StringEncoding error:NULL];
+    NSError *error = nil;
+    NSString *code = [NSString stringWithContentsOfFile:CodeWriter.sharedInstance.filename encoding:NSUTF8StringEncoding error:&error];
+    
+    LOG_NSERROR(error);
     
     //------------------------------------------------------------------------------"
-    NSLog(@"\n//################ Machine Generated Code ######################################\n%@\n//############# End of Machine Generated Code ##################################\n", code);
+    NSLogCode(@"\n//################ Machine Generated Code ######################################\n%@\n//############# End of Machine Generated Code ##################################\n", code);
     
     [[NSFileManager defaultManager] removeItemAtPath:CodeWriter.sharedInstance.filename error:NULL];
 }

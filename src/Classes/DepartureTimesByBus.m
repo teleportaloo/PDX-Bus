@@ -54,7 +54,7 @@
 }
 
 - (void)depPopulateCell:(Departure *)dd cell:(DepartureCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide {
-    [dd populateCell:cell decorate:decorate busName:NO wide:wide];
+    [dd populateCell:cell decorate:decorate busName:NO fullSign:wide];
 }
 
 - (NSString *)depStaticText {
@@ -105,7 +105,7 @@
     return self.departureItems == nil;
 }
 
-- (NSString *)depNetworkErrorMsg {
+- (NSString *)depErrorMsg {
     return nil;
 }
 

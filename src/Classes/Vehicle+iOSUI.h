@@ -17,28 +17,17 @@
 #import "TriMetXML.h"
 #import <CoreLocation/CoreLocation.h>
 #import "Vehicle.h"
-#import "MapPinColor.h"
+#import "MapPin.h"
 
 #define kNoVehicles           @"PDX Bus could not find a bus or train close by. Note - Streetcar is not supported.  Try again in a few moments as the vehicle locations may be updated."
 
-#define kVehicleTypeBus       @"bus"
-#define kVehicleTypeTrain     @"train"
-#define kVehicleTypeStreetcar @"streetcar"
-
 // #define VEHICLE_TEST 1
 
-@interface Vehicle (VehicleUI) <MapPinColor>
+@interface Vehicle (VehicleUI) <MapPin>
 
 // From Annotation
 @property (nonatomic, readonly) CLLocationCoordinate2D coordinate;
 @property (nonatomic, readonly, copy) NSString *title;
 @property (nonatomic, readonly, copy) NSString *subtitle;
-
-// From MapPinColor
-@property (nonatomic, readonly) MapPinColorValue pinColor;
-@property (nonatomic, readonly) bool showActionMenu;
-@property (nonatomic, readonly, copy) NSString *tapActionText;
-
-- (bool)mapTapped:(id<TaskController>)progress;
 
 @end

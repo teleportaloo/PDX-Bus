@@ -16,6 +16,7 @@
 #import <UIKit/UIKit.h>
 #import "Detour.h"
 #import "LinkResponsiveTextView.h"
+#import "SelectableTextViewCell.h"
 
 
 #define DETOUR_ACCESSORY_BUTTON_SIZE     35
@@ -24,20 +25,20 @@
 
 @class DetourTableViewCell;
 
-typedef void (^buttonAction) (DetourTableViewCell *cell,  NSInteger tag);
-typedef bool (^detourUrlAction) (DetourTableViewCell *cell,  NSString *url);
+typedef void (^ButtonAction) (DetourTableViewCell *cell,  NSInteger tag);
+typedef bool (^DetourUrlAction) (DetourTableViewCell *cell,  NSString *url);
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface DetourTableViewCell : UITableViewCell <UITextViewDelegate, UIGestureRecognizerDelegate>
+@interface DetourTableViewCell : SelectableTextViewCell <UITextViewDelegate, UIGestureRecognizerDelegate>
 @property (strong, nonatomic) IBOutlet LinkResponsiveTextView *textView;
-@property (nonatomic, copy) buttonAction buttonCallback;
-@property (nonatomic, copy) detourUrlAction urlCallback;
+@property (nonatomic, copy) ButtonAction buttonCallback;
+@property (nonatomic, copy) DetourUrlAction urlCallback;
 
-@property (nonatomic, retain) Detour *detour;
+@property (nonatomic, strong) Detour *detour;
 @property (nonatomic) bool includeHeaderInDescription;
 
-- (void)populateCell:(Detour *)detour font:(UIFont *)font route:(NSString * _Nullable)route;
+- (void)populateCell:(Detour *)detour route:(NSString * _Nullable)route;
 
 + (UINib *)nib;
 

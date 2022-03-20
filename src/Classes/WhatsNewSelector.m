@@ -36,13 +36,12 @@
     SEL action = NSSelectorFromString(fullSelector);
     
     if ([parent respondsToSelector:action]) {
-        IMP imp = [parent methodForSelector:action];
-        void (*func)(id, SEL) = (void *)imp;
-        func(parent, action);
+        void (*actionFunc)(id, SEL) = (void *)[parent methodForSelector:action];
+        actionFunc(parent, action);
     }
 }
 
-- (NSString *)displayText:(NSString *)fullText {
+- (NSString *)displayMarkedUpText:(NSString *)fullText {
     NSString *rest = nil;
     
     [self prefix:fullText restOfText:&rest];

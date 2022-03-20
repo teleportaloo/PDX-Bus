@@ -19,10 +19,10 @@
 #import "ScreenConstants.h"
 #import "AlarmCell.h"
 #import "DebugLogging.h"
-#import "DataFactory.h"
 
 #define kStopIdNotification   @"stopId"
 #define kAlarmBlock           @"alarmBlock"
+#define kAlarmDir             @"alarmDir"
 #define kStopMapDescription   @"stopDesc"
 #define kStopMapLat           @"mapLat"
 #define kStopMapLng           @"mapLng"
@@ -32,7 +32,7 @@
 #define kDoNotDisplayIfActive @"not if active"
 #define kNoBadge              @"no badge"
 
-typedef enum AlarmStateTag {
+typedef enum AlarmLocationNeededEnum {
     AlarmStateFetchArrivals,
     AlarmStateNearlyArrived,
     AlarmStateAccurateLocationNeeded,
@@ -41,7 +41,7 @@ typedef enum AlarmStateTag {
     AlarmFired
 } AlarmLocationNeeded;
 
-typedef enum AlarmButtonTag
+typedef enum AlarmButtonEnum
 {
     AlarmButtonNone,
     AlarmButtonBack,
@@ -63,7 +63,7 @@ typedef enum AlarmButtonTag
 
 @class AlarmTaskList;
 
-@interface AlarmTask : DataFactory {
+@interface AlarmTask : NSObject {
 #ifdef DEBUG_ALARMS
     bool _done;
 #endif

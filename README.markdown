@@ -66,7 +66,7 @@ Links
 
 Things to know before building
 ------------------------------
-* PDX Bus is built with iPhone SDK 13.0 and Xcode 11.7 - available free
+* PDX Bus is built with the latest iPhone SDK with Xcode 13.3 - available free
 from [Apple](http://developer.apple.com) in their Mac App store.
 * Before building this code you will need to register with TriMet 
 to get a free "AppID" from [TriMet](http://developer.trimet.org/registration/),
@@ -139,7 +139,7 @@ included in this distrubution.
 
 * Rob Alan Attribution - some graphics files from Rob Alan are used under a
 [Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License](http://creativecommons.org/licenses/by-nc-sa/3.0/).
-These files are in a separate folder with attribution - [App Icon by Rob Alan](http://robalan.com)
+These files are in a separate folder with attribution - [App Icon by Rob Alan](https://twitter.com/robalan)
 
 * The Working Group Attribution - some graphics files from The Working Group are from [The Working Group](http://blog.twg.ca/2009/09/free-iphone-toolbar-icons/) and are used under a 
 [Creative Commons Attribution-Share Alike 3.0 License](http://creativecommons.org/licenses/by/3.0/us/).
@@ -179,6 +179,34 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Change log
 ----------
+
+### Version 11.4.2 (March 2022)
+* Added Aerial Tram to internal list of routes as it has a color, then removed it when the color was also revoked.
+* Updated stop display to not show TP message where there are no TPs.
+* Fixed Detours to check if URLs are consistent. 
+* Updated KML code to not keep trying to refresh the cache more than once a day.
+* Removed menus from Apple watch and added buttons
+* Removed support for iOS 11 (all iOS 11 devices supported iOS 12)
+* Added tests for links
+* Updated Siri shortcuts to include system-wide alerts as on option.
+* Fixed Siri issues when used in shortcuts (reading out intermediate values).
+* Added all intents to watch
+* Fixed some gray text in dark mode
+* Added code to fetch data in parallel where appropiate.  Required additional synchronization.
+* Switched to using a common session for all network calls
+* Added Celebration busses
+* Added more tests for URLs.
+* Fixed NextBus feed - now Umo IQ feed.
+* A long press on text will allow a selection for copying, translating etc.
+
+### Version 11.4.1 (January 2021)
+* Added ability to change any icon to a specific emoji if missing
+* Updated the fonts on departures;  re-aligned the alert text.
+* Departure details now show the long description of the route and have bigger times.
+* Reworked the pins and callouts on the maps.
+* Stop names are now sorted correctly (e.g. NW 5th Ave comes before NW 10th Ave).
+* iOS 14 updates
+
 ### Version 11.4 (August 2020)
 * Added shortcut intents to get arrivals, routes, and locations. 
 * Added new map sharing option to share the map URL
@@ -216,20 +244,20 @@ Change log
 * Dark mode icons support
 * Changed Arrivals to Departures
 * Fixed bug in fetcher when network is down
-* Fixed bug where bookmark toolbar icon does not work for a single stop with a system wide alert.
+* Fixed bug where bookmark toolbar icon does not work for a single stop with a system-wide alert.
 * Fixed UI around setting location toolbar default behavior.
 * Removed all code for pre-iOS 8 support.
 * Now uses MKLocalSearchRequest instead of TriMet's geolocating.
 
 ### Version 11.2 (August 2019)
-* Added emojii to system wide detours
+* Added emojii to system-wide detours
 * Fixed comparison of KML shapes
 * Added feedback for Trip Planner
 * Added bookmarks in the cloud
 * Updated for Xcode 10.2
 * Added Easter Egg for Bus 3745.
-* System wide alerts on the watch are collapsable.
-* System wide alerts are separately collapsable; the default is for it to be displayed.
+* System-wide alerts on the watch are collapsable.
+* System-wide alerts are separately collapsable; the default is for it to be displayed.
 
 ### Version 11.1 (January 2019)
 * Added Siri extensions
@@ -266,7 +294,7 @@ Change log
 * Generalized search features and added seatch to detours, rececent stops and recent trips.
 * Removed unused icons and refactored icons to only use iOS7 versions.
 * Improved UI of commuter bookmark on watch.
-* Added system wide alerts.  Refactored detours.
+* Added system-wide alerts.  Refactored detours.
 * Added support for test data - the app can be built to ignroe the real URLs and fetch data from github if required.  URLs are read from TestData.plist for different queries.
 * Added multiple stop queries.  If multiple stops are being fetched it can batch them in groups of 10 in a single query.
 * Reworked watch arrivals and detours.

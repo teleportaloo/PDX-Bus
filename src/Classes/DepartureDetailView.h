@@ -29,7 +29,7 @@
 
 @end
 
-@interface DepartureDetailView : TableViewControllerWithRefresh <InfColorPickerControllerDelegate, ReturnStop>
+@interface DepartureDetailView : TableViewControllerWithRefresh <InfColorPickerControllerDelegate, ReturnStopObject>
 
 @property (nonatomic, weak) id<DepartureDetailDelegate> delegate;
 @property (nonatomic, copy)   NSString *stops;
@@ -43,6 +43,7 @@
 - (void)fetchDepartureAsync:(id<TaskController>)taskController
                      stopId:(NSString *)loc
                       block:(NSString *)block
+                        dir:(NSString *)direction
           backgroundRefresh:(bool)backgroundRefresh;
 
 

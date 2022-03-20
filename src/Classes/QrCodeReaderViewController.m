@@ -19,6 +19,7 @@
 #import "UIColor+DarkMode.h"
 #import "Settings.h"
 #import "MainQueueSync.h"
+#import "UIFont+Utility.h"
 
 #define kLightCtrlOn  (0)
 #define kLightCtrlOff (1)
@@ -36,6 +37,9 @@
 
 @implementation QrCodeReaderViewController
 
+- (void)dealloc {
+    
+}
 
 - (bool)torchSupported {
     static bool checkDone = NO;
@@ -151,7 +155,7 @@
     const CGFloat margin = 20;
     
     NSString *text = NSLocalizedString(@"Position a TriMet QR Code in front of the camera to scan it and show the departures.", @"QR scanner instructions");
-    UIFont *font = [UIFont systemFontOfSize:20];
+    UIFont *font = [UIFont monospacedDigitSystemFontOfSize:20];
     
     NSStringDrawingOptions options = NSStringDrawingTruncatesLastVisibleLine |
     NSStringDrawingUsesLineFragmentOrigin;
@@ -192,17 +196,15 @@
     self.qrCodeHighlight = view;
     
     [self.view addSubview:self.qrCodeHighlight];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleChangeInColor:) name:NSUserDefaultsDidChangeNotification object:[NSUserDefaults standardUserDefaults]];
-    
 }
 
-- (void)handleChangeInColor:(id)obj {
 
-    [MainQueueSync runSyncOnMainQueueWithoutDeadlocking:^{
-        self.qrCodeHighlight.color = [HTML_COLOR(Settings.toolbarColors) colorWithAlphaComponent:0.75];
-    }];
+- (void)handleChangeInUserSettingsOnMainThread:(NSNotification *)notfication
+{
+    [super handleChangeInUserSettingsOnMainThread:notfication];
+    self.qrCodeHighlight.color = [HTML_COLOR(Settings.toolbarColors) colorWithAlphaComponent:0.75];
 }
+
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];

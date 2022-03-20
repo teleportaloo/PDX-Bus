@@ -13,10 +13,10 @@
 
 
 #import <UIKit/UIKit.h>
-#import "MapPinColor.h"
+#import "MapPin.h"
 
 
-@interface SimpleAnnotation : NSObject <MapPinColor> {
+@interface SimpleAnnotation : NSObject <MapPin> {
     bool _hasBearing;
     double _bearing;
 }
@@ -25,13 +25,15 @@
 @property (nonatomic, readonly, copy) NSString *subtitle;
 @property (nonatomic) MapPinColorValue pinColor;
 @property (nonatomic) CLLocationCoordinate2D coordinate;
-@property (nonatomic, readonly) bool showActionMenu;
+@property (nonatomic, readonly) bool pinActionMenu;
 @property (nonatomic, copy) NSString *pinTitle;
 @property (nonatomic, copy) NSString *pinSubtitle;
 @property (nonatomic, copy) UIColor *pinTint;
-@property (nonatomic, copy) UIColor *pinSubTint;
-
-- (void)setDoubleBearing:(double)bearing;
+@property (nonatomic, copy) UIColor *pinBlobTint;
+@property (nonatomic, copy) NSString *pinMarkedUpSubtitle;
+@property (nonatomic, copy) NSString *pinMarkedUpType;
+@property (nonatomic) double pinBearing;
 
 + (instancetype)annotation;
+
 @end

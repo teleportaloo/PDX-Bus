@@ -39,7 +39,7 @@
 #define SMALL_SCREEN            !(LARGE_SCREEN)
 
 
-typedef enum {
+typedef enum ScreenWidthEnum {
 	WidthiPhone         = 320,
     WidthiPhone6        = 375,
     WidthiPhone6Plus    = 414,
@@ -50,10 +50,8 @@ typedef enum {
 
 #define ScaleFromiPhone(X, W) ((( (double)X) / (double)WidthiPhone) * (double)(W) )
 
-typedef struct _ScreenInfo
+typedef struct ScreenInfoStruct
 {
     ScreenWidth screenWidth;
     CGFloat     appWinWidth;
 } ScreenInfo;
-
-#define VerdanaScale(PT) ((PT)*0.9)

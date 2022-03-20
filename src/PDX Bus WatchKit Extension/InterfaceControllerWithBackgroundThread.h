@@ -29,7 +29,7 @@
 - (void)delayedPush:(WatchContext *)context completion:(void (^)(void))completion;
 - (void)sendProgress:(int)progress total:(int)total;
 
-- (id)  backgroundTask;
+- (id)backgroundTask;
 - (void)taskFinishedMainThread:(id)result;
 - (void)taskFailedMainThread:(id)result;
 - (void)progress:(int)state total:(int)total;

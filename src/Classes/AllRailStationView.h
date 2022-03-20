@@ -18,21 +18,24 @@
 
 #import <Foundation/Foundation.h>
 #import "TableViewWithToolbar.h"
-#import "ReturnStopId.h"
 #import "Stop.h"
 #import "RailStation.h"
 
+typedef int (*  StopInfoCompare)(const void *, const void *);
+
 #define kSearchItemStation @"org.teleportaloo.pdxbus.station"
 
-@interface AllRailStationView : TableViewWithToolbar <ReturnStop>
+@interface AllRailStationView : TableViewWithToolbar <ReturnStopObject>
 
-- (void)generateArrays;
 - (void)indexStations;
 
 + (RailStation *)railstationFromStopId:(NSString *)stopId;
 + (CLLocation *)locationFromStopId:(NSString *)stopId;
-+ (RAILLINES)railLines:(int)index;
-+ (RAILLINES)railLines0:(int)index;
-+ (RAILLINES)railLines1:(int)index;
++ (RailLines)railLinesForStopId:(NSString *)stopId;
++ (bool)tpFromStopId:(NSString *)stopId;
++ (RailLines)railLines:(int)index;
++ (RailLines)railLines0:(int)index;
++ (RailLines)railLines1:(int)index;
++ (StopInfoCompare)compareStopInfos;
 
 @end

@@ -22,6 +22,6 @@
 @interface RouteColorBlobView : UIView 
 
 - (void)setRouteColor:(NSString *)route;
-- (bool)setRouteColorLine:(RAILLINES)line;
+- (bool)setRouteColorLine:(RailLines)line;
 
 @end

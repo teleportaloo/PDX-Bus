@@ -13,6 +13,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogDataManagement
+
 #import "QueryCacheManager.h"
 #import "TriMetTypes.h"
 #import "DebugLogging.h"
@@ -33,25 +35,29 @@
 }
 
 - (void)openCache {
-    if (self.cache == nil && Settings.useCaching) {
-        if (self.sharedFile.urlToSharedFile != nil) {
-            NSPropertyListFormat format;
-            self.cache = [self.sharedFile readFromFile:&format];
-            
-            if (self.cache != nil && format != NSPropertyListBinaryFormat_v1_0) {
-                [self writeCache];
-            }
-        }
-        
+    @synchronized (self) {
         if (self.cache == nil) {
-            self.cache = [NSMutableDictionary dictionary];
+            if (self.sharedFile.urlToSharedFile != nil) {
+                NSPropertyListFormat format;
+                self.cache = [self.sharedFile readFromFile:&format];
+                
+                if (self.cache != nil && format != NSPropertyListBinaryFormat_v1_0) {
+                    [self writeCache];
+                }
+            }
+            
+            if (self.cache == nil) {
+                self.cache = [NSMutableDictionary dictionary];
+            }
         }
     }
 }
 
 - (void)writeCache {
-    if (self.cache != nil && self.sharedFile.urlToSharedFile != nil && Settings.useCaching) {
-        [self.sharedFile writeDictionaryBinary:self.cache];
+    @synchronized (self) {
+        if (self.cache != nil && self.sharedFile.urlToSharedFile != nil) {
+            [self.sharedFile writeDictionaryBinary:self.cache];
+        }
     }
 }
 
@@ -72,8 +78,10 @@
 }
 
 - (void)deleteCacheFile {
-    [self.sharedFile deleteFile];
-    self.cache = [NSMutableDictionary dictionary];
+    @synchronized (self) {
+        [self.sharedFile deleteFile];
+        self.cache = [NSMutableDictionary dictionary];
+    }
 }
 
 + (NSString *)getCacheKey:(NSString *)query {
@@ -87,40 +95,43 @@
 }
 
 - (NSUInteger)sizeInBytes {
-    self.cache = nil;
-    [self openCache];
-    
-    __block NSUInteger size = 0;
-    
+    @synchronized (self) {
+        self.cache = nil;
+        [self openCache];
+        
+        __block NSUInteger size = 0;
+        
 #define OBJ_SIZE(X) malloc_size((__bridge const void *)(X))
-    size += OBJ_SIZE(self);
-    size += OBJ_SIZE(self.cache);
-    size += OBJ_SIZE(self.sharedFile);
-    
-    DEBUG_LOGL(size);
+        size += OBJ_SIZE(self);
+        size += OBJ_SIZE(self.cache);
+        size += OBJ_SIZE(self.sharedFile);
         
-    [self.cache enumerateKeysAndObjectsUsingBlock: ^void (NSString *str, NSArray *obj, BOOL *stop)
-     {
-        NSDate *objDate = obj[kCacheDateAndTime];
-        NSData *objItem = obj[kCacheData];
+        DEBUG_LOGL(size);
         
-        size += OBJ_SIZE(obj);
-        size += OBJ_SIZE(objDate);
-        size += OBJ_SIZE(objItem);
-        size += OBJ_SIZE(str);
-        size += str.length;
-        size += objItem.length;
-    }];
-    
-    DEBUG_LOGL(self.cache.count);
-    DEBUG_LOGC(self);
-    DEBUG_LOGL(size);
-    
-    return size;
+        [self.cache enumerateKeysAndObjectsUsingBlock: ^void (NSString *str, NSArray *obj, BOOL *stop)
+         {
+            NSDate *objDate = obj[kCacheDateAndTime];
+            NSData *objItem = obj[kCacheData];
+            
+            size += OBJ_SIZE(obj);
+            size += OBJ_SIZE(objDate);
+            size += OBJ_SIZE(objItem);
+            size += OBJ_SIZE(str);
+            size += str.length;
+            size += objItem.length;
+        }];
+        
+        DEBUG_LOGL(self.cache.count);
+        DEBUG_LOGC(self);
+        DEBUG_LOGL(size);
+        
+        return size;
+    }
 }
 
 - (int)cacheAgeInDays:(NSString *)cacheQuery {
-    if (Settings.useCaching) {
+    @synchronized (self) {
+        
         [self openCache];
         
         if (self.cache) {
@@ -137,13 +148,13 @@
                 return (int)(age / (60 * 60 * 24));
             }
         }
+        
+        return kNoCache;
     }
-    
-    return kNoCache;
 }
 
 - (NSDate *)cacheDate:(NSString *)cacheQuery {
-    if (Settings.useCaching) {
+    @synchronized (self) {
         [self openCache];
         
         if (self.cache) {
@@ -153,13 +164,12 @@
                 return result[kCacheDateAndTime];
             }
         }
+        return nil;
     }
-    
-    return nil;
 }
 
 - (int)daysLeftInCacheIncludingToday:(NSString *)cacheQuery {
-    if (Settings.useCaching) {
+    @synchronized (self) {
         [self openCache];
         
         if (self.cache) {
@@ -264,13 +274,13 @@
             }
             return 0;
         }
+        
+        return 0;
     }
-    
-    return 0;
 }
 
 - (NSArray *)getCachedQuery:(NSString *)cacheQuery {
-    if (Settings.useCaching) {
+    @synchronized (self) {
         [self openCache];
         
         if (self.cache) {
@@ -357,57 +367,59 @@
             }
             return result;
         }
+        
+        return nil;
     }
-    
-    return nil;
 }
 
 - (void)addToCache:(NSString *)cacheQuery item:(NSData *)item write:(bool)write {
-    if (Settings.useCaching && item != nil && cacheQuery != nil) {
-        [self openCache];
-        
-        if (self.cache) {
-            (self.cache)[cacheQuery] = @[[NSDate date], item];
+    @synchronized (self) {
+        if (item != nil && cacheQuery != nil) {
+            [self openCache];
             
-            if (self.maxSize > 0 && self.cache.count > 1) {
-                // Eviction time
-                __block NSString *oldestKey = nil;
-                __block NSDate *oldestDate = nil;
+            if (self.cache) {
+                (self.cache)[cacheQuery] = @[[NSDate date], item];
                 
-                while (self.cache.count > self.maxSize) {
-                    oldestKey = nil;
-                    oldestDate = nil;
-                    DEBUG_LOGL(self.cache.count);
-                    [self.cache enumerateKeysAndObjectsUsingBlock: ^void (NSString *str, NSArray *obj, BOOL *stop)
-                     {
-                        NSDate *objDate = obj[kCacheDateAndTime];
-                        
-                        if (oldestKey == nil  || [oldestDate compare:objDate] == NSOrderedDescending) {
-                            oldestKey    = str;
-                            oldestDate   = objDate;
-                        }
-                    }];
+                if (self.maxSize > 0 && self.cache.count > 1) {
+                    // Eviction time
+                    __block NSString *oldestKey = nil;
+                    __block NSDate *oldestDate = nil;
                     
-                    if (oldestKey != nil) {
-                        [self.cache removeObjectForKey:oldestKey];
+                    while (self.cache.count > self.maxSize) {
+                        oldestKey = nil;
+                        oldestDate = nil;
                         DEBUG_LOGL(self.cache.count);
-                    } else {
-                        // We break to avoid an endless loop, and item must be removed
-                        // usually or we'd go around forever.
-                        break;
+                        [self.cache enumerateKeysAndObjectsUsingBlock: ^void (NSString *str, NSArray *obj, BOOL *stop)
+                         {
+                            NSDate *objDate = obj[kCacheDateAndTime];
+                            
+                            if (oldestKey == nil  || [oldestDate compare:objDate] == NSOrderedDescending) {
+                                oldestKey    = str;
+                                oldestDate   = objDate;
+                            }
+                        }];
+                        
+                        if (oldestKey != nil) {
+                            [self.cache removeObjectForKey:oldestKey];
+                            DEBUG_LOGL(self.cache.count);
+                        } else {
+                            // We break to avoid an endless loop, and item must be removed
+                            // usually or we'd go around forever.
+                            break;
+                        }
                     }
                 }
-            }
-            
-            if (write) {
-                [self writeCache];
+                
+                if (write) {
+                    [self writeCache];
+                }
             }
         }
     }
 }
 
 - (void)removeFromCache:(NSString *)cacheQuery {
-    if (Settings.useCaching) {
+    @synchronized (self) {
         [self openCache];
         
         if (self.cache) {
@@ -417,13 +429,17 @@
 }
 
 - (void)memoryWarning {
-    DEBUG_LOG(@"Releasing query cache %p\n", self.cache);
-    [self writeCache];
-    self.cache = nil;
+    @synchronized (self) {
+        DEBUG_LOG(@"Releasing query cache %p\n", self.cache);
+        [self writeCache];
+        self.cache = nil;
+    }
 }
 
 - (NSEnumerator<NSString *> *)keyEnumerator {
-    return [self.cache keyEnumerator];
+    @synchronized (self) {
+        return [self.cache keyEnumerator];
+    }
 }
 
 @end

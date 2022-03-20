@@ -31,6 +31,7 @@
 @property (strong, nonatomic) IBOutlet WKInterfaceLabel *stopDescription;
 @property (strong, nonatomic) IBOutlet WKInterfaceGroup *navGroup;
 @property (strong, nonatomic) IBOutlet WKInterfaceGroup *loadingGroup;
+@property (unsafe_unretained, nonatomic) IBOutlet WKInterfaceButton *locateButton;
 
 
 - (IBAction)swipeLeft:(id)sender;
@@ -38,7 +39,6 @@
 - (IBAction)doRefreshMenuItem;
 - (IBAction)menuItemNearby;
 - (IBAction)menuItemCommute;
-- (IBAction)menuItemHome;
 - (IBAction)nextButtonTapped;
 - (IBAction)homeButtonTapped;
 

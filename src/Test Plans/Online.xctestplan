@@ -1,0 +1,35 @@
+{
+  "configurations" : [
+    {
+      "id" : "E0B80029-CD47-42E6-B640-1587E3F85F40",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "selectedTests" : [
+        "HotSpotTests\/test_Online_HOTSPOT_Integrity",
+        "KMLRouteTests\/test_Online_KMLRoutes",
+        "Links\/testAbout",
+        "Links\/testLegal",
+        "Links\/testWhatsNew",
+        "MachineGeneratedArrays\/test_Online_CheckStaticArrays",
+        "MachineGeneratedArrays\/test_check_HotSpot_Tiles",
+        "TriMetInfoTests\/test_Online_ROUTE_INFO_matches"
+      ],
+      "target" : {
+        "containerPath" : "container:PDX Bus.xcodeproj",
+        "identifier" : "A17DFCB5251E852E001BE290",
+        "name" : "PDX BusTests"
+      }
+    }
+  ],
+  "version" : 1
+}

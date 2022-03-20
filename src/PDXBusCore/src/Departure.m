@@ -10,6 +10,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogDataManagement
+
 #import "Departure.h"
 
 #import "TriMetInfo.h"
@@ -24,7 +26,7 @@
 - (instancetype)init {
     if ((self = [super init])) {
         self.trips = [NSMutableArray array];
-        self.sortedDetours = [DetourSorter data];
+        self.sortedDetours = [DetourSorter new];
     }
     
     return self;
@@ -101,29 +103,29 @@
     return str;
 }
 
-- (const VEHICLE_INFO *)vehicleInfo {
+- (const VehicleInfo *)vehicleInfo {
     if (_vehicleInfo == nil && self.vehicleIds != nil && self.vehicleIds.count > 0) {
         _vehicleInfo = [TriMetInfo vehicleInfo:self.vehicleIds[0].integerValue];
     }
     
-    if (_vehicleInfo == nil && self.status == kStatusScheduled) {
-        static VEHICLE_INFO unknown;
+    if (_vehicleInfo == nil && self.status == ArrivalStatusScheduled) {
+        static VehicleInfo unknown;
         unknown.first_used = @"";
-        unknown.manufacturer = @"Unknown";
+        unknown.markedUpManufacturer = @"Unknown";
         unknown.max = 0;
         unknown.min = 0;
         unknown.check_for_multiple = NO;
-        unknown.model = @"";
+        unknown.markedUpModel = @"";
         unknown.type = @"";
         _vehicleInfo = &unknown;
     } else if (_vehicleInfo == nil) {
-        static VEHICLE_INFO unknown;
+        static VehicleInfo unknown;
         unknown.first_used = @"";
-        unknown.manufacturer = @"Unknown";
+        unknown.markedUpManufacturer = @"Unknown";
         unknown.max = 0;
         unknown.min = 0;
         unknown.check_for_multiple = YES;
-        unknown.model = @"";
+        unknown.markedUpModel = @"";
         unknown.type = @"";
         _vehicleInfo = &unknown;
     }
@@ -176,11 +178,11 @@
 }
 
 - (bool)notToSchedule {
-    return (self.status != kStatusScheduled && self.scheduledTime != nil &&  SecsToMins([self.scheduledTime timeIntervalSince1970]) !=  SecsToMins([self.departureTime timeIntervalSince1970]));
+    return (self.status != ArrivalStatusScheduled && self.scheduledTime != nil &&  SecsToMins([self.scheduledTime timeIntervalSince1970]) !=  SecsToMins([self.departureTime timeIntervalSince1970]));
 }
 
 - (bool)actuallyLate {
-    return (self.status != kStatusScheduled
+    return (self.status != ArrivalStatusScheduled
             && self.scheduledTime != nil
             && SecsToMins([self.scheduledTime timeIntervalSince1970]) !=  SecsToMins([self.departureTime timeIntervalSince1970])
             && [self.scheduledTime timeIntervalSinceDate:self.queryTime] < 0);
@@ -195,7 +197,7 @@
 }
 
 - (bool)needToFetchStreetcarLocation {
-    return (self.streetcar && self.nextBusFeedInTriMetData &&  self.status == kStatusEstimated && self.blockPosition == nil);
+    return (self.streetcar && self.nextBusFeedInTriMetData &&  self.status == ArrivalStatusEstimated && self.blockPosition == nil);
 }
 
 - (void)makeInvalid:(NSDate *)querytime {
@@ -232,7 +234,7 @@
 - (NSDateFormatter *)dateAndTimeFormatterWithPossibleLongDateStyle:(NSString *)longDateFormat arrivalWindow:(ArrivalWindow *)arrivalWindow {
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     
-    dateFormatter.dateStyle = kCFDateFormatterMediumStyle;
+    dateFormatter.dateStyle = NSDateFormatterMediumStyle;
     dateFormatter.timeStyle = NSDateFormatterNoStyle;
     
     // If date is tomorrow and more than 12 hours away then put the full date
@@ -241,7 +243,7 @@
     
     if (([[dateFormatter stringFromDate:self.departureTime] isEqualToString:[dateFormatter stringFromDate:[NSDate date]]])
         || (timeToArrival < 11 * 60 * 60)
-        || self.status == kStatusEstimated) {
+        || self.status == ArrivalStatusEstimated) {
         dateFormatter.dateStyle = NSDateFormatterNoStyle;
         dateFormatter.timeStyle = NSDateFormatterShortStyle;
         

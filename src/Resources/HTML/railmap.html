@@ -8,7 +8,7 @@
 
 <body>
 <h1>Rail Map Hotspots</h1>
-<pre>  <pre>
+<pre>  </pre>
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -22,19 +22,21 @@ actual code tables in MaxHotSpotTable.txt
 <li>Replace <tt>/&gt;</tt> with HS_END</li>
 </ul>
 </p>
+<p>The Xcode project will make a text file called MaxHotSpotTable.txt and include it into RailMapsView.m automatically. </p>
+<p>Note that there is a file called MaxHotSpotTiles.txt which is also generated but it is not automatic,
+you have to execute a special "test case" called test_generate_HotSpot_tiles to generate that code.</p>
 <img src="../TriMet/MAXWESMap.gif" alt="" border="0" usemap="#Map" />
 <map name="Map" id="Map">
-  <area shape="poly" coords="1752,1320,1806,1296,1791,1251,1715,1297" href="w:Tilikum_Crossing" />
+  <area shape="poly" coords="1752,1320,1806,1296,1791,1251,1715,1297" href="https://trimet.org/tilikum/" />
   <area shape="poly" coords="1794,872,1886,884,1885,1039,1795,1029" href="m://1" />
   <area shape="poly" coords="1220,677,1332,672,1329,734,1218,736" href="m://1" />
   <area shape="poly" coords="1017,505,1264,502,1258,596,1021,597" href="m://1" />
   <area shape="poly" coords="1654,1411,1730,1415,1717,1506,1658,1503" href="m://1" />
   <area shape="poly" coords="71,1275,298,1279,303,1235,71,1232" href="d://290" />
-  <area shape="poly" coords="1338,1992,1488,1992,1483,1947,1338,1949" href="http://trimet.org/pm/index.htm" />
   <area shape="poly" coords="1955,329,2130,327,2130,383,1955,384" href="w:Neighborhoods_of_Portland,_Oregon#Northeast" />
   <area shape="poly" coords="1452,1385,1701,1384,1699,1347,1449,1344" href="http://www.gobytram.com/" />
   <area shape="poly" coords="1416,1451,1540,1452,1538,1387,1409,1388" href="w:Marquam_Hill,_Portland,_Oregon" />
-  <area shape="poly" coords="1856,1666,2006,1666,2001,1621,1856,1623" href="http://trimet.org/pm/index.htm" />
+  <area shape="poly" coords="1856,1666,2006,1666,2001,1621,1856,1623" href="w:Southeast_Park_Avenue_station" />
   <area shape="poly" coords="1900,1620,2039,1622,2044,1578,1900,1577" href="s:SE Park Ave MAX Station/SE_Park_Ave_MAX_Station/N,13720" />
   <area shape="poly" coords="1904,1571,2108,1571,2120,1531,1904,1528" href="s:Milwaukie%2FMain St MAX Station/Milwaukie%2FMain_St_MAX_Station/S,13718/N,13721" />
   <area shape="poly" coords="1907,1523,2167,1525,2171,1482,1907,1480" href="s:SE Tacoma%2FJohnson Creek MAX Station/SE_Tacoma%2FJohnson_Creek_MAX_Station/S,13717/N,13722" />
@@ -42,8 +44,8 @@ actual code tables in MaxHotSpotTable.txt
   <area shape="poly" coords="1917,1430,2091,1429,2088,1392,1911,1391" href="s:SE 17th Ave & Holgate Blvd MAX Station/SE_17th_Ave_%26_Holgate_Blvd_MAX_Station/S,13715/N,13724" />
   <area shape="poly" coords="1910,1386,2077,1386,2071,1343,1919,1342" href="s:SE 17th Ave & Rhine St MAX Station/SE_17th_Ave_%26_Rhine_St_MAX_Station/S,13714/N,13725" />
   <area shape="poly" coords="1897,1337,2057,1337,2051,1295,1906,1294" href="s:Clinton St%2FSE 12th Ave MAX Station/Clinton_St%2FSE_12th_Ave_MAX_Station/E,13713/W,13726" />
-  <area shape="poly" coords="1817,1333,1892,1339,1891,1266,1810,1269" href="s:OMSI%2FSE Water MAX Station/OMSI%2FSE_Water_MAX_Station/E,13712/W,13727" />
-  <area shape="poly" coords="1707,1384,1842,1384,1857,1341,1709,1309" href="s:South Waterfront%2FS Moody MAX Station/South_Waterfront%2FSW_Moody_MAX_Station/E,13711/W,13728" />
+  <area shape="poly" coords="1817,1333,1892,1339,1891,1266,1810,1269" href="s:OMSI%2FSE Water MAX Station/OMSI%2FSE_Water_MAX_Station/E,13712/W,13727/T,13709/T,13615" />
+  <area shape="poly" coords="1707,1384,1842,1384,1857,1341,1709,1309" href="s:South Waterfront%2FS Moody MAX Station/South_Waterfront%2FSW_Moody_MAX_Station/E,13711/W,13728/T,13602/T,13601" />
   <area shape="poly" coords="1597,1273,1678,1276,1682,1206,1599,1201" href="s:Lincoln St%2FSW 3rd Ave MAX Station/Lincoln_St%2FSW_3rd_Ave_MAX_Station/E,13710/W,13729" />
   <area shape="poly" coords="1532,1152,1671,1154,1670,1192,1534,1192" href="s:PSU South%2FSW 5th & Jackson/PSU_South_MAX_station/S,7606" />
   <area shape="poly" coords="1344,1164,1503,1162,1509,1204,1345,1205" href="s:PSU South%2FSW 6th & College/PSU_South_MAX_station/N,10293" />
@@ -62,7 +64,7 @@ actual code tables in MaxHotSpotTable.txt
   <area shape="poly" coords="608,1026,638,1051,674,1004,736,902,693,884,620,1005" href="s:Millikan Way/Millikan_Way/E,9826/W,9825" />
   <area shape="poly" coords="660,1058,705,1057,712,1017,792,892,754,878,675,1007" href="s:Beaverton Central/Beaverton_Central/E,9824/W,9823" />
   <area shape="poly" coords="712,1081,771,1083,767,1043,905,803,862,773,712,1024" href="s:Beaverton TC/Beaverton_Transit_Center/MAXN,9821/MAXS,9818/WESS,13066" />
-  <area shape="poly" coords="282,194,282,307,751,312,748,195" href="http://www.trimet.org" />
+  <area shape="poly" coords="282,194,282,307,751,312,748,195" href="https://www.trimet.org" />
   <area shape="poly" coords="1687,632,1738,604,1769,661,1723,686" href="w:Steel_Bridge" />
   <area shape="poly" coords="1462,122,1404,151,1544,397,1603,364" href="w:Willamette_River" />
   <area shape="poly" coords="890,1203,698,1200,699,1151,885,1152" href="s:Hall%2FNimbus/Hall%2FNimbus/WESA,13067" />
@@ -76,13 +78,13 @@ actual code tables in MaxHotSpotTable.txt
   <area shape="poly" coords="61,1141,62,1178,357,1183,350,1146" href="d://100" />
   <area shape="poly" coords="2159,576,2234,443,2304,438,2206,651,2158,653" href="s:Gateway%2FNE 99th TC/Gateway%2FNortheast_99th_Avenue_Transit_Center/N,8370/S,8347" />
   <area shape="poly" coords="342,1585,341,1668,416,1670,412,1586" href="n" />
-  <area shape="poly" coords="1304,818,1303,885,1380,887,1383,817" href="s:Galleria%2FSW 10th/Library%2FSouthwest_9th_Avenue_and_Galleria%2FSouthwest_10th_Avenue/W,8384" />
-  <area shape="poly" coords="1393,812,1477,816,1476,886,1388,886" href="s:Pioneer Square North/Pioneer_Square_South_and_Pioneer_Square_North/W,8383" />
-  <area shape="poly" coords="1296,917,1294,888,1499,890,1498,919" href="s:Pioneer Courthouse%2FSW 6th Ave/Pioneer_Courthouse%2FSouthwest_6th_and_Pioneer_Place%2FSouthwest_5th/N,7777" />
-  <area shape="poly" coords="1289,929,1290,994,1372,991,1376,929" href="s:Library%2FSW 9th Ave/Library%2FSouthwest_9th_Avenue_and_Galleria%2FSouthwest_10th_Avenue/E,8333" />
-  <area shape="poly" coords="1379,924,1377,992,1473,991,1475,956,1473,924" href="s:Pioneer Square South/Pioneer_Square_South_and_Pioneer_Square_North/E,8334" />
+  <area shape="poly" coords="1304,818,1303,885,1380,887,1383,817" href="s:Galleria%2FSW 10th/Library%2FSouthwest_9th_Avenue_and_Galleria%2FSouthwest_10th_Avenue/W,8384/T,9600/T,10768" />
+  <area shape="poly" coords="1393,812,1477,816,1476,886,1388,886" href="s:Pioneer Square North/Pioneer_Square_South_and_Pioneer_Square_North/W,8383/T,7777/T,7646" />
+  <area shape="poly" coords="1296,917,1294,888,1499,890,1498,919" href="s:Pioneer Courthouse%2FSW 6th Ave/Pioneer_Courthouse%2FSouthwest_6th_and_Pioneer_Place%2FSouthwest_5th/N,7777/T,8334/T,8383" />
+  <area shape="poly" coords="1289,929,1290,994,1372,991,1376,929" href="s:Library%2FSW 9th Ave/Library%2FSouthwest_9th_Avenue_and_Galleria%2FSouthwest_10th_Avenue/E,8333/T,10767/T,9633" />
+  <area shape="poly" coords="1379,924,1377,992,1473,991,1475,956,1473,924" href="s:Pioneer Square South/Pioneer_Square_South_and_Pioneer_Square_North/E,8334/T,7777/T,7646" />
   <area shape="poly" coords="1358,992,1495,992,1496,1033,1358,1034" href="s:SW 6th & Madison St/Southwest_6th_%26_Madison_Street_(MAX_station)/N,13123" />
-  <area shape="poly" coords="1329,1082,1497,1082,1499,1118,1331,1116" href="s:PSU%2FSW 6th & Montgomery/PSU_Urban_Center%2FSouthwest_6th_%26_Montgomery_Street_(MAX_station)/N,7774" />
+  <area shape="poly" coords="1329,1082,1497,1082,1499,1118,1331,1116" href="s:PSU Urban Center%2FSW 6th & Montgomery/PSU_Urban_Center%2FSouthwest_6th_%26_Montgomery_Street_(MAX_station)/N,7774/T,10764/T,10763" />
   <area shape="poly" coords="1267,1119,1267,1164,1469,1161,1469,1120" href="w:Portland_State_University" />
   <area shape="poly" coords="1385,636,1492,635,1503,672,1455,685,1386,685" href="s:Union Station%2FNW 6th & Hoyt St/Union_Station%2FNorthwest_6th_%26_Hoyt_Street_(MAX_station)/N,7763" />
   <area shape="poly" coords="1394,700,1499,699,1495,749,1392,752" href="s:NW 6th & Davis St/Northwest_6th_%26_Davis_Street_and_Northwest_5th_%26_Couch_Street/N,9299" />
@@ -90,15 +92,15 @@ actual code tables in MaxHotSpotTable.txt
   <area shape="poly" coords="1469,570,1468,617,1564,616,1565,570" href="w:Union_Station_%28Portland%29" />
   <area shape="poly" coords="1534,655,1535,674,1671,674,1657,648,1592,639" href="s:Union Station%2FNW 5th & Glisan St/Union_Station%2FNorthwest_6th_%26_Hoyt_Street_and_Union_Station%2FNorthwest_5th_%26_Glisan_Street/S,7601" />
   <area shape="poly" coords="1540,745,1686,741,1681,715,1543,709" href="s:NW 5th & Couch St/Northwest_6th_%26_Davis_Street_and_Northwest_5th_%26_Couch_Street/S,9303" />
-  <area shape="poly" coords="1539,921,1542,885,1685,887,1686,921" href="s:Pioneer Place%2FSW 5th Ave/Pioneer_Courthouse%2FSouthwest_6th_and_Pioneer_Place%2FSouthwest_5th/S,7646" />
+  <area shape="poly" coords="1539,921,1542,885,1685,887,1686,921" href="s:Pioneer Place%2FSW 5th Ave/Pioneer_Courthouse%2FSouthwest_6th_and_Pioneer_Place%2FSouthwest_5th/S,7646/T,8334/T,8383" />
   <area shape="poly" coords="1538,786,1569,778,1652,776,1651,805,1539,805" href="s:SW 5th & Oak St/Southwest_6th_%26_Pine_Street_and_Southwest_5th_%26_Oak_Street/S,7627" />
   <area shape="poly" coords="1587,833,1634,822,1655,834,1656,886,1586,877" href="s:Morrison%2FSW 3rd Ave/Yamhill_District_and_Morrison%2FSouthwest_3rd_Avenue/W,8381" />
-  <area shape="poly" coords="1541,1086,1645,1084,1645,1116,1539,1121" href="s:PSU%2FSW 5th & Mill St/PSU_Urban_Center%2FSouthwest_6th_%26_Montgomery_Street_and_PSU_Urban_Center%2FSouthwest_5th_%26_Mill_Street/S,7618" />
+  <area shape="poly" coords="1541,1086,1645,1084,1645,1116,1539,1121" href="s:PSU Urban Center%2FSW 5th & Mill St/PSU_Urban_Center%2FSouthwest_6th_%26_Montgomery_Street_and_PSU_Urban_Center%2FSouthwest_5th_%26_Mill_Street/S,7618/T,10764/T,10762/T,10763" />
   <area shape="poly" coords="1542,996,1680,997,1676,1039,1542,1041" href="s:City Hall%2FSW 5th & Jefferson St/Southwest_6th_%26_Madison_Street_and_City_Hall%2FSouthwest_5th_%26_Jefferson_Street/S,7608" />
   <area shape="poly" coords="1662,923,1730,924,1730,993,1659,993" href="s:Yamhill District/Yamhill_District_and_Morrison%2FSouthwest_3rd_Avenue/E,8336" />
   <area shape="poly" coords="1681,693,1802,691,1804,742,1679,740" href="s:Old Town%2FChinatown/Old_Town%2FChinatown/N,8339/S,8378" />
   <area shape="poly" coords="1677,760,1802,762,1804,803,1676,802" href="s:Skidmore Fountain/Skidmore_Fountain_(MAX_station)/N,8338/S,8379" />
-  <area shape="poly" coords="1683,861,1683,814,1818,816,1819,861" href="s:Oak%2FSW 1st Ave/Oak_Street%2FSouthwest_1st_Avenue/N,8337/S,8380" />
+  <area shape="poly" coords="1683,861,1683,814,1818,816,1819,861" href="s:Oak%2F SW 1st Ave/Oak_Street%2FSouthwest_1st_Avenue/N,8337/S,8380" />
   <area shape="poly" coords="1630,78,1805,79,1787,110,1629,117" href="s:Expo Center/Expo_Center_(MAX_station)/S,11498" />
   <area shape="poly" coords="1617,124,1839,121,1837,164,1614,167" href="s:Delta Park%2FVanport/Delta_Park%2FVanport/S,11499/N,11516" />
   <area shape="poly" coords="1631,168,1823,169,1823,215,1631,215" href="s:Kenton%2FN Denver/Kenton%2FNorth_Denver_Avenue/S,11500/N,11515" />
@@ -107,11 +109,11 @@ actual code tables in MaxHotSpotTable.txt
   <area shape="poly" coords="1629,308,1809,310,1815,355,1628,353" href="s:N Killingsworth/North_Killingsworth_Street/S,11503/N,11512" />
   <area shape="poly" coords="1628,356,1791,357,1786,391,1626,394" href="s:N Prescott/North_Prescott_Street/S,11504/N,11511" />
   <area shape="poly" coords="1625,396,1822,402,1820,443,1621,439" href="s:Overlook Park/Overlook_Park_MAX_Station/S,11505/N,11510" />
-  <area shape="poly" coords="1650,442,1838,448,1825,474,1815,497,1646,498" href="s:Albina%2FMississippi/Albina%2FMississippi/S,11506/N,11509" />
-  <area shape="poly" coords="1656,532,1646,603,1767,601,1776,538" href="s:Interstate%2FRose Quarter/Interstate%2FRose_Quarter/S,11507/N,11508" />
-  <area shape="poly" coords="1772,592,1883,370,1925,393,1815,582,1817,650,1768,647" href="s:Rose Quarter TC/Rose_Quarter_Transit_Center/E,8340/W,8377" />
-  <area shape="poly" coords="1905,434,1935,450,1861,586,1865,650,1824,650,1823,581" href="s:Convention Center/Convention_Center_(MAX_station)/E,8341/W,8376" />
-  <area shape="poly" coords="1875,647,1919,646,1920,588,1944,539,1904,516,1876,587" href="s:NE 7th Ave/Northeast_7th_Avenue/E,8342/W,8375" />
+  <area shape="poly" coords="1650,442,1838,448,1825,474,1815,497,1646,498" href="s:Albina%2FMississippi/Albina%252FMississippi_station/S,11506/N,11509" />
+  <area shape="poly" coords="1656,532,1646,603,1767,601,1776,538" href="s:Interstate%2FRose Quarter/Interstate%2FRose_Quarter/S,11507/N,11508/T,8377/T,8340" />
+  <area shape="poly" coords="1772,592,1883,370,1925,393,1815,582,1817,650,1768,647" href="s:Rose Quarter TC/Rose_Quarter_Transit_Center/E,8340/W,8377/T,11507/T,11508" />
+  <area shape="poly" coords="1905,434,1935,450,1861,586,1865,650,1824,650,1823,581" href="s:Convention Center/Convention_Center_(MAX_station)/E,8341/W,8376/T,2175" />
+  <area shape="poly" coords="1875,647,1919,646,1920,588,1944,539,1904,516,1876,587" href="s:NE 7th Ave/Northeast_7th_Avenue/E,8342/W,8375/T,13611" />
   <area shape="poly" coords="1923,645,1973,647,1982,592,2060,436,2012,420,1924,585" href="s:Lloyd Center%2FNE 11th Ave/Lloyd_Center%2FNortheast_11th_Avenue/E,8343/W,8374" />
   <area shape="poly" coords="1992,649,2033,648,2034,595,2150,406,2098,388,1991,597" href="s:Hollywood%2FNE 42nd Ave/Hollywood%2FNortheast_42nd_Avenue_Transit_Center/E,8344/W,8373" />
   <area shape="poly" coords="2036,650,2077,652,2090,592,2122,527,2091,506,2037,597" href="s:NE 60th Ave/Northeast_60th_Avenue/E,8345/W,8372" />
@@ -146,8 +148,8 @@ actual code tables in MaxHotSpotTable.txt
   <area shape="poly" coords="65,1381,299,1383,294,1421,64,1420" href="d://203" />
   <area shape="poly" coords="66,1423,436,1420,426,1563,55,1561" href="m://1" />
   <area shape="poly" coords="83,1562,258,1564,257,1593,82,1592" href="w:Park_and_ride" />
-  <area shape="poly" coords="82,1594,314,1597,305,1627,82,1627" href="http://trimet.org/howtoride/bikes/bikeandride.htm" />
-  <area shape="poly" coords="80,1624,296,1625,292,1660,80,1661" href="http://trimet.org/transitcenters/index.htm" />
+  <area shape="poly" coords="82,1594,314,1597,305,1627,82,1627" href="https://trimet.org/bikes/index.htm" />
+  <area shape="poly" coords="80,1624,296,1625,292,1660,80,1661" href="https://trimet.org/transitcenters/index.htm" />
   <area shape="poly" coords="22,912,146,907,150,958,22,958" href="w:Hillsboro,_Oregon" />
   <area shape="poly" coords="566,1081,707,1079,707,1128,567,1126" href="w:Beaverton,_Oregon" />
   <area shape="poly" coords="662,1628,806,1627,808,1672,662,1670" href="w:Wilsonville,_Oregon" />

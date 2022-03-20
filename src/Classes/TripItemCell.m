@@ -13,13 +13,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+
 #import "TripItemCell.h"
 #import "ViewControllerBase.h"
 #import "DebugLogging.h"
 #import "NSString+Helper.h"
 
 @interface TripItemCell () {
-    NSString *_formattedBodyText;
+    NSString *_markedUpBodyText;
 }
 
 @end
@@ -32,14 +34,14 @@
 #define kFontName              @"Helvetica"
 
 @dynamic large;
-@dynamic formattedBodyText;
+@dynamic markedUpBodyText;
 
 
-- (void)populateBody:(NSString *)body
-                mode:(NSString *)mode
-                time:(NSString *)time
-           leftColor:(UIColor *)col
-               route:(NSString *)route {
+- (void)populateMarkedUpBody:(NSString *)markedUpBody
+                        mode:(NSString *)mode
+                        time:(NSString *)time
+                   leftColor:(UIColor *)col
+                       route:(NSString *)route {
     if (col == nil) {
         col = [UIColor grayColor];
     }
@@ -52,10 +54,10 @@
     
     self.modeLabel.textColor = col;
     
-    self.formattedBodyText = body; // @"the quick brown fox jumped over the lazy dog's tail and yelped as he did it.  Yes he did.";
+    self.markedUpBodyText = markedUpBody; // @"the quick brown fox jumped over the lazy dog's tail and yelped as he did it.  Yes he did.";
     
     DEBUG_LOG(@"Width: %f\n", self.bodyLabel.bounds.size.width);
-    DEBUG_LOG(@"Text: %@\n", body);
+    DEBUG_LOG(@"Text: %@\n", markedUpBody);
     
     
     [self.routeColorView setRouteColor:route];
@@ -64,13 +66,13 @@
     [self update];
 }
 
-- (NSString *)formattedBodyText {
-    return _formattedBodyText;
+- (NSString *)markedUpBodyText {
+    return _markedUpBodyText;
 }
 
-- (void)setFormattedBodyText:(NSString *)formattedBodyText {
-    _formattedBodyText = formattedBodyText;
-    self.bodyLabel.attributedText = [self.formattedBodyText formatAttributedStringWithFont:self.bodyFont];
+- (void)setMarkedUpBodyText:(NSString *)markedUpBodyText {
+    _markedUpBodyText = markedUpBodyText;
+    self.bodyLabel.attributedText = [self.markedUpBodyText attributedStringFromMarkUpWithFont:self.bodyFont];
 }
 
 - (void)awakeFromNib {
@@ -123,7 +125,7 @@
 
 - (void)update {
     self.modeLabel.font = self.boldBodyFont;
-    self.bodyLabel.attributedText = [self.formattedBodyText formatAttributedStringWithFont:self.bodyFont];
+    self.bodyLabel.attributedText = [self.markedUpBodyText attributedStringFromMarkUpWithFont:self.bodyFont];
     self.modeLabelWidth.constant = self.large ? 100.0 : 75.0;
     
     self.accessibilityLabel = [NSString stringWithFormat:@"%@, ,%@",

@@ -14,7 +14,6 @@
 
 
 #import <Foundation/Foundation.h>
-#import "DataFactory.h"
 #import <CoreLocation/CoreLocation.h>
 #import "ShapeCoord.h"
 #import "ShapeSegment.h"
@@ -22,7 +21,7 @@
 
 #define kShapeNoRoute (-1)
 
-@interface ShapeRoutePath : DataFactory <NSSecureCoding>
+@interface ShapeRoutePath : NSObject <NSSecureCoding>
 
 @property (nonatomic, strong) NSMutableArray<id<ShapeSegment>> *segments;
 @property (nonatomic, copy) NSString *dirDesc;

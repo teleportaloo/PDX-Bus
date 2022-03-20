@@ -2,6 +2,33 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <array>
+	<string>.11.4.2 (January 2022)</string>
+	<string>+https://buymeacoffee.com/pdxbus Added a link to &quot;Buy Me a Coffee&quot; for tips.  No obligation, no additional features, just a way to say thanks.</string>
+	<string>Updated NextBus feed (for streetcar locations) - company was purchased by #Lhttps://retro.umoiq.com/#!/portland-sc/193/193_1_var1/10756 Umo#T. </string>
+	<string>$StreetcarMap Added new Streetcar Map, added transfer information to station screens, and modified station names in South Portland.</string>
+	<string>Fixed issues around Aerial Tram and its alerts.</string>
+	<string>Watch app:  As Apple has removed the context menus, the buttons on that menu have been moved to the main screens.</string>
+	<string>Watch app:  Siri features from the phone app are now supported on the watch.</string>
+	<string>Fixed issues with the background downloading of route lines to display on maps. </string>
+	<string>Removed support for iOS 11 (iOS 12 was supported on all iOS 11 devices).</string>
+	<string>Fixed rounding error for metric distances.</string>
+	<string>Fixed issue when there was a #h character in a detour, this is assumed to be a Stop ID now.</string>
+	<string>Fixed issues with alarms and showing details for WES arrivals at #Lid:13067 Hall/Nimbus#T or #Lid:13069 Tualatin#T WES Stations.</string>
+	<string>Checked all internal web links.  Fixed a few!  (This check has been automated).</string>
+	<string>Added system-wide alerts to Siri;  fixed some issues with shortcuts (Siri would sometimes unexpectedly say the results).</string>
+	<string>Fixed some dark gray text in dark mode.</string>
+	<string>Refactored network access and caching.</string>
+	<string>+https://trimet.org/celebrate Added Celebration bus information</string>
+	<string>Tweaked fonts - now all use monospaced numbers as things align better.</string>
+	<string>Updated for iOS 15.</string>
+	<string>A long press on detours and other text will allow it to be selected - this allows the user to translate, copy or share the text.</string>
+	<string>Detailed arrivals include a new action to plan a trip starting from just after the arrival.  (As requeted by a user!). </string>
+	<string>.11.4.1 (January 2021)</string>
+	<string>Updated the fonts on departures;  re-aligned the alert text.</string>
+	<string>Departure details now show the long description of the route and have bigger times.</string>
+	<string>Reworked the pins and callouts on the maps.</string>
+	<string>Stop names are now sorted correctly (e.g. NW 5th Ave comes before NW 10th Ave).</string>
+	<string>iOS 14 updates</string>
 	<string>.11.4 (September 2020)</string>
 	<string>$RailMap Updated MAX map to September 2020 version (three stops were closed).</string>
 	<string>$Detours #O#bNew look for Alerts#b
@@ -32,13 +59,13 @@ Alerts now include links inline in the text, such as trimet.org or Stop ID #Lid:
 	<string>$TripPlanner Trip Planner user-interface for inputing addresses has been enlarged and re-designed.</string>
 	<string>$RailMap Updated TriMet MAX map to use the September 2019 version, which highlights that some stops are closing in 2020.</string>
 	<string>Small fix in the color picker, used for tagging vehicles.</string>
-	<string>Minor bug fixes including: fixed issue with creating a bookmark when there is a system wide alert.</string>
+	<string>Minor bug fixes including: fixed issue with creating a bookmark when there is a system-wide alert.</string>
 	<string>.11.2 (August 2019)</string>
 	<string>PDX Bus can now use iCloud to share bookmarks between devices, and to restore bookmarks when the app is deleted and reinstalled.</string>
 	<string>User interface tweaks.</string>
 	<string>Added information about the latest new electric busses.</string>
 	<string>Various bug fixes.</string>
-	<string>Watch:  System Wide alert text will hide when touched.</string>
+	<string>Watch:  System-wide alert text will hide when touched.</string>
 	<string>.11.1 (January 2019)</string>
 	<string>iOS 12 Siri Shortcuts:  Use the &quot;Add this stop to Siri&quot; menu item to associate a stop with a phrase for Siri, and Siri will say and show all the arrivals for a single stop.</string>
 	<string>iOS 12 Siri Shortcuts:  Use the  &quot;Add to Siri to launch with bookmark&quot; menu item to associate a bookmark with a phrase for Siri, who will launch PDX Bus and show the bookmark. Siri won&apos;t attempt to read all the arrivals in this case, as there could be a lot as each bookmark can have many stops.</string>
@@ -56,19 +83,5 @@ Alerts now include links inline in the text, such as trimet.org or Stop ID #Lid:
 	<string>.11.0.1 (October 2018)</string>
 	<string>Fixed issue where app will not launch on iOS8 and 9.</string>
 	<string>Fixed issue with Refresh not working on Lookup stop by Route.</string>
-	<string>.11.0 (September 2018)</string>
-	<string>Updated for iOS 12.  Added basic support for Siri Shortcuts.</string>
-	<string>Updated to use new #b#BTriMet#D#b data - may include more details about delays, vehicle IDs, vehicle types and when busses are full.</string>
-	<string>Improved speed of arrival downloads by combining queries.</string>
-	<string>$Detours Updated detours to use new #b#BTriMet#D#b alert data - including #+#bsystem wide alerts#-#b. #(#AThey also show the start and end time#)#D. Removed &quot;Rider Alerts&quot; as it was basically the same as the detour list and renamed the detours to be &quot;Detours, delays and closures&quot;.   Detours also include messages about the streetcar.</string>
-	<string>$Settings You can adjust how many departures are shown. In the settings there is a new setting &quot;Don&apos;t show route after arrival &gt; N mins away&quot;.  Arrivals for each route served at each stop will be shown up to the first that is further than the chosen number of minutes away. </string>
-	<string>$Tweet Updated Twitter links, as #b#BTriMet#D#b now has three Twitter accounts. Touch here to see.</string>
-	<string>Late color is now #M#bmagenta#b#D, as #isome people#i thought #N#bbrown#b#D was a bit close to #A#bgrey#b#D.</string>
-	<string>VoiceOver text for detours improved to pronounce local #b#BTriMet#0#b words better (eg 185th Ave TC MAX Stn).  #i##test#b!</string>
-	<string>Added search to detours, recent stops, recent trips and this #iWhat&apos;s New#i screen (pull down for search box).</string>
-	<string>$Settings Maps:  There is a new option to show the route paths on the maps.  These paths are useful, but they are a 10 MB download so this is off by default.</string>
-	<string>Watch:  Improved commuter bookmark user-interface - it will show when it is active in the title.</string>
-	<string>Watch:  When locating stops, it will show you the routes and directions served by each stop.</string>
-	<string>Watch:  Added a swipe left to move to the next stop, and improved speed and stability.</string>
 </array>
 </plist>

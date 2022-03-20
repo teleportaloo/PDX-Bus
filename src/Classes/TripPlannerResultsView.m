@@ -12,6 +12,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+
 #import "TripPlannerResultsView.h"
 #import "DepartureTimesView.h"
 #import "MapViewController.h"
@@ -42,11 +44,13 @@
 #import "TripPlannerDateView.h"
 #import "Icons.h"
 #import "UIAlertController+SimpleMessages.h"
+#import "CLLocation+Helper.h"
 
 enum {
     kRowTypeLeg = 0,
     kRowTypeDuration,
     kRowTypeTransfers,
+    kRowTypeDistance,
     kRowTypeFare,
     kRowTypeMap,
     kRowTypeEmail,
@@ -138,8 +142,7 @@ enum {
 - (void)setItemFromHistory:(int)item {
     NSDictionary *trip = nil;
     
-    @synchronized (_userState)
-    {
+    @synchronized (_userState) {
         trip = _userState.recentTrips[item];
         
         _recentTripItem = item;
@@ -262,9 +265,14 @@ enum {
         if (legs > 0) {
             [self addRowType:kRowTypeDuration];
             
-            if (it.xnumberOfTransfers.integerValue > 0)
+            if (it.numberOfTransfers > 0)
             {
                 [self addRowType:kRowTypeTransfers];
+            }
+            
+            if (it.distanceMiles > 0)
+            {
+                [self addRowType:kRowTypeDistance];
             }
             
             if (it.hasFare) {
@@ -384,7 +392,7 @@ enum {
     //    {
     //        return [NSString stringWithFormat:@"From: %@, %@", self.tripQuery.fromPoint.lat, self.tripQuery.fromPoint.lng];
     //    }
-    return self.tripQuery.resultFrom.xdescription;
+    return self.tripQuery.resultFrom.desc.safeEscapeForMarkUp;
 }
 
 - (NSString *)toText {
@@ -392,7 +400,7 @@ enum {
     //    {
     //        return [NSString stringWithFormat:@"To: %@, %@", self.tripQuery.toPoint.lat, self.tripQuery.toPoint.lng];
     //    }
-    return self.tripQuery.resultTo.xdescription;
+    return self.tripQuery.resultTo.desc.safeEscapeForMarkUp;
 }
 
 - (void)selectLeg:(TripLegEndPoint *)leg {
@@ -406,14 +414,14 @@ enum {
     } else if (leg.loc != nil) {
         MapViewController *mapPage = [MapViewController viewController];
         SimpleAnnotation *pin = [SimpleAnnotation annotation];
-        mapPage.stopIdCallback = self.stopIdCallback;
+        mapPage.stopIdStringCallback = self.stopIdStringCallback;
         pin.coordinate = leg.coordinate;
-        pin.pinTitle = leg.xdescription;
+        pin.pinTitle = leg.desc;
         pin.pinColor = MAP_PIN_COLOR_PURPLE;
         
         
         [mapPage addPin:pin];
-        mapPage.title = leg.xdescription;
+        mapPage.title = leg.desc;
         [self.navigationController pushViewController:mapPage animated:YES];
     }
 }
@@ -424,8 +432,7 @@ enum {
     NSString *desc = nil;
     int bookmarkItem = kNoBookmark;
     
-    @synchronized (_userState)
-    {
+    @synchronized (_userState) {
         int i;
         
         TripUserRequest *req = [[TripUserRequest alloc] init];
@@ -462,13 +469,11 @@ enum {
         }]];
         
 #if !TARGET_OS_MACCATALYST
-        if (@available(iOS 12.0, *)) {
-            [alert addAction:[UIAlertAction actionWithTitle:kAddBookmarkToSiri
-                                                      style:UIAlertActionStyleDefault
-                                                    handler:^(UIAlertAction *action) {
-                [self addBookmarkToSiri];
-            }]];
-        }
+        [alert addAction:[UIAlertAction actionWithTitle:kAddBookmarkToSiri
+                                                  style:UIAlertActionStyleDefault
+                                                handler:^(UIAlertAction *action) {
+            [self addBookmarkToSiri];
+        }]];
 #endif
         
         [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"button text") style:UIAlertActionStyleCancel handler:nil]];
@@ -492,13 +497,11 @@ enum {
         }]];
     
 #if !TARGET_OS_MACCATALYST
-        if (@available(iOS 12.0, *)) {
-            [alert addAction:[UIAlertAction actionWithTitle:kAddBookmarkToSiri
-                                                      style:UIAlertActionStyleDefault
-                                                    handler:^(UIAlertAction *action) {
-                [self addBookmarkToSiri];
-            }]];
-        }
+        [alert addAction:[UIAlertAction actionWithTitle:kAddBookmarkToSiri
+                                                  style:UIAlertActionStyleDefault
+                                                handler:^(UIAlertAction *action) {
+            [self addBookmarkToSiri];
+        }]];
 #endif
         [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Edit this bookmark", @"button text")
                                                   style:UIAlertActionStyleDefault
@@ -524,11 +527,6 @@ enum {
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return self.tripQuery.count + 1 + _itinerarySectionOffset;
-}
-
-// Customize the number of rows in the table view.
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [self rowsInSection:section];
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
@@ -563,7 +561,7 @@ enum {
     
     switch (rowType) {
         case kRowTypeError:
-            [cell populateBody:it.xmessage mode:@"No" time:@"Route" leftColor:nil route:nil];
+            [cell populateMarkedUpBody:it.message.safeEscapeForMarkUp mode:@"No" time:@"Route" leftColor:nil route:nil];
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             
             if (!self.tripQuery.gotData) {
@@ -576,14 +574,14 @@ enum {
             
         case kRowTypeLeg: {
             TripLegEndPoint *ep = it.displayEndPoints[indexPath.row];
-            [cell populateBody:ep.displayText mode:ep.displayModeText time:ep.displayTimeText leftColor:ep.leftColor
-                         route:ep.xnumber];
+            [cell populateMarkedUpBody:ep.displayText mode:ep.displayModeText time:ep.displayTimeText leftColor:ep.leftColor
+                         route:ep.displayRouteNumber];
             
             //[cell populateBody:@"l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l l"
             //                 mode:ep.displayModeText time:ep.displayTimeText leftColor:ep.leftColor
             //                route:ep.xnumber];
             
-            if (ep.xstopId != nil || ep.loc != nil) {
+            if (ep.strStopId != nil || ep.loc != nil) {
                 cell.selectionStyle = UITableViewCellSelectionStyleBlue;
                 cell.accessoryType = kDisclosure;
             } else {
@@ -597,21 +595,28 @@ enum {
             break;
             
         case kRowTypeDuration:
-            [cell populateBody:it.travelTime mode:@"Travel" time:@"time" leftColor:nil route:nil];
+            [cell populateMarkedUpBody:it.travelTime mode:@"Travel" time:@"time" leftColor:nil route:nil];
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             cell.accessoryType = UITableViewCellAccessoryNone;
             // justText = [it getTravelTime];
             break;
             
         case kRowTypeTransfers:
-            [cell populateBody:it.xnumberOfTransfers mode:@"Transfers" time:nil leftColor:nil route:nil];
+            [cell populateMarkedUpBody:it.strNumberOfTransfers.safeEscapeForMarkUp mode:@"Transfers" time:nil leftColor:nil route:nil];
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            cell.accessoryType = UITableViewCellAccessoryNone;
+            // justText = [it getTravelTime];
+            break;
+            
+        case kRowTypeDistance:
+            [cell populateMarkedUpBody:it.formattedDistance mode:@"Distance" time:nil leftColor:nil route:nil];
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             cell.accessoryType = UITableViewCellAccessoryNone;
             // justText = [it getTravelTime];
             break;
             
         case kRowTypeFare:
-            [cell populateBody:it.fare.stringByTrimmingWhitespace
+            [cell populateMarkedUpBody:it.fare.stringByTrimmingWhitespace
                           mode:@"Fare"
                           time:nil
                      leftColor:nil
@@ -622,7 +627,7 @@ enum {
             break;
             
         case kRowTypeFrom:
-            [cell populateBody:self.fromText
+            [cell populateMarkedUpBody:self.fromText
                           mode:@"From"
                           time:nil
                      leftColor:[UIColor modeAwareBlue]
@@ -632,7 +637,7 @@ enum {
             break;
             
         case kRowTypeOptions:
-            [cell populateBody:[self.tripQuery.userRequest optionsDisplayText]
+            [cell populateMarkedUpBody:[self.tripQuery.userRequest optionsDisplayText]
                           mode:@"Options"
                           time:nil
                      leftColor:[UIColor modeAwareBlue]
@@ -645,7 +650,7 @@ enum {
             break;
             
         case kRowTypeTo:
-            [cell populateBody:self.toText
+            [cell populateMarkedUpBody:self.toText
                           mode:@"To"
                           time:nil
                      leftColor:[UIColor modeAwareBlue]
@@ -655,7 +660,7 @@ enum {
             break;
             
         case kRowTypeDateAndTime:
-            [cell populateBody:[self.tripQuery.userRequest getDateAndTime]
+            [cell populateMarkedUpBody:[self.tripQuery.userRequest getDateAndTime]
                           mode:[self.tripQuery.userRequest timeType]
                           time:nil
                      leftColor:[UIColor modeAwareBlue]
@@ -673,7 +678,7 @@ enum {
     cell.imageView.image = image;
     cell.accessoryType = type;
     
-    cell.textLabel.textColor = [ UIColor grayColor];
+    cell.textLabel.textColor = [UIColor modeAwareGrayText];
     cell.selectionStyle = UITableViewCellSelectionStyleBlue;
     cell.textLabel.font = self.basicFont;
     [self updateAccessibility:cell];
@@ -690,6 +695,7 @@ enum {
         case kRowTypeLeg:
         case kRowTypeDuration:
         case kRowTypeTransfers:
+        case kRowTypeDistance:
         case kRowTypeFare:
         case kRowTypeFrom:
         case kRowTypeTo:
@@ -704,8 +710,8 @@ enum {
         case kSectionRowDisclaimerType: {
             UITableViewCell *cell = [self disclaimerCell:tableView];
             
-            if (self.tripQuery.xdate != nil && self.tripQuery.xtime != nil) {
-                [self addTextToDisclaimerCell:cell text:[NSString stringWithFormat:@"Updated %@ %@", self.tripQuery.xdate, self.tripQuery.xtime]];
+            if (self.tripQuery.queryDateFormatted != nil && self.tripQuery.queryTimeFormatted != nil) {
+                [self addTextToDisclaimerCell:cell text:[NSString stringWithFormat:@"Updated %@ %@", self.tripQuery.queryDateFormatted, self.tripQuery.queryTimeFormatted]];
             }
             
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
@@ -755,8 +761,8 @@ enum {
             UIColor *newColor = nil;
             
             for (TripLeg *leg in it.legs) {
-                if (leg.xblock) {
-                    newColor = [[BlockColorDb sharedInstance] colorForBlock:leg.xblock];
+                if (leg.block) {
+                    newColor = [[BlockColorDb sharedInstance] colorForBlock:leg.block];
                     
                     if (newColor == nil) {
                         newColor = [UIColor grayColor];
@@ -831,6 +837,7 @@ enum {
         case kRowTypeLeg:
         case kRowTypeDuration:
         case kRowTypeTransfers:
+        case kRowTypeDistance:
         case kRowTypeFare:
         case kRowTypeFrom:
         case kRowTypeTo:
@@ -859,13 +866,13 @@ enum {
     
     if (self.tripQuery.resultFrom != nil) {
         [trip appendFormat:@"From: %@\n",
-         self.tripQuery.resultFrom.xdescription
+         self.tripQuery.resultFrom.desc
          ];
     }
     
     if (self.tripQuery.resultTo != nil) {
         [trip appendFormat:@"To: %@\n",
-         self.tripQuery.resultTo.xdescription
+         self.tripQuery.resultTo.desc
          ];
     }
     
@@ -887,9 +894,14 @@ enum {
     
     [trip appendFormat:@"Scheduled travel time: %@\n\n", it.travelTime];
     
-    if (it.xnumberOfTransfers > 0)
+    if (it.numberOfTransfers > 0)
     {
-        [trip appendFormat:@"Transfers: %@\n\n", it.xnumberOfTransfers];
+        [trip appendFormat:@"Transfers: %@\n\n", it.strNumberOfTransfers];
+    }
+    
+    if (it.distanceMiles > 0)
+    {
+        [trip appendFormat:@"Distance: %@\n\n", it.formattedDistance];
     }
     
     if (it.fare != nil) {
@@ -913,7 +925,7 @@ enum {
     
     
     // Yikes - may have AM or PM or be 12 hour. :-(
-    unichar last = [it.xstartTime characterAtIndex:(it.xstartTime.length - 1)];
+    unichar last = [it.startTimeFormatted characterAtIndex:(it.startTimeFormatted.length - 1)];
     
     if (last == 'M' || last == 'm') {
         dateFormatter.dateFormat = @"M/d/yy hh:mm a";
@@ -923,7 +935,7 @@ enum {
     
     dateFormatter.timeZone = [NSTimeZone localTimeZone];
     
-    NSString *fullDateStr = [NSString stringWithFormat:@"%@ %@", it.xdate, it.xstartTime];
+    NSString *fullDateStr = [NSString stringWithFormat:@"%@ %@", it.startDateFormatted, it.startTimeFormatted];
     NSDate *start = [dateFormatter dateFromString:fullDateStr];
     
     // The start time does not include the inital walk so take it off...
@@ -935,13 +947,13 @@ enum {
         }
         
         if ([leg.mode isEqualToString:kModeWalk]) {
-            start = [start dateByAddingTimeInterval:-(leg.xduration.intValue * 60)];;
+            start = [start dateByAddingTimeInterval:-(leg.durationMins * 60)];;
         } else {
             break;
         }
     }
     
-    NSDate *end = [start dateByAddingTimeInterval:it.xduration.intValue * 60];
+    NSDate *end = [start dateByAddingTimeInterval:it.durationMins * 60];
     
     self.event.startDate = start;
     self.event.endDate = end;
@@ -961,9 +973,6 @@ enum {
         eventController.allowsEditing = YES;
         
         [self.navigationController pushViewController:eventController animated:YES];
-        
-        //[event retain];
-        //[eventStore retain];
     }
 }
 
@@ -976,7 +985,7 @@ enum {
         case kRowTypeError:
             
             if (!self.tripQuery.gotData) {
-                [self networkTips:self.tripQuery.htmlError networkError:self.tripQuery.errorMsg];
+                [self networkTips:self.tripQuery.htmlError networkError:self.tripQuery.networkErrorMsg];
                 [self clearSelection];
             }
             
@@ -1006,6 +1015,7 @@ enum {
             
         case kRowTypeDuration:
         case kRowTypeTransfers:
+        case kRowTypeDistance:
         case kSectionRowDisclaimerType:
         case kRowTypeFare:
             break;
@@ -1031,7 +1041,7 @@ enum {
                         for (TripLegEndPoint *leg in it.displayEndPoints) {
                             if (leg.deboard) {
                                 if (![taskList hasTaskForStopIdProximity:leg.stopId]) {
-                                    [taskList addTaskForStopIdProximity:leg.xstopId loc:leg.loc desc:leg.xdescription accurate:accurate];
+                                    [taskList addTaskForStopIdProximity:leg.stopId loc:leg.loc desc:leg.desc accurate:accurate];
                                 }
                             }
                         }
@@ -1118,10 +1128,10 @@ enum {
             
             picker.completionBlock = ^(InfColorPickerController *sender) {
                 for (TripLeg *leg in it.legs) {
-                    if (leg.xblock) {
+                    if (leg.block) {
                         [[BlockColorDb sharedInstance] addColor:sender.resultColor
-                                                       forBlock:leg.xblock
-                                                    description:leg.xname];
+                                                       forBlock:leg.block
+                                                    description:leg.routeName];
                     }
                 }
                 
@@ -1143,9 +1153,9 @@ enum {
             
             if (self.tripQuery.resultFrom != nil) {
                 if (self.tripQuery.resultFrom.loc != nil) {
-                    [trip appendFormat:@"From: <a href=\"http://map.google.com/?q=location@%f,%f\">%@<br></a>",
-                     self.tripQuery.resultFrom.coordinate.latitude, self.tripQuery.resultFrom.coordinate.longitude,
-                     self.tripQuery.resultFrom.xdescription
+                    [trip appendFormat:@"From: <a href=\"http://map.google.com/?q=location@%@\">%@<br></a>",
+                     COORD_TO_LAT_LNG_STR(self.tripQuery.resultFrom.coordinate),
+                     self.tripQuery.resultFrom.desc
                      ];
                 } else {
                     [trip appendFormat:@"%@<br>", self.fromText];
@@ -1154,9 +1164,9 @@ enum {
             
             if (self.tripQuery.resultTo != nil) {
                 if (self.tripQuery.resultTo.loc) {
-                    [trip appendFormat:@"To: <a href=\"http://map.google.com/?q=location@%f,%f\">%@<br></a>",
-                     self.tripQuery.resultTo.coordinate.latitude, self.tripQuery.resultTo.coordinate.longitude,
-                     self.tripQuery.resultTo.xdescription
+                    [trip appendFormat:@"To: <a href=\"http://map.google.com/?q=location@%@\">%@<br></a>",
+                     COORD_TO_LAT_LNG_STR(self.tripQuery.resultTo.coordinate),
+                     self.tripQuery.resultTo.desc
                      ];
                 } else {
                     [trip appendFormat:@"%@<br>", self.toText];
@@ -1180,9 +1190,14 @@ enum {
             
             [trip appendFormat:@"Travel time: %@<br><br>", it.travelTime];
             
-            if (it.xnumberOfTransfers > 0)
+            if (it.numberOfTransfers > 0)
             {
-                [trip appendFormat:@"Transfers: %@<br><br>", it.xnumberOfTransfers];
+                [trip appendFormat:@"Transfers: %@<br><br>", it.strNumberOfTransfers];
+            }
+            
+            if (it.distanceMiles > 0)
+            {
+                [trip appendFormat:@"Distance: %@<br><br>", it.formattedDistance];
             }
             
             if (it.fare != nil) {
@@ -1215,7 +1230,7 @@ enum {
             
         case kRowTypeMap: {
             TripPlannerMap *mapPage = [TripPlannerMap viewController];
-            mapPage.stopIdCallback = self.stopIdCallback;
+            mapPage.stopIdStringCallback = self.stopIdStringCallback;
             mapPage.lineOptions = MapViewFitLines;
             mapPage.nextPrevButtons = YES;
             TripItinerary *it = [self getSafeItinerary:indexPath.section];
@@ -1282,7 +1297,7 @@ enum {
             for (i = 0; i < [it legCount]; i++) {
                 TripLeg *leg = [it getLeg:i];
                 
-                route = leg.xinternalNumber;
+                route = leg.internalRouteNumber;
                 
                 if (route && ![allRoutesSet containsObject:route]) {
                     [allRoutesSet addObject:route];
@@ -1404,25 +1419,13 @@ enum {
 }
 
 - (void)addBookmarkToSiri {
-    if (@available(iOS 12.0, *)) {
-        INShortcut *shortCut = [[INShortcut alloc] initWithUserActivity:self.userActivity];
-        
-        INUIAddVoiceShortcutViewController *viewController = [[INUIAddVoiceShortcutViewController alloc] initWithShortcut:shortCut];
-        viewController.modalPresentationStyle = UIModalPresentationFormSheet;
-        viewController.delegate = self;
-        
-        [self presentViewController:viewController animated:YES completion:nil];
-    }
+    INShortcut *shortCut = [[INShortcut alloc] initWithUserActivity:self.userActivity];
+    
+    INUIAddVoiceShortcutViewController *viewController = [[INUIAddVoiceShortcutViewController alloc] initWithShortcut:shortCut];
+    viewController.modalPresentationStyle = UIModalPresentationFormSheet;
+    viewController.delegate = self;
+    
+    [self presentViewController:viewController animated:YES completion:nil];
 }
-
-- (void)addVoiceShortcutViewController:(INUIAddVoiceShortcutViewController *)controller didFinishWithVoiceShortcut:(nullable INVoiceShortcut *)voiceShortcut error:(nullable NSError *)error API_AVAILABLE(ios(12.0)) {
-    [controller dismissViewControllerAnimated:YES completion:nil];
-}
-
-- (void)addVoiceShortcutViewControllerDidCancel:(INUIAddVoiceShortcutViewController *)controller API_AVAILABLE(ios(12.0)) {
-    [controller dismissViewControllerAnimated:YES completion:nil];
-}
-
-
 
 @end

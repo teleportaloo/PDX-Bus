@@ -11,20 +11,19 @@
 
 
 #import <CoreLocation/CoreLocation.h>
-#import "DataFactory.h"
 #import "Route.h"
 
-@interface StopDistance : DataFactory
+@interface StopDistance : NSObject
 
 @property (nonatomic, strong) CLLocation *location;
-@property (nonatomic) CLLocationDistance distance;
+@property (nonatomic) CLLocationDistance distanceMeters;
 @property (nonatomic) CLLocationAccuracy accuracy;
 @property (nonatomic, copy) NSString *stopId;
 @property (nonatomic, copy) NSString *desc;
 @property (nonatomic, copy) NSString *dir;
 @property (nonatomic, strong) NSMutableArray<Route *> *routes;
 
-- (instancetype)initWithStopId:(int)stopId distance:(CLLocationDistance)dist accuracy:(CLLocationAccuracy)acc;
+- (instancetype)initWithStopId:(int)stopId distanceMeters:(CLLocationDistance)dist accuracy:(CLLocationAccuracy)acc;
 - (NSComparisonResult)compareUsingDistance:(StopDistance *)inStop;
 
 @end

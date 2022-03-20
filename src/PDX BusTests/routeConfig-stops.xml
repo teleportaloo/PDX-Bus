@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resultSet xmlns="urn:trimet:schedule">
+    <route desc="14-Hawthorne" route="14" id="14" type="B" routeColor="" routeSortOrder="1700" frequentService="true">
+        <dir dir="0" desc="To Foster &amp; 94th">
+            <stop desc="SW Madison &amp; 4th" locid="3639" seq="400" tp="true" dir="Eastbound" lat="45.5151854260328" lng="-122.67857274754" />
+            <stop desc="SW Madison &amp; 1st" locid="3635" seq="450" tp="false" dir="Eastbound" lat="45.5144552232906" lng="-122.675838876043" />
+            <stop desc="Hawthorne Bridge" locid="2641" seq="500" tp="false" dir="Eastbound" lat="45.5121533451496" lng="-122.665111779531" />
+            <stop desc="SE Hawthorne &amp; 6th" locid="2594" seq="550" tp="false" dir="Eastbound" lat="45.512167711384" lng="-122.65989377954" />
+            <stop desc="SE Hawthorne &amp; 9th" locid="2597" seq="600" tp="false" dir="Eastbound" lat="45.512155999998" lng="-122.65687799998" />
+            <stop desc="SE Hawthorne &amp; 12th" locid="2599" seq="650" tp="true" dir="Eastbound" lat="45.5121323268823" lng="-122.653870659341" />
+            <stop desc="SE Hawthorne &amp; Maple" locid="2595" seq="700" tp="false" dir="Eastbound" lat="45.5121360757108" lng="-122.651570939361" />
+            <stop desc="SE Hawthorne &amp; 16th" locid="2603" seq="750" tp="false" dir="Eastbound" lat="45.512128940081" lng="-122.64912509948" />
+            <stop desc="SE Hawthorne &amp; Poplar" locid="2596" seq="800" tp="false" dir="Eastbound" lat="45.512118999998" lng="-122.64712799998" />
+            <stop desc="SE Hawthorne &amp; 20th" locid="2607" seq="850" tp="false" dir="Eastbound" lat="45.5120065100764" lng="-122.644674715892" />
+            <stop desc="SE Hawthorne &amp; 23rd" locid="2608" seq="900" tp="false" dir="Eastbound" lat="45.5120033162158" lng="-122.642332695456" />
+            <stop desc="SE Hawthorne &amp; 28th" locid="2614" seq="1000" tp="false" dir="Eastbound" lat="45.5120106054679" lng="-122.637048016796" />
+            <stop desc="SE Hawthorne &amp; 30th" locid="2615" seq="1050" tp="false" dir="Eastbound" lat="45.5120021163256" lng="-122.634913952906" />
+            <stop desc="SE Hawthorne &amp; 32nd Pl" locid="2617" seq="1100" tp="false" dir="Eastbound" lat="45.5119892381524" lng="-122.631285624728" />
+            <stop desc="SE Hawthorne &amp; 34th" locid="2620" seq="1150" tp="false" dir="Eastbound" lat="45.5119952723424" lng="-122.629337879413" />
+            <stop desc="SE Hawthorne &amp; 37th" locid="2623" seq="1200" tp="false" dir="Eastbound" lat="45.5119867795904" lng="-122.625462666918" />
+            <stop desc="SE Hawthorne &amp; Cesar Chavez Blvd" locid="2625" seq="1250" tp="true" dir="Eastbound" lat="45.5119594841567" lng="-122.623079752618" />
+            <stop desc="SE Hawthorne &amp; 41st" locid="2628" seq="1300" tp="false" dir="Eastbound" lat="45.5119722756405" lng="-122.62034852562" />
+            <stop desc="SE Hawthorne &amp; 44th" locid="2630" seq="1350" tp="false" dir="Eastbound" lat="45.5119707121746" lng="-122.617292527743" />
+            <stop desc="SE Hawthorne &amp; 47th" locid="2633" seq="1400" tp="false" dir="Eastbound" lat="45.5119658478424" lng="-122.613843528983" />
+            <stop desc="SE 50th &amp; Clay" locid="7651" seq="1450" tp="false" dir="Southbound" lat="45.5115611213196" lng="-122.611633550004" />
+            <stop desc="SE 50th &amp; Lincoln" locid="7660" seq="1550" tp="false" dir="Southbound" lat="45.5081214920679" lng="-122.611379512097" />
+            <stop desc="SE 50th &amp; Division" locid="7655" seq="1650" tp="false" dir="Southbound" lat="45.5054710315096" lng="-122.611283320157" />
+            <stop desc="SE 50th &amp; Clinton" locid="7653" seq="1700" tp="false" dir="Southbound" lat="45.5036038753831" lng="-122.611084951125" />
+            <stop desc="SE 50th &amp; Brooklyn" locid="8241" seq="1750" tp="false" dir="Southbound" lat="45.5006867578512" lng="-122.611464330691" />
+            <stop desc="SE 50th &amp; Kelly" locid="7666" seq="1800" tp="false" dir="Southbound" lat="45.4994323716105" lng="-122.611442878223" />
+            <stop desc="SE Foster &amp; Powell" locid="1792" seq="1900" tp="true" dir="Southbound" lat="45.4972591401419" lng="-122.611401188501" />
+            <stop desc="SE Foster &amp; 52nd" locid="1794" seq="1950" tp="false" dir="Eastbound" lat="45.4953886416158" lng="-122.608652766395" />
+            <stop desc="SE Foster &amp; Gladstone" locid="1775" seq="2050" tp="false" dir="Eastbound" lat="45.4928513474871" lng="-122.603362072313" />
+            <stop desc="SE Foster &amp; 63rd" locid="10196" seq="2150" tp="false" dir="Eastbound" lat="45.4899302907606" lng="-122.597687003531" />
+            <stop desc="SE Foster &amp; 67th" locid="1804" seq="2250" tp="false" dir="Eastbound" lat="45.488338999998" lng="-122.59383699998" />
+            <stop desc="SE Foster &amp; 72nd" locid="1810" seq="2350" tp="false" dir="Eastbound" lat="45.4862503412695" lng="-122.588742941475" />
+            <stop desc="SE Foster &amp; 77th" locid="1814" seq="2450" tp="false" dir="Eastbound" lat="45.4845651397439" lng="-122.583758137056" />
+            <stop desc="SE Foster &amp; 82nd" locid="1819" seq="2550" tp="false" dir="Eastbound" lat="45.4828971427947" lng="-122.579404320029" />
+            <stop desc="SE Foster &amp; 86th" locid="1823" seq="2650" tp="false" dir="Eastbound" lat="45.4814297662813" lng="-122.574435293735" />
+            <stop desc="SE Foster &amp; 89th" locid="1827" seq="2700" tp="false" dir="Eastbound" lat="45.4804829273811" lng="-122.571108454389" />
+            <stop desc="SE Woodstock &amp; 92nd" locid="6427" seq="2750" tp="false" dir="Eastbound" lat="45.4790664853741" lng="-122.568789633293" />
+            <stop desc="SE Woodstock &amp; 94th (I-205 West End)" locid="6398" seq="2800" tp="false" dir="Eastbound" lat="45.4782656575703" lng="-122.566121324754" />
+            <stop desc="SE 97th &amp; Foster" locid="8134" seq="2850" tp="false" dir="Northbound" lat="45.4781964218449" lng="-122.563366250183" />
+            <stop desc="SE Foster &amp; 94th (I-205 Overpass)" locid="1831" seq="2900" tp="true" dir="Westbound" lat="45.4792593804903" lng="-122.566246313604" />
+        </dir>
+    </route>
+</resultSet>

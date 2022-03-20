@@ -17,9 +17,9 @@
 	<key>CFBundlePackageType</key>
 	<string>XPC!</string>
 	<key>CFBundleShortVersionString</key>
-	<string>11.4</string>
+	<string>11.4.2</string>
 	<key>CFBundleVersion</key>
-	<string>48</string>
+	<string>54</string>
 	<key>NSExtension</key>
 	<dict>
 		<key>NSExtensionAttributes</key>
@@ -32,6 +32,7 @@
 				<string>LocateStopsIntent</string>
 				<string>RoutesAtStopIdIntent</string>
 				<string>StopLocationIntent</string>
+				<string>SystemWideAlertsIntent</string>
 			</array>
 		</dict>
 		<key>NSExtensionMainStoryboard</key>

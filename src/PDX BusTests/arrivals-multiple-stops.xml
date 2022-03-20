@@ -1,0 +1,72 @@
+<!-- Multiple arrivals with a system-wide detour -->
+<resultSet xmlns="urn:trimet:rt" queryTime="1524420398454">
+    <location id="9818" desc="Beaverton TC MAX Station" dir="Southbound" lat="45.4913303686551" lng="-122.801723195359" passengerCode="E"/>
+    <location id="365" desc="SW Beaverton-Hillsdale &amp; 25th" dir="Westbound" lat="45.4800837473055" lng="-122.702265541287" passengerCode="E"/>
+    <location id="9837" desc="Fair Complex/Hillsboro Airport MAX Stn" dir="Westbound" lat="45.5269236271043" lng="-122.946499150393" passengerCode="E"/>
+    
+    <!-- this arrival is checked -->
+    <arrival id="8225031_40035_22" blockID="9008" departed="true" dir="1" status="estimated" estimated="1524420435000" showMilesAway="false" dropOffOnly="false" fullSign="MAX Blue Line to Hillsboro" piece="1" route="100" scheduled="1524420435000" shortSign="Blue to Hillsboro" locid="9818" tripID="8225031" newTrip="false" detoured="true" feet="0" vehicleID="413" loadPercentage="" inCongestion="">
+        <detour id="17"/>
+        <detour id="1"/>
+        <blockPosition id="9008" vehicleID="413" routeNumber="100" direction="1" tripID="8225031" newTrip="false" signMessage="Blue to Hillsboro" signMessageLong="MAX Blue Line to Hillsboro" lastLocID="9624" lastStopSeq="32" nextLocID="9818" nextStopSeq="33" at="1524420381077" heading="217" lat="45.4913658" lng="-122.8016574">
+            <trip id="8225031" newTrip="false" desc="Hatfield Government Center" dir="1" route="100" destDist="118307" pattern="54" progress="118307"/>
+        </blockPosition>
+    </arrival>
+    <arrival id="8216014_40064_22" blockID="5473" departed="true" dir="0" status="estimated" estimated="1524420528000" showMilesAway="false" dropOffOnly="false" fullSign="54 Beaverton-Hillsdale Hwy to Beaverton TC" piece="1" route="54" scheduled="1524420464000" shortSign="54 To Beaverton TC" locid="365" tripID="8216014" newTrip="false" detoured="false" feet="4369" vehicleID="3220" loadPercentage="36" inCongestion="false">
+        <blockPosition id="5473" vehicleID="3220" routeNumber="54" direction="0" tripID="8216014" newTrip="false" signMessage="54 To Beaverton TC" signMessageLong="54 Beaverton-Hillsdale Hwy to Beaverton TC" lastLocID="155" lastStopSeq="10" nextLocID="957" nextStopSeq="11" at="1524420377000" heading="256" lat="45.4802453" lng="-122.6866977">
+            <trip id="8216014" newTrip="false" desc="Beaverton TC 54 Bay" dir="0" route="54" destDist="24293" pattern="2" progress="19924"/>
+        </blockPosition>
+    </arrival>
+    <arrival id="8225029_40365_22" blockID="9022" departed="true" dir="1" status="estimated" estimated="1524420765000" showMilesAway="false" dropOffOnly="false" fullSign="MAX Blue Line to Hillsboro" piece="1" route="100" scheduled="1524420765000" shortSign="Blue to Hillsboro" locid="9837" tripID="8225029" newTrip="false" detoured="true" feet="10863" vehicleID="318" loadPercentage="" inCongestion="">
+        <detour id="17"/>
+        <blockPosition id="9022" vehicleID="318" routeNumber="100" direction="1" tripID="8225029" newTrip="false" signMessage="Blue to Hillsboro" signMessageLong="MAX Blue Line to Hillsboro" lastLocID="9833" lastStopSeq="40" nextLocID="9836" nextStopSeq="41" at="1524420388977" heading="294" lat="45.5285147" lng="-122.9052736">
+            <trip id="8225029" newTrip="false" desc="Hatfield Government Center" dir="1" route="100" destDist="159579" pattern="54" progress="148716"/>
+        </blockPosition>
+    </arrival>
+    <arrival id="8225032_40935_22" blockID="9001" departed="true" dir="1" status="estimated" estimated="1524421335000" showMilesAway="false" dropOffOnly="false" fullSign="MAX Blue Line to Hillsboro" piece="1" route="100" scheduled="1524421335000" shortSign="Blue to Hillsboro" locid="9818" tripID="8225032" newTrip="false" detoured="true" feet="36557" vehicleID="229" loadPercentage="" inCongestion="">
+        <detour id="17"/>
+        <blockPosition id="9001" vehicleID="229" routeNumber="100" direction="1" tripID="8225032" newTrip="false" signMessage="Blue to Hillsboro" signMessageLong="MAX Blue Line to Hillsboro" lastLocID="9757" lastStopSeq="28" nextLocID="9820" nextStopSeq="29" at="1524420386511" heading="212" lat="45.5201969" lng="-122.6913745">
+            <trip id="8225032" newTrip="false" desc="Hatfield Government Center" dir="1" route="100" destDist="118307" pattern="54" progress="81750"/>
+        </blockPosition>
+    </arrival>
+    <arrival id="8216257_40960_22" blockID="5467" departed="true" dir="0" status="estimated" estimated="1524421383000" showMilesAway="false" dropOffOnly="false" fullSign="56 Scholls Ferry to Washington Square" piece="1" route="56" scheduled="1524421360000" shortSign="56 To Washington Square" locid="365" tripID="8216257" newTrip="false" detoured="false" feet="23779" vehicleID="3216" loadPercentage="0" inCongestion="false">
+        <blockPosition id="5467" vehicleID="3216" routeNumber="56" direction="0" tripID="8216257" newTrip="false" signMessage="56 To Washington Square" signMessageLong="56 Scholls Ferry to Washington Square" lastLocID="13170" lastStopSeq="1" nextLocID="13171" nextStopSeq="2" at="1524420371000" heading="88" lat="45.5230192" lng="-122.6756842">
+            <trip id="8216257" newTrip="false" desc="Washington Square TC" dir="0" route="56" destDist="24293" pattern="2" progress="514"/>
+        </blockPosition>
+    </arrival>
+    <arrival id="8225031_41265_22" blockID="9008" departed="true" dir="1" status="estimated" estimated="1524421665000" showMilesAway="false" dropOffOnly="false" fullSign="MAX Blue Line to Hillsboro" piece="1" route="100" scheduled="1524421665000" shortSign="Blue to Hillsboro" locid="9837" tripID="8225031" newTrip="false" detoured="true" feet="41272" vehicleID="413" loadPercentage="" inCongestion="">
+        <detour id="17"/>
+        <blockPosition id="9008" vehicleID="413" routeNumber="100" direction="1" tripID="8225031" newTrip="false" signMessage="Blue to Hillsboro" signMessageLong="MAX Blue Line to Hillsboro" lastLocID="9624" lastStopSeq="32" nextLocID="9818" nextStopSeq="33" at="1524420381077" heading="217" lat="45.4913658" lng="-122.8016574">
+            <trip id="8225031" newTrip="false" desc="Hatfield Government Center" dir="1" route="100" destDist="159579" pattern="54" progress="118307"/>
+        </blockPosition>
+    </arrival>
+    <arrival id="8225033_41835_22" blockID="9002" departed="true" dir="1" status="estimated" estimated="1524422235000" showMilesAway="false" dropOffOnly="false" fullSign="MAX Blue Line to Hillsboro" piece="1" route="100" scheduled="1524422235000" shortSign="Blue to Hillsboro" locid="9818" tripID="8225033" newTrip="false" detoured="true" feet="49421" vehicleID="404" loadPercentage="" inCongestion="">
+        <detour id="17"/>
+        <blockPosition id="9002" vehicleID="404" routeNumber="100" direction="1" tripID="8225033" newTrip="false" signMessage="Blue to Hillsboro" signMessageLong="MAX Blue Line to Hillsboro" lastLocID="8374" lastStopSeq="17" nextLocID="8375" nextStopSeq="18" at="1524420362885" heading="270" lat="45.5300953" lng="-122.656485">
+            <trip id="8225033" newTrip="false" desc="Hatfield Government Center" dir="1" route="100" destDist="118307" pattern="54" progress="68886"/>
+        </blockPosition>
+    </arrival>
+    <arrival id="8216015_41864_22" blockID="5468" departed="false" dir="0" status="estimated" estimated="1524422355000" showMilesAway="false" dropOffOnly="false" fullSign="54 Beaverton-Hillsdale Hwy to Beaverton TC" piece="1" route="54" scheduled="1524422264000" shortSign="54 To Beaverton TC" locid="365" tripID="8216015" newTrip="false" detoured="false" feet="34900" vehicleID="3647" loadPercentage="0" inCongestion="false">
+        <blockPosition id="5468" vehicleID="3647" routeNumber="56" direction="1" tripID="8216377" newTrip="false" signMessage="56 To Portland" signMessageLong="56 Scholls Ferry to Portland" lastLocID="172" lastStopSeq="43" nextLocID="1930" nextStopSeq="44" at="1524420380000" heading="2" lat="45.4979169" lng="-122.6777425">
+            <trip id="8216377" newTrip="false" desc="SW Broadway &amp; Burnside" dir="1" route="56" destDist="53810" pattern="1" progress="43203"/>
+            <trip id="8216015" newTrip="false" desc="Beaverton TC 54 Bay" dir="0" route="54" destDist="24293" pattern="2" progress="0"/>
+        </blockPosition>
+    </arrival>
+    <arrival id="8225032_42165_22" blockID="9001" departed="true" dir="1" status="estimated" estimated="1524422565000" showMilesAway="false" dropOffOnly="false" fullSign="MAX Blue Line to Hillsboro" piece="1" route="100" scheduled="1524422565000" shortSign="Blue to Hillsboro" locid="9837" tripID="8225032" newTrip="false" detoured="true" feet="77829" vehicleID="229" loadPercentage="" inCongestion="">
+        <detour id="17"/>
+        <blockPosition id="9001" vehicleID="229" routeNumber="100" direction="1" tripID="8225032" newTrip="false" signMessage="Blue to Hillsboro" signMessageLong="MAX Blue Line to Hillsboro" lastLocID="9757" lastStopSeq="28" nextLocID="9820" nextStopSeq="29" at="1524420386511" heading="212" lat="45.5201969" lng="-122.6913745">
+            <trip id="8225032" newTrip="false" desc="Hatfield Government Center" dir="1" route="100" destDist="159579" pattern="54" progress="81750"/>
+        </blockPosition>
+    </arrival>
+    <arrival id="8216258_42760_22" blockID="5470" departed="false" dir="0" status="estimated" estimated="1524423177000" showMilesAway="false" dropOffOnly="false" fullSign="56 Scholls Ferry to Washington Square" piece="1" route="56" scheduled="1524423160000" shortSign="56 To Washington Square" locid="365" tripID="8216258" newTrip="false" detoured="false" feet="60903" vehicleID="3650" loadPercentage="0" inCongestion="false">
+        <blockPosition id="5470" vehicleID="3650" routeNumber="54" direction="1" tripID="8216134" newTrip="false" signMessage="54 To Portland" signMessageLong="54 Beaverton-Hillsdale Hwy to Portland" lastLocID="331" lastStopSeq="16" nextLocID="348" nextStopSeq="17" at="1524420377000" heading="70" lat="45.486172" lng="-122.748434">
+            <trip id="8216134" newTrip="false" desc="SW Broadway &amp; Burnside" dir="1" route="54" destDist="52346" pattern="2" progress="15736"/>
+            <trip id="8216258" newTrip="false" desc="Washington Square TC" dir="0" route="56" destDist="24293" pattern="2" progress="0"/>
+        </blockPosition>
+    </arrival>
+    <detour begin="1524153600000" end="" id="17" info_link_url="" header_text="" system_wide_flag="false" desc="On Sunday, April 29, the newly renovated E 122nd Ave MAX Station will reopen. Riders will board trains to City Center at the regular platform west of 122nd Ave (Stop ID 8368), and trains to Gresham at the regular platform east of 122nd Ave (Stop ID 8349). Continue to use the temporary platforms through Saturday, April 28. ">
+        <route xmlns="urn:trimet:schedule" desc="MAX Blue Line" route="100" id="100" type="R" no_service_flag="false"/>
+    </detour>
+    <detour begin="1495713600000" end="" id="1" info_link_url="https://trimet.org" header_text="Balloons" system_wide_flag="true" desc="A system-wide event with balloons is happening.">
+    </detour>
+</resultSet>

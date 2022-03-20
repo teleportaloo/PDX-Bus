@@ -13,6 +13,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+
 #import "WatchBookmarksInterfaceController.h"
 #import "UserState.h"
 #import "WatchBookmark.h"
@@ -39,7 +41,7 @@
 - (IBAction)menuItemCommute;
 - (IBAction)topRecentStops;
 - (IBAction)topLocateStops;
-- (void)    displayStopsInBookmark;
+- (void)displayStopsInBookmark;
 
 @end
 
@@ -109,17 +111,21 @@
             
             if ([WatchAppContext gotBookmarks:NO]) {
                 self.displayedItems = self.state.favesArrivalsOnly;
-                self.mainTextLabel.text = [NSString stringWithFormat:@"Note: Set up bookmarks in the iPhone app.\nVersion %@.%@",
+                self.mainTextLabel.text = [NSString stringWithFormat:@"Note: Set up bookmarks in the iPhone app.\nVersion %@.%@ #%ld",
                                            [NSBundle mainBundle].infoDictionary[@"CFBundleShortVersionString"],
-                                           [NSBundle mainBundle].infoDictionary[@"CFBundleVersion"]];;
+                                           [NSBundle mainBundle].infoDictionary[@"CFBundleVersion"],
+                                           (long)self.state.watchSequence];;
             } else {
                 self.displayedItems = nil;
-                self.mainTextLabel.text = [NSString stringWithFormat:@"Please run the iPhone app once; it will send bookmarks to the watch.\nVersion %@.%@",
+                self.mainTextLabel.text = [NSString stringWithFormat:@"Please run the iPhone app once; it will send bookmarks to the watch.\nVersion %@.%@ #%ld",
                                            [NSBundle mainBundle].infoDictionary[@"CFBundleShortVersionString"],
-                                           [NSBundle mainBundle].infoDictionary[@"CFBundleVersion"]];
+                                           [NSBundle mainBundle].infoDictionary[@"CFBundleVersion"],
+                                           (long)self.state.watchSequence];
             }
             
+            self.menuHomeButton.hidden = YES;
             self.bookmarkLabel.hidden = NO;
+            self.menuCommuteButton.horizontalAlignment = WKInterfaceObjectHorizontalAlignmentCenter;
             
             [self setupButtonsAndTextTopHidden:NO textHidden:NO];
         } else {
@@ -129,6 +135,8 @@
             [self setupButtonsAndTextTopHidden:YES textHidden:YES];
             
             self.bookmarkLabel.hidden = YES;
+            self.menuHomeButton.hidden = NO;
+            self.menuCommuteButton.horizontalAlignment = WKInterfaceObjectHorizontalAlignmentRight;
         }
         
         if (self.displayedItems.count > 0) {
@@ -200,7 +208,7 @@
             NSString *stopIds = selectedItem[kUserFavesLocation];
             NSString *title = selectedItem[kUserFavesChosenName];
             
-            NSArray<NSString *> *stopIdArray = stopIds.arrayFromCommaSeparatedString;
+            NSArray<NSString *> *stopIdArray = stopIds.mutableArrayFromCommaSeparatedString;
             
             if (stopIdArray.count > 1) {
                 WatchBookmarksContext *context = [WatchBookmarksContext contextWithBookmark:stopIdArray title:title locationString:stopIds];

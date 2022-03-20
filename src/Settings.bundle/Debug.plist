@@ -64,11 +64,11 @@
 			<key>Type</key>
 			<string>PSToggleSwitchSpecifier</string>
 			<key>Title</key>
-			<string>Cache data</string>
+			<string>Clear cache on unexpected restart</string>
 			<key>Key</key>
-			<string>use_caching</string>
+			<string>clear_cache</string>
 			<key>DefaultValue</key>
-			<true/>
+			<false/>
 		</dict>
 		<dict>
 			<key>Type</key>
@@ -107,6 +107,16 @@
 			<string>Use GPS for all alarms</string>
 			<key>Key</key>
 			<string>use_gps_for_all_alarms</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Do network requests in parallel</string>
+			<key>Key</key>
+			<string>network_in_parallel</string>
 			<key>DefaultValue</key>
 			<true/>
 		</dict>

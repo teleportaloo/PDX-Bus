@@ -21,7 +21,7 @@
 #define kKmlFirstDirection    @"0"
 #define kKmlOptionalDirection @"1"
 
-#define kKmlkey(R, D) [R stringByAppendingString:D]
+#define kKmlkey(R, D)       [R stringByAppendingString:D]
 
 @class ShapeRoutePath;
 
@@ -30,8 +30,8 @@
 @property (weak, nonatomic, readonly) NSEnumerator<NSString *> *keyEnumerator;
 
 
-- (void)fetchForced:(bool)always;
-- (void)fetchInBackground:(bool)always;
+- (void)fetchNowForced:(bool)always;
+- (void)fetchInBackgroundForced:(bool)always;
 - (NSString *)downloadProgress;
 - (void)cancelBackgroundFetch;
 - (ShapeRoutePath *)lineCoordsForKey:(NSString *)key;

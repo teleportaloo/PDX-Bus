@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" ?> 
+<body copyright="All data copyright Portland Streetcar 2020.">
+<vehicle id="SC022" routeTag="195" dirTag="195_0_var3" lat="45.5190785" lon="-122.660727" secsSinceReport="6" predictable="true" heading="3" speedKmHr="8"/>
+<vehicle id="SC003" routeTag="195" dirTag="195_0_var2" lat="45.5300851" lon="-122.6811238" secsSinceReport="150" predictable="true" heading="2" speedKmHr="4"/>
+<lastTime time="1602203973411"/>
+</body>

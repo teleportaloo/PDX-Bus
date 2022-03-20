@@ -30,7 +30,7 @@
     // Dispose of any resources that can be recreated.
 }
 
-- (bool)fitAnnotation:(id<MapPinColor>)pin {
+- (bool)fitAnnotation:(id<MapPin>)pin {
     if (self.pinClassesToFit == nil) {
         return YES;
     }
@@ -62,7 +62,7 @@
                 self.lineCoords = [NSMutableArray array];
            
                 [taskState taskSubtext:NSLocalizedString(@"started to get route shapes", @"progress message")];
-                [kml fetchInBackground:NO];
+                [kml fetchInBackgroundForced:NO];
                 
                 if (directions) {
                     for (int i = 0; i < routes.count && i < directions.count; i++) {

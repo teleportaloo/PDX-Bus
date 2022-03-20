@@ -28,9 +28,9 @@
 @class XMLDepartures;
 @class Departure;
 
-typedef NSMutableArray<NSNumber *> SECTIONROWS;
+typedef NSMutableArray<NSNumber *> SectionRows;
 
-@interface DepartureTimesView : TableViewControllerWithRefresh <DepartureDetailDelegate, INUIAddVoiceShortcutViewControllerDelegate>
+@interface DepartureTimesView : TableViewControllerWithRefresh <DepartureDetailDelegate>
 
 @property (nonatomic, copy)   NSString *displayName;
 @property (nonatomic)         bool blockSort;

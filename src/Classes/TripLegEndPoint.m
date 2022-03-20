@@ -15,6 +15,7 @@
 
 #import "TripLegEndPoint.h"
 #import "CLLocation+Helper.h"
+#import "NSString+Helper.h"
 
 @interface TripLegEndPoint () {
     CLLocation *_loc;
@@ -33,12 +34,12 @@
     // ep.xlat               = [self.xlat            copyWithZone:zone];
     // ep.xlon               = [self.xlon            copyWithZone:zone];
     ep.loc = [self.loc copyWithZone:zone];
-    ep.xdescription = [self.xdescription copyWithZone:zone];
-    ep.xstopId = [self.xstopId copyWithZone:zone];
+    ep.xml_description = [self.desc copyWithZone:zone];
+    ep.xml_stopId = [self.strStopId copyWithZone:zone];
     ep.displayText = [self.displayText copyWithZone:zone];
     ep.displayText = [self.displayText copyWithZone:zone];
     ep.mapText = [self.mapText copyWithZone:zone];
-    ep.xnumber = [self.xnumber copyWithZone:zone];
+    ep.xml_number = [self.displayRouteNumber copyWithZone:zone];
     ep.callback = self.callback;
     ep.displayModeText = [self.displayModeText copyWithZone:zone];
     ep.displayTimeText = [self.displayTimeText copyWithZone:zone];
@@ -51,8 +52,8 @@
 #pragma mark Map callbacks
 
 - (NSString *)stopId {
-    if (self.xstopId) {
-        return [NSString stringWithFormat:@"%d", self.xstopId.intValue];
+    if (self.strStopId) {
+        return [NSString stringWithFormat:@"%d", self.strStopId.intValue];
     }
     
     return nil;
@@ -62,30 +63,34 @@
     return MAP_PIN_COLOR_GREEN;
 }
 
-- (NSString *)mapStopId {
+- (NSString *)pinStopId {
     return [self stopId];
 }
 
-- (bool)useMapTapped {
+- (bool)pinUseAction {
     return self.callback != nil;
 }
 
-- (bool)mapTapped:(id<TaskController>)progress {
+- (bool)pinAction:(id<TaskController>)progress {
     [self.callback chosenEndpoint:self];
     
     return YES;
+}
+
+- (NSString *)pinMarkedUpType {
+    return nil;
 }
 
 - (CLLocationCoordinate2D)coordinate {
     return self.loc.coordinate;
 }
 
-- (bool)showActionMenu {
-    return self.xstopId != nil || self.callback != nil;
+- (bool)pinActionMenu {
+    return self.strStopId != nil || self.callback != nil;
 }
 
 - (NSString *)title {
-    return self.xdescription;
+    return self.desc;
 }
 
 - (NSString *)subtitle {
@@ -96,20 +101,28 @@
     return nil;
 }
 
+- (NSString *)pinMarkedUpSubtitle {
+    if (self.mapText != nil) {
+        return [NSString stringWithFormat:@"#R#b%d:#D %@", self.index, self.mapText];
+    }
+    
+    return nil;
+}
+
 - (UIColor *)pinTint {
     return nil;
 }
 
-- (bool)hasBearing {
+- (bool)pinHasBearing {
     return NO;
 }
 
 - (CLLocation *)loc {
-    if (self.xlat != nil && self.xlon != nil) {
-        _loc = [CLLocation fromStringsLat:self.xlat lng:self.xlon];
+    if (self.lat != nil && self.lon != nil) {
+        _loc = [CLLocation fromStringsLat:self.lat lng:self.lon];
         
-        self.xlat = nil;
-        self.xlon = nil;
+        self.xml_lat = nil;
+        self.xml_lon = nil;
         return _loc;
     }
     
@@ -119,8 +132,8 @@
 - (void)setLoc:(CLLocation *)loc {
     _loc = loc;
     
-    self.xlat = nil;
-    self.xlon = nil;
+    self.xml_lat = nil;
+    self.xml_lon = nil;
 }
 
 @end

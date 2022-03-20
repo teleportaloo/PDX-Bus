@@ -23,7 +23,6 @@
 
 @implementation DetourTableViewCell
 
-
 + (UINib *)nib {
     return [UINib nibWithNibName:@"DetourTableViewCell" bundle:nil];
 }
@@ -125,11 +124,10 @@
     return nil;
 }
 
-- (void)populateCell:(Detour *)detour font:(UIFont *)font route:(NSString *)route {
-   
-    
+- (void)populateCell:(Detour *)detour route:(NSString *)route {
+    [self resetForReuse];
     if (detour.systemWide && [Settings isHiddenSystemWideDetour:detour.detourId]) {
-        self.textView.attributedText = [detour.formattedHeader formatAttributedStringWithFont:font];
+        self.textView.attributedText = detour.markedUpHeader.smallAttributedStringFromMarkUp;
     } else {
         NSString *routeLink = [self routeLink:route];
         
@@ -140,15 +138,15 @@
         
         if (self.includeHeaderInDescription)
         {
-            self.textView.attributedText = [[detour formattedDescriptionWithHeader:routeLink] formatAttributedStringWithFont:font];
+            self.textView.attributedText = [detour markedUpDescriptionWithHeader:routeLink].smallAttributedStringFromMarkUp;
         }
         else
         {
-            self.textView.attributedText = [[detour formattedDescription:routeLink] formatAttributedStringWithFont:font];
+            self.textView.attributedText = [detour markedUpDescription:routeLink].smallAttributedStringFromMarkUp;
         }
     }
     
-    self.textLabel.accessibilityLabel = [detour formattedDescription:[self routeLink:route]].removeFormatting.phonetic;
+    self.textLabel.accessibilityLabel = [detour markedUpDescription:[self routeLink:route]].removeMarkUp.phonetic;
     
    
     self.selectionStyle = UITableViewCellSelectionStyleNone;

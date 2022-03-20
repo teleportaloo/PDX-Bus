@@ -10,6 +10,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+
 #import "DepartureDetailView.h"
 #import "DepartureData+iOSUI.h"
 #import "XMLDetours.h"
@@ -45,6 +47,8 @@
 #import "Icons.h"
 #import "LinkCell.h"
 #import "ViewControllerBase+LinkCell.h"
+#import "RunParallelBlocks.h"
+#import "TripPlannerSummaryView.h"
 
 #define kFontName         @"Arial"
 #define kTextViewFontSize 16.0
@@ -72,9 +76,11 @@ enum SECTIONS_AND_ROWS {
     kRowOneStop,
     kRowMapAndSchedule,
     kRowBrowse,
+    kRowPlanTrip,
     kRowMapWithStops,
     kRowTrip,
     kRowOpposite,
+    kRowSiriAlertsForRoute,
     kRowNoDeeper
 };
 
@@ -125,9 +131,9 @@ enum SECTIONS_AND_ROWS {
 - (void)setupShape:(id<TaskController>)taskController {
     KMLRoutes *kml = [KMLRoutes xmlWithOneTimeDelegate:taskController];
     
-    [kml fetchInBackground:NO];
+    [kml fetchInBackgroundForced:NO];
     
-    PC_ROUTE_INFO info = [TriMetInfo infoForRoute:self.departure.route];
+    PtrConstRouteInfo info = [TriMetInfo infoForRoute:self.departure.route];
     
     Departure *dep = self.departure;
     
@@ -166,8 +172,8 @@ enum SECTIONS_AND_ROWS {
             taskState.total++;
         }
         
-        if (self.departure.nextBusFeedInTriMetData && self.allDepartures != nil && self.departure.status == kStatusEstimated) {
-            self.streetcarRoutes = [XMLStreetcarLocations getStreetcarRoutesInDepartureArray:self.allDepartures];
+        if (self.departure.nextBusFeedInTriMetData && self.allDepartures != nil && self.departure.status == ArrivalStatusEstimated) {
+            self.streetcarRoutes = [XMLStreetcarLocations getStreetcarRoutesInXMLDeparturesArray:self.allDepartures];
             
             taskState.total += (int)self.streetcarRoutes.count + 1;
         } else if (self.departure.nextBusFeedInTriMetData) {
@@ -181,15 +187,18 @@ enum SECTIONS_AND_ROWS {
 
 - (void)subTaskFetchDepartureIfNeeded:(TaskState *)taskState {
     if (self.backgroundRefresh || self.departure.route == nil) {
-        XMLDepartures *newDep = [XMLDepartures xmlWithOneTimeDelegate:taskState];
-        [newDep getDeparturesForStopId:self.departure.stopId block:self.departure.block];
+        XMLDepartures *newXml = [XMLDepartures xmlWithOneTimeDelegate:taskState];
+        [newXml getDeparturesForStopId:self.departure.stopId block:self.departure.block];
         
         taskState.itemsDone++;
         [taskState displayItemsDone];
         
-        if (newDep.gotData && newDep.count > 0) {
-            Departure *oldDep = self.departure;
-            self.departure = newDep.items.firstObject;
+        Departure *oldDep = self.departure;
+        Departure *newDep = [newXml getFirstDepartureForDirection:oldDep.dir];
+        
+        
+        if (newDep) {
+            self.departure = newDep;
             self.departure.streetcarId = oldDep.streetcarId;
             self.departure.vehicleIds = [self.departure vehicleIdsForStreetcar];
             
@@ -202,52 +211,58 @@ enum SECTIONS_AND_ROWS {
                 self.streetcarRoutes = [NSSet setWithObject:self.departure.route];
             }
         } else {
-            [self.departure makeInvalid:newDep.queryTime];
+            [self.departure makeInvalid:newXml.queryTime];
         }
         
-        if (self.departure.blockPosition == nil && self.departure.status == kStatusEstimated) {
+        if (self.departure.blockPosition == nil && self.departure.status == ArrivalStatusEstimated) {
             taskState.total++;
         }
         
         [taskState displayTotal];
         
-        XML_DEBUG_RAW_DATA(newDep);
+        XML_DEBUG_RAW_DATA(newXml);
     }
 }
 
 - (void)subTaskFetchStreetcarLocations:(TaskState *)taskState {
+    
+    RunParallelBlocks *parallelBlocks = [RunParallelBlocks instance];
+    
     if (self.departure.streetcarId == nil) {
         // First get the arrivals via next bus to see if we can get the correct vehicle ID
         // Not using auto release pool
-        XMLStreetcarPredictions *streetcarArrivals = [XMLStreetcarPredictions xmlWithOneTimeDelegate:taskState];
-        [streetcarArrivals getDeparturesForStopId:self.departure.stopId];
-        
-        [taskState incrementItemsDoneAndDisplay];
-        
-        for (Departure *vehicle in streetcarArrivals) {
-            if ([vehicle.block isEqualToString:self.departure.block]) {
-                self.departure.streetcarId = vehicle.streetcarId;
-                self.departure.vehicleIds = [vehicle vehicleIdsForStreetcar];
-                break;
+
+        [parallelBlocks startBlock:^{
+            XMLStreetcarPredictions *streetcarArrivals = [XMLStreetcarPredictions xmlWithOneTimeDelegate:taskState];
+            [streetcarArrivals getDeparturesForStopId:self.departure.stopId];
+            
+            [taskState incrementItemsDoneAndDisplay];
+            
+            for (Departure *vehicle in streetcarArrivals) {
+                if ([vehicle.block isEqualToString:self.departure.block]) {
+                    self.departure.streetcarId = vehicle.streetcarId;
+                    self.departure.vehicleIds = [vehicle vehicleIdsForStreetcar];
+                    break;
+                }
             }
-        }
-        
-        XML_DEBUG_RAW_DATA(streetcarArrivals);
+            XML_DEBUG_RAW_DATA(streetcarArrivals);
+        }];
     }
     
     for (NSString *route in self.streetcarRoutes) {
-        XMLStreetcarLocations *locs = [XMLStreetcarLocations sharedInstanceForRoute:route];
-        
-        locs.oneTimeDelegate = taskState;
-        [locs getLocations];
-        
-        [taskState incrementItemsDoneAndDisplay];
-        
-        XML_DEBUG_RAW_DATA(locs);
+        [parallelBlocks startBlock:^{
+            XMLStreetcarLocations *locs = [XMLStreetcarLocations sharedInstanceForRoute:route];
+            locs.oneTimeDelegate = taskState;
+            [locs getLocations];
+            [taskState incrementItemsDoneAndDisplay];
+            XML_DEBUG_RAW_DATA(locs);
+        }];
     }
     
+    [parallelBlocks waitForBlocks];
+    
     if (self.allDepartures != nil) {
-        [XMLStreetcarLocations insertLocationsIntoDepartureArray:self.allDepartures forRoutes:self.streetcarRoutes];
+        [XMLStreetcarLocations insertLocationsIntoXmlDeparturesArray:self.allDepartures forRoutes:self.streetcarRoutes];
     } else {
         XMLStreetcarLocations *locs = [XMLStreetcarLocations sharedInstanceForRoute:self.departure.route];
         [locs insertLocation:self.departure];
@@ -322,11 +337,11 @@ enum SECTIONS_AND_ROWS {
         
         if (self.departure.nextBusFeedInTriMetData
             && self.departure.blockPosition == nil
-            && self.departure.status == kStatusEstimated) {
+            && self.departure.status == ArrivalStatusEstimated) {
             [self subTaskFetchStreetcarLocations:taskState];
         } else if (!self.departure.nextBusFeedInTriMetData
                    && self.departure.blockPosition == nil
-                   && self.departure.status == kStatusEstimated
+                   && self.departure.status == ArrivalStatusEstimated
                    && Settings.useVehicleLocator) {
             [self subTaskFetchTriMetLocations:taskState];
         }
@@ -427,6 +442,8 @@ enum SECTIONS_AND_ROWS {
         }
         
         [self addRowType:kRowOpposite];
+        [self addRowType:kRowPlanTrip];
+        
     } else {
         if (!actionSection) {
             [self addSectionType:kSectionAction];
@@ -434,6 +451,8 @@ enum SECTIONS_AND_ROWS {
         
         [self addRowType:kRowNoDeeper];
     }
+    
+    [self addRowType:kRowSiriAlertsForRoute];
     
     [self addSectionType:kSectionInfo];
     [self addRowType:kRowMapAndSchedule];
@@ -455,10 +474,15 @@ enum SECTIONS_AND_ROWS {
     [self addRowType:kSectionRowDisclaimerType];
 }
 
-- (void)fetchDepartureAsync:(id<TaskController>)taskController stopId:(NSString *)stopId block:(NSString *)block backgroundRefresh:(bool)backgroundRefresh {
-    self.departure = [Departure data];
+- (void)fetchDepartureAsync:(id<TaskController>)taskController
+                     stopId:(NSString *)stopId
+                      block:(NSString *)block
+                        dir:(NSString *)dir
+          backgroundRefresh:(bool)backgroundRefresh {
+    self.departure = [Departure new];
     self.departure.stopId = stopId;
     self.departure.block = block;
+    self.departure.dir = dir;
     
     DEBUG_LOGP(taskController);
     [self fetchDataAsync:taskController backgroundRefresh:backgroundRefresh];
@@ -525,24 +549,30 @@ enum SECTIONS_AND_ROWS {
     SimpleAnnotation *pin = [SimpleAnnotation annotation];
     
     mapPage.title = self.departure.fullSign;
-    mapPage.stopIdCallback = self.stopIdCallback;
+    mapPage.stopIdStringCallback = self.stopIdStringCallback;
     pin.coordinate = self.departure.blockPosition.coordinate;
     
     if (self.departure.blockPositionHeading) {
-        pin.doubleBearing = self.departure.blockPositionHeading.doubleValue;
+        pin.pinBearing = self.departure.blockPositionHeading.doubleValue;
     }
     
     pin.pinTitle = self.departure.shortSign;
     
     if (self.departure.blockPositionFeet > 0) {
-        pin.pinSubtitle = [NSString stringWithFormat:NSLocalizedString(@"%@ away", @"<distance> of vehicle"), [FormatDistance formatFeet:self.departure.blockPositionFeet]];
+        // A bug in the view means we add a newl as it will not be visable.
+        pin.pinMarkedUpSubtitle = [NSString stringWithFormat:NSLocalizedString(@"#D%@ away\nLocated at #b%@", @"<distance> of vehicle"),
+                                    [FormatDistance formatFeet:self.departure.blockPositionFeet],
+                                    [NSDateFormatter localizedStringFromDate:self.departure.blockPositionAt dateStyle:NSDateFormatterNoStyle timeStyle:NSDateFormatterMediumStyle]];
     }
+    
+    pin.pinMarkedUpType = kPinTypeDeparture;
     
     pin.pinColor = MAP_PIN_COLOR_PURPLE;
     pin.pinTint = [TriMetInfo colorForRoute:self.departure.route];
-    pin.pinSubTint = [[BlockColorDb sharedInstance] colorForBlock:self.departure.block];
+    pin.pinBlobTint = [[BlockColorDb sharedInstance] colorForBlock:self.departure.block];
     
-    [mapPage addPin:pin];
+    
+    [mapPage addPin:self.departure];
     
     
     SimpleAnnotation *stopPin = [SimpleAnnotation annotation];
@@ -550,8 +580,11 @@ enum SECTIONS_AND_ROWS {
     stopPin.coordinate = self.departure.stopLocation.coordinate;
     stopPin.pinTitle = self.departure.locationDesc;
     stopPin.pinSubtitle = nil;
-    stopPin.pinColor = MAP_PIN_COLOR_RED;
+    stopPin.pinColor = MAP_PIN_COLOR_PURPLE;
+    stopPin.pinMarkedUpType = kPinTypeStop;
+    
     [mapPage addPin:stopPin];
+   
     
     if (self.shape) {
         mapPage.lineCoords = self.shape.mutableCopy;
@@ -583,14 +616,6 @@ enum SECTIONS_AND_ROWS {
     return YES;
 }
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return [self sections];
-}
-
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [self rowsInSection:section];
-}
-
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath {
     switch ([self rowType:indexPath]) {
         case kRowTag:
@@ -613,7 +638,7 @@ enum SECTIONS_AND_ROWS {
         cell.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
         cell.selectionStyle = UITableViewCellSelectionStyleBlue;
         cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-        cell.textLabel.textColor = [UIColor grayColor];
+        cell.textLabel.textColor = [UIColor modeAwareGrayText];
         cell.backgroundColor = [UIColor modeAwareCellBackground];
     }
     
@@ -632,7 +657,7 @@ enum SECTIONS_AND_ROWS {
     cell.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
     cell.selectionStyle = UITableViewCellSelectionStyleBlue;
     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-    cell.textLabel.textColor = [UIColor grayColor];
+    cell.textLabel.textColor = [UIColor modeAwareGrayText];
     cell.backgroundColor = [UIColor modeAwareCellBackground];
     [self updateAccessibility:cell];
     return cell;
@@ -669,16 +694,16 @@ enum SECTIONS_AND_ROWS {
         }
             
         case kRowRouteName: {
-            DepartureCell *cell = [DepartureCell tableView:tableView cellWithReuseIdentifier:MakeCellId(kRowRouteName)];
-            [self.departure populateCell:cell decorate:NO busName:YES wide:LARGE_SCREEN];
+            DepartureCell *cell = [DepartureCell tableView:tableView cellWithReuseIdentifier:MakeCellId(kRowRouteName) tallRouteLabel:YES];
+            [self.departure populateCell:cell decorate:NO busName:YES fullSign:YES];
             return cell;
         }
             
         case kRowRouteTimeInfo: {
             UITableViewCell *labelCell = [self tableView:tableView multiLineCellWithReuseIdentifier:MakeCellId(kRowRouteTimeInfo)];
             
-            NSString *details = [self.departure getFormattedExplaination];
-            labelCell.textLabel.attributedText = FormatTextPara(details);
+            NSString *details = [self.departure getMarkedUpExplaination];
+            labelCell.textLabel.attributedText = details.smallAttributedStringFromMarkUp;
             labelCell.selectionStyle = UITableViewCellSelectionStyleNone;
             [self updateAccessibility:labelCell];
             return labelCell;
@@ -696,7 +721,7 @@ enum SECTIONS_AND_ROWS {
                                    text:lastSeen
                                   image:[Icons getModeAwareIcon:kIconMap7]
                               indexPath:indexPath
-                                   font:[UIFont fontWithName:@"Verdana" size:VerdanaScale(self.basicFont.pointSize)]];
+                                   font:self.basicFont];
         }
             
         case kRowTag: {
@@ -705,7 +730,7 @@ enum SECTIONS_AND_ROWS {
             cell.textLabel.font = self.basicFont;
             cell.textLabel.adjustsFontSizeToFitWidth = YES;
             cell.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
-            cell.textLabel.textColor = [UIColor grayColor];
+            cell.textLabel.textColor = [UIColor modeAwareGrayText];
             
             cell.imageView.image = nil;
             
@@ -732,7 +757,7 @@ enum SECTIONS_AND_ROWS {
                 
                 if (det != nil) {
                     DetourTableViewCell *dcell = [self.table dequeueReusableCellWithIdentifier:det.reuseIdentifer];
-                    [dcell populateCell:det font:self.paragraphFont route:nil];
+                    [dcell populateCell:det route:nil];
                     
                      __weak __typeof__(self) weakSelf = self;
                     
@@ -746,14 +771,14 @@ enum SECTIONS_AND_ROWS {
                 } else {
                     cell = [self tableView:tableView multiLineCellWithReuseIdentifier:det.reuseIdentifer];
                     NSString *text = @"#0#RThe detour description is missing. ☹️";
-                    cell.textLabel.attributedText = FormatTextPara(text);
-                    cell.textLabel.accessibilityLabel = text.removeFormatting.phonetic;
+                    cell.textLabel.attributedText = text.smallAttributedStringFromMarkUp;
+                    cell.textLabel.accessibilityLabel = text.removeMarkUp.phonetic;
                 }
             } else {
                 cell = [self tableView:tableView multiLineCellWithReuseIdentifier:@"detour error"];
                 NSString *text = @"#D#RThe detour description is missing. ☹️";
-                cell.textLabel.attributedText = FormatTextPara(text);
-                cell.textLabel.accessibilityLabel = text.removeFormatting.phonetic;
+                cell.textLabel.attributedText = text.smallAttributedStringFromMarkUp;
+                cell.textLabel.accessibilityLabel = text.removeMarkUp.phonetic;
             }
             
             return cell;
@@ -762,7 +787,7 @@ enum SECTIONS_AND_ROWS {
         case kRowSectionVehicle: {
             LinkCell *cell = [self.table dequeueReusableCellWithIdentifier:MakeCellId(kRowVehicle)];
             NSString *vehicleId = self.departure.vehicleIds[indexPath.row];
-            cell.textView.attributedText = FormatTextPara([TriMetInfo vehicleString:vehicleId]);
+            cell.textView.attributedText = [TriMetInfo markedUpVehicleString:vehicleId].smallAttributedStringFromMarkUp;
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             cell.urlCallback = self.urlActionCalback;
             
@@ -820,6 +845,14 @@ enum SECTIONS_AND_ROWS {
                              image:[Icons getIcon:kIconArrivals]
                          indexPath:indexPath];
             
+        case kRowSiriAlertsForRoute:
+            return [self basicCell:tableView
+                        identifier:kCellIdSimple
+                              text:NSLocalizedString(@"Add route alerts to Siri", @"menu item")
+                             image:[Icons getIcon:kIconSiri]
+                         indexPath:indexPath];
+            
+            
         case kRowNoDeeper:
             return [self basicCell:tableView
                         identifier:kCellIdSimple
@@ -832,6 +865,13 @@ enum SECTIONS_AND_ROWS {
                         identifier:kCellIdSimple
                               text:NSLocalizedString(@"Browse stops", @"menu item")
                              image:[Icons getIcon:kIconBrowse]
+                         indexPath:indexPath];
+        
+        case kRowPlanTrip:
+            return [self basicCell:tableView
+                        identifier:kCellIdSimple
+                              text:NSLocalizedString(@"Plan a trip from here", @"menu item")
+                             image:[Icons getIcon:kIconTripPlanner]
                          indexPath:indexPath];
             
             
@@ -872,7 +912,6 @@ enum SECTIONS_AND_ROWS {
                                   text:NSLocalizedString(@"Set departure alarm", @"menu item")
                                  image:[Icons getIcon:kIconAlarm]
                              indexPath:indexPath];
-                // font:[UIFont fontWithName:@"Verdana" size:self.basicFont.pointSize-2]];
             }
             
             break;
@@ -888,7 +927,7 @@ enum SECTIONS_AND_ROWS {
             SimpleAnnotation *annotLoc = [SimpleAnnotation annotation];
             
             annotLoc.pinTitle = self.departure.locationDesc;
-            annotLoc.pinColor = MAP_PIN_COLOR_RED;
+            annotLoc.pinColor = MAP_PIN_COLOR_PURPLE;
             annotLoc.coordinate = self.departure.stopLocation.coordinate;
             
             [map addAnnotation:annotLoc];
@@ -990,6 +1029,25 @@ enum SECTIONS_AND_ROWS {
             [self showStops:self.departure.route];
             break;
             
+        case kRowPlanTrip:
+        {
+            TripPlannerSummaryView *tripPlanner = [TripPlannerSummaryView viewController];
+            
+            // Push the detail view controller
+            
+            TripEndPoint *endpoint = tripPlanner.tripQuery.userRequest.fromPoint;
+            
+            tripPlanner.tripQuery.userRequest.arrivalTime = FALSE;
+            tripPlanner.tripQuery.userRequest.dateAndTime = [self.departure.departureTime dateByAddingTimeInterval:60.0];
+            endpoint.useCurrentLocation = false;
+            endpoint.locationDesc = self.departure.stopId;
+            endpoint.additionalInfo = nil;
+            
+            
+            [self.navigationController pushViewController:tripPlanner animated:YES];
+            break;
+        }
+            
         case kRowMapWithStops:
             [self showMapWithStops:YES];
             break;
@@ -999,8 +1057,14 @@ enum SECTIONS_AND_ROWS {
             
         case kRowOpposite: {
             DepartureTimesView *opposite = [DepartureTimesView viewController];
-            opposite.stopIdCallback = self.stopIdCallback;
+            opposite.stopIdStringCallback = self.stopIdStringCallback;
             [opposite fetchTimesForStopInOtherDirectionAsync:self.backgroundTask departure:self.departure];
+            break;
+        }
+            
+        case kRowSiriAlertsForRoute: {
+            [self tableView:tableView siriAlertsForRoute:self.departure.shortSign routeNumner:self.departure.route];
+            [self clearSelection];
             break;
         }
             
@@ -1020,7 +1084,7 @@ enum SECTIONS_AND_ROWS {
         case kRowDestArrival: {
             StopView *stopViewController = [StopView viewController];
             
-            stopViewController.stopIdCallback = self.stopIdCallback;
+            stopViewController.stopIdStringCallback = self.stopIdStringCallback;
             
             [stopViewController fetchDestinationsAsync:self.backgroundTask dep:self.departure ];
             break;
@@ -1080,11 +1144,12 @@ enum SECTIONS_AND_ROWS {
     switch (rowType) {
         case kRowRouteName:
         case kRowTrip:
-            return DEPARTURE_CELL_HEIGHT;
+            return UITableViewAutomaticDimension;
             
         case kRowMapAndSchedule:
         case kRowMapWithStops:
         case kRowBrowse:
+        case kRowPlanTrip:
         case kRowDestArrival:
         case kRowNextStops:
         case kRowAlarm:
@@ -1093,6 +1158,7 @@ enum SECTIONS_AND_ROWS {
         case kRowOpposite:
         case kRowNoDeeper:
         case kSectionRowLocation:
+        case kRowSiriAlertsForRoute:
             return [self basicRowHeight];
             
         case kRowRouteTimeInfo:
@@ -1184,11 +1250,11 @@ enum SECTIONS_AND_ROWS {
 
 #pragma mark Stop callback function
 
-- (NSString *)actionText {
-    return NSLocalizedString(@"Show departures", @"menu item");
+- (NSString *)returnStopObjectActionText {
+    return @"";
 }
 
-- (void)chosenStop:(Stop *)stop progress:(id<TaskController>)progress {
+- (void)returnStopObject:(Stop *)stop progress:(id<TaskController>)progress {
     DepartureTimesView *departureViewController = [DepartureTimesView viewController];
     
     departureViewController.displayName = stop.desc;

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?> 
+<body copyright="All data copyright Portland Streetcar 2020.">
+<predictions agencyTitle="Portland Streetcar" routeTitle="NS North/South" routeTag="193" stopTitle="SW 11th &amp; Alder" stopTag="9600">
+  <direction title="NS Line to South Waterfront">
+  <prediction epochTime="1602204025226" seconds="96" minutes="1" isDeparture="false" dirTag="193_1_var1" vehicle="SC010" block="77" tripTag="35087026A" />
+  <prediction epochTime="1602205335552" seconds="1406" minutes="23" isDeparture="false" affectedByLayover="true" dirTag="193_1_var1" vehicle="SC009" block="74" tripTag="35087047A" />
+  <prediction epochTime="1602206430702" seconds="2502" minutes="41" isDeparture="false" affectedByLayover="true" dirTag="193_1_var1" vehicle="SC007" block="75" tripTag="35086985A" />
+  <prediction epochTime="1602208832032" seconds="4903" minutes="81" isDeparture="false" affectedByLayover="true" dirTag="193_1_var1" vehicle="SC010" block="77" tripTag="35087028A" />
+  </direction>
+</predictions>
+<predictions agencyTitle="Portland Streetcar" routeTitle="B Loop" routeTag="195" stopTitle="SW 11th &amp; Alder" stopTag="9600">
+  <direction title="B Loop to Lloyd via OMSI">
+  <prediction epochTime="1602204498216" seconds="569" minutes="9" isDeparture="false" affectedByLayover="true" dirTag="195_0_var2" vehicle="SC003" block="58" tripTag="35086951A" />
+  <prediction epochTime="1602205578216" seconds="1649" minutes="27" isDeparture="false" affectedByLayover="true" dirTag="195_0_var2" vehicle="SC022" block="56" tripTag="35086966A" />
+  <prediction epochTime="1602206658216" seconds="2729" minutes="45" isDeparture="false" affectedByLayover="true" dirTag="195_0_var2" vehicle="SC008" block="57" tripTag="35086937A" />
+  <prediction epochTime="1602208098216" seconds="4169" minutes="69" isDeparture="false" affectedByLayover="true" dirTag="195_0_var2" vehicle="SC003" block="58" tripTag="35086952A" />
+  <prediction epochTime="1602209227546" seconds="5298" minutes="88" isDeparture="false" affectedByLayover="true" dirTag="195_0_var2" vehicle="SC022" block="56" tripTag="35086967A" />
+  </direction>
+</predictions>
+</body>

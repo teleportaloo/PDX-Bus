@@ -17,7 +17,6 @@
 #import "TripLegEndPoint.h"
 #import "LegShapeParser.h"
 #import "ScreenConstants.h"
-#import "DataFactory.h"
 #import "TripItemCell.h"
 
 #define kNearTo   @"Near "
@@ -26,28 +25,31 @@
 #define kModeMax  @"Light Rail"
 #define kModeSc   @"Streetcar"
 
-typedef enum {
+typedef enum TripTextTypeEnum {
     TripTextTypeMap,
     TripTextTypeUI,
     TripTextTypeHTML,
     TripTextTypeClip
 } TripTextType;
 
-@interface TripLeg : DataFactory
+@interface TripLeg : NSObject
 
 @property (nonatomic, strong) NSString *mode;
 @property (nonatomic, strong) NSString *order;
-@property (nonatomic, strong) NSString *xdate;
-@property (nonatomic, strong) NSString *xstartTime;
-@property (nonatomic, strong) NSString *xendTime;
-@property (nonatomic, strong) NSString *xduration;
-@property (nonatomic, strong) NSString *xdistance;
-@property (nonatomic, strong) NSString *xnumber;
-@property (nonatomic, strong) NSString *xinternalNumber;
-@property (nonatomic, strong) NSString *xname;
-@property (nonatomic, strong) NSString *xkey;
-@property (nonatomic, strong) NSString *xdirection;
-@property (nonatomic, strong) NSString *xblock;
+@property (nonatomic, strong, setter = setXml_date:) NSString *startStartDateFormatted;
+@property (nonatomic, strong, setter = setXml_startTime:) NSString *startTimeFormatted;
+@property (nonatomic, strong, setter = setXml_endTime:) NSString *endTimeFormatted;
+@property (nonatomic, strong, setter = setXml_duration:) NSString *strDurationMins;
+@property (nonatomic, readonly) NSInteger durationMins;
+@property (nonatomic, copy, setter = setXml_distance:) NSString *strDistanceMiles;
+@property (nonatomic, readonly) double distanceMiles;
+@property (nonatomic, strong, setter = setXml_number:) NSString *displayRouteNumber;
+@property (nonatomic, strong, setter = setXml_internalNumber:) NSString *internalRouteNumber;
+@property (nonatomic, strong, setter = setXml_name:) NSString *routeName;
+@property (nonatomic, strong, setter = setXml_key:) NSString *key;
+@property (nonatomic, strong, setter = setXml_direction:) NSString *direction;
+@property (nonatomic, strong, setter = setXml_block:) NSString *block;
+
 @property (nonatomic, strong) TripLegEndPoint *from;
 @property (nonatomic, strong) TripLegEndPoint *to;
 @property (nonatomic, strong) LegShapeParser *legShape;

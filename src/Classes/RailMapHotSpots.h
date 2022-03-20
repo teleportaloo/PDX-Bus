@@ -21,7 +21,7 @@
 @property (nonatomic, strong) UIView *mapView;
 @property (nonatomic) bool showAll;
 
-- (instancetype)initWithImageView:(UIView *)imgView map:(RAILMAP *)map;
+- (instancetype)initWithImageView:(UIView *)imgView map:(RailMap *)map;
 - (void)fadeOut;
 - (void)selectItem:(int)i;
 - (void)touchAtPoint:(CGPoint)point;

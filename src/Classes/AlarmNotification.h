@@ -14,10 +14,10 @@
 
 
 #import <Foundation/Foundation.h>
-#import "MapPinColor.h"
+#import "MapPin.h"
 #import <UserNotifications/UserNotifications.h>
 
-@interface AlarmNotification : NSObject <MapPinColor>
+@interface AlarmNotification : NSObject <MapPin>
 
 @property (nonatomic) UIApplicationState previousState;
 

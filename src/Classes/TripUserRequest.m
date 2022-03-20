@@ -126,8 +126,8 @@
         self.tripMode = Settings.travelBy;
         self.tripMin = Settings.tripMin;
         self.maxItineraries = 6;
-        self.toPoint = [TripEndPoint data];
-        self.fromPoint = [TripEndPoint data];
+        self.toPoint = [TripEndPoint new];
+        self.fromPoint = [TripEndPoint new];
     }
     
     return self;
@@ -250,10 +250,8 @@
         
         userActivity.title = [NSString stringWithFormat:@"Launch PDX Bus & plan trip %@", title];
         
-        if (@available(iOS 12.0, *)) {
-            userActivity.eligibleForSearch = YES;
-            userActivity.eligibleForPrediction = YES;
-        }
+        userActivity.eligibleForSearch = YES;
+        userActivity.eligibleForPrediction = YES;
         
         //  [info setObject:tripItem forKey:kUserFavesTrip];
         userActivity.userInfo = info;

@@ -42,6 +42,9 @@
 @property (nonatomic, readonly) bool taskCancelled;
 @property (nonatomic, readonly) bool running;
 @property (atomic)              bool debugMessages;
+@property (atomic)              bool showSizes;
+@property (atomic)              NSInteger bytesDone;
+
 
 - (void)taskStartWithTotal:(NSInteger)total title:(NSString *)title;
 - (void)taskItemsDone:(NSInteger)itemsDone;

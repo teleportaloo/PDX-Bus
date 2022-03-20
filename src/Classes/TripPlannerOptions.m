@@ -27,22 +27,35 @@
 
 @implementation TripPlannerOptions
 
-#define kSectionWalk    0
-#define kSectionMode    1
-#define kSectionMin     2
-#define kSectionMinRows 2
-#define kSectionRows    1
-#define kMinRowSeg      0
-#define kMinRowInfo     1
-#define kTableSections  3
+enum {
+    kSectionWalk,
+    kSectionMode,
+    kSectionMin,
+    kMinRowSeg,
+    kMinRowInfo
+};
+
+
 
 - (instancetype)init {
     if ((self = [super init])) {
         self.title = NSLocalizedString(@"Options", @"page title");
         self.info = NSLocalizedString(@"Note: \"Shortest walk\" may suggest a long ride to avoid a few steps.", @"trip planner warning info");
+        
+        [self createSections];
     }
     
     return self;
+}
+
+- (void)createSections {
+    [self clearSectionMaps];
+    
+    [self addSectionTypeWithRow:kSectionWalk];
+    [self addSectionTypeWithRow:kSectionMode];
+    [self addSectionType:kSectionMin];
+    [self addRowType:kMinRowSeg];
+    [self addRowType:kMinRowInfo];
 }
 
 - (UITableViewStyle)style {
@@ -67,21 +80,8 @@
 #pragma mark TableView methods
 
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return kTableSections;
-}
-
-// Customize the number of rows in the table view.
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    if (section == kSectionMin) {
-        return kSectionMinRows;
-    }
-    
-    return kSectionRows;
-}
-
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-    switch (section) {
+    switch ([self sectionType:section]) {
         case kSectionWalk:
             return NSLocalizedString(@"Maximum walking distance in miles:", @"section header");
             
@@ -96,61 +96,52 @@
 
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    switch (indexPath.section) {
-        case kSectionWalk: {
-            return [SegmentCell tableView:tableView
-                          reuseIdentifier:MakeCellId(kSectionWalk)
-                          cellWithContent:[XMLTrips distanceMapSingleton]
-                                   target:self
-                                   action:@selector(walkSegmentChanged:)
-                            selectedIndex:[XMLTrips distanceToIndex:self.tripQuery.userRequest.walk]];
-        }
-            
-        case kSectionMode: {
-            return [SegmentCell tableView:tableView
-                          reuseIdentifier:MakeCellId(kSectionMode)
-                          cellWithContent:@[@"Bus only", @"Rail only", @"Bus or Rail"]
-                                   target:self
-                                   action:@selector(modeSegmentChanged:)
-                            selectedIndex:self.tripQuery.userRequest.tripMode];
-        }
-            
-        case kSectionMin: {
-            switch (indexPath.row) {
-                case kMinRowSeg: {
-                    return [SegmentCell tableView:tableView
-                                  reuseIdentifier:MakeCellId(kMinRowSeg)
-                                  cellWithContent:@[@"Quickest trip", @"Fewest transfers", @"Shortest walk"]
-                                           target:self
-                                           action:@selector(minSegmentChanged:)
-                                    selectedIndex:self.tripQuery.userRequest.tripMin];
-                }
-                    break;
-                    
-                case kMinRowInfo: {
-                    UITableViewCell *cell = [self tableView:tableView multiLineCellWithReuseIdentifier:MakeCellId(kMinRowInfo) font:self.paragraphFont];
-                    cell.textLabel.text = self.info;
-                    cell.selectionStyle = UITableViewCellSelectionStyleNone;
-                    cell.backgroundView = [self clearView];
-                    cell.backgroundColor = [UIColor clearColor];
-                    
-                    return cell;
-                }
-                    break;
-            }
-        }
+switch ([self rowType:indexPath]) {
+    case kSectionWalk:
+        return [SegmentCell tableView:tableView
+                      reuseIdentifier:MakeCellId(kSectionWalk)
+                      cellWithContent:[XMLTrips distanceMapSingleton]
+                               target:self
+                               action:@selector(walkSegmentChanged:)
+                        selectedIndex:[XMLTrips distanceToIndex:self.tripQuery.userRequest.walk]];
+    case kSectionMode:
+        return [SegmentCell tableView:tableView
+                      reuseIdentifier:MakeCellId(kSectionMode)
+                      cellWithContent:@[@"Bus only", @"Rail only", @"Bus or Rail"]
+                               target:self
+                               action:@selector(modeSegmentChanged:)
+                        selectedIndex:self.tripQuery.userRequest.tripMode];
+    
+    case kMinRowSeg:
+        return [SegmentCell tableView:tableView
+                      reuseIdentifier:MakeCellId(kMinRowSeg)
+                      cellWithContent:@[@"Quickest trip", @"Fewest transfers", @"Shortest walk"]
+                               target:self
+                               action:@selector(minSegmentChanged:)
+                        selectedIndex:self.tripQuery.userRequest.tripMin];
+
+    case kMinRowInfo: {
+        UITableViewCell *cell = [self tableView:tableView multiLineCellWithReuseIdentifier:MakeCellId(kMinRowInfo) font:self.smallFont];
+        cell.textLabel.text = self.info;
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        cell.backgroundView = [self clearView];
+        cell.backgroundColor = [UIColor clearColor];
+
+        return cell;
     }
-    return [super tableView:tableView cellForRowAtIndexPath:indexPath];
+}
+
+return [super tableView:tableView cellForRowAtIndexPath:indexPath];
 }
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (indexPath.section == kMinRowInfo) {
+    if ([self rowType:indexPath] == kMinRowInfo) {
         [cell setBackgroundColor:[UIColor clearColor]];
     }
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (indexPath.section == kSectionMin && indexPath.row == kMinRowInfo) {
+    if ([self rowType:indexPath] == kMinRowInfo) {
         return UITableViewAutomaticDimension;
     }
     

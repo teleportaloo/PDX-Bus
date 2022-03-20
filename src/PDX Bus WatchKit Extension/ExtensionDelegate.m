@@ -13,6 +13,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+
 #import "ExtensionDelegate.h"
 #import "WatchBookmarksInterfaceController.h"
 #import "DebugLogging.h"
@@ -87,7 +89,7 @@
         } else if ([userActivity.activityType isEqualToString:kHandoffUserActivityBookmark]) {
             if (userActivity.userInfo && userActivity.userInfo[kUserFavesTrip] != nil) {
                 [root pushControllerWithName:kAlertScene context:
-                 [@"#b#WSorry, the PDX Bus watch app does not support Trip Planing." formatAttributedStringWithFont:[UIFont systemFontOfSize:16]]];
+                 [@"#b#WSorry, the PDX Bus watch app does not support Trip Planing." attributedStringFromMarkUpWithFont:[UIFont systemFontOfSize:16]]];
             } else {
                 root.userActivity = userActivity;
                 [root processUserActivity];

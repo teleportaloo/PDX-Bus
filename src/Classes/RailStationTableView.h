@@ -21,7 +21,7 @@
 @class ShapeRoutePath;
 
 
-@interface RailStationTableView : TableViewWithToolbar <ReturnStop>
+@interface RailStationTableView : TableViewWithToolbar <ReturnStopObject>
 
 @property (nonatomic, strong) RailMapView *map;
 @property (nonatomic, strong) RailStation *station;
@@ -29,7 +29,9 @@
 
 @property (nonatomic, readonly, copy) NSString *actionText;
 
-- (void)chosenStop:(Stop *)stop progress:(id<TaskController>)progress;
+@property (nonatomic) MKMapRect mapFlyTo;
+
+- (void)returnStopObject:(Stop *)stop progress:(id<TaskController>)progress;
 - (void)maybeFetchRouteShapesAsync:(id<TaskController>)taskController;
 
 @end

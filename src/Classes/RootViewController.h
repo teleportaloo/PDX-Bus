@@ -27,7 +27,7 @@
 
 @class UITextField;
 
-typedef enum InitialAction_tag {
+typedef enum InitialActionEnum {
     InitialAction_None,
     InitialAction_Locate,
     InitialAction_Commute,
@@ -36,7 +36,8 @@ typedef enum InitialAction_tag {
     InitialAction_BookmarkIndex,
     InitialAction_UserActivityBookmark,
     InitialAction_UserActivitySearch,
-    InitialAction_Map
+    InitialAction_Map,
+    InitialAction_UserActivityAlerts
 } InitialAction;
 
 

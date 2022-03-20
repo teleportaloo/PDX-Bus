@@ -17,7 +17,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface LinkResponsiveTextView : UITextView
+@class LinkResponsiveTextView;
+
+typedef bool (^LinkResponsiveTextViewActionBlock) (LinkResponsiveTextView *view, NSURL *url, NSRange characterRange, UITextItemInteraction interaction);
+
+@interface LinkResponsiveTextView : UITextView <UITextViewDelegate>
+
+@property (nonatomic, copy) LinkResponsiveTextViewActionBlock linkAction;
+@property (nonatomic) bool allowSelection;
 
 @end
 

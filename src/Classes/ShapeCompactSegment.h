@@ -13,7 +13,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import "DataFactory.h"
 #import "ShapeSegment.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -22,7 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class ShapeRoutePath;
 @class ShapeMutableSegment;
 
-@interface ShapeCompactSegment : DataFactory <ShapeSegment>
+@interface ShapeCompactSegment : NSObject <ShapeSegment>
 
 @property (nonatomic) CLLocationCoordinate2D *coords;
 

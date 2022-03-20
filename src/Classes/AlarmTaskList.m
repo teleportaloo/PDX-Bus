@@ -13,6 +13,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogAlarms
+
 #import "AlarmTaskList.h"
 #import "AlarmAccurateStopProximity.h"
 #import "DebugLogging.h"
@@ -52,71 +54,68 @@
 
 + (AlarmTaskList *)sharedInstance {
     static AlarmTaskList *taskList = nil;
-    
+
     static dispatch_once_t onceToken;
-    
+
     dispatch_once(&onceToken, ^{
         taskList = [[AlarmTaskList alloc] init];
     });
-    
+
     return taskList;
 }
 
 + (bool)supported {
     UIDevice *device = [UIDevice currentDevice];
     BOOL backgroundSupported = device.multitaskingSupported;
-    
+
     return backgroundSupported;
 }
 
 + (bool)proximitySupported {
 #if !TARGET_OS_MACCATALYST
     Class locManClass = (NSClassFromString(@"CLLocationManager"));
-    
+
     return [AlarmTaskList supported]
-        && locManClass != nil
-        && [locManClass significantLocationChangeMonitoringAvailable];
+           && locManClass != nil
+           && [locManClass significantLocationChangeMonitoringAvailable];
+
 #else
     return NO;
+
 #endif
 }
 
 - (void)setApplicationBadgeNumber:(NSInteger)badgeNumber {
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
-     
-    [center getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
-        if (settings.badgeSetting == UNNotificationSettingEnabled)
-        {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                UIApplication *application = [UIApplication sharedApplication];
-                application.applicationIconBadgeNumber = badgeNumber;
-            });
-        }
-    }];
+
+    [center getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings *_Nonnull settings) {
+                if (settings.badgeSetting == UNNotificationSettingEnabled) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                               UIApplication *application = [UIApplication sharedApplication];
+                               application.applicationIconBadgeNumber = badgeNumber;
+                           });
+                }
+            }];
 }
 
-
-
 - (void)updateBadge {
-    @synchronized(_backgroundTasks)
-    {
+    @synchronized(_backgroundTasks) {
         int count = 0;
-        
+
         NSArray *keys = [self taskKeys];
-        
+
         for (NSString *key in keys) {
             AlarmTask *task = [self taskForKey:key];
-            
+
             if (task && task.alarmState == AlarmFired) {
                 count++;
             }
         }
-        
-        
+
         dispatch_async(dispatch_get_main_queue(), ^{
             [self setApplicationBadgeNumber:count];
         });
-        
+
         // [UIApplication sharedApplication].applicationIconBadgeNumber = count;
     }
 }
@@ -124,7 +123,7 @@
 - (void)removeTask:(NSString *)taskKey fromArray:(NSMutableArray *)array {
     for (int i = 0; i < array.count; i++) {
         NSString *arrayTaskKey = array[i];
-        
+
         if ([arrayTaskKey isEqualToString:taskKey]) {
             [array removeObjectAtIndex:i];
             break;
@@ -139,10 +138,10 @@
         _newTaskKeys = [[NSMutableArray alloc] init];
         _taskId = 0;             // UIBackgroundTaskInvalid cannot be used in 3.2 OS
         self.atomicTaskRunning = NO;
-        
+
         [self updateBadge];
     }
-    
+
     return self;
 }
 
@@ -151,10 +150,9 @@
 }
 
 - (void)cancelTaskForKey:(NSString *)key {
-    @synchronized(_backgroundTasks)
-    {
+    @synchronized(_backgroundTasks) {
         AlarmTask *task = _backgroundTasks[key];
-        
+
         if (task != nil) {
             [task cancelTask];
         }
@@ -171,52 +169,50 @@
 }
 
 - (void)addTaskForDeparture:(Departure *)dep mins:(uint)mins {
-    @synchronized(_backgroundTasks)
-    {
+    @synchronized(_backgroundTasks) {
         AlarmFetchArrivalsTask *newTask = [[AlarmFetchArrivalsTask alloc] init];
-        
+
         newTask.stopId = dep.stopId;
         newTask.block = dep.block;
+        newTask.dir = dep.dir;
         newTask.minsToAlert = mins;
         newTask.observer = self;
         newTask.desc = dep.shortSign;
         newTask.lastFetched = dep;
-        
+
         [self checkForMute];
-        
+
         [self cancelTaskForKey:newTask.key];
-        
+
         _backgroundTasks[newTask.key] = newTask;
         [_orderedTaskKeys addObject:newTask.key];
         [_newTaskKeys addObject:newTask.key];
-        
+
         [newTask startTask];
     }
 }
 
 - (bool)hasTaskForStopId:(NSString *)stopId block:(NSString *)block {
-    @synchronized(_backgroundTasks)
-    {
+    @synchronized(_backgroundTasks) {
         return _backgroundTasks [[self keyForStopId:stopId block:block]] != nil;
     }
 }
 
 - (int)minsForTaskWithStopId:(NSString *)stopId block:(NSString *)block {
-    @synchronized(_backgroundTasks)
-    {
+    @synchronized(_backgroundTasks) {
         AlarmFetchArrivalsTask *task = _backgroundTasks [[self keyForStopId:stopId block:block]];
-        
+
         if (task == nil) {
             return 0;
         }
-        
+
         return (int)task.minsToAlert;
     }
 }
 
 - (void)cancelTaskForStopId:(NSString *)stopId block:(NSString *)block {
     NSString *key = [self keyForStopId:stopId block:block];
-    
+
     [self cancelTaskForKey:key];
 }
 
@@ -224,23 +220,22 @@
     if (self.observer) {
         [(NSObject *)self.observer performSelectorOnMainThread:@selector(taskUpdate:) withObject:task waitUntilDone:NO];
     }
-    
+
     AlarmTask *realTask = (AlarmTask *)task;
-    
+
     if (realTask.alarmState == AlarmFired) {
         [self updateBadge];
     }
-    
+
     _batchUpdate = YES;
 }
 
 - (void)taskStarted:(id)task {
-    @synchronized (_backgroundTasks)
-    {
+    @synchronized (_backgroundTasks) {
         if (self.observer) {
             [(NSObject *)self.observer performSelectorOnMainThread:@selector(taskStarted:) withObject:task waitUntilDone:NO];
         }
-        
+
         [self runTask];
         [self updateBadge];
     }
@@ -248,36 +243,34 @@
 }
 
 - (void)taskDone:(id)task {
-    @synchronized(_backgroundTasks)
-    {
+    @synchronized(_backgroundTasks) {
         AlarmTask *realTask = (AlarmTask *)task;
         NSString *key = realTask.key;
-        
+
         for (NSString *obj in _backgroundTasks) {
             if ([obj isEqualToString:key]) {
                 [_backgroundTasks removeObjectForKey:key];
                 break;
             }
         }
-        
+
         [self removeTask:key fromArray:_newTaskKeys];
         [self removeTask:key fromArray:_orderedTaskKeys];
-        
+
         if (self.observer) {
             [(NSObject *)self.observer performSelectorOnMainThread:@selector(taskDone:) withObject:task waitUntilDone:NO];
         }
-        
+
         [self updateBadge];
     }
     _batchUpdate = YES;
 }
 
 - (void)resumeOnActivate {
-    @synchronized(_backgroundTasks)
-    {
+    @synchronized(_backgroundTasks) {
         if (!self.atomicTaskRunning && _backgroundTasks.count > 0) {
             [_newTaskKeys removeAllObjects];
-            
+
             for (NSString *taskKey in _backgroundTasks) {
                 AlarmTask *task = _backgroundTasks[taskKey];
                 switch (task.alarmState) {
@@ -287,14 +280,14 @@
                     case AlarmStateAccurateLocationNeeded:
                     case AlarmStateInaccurateLocationNeeded:
                         break;
-                        
+
                     case AlarmStateFetchArrivals:
                     case AlarmStateNearlyArrived:
                         [_newTaskKeys addObject:task.key];
                         break;
                 }
             }
-            
+
             [self runTask];
         }
     }
@@ -307,28 +300,26 @@
                               loc:(CLLocation *)loc
                              desc:(NSString *)desc
                          accurate:(bool)accurate {
-    @synchronized (_backgroundTasks)
-    {
+    @synchronized (_backgroundTasks) {
         AlarmAccurateStopProximity *newTask = [[AlarmAccurateStopProximity alloc] initWithAccuracy:accurate];
-        
+
         [newTask setStop:stopId loc:loc desc:desc];
         newTask.observer = self;
-        
+
         [self checkForMute];
-        
+
         [self cancelTaskForKey:newTask.key];
-        
-        
+
+
         _backgroundTasks[newTask.key] = newTask;
         [_orderedTaskKeys addObject:newTask.key];
-        
+
         [newTask startTask];
     }
 }
 
 - (bool)hasTaskForStopIdProximity:(NSString *)stopId {
-    @synchronized (_backgroundTasks)
-    {
+    @synchronized (_backgroundTasks) {
         return _backgroundTasks[stopId] != nil;
     }
 }
@@ -339,7 +330,7 @@
 
 - (void)startUpdatingLocation:(CLLocationManager *)manager {
     CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
-    
+
     if (status == kCLAuthorizationStatusDenied) {
         NSLog(@"Location services are disabled in settings.");
     } else {
@@ -347,12 +338,12 @@
         if ([manager respondsToSelector:@selector(requestAlwaysAuthorization)]) {
             [manager requestAlwaysAuthorization];
         }
-        
+
         // for iOS 9
         if ([manager respondsToSelector:@selector(setAllowsBackgroundLocationUpdates:)]) {
             [manager setAllowsBackgroundLocationUpdates:YES];
         }
-        
+
         [manager startUpdatingLocation];
     }
 }
@@ -368,17 +359,17 @@
     DEBUG_FUNC();
     // NSRunLoop* runLoop        = [NSRunLoop currentRunLoop];
     self.backgroundThread = [NSThread currentThread];
-    
+
     bool done = false;
     AlarmTask *task = nil;
     NSDate *nextFetch = nil;
     NSMutableArray *taskKeys = [NSMutableArray array];
     NSMutableArray *doneTasks = [NSMutableArray array];
-    
+
     bool useGps = Settings.useGpsForAllAlarms;
-    
+
     CLLocationManager *manager = nil;
-    
+
     if (useGps) {
         manager = [[CLLocationManager alloc] init];
         manager.delegate = self;
@@ -387,16 +378,15 @@
         manager.pausesLocationUpdatesAutomatically = NO;
         [self startUpdatingLocation:manager];
     }
-    
+
     while (!done) {
         @autoreleasepool {
             // Here is where we check if new tasks have been added or remevoed
-            @synchronized (_backgroundTasks)
-            {
+            @synchronized (_backgroundTasks) {
                 // Add items from the new tasks into my active list
                 [taskKeys addObjectsFromArray:_newTaskKeys];
                 [_newTaskKeys removeAllObjects];
-                
+
                 // Check to see that each key still has a task as it may have
                 // been cancelled by the user
                 for (int i = 0; i < taskKeys.count;) {
@@ -406,7 +396,7 @@
                         i++;
                     }
                 }
-                
+
                 if (taskKeys.count == 0 || self.backgroundThread.cancelled) {
                     // Setting _atomicTaskRunning to NO will mean another thread can
                     // start processing while we tidy up.
@@ -414,33 +404,33 @@
                     [self.backgroundThread cancel];
                     self.backgroundThread = nil;
                     done = YES;
-                    
+
                     if (taskKeys.count == 0) {
                         self.nextFetch = nil;
                     }
                 }
             }
-            
+
             nextFetch = [NSDate distantFuture];
-            
+
             bool wakeUpAlertRequired = YES;
-            
+
             // DEBUG_LOG(@"Alarm loop starting\n");
-            
+
             if (!done) {
                 for (NSString *key in taskKeys) {
                     task = [self taskForKey:key];
-                    
+
                     // DEBUG_LOG(@"Task: %@ %p\n", key, task);
-                    
+
                     if (task) {
                         switch (task.alarmState) {
                             case AlarmFired:
                                 [doneTasks addObject:key];
                                 break;
-                                
+
                             case AlarmStateNearlyArrived:
-                                
+
                                 if (task.nextFetch == nil || [task.nextFetch compare:[NSDate date]] != NSOrderedDescending) {
 #ifndef DEBUG_ALARMS
                                     // [self taskDone:task];
@@ -449,73 +439,73 @@
                                     [doneTasks addObject:key];
                                     [self taskUpdate:task];
                                 }
-                                
+
                                 break;
-                                
+
                             case AlarmStateFetchArrivals:
-                                
+
                                 if (task.nextFetch == nil || [task.nextFetch compare:[NSDate date]] != NSOrderedDescending) {
                                     // DEBUG_LOG(@"Fetching...");
                                     task.nextFetch = [task fetch:self];
                                     [self taskUpdate:task];
                                 }
-                                
+
                                 break;
-                                
+
                             default:
                                 break;
                         }
                         nextFetch = [task earlierAlert:nextFetch];
-                        
+
                         if (task.alarmState == AlarmStateNearlyArrived) {
                             wakeUpAlertRequired = NO;
                         }
                     }
                 }
-                
+
                 // DEBUG_LOG(@"Tasks processed\n");
-                
+
                 for (NSString *key in doneTasks) {
                     [self removeTask:key fromArray:taskKeys];
                 }
-                
+
                 [doneTasks removeAllObjects];
             }
-            
+
             if (!done && !self.backgroundThread.cancelled && taskKeys.count > 0) {
                 NSDate *waitUntil = [NSDate dateWithTimeIntervalSinceNow:kLoopTimeSecs];
-                
+
                 __block NSTimeInterval remaining = 0;
                 UIApplication *app = [UIApplication sharedApplication];
                 dispatch_sync(dispatch_get_main_queue(), ^{
                     remaining = app.backgroundTimeRemaining;
                 });
-                
+
                 NSDate *sleepUntil = [waitUntil earlierDate:nextFetch];
                 NSTimeInterval waitTime = [sleepUntil timeIntervalSinceNow];
-                
+
                 DEBUG_LOGF(remaining);
                 DEBUG_LOGF(waitTime);
-                
+
                 const NSTimeInterval gap = 10.0;
-                
+
                 self.nextFetch = nextFetch;
-                
+
                 bool okToWait = useGps || (waitTime + gap) < remaining;
-                
+
                 if (okToWait) {
                     [NSThread sleepUntilDate:sleepUntil];
                 }
-                
+
                 if (!okToWait || self.backgroundThread.cancelled) {
                     DEBUG_LOGB(self.backgroundThread.cancelled);
                     DEBUG_LOG(@"We must go to sleep. :-(");
-                    
+
                     [self.backgroundThread cancel];
                     self.atomicTaskRunning = NO;
                     self.backgroundThread = nil;
                     done = YES;
-                    
+
                     if (wakeUpAlertRequired) {
                         [self createAlertToWakeUpApp];
                     } else {
@@ -525,35 +515,35 @@
             }
         }
     }
-    
+
     if (manager != nil) {
         [manager stopUpdatingLocation];
         manager.delegate = nil;
     }
-    
+
     [(NSObject *)self performSelectorOnMainThread:@selector(taskLoopEnded:) withObject:nil waitUntilDone:NO];
-    
+
     DEBUG_FUNCEX();
 }
 
 - (void)scheduleAgain:(id)unused {
     DEBUG_LOG(@"scheduleAgain\n");
     // NSDate *soon = [NSDate dateWithTimeIntervalSinceNow:5.0];
-    
+
     // NSTimer *timer = [[NSTimer alloc] initWithFireDate:soon interval:0.0 target:self selector:@selector(restartThread:) userInfo:nil repeats:NO];
-    
+
     // [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
     [self runTask];
 }
 
 - (void)createAlertToWakeUpApp {
     if (self.nextFetch) {
-        AlarmTask *alertTask = [AlarmTask data];
-        
+        AlarmTask *alertTask = [AlarmTask new];
+
         NSDictionary *ignore = @{ kDoNotDisplayIfActive: kDoNotDisplayIfActive };
-        
+
         DEBUG_LOG(@"Alert in %f", [self.nextFetch timeIntervalSinceNow]);
-        
+
         [alertTask alert:NSLocalizedString(@"iOS has stopped PDX Bus from checking departures, making alarms inaccurate. "
                                            @"Please restart PDX Bus so it can update the departure alarms.", @"alarm alert")
                 fireDate:self.nextFetch
@@ -561,28 +551,28 @@
                 userInfo:ignore
             defaultSound:NO
               thisThread:NO];
-        
+
         self.nextFetch = nil;
     }
 }
 
 - (void)rawRunTask {
     DEBUG_FUNC();
-    
+
     UIApplication *app = [UIApplication sharedApplication];
-    
+
     _taskId = [app beginBackgroundTaskWithExpirationHandler:^{
-        DEBUG_LOG(@"Expiration Handler\n");
-        
-        DEBUG_LOGF(app.backgroundTimeRemaining);
-        
-        if (self.backgroundThread) {
-            [self.backgroundThread cancel];
-        }
-        
-        [self createAlertToWakeUpApp];
-    }];
-    
+                       DEBUG_LOG(@"Expiration Handler\n");
+
+                       DEBUG_LOGF(app.backgroundTimeRemaining);
+
+                       if (self.backgroundThread) {
+                       [self.backgroundThread cancel];
+                       }
+
+                       [self createAlertToWakeUpApp];
+                   }];
+
     // Start the long-running task and return immediately.
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [self taskLoop];
@@ -592,8 +582,7 @@
 }
 
 - (void)runTask {
-    @synchronized (_backgroundTasks)
-    {
+    @synchronized (_backgroundTasks) {
         if (!self.atomicTaskRunning) {
             self.atomicTaskRunning = YES;
             [self rawRunTask];
@@ -602,22 +591,19 @@
 }
 
 - (NSInteger)taskCount {
-    @synchronized (_backgroundTasks)
-    {
+    @synchronized (_backgroundTasks) {
         return _backgroundTasks.count;
     }
 }
 
 - (NSArray *)taskKeys {
-    @synchronized (_backgroundTasks)
-    {
+    @synchronized (_backgroundTasks) {
         return [_orderedTaskKeys copy];
     }
 }
 
 - (AlarmTask __strong *)taskForKey:(NSString *)key {
-    @synchronized (_backgroundTasks)
-    {
+    @synchronized (_backgroundTasks) {
         return _backgroundTasks[key];
     }
 }
@@ -631,24 +617,24 @@
                                                                                               @"alert question"),
                                                                             kUserDistanceProximity]
                                                             preferredStyle:UIAlertControllerStyleAlert];
-    
+
     [alert addAction:[UIAlertAction actionWithTitle:kAlertViewOK style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-        completionHandler(FALSE, NO);
-    }]];
-    
+                                                                                                     completionHandler(FALSE, NO);
+                                                                                                 }]];
+
     [alert addAction:[UIAlertAction actionWithTitle:kAlertViewCancel style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
-        completionHandler(YES, NO);
-    }]];
-    
+                                                                                                        completionHandler(YES, NO);
+                                                                                                    }]];
+
     // Make a small rect in the center, just 10,10
     const CGFloat side = 10;
     CGRect frame = source.frame;
     CGRect sourceRect = CGRectMake((frame.size.width - side) / 2.0, (frame.size.height - side) / 2.0, side, side);
-    
+
     alert.popoverPresentationController.sourceView = source;
     alert.popoverPresentationController.sourceRect = sourceRect;
-    
-    
+
+
     [parent presentViewController:alert animated:YES completion:nil];
 }
 

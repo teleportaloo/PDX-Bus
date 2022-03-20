@@ -13,6 +13,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogNetworking
+
 #import "ProcessQRCodeString.h"
 
 @interface ProcessQRCodeString ()
@@ -37,7 +39,7 @@
         [self checkURL:originalURL];
         
         if (!self.stopId) {
-            [self fetchDataByPolling:originalURL];
+            [self fetchDataByPolling:originalURL cachePolicy:NSURLRequestReloadIgnoringCacheData];
         }
     }
     
@@ -54,7 +56,8 @@
     // catch the redirect if there was any
     self.rawData = nil;
     [self cancel];
-    self.dataComplete = YES;
+    
+    dispatch_semaphore_signal(self.fetchDone);
     
     completionHandler(NSURLSessionResponseCancel);
 }

@@ -23,9 +23,19 @@
 
 @implementation WatchMapHelper
 
++ (void)expandTopLeft:(CLLocationCoordinate2D *)tl bottomRight:(CLLocationCoordinate2D *)br loc:(CLLocationCoordinate2D)loc
+{
+    tl->longitude = fmin(tl->longitude, loc.longitude);
+    tl->latitude  = fmax(tl->latitude, loc.latitude);
+    
+    br->longitude = fmax(br->longitude, loc.longitude);
+    br->latitude  = fmin(br->latitude,  loc.latitude);
+}
+
 + (void)displayMap:(WKInterfaceMap *)map
          purplePin:(CLLocation *)purplePin
-         otherPins:(NSArray<id<WatchPinColor> > *)otherPins {
+         otherPins:(NSArray<id<WatchPinColor> > *)otherPins
+   currentLocation:(CLLocation *)currentLocation {
     CLLocationCoordinate2D topLeftCoord;
     
     topLeftCoord.latitude = -90;
@@ -42,34 +52,31 @@
     
     [map removeAllAnnotations];
     
+    if (currentLocation != nil) {
+        [WatchMapHelper expandTopLeft:&topLeftCoord bottomRight:&bottomRightCoord loc:currentLocation.coordinate];
+    }
+    
+    
     if (purplePin != nil) {
         [map addAnnotation:purplePin.coordinate withPinColor:WKInterfaceMapPinColorPurple];
         
-        topLeftCoord.longitude = fmin(topLeftCoord.longitude, purplePin.coordinate.longitude);
-        topLeftCoord.latitude = fmax(topLeftCoord.latitude, purplePin.coordinate.latitude);
-        
-        bottomRightCoord.longitude = fmax(bottomRightCoord.longitude, purplePin.coordinate.longitude);
-        bottomRightCoord.latitude = fmin(bottomRightCoord.latitude,  purplePin.coordinate.latitude);
+        [WatchMapHelper expandTopLeft:&topLeftCoord bottomRight:&bottomRightCoord loc:purplePin.coordinate];
     }
     
     if (otherPins != nil) {
         for (NSInteger i = 0; i < otherPins.count && i < 6; i++) {
             id<WatchPinColor> pin = otherPins[i];
             
-            if (pin.hasCoord) {
-                CLLocationCoordinate2D loc = pin.coord;
+            if (pin.pinHasCoord) {
+                CLLocationCoordinate2D loc = pin.pinCoord;
                 
-                topLeftCoord.longitude = fmin(topLeftCoord.longitude, loc.longitude);
-                topLeftCoord.latitude = fmax(topLeftCoord.latitude,  loc.latitude);
-                
-                bottomRightCoord.longitude = fmax(bottomRightCoord.longitude, loc.longitude);
-                bottomRightCoord.latitude = fmin(bottomRightCoord.latitude,  loc.latitude);
-                
+                [WatchMapHelper expandTopLeft:&topLeftCoord bottomRight:&bottomRightCoord loc:loc];
+                                
                 if (pin.pinTint == nil) {
                     [map addAnnotation:loc withPinColor:pin.pinColor];
-                } else if (pin.hasBearing) {
+                } else if (pin.pinHasBearing) {
                     bool bus = [pin.pinTint isEqual:[UIColor modeAwareBusColor]];
-                    UIImage *plainImage = [mapAnnotionImage getImage:pin.doubleBearing mapRotation:0.0 bus:bus named:mapAnnotionImage.forceRetinaImage ? kIconUp2x : kIconUp];
+                    UIImage *plainImage = [mapAnnotionImage getImage:pin.pinBearing mapRotation:0.0 bus:bus named:mapAnnotionImage.forceRetinaImage ? kIconUp2x : kIconUp];
                     
                     if (!bus || mapAnnotionImage.tintableImage) {
                         UIImage *tintedImage = [plainImage tintImageWithColor:pin.pinTint];
@@ -96,6 +103,17 @@
     
     [map setRegion:region];
     map.hidden = NO;
+    
+    if (currentLocation)
+    {
+        if (@available(watchOS 6.1, *)) {
+            map.showsUserLocation = YES;
+        }
+        else
+        {
+            [map addAnnotation:purplePin.coordinate withPinColor:WKInterfaceMapPinColorGreen];
+        }
+    }
 }
 
 @end

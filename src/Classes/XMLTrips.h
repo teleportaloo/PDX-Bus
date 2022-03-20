@@ -14,9 +14,7 @@
 
 #import <Foundation/Foundation.h>
 #import "TriMetXML.h"
-#import "MapPinColor.h"
-#import "ReturnStopId.h"
-
+#import "MapPin.h"
 #import "ScreenConstants.h"
 #import "TripLegEndPoint.h"
 #import "TripLeg.h"
@@ -24,9 +22,7 @@
 #import "TripUserRequest.h"
 #import "TripItinerary.h"
 
-
-
-@interface XMLTrips : TriMetXML
+@interface XMLTrips : TriMetXML<TripItinerary *>
 
 @property (nonatomic, strong) TripUserRequest *userRequest;
 @property (nonatomic, strong) NSArray *userFaves;
@@ -36,15 +32,15 @@
 
 @property (nonatomic)         bool reversed;
 
-@property (nonatomic, strong) NSString *xdate;
-@property (nonatomic, strong) NSString *xtime;
+@property (nonatomic, copy, setter = setXml_date:) NSString *queryDateFormatted;
+@property (nonatomic, copy, setter = setXml_time:) NSString *queryTimeFormatted;
 
 @property (nonatomic, readonly, copy) NSString *shortName;
 @property (nonatomic, readonly, copy) NSString *longName;
 @property (nonatomic, readonly, copy) NSString *mediumName;
 
-@property (nonatomic, strong) NSMutableArray *toList;
-@property (nonatomic, strong) NSMutableArray *fromList;
+@property (nonatomic, strong) NSMutableArray<TripLegEndPoint *> *toList;
+@property (nonatomic, strong) NSMutableArray<TripLegEndPoint *> *fromList;
 
 @property (nonatomic)         bool toAppleFailed;
 @property (nonatomic)         bool fromAppleFailed;

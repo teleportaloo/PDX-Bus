@@ -22,6 +22,10 @@
     return [UINib nibWithNibName:@"LinkCell" bundle:nil];
 }
 
++ (NSString *)identifier {
+    return @"link cell";
+}
+
 - (void)awakeFromNib {
     [super awakeFromNib];
     
@@ -43,6 +47,7 @@
     
     return TRUE;
 }
+
 
 
 @end

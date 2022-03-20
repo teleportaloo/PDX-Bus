@@ -22,7 +22,6 @@
 @interface MapViewWithStops ()
 
 @property (nonatomic, strong) XMLStops *stopData;
-@property (nonatomic, copy)   NSString *stopId;
 
 @end
 
@@ -38,17 +37,17 @@
     // Dispose of any resources that can be recreated.
 }
 
-- (void)addStops:(id<ReturnStop>)returnStop {
+- (void)addStops:(id<ReturnStopObject>)returnStop {
     for (Stop *stop in self.stopData.items) {
-        if (![stop.stopId isEqualToString:self.stopId]) {
-            stop.callback = returnStop;
-            [self addPin:stop];
-        }
+        stop.stopObjectCallback = returnStop;
+        [self addPin:stop];
     }
 }
 
-- (void)fetchStopsAsync:(id<TaskController>)taskController route:(NSString *)routeid direction:(NSString *)dir
-             returnStop:(id<ReturnStop>)returnStop {
+- (void)fetchStopsAsync:(id<TaskController>)taskController
+                  route:(NSString *)routeid
+              direction:(NSString *)dir
+             returnStop:(id<ReturnStopObject>)returnStop {
     self.stopData = [XMLStops xml];
     
     if (!self.backgroundRefresh && [self.stopData getStopsForRoute:routeid

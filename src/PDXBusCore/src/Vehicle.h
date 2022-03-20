@@ -16,18 +16,16 @@
 #import <Foundation/Foundation.h>
 #import "TriMetXML.h"
 #import <CoreLocation/CoreLocation.h>
-#import "DataFactory.h"
-
 
 #define kNoVehicles           @"PDX Bus could not find a bus or train close by. Note - Streetcar is not supported.  Try again in a few moments as the vehicle locations may be updated."
 
 #define kVehicleTypeBus       @"bus"
-#define kVehicleTypeTrain     @"train"
+#define kVehicleTypeTrain     @"rail"
 #define kVehicleTypeStreetcar @"streetcar"
 
 // #define VEHICLE_TEST 1
 
-@interface Vehicle : DataFactory
+@interface Vehicle : NSObject
 
 @property (nonatomic, copy) NSString *signMessageLong;
 @property (nonatomic, strong) NSDate *locationTime;
@@ -42,6 +40,12 @@
 @property (nonatomic, copy) NSString *garage;
 @property (nonatomic, copy) NSString *block;
 @property (nonatomic, copy) NSString *type;
+@property (nonatomic)       NSInteger loadPercentage;
+@property (nonatomic, copy) NSString *speedKmHr;
+@property (nonatomic)       bool inCongestion;
+@property (nonatomic)       bool offRoute;
+@property (nonatomic, copy) NSString *delay;
+
 @property (nonatomic) double distance;
 
 - (bool)typeMatchesMode:(TripMode)mode;

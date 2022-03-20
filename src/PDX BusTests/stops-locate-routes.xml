@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resultSet xmlns="urn:trimet:arrivals" queryTime="1602117325634">
+    <location desc="Fair Complex/Hillsboro Airport MAX Stn" dir="Eastbound" lat="45.5270414684259" lng="-122.945808297437" locid="9838" feetDistance="0" metersDistance="0">
+        <route desc="MAX Blue Line" route="100" type="R" />
+    </location>
+    <location desc="Fair Complex/Airport Park &amp; Ride" dir="Eastbound" lat="45.527197999998" lng="-122.94587999998" locid="9953" feetDistance="60" metersDistance="18">
+        <route desc="46-North Hillsboro" route="46" type="B" />
+    </location>
+    <location desc="Fair Complex/Hillsboro Airport MAX Stn" dir="Westbound" lat="45.5269236271043" lng="-122.946499150393" locid="9837" feetDistance="182" metersDistance="55">
+        <route desc="MAX Blue Line" route="100" type="R" />
+    </location>
+    <location desc="NE 34th &amp; Cornell" dir="Northbound" lat="45.5314893754839" lng="-122.946520094582" locid="9962" feetDistance="1634" metersDistance="498">
+        <route desc="46-North Hillsboro" route="46" type="B" />
+    </location>
+    <location desc="NE Cornell &amp; 34th" dir="Eastbound" lat="45.5320924517192" lng="-122.947357055828" locid="8558" feetDistance="1886" metersDistance="574">
+        <route desc="46-North Hillsboro" route="46" type="B" />
+        <route desc="48-Cornell" route="48" type="B" />
+    </location>
+    <location desc="NE Cornell &amp; 34th" dir="Westbound" lat="45.5323230356636" lng="-122.947183075126" locid="8546" feetDistance="1957" metersDistance="596">
+        <route desc="46-North Hillsboro" route="46" type="B" />
+        <route desc="48-Cornell" route="48" type="B" />
+    </location>
+    <location desc="E Main &amp; NE 37th" dir="Westbound" lat="45.5200133502992" lng="-122.944319356727" locid="301" feetDistance="2588" metersDistance="788">
+        <route desc="47-Main/Evergreen" route="47" type="B" />
+    </location>
+    <location desc="E Main &amp; SE 37th" dir="Eastbound" lat="45.519869999998" lng="-122.94472699998" locid="302" feetDistance="2629" metersDistance="801">
+        <route desc="47-Main/Evergreen" route="47" type="B" />
+    </location>
+</resultSet>

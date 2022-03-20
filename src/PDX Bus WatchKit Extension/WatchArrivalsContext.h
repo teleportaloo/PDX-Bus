@@ -30,9 +30,10 @@
 @property (nonatomic)                   bool showMap;
 @property (nonatomic)                   bool showDistance;
 @property (nonatomic)                   double distance;
-@property (copy, nonatomic)             NSString *stopId;
+@property (nonatomic, copy)             NSString *stopId;
 @property (nonatomic, copy)             NSString *detailBlock;
-@property (nonatomic, retain)           XMLDepartures *departures;
+@property (nonatomic, copy)             NSString *detailDir;
+@property (nonatomic, strong)           XMLDepartures *departures;
 @property (nonatomic, readonly, strong) WatchArrivalsContext *next;
 @property (nonatomic, readonly, strong) WatchArrivalsContext *clone;
 

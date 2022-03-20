@@ -15,14 +15,14 @@
 #import <UIKit/UIKit.h>
 #import <MapKit/MapKit.h>
 #import "XMLDepartures.h"
-#import "MapPinColor.h"
+#import "MapPin.h"
 #import "UIToolbar+Auto.h"
 #import "ViewControllerBase.h"
 #import "ShapeRoutePath.h"
 #import "RoutePolyline.h"
 
 
-typedef enum _mapViewlineOptions {
+typedef enum MapViewLineOptionsEnum {
     MapViewNoLines,
     MapViewFitLines,
     MapViewNoFitLines
@@ -34,11 +34,11 @@ typedef enum _mapViewlineOptions {
 @property (nonatomic, strong) NSMutableArray<ShapeRoutePath *> *lineCoords;
 @property (nonatomic)         MapViewLineOptions lineOptions;
 @property (nonatomic)         bool nextPrevButtons;
-@property (nonatomic, strong) NSMutableArray<id<MapPinColor> > *annotations;
+@property (nonatomic, strong) NSMutableArray<id<MapPin> > *annotations;
 @property (nonatomic, strong) MKMapView *mapView;
 @property (nonatomic)         bool backgroundRefresh;
 @property (nonatomic, strong) MKCircle *circle;
 
-- (void)addPin:(id<MapPinColor>)pin;
+- (void)addPin:(id<MapPin>)pin;
 
 @end

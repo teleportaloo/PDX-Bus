@@ -13,6 +13,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+
 #import "WatchNearbyInterfaceController.h"
 #import "DebugLogging.h"
 #import "WatchStop.h"
@@ -22,17 +24,23 @@
 #import "UserState.h"
 #import "NSString+Helper.h"
 #import "FormatDistance.h"
+#import "WatchNearbyNamedLocationContext.h"
+#import "UIFont+Utility.h"
 
-#define MAX_AGE -30.0
+
+#define MAX_AGE -60.0
 
 @interface WatchNearbyInterfaceController () {
     bool _waitingForLocation;
+    bool _usingGps;
 }
 
 @property (nonatomic, strong) CLLocationManager *locationManager;
+@property (nonatomic, strong) CLLocationManager *inaccurateLocationManager;
 @property (nonatomic, strong) NSDate *timeStamp;
 @property (nonatomic, strong) CLLocation *lastLocation;
 @property (nonatomic, strong) XMLLocateStops *stops;
+@property (nonatomic, copy) NSString *locationName;
 
 @end
 
@@ -40,6 +48,7 @@
 
 - (void)dealloc {
     self.locationManager.delegate = nil;
+    self.inaccurateLocationManager.delegate = nil;
 }
 
 - (void)setUpLocationStatus {
@@ -90,9 +99,27 @@
     if (text == nil) {
         self.stopTable.hidden = NO;
         self.loadingGroup.hidden = YES;
+        self.menuGroup.hidden = NO;
     } else {
         self.loadingGroup.hidden = NO;
+    
+        if (_usingGps)
+        {
+            if (@available(watchOS 6.1, *)) {
+                self.locatingMap.showsUserLocation = YES;
+                self.locatingMap.showsUserHeading = YES;
+                self.locatingMap.hidden = NO;
+            } else {
+                self.locatingMap.hidden = YES;
+            }
+        }
+        else
+        {
+            self.locatingMap.hidden = YES;
+        }
+        
         self.stopTable.hidden = YES;
+        self.menuGroup.hidden = YES;
         [self.loadingLabel setText:text];
     }
 }
@@ -107,6 +134,11 @@
         [self.locationManager requestWhenInUseAuthorization];
         [self.locationManager requestLocation];
         
+        self.inaccurateLocationManager.desiredAccuracy = kCLLocationAccuracyThreeKilometers;
+        [self.inaccurateLocationManager requestWhenInUseAuthorization];
+        [self.inaccurateLocationManager requestLocation];
+        
+        
         _waitingForLocation = true;
         self.loadingText = @"Locating";
     }
@@ -117,16 +149,23 @@
     
     self.map.hidden = YES;
     
-    if ([context isKindOfClass:[WatchArrivalsContextNearby class]]) {
+    if ([context isKindOfClass:[WatchNearbyNamedLocationContext class]]) {
+        WatchNearbyNamedLocationContext *actualContext = (WatchNearbyNamedLocationContext *)context;
         _waitingForLocation = false;
+        _usingGps = false;
         
-        self.lastLocation = context;
+        self.lastLocation = actualContext.loc;
+        self.locationName = actualContext.name;
         
         [self processLocation];
     } else {
+        _usingGps = true;
         // Configure interface objects here.
         self.locationManager = [[CLLocationManager alloc] init];
         self.locationManager.delegate = self;
+        
+        self.inaccurateLocationManager = [[CLLocationManager alloc] init];
+        self.inaccurateLocationManager.delegate = self;
         
         [self setUpLocationStatus];
         
@@ -160,6 +199,10 @@
     if (self.locationManager != nil) {
         [self.locationManager stopUpdatingLocation];
     }
+    
+    if (self.inaccurateLocationManager != nil) {
+        [self.inaccurateLocationManager stopUpdatingLocation];
+    }
 }
 
 - (NSAttributedString *)stopName:(StopDistance *)item {
@@ -173,23 +216,23 @@
         }
     }
     
-    NSMutableString *name = [NSMutableString stringWithFormat:@"#G%@#Y%@#W", dir, item.desc];
+    NSMutableString *name = [NSMutableString stringWithFormat:@"#G%@#Y%@#W", dir, item.desc.safeEscapeForMarkUp];
     
     for (Route *route in item.routes) {
         [name appendFormat:@"\n#b%@#b", route.desc];
         
-        [route.directions enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull key, NSString *_Nonnull obj, BOOL *_Nonnull stop) {
-            [name appendFormat:@"\n#i%@#i", obj];
+        [route.directions enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull key, Direction *_Nonnull obj, BOOL *_Nonnull stop) {
+            [name appendFormat:@"\n#i%@#i", obj.desc];
         }];
     }
     
-    return [name formatAttributedStringWithFont:[UIFont systemFontOfSize:13.0]];
+    return [name attributedStringFromMarkUpWithFont:[UIFont monospacedDigitSystemFontOfSize:13.0]];
 }
 
 - (void)displayStops {
     [self.stopTable setNumberOfRows:self.stops.count withRowType:@"Stop"];
     
-    NSMutableString *stopIds = [NSString commaSeparatedStringFromEnumerator:self.stops.items selector:@selector(stopId)];
+    NSMutableString *stopIds = [NSString commaSeparatedStringFromEnumerator:self.stops.items selToGetString:@selector(stopId)];
     
     for (NSInteger i = 0; i < self.stopTable.numberOfRows; i++) {
         WatchStop *row = [self.stopTable rowControllerAtIndex:i];
@@ -227,7 +270,7 @@
         [redPins addObject:pin];
     }
     
-    [WatchMapHelper displayMap:self.map purplePin:self.lastLocation otherPins:redPins];
+    [WatchMapHelper displayMap:self.map purplePin:nil otherPins:redPins currentLocation:self.lastLocation];
 }
 
 - (id)backgroundTask {
@@ -268,22 +311,30 @@
 - (void)processLocation {
     [self stopLocating];
     
-    self.loadingText = @"Getting\nstops";
-    
-    
+    if (self.locationName)
+    {
+        self.loadingText = [NSString stringWithFormat:@"Getting stops near\n%@", self.locationName];
+    } else {
+        self.loadingText = @"Getting stops";
+    }
     [self startBackgroundTask];
 }
 
 - (void)locationManager:(CLLocationManager *)manager
      didUpdateLocations:(NSArray<CLLocation *> *)locations {
     CLLocation *newLocation = locations.lastObject;
-    
+
+    DEBUG_LOG(@"Accuracy %f age %f\n", newLocation.horizontalAccuracy, -newLocation.timestamp.timeIntervalSinceNow);
+
+    if (@available(watchOS 6.1, *)) {
+        [WatchMapHelper displayMap:self.locatingMap purplePin:nil otherPins:nil currentLocation:newLocation];
+        self.loadingText = [NSString stringWithFormat:@"Within %@", [FormatDistance formatMetres:newLocation.horizontalAccuracy]];
+    }
+   
     if (newLocation.timestamp.timeIntervalSinceNow < MAX_AGE) {
         // too old!
         return;
     }
-    
-    DEBUG_LOG(@"Accuracy %f\n", newLocation.horizontalAccuracy);
     
     /*
      if (newLocation.horizontalAccuracy > 300)
@@ -297,7 +348,7 @@
      }
      */
     
-    if (!_waitingForLocation) {
+    if (!_waitingForLocation || newLocation.horizontalAccuracy > 65.0) {
         return;
     }
     
@@ -310,7 +361,7 @@
 
 - (void)locationManager:(CLLocationManager *)manager
        didFailWithError:(NSError *)error {
-    if (!_waitingForLocation) {
+    if (!_waitingForLocation || manager != self.locationManager) {
         return;
     }
     

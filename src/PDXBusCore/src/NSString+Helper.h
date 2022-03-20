@@ -25,8 +25,9 @@
 @property (nonatomic, readonly) NSString *_Nonnull stringWithTrailingSpaceIfNeeded;
 @property (nonatomic, readonly) NSString *_Nonnull stringByTrimmingWhitespace;
 @property (nonatomic, readonly) unichar firstUnichar;
+@property (nonatomic, readonly) unichar lastUnichar;
 
-// Formatting - a simple markup for basic text formatting.
+// A simple markup for basic text formatting.
 // Use # as escape characters
 // #b - bold text on or off
 // #i - italic text on or off
@@ -38,11 +39,13 @@
 // #- decreases font size by 1 point
 // #) increases font size by 2 points
 // #] increases font size by 4 points
+// #f small font
+// #F larger font (basic font)
 
 // Colors:
 
 //  #D - dark mode aware text (black or white)
-//  #! - dark mode aware system wide alert color (yellow or black)
+//  #! - dark mode aware system-wide alert color (yellow or black)
 //  #U - dark mode aware blue.
 
 //  #0 - black
@@ -62,25 +65,40 @@
 // Links - there is a space after the URL to indicate the end
 // #Lhttp://apple.com Text#T
 
-- (NSMutableAttributedString *_Nonnull)formatAttributedStringWithFont:(UIFont *_Nullable)regularFont;
-- (NSString *_Nonnull)removeFormatting;
-- (NSString *_Nonnull)encodeUrlForFormatting;
-- (NSString *_Nonnull)decodeUrlForFormatting;
+- (NSMutableAttributedString *_Nonnull)attributedStringFromMarkUp;      // Uses large font
+- (NSMutableAttributedString *_Nonnull)smallAttributedStringFromMarkUp;
+- (NSMutableAttributedString *_Nonnull)attributedStringFromMarkUpWithFont:(UIFont *_Nullable)font;
+- (NSString *_Nonnull)safeEscapeForMarkUp;
+- (NSString *_Nonnull)removeMarkUp;
+- (NSString * _Nonnull)markedUpLinkToStopId;
 
-- (NSMutableArray<NSString *> *_Nonnull)arrayFromCommaSeparatedString;
+// URL encoding helpers
+- (NSString *_Nonnull)percentEncodeUrl;
+- (NSString *_Nonnull)fullyPercentEncodeString;
+
+// Search helpers
 - (bool)hasCaseInsensitiveSubstring:(NSString *_Nonnull)search;
+
+
+// UI helpers
 - (NSMutableString *_Nonnull)phonetic;
 - (NSString *_Nonnull)justNumbers;
 
+// Breaking down into arrays and back
+
+- (NSMutableArray<NSString *> *_Nonnull)mutableArrayFromCommaSeparatedString;
 + (NSMutableString *_Nonnull)commaSeparatedStringFromStringEnumerator:(id<NSFastEnumeration> _Nonnull)container;
 
 + (NSMutableString *_Nonnull)commaSeparatedStringFromEnumerator:(id<NSFastEnumeration> _Nonnull)container
-                                                       selector:(SEL _Nonnull)selector;
+                                                 selToGetString:(SEL _Nonnull)selToGetString;
 
 + (NSMutableString *_Nonnull)textSeparatedStringFromEnumerator:(id<NSFastEnumeration> _Nonnull)container
-                                                      selector:(SEL _Nonnull)selector
+                                                selToGetString:(SEL _Nonnull)selToGetString
                                                      separator:(NSString *_Nonnull)separator;
 
 - (NSAttributedString *_Nonnull)attributedStringWithAttributes:(nullable NSDictionary<NSAttributedStringKey, id> *)attrs;
+
+
+
 
 @end

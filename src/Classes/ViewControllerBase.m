@@ -12,6 +12,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+
 #import <Foundation/Foundation.h>
 #import "ViewControllerBase.h"
 #import "FindByLocationView.h"
@@ -41,6 +43,8 @@
 #import "UIAlertController+SimpleMessages.h"
 #import "UIApplication+Compat.h"
 #import "DetoursView.h"
+#import "MapPin.h"
+#import "UIFont+Utility.h"
 
 @implementation UINavigationController (Rotation_IOS6)
 
@@ -60,7 +64,7 @@
 
 @interface ViewControllerBase () {
     UIFont *_basicFont;
-    UIFont *_paragraphFont;
+    UIFont *_smallFont;
 }
 
 @end
@@ -74,6 +78,8 @@
 }
 
 - (void)dealloc {
+    DEBUG_FUNC();
+    
     //
     // There is a weak reference to self in the background task - it must
     // be removed if we are dealloc'd.
@@ -81,11 +87,16 @@
     if (self.backgroundTask) {
         self.backgroundTask.callbackComplete = nil;
     }
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:NSUserDefaultsDidChangeNotification
+                                                  object:[NSUserDefaults standardUserDefaults]];
 }
 
 - (void)setTheme {
     int color = Settings.toolbarColors;
     bool dark = NO;
+    UIColor *uiCol = nil;
     
     if (@available(iOS 13.0, *)) {
         if (self.traitCollection.userInterfaceStyle == UIUserInterfaceStyleDark) {
@@ -93,16 +104,46 @@
         }
     }
     
-    if (color == 0xFFFFFF || dark) {
-        self.navigationController.toolbar.barTintColor = nil;
-        self.navigationController.navigationBar.barTintColor = nil;
-        self.navigationController.toolbar.tintColor = nil;
-        self.navigationController.navigationBar.tintColor = nil;
+    if (color != 0xFFFFFF && !dark) {
+        uiCol = HTML_COLOR(color);
+    }
+    
+    if (@available(iOS 15.0, *)) {
+        UINavigationBarAppearance *navBarAppearance = [[UINavigationBarAppearance alloc] init];
+        UIToolbarAppearance *toolbarAppearance = [[UIToolbarAppearance alloc] init];
+        
+        [navBarAppearance configureWithDefaultBackground];
+        [toolbarAppearance configureWithDefaultBackground];
+        
+        if (uiCol) {
+            navBarAppearance.backgroundColor = uiCol;
+            toolbarAppearance.backgroundColor = uiCol;
+        }
+        
+        self.navigationController.navigationBar.standardAppearance = navBarAppearance;
+        self.navigationController.navigationBar.scrollEdgeAppearance = navBarAppearance;
+        
+        DEBUG_LOGO(self.navigationController.toolbar);
+        
+        self.navigationController.toolbar.standardAppearance = toolbarAppearance;
+        self.navigationController.toolbar.scrollEdgeAppearance = toolbarAppearance;
+
+        // Bug as toolbar doesn't change color
+        [self updateToolbar];
+
+        
     } else {
-        self.navigationController.toolbar.barTintColor = HTML_COLOR(color);
-        self.navigationController.navigationBar.barTintColor = HTML_COLOR(color);
-        self.navigationController.toolbar.tintColor = [UIColor whiteColor];
-        self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
+    
+        self.navigationController.toolbar.barTintColor = uiCol;
+        self.navigationController.navigationBar.barTintColor = uiCol;
+    
+        if (uiCol) {
+            self.navigationController.toolbar.tintColor = [UIColor whiteColor];
+            self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
+        } else {
+            self.navigationController.toolbar.barTintColor = nil;
+            self.navigationController.navigationBar.barTintColor = nil;
+        }
     }
 }
 
@@ -110,6 +151,11 @@
     if (self.backgroundTask == nil) {
         _userState = UserState.sharedInstance;
         self.backgroundTask = [BackgroundTaskContainer create:self];
+        _basicFont = nil;
+        _smallFont = nil;
+        
+        UIFont.smallFont = self.smallFont;
+        UIFont.basicFont = self.basicFont;
         return true;
     }
     
@@ -173,6 +219,31 @@
      self.extendedLayoutIncludesOpaqueBars = NO;
      }
      */
+    
+    __weak ViewControllerBase *weakSelf = self;
+    
+#ifdef DEBUGLOGGING
+    NSString *classForLog = NSStringFromClass(self.class);
+#endif
+    
+    [[NSNotificationCenter defaultCenter] addObserverForName:NSUserDefaultsDidChangeNotification
+                                                      object:[NSUserDefaults standardUserDefaults]
+                                                       queue:[NSOperationQueue mainQueue]
+                                                  usingBlock:^(NSNotification *note) {
+        ViewControllerBase *strongSelf = weakSelf;
+        
+        DEBUG_LOG(@"Settings changed in class %p %@", strongSelf, classForLog);
+        
+        if (strongSelf) {
+            [strongSelf handleChangeInUserSettingsOnMainThread:note];
+        }
+    }];
+}
+
+- (void)handleChangeInUserSettingsOnMainThread:(NSNotification *)notfication {
+    DEBUG_FUNC();
+    DEBUG_CLASS(self);
+    [self setTheme];
 }
 
 // iOS6 methods
@@ -204,21 +275,19 @@
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
-    [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context)
-     {
-        UIInterfaceOrientation orientation = [[UIApplication sharedApplication] compatStatusBarOrientation];
-        
-        [self rotatedTo:orientation];
-    }           completion:^(id<UIViewControllerTransitionCoordinatorContext> context)
-     {
-    }];
+    [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context) {
+        [self willRotateTo:[[UIApplication sharedApplication] compatStatusBarOrientation]];
+    }
+                                 completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
+    }
+     ];
     
     [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
 }
 
 #pragma mark View helper methods
 
-- (void)rotatedTo:(UIInterfaceOrientation)orientation {
+- (void)willRotateTo:(UIInterfaceOrientation)orientation {
     if (!self.backgroundTask.running) {
         [self reloadData];
     }
@@ -226,7 +295,10 @@
 
 - (void)reloadData {
     _basicFont = nil;
-    _paragraphFont = nil;
+    _smallFont = nil;
+    UIFont.smallFont = self.smallFont;
+    UIFont.basicFont = self.basicFont;
+    [self setTheme];
 }
 
 - (ScreenInfo)screenInfo {
@@ -310,11 +382,10 @@
     return backView;
 }
 
-
 #pragma mark Toolbar methods
 
 - (UIBarButtonItem *)doneButton {
-    if (self.stopIdCallback != nil && (self.stopIdCallback.controller != nil || [self forceRedoButton])) {
+    if (self.stopIdStringCallback != nil && (self.stopIdStringCallback.returnStopIdStringController != nil || [self forceRedoButton])) {
         return [UIToolbar redoButtonWithTarget:self action:@selector(backButton:)];
     } else {
         return [UIToolbar doneButtonWithTarget:self action:@selector(backButton:)];
@@ -324,8 +395,6 @@
 - (bool)forceRedoButton {
     return false;
 }
-
-
 
 - (void)appendXmlData:(NSMutableData *)buffer {
     if (self.xml) {
@@ -401,15 +470,13 @@
         if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
             UIView *source =  (UIView *)[sender valueForKey:@"view"];
             
-            if (source == nil)
-            {
+            if (source == nil) {
                 source = self.view;
             }
             
             activityViewControntroller.popoverPresentationController.sourceView = source;
             activityViewControntroller.popoverPresentationController.sourceRect = CGRectMake(source.bounds.size.width / 2, source.bounds.size.height / 2, 0, 0);
         }
-    
         
         [self presentViewController:activityViewControntroller animated:true completion:nil];
     } else {
@@ -439,10 +506,10 @@
         WebViewController *web = [WebViewController viewController];
         
         if (viewer == 2) {
-            [web setURLmobile:@"https://www.freeformatter.com/xml-formatter.html" full:nil];
+            [web setNamedUrl:@"XML Viewer 2"];
             web.javsScriptCommand = [NSString stringWithFormat:@"document.getElementById('xmlString').value=\"%@\"; document.forms[0].submit()", redactedData];
         } else if (viewer == 3) {
-            [web setURLmobile:@"https://www.samltool.com/prettyprint.php" full:nil];
+            [web setNamedUrl:@"XML Viewer 3"];
             web.javsScriptCommand = [NSString stringWithFormat:@"document.getElementById('xml').value=\"%@\"; document.getElementById('pretty_print').submit()", redactedData];
         }
         
@@ -481,36 +548,30 @@
 }
 
 - (void)backButton:(id)sender {
-    if (self.stopIdCallback != nil && self.stopIdCallback.controller != nil) {
-        [self.navigationController popToViewController:self.stopIdCallback.controller animated:YES];
+    if (self.stopIdStringCallback != nil && self.stopIdStringCallback.returnStopIdStringController != nil) {
+        [self.navigationController popToViewController:self.stopIdStringCallback.returnStopIdStringController animated:YES];
     } else {
         [ self.navigationController popToRootViewControllerAnimated:YES];
     }
 }
 
-
-
-
-
-
 - (void)showRouteSchedule:(NSString *)route {
     if ([[TriMetInfo streetcarRoutes] containsObject:route]) {
-        [WebViewController displayPage:[NSString stringWithFormat:@"https://portlandstreetcar.org"]
-                                  full:nil
-                             navigator:self.navigationController
-                        itemToDeselect:nil
-                              whenDone:self.callbackWhenDone];
+        [WebViewController displayNamedPage:@"Portland Streetcar"
+                                  navigator:self.navigationController
+                             itemToDeselect:nil
+                                   whenDone:self.callbackWhenDone];
     } else {
         NSMutableString *padding = [NSMutableString string];
         
         [self padRoute:route padding:&padding];
         
         
-        [WebViewController displayPage:[NSString stringWithFormat:@"https://www.trimet.org/schedules/r%@.htm", padding]
-                                  full:nil
-                             navigator:self.navigationController
-                        itemToDeselect:nil
-                              whenDone:self.callbackWhenDone];
+        [WebViewController displayNamedPage:@"TriMet Route"
+                                  parameter:padding
+                                  navigator:self.navigationController
+                             itemToDeselect:nil
+                                   whenDone:self.callbackWhenDone];
     }
 }
 
@@ -526,15 +587,15 @@
     }
     
     return NO;
+    
 #else
     return YES;
+    
 #endif
 }
 
 - (bool)videoCaptureSupported {
-    Class captureDeviceClass = NSClassFromString(@"AVCaptureDevice");
-    
-    if (self.fullScreen && captureDeviceClass != nil) {
+    if (self.fullScreen) {
         AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
         
         if (device == nil) {
@@ -605,40 +666,33 @@
     return textView;
 }
 
-- (UIFont *)systemFontBold:(bool)bold size:(CGFloat)size {
-    if (bold) {
-        return [UIFont boldSystemFontOfSize:size];
-    }
-    
-    return [UIFont systemFontOfSize:size];
-}
 
-- (UIFont *)paragraphFont {
-    if (_paragraphFont == nil) {
+- (UIFont *)smallFont {
+    if (_smallFont == nil) {
         if (SMALL_SCREEN) {
             if (self.screenInfo.screenWidth >= WidthiPhone6) {
-                _paragraphFont = [UIFont systemFontOfSize:16.0];
+                _smallFont = [UIFont monospacedDigitSystemFontOfSize:16.0];
             } else {
-                _paragraphFont = [UIFont systemFontOfSize:14.0];
+                _smallFont = [UIFont monospacedDigitSystemFontOfSize:14.0];
             }
         } else {
-            _paragraphFont = [UIFont systemFontOfSize:22.0];
+            _smallFont = [UIFont monospacedDigitSystemFontOfSize:22.0];
         }
     }
     
-    return _paragraphFont;
+    return _smallFont;
 }
 
 - (UIFont *)basicFont {
     if (_basicFont == nil) {
         if (SMALL_SCREEN) {
             if (self.screenInfo.screenWidth >= WidthiPhone6) {
-                _basicFont = [self systemFontBold:NO size:20.0];
+                _basicFont = [UIFont monospacedDigitSystemFontOfSize:20.0];
             } else {
-                _basicFont = [self systemFontBold:NO size:18.0];
+                _basicFont = [UIFont monospacedDigitSystemFontOfSize:18.0];
             }
         } else {
-            _basicFont = [self systemFontBold:NO size:22.0];
+            _basicFont = [UIFont monospacedDigitSystemFontOfSize:22.0];
         }
     }
     
@@ -697,7 +751,7 @@
             [[UIApplication sharedApplication] compatOpenURL:[NSURL URLWithString:twitter]];
         }
     } else {
-        NSString *twitter = [NSString stringWithFormat:@"https://mobile.twitter.com/%@", twitterUser];
+        NSString *twitter = [WebViewController namedURL:@"Twitter" param:twitterUser];
         [self openBrowserFrom:self path:twitter];
     }
 }
@@ -742,8 +796,8 @@
 }
 
 - (UIViewController *)callbackWhenDone {
-    if (self.stopIdCallback) {
-        return self.stopIdCallback.controller;
+    if (self.stopIdStringCallback) {
+        return self.stopIdStringCallback.returnStopIdStringController;
     }
     
     return nil;
@@ -792,16 +846,29 @@
     [self clearSelection];
 }
 
+- (void)buyMeACoffeeCell:(UITableViewCell *)cell {
+    cell.textLabel.text = NSLocalizedString(@"Buy Me A Coffee", @"main menu item");
+    cell.textLabel.textColor = [UIColor modeAwareText];
+    cell.imageView.image = [Icons getIcon:kIconBuyMeACoffee];
+    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+    
+}
+
+- (void)buyMeACoffee {
+    [WebViewController openNamedURL:@"Buy Me A Coffee"];
+    [self clearSelection];
+}
+
 - (void)facebookTriMet {
     static NSString *fbid = @"fb://profile/270344585472";
-    static NSString *fbpath = @"https://m.facebook.com/TriMet";
+    NSString *fbpath = [WebViewController namedURL:@"Facebook TriMet"];
     
     [self facebookWithId:fbid path:fbpath];
 }
 
 - (void)facebook {
     static NSString *fbid = @"fb://profile/218101161593";
-    static NSString *fbpath = @"https://m.facebook.com/PDXBus";
+    NSString *fbpath = [WebViewController namedURL:@"Facebook PDXBus"];
     
     [self facebookWithId:fbid path:fbpath];
 }
@@ -843,8 +910,6 @@
     return [[UIBarButtonItem alloc] initWithCustomView:seg];
 }
 
-
-
 - (void)maybeAddFlashButtonWithSpace:(bool)space buttons:(NSMutableArray *)array big:(bool)big {
     if (Settings.flashingLightIcon) {
         if (space) {
@@ -874,7 +939,6 @@
 + (void)flashLight:(UINavigationController *)nav {
     [nav pushViewController:[FlashViewController viewController] animated:YES];
 }
-
 
 + (void)flashScreen:(UINavigationController *)nav button:(UIBarButtonItem *)button {
     if (Settings.flashingLightWarning) {
@@ -916,7 +980,6 @@
     }
 }
 
-
 - (bool)canGoDeeperAlert {
     if (![DepartureTimesView canGoDeeper]) {
         UIAlertController *alert = [UIAlertController simpleOkWithTitle:nil
@@ -924,56 +987,101 @@
         [self presentViewController:alert animated:YES completion:nil];
         return NO;
     }
+    
     return YES;
 }
 
+- (BOOL)textView:(UITextView *)textView shouldInteractWithURL:(NSURL *)URL inRange:(NSRange)characterRange interaction:(UITextItemInteraction)interaction {
+    return [self linkAction:URL.absoluteString source:textView];
+}
 
-- (bool)linkAction:(NSString *)link {
+- (bool)linkAction:(NSString *)link source:(UIView *)source {
     NSString *stoplink = @"id:";
     NSString *routeLink = @"route:";
+    NSString *tpLink = @"info:timepoint";
     
     if (([link containsString:@"trimet.org/a"])
         || ([link containsString:@"trimet.org/#alerts/"])) {
-        
-        if ([self isKindOfClass:[DetoursView class]])
-        {
-            UIAlertController *alert = [UIAlertController simpleOkWithTitle:NSLocalizedString(@"Service Alerts", @"Title")
-                                                                    message:NSLocalizedString(@"All Service Alerts are displayed here.", @"error")];
+        if ([self isKindOfClass:[DetoursView class]]) {
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Service Alerts", @"Title")
+                                                                           message:NSLocalizedString(@"All Service Alerts are displayed here.", @"error")
+                                                                    preferredStyle:UIAlertControllerStyleAlert];
+            [alert addAction:[UIAlertAction actionWithTitle:kAlertViewOK
+                                                      style:UIAlertActionStyleCancel
+                                                    handler:nil]];
+            
+            [alert addAction:[UIAlertAction actionWithTitle:[NSString stringWithFormat:@"Open %@", link]
+                                                      style:UIAlertActionStyleDefault
+                                                    handler:^(UIAlertAction *_Nonnull action) {
+                [WebViewController displayPage:link
+                                          full:nil
+                                     navigator:self.navigationController
+                                itemToDeselect:nil
+                                      whenDone:self.callbackWhenDone];
+            }]];
+            
             [self presentViewController:alert animated:YES completion:nil];
-        }
-        else
-        {
+        } else {
             [[DetoursView viewController] fetchDetoursAsync:self.backgroundTask];
         }
+        
         return NO;
-    } if ([link containsString:@"trimet.org/#/planner"]) {
+    }
+    
+    if ([link containsString:@"trimet.org/#/planner"]) {
         TripPlannerSummaryView *tripStart = [TripPlannerSummaryView viewController];
-        @synchronized (_userState)
-        {
+        @synchronized (_userState) {
             [tripStart.tripQuery addStopsFromUserFaves:_userState.faves];
         }
         [self.navigationController pushViewController:tripStart animated:YES];
         return NO;
-    }
-    else if ([link hasPrefix:stoplink])
-    {
-        if ([self canGoDeeperAlert])
-        {
+    } else if ([link hasPrefix:stoplink]) {
+        if ([self canGoDeeperAlert]) {
             DepartureTimesView *viewController = [DepartureTimesView viewController];
+            viewController.stopIdStringCallback = self.stopIdStringCallback;
             
             [viewController fetchTimesForLocationAsync:self.backgroundTask stopId:[link substringFromIndex:stoplink.length]];
         }
+        
         return NO;
-    }
-    else if ([link hasPrefix:routeLink])
-    {
-        if ([self canGoDeeperAlert])
-        {
-            [[DirectionView viewController] fetchDirectionsAsync:self.backgroundTask route:[link substringFromIndex:routeLink.length]];
+    } else if ([link hasPrefix:routeLink]) {
+        if ([self canGoDeeperAlert]) {
+            DirectionView *directionView = [DirectionView viewController];
+            directionView.stopIdStringCallback = self.stopIdStringCallback;
+            [directionView fetchDirectionsAsync:self.backgroundTask route:[link substringFromIndex:routeLink.length]];
         }
+        
+        return NO;
+    } else if ([link hasPrefix:tpLink]) {
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Time Points", @"alert title")
+                                                                       message:NSLocalizedString(@"Blue stops are Time Points - one of several stops on each route that serves as a benchmark for whether a trip is running on time.", @"alert message")
+                                                                preferredStyle:UIAlertControllerStyleActionSheet];
+        
+        
+        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Show TriMet dashboard", @"alert item")
+                                                  style:UIAlertActionStyleDefault
+                                                handler:^(UIAlertAction *action) {
+            [WebViewController displayNamedPage:@"TriMet Dashboard"
+                                      navigator:self.navigationController
+                                 itemToDeselect:nil
+                                       whenDone:nil];
+        }]];
+        
+        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"alert item")
+                                                  style:UIAlertActionStyleCancel
+                                                handler:^(UIAlertAction *action) {
+            [self clearSelection];
+        }]];
+        
+        
+        alert.popoverPresentationController.sourceView = source;
+        alert.popoverPresentationController.sourceRect = CGRectMake(0, 0, source.frame.size.width, source.frame.size.height);
+        
+        [self presentViewController:alert animated:YES completion:nil];
+        
         return NO;
     }
-
+    
     return YES;
 }
 

@@ -28,6 +28,8 @@
 @property (strong, nonatomic) IBOutlet WKInterfaceGroup *topGroup;
 @property (strong, nonatomic) IBOutlet WKInterfaceLabel *mainTextLabel;
 @property (strong, nonatomic) IBOutlet WKInterfaceLabel *bookmarkLabel;
+@property (unsafe_unretained, nonatomic) IBOutlet WKInterfaceButton *menuHomeButton;
+@property (unsafe_unretained, nonatomic) IBOutlet WKInterfaceButton *menuCommuteButton;
 
 - (void)applicationDidBecomeActive;
 - (void)processUserActivity;

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response xmlns="http://maps.trimet.org/maps/model/xml" success="false">
+    <date>10/9/2020</date>
+    <time>19:49:07</time>
+    <request>
+        <url><![CDATA[/maps/tpws/V1/tripplanner?fromPlace=City%20hall&toPlace=Middle%20%20school&Date=10-09-20&Time=07:48%20PM&Arr=D&Walk=0.750000&Mode=A&Min=T&Format=XML&MaxItineraries=6&&appID=CEE836AA1288559FE231733E5]]></url>
+        <param name="time">07:48 PM</param>
+        <param name="Min">T</param>
+        <param name="toPlace">Middle  school</param>
+        <param name="Walk">0.75</param>
+        <param name="date">10-09-20</param>
+        <param name="Arr">D</param>
+        <param name="fromPlace">City hall</param>
+        <param name="Mode">A</param>
+    </request>
+    <from>
+        <pos>
+            <x>4.6684058E7</x>
+            <y>1.8325569E7</y>
+            <lat>0.0</lat>
+            <lon>0.0</lon>
+        </pos>
+        <description>City hall</description>
+    </from>
+    <to>
+        <pos>
+            <x>4.6684058E7</x>
+            <y>1.8325569E7</y>
+            <lat>0.0</lat>
+            <lon>0.0</lon>
+        </pos>
+        <description>Middle  school</description>
+    </to>
+    <fromList>
+        <location id="1" areaKey="BE" areaValue="Beaverton">
+            <pos id="">
+                <x>7613183.0</x>
+                <y>671423.0</y>
+                <lat>45.485367</lat>
+                <lon>-122.796572</lon>
+            </pos>
+            <description>BEAVERTON CITY HALL</description>
+        </location>
+        <location id="2" areaKey="CA" areaValue="Canby">
+            <pos id="">
+                <x>7637117.0</x>
+                <y>589783.0</y>
+                <lat>45.263358</lat>
+                <lon>-122.694639</lon>
+            </pos>
+            <description>CANBY CITY HALL</description>
+        </location>
+        <location id="3" areaKey="PO" areaValue="Portland">
+            <pos id="">
+                <x>7643422.0</x>
+                <y>681321.0</y>
+                <lat>45.514803</lat>
+                <lon>-122.67975</lon>
+            </pos>
+            <description>CITY HALL/SW 5TH-JEFFERSON MAX STATION</description>
+        </location>
+        <location id="4" areaKey="CO" areaValue="Cornelius">
+            <pos id="">
+                <x>7547317.0</x>
+                <y>686677.0</y>
+                <lat>45.521763</lat>
+                <lon>-123.055147</lon>
+            </pos>
+            <description>CORNELIUS CITY HALL</description>
+        </location>
+    </fromList>
+    <toList>
+        <location id="1" areaKey="CL" areaValue="Clackamas Co.">
+            <pos id="">
+                <x>7664807.0</x>
+                <y>647551.0</y>
+                <lat>45.423765</lat>
+                <lon>-122.592941</lon>
+            </pos>
+            <description>ALDER CREEK MIDDLE SCHOOL</description>
+        </location>
+        <location id="2" areaKey="PO" areaValue="Portland">
+            <pos id="">
+                <x>7680224.0</x>
+                <y>667719.0</y>
+                <lat>45.480141</lat>
+                <lon>-122.534892</lon>
+            </pos>
+            <description>ALICE OTT MIDDLE SCHOOL</description>
+        </location>
+        <location id="3" areaKey="FO" areaValue="Forest Grove">
+            <pos id="">
+                <x>7541954.0</x>
+                <y>685089.0</y>
+                <lat>45.516943</lat>
+                <lon>-123.075861</lon>
+            </pos>
+            <description>ARMSTRONG MIDDLE SCHOOL</description>
+        </location>
+    </toList>
+    <error code="20021">
+        <message>Uncertain Location: both City hall AND Middle  school addresses were not recognized</message>
+    </error>
+</response>

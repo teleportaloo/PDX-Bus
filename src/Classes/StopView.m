@@ -21,19 +21,25 @@
 #import "NearestVehiclesMap.h"
 #import "NSString+Helper.h"
 #import "TaskState.h"
+#import "WebViewController.h"
 
 #define kGettingStops      @"getting stops"
 
-#define kRouteNameSection  0
-#define kStopSection       1
-#define kTimePointSection  2
-#define kDisclaimerSection 3
-
+enum {
+    kSectionRowRouteName,
+    kSectionStops,
+    kRowStopDummy,
+    kRowStop,
+    kSectionRowTimePoint,
+    kSectionRowDisclaimer
+};
+    
 @interface StopView ()
 
 @property (nonatomic, strong) XMLStops *stopData;
 @property (nonatomic, strong) Departure *departure;
 @property (nonatomic, copy)   NSString *directionName;
+@property (nonatomic) bool hasTimePoint;
 
 - (void)refreshAction:(id)sender;
 
@@ -79,14 +85,52 @@
 
 #pragma mark Data fetchers
 
-- (void)addDummyStop {
-    if (self.stopData.gotData && self.stopData.items.count == 0) {
-        Stop *dummy = [Stop data];
-        
-        dummy.desc = NSLocalizedString(@"The TriMet data contains no stops for this route.", @"info");
-        
-        [self.stopData.items addObject:dummy];
+- (void)checkTimePoint {
+    if (!self.stopData.gotData) {
+        self.hasTimePoint = NO;
     }
+    else
+    {
+        self.hasTimePoint = NO;
+        for (Stop *stop in self.stopData)
+        {
+            if (stop.timePoint)
+            {
+                self.hasTimePoint = YES;
+                break;
+            }
+        }
+    }
+}
+
+
+- (void)createSections
+{
+    [self clearSectionMaps];
+    
+    [self addSectionType:kSectionRowRouteName];
+    [self addRowType:kSectionRowRouteName];
+    
+    [self addSectionType:kSectionStops];
+    
+    if (self.stopData.gotData && self.stopData.items.count == 0) {
+        [self addRowType:kRowStopDummy];
+    }
+    else
+    {
+        // Filtering may reduce this
+        [self addRowType:kRowStop count:self.stopData.items.count];
+    }
+    
+    if (self.hasTimePoint)
+    {
+        [self addSectionType:kSectionRowTimePoint];
+        [self addRowType:kSectionRowTimePoint];
+    }
+    
+    [self addSectionType:kSectionRowDisclaimer];
+    [self addRowType:kSectionRowDisclaimer];
+    
 }
 
 - (void)fetchDestinationsAsync:(id<TaskController>)taskController dep:(Departure *)dep {
@@ -98,6 +142,8 @@
         self.title = NSLocalizedString(@"Destinations", @"page title");
         
         [self updateRefreshDate:self.stopData.cacheTime];
+        [self checkTimePoint];
+        [self createSections];
         [taskController taskCompleted:self];
     } else {
         self.title = NSLocalizedString(@"Destinations", @"page title");
@@ -110,6 +156,8 @@
             self.departure = dep;
             
             [self updateRefreshDate:self.stopData.cacheTime];
+            [self checkTimePoint];
+            [self createSections];
             return (UIViewController *)self;
         }];
     }
@@ -128,7 +176,8 @@
                                                   description:desc
                                                   cacheAction:TriMetXMLCheckRouteCache]) {
         self.backgroundRefresh = backgroundRefresh;
-        [self addDummyStop];
+        [self checkTimePoint];
+        [self createSections];
         [self updateRefreshDate:self.stopData.cacheTime];
         [taskController taskCompleted:self];
     } else {
@@ -140,7 +189,8 @@
                                   direction:dir
                                 description:desc
                                 cacheAction:TriMetXMLForceFetchAndUpdateRouteCache];
-            [self addDummyStop];
+            [self checkTimePoint];
+            [self createSections];
             [self updateRefreshDate:self.stopData.cacheTime];
             return (UIViewController *)self;
         }];
@@ -149,85 +199,84 @@
 
 #pragma mark TableView methods
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return 4;
-}
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    switch (indexPath.section) {
-        case kRouteNameSection:
-        case kStopSection:
+    switch ([self sectionType:indexPath.section]) {
+        case kSectionRowRouteName:
+        case kSectionStops:
             return [self basicRowHeight];
             
             break;
             
-        case kDisclaimerSection:
+        case kSectionRowDisclaimer:
             return kDisclaimerCellHeight;
             
-        case kTimePointSection:
+        case kSectionRowTimePoint:
             return UITableViewAutomaticDimension;
     }
     return kDisclaimerCellHeight;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    switch (section) {
-        case kRouteNameSection:
-            
-            if (tableView == self.table) {
-                return 1;
-            }
-            
-            break;
-            
-        case kStopSection: {
+    NSInteger sectionType = [self sectionType:section];
+    
+    if (tableView != self.table)
+    {
+        if (sectionType == kSectionStops)
+        {
             NSArray *items = [self filteredData:tableView];
-            return (items == nil ? 0 : items.count);
+    
+            if (items != nil)
+            {
+                return items.count;
+            }
         }
-            
-        case kDisclaimerSection:
-            
-            if (tableView == self.table) {
-                return 1;
-            }
-            
-        case kTimePointSection:
-            
-            if (tableView == self.table) {
-                return 1;
-            }
+        else
+        {
+            return 0;
+        }
     }
-    return 0;
+    
+    return [self rowsInSection:section];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     // Configure the cell
     UITableViewCell *cell = nil;
     
-    switch (indexPath.section) {
+    switch ([self rowType:indexPath]) {
         default:
-        case kRouteNameSection: {
+        case kSectionRowRouteName: {
             cell = [RailStation tableView:tableView
                   cellWithReuseIdentifier:MakeCellId(kRouteNameSection)
                                 rowHeight:[self tableView:tableView heightForRowAtIndexPath:indexPath]];
             
             
-            PC_ROUTE_INFO info = [TriMetInfo infoForRoute:self.stopData.routeId];
+            PtrConstRouteInfo info = [TriMetInfo infoForRoute:self.stopData.routeId];
             [RailStation populateCell:cell
-                              station:self.stopData.routeDescription
+                              station:self.stopData.routeDescription.safeEscapeForMarkUp
                                 lines:info ? info->line_bit : 0];
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             break;
         }
-            
-        case kStopSection: {
+         
+        case kRowStopDummy:
+            cell = [self tableView:tableView multiLineCellWithReuseIdentifier:@"dummy"];
+            cell.accessoryType = UITableViewCellAccessoryNone;
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            cell.textLabel.font = self.smallFont;
+            cell.textLabel.textColor = [UIColor modeAwareText];
+            cell.textLabel.text = NSLocalizedString(@"The TriMet data contains no stops for this route.", @"info");
+            cell.accessibilityLabel = cell.textLabel.text.phonetic;
+            break;
+        case kRowStop: {
             NSArray *items = [self filteredData:tableView];
             Stop *stop = items[indexPath.row];
             
-            if (stop.tp) {
+            if (stop.timePoint) {
                 cell = [self tableView:tableView cellWithReuseIdentifier:@"StopTP"];
                 
-                if (self.stopIdCallback == nil || self.stopIdCallback.controller == nil) {
+                if (self.stopIdStringCallback == nil || self.stopIdStringCallback.returnStopIdStringController == nil) {
                     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                     cell.selectionStyle = UITableViewCellSelectionStyleBlue;
                 } else {
@@ -239,12 +288,12 @@
                  [self newLabelWithPrimaryColor:[UIColor blueColor] selectedColor:[UIColor cyanColor] fontSize:14 bold:YES parentView:[cell contentView]];
                  */
                 
-                cell.textLabel.font = self.paragraphFont;
+                cell.textLabel.font = self.smallFont;
                 cell.textLabel.textColor = [UIColor modeAwareBlue];
-            } else if (stop.stopId) {
+            } else {
                 cell = [self tableView:tableView cellWithReuseIdentifier:@"Stop"];
                 
-                if (self.stopIdCallback == nil || self.stopIdCallback.controller == nil) {
+                if (self.stopIdStringCallback == nil || self.stopIdStringCallback.returnStopIdStringController == nil) {
                     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                     cell.selectionStyle = UITableViewCellSelectionStyleBlue;
                 } else {
@@ -255,26 +304,16 @@
                 /*
                  [self newLabelWithPrimaryColor:[UIColor blackColor] selectedColor:[UIColor cyanColor] fontSize:14 bold:YES parentView:[cell contentView]];
                  */
-                cell.textLabel.font = self.paragraphFont;
-                cell.textLabel.textColor = [UIColor modeAwareText];
-            } else {
-                cell = [self tableView:tableView multiLineCellWithReuseIdentifier:@"dummy"];
-                cell.accessoryType = UITableViewCellAccessoryNone;
-                cell.selectionStyle = UITableViewCellSelectionStyleNone;
-                
-                /*
-                 [self newLabelWithPrimaryColor:[UIColor blackColor] selectedColor:[UIColor cyanColor] fontSize:14 bold:YES parentView:[cell contentView]];
-                 */
-                cell.textLabel.font = self.paragraphFont;
+                cell.textLabel.font = self.smallFont;
                 cell.textLabel.textColor = [UIColor modeAwareText];
             }
             
             cell.textLabel.text = stop.desc;
-            cell.accessibilityLabel = [NSString stringWithFormat:@"%@ %@", stop.desc, stop.tp ? @". Time point" : @""].phonetic;
+            cell.accessibilityLabel = [NSString stringWithFormat:@"%@ %@", stop.desc, stop.timePoint ? @". Time point" : @""].phonetic;
             break;
         }
             
-        case kDisclaimerSection:
+        case kSectionRowDisclaimer:
             cell = [self disclaimerCell:tableView];
             
             if (self.stopData.items == nil) {
@@ -288,10 +327,10 @@
             [self updateDisclaimerAccessibility:cell];
             break;
             
-        case kTimePointSection: {
-            cell = [self tableView:tableView multiLineCellWithReuseIdentifier:@"tp" font:self.paragraphFont];
-            cell.textLabel.attributedText = FormatTextPara(@"#UBlue stops are #iTime Points#i - one of several stops on each route that serves as a benchmark for whether a trip is running on time.#D");
-            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        case kSectionRowTimePoint: {
+            cell = [self tableView:tableView multiLineCellWithReuseIdentifier:@"tp" font:self.smallFont];
+            cell.textLabel.attributedText = NSLocalizedString(@"#UBlue stops are #iTime Points#i - one of several stops on each route that serves as a benchmark for whether a trip is running on time.#D", @"information").smallAttributedStringFromMarkUp;
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             [self updateAccessibility:cell];
             break;
         }
@@ -304,14 +343,14 @@
         return nil;
     }
     
-    switch (section) {
-        case kTimePointSection:
-            return @"Time Points";
+    switch ([self sectionType:section]) {
+        case kSectionRowTimePoint:
+            return NSLocalizedString(@"Time Points",@"section header");
             
-        case kRouteNameSection:
+        case kSectionRowRouteName:
             break;
             
-        case kStopSection: {
+        case kSectionStops: {
             if (self.directionName != nil) {
                 return self.directionName;
             }
@@ -319,7 +358,7 @@
             return NSLocalizedString(@"Destination stops:", @"section header");
         }
             
-        case kDisclaimerSection:
+        case kSectionRowDisclaimer:
             break;
     }
     return nil;
@@ -336,16 +375,16 @@ willDisplayHeaderView:(UIView *)view
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    switch (indexPath.section) {
-        case kRouteNameSection:
+    switch ([self rowType:indexPath]) {
+        case kSectionRowRouteName:
             break;
             
-        case kStopSection: {
+        case kRowStop: {
             NSArray *items = [self filteredData:tableView];
             
             if (items != nil && indexPath.row >= items.count) {
                 if (self.stopData.items == nil) {
-                    [self networkTips:self.stopData.htmlError networkError:self.stopData.errorMsg];
+                    [self networkTips:self.stopData.htmlError networkError:self.stopData.networkErrorMsg];
                     [self clearSelection];
                 }
                 
@@ -355,44 +394,46 @@ willDisplayHeaderView:(UIView *)view
             Stop *stop = items[indexPath.row];
             
             if (stop.stopId) {
-                [self chosenStop:stop progress:self.backgroundTask];
+                [self returnStopObject:stop progress:self.backgroundTask];
             }
         }
             
-        case kDisclaimerSection:
+        case kSectionRowDisclaimer:
             
             if (self.stopData.items == nil) {
-                [self networkTips:self.stopData.htmlError networkError:self.stopData.errorMsg];
+                [self networkTips:self.stopData.htmlError networkError:self.stopData.networkErrorMsg];
             }
             
+            break;
+        case kSectionRowTimePoint:
+            [WebViewController displayNamedPage:@"TriMet Dashboard"
+                                      navigator:self.navigationController
+                                 itemToDeselect:self
+                                       whenDone:nil];
             break;
     }
 }
 
 #pragma mark ReturnStop methods
 
-- (NSString *)actionText {
-    if (self.stopIdCallback) {
-        return [self.stopIdCallback actionText];
+- (NSString *)returnStopObjectActionText {
+    if (self.stopIdStringCallback) {
+        return [self.stopIdStringCallback returnStopIdStringActionText];
+    } else if (self.departure) {
+        return NSLocalizedString(@"Show departure time at this stop", @"menu item");
     }
     
-    return @"Show departures";
+    return kNoAction;
 }
 
-- (void)chosenStop:(Stop *)stop progress:(id<TaskController>)progress {
-    if (self.stopIdCallback) {
+- (void)returnStopObject:(Stop *)stop progress:(id<TaskController>)progress {
+    if (self.stopIdStringCallback) {
         /*
          if ([self.callback getController] != nil)
          {
          [self.navigationController popToViewController:[self.callback getController] animated:YES];
          }*/
-        
-        if ([self.stopIdCallback respondsToSelector:@selector(selectedStop:desc:)]) {
-            [self.stopIdCallback selectedStop:stop.stopId desc:stop.desc];
-        } else {
-            [self.stopIdCallback selectedStop:stop.stopId];
-        }
-        
+        [self.stopIdStringCallback returnStopIdString:stop.stopId desc:stop.desc];
         return;
     }
     
@@ -459,7 +500,7 @@ willDisplayHeaderView:(UIView *)view
     NSMutableArray *items = [NSMutableArray arrayWithArray:self.topViewData];
     NearestVehiclesMap *mapPage = [NearestVehiclesMap viewController];
     
-    mapPage.stopIdCallback = self.stopIdCallback;
+    mapPage.stopIdStringCallback = self.stopIdStringCallback;
     NSMutableArray *itemsWithLocations = [NSMutableArray array];
     
     mapPage.title = self.stopData.routeDescription;
@@ -468,7 +509,7 @@ willDisplayHeaderView:(UIView *)view
         Stop *p = items[i];
         
         if (p.stopId) {
-            p.callback = self;
+            p.stopObjectCallback = self;
             [itemsWithLocations addObject:p];
         }
     }

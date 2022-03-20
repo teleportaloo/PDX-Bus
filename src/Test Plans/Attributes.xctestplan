@@ -1,0 +1,90 @@
+{
+  "configurations" : [
+    {
+      "id" : "63D6A64F-0646-4135-8ADC-6439AA67EBD0",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "selectedTests" : [
+        "KMLRouteTests\/test_KMLRoutes",
+        "MachineGeneratedArrays\/test_Online_CheckStaticArrays",
+        "MachineGeneratedArrays\/test_check_HotSpot_MaxTiles",
+        "MachineGeneratedArrays\/test_check_HotSpot_StreetcarTiles",
+        "MachineGeneratedArrays\/test_check_HotSpot_Tiles",
+        "StringTests\/test_StringEscape_blank",
+        "StringTests\/test_StringEscape_end",
+        "StringTests\/test_StringEscape_lots",
+        "StringTests\/test_StringEscape_middle",
+        "StringTests\/test_StringEscape_no_escape",
+        "StringTests\/test_StringEscape_start",
+        "StringTests\/test_attribute_colour",
+        "StringTests\/test_attribute_link",
+        "StringTests\/test_attribute_rainbow",
+        "StringTests\/test_font_attributes_first",
+        "StringTests\/test_font_attributes_second",
+        "StringTests\/test_markUpRemoveAtEnd",
+        "StringTests\/test_markUpRemoveComplex",
+        "StringTests\/test_markUpRemoveIncomplete",
+        "StringTests\/test_markUpRemoveIncompleteLink",
+        "StringTests\/test_markUpRemoveLinkWithNoSpace",
+        "TriMetInfoTests\/test_ROUTE_INFO_sortedByLine",
+        "TriMetInfoTests\/test_ROUTE_INFO_sortedByRoute",
+        "TriMetInfoTests\/test_VEHICLE_INFO_sorted",
+        "XMLAttributeTests\/test_TriMetXML_XML_ATR_BOOL",
+        "XMLAttributeTests\/test_TriMetXML_XML_ATR_DATE",
+        "XMLAttributeTests\/test_TriMetXML_XML_ATR_DISTANCE",
+        "XMLAttributeTests\/test_TriMetXML_XML_ATR_INT_OR_MISSING",
+        "XMLAttributeTests\/test_TriMetXML_XML_ATR_LOCATION",
+        "XMLAttributeTests\/test_TriMetXML_XML_ATR_TIME",
+        "XMLAttributeTests\/test_TriMetXML_XML_NON_NULL_ATR_STR",
+        "XMLAttributeTests\/test_TriMetXML_XML_NULLABLE_ATR_STR",
+        "XMLAttributeTests\/test_TriMetXML_XML_XML_ATR_INT",
+        "XMLAttributeTests\/test_TriMetXML_XML_ZERO_LEN_ATR_STR",
+        "XMLAttributeTests\/test_TriMetXML_blank",
+        "XMLAttributeTests\/test_TriMetXML_empty",
+        "XMLAttributeTests\/test_TriMetXML_queryTime",
+        "XMLAttributeTests\/test_TriMet_XML_XML_NULLABLE_ATR_NUM",
+        "XMLDepartureTests\/test_XMLDepartures",
+        "XMLDepartureTests\/test_XMLDepartures_XMLStreetcarMessages_Streetcar",
+        "XMLDepartureTests\/test_XMLDepartures_errorMessage",
+        "XMLDepartureTests\/test_XMLMultipleDepartures",
+        "XMLDetourTests\/test_XMLDetours_realDetours",
+        "XMLDetourTests\/test_XMLDetours_routeAndStops",
+        "XMLDetourTests\/test_XMLDetours_secondUrl",
+        "XMLDetourTests\/test_XMLDetours_secondUrlUpperCase",
+        "XMLDetourTests\/test_XMLDetours_stops",
+        "XMLDetourTests\/test_XMLDetours_systemWide",
+        "XMLNextBusMessagesTests\/test_XMLStreetcarLocations_NextBusLocations",
+        "XMLNextBusMessagesTests\/test_XMLStreetcarMessages_nextbusPredictions",
+        "XMLNextBusMessagesTests\/test_XMLStreetcarMessages_noMessages",
+        "XMLNextBusMessagesTests\/test_XMLStreetcar_messages",
+        "XMLRouteTests\/test_XMLLocateStops_routes",
+        "XMLRouteTests\/test_XMLRoutes_directions",
+        "XMLRouteTests\/test_XMLRoutes_locateStops",
+        "XMLRouteTests\/test_XMLRoutes_routeWithStops",
+        "XMLRouteTests\/test_XMLRoutes_routes",
+        "XMLRouteTests\/test_XMLRoutes_stops",
+        "XMLTripTests\/test_LegShapeParser_badLeg",
+        "XMLTripTests\/test_LegShapeParser_goodLeg",
+        "XMLTripTests\/test_XMLTrips",
+        "XMLTripTests\/test_XMLTrips_unknown",
+        "XMLVehicleTests\/test_XMLLocateVehicles"
+      ],
+      "target" : {
+        "containerPath" : "container:PDX Bus.xcodeproj",
+        "identifier" : "A17DFCB5251E852E001BE290",
+        "name" : "PDX BusTests"
+      }
+    }
+  ],
+  "version" : 1
+}

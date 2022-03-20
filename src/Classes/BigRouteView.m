@@ -18,6 +18,7 @@
 #import "TriMetInfo.h"
 #import "UIToolbar+Auto.h"
 #import "UIAlertController+SimpleMessages.h"
+#import "UIFont+Utility.h"
 
 @interface BigRouteView ()
 
@@ -53,7 +54,7 @@
     CGRect rect = self.view.frame;
     
     label = [[UILabel alloc] initWithFrame:rect];
-    label.font = [UIFont boldSystemFontOfSize:260];
+    label.font = [UIFont boldMonospacedDigitSystemFontOfSize:260];
     label.adjustsFontSizeToFitWidth = YES;
     label.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
     label.numberOfLines = 1;
@@ -65,7 +66,7 @@
     label.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     [self.view addSubview:label];
     
-    PC_ROUTE_INFO info = [TriMetInfo infoForRoute:self.departure.route];
+    PtrConstRouteInfo info = [TriMetInfo infoForRoute:self.departure.route];
     
     if (info == nil) {
         label.text = self.departure.route;
@@ -77,17 +78,17 @@
     self.textView = label;
 }
 
-- (void)rotatedTo:(UIInterfaceOrientation)orientation {
+- (void)willRotateTo:(UIInterfaceOrientation)orientation {
     [self createTextView];
     
-    [super rotatedTo:orientation];
+    [super willRotateTo:orientation];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     self.title = NSLocalizedString(@"Bus line identifier", @"screen title");
     [self createTextView];
     
-    PC_ROUTE_INFO info = [TriMetInfo infoForRoute:self.departure.route];
+    PtrConstRouteInfo info = [TriMetInfo infoForRoute:self.departure.route];
     
     if (info == nil) {
         self.view.backgroundColor = [UIColor redColor];

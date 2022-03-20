@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface TintedImageCache : NSObject<ClearableCache>
 
 + (instancetype)sharedInstance;
-- (UIImage *)   icon:(NSString *)name color:(UIColor *)tint designation:(NSString *)designation;
+- (UIImage *)icon:(NSString *)name color:(UIColor *)tint designation:(NSString *)designation;
 - (UIImage *)modeAwareLightenedIcon:(NSString *)name;
 - (UIImage *)modeAwareBlueIcon:(NSString *)name;
 - (void)userInterfaceStyleChanged:(NSInteger)style;

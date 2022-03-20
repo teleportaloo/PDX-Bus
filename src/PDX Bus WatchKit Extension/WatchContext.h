@@ -20,6 +20,8 @@
 
 @property (nonatomic, copy)   NSString *sceneName;
 
++ (instancetype)contextWithSceneName:(NSString *)sceneName;
+- (instancetype)initWithSceneName:(NSString *)sceneName;
 - (void)pushFrom:(WKInterfaceController *)parent;
 - (void)delayedPushFrom:(WKInterfaceController *)parent completion:(void (^)(void))completion;
 

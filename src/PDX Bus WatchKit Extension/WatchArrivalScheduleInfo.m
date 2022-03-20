@@ -41,12 +41,12 @@
     NSDateFormatter *dateFormatter = [dep dateAndTimeFormatterWithPossibleLongDateStyle:kLongDateFormat arrivalWindow:nil];
     
     
-    if ((mins < 0 || dep.invalidated) && dep.status != kStatusCancelled) {
+    if ((mins < 0 || dep.invalidated) && dep.status != ArrivalStatusCancelled) {
         [timeText appendString:NSLocalizedString(@"Gone - ", @"first part of text to display on a single line if a bus has gone")];
         [timeText appendString:[dateFormatter stringFromDate:depatureDate]];
         [timeText appendString:@" "];
         timeColor = ArrivalColorDeparted;
-    } else if (mins == 0 && dep.status != kStatusCancelled) {
+    } else if (mins == 0 && dep.status != ArrivalStatusCancelled) {
         [timeText appendString:NSLocalizedString(@"Due - ", @"first part of text to display on a single line if a bus is due")];
         [timeText appendString:[dateFormatter stringFromDate:depatureDate]];
         [timeText appendString:@" "];
@@ -56,7 +56,7 @@
         } else {
             timeColor = ArrivalColorSoon;
         }
-    } else if (mins == 1 && dep.status != kStatusCancelled) {
+    } else if (mins == 1 && dep.status != ArrivalStatusCancelled) {
         [timeText appendString:NSLocalizedString(@"1 min - ", @"first part of text to display on a single line if a bus is due in 1 minute")];
         [timeText appendString:[dateFormatter stringFromDate:depatureDate]];
         [timeText appendString:@" "];
@@ -66,7 +66,7 @@
         } else {
             timeColor = ArrivalColorSoon;
         }
-    } else if (mins < 6 && dep.status != kStatusCancelled) {
+    } else if (mins < 6 && dep.status != ArrivalStatusCancelled) {
         [timeText appendFormat:NSLocalizedString(@"%d mins - ", @"first part of text to display on a single line if a bus is due in several minutes"), (int)mins];
         [timeText appendString:[dateFormatter stringFromDate:depatureDate]];
         [timeText appendString:@" "];
@@ -76,7 +76,7 @@
         } else {
             timeColor = ArrivalColorSoon;
         }
-    } else if (mins < 60 && dep.status != kStatusCancelled) {
+    } else if (mins < 60 && dep.status != ArrivalStatusCancelled) {
         [timeText appendFormat:NSLocalizedString(@"%d mins - ", @"first part of text to display on a single line if a bus is due in several minutes"), (int)mins];
         [timeText appendString:[dateFormatter stringFromDate:depatureDate]];
         [timeText appendString:@" "];
@@ -98,20 +98,20 @@
     }
     
     switch (dep.status) {
-        case kStatusEstimated:
+        case ArrivalStatusEstimated:
             break;
             
-        case kStatusScheduled:
+        case ArrivalStatusScheduled:
             [scheduledText appendString:NSLocalizedString(@"🕔Scheduled - no location information available. ", @"info about departure time")];
             timeColor = ArrivalColorScheduled;
             break;
             
-        case kStatusCancelled:
+        case ArrivalStatusCancelled:
             [scheduledText appendString:NSLocalizedString(@"❌Canceled ", @"info about departure time")];
             timeColor = ArrivalColorCanceled;
             break;
             
-        case kStatusDelayed:
+        case ArrivalStatusDelayed:
             [detourText appendString:NSLocalizedString(@"Delayed ",  @"info about departure time")];
             timeColor = ArrivalColorDelayed;
             break;

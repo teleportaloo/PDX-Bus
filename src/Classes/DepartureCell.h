@@ -24,8 +24,6 @@
 #define kLargeWidth               kLargeScreenWidth
 
 #define DEPARTURE_CELL_USE_LARGE  LARGE_SCREEN
-#define DEPARTURE_CELL_HEIGHT     (DEPARTURE_CELL_USE_LARGE ? kLargeDepartureCellHeight : kDepartureCellHeight)
-
 
 @interface DepartureCell : UITableViewCell
 
@@ -40,11 +38,16 @@
 @property (weak, nonatomic, readonly) BlockColorView *blockColorView;
 @property (weak, nonatomic, readonly) CanceledBusOverlay *cancelledOverlayView;
 @property (nonatomic, readonly) bool large;
+@property (nonatomic, strong) NSLayoutConstraint *heightConstraint;
 
-- (DepartureCell *)initWithReuseIdentifier:(NSString *)identifier;
+// - (DepartureCell *)initWithReuseIdentifier:(NSString *)identifier tallRouteLabel:(bool)tallRouteTable;
 - (DepartureCell *)initGenericWithReuseIdentifier:(NSString *)identifier;
 
-+ (instancetype)tableView:(UITableView *)tableView cellWithReuseIdentifier:(NSString *)identifier;
++ (instancetype)tableView:(UITableView *)tableView cellWithReuseIdentifier:(NSString *)identifier tallRouteLabel:(bool)tallRouteTable;
 + (instancetype)tableView:(UITableView *)tableView genericWithReuseIdentifier:(NSString *)identifier;
+
++ (CGFloat)cellHeightWithTallRouteLabel:(bool)tallRouteLabel;
+
+- (void)resetConstraints;
 
 @end

@@ -6,7 +6,6 @@
 //  Copyright (c) 2014 Andrew Wallace
 //
 
-#import "DebugLogging.h"
 
 
 
@@ -15,10 +14,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogDataManagement
+
+#import "DebugLogging.h"
 #import "MemoryCaches.h"
 
 @interface MemoryCaches () {
-    NSMutableSet<NSValue *> *_caches;
+    NSHashTable<id<ClearableCache>> *_caches;
 }
 
 @end
@@ -27,7 +29,7 @@
 
 - (instancetype)init {
     if ((self = [super init])) {
-        _caches = [[NSMutableSet alloc] init];
+        _caches = [NSHashTable weakObjectsHashTable];
     }
     
     return self;
@@ -48,18 +50,19 @@
     DEBUG_LOG(@"Clearing caches\n");
     MemoryCaches *caches = [MemoryCaches sharedInstance];
     
-    for (NSValue *value in caches->_caches) {
-        id<ClearableCache> cache = value.nonretainedObjectValue;
-        [cache memoryWarning];
+    for (id<ClearableCache> cache in caches->_caches) {
+        if (cache !=nil) {
+            [cache memoryWarning];
+        }
     }
 }
 
 + (void)addCache:(id<ClearableCache>)cache {
-    [[MemoryCaches sharedInstance]->_caches addObject:[NSValue valueWithNonretainedObject:cache]];
+    [[MemoryCaches sharedInstance]->_caches addObject:cache];
 }
 
 + (void)removeCache:(id<ClearableCache>)cache {
-    [[MemoryCaches sharedInstance]->_caches removeObject:[NSValue valueWithNonretainedObject:cache]];
+    [[MemoryCaches sharedInstance]->_caches removeObject:cache];
 }
 
 @end

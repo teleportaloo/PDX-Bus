@@ -13,35 +13,46 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogParsing
+
 #import "LegShapeParser.h"
 #import "DebugLogging.h"
 #import "math.h"
 
 @implementation LegShapeParser
 
+- (instancetype)init {
+    if ((self = [super init])) {
+        self.replaceQueryBlock = ^NSString * _Nonnull(LegShapeParser * _Nonnull xml, NSString * _Nonnull query) {
+            NSMutableString *mutableQuery = query.mutableCopy;
+            
+            // The "URL" initially looks like this - we need to remove the transweb part and add the trimet part
+            // /transweb/ws/V1/BlockGeoWS/appID/xxxxx/bksTsIDeTeID/3305,X,11:21 AM,15,11:58 AM,7751
+            
+            [mutableQuery deleteCharactersInRange:NSMakeRange(0, 9)];  // /transweb is 9 characters
+            
+            
+            return [NSString stringWithFormat:@"https://developer.trimet.org%@", [mutableQuery stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
+        };
+    }
+    
+    return self;
+}
+
 - (void)fetchCoords {
     @autoreleasepool {
-        NSMutableString *query = self.lineURL.mutableCopy;
-        
-        // The "URL" initially looks like this - we need to remove the transweb part and add the trimet part
-        // /transweb/ws/V1/BlockGeoWS/appID/xxxxx/bksTsIDeTeID/3305,X,11:21 AM,15,11:58 AM,7751
-        
-        [query deleteCharactersInRange:NSMakeRange(0, 9)];  // /transweb is 9 characters
-        
-        NSString *fullQuery = [NSString stringWithFormat:@"https://developer.trimet.org%@", [query stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
+        NSString *fullQuery = self.replaceQueryBlock(self, self.lineURL);
         
         DEBUG_LOG(@"Query %@\n", fullQuery);
         
-        [self fetchDataByPolling:fullQuery];
+        [self fetchDataByPolling:fullQuery cachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
         
-        if (self.dataComplete && self.rawData) {
+        if (self.rawData) {
             NSError *error = 0;
             
             NSDictionary *json = [NSJSONSerialization JSONObjectWithData:self.rawData options:0 error:&error];
             
             DEBUG_LOGO(json);
-            
-            self.rawData = nil;
             
             NSDictionary *response = nil;
             NSArray *results = nil;
@@ -50,7 +61,7 @@
             NSString *errorMsg = nil;
             
             if (error) {
-                ERROR_LOG(@"Error parsing JSON: %@\n", error.localizedDescription);
+                ERROR_LOG(@"Error parsing JSON: %@\n%@", error.localizedDescription, [[NSString alloc] initWithData:self.rawData encoding:NSUTF8StringEncoding]);
             } else {
                 response = json[@"response"];
             }
@@ -75,14 +86,14 @@
             }
             
             if (EXPECTED_CLASS(points, NSArray)) {
-                self.segment = [ShapeMutableSegment data];
+                self.segment = [ShapeMutableSegment new];
                 
                 for (NSDictionary *xy in points) {
                     NSNumber *x = xy[@"x"];
                     NSNumber *y = xy[@"y"];
                     
                     if (EXPECTED_CLASS(x, NSNumber) && EXPECTED_CLASS(y, NSNumber)) {
-                        ShapeCoord *coord = [ShapeCoord data];
+                        ShapeCoord *coord = [ShapeCoord new];
                         
                         CLLocationDegrees xCoord = x.doubleValue;
                         CLLocationDegrees yCoord = y.doubleValue;

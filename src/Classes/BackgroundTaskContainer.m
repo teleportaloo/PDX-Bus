@@ -12,6 +12,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogTask
+
 #import "BackgroundTaskContainer.h"
 #import "PDXBusAppDelegate+Methods.h"
 #import "DebugLogging.h"
@@ -75,10 +77,12 @@
 - (void)taskStartWithTotal:(NSInteger)total title:(NSString *)title {
     self.title = title;
     self.errMsg = nil;
+    self.bytesDone = 0;
     
     self.backgroundThread = [NSThread currentThread];
     
     self.debugMessages = Settings.progressDebug;
+    self.showSizes = Settings.showSizes;
     
     [MainQueueSync runSyncOnMainQueueWithoutDeadlocking:^{
         PDXBusAppDelegate *app = PDXBusAppDelegate.sharedInstance;
@@ -111,7 +115,7 @@
 
 - (void)taskSubtext:(NSString *)subtext {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.progressModal addSubtext:subtext];
+        [self addBytes:subtext];
     });
 }
 
@@ -139,19 +143,18 @@
 }
 
 - (void)runBlock:(UIViewController * (^)(TaskState *taskState))block {
-    static NSNumber *globalSyncObject;
+    static NSMutableData *globalSyncObject;
     
     static dispatch_once_t onceToken;
     
     dispatch_once(&onceToken, ^{
-        globalSyncObject = @(42);
+        globalSyncObject = [[NSMutableData alloc] initWithLength:1];
     });
     
     // This forces the background thread only to run one at a time - no
     // deadlock!
     
-    @synchronized(globalSyncObject)
-    {
+    @synchronized(globalSyncObject) {
         @autoreleasepool
         {
             self.backgroundThread = [NSThread currentThread];
@@ -228,37 +231,40 @@
 
 - (void)triMetXML:(TriMetXML *)xml finishedFetchingData:(bool)fromCache {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.progressModal subItemsDone:3 totalSubs:5];
-        [self.progressModal addSubtext:nil];
-    });
-}
-
-- (void)triMetXML:(TriMetXML *)xml startedParsingData:(NSUInteger)size fromCache:(bool)fromCache {
-    dispatch_async(dispatch_get_main_queue(), ^{
         [self.progressModal subItemsDone:4 totalSubs:5];
-        
-        if (Settings.showSizes) {
-            [self.progressModal addSubtext:[self size:size fromCache:fromCache]];
-        }
+        [self addBytes:@""];
     });
 }
 
-- (void)triMetXML:(TriMetXML *)xml finishedParsingData:(NSUInteger)size fromCache:(bool)fromCache {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.progressModal subItemsDone:5 totalSubs:5];
-    });
+#define kBytesToKB(B) ((double)(B) / 1024)
+#define kBytesToMB(B) (((double)(B)) / (1024 * 1024))
+
+- (NSString *)bytes:(long long)bytes
+{
+    if (kBytesToKB(bytes) > 512) {
+        return [NSString stringWithFormat:@"%.2f MB", kBytesToMB(bytes)];
+    }
+    
+    return [NSString stringWithFormat:@"%.2f KB", kBytesToKB(bytes)];
 }
 
-- (void)triMetXML:(TriMetXML *)xml expectedSize:(long long)expected {
-}
-
-- (void)triMetXML:(TriMetXML *)xml progress:(long long)progress of:(long long)expected {
-    if (expected > 1024 * 1024) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.progressModal subItemsDone:4 totalSubs:5];
-            [self.progressModal addSubtext:[NSString stringWithFormat:@"%.1f%% done", (100.0 * (float)progress / (float)expected)]];
-        });
+- (void)addBytes:(NSString *)text
+{
+    if (self.bytesDone > 0 && self.showSizes) {
+        [self.progressModal addSubtext:[NSString stringWithFormat:@"%@ %@", [self bytes:self.bytesDone], text]];
+    } else {
+        [self.progressModal addSubtext:text];
     }
 }
+
+- (void)triMetXML:(TriMetXML * _Nonnull)xml incrementalBytes:(long long)incremental {
+    self.bytesDone += incremental;
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.progressModal subItemsDone:3 totalSubs:5];
+        [self addBytes:@""];
+    });
+}
+
 
 @end

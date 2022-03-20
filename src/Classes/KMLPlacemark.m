@@ -17,5 +17,9 @@
 
 @implementation KMLPlacemark
 
+- (NSInteger)internalRouteNumber
+{
+    return self.strInternalRouteNumber.intValue;
+}
 
 @end

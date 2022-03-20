@@ -12,6 +12,7 @@
 
 #import "CellTextField.h"
 #import "ScreenConstants.h"
+#import "UIFont+Utility.h"
 
 // UITableView row heights
 #define kUIRowHeight        50.0
@@ -117,10 +118,10 @@ static bool bigScreen;
     [CellTextField initHeight];
     
     if (bigScreen) {
-        return [UIFont systemFontOfSize:24.0];
+        return [UIFont monospacedDigitSystemFontOfSize:24.0];
     }
     
-    return [UIFont systemFontOfSize:17.0];
+    return [UIFont monospacedDigitSystemFontOfSize:17.0];
 }
 
 #pragma mark -

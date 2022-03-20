@@ -12,13 +12,12 @@
 
 #import <UIKit/UIKit.h>
 #import "TableViewControllerWithRefresh.h"
-#import "ReturnStopId.h"
 #import "Stop.h"
 
 @class XMLStops;
 @class Departure;
 
-@interface StopView : TableViewControllerWithRefresh<ReturnStop>
+@interface StopView : TableViewControllerWithRefresh<ReturnStopObject>
 
 - (void)fetchStopsAsync:(id<TaskController>)taskController
                   route:(NSString *)routeid

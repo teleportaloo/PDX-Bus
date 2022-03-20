@@ -13,16 +13,15 @@
 #import <Foundation/Foundation.h>
 #import "TriMetTypes.h"
 #import <CoreLocation/CoreLocation.h>
-#import "DataFactory.h"
 #import "TriMetInfo.h"
 #import "Detour.h"
 #import "DetourSorter.h"
 
 #define kLongDateFormat          @"E, h:mm a"
 #define kLongDateFormatWeekday   @"EEEE, h:mm a"
+#define kNoLoadPercentage        (-1)
 
-typedef enum
-{
+typedef enum ArrivalWindowEnum {
     ArrivalSoon,
     ArrivalThisWeek,
     ArrivalNextWeek
@@ -32,15 +31,15 @@ typedef enum
 @class Vehicle;
 @class DepartureTrip;
 
-typedef enum {
-    kStatusEstimated = 0,
-    kStatusScheduled,
-    kStatusDelayed,
-    kStatusCancelled
-} kStatus;
+typedef enum ArrivalStatusEnum {
+    ArrivalStatusEstimated = 0,
+    ArrivalStatusScheduled,
+    ArrivalStatusDelayed,
+    ArrivalStatusCancelled
+} ArrivalStatus;
 
-@interface Departure : DataFactory {
-    PC_VEHICLE_INFO _vehicleInfo;
+@interface Departure : NSObject {
+    PtrConstVehicleInfo _vehicleInfo;
 }
 
 @property (nonatomic, readonly) bool needToFetchStreetcarLocation;
@@ -48,7 +47,7 @@ typedef enum {
 @property (nonatomic, readonly) int minsToArrival;
 @property (nonatomic, readonly, copy) NSString *timeToArrival;
 @property (nonatomic, readonly, copy) NSString *descAndDir;
-@property (nonatomic, readonly) const VEHICLE_INFO *vehicleInfo;
+@property (nonatomic, readonly) PtrConstVehicleInfo vehicleInfo;
 @property (nonatomic, copy)   NSString *stopId;
 @property (nonatomic, copy)   NSString *block;
 @property (nonatomic, copy)   NSString *reason;
@@ -76,7 +75,7 @@ typedef enum {
 @property (nonatomic, copy)   NSString *locationDir;
 @property (nonatomic, strong) NSDate *departureTime;
 @property (nonatomic, strong) NSDate *scheduledTime;
-@property (nonatomic)         kStatus status;
+@property (nonatomic)         ArrivalStatus status;
 @property (nonatomic)         bool dropOffOnly;
 @property (nonatomic)         bool streetcar;
 @property (nonatomic)         NSInteger nextBusMins;

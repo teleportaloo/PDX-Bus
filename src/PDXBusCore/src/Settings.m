@@ -13,6 +13,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogSettings
+
 #import "Settings.h"
 #import "TriMetTypes.h"
 #import "DebugLogging.h"
@@ -151,13 +153,13 @@
 }
 
 #define S_OBJ(SET_PROPERTY, V)                                                 \
-+ (void) SET_PROPERTY:(NSObject*)setting {                                     \
++ (void)SET_PROPERTY:(NSObject*)setting {                                      \
     [Settings.sharedInstance->_defaults setObject:setting forKey:(V)];         \
     DEBUG_LOG(@"Set Setting " V " %p", setting);                               \
 }
 
 #define S_BOOL(SET_PROPERTY, V)                                                \
-+ (void) SET_PROPERTY:(_Bool)setting {                                         \
++ (void)SET_PROPERTY:(_Bool)setting {                                          \
     [Settings.sharedInstance->_defaults setBool:setting forKey:(V)];           \
     DEBUG_LOG(@"Set Setting " V " %@", setting ? @"True" : @"False");          \
 }
@@ -195,15 +197,15 @@ SET_GET_BOOL (showStreetcarMapFirst,          @"streetcar_map_first",         se
     GET_BOOL (searchRoutes,                   @"search_routes"                                                    )
     GET_INT  (rawKmlRoutes,                   @"kml_routes2"                                                      )
     GET_BOOL (kmlWifiOnly,                    @"kml_route_only_wifi"                                              )
-    GET_INT  (vehicleLocatorDistance,         @"vehicle_locator_distance"                                         )
+    GET_INT  (vehicleLocatorDistance,         @"vehicle_locator_distance2"                                         )
     GET_FLOAT(useGpsWithin,                   @"proximity_gps"                                                    )
-    GET_INT  (routeCacheDays,                 @"route_cache"                                                      )
     GET_INT  (xmlViewer,                      @"debug_xml3"                                                       )
     GET_BOOL (progressDebug,                  @"progress_debug"                                                   )
+    GET_BOOL (networkInParallel,              @"network_in_parallel"                                              )
     GET_BOOL (showTransitTracker,             @"show_transit_tracker"                                             )
     GET_BOOL (showSizes,                      @"show_sizes"                                                       )
     GET_BOOL (debugCommuter,                  @"debug_commuter"                                                   )
-    GET_BOOL (useCaching,                     @"use_caching"                                                      )
+    GET_BOOL (clearCacheOnUnexpectedRestart,  @"clear_cache"                                                      )
     GET_BOOL (useVehicleLocator,              @"use_beta_vehicle_locator"                                         )
     GET_BOOL (showTrips,                      @"show_trips"                                                       )
     GET_BOOL (showDetourIds,                  @"show_detour_ids"                                                  )
@@ -295,7 +297,7 @@ SET_GET_OBJ  (iCloudToken,                    kiCloudTokenKey,                se
 
 + (void)setICloudToken:(id)iCloudToken {
     if (iCloudToken) {
-#if !TARGET_OS_MACCATALYST
+#ifdef PDXBUS_WATCH
         Settings.rawCloudToken = [NSKeyedArchiver archivedDataWithRootObject:iCloudToken];
 #else
         Settings.rawCloudToken = [NSKeyedArchiver archivedDataWithRootObject:iCloudToken requiringSecureCoding:NO error:nil];

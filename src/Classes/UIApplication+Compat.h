@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (UIWindow *)firstKeyWindow;
 
-- (void)      compatOpenURL:(NSURL *)url;
+- (void)compatOpenURL:(NSURL *)url;
 
 @property (readonly, nonatomic) UIInterfaceOrientation compatStatusBarOrientation;
 

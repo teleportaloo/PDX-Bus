@@ -25,8 +25,12 @@
 #define kSearchSections       1
 #define kSectionSearchHistory 0
 
-#define kSectionAdd           0
-#define kSectionHistory       1
+enum {
+    kSectionRowAdd = 0,
+    kSectionHistory,
+    kRowRowSpecial
+};
+
 
 #define kPlainId              @"plain"
 
@@ -83,8 +87,9 @@
 - (instancetype)init {
     if ((self = [super init])) {
         [self clearSectionMaps];
-        [self addSectionType:kSectionAdd];
-        [self addRowType:kSectionAdd];
+        [self addSectionType:kSectionRowAdd];
+        [self addRowType:kSectionRowAdd];
+        [self addRowType:kRowRowSpecial];
         [self addSectionType:kSectionHistory];
     }
     
@@ -95,7 +100,7 @@
     NSNumber *n = (NSNumber *)i;
     NSDictionary *item = self.localRecents[n.integerValue];
     
-    return [TriMetInfo vehicleString:item[kVehicleId]].removeFormatting;
+    return [TriMetInfo markedUpVehicleString:item[kVehicleId]].removeMarkUp;
 }
 
 #pragma mark View methods
@@ -117,7 +122,7 @@
         return [self filteredData:tableView].count;
     }
     
-    return 1;
+    return [self rowsInSection:section];
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -136,20 +141,34 @@
         // Set up the cell
         NSDictionary *item = [self tableView:tableView filteredDict:indexPath.row];
         NSString *vehicleId = item[kVehicleId];
-        cell.textView.attributedText = FormatTextPara([TriMetInfo vehicleString:vehicleId]);
+        cell.textView.attributedText = [TriMetInfo markedUpVehicleString:vehicleId].smallAttributedStringFromMarkUp;
         cell.urlCallback = self.urlActionCalback;
         [self updateAccessibility:cell];
         return cell;
     } else {
-        UITableViewCell *cell = [self tableView:tableView multiLineCellWithReuseIdentifier:kPlainId];
-        
-        cell.editingAccessoryType = UITableViewCellAccessoryNone;
-        cell.accessoryType = UITableViewCellAccessoryNone;
-        cell.selectionStyle = UITableViewCellSelectionStyleBlue;
-        
-        cell.textLabel.text = NSLocalizedString(@"Touch here to enter new vehicle ID", @"button text");
-        cell.textLabel.textAlignment = NSTextAlignmentCenter;
-        return cell;
+        switch ([self rowType:indexPath]) {
+            default:
+            case kSectionRowAdd: {
+                UITableViewCell *cell = [self tableView:tableView multiLineCellWithReuseIdentifier:kPlainId];
+                
+                cell.editingAccessoryType = UITableViewCellAccessoryNone;
+                cell.accessoryType = UITableViewCellAccessoryNone;
+                cell.selectionStyle = UITableViewCellSelectionStyleBlue;
+                
+                cell.textLabel.text = NSLocalizedString(@"Touch here to enter new vehicle ID", @"button text");
+                cell.textLabel.textAlignment = NSTextAlignmentCenter;
+                return cell;
+            }
+            case kRowRowSpecial: {
+                UITableViewCell *cell = [self tableView:tableView multiLineCellWithReuseIdentifier:kPlainId];
+                cell.editingAccessoryType = UITableViewCellAccessoryNone;
+                cell.accessoryType = UITableViewCellAccessoryNone;
+                cell.selectionStyle = UITableViewCellSelectionStyleBlue;
+                cell.textLabel.text = NSLocalizedString(@"Show Celebration vehicles", @"button text");
+                cell.textLabel.textAlignment = NSTextAlignmentCenter;
+                return cell;
+            }
+        }
     }
 }
 
@@ -169,36 +188,57 @@
         [_userState addToVehicleIds:vehicleId];
         [self reloadData];
     } else {
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Enter Vehicle ID", @"Alert title")
-                                                                       message:NSLocalizedString(@"Show next departures for a vehicle (not streetcar).", @"Alert text")
-                                                                preferredStyle:UIAlertControllerStyleAlert];
-        
-        [alert addTextFieldWithConfigurationHandler:^(UITextField *_Nonnull textField) {
-            [textField setKeyboardType:UIKeyboardTypeNumberPad];
-        }];
-        
-        [alert addAction:[UIAlertAction actionWithTitle:kAlertViewOK style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-            NSString *text = [alert.textFields.firstObject.text justNumbers];
-            
-            if (text && text.length > 0) {
-                DepartureTimesView *departureView = [DepartureTimesView viewController];
-                [departureView fetchTimesForVehicleAsync:self.backgroundTask vehicleId:text];
+        switch ([self rowType:indexPath]) {
+            default:
+            case kSectionRowAdd: {
+                UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Enter Vehicle ID", @"Alert title")
+                                                                               message:NSLocalizedString(@"Show next departures for a vehicle (not streetcar).", @"Alert text")
+                                                                        preferredStyle:UIAlertControllerStyleAlert];
                 
-                [self->_userState addToVehicleIds:text];
-                [self reloadData];
-            } else {
-                [self clearSelection];
+                [alert addTextFieldWithConfigurationHandler:^(UITextField *_Nonnull textField) {
+                    [textField setKeyboardType:UIKeyboardTypeNumberPad];
+                }];
+                
+                [alert addAction:[UIAlertAction actionWithTitle:kAlertViewOK style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+                    NSString *text = [alert.textFields.firstObject.text justNumbers];
+                    
+                    if (text && text.length > 0) {
+                        DepartureTimesView *departureView = [DepartureTimesView viewController];
+                        [departureView fetchTimesForVehicleAsync:self.backgroundTask vehicleId:text];
+                        
+                        [self->_userState addToVehicleIds:text];
+                        [self reloadData];
+                    } else {
+                        [self clearSelection];
+                    }
+                }]];
+                
+                [alert addAction:[UIAlertAction actionWithTitle:kAlertViewCancel style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+                    [self clearSelection];
+                }]];
+                
+                alert.popoverPresentationController.sourceView = self.view;
+                alert.popoverPresentationController.sourceRect = CGRectMake(self.view.frame.size.width / 2, self.view.frame.size.height / 2, 10, 10);
+                
+                [self.navigationController presentViewController:alert animated:YES completion:nil];
+                break;
             }
-        }]];
-        
-        [alert addAction:[UIAlertAction actionWithTitle:kAlertViewCancel style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
-            [self clearSelection];
-        }]];
-        
-        alert.popoverPresentationController.sourceView = self.view;
-        alert.popoverPresentationController.sourceRect = CGRectMake(self.view.frame.size.width / 2, self.view.frame.size.height / 2, 10, 10);
-        
-        [self.navigationController presentViewController:alert animated:YES completion:nil];
+                
+            case kRowRowSpecial: {
+                
+                PtrConstVehicleInfo vehicles = getTriMetVehicleInfo();
+                
+                for (PtrConstVehicleInfo vehicle = vehicles; vehicle->type != nil; vehicle++) {
+                    if (vehicle->markedUpSpecialInfo!=nil && vehicle->locatable ) {
+                        [self->_userState addToVehicleIds:[NSString stringWithFormat:@"%ld", (long)vehicle->min]];
+                    }
+               
+                }
+                
+                [self reloadData];
+                break;
+            }
+        }
     }
 }
 

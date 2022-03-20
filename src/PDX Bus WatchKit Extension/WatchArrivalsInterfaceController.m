@@ -13,6 +13,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+
 #import "WatchArrivalsInterfaceController.h"
 #import "XMLDepartures.h"
 #import "XMLDetours.h"
@@ -38,6 +40,8 @@
 #import "WatchSystemWideDetour.h"
 #import "WatchSystemWideHeader.h"
 #import "WatchDetourHeader.h"
+#import "WatchArrivalsContextNearby.h"
+#import "WatchNearbyNamedLocationContext.h"
 
 #define kRefreshTime 30
 
@@ -291,6 +295,8 @@
     } else {
         self.title = @"Stale - Refreshing";
     }
+    
+    self.locateButton.hidden = (self.departures.loc == nil);
 }
 
 - (NSTimeInterval)diff {
@@ -354,35 +360,10 @@
 
 // static NSDate *startTime = nil;
 
-#define kThreashold 2000
-
-- (void)triMetXML:(TriMetXML *)xml startedParsingData:(NSUInteger)size fromCache:(bool)fromCache {
-    // startTime = [[NSDate date] retain];
+- (void)triMetXML:(TriMetXML * _Nonnull)xml incrementalBytes:(long long)incremental {
     
-    if (size > kThreashold) {
-        [self sendProgress:_tasksDone total:++_tasks];
-    }
 }
 
-- (void)triMetXML:(TriMetXML *)xml finishedParsingData:(NSUInteger)size fromCache:(bool)fromCache {
-    // NSTimeInterval parseTime = -startTime.timeIntervalSinceNow;
-    // [startTime release];
-    // startTime = nil;
-    
-    // DEBUG_LOGF(parseTime);
-    DEBUG_LOGL(size);
-    // DEBUG_LOGF(parseTime/(float)size);
-    
-    if (size > kThreashold) {
-        [self sendProgress:++_tasksDone total:_tasks];
-    }
-}
-
-- (void)triMetXML:(TriMetXML *)xml expectedSize:(long long)expected {
-}
-
-- (void)triMetXML:(TriMetXML *)xml progress:(long long)progress of:(long long)expected {
-}
 
 - (void)extractDetours:(XMLDepartures *)departures {
     self.systemWideDetours = [NSMutableArray array];
@@ -421,7 +402,7 @@
     [self sendProgress:++_tasksDone total:_tasks];
     
     if (_arrivalsContext.detailBlock && !self.backgroundThread.cancelled) {
-        newDetailDep = [departures departureForBlock:_arrivalsContext.detailBlock];
+        newDetailDep = [departures departureForBlock:_arrivalsContext.detailBlock dir:_arrivalsContext.detailDir];
         
         if (newDetailDep == nil && self.detailDeparture) {
             newDetailDep = self.detailDeparture.copy;
@@ -560,7 +541,7 @@
     } else if (_arrivalsContext.departures != nil) {
         self.progressTitle = @"Refreshing";
         [self loadTableWithDepartures:_arrivalsContext.departures
-                    detailedDeparture:[_arrivalsContext.departures departureForBlock:_arrivalsContext.detailBlock]];
+                    detailedDeparture:[_arrivalsContext.departures departureForBlock:_arrivalsContext.detailBlock dir:_arrivalsContext.detailDir]];
         _arrivalsContext.departures = nil;
     } else {
         self.loadingGroup.hidden = YES;
@@ -629,7 +610,7 @@
 
 - (IBAction)menuItemNearby {
     if (self.departures.loc) {
-        [self pushControllerWithName:kNearbyScene context:self.departures.loc];
+        [[WatchNearbyNamedLocationContext contextWithName:self.departures.locDesc location:self.departures.loc] pushFrom:self];
     }
 }
 
@@ -637,9 +618,6 @@
     [self forceCommute];
 }
 
-- (IBAction)menuItemHome {
-    [self popToRootController];
-}
 
 - (IBAction)nextButtonTapped {
     if (self.arrivalsContext.hasNext) {

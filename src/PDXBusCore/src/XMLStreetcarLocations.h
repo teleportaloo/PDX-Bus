@@ -27,8 +27,8 @@
 - (void)insertLocation:(Departure *)dep;
 - (BOOL)getLocations;
 
-+ (void)insertLocationsIntoDepartureArray:(NSArray *)deps forRoutes:(NSSet<NSString *> *)routes;
-+ (NSSet<NSString *> *)getStreetcarRoutesInDepartureArray:(NSArray *)deps;
++ (void)insertLocationsIntoXmlDeparturesArray:(NSArray *)xmlDeps forRoutes:(NSSet<NSString *> *)routes;
++ (NSSet<NSString *> *)getStreetcarRoutesInXMLDeparturesArray:(NSArray *)xmlDeps;
 + (XMLStreetcarLocations *)sharedInstanceForRoute:(NSString *)route;
 
 @end

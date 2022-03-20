@@ -13,6 +13,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+
 #import "ArrivalsResponseFactory.h"
 #import "ArrivalsIntentHandler.h"
 #import "XMLLocateStops.h"
@@ -104,14 +106,14 @@
                         }
                     }
                     
-                    if (d.minsToArrival == 0 && d.status == kStatusScheduled) {
+                    if (d.minsToArrival == 0 && d.status == ArrivalStatusScheduled) {
                         [routeArrivals appendString:NSLocalizedString(@"scheduled for now", @"Siri text")];
                     } else if (d.minsToArrival == 0) {
                         [routeArrivals appendString:NSLocalizedString(@"due now", @"Siri text")];
                     } else if (d.minsToArrival == 1) {
-                        [routeArrivals appendFormat:NSLocalizedString(@"%@1 min", @"Siri text"), (d.status == kStatusScheduled) ? NSLocalizedString(@"scheduled in ", @"Siri text") : @""];
+                        [routeArrivals appendFormat:NSLocalizedString(@"%@1 min", @"Siri text"), (d.status == ArrivalStatusScheduled) ? NSLocalizedString(@"scheduled in ", @"Siri text") : @""];
                     } else if (d.minsToArrival < 60) {
-                        [routeArrivals appendFormat:@"%@%d mins", (d.status == kStatusScheduled) ? NSLocalizedString(@"scheduled in ", @"Siri text") : @"",  d.minsToArrival];
+                        [routeArrivals appendFormat:@"%@%d mins", (d.status == ArrivalStatusScheduled) ? NSLocalizedString(@"scheduled in ", @"Siri text") : @"",  d.minsToArrival];
                     } else {
                         ArrivalWindow arrivalWindow;
                         NSDateFormatter *dateFormatter = [d dateAndTimeFormatterWithPossibleLongDateStyle:kLongDateFormatWeekday arrivalWindow:&arrivalWindow];
@@ -153,25 +155,25 @@
 }
 
 + (ArrivalsIntentResponse *)responseForStops:(NSString *)stopsString {
-    NSArray<NSString*> *stopIdArray = stopsString.arrayFromCommaSeparatedString;
+    NSArray<NSString*> *stopIdArray = stopsString.mutableArrayFromCommaSeparatedString;
     
     DEBUG_HERE();
     // There will be only 1 batch here
-    XMLDepartures *dep = [XMLDepartures xml];
+    XMLDepartures *deps = [XMLDepartures xml];
     
-    dep.keepRawData = YES;
+    deps.keepRawData = YES;
     
     DEBUG_HERE();
     
-    NSArray *lines = [ArrivalsResponseFactory arrivals:dep stopId:stopIdArray.firstObject];
+    NSArray *lines = [ArrivalsResponseFactory arrivals:deps stopId:stopIdArray.firstObject];
     
     
-    if (dep.gotData) {
+    if (deps.gotData) {
         DEBUG_HERE();
         
         NSUserActivity *activity = [[NSUserActivity alloc] initWithActivityType:@"org.teleportaloo.pdxbus.xmlarrivals"];
         
-        activity.userInfo = @{ @"xml": dep.rawData, @"locs": stopIdArray.firstObject };
+        activity.userInfo = @{ @"xml": deps.rawData, @"locs": stopIdArray.firstObject };
         
         if (lines == nil) {
             ArrivalsIntentResponse *response = [[ArrivalsIntentResponse alloc] initWithCode:ArrivalsIntentResponseCodeNoArrivals userActivity:nil];
@@ -189,7 +191,7 @@
             NSMutableString *arrivals = [NSMutableString stringWithString:@":\n\n"];
             
             
-            [arrivals appendString:[NSString textSeparatedStringFromEnumerator:lines selector:@selector(self) separator:@".\n\n"]];
+            [arrivals appendString:[NSString textSeparatedStringFromEnumerator:lines selToGetString:@selector(self) separator:@".\n\n"]];
             
             [arrivals appendString:@".\n"];
             
@@ -200,7 +202,7 @@
                 response = [[ArrivalsIntentResponse alloc] initWithCode:ArrivalsIntentResponseCodeSuccess userActivity:nil];
             }
             
-            response.stopName = [XMLDepartures fixLocationForSpeaking:dep.locDesc];
+            response.stopName = [XMLDepartures fixLocationForSpeaking:deps.locDesc];
             
             
             response.arrivals = arrivals;

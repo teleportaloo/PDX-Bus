@@ -29,7 +29,7 @@
 				<key>toPoint</key>
 				<dict>
 					<key>locationDesc</key>
-					<string>Pioneer Square</string>
+					<string>Pioneer Square North Max Station</string>
 					<key>useCurrentLocation</key>
 					<false/>
 				</dict>

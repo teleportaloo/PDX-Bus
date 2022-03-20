@@ -20,9 +20,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ViewControllerBase (DetourTableViewCell)
 
-- (bool)detourLink:(NSString *)link detour:(Detour *)detour;
+- (bool)detourLink:(NSString *)link detour:(Detour *)detour source:(UIView*)view;
 
-- (detourUrlAction) detourActionCalback;
+- (DetourUrlAction)detourActionCalback;
 
 
 @end

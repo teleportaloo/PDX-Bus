@@ -15,20 +15,18 @@
 
 #import <Foundation/Foundation.h>
 
-@interface StoppableFetcher : NSObject <NSURLSessionDelegate>
+@interface StoppableFetcher : NSObject <NSURLSessionDataDelegate>
 
 
-@property (nonatomic, copy) NSString *errorMsg;
+@property (nonatomic, copy) NSString *networkErrorMsg;
 @property (strong) NSMutableData *rawData;
 @property (nonatomic) bool timedOut;
 @property (nonatomic) float giveUp;
-@property (atomic) bool dataComplete;
+@property (atomic, strong) dispatch_semaphore_t fetchDone;
 
-
-- (void)fetchDataByPolling:(NSString *)query;
+- (void)fetchDataByPolling:(NSString *)query cachePolicy:(NSURLRequestCachePolicy)cachePolicy;
+- (void)incrementalBytes:(long long)incremental;
 - (instancetype)init;
-- (void)expectedSize:(long long)expected;
-- (void)progressed:(long long)progress expected:(long long)expected;
 - (void)cancel;
 
 @end

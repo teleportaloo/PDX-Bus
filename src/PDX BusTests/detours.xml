@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resultSet xmlns="urn:trimet:rt" queryTime="1602301163715">
+    <alert begin="1546623687972" end="" id="24912" info_link_url="" header_text="1st &amp; columbia stop move" system_wide_flag="false" desc="The stop at SW Columbia &amp; 1st (Stop ID 12795) is closed long-term for construction. Use the temporary stop at SW Columbia &amp; 2nd (Stop ID 14053). ">
+        <route xmlns="urn:trimet:schedule" desc="38-Boones Ferry Rd" route="38" id="38" type="B" routeColor="" routeSortOrder="4100" frequentService="false" no_service_flag="false" />
+        <route xmlns="urn:trimet:schedule" desc="45-Garden Home" route="45" id="45" type="B" routeColor="" routeSortOrder="4700" frequentService="false" no_service_flag="false" />
+        <route xmlns="urn:trimet:schedule" desc="55-Hamilton" route="55" id="55" type="B" routeColor="" routeSortOrder="5700" frequentService="false" no_service_flag="false" />
+        <route xmlns="urn:trimet:schedule" desc="92-South Beaverton Express" route="92" id="92" type="B" routeColor="" routeSortOrder="8900" frequentService="false" no_service_flag="false" />
+        <route xmlns="urn:trimet:schedule" desc="96-Tualatin/I-5" route="96" id="96" type="B" routeColor="" routeSortOrder="9200" frequentService="false" no_service_flag="false" />
+    </alert>
+    <alert begin="1549558468777" end="" id="27914" info_link_url="" header_text="81 Stop Closure Graham ID 10758" system_wide_flag="false" desc="For trips to Troutdale Reynolds Industrial Park, no service to the stop at NW Graham/257th &amp; N Frontage Rd (Stop ID 10758), due to overpass construction. Use stop after at 900 Block NE Graham Rd (Stop ID 13988), near Dairy Queen. ">
+        <route xmlns="urn:trimet:schedule" desc="81-Kane/257th" route="81" id="81" type="B" routeColor="" routeSortOrder="8100" frequentService="false" no_service_flag="false" />
+    </alert>
+    <alert begin="1552412884840" end="" id="30997" info_link_url="" header_text="8 stop closure 6774" system_wide_flag="false" desc="The stop at NE 15th &amp; Alberta (Stop ID 6774) is closed due to construction. A temporary stop is located on 15th across Alberta.">
+        <route xmlns="urn:trimet:schedule" desc="8-Jackson Park/NE 15th" route="8" id="8" type="B" routeColor="" routeSortOrder="1000" frequentService="true" no_service_flag="false" />
+    </alert>
+    <alert begin="1562942906106" end="" id="41798" info_link_url="" header_text="" system_wide_flag="false" desc="Boones Ferry &amp; Madrona (Stop ID 539) is closed due to construction. Please use stops before or after.">
+        <route xmlns="urn:trimet:schedule" desc="37-Lake Grove" route="37" id="37" type="B" routeColor="" routeSortOrder="4000" frequentService="false" no_service_flag="false" />
+    </alert>
+    <alert begin="1562950483819" end="" id="41832" info_link_url="" header_text="12 stop closure 5094" system_wide_flag="false" desc="For trips to Parkrose/Sumner Transit Center, no service to the stop at NE Sandy &amp; 47th (Stop ID 5094) due to long-term construction. Use the temporary stop located at NE Sandy &amp; 48th (Stop ID 14073).">
+        <route xmlns="urn:trimet:schedule" desc="12-Barbur/Sandy Blvd" route="12" id="12" type="B" routeColor="" routeSortOrder="1500" frequentService="true" no_service_flag="false" />
+    </alert>
+    <alert begin="1570557275848" end="" id="51972" info_link_url="" header_text="20 - E Burnside &amp; 16th stop moved " system_wide_flag="false" desc="For trips to Gresham Transit Center, no service to the stop at E Burnside &amp; 16th (Stop ID 726) due to construction. Use the temporary stop located at E Burnside &amp; 17th (Stop ID 14089).">
+        <route xmlns="urn:trimet:schedule" desc="20-Burnside/Stark" route="20" id="20" type="B" routeColor="" routeSortOrder="2600" frequentService="true" no_service_flag="false" />
+    </alert>
+    <alert begin="1567616278510" end="" id="47874" info_link_url="" header_text="" system_wide_flag="false" desc="No service to the westbound stop at NE Alberta &amp; 18th (Stop ID 55) due to an unstable adjacent building. Use stops before or after. ">
+        <route xmlns="urn:trimet:schedule" desc="72-Killingsworth/82nd Ave" route="72" id="72" type="B" routeColor="" routeSortOrder="7300" frequentService="true" no_service_flag="false" />
+        <location id="55" desc="NE Alberta &amp; 18th" dir="Westbound" lat="45.5591199444254" lng="-122.646680318352" passengerCode="E" no_service_flag="true" />
+    </alert>
+    <alert begin="1573931988886" end="" id="56428" info_link_url="" header_text="The Westbound stop on Killingsworth NS Vancouver (#3184) is closed due to construction. No temp stop" system_wide_flag="false" desc="No service to the westbound stop on Killingsworth &amp; Vancouver (Stop ID 3184) due to construction.">
+        <route xmlns="urn:trimet:schedule" desc="44-Capitol Hwy/Mocks Crest" route="44" id="44" type="B" routeColor="" routeSortOrder="4650" frequentService="false" no_service_flag="false" />
+    </alert>
+    <alert begin="1574298637218" end="" id="56932" info_link_url="" header_text="The stop on Campus Dr &amp; Terwilliger Blvd (#870) is closed due to construction and unacceptable landing conditions. No temp stop.  " system_wide_flag="false" desc="No service to Campus Dr &amp; Terwilliger Blvd (Stop ID 870) due to construction. ">
+        <route xmlns="urn:trimet:schedule" desc="8-Jackson Park/NE 15th" route="8" id="8" type="B" routeColor="" routeSortOrder="1000" frequentService="true" no_service_flag="false" />
+        <route xmlns="urn:trimet:schedule" desc="61-Marquam Hill/Beaverton" route="61" id="61" type="B" routeColor="" routeSortOrder="6300" frequentService="false" no_service_flag="false" />
+        <route xmlns="urn:trimet:schedule" desc="64-Marquam Hill/Tigard" route="64" id="64" type="B" routeColor="" routeSortOrder="6600" frequentService="false" no_service_flag="false" />
+        <route xmlns="urn:trimet:schedule" desc="65-Marquam Hill/Barbur Blvd" route="65" id="65" type="B" routeColor="" routeSortOrder="6700" frequentService="false" no_service_flag="false" />
+        <route xmlns="urn:trimet:schedule" desc="66-Marquam Hill/Hollywood" route="66" id="66" type="B" routeColor="" routeSortOrder="6800" frequentService="false" no_service_flag="false" />
+        <route xmlns="urn:trimet:schedule" desc="68-Marquam Hill/Collins Circle" route="68" id="68" type="B" routeColor="" routeSortOrder="7000" frequentService="false" no_service_flag="false" />
+    </alert>
+    <alert begin="1579059714870" end="" id="66997" info_link_url="" header_text="" system_wide_flag="false" desc="No service to the eastbound stop on Denney &amp; 111th (Stop ID 13925) due to construction. Use the temporary stop 100 ft to the east." />
+    <alert begin="1579309670673" end="" id="67413" info_link_url="" header_text="No service to westbound Halsey &amp; 238th (#2420) due to construction. Temp stop 225 feet west. " system_wide_flag="false" desc="No service to westbound Halsey &amp; 238th (#2420) due to construction. Temp stop 225 feet west. ">
+        <route xmlns="urn:trimet:schedule" desc="77-Broadway/Halsey" route="77" id="77" type="B" routeColor="" routeSortOrder="7700" frequentService="false" no_service_flag="false" />
+    </alert>
+    <alert begin="1575475043000" end="" id="58356" info_link_url="" header_text="" system_wide_flag="false" desc="For trips to Gresham TC, no service to the stop at SE Powell &amp; 136th (Stop ID 4585). Use temporary stop on Powell, just east of 136th.  ">
+        <route xmlns="urn:trimet:schedule" desc="9-Powell Blvd" route="9" id="9" type="B" routeColor="" routeSortOrder="1100" frequentService="true" no_service_flag="false" />
+        <location id="4585" desc="SE Powell &amp; 136th" dir="Eastbound" lat="45.4978569928211" lng="-122.52306531024" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1579309956618" end="" id="67414" info_link_url="" header_text="No service to westbound Halsey &amp; 238th (Stop ID 2420) due to blocking construction. Temp stop 225 ft west. " system_wide_flag="false" desc="No service to westbound Halsey &amp; 238th (Stop ID 2420) due to blocking construction. Temp stop 225 ft west. ">
+        <route xmlns="urn:trimet:schedule" desc="21-Sandy Blvd/223rd" route="21" id="21" type="B" routeColor="" routeSortOrder="2650" frequentService="false" no_service_flag="false" />
+    </alert>
+    <alert begin="1578344896000" end="" id="64952" info_link_url="" header_text="Temporary stop for SE Powell &amp; 122nd westbound" system_wide_flag="false" desc="For trips to Portland, no service to the westbound stop at SE Powell &amp; 122nd (Stop ID 4572) due to ODOT's US-26/Outer Powell project construction. Use the temporary stop 280 feet west along SE Powell. ">
+        <route xmlns="urn:trimet:schedule" desc="9-Powell Blvd" route="9" id="9" type="B" routeColor="" routeSortOrder="1100" frequentService="true" no_service_flag="false" />
+        <location id="4572" desc="SE Powell &amp; 122nd" dir="Westbound" lat="45.497148506346" lng="-122.538074663367" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1580401335000" end="" id="68892" info_link_url="" header_text="" system_wide_flag="false" desc="For trips to Portland, no service to Powell &amp; 124th (Stop ID 4575) due to blockage. Temp stop located nearside 124th. ">
+        <route xmlns="urn:trimet:schedule" desc="9-Powell Blvd" route="9" id="9" type="B" routeColor="" routeSortOrder="1100" frequentService="true" no_service_flag="false" />
+    </alert>
+    <alert begin="1580427407040" end="" id="69035" info_link_url="" header_text="The Westbound stop on Powell &amp; 124th is closed due to ODOT’s US-26/Outer Powell project. Service temp stop Nearside 124th" system_wide_flag="false" desc="No service to westbound Powell &amp; 124th (Stop ID 4575) due to ODOT's US-26/Outer Powell Project. Temp stop nearside 124th.">
+        <route xmlns="urn:trimet:schedule" desc="17-Holgate/Broadway" route="17" id="17" type="B" routeColor="" routeSortOrder="2000" frequentService="false" no_service_flag="false" />
+    </alert>
+    <alert begin="1582249544497" end="" id="70993" info_link_url="" header_text="No service to westbound NW Thurman &amp; 28th (Stop ID 5837) due to long term stop closure. " system_wide_flag="false" desc="No service to westbound NW Thurman &amp; 28th (Stop ID 5837) due to long term stop closure. ">
+        <route xmlns="urn:trimet:schedule" desc="15-Belmont/NW 23rd" route="15" id="15" type="B" routeColor="" routeSortOrder="1800" frequentService="true" no_service_flag="false" />
+        <location id="5837" desc="NW Thurman &amp; 28th" dir="Westbound" lat="45.5353626851944" lng="-122.709082336019" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1582941546544" end="" id="71957" info_link_url="" header_text="No service to Cedar Hills &amp; Walker (Stop ID 1021, 1022) due to construction. Temp stop northbound " system_wide_flag="false" desc="No service to Cedar Hills &amp; Walker (Stop ID 1022) due to construction. Temp stop located on &quot;Jenkins Next Signal&quot; sign pole. ">
+        <route xmlns="urn:trimet:schedule" desc="20-Burnside/Stark" route="20" id="20" type="B" routeColor="" routeSortOrder="2600" frequentService="true" no_service_flag="false" />
+    </alert>
+    <alert begin="1584145548151" end="" id="73575" info_link_url="http://trimet.org/ http://www.gobytram.com/" header_text="Beginning Monday, March 16th, Portland Aerial Tram will be restricting all non-essential travel, closing ticket sales to the public and reducing tram occupancy to a maximum of 20 people. " system_wide_flag="false" desc="Portland Aerial Tram is restricting all non-essential travel, closing ticket sales to the public and reducing tram occupancy to a maximum of 20 people. For more information, visit their website" />
+    <alert begin="1584700200000" end="" id="73952" info_link_url="" header_text="67- school closure" system_wide_flag="false" desc="For trips to PCC Rock Creek, no service to PCC Drive &amp; Springville (Stop ID 14087) due to school closure. To Merlo/158th Ave, no service to PCC Rock Creek Main Stop (Stop ID 4429). ">
+        <route xmlns="urn:trimet:schedule" desc="67-Bethany/158th" route="67" id="67" type="B" routeColor="" routeSortOrder="6900" frequentService="false" no_service_flag="false" />
+        <location id="14087" desc="PCC Drive &amp; Springville" dir="Eastbound" lat="45.5636984809209" lng="-122.859813353657" passengerCode="E" no_service_flag="false" />
+        <location id="4429" desc="PCC Rock Creek Main Stop" dir="Southbound" lat="45.5659989576568" lng="-122.859420760065" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1584714404603" end="" id="74014" info_link_url="" header_text="47- school closure." system_wide_flag="false" desc="For trips to PCC Rock Creek, no service to PCC Drive &amp; Springville (Stop ID 14087) due to school closure. To Hillsboro TC, no service to PCC Rock Creek Main Stop (Stop ID 4429). ">
+        <route xmlns="urn:trimet:schedule" desc="47-Main/Evergreen" route="47" id="47" type="B" routeColor="" routeSortOrder="4900" frequentService="false" no_service_flag="false" />
+        <location id="14087" desc="PCC Drive &amp; Springville" dir="Eastbound" lat="45.5636984809209" lng="-122.859813353657" passengerCode="E" no_service_flag="false" />
+        <location id="4429" desc="PCC Rock Creek Main Stop" dir="Southbound" lat="45.5659989576568" lng="-122.859420760065" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1584751000413" end="" id="74076" info_link_url="" header_text="No service to westbound Lake &amp; 23rd (Stop ID 3345) is closed due to construction." system_wide_flag="false" desc="No service to westbound Lake &amp; 23rd (Stop ID 3345) is closed due to construction. Temp stop located 80 ft east. ">
+        <route xmlns="urn:trimet:schedule" desc="33-McLoughlin/King Rd" route="33" id="33" type="B" routeColor="" routeSortOrder="3500" frequentService="true" no_service_flag="false" />
+        <location id="3345" desc="SE Lake &amp; 23rd" dir="Westbound" lat="45.4401128318138" lng="-122.638139059651" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1584984147000" end="" id="74277" info_link_url="" header_text="" system_wide_flag="false" desc="No service to the eastbound stop at SE Holgate &amp; SE Holgate Blvd MAX Station (Stop ID 13218). Use the temporary stop 1/2 block west.">
+        <route xmlns="urn:trimet:schedule" desc="17-Holgate/Broadway" route="17" id="17" type="B" routeColor="" routeSortOrder="2000" frequentService="false" no_service_flag="false" />
+        <location id="13218" desc="SE Holgate &amp; SE Holgate Blvd MAX Stn" dir="Eastbound" lat="45.4898776013119" lng="-122.566861254742" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1585093573281" end="" id="74434" info_link_url="https://portlandstreetcar.org/news/2020/03/streetcar-service-will-reduce-to-20-minute-headways-beginning-march-24" header_text="" system_wide_flag="false" desc="Streetcar has reduced regular weekday service to every 20 minutes between about 5:30 a.m. and about 11:30 p.m. For more info:">
+        <route xmlns="urn:trimet:schedule" desc="Portland Streetcar - NS Line" route="193" id="193" type="R" routeColor="84BD00" routeSortOrder="200" frequentService="false" no_service_flag="false" />
+        <route xmlns="urn:trimet:schedule" desc="Portland Streetcar - A Loop" route="194" id="194" type="R" routeColor="CE0F69" routeSortOrder="250" frequentService="false" no_service_flag="false" />
+        <route xmlns="urn:trimet:schedule" desc="Portland Streetcar - B Loop" route="195" id="195" type="R" routeColor="0093B2" routeSortOrder="275" frequentService="false" no_service_flag="false" />
+    </alert>
+    <alert begin="1585962202671" end="" id="75321" info_link_url="" header_text="No service to westbound SE Powell &amp; 62nd (Stop ID 4676) due to sidewalk replacement." system_wide_flag="false" desc="No service to westbound SE Powell &amp; 62nd (Stop ID 4676) due to sidewalk replacement.">
+        <route xmlns="urn:trimet:schedule" desc="9-Powell Blvd" route="9" id="9" type="B" routeColor="" routeSortOrder="1100" frequentService="true" no_service_flag="false" />
+        <location id="4676" desc="SE Powell &amp; 62nd" dir="Westbound" lat="45.497584" lng="-122.599903" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1587171601517" end="" id="76339" info_link_url="" header_text="For trips to Gresham TC, no service to SE Division &amp; 23rd (Stop ID 1439)" system_wide_flag="false" desc="For trips to Gresham TC, no service to SE Division &amp; 23rd (Stop ID 1439) due to construction. Temp stop farside 23rd, near address 2314.">
+        <route xmlns="urn:trimet:schedule" desc="2-Division" route="2" id="2" type="B" routeColor="" routeSortOrder="500" frequentService="true" no_service_flag="false" />
+    </alert>
+    <alert begin="1587173464092" end="" id="76343" info_link_url="" header_text="No service to westbound Lake &amp; 23rd (Stop ID 3345) due to construction. Temp stop 80 ft east." system_wide_flag="false" desc="No service to westbound Lake &amp; 23rd (Stop ID 3345) due to construction. Temp stop 80 ft east.">
+        <route xmlns="urn:trimet:schedule" desc="32-Oatfield" route="32" id="32" type="B" routeColor="" routeSortOrder="3400" frequentService="false" no_service_flag="false" />
+        <location id="3345" desc="SE Lake &amp; 23rd" dir="Westbound" lat="45.4401128318138" lng="-122.638139059651" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1587577531060" end="" id="76626" info_link_url="" header_text="" system_wide_flag="false" desc="No service to northbound stop at 2800 Block NW Glencoe (Stop ID 9938). ">
+        <route xmlns="urn:trimet:schedule" desc="46-North Hillsboro" route="46" id="46" type="B" routeColor="" routeSortOrder="4800" frequentService="false" no_service_flag="false" />
+        <location id="9938" desc="2800 Block NW Glencoe" dir="Northbound" lat="45.5409024509195" lng="-122.995606134724" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1587741230000" end="" id="76760" info_link_url="" header_text="" system_wide_flag="false" desc="For trips to Gresham TC, no service to E Burnside &amp; SE 99th (Stop ID 12934) due to construction. Temp stop located on wood utility pole 208 feet farside of SE 99th.">
+        <route xmlns="urn:trimet:schedule" desc="20-Burnside/Stark" route="20" id="20" type="B" routeColor="" routeSortOrder="2600" frequentService="true" no_service_flag="false" />
+        <location id="12934" desc="E Burnside &amp; SE 99th" dir="Eastbound" lat="45.5225460012283" lng="-122.562476017301" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1587847629668" end="" id="76800" info_link_url="" header_text="" system_wide_flag="false" desc="No service to SW Beaverton-Hillsdale &amp; 35th (Stop ID 369, 370) due to blocking construction.">
+        <route xmlns="urn:trimet:schedule" desc="56-Scholls Ferry Rd" route="56" id="56" type="B" routeColor="" routeSortOrder="5800" frequentService="true" no_service_flag="false" />
+        <route xmlns="urn:trimet:schedule" desc="54-Beaverton-Hillsdale Hwy" route="54" id="54" type="B" routeColor="" routeSortOrder="5600" frequentService="true" no_service_flag="false" />
+        <location id="369" desc="SW Beaverton-Hillsdale &amp; 35th" dir="Eastbound" lat="45.4826719841255" lng="-122.712726411279" passengerCode="E" no_service_flag="false" />
+        <location id="370" desc="SW Beaverton-Hillsdale &amp; 35th" dir="Westbound" lat="45.4828966650172" lng="-122.712657151225" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1550767015806" end="" id="29252" info_link_url="" header_text="81 frontage temp stop" system_wide_flag="false" desc="No service to the regular stop at 1100 Block NW Frontage Rd (Stop ID 9481). Use temporary stop (Stop ID 14105) located just west at 1184 Block NW Frontage Rd, in front of Arby's. ">
+        <route xmlns="urn:trimet:schedule" desc="81-Kane/257th" route="81" id="81" type="B" routeColor="" routeSortOrder="8100" frequentService="false" no_service_flag="false" />
+        <location id="9481" desc="1100 Block NW Frontage Rd" dir="Eastbound" lat="45.5442849513021" lng="-122.398192429314" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1588380197635" end="" id="77269" info_link_url="" header_text="No service to Willamette Falls Dr &amp; 12th St" system_wide_flag="false" desc="No service to eastbound Willamette Falls Dr &amp; 12th St (Stop ID 9269) due to construction. ">
+        <route xmlns="urn:trimet:schedule" desc="154-Willamette/Clackamas Heights" route="154" id="154" type="B" routeColor="" routeSortOrder="9500" frequentService="false" no_service_flag="false" />
+        <location id="9269" desc="Willamette Falls Dr &amp; 12th St" dir="Eastbound" lat="45.3443908594241" lng="-122.654278796674" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1589365800000" end="" id="78018" info_link_url="" header_text="" system_wide_flag="false" desc="No service to the eastbound stop at NW Division &amp; Eastman Pkwy (Stop ID 1331). Use the temporary stop at NW Mignonette Ave.">
+        <route xmlns="urn:trimet:schedule" desc="82-South Gresham" route="82" id="82" type="B" routeColor="" routeSortOrder="8200" frequentService="false" no_service_flag="false" />
+        <location id="1331" desc="NW Division &amp; Eastman Pkwy" dir="Eastbound" lat="45.5043707173507" lng="-122.435072378668" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1589365800000" end="" id="78017" info_link_url="" header_text="" system_wide_flag="false" desc="No service to the eastbound stop at NW Division &amp; Eastman Pkwy (Stop ID 1331). Use the temporary stop at NW Mignonette Ave.">
+        <route xmlns="urn:trimet:schedule" desc="21-Sandy Blvd/223rd" route="21" id="21" type="B" routeColor="" routeSortOrder="2650" frequentService="false" no_service_flag="false" />
+        <location id="1331" desc="NW Division &amp; Eastman Pkwy" dir="Eastbound" lat="45.5043707173507" lng="-122.435072378668" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1589365800000" end="" id="78016" info_link_url="" header_text="" system_wide_flag="false" desc="No service to the stops in both directions at NW Division &amp; Eastman Pkwy (Stop IDs 1331 &amp; 1332). For trips to Gresham TC, use the temporary eastbound stop at NW Mignonette Ave. For trips to Portland City Center, use the temporary westbound stop at NW Victoria Ave.">
+        <route xmlns="urn:trimet:schedule" desc="2-Division" route="2" id="2" type="B" routeColor="" routeSortOrder="500" frequentService="true" no_service_flag="false" />
+        <location id="1331" desc="NW Division &amp; Eastman Pkwy" dir="Eastbound" lat="45.5043707173507" lng="-122.435072378668" passengerCode="E" no_service_flag="false" />
+        <location id="1332" desc="NW Division &amp; Eastman Parkway" dir="Westbound" lat="45.5045726782888" lng="-122.435257057554" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1590183235036" end="" id="78720" info_link_url="" header_text="No service to eastbound SE Division &amp; 130th due to long-term stop closure." system_wide_flag="false" desc="No service to eastbound SE Division &amp; 130th (Stop ID 1386) due to long-term stop closure.">
+        <route xmlns="urn:trimet:schedule" desc="2-Division" route="2" id="2" type="B" routeColor="" routeSortOrder="500" frequentService="true" no_service_flag="false" />
+        <location id="1386" desc="SE Division &amp; 130th" dir="Eastbound" lat="45.5039485490204" lng="-122.529623203157" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1588262753000" end="" id="77145" info_link_url="" header_text="" system_wide_flag="false" desc="No service to eastbound Willamette Falls Dr &amp; 11th St (Stop ID 11766) due to construction Temp stop located on &quot;End of Roadwork&quot; sign at 10th St.&#xA;">
+        <route xmlns="urn:trimet:schedule" desc="154-Willamette/Clackamas Heights" route="154" id="154" type="B" routeColor="" routeSortOrder="9500" frequentService="false" no_service_flag="false" />
+        <location id="11766" desc="Willamette Falls Dr &amp; 11th St" dir="Eastbound" lat="45.3447985655947" lng="-122.652872767896" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1590575400000" end="" id="78896" info_link_url="" header_text="" system_wide_flag="false" desc="No service to the eastbound stop on Willamette Falls Dr &amp; 14th St (Stop ID 9286) due to construction.">
+        <route xmlns="urn:trimet:schedule" desc="154-Willamette/Clackamas Heights" route="154" id="154" type="B" routeColor="" routeSortOrder="9500" frequentService="false" no_service_flag="false" />
+        <location id="9286" desc="Willamette Falls Dr &amp; 14th St" dir="Eastbound" lat="45.3436483389687" lng="-122.656892663105" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1591102211000" end="" id="79608" info_link_url="" header_text="" system_wide_flag="false" desc="For trips to Portland City Center, no service to the stop at SW Jefferson &amp; 1st (Stop ID 12789) due to road closures.">
+        <route xmlns="urn:trimet:schedule" desc="96-Tualatin/I-5" route="96" id="96" type="B" routeColor="" routeSortOrder="9200" frequentService="false" no_service_flag="false" />
+    </alert>
+    <alert begin="1590921000000" end="" id="78586" info_link_url="" header_text="" system_wide_flag="false" desc="No service to the stop at SW Railroad &amp; Washington (Stop ID 3670) due to the long-term closure of SW Railroad St. Use the nearest regular stop at SW Pine &amp; 2nd (Stop ID 4452).">
+        <route xmlns="urn:trimet:schedule" desc="93-Tigard/Sherwood" route="93" id="93" type="B" routeColor="" routeSortOrder="9000" frequentService="false" no_service_flag="false" />
+        <route xmlns="urn:trimet:schedule" desc="94-Pacific Hwy/Sherwood" route="94" id="94" type="B" routeColor="" routeSortOrder="9100" frequentService="false" no_service_flag="false" />
+        <location id="4451" desc="SW Pine &amp; 2nd" dir="Southbound" lat="45.3575335057828" lng="-122.841955815509" passengerCode="E" no_service_flag="false" />
+        <location id="3670" desc="SW Railroad &amp; Washington" dir="Northbound" lat="45.3557866353158" lng="-122.841107733882" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1592224988000" end="" id="81116" info_link_url="" header_text="" system_wide_flag="false" desc="No service to the stop at N Greeley &amp; Going Overpass (Stop ID 2195) due to road work.">
+        <route xmlns="urn:trimet:schedule" desc="85-Swan Island" route="85" id="85" type="B" routeColor="" routeSortOrder="8500" frequentService="false" no_service_flag="false" />
+        <location id="2195" desc="N Greeley &amp; Going Overpass" dir="Northbound" lat="45.5556040111321" lng="-122.692294848637" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1592333758860" end="" id="81292" info_link_url="" header_text="" system_wide_flag="false" desc="For trips to Providence Park MAX Station, no service to the stop at SW 17th &amp; Yamhill (Stop ID 14036) due to temporary route change.">
+        <route xmlns="urn:trimet:schedule" desc="24-Fremont/NW 18th" route="24" id="24" type="B" routeColor="" routeSortOrder="2850" frequentService="false" no_service_flag="false" />
+        <location id="14036" desc="SW 17th &amp; Yamhill" dir="Southbound" lat="45.5213427574845" lng="-122.689470071022" passengerCode="A" no_service_flag="false" />
+    </alert>
+    <alert begin="1590575400000" end="" id="78895" info_link_url="" header_text="" system_wide_flag="false" desc="No service to the eastbound stop on SE Tualatin Valley Hwy &amp; 44th (Stop ID 10157) due to construction. Use the temporary stop 200 feet to the east.">
+        <route xmlns="urn:trimet:schedule" desc="57-TV Hwy/Forest Grove" route="57" id="57" type="B" routeColor="" routeSortOrder="5900" frequentService="true" no_service_flag="false" />
+        <location id="10157" desc="SE Tualatin Valley Hwy &amp; 44th" dir="Eastbound" lat="45.5010505151134" lng="-122.937943767301" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1593190800000" end="" id="82196" info_link_url="" header_text="" system_wide_flag="false" desc="Beginning Friday, June 26 at 10:00 a.m., no service to northbound SW Capitol &amp; Barbur (Stop ID 923) due to sidewalk work.">
+        <route xmlns="urn:trimet:schedule" desc="43-Taylors Ferry Rd" route="43" id="43" type="B" routeColor="" routeSortOrder="4500" frequentService="false" no_service_flag="false" />
+        <route xmlns="urn:trimet:schedule" desc="44-Capitol Hwy/Mocks Crest" route="44" id="44" type="B" routeColor="" routeSortOrder="4650" frequentService="false" no_service_flag="false" />
+        <location id="923" desc="SW Capitol &amp; Barbur" dir="Northbound" lat="45.4529265493213" lng="-122.721440528627" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1593223088032" end="" id="82349" info_link_url="" header_text="" system_wide_flag="false" desc="No service to eastbound NE 119th &amp; Halsey (Stop ID 2364) due to construction. Temp stop nearside NE 118th St on Midas sign. ">
+        <route xmlns="urn:trimet:schedule" desc="77-Broadway/Halsey" route="77" id="77" type="B" routeColor="" routeSortOrder="7700" frequentService="false" no_service_flag="false" />
+        <location id="2364" desc="NE Halsey &amp; 119th" dir="Eastbound" lat="45.5334261797691" lng="-122.540580042202" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1593543092895" end="" id="82594" info_link_url="" header_text="PCC Sylvania Campus Closed" system_wide_flag="false" desc="No service to the stop at PCC Sylvania Main Stop (Stop ID 4431) due to campus closure. ">
+        <route xmlns="urn:trimet:schedule" desc="44-Capitol Hwy/Mocks Crest" route="44" id="44" type="B" routeColor="" routeSortOrder="4650" frequentService="false" no_service_flag="false" />
+        <location id="4431" desc="PCC Sylvania Main Stop" dir="Southbound" lat="45.4379548817623" lng="-122.730176730095" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1593601200000" end="" id="82633" info_link_url="" header_text="" system_wide_flag="false" desc="No service to the westbound stop at 23500 Block NE Sandy (Stop ID 13090) due to sidewalk construction. Use the temporary stop approximately 450 feet west.">
+        <route xmlns="urn:trimet:schedule" desc="22-Parkrose" route="22" id="22" type="B" routeColor="" routeSortOrder="2700" frequentService="false" no_service_flag="false" />
+        <location id="13090" desc="23500 Block NE Sandy" dir="Westbound" lat="45.542941866551" lng="-122.419964923535" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1593747553627" end="" id="82786" info_link_url="" header_text="" system_wide_flag="false" desc="No service to westbound SE Bybee &amp; Milwaukie due to PBOT work. Temp stop for Line 19 located on SE Bybee farside 17th. Closest nearby stop for Line 70 on SE Bybee &amp; 17th nearside. ">
+        <route xmlns="urn:trimet:schedule" desc="19-Woodstock/Glisan" route="19" id="19" type="B" routeColor="" routeSortOrder="2400" frequentService="false" no_service_flag="false" />
+        <route xmlns="urn:trimet:schedule" desc="70-12th/NE 33rd Ave" route="70" id="70" type="B" routeColor="" routeSortOrder="7100" frequentService="false" no_service_flag="false" />
+    </alert>
+    <alert begin="1594724400000" end="1604140200000" id="83634" info_link_url="" header_text="" system_wide_flag="false" desc="Through Saturday, October 31, no service to stops in both directions between SE Causey &amp; 82nd and SE 90th &amp; Monterey. Buses will serve the Line 33 and 72 stops in both directions at SE 82nd &amp; Causey (Stop IDs 7941 &amp; 7942). ">
+        <route xmlns="urn:trimet:schedule" desc="71-60th Ave" route="71" id="71" type="B" routeColor="" routeSortOrder="7200" frequentService="false" no_service_flag="false" />
+        <location id="8448" desc="8300 Block SE Causey" dir="Eastbound" lat="45.4412041242401" lng="-122.577609107581" passengerCode="E" no_service_flag="false" />
+        <location id="8659" desc="SE 90th &amp; Monterey" dir="Northbound" lat="45.4388916711071" lng="-122.570908362359" passengerCode="E" no_service_flag="false" />
+        <location id="8467" desc="SE 90th &amp; Monterey" dir="Southbound" lat="45.438526999998" lng="-122.57101099998" passengerCode="E" no_service_flag="false" />
+        <location id="8677" desc="SE 90th &amp; Causey" dir="Northbound" lat="45.4411215135474" lng="-122.571109455628" passengerCode="E" no_service_flag="false" />
+        <location id="984" desc="8600 Block SE Causey" dir="Westbound" lat="45.4413057871643" lng="-122.573491062253" passengerCode="E" no_service_flag="false" />
+        <location id="987" desc="8800 Block SE Causey" dir="Eastbound" lat="45.4411963655541" lng="-122.572995640579" passengerCode="E" no_service_flag="false" />
+        <location id="989" desc="SE Causey &amp; 82nd" dir="Westbound" lat="45.4413616216435" lng="-122.578599906068" passengerCode="E" no_service_flag="false" />
+        <location id="13037" desc="SE 90th &amp; Causey" dir="Southbound" lat="45.4408870831857" lng="-122.571263709278" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1594998941263" end="" id="84012" info_link_url="" header_text="" system_wide_flag="false" desc="No service to westbound Pacific Ave &amp; Oak (Stop ID 4299) due to construction. Temp stop 300 ft past stop on &quot;No Parking&quot; sign. ">
+        <route xmlns="urn:trimet:schedule" desc="57-TV Hwy/Forest Grove" route="57" id="57" type="B" routeColor="" routeSortOrder="5900" frequentService="true" no_service_flag="false" />
+        <location id="4299" desc="Pacific Ave &amp; Oak" dir="Westbound" lat="45.5202518496343" lng="-123.088439409305" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1584745200000" end="" id="74072" info_link_url="" header_text="PCC Sylvania Campus Closed" system_wide_flag="false" desc="No service to PCC Lower Drive (G St) &amp; H St (Stop ID 4427) and PCC Sylvania Main Stop (Stop ID 4431) due to campus closure. ">
+        <route xmlns="urn:trimet:schedule" desc="78-Denney/Kerr Pkwy" route="78" id="78" type="B" routeColor="" routeSortOrder="7800" frequentService="false" no_service_flag="false" />
+        <location id="4427" desc="PCC Lower Drive (G St) &amp; H St" dir="Eastbound" lat="45.441279999998" lng="-122.73404299998" passengerCode="E" no_service_flag="false" />
+        <location id="4431" desc="PCC Sylvania Main Stop" dir="Southbound" lat="45.4379548817623" lng="-122.730176730095" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1595430000000" end="" id="84413" info_link_url="" header_text="" system_wide_flag="false" desc="For trips in both directions, no service to the stops at High &amp; 5th (Stop ID 2666) and 5th &amp; High (Stop ID 7604) due to construction.">
+        <route xmlns="urn:trimet:schedule" desc="33-McLoughlin/King Rd" route="33" id="33" type="B" routeColor="" routeSortOrder="3500" frequentService="true" no_service_flag="false" />
+        <location id="7604" desc="5th &amp; High" dir="Westbound" lat="45.3557142672592" lng="-122.608081752245" passengerCode="E" no_service_flag="false" />
+        <location id="2666" desc="High &amp; 5th" dir="Northbound" lat="45.355462" lng="-122.608428" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1596067251129" end="" id="85063" info_link_url="" header_text="" system_wide_flag="false" desc="No service from N Denver &amp; Schofield to N Halleck &amp; Delaware due to Healthy Business Initiative. Temp stops westbound N Schofield &amp; farside Brandon (Stop ID 14119), northbound  N Delaware &amp; Kilpatrick (Stop ID 14120), eastbound N Schofield &amp; Brandon (Stop ID 14118).">
+        <route xmlns="urn:trimet:schedule" desc="4-Fessenden" route="4" id="4" type="B" routeColor="" routeSortOrder="600" frequentService="true" no_service_flag="false" />
+        <location id="3218" desc="N Kilpatrick &amp; Brandon" dir="Westbound" lat="45.5824585196581" lng="-122.6888699417" passengerCode="E" no_service_flag="false" />
+        <location id="3219" desc="N Kilpatrick &amp; Brandon" dir="Eastbound" lat="45.5823211684284" lng="-122.689157671113" passengerCode="E" no_service_flag="false" />
+        <location id="3221" desc="N Kilpatrick &amp; Denver" dir="Westbound" lat="45.582446999998" lng="-122.68729799998" passengerCode="E" no_service_flag="false" />
+        <location id="3222" desc="N Kilpatrick &amp; Denver" dir="Eastbound" lat="45.5823295116531" lng="-122.687094763329" passengerCode="E" no_service_flag="false" />
+        <location id="2315" desc="N Halleck &amp; Delaware" dir="Northbound" lat="45.5826905371977" lng="-122.692287619528" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1596625200000" end="" id="85574" info_link_url="" header_text="" system_wide_flag="false" desc="No service to the stop on NW Glisan &amp; 16th (Stop ID 2062) due to joint ODOT-PBOT construction.">
+        <route xmlns="urn:trimet:schedule" desc="77-Broadway/Halsey" route="77" id="77" type="B" routeColor="" routeSortOrder="7700" frequentService="false" no_service_flag="false" />
+        <location id="2062" desc="NW Glisan &amp; 16th" dir="Westbound" lat="45.526502999998" lng="-122.68716499998" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1596625200000" end="" id="85580" info_link_url="" header_text="" system_wide_flag="false" desc="No service to the northbound stop on SE Hwy 224 &amp; Hwy 212 (Stop ID 2896) due to road construction. Use the temporary stop about 100 feet before the closed stop. ">
+        <route xmlns="urn:trimet:schedule" desc="30-Estacada" route="30" id="30" type="B" routeColor="" routeSortOrder="3250" frequentService="false" no_service_flag="false" />
+        <location id="2896" desc="SE Hwy 224 &amp; Hwy 212" dir="Northbound" lat="45.4094256056103" lng="-122.504897830187" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1597681286000" end="" id="86612" info_link_url="" header_text="" system_wide_flag="false" desc="For trips in both directions, no service along SE 21st and SE Clinton due to PBOT's Health Streets Initiative. Buses will serve stops in both directions at SE Division &amp; 23rd (Stop ID 1439 &amp; 13741) and SE 26th &amp; Clinton (Stop ID 14124 &amp; 14125).">
+        <route xmlns="urn:trimet:schedule" desc="10-Harold St" route="10" id="10" type="B" routeColor="" routeSortOrder="1300" frequentService="false" no_service_flag="false" />
+    </alert>
+    <alert begin="1598033980164" end="" id="86908" info_link_url="" header_text="" system_wide_flag="false" desc="No service to eastbound SE Holgate &amp; 97th (Stop ID 12900) due to construction. Closest nearby stop at SE Holgate &amp; 100th (Stop ID 2686). ">
+        <route xmlns="urn:trimet:schedule" desc="17-Holgate/Broadway" route="17" id="17" type="B" routeColor="" routeSortOrder="2000" frequentService="false" no_service_flag="false" />
+        <location id="12900" desc="SE Holgate &amp; 97th" dir="Eastbound" lat="45.4898146579581" lng="-122.563185366775" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1598360400000" end="" id="87175" info_link_url="" header_text="" system_wide_flag="false" desc="No service to the southbound stop at NE M L King &amp; Rosa Parks Way (Stop ID 5943) due to construction.">
+        <route xmlns="urn:trimet:schedule" desc="6-Martin Luther King Jr Blvd" route="6" id="6" type="B" routeColor="" routeSortOrder="800" frequentService="true" no_service_flag="false" />
+        <location id="5943" desc="NE M L King &amp; Rosa Parks Way" dir="Southbound" lat="45.5702497816291" lng="-122.661490114265" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1598721703841" end="" id="87480" info_link_url="" header_text="" system_wide_flag="false" desc="No service to SE Holgate &amp; 67th (Stop ID 2750, 2751) due to long term stop closure. ">
+        <route xmlns="urn:trimet:schedule" desc="17-Holgate/Broadway" route="17" id="17" type="B" routeColor="" routeSortOrder="2000" frequentService="false" no_service_flag="false" />
+        <location id="2750" desc="SE Holgate &amp; 67th" dir="Eastbound" lat="45.490209999998" lng="-122.59390799998" passengerCode="E" no_service_flag="false" />
+        <location id="2751" desc="SE Holgate &amp; 67th" dir="Westbound" lat="45.4903138580577" lng="-122.594130512794" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1598915579000" end="" id="87634" info_link_url="" header_text="" system_wide_flag="false" desc="For trips to Beaverton TC, no service to the eastbound stop at SW Allen &amp; Hall (Stop ID 102) due to sidewalk construction. Use the temporary stop 200 feet east.">
+        <route xmlns="urn:trimet:schedule" desc="88-Hart/198th" route="88" id="88" type="B" routeColor="" routeSortOrder="8700" frequentService="false" no_service_flag="false" />
+        <location id="102" desc="SW Allen &amp; Hall" dir="Eastbound" lat="45.4763795321894" lng="-122.805739255265" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1598880600000" end="" id="87641" info_link_url="" header_text="" system_wide_flag="false" desc="No service to the southbound stop on Boones Ferry Rd &amp; Kruse Way Pl (Stop ID 536) due to an altered traffic control pattern related to construction.">
+        <route xmlns="urn:trimet:schedule" desc="37-Lake Grove" route="37" id="37" type="B" routeColor="" routeSortOrder="4000" frequentService="false" no_service_flag="false" />
+        <location id="536" desc="Boones Ferry Rd &amp; Kruse Way Pl" dir="Southbound" lat="45.4166414779305" lng="-122.715316467673" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1598958000000" end="" id="87642" info_link_url="" header_text="" system_wide_flag="false" desc="No service to the eastbound stop at SW Allen &amp; Hall (Stop ID 102) due to sidewalk construction. Use the temporary stop on the east side of Hall (posted under the speed limit sign).">
+        <route xmlns="urn:trimet:schedule" desc="88-Hart/198th" route="88" id="88" type="B" routeColor="" routeSortOrder="8700" frequentService="false" no_service_flag="false" />
+        <location id="102" desc="SW Allen &amp; Hall" dir="Eastbound" lat="45.4763795321894" lng="-122.805739255265" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1599155394000" end="" id="87832" info_link_url="" header_text="" system_wide_flag="false" desc="For trips to Parkrose TC, no service from SE Powell &amp; 122nd (Stop ID 6655) due to construction. Temp stop 300 ft north.">
+        <route xmlns="urn:trimet:schedule" desc="73-122nd Ave" route="73" id="73" type="B" routeColor="" routeSortOrder="7400" frequentService="true" no_service_flag="false" />
+        <location id="6655" desc="SE 122nd &amp; Powell" dir="Northbound" lat="45.4973403773337" lng="-122.537504425776" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1599864620497" end="" id="88399" info_link_url="" header_text="" system_wide_flag="false" desc="No service to eastbound NW Cornell &amp; 143rd (Stop ID 1204) due to long-term stop closure. ">
+        <route xmlns="urn:trimet:schedule" desc="48-Cornell" route="48" id="48" type="B" routeColor="" routeSortOrder="5000" frequentService="false" no_service_flag="false" />
+        <location id="1204" desc="NW Cornell &amp; 143rd" dir="Eastbound" lat="45.5305036372657" lng="-122.824648568167" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1600174800000" end="" id="88616" info_link_url="" header_text="" system_wide_flag="false" desc="No service to the southbound stop at the 3900 block of Murray (Stop ID 8316) due to construction. Board using the stop at SW Murray &amp; Tualatin Valley Hwy (Stop ID 4088).">
+        <route xmlns="urn:trimet:schedule" desc="62-Murray Blvd" route="62" id="62" type="B" routeColor="" routeSortOrder="6400" frequentService="false" no_service_flag="false" />
+        <location id="8316" desc="3900 Block SW Murray" dir="Southbound" lat="45.4912528955915" lng="-122.826294207414" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1600265507000" end="" id="88636" info_link_url="" header_text="" system_wide_flag="false" desc="No service to the westbound stop at SW Tualatin Valley Hwy &amp; Murray (Stop ID 5599) due to long-term stop closure. Use the temporary stop half a block west in front of the car dealership.">
+        <route xmlns="urn:trimet:schedule" desc="57-TV Hwy/Forest Grove" route="57" id="57" type="B" routeColor="" routeSortOrder="5900" frequentService="true" no_service_flag="false" />
+        <location id="5599" desc="SW Tualatin Valley Hwy &amp; Murray" dir="Westbound" lat="45.48977" lng="-122.826771" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1600344000000" end="" id="88663" info_link_url="" header_text="" system_wide_flag="false" desc="No service to the stops in both directions at SE Division &amp; 34th (Stop IDs 1451 &amp; 1452) and at SE Division &amp; 101st (Stop IDs 1359 &amp; 1360) due to the Division Transit Project.">
+        <route xmlns="urn:trimet:schedule" desc="2-Division" route="2" id="2" type="B" routeColor="" routeSortOrder="500" frequentService="true" no_service_flag="false" />
+    </alert>
+    <alert begin="1600344000000" end="" id="88664" info_link_url="" header_text="" system_wide_flag="false" desc="No service to the westbound stop at SE Division &amp; 28th Pl (Stop ID 1444) due to long-term construction.">
+        <route xmlns="urn:trimet:schedule" desc="2-Division" route="2" id="2" type="B" routeColor="" routeSortOrder="500" frequentService="true" no_service_flag="false" />
+        <location id="1444" desc="SE Division &amp; 28th Pl" dir="Westbound" lat="45.504851999998" lng="-122.63655299998" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1598869800000" end="" id="75272" info_link_url="" header_text="COVID-19 service reduction" system_wide_flag="false" desc="Due to COVID-19 service reductions, Line 32 will run weekdays on reduced service between Milwaukie and Oregon City Transit Center. For weekday service to Clackamas Community College, 4 trips will leave Milwaukie at SE Jackson &amp; 21st, at 6:57 a.m., 1:06 p.m., 3:06 p.m., and 5:06 p.m., serving all regular stops. For weekday service to Milwaukie City Center, 4 trips will leave Oregon City Transit Center at 6:30 a.m., 8:29 a.m., 2:38 p.m., and 4:38 p.m., serving all regular stops. Weekend service will be on Sunday schedule.">
+        <route xmlns="urn:trimet:schedule" desc="32-Oatfield" route="32" id="32" type="B" routeColor="" routeSortOrder="3400" frequentService="false" no_service_flag="false" />
+    </alert>
+    <alert begin="1598869800000" end="" id="75275" info_link_url="" header_text="COVID-19 service reductions" system_wide_flag="false" desc="Due to COVID-19 service reductions, trains will be running every 45 minutes. For arrivals and trip planning, see trimet.org.">
+        <route xmlns="urn:trimet:schedule" desc="WES Commuter Rail" route="203" id="203" type="R" routeColor="000000" routeSortOrder="150" frequentService="false" no_service_flag="false" />
+    </alert>
+    <alert begin="1599266638145" end="" id="87938" info_link_url="" header_text="" system_wide_flag="false" desc="No service to northbound stop at N Greeley &amp; Sumner (Stop ID 2226) due to the Adidas Project. ">
+        <route xmlns="urn:trimet:schedule" desc="35-Macadam/Greeley" route="35" id="35" type="B" routeColor="" routeSortOrder="3750" frequentService="false" no_service_flag="false" />
+        <route xmlns="urn:trimet:schedule" desc="72-Killingsworth/82nd Ave" route="72" id="72" type="B" routeColor="" routeSortOrder="7300" frequentService="true" no_service_flag="false" />
+        <location id="2226" desc="N Greeley &amp; Sumner" dir="Northbound" lat="45.56036644561" lng="-122.694555830413" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1573931773074" end="" id="56427" info_link_url="" header_text="" system_wide_flag="false" desc="No service to the westbound stop on N Killingsworth &amp; Vancouver (Stop ID 3184) due to long-term construction. Use the temporary stop at NE Killingsworth &amp; N Williams (Stop ID 3187).">
+        <route xmlns="urn:trimet:schedule" desc="72-Killingsworth/82nd Ave" route="72" id="72" type="B" routeColor="" routeSortOrder="7300" frequentService="true" no_service_flag="false" />
+    </alert>
+    <alert begin="1600999752478" end="" id="89228" info_link_url="" header_text="" system_wide_flag="false" desc="No service to eastbound SE Powell &amp; 99th (Stop ID 14018) due to construction. Temp stop 130 ft east of stop. ">
+        <route xmlns="urn:trimet:schedule" desc="9-Powell Blvd" route="9" id="9" type="B" routeColor="" routeSortOrder="1100" frequentService="true" no_service_flag="false" />
+        <location id="14018" desc="SE Powell &amp; 99th" dir="Eastbound" lat="45.4962459986768" lng="-122.561393915352" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1578009007657" end="" id="63952" info_link_url="" header_text="The eastbound stop on Powell &amp; Powell Garage Dr (#4542) is closed due to construction. " system_wide_flag="false" desc="For trips to Gresham Transit Center, no service to eastbound Powell &amp; Powell Garage Dr (#4542) due to construction. Temp stop located 130 ft east of SE Powell &amp; 99th (Stop ID 14018).">
+        <route xmlns="urn:trimet:schedule" desc="9-Powell Blvd" route="9" id="9" type="B" routeColor="" routeSortOrder="1100" frequentService="true" no_service_flag="false" />
+    </alert>
+    <alert begin="1601344860000" end="1602325800000" id="89300" info_link_url="" header_text="" system_wide_flag="false" desc="Beginning Monday, September 28 through end of service Friday, October 9th, no service to northbound NW Graham Rd &amp; 257th Dr &amp; 257th Way (Stop ID 9470) due to construction. ">
+        <route xmlns="urn:trimet:schedule" desc="77-Broadway/Halsey" route="77" id="77" type="B" routeColor="" routeSortOrder="7700" frequentService="false" no_service_flag="false" />
+        <route xmlns="urn:trimet:schedule" desc="81-Kane/257th" route="81" id="81" type="B" routeColor="" routeSortOrder="8100" frequentService="false" no_service_flag="false" />
+        <location id="9470" desc="NW Graham/257th &amp; 257th Way" dir="Northbound" lat="45.5434909814806" lng="-122.390360014458" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1601289000000" end="1602412200000" id="89213" info_link_url="http://trimet.org/gresham" header_text="Gresham MAX Improvements" system_wide_flag="false" desc="From Sunday, October 11, through Saturday, October 17, MAX Blue Line will be disrupted due to Gresham MAX Improvements. Shuttle buses will serve stops near stations from Rockwood/E 188th Ave to Cleveland Ave. For more information, see trimet.org/gresham. ">
+        <route xmlns="urn:trimet:schedule" desc="MAX Blue Line" route="100" id="100" type="R" routeColor="084C8D" routeSortOrder="100" frequentService="true" no_service_flag="false" />
+    </alert>
+    <alert begin="1601377200000" end="" id="89455" info_link_url="" header_text="" system_wide_flag="false" desc="No service to the southbound stop on NW Murray &amp; Science Park Dr (Stop ID 4086) due to sidewalk construction.">
+        <route xmlns="urn:trimet:schedule" desc="62-Murray Blvd" route="62" id="62" type="B" routeColor="" routeSortOrder="6400" frequentService="false" no_service_flag="false" />
+        <location id="4086" desc="NW Murray &amp; Science Park Dr" dir="Southbound" lat="45.5250809499583" lng="-122.815044290508" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1598783400000" end="1609673400000" id="87482" info_link_url="https://trimet.org/alerts/pdx/" header_text="" system_wide_flag="false" desc="Beginning Sunday, August 30th through Saturday, January 2nd, MAX Red Line will be disrupted due to construction at Portland International Airport. Shuttle buses will be serving from Mt Hood Ave to Airport. ">
+        <route xmlns="urn:trimet:schedule" desc="MAX Red Line" route="90" id="90" type="R" routeColor="D81526" routeSortOrder="120" frequentService="true" no_service_flag="false" />
+    </alert>
+    <alert begin="1601663460000" end="" id="72332" info_link_url="http://trimet.org/health" header_text="Face covering required on TriMet" system_wide_flag="true" desc="To help keep transit safe for riders and employees, face coverings are required on board.">
+        <system_wide_message type="normal" />
+    </alert>
+    <alert begin="1601692204812" end="" id="89678" info_link_url="" header_text="" system_wide_flag="false" desc="No service to the eastbound stop at SE Division &amp; 151st (Stop ID 1405) or the westbound stop at SE Division &amp; 152nd (Stop ID 1407) due to Division Transit Project. ">
+        <route xmlns="urn:trimet:schedule" desc="2-Division" route="2" id="2" type="B" routeColor="" routeSortOrder="500" frequentService="true" no_service_flag="false" />
+        <location id="1405" desc="SE Division &amp; 151st" dir="Eastbound" lat="45.504168129045" lng="-122.50703015145" passengerCode="E" no_service_flag="false" />
+        <location id="1407" desc="SE Division &amp; 152nd" dir="Westbound" lat="45.504384422613" lng="-122.50691619486" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1599864420411" end="" id="88397" info_link_url="" header_text="" system_wide_flag="false" desc="No service to the stops in both directions at SE Division &amp; 85th (Stop IDs 1500 &amp; 1501) due to Division Transit Project work. ">
+        <route xmlns="urn:trimet:schedule" desc="2-Division" route="2" id="2" type="B" routeColor="" routeSortOrder="500" frequentService="true" no_service_flag="false" />
+        <location id="1500" desc="SE Division &amp; 85th" dir="Eastbound" lat="45.504488999998" lng="-122.57496999998" passengerCode="E" no_service_flag="false" />
+        <location id="1501" desc="SE Division &amp; 85th" dir="Westbound" lat="45.5047140621685" lng="-122.575569009698" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1601982000000" end="" id="89817" info_link_url="" header_text="" system_wide_flag="false" desc="No service to the northbound stop at NE 15th &amp; Fremont (Stop ID 6785) due to construction. Use the temporary stop about 60 feet north of Fremont.">
+        <route xmlns="urn:trimet:schedule" desc="8-Jackson Park/NE 15th" route="8" id="8" type="B" routeColor="" routeSortOrder="1000" frequentService="true" no_service_flag="false" />
+        <location id="6785" desc="NE 15th &amp; Fremont" dir="Northbound" lat="45.548159999998" lng="-122.65031599998" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1601289000000" end="1603189800000" id="89302" info_link_url="" header_text="" system_wide_flag="false" desc="Beginning Monday, September 28 through end of service Monday, October 19th, no service to westbound SE Division &amp; 30th (Stop ID 1448) due to Division Transit Project. ">
+        <route xmlns="urn:trimet:schedule" desc="2-Division" route="2" id="2" type="B" routeColor="" routeSortOrder="500" frequentService="true" no_service_flag="false" />
+        <location id="1448" desc="SE Division &amp; 30th" dir="Westbound" lat="45.5048369030609" lng="-122.634521458325" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1602295564527" end="" id="90138" info_link_url="" header_text="" system_wide_flag="false" desc="No service to Molalla &amp; Mountain View (Stop ID 11933, 11932) due to construction. ">
+        <route xmlns="urn:trimet:schedule" desc="32-Oatfield" route="32" id="32" type="B" routeColor="" routeSortOrder="3400" frequentService="false" no_service_flag="false" />
+        <location id="11932" desc="Molalla &amp; Mountain View" dir="Northbound" lat="45.3438367694273" lng="-122.596085140907" passengerCode="E" no_service_flag="false" />
+        <location id="11933" desc="Molalla &amp; Mountain View" dir="Southbound" lat="45.3440022501509" lng="-122.596409897209" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1602518400000" end="1602630000000" id="90139" info_link_url="" header_text="" system_wide_flag="false" desc="Beginning Monday, October 12 through Tuesday, October 13 from 9:00 a.m. to 4:00 p.m., no service to southbound SE 17 &amp; Tacoma (Stop ID 6896) due to construction. Temp stop 100 ft prior to stop (north) on 'No Parking' sign. ">
+        <route xmlns="urn:trimet:schedule" desc="70-12th/NE 33rd Ave" route="70" id="70" type="B" routeColor="" routeSortOrder="7100" frequentService="false" no_service_flag="false" />
+        <location id="6896" desc="SE 17th &amp; Tacoma" dir="Southbound" lat="45.4644509405092" lng="-122.647126764023" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1602511200000" end="1602889200000" id="90140" info_link_url="" header_text="" system_wide_flag="false" desc="Beginning Monday, October 12 through Friday, October 16, from 7:00 a.m. to 4:00 p.m., no service to eastbound SE Division &amp; 42nd (Stop ID 13696) due to Division Transit Project.">
+        <route xmlns="urn:trimet:schedule" desc="2-Division" route="2" id="2" type="B" routeColor="" routeSortOrder="500" frequentService="true" no_service_flag="false" />
+        <location id="13696" desc="SE Division &amp; 42nd" dir="Eastbound" lat="45.5051180427755" lng="-122.618781100935" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1602511200000" end="1602543600000" id="90141" info_link_url="" header_text="" system_wide_flag="false" desc="On Monday, October 12 from 7:00 a.m. to 4:00 p.m., for trips to Troutdale, no service between  NW Everett &amp; Park to NW Broadway &amp; Everett due to crane work. ">
+        <route xmlns="urn:trimet:schedule" desc="77-Broadway/Halsey" route="77" id="77" type="B" routeColor="" routeSortOrder="7700" frequentService="false" no_service_flag="false" />
+        <location id="8402" desc="NW Everett &amp; Park" dir="Eastbound" lat="45.525095999998" lng="-122.67928999998" passengerCode="E" no_service_flag="false" />
+        <location id="1606" desc="NW Everett &amp; Broadway" dir="Eastbound" lat="45.525111999998" lng="-122.67766399998" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1602518400000" end="1602541800000" id="90142" info_link_url="" header_text="" system_wide_flag="false" desc="Beginning Monday, October 12 through Friday, October 16 from 9:00 a.m. to 3:30 p.m., no service to eastbound NE Glisan &amp; 56th (Stop ID 2124) due to water work. ">
+        <route xmlns="urn:trimet:schedule" desc="19-Woodstock/Glisan" route="19" id="19" type="B" routeColor="" routeSortOrder="2400" frequentService="false" no_service_flag="false" />
+        <location id="2124" desc="NE Glisan &amp; 56th" dir="Eastbound" lat="45.5264144999669" lng="-122.606055197586" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1602296478941" end="1602504000000" id="90143" info_link_url="" header_text="" system_wide_flag="false" desc="Beginning Sunday, October 11th at 1:00 a.m. through Monday, October 12 at 5:00 a.m., for trips to Gresham, no service between SE 223rd &amp; NW 20th and NE Division &amp; Main due to construction. To Parkrose, no service between NW Division &amp; Miller and NW Eastman &amp; Burnside.">
+        <location id="1571" desc="1500 Block NW Eastman" dir="Southbound" lat="45.508618999998" lng="-122.43545299998" passengerCode="E" no_service_flag="false" />
+        <location id="1348" desc="NE Division &amp; Main" dir="Eastbound" lat="45.5043848961267" lng="-122.43020171469" passengerCode="E" no_service_flag="false" />
+        <location id="1572" desc="NW Eastman &amp; Division" dir="Northbound" lat="45.505085168544" lng="-122.435178195687" passengerCode="E" no_service_flag="false" />
+        <location id="10821" desc="NW Eastman &amp; Burnside" dir="Northbound" lat="45.5102996691188" lng="-122.434201332036" passengerCode="E" no_service_flag="false" />
+        <location id="1576" desc="SE 223rd &amp; NW 20th" dir="Southbound" lat="45.511584" lng="-122.434034" passengerCode="E" no_service_flag="false" />
+        <location id="1354" desc="NW Division &amp; Victoria" dir="Eastbound" lat="45.5043645483167" lng="-122.434480309662" passengerCode="E" no_service_flag="false" />
+        <location id="1579" desc="1300 Block NW Eastman" dir="Southbound" lat="45.5058561751081" lng="-122.435423299299" passengerCode="E" no_service_flag="false" />
+        <location id="1342" desc="NW Division &amp; Miller" dir="Westbound" lat="45.5045546267919" lng="-122.432620370866" passengerCode="E" no_service_flag="false" />
+    </alert>
+    <alert begin="1602298031704" end="1602325800000" id="90144" info_link_url="" header_text="" system_wide_flag="false" desc="For trips to Gresham TC, no service from SW Madison &amp; 5th to SW Naito &amp; Hawthorne due to demonstrations. To Portland, no service from SE Madison &amp; Grand to SW Washington &amp; 6th.">
+        <route xmlns="urn:trimet:schedule" desc="2-Division" route="2" id="2" type="B" routeColor="" routeSortOrder="500" frequentService="true" no_service_flag="false" />
+    </alert>
+    <alert begin="1602298031709" end="1602325800000" id="90145" info_link_url="" header_text="" system_wide_flag="false" desc="For trips to Portland, no service from SE MLK &amp; Hawthorne to SW Jefferson &amp; 4th due to demonstrations. To Jantzen Beach, no service from SW Columbia &amp; 5th (temp stop on 5th) to SW Naito &amp; Hawthorne Bridge. ">
+        <route xmlns="urn:trimet:schedule" desc="6-Martin Luther King Jr Blvd" route="6" id="6" type="B" routeColor="" routeSortOrder="800" frequentService="true" no_service_flag="false" />
+    </alert>
+    <alert begin="1602298031714" end="1602325800000" id="90146" info_link_url="" header_text="" system_wide_flag="false" desc="For trips to Portland, no service from SE Madison &amp; Grand to SW Naito &amp; Hawthorne due to demonstrations. Temp stop on Washington &amp; 3rd and SW Main &amp; 5th. ">
+        <route xmlns="urn:trimet:schedule" desc="14-Hawthorne" route="14" id="14" type="B" routeColor="" routeSortOrder="1700" frequentService="true" no_service_flag="false" />
+    </alert>
+    <alert begin="1602300098000" end="1602325800000" id="90147" info_link_url="" header_text="" system_wide_flag="false" desc="Line 4, TO ST JOHNS: regular route to Mississippi and Skidmore, right Skidmore, left Commercial,  left Alberta,  right Albina, then regular route due to protesters. ">
+        <route xmlns="urn:trimet:schedule" desc="4-Fessenden" route="4" id="4" type="B" routeColor="" routeSortOrder="600" frequentService="true" no_service_flag="false" />
+    </alert>
+    <alert begin="1602300160000" end="1602325800000" id="90148" info_link_url="" header_text="" system_wide_flag="false" desc="Line 4, TO PORTLAND: regular route to Albina and Alberta, left Alberta,  right Commercial,  right Skidmore,  left Mississippi, then regular route. ">
+        <route xmlns="urn:trimet:schedule" desc="4-Fessenden" route="4" id="4" type="B" routeColor="" routeSortOrder="600" frequentService="true" no_service_flag="false" />
+    </alert>
+    <alert begin="1602300877238" end="" id="90149" info_link_url="" header_text="" system_wide_flag="false" desc="Due to a blocking train, no service to stops on SE 11th and 12th between Hawthorne and Powell. Expect delays.">
+        <route xmlns="urn:trimet:schedule" desc="70-12th/NE 33rd Ave" route="70" id="70" type="B" routeColor="" routeSortOrder="7100" frequentService="false" no_service_flag="false" />
+    </alert>
+</resultSet>

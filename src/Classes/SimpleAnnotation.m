@@ -17,6 +17,7 @@
 
 @implementation SimpleAnnotation
 
+@dynamic pinBearing;
 
 + (instancetype)annotation {
     return [[[self class] alloc] init];
@@ -34,21 +35,23 @@
     return self.pinSubtitle;
 }
 
-- (bool)showActionMenu {
+- (bool)pinActionMenu {
     return false;
 }
 
-- (bool)hasBearing {
+- (bool)pinHasBearing {
     return _hasBearing;
 }
 
-- (void)setDoubleBearing:(double)bearing {
+- (void)setPinBearing:(double)bearing {
     _bearing = bearing;
     _hasBearing = YES;
 }
 
-- (double)doubleBearing {
+- (double)pinBearing {
     return _bearing;
 }
+
+
 
 @end

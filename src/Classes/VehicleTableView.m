@@ -31,10 +31,10 @@
 
 @implementation VehicleTableView
 
-
-#define kSectionVehicles   0
-#define kSectionDisclaimer 1
-#define kSections          2
+enum SECTION_ROWS {
+    kSectionVehicles,
+    kSectionDisclaimer
+};
 
 
 - (instancetype)init {
@@ -67,7 +67,7 @@
     if (_firstTime && self.locator.count == 1) {
         Vehicle *vehicle = self.locator[0];
         
-        [vehicle mapTapped:self.backgroundTask];
+        [vehicle pinAction:self.backgroundTask];
     }
     
     _firstTime = NO;
@@ -91,30 +91,25 @@
             [taskState taskSetErrorMsg:kNoVehicles];
         }
         
+        [self createSections];
+        
         return (UIViewController *)self;
     }];
 }
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return kSections;
+- (void)createSections {
+    [self clearSectionMaps];
+    [self addSectionType:kSectionVehicles];
+    [self addRowType:kSectionVehicles count:self.locator.count];
+    
+    [self addSectionTypeWithRow:kSectionDisclaimer];
 }
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    switch (section) {
-        case kSectionVehicles: {
-            return self.locator.count;
-        }
-            
-        case kSectionDisclaimer:
-            return 1;
-    }
-    return 1;
-}
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    switch (indexPath.section) {
+    switch ([self rowType:indexPath]) {
         case kSectionVehicles:
-            return DEPARTURE_CELL_HEIGHT;
+            return UITableViewAutomaticDimension;
             
         case kSectionDisclaimer:
             return kDisclaimerCellHeight;
@@ -125,7 +120,7 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = nil;
     
-    switch (indexPath.section) {
+    switch ([self rowType:indexPath]) {
         case kSectionVehicles: {
             DepartureCell *dcell = [DepartureCell tableView:tableView genericWithReuseIdentifier:MakeCellId(kSectionVehicles)];
             cell = dcell;
@@ -165,17 +160,17 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    switch (indexPath.section) {
+    switch ([self rowType:indexPath]) {
         case kSectionVehicles: {
             Vehicle *vehicle = self.locator[indexPath.row];
             
-            [vehicle mapTapped:self.backgroundTask];
+            [vehicle pinAction:self.backgroundTask];
             break;
         }
             
         case kSectionDisclaimer: {
             if (self.locator.items == nil) {
-                [self networkTips:self.locator.htmlError networkError:self.locator.errorMsg];
+                [self networkTips:self.locator.htmlError networkError:self.locator.networkErrorMsg];
                 [self clearSelection];
             }
             

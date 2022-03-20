@@ -45,6 +45,8 @@
  
  */
 
+#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+
 #import "TilingView.h"
 #import <QuartzCore/CATiledLayer.h>
 #import "DebugLogging.h"

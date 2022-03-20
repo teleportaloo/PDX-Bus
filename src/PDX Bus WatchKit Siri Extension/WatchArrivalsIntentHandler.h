@@ -15,12 +15,17 @@
 
 #import <Foundation/Foundation.h>
 #import "ArrivalsIntent.h"
+#import "ArrivalsAtStopIdIntent.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface WatchArrivalsIntentHandler : NSObject
+@interface WatchArrivalsIntentHandler<ArrivalsIntentHandling, ArrivalsAtStopIdIntentHandling> : NSObject
 
-- (void)handleArrivals:(ArrivalsIntent *)intent completion:(void (^)(ArrivalsIntentResponse *response))completion API_AVAILABLE(watchos(5.0));
+- (void)handleArrivals:(ArrivalsIntent *)intent
+            completion:(void (^)(ArrivalsIntentResponse *response))completion API_AVAILABLE(watchos(5.0));
+
+- (void)handleArrivalsAtStopId:(ArrivalsAtStopIdIntent *)intent
+                    completion:(void (^)(ArrivalsAtStopIdIntentResponse *response))completion API_AVAILABLE(watchos(5.0));
 
 @end
 

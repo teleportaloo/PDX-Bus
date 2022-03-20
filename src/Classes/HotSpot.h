@@ -30,8 +30,9 @@
 #define kLinkType3     '3'
 #define kLinkTypeDir   'd'
 #define kLinkTypeMap   'm'
+#define kLinkTypeTest  't'
 
-typedef struct hotspot_struct {
+typedef struct HotSpotStruct {
     union {
         const CGPoint *vertices;
         const CGRect *rect;
@@ -40,35 +41,40 @@ typedef struct hotspot_struct {
     unsigned char nVertices : 6;
     unsigned char touched  : 1;
     unsigned char isRect   : 1;
-} HOTSPOT;
+} HotSpot;
 
 #define HOTSPOT_IS_RECT(X) ((X)->isRect == 1)
 #define HOTSPOT_IS_POLY(X) ((X)->isRect == 0)
+#define HOTSPOT_HIT(HS, P) (     ((HOTSPOT_IS_POLY(HS) && [PointInclusionInPolygonTest  pnpoly:(HS)->nVertices points:(HS)->coords.vertices x:(P).x y:(P).y]) \
+                             ||  (HOTSPOT_IS_RECT(HS) && CGRectContainsPoint(*HS->coords.rect, (P)))))
 
 #define MAP_LAST_INDEX 0xFF
 
 
-typedef struct alpha_section_struct {
+typedef struct AlphaSectionsStruct {
     const char *title;
     int offset;
     int items;
-} ALPHA_SECTIONS;
+} AlphaSections;
 
-typedef const unsigned char HOTSPOT_INDEX;
+typedef const unsigned char ConstHotSpotIndex;
+typedef unsigned char HotSpotIndex;
 
 
-typedef struct stopinfo {
+typedef struct StopInfoStruct {
     unsigned long stopId;
     int hotspot;
     double lat;
     double lng;
-} STOP_INFO;
+    bool tp;
+    RailLines lines;
+} StopInfo;
 
-typedef struct tile_array {
-    HOTSPOT_INDEX *hotspots;
-}  RAILMAP_TILE;
+typedef struct RailMapTileStruct {
+    ConstHotSpotIndex *hotspots;
+}  RailMapTile;
 
-typedef struct railmap_struct {
+typedef struct RailMapStruct {
     NSString *title;
     NSString *fileName;
     CGSize size;
@@ -77,10 +83,10 @@ typedef struct railmap_struct {
     int xTiles;
     int yTiles;
     
-    RAILMAP_TILE **tiles;
+    RailMapTile **tiles;
     
     CGSize tileSize;
-} RAILMAP;
+} RailMap;
 
 #define kRailMapMaxWes       0
 #define kRailMapPdxStreetcar 1

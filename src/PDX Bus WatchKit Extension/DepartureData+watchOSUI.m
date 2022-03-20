@@ -30,11 +30,11 @@
     int mins = self.minsToArrival;
     UIColor *timeColor = nil;
     
-    if (self.status == kStatusScheduled) {
+    if (self.status == ArrivalStatusScheduled) {
         timeColor = ArrivalColorScheduled;
     } else if (self.actuallyLate) {
         timeColor = ArrivalColorLate;
-    } else if (mins < 6 || self.status == kStatusCancelled) {
+    } else if (mins < 6 || self.status == ArrivalStatusCancelled) {
         timeColor = ArrivalColorSoon;
     } else {
         timeColor = ArrivalColorOK;
@@ -52,13 +52,13 @@
         imageCache = [[NSMutableDictionary alloc] init];
     }
     
-    PC_ROUTE_INFO raw = [TriMetInfo infoForRoute:self.route];
+    PtrConstRouteInfo raw = [TriMetInfo infoForRoute:self.route];
     
     if (raw != NULL) {
         image = imageCache[self.route];
         
         if (image == nil) {
-            PC_ROUTE_INFO raw = [TriMetInfo infoForRoute:self.route];
+            PtrConstRouteInfo raw = [TriMetInfo infoForRoute:self.route];
             
             CGRect rect = CGRectMake(0.0f, 0.0f, 20.0f, 20.0f);
             
@@ -138,7 +138,7 @@
 }
 
 - (NSString *)formattedMinsToArrival {
-    if (self.status == kStatusCancelled) {
+    if (self.status == ArrivalStatusCancelled) {
         return @"❌";
     } else if (self.minsToArrival < 0 || self.invalidated) {
         return @"-";
@@ -172,21 +172,23 @@
     return [TriMetInfo infoForRoute:self.route] != nil;
 }
 
-- (NSAttributedString *)headingWithStatus {
+- (NSAttributedString *)headingWithStatusFullSign:(bool)fullSign {
     NSMutableAttributedString *string = @"".mutableAttributedString;
     
     UIColor *statusColor = [UIColor blackColor];
     
-    if (self.status == kStatusCancelled) {
+    if (self.status == ArrivalStatusCancelled) {
         statusColor = [UIColor orangeColor];
     } else if (self.detour) {
         statusColor = [UIColor orangeColor];
-    } else if (self.status == kStatusScheduled) {
+    } else if (self.status == ArrivalStatusScheduled) {
         statusColor = [UIColor grayColor];
     }
     
-    if (self.shortSign != nil) {
-        NSAttributedString *subString = [self.shortSign attributedStringWithAttributes:@{ NSForegroundColorAttributeName: statusColor }];
+    NSString *sign = fullSign ? self.fullSign : self.shortSign;
+    
+    if (sign != nil) {
+        NSAttributedString *subString = [sign attributedStringWithAttributes:@{ NSForegroundColorAttributeName: statusColor }];
         [string appendAttributedString:subString];
     }
     
@@ -212,7 +214,7 @@
         [result appendString:@"⚠️"];
     }
     
-    if (self.status == kStatusScheduled) {
+    if (self.status == ArrivalStatusScheduled) {
         if (needsNewl) {
             [result appendString:@"\n"];
         }
@@ -237,19 +239,19 @@
     return ret;
 }
 
-- (bool)hasBearing {
+- (bool)pinHasBearing {
     return self.blockPositionHeading != nil;
 }
 
-- (double)doubleBearing {
+- (double)pinBearing {
     return self.blockPositionHeading.doubleValue;
 }
 
-- (CLLocationCoordinate2D)coord {
+- (CLLocationCoordinate2D)pinCoord {
     return self.blockPosition.coordinate;
 }
 
-- (bool)hasCoord {
+- (bool)pinHasCoord {
     return self.hasBlock && self.blockPosition.coordinate.latitude != 0;
 }
 

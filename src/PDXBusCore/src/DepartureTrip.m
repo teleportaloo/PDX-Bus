@@ -16,8 +16,8 @@
 
 - (instancetype)init {
     if ((self = [super init])) {
-        self.distance = 0;
-        self.progress = 0;
+        self.distanceFeet = 0;
+        self.progressFeet = 0;
         self.startTime = 0;
         self.endTime = 0;
         self.dir = nil;

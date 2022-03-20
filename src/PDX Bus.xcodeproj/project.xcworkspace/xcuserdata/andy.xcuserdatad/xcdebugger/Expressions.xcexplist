@@ -3,6 +3,23 @@
    version = "1.0">
    <ContextStates>
       <ContextState
+         contextName = "-[DepartureDetailView setupShape]:DepartureDetailView.m">
+      </ContextState>
+      <ContextState
+         contextName = "+[TriMetRouteInfo infoForRouteInt:]:TriMetRouteInfo.m">
+      </ContextState>
+      <ContextState
+         contextName = "+[RailMapHotSpots setFillAndStrokeColor:color:]:RailMapHotSpots.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "components[0]">
+            </PersistentString>
+            <PersistentString
+               value = "components[1]">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
          contextName = "-[StoppableFetcher connection:didReceiveResponse:]:StoppableFetcher.m">
          <PersistentStrings>
             <PersistentString
@@ -11,19 +28,13 @@
          </PersistentStrings>
       </ContextState>
       <ContextState
-         contextName = "-[DepartureDetailView setupShape]:DepartureDetailView.m">
-      </ContextState>
-      <ContextState
-         contextName = "::-[AllRailStationView generateArrays]():AllRailStationView.mm">
-      </ContextState>
-      <ContextState
          contextName = "-[WatchArrivalsInterfaceController loadTableWithDepartures:detailedDeparture:]:WatchArrivalsInterfaceController.m">
       </ContextState>
       <ContextState
          contextName = "-[StoppableFetcher connection:didReceiveData:]:StoppableFetcher.m">
       </ContextState>
       <ContextState
-         contextName = "+[TriMetRouteInfo infoForRouteInt:]:TriMetRouteInfo.m">
+         contextName = "::-[AllRailStationView generateArrays]():AllRailStationView.mm">
       </ContextState>
    </ContextStates>
 </VariablesViewState>

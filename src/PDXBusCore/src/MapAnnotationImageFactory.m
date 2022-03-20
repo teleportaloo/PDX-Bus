@@ -13,20 +13,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+
 #import "MapAnnotationImageFactory.h"
 #import "DebugLogging.h"
 #import "Settings.h"
 #import "UIImage+Tint.h"
 
-#define kIconUp   @"icon_arrow_up.png"
-#define kIconUp2x @"icon_arrow_up@2x.png"
-#define kBusIcon  @"icon_arrow_up.png"
+#define kIconUp              @"icon_arrow_up.png"
+#define kIconUp2x            @"icon_arrow_up@2x.png"
+#define kBusIcon             @"icon_arrow_up.png"
 
 @interface MapAnnotationImageFactory () {
     int _hits;
 }
 
-@property (nonatomic, strong) NSMutableDictionary *imageCache;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, NSMutableDictionary<NSNumber *, UIImage *> *> *imageCache;
 @property (nonatomic) double lastMapRotation;
 
 @end
@@ -40,8 +42,9 @@ static __weak MapAnnotationImageFactory *singleton = nil;
         self.imageCache = [NSMutableDictionary dictionary];
         self.imageFile = kBusIcon;
         _hits = 0;
+        [MemoryCaches addCache:self];
     }
-    
+
     return self;
 }
 
@@ -55,15 +58,17 @@ static __weak MapAnnotationImageFactory *singleton = nil;
             return singleton;
         }
     }
-    
+
     return nil;
 }
 
 - (void)dealloc {
     @synchronized (self) {
         singleton = nil;
+        
+        [MemoryCaches removeCache:self];
     }
-    
+
     DEBUG_LOG(@"Image cache removed.\n");
 }
 
@@ -72,28 +77,28 @@ static __weak MapAnnotationImageFactory *singleton = nil;
         self.imageCache = [NSMutableDictionary dictionary];
         self.lastMapRotation = mapRotation;
     }
-    
+
     double total = rotation - mapRotation;
-    
+
     NSMutableDictionary *cachePerName = self.imageCache[name];
-    
+
     if (cachePerName == nil) {
         cachePerName = [NSMutableDictionary dictionary];
         self.imageCache[name] = cachePerName;
     }
-    
+
     UIImage *arrow = cachePerName[@(rotation)];
-    
+
     if (arrow == nil) {
         arrow = [[UIImage imageNamed:name] rotatedImageByDegreesFromNorth:total];
-        
+
         cachePerName[@(rotation)] = arrow;
-        
+
         DEBUG_LOG(@"Cache miss %03u %-3.2f\n", (unsigned int)cachePerName.count, rotation);
     } else {
         DEBUG_LOG(@"Cache hit  %03u %-3.2f\n", (unsigned int)++_hits, rotation);
     }
-    
+
     return arrow;
 }
 
@@ -101,12 +106,16 @@ static __weak MapAnnotationImageFactory *singleton = nil;
     if ([self.imageFile characterAtIndex:0] == 'c') {
         return NO;
     }
-    
+
     return YES;
 }
 
 - (void)clearCache {
     self.imageCache = [NSMutableDictionary dictionary];
+}
+
+- (void)memoryWarning {
+    [self clearCache];
 }
 
 @end

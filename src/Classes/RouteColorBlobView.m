@@ -35,8 +35,8 @@
     return self;
 }
 
-- (bool)setRouteColorLine:(RAILLINES)line {
-    PC_ROUTE_INFO info = [TriMetInfo infoForLine:line];
+- (bool)setRouteColorLine:(RailLines)line {
+    PtrConstRouteInfo info = [TriMetInfo infoForLine:line];
     
     if (info != nil) {
         self.color = [TriMetInfo cachedColor:info->html_color];
@@ -54,7 +54,7 @@
 }
 
 - (void)setRouteColor:(NSString *)route {
-    PC_ROUTE_INFO info = [TriMetInfo infoForRoute:route];
+    PtrConstRouteInfo info = [TriMetInfo infoForRoute:route];
     
     if (info != nil && route != nil) {
         self.color = [TriMetInfo cachedColor:info->html_color];

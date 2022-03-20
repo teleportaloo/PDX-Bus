@@ -28,11 +28,15 @@
 // OTHER DEALINGS IN THE SOFTWARE.
 //
 
+#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+
 #import <QuartzCore/QuartzCore.h>
 #import "PullRefreshTableViewController.h"
 #import "DebugLogging.h"
 #import "TintedImageCache.h"
 #import "UIApplication+Compat.h"
+#import "DebugLogging.h"
+#import "UIColor+DarkMode.h"
 
 #define REFRESH_HEADER_HEIGHT 52.0f
 
@@ -125,8 +129,8 @@
     refreshLabel.textColor = [UIColor darkGrayColor];
     refreshLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     refreshLabel.numberOfLines = 2;
-    
-    self.table.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1.0];
+
+    self.table.backgroundColor = [UIColor modeAwareAppBackground];
 
     [self addRefreshArrow];
     

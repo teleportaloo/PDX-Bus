@@ -14,6 +14,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogAlarms
+
 #import "AlarmNotification.h"
 #import "PDXBusAppDelegate+Methods.h"
 #import "AlarmTask.h"
@@ -77,8 +79,9 @@
             [app.rootViewController.navigationController popToRootViewControllerAnimated:NO];
             
             NSString *block = userInfo[kAlarmBlock];
+            NSString *dir   = userInfo[kAlarmDir];
             
-            [[DepartureDetailView viewController] fetchDepartureAsync:app.rootViewController.backgroundTask stopId:stopId block:block backgroundRefresh:NO];
+            [[DepartureDetailView viewController] fetchDepartureAsync:app.rootViewController.backgroundTask stopId:stopId block:block dir:dir backgroundRefresh:NO];
         }
     }
 }
@@ -173,7 +176,7 @@
     return MAP_PIN_COLOR_GREEN;
 }
 
-- (bool)showActionMenu {
+- (bool)pinActionMenu {
     return YES;
 }
 
@@ -203,7 +206,7 @@
     return [NSString stringWithFormat:NSLocalizedString(@"Stop ID %@", @"TriMet Stop identifer <number>"), self.userInfo[kStopIdNotification]];
 }
 
-- (NSString *)mapStopId {
+- (NSString *)pinStopId {
     return self.userInfo[kStopIdNotification];
 }
 
@@ -211,8 +214,13 @@
     return nil;
 }
 
-- (bool)hasBearing {
+- (bool)pinHasBearing {
     return NO;
+}
+
+- (NSString *)pinMarkedUpType
+{
+    return nil;
 }
 
 

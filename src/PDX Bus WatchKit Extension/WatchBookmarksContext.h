@@ -23,9 +23,9 @@
 
 @property (strong, nonatomic) NSArray *singleBookmark;
 @property (nonatomic)         bool dictated;
-@property (strong, nonatomic) NSString *title;
+@property (copy, nonatomic)   NSString *title;
 @property (nonatomic)         bool recents;
-@property (strong, nonatomic) NSString *location;
+@property (copy, nonatomic)   NSString *location;
 @property (nonatomic)         bool oneTimeShowFirst;
 
 - (void)updateUserActivity:(WKInterfaceController *)controller;

@@ -1,0 +1,29 @@
+<!-- Arrivals with a system-wide detour -->
+<resultSet xmlns="urn:trimet:rt" queryTime="1523776319518">
+<location id="9837" desc="Fair Complex/Hillsboro Airport MAX Stn" dir="Westbound" lat="45.5269236271043" lng="-122.946499150393" passengerCode="E"/>
+<arrival id="8175923_87455_14" blockID="9003" departed="true" dir="1" status="estimated" estimated="1523778211000" showMilesAway="false" dropOffOnly="false" fullSign="MAX Blue Line to Hillsboro" piece="1" route="100" scheduled="1523776655000" shortSign="Blue to Hillsboro" locid="9837" tripID="8175923" newTrip="false" detoured="true" feet="80429" vehicleID="524" loadPercentage="23" inCongestion="">
+<detour id="17"/>
+<detour id="1"/>
+<detour id="2"/>
+<blockPosition id="9003" vehicleID="524" routeNumber="100" direction="1" tripID="8175923" newTrip="false" signMessage="Blue to Hillsboro" signMessageLong="MAX Blue Line to Hillsboro" lastLocID="8384" lastStopSeq="27" nextLocID="9757" nextStopSeq="28" at="1523776263877" heading="289" lat="45.520239" lng="-122.6830174">
+<trip id="8175923" newTrip="false" desc="Hatfield Government Center" dir="1" route="100" destDist="159579" pattern="54" progress="79150"/>
+</blockPosition>
+</arrival>
+<arrival id="8175925_89520_14" blockID="9004" departed="true" dir="1" status="estimated" estimated="1523778822000" showMilesAway="false" dropOffOnly="true" fullSign="MAX Blue Line to Hillsboro" piece="1" route="100" scheduled="1523778720000" shortSign="Blue to Hillsboro" locid="9837" tripID="8175925" newTrip="false" detoured="true" feet="89141" vehicleID="126" loadPercentage="70" inCongestion="true" reason="Bridge lift">
+<trackingError timestamp="1523776319518" offRoute="true" desc=""/>
+<detour id="17"/>
+<detour id="1"/>
+<detour id="2"/>
+<detour id="20"/>
+<blockPosition id="9004" vehicleID="126" routeNumber="100" direction="1" tripID="8175925" newTrip="false" signMessage="Blue to Hillsboro" signMessageLong="MAX Blue Line to Hillsboro" lastLocID="8375" lastStopSeq="18" nextLocID="8376" nextStopSeq="19" at="1523776303045" heading="268" lat="45.5301095" lng="-122.6625867">
+<trip id="8175925" newTrip="false" desc="Hatfield Government Center" dir="1" route="100" destDist="159579" pattern="54" progress="70438"/>
+</blockPosition>
+</arrival>
+<detour begin="1511800080000" end="" id="17" info_link_url="" header_text="" system_wide_flag="false" desc="An alert for (Stop ID 8368). ">
+<route xmlns="urn:trimet:schedule" desc="MAX Blue Line" route="100" id="100" type="R" no_service_flag="false"/>
+</detour>
+<detour begin="1495713600000" end="" id="1" info_link_url="https://trimet.org" header_text="Baloons" system_wide_flag="true" desc="A system-wide event with balloons is happening.">
+</detour>
+ <detour begin="1495713700000" end="1495714700000" id="2" header_text="Fog" system_wide_flag="true" desc="Woah a real pea-souper everywhere except one stop - (Stop ID 365).">
+</detour>
+</resultSet>

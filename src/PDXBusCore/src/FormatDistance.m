@@ -36,16 +36,17 @@
     if (miles > 0.1) {
         english = [NSString stringWithFormat:NSLocalizedString(@"%.1f miles", @"Distance in miles"), miles];
     } else {
-        english = [NSString stringWithFormat:NSLocalizedString(@"%d feet", @"distance in feet"), (int)((miles * (float)kFeetInAMile) + 0.5)];
+        float feet = (miles * (float)kFeetInAMile) + 0.5;
+        english = [NSString stringWithFormat:NSLocalizedString(@"%d feet", @"distance in feet"), (int)(feet)];
     }
     
     NSString *metric = nil;
-    float metres = kMetresInAMile * miles;
+    float metres = (miles * (float)kMetresInAMile) + 0.5;
     
     if (metres >= 1000.0) {
         metric = [NSString stringWithFormat:NSLocalizedString(@"%.1f km", @"distance in kilometres"), metres / 1000];
     } else {
-        metric = [NSString stringWithFormat:NSLocalizedString(@"%.0f meters", @"distance in metres"), metres + 0.5];
+        metric = [NSString stringWithFormat:NSLocalizedString(@"%d meters", @"distance in metres"), (int)metres];
     }
     
     return [NSString stringWithFormat:@"%@ (%@)", english, metric];

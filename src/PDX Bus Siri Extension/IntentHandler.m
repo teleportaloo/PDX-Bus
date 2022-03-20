@@ -13,16 +13,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogIntents
+
 #import "IntentHandler.h"
 
 #import "ArrivalsIntent.h"
 #import "ArrivalsIntentHandler.h"
 #import "ArrivalsAtStopIdIntent.h"
-#import "ArrivalsAtStopIdIntentHandler.h"
-#import "AlertsForRouteIntentHandler.h"
 #import "LocateStopsIntentHandler.h"
 #import "RoutesAtStopIdIntentHandler.h"
 #import "StopLocationIntentHandler.h"
+#import "AlertsIntentHandler.h"
 
 #import "DebugLogging.h"
 
@@ -35,29 +36,20 @@
 - (id)handlerForIntent:(INIntent *)intent {
     DEBUG_LOGO([intent class])
     
-    if (@available(iOS 12.0, *)) {
-        if ([intent isKindOfClass:[ArrivalsIntent class]]) {
-            DEBUG_LOG(@"Yaaaas 2");
-            return [[ArrivalsIntentHandler alloc] init];
-        } else if ([intent isKindOfClass:[ArrivalsAtStopIdIntent class]]) {
-            DEBUG_LOG(@"Yaaaas 3");
-            return [[ArrivalsAtStopIdIntentHandler alloc] init];
-        } else if ([intent isKindOfClass:[AlertsForRouteIntent class]]) {
-            DEBUG_LOG(@"Yaaaas 3");
-            return [[AlertsForRouteIntentHandler alloc] init];
-        } else if ([intent isKindOfClass:[LocateStopsIntent class]]) {
-            DEBUG_LOG(@"Yaaaas 3");
-            return [[LocateStopsIntentHandler alloc] init];
-        } else if ([intent isKindOfClass:[RoutesAtStopIdIntent class]]) {
-            DEBUG_LOG(@"Yaaaas 3");
-            return [[RoutesAtStopIdIntentHandler alloc] init];
-        } else if ([intent isKindOfClass:[StopLocationIntent class]]) {
-            DEBUG_LOG(@"Yaaaas 3");
-            return [[StopLocationIntentHandler alloc] init];
-        }
-    } else {
-        // Fallback on earlier versions
+#define RETURN_INTENT_HANDER(INTENT_CLASS, HANDLER_CLASS)  \
+    if ([intent isKindOfClass:[INTENT_CLASS class]]) { \
+        return [[HANDLER_CLASS alloc] init];     \
     }
+    
+    // Each Intent Class has a class with the same name followed by Handler.
+    
+    RETURN_INTENT_HANDER(ArrivalsIntent, ArrivalsIntentHandler)
+    RETURN_INTENT_HANDER(ArrivalsAtStopIdIntent, ArrivalsIntentHandler)
+    RETURN_INTENT_HANDER(AlertsForRouteIntent, AlertsIntentHandler)
+    RETURN_INTENT_HANDER(SystemWideAlertsIntent, AlertsIntentHandler)
+    RETURN_INTENT_HANDER(LocateStopsIntent, LocateStopsIntentHandler)
+    RETURN_INTENT_HANDER(RoutesAtStopIdIntent, RoutesAtStopIdIntentHandler)
+    RETURN_INTENT_HANDER(StopLocationIntent, StopLocationIntentHandler)
     
     return self;
 }

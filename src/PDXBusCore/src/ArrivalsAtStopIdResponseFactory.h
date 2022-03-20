@@ -24,7 +24,6 @@ NS_ASSUME_NONNULL_BEGIN
 + (StopLocationIntentResponse *)locationRespond:(StopLocationIntentResponseCode)code API_AVAILABLE(ios(12.0));
 + (StopLocationIntentResponse *)stopLocation:(NSNumber *)stopId API_AVAILABLE(ios(12.0));
 
-
 + (ArrivalsAtStopIdIntentResponse *)arrivalsRespond:(ArrivalsAtStopIdIntentResponseCode)code API_AVAILABLE(ios(12.0));
 + (ArrivalsAtStopIdIntentResponse *)responseForStop:(NSNumber *)stopId API_AVAILABLE(ios(12.0));
 

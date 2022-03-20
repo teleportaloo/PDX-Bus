@@ -1,5 +1,4 @@
-# Some features require PDX Bus 11.3.2 - still in development
-# Some links are being updated and may not work yet.
+# Some features require PDX Bus 11.3.2
 
 
 # Introduction
@@ -144,13 +143,19 @@ Arguments:  Stop ID
 
 # PDX Bus Siri Shortcut To Get Alerts For A Route
 This is an action accessible from the Shortcuts app, and can be used to write a Siri shortcut.   This shortcut returns the alerts for a specific
-route.  The route can be a bus number or a MAX color or streetcar line name.
-
-
+route.  The route can be a bus number or a MAX color or streetcar line name, or even "system"  to get system-wide alerts.
 
 [An example shortcut link](https://www.icloud.com/shortcuts/590e607c7b6845368ab10dcd25da4682)
 
-Arguments:  Route
+Arguments:  Route, Include System-wide Alerts 
+
+# PDX Bus Siri Shortcut To Get System-wide Alerts
+This is an action accessible from the Shortcuts app, and can be used to write a Siri shortcut.   This shortcut returns the system-wide alerts. 
+
+[An example shortcut link](https://www.icloud.com/shortcuts/3e50f7addd4a4759bb5ccf00dee6f3e3)
+
+Arguments:  None
+
 
 # PDX Bus Siri Shortcut To Get TriMet Departures (Ordered By Route) For A Stop ID
 This is an action accessible from the Shortcuts app, and can be used to write a Siri shortcut.  This shortcut returns the departures for a stop

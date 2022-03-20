@@ -22,6 +22,8 @@
 #import "TaskState.h"
 #import "Icons.h"
 #import "UIApplication+Compat.h"
+#import "RunParallelBlocks.h"
+#import "WebViewController.h"
 
 @interface NetworkTestView ()
 
@@ -38,16 +40,15 @@
 
 @implementation NetworkTestView
 
-#define KSectionMaybeError     0
-#define kSectionInternet       1
-#define kSectionTriMet         2
-#define kSectionTriMetTrip     3
-#define kSectionNextBus        4
-#define kSectionReverseGeoCode 5
-#define kSectionDiagnose       6
-
-#define kSections              7
-#define kNoErrorSections       6
+enum SECTION_ROW {
+    kSectionHtmlError,
+    kSectionInternet,
+    kSectionTriMet,
+    kSectionTriMetTrip,
+    kSectionNextBus,
+    kSectionReverseGeoCode,
+    kSectionDiagnose,
+};
 
 
 #pragma mark Data fetchers
@@ -125,15 +126,29 @@
         
         [taskState taskStartWithTotal:5 title:NSLocalizedString(@"checking network", @"progress message")];
         
-        [self subTaskCheckConnectivity:taskState];
+        RunParallelBlocks *parallelBlocks = [RunParallelBlocks instance];
         
-        [self subTaskCheckDepartures:taskState];
+        [parallelBlocks startBlock:^{
+            [self subTaskCheckConnectivity:taskState];
+        }];
         
-        [self subTaskCheckTripServer:taskState];
+        [parallelBlocks startBlock:^{
+            [self subTaskCheckDepartures:taskState];
+        }];
         
-        [self subTaskCheckNextBus:taskState];
+        [parallelBlocks startBlock:^{
+            [self subTaskCheckTripServer:taskState];
+        }];
         
-        [self subTaskCheckGeoLocator:taskState];
+        [parallelBlocks startBlock:^{
+            [self subTaskCheckNextBus:taskState];
+        }];
+        
+        [parallelBlocks startBlock:^{
+            [self subTaskCheckGeoLocator:taskState];
+        }];
+        
+        [parallelBlocks waitForBlocks];
         
         NSMutableString *diagnosticString = [NSMutableString string];
         
@@ -151,9 +166,32 @@
         
         self.diagnosticText = diagnosticString;
         
+        [self updateSections];
+        
         [self updateRefreshDate:nil];
         return (UIViewController *)self;
     }];
+}
+
+- (void)updateSections {
+    
+    [self clearSectionMaps];
+    
+    if (self.networkErrorFromQuery != nil) {
+        [self addSectionTypeWithRow:kSectionHtmlError];
+    }
+    
+    [self addSectionTypeWithRow:kSectionInternet];
+    
+    [self addSectionTypeWithRow:kSectionTriMet];
+    
+    [self addSectionTypeWithRow:kSectionTriMetTrip];
+    
+    [self addSectionTypeWithRow:kSectionNextBus];
+    
+    [self addSectionTypeWithRow:kSectionReverseGeoCode];
+    
+    [self addSectionTypeWithRow:kSectionDiagnose];
 }
 
 #pragma mark View Methods
@@ -167,13 +205,7 @@
     return self;
 }
 
-- (NSInteger)adjustSectionNumber:(NSInteger)section {
-    if (self.networkErrorFromQuery == nil) {
-        return section + 1;
-    }
-    
-    return section;
-}
+
 
 /*
  - (id)initWithStyle:(UITableViewStyle)style {
@@ -250,24 +282,11 @@
 
 #pragma mark Table view methods
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    if (self.networkErrorFromQuery == nil) {
-        return kNoErrorSections;
-    }
-    
-    return kSections;
-}
-
-// Customize the number of rows in the table view.
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return 1;
-}
-
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = nil;
     
-    switch ([self adjustSectionNumber:indexPath.section]) {
+    switch ([self rowType:indexPath]) {
         default:
         case kSectionInternet:
             cell = [self networkStatusCell];
@@ -325,12 +344,12 @@
             cell = [self networkStatusCell];
             
             if (!self.nextbusQueryStatus) {
-                cell.textLabel.text = NSLocalizedString(@"Not able to access NextBus (Streetcar) servers", @"network errror");
+                cell.textLabel.text = NSLocalizedString(@"Not able to access Umo IQ (Streetcar) servers", @"network errror");
                 cell.textLabel.textColor = [UIColor redColor];
                 cell.imageView.image = [Icons getIcon:kIconNetworkBad];
                 cell.textLabel.font = self.basicFont;
             } else {
-                cell.textLabel.text = NSLocalizedString(@"NextBus (Streetcar) servers are available", @"network errror");
+                cell.textLabel.text = NSLocalizedString(@"Umo IQ (Streetcar) servers are available", @"network errror");
                 cell.textLabel.textColor = [UIColor modeAwareText];
                 cell.imageView.image = [Icons getIcon:kIconNetworkOk];
                 cell.textLabel.font = self.basicFont;
@@ -361,14 +380,14 @@
             break;
             
         case kSectionDiagnose: {
-            cell = [self tableView:tableView multiLineCellWithReuseIdentifier:@"diags" font:self.paragraphFont];
+            cell = [self tableView:tableView multiLineCellWithReuseIdentifier:@"diags" font:self.smallFont];
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             cell.textLabel.text = self.diagnosticText;
             break;
         }
             
-        case KSectionMaybeError: {
-            cell = [self tableView:tableView multiLineCellWithReuseIdentifier:@"error" font:self.paragraphFont];
+        case kSectionHtmlError: {
+            cell = [self tableView:tableView multiLineCellWithReuseIdentifier:@"error" font:self.smallFont];
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             cell.textLabel.text = self.networkErrorFromQuery;
             break;
@@ -380,8 +399,8 @@
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    switch ([self adjustSectionNumber:indexPath.section]) {
-        case KSectionMaybeError:
+    switch ([self rowType:indexPath]) {
+        case kSectionHtmlError:
         case kSectionDiagnose:
             return UITableViewAutomaticDimension;
             
@@ -392,13 +411,13 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    if ([self adjustSectionNumber:indexPath.section] == kSectionDiagnose) {
-        [[UIApplication sharedApplication] compatOpenURL:[NSURL URLWithString:@"https://www.trimet.org"]];
+    if ([self rowType:indexPath] == kSectionDiagnose) {
+        [WebViewController openNamedURL:@"TriMet"];
     }
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-    if ([self adjustSectionNumber:section] == KSectionMaybeError) {
+    if ([self sectionType:section] == kSectionHtmlError) {
         return NSLocalizedString(@"There was a network problem:", @"section title");
     }
     

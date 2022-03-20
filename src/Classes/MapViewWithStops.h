@@ -22,5 +22,5 @@
 - (void)fetchStopsAsync:(id<TaskController>)taskController
                   route:(NSString *)routeid
               direction:(NSString *)dir
-             returnStop:(id<ReturnStop>)returnStop;
+             returnStop:(id<ReturnStopObject>)returnStop;
 @end

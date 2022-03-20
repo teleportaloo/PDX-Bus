@@ -13,6 +13,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+
 #import "GeoLocator.h"
 #import "DebugLogging.h"
 #import "ReverseGeoLocator.h"
@@ -94,7 +96,7 @@
                     p.coordinate.longitude <= Y1) {
                     DEBUG_LOG(@"Placemark %@", mapItem.placemark.description);
                     
-                    TripLegEndPoint *ep = [TripLegEndPoint data];
+                    TripLegEndPoint *ep = [TripLegEndPoint new];
                     
                     NSArray *lines = p.simpleAddressLines;
                     NSString *addressString = [lines componentsJoinedByString:@"\n"];
@@ -112,19 +114,10 @@
                     }
                     
                     ep.loc = p.location;
-                    ep.xdescription = ep.displayText;
+                    ep.xml_description = ep.displayText;
                     ep.fromAppleMaps = YES;
                     
                     [results addObject:ep];
-                    
-                    // None of these are used.  I left them here as a reminder
-                    //@property (nonatomic, copy) NSString *xnumber;
-                    //@property (nonatomic) int index;
-                    //@property (nonatomic) bool thruRoute;
-                    //@property (nonatomic) bool deboard;
-                    //@property (nonatomic, readonly, copy) NSString *stopId;
-                    //@property (nonatomic) MapPinColorValue pinColor;
-                    //@property (nonatomic, readonly, copy) NSString *mapStopId;
                 } else {
                     DEBUG_LOG(@"Out of bounds %@", mapItem.placemark.description);
                 }

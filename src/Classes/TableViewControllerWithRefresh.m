@@ -13,8 +13,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+
 #import "TableViewControllerWithRefresh.h"
 #import "DebugLogging.h"
+#import "UIFont+Utility.h"
 
 @interface TableViewControllerWithRefresh<FilteredItemType>() {
     bool _timerPaused;
@@ -182,7 +185,7 @@
         paragraphStyle.alignment = NSTextAlignmentRight;
         
         [self.refreshButton setTitleTextAttributes:@{
-            NSFontAttributeName: [UIFont fontWithName:@"Verdana" size:UIFont.labelFontSize],
+            NSFontAttributeName: [UIFont monospacedDigitSystemFontOfSize:UIFont.labelFontSize],
             NSParagraphStyleAttributeName: paragraphStyle
         } forState:UIControlStateNormal];
         

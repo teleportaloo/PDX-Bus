@@ -1,0 +1,558 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response xmlns="http://maps.trimet.org/maps/model/xml" success="true">
+    <date>10/8/2020</date>
+    <time>22:42:42</time>
+    <request>
+        <url><![CDATA[/maps/tpws/V1/tripplanner?fromPlace=9838&toPlace=2599&Date=10-08-20&Time=10:42%20PM&Arr=D&Walk=0.750000&Mode=A&Min=T&Format=XML&MaxItineraries=6&&appID=CEE836AA1288559FE231733E5]]></url>
+        <param name="time">10:42 PM</param>
+        <param name="Min">T</param>
+        <param name="toPlace">2599</param>
+        <param name="Walk">0.75</param>
+        <param name="date">10-08-20</param>
+        <param name="Arr">D</param>
+        <param name="fromPlace">9838</param>
+        <param name="Mode">A</param>
+    </request>
+    <from>
+        <pos>
+            <x>7575385.0</x>
+            <y>687732.0</y>
+            <lat>45.527038</lat>
+            <lon>-122.945811</lon>
+        </pos>
+        <description>Fair Complex/Hillsboro Airport MAX Stn - Stop ID 9838 (Hillsboro)</description>
+    </from>
+    <to>
+        <pos>
+            <x>7650028.0</x>
+            <y>680168.0</y>
+            <lat>45.512128</lat>
+            <lon>-122.653871</lon>
+        </pos>
+        <description>SE Hawthorne &amp; 12th - Stop ID 2599 (Portland)</description>
+    </to>
+    <itineraries count="3">
+        <itinerary id="1" viaRoute="MAX">
+            <time-distance>
+                <date>10/8/20</date>
+                <startTime>10:43 PM</startTime>
+                <endTime>11:44 PM</endTime>
+                <duration>61</duration>
+                <distance>17.52</distance>
+                <numberOfTransfers>1</numberOfTransfers>
+                <numberOfTripLegs>4</numberOfTripLegs>
+                <walkingTime>0</walkingTime>
+                <transitTime>54</transitTime>
+                <waitingTime>7</waitingTime>
+            </time-distance>
+            <fare>
+                <regular>2.50</regular>
+                <special id="honored">1.25</special>
+                <special id="youth">1.25</special>
+            </fare>
+            <leg xmlns:ns="http://maps.trimet.org/maps/model/xml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" order="start" mode="Light Rail" xsi:type="ns:TransitLegType" id="1.1">
+                <time-distance>
+                    <date>10/8/20</date>
+                    <startTime>10:43 PM</startTime>
+                    <endTime>11:28 PM</endTime>
+                    <duration>45</duration>
+                    <distance>15.62</distance>
+                </time-distance>
+                <lineURL param="9009,A,10:43 PM,9838,11:28 PM,8336">
+                    <url>/transweb/ws/V1/BlockGeoWS/appID/CEE836AA1288559FE231733E5/bksTsIDeTeID/9009,A,10:43 PM,9838,11:28 PM,8336</url>
+                </lineURL>
+                <from xsi:type="ns:StopPointType">
+                    <pos>
+                        <x>7575385.0</x>
+                        <y>687733.0</y>
+                        <lat>45.527041</lat>
+                        <lon>-122.945808</lon>
+                    </pos>
+                    <description>Fair Complex/Hillsboro Airport MAX Stn</description>
+                    <stopId>9838</stopId>
+                    <stopSequence>4</stopSequence>
+                </from>
+                <to xsi:type="ns:StopPointType">
+                    <pos>
+                        <x>7644875.0</x>
+                        <y>682139.0</y>
+                        <lat>45.517153</lat>
+                        <lon>-122.674172</lon>
+                    </pos>
+                    <description>Yamhill District MAX Station</description>
+                    <stopId>8336</stopId>
+                    <stopSequence>21</stopSequence>
+                </to>
+                <route>
+                    <number>MAX</number>
+                    <internalNumber>100</internalNumber>
+                    <name>MAX Blue Line to Gresham</name>
+                    <key>A</key>
+                    <direction>north</direction>
+                    <block>9009</block>
+                </route>
+            </leg>
+            <leg xmlns:ns="http://maps.trimet.org/maps/model/xml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WalkingLegType" id="1.2" mode="Walk">
+                <time-distance>
+                    <duration>4</duration>
+                    <distance>0.19</distance>
+                </time-distance>
+                <from xsi:type="ns:StopPointType">
+                    <pos>
+                        <x>7644875.0</x>
+                        <y>682139.0</y>
+                        <lat>45.517153</lat>
+                        <lon>-122.674172</lon>
+                    </pos>
+                    <description>Yamhill District MAX Station</description>
+                    <stopId>8336</stopId>
+                    <stopSequence>21</stopSequence>
+                </from>
+                <to xsi:type="ns:StopPointType">
+                    <pos>
+                        <x>7644499.0</x>
+                        <y>681459.0</y>
+                        <lat>45.515259</lat>
+                        <lon>-122.675566</lon>
+                    </pos>
+                    <description>SW Main &amp; 2nd</description>
+                    <stopId>11956</stopId>
+                    <stopSequence>35</stopSequence>
+                </to>
+                <direction>west</direction>
+            </leg>
+            <leg xmlns:ns="http://maps.trimet.org/maps/model/xml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" order="transfer" mode="Bus" xsi:type="ns:TransitLegType" id="1.3">
+                <time-distance>
+                    <date>10/8/20</date>
+                    <startTime>11:35 PM</startTime>
+                    <endTime>11:38 PM</endTime>
+                    <duration>3</duration>
+                    <distance>0.48</distance>
+                </time-distance>
+                <lineURL param="1410,W,11:35 PM,11956,11:38 PM,3639">
+                    <url>/transweb/ws/V1/BlockGeoWS/appID/CEE836AA1288559FE231733E5/bksTsIDeTeID/1410,W,11:35 PM,11956,11:38 PM,3639</url>
+                </lineURL>
+                <from xsi:type="ns:StopPointType">
+                    <pos>
+                        <x>7644499.0</x>
+                        <y>681459.0</y>
+                        <lat>45.515259</lat>
+                        <lon>-122.675566</lon>
+                    </pos>
+                    <description>SW Main &amp; 2nd</description>
+                    <stopId>11956</stopId>
+                    <stopSequence>35</stopSequence>
+                </from>
+                <to xsi:type="ns:StopPointType">
+                    <pos>
+                        <x>7643728.0</x>
+                        <y>681452.0</y>
+                        <lat>45.515185</lat>
+                        <lon>-122.678573</lon>
+                    </pos>
+                    <description>SW Madison &amp; 4th</description>
+                    <stopId>3639</stopId>
+                    <stopSequence>37</stopSequence>
+                </to>
+                <route>
+                    <number>14</number>
+                    <internalNumber>14</internalNumber>
+                    <name>14-Hawthorne to 94th &amp; Foster</name>
+                    <key>W</key>
+                    <direction>north</direction>
+                    <block>1410</block>
+                </route>
+            </leg>
+            <leg xmlns:ns="http://maps.trimet.org/maps/model/xml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" order="thru-route" mode="Bus" xsi:type="ns:TransitLegType" id="1.4">
+                <time-distance>
+                    <date>10/8/20</date>
+                    <startTime>11:38 PM</startTime>
+                    <endTime>11:44 PM</endTime>
+                    <duration>6</duration>
+                    <distance>1.23</distance>
+                </time-distance>
+                <lineURL param="1410,W,11:38 PM,3639,11:44 PM,2599">
+                    <url>/transweb/ws/V1/BlockGeoWS/appID/CEE836AA1288559FE231733E5/bksTsIDeTeID/1410,W,11:38 PM,3639,11:44 PM,2599</url>
+                </lineURL>
+                <from xsi:type="ns:StopPointType">
+                    <pos>
+                        <x>7643728.0</x>
+                        <y>681452.0</y>
+                        <lat>45.515185</lat>
+                        <lon>-122.678573</lon>
+                    </pos>
+                    <description>SW Madison &amp; 4th</description>
+                    <stopId>3639</stopId>
+                    <stopSequence>0</stopSequence>
+                </from>
+                <to xsi:type="ns:StopPointType">
+                    <pos>
+                        <x>7650028.0</x>
+                        <y>680170.0</y>
+                        <lat>45.512132</lat>
+                        <lon>-122.653871</lon>
+                    </pos>
+                    <description>SE Hawthorne &amp; 12th</description>
+                    <stopId>2599</stopId>
+                    <stopSequence>5</stopSequence>
+                </to>
+                <route>
+                    <number>14</number>
+                    <internalNumber>14</internalNumber>
+                    <name>14-Hawthorne</name>
+                    <key>W</key>
+                    <direction>north</direction>
+                    <block>1410</block>
+                </route>
+            </leg>
+        </itinerary>
+        <itinerary id="2" viaRoute="MAX">
+            <time-distance>
+                <date>10/8/20</date>
+                <startTime>11:13 PM</startTime>
+                <endTime>12:15 AM</endTime>
+                <duration>62</duration>
+                <distance>17.52</distance>
+                <numberOfTransfers>1</numberOfTransfers>
+                <numberOfTripLegs>4</numberOfTripLegs>
+                <walkingTime>0</walkingTime>
+                <transitTime>54</transitTime>
+                <waitingTime>8</waitingTime>
+            </time-distance>
+            <fare>
+                <regular>2.50</regular>
+                <special id="honored">1.25</special>
+                <special id="youth">1.25</special>
+            </fare>
+            <leg xmlns:ns="http://maps.trimet.org/maps/model/xml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" order="start" mode="Light Rail" xsi:type="ns:TransitLegType" id="2.1">
+                <time-distance>
+                    <date>10/8/20</date>
+                    <startTime>11:13 PM</startTime>
+                    <endTime>11:58 PM</endTime>
+                    <duration>45</duration>
+                    <distance>15.62</distance>
+                </time-distance>
+                <lineURL param="9021,W,11:13 PM,9838,11:58 PM,8336">
+                    <url>/transweb/ws/V1/BlockGeoWS/appID/CEE836AA1288559FE231733E5/bksTsIDeTeID/9021,W,11:13 PM,9838,11:58 PM,8336</url>
+                </lineURL>
+                <from xsi:type="ns:StopPointType">
+                    <pos>
+                        <x>7575385.0</x>
+                        <y>687733.0</y>
+                        <lat>45.527041</lat>
+                        <lon>-122.945808</lon>
+                    </pos>
+                    <description>Fair Complex/Hillsboro Airport MAX Stn</description>
+                    <stopId>9838</stopId>
+                    <stopSequence>4</stopSequence>
+                </from>
+                <to xsi:type="ns:StopPointType">
+                    <pos>
+                        <x>7644875.0</x>
+                        <y>682139.0</y>
+                        <lat>45.517153</lat>
+                        <lon>-122.674172</lon>
+                    </pos>
+                    <description>Yamhill District MAX Station</description>
+                    <stopId>8336</stopId>
+                    <stopSequence>21</stopSequence>
+                </to>
+                <route>
+                    <number>MAX</number>
+                    <internalNumber>100</internalNumber>
+                    <name>MAX Blue Line to Gresham</name>
+                    <key>W</key>
+                    <direction>north</direction>
+                    <block>9021</block>
+                </route>
+            </leg>
+            <leg xmlns:ns="http://maps.trimet.org/maps/model/xml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WalkingLegType" id="2.2" mode="Walk">
+                <time-distance>
+                    <duration>4</duration>
+                    <distance>0.19</distance>
+                </time-distance>
+                <from xsi:type="ns:StopPointType">
+                    <pos>
+                        <x>7644875.0</x>
+                        <y>682139.0</y>
+                        <lat>45.517153</lat>
+                        <lon>-122.674172</lon>
+                    </pos>
+                    <description>Yamhill District MAX Station</description>
+                    <stopId>8336</stopId>
+                    <stopSequence>21</stopSequence>
+                </from>
+                <to xsi:type="ns:StopPointType">
+                    <pos>
+                        <x>7644499.0</x>
+                        <y>681459.0</y>
+                        <lat>45.515259</lat>
+                        <lon>-122.675566</lon>
+                    </pos>
+                    <description>SW Main &amp; 2nd</description>
+                    <stopId>11956</stopId>
+                    <stopSequence>35</stopSequence>
+                </to>
+                <direction>west</direction>
+            </leg>
+            <leg xmlns:ns="http://maps.trimet.org/maps/model/xml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" order="transfer" mode="Bus" xsi:type="ns:TransitLegType" id="2.3">
+                <time-distance>
+                    <date>10/9/20</date>
+                    <startTime>12:06 AM</startTime>
+                    <endTime>12:09 AM</endTime>
+                    <duration>3</duration>
+                    <distance>0.48</distance>
+                </time-distance>
+                <lineURL param="1411,W,12:06 AM,11956,12:09 AM,3639">
+                    <url>/transweb/ws/V1/BlockGeoWS/appID/CEE836AA1288559FE231733E5/bksTsIDeTeID/1411,W,12:06 AM,11956,12:09 AM,3639</url>
+                </lineURL>
+                <from xsi:type="ns:StopPointType">
+                    <pos>
+                        <x>7644499.0</x>
+                        <y>681459.0</y>
+                        <lat>45.515259</lat>
+                        <lon>-122.675566</lon>
+                    </pos>
+                    <description>SW Main &amp; 2nd</description>
+                    <stopId>11956</stopId>
+                    <stopSequence>35</stopSequence>
+                </from>
+                <to xsi:type="ns:StopPointType">
+                    <pos>
+                        <x>7643728.0</x>
+                        <y>681452.0</y>
+                        <lat>45.515185</lat>
+                        <lon>-122.678573</lon>
+                    </pos>
+                    <description>SW Madison &amp; 4th</description>
+                    <stopId>3639</stopId>
+                    <stopSequence>37</stopSequence>
+                </to>
+                <route>
+                    <number>14</number>
+                    <internalNumber>14</internalNumber>
+                    <name>14-Hawthorne to 94th &amp; Foster</name>
+                    <key>W</key>
+                    <direction>north</direction>
+                    <block>1411</block>
+                </route>
+            </leg>
+            <leg xmlns:ns="http://maps.trimet.org/maps/model/xml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" order="thru-route" mode="Bus" xsi:type="ns:TransitLegType" id="2.4">
+                <time-distance>
+                    <date>10/9/20</date>
+                    <startTime>12:09 AM</startTime>
+                    <endTime>12:15 AM</endTime>
+                    <duration>6</duration>
+                    <distance>1.23</distance>
+                </time-distance>
+                <lineURL param="1411,W,12:09 AM,3639,12:15 AM,2599">
+                    <url>/transweb/ws/V1/BlockGeoWS/appID/CEE836AA1288559FE231733E5/bksTsIDeTeID/1411,W,12:09 AM,3639,12:15 AM,2599</url>
+                </lineURL>
+                <from xsi:type="ns:StopPointType">
+                    <pos>
+                        <x>7643728.0</x>
+                        <y>681452.0</y>
+                        <lat>45.515185</lat>
+                        <lon>-122.678573</lon>
+                    </pos>
+                    <description>SW Madison &amp; 4th</description>
+                    <stopId>3639</stopId>
+                    <stopSequence>0</stopSequence>
+                </from>
+                <to xsi:type="ns:StopPointType">
+                    <pos>
+                        <x>7650028.0</x>
+                        <y>680170.0</y>
+                        <lat>45.512132</lat>
+                        <lon>-122.653871</lon>
+                    </pos>
+                    <description>SE Hawthorne &amp; 12th</description>
+                    <stopId>2599</stopId>
+                    <stopSequence>5</stopSequence>
+                </to>
+                <route>
+                    <number>14</number>
+                    <internalNumber>14</internalNumber>
+                    <name>14-Hawthorne</name>
+                    <key>W</key>
+                    <direction>north</direction>
+                    <block>1411</block>
+                </route>
+            </leg>
+        </itinerary>
+        <itinerary id="3" viaRoute="MAX">
+            <time-distance>
+                <date>10/8/20</date>
+                <startTime>11:43 PM</startTime>
+                <endTime>12:44 AM</endTime>
+                <duration>61</duration>
+                <distance>17.52</distance>
+                <numberOfTransfers>1</numberOfTransfers>
+                <numberOfTripLegs>4</numberOfTripLegs>
+                <walkingTime>0</walkingTime>
+                <transitTime>54</transitTime>
+                <waitingTime>7</waitingTime>
+            </time-distance>
+            <fare>
+                <regular>2.50</regular>
+                <special id="honored">1.25</special>
+                <special id="youth">1.25</special>
+            </fare>
+            <leg xmlns:ns="http://maps.trimet.org/maps/model/xml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" order="start" mode="Light Rail" xsi:type="ns:TransitLegType" id="3.1">
+                <time-distance>
+                    <date>10/8/20</date>
+                    <startTime>11:43 PM</startTime>
+                    <endTime>12:28 AM</endTime>
+                    <duration>45</duration>
+                    <distance>15.62</distance>
+                </time-distance>
+                <lineURL param="9023,W,11:43 PM,9838,12:28 AM,8336">
+                    <url>/transweb/ws/V1/BlockGeoWS/appID/CEE836AA1288559FE231733E5/bksTsIDeTeID/9023,W,11:43 PM,9838,12:28 AM,8336</url>
+                </lineURL>
+                <from xsi:type="ns:StopPointType">
+                    <pos>
+                        <x>7575385.0</x>
+                        <y>687733.0</y>
+                        <lat>45.527041</lat>
+                        <lon>-122.945808</lon>
+                    </pos>
+                    <description>Fair Complex/Hillsboro Airport MAX Stn</description>
+                    <stopId>9838</stopId>
+                    <stopSequence>4</stopSequence>
+                </from>
+                <to xsi:type="ns:StopPointType">
+                    <pos>
+                        <x>7644875.0</x>
+                        <y>682139.0</y>
+                        <lat>45.517153</lat>
+                        <lon>-122.674172</lon>
+                    </pos>
+                    <description>Yamhill District MAX Station</description>
+                    <stopId>8336</stopId>
+                    <stopSequence>21</stopSequence>
+                </to>
+                <route>
+                    <number>MAX</number>
+                    <internalNumber>100</internalNumber>
+                    <name>MAX Blue Line to Gresham</name>
+                    <key>W</key>
+                    <direction>north</direction>
+                    <block>9023</block>
+                </route>
+            </leg>
+            <leg xmlns:ns="http://maps.trimet.org/maps/model/xml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WalkingLegType" id="3.2" mode="Walk">
+                <time-distance>
+                    <duration>4</duration>
+                    <distance>0.19</distance>
+                </time-distance>
+                <from xsi:type="ns:StopPointType">
+                    <pos>
+                        <x>7644875.0</x>
+                        <y>682139.0</y>
+                        <lat>45.517153</lat>
+                        <lon>-122.674172</lon>
+                    </pos>
+                    <description>Yamhill District MAX Station</description>
+                    <stopId>8336</stopId>
+                    <stopSequence>21</stopSequence>
+                </from>
+                <to xsi:type="ns:StopPointType">
+                    <pos>
+                        <x>7644499.0</x>
+                        <y>681459.0</y>
+                        <lat>45.515259</lat>
+                        <lon>-122.675566</lon>
+                    </pos>
+                    <description>SW Main &amp; 2nd</description>
+                    <stopId>11956</stopId>
+                    <stopSequence>35</stopSequence>
+                </to>
+                <direction>west</direction>
+            </leg>
+            <leg xmlns:ns="http://maps.trimet.org/maps/model/xml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" order="transfer" mode="Bus" xsi:type="ns:TransitLegType" id="3.3">
+                <time-distance>
+                    <date>10/9/20</date>
+                    <startTime>12:35 AM</startTime>
+                    <endTime>12:38 AM</endTime>
+                    <duration>3</duration>
+                    <distance>0.48</distance>
+                </time-distance>
+                <lineURL param="1412,W,12:35 AM,11956,12:38 AM,3639">
+                    <url>/transweb/ws/V1/BlockGeoWS/appID/CEE836AA1288559FE231733E5/bksTsIDeTeID/1412,W,12:35 AM,11956,12:38 AM,3639</url>
+                </lineURL>
+                <from xsi:type="ns:StopPointType">
+                    <pos>
+                        <x>7644499.0</x>
+                        <y>681459.0</y>
+                        <lat>45.515259</lat>
+                        <lon>-122.675566</lon>
+                    </pos>
+                    <description>SW Main &amp; 2nd</description>
+                    <stopId>11956</stopId>
+                    <stopSequence>35</stopSequence>
+                </from>
+                <to xsi:type="ns:StopPointType">
+                    <pos>
+                        <x>7643728.0</x>
+                        <y>681452.0</y>
+                        <lat>45.515185</lat>
+                        <lon>-122.678573</lon>
+                    </pos>
+                    <description>SW Madison &amp; 4th</description>
+                    <stopId>3639</stopId>
+                    <stopSequence>37</stopSequence>
+                </to>
+                <route>
+                    <number>14</number>
+                    <internalNumber>14</internalNumber>
+                    <name>14-Hawthorne to 94th &amp; Foster</name>
+                    <key>W</key>
+                    <direction>north</direction>
+                    <block>1412</block>
+                </route>
+            </leg>
+            <leg xmlns:ns="http://maps.trimet.org/maps/model/xml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" order="thru-route" mode="Bus" xsi:type="ns:TransitLegType" id="3.4">
+                <time-distance>
+                    <date>10/9/20</date>
+                    <startTime>12:38 AM</startTime>
+                    <endTime>12:44 AM</endTime>
+                    <duration>6</duration>
+                    <distance>1.23</distance>
+                </time-distance>
+                <lineURL param="1412,W,12:38 AM,3639,12:44 AM,2599">
+                    <url>/transweb/ws/V1/BlockGeoWS/appID/CEE836AA1288559FE231733E5/bksTsIDeTeID/1412,W,12:38 AM,3639,12:44 AM,2599</url>
+                </lineURL>
+                <from xsi:type="ns:StopPointType">
+                    <pos>
+                        <x>7643728.0</x>
+                        <y>681452.0</y>
+                        <lat>45.515185</lat>
+                        <lon>-122.678573</lon>
+                    </pos>
+                    <description>SW Madison &amp; 4th</description>
+                    <stopId>3639</stopId>
+                    <stopSequence>0</stopSequence>
+                </from>
+                <to xsi:type="ns:StopPointType">
+                    <pos>
+                        <x>7650028.0</x>
+                        <y>680170.0</y>
+                        <lat>45.512132</lat>
+                        <lon>-122.653871</lon>
+                    </pos>
+                    <description>SE Hawthorne &amp; 12th</description>
+                    <stopId>2599</stopId>
+                    <stopSequence>5</stopSequence>
+                </to>
+                <route>
+                    <number>14</number>
+                    <internalNumber>14</internalNumber>
+                    <name>14-Hawthorne</name>
+                    <key>W</key>
+                    <direction>north</direction>
+                    <block>1412</block>
+                </route>
+            </leg>
+        </itinerary>
+    </itineraries>
+</response>

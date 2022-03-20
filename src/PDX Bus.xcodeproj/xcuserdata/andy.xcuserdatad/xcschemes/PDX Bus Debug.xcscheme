@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1130"
+   LastUpgradeVersion = "1240"
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -46,6 +46,39 @@
                BlueprintName = "PDX BusUITests"
                ReferencedContainer = "container:PDX Bus.xcodeproj">
             </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "A17DFCB5251E852E001BE290"
+               BuildableName = "PDX BusTests.xctest"
+               BlueprintName = "PDX BusTests"
+               ReferencedContainer = "container:PDX Bus.xcodeproj">
+            </BuildableReference>
+            <SkippedTests>
+               <Test
+                  Identifier = "GenerateArrays">
+               </Test>
+               <Test
+                  Identifier = "GenerateArrays/testMakeTiles">
+               </Test>
+               <Test
+                  Identifier = "GenerateArrays/testOnlineCreateArrays">
+               </Test>
+               <Test
+                  Identifier = "GenerateArrays/testOnline_CreateArrays">
+               </Test>
+               <Test
+                  Identifier = "GenerateArrays/test_makeTiles">
+               </Test>
+               <Test
+                  Identifier = "MachineGeneratedArrays/test_Online_GenerateStaticArrays">
+               </Test>
+               <Test
+                  Identifier = "MachineGeneratedArrays/test_generate_HotSpot_Tiles">
+               </Test>
+            </SkippedTests>
          </TestableReference>
       </Testables>
    </TestAction>

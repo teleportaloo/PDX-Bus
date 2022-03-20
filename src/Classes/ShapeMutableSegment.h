@@ -13,13 +13,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import "DataFactory.h"
 #import "ShapeSegment.h"
 #import "ShapeCoord.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface ShapeMutableSegment : DataFactory <ShapeSegment>
+@interface ShapeMutableSegment : NSObject <ShapeSegment>
 
 @property (nonatomic, strong) NSMutableArray<ShapeCoord *> *coords;
 

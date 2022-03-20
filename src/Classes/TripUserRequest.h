@@ -20,13 +20,13 @@
 
 #define kDictUserRequestHistorical @"historical"
 
-typedef enum {
+typedef enum TripTimeChoiceEnum {
     TripAskForTime,
     TripDepartAfterTime,
     TripArriveBeforeTime
 } TripTimeChoice;
 
-@interface TripUserRequest : DataFactory
+@interface TripUserRequest : NSObject
 
 @property (nonatomic, strong) TripEndPoint *fromPoint;
 @property (nonatomic, strong) TripEndPoint *toPoint;

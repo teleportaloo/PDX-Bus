@@ -19,12 +19,18 @@
 
 #pragma mark Map Pin callbacks
 
-- (NSString *)mapStopId {
+
+- (NSString *)pinStopId {
     return self.stopId;
 }
 
-- (bool)showActionMenu {
+- (bool)pinActionMenu {
     return YES;
+}
+
+- (NSString *)pinMarkedUpType
+{
+    return nil;
 }
 
 // MK Annotate
@@ -37,7 +43,7 @@
 }
 
 - (MapPinColorValue)pinColor {
-    return MAP_PIN_COLOR_GREEN;
+    return MAP_PIN_COLOR_PURPLE;
 }
 
 #pragma mark Data accessors
@@ -67,7 +73,7 @@
 }
 
 - (void)depPopulateCell:(Departure *)dd cell:(DepartureCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide {
-    [dd populateCell:cell decorate:decorate busName:YES wide:wide];
+    [dd populateCell:cell decorate:decorate busName:YES fullSign:wide];
 }
 
 - (NSString *)depStaticText {
@@ -102,8 +108,8 @@
     return !self.gotData;
 }
 
-- (NSString *)depNetworkErrorMsg {
-    return self.errorMsg;
+- (NSString *)depErrorMsg {
+    return self.networkErrorMsg;
 }
 
 - (NSString *)depDir {
@@ -118,7 +124,7 @@
     return nil;
 }
 
-- (bool)hasBearing {
+- (bool)pinHasBearing {
     return NO;
 }
 

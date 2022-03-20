@@ -34,11 +34,11 @@
     StopDistance *stop = self.stops.firstObject;
     StopDistance *inStop = inRoute.stops.firstObject;
     
-    if (stop.distance < inStop.distance) {
+    if (stop.distanceMeters < inStop.distanceMeters) {
         return NSOrderedAscending;
     }
     
-    if (stop.distance > inStop.distance) {
+    if (stop.distanceMeters > inStop.distanceMeters) {
         return NSOrderedDescending;
     }
     

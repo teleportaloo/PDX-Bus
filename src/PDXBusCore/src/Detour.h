@@ -10,7 +10,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import "DataFactory.h"
 #import "DetourLocation.h"
 #import "Route.h"
 
@@ -23,7 +22,9 @@
 #define DETOUR_ID_STRIP_TAG(N)      ((N).integerValue >> DETOUR_ID_TAG_BITS)
 #define DETOUR_TYPE_FROM_ID(N)      (((N).integerValue & DETOUR_ID_TAG_MASK) == STREETCAR_DETOUR_ID_TAG ? @"Streetcar " : @"")
 
-@interface Detour : DataFactory
+typedef NSMutableDictionary<NSString*, Route*> AllTriMetRoutes;
+
+@interface Detour : NSObject
 
 @property (nonatomic, strong) NSMutableArray<DetourLocation *> *locations;
 @property (nonatomic, strong) NSMutableSet<NSString *> *embeddedStops;
@@ -40,6 +41,8 @@
 - (NSString *)detectStops;
 - (NSComparisonResult)compare:(Detour *)other;
 
-+ (Detour *)fromAttributeDict:(NSDictionary *)attributeDict allRoutes:(NSMutableDictionary<NSString *, Route *> *)allRoutes;
++ (Detour *)fromAttributeDict:(NSDictionary *)attributeDict
+                    allRoutes:(AllTriMetRoutes *)allRoutes
+                     addEmoji:(bool)addEmoji;
 
 @end

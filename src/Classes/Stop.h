@@ -11,36 +11,29 @@
 
 
 #import <UIKit/UIKit.h>
-#import "MapPinColor.h"
+#import "MapPin.h"
 #import "SearchFilter.h"
-#import "DataFactory.h"
 
-
-@protocol ReturnStop;
+@protocol ReturnStopObject;
 @protocol TaskController;
 
-@interface Stop : DataFactory <MapPinColor, SearchFilter>
+@interface Stop : NSObject <MapPin, SearchFilter>
 
 @property (nonatomic, copy)   NSString *stopId;
 @property (nonatomic, copy)   NSString *desc;
 @property (nonatomic, copy)   NSString *dir;
-@property (nonatomic)         bool tp;
-@property (nonatomic, copy)   NSString *lat;
-@property (nonatomic, copy)   NSString *lng;
-@property (nonatomic, strong) id<ReturnStop> callback;
-@property (nonatomic)         int index;
-@property (nonatomic)         MapPinColorValue pinColor;
-@property (nonatomic, readonly) bool showActionMenu;
+@property (nonatomic)         bool timePoint;
+@property (nonatomic, strong) CLLocation *location;
+@property (nonatomic, strong) id<ReturnStopObject> stopObjectCallback;
+@property (nonatomic)         NSUInteger index;
 @property (nonatomic, readonly, copy) NSString *stringToFilter;
-
-- (bool)mapTapped:(id<TaskController>)progress;
 
 @end
 
-@protocol ReturnStop
+@protocol ReturnStopObject
 
-@property (nonatomic, readonly, copy) NSString *actionText;
+@property (nonatomic, readonly, copy) NSString *returnStopObjectActionText;
 
-- (void)chosenStop:(Stop *)stop progress:(id<TaskController>)progress;
+- (void)returnStopObject:(Stop *)stop progress:(id<TaskController>)progress;
 
 @end

@@ -18,24 +18,37 @@
 #import "ScreenConstants.h"
 #import "SearchFilter.h"
 
+
 @interface RailStation : NSObject <SearchFilter>
 
-@property (nonatomic, strong) NSMutableArray *stopIdArray;
-@property (nonatomic, strong) NSMutableArray *dirArray;
+@property (nonatomic, strong) NSMutableArray<NSString *> *stopIdArray;
+@property (nonatomic, strong) NSMutableArray<NSString *> *dirArray;
+
+@property (nonatomic, strong) NSMutableArray<NSString *> *transferStopIdArray;
+@property (nonatomic, strong) NSMutableArray<NSString *> *transferDirArray;
+@property (nonatomic, strong) NSMutableArray<NSString *> *transferNameArray;
+@property (nonatomic, strong) NSMutableArray<NSNumber *> *transferHotSpotIndexArray;
+
+
 @property (nonatomic, copy)   NSString *station;
 @property (nonatomic, copy)   NSString *wikiLink;
 @property (nonatomic) int index;
-@property (readonly) RAILLINES line;
-@property (readonly) RAILLINES line0;
-@property (readonly) RAILLINES line1;
+@property (readonly) RailLines line;
+@property (readonly) RailLines line0;
+@property (readonly) RailLines line1;
 @property (nonatomic, readonly, copy) NSString *stringToFilter;
 
-- (instancetype)initFromHotSpot:(HOTSPOT *)hotspot index:(int)index;
+- (instancetype)initFromHotSpot:(HotSpot *)hotspot index:(int)index;
 - (NSComparisonResult)compareUsingStation:(RailStation *)inStation;
+- (void)findTransfers;
 
-+ (NSString *)nameFromHotspot:(HOTSPOT *)hotspot;
+- (BOOL)isEqual:(id)other;
+- (NSUInteger)hash;
+
+
++ (NSString *)nameFromHotspot:(HotSpot *)hotspot;
 + (UITableViewCell *)tableView:(UITableView *)tableView cellWithReuseIdentifier:(NSString *)identifier rowHeight:(CGFloat)height;
-+ (void)populateCell:(UITableViewCell *)cell station:(NSString *)station lines:(RAILLINES)lines;
-+ (instancetype)fromHotSpot:(HOTSPOT *)hotspot index:(int)index;
++ (void)populateCell:(UITableViewCell *)cell station:(NSString *)station lines:(RailLines)lines;
++ (instancetype)fromHotSpot:(HotSpot *)hotspot index:(int)index;
 
 @end

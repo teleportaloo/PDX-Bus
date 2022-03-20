@@ -27,13 +27,14 @@
 @property (nonatomic, readonly, copy)   NSString *formattedMinsToArrival;
 @property (nonatomic, readonly)         bool hasRouteColor;
 @property (nonatomic, readonly, strong) UIImage *blockImageColor;
-@property (nonatomic, readonly, copy)   NSAttributedString *headingWithStatus;
 @property (nonatomic, readonly, copy)   NSString *exception;
 @property (nonatomic, readonly)         bool stale;
 @property (nonatomic, readonly)         WKInterfaceMapPinColor pinColor;
 @property (nonatomic, readonly, copy)   UIColor *pinTint;
-@property (nonatomic, readonly)         bool hasBearing;
-@property (nonatomic, readonly)         double doubleBearing;
-@property (nonatomic, readonly)         CLLocationCoordinate2D coord;
+@property (nonatomic, readonly)         bool pinHasBearing;
+@property (nonatomic, readonly)         double pinBearing;
+@property (nonatomic, readonly)         CLLocationCoordinate2D pinCoord;
+
+- (NSAttributedString *)headingWithStatusFullSign:(bool)fullSign;
 
 @end

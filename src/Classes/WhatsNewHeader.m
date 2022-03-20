@@ -39,11 +39,11 @@
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
 }
 
-- (NSString *)displayText:(NSString *)fullText {
+- (NSString *)displayMarkedUpText:(NSString *)fullText {
     return [fullText substringFromIndex:1];
 }
 
-- (NSString *)plainText:(NSString *)fullText {
+- (NSString *)plainTextFromMarkUp:(NSString *)fullText {
     return [self plainTextNormal:fullText];
 }
 
