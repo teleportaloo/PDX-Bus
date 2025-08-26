@@ -66,6 +66,9 @@ Links
 
 Things to know before building
 ------------------------------
+* CommonCode is a submodule - you will need to init it. Change directory to src/CommonCode
+`git submodule init`
+`git submodule update`
 * PDX Bus is built with the latest iPhone SDK with Xcode 16.4 - available free
 from [Apple](http://developer.apple.com) in their Mac App store.
 * Before building this code you will need to register with TriMet 
@@ -90,34 +93,16 @@ If you download the graphics from the sources below, you must enable
 the project to copy them into the application. 
 
 ### TriMet Graphics
-Two graphics files were provided to me by permission of TriMet, and should 
-be placed in the TriMet folder and then assigned to the target in the Xcode 
-project (see below).
-PDX Bus will work without them, except the Rail Map will not be displayed.
-
-* The visittrimeticon.gif file is available from the TriMet page about 
-[linking](http://www.trimet.org/help/linking.htm)
+Some graphics files were provided to me by permission of TriMet.
 * The map of the rail system, railsystem.gif, is a 2000x765 gif file made 
 from the PDF of the rail map.  
 (The size here is important for the positioning of the hotspots). The original 
 file is available here -
-[http://www.trimet.org/maps/railsystem.htm](http://www.trimet.org/maps/railsystem.htm) - I was granted special permission to use it for PDX Bus with a disclaimer - 
+[https://trimet.org/max/index.htm#map](https://trimet.org/max/index.htm#map) - I was granted special permission to use it for PDX Bus with a disclaimer - 
 you will need to ask permission if you want to distribute it
 in some way.  Note that I took the PDF and made the GIF file - the GIF 
 file provided by TriMet is too small
 and will not work.  This gif file is converted into a set of tiles to enable a more efficient display.
-
-### Enabling the project to use the graphics
-Once the graphics have been downloaded and copied into place you will need to 
-enable them in the project.
-
-* In the Xcode project, under Resouces you will find graphics folders. The file names
-will be red for any missing files.
-* For files that are not red, select them all, CTRL-Click then 
-choose "Get Info" from the pop-up menu.
-* On the Info dialog box, click on the Targets tab, and select 
-"PDX Bus".
-
 
 ### Attributions
 
