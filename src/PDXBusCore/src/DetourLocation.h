@@ -16,22 +16,24 @@
 #import <CoreLocation/CoreLocation.h>
 
 typedef enum DetourPassengerCodeEnum {
-    PassengerCodeUnknown       = 0,
-    PassengerCodeEither        = 'E',
+    PassengerCodeUnknown = 0,
+    PassengerCodeEither = 'E',
     PassengerCodeAlightingOnly = 'A',
-    PassengerCodeBoardingOnly  = 'B',
-    PassengerCodeNeither       = 'N'
+    PassengerCodeBoardingOnly = 'B',
+    PassengerCodeNeither = 'N'
 } DetourPassengerCode;
 
 @interface DetourLocation : NSObject
 
-@property (nonatomic)         DetourPassengerCode passengerCode;
-@property (nonatomic)         bool noServiceFlag;
-@property (nonatomic, strong) CLLocation *location;
-@property (nonatomic, copy)   NSString *stopId;
-@property (nonatomic, copy)   NSString *desc;
-@property (nonatomic, copy)   NSString *dir;
+@property(nonatomic) DetourPassengerCode passengerCode;
+@property(nonatomic) bool noServiceFlag;
+@property(nonatomic, strong) CLLocation *location;
+@property(nonatomic, copy) NSString *stopId;
+@property(nonatomic, copy) NSString *desc;
+@property(nonatomic, copy) NSString *dir;
 
 - (void)setPassengerCodeFromString:(NSString *)string;
+
++ (DetourLocation *)fromAttributeDict:(NSDictionary *)XML_ATR_DICT;
 
 @end

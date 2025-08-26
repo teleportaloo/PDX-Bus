@@ -15,47 +15,40 @@
 
 #import "RoundedTransparentRectView.h"
 
-@interface RoundedTransparentRectView()
+@interface RoundedTransparentRectView ()
 
 @end
 
 @implementation RoundedTransparentRectView
 
-- (instancetype)initWithFrame:(CGRect)frame
-{
+- (instancetype)initWithFrame:(CGRect)frame {
     return [super initWithFrame:frame];
 }
 
-- (void)drawRect:(CGRect)rect
-{
+- (void)drawRect:(CGRect)rect {
     static const CGFloat cornerRadius = 10.0;
-    
+
     CGMutablePathRef roundRectPath = CGPathCreateMutable();
-    CGPathAddRoundedRect(roundRectPath,
-                         NULL,
-                         rect,
-                         cornerRadius,
-                         cornerRadius);
-    
+    CGPathAddRoundedRect(roundRectPath, NULL, rect, cornerRadius, cornerRadius);
+
     CGPathCloseSubpath(roundRectPath);
-    
+
     CGContextRef context = UIGraphicsGetCurrentContext();
-    
+
     const CGFloat *components = CGColorGetComponents(self.color.CGColor);
-    
+
     self.alpha = components[3];
-    
-    CGContextSetRGBFillColor(context, components[0], components[1], components[2], components[3]);
+
+    CGContextSetRGBFillColor(context, components[0], components[1],
+                             components[2], components[3]);
     CGContextAddPath(context, roundRectPath);
     CGContextFillPath(context);
-    
-    
+
     CGContextSetRGBStrokeColor(context, 1, 1, 1, 0.25);
     CGContextAddPath(context, roundRectPath);
     CGContextStrokePath(context);
-    
+
     CGPathRelease(roundRectPath);
 }
 
 @end
-

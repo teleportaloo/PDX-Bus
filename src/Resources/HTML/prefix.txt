@@ -1,7 +1,7 @@
 
 /*
  * This code was generated from HTML using the script 'convert.sh'
- * This file is included in RailMapView.m and creates a static table
+ * This file is included in HotSpot.mm and creates a static table
  * containing the hotspots for a map.
  */
  

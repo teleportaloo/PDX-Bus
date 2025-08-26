@@ -29,16 +29,38 @@
 		<key>LinkM</key>
 		<string>https://www.samltool.com/prettyprint.php</string>
 	</dict>
-	<key>Twitter</key>
+	<key>Instagram</key>
 	<dict>
 		<key>Title</key>
-		<string>TriMet</string>
+		<string>Instagram</string>
 		<key>Icon</key>
-		<string>TriMet.png</string>
+		<string>Instagram</string>
 		<key>LinkM</key>
-		<string>https://mobile.twitter.com/%@</string>
+		<string>https://instagram.com/%@</string>
 		<key>TestString</key>
 		<string>PDXBus</string>
+	</dict>
+	<key>Facebook</key>
+	<dict>
+		<key>Title</key>
+		<string>Facebook</string>
+		<key>Icon</key>
+		<string>Facebook</string>
+		<key>LinkM</key>
+		<string>https://facebook.com/%@</string>
+		<key>TestString</key>
+		<string>PDXBus</string>
+	</dict>
+	<key>Bluesky</key>
+	<dict>
+		<key>Title</key>
+		<string>Bluesky</string>
+		<key>Icon</key>
+		<string>Bluesky_Logo.png</string>
+		<key>LinkM</key>
+		<string>https://bsky.app/profile/%@</string>
+		<key>TestString</key>
+		<string>pdxbus.bsky.social</string>
 	</dict>
 	<key>Buy Me A Coffee</key>
 	<dict>
@@ -48,16 +70,6 @@
 		<string>TriMet.png</string>
 		<key>LinkM</key>
 		<string>https://buymeacoffee.com/pdxbus</string>
-	</dict>
-	<key>Facebook TriMet</key>
-	<dict>
-		<key>LinkM</key>
-		<string>https://m.facebook.com/TriMet</string>
-	</dict>
-	<key>Facebook PDXBus</key>
-	<dict>
-		<key>LinkM</key>
-		<string>https://m.facebook.com/PDXBus</string>
 	</dict>
 	<key>TriMet Dashboard</key>
 	<dict>
@@ -69,20 +81,20 @@
 		<key>LinkM</key>
 		<string>https://trimet.org/contact/customerservice.htm</string>
 	</dict>
-	<key>TriMet Covid</key>
+	<key>Contact Portland Streetcar</key>
 	<dict>
 		<key>LinkM</key>
-		<string>https://trimet.org/health/index.htm</string>
+		<string>https://portlandstreetcar.org/contact/contact-us</string>
 	</dict>
-	<key>PDXBus App Store Review</key>
+	<key>PDX Bus App Store Review</key>
 	<dict>
 		<key>LinkM</key>
 		<string>https://apps.apple.com/app/id289814055?action=write-review</string>
 	</dict>
-	<key>PDXBus GitHub</key>
+	<key>PDX Bus on GitHub</key>
 	<dict>
 		<key>LinkM</key>
-		<string>https://trimet.org/contact/customerservice.htm</string>
+		<string>https://github.com/teleportaloo/PDX-Bus</string>
 	</dict>
 	<key>PDXBus Shortcut Documentation</key>
 	<dict>
@@ -155,10 +167,10 @@
 		<key>TestString</key>
 		<string>100</string>
 	</dict>
-	<key>PDXBus Blog</key>
+	<key>PDXBus Website</key>
 	<dict>
 		<key>LinkM</key>
-		<string>http:/pdxbus.teleportaloo.org</string>
+		<string>https:/teleportaloo.org/pdx-bus</string>
 	</dict>
 	<key>Apple Maps 2</key>
 	<dict>

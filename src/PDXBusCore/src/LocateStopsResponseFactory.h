@@ -19,8 +19,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface LocateStopsResponseFactory : NSObject
 
-+ (LocateStopsIntentResponse *)locateRespond:(LocateStopsIntentResponseCode)code API_AVAILABLE(ios(12.0));
-+ (LocateStopsIntentResponse *)locate:(CLLocation *)location API_AVAILABLE(ios(12.0));
++ (LocateStopsIntentResponse *)locateRespond:(LocateStopsIntentResponseCode)code
+    API_AVAILABLE(ios(12.0));
++ (LocateStopsIntentResponse *)locate:(CLLocation *)location
+    API_AVAILABLE(ios(12.0));
 
 @end
 

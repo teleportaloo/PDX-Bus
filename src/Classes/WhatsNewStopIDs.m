@@ -14,9 +14,13 @@
 
 
 #import "WhatsNewStopIDs.h"
-#import "DepartureTimesView.h"
+#import "DepartureTimesViewController.h"
 
 @implementation WhatsNewStopIDs
+
++ (void)load {
+    [[self class] addAction];
+}
 
 + (NSNumber *)getPrefix {
     return @'-';
@@ -24,11 +28,13 @@
 
 - (void)processAction:(NSString *)text parent:(ViewControllerBase *)parent {
     NSString *stopIds = [self prefix:text restOfText:nil];
-    
-    DepartureTimesView *departureViewController = [DepartureTimesView viewController];
-    
+
+    DepartureTimesViewController *departureViewController =
+        [DepartureTimesViewController viewController];
+
     departureViewController.displayName = @"";
-    [departureViewController fetchTimesForLocationAsync:parent.backgroundTask stopId:stopIds];
+    [departureViewController fetchTimesForLocationAsync:parent.backgroundTask
+                                                 stopId:stopIds];
 }
 
 @end

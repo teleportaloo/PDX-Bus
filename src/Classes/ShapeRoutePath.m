@@ -14,15 +14,19 @@
 
 
 #import "ShapeRoutePath.h"
-#import "RoutePolyline.h"
-#import "TriMetInfo.h"
-#import "UIColor+DarkMode.h"
+#import "DebugLogging.h"
+#import "RouteMultiPolyline.h"
+#import "TriMetInfo+UI.h"
+#import "UIColor+HTML.h"
 
-#define kKeyRoute    @"r"
+#define kKeyRoute @"r"
 #define kKeySegments @"s"
-#define kKeyDirect   @"d"
-#define kKeyDesc     @"i"
-#define kKeyDirDesc  @"e"
+#define kKeyDirect @"d"
+#define kKeyDesc @"i"
+#define kKeyDirDesc @"e"
+#define kKeyFreq @"f"
+
+#define DEBUG_LEVEL_FOR_FILE LogXML
 
 @implementation ShapeRoutePath
 
@@ -30,41 +34,64 @@
     if (self = [super init]) {
         self.segments = [NSMutableArray array];
     }
-    
+
     return self;
 }
 
-- (NSMutableArray<RoutePolyline *> *)addPolylines:(NSMutableArray<RoutePolyline *> *)lines {
+- (NSMutableArray<RouteMultiPolyline *> *)addPolylines:
+    (NSMutableArray<RouteMultiPolyline *> *)lines {
     UIColor *color;
     CGFloat dashPhase;
     int dashPatternId;
-    
+
     if (self.route == kShapeNoRoute) {
         color = [UIColor cyanColor];
         dashPhase = 0;
         dashPatternId = kPolyLinePatternBus;
     } else {
         PtrConstRouteInfo info = [TriMetInfo infoForRouteNum:self.route];
-        
+
         if (info == nil) {
-            color = [UIColor modeAwareBusColor];
+            color = self.frequent ? [UIColor modeAwareFrequentBusColor]
+                                  : [UIColor modeAwareBusColor];
             dashPatternId = 1;
             dashPhase = 0;
         } else {
-            color = [TriMetInfo cachedColor:info->html_color];
+            color = HTML_COLOR(info->html_color);
             dashPatternId = info->dash_pattern;
             dashPhase = info->dash_phase * kPolyLineSegLength;
         }
     }
-    
+
     if (self.direct) {
         dashPatternId = kPolyLinePatternDirect;
     }
-    
+
+    NSMutableArray<MKPolyline *> *polys = NSMutableArray.array;
+
     for (id<ShapeSegment> seg in self.segments) {
-        [lines addObject:[seg polyline:color dashPatternId:dashPatternId dashPhase:dashPhase path:self]];
+
+        [polys addObject:seg.simplePolyline];
     }
     
+    DEBUG_LOG_NSString(self.desc);
+    DEBUG_LOG_long(polys.count);
+
+    RouteMultiPolyline *line =
+        [[RouteMultiPolyline alloc] initWithPolylines:polys];
+
+    line.color = color;
+    line.dashPatternId = dashPatternId;
+    line.dashPhase = dashPhase;
+    line.desc = self.desc;
+
+    if (self.route != kShapeNoRoute) {
+        line.route = self.routeStr;
+        line.dir = self.dirDesc;
+    }
+
+    [lines addObject:line];
+
     return lines;
 }
 
@@ -75,28 +102,49 @@
         [aCoder encodeInteger:self.route forKey:kKeyRoute];
         [aCoder encodeObject:self.segments forKey:kKeySegments];
         [aCoder encodeBool:self.direct forKey:kKeyDirect];
+        [aCoder encodeBool:self.frequent forKey:kKeyFreq];
     }
 }
 
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
     if ((self = [super init])) {
-        self.segments = [aDecoder decodeObjectOfClasses:[NSSet setWithArray:@[ [NSMutableArray class], [ShapeCompactSegment class] ]] forKey:kKeySegments];
-        
+        self.segments =
+            [aDecoder decodeObjectOfClasses:[NSSet setWithArray:@[
+                          [NSMutableArray class], [ShapeCompactSegment class]
+                      ]]
+                                     forKey:kKeySegments];
+
         if (self.segments == nil) {
             self.segments = [NSMutableArray array];
         }
-        
-        self.dirDesc = [aDecoder decodeObjectOfClass:[NSString class] forKey:kKeyDirDesc];
-        self.desc = [aDecoder decodeObjectOfClass:[NSString class] forKey:kKeyDesc];
+
+        self.dirDesc = [aDecoder decodeObjectOfClass:[NSString class]
+                                              forKey:kKeyDirDesc];
+        self.desc = [aDecoder decodeObjectOfClass:[NSString class]
+                                           forKey:kKeyDesc];
         self.route = [aDecoder decodeIntegerForKey:kKeyRoute];
         self.direct = [aDecoder decodeBoolForKey:kKeyDirect];
+
+        if ([aDecoder containsValueForKey:kKeyFreq]) {
+            self.frequent = [aDecoder decodeBoolForKey:kKeyFreq];
+            DEBUG_LOG(@"Freq %ld %d", self.route, self.frequent);
+        } else {
+            self.frequent = false;
+        }
     }
-    
+
     return self;
 }
 
-+ (BOOL)supportsSecureCoding
-{
+- (void)setRoute:(NSInteger)route {
+    if (self.route != kShapeNoRoute) {
+        self.routeStr =
+            [NSString stringWithFormat:@"%lu", (unsigned long)route];
+    }
+    _route = route;
+}
+
++ (BOOL)supportsSecureCoding {
     return YES;
 }
 

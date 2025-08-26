@@ -1,0 +1,248 @@
+<!-- Multiple arrivals with a reporting status -->
+<resultSet xmlns="urn:trimet:rt" queryTime="1710711080310">
+    <location id="364" desc="SW Beaverton-Hillsdale &amp; 25th" dir="Eastbound" lat="45.479869999998" lng="-122.70219199998" passengerCode="E" />
+    <location id="9838" desc="Fair Complex/Hillsboro Airport MAX Stn" dir="Eastbound" lat="45.5270414684259" lng="-122.945808297437" passengerCode="E" />
+    <location id="8169" desc="Beaverton Transit Center" dir="Southbound" lat="45.49074620090364" lng="-122.8013086124511" passengerCode="B" />
+    <location id="9821" desc="Beaverton TC MAX Station" dir="Northbound" lat="45.4916963655044" lng="-122.801200432586" passengerCode="E" />
+    <arrival id="13413148_52395_17" blockID="9005" departed="true" dir="0" status="estimated" estimated="1710711195000" showMilesAway="false" dropOffOnly="false" fullSign="MAX  Blue Line to Gresham" piece="1" route="100" routeColor="114C96" routeSubType="Light Rail" scheduled="1710711195000" shortSign="Blue Line to Gresham" locid="9821" tripID="13413148" newTrip="false" detoured="true" feet="2314" vehicleID="304" loadPercentage="" inCongestion="">
+        <detour id="204771" />
+        <detour id="202580" />
+        <detour id="203678" />
+        <blockPosition id="9005" vehicleID="304" routeNumber="100" direction="0" tripID="13413148" newTrip="false" signMessage="Blue Line to Gresham" signMessageLong="MAX  Blue Line to Gresham" lastLocID="9826" lastStopSeq="7" nextLocID="9824" nextStopSeq="8" at="1710711068327" heading="119" lat="45.4903815" lng="-122.8093916">
+            <trip id="13413148" newTrip="false" desc="Cleveland Ave MAX Station" dir="0" route="100" destDist="33360" pattern="204" progress="31046" />
+        </blockPosition>
+    </arrival>
+    <arrival id="13399786_52440_17" blockID="2041" departed="false" dir="1" status="estimated" estimated="1710711240000" showMilesAway="false" dropOffOnly="false" fullSign="20  Burnside/Stark to Gresham TC via Portland City Center" piece="1" route="20" routeColor="084C8D" routeSubType="Bus" scheduled="1710711240000" shortSign="20 Gresham TC" locid="8169" tripID="13399786" newTrip="false" detoured="true" feet="224" vehicleID="3755" loadPercentage="0" inCongestion="false">
+        <detour id="204677" />
+        <detour id="204405" />
+        <detour id="204143" />
+        <detour id="204631" />
+        <detour id="204630" />
+        <blockPosition id="2041" vehicleID="3755" routeNumber="20" direction="1" tripID="13399786" newTrip="false" signMessage="20 Gresham TC" signMessageLong="20  Burnside/Stark to Gresham TC via Portland City Center" lastLocID="" lastStopSeq="" nextLocID="9654" nextStopSeq="1" at="1710711052156" heading="212" lat="45.49121608217903" lng="-122.80074606162981">
+            <trip id="13399786" newTrip="false" desc="Gresham TC 7th &amp; Kelly Layover" dir="1" route="20" destDist="224" pattern="20" progress="0" />
+        </blockPosition>
+    </arrival>
+    <arrival id="13403585_52500_17" blockID="5474" departed="false" dir="1" status="estimated" estimated="1710711300000" showMilesAway="false" dropOffOnly="false" fullSign="54  Beaverton-Hillsdale Hwy to Portland" piece="1" route="54" routeColor="084C8D" routeSubType="Bus" scheduled="1710711300000" shortSign="54 To Portland" locid="8169" tripID="13403585" newTrip="false" detoured="true" feet="224" vehicleID="3211" loadPercentage="0" inCongestion="false">
+        <detour id="196577" />
+        <blockPosition id="5474" vehicleID="3211" routeNumber="54" direction="1" tripID="13403585" newTrip="false" signMessage="54 To Portland" signMessageLong="54  Beaverton-Hillsdale Hwy to Portland" lastLocID="" lastStopSeq="" nextLocID="9654" nextStopSeq="1" at="1710711051156" heading="212" lat="45.49121608217903" lng="-122.80074606162981">
+            <trip id="13403585" newTrip="false" desc="SW Broadway &amp; Burnside" dir="1" route="54" destDist="224" pattern="3" progress="0" />
+        </blockPosition>
+    </arrival>
+    <arrival id="13404115_52500_17" blockID="5773" departed="false" dir="0" status="estimated" estimated="1710711300000" showMilesAway="false" dropOffOnly="false" fullSign="57  TV Hwy to Forest Grove" piece="1" route="57" routeColor="084C8D" routeSubType="Bus" scheduled="1710711300000" shortSign="57 To Forest Grove" locid="8169" tripID="13404115" newTrip="false" detoured="true" feet="224" vehicleID="3216" loadPercentage="0" inCongestion="false">
+        <detour id="166364" />
+        <blockPosition id="5773" vehicleID="3216" routeNumber="57" direction="0" tripID="13404115" newTrip="false" signMessage="57 To Forest Grove" signMessageLong="57  TV Hwy to Forest Grove" lastLocID="" lastStopSeq="" nextLocID="9654" nextStopSeq="1" at="1710711049155" heading="212" lat="45.491067922127094" lng="-122.80092380313882">
+            <trip id="13404115" newTrip="false" desc="Forest Grove" dir="0" route="57" destDist="224" pattern="3" progress="0" />
+        </blockPosition>
+    </arrival>
+    <arrival id="13409662_52665_17" blockID="9042" departed="false" dir="0" status="estimated" estimated="1710711465000" showMilesAway="false" dropOffOnly="false" fullSign="MAX  Red Line to Airport" piece="1" route="90" routeColor="C41F3E" routeSubType="Light Rail" scheduled="1710711465000" shortSign="Red Line to Airport" locid="9821" tripID="13409662" newTrip="false" detoured="true" feet="0" vehicleID="526" loadPercentage="" inCongestion="">
+        <detour id="204771" />
+        <detour id="204798" />
+        <detour id="203678" />
+        <blockPosition id="9042" vehicleID="526" routeNumber="90" direction="0" tripID="13409662" newTrip="false" signMessage="Red Line to Airport" signMessageLong="MAX  Red Line to Airport" lastLocID="9821" lastStopSeq="24" nextLocID="9821" nextStopSeq="1" at="1710711067141" heading="37" lat="45.4917341" lng="-122.8011877">
+            <trip id="13409662" newTrip="false" desc="Portland International Airport" dir="0" route="90" destDist="0" pattern="23" progress="0" />
+        </blockPosition>
+    </arrival>
+    <arrival id="13404596_52920_17" blockID="5867" departed="false" dir="1" status="estimated" estimated="1710711720000" showMilesAway="false" dropOffOnly="false" fullSign="58  Canyon Rd to Portland" piece="1" route="58" routeColor="084C8D" routeSubType="Bus" scheduled="1710711720000" shortSign="58 To Portland" locid="8169" tripID="13404596" newTrip="false" detoured="true" feet="224" vehicleID="3262" loadPercentage="0" inCongestion="false">
+        <detour id="204378" />
+        <blockPosition id="5867" vehicleID="3262" routeNumber="58" direction="1" tripID="13404596" newTrip="false" signMessage="58 To Portland" signMessageLong="58  Canyon Rd to Portland" lastLocID="" lastStopSeq="" nextLocID="9654" nextStopSeq="1" at="1710711056252" heading="212" lat="45.49121608217903" lng="-122.80074606162981">
+            <trip id="13404596" newTrip="false" desc="Jefferson &amp; SW 5th" dir="1" route="58" destDist="224" pattern="4" progress="0" />
+        </blockPosition>
+    </arrival>
+    <arrival id="13403584_53056_17" blockID="5472" departed="false" dir="1" status="scheduled" showMilesAway="false" dropOffOnly="false" fullSign="54  Beaverton-Hillsdale Hwy to Portland" piece="1" route="54" routeColor="084C8D" routeSubType="Bus" scheduled="1710711856000" shortSign="54 To Portland" locid="364" tripID="13403584" newTrip="false" detoured="true" feet="" vehicleID="">
+        <detour id="196577" />
+    </arrival>
+    <arrival id="13403940_52996_17" blockID="4369" departed="true" dir="1" status="estimated" estimated="1710711942000" showMilesAway="false" dropOffOnly="false" fullSign="56  To Marquam Hill, to OHSU and VA hospital" piece="1" route="56" routeColor="084C8D" routeSubType="Bus" scheduled="1710711796000" shortSign="56  To Marquam Hill" locid="364" tripID="13403940" newTrip="false" detoured="true" feet="20701" vehicleID="3009" loadPercentage="0" inCongestion="false">
+        <detour id="189242" />
+        <detour id="197125" />
+        <detour id="192379" />
+        <blockPosition id="4369" vehicleID="3009" routeNumber="56" direction="1" tripID="13403940" newTrip="false" signMessage="56 To Marquam Hill" signMessageLong="56  Scholls Ferry Rd To Marquam Hill" lastLocID="5206" lastStopSeq="13" nextLocID="5204" nextStopSeq="14" at="1710711075402" heading="94" lat="45.47249732762714" lng="-122.77102706682118">
+            <trip id="13403940" newTrip="false" desc="OHSU" dir="1" route="56" destDist="29691" pattern="3" progress="8990" />
+        </blockPosition>
+    </arrival>
+    <arrival id="13413149_53295_17" blockID="9021" departed="false" dir="0" status="scheduled" showMilesAway="false" dropOffOnly="false" fullSign="MAX  Blue Line to Gresham" piece="1" route="100" routeColor="114C96" routeSubType="Light Rail" scheduled="1710712095000" shortSign="Blue Line to Gresham" locid="9821" tripID="13413149" newTrip="false" detoured="true" feet="" vehicleID="">
+        <detour id="204771" />
+        <detour id="202580" />
+        <detour id="203678" />
+    </arrival>
+    <arrival id="13399787_53340_17" blockID="2076" departed="false" dir="1" status="estimated" estimated="1710712140000" showMilesAway="false" dropOffOnly="false" fullSign="20  Burnside/Stark to Gresham TC via Portland City Center" piece="1" route="20" routeColor="084C8D" routeSubType="Bus" scheduled="1710712140000" shortSign="20 Gresham TC" locid="8169" tripID="13399787" newTrip="false" detoured="true" feet="4507" vehicleID="3035" loadPercentage="0" inCongestion="false">
+        <detour id="204677" />
+        <detour id="204405" />
+        <detour id="204143" />
+        <detour id="204631" />
+        <detour id="204630" />
+        <blockPosition id="2076" vehicleID="3035" routeNumber="921" direction="1" tripID="13423382" newTrip="false" signMessage="We're Hiring" signMessageLong="We're Hiring" lastLocID="1014" lastStopSeq="3" nextLocID="8435" nextStopSeq="4" at="1710711059237" heading="201" lat="45.49453257994005" lng="-122.80994748171453">
+            <trip id="13423382" newTrip="false" desc="Beaverton TC Inner Layover (CW)" dir="1" route="921" destDist="16782" pattern="520" progress="12499" />
+            <trip id="13399787" newTrip="false" desc="Gresham TC 7th &amp; Kelly Layover" dir="1" route="20" destDist="224" pattern="20" progress="0" />
+        </blockPosition>
+    </arrival>
+    <arrival id="13403586_53400_17" blockID="5476" departed="false" dir="1" status="estimated" estimated="1710712200000" showMilesAway="false" dropOffOnly="false" fullSign="54  Beaverton-Hillsdale Hwy to Portland" piece="1" route="54" routeColor="084C8D" routeSubType="Bus" scheduled="1710712200000" shortSign="54 To Portland" locid="8169" tripID="13403586" newTrip="false" detoured="true" feet="224" vehicleID="3251" loadPercentage="0" inCongestion="false">
+        <detour id="196577" />
+        <blockPosition id="5476" vehicleID="3251" routeNumber="54" direction="1" tripID="13403586" newTrip="false" signMessage="54 To Portland" signMessageLong="54  Beaverton-Hillsdale Hwy to Portland" lastLocID="" lastStopSeq="" nextLocID="9654" nextStopSeq="1" at="1710711067433" heading="213" lat="45.49091756481226" lng="-122.80106275197134">
+            <trip id="13403586" newTrip="false" desc="SW Broadway &amp; Burnside" dir="1" route="54" destDist="224" pattern="3" progress="0" />
+        </blockPosition>
+    </arrival>
+    <arrival id="13404116_53400_17" blockID="5774" departed="false" dir="0" status="estimated" estimated="1710712200000" showMilesAway="false" dropOffOnly="false" fullSign="57  TV Hwy to Forest Grove" piece="1" route="57" routeColor="084C8D" routeSubType="Bus" scheduled="1710712200000" shortSign="57 To Forest Grove" locid="8169" tripID="13404116" newTrip="false" detoured="true" feet="5138" vehicleID="3245" loadPercentage="" inCongestion="false">
+        <detour id="166364" />
+        <blockPosition id="5774" vehicleID="3245" routeNumber="57" direction="1" tripID="13404367" newTrip="false" signMessage="57 To Beaverton TC" signMessageLong="57  TV Hwy to Beaverton TC" lastLocID="5617" lastStopSeq="59" nextLocID="5597" nextStopSeq="60" at="1710711051140" heading="98" lat="45.48839990871931" lng="-122.81496793240481">
+            <trip id="13404367" newTrip="false" desc="Beaverton TC Inner Layover (CW)" dir="1" route="57" destDist="87909" pattern="11" progress="82995" />
+            <trip id="13404116" newTrip="false" desc="Forest Grove" dir="0" route="57" destDist="224" pattern="3" progress="0" />
+        </blockPosition>
+    </arrival>
+    <arrival id="13409663_53565_17" blockID="9048" departed="false" dir="0" status="estimated" estimated="1710712365000" showMilesAway="false" dropOffOnly="false" fullSign="MAX  Red Line to Airport" piece="1" route="90" routeColor="C41F3E" routeSubType="Light Rail" scheduled="1710712365000" shortSign="Red Line to Airport" locid="9821" tripID="13409663" newTrip="false" detoured="true" feet="33984" vehicleID="248" loadPercentage="" inCongestion="">
+        <detour id="204771" />
+        <detour id="204798" />
+        <detour id="203678" />
+        <blockPosition id="9048" vehicleID="248" routeNumber="90" direction="1" tripID="13410399" newTrip="false" signMessage="Red Line to Beaverton" signMessageLong="MAX  Red Line to City Center &amp; Beaverton" lastLocID="10117" lastStopSeq="21" nextLocID="10121" nextStopSeq="22" at="1710711072889" heading="234" lat="45.519061" lng="-122.6998963">
+            <trip id="13410399" newTrip="false" desc="Beaverton TC Pocket" dir="1" route="90" destDist="104083" pattern="16" progress="70099" />
+            <trip id="13409663" newTrip="false" desc="Portland International Airport" dir="0" route="90" destDist="0" pattern="23" progress="0" />
+        </blockPosition>
+    </arrival>
+    <arrival id="13403585_53956_17" blockID="5474" departed="false" dir="1" status="estimated" estimated="1710712756000" showMilesAway="false" dropOffOnly="false" fullSign="54  Beaverton-Hillsdale Hwy to Portland" piece="1" route="54" routeColor="084C8D" routeSubType="Bus" scheduled="1710712756000" shortSign="54 To Portland" locid="364" tripID="13403585" newTrip="false" detoured="true" feet="27808" vehicleID="3211" loadPercentage="0" inCongestion="false">
+        <detour id="196577" />
+        <blockPosition id="5474" vehicleID="3211" routeNumber="54" direction="1" tripID="13403585" newTrip="false" signMessage="54 To Portland" signMessageLong="54  Beaverton-Hillsdale Hwy to Portland" lastLocID="" lastStopSeq="" nextLocID="9654" nextStopSeq="1" at="1710711051156" heading="212" lat="45.49121608217903" lng="-122.80074606162981">
+            <trip id="13403585" newTrip="false" desc="SW Broadway &amp; Burnside" dir="1" route="54" destDist="27808" pattern="3" progress="0" />
+        </blockPosition>
+    </arrival>
+    <arrival id="13413150_54195_17" blockID="9006" departed="false" dir="0" status="estimated" estimated="1710712995000" showMilesAway="false" dropOffOnly="false" fullSign="MAX  Blue Line to Gresham" piece="1" route="100" routeColor="114C96" routeSubType="Light Rail" scheduled="1710712995000" shortSign="Blue Line to Gresham" locid="9821" tripID="13413150" newTrip="false" detoured="true" feet="61176" vehicleID="236" loadPercentage="" inCongestion="">
+        <detour id="204771" />
+        <detour id="202580" />
+        <detour id="203678" />
+        <blockPosition id="9006" vehicleID="236" routeNumber="100" direction="1" tripID="13414534" newTrip="false" signMessage="Blue Line to Hillsboro" signMessageLong="MAX  Blue Line to Hillsboro" lastLocID="9825" lastStopSeq="34" nextLocID="9819" nextStopSeq="35" at="1710710154285" heading="299" lat="45.4968524" lng="-122.8254592">
+            <trip id="13414534" newTrip="false" desc="Orenco / NW 231st Ave (WB)" dir="1" route="100" destDist="151664" pattern="223" progress="125100" />
+            <trip id="13426444" newTrip="false" desc="Orenco / NW 231st Ave (EB)" dir="1" route="926" destDist="1252" pattern="82" progress="0" />
+            <trip id="13413150" newTrip="false" desc="Cleveland Ave MAX Station" dir="0" route="100" destDist="33360" pattern="204" progress="0" />
+        </blockPosition>
+    </arrival>
+    <arrival id="13399788_54240_17" blockID="2077" departed="false" dir="1" status="scheduled" showMilesAway="false" dropOffOnly="false" fullSign="20  Burnside/Stark to Gresham TC via Portland City Center" piece="1" route="20" routeColor="084C8D" routeSubType="Bus" scheduled="1710713040000" shortSign="20 Gresham TC" locid="8169" tripID="13399788" newTrip="false" detoured="true" feet="" vehicleID="">
+        <detour id="204677" />
+        <detour id="204405" />
+        <detour id="204143" />
+        <detour id="204631" />
+        <detour id="204630" />
+    </arrival>
+    <arrival id="13403587_54300_17" blockID="5478" departed="false" dir="1" status="scheduled" showMilesAway="false" dropOffOnly="false" fullSign="54  Beaverton-Hillsdale Hwy to Portland" piece="1" route="54" routeColor="084C8D" routeSubType="Bus" scheduled="1710713100000" shortSign="54 To Portland" locid="8169" tripID="13403587" newTrip="false" detoured="true" feet="" vehicleID="">
+        <detour id="196577" />
+    </arrival>
+    <arrival id="13404117_54300_17" blockID="5775" departed="false" dir="0" status="estimated" estimated="1710713100000" showMilesAway="false" dropOffOnly="false" fullSign="57  TV Hwy to Forest Grove" piece="1" route="57" routeColor="084C8D" routeSubType="Bus" scheduled="1710713100000" shortSign="57 To Forest Grove" locid="8169" tripID="13404117" newTrip="false" detoured="true" feet="25195" vehicleID="3010" loadPercentage="" inCongestion="false">
+        <detour id="166364" />
+        <blockPosition id="5775" vehicleID="3010" routeNumber="57" direction="1" tripID="13404368" newTrip="false" signMessage="57 To Beaverton TC" signMessageLong="57  TV Hwy to Beaverton TC" lastLocID="5642" lastStopSeq="47" nextLocID="5590" nextStopSeq="48" at="1710711055360" heading="106" lat="45.496469032263484" lng="-122.89210712665748">
+            <trip id="13404368" newTrip="false" desc="Beaverton TC Inner Layover (CW)" dir="1" route="57" destDist="87909" pattern="11" progress="62938" />
+            <trip id="13404117" newTrip="false" desc="Forest Grove" dir="0" route="57" destDist="224" pattern="3" progress="0" />
+        </blockPosition>
+    </arrival>
+    <arrival id="13409664_54465_17" blockID="9043" departed="false" dir="0" status="estimated" estimated="1710713265000" showMilesAway="false" dropOffOnly="false" fullSign="MAX  Red Line to Airport" piece="1" route="90" routeColor="C41F3E" routeSubType="Light Rail" scheduled="1710713265000" shortSign="Red Line to Airport" locid="9821" tripID="13409664" newTrip="false" detoured="true" feet="42516" vehicleID="245" loadPercentage="" inCongestion="">
+        <detour id="204771" />
+        <detour id="204798" />
+        <detour id="203678" />
+        <blockPosition id="9043" vehicleID="245" routeNumber="90" direction="1" tripID="13410400" newTrip="false" signMessage="Red Line to Beaverton" signMessageLong="MAX  Red Line to City Center &amp; Beaverton" lastLocID="8380" lastStopSeq="16" nextLocID="8381" nextStopSeq="17" at="1710711078065" heading="199" lat="45.5192444" lng="-122.6727758">
+            <trip id="13410400" newTrip="false" desc="Beaverton TC Pocket" dir="1" route="90" destDist="104083" pattern="16" progress="61567" />
+            <trip id="13409664" newTrip="false" desc="Portland International Airport" dir="0" route="90" destDist="0" pattern="23" progress="0" />
+        </blockPosition>
+    </arrival>
+    <arrival id="13403586_54856_17" blockID="5476" departed="false" dir="1" status="estimated" estimated="1710713656000" showMilesAway="false" dropOffOnly="false" fullSign="54  Beaverton-Hillsdale Hwy to Portland" piece="1" route="54" routeColor="084C8D" routeSubType="Bus" scheduled="1710713656000" shortSign="54 To Portland" locid="364" tripID="13403586" newTrip="false" detoured="true" feet="27808" vehicleID="3251" loadPercentage="0" inCongestion="false">
+        <detour id="196577" />
+        <blockPosition id="5476" vehicleID="3251" routeNumber="54" direction="1" tripID="13403586" newTrip="false" signMessage="54 To Portland" signMessageLong="54  Beaverton-Hillsdale Hwy to Portland" lastLocID="" lastStopSeq="" nextLocID="9654" nextStopSeq="1" at="1710711067433" heading="213" lat="45.49091756481226" lng="-122.80106275197134">
+            <trip id="13403586" newTrip="false" desc="SW Broadway &amp; Burnside" dir="1" route="54" destDist="27808" pattern="3" progress="0" />
+        </blockPosition>
+    </arrival>
+    <arrival id="13403941_54856_17" blockID="4376" departed="false" dir="1" status="estimated" estimated="1710713656000" showMilesAway="false" dropOffOnly="false" fullSign="56  To Marquam Hill, to OHSU and VA hospital" piece="1" route="56" routeColor="084C8D" routeSubType="Bus" scheduled="1710713656000" shortSign="56  To Marquam Hill" locid="364" tripID="13403941" newTrip="false" detoured="true" feet="58504" vehicleID="3255" loadPercentage="0" inCongestion="false">
+        <detour id="189242" />
+        <detour id="197125" />
+        <detour id="192379" />
+        <blockPosition id="4376" vehicleID="3255" routeNumber="921" direction="1" tripID="13423439" newTrip="false" signMessage="We're Hiring" signMessageLong="We're Hiring" lastLocID="3058" lastStopSeq="2" nextLocID="8316" nextStopSeq="3" at="1710711057284" heading="186" lat="45.50014039889036" lng="-122.82854225894715">
+            <trip id="13423439" newTrip="false" desc="Washington Square TC" dir="1" route="921" destDist="35778" pattern="366" progress="6965" />
+            <trip id="13403941" newTrip="false" desc="OHSU" dir="1" route="56" destDist="29691" pattern="3" progress="0" />
+        </blockPosition>
+    </arrival>
+    <arrival id="13404597_57000_17" blockID="5867" departed="false" dir="1" status="scheduled" showMilesAway="false" dropOffOnly="false" fullSign="58  Canyon Rd to Portland" piece="1" route="58" routeColor="084C8D" routeSubType="Bus" scheduled="1710715800000" shortSign="58 To Portland" locid="8169" tripID="13404597" newTrip="false" detoured="true" feet="" vehicleID="">
+        <detour id="204378" />
+    </arrival>
+    <detour begin="1704385545000" end="" id="197125" info_link_url="" header_text="" system_wide_flag="false" desc="No service at westbound stop SW Hall &amp; Scholls Ferry (Stop ID 2295) due to construction. No temp stop.">
+        <route xmlns="urn:trimet:schedule" desc="56-Scholls Ferry/Marquam Hill" route="56" id="56" type="B" routeColor="084C8D" routeSubType="Bus" routeSortOrder="5800" frequentService="false" no_service_flag="false" />
+        <location id="2295" desc="SW Hall &amp; Scholls Ferry" dir="Westbound" lat="45.4568371341045" lng="-122.782139756677" passengerCode="E" no_service_flag="true" />
+    </detour>
+    <detour begin="1710705480299" end="" id="204798" info_link_url="" header_text="" system_wide_flag="false" desc="MAX Red Line service to Beaverton Transit Center may be experiencing delays up to 10 minutes through 1:45 p.m. from earlier mechanical issue at Rose Quarter Transit Center">
+        <route xmlns="urn:trimet:schedule" desc="MAX Red Line" route="90" id="90" type="R" routeColor="C41F3E" routeSubType="Light Rail" routeSortOrder="130" frequentService="true" no_service_flag="false" />
+    </detour>
+    <detour begin="1710253251000" end="" id="204378" info_link_url="" header_text="" system_wide_flag="false" desc="Through 12:00 a.m. Sunday, March 24, no service to the westbound stop at SW Jefferson &amp; Park Ave (Stop ID 14221) due to construction. Use the temporary stop at SW Jefferson &amp; 10th on the west side of the intersection.">
+        <route xmlns="urn:trimet:schedule" desc="55-Hamilton" route="55" id="55" type="B" routeColor="084C8D" routeSubType="Bus" routeSortOrder="5700" frequentService="false" no_service_flag="false" />
+        <route xmlns="urn:trimet:schedule" desc="38-Boones Ferry Rd" route="38" id="38" type="B" routeColor="084C8D" routeSubType="Bus" routeSortOrder="4100" frequentService="false" no_service_flag="false" />
+        <route xmlns="urn:trimet:schedule" desc="58-Canyon Rd" route="58" id="58" type="B" routeColor="084C8D" routeSubType="Bus" routeSortOrder="6000" frequentService="false" no_service_flag="false" />
+        <route xmlns="urn:trimet:schedule" desc="6-Martin Luther King Jr Blvd" route="6" id="6" type="B" routeColor="084C8D" routeSubType="Bus" routeSortOrder="800" frequentService="true" no_service_flag="false" />
+        <route xmlns="urn:trimet:schedule" desc="45-Garden Home" route="45" id="45" type="B" routeColor="084C8D" routeSubType="Bus" routeSortOrder="4700" frequentService="false" no_service_flag="false" />
+        <route xmlns="urn:trimet:schedule" desc="96-Tualatin/I-5" route="96" id="96" type="B" routeColor="084C8D" routeSubType="Bus" routeSortOrder="9200" frequentService="false" no_service_flag="false" />
+        <location id="14221" desc="SW Jefferson &amp; Park Ave" dir="Westbound" lat="45.515821591305055" lng="-122.68317198049635" passengerCode="E" no_service_flag="true" />
+    </detour>
+    <detour begin="1709579064892" end="" id="203678" info_link_url="https://trimet.org/alerts/elevators" header_text="" system_wide_flag="false" desc="The elevator at NE 82nd Ave MAX Station is out of service. For help around this closure, see trimet.org/elevators.">
+        <route xmlns="urn:trimet:schedule" desc="MAX Blue Line" route="100" id="100" type="R" routeColor="114C96" routeSubType="Light Rail" routeSortOrder="100" frequentService="true" no_service_flag="false" />
+        <route xmlns="urn:trimet:schedule" desc="MAX Red Line" route="90" id="90" type="R" routeColor="C41F3E" routeSubType="Light Rail" routeSortOrder="130" frequentService="true" no_service_flag="false" />
+        <route xmlns="urn:trimet:schedule" desc="72-Killingsworth/82nd Ave" route="72" id="72" type="B" routeColor="084C8D" routeSubType="Bus" routeSortOrder="7300" frequentService="true" no_service_flag="false" />
+        <route xmlns="urn:trimet:schedule" desc="77-Broadway/Halsey" route="77" id="77" type="B" routeColor="084C8D" routeSubType="Bus" routeSortOrder="7700" frequentService="false" no_service_flag="false" />
+        <route xmlns="urn:trimet:schedule" desc="MAX Green Line" route="200" id="200" type="R" routeColor="008342" routeSubType="Light Rail" routeSortOrder="110" frequentService="true" no_service_flag="false" />
+    </detour>
+    <detour begin="1697279400000" end="" id="189242" info_link_url="" header_text="" system_wide_flag="false" desc="Beginning Saturday, October 14, no service to southbound Scholls Ferry &amp; Merry (Stop ID 5171) due to construction.">
+        <route xmlns="urn:trimet:schedule" desc="56-Scholls Ferry/Marquam Hill" route="56" id="56" type="B" routeColor="084C8D" routeSubType="Bus" routeSortOrder="5800" frequentService="false" no_service_flag="false" />
+        <location id="5171" desc="SW Scholls Ferry &amp; Merry" dir="Southbound" lat="45.46996902" lng="-122.775653386939" passengerCode="E" no_service_flag="false" />
+    </detour>
+    <detour begin="1710708592856" end="" id="204771" info_link_url="" header_text="" system_wide_flag="false" desc="One of the elevators towards Oregon Zoo at Washington Park is out of service. Please use other elevator or elevators at the opposite side of the platform.">
+        <route xmlns="urn:trimet:schedule" desc="MAX Blue Line" route="100" id="100" type="R" routeColor="114C96" routeSubType="Light Rail" routeSortOrder="100" frequentService="true" no_service_flag="false" />
+        <route xmlns="urn:trimet:schedule" desc="MAX Red Line" route="90" id="90" type="R" routeColor="C41F3E" routeSubType="Light Rail" routeSortOrder="130" frequentService="true" no_service_flag="false" />
+    </detour>
+    <detour begin="1676892600000" end="" id="166364" info_link_url="" header_text="" system_wide_flag="false" desc="No service in either direction to SW Tualatin Valley Hwy &amp; 209th (Stop IDs 5637, 5638) due to long-term stop closure.">
+        <route xmlns="urn:trimet:schedule" desc="57-TV Hwy/Forest Grove" route="57" id="57" type="B" routeColor="084C8D" routeSubType="Bus" routeSortOrder="5900" frequentService="true" no_service_flag="false" />
+    </detour>
+    <detour begin="1710777600000" end="" id="204677" info_link_url="" header_text="" system_wide_flag="false" desc="Beginning Monday, March 18, through Thursday, March 21, from 9:00 a.m. to 3:00 p.m., no service at eastbound stop E Burnside &amp; SE Laurelhurst (Stop ID 710) due to utility work. No temp stop.">
+        <route xmlns="urn:trimet:schedule" desc="20-Burnside/Stark" route="20" id="20" type="B" routeColor="084C8D" routeSubType="Bus" routeSortOrder="2600" frequentService="true" no_service_flag="false" />
+        <location id="710" desc="E Burnside &amp; SE Laurelhurst" dir="Eastbound" lat="45.523110999998" lng="-122.62547999998" passengerCode="E" no_service_flag="true" />
+    </detour>
+    <detour begin="1710585000000" end="" id="202580" info_link_url="https://trimet.org/improvements" header_text="" system_wide_flag="false" desc="Through Sunday, March 24, MAX Blue Line disrupted from Hatfield Government Center to Orenco due to &quot;A Better Red&quot; project construction. Shuttle buses serving all stations between Orenco Ave and Hatfield Government Center. Expect delays.">
+        <route xmlns="urn:trimet:schedule" desc="MAX Blue Line" route="100" id="100" type="R" routeColor="114C96" routeSubType="Light Rail" routeSortOrder="100" frequentService="true" no_service_flag="false" />
+        <location id="9840" desc="Hawthorn Farm MAX Station" dir="Westbound" lat="45.5299206129352" lng="-122.931119810485" passengerCode="E" no_service_flag="true" />
+        <location id="9841" desc="Washington/SE 12th Ave MAX Station" dir="Eastbound" lat="45.5211018165295" lng="-122.969152056168" passengerCode="E" no_service_flag="true" />
+        <location id="9842" desc="Washington/SE 12th Ave MAX Station" dir="Westbound" lat="45.5212310664826" lng="-122.969867228068" passengerCode="E" no_service_flag="true" />
+        <location id="9843" desc="Tuality Hospital/SE 8th Ave MAX Station" dir="Eastbound" lat="45.5212880911494" lng="-122.978016886765" passengerCode="E" no_service_flag="true" />
+        <location id="9844" desc="Tuality Hospital/SE 8th Ave MAX Station" dir="Westbound" lat="45.5213148538066" lng="-122.978728435998" passengerCode="E" no_service_flag="true" />
+        <location id="9845" desc="Hillsboro Central/SE 3rd TC MAX Station" dir="Westbound" lat="45.5214311941348" lng="-122.985652551304" passengerCode="E" no_service_flag="true" />
+        <location id="9846" desc="Hillsboro Central/SE 3rd TC MAX Station" dir="Eastbound" lat="45.5213572763735" lng="-122.984925948157" passengerCode="E" no_service_flag="true" />
+        <location id="9848" desc="Hatfield Government Center MAX Station" dir="Southbound" lat="45.522204" lng="-122.991022" passengerCode="E" no_service_flag="true" />
+        <location id="9836" desc="Orenco MAX Station" dir="Westbound" lat="45.5302983625332" lng="-122.916198426399" passengerCode="E" no_service_flag="true" />
+        <location id="9837" desc="Fair Complex/Hillsboro Airport MAX Stn" dir="Westbound" lat="45.5269236271043" lng="-122.946499150393" passengerCode="E" no_service_flag="true" />
+        <location id="9838" desc="Fair Complex/Hillsboro Airport MAX Stn" dir="Eastbound" lat="45.5270414684259" lng="-122.945808297437" passengerCode="E" no_service_flag="true" />
+        <location id="9839" desc="Hawthorn Farm MAX Station" dir="Eastbound" lat="45.5300119612249" lng="-122.930380448947" passengerCode="E" no_service_flag="true" />
+    </detour>
+    <detour begin="1710345600000" end="" id="204405" info_link_url="" header_text="" system_wide_flag="false" desc="Beginning Wednesday, March 13, through Monday, March 18, no service to the eastbound stops on SW Barnes at Monterey (Stop ID 241) and 88th (Stop ID 255) from 9:00 a.m. to 3:30 p.m. due to construction. ">
+        <route xmlns="urn:trimet:schedule" desc="20-Burnside/Stark" route="20" id="20" type="B" routeColor="084C8D" routeSubType="Bus" routeSortOrder="2600" frequentService="true" no_service_flag="false" />
+        <location id="241" desc="SW Barnes &amp; Monterey" dir="Eastbound" lat="45.5087192438961" lng="-122.770799643788" passengerCode="E" no_service_flag="true" />
+        <location id="255" desc="SW Barnes &amp; 88th" dir="Eastbound" lat="45.5084999189703" lng="-122.767549036093" passengerCode="E" no_service_flag="true" />
+    </detour>
+    <detour begin="1672676940000" end="" id="196577" info_link_url="" header_text="" system_wide_flag="false" desc="For trips to Portland City Center, no service at SW Beaverton-Hillsdale &amp; Western (Stop ID 354) and SW Beaverton-Hillsdale &amp; Jamieson (Stop ID 344) due to construction. Temp stop for Stop ID 354 is located near Kaiser driveway on utility pole. ">
+        <route xmlns="urn:trimet:schedule" desc="54-Beaverton-Hillsdale Hwy" route="54" id="54" type="B" routeColor="084C8D" routeSubType="Bus" routeSortOrder="5600" frequentService="true" no_service_flag="false" />
+        <location id="354" desc="SW Beaverton-Hillsdale &amp; Western" dir="Eastbound" lat="45.4864360508624" lng="-122.783055933629" passengerCode="E" no_service_flag="false" />
+        <location id="344" desc="SW Beaverton-Hillsdale &amp; Jamieson" dir="Eastbound" lat="45.486383999998" lng="-122.77420099998" passengerCode="E" no_service_flag="false" />
+    </detour>
+    <detour begin="1710165600000" end="" id="204143" info_link_url="" header_text="" system_wide_flag="false" desc="Beginning Monday, March 11 through Friday, March 29, weekdays only, from 7 a.m. to 3 p.m., no service to westbound W Burnside &amp; NW 12th (Stop ID 11032) due to construction. ">
+        <route xmlns="urn:trimet:schedule" desc="20-Burnside/Stark" route="20" id="20" type="B" routeColor="084C8D" routeSubType="Bus" routeSortOrder="2600" frequentService="true" no_service_flag="false" />
+    </detour>
+    <detour begin="1699990322000" end="" id="192379" info_link_url="" header_text="" system_wide_flag="false" desc="For trips to Marquam Hill, no service to the stop at 6700 Block SW Scholls Ferry (Stop ID 5158) due to long-term construction. ">
+        <route xmlns="urn:trimet:schedule" desc="56-Scholls Ferry/Marquam Hill" route="56" id="56" type="B" routeColor="084C8D" routeSubType="Bus" routeSortOrder="5800" frequentService="false" no_service_flag="false" />
+        <location id="5158" desc="6700 Block SW Scholls Ferry" dir="Northbound" lat="45.4711914389417" lng="-122.77468060602" passengerCode="E" no_service_flag="true" />
+    </detour>
+    <detour begin="1710774000000" end="" id="204631" info_link_url="" header_text="" system_wide_flag="false" desc="Beginning Monday, March 18, through Friday, March 29, from 8:00 a.m. to 5:00 p.m. on weekedays only, no service at eastbound stop E Burnside &amp; SE 60th (Stop ID 793) due to construction. Use temp stop on east side of 61st Ave.">
+        <route xmlns="urn:trimet:schedule" desc="20-Burnside/Stark" route="20" id="20" type="B" routeColor="084C8D" routeSubType="Bus" routeSortOrder="2600" frequentService="true" no_service_flag="false" />
+        <location id="793" desc="E Burnside &amp; SE 60th" dir="Eastbound" lat="45.5227834042197" lng="-122.60249160825" passengerCode="E" no_service_flag="true" />
+    </detour>
+    <detour begin="1710817200000" end="" id="204630" info_link_url="" header_text="" system_wide_flag="false" desc="Beginning 10:00 p.m. Monday, March 18, through 6:00 a.m. Wednesday, March 20, no service at westbound stop SW Cedar Hills &amp; Huntington (Stop ID 1011) and southbound stop SW Cedar Hills &amp; Walker (Stop ID 1022) due to construction. No temp stops.">
+        <route xmlns="urn:trimet:schedule" desc="20-Burnside/Stark" route="20" id="20" type="B" routeColor="084C8D" routeSubType="Bus" routeSortOrder="2600" frequentService="true" no_service_flag="false" />
+        <location id="1011" desc="SW Cedar Hills &amp; Huntington" dir="Westbound" lat="45.5029987846212" lng="-122.803418716497" passengerCode="E" no_service_flag="true" />
+        <location id="1022" desc="SW Cedar Hills &amp; Walker" dir="Southbound" lat="45.5010026998308" lng="-122.806294408674" passengerCode="E" no_service_flag="true" />
+    </detour>
+    <reportingStatus>
+        <location id="9838" desc="Fair Complex/Hillsboro Airport MAX Stn" dir="Eastbound" lat="45.5270414684259" lng="-122.945808297437" passengerCode="E" status="canceled">
+            <amenity desc="Bench near stop" />
+            <amenity desc="Garbage Can" />
+            <amenity desc="Schedule display" />
+            <amenity desc="Shelter" />
+            <amenity desc="Telephone near stop" />
+        </location>
+    </reportingStatus>
+</resultSet>

@@ -22,15 +22,16 @@
 
 @implementation CellTextView
 
-- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)identifier {
+- (instancetype)initWithStyle:(UITableViewCellStyle)style
+              reuseIdentifier:(NSString *)identifier {
     self = [super initWithStyle:style reuseIdentifier:identifier];
-    
+
     if (self) {
         // turn off selection use
         self.selectionStyle = UITableViewCellSelectionStyleNone;
         _view = nil;
     }
-    
+
     return self;
 }
 
@@ -39,7 +40,7 @@
     _view.delegate = nil;
     _view = inView;
     _view.delegate = self;
-    
+
     [self.contentView addSubview:inView];
     [self layoutSubviews];
 }
@@ -50,15 +51,17 @@
 
 - (void)layoutSubviews {
     [super layoutSubviews];
-    
+
     CGRect contentRect = self.contentView.bounds;
-    
+
     // inset the text view within the cell
-    if (contentRect.size.width > (kInsertValue * 2)) {  // but not if the width is too small
-        self.view.frame = CGRectMake(contentRect.origin.x + kInsertValue + self.cellLeftOffset,
-                                     contentRect.origin.y + kInsertValue,
-                                     contentRect.size.width - (kInsertValue * 2) - self.cellLeftOffset,
-                                     contentRect.size.height - (kInsertValue * 2));
+    if (contentRect.size.width >
+        (kInsertValue * 2)) { // but not if the width is too small
+        self.view.frame = CGRectMake(
+            contentRect.origin.x + kInsertValue + self.cellLeftOffset,
+            contentRect.origin.y + kInsertValue,
+            contentRect.size.width - (kInsertValue * 2) - self.cellLeftOffset,
+            contentRect.size.height - (kInsertValue * 2));
     }
 }
 
@@ -67,26 +70,28 @@
 
 - (BOOL)textViewShouldBeginEditing:(UITextField *)textField {
     BOOL beginEditing = YES;
-    
+
     // Allow the cell delegate to override the decision to begin editing.
-    if (self.delegate && [self.delegate respondsToSelector:@selector(cellShouldBeginEditing:)]) {
+    if (self.delegate &&
+        [self.delegate respondsToSelector:@selector(cellShouldBeginEditing:)]) {
         beginEditing = [self.delegate cellShouldBeginEditing:self];
     }
-    
+
     // Update internal state.
     if (beginEditing) {
         self.isInlineEditing = YES;
     }
-    
+
     return beginEditing;
 }
 
 - (void)textViewDidEndEditing:(UITextField *)textField {
     // Notify the cell delegate that editing ended.
-    if (self.delegate && [self.delegate respondsToSelector:@selector(cellDidEndEditing:)]) {
+    if (self.delegate &&
+        [self.delegate respondsToSelector:@selector(cellDidEndEditing:)]) {
         [self.delegate cellDidEndEditing:self];
     }
-    
+
     // Update internal state.
     self.isInlineEditing = NO;
 }

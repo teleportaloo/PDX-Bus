@@ -1,0 +1,142 @@
+//
+//  DayOfTheWeekViewController.m
+//  PDX Bus
+//
+//  Created by Andrew Wallace on 2/26/11.
+//  Copyright 2011. All rights reserved.
+//
+
+
+
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+
+#import "DayOfTheWeekViewController.h"
+#import "EditBookMarkViewController.h"
+#import "SegmentCell.h"
+#import "UserParams.h"
+
+#define kCommuteSectionSegAm 0
+#define kCommuteSectionSegPm 1
+
+#define kAmOrPmId @"AmOrPm"
+#define kDayOfWeekId @"DayOfWeek"
+
+@interface DayOfTheWeekViewController ()
+
+@end
+
+@implementation DayOfTheWeekViewController
+
+#define kMorningOrEvening (1) // 1 is not used!
+#define kSection (0)
+
+- (int)days {
+    return self.originalFave.valDayOfWeek;
+}
+
+- (bool)autoCommuteMorning {
+    return self.originalFave.valMorning;
+}
+
+#pragma mark Segmented controls
+
+- (void)amOrPmSegmentChanged:(UISegmentedControl *)sender {
+    switch (sender.selectedSegmentIndex) {
+    case kCommuteSectionSegAm:
+        self.originalFave.valMorning = true;
+        break;
+
+    case kCommuteSectionSegPm:
+        self.originalFave.valMorning = false;
+        break;
+    }
+}
+
+#pragma mark TableViewWithToolbar methods
+
+- (UITableViewStyle)style {
+    return UITableViewStyleGrouped;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView
+    heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    if ([self rowType:indexPath] != kMorningOrEvening) {
+        return [self basicRowHeight];
+    }
+
+    return [SegmentCell rowHeight];
+}
+
+// Customize the appearance of table view cells.
+- (UITableViewCell *)tableView:(UITableView *)tableView
+         cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSInteger rowType = [self rowType:indexPath];
+
+    if (rowType != kMorningOrEvening) {
+        UITableViewCell *cell = [self tableView:tableView
+                        cellWithReuseIdentifier:kDayOfWeekId];
+        cell.textLabel.text = [NSString
+            stringWithFormat:NSLocalizedString(
+                                 @"Every %@",
+                                 @"before a list of the days of the week"),
+                             [EditBookMarkViewController
+                                 daysString:(int)rowType]];
+        cell.textLabel.font = self.basicFont;
+
+        if ((self.days & rowType) != 0) {
+            cell.accessoryType = UITableViewCellAccessoryCheckmark;
+        } else {
+            cell.accessoryType = UITableViewCellAccessoryNone;
+        }
+
+        return cell;
+    } else {
+        return [SegmentCell
+                  tableView:tableView
+            reuseIdentifier:kAmOrPmId
+            cellWithContent:@[
+                NSLocalizedString(@"Morning", @"commuter bookmark option"),
+                NSLocalizedString(@"Afternoon", @"commuter bookmark option")
+            ]
+                     target:self
+                     action:@selector(amOrPmSegmentChanged:)
+              selectedIndex:[self autoCommuteMorning] ? kCommuteSectionSegAm
+                                                      : kCommuteSectionSegPm];
+    }
+}
+
+- (void)tableView:(UITableView *)tableView
+    didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    unsigned int days = self.days;
+    unsigned int rowType = (unsigned int)[self rowType:indexPath];
+
+    if (rowType != kMorningOrEvening) {
+        days = days ^ rowType;
+        self.originalFave.valDayOfWeek = days;
+    }
+
+    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+    [self.tableView reloadRowsAtIndexPaths:@[ indexPath ] withRowAnimation:NO];
+}
+
+- (void)viewDidLoad {
+    self.title = NSLocalizedString(@"Days of the week", @"screen title");
+
+    [self clearSectionMaps];
+    [self addSectionType:kSection];
+    [self addRowType:kDayMon];
+    [self addRowType:kDayTue];
+    [self addRowType:kDayWed];
+    [self addRowType:kDayThu];
+    [self addRowType:kDayFri];
+    [self addRowType:kDaySat];
+    [self addRowType:kDaySun];
+    [self addRowType:kMorningOrEvening];
+
+    [super viewDidLoad];
+}
+
+@end

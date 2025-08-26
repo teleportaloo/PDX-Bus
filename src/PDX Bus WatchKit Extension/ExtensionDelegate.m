@@ -13,36 +13,38 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+#define DEBUG_LEVEL_FOR_FILE LogUI
 
 #import "ExtensionDelegate.h"
-#import "WatchBookmarksInterfaceController.h"
-#import "DebugLogging.h"
-#import "ArrivalsIntent.h"
 #import "AlertInterfaceController.h"
-#import "NSString+Helper.h"
+#import "ArrivalsIntent.h"
+#import "DebugLogging.h"
+#import "NSString+MoreMarkup.h"
+#import "UserParams.h"
+#import "WatchBookmarksInterfaceController.h"
 
 @implementation ExtensionDelegate
 
-
 - (void)applicationDidFinishLaunching {
     self.justLaunched = YES;
-    
+
     DEBUG_LOG(@"Watch: %d-bit", (int)(sizeof(NSInteger) * 8));
 }
 
 - (void)applicationDidBecomeActive {
     DEBUG_FUNC();
     WKExtension *extension = [WKExtension sharedExtension];
-    
+
     if (extension.rootInterfaceController != nil) {
-        WatchBookmarksInterfaceController *root = (WatchBookmarksInterfaceController *)extension.rootInterfaceController;
-        
+        WatchBookmarksInterfaceController *root =
+            (WatchBookmarksInterfaceController *)
+                extension.rootInterfaceController;
+
         [root applicationDidBecomeActive];
     }
-    
+
     self.backgrounded = NO;
-    
+
     if (self.wakeDelegate) {
         DEBUG_LOG(@"Found a wake delegate");
         [_wakeDelegate extentionForgrounded];
@@ -66,35 +68,48 @@
 
 - (void)handleActivity:(NSUserActivity *)userActivity {
     DEBUG_FUNC();
-    
+
     if (@available(watchOS 5.0, *)) {
         WKExtension *extension = [WKExtension sharedExtension];
-        
+
         INInteraction *interaction = userActivity.interaction;
         INIntent *intent = nil;
-        
-        WatchBookmarksInterfaceController *root = (WatchBookmarksInterfaceController *)extension.rootInterfaceController;
-        
-        DEBUG_LOGO(userActivity.userInfo);
-        
+
+        WatchBookmarksInterfaceController *root =
+            (WatchBookmarksInterfaceController *)
+                extension.rootInterfaceController;
+
+        DEBUG_LOG_description(userActivity.userInfo);
+
         if (interaction) {
             intent = interaction.intent;
         }
-        
+
         if (intent && [intent isKindOfClass:[ArrivalsIntent class]]) {
             ArrivalsIntent *arrivals = (ArrivalsIntent *)intent;
-            root.userActivity = [[NSUserActivity alloc] initWithActivityType:kHandoffUserActivityBookmark];
-            root.userActivity.userInfo = @{ kUserFavesLocation: arrivals.stops, kUserFavesChosenName: arrivals.locationName  };
+            root.userActivity = [[NSUserActivity alloc]
+                initWithActivityType:kHandoffUserActivityBookmark];
+            root.userActivity.userInfo =
+                [MutableUserParams withChosenName:arrivals.locationName
+                                         location:arrivals.stops]
+                    .dictionary;
             [root processUserActivity];
-        } else if ([userActivity.activityType isEqualToString:kHandoffUserActivityBookmark]) {
-            if (userActivity.userInfo && userActivity.userInfo[kUserFavesTrip] != nil) {
-                [root pushControllerWithName:kAlertScene context:
-                 [@"#b#WSorry, the PDX Bus watch app does not support Trip Planing." attributedStringFromMarkUpWithFont:[UIFont systemFontOfSize:16]]];
+        } else if ([userActivity.activityType
+                       isEqualToString:kHandoffUserActivityBookmark]) {
+            if (userActivity.userInfo &&
+                userActivity.userInfo.userParams.immutableTrip != nil) {
+                [root pushControllerWithName:kAlertScene
+                                     context:
+                                         [@"#b#WSorry, the PDX Bus watch app "
+                                          @"does not support Trip Planning."
+                                             attributedStringFromMarkUpWithFont:
+                                                 [UIFont systemFontOfSize:16]]];
             } else {
                 root.userActivity = userActivity;
                 [root processUserActivity];
             }
-        } else if ([userActivity.activityType isEqualToString:kHandoffUserActivityLocation]) {
+        } else if ([userActivity.activityType
+                       isEqualToString:kHandoffUserActivityLocation]) {
             root.userActivity = userActivity;
             [root processUserActivity];
         }
@@ -103,7 +118,9 @@
     }
 }
 
-- (void)handleIntent:(INIntent *)intent completionHandler:(void (^)(INIntentResponse *intentResponse))completionHandler {
+- (void)handleIntent:(INIntent *)intent
+    completionHandler:
+        (void (^)(INIntentResponse *intentResponse))completionHandler {
 }
 
 @end

@@ -10,19 +10,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <UIKit/UIKit.h>
 #import "Route.h"
 #import "TriMetXML.h"
 
-
-@interface XMLRoutes : TriMetXML<Route *>
+@interface XMLRoutes : TriMetXML <Route *>
 
 - (BOOL)getRoutesCacheAction:(CacheAction)cacheAction;
 - (BOOL)getDirections:(NSString *)route cacheAction:(CacheAction)cacheAction;
 - (BOOL)getAllDirectionsCacheAction:(CacheAction)cacheAction;
 - (BOOL)getStops:(NSString *)route cacheAction:(CacheAction)cacheAction;
 
-+ (NSDictionary<NSString *, Stop *>*)getAllRailStops;
-- (NSDictionary<NSString *, Stop *>*)getAllRailStops;
++ (NSDictionary<NSString *, Stop *> *)getAllRailStops;
+- (NSDictionary<NSString *, Stop *> *)getAllRailStops;
 
 @end

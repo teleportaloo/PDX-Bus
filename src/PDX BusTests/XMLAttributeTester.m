@@ -13,13 +13,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-
-
 #import "XMLAttributeTester.h"
-#import "../PDXBusCore/src/TriMetXMLSelectors.h"
-#import "../PDXBusCore/src/NSDictionary+Types.h"
 #import "../PDXBusCore/src/CLLocation+Helper.h"
-
+#import "../PDXBusCore/src/NSDictionary+Types.h"
+#import "../PDXBusCore/src/TriMetXMLSelectors.h"
 
 @implementation XMLAttributeTester
 
@@ -27,21 +24,17 @@
     return query;
 }
 
-XML_START_ELEMENT(action)
-{
-    self.action(XML_ATR_DICT, self);
-}
+XML_START_ELEMENT(action) { self.action(XML_ATR_DICT, self); }
 
 XML_START_ELEMENT(resultSet) {
     [self initItems];
     _hasData = YES;
-    
-    self.queryTime      = XML_ATR_DATE(@"queryTime");
+
+    self.queryTime = XML_ATR_DATE(@"queryTime");
 }
 
 - (id)nextItem {
-    if (self.itemPos < self.items.count)
-    {
+    if (self.itemPos < self.items.count) {
         return self.items[self.itemPos++];
     }
     return nil;

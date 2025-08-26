@@ -28,10 +28,10 @@
 
 + (instancetype)coordWithLat:(CLLocationDegrees)lat lng:(CLLocationDegrees)lng {
     ShapeCoord *coord = [[[self class] alloc] init];
-    
+
     coord.latitude = lat;
     coord.longitude = lng;
-    
+
     return coord;
 }
 
@@ -54,7 +54,7 @@
 - (instancetype)init {
     if ((self = [super init])) {
     }
-    
+
     return self;
 }
 

@@ -13,36 +13,41 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#define DEBUG_LEVEL_FOR_FILE kLogIntents
+#define DEBUG_LEVEL_FOR_FILE LogIntents
 
 #import "WatchArrivalsIntentHandler.h"
-#import "UserState.h"
-#import "DebugLogging.h"
-#import "ArrivalsResponseFactory.h"
 #import "ArrivalsAtStopIdResponseFactory.h"
+#import "ArrivalsResponseFactory.h"
+#import "DebugLogging.h"
+#import "UserState.h"
 
 @implementation WatchArrivalsIntentHandler
 
-
-- (void)handleArrivals:(ArrivalsIntent *)intent completion:(void (^)(ArrivalsIntentResponse *response))completion {
+- (void)handleArrivals:(ArrivalsIntent *)intent
+            completion:(void (^)(ArrivalsIntentResponse *response))completion {
     DEBUG_FUNC();
-    
+
     if (@available(watchOS 5.0, *)) {
-        ArrivalsIntentResponse *response = [ArrivalsResponseFactory responseForStops:intent.stops];
+        ArrivalsIntentResponse *response =
+            [ArrivalsResponseFactory responseForStops:intent.stops];
         completion(response);
     } else {
         // Fallback on earlier versions
     }
 }
 
-- (void)handleArrivalsAtStopId:(ArrivalsAtStopIdIntent *)intent completion:(void (^)(ArrivalsAtStopIdIntentResponse *response))completion {
+- (void)handleArrivalsAtStopId:(ArrivalsAtStopIdIntent *)intent
+                    completion:
+                        (void (^)(ArrivalsAtStopIdIntentResponse *response))
+                            completion {
     DEBUG_FUNC();
-    
+
     if (intent.stop == nil) {
-        completion([ArrivalsAtStopIdResponseFactory arrivalsRespond:ArrivalsAtStopIdIntentResponseCodeFailure]);
+        completion([ArrivalsAtStopIdResponseFactory
+            arrivalsRespond:ArrivalsAtStopIdIntentResponseCodeFailure]);
         return;
     }
-    
+
     completion([ArrivalsAtStopIdResponseFactory responseForStop:intent.stop]);
     return;
 }
@@ -50,10 +55,10 @@
 #ifdef DEBUGLOGGING
 - (bool)respondsToSelector:(SEL)aSelector {
     bool responds = [super respondsToSelector:aSelector];
-    
-    DEBUG_LOGS(NSStringFromSelector(aSelector));
-    DEBUG_LOGB(responds);
-    
+
+    DEBUG_LOG_NSString(NSStringFromSelector(aSelector));
+    DEBUG_LOG_BOOL(responds);
+
     return responds;
 }
 

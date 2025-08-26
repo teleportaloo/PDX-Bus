@@ -17,7 +17,10 @@
 
 @interface StopNameCacheManager : QueryCacheManager
 
-- (NSDictionary *_Nonnull)getStopNames:(NSArray<NSString *> *_Nonnull)stopIds fetchAndCache:(bool)fetchAndCache updated:(bool *_Nullable)updated completion:(void (^__nullable)(int item))completion;
+- (NSDictionary *_Nonnull)getStopNames:(NSArray<NSString *> *_Nonnull)stopIds
+                         fetchAndCache:(bool)fetchAndCache
+                               updated:(bool *_Nullable)updated
+                            completion:(void (^__nullable)(int item))completion;
 
 + (NSString *_Nullable)getShortName:(NSArray *_Nullable)data;
 + (NSString *_Nullable)getLongName:(NSArray *_Nullable)data;

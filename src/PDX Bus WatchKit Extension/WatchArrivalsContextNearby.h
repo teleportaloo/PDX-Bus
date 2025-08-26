@@ -18,6 +18,7 @@
 
 @interface WatchArrivalsContextNearby : WatchArrivalsContext
 
-+ (WatchArrivalsContextNearby *)contextFromNearbyStops:(XMLLocateStops *)stops index:(NSInteger)index;
++ (WatchArrivalsContextNearby *)contextFromNearbyStops:(XMLLocateStops *)stops
+                                                 index:(NSInteger)index;
 
 @end

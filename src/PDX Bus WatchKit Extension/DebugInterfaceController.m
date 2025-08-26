@@ -14,8 +14,9 @@
 
 
 #import "DebugInterfaceController.h"
-#import "UserState.h"
 #import "DebugLogging.h"
+#import "UserParams.h"
+#import "UserState.h"
 
 @interface DebugInterfaceController ()
 
@@ -23,37 +24,43 @@
 
 @implementation DebugInterfaceController
 
-
-
 - (void)reloadData {
-    NSDictionary *commuter = [UserState.sharedInstance checkForCommuterBookmarkShowOnlyOnce:NO];
-    
+    NSDictionary *commuter =
+        [UserState.sharedInstance checkForCommuterBookmarkShowOnlyOnce:NO];
+
     if (commuter == nil) {
-        self.CommuterStatus.text = @"No commuter bookmark configured for this time.";
+        self.CommuterStatus.text =
+            @"No commuter bookmark configured for this time.";
     } else {
         NSDate *lastRun = UserState.sharedInstance.lastRun;
-        
-        self.CommuterStatus.text = commuter[kUserFavesChosenName];
-        
+        UserParams *params = commuter.userParams;
+
+        self.CommuterStatus.text = params.valChosenName;
+
         if (lastRun != nil) {
-            self.CommuterStatus.text = [NSString stringWithFormat:@"%@ last run %@",
-                                        commuter[kUserFavesChosenName],
-                                        [NSDateFormatter localizedStringFromDate:lastRun dateStyle:NSDateFormatterMediumStyle timeStyle:NSDateFormatterMediumStyle]];
+            self.CommuterStatus.text = [NSString
+                stringWithFormat:
+                    @"%@ last run %@", params.valChosenName,
+                    [NSDateFormatter
+                        localizedStringFromDate:lastRun
+                                      dateStyle:NSDateFormatterMediumStyle
+                                      timeStyle:NSDateFormatterMediumStyle]];
         } else {
-            self.CommuterStatus.text = commuter[kUserFavesChosenName];
+            self.CommuterStatus.text = commuter.userParams.valChosenName;
         }
     }
 }
 
 - (void)awakeWithContext:(id)context {
     [super awakeWithContext:context];
-    
+
     // Configure interface objects here.
     [self reloadData];
 }
 
 - (void)willActivate {
-    // This method is called when watch view controller is about to be visible to user
+    // This method is called when watch view controller is about to be visible
+    // to user
     [super willActivate];
 }
 
@@ -64,13 +71,13 @@
 
 - (IBAction)ClearCommuterBookmark {
     UserState *prefs = UserState.sharedInstance;
-    
+
     prefs.readOnly = NO;
-    
+
     [UserState.sharedInstance setLastRun:nil];
-    
+
     prefs.readOnly = YES;
-    
+
     [self reloadData];
 }
 

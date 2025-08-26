@@ -13,12 +13,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+#define DEBUG_LEVEL_FOR_FILE LogUI
 
 #import "TripItemCell.h"
-#import "ViewControllerBase.h"
 #import "DebugLogging.h"
-#import "NSString+Helper.h"
+#import "NSString+Core.h"
+#import "NSString+MoreMarkup.h"
+#import "ViewControllerBase.h"
+#import "UIApplication+Compat.h"
 
 @interface TripItemCell () {
     NSString *_markedUpBodyText;
@@ -28,14 +30,13 @@
 
 @implementation TripItemCell
 
-#define kTextViewFontSize      15.0
+#define kTextViewFontSize 15.0
 #define kTextViewLargeFontSize 20.0
-#define kBoldFontName          @"Helvetica-Bold"   //@"Arial-BoldMT"
-#define kFontName              @"Helvetica"
+#define kBoldFontName @"Helvetica-Bold" //@"Arial-BoldMT"
+#define kFontName @"Helvetica"
 
 @dynamic large;
 @dynamic markedUpBodyText;
-
 
 - (void)populateMarkedUpBody:(NSString *)markedUpBody
                         mode:(NSString *)mode
@@ -45,24 +46,27 @@
     if (col == nil) {
         col = [UIColor grayColor];
     }
-    
+
     if (time == nil) {
-        self.modeLabel.text = mode; //  @"1 2 3 4 5 6 7 8 9 a b c d e f g h i j k l m n";
+        self.modeLabel.text =
+            mode; //  @"1 2 3 4 5 6 7 8 9 a b c d e f g h i j k l m n";
     } else {
         self.modeLabel.text = [NSString stringWithFormat:@"%@\n%@", mode, time];
     }
-    
+
     self.modeLabel.textColor = col;
-    
-    self.markedUpBodyText = markedUpBody; // @"the quick brown fox jumped over the lazy dog's tail and yelped as he did it.  Yes he did.";
-    
+
+    self.markedUpBodyText =
+        markedUpBody; // @"the quick brown fox jumped over the lazy dog's tail
+                      // and yelped as he did it.  Yes he did.";
+
     DEBUG_LOG(@"Width: %f\n", self.bodyLabel.bounds.size.width);
     DEBUG_LOG(@"Text: %@\n", markedUpBody);
-    
-    
+
     [self.routeColorView setRouteColor:route];
-    
-    //    DEBUG_LOG(@"Route: %@  body %@ r %f g %f b %f\n", route, body, colorStripe.red, colorStripe.green, colorStripe.blue);
+
+    //    DEBUG_LOG(@"Route: %@  body %@ r %f g %f b %f\n", route, body,
+    //    colorStripe.red, colorStripe.green, colorStripe.blue);
     [self update];
 }
 
@@ -72,7 +76,8 @@
 
 - (void)setMarkedUpBodyText:(NSString *)markedUpBodyText {
     _markedUpBodyText = markedUpBodyText;
-    self.bodyLabel.attributedText = [self.markedUpBodyText attributedStringFromMarkUpWithFont:self.bodyFont];
+    self.bodyLabel.attributedText = [self.markedUpBodyText
+        attributedStringFromMarkUpWithFont:self.bodyFont];
 }
 
 - (void)awakeFromNib {
@@ -82,36 +87,35 @@
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
     [super setSelected:selected animated:animated];
-    
+
     // Configure the view for the selected state
 }
 
 - (bool)large {
-    // DEBUG_LOGF([UIApplication sharedApplication].delegate.window.bounds.size.width);
     return LARGE_SCREEN;
 }
 
 - (UIFont *)bodyFont {
     UIFont *font = nil;
-    
+
     if (SMALL_SCREEN) {
         font = [UIFont fontWithName:kFontName size:kTextViewFontSize];
     } else {
         font = [UIFont fontWithName:kFontName size:kTextViewLargeFontSize];
     }
-    
+
     return font;
 }
 
 - (UIFont *)boldBodyFont {
     UIFont *font = nil;
-    
+
     if (SMALL_SCREEN) {
         font = [UIFont fontWithName:kBoldFontName size:kTextViewFontSize];
     } else {
         font = [UIFont fontWithName:kBoldFontName size:kTextViewLargeFontSize];
     }
-    
+
     return font;
 }
 
@@ -119,17 +123,20 @@
     if (label.attributedText != nil) {
         return label.attributedText.string;
     }
-    
+
     return label.text;
 }
 
 - (void)update {
     self.modeLabel.font = self.boldBodyFont;
-    self.bodyLabel.attributedText = [self.markedUpBodyText attributedStringFromMarkUpWithFont:self.bodyFont];
+    self.bodyLabel.attributedText = [self.markedUpBodyText
+        attributedStringFromMarkUpWithFont:self.bodyFont];
     self.modeLabelWidth.constant = self.large ? 100.0 : 75.0;
-    
-    self.accessibilityLabel = [NSString stringWithFormat:@"%@, ,%@",
-                               [self labelText:self.modeLabel],  [self labelText:self.bodyLabel]].phonetic;
+
+    self.accessibilityLabel =
+        [NSString stringWithFormat:@"%@, ,%@", [self labelText:self.modeLabel],
+                                   [self labelText:self.bodyLabel]]
+            .phonetic;
 }
 
 - (void)layoutSubviews {

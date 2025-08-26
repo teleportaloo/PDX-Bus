@@ -22,7 +22,7 @@
     if ((self = [super init])) {
         self.stops = [NSMutableArray array];
     }
-    
+
     return self;
 }
 
@@ -33,15 +33,15 @@
 - (NSComparisonResult)compareUsingDistance:(RouteDistance *)inRoute {
     StopDistance *stop = self.stops.firstObject;
     StopDistance *inStop = inRoute.stops.firstObject;
-    
+
     if (stop.distanceMeters < inStop.distanceMeters) {
         return NSOrderedAscending;
     }
-    
+
     if (stop.distanceMeters > inStop.distanceMeters) {
         return NSOrderedDescending;
     }
-    
+
     return NSOrderedSame;
 }
 

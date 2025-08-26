@@ -17,5 +17,4 @@
 
 @implementation WatchBookmark
 
-
 @end

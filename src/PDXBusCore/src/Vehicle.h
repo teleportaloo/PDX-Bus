@@ -13,40 +13,38 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
 #import "TriMetXML.h"
 #import <CoreLocation/CoreLocation.h>
+#import <Foundation/Foundation.h>
 
-#define kNoVehicles           @"PDX Bus could not find a bus or train close by. Note - Streetcar is not supported.  Try again in a few moments as the vehicle locations may be updated."
-
-#define kVehicleTypeBus       @"bus"
-#define kVehicleTypeTrain     @"rail"
+#define kVehicleTypeBus @"bus"
+#define kVehicleTypeTrain @"rail"
 #define kVehicleTypeStreetcar @"streetcar"
 
 // #define VEHICLE_TEST 1
 
 @interface Vehicle : NSObject
 
-@property (nonatomic, copy) NSString *signMessageLong;
-@property (nonatomic, strong) NSDate *locationTime;
-@property (nonatomic, strong) CLLocation *location;
-@property (nonatomic, copy) NSString *signMessage;
-@property (nonatomic, copy) NSString *routeNumber;
-@property (nonatomic, copy) NSString *direction;
-@property (nonatomic, copy) NSString *vehicleId;
-@property (nonatomic, copy) NSString *nextStopId;
-@property (nonatomic, copy) NSString *lastStopId;
-@property (nonatomic, copy) NSString *bearing;
-@property (nonatomic, copy) NSString *garage;
-@property (nonatomic, copy) NSString *block;
-@property (nonatomic, copy) NSString *type;
-@property (nonatomic)       NSInteger loadPercentage;
-@property (nonatomic, copy) NSString *speedKmHr;
-@property (nonatomic)       bool inCongestion;
-@property (nonatomic)       bool offRoute;
-@property (nonatomic, copy) NSString *delay;
+@property(nonatomic, copy) NSString *signMessageLong;
+@property(nonatomic, strong) NSDate *locationTime;
+@property(nonatomic, strong) CLLocation *location;
+@property(nonatomic, copy) NSString *signMessage;
+@property(nonatomic, copy) NSString *routeNumber;
+@property(nonatomic, copy) NSString *direction;
+@property(nonatomic, copy) NSString *vehicleId;
+@property(nonatomic, copy) NSString *nextStopId;
+@property(nonatomic, copy) NSString *lastStopId;
+@property(nonatomic, copy) NSString *bearing;
+@property(nonatomic, copy) NSString *garage;
+@property(nonatomic, copy) NSString *block;
+@property(nonatomic, copy) NSString *type;
+@property(nonatomic) NSInteger loadPercentage;
+@property(nonatomic, copy) NSString *speedKmHr;
+@property(nonatomic) bool inCongestion;
+@property(nonatomic) bool offRoute;
+@property(nonatomic, copy) NSString *delay;
 
-@property (nonatomic) double distance;
+@property(nonatomic) double distance;
 
 - (bool)typeMatchesMode:(TripMode)mode;
 

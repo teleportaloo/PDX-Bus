@@ -17,6 +17,6 @@
 
 @interface FilledCircleView : UIView
 
-@property (nonatomic, strong) UIColor *fillColor;
+@property(nonatomic, strong) UIColor *fillColor;
 
 @end

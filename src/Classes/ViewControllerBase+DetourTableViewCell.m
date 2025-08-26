@@ -15,37 +15,38 @@
 
 #import "ViewControllerBase+DetourTableViewCell.h"
 
-#import "TripPlannerSummaryView.h"
-#import "DepartureTimesView.h"
-#import "MapViewWithDetourStops.h"
-#import "DirectionView.h"
+#import "DepartureTimesViewController.h"
+#import "DirectionViewController.h"
+#import "MapViewControllerWithDetourStops.h"
+#import "TripPlannerSummaryViewController.h"
 
 @implementation ViewControllerBase (DetourTableViewCell)
 
-- (bool)detourLink:(NSString *)link detour:(Detour *)detour source:(UIView*)view {
+- (bool)detourLink:(NSString *)link
+            detour:(Detour *)detour
+            source:(UIView *)view {
     if ([self linkAction:link source:view]) {
         if ([link isEqualToString:@"detourmap:"]) {
             if ([self canGoDeeperAlert]) {
-                [[MapViewWithDetourStops viewController] fetchLocationsMaybeAsync:self.backgroundTask
-                                                                          detours:[NSArray arrayWithObject:detour]
-                                                                              nav:self.navigationController];
+                [[MapViewControllerWithDetourStops viewController]
+                    fetchLocationsMaybeAsync:self.backgroundTask
+                                     detours:[NSArray arrayWithObject:detour]
+                                         nav:self.navigationController];
             }
             return NO;
-        }
-        else
-        {
+        } else {
             return YES;
         }
     }
-    
+
     return NO;
 }
 
 - (DetourUrlAction)detourActionCalback {
     __weak __typeof__(self) weakSelf = self;
-    
-    return ^bool (DetourTableViewCell *cell, NSString *url) {
-        return [weakSelf detourLink:url detour:cell.detour source:cell];
+
+    return ^bool(DetourTableViewCell *cell, NSString *url) {
+      return [weakSelf detourLink:url detour:cell.detour source:cell];
     };
 }
 

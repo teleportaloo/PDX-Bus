@@ -13,15 +13,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import "ViewControllerBase.h"
 #import "MapPin.h"
+#import "ViewControllerBase.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface ViewControllerBase (MapPinAction)
 
-- (bool (^__nullable)(id<MapPin> pin, NSURL *url, UIView *source))linkActionForPin;
-
+- (bool (^__nullable)(id<MapPin> pin, NSURL *url,
+                      UIView *source))linkActionForPin;
 
 @end
 

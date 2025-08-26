@@ -13,12 +13,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#import "WatchRow.h"
 #import <Foundation/Foundation.h>
 #import <WatchKit/WatchKit.h>
-#import "WatchRow.h"
 
 @interface WatchArrivalMap : WatchRow
 
-@property (strong, nonatomic) IBOutlet WKInterfaceMap *map;
+@property(strong, nonatomic) IBOutlet WKInterfaceMap *map;
 
 @end

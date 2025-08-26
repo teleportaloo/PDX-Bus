@@ -13,11 +13,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <WatchKit/WatchKit.h>
 #import <Foundation/Foundation.h>
+#import <WatchKit/WatchKit.h>
 
 @interface DebugInterfaceController : WKInterfaceController
 - (IBAction)ClearCommuterBookmark;
-@property (strong, nonatomic) IBOutlet WKInterfaceLabel *CommuterStatus;
+@property(strong, nonatomic) IBOutlet WKInterfaceLabel *CommuterStatus;
 
 @end

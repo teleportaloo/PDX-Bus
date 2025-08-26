@@ -10,15 +10,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import "XMLDepartures+iOSUI.h"
-#import "Departure.h"
 #import "DebugLogging.h"
+#import "Departure.h"
 #import "DepartureData+iOSUI.h"
+#import "XMLDepartures+iOSUI.h"
 
 @implementation XMLDepartures (iOSUI)
 
 #pragma mark Map Pin callbacks
-
 
 - (NSString *)pinStopId {
     return self.stopId;
@@ -28,8 +27,7 @@
     return YES;
 }
 
-- (NSString *)pinMarkedUpType
-{
+- (NSString *)pinMarkedUpType {
     return nil;
 }
 
@@ -53,7 +51,10 @@
 }
 
 - (Departure *)depGetDeparture:(NSInteger)i {
-    return self[i];
+    if (i < self.count) {
+        return self[i];
+    }
+    return nil;
 }
 
 - (NSInteger)depGetSafeItemCount {
@@ -62,9 +63,10 @@
 
 - (NSString *)depGetSectionHeader {
     if (self.locDir != nil && self.locDir.length != 0) {
-        return [NSString stringWithFormat:@"%@ (%@)", self.locDesc, self.locDir];
+        return
+            [NSString stringWithFormat:@"%@ (%@)", self.locDesc, self.locDir];
     }
-    
+
     return self.locDesc;
 }
 
@@ -72,12 +74,24 @@
     return self.sectionTitle;
 }
 
-- (void)depPopulateCell:(Departure *)dd cell:(DepartureCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide {
+- (void)depPopulateCell:(Departure *)dd
+                   cell:(DepartureCell *)cell
+               decorate:(BOOL)decorate
+                   wide:(BOOL)wide {
     [dd populateCell:cell decorate:decorate busName:YES fullSign:wide];
 }
 
 - (NSString *)depStaticText {
-    return [NSString stringWithFormat:@"Stop ID %@.", self.stopId];
+
+    NSString *status = @"";
+
+    if (self.reportingStatus != ReportingStatusNone) {
+        status =
+            [NSString stringWithFormat:@" #R%@#K", self.reportingStatusText];
+    }
+
+    return
+        [NSString stringWithFormat:@"#b#KStop ID %@.%@", self.stopId, status];
 }
 
 - (StopDistance *)depDistance {

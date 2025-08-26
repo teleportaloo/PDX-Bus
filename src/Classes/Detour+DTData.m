@@ -18,7 +18,6 @@
 
 @implementation Detour (DTData)
 
-
 - (id)depXML {
     return self;
 }
@@ -35,7 +34,7 @@
     if ([Settings isHiddenSystemWideDetour:self.detourId]) {
         return nil;
     }
-    
+
     return self.headerText;
 }
 
@@ -43,7 +42,10 @@
     return nil;
 }
 
-- (void)depPopulateCell:(Departure *)dd cell:(DepartureCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide {
+- (void)depPopulateCell:(Departure *)dd
+                   cell:(DepartureCell *)cell
+               decorate:(BOOL)decorate
+                   wide:(BOOL)wide {
     // [dd populateCell:cell decorate:decorate busName:YES wide:wide];
 }
 

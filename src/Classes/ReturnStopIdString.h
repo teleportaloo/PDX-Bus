@@ -14,8 +14,9 @@
 
 @protocol ReturnStopIdString <NSObject>
 
-@property (nonatomic, readonly, strong) UIViewController *returnStopIdStringController;
-@property (nonatomic, readonly, copy) NSString *returnStopIdStringActionText;
+@property(nonatomic, readonly, strong)
+    UIViewController *returnStopIdStringController;
+@property(nonatomic, readonly, copy) NSString *returnStopIdStringActionText;
 
 - (void)returnStopIdString:(NSString *)stopId desc:(NSString *)desc;
 

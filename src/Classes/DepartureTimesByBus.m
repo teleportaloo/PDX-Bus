@@ -22,26 +22,28 @@
 
 @implementation DepartureTimesByBus
 
-
 - (instancetype)init {
     if ((self = [super init])) {
         self.departureItems = [NSMutableArray array];
     }
-    
+
     return self;
 }
 
 #pragma mark Data Accessors
 
 - (Departure *)depGetDeparture:(NSInteger)i {
-    return self.departureItems[i];
+    if (i < self.departureItems.count) {
+        return self.departureItems[i];
+    }
+    return nil;
 }
 
 - (NSInteger)depGetSafeItemCount {
     if (self.departureItems == nil) {
         return 0;
     }
-    
+
     return self.departureItems.count;
 }
 
@@ -53,22 +55,29 @@
     return nil;
 }
 
-- (void)depPopulateCell:(Departure *)dd cell:(DepartureCell *)cell decorate:(BOOL)decorate wide:(BOOL)wide {
+- (void)depPopulateCell:(Departure *)dd
+                   cell:(DepartureCell *)cell
+               decorate:(BOOL)decorate
+                   wide:(BOOL)wide {
     [dd populateCell:cell decorate:decorate busName:NO fullSign:wide];
 }
 
 - (NSString *)depStaticText {
     Departure *d = [self depGetDeparture:0];
-    
+
     if (d.block != nil) {
         if (d.vehicleIds && d.vehicleIds.count > 0) {
-            return [NSString stringWithFormat:NSLocalizedString(@"(Vehicle ID %@) ", @"trip info small text"), d.vehicleIds[0]];
+            return [NSString
+                stringWithFormat:NSLocalizedString(@"#K#b(Vehicle ID %@) ",
+                                                   @"trip info small text"),
+                                 d.vehicleIds[0]];
         }
-        
+
         return @"(No Vehicle ID)";
     }
-    
-    return NSLocalizedString(@"(" kBlockNameC "Trip ID unavailable)", @"error text");
+
+    return NSLocalizedString(@"#b#R(" kBlockNameC "Trip ID unavailable)",
+                             @"error text");
 }
 
 - (StopDistance *)depDistance {
@@ -85,7 +94,7 @@
 
 - (NSString *)depLocDesc {
     Departure *dep = [self depGetDeparture:0];
-    
+
     return dep.locationDesc;
 }
 

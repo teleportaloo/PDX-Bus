@@ -12,7 +12,6 @@
 
 #import "Route+iOS.h"
 
-
 @implementation Route (iOS)
 
 - (NSString *)stringToFilter {

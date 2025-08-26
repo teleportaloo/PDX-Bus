@@ -13,16 +13,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <WatchKit/WatchKit.h>
 #import <Foundation/Foundation.h>
+#import <WatchKit/WatchKit.h>
 
 @interface WatchContext : NSObject
 
-@property (nonatomic, copy)   NSString *sceneName;
+@property(nonatomic, copy) NSString *sceneName;
 
 + (instancetype)contextWithSceneName:(NSString *)sceneName;
 - (instancetype)initWithSceneName:(NSString *)sceneName;
 - (void)pushFrom:(WKInterfaceController *)parent;
-- (void)delayedPushFrom:(WKInterfaceController *)parent completion:(void (^)(void))completion;
+- (void)delayedPushFrom:(WKInterfaceController *)parent
+             completion:(void (^)(void))completion;
 
 @end

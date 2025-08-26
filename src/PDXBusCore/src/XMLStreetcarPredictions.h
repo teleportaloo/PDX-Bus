@@ -12,17 +12,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
-#import "NextBusXML.h"
 #import "Departure.h"
+#import "NextBusXML.h"
+#import <Foundation/Foundation.h>
 
+@interface XMLStreetcarPredictions : NextBusXML <Departure *>
 
-@interface XMLStreetcarPredictions : NextBusXML<Departure *>
-
-@property (nonatomic, copy)   NSString *blockFilter;
-@property (nonatomic, copy)   NSString *copyright;
-@property (nonatomic, copy)   NSString *nextBusRouteId;
-@property (nonatomic, copy)   NSString *stopTitle;
+@property(nonatomic, copy) NSString *blockFilter;
+@property(nonatomic, copy) NSString *copyright;
+@property(nonatomic, copy) NSString *nextBusRouteId;
+@property(nonatomic, copy) NSString *stopTitle;
 
 - (BOOL)getDeparturesForStopId:(NSString *)location;
 

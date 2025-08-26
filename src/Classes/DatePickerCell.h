@@ -18,7 +18,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface DatePickerCell : UITableViewCell
-@property (strong, nonatomic) IBOutlet UIDatePicker *datePickerView;
+@property(strong, nonatomic) IBOutlet UIDatePicker *datePickerView;
 
 + (UINib *)nib;
 

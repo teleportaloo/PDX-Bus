@@ -21,7 +21,7 @@
     if (self = [super init]) {
         self.detours = [NSMutableArray array];
     }
-    
+
     return self;
 }
 

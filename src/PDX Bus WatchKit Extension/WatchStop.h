@@ -17,6 +17,6 @@
 #import <WatchKit/WatchKit.h>
 
 @interface WatchStop : NSObject
-@property (strong, nonatomic) IBOutlet WKInterfaceLabel *stopName;
+@property(strong, nonatomic) IBOutlet WKInterfaceLabel *stopName;
 
 @end

@@ -13,15 +13,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-
-
 #import "../PDXBusCore/src/TriMetXML.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface XMLToTestCode : TriMetXML
 
-@property (nonatomic, strong) NSMutableString *result;
+@property(nonatomic, strong) NSMutableString *result;
 
 @end
 

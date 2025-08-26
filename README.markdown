@@ -15,7 +15,7 @@ Features include:
 * Links to TriMet route information.
 * Displays Rider Alerts, and Detours.
 * A "Nighttime visibility flasher" - a flashing screen that can be used at night so that drivers can see you. TriMet suggests holding up a cell phone to make yourself visible to bus drivers.
-* Trip Planning - now you can use the same trip planning feature that is available on TriMet's web site.
+* Trip Planning - now you can use the same trip planning feature that is available on TriMet's website.
 * Specially formatted text to work with the iPhone 3GS VoiceOver accessibility feature to speak arrivals.
 
 Route and departure data provided by permission of TriMet.
@@ -59,14 +59,14 @@ to enable it to be of more use.
 
 Links
 -----
-* [PDX Bus Blog](http://pdxbus.teleportaloo.org)
+* [PDX Bus](https://teleportaloo.org/pdx-bus)
 * [PDX Bus in the iTunes store](https://itunes.apple.com/app/pdx-bus-max-streetcar-and-wes/id289814055?mt=8)
-* [PDX Bus on Twitter](http://twitter.com/pdxbus)
 * [PDX Bus on Facebook](http://facebook.com/pdxbus)
+* [PDX Bus on Bluesky](https://bsky.app/profile/pdxbus.bsky.social)
 
 Things to know before building
 ------------------------------
-* PDX Bus is built with the latest iPhone SDK with Xcode 13.3 - available free
+* PDX Bus is built with the latest iPhone SDK with Xcode 16.4 - available free
 from [Apple](http://developer.apple.com) in their Mac App store.
 * Before building this code you will need to register with TriMet 
 to get a free "AppID" from [TriMet](http://developer.trimet.org/registration/),
@@ -121,34 +121,12 @@ choose "Get Info" from the pop-up menu.
 
 ### Attributions
 
-
-* Aha-Soft - some graphics files from Aha-Soft are used under a 
-[Creative Commons Attribution-Share Alike 3.0 License](http://creativecommons.org/licenses/by/3.0/us/). 
-These files are in a separate folder with attributions:
-
-* Attribution:  [http://www.small-icons.com/packs/24x24-free-application-icons.htm](http://www.small-icons.com/packs/24x24-free-application-icons.htm).
-* Attribution:  [http://www.small-icons.com/packs/48x48-free-time-icons.htm](http://www.small-icons.com/packs/48x48-free-time-icons.htm).
-* Attribution:  [http://www.small-icons.com/packs/48x48-free-object-icons.htm](http://www.small-icons.com/packs/48x48-free-object-icons.htm).
-
-* Glyphish Attribution - some graphics files from Gliphish.com are used under a
-[Creative Commons Attribution-Share Alike 3.0 License](http://creativecommons.org/licenses/by/3.0/us/)
-These files are in a separate folder with attribution - 
-[Icons by Joseph Wain / glyphish.com](http://glyphish.com)
-The high-resolution retina toolbar icons are not redistributable so are not 
-included in this distrubution.
-
 * Rob Alan Attribution - some graphics files from Rob Alan are used under a
 [Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License](http://creativecommons.org/licenses/by-nc-sa/3.0/).
 These files are in a separate folder with attribution - [App Icon by Rob Alan](https://twitter.com/robalan)
 
 * The Working Group Attribution - some graphics files from The Working Group are from [The Working Group](http://blog.twg.ca/2009/09/free-iphone-toolbar-icons/) and are used under a 
 [Creative Commons Attribution-Share Alike 3.0 License](http://creativecommons.org/licenses/by/3.0/us/).
-
-* Gentleface Attribution - some graphics files from Gentleface are from [Gentleface](http://gentleface.com/free_icon_set.html) and are used under a 
-[The Creative Commons Attribution-NonCommercial 3.0 License](http://creativecommons.org/licenses/by-nc/3.0/).
-
-* Oxygen Attribution - some graphics files from Oxygen-Icons.org are from [Oxygen Icons](http://www.oxygen-icons.org) and are used under a 
-[Creative Commons Attribution-Share Alike 3.0 License](http://creativecommons.org/licenses/by/3.0/us/)
 
 * Mike Koenig Attribution - the Train Honk file is from Mike Koenig and are used under a 
 [Creative Commons Attribution License](http://creativecommons.org/licenses/by/3.0/)- location
@@ -179,6 +157,67 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Change log
 ----------
+### 11.5.2 (August 2025)
+* Updated for open source
+* Tweaked some static arrays
+* Final fix for common code issues with mutable items in a PList.
+
+### 11.5.1 (August 2025)
+* Refectored static tables for maps so they are initialized at link
+* Fixed rail maps so they no longer need to be touched twice sometimes.
+* Addded extra help for Apple Watch.
+* Refactored test data to make much simpler
+* Removed Skidmore Fountain MAX Station
+
+### 11.5.0 (July 2025)
+* Refactored to use common code
+* Added Tip Jar
+* Minimim iOS version is now iOS 15.
+* Updated Color Picker to use built in picker
+* Removed Google Chrome specific support; OS can pick a default browser now
+
+### 11.4.10 (May 2025)
+* Fixed KML tests
+* Fixed website links
+* Refactored some threading to use macros
+### 11.4.9 (January 2025)
+* Fixed KML tests and crashes and X
+### 11.4.8 (October 2024)
+* Fixed time sensative alerts.
+* Updated UI to include accessories for stations.
+* Fixed timing issue with location services.
+
+### 11.4.7 (October 2024)
+* Fixed a potential leak in the file writes
+* Final updates for Better Red
+* Updated other small bugs (e.g. max replacement busses and accessbility)
+
+### 11.4.6 (April 2024)
+* Optimized file writes to be on separate thread
+
+### 11.4.5 (April 2024)
+* Fixed upload warngings
+* Updated toolbar items to be loaded in background
+
+### 11.4.4 (March 2023)
+* Added Gateway North Station
+* Updated maps and colors.
+* Fixed links to guthub and pnpoly attribution
+* Updated twitter logo
+* Refactored code to separate UIKit dependend code for "Core code"
+* Added new "GenerateArrays" app to make static arrays, at last.
+* Added code to process the "ReportingStatus" section. This was being incorrectly processed.
+* Refactored UI to get all icons in a healper thread
+* Fixed issues with Siri user interface.
+
+### Version 11.4.3 (July 2023)
+* Refreshed static data for timepoints
+* Updated vehicle for Hispanic Heritege bus
+* Updated maps and colors.
+* Minor bugs and fixes
+* ixed occasional crash when locating nearby routes.
+* Fixed Siri shortcuts on the Apple Watch (would not work sometimes)
+* FX:  Added new icon and vehicle info for the new Frequent Express line.
 
 ### Version 11.4.2 (March 2022)
 * Added Aerial Tram to internal list of routes as it has a color, then removed it when the color was also revoked.
@@ -506,7 +545,7 @@ Change log
 * Fixed stop ID 13604 - added NS Line arrivals.
 * Optimized rail maps to use "tiles" - reducing crashes due to memory issues.
 * Added additional informational hotspots to streetcar map.
-* Trip planner min walk distances now match web site (1/10, 1/4, 1/2, 3/4, 1 & 2 miles).
+* Trip planner min walk distances now match website (1/10, 1/4, 1/2, 3/4, 1 & 2 miles).
 * Commuter bookmarks fixed (startup sequence is different in iOS6).
 
 ### Version 6.5 (September 2012)

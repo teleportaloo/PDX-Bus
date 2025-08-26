@@ -13,14 +13,14 @@
 
 
 /* Screen Widths of Devices
- 
- 
+
+
  iPad 2                  768
  iPad Air                768
  iPad Retina             768
- 
+
  iPad Wide               1024
- 
+
  iPhone 4 / 4S           320
  iPhone 5 / 5S           320
  iPhone 6                375
@@ -28,30 +28,32 @@
 
 */
 
-#define kLargeScreenWidth   694
+#define kLargeScreenWidth 694
 
 #ifdef PDXBUS_EXTENSION
-#define LARGE_SCREEN        NO
+#define LARGE_SCREEN NO
 #else
-#define LARGE_SCREEN        ([UIApplication sharedApplication].delegate.window.bounds.size.width >= kLargeScreenWidth)
+#define LARGE_SCREEN                                                           \
+    ((UIApplication.appRect.size.width >= kLargeScreenWidth) ||                \
+     (UIApplication.appRect.size.width == 0 &&                                 \
+      UIScreen.mainScreen.bounds.size.width >= kLargeScreenWidth))
 #endif
 
-#define SMALL_SCREEN            !(LARGE_SCREEN)
-
+#define SMALL_SCREEN !(LARGE_SCREEN)
 
 typedef enum ScreenWidthEnum {
-	WidthiPhone         = 320,
-    WidthiPhone6        = 375,
-    WidthiPhone6Plus    = 414,
-    MaxiPhoneWidth      = 414,
-	WidthBigVariable	= 768,
-	WidthiPadWide	    = 1024
+    WidthiPhone = 320,
+    WidthiPhone6 = 375,
+    WidthiPhone6Plus = 414,
+    MaxiPhoneWidth = 414,
+    WidthBigVariable = 768,
+    WidthiPadWide = 1024
 } ScreenWidth;
 
-#define ScaleFromiPhone(X, W) ((( (double)X) / (double)WidthiPhone) * (double)(W) )
+#define ScaleFromiPhone(X, W)                                                  \
+    ((((double)X) / (double)WidthiPhone) * (double)(W))
 
-typedef struct ScreenInfoStruct
-{
+typedef struct ScreenInfoStruct {
     ScreenWidth screenWidth;
-    CGFloat     appWinWidth;
+    CGFloat appWinWidth;
 } ScreenInfo;

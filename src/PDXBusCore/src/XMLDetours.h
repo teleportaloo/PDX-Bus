@@ -10,20 +10,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import "TriMetXMLv2.h"
 #import "Detour.h"
 #import "Route.h"
+#import "TriMetXMLv2.h"
 
+@interface XMLDetours : TriMetXMLv2 <Detour *>
 
-@interface XMLDetours : TriMetXMLv2<Detour *>
-
-@property (nonatomic, strong) AllTriMetRoutes *allRoutes;
-@property (nonatomic) bool noEmojis;
+@property(nonatomic, strong) AllTriMetRoutes *allRoutes;
+@property(nonatomic) bool noEmojis;
 
 - (BOOL)getDetoursForRoutes:(NSArray<NSString *> *)routeIdArray;
 - (BOOL)getDetoursForRoute:(NSString *)route;
 - (BOOL)getDetours;
 - (BOOL)getSystemWideDetours;
-
+- (BOOL)getDetoursForLocIds:(NSArray<NSString *> *)locIdArray;
 
 @end

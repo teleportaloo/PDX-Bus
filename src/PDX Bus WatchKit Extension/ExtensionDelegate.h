@@ -23,8 +23,8 @@
 
 @interface ExtensionDelegate : NSObject <WKExtensionDelegate>
 
-@property (nonatomic) bool justLaunched;
-@property (atomic)    bool backgrounded;
-@property (nonatomic, strong) id<ExtentionWakeDelegate> wakeDelegate;
+@property(nonatomic) bool justLaunched;
+@property(atomic) bool backgrounded;
+@property(nonatomic, strong) id<ExtentionWakeDelegate> wakeDelegate;
 
 @end

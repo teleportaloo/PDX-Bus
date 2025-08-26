@@ -14,10 +14,9 @@
 
 
 #import "DetourLocation+iOSUI.h"
-#import "NSString+Helper.h"
+#import "NSString+MoreMarkup.h"
 
 @implementation DetourLocation (iOSUI)
-
 
 - (CLLocationCoordinate2D)coordinate {
     return self.location.coordinate;
@@ -29,9 +28,10 @@
 
 - (NSString *)subtitle {
     if (self.noServiceFlag) {
-        return [NSString stringWithFormat:@"No service at Stop ID %@", self.stopId];
+        return [NSString
+            stringWithFormat:@"No service at Stop ID %@", self.stopId];
     }
-    
+
     return [NSString stringWithFormat:@"Stop ID %@", self.stopId];
 }
 
@@ -40,7 +40,7 @@
     if (self.noServiceFlag) {
         return MAP_PIN_COLOR_RED;
     }
-    
+
     return MAP_PIN_COLOR_GREEN;
 }
 
@@ -54,10 +54,12 @@
 
 - (NSString *)pinMarkedUpStopId {
     if (self.noServiceFlag) {
-        return [NSString stringWithFormat:@"#DNo service at %@", self.stopId.markedUpLinkToStopId];
+        return [NSString stringWithFormat:@"#DNo service at %@",
+                                          self.stopId.markedUpLinkToStopId];
     }
-    
-    return [NSString stringWithFormat:@"#D%@", self.stopId.markedUpLinkToStopId];
+
+    return
+        [NSString stringWithFormat:@"#D%@", self.stopId.markedUpLinkToStopId];
 }
 
 - (UIColor *)pinTint {
@@ -72,8 +74,7 @@
     return 0.0;
 }
 
-- (NSString *)pinMarkedUpType
-{
+- (NSString *)pinMarkedUpType {
     return nil;
 }
 

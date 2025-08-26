@@ -13,10 +13,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <IntentsUI/IntentsUI.h>
 #import "XMLDepartures.h"
+#import <IntentsUI/IntentsUI.h>
 
-@interface IntentViewController : UIViewController <INUIHostedViewControlling, UITableViewDelegate, UITableViewDataSource>
-@property (strong, nonatomic) IBOutlet UITableView *tableView;
-@property (strong, nonatomic) NSMutableArray<XMLDepartures *> *departures;
+@interface IntentViewController
+    : UIViewController <INUIHostedViewControlling, UITableViewDelegate,
+                        UITableViewDataSource>
+@property(strong, nonatomic) IBOutlet UITableView *tableView;
+@property(strong, nonatomic) NSMutableArray<XMLDepartures *> *departures;
 @end

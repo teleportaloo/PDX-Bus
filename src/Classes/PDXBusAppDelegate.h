@@ -10,20 +10,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <UIKit/UIKit.h>
-#import "TriMetTypes.h"
 #import "Settings.h"
+#import "TriMetTypes.h"
+#import <UIKit/UIKit.h>
 
 #import "AlarmNotification.h"
 
 @class RootViewController;
 
-@interface PDXBusAppDelegate : NSObject <UIApplicationDelegate, UNUserNotificationCenterDelegate>
+@interface PDXBusAppDelegate
+    : NSObject <UIApplicationDelegate, UNUserNotificationCenterDelegate>
 
-@property (nonatomic) bool cleanExitLastTime;
-@property (nonatomic, copy)   NSString *pathToCleanExit;
-@property (nonatomic, strong) UIWindow *window;
-@property (nonatomic, strong) IBOutlet UINavigationController *navigationController;
-@property (nonatomic, strong) RootViewController *rootViewController;
+@property(nonatomic) bool cleanExitLastTime;
+@property(nonatomic, copy) NSString *pathToCleanExit;
+
+
+
 
 @end

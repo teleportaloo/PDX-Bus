@@ -13,20 +13,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
 #import "XMLDetours.h"
 #import "XMLStreetcarMessages.h"
+#import <Foundation/Foundation.h>
 
+@class TaskState;
 
 @interface XMLDetoursAndMessages : TriMetXML
 
-@property (nonatomic, strong) XMLStreetcarMessages *messages;
-@property (nonatomic, strong) NSArray<NSString *> *routes;
-@property (nonatomic, strong) XMLDetours *detours;
+@property(nonatomic, strong) XMLStreetcarMessages *messages;
+@property(nonatomic, strong) NSArray<NSString *> *routes;
+@property(nonatomic, strong) XMLDetours *detours;
 
 - (void)checkRoutesForStreetcar:(NSArray<NSString *> *)routes;
 - (instancetype)initWithRoutes:(NSArray<NSString *> *)routes;
-- (void)fetchDetoursAndMessages;
+- (void)fetchDetoursAndMessages:(TaskState *)state;
 
 + (instancetype)xmlWithRoutes:(NSArray<NSString *> *)routes;
 @end

@@ -14,13 +14,15 @@
 
 @implementation StopDistance
 
-- (instancetype)initWithStopId:(int)stopId distanceMeters:(CLLocationDistance)dist accuracy:(CLLocationAccuracy)acc {
+- (instancetype)initWithStopId:(int)stopId
+                distanceMeters:(CLLocationDistance)dist
+                      accuracy:(CLLocationAccuracy)acc {
     if ((self = [super init])) {
         self.stopId = [NSString stringWithFormat:@"%d", stopId];
         self.distanceMeters = dist;
         self.accuracy = acc;
     }
-    
+
     return self;
 }
 
@@ -28,11 +30,11 @@
     if (self.distanceMeters < inStop.distanceMeters) {
         return NSOrderedAscending;
     }
-    
+
     if (self.distanceMeters > inStop.distanceMeters) {
         return NSOrderedDescending;
     }
-    
+
     return [self.stopId compare:inStop.stopId];
 }
 

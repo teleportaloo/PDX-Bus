@@ -13,34 +13,35 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import "TriMetXML.h"
 #import "KMLPlacemark.h"
+#import "TriMetXML.h"
 
-#define kKmlNoRouteNumber     @"None"
+#define kKmlNoRouteNumber @"None"
 
-#define kKmlFirstDirection    @"0"
+#define kKmlFirstDirection @"0"
 #define kKmlOptionalDirection @"1"
 
-#define kKmlkey(R, D)       [R stringByAppendingString:D]
+#define kKmlkey(R, D) [R stringByAppendingString:D]
 
 @class ShapeRoutePath;
 
-@interface KMLRoutes : TriMetXML<NSArray *>
+@interface KMLRoutes : TriMetXML <NSArray *>
 
-@property (weak, nonatomic, readonly) NSEnumerator<NSString *> *keyEnumerator;
-
+@property(weak, nonatomic, readonly) NSEnumerator<NSString *> *keyEnumerator;
 
 - (void)fetchNowForced:(bool)always;
 - (void)fetchInBackgroundForced:(bool)always;
 - (NSString *)downloadProgress;
 - (void)cancelBackgroundFetch;
 - (ShapeRoutePath *)lineCoordsForKey:(NSString *)key;
-- (ShapeRoutePath *)lineCoordsForRoute:(NSString *)route direction:(NSString *)dir;
+- (ShapeRoutePath *)lineCoordsForRoute:(NSString *)route
+                             direction:(NSString *)dir;
 - (bool)cached;
 - (int)cacheAgeInDays;
 - (NSDate *)cacheDate;
 - (int)daysToAutoload;
 - (NSUInteger)sizeInBytes;
+- (bool)backgroundFetching;
 
 + (void)initCaches;
 + (void)deleteCacheFile;

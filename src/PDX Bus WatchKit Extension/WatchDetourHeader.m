@@ -14,28 +14,31 @@
 
 
 #import "WatchDetourHeader.h"
-#import "XMLDepartures.h"
 #import "Settings.h"
+#import "XMLDepartures.h"
 
 @implementation WatchDetourHeader
-
 
 + (NSString *)identifier {
     return @"DetourHeader";
 }
 
 - (void)populate:(XMLDepartures *)xml departures:(NSArray<Departure *> *)deps {
-    self.label.text = [NSString stringWithFormat:NSLocalizedString(@"%@ %d %@", @"Hide system alert"),
-                       Settings.hideWatchDetours ?
-                       NSLocalizedString(@"▽ Show", @"detour") :
-                       NSLocalizedString(@"△ Hide", @"detour"),
-                       (int)self.index.integerValue,
-                       self.index.integerValue > 1 ?
-                       NSLocalizedString(@"deours", @"detours") :
-                       NSLocalizedString(@"detour", @"detour")];
+    self.label.text = [NSString
+        stringWithFormat:NSLocalizedString(@"%@ %d %@", @"Hide system alert"),
+                         Settings.hideWatchDetours
+                             ? NSLocalizedString(@"▽ Show", @"detour")
+                             : NSLocalizedString(@"△ Hide", @"detour"),
+                         (int)self.index.integerValue,
+                         self.index.integerValue > 1
+                             ? NSLocalizedString(@"deours", @"detours")
+                             : NSLocalizedString(@"detour", @"detour")];
 }
 
-- (WatchSelectAction)select:(XMLDepartures *)xml from:(WKInterfaceController *)from context:(WatchArrivalsContext *)context canPush:(bool)push {
+- (WatchSelectAction)select:(XMLDepartures *)xml
+                       from:(WKInterfaceController *)from
+                    context:(WatchArrivalsContext *)context
+                    canPush:(bool)push {
     Settings.hideWatchDetours = !Settings.hideWatchDetours;
     return WatchSelectAction_RefreshUI;
 }

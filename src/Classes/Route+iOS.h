@@ -10,9 +10,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-
-#import "SearchFilter.h"
 #import "Route.h"
+#import "SearchFilter.h"
 
 @interface Route (iOS) <SearchFilter>
 @end

@@ -13,22 +13,23 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <WatchKit/WatchKit.h>
-#import <Foundation/Foundation.h>
-#import "XMLLocateStops.h"
 #import "InterfaceControllerWithCommuterBookmark.h"
+#import "XMLLocateStops.h"
+#import <Foundation/Foundation.h>
+#import <WatchKit/WatchKit.h>
 
 #define kNearbyScene @"Nearby"
 
-@interface WatchNearbyInterfaceController : InterfaceControllerWithCommuterBookmark <CLLocationManagerDelegate>
+@interface WatchNearbyInterfaceController
+    : InterfaceControllerWithCommuterBookmark <CLLocationManagerDelegate>
 
-@property (strong, nonatomic) IBOutlet WKInterfaceTable *stopTable;
-@property (strong, nonatomic) IBOutlet WKInterfaceMap *map;
-@property (strong, nonatomic) IBOutlet WKInterfaceGroup *loadingGroup;
-@property (strong, nonatomic) IBOutlet WKInterfaceLabel *loadingLabel;
-@property (strong, nonatomic) IBOutlet WKInterfaceLabel *locationStatusLabel;
-@property (unsafe_unretained, nonatomic) IBOutlet WKInterfaceGroup *menuGroup;
-@property (unsafe_unretained, nonatomic) IBOutlet WKInterfaceMap *locatingMap;
+@property(strong, nonatomic) IBOutlet WKInterfaceTable *stopTable;
+@property(strong, nonatomic) IBOutlet WKInterfaceMap *map;
+@property(strong, nonatomic) IBOutlet WKInterfaceGroup *loadingGroup;
+@property(strong, nonatomic) IBOutlet WKInterfaceLabel *loadingLabel;
+@property(strong, nonatomic) IBOutlet WKInterfaceLabel *locationStatusLabel;
+@property(unsafe_unretained, nonatomic) IBOutlet WKInterfaceGroup *menuGroup;
+@property(unsafe_unretained, nonatomic) IBOutlet WKInterfaceMap *locatingMap;
 
 - (IBAction)swipeDown:(id)sender;
 - (IBAction)menuItemHome;

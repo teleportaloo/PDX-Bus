@@ -13,11 +13,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <UIKit/UIKit.h>
-#import "TableViewWithToolbar.h"
 #import "BlockColorDb.h"
-#import "../3rd Party/InfColorPicker/InfColorPicker.h"
+#import "TableViewControllerWithToolbar.h"
+#import <UIKit/UIKit.h>
 
-@interface BlockColorViewController : TableViewWithToolbar <InfColorPickerControllerDelegate>
+@interface BlockColorViewController
+    : TableViewControllerWithToolbar
 
 @end

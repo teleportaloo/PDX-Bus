@@ -15,15 +15,15 @@
 
 @class TriMetXML;
 
-typedef void (^BackgroundFinalCompletion) (void);
-typedef void (^BackgroundCompletionHandler) (TriMetXML *xml, BackgroundFinalCompletion completion);
-
+typedef void (^BackgroundFinalCompletion)(void);
+typedef void (^BackgroundCompletionHandler)(
+    TriMetXML *xml, BackgroundFinalCompletion completion);
 
 @interface BackgroundDownloadState : NSObject
 
-@property (nonatomic, copy) NSString *progress;
-@property (nonatomic, strong) NSURLSessionDownloadTask *task;
-@property (nonatomic, strong) TriMetXML *xml;
-@property (nonatomic, copy) BackgroundCompletionHandler handler;
+@property(nonatomic, copy) NSString *progress;
+@property(nonatomic, strong) NSURLSessionDownloadTask *task;
+@property(nonatomic, strong) TriMetXML *xml;
+@property(nonatomic, copy) BackgroundCompletionHandler handler;
 
 @end

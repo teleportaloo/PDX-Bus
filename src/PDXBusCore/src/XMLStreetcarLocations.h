@@ -12,23 +12,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
-#import "NextBusXML.h"
 #import "Departure.h"
 #import "MemoryCaches.h"
+#import "NextBusXML.h"
+#import <Foundation/Foundation.h>
 
 @class Vehicle;
 
 @interface XMLStreetcarLocations : NextBusXML <ClearableCache>
 
-@property (nonatomic, strong) NSMutableDictionary<NSString *, Vehicle *> *locations;
+@property(nonatomic, strong)
+    NSMutableDictionary<NSString *, Vehicle *> *locations;
 
 - (instancetype)initWithRoute:(NSString *)route;
 - (void)insertLocation:(Departure *)dep;
 - (BOOL)getLocations;
 
-+ (void)insertLocationsIntoXmlDeparturesArray:(NSArray *)xmlDeps forRoutes:(NSSet<NSString *> *)routes;
-+ (NSSet<NSString *> *)getStreetcarRoutesInXMLDeparturesArray:(NSArray *)xmlDeps;
++ (void)insertLocationsIntoXmlDeparturesArray:(NSArray *)xmlDeps
+                                    forRoutes:(NSSet<NSString *> *)routes;
++ (NSSet<NSString *> *)getStreetcarRoutesInXMLDeparturesArray:
+    (NSArray *)xmlDeps;
 + (XMLStreetcarLocations *)sharedInstanceForRoute:(NSString *)route;
 
 @end

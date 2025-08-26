@@ -10,30 +10,33 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import "TriMetInfo.h"
 #import "Direction.h"
 #import "Stop.h"
+#import "TriMetInfo.h"
 
 #define kSystemWideRouteId @"SWRID"
-#define kSystemWideDetour  NSLocalizedString(@"System-wide Alert", @"heading")
+#define kSystemWideDetour NSLocalizedString(@"System-wide Alert", @"heading")
 
 @interface Route : NSObject {
 }
 
-@property (nonatomic, strong) NSMutableDictionary<NSString *, Direction *> *directions;
-@property (nonatomic, readonly) bool systemWide;
-@property (nonatomic, readonly) NSInteger systemWideId;
+@property(nonatomic, strong)
+    NSMutableDictionary<NSString *, Direction *> *directions;
+@property(nonatomic, readonly) bool systemWide;
+@property(nonatomic, readonly) NSInteger systemWideId;
 
-@property (nonatomic, copy) NSString *route;
-@property (nonatomic, copy) NSString *desc;
-@property (nonatomic)       NSInteger routeSortOrder;
-@property (nonatomic)       NSInteger routeColor;
-@property (nonatomic)       NSNumber *frequentService;
+@property(nonatomic, copy) NSString *routeId;
+@property(nonatomic, copy) NSString *desc;
+@property(nonatomic) NSInteger routeSortOrder;
+@property(nonatomic) NSInteger routeColor;
+@property(nonatomic) NSNumber *frequentService;
 
 - (NSComparisonResult)compare:(Route *)route2;
 - (BOOL)isEqualToRoute:(Route *)route;
 - (PtrConstRouteInfo)rawColor;
 
 + (instancetype)systemWide:(NSNumber *)detourId;
+
++ (Route *)fromAttributeDict:(NSDictionary *)attributeDict;
 
 @end

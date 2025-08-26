@@ -13,41 +13,45 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-
-#import "XMLLocateStops+iOSUI.h"
-#import "RouteDistance.h"
 #import "FormatDistance.h"
-
+#import "RouteDistance.h"
+#import "XMLLocateStops+iOSUI.h"
 
 @implementation XMLLocateStops (iOSUI)
 
-
 #pragma mark Error check
-
 
 - (bool)displayErrorIfNoneFound:(id<TaskController>)progress {
     NSThread *thread = [NSThread currentThread];
-    
+
     if (self.count == 0 && !self.gotData) {
         if (!thread.cancelled) {
-            [thread cancel];
-            [progress taskSetErrorMsg:NSLocalizedString(@"Network problem: please try again later.", @"error message")];
-            
+            [progress taskCancel];
+            [progress
+                taskSetErrorMsg:NSLocalizedString(
+                                    @"Network problem: please try again later.",
+                                    @"error message")];
+
             return true;
         }
     } else if (self.count == 0) {
         if (!thread.cancelled) {
-            [thread cancel];
-            
-            NSArray *modes = @[@"bus stops", @"train stops", @"bus or train stops"];
-            
-            [progress taskSetErrorMsg:[NSString stringWithFormat:@"No %@ were found within %@.",
-                                       modes[self.mode],
-                                       [FormatDistance formatMetres:self.minDistance]]];
+            [progress taskCancel];
+
+            NSArray *modes =
+                @[ @"bus stops", @"train stops", @"bus or train stops" ];
+
+            [progress
+                taskSetErrorMsg:
+                    [NSString
+                        stringWithFormat:@"No %@ were found within %@.",
+                                         modes[self.mode],
+                                         [FormatDistance
+                                             formatMetres:self.minDistance]]];
             return true;
         }
     }
-    
+
     return false;
 }
 

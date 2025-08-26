@@ -10,20 +10,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <UIKit/UIKit.h>
-#import "EditableTableViewCell.h"
-#import "TableViewWithToolbar.h"
-#import <MessageUI/MFMailComposeViewController.h>
-#import "CellTextField.h"
 #import "AlarmTaskList.h"
+#import "CellTextField.h"
+#import "EditableTableViewCell.h"
 #import "ProgressModalView.h"
-#import  <CoreLocation/CoreLocation.h>
-#import "WatchConnectivity/WatchConnectivity.h"
+#import "TableViewControllerWithToolbar.h"
 #import "WatchConnectivity/WCSession.h"
+#import "WatchConnectivity/WatchConnectivity.h"
+#import <CoreLocation/CoreLocation.h>
+#import <MessageUI/MFMailComposeViewController.h>
+#import <UIKit/UIKit.h>
 
 #define kRootMaxSections 7
-#define kVersion         @"Version"
-#define kAboutVersion    @"2"
+#define kVersion @"Version"
+#define kAboutVersion @"2"
 
 @class UITextField;
 
@@ -40,22 +40,21 @@ typedef enum InitialActionEnum {
     InitialAction_UserActivityAlerts
 } InitialAction;
 
+@interface RootViewController
+    : TableViewControllerWithToolbar <EditableTableViewCellDelegate,
+                                      MFMailComposeViewControllerDelegate,
+                                      AlarmObserver, WCSessionDelegate>
 
-@interface RootViewController : TableViewWithToolbar <EditableTableViewCellDelegate,
-    MFMailComposeViewControllerDelegate,
-    AlarmObserver,
-    WCSessionDelegate>
+@property(nonatomic, strong) NSDictionary *commuterBookmark;
+@property(nonatomic, strong) NSDictionary *initialActionArgs;
+@property(nonatomic) InitialAction initialAction;
+@property(nonatomic, copy) NSString *launchStops;
+@property(nonatomic, strong) NSURL *routingURL;
+@property(nonatomic, copy) NSString *initialBookmarkName;
+@property(nonatomic) int initialBookmarkIndex;
+@property(nonatomic, strong) WCSession *session;
 
-@property (nonatomic, copy)   NSString *lastArrivalsShown;
-@property (nonatomic, strong) NSArray *lastArrivalNames;
-@property (nonatomic, strong) NSDictionary *commuterBookmark;
-@property (nonatomic, strong) NSDictionary *initialActionArgs;
-@property (nonatomic)         InitialAction initialAction;
-@property (nonatomic, copy)   NSString *launchStops;
-@property (nonatomic, strong) NSURL *routingURL;
-@property (nonatomic, copy)   NSString *initialBookmarkName;
-@property (nonatomic)         int initialBookmarkIndex;
-@property (nonatomic, strong) WCSession *session;
+@property(null_resettable, nonatomic, strong) IBOutlet UIView *view;
 
 - (void)postEditingAction:(UITextView *)textView;
 - (void)commuteAction:(id)sender;
@@ -65,5 +64,7 @@ typedef enum InitialActionEnum {
 - (void)openFave:(int)index allowEdit:(bool)allowEdit;
 - (void)helpAction:(id)sender;
 - (NSInteger)rowType:(NSIndexPath *)indexPath;
+
++ (RootViewController *)currentRootViewController;
 
 @end

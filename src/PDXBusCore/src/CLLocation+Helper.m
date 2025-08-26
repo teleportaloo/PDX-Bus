@@ -23,8 +23,7 @@
 }
 
 + (instancetype)withLat:(CLLocationDegrees)lat lng:(CLLocationDegrees)lng {
-    return [[[self class] alloc] initWithLatitude:lat
-                                        longitude:lng];
+    return [[[self class] alloc] initWithLatitude:lat longitude:lng];
 }
 
 @end

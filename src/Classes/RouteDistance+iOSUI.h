@@ -13,14 +13,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-
-#import <Foundation/Foundation.h>
-#import "ScreenConstants.h"
-#import "RouteDistance.h"
 #import "DepartureCell.h"
+#import "RouteDistance.h"
+#import "ScreenConstants.h"
+#import <Foundation/Foundation.h>
 
-
-#define kRouteCellHeight     55
+#define kRouteCellHeight 55
 #define kRouteWideCellHeight 85
 
 @interface RouteDistance (iOSUI)

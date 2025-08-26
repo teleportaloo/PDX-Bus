@@ -13,13 +13,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
 #import "InterfaceOrientation.h"
 #import "UIApplication+Compat.h"
+#import <Foundation/Foundation.h>
 
 @implementation InterfaceOrientation
 
-+ (UIInterfaceOrientation)getInterfaceOrientation:(UIViewController *)controller {
++ (UIInterfaceOrientation)getInterfaceOrientation:
+    (UIViewController *)controller {
     return [UIApplication sharedApplication].compatStatusBarOrientation;
 }
 

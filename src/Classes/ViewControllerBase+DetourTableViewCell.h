@@ -13,17 +13,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import "ViewControllerBase.h"
 #import "DetourTableViewCell.h"
+#import "ViewControllerBase.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface ViewControllerBase (DetourTableViewCell)
 
-- (bool)detourLink:(NSString *)link detour:(Detour *)detour source:(UIView*)view;
+- (bool)detourLink:(NSString *)link
+            detour:(Detour *)detour
+            source:(UIView *)view;
 
 - (DetourUrlAction)detourActionCalback;
-
 
 @end
 

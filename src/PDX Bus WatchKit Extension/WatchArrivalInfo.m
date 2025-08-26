@@ -18,7 +18,6 @@
 
 @implementation WatchArrivalInfo
 
-
 + (NSString *)identifier {
     return @"Info";
 }
@@ -28,12 +27,18 @@
         NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
         dateFormatter.dateStyle = NSDateFormatterNoStyle;
         dateFormatter.timeStyle = NSDateFormatterMediumStyle;
-        // NSString *shortDir = [StopNameCacheManager shortDirection:newDepartures.locDir];
-        
+        // NSString *shortDir = [StopNameCacheManager
+        // shortDirection:newDepartures.locDir];
+
         if (xml.locDir.length > 0) {
-            self.label.text = [NSString stringWithFormat:@"🆔%@\n⤵️%@\n➡️%@", xml.stopId, [dateFormatter stringFromDate:xml.cacheTime], xml.locDir];
+            self.label.text = [NSString
+                stringWithFormat:@"🆔%@\n⤵️%@\n➡️%@", xml.stopId,
+                                 [dateFormatter stringFromDate:xml.cacheTime],
+                                 xml.locDir];
         } else {
-            self.label.text = [NSString stringWithFormat:@"🆔%@\n⤵️%@", xml.stopId, [dateFormatter stringFromDate:xml.cacheTime]];
+            self.label.text = [NSString
+                stringWithFormat:@"🆔%@\n⤵️%@", xml.stopId,
+                                 [dateFormatter stringFromDate:xml.cacheTime]];
         }
     } else {
         self.label.text = [NSString stringWithFormat:@"🆔%@", xml.stopId];

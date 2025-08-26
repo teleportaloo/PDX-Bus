@@ -13,19 +13,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
 #import "TriMetXMLv2.h"
-#import <CoreLocation/CoreLocation.h>
 #import "Vehicle.h"
+#import <CoreLocation/CoreLocation.h>
+#import <Foundation/Foundation.h>
 
-@interface XMLLocateVehicles : TriMetXMLv2<Vehicle *>
+@interface XMLLocateVehicles : TriMetXMLv2 <Vehicle *>
 
-@property (nonatomic) double dist;
-@property (nonatomic, strong) CLLocation *location;
-@property (nonatomic) bool noErrorAlerts;
+@property(nonatomic) double dist;
+@property(nonatomic, strong) CLLocation *location;
+@property(nonatomic) bool noErrorAlerts;
 
 - (bool)findNearestVehicles:(NSSet<NSString *> *)routeIdSet
                   direction:(NSString *)direction
                      blocks:(NSSet<NSString *> *)blockIdSet
-                   vehicles:(NSSet<NSString *> *)vehicleIdSet;
+                   vehicles:(NSSet<NSString *> *)vehicleIdSet
+                      since:(NSDate *)since;
 @end

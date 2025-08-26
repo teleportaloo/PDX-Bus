@@ -13,20 +13,23 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
-#import "ArrivalsIntent.h"
 #import "ArrivalsAtStopIdIntent.h"
+#import "ArrivalsIntent.h"
 #import "XMLDepartures.h"
+#import <Foundation/Foundation.h>
 
 #define kMaxRoutesToSpeak 6
 
-
-@interface ArrivalsIntentHandler<ArrivalsIntentHandling, ArrivalsAtStopIdIntentHandling> : NSObject
+@interface ArrivalsIntentHandler<ArrivalsIntentHandling,
+                                 ArrivalsAtStopIdIntentHandling> : NSObject
 
 - (void)handleArrivals:(ArrivalsIntent *)intent
-            completion:(void (^)(ArrivalsIntentResponse *response))completion API_AVAILABLE(ios(12.0));
+            completion:(void (^)(ArrivalsIntentResponse *response))completion
+    API_AVAILABLE(ios(12.0));
 
 - (void)handleArrivalsAtStopId:(ArrivalsAtStopIdIntent *)intent
-                    completion:(void (^)(ArrivalsAtStopIdIntentResponse *response))completion API_AVAILABLE(ios(12.0));
+                    completion:
+                        (void (^)(ArrivalsAtStopIdIntentResponse *response))
+                            completion API_AVAILABLE(ios(12.0));
 
 @end

@@ -1,0 +1,432 @@
+//
+//  WhatsNewViewController.m
+//  PDX Bus
+//
+//  Created by Andrew Wallace on 9/17/10.
+//  Copyright 2010. All rights reserved.
+//
+
+
+
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+
+#import "WhatsNewViewController.h"
+#import "AllRailStationViewController.h"
+#import "BlockColorViewController.h"
+#import "DebugLogging.h"
+#import "DepartureTimesViewController.h"
+#import "DetoursViewController.h"
+#import "DirectionViewController.h"
+#import "NSString+Core.h"
+#import "NSString+MoreMarkup.h"
+#import "NearestVehiclesMapViewController.h"
+#import "NetworkTestViewController.h"
+#import "RailMapViewController.h"
+#import "TableViewControllerWithToolbar.h"
+#import "TaskDispatch.h"
+#import "TextViewLinkCell.h"
+#import "TriMetInfo+UI.h"
+#import "TripPlannerSummaryViewController.h"
+#import "UIApplication+Compat.h"
+#import "ViewControllerBase+LinkCell.h"
+#import "WebViewController.h"
+#import "WhatsNewBasicAction.h"
+#import "WhatsNewHeader.h"
+#import "UIColor+HTML.h"
+
+@interface WhatsNewViewController () {
+    id<WhatsNewSpecialAction> _basicAction;
+}
+
+@end
+
+@implementation WhatsNewViewController
+
+static NSMutableDictionary<NSNumber *, id<WhatsNewSpecialAction>>
+    *specialActions;
+
++ (void)addAction:(NSNumber *)character
+           action:(id<WhatsNewSpecialAction>)action {
+    DoOnce(^{
+      specialActions = [NSMutableDictionary dictionary];
+    });
+
+    if (character != nil) {
+        [specialActions setObject:action forKey:character];
+    }
+}
+
+#define kDoneRows 1
+
++ (NSString *)version {
+    return [NSString
+        stringWithFormat:@"%@ %@",
+                         [NSBundle mainBundle]
+                             .infoDictionary[@"CFBundleShortVersionString"],
+                         [NSBundle mainBundle]
+                             .infoDictionary[@"CFBundleVersion"]];
+}
+
+- (bool)plainStringMatch:(NSString *)markup search:(NSString *)search {
+    id<WhatsNewSpecialAction> action = [self getAction:markup];
+
+    return [[action displayMarkedUpText:markup].removeMarkUp
+        hasCaseInsensitiveSubstring:search];
+}
+
+- (id)filteredObject:(id)i
+        searchString:(NSString *)searchText
+               index:(NSInteger)index {
+    NSMutableArray *results = [NSMutableArray array];
+    WhatsNewSection *section = (WhatsNewSection *)i;
+
+    if (section.count == 0 || index == 0) {
+        return nil;
+    }
+
+    if ([self plainStringMatch:section.firstObject search:searchText]) {
+        return section;
+    }
+
+    for (NSString *item in section) {
+        if (results.count == 0) {
+            [results addObject:item];
+        } else {
+            if ([self plainStringMatch:item search:searchText]) {
+                [results addObject:item];
+            }
+        }
+    }
+
+    if (results.count > 1) {
+        return results;
+    }
+
+    return nil;
+}
+
+#pragma mark Helper functions
+
+- (UITableViewStyle)style {
+    return UITableViewStylePlain;
+}
+
+#pragma mark Table view methods
+
+- (id<WhatsNewSpecialAction>)getAction:(NSString *)fullText {
+    NSNumber *key = @(fullText.firstUnichar);
+
+    id<WhatsNewSpecialAction> action = specialActions[key];
+
+    if (action == nil) {
+        action = _basicAction;
+    }
+
+    return action;
+}
+
+- (instancetype)init {
+    if ((self = [super init])) {
+        self.title = NSLocalizedString(@"What's new?", @"page title");
+        NSArray *newTextArray = [[NSArray alloc]
+            initWithContentsOfFile:[[NSBundle mainBundle]
+                                       pathForResource:@"whats-new"
+                                                ofType:@"plist"]];
+
+        _basicAction = [WhatsNewBasicAction action];
+
+#ifdef DEBUGLOGGING
+        NSMutableString *output = [NSMutableString string];
+
+        [output appendString:@"\n"];
+
+        for (NSString *markup in newTextArray) {
+            id<WhatsNewSpecialAction> action = [self getAction:markup];
+            [output appendFormat:@"%@\n", [action plainTextFromMarkUp:markup]];
+        }
+
+        NSLog(@"%@\n", output);
+#endif
+        self.enableSearch = YES;
+        self.searchableItems = [NSMutableArray array];
+
+        NSMutableArray *current = [NSMutableArray array];
+        [current addObject:@""];
+        [current
+            addObject:[NSString stringWithFormat:
+                                    NSLocalizedString(
+                                        @"#bPDX Bus got an upgrade! Here's "
+                                        @"what's new in version #R%@#D.",
+                                        @"section header"),
+                                    [NSBundle mainBundle].infoDictionary
+                                        [@"CFBundleShortVersionString"]]];
+
+        [self.searchableItems addObject:current];
+
+        for (NSString *item in newTextArray) {
+            if ([WhatsNewHeader matches:item]) {
+                current = [NSMutableArray arrayWithObject:item];
+                [self.searchableItems addObject:current];
+            } else {
+                [current addObject:item];
+            }
+        }
+    }
+
+    return self;
+}
+
+- (NSString *)tableView:(UITableView *)tableView
+    titleForHeaderInSection:(NSInteger)section {
+    NSMutableArray<WhatsNewSection *> *items = [self filteredData:tableView];
+
+    if (section < items.count) {
+        WhatsNewSection *sectionArray = [self filteredData:tableView][section];
+
+        if (sectionArray.firstObject.length > 0) {
+            return sectionArray.firstObject;
+        }
+    }
+
+    return nil;
+}
+
+- (void)tableView:(UITableView *)tableView
+    willDisplayHeaderView:(UIView *)view
+               forSection:(NSInteger)section {
+    UITableViewHeaderFooterView *header = (UITableViewHeaderFooterView *)view;
+
+    NSMutableArray<WhatsNewSection *> *items = [self filteredData:tableView];
+
+    if (section < items.count) {
+        WhatsNewSection *sectionArray = [self filteredData:tableView][section];
+        NSString *markup = sectionArray.firstObject;
+
+        if (markup.length > 0) {
+            id<WhatsNewSpecialAction> action = [self getAction:markup];
+
+            header.textLabel.adjustsFontSizeToFitWidth = YES;
+
+            header.textLabel.attributedText =
+                [action displayMarkedUpText:markup].attributedStringFromMarkUp;
+            header.accessibilityLabel = header.textLabel.text.phonetic;
+
+            int color = Settings.toolbarColors;
+
+            if (color == 0xFFFFFF) {
+                header.contentView.backgroundColor = [UIColor grayColor];
+            } else {
+                header.contentView.backgroundColor = HTML_COLOR(color);
+            }
+        }
+    }
+}
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    if (tableView == self.tableView) {
+        return self.searchableItems.count + 1;
+    }
+
+    return [self filteredData:tableView].count;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView
+    numberOfRowsInSection:(NSInteger)section {
+    NSMutableArray<WhatsNewSection *> *items = [self filteredData:tableView];
+
+    if (section < items.count) {
+        return items[section].count - 1;
+    }
+
+    return kDoneRows;
+}
+
+- (void)tableView:(UITableView *)tableView
+      willDisplayCell:(UITableViewCell *)cell
+    forRowAtIndexPath:(NSIndexPath *)indexPath {
+    [super tableView:tableView
+          willDisplayCell:cell
+        forRowAtIndexPath:indexPath];
+
+    NSMutableArray<WhatsNewSection *> *items = [self filteredData:tableView];
+
+    if (indexPath.section < items.count) {
+        NSString *markup = items[indexPath.section][indexPath.row + 1];
+
+        id<WhatsNewSpecialAction> action = [self getAction:markup];
+
+        [action tableView:tableView willDisplayCell:cell text:markup];
+    }
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView
+         cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSMutableArray<WhatsNewSection *> *items = [self filteredData:tableView];
+
+    if (indexPath.section < items.count) {
+        NSString *fullText =
+            [self filteredData:tableView][indexPath.section][indexPath.row + 1];
+
+        id<WhatsNewSpecialAction> action = [self getAction:fullText];
+
+        NSAttributedString *text = [action displayMarkedUpText:fullText]
+                                       .smallAttributedStringFromMarkUp;
+
+        TextViewLinkCell *cell = (TextViewLinkCell *)[self.tableView
+            dequeueReusableCellWithIdentifier:MakeCellId(kSectionText)];
+
+        cell.textView.attributedText = text;
+
+        [action updateCell:cell tableView:tableView];
+
+        cell.urlCallback = self.urlActionCalback;
+
+        [self updateAccessibility:cell];
+
+        return cell;
+    } else {
+
+        UITableViewCell *cell = [self tableView:tableView
+                        cellWithReuseIdentifier:MakeCellId(kSectionDone)];
+        cell.textLabel.font =
+            self.basicFont; //  [UIFont fontWithName:@"Ariel" size:14];
+        cell.textLabel.adjustsFontSizeToFitWidth = YES;
+        cell.textLabel.text =
+            NSLocalizedString(@"Back to PDX Bus", @"button text");
+        cell.textLabel.textAlignment = NSTextAlignmentCenter;
+        cell.backgroundColor = [UIColor modeAwareCellBackground];
+
+        return cell;
+    }
+
+    return nil;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView
+    heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSMutableArray<WhatsNewSection *> *items = [self filteredData:tableView];
+
+    if (indexPath.section < items.count) {
+        return UITableViewAutomaticDimension;
+    }
+
+    return [self basicRowHeight];
+}
+
+- (void)tableView:(UITableView *)tableView
+    didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSMutableArray<WhatsNewSection *> *items = [self filteredData:tableView];
+
+    if (indexPath.section < items.count) {
+        NSString *markup = items[indexPath.section][indexPath.row + 1];
+
+        id<WhatsNewSpecialAction> action = [self getAction:markup];
+
+        [action processAction:markup parent:self];
+    } else {
+        [self.navigationController popToRootViewControllerAnimated:YES];
+    }
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+
+    [self.tableView registerNib:[TextViewLinkCell nib]
+         forCellReuseIdentifier:MakeCellId(kSectionText)];
+
+    [self safeScrollToTop];
+}
+
+#pragma mark Callback selectors
+
+- (void)xxxTripPlanner {
+    TripPlannerSummaryViewController *tripStart =
+        [TripPlannerSummaryViewController viewController];
+
+    @synchronized(_userState) {
+        [tripStart.tripQuery addStopsFromUserFaves:_userState.faves];
+    }
+
+    // Push the detail view controller
+    [self.navigationController pushViewController:tripStart animated:YES];
+}
+
+- (void)xxxFx {
+    [DirectionViewController.viewController
+        fetchDirectionsAsync:self.backgroundTask
+                       route:@"2"];
+}
+
+- (void)xxxRailMap {
+    Settings.showStreetcarMapFirst = NO;
+    [self.navigationController
+        pushViewController:RailMapViewController.viewController
+                  animated:YES];
+}
+
+- (void)xxxTipJar {
+    [self tipJar];
+}
+
+- (void)xxxStreetcarMap {
+    Settings.showStreetcarMapFirst = YES;
+    [self.navigationController
+        pushViewController:RailMapViewController.viewController
+                  animated:YES];
+}
+
+- (void)xxxVehicles {
+    NearestVehiclesMapViewController *mapView =
+        [NearestVehiclesMapViewController viewController];
+
+    mapView.title = NSLocalizedString(@"All Vehicles", "page title");
+    mapView.alwaysFetch = YES;
+    mapView.allRoutes = YES;
+    mapView.staticOverlays = YES;
+    [mapView fetchNearestVehiclesAsync:self.backgroundTask];
+}
+
+- (void)xxxStations {
+    [self.navigationController
+        pushViewController:AllRailStationViewController.viewController
+                  animated:YES];
+}
+
+- (void)xxxDetours {
+    [DetoursViewController.viewController
+        fetchDetoursAsync:self.backgroundTask];
+}
+
+- (void)xxxFbTriMet {
+    [self facebookTriMet];
+}
+
+- (void)xxxSettings {
+    [[UIApplication sharedApplication]
+        compatOpenURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+}
+
+- (void)xxxShowHighlights {
+    [self.navigationController
+        pushViewController:BlockColorViewController.viewController
+                  animated:YES];
+}
+
+- (void)xxxBluesky {
+    if (self.tableView.indexPathForSelectedRow != nil) {
+        UITableViewCell *cell = [self.tableView
+            cellForRowAtIndexPath:self.tableView.indexPathForSelectedRow];
+        [self triMetBlueskyFrom:cell.contentView];
+    }
+}
+
+- (void)xxxCheckNetwork {
+    [NetworkTestViewController.viewController
+        fetchNetworkStatusAsync:self.backgroundTask
+              backgroundRefresh:NO];
+}
+
+@end

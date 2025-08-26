@@ -13,203 +13,237 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+#define DEBUG_LEVEL_FOR_FILE LogUI
 
 #import "ArrivalsAtStopIdResponseFactory.h"
+#import "Departure.h"
+#import "NSString+Core.h"
 #import "StopLocationIntentHandler.h"
+#import "UserState.h"
 #import "XMLLocateStops.h"
 #import "XMLMultipleDepartures.h"
-#import "NSString+Helper.h"
-#import "Departure.h"
-#import "UserState.h"
 
 #import "ArrivalsResponseFactory.h"
+#import "UserInfo.h"
 
 // #import <Contacts/Contacts.h>
 
 @implementation ArrivalsAtStopIdResponseFactory
 
-
-+ (StopLocationIntentResponse *)locationRespond:(StopLocationIntentResponseCode)code API_AVAILABLE(ios(12.0)) {
-    return [[StopLocationIntentResponse alloc] initWithCode:code userActivity:nil];
++ (StopLocationIntentResponse *)locationRespond:
+    (StopLocationIntentResponseCode)code API_AVAILABLE(ios(12.0)) {
+    return [[StopLocationIntentResponse alloc] initWithCode:code
+                                               userActivity:nil];
 }
 
++ (StopLocationIntentResponse *)stopLocation:(NSNumber *)stopId
+    API_AVAILABLE(ios(12.0)) {
+    NSString *stopString =
+        [NSString stringWithFormat:@"%ld", (long)stopId.integerValue];
 
-+ (StopLocationIntentResponse *)stopLocation:(NSNumber *)stopId API_AVAILABLE(ios(12.0)) {
-    NSString *stopString = [NSString stringWithFormat:@"%ld", (long)stopId.integerValue];
-    
     DEBUG_HERE();
     // There will be only 1 batch here
     XMLDepartures *deps = [XMLDepartures xml];
-    
+
     [deps getDeparturesForStopId:stopString];
-    
+
     if (deps.gotData) {
         if (deps.loc) {
-            StopLocationIntentResponse *response = [[StopLocationIntentResponse alloc] initWithCode:StopLocationIntentResponseCodeSuccess userActivity:nil];
-            
-            response.location = [CLPlacemark placemarkWithLocation:deps.loc name:nil postalAddress:nil];
+            StopLocationIntentResponse *response =
+                [[StopLocationIntentResponse alloc]
+                    initWithCode:StopLocationIntentResponseCodeSuccess
+                    userActivity:nil];
+
+            response.location = [CLPlacemark placemarkWithLocation:deps.loc
+                                                              name:nil
+                                                     postalAddress:nil];
+
             return response;
         }
-        
-        return [ArrivalsAtStopIdResponseFactory locationRespond:StopLocationIntentResponseCodeUnknownStop];
+
+        return [ArrivalsAtStopIdResponseFactory
+            locationRespond:StopLocationIntentResponseCodeUnknownStop];
     }
-    
-    return [ArrivalsAtStopIdResponseFactory locationRespond:StopLocationIntentResponseCodeFailure];
+
+    return [ArrivalsAtStopIdResponseFactory
+        locationRespond:StopLocationIntentResponseCodeFailure];
 }
 
-+ (ArrivalsAtStopIdIntentResponse *)arrivalsRespond:(ArrivalsAtStopIdIntentResponseCode)code API_AVAILABLE(ios(12.0)) {
-    return [[ArrivalsAtStopIdIntentResponse alloc] initWithCode:code userActivity:nil];
++ (ArrivalsAtStopIdIntentResponse *)arrivalsRespond:
+    (ArrivalsAtStopIdIntentResponseCode)code API_AVAILABLE(ios(12.0)) {
+    return [[ArrivalsAtStopIdIntentResponse alloc] initWithCode:code
+                                                   userActivity:nil];
 }
 
-
-+ (RoutesAtStopIdIntentResponse *)routesRespond:(RoutesAtStopIdIntentResponseCode)code API_AVAILABLE(ios(12.0)) {
-    return [[RoutesAtStopIdIntentResponse alloc] initWithCode:code userActivity:nil];
++ (RoutesAtStopIdIntentResponse *)routesRespond:
+    (RoutesAtStopIdIntentResponseCode)code API_AVAILABLE(ios(12.0)) {
+    return [[RoutesAtStopIdIntentResponse alloc] initWithCode:code
+                                                 userActivity:nil];
 }
 
 + (RoutesAtStopIdIntentResponse *)responseByRoute:(NSNumber *)stopId {
-    NSString *stopString = [NSString stringWithFormat:@"%ld", (long)stopId.integerValue];
-    
+    NSString *stopString =
+        [NSString stringWithFormat:@"%ld", (long)stopId.integerValue];
+
     DEBUG_HERE();
     // There will be only 1 batch here
     XMLDepartures *deps = [XMLDepartures xml];
-    
+
     deps.keepRawData = YES;
-    
+
     DEBUG_HERE();
-    
-    NSArray<NSString *> *lines = [ArrivalsResponseFactory arrivals:deps stopId:stopString];
-    
-    
+
+    NSArray<NSString *> *lines = [ArrivalsResponseFactory arrivals:deps
+                                                            stopId:stopString];
+
     if (deps.gotData && deps.loc != nil) {
         DEBUG_HERE();
-        
-        NSUserActivity *activity = [[NSUserActivity alloc] initWithActivityType:@"org.teleportaloo.pdxbus.xmlarrivals"];
-        
-        activity.userInfo = @{ @"xml": deps.rawData, @"locs": stopString };
-        
-        
-        NSString *stopName;
-        
-        if (deps.locDir && deps.locDir.length > 0) {
-            stopName = [NSString stringWithFormat:@"%@, %@", deps.locDesc, deps.locDir];
-        } else {
-            stopName = [NSString stringWithFormat:@"%@", deps.locDesc];
-        }
-        
-        stopName = [XMLDepartures fixLocationForSpeaking:stopName];
-        
+
+        NSUserActivity *activity = [[NSUserActivity alloc]
+            initWithActivityType:@"org.teleportaloo.pdxbus.xmlarrivals"];
+
+        activity.userInfo =
+            [UserInfo withXml:deps.rawData locs:stopString].dictionary;
+
+        NSString *stopName =
+            [XMLDepartures fixLocationForSpeaking:deps.stopName];
+
         UserState *state = UserState.sharedInstance;
-        
-        [state addToRecentsWithStopId:deps.stopId
-                            description:stopName];
-        
+
+        [state addToRecentsWithStopId:deps.stopId description:stopName];
+
         NSMutableArray<NSString *> *times = [NSMutableArray array];
-        
+
         [times addObject:stopName];
-        
+
         [times addObjectsFromArray:lines];
-        
-        RoutesAtStopIdIntentResponse *response = [[RoutesAtStopIdIntentResponse alloc] initWithCode:RoutesAtStopIdIntentResponseCodeSuccess userActivity:nil];
-        
+
+        RoutesAtStopIdIntentResponse *response =
+            [[RoutesAtStopIdIntentResponse alloc]
+                initWithCode:RoutesAtStopIdIntentResponseCodeSuccess
+                userActivity:nil];
+
         response.routes = times;
+
         response.userActivity = activity;
-        
+
         return response;
     } else if (deps.loc == nil) {
         DEBUG_HERE();
-        return ([ArrivalsAtStopIdResponseFactory routesRespond:RoutesAtStopIdIntentResponseCodeUnknownStop]);
+        return ([ArrivalsAtStopIdResponseFactory
+            routesRespond:RoutesAtStopIdIntentResponseCodeUnknownStop]);
     } else {
         DEBUG_HERE();
-        return ([ArrivalsAtStopIdResponseFactory routesRespond:RoutesAtStopIdIntentResponseCodeNoData]);
+        return ([ArrivalsAtStopIdResponseFactory
+            routesRespond:RoutesAtStopIdIntentResponseCodeNoData]);
     }
 }
 
 + (ArrivalsAtStopIdIntentResponse *)responseForStop:(NSNumber *)stopId {
-    NSString *stopString = [NSString stringWithFormat:@"%ld", (long)stopId.integerValue];
-    
+    NSString *stopString =
+        [NSString stringWithFormat:@"%ld", (long)stopId.integerValue];
+
     DEBUG_HERE();
     // There will be only 1 batch here
     XMLDepartures *deps = [XMLDepartures xml];
-    
+
     deps.keepRawData = YES;
-    
+
     DEBUG_HERE();
-    
+
     [deps getDeparturesForStopId:stopString];
-    
+
     if (deps.gotData && deps.loc != nil) {
         DEBUG_HERE();
-        
-        NSUserActivity *activity = [[NSUserActivity alloc] initWithActivityType:@"org.teleportaloo.pdxbus.xmlarrivals"];
-        
-        activity.userInfo = @{ @"xml": deps.rawData, @"locs": stopString };
-        
-        
-        NSString *stopName;
-        
-        if (deps.locDir && deps.locDir.length > 0) {
-            stopName = [NSString stringWithFormat:@"%@, %@", deps.locDesc, deps.locDir];
-        } else {
-            stopName = [NSString stringWithFormat:@"%@", deps.locDesc];
-        }
-        
-        stopName = [XMLDepartures fixLocationForSpeaking:stopName];
-        
+
+        NSUserActivity *activity = [[NSUserActivity alloc]
+            initWithActivityType:@"org.teleportaloo.pdxbus.xmlarrivals"];
+
+        activity.userInfo =
+            [UserInfo withXml:deps.rawData locs:stopString].dictionary;
+
+        NSString *stopName =
+            [XMLDepartures fixLocationForSpeaking:deps.stopName];
+
         UserState *state = UserState.sharedInstance;
-        
-        [state addToRecentsWithStopId:deps.stopId
-                            description:stopName];
-        
+
+        [state addToRecentsWithStopId:deps.stopId description:stopName];
+
         NSMutableArray<NSString *> *times = [NSMutableArray array];
-        
+
         [times addObject:stopName];
-        
+
         for (Departure *d in deps) {
             NSMutableString *routeArrival = [NSMutableString string];
-            
-            
+
             [routeArrival appendString:d.shortSign];
             [routeArrival appendString:@", "];
-            
+
             if (d.minsToArrival == 0 && d.status == ArrivalStatusScheduled) {
-                [routeArrival appendString:NSLocalizedString(@"scheduled for now", @"Siri text")];
+                [routeArrival
+                    appendString:NSLocalizedString(@"scheduled for now",
+                                                   @"Siri text")];
             } else if (d.minsToArrival == 0) {
-                [routeArrival appendString:NSLocalizedString(@"due now", @"Siri text")];
+                [routeArrival
+                    appendString:NSLocalizedString(@"due now", @"Siri text")];
             } else if (d.minsToArrival == 1) {
-                [routeArrival appendFormat:NSLocalizedString(@"%@1 min", @"Siri text"), (d.status == ArrivalStatusScheduled) ? NSLocalizedString(@"scheduled in ", @"Siri text") : @""];
+                [routeArrival
+                    appendFormat:NSLocalizedString(@"%@1 min", @"Siri text"),
+                                 (d.status == ArrivalStatusScheduled)
+                                     ? NSLocalizedString(@"scheduled in ",
+                                                         @"Siri text")
+                                     : @""];
             } else if (d.minsToArrival < 60) {
-                [routeArrival appendFormat:@"%@%d mins", (d.status == ArrivalStatusScheduled) ? NSLocalizedString(@"scheduled in ", @"Siri text") : @"",  d.minsToArrival];
+                [routeArrival
+                    appendFormat:@"%@%d mins",
+                                 (d.status == ArrivalStatusScheduled)
+                                     ? NSLocalizedString(@"scheduled in ",
+                                                         @"Siri text")
+                                     : @"",
+                                 d.minsToArrival];
             } else {
                 ArrivalWindow arrivalWindow;
-                NSDateFormatter *dateFormatter = [d dateAndTimeFormatterWithPossibleLongDateStyle:kLongDateFormatWeekday arrivalWindow:&arrivalWindow];
-                
+                NSDateFormatter *dateFormatter =
+                    [d dateAndTimeFormatterWithPossibleLongDateStyle:
+                            kLongDateFormatWeekday
+                                                       arrivalWindow:
+                                                           &arrivalWindow];
+
                 NSString *timeText = @"";
-                
+
                 if (arrivalWindow == ArrivalSoon) {
-                    timeText = NSLocalizedString(@"scheduled at ", @"Siri text");
+                    timeText =
+                        NSLocalizedString(@"scheduled at ", @"Siri text");
                 } else {
-                    timeText = NSLocalizedString(@"scheduled on ", @"Siri text");
+                    timeText =
+                        NSLocalizedString(@"scheduled on ", @"Siri text");
                 }
-                
-                [routeArrival appendFormat:@"%@%@", timeText, [dateFormatter stringFromDate:d.departureTime]];
+
+                [routeArrival appendFormat:@"%@%@", timeText,
+                                           [dateFormatter
+                                               stringFromDate:d.departureTime]];
             }
-            
+
             [times addObject:routeArrival];
         }
-        
-        ArrivalsAtStopIdIntentResponse *response = [[ArrivalsAtStopIdIntentResponse alloc] initWithCode:ArrivalsAtStopIdIntentResponseCodeSuccess userActivity:nil];
-        
+
+        ArrivalsAtStopIdIntentResponse *response =
+            [[ArrivalsAtStopIdIntentResponse alloc]
+                initWithCode:ArrivalsAtStopIdIntentResponseCodeSuccess
+                userActivity:nil];
+
         response.arrivals = times;
         response.userActivity = activity;
-        
+
         return response;
     } else if (deps.loc == nil) {
         DEBUG_HERE();
-        return ([ArrivalsAtStopIdResponseFactory arrivalsRespond:ArrivalsAtStopIdIntentResponseCodeUnknownStop]);
+        return ([ArrivalsAtStopIdResponseFactory
+            arrivalsRespond:ArrivalsAtStopIdIntentResponseCodeUnknownStop]);
     } else {
         DEBUG_HERE();
-        return ([ArrivalsAtStopIdResponseFactory arrivalsRespond:ArrivalsAtStopIdIntentResponseCodeNoData]);
+        return ([ArrivalsAtStopIdResponseFactory
+            arrivalsRespond:ArrivalsAtStopIdIntentResponseCodeNoData]);
     }
 }
 

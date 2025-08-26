@@ -12,13 +12,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
 #import "DepartureTimesDataProvider.h"
-
+#import <Foundation/Foundation.h>
 
 @interface DepartureTimesByBus : NSObject <DepartureTimesDataProvider>
 
-@property (nonatomic, strong) NSMutableArray<Departure *> *departureItems;
-
+@property(nonatomic, strong) NSMutableArray<Departure *> *departureItems;
 
 @end

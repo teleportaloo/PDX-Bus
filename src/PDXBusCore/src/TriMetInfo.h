@@ -13,37 +13,31 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
-#import "UIColor+DarkMode.h"
-#include "TriMetInfoRailLines.h"
+#include "TriMetInfoColoredLines.h"
 #include "TriMetInfoVehicles.h"
+#import <Foundation/Foundation.h>
 
-@class UIColor;
-
-#define kBlockName  "trip"
+#define kBlockName "trip"
 #define kBlockNames kBlockName "s"
 #define kBlockNameC "Trip"
-
 
 @interface TriMetInfo : NSObject {
 }
 
++ (NSString *)tinyNameForRoute:(NSString *)route;
 + (PtrConstRouteInfo)infoForRouteNum:(NSInteger)route;
 + (PtrConstRouteInfo)infoForRoute:(NSString *)route;
-+ (PtrConstRouteInfo)infoForLine:(RailLines)line;
++ (PtrConstRouteInfo)infoForLine:(TriMetInfo_ColoredLines)line;
 + (PtrConstRouteInfo)infoForKeyword:(NSString *)key;
-+ (PtrConstVehicleInfo)vehicleInfo:(NSInteger)vehicleId;
++ (TriMetInfo_VehicleConstPtr)vehicleInfo:(NSInteger)vehicleId;
++ (NSString *)vehicleInfoSpecial:(NSInteger)vehicleId;
 + (NSString *)markedUpVehicleString:(NSString *)vehicleId;
 + (NSString *)vehicleIdFromStreetcarId:(NSString *)streetcarId;
-+ (NSString *)routeString:(PtrConstRouteInfo)info;
++ (NSString *)routeIdString:(PtrConstRouteInfo)info;
 + (NSString *)routeNumberFromInput:(NSString *)input;
 + (NSString *)interlinedRouteString:(PtrConstRouteInfo)info;
-+ (UIColor *)colorForRoute:(NSString *)route;
-+ (UIColor *)cachedColor:(NSInteger)col;
 + (NSSet<NSString *> *)streetcarRoutes;
 + (NSSet<NSString *> *)triMetRailLines;
-+ (PtrConstRouteInfo)allColoredLines;
 + (bool)isSingleLoopRoute:(NSString *)route;
-
 
 @end

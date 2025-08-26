@@ -1,15 +1,13 @@
-all: ../../Classes/StreetcarHotSpotTable.txt ../../Classes/MaxHotSpotTable.txt
+all: ../../Tables/StreetcarHotSpotTable.c ../../Tables/MaxHotSpotTable.c
 
 install: all
 
-../../Classes/StreetcarHotSpotTable.txt: streetcar.html
-	./convert.sh streetcar.html ../../Classes/StreetcarHotSpotTable.txt
+../../Tables/StreetcarHotSpotTable.c: streetcar.html
+	./convert.sh streetcar.html ../../Tables/StreetcarHotSpotTable.c
 
-../../Classes/MaxHotSpotTable.txt: railmap.html 
-	./convert.sh railmap.html ../../Classes/MaxHotSpotTable.txt
+../../Tables/MaxHotSpotTable.c: railmap.html
+	./convert.sh railmap.html ../../Tables/MaxHotSpotTable.c
 
 clean:
-	rm ../../Classes/*StreetcarHotSpotTable.txt || true
-	rm ../../Classes/*StreetcarHotSpotTable.txt || true
-	rm ../../Classes/.*.txt || true
-
+	rm ../../Tables/StreetcarHotSpotTable.c || true
+	rm ../../Tables/MaxHotSpotTable.c || true

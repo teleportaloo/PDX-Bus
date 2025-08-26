@@ -15,12 +15,18 @@
 
 #import <UIKit/UIKit.h>
 
-
 @interface SegmentCell : UITableViewCell
 
-- (void)createSegmentWithContent:(NSArray *)content target:(NSObject *)target action:(SEL)action;
+- (void)createSegmentWithContent:(NSArray *)content
+                          target:(NSObject *)target
+                          action:(SEL)action;
 
-+ (instancetype)tableView:(UITableView *)tableView reuseIdentifier:(NSString *)reuseIdentifier cellWithContent:(NSArray *)content target:(NSObject *)target action:(SEL)action selectedIndex:(NSInteger)index;
++ (instancetype)tableView:(UITableView *)tableView
+          reuseIdentifier:(NSString *)reuseIdentifier
+          cellWithContent:(NSArray *)content
+                   target:(NSObject *)target
+                   action:(SEL)action
+            selectedIndex:(NSInteger)index;
 + (CGFloat)rowHeight;
 
 @end

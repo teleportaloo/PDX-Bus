@@ -14,10 +14,9 @@
 
 
 #import "RoutePin.h"
-#import "DirectionView.h"
+#import "DirectionViewController.h"
 
 @implementation RoutePin
-
 
 - (MapPinColorValue)pinColor {
     return MAP_PIN_COLOR_GREEN;
@@ -31,7 +30,7 @@
     if (self.route != nil) {
         return YES;
     }
-    
+
     return NO;
 }
 
@@ -39,8 +38,7 @@
     return NO;
 }
 
-- (NSString *)pinMarkedUpType
-{
+- (NSString *)pinMarkedUpType {
     return [NSString stringWithFormat:@"#D#Lroute:%@ Route info#T", self.route];
 }
 
@@ -56,10 +54,8 @@
     return nil;
 }
 
-- (NSString*)pinMarkedUpSubtitle
-{
-    if (self.dir)
-    {
+- (NSString *)pinMarkedUpSubtitle {
+    if (self.dir) {
         return [NSString stringWithFormat:@"#D%@", self.dir];
     }
     return nil;
@@ -81,7 +77,7 @@
             return self.dir == pin.dir;
         }
     }
-    
+
     return NO;
 }
 
@@ -89,21 +85,21 @@
     if (self == object) {
         return YES;
     }
-    
+
     if (![object isKindOfClass:[RoutePin class]]) {
         return NO;
     }
-    
+
     return [self isEqualToRoutePin:(RoutePin *)object];
 }
 
 - (NSComparisonResult)compare:(RoutePin *)other {
     NSComparisonResult result = [self.desc compare:other.desc];
-    
+
     if (result == NSOrderedSame) {
         result = [self.dir compare:other.dir];
     }
-    
+
     return result;
 }
 

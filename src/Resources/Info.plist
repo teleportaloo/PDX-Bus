@@ -30,7 +30,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>11.4.2</string>
+	<string>11.5.2</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -47,7 +47,9 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>54</string>
+	<string>67</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.travel</string>
 	<key>LSApplicationQueriesSchemes</key>
@@ -56,12 +58,11 @@
 		<string>waze</string>
 		<string>motionxgps</string>
 		<string>motionxgpshd</string>
-		<string>googlechrome</string>
-		<string>googlechromes</string>
 		<string>tel</string>
-		<string>twitter</string>
 		<string>trimettickets</string>
 		<string>fb</string>
+		<string>instagram</string>
+		<string>bsky</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
@@ -77,22 +78,7 @@
 	<dict>
 		<key>NSExceptionDomains</key>
 		<dict>
-			<key>www.small-icons.com</key>
-			<dict>
-				<key>NSExceptionAllowsInsecureHTTPLoads</key>
-				<true/>
-			</dict>
 			<key>civicapps.org</key>
-			<dict>
-				<key>NSExceptionAllowsInsecureHTTPLoads</key>
-				<true/>
-			</dict>
-			<key>portlandtransport.com</key>
-			<dict>
-				<key>NSExceptionAllowsInsecureHTTPLoads</key>
-				<true/>
-			</dict>
-			<key>pdxbus.teleportaloo.org</key>
 			<dict>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
 				<true/>
@@ -102,7 +88,12 @@
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
 				<true/>
 			</dict>
-			<key>www.gobytram.com</key>
+			<key>pdxbus.teleportaloo.org</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+			</dict>
+			<key>portlandtransport.com</key>
 			<dict>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
 				<true/>
@@ -119,6 +110,16 @@
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
 				<true/>
 				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+			<key>www.gobytram.com</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+			</dict>
+			<key>www.small-icons.com</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
 				<true/>
 			</dict>
 		</dict>
@@ -155,6 +156,23 @@
 		<string>SystemWideAlertsIntent</string>
 		<string>org.teleportaloo.pdxbus.bookmark</string>
 	</array>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+		<key>UISceneConfigurations</key>
+		<dict>
+			<key>UIWindowSceneSessionRoleApplication</key>
+			<array>
+				<dict>
+					<key>UISceneConfigurationName</key>
+					<string>Default Configuration</string>
+					<key>UISceneDelegateClassName</key>
+					<string>SceneDelegate</string>
+				</dict>
+			</array>
+		</dict>
+	</dict>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>location</string>
@@ -164,9 +182,7 @@
 	<key>UIPrerenderedIcon</key>
 	<true/>
 	<key>UIRequiredDeviceCapabilities</key>
-	<array>
-		<string>armv6</string>
-	</array>
+	<array/>
 	<key>UIRequiresFullScreen</key>
 	<false/>
 	<key>UISupportedExternalAccessoryProtocols</key>
@@ -183,5 +199,10 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
+	<key>NSLocationTemporaryUsageDescriptionDictionary</key>
+	<dict>
+		<key>NearbySearch</key>
+		<string>We need precise location to search for nearby stops or vehicles.</string>
+	</dict>
 </dict>
 </plist>

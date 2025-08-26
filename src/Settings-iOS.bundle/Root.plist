@@ -388,22 +388,6 @@
 			<key>Type</key>
 			<string>PSGroupSpecifier</string>
 			<key>Title</key>
-			<string>Use Google Chrome instead of Safari embedded inside the app - this will take you outside of the app but you can navigate quickly back.</string>
-		</dict>
-		<dict>
-			<key>Type</key>
-			<string>PSToggleSwitchSpecifier</string>
-			<key>Title</key>
-			<string>Use Chrome</string>
-			<key>Key</key>
-			<string>chrome</string>
-			<key>DefaultValue</key>
-			<false/>
-		</dict>
-		<dict>
-			<key>Type</key>
-			<string>PSGroupSpecifier</string>
-			<key>Title</key>
 			<string>Search Options</string>
 		</dict>
 		<dict>

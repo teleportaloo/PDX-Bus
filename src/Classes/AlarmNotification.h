@@ -13,14 +13,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
 #import "MapPin.h"
+#import <Foundation/Foundation.h>
 #import <UserNotifications/UserNotifications.h>
 
 @interface AlarmNotification : NSObject <MapPin>
 
-@property (nonatomic) UIApplicationState previousState;
+@property(nonatomic) UIApplicationState previousState;
 
-- (void)application:(UIApplication *)app didReceiveLocalNotification:(UNNotificationRequest *)notif;
+- (void)application:(UIApplication *)app
+    didReceiveLocalNotification:(UNNotificationRequest *)notif;
++ (void)executeAction:(NSDictionary *)userInfo;
 
 @end

@@ -13,23 +13,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <WatchKit/WatchKit.h>
-#import <Foundation/Foundation.h>
+#import "InterfaceControllerWithCommuterBookmark.h"
 #import "UserState.h"
 #import "WatchBookmarksContext.h"
-#import "InterfaceControllerWithCommuterBookmark.h"
 #import "WatchConnectivity/WatchConnectivity.h"
+#import <Foundation/Foundation.h>
+#import <WatchKit/WatchKit.h>
 
-@interface WatchBookmarksInterfaceController : InterfaceControllerWithCommuterBookmark<WCSessionDelegate>
+@interface WatchBookmarksInterfaceController
+    : InterfaceControllerWithCommuterBookmark <WCSessionDelegate>
 
-@property (strong, nonatomic) NSUserActivity *userActivity;
+@property(strong, nonatomic) NSUserActivity *userActivity;
 
-@property (strong, nonatomic) IBOutlet WKInterfaceTable *bookmarkTable;
-@property (strong, nonatomic) IBOutlet WKInterfaceGroup *topGroup;
-@property (strong, nonatomic) IBOutlet WKInterfaceLabel *mainTextLabel;
-@property (strong, nonatomic) IBOutlet WKInterfaceLabel *bookmarkLabel;
-@property (unsafe_unretained, nonatomic) IBOutlet WKInterfaceButton *menuHomeButton;
-@property (unsafe_unretained, nonatomic) IBOutlet WKInterfaceButton *menuCommuteButton;
+@property(strong, nonatomic) IBOutlet WKInterfaceTable *bookmarkTable;
+@property(strong, nonatomic) IBOutlet WKInterfaceGroup *topGroup;
+@property(strong, nonatomic) IBOutlet WKInterfaceLabel *mainTextLabel;
+@property(strong, nonatomic) IBOutlet WKInterfaceLabel *bookmarkLabel;
+@property(unsafe_unretained, nonatomic)
+    IBOutlet WKInterfaceButton *menuHomeButton;
+@property(unsafe_unretained, nonatomic)
+    IBOutlet WKInterfaceButton *menuCommuteButton;
 
 - (void)applicationDidBecomeActive;
 - (void)processUserActivity;

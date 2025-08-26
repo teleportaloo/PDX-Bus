@@ -13,7 +13,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
 #import "MemoryCaches.h"
 #import "SharedFile.h"
 #import <Foundation/Foundation.h>
@@ -21,14 +20,16 @@
 @class UIColor;
 @class UIImage;
 
-
 @interface BlockColorDb : NSObject <ClearableCache>
 
-@property (nonatomic, copy) NSDictionary *db;
-@property (nonatomic, strong) NSMutableDictionary *colorMap;
-@property (nonatomic, readonly, copy) NSArray *keys;
+@property(nonatomic, copy) NSDictionary *db;
+@property(nonatomic, strong)
+    NSMutableDictionary<NSString *, NSDictionary *> *colorMap;
+@property(nonatomic, readonly, copy) NSArray *keys;
 
-- (void)addColor:(UIColor *)color forBlock:(NSString *)block description:(NSString *)desc;
+- (void)addColor:(UIColor *)color
+        forBlock:(NSString *)block
+     description:(NSString *)desc;
 - (UIColor *)colorForBlock:(NSString *)block;
 - (NSString *)descForBlock:(NSString *)block;
 - (NSDate *)timeForBlock:(NSString *)block;

@@ -13,18 +13,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <WatchKit/WatchKit.h>
-#import <Foundation/Foundation.h>
 #import "DepartureData+watchOSUI.h"
 #import "WatchRow.h"
+#import <Foundation/Foundation.h>
+#import <WatchKit/WatchKit.h>
 
 @interface WatchArrival : WatchRow
 
-@property (strong, nonatomic) IBOutlet WKInterfaceImage *lineColor;
-@property (strong, nonatomic) IBOutlet WKInterfaceLabel *heading;
-@property (strong, nonatomic) IBOutlet WKInterfaceLabel *mins;
-@property (strong, nonatomic) IBOutlet WKInterfaceImage *blockColor;
-@property (strong, nonatomic) IBOutlet WKInterfaceLabel *exception;
-@property (strong, nonatomic) IBOutlet WKInterfaceLabel *stale;
+@property(strong, nonatomic) IBOutlet WKInterfaceImage *lineColor;
+@property(strong, nonatomic) IBOutlet WKInterfaceLabel *heading;
+@property(strong, nonatomic) IBOutlet WKInterfaceLabel *mins;
+@property(strong, nonatomic) IBOutlet WKInterfaceImage *blockColor;
+@property(strong, nonatomic) IBOutlet WKInterfaceLabel *exception;
+@property(strong, nonatomic) IBOutlet WKInterfaceLabel *stale;
 
 @end

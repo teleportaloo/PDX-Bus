@@ -13,7 +13,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+#define DEBUG_LEVEL_FOR_FILE LogUI
 
 #import "InterfaceControllerWithBackgroundThread.h"
 #import "DebugLogging.h"
@@ -23,54 +23,55 @@
     int _total;
 }
 
-
-@property (nonatomic, strong)   WatchContext *delayedContext;
-@property (nonatomic, copy)     void (^ delayedBlock)(void);
-@property (nonatomic)           bool displayed;
+@property(nonatomic, strong) WatchContext *delayedContext;
+@property(nonatomic, copy) void (^delayedBlock)(void);
+@property(nonatomic) bool displayed;
 
 @end
 
-
 @implementation InterfaceControllerWithBackgroundThread
-
-
 
 - (id)backgroundTask {
     return nil;
 }
 
 - (bool)backgroundThreadRunning {
-    @synchronized (self) {
+    @synchronized(self) {
         return self.backgroundThread != nil;
     }
 }
 
 - (void)executebackgroundTask:(id)unused {
     @autoreleasepool {
-        @synchronized (self) {
+        @synchronized(self) {
             if (self.backgroundThread != nil) {
                 return;
             }
-            
+
             self.backgroundThread = [NSThread currentThread];
         }
-        
+
         id result = [self backgroundTask];
-        
+
         if (![NSThread currentThread].isCancelled) {
-            [self performSelectorOnMainThread:@selector(taskFinishedMainThread:) withObject:result waitUntilDone:NO];
+            [self performSelectorOnMainThread:@selector(taskFinishedMainThread:)
+                                   withObject:result
+                                waitUntilDone:NO];
         } else {
-            ExtensionDelegate *extensionDelegate = (ExtensionDelegate *)[WKExtension sharedExtension].delegate;
-            
+            ExtensionDelegate *extensionDelegate =
+                (ExtensionDelegate *)[WKExtension sharedExtension].delegate;
+
             if (extensionDelegate.backgrounded) {
                 DEBUG_LOG(@"Saving for wake\n");
                 extensionDelegate.wakeDelegate = self;
             }
-            
-            [self performSelectorOnMainThread:@selector(taskFailedMainThread:) withObject:result waitUntilDone:NO];
+
+            [self performSelectorOnMainThread:@selector(taskFailedMainThread:)
+                                   withObject:result
+                                waitUntilDone:NO];
         }
-        
-        @synchronized (self) {
+
+        @synchronized(self) {
             self.backgroundThread = nil;
         }
     }
@@ -87,18 +88,22 @@
 - (void)sendProgress:(int)progress total:(int)total {
     _progress = progress;
     _total = total;
-    
-    [self performSelectorOnMainThread:@selector(receiveProgress:) withObject:nil waitUntilDone:NO];
+
+    [self performSelectorOnMainThread:@selector(receiveProgress:)
+                           withObject:nil
+                        waitUntilDone:NO];
 }
 
 - (void)startBackgroundTask {
-    @synchronized (self) {
-        [NSThread detachNewThreadSelector:@selector(executebackgroundTask:) toTarget:self withObject:nil];
+    @synchronized(self) {
+        [NSThread detachNewThreadSelector:@selector(executebackgroundTask:)
+                                 toTarget:self
+                               withObject:nil];
     }
 }
 
 - (void)cancelBackgroundTask {
-    @synchronized (self) {
+    @synchronized(self) {
         [self.backgroundThread cancel];
     }
 }
@@ -114,12 +119,13 @@
 
 - (void)awakeWithContext:(id)context {
     [super awakeWithContext:context];
-    
+
     // Configure interface objects here.
 }
 
 - (void)willActivate {
-    // This method is called when watch view controller is about to be visible to user
+    // This method is called when watch view controller is about to be visible
+    // to user
     [super willActivate];
 }
 
@@ -140,7 +146,7 @@
 
 - (void)didAppear {
     self.displayed = YES;
-    
+
     if (self.delayedContext) {
         [self.delayedContext delayedPushFrom:self completion:self.delayedBlock];
         self.delayedContext = nil;

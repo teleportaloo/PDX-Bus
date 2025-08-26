@@ -13,17 +13,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#import "DepartureTimesViewController.h"
 #import "ViewControllerBase+LinkCell.h"
-#import "DepartureTimesView.h"
-
 
 @implementation ViewControllerBase (LinkCell)
 
 - (UrlAction)urlActionCalback {
     __weak __typeof__(self) weakSelf = self;
-    
-    return ^bool (LinkCell *cell, NSString *url) {
-        return [weakSelf linkAction:url source:cell];
+
+    return ^bool(TextViewLinkCell *cell, NSString *url) {
+      return [weakSelf linkAction:url source:cell];
     };
 }
 

@@ -38,8 +38,6 @@
 	<string>Train_Honk_Horn_2x-Mike_Koenig-157974048.aif</string>
 	<key>streetcar_map_first</key>
 	<false/>
-	<key>chrome</key>
-	<false/>
 	<key>search_stations</key>
 	<true/>
 	<key>search_bookmarks</key>

@@ -13,14 +13,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <UIKit/UIKit.h>
 #import "LinkResponsiveTextView.h"
+#import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SelectableTextViewCell : UITableViewCell
 
-- (LinkResponsiveTextView * __nullable) textView;
+- (LinkResponsiveTextView *__nullable)textView;
 - (void)resetForReuse;
 
 @end

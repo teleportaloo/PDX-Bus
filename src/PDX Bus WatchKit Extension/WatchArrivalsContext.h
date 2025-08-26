@@ -13,34 +13,37 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
-#import <WatchKit/WatchKit.h>
 #import "DepartureData+watchOSUI.h"
 #import "WatchContext.h"
 #import "XMLDepartures.h"
 #import "XMLDetours.h"
+#import <Foundation/Foundation.h>
+#import <WatchKit/WatchKit.h>
 
 #define kArrivalsScene @"Arrivals"
 
 @interface WatchArrivalsContext : WatchContext
 
-@property (nonatomic, copy)             NSString *stopDesc;
-@property (nonatomic, copy)             NSString *navText;
-@property (nonatomic, readonly)         bool hasNext;
-@property (nonatomic)                   bool showMap;
-@property (nonatomic)                   bool showDistance;
-@property (nonatomic)                   double distance;
-@property (nonatomic, copy)             NSString *stopId;
-@property (nonatomic, copy)             NSString *detailBlock;
-@property (nonatomic, copy)             NSString *detailDir;
-@property (nonatomic, strong)           XMLDepartures *departures;
-@property (nonatomic, readonly, strong) WatchArrivalsContext *next;
-@property (nonatomic, readonly, strong) WatchArrivalsContext *clone;
+@property(nonatomic, copy) NSString *stopDesc;
+@property(nonatomic, copy) NSString *navText;
+@property(nonatomic, readonly) bool hasNext;
+@property(nonatomic) bool showMap;
+@property(nonatomic) bool showDistance;
+@property(nonatomic) double distance;
+@property(nonatomic, copy) NSString *stopId;
+@property(nonatomic, copy) NSString *detailBlock;
+@property(nonatomic, copy) NSString *detailDir;
+@property(nonatomic, strong) XMLDepartures *departures;
+@property(nonatomic, readonly, strong) WatchArrivalsContext *next;
+@property(nonatomic, readonly, strong) WatchArrivalsContext *clone;
 
 - (void)updateUserActivity:(WKInterfaceController *)controller;
 
-+ (WatchArrivalsContext*)contextWithStopId:(NSString *)stopId;
-+ (WatchArrivalsContext*)contextWithStopId:(NSString *)stopId distance:(double)distance;
-+ (WatchArrivalsContext*)contextWithStopId:(NSString *)stopId distance:(double)distance stopDesc:(NSString*)stopDesc;
++ (WatchArrivalsContext *)contextWithStopId:(NSString *)stopId;
++ (WatchArrivalsContext *)contextWithStopId:(NSString *)stopId
+                                   distance:(double)distance;
++ (WatchArrivalsContext *)contextWithStopId:(NSString *)stopId
+                                   distance:(double)distance
+                                   stopDesc:(NSString *)stopDesc;
 
 @end

@@ -17,14 +17,14 @@
 
 @interface StoppableFetcher : NSObject <NSURLSessionDataDelegate>
 
+@property(nonatomic, copy) NSString *networkErrorMsg;
+@property(strong) NSMutableData *rawData;
+@property(nonatomic) bool timedOut;
+@property(nonatomic) float giveUp;
+@property(atomic, strong) dispatch_semaphore_t fetchDone;
 
-@property (nonatomic, copy) NSString *networkErrorMsg;
-@property (strong) NSMutableData *rawData;
-@property (nonatomic) bool timedOut;
-@property (nonatomic) float giveUp;
-@property (atomic, strong) dispatch_semaphore_t fetchDone;
-
-- (void)fetchDataByPolling:(NSString *)query cachePolicy:(NSURLRequestCachePolicy)cachePolicy;
+- (void)fetchDataByPolling:(NSString *)query
+               cachePolicy:(NSURLRequestCachePolicy)cachePolicy;
 - (void)incrementalBytes:(long long)incremental;
 - (instancetype)init;
 - (void)cancel;

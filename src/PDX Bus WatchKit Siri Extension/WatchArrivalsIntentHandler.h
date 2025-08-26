@@ -13,19 +13,23 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
-#import "ArrivalsIntent.h"
 #import "ArrivalsAtStopIdIntent.h"
+#import "ArrivalsIntent.h"
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface WatchArrivalsIntentHandler<ArrivalsIntentHandling, ArrivalsAtStopIdIntentHandling> : NSObject
+@interface WatchArrivalsIntentHandler<ArrivalsIntentHandling,
+                                      ArrivalsAtStopIdIntentHandling> : NSObject
 
 - (void)handleArrivals:(ArrivalsIntent *)intent
-            completion:(void (^)(ArrivalsIntentResponse *response))completion API_AVAILABLE(watchos(5.0));
+            completion:(void (^)(ArrivalsIntentResponse *response))completion
+    API_AVAILABLE(watchos(5.0));
 
 - (void)handleArrivalsAtStopId:(ArrivalsAtStopIdIntent *)intent
-                    completion:(void (^)(ArrivalsAtStopIdIntentResponse *response))completion API_AVAILABLE(watchos(5.0));
+                    completion:
+                        (void (^)(ArrivalsAtStopIdIntentResponse *response))
+                            completion API_AVAILABLE(watchos(5.0));
 
 @end
 

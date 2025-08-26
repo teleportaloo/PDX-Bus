@@ -13,8 +13,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import "Detour.h"
 #import "DepartureTimesDataProvider.h"
+#import "Detour.h"
 
 @interface Detour (DTData) <DepartureTimesDataProvider>
 

@@ -13,23 +13,25 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import "DepartureData+watchOSUI.h"
-#import "TriMetInfo.h"
-#import "BlockColorDb.h"
-#import "MapAnnotationImageFactory.h"
-#import "NSString+Helper.h"
 #import "ArrivalColors.h"
+#import "BlockColorDb.h"
+#import "DepartureData+watchOSUI.h"
+#import "NSString+MoreMarkup.h"
+#import "TaskDispatch.h"
+#import "TriMetInfo+UI.h"
+#import "UIFont+Utility.h"
+#import <CoreText/CoreText.h>
+#import "UIColor+HTML.h"
 
 @implementation Departure (watchOSUI)
 
 @dynamic blockImageColor;
 @dynamic stale;
 
-
 - (UIColor *)fontColor {
     int mins = self.minsToArrival;
     UIColor *timeColor = nil;
-    
+
     if (self.status == ArrivalStatusScheduled) {
         timeColor = ArrivalColorScheduled;
     } else if (self.actuallyLate) {
@@ -39,32 +41,32 @@
     } else {
         timeColor = ArrivalColorOK;
     }
-    
+
     return timeColor;
 }
 
 - (UIImage *)routeColorImage {
     static NSMutableDictionary *imageCache = nil;
-    
+
     UIImage *image = nil;
-    
+
     if (imageCache == nil) {
         imageCache = [[NSMutableDictionary alloc] init];
     }
-    
+
     PtrConstRouteInfo raw = [TriMetInfo infoForRoute:self.route];
-    
+
     if (raw != NULL) {
         image = imageCache[self.route];
-        
+
         if (image == nil) {
             PtrConstRouteInfo raw = [TriMetInfo infoForRoute:self.route];
-            
+
             CGRect rect = CGRectMake(0.0f, 0.0f, 20.0f, 20.0f);
-            
+
             /* Note:  This is a graphics context block */
             UIGraphicsBeginImageContextWithOptions(rect.size, NO, 0.0);
-            
+
             CGMutablePathRef fillPath = CGPathCreateMutable();
             CGRect outerSquare;
             CGFloat width = fmin(CGRectGetWidth(rect), CGRectGetHeight(rect));
@@ -72,68 +74,97 @@
             outerSquare.origin.y = CGRectGetMidY(rect) - width / 2;
             outerSquare.size.width = width;
             outerSquare.size.height = width;
-            
-            if (raw->streetcar) {
+
+            if (raw->lineType == LineTypeStreetcar) {
                 CGRect innerSquare = CGRectInset(outerSquare, 1, 1);
                 CGPathAddRect(fillPath, NULL, innerSquare);
             } else {
                 CGPathAddEllipseInRect(fillPath, NULL, outerSquare);
             }
-            
+
             CGContextRef context = UIGraphicsGetCurrentContext();
-            CGContextSetRGBFillColor(context, COL_HTML_R(raw->html_color), COL_HTML_G(raw->html_color), COL_HTML_B(raw->html_color), 1.0);
+            CGContextSetRGBFillColor(context, COL_HTML_R(raw->html_color),
+                                     COL_HTML_G(raw->html_color),
+                                     COL_HTML_B(raw->html_color), 1.0);
             CGContextAddPath(context, fillPath);
             CGContextFillPath(context);
-            
+
             CGPathRelease(fillPath);
-            
+
+            if (raw->lineType == LineTypeBus) {
+                static UIFont *tinyFont;
+                DoOnce(^{
+                  tinyFont = [UIFont monospacedDigitSystemFontOfSize:14.0];
+                });
+
+                NSAttributedString *route = [[NSString
+                    stringWithFormat:@"#W%ld", (long)raw->route_number]
+                    attributedStringFromMarkUpWithFont:tinyFont];
+
+                CTLineRef line = CTLineCreateWithAttributedString(
+                    (CFAttributedStringRef)route);
+                CGAffineTransform trans = CGAffineTransformMakeScale(1, -1);
+                CGContextSetTextMatrix(context, trans);
+                CGRect stringRect = CTLineGetImageBounds(line, context);
+                CGContextSetTextPosition(
+                    context,
+                    outerSquare.origin.x +
+                        (outerSquare.size.width - stringRect.size.width - 2) /
+                            2,
+                    rect.size.height -
+                        (outerSquare.origin.y +
+                         (outerSquare.size.height - stringRect.size.height) /
+                             2));
+                CTLineDraw(line, context);
+                CFRelease(line);
+            }
+
             image = UIGraphicsGetImageFromCurrentImageContext();
-            
+
             UIGraphicsEndImageContext();
-            
-            
+
             imageCache[self.route] = image;
         }
     }
-    
+
     return image;
 }
 
 - (UIImage *)blockImageColor {
     BlockColorDb *db = [BlockColorDb sharedInstance];
-    
+
     db.colorMap = nil;
-    
+
     UIColor *color = [db colorForBlock:self.block];
-    
+
     if (color == nil) {
         return nil;
     }
-    
+
     static NSMutableDictionary *imageCache = nil;
-    
+
     if (imageCache == nil) {
         imageCache = [[NSMutableDictionary alloc] init];
     }
-    
+
     UIImage *image = imageCache[color];
-    
+
     if (image == nil) {
         CGRect rect = CGRectMake(0.0f, 0.0f, 1.0f, 1.0f);
-        
+
         /* Note:  This is a graphics context block */
         UIGraphicsBeginImageContextWithOptions(rect.size, NO, 0.0);
         CGContextRef context = UIGraphicsGetCurrentContext();
-        
+
         CGContextSetFillColorWithColor(context, color.CGColor);
         CGContextFillRect(context, rect);
-        
+
         image = UIGraphicsGetImageFromCurrentImageContext();
         UIGraphicsEndImageContext();
-        
+
         imageCache[color] = image;
     }
-    
+
     return image;
 }
 
@@ -148,22 +179,24 @@
         return [NSString stringWithFormat:@"%d", self.minsToArrival];
     } else {
         ArrivalWindow arrivalWindow;
-        NSDateFormatter *dateFormatter = [self dateAndTimeFormatterWithPossibleLongDateStyle:kLongDateFormat arrivalWindow:&arrivalWindow];
-        
+        NSDateFormatter *dateFormatter =
+            [self dateAndTimeFormatterWithPossibleLongDateStyle:kLongDateFormat
+                                                  arrivalWindow:&arrivalWindow];
+
         switch (arrivalWindow) {
-            case ArrivalSoon:
-                dateFormatter.dateFormat = @"a";
-                return [dateFormatter stringFromDate:self.departureTime];
-                
-            case ArrivalThisWeek:
-                dateFormatter.dateFormat = @"E";
-                return [dateFormatter stringFromDate:self.departureTime];
-                
-            case ArrivalNextWeek:
-            default:
-                return @"::";
+        case ArrivalSoon:
+            dateFormatter.dateFormat = @"a";
+            return [dateFormatter stringFromDate:self.departureTime];
+
+        case ArrivalThisWeek:
+            dateFormatter.dateFormat = @"E";
+            return [dateFormatter stringFromDate:self.departureTime];
+
+        case ArrivalNextWeek:
+        default:
+            return @"::";
         }
-        
+
         return @"::";
     }
 }
@@ -173,10 +206,10 @@
 }
 
 - (NSAttributedString *)headingWithStatusFullSign:(bool)fullSign {
-    NSMutableAttributedString *string = @"".mutableAttributedString;
-    
+    NSMutableAttributedString *string = [NSMutableAttributedString new];
+
     UIColor *statusColor = [UIColor blackColor];
-    
+
     if (self.status == ArrivalStatusCancelled) {
         statusColor = [UIColor orangeColor];
     } else if (self.detour) {
@@ -184,14 +217,16 @@
     } else if (self.status == ArrivalStatusScheduled) {
         statusColor = [UIColor grayColor];
     }
-    
+
     NSString *sign = fullSign ? self.fullSign : self.shortSign;
-    
+
     if (sign != nil) {
-        NSAttributedString *subString = [sign attributedStringWithAttributes:@{ NSForegroundColorAttributeName: statusColor }];
+        NSAttributedString *subString = [sign attributedStringWithAttributes:@{
+            NSForegroundColorAttributeName : statusColor
+        }];
         [string appendAttributedString:subString];
     }
-    
+
     return string;
 }
 
@@ -201,27 +236,26 @@
 
 - (NSString *)exception {
     NSMutableString *result = @"".mutableCopy;
-    
+
     bool needsNewl = NO;
-    
-    
+
     if (self.detour) {
         if (needsNewl) {
             [result appendString:@"\n"];
             needsNewl = NO;
         }
-        
+
         [result appendString:@"⚠️"];
     }
-    
+
     if (self.status == ArrivalStatusScheduled) {
         if (needsNewl) {
             [result appendString:@"\n"];
         }
-        
+
         [result appendString:@"🕔"];
     }
-    
+
     return result;
 }
 
@@ -231,11 +265,11 @@
 
 - (UIColor *)pinTint {
     UIColor *ret = [TriMetInfo colorForRoute:self.route];
-    
+
     if (ret == nil) {
         ret = [UIColor modeAwareBusColor];
     }
-    
+
     return ret;
 }
 

@@ -13,20 +13,23 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
 #import "TriMetTypes.h"
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-// We actually don't need to check for a string as this is only used for a NDictionary<NSString *, NSString *> type
-// #define XML_STR_CLASS(X)        [(X) isKindOfClass:[NSString class]]
-#define XML_STR_CLASS(X)        (TRUE)
+// We actually don't need to check for a string as this is only used for a
+// NDictionary<NSString *, NSString *> type #define XML_STR_CLASS(X)        [(X)
+// isKindOfClass:[NSString class]]
+#define XML_STR_CLASS(X) (TRUE)
 
-#define XML_NON_NULL_STR(STR)   (XML_STR_CLASS(STR) ? (((STR) == nil ? @"?" : (STR))) : nil)
+#define XML_NON_NULL_STR(STR)                                                  \
+    (XML_STR_CLASS(STR) ? (((STR) == nil ? @"?" : (STR))) : nil)
 
 @interface NSDictionary (Types)
 
-- (NSInteger)missingOrIntForKey:(NSString *_Nonnull)key missing:(NSInteger)missing;
+- (NSInteger)missingOrIntForKey:(NSString *_Nonnull)key
+                        missing:(NSInteger)missing;
 - (NSString *_Nullable)nullOrStringForKey:(NSString *_Nonnull)key;
 - (NSNumber *_Nullable)nullOrNumForKey:(NSString *_Nonnull)key;
 - (NSString *)zeroLenOrStringForKey:(NSString *_Nonnull)key;

@@ -15,10 +15,9 @@
 
 #import <UIKit/UIKit.h>
 
-
 @interface InterfaceOrientation : NSObject
 
-+ (UIInterfaceOrientation)getInterfaceOrientation:(UIViewController *)controller;
-
++ (UIInterfaceOrientation)getInterfaceOrientation:
+    (UIViewController *)controller;
 
 @end

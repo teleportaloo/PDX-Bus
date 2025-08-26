@@ -6,11 +6,19 @@
 	<array>
 		<dict>
 			<key>ChosenName</key>
-			<string>Pioneer Square North MAX Station</string>
+			<string>Pioneer Square South MAX Station</string>
 			<key>Location</key>
-			<string>8383</string>
+			<string>8334</string>
 			<key>OriginalName</key>
-			<string>Pioneer Square North MAX Station</string>
+			<string>Pioneer Square South MAX Station</string>
+		</dict>
+		<dict>
+			<key>ChosenName</key>
+			<string>Portland Int&apos;l Airport MAX Station</string>
+			<key>Location</key>
+			<string>10579</string>
+			<key>OriginalName</key>
+			<string>Portland Int&apos;l Airport MAX Station</string>
 		</dict>
 		<dict>
 			<key>ChosenName</key>

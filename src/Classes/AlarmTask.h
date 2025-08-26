@@ -13,24 +13,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
-#import <CoreLocation/CoreLocation.h>
-#import "BackgroundTaskContainer.h"
-#import "ScreenConstants.h"
 #import "AlarmCell.h"
+#import "BackgroundTaskContainer.h"
 #import "DebugLogging.h"
+#import "ScreenConstants.h"
+#import <CoreLocation/CoreLocation.h>
+#import <Foundation/Foundation.h>
 
-#define kStopIdNotification   @"stopId"
-#define kAlarmBlock           @"alarmBlock"
-#define kAlarmDir             @"alarmDir"
-#define kStopMapDescription   @"stopDesc"
-#define kStopMapLat           @"mapLat"
-#define kStopMapLng           @"mapLng"
-#define kCurrLocLat           @"curLat"
-#define kCurrLocLng           @"curLng"
-#define kCurrTimestamp        @"curTimestamp"
 #define kDoNotDisplayIfActive @"not if active"
-#define kNoBadge              @"no badge"
+#define kNoBadge @"no badge"
 
 typedef enum AlarmLocationNeededEnum {
     AlarmStateFetchArrivals,
@@ -41,8 +32,7 @@ typedef enum AlarmLocationNeededEnum {
     AlarmFired
 } AlarmLocationNeeded;
 
-typedef enum AlarmButtonEnum
-{
+typedef enum AlarmButtonEnum {
     AlarmButtonNone,
     AlarmButtonBack,
     AlarmButtonMap,
@@ -69,18 +59,17 @@ typedef enum AlarmButtonEnum
 #endif
 }
 
-@property (nonatomic, weak)           id<AlarmObserver> observer; // weak
-@property (nonatomic, copy)           NSString *desc;
-@property (atomic)                    AlarmLocationNeeded alarmState;
-@property (nonatomic, strong)         NSDate *nextFetch;
-@property (nonatomic, copy)           NSString *stopId;
-@property (nonatomic, readonly, copy) NSString *key;
-@property (nonatomic, readonly, copy) NSString *icon;
+@property(nonatomic, weak) id<AlarmObserver> observer; // weak
+@property(nonatomic, copy) NSString *desc;
+@property(atomic) AlarmLocationNeeded alarmState;
+@property(nonatomic, strong) NSDate *nextFetch;
+@property(nonatomic, copy) NSString *stopId;
+@property(nonatomic, readonly, copy) NSString *key;
+@property(nonatomic, readonly, copy) NSString *systemIcon;
 
 // Debugging helpers
-@property (nonatomic, readonly, copy) NSString *appState;
-@property (nonatomic, readonly)       int internalDataItems;
-
+@property(nonatomic, readonly, copy) NSString *appState;
+@property(nonatomic, readonly) int internalDataItems;
 
 - (void)cancelTask;
 - (void)startTask;
@@ -89,17 +78,21 @@ typedef enum AlarmButtonEnum
 - (void)locationManager:(CLLocationManager *)manager
     didUpdateToLocation:(CLLocation *)newLocation
            fromLocation:(CLLocation *)oldLocation;
-- (void) alert:(NSString *)string
-      fireDate:(NSDate *)fireDate button:(AlarmButton)button userInfo:(NSDictionary *)userInfo defaultSound:(bool)defaultSound
-    thisThread:(bool)thisThread;
+- (void)alert:(NSString *)string
+        fireDate:(NSDate *)fireDate
+          button:(AlarmButton)button
+        userInfo:(NSDictionary *)userInfo
+    defaultSound:(bool)defaultSound
+      thisThread:(bool)thisThread;
 - (void)cancelNotification;
 - (void)showToUser:(BackgroundTaskContainer *)backgroundTask;
-- (NSString *)cellReuseIdentifier:(NSString *)identifier width:(ScreenWidth)width;
+- (NSString *)cellReuseIdentifier:(NSString *)identifier
+                            width:(ScreenWidth)width;
 - (void)populateCell:(AlarmCell *)cell;
 - (NSDate *)earlierAlert:(NSDate *)alert;
 
 #ifdef DEBUG_ALARMS
-@property (strong) NSMutableArray *dataReceived;
+@property(strong) NSMutableArray *dataReceived;
 - (void)showMap:(UINavigationController *)navController;
 #endif
 

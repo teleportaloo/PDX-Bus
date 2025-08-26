@@ -13,18 +13,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <MapKit/MapKit.h>
 #import "MapPin.h"
-#import "MapAnnotationImageFactory.h"
+#import <MapKit/MapKit.h>
 
 @interface BearingAnnotationView : MKAnnotationView
 
-@property (nonatomic, strong) MapAnnotationImageFactory *annotationImage;
-
 - (void)updateDirectionalAnnotationView:(MKMapView *)mapView;
+- (void)updateDirectionInPlace:(MKMapView *)mapView;
 
 + (MKAnnotationView *)viewForPin:(id<MapPin>)pin
                          mapView:(MKMapView *)mapView
-                       urlAction:(bool (^__nullable)(id<MapPin>, NSURL *url, UIView *source)) urlAction;
+                       urlAction:(bool (^__nullable)(id<MapPin>, NSURL *url,
+                                                     UIView *source))urlAction;
 
 @end

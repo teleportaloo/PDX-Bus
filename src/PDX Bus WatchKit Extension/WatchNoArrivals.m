@@ -18,7 +18,6 @@
 
 @implementation WatchNoArrivals
 
-
 + (NSString *)identifier {
     return @"None";
 }

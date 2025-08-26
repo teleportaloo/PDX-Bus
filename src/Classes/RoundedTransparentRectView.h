@@ -19,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface RoundedTransparentRectView : UIView
 
-@property (nonatomic) UIColor *color;
+@property(nonatomic) UIColor *color;
 
 @end
 

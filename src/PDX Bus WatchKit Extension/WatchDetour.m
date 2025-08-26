@@ -18,17 +18,18 @@
 
 @implementation WatchDetour
 
-
 + (NSString *)identifier {
     return @"Detour";
 }
 
 - (void)populate:(XMLDepartures *)xml departures:(NSArray<Departure *> *)deps {
     Detour *det = deps.firstObject.sortedDetours.allDetours[self.index];
-    
+
     if (det.infoLinkUrl) {
-        self.label.text = [NSString stringWithFormat:NSLocalizedString(@"%@ (See iPhone for link)", @"detour text"),
-                           det.detourDesc];
+        self.label.text = [NSString
+            stringWithFormat:NSLocalizedString(@"%@ (See iPhone for link)",
+                                               @"detour text"),
+                             det.detourDesc];
     } else {
         self.label.text = det.detourDesc;
     }

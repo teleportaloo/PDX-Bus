@@ -14,7 +14,6 @@
 
 #import "SimpleAnnotation.h"
 
-
 @implementation SimpleAnnotation
 
 @dynamic pinBearing;
@@ -51,7 +50,5 @@
 - (double)pinBearing {
     return _bearing;
 }
-
-
 
 @end

@@ -15,10 +15,10 @@
 
 #import <WatchKit/WatchKit.h>
 
-#define  kAlertScene @"Alert"
+#define kAlertScene @"Alert"
 
 @interface AlertInterfaceController : WKInterfaceController
-@property (strong, nonatomic) IBOutlet WKInterfaceLabel *alertLabel;
+@property(strong, nonatomic) IBOutlet WKInterfaceLabel *alertLabel;
 - (IBAction)okButtonTapped;
 - (IBAction)menuItemHome;
 

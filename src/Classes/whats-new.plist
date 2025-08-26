@@ -2,6 +2,57 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <array>
+	<string>.11.5.2 (September 2025)</string>
+	<string>.11.5.1 (August 2025)</string>
+	<string>Stability and bug fixes from crash logs.</string>
+	<string>Improved responsiveness of the MAX and Streetcar maps.</string>
+	<string>+https://trimet.org/maxdowntown/ Removed Skidmore Fountain MAX Station.</string>
+	<string>Clarified help for Apple Watch.</string>
+	<string>Added indices for routes and detours.</string>
+	<string>.11.5.0 (July 2025)</string>
+	<string>All new standard icons for a new clean look.</string>
+	<string>Stability and bug fixes.</string>
+	<string>$TipJar ❤️ Added a Tip Jar, as I #ineed#i more coffee.
+        
+Leave a tip to support the app. It&apos;s made by volunteers using TriMet&apos;s public data. No obligation, no additional features, just a way to say #ithanks#i. </string>
+	<string>Reworked GPS user interface to be slicker and quicker and better.</string>
+	<string>Updated minimum supported iOS version to iOS 15.0, and updated to use modern user interface elements.</string>
+	<string>Optimized the way routes are drawn on maps - now it&apos;s much, much faster.</string>
+	<string>.11.4.10 (May 2025)</string>
+	<string>Updated website links.</string>
+	<string>.11.4.9 (February 2025)</string>
+	<string>Fixed some UI crashes. 😱</string>
+	<string>Updated vehicles to include new busses and trains and what kind of busses they are.</string>
+	<string>Removed Twitter (X) link for PDX Bus, as we don&apos;t do support on Twitter any more</string>
+	<string>$Bluesky Removed Twitter (X) links for TriMet also, as they are not linking to X from their main site any more. Added their Bluesky account. (Their X account does seem to work right now though).</string>
+	<string>Removed link to Portland Streetcar&apos;s Twitter account as they have not posted since 2023.</string>
+	<string>.11.4.8 (October 2024)</string>
+	<string>Added support for Time Sensative Alerts.</string>
+	<string>Fixed timing issue causing location services to sometimes fail.</string>
+	<string>Minor updates to station screen user interface.</string>
+	<string>.11.4.7 (October 2024)</string>
+	<string>Final updates for Better Red.</string>
+	<string>Rebuilt for iOS 18</string>
+	<string>Fixed bugs found by new compiler tools and other bugs.</string>
+	<string>.11.4.6 (August 2024)</string>
+	<string>Updated map and station names for Better Red changes.</string>
+	<string>Optimizations</string>
+	<string>The &quot;What&apos;s New page&quot;  is now only shown automatically for major changes, not minor ones.  This was not a major change.</string>
+	<string>Now can run on Apple Vision Pro</string>
+	<string>.11.4.4 (March 2024)</string>
+	<string>-14250 Added Gateway North MAX Station</string>
+	<string>$RailMap Updated maps and colors.</string>
+	<string>Fixed how detours are displayed for closed stations or weather events.</string>
+	<string>Updated social media logos, added Instagram.</string>
+	<string>Removed COVID link.</string>
+	<string>Fixed links to guthub and pnpoly attribution</string>
+	<string>Now can run on Apple Vision Pro</string>
+	<string>.11.4.3 (July 2023)</string>
+	<string>$RailMap Updated maps and colors.</string>
+	<string>Minor bugs and fixes</string>
+	<string>Fixed occasional crash when locating nearby routes.</string>
+	<string>Fixed Siri shortcuts on the Apple Watch (would not work sometimes)</string>
+	<string>$Fx FX:  Added new icon and vehicle info for the new Frequent Express line.</string>
 	<string>.11.4.2 (January 2022)</string>
 	<string>+https://buymeacoffee.com/pdxbus Added a link to &quot;Buy Me a Coffee&quot; for tips.  No obligation, no additional features, just a way to say thanks.</string>
 	<string>Updated NextBus feed (for streetcar locations) - company was purchased by #Lhttps://retro.umoiq.com/#!/portland-sc/193/193_1_var1/10756 Umo#T. </string>
@@ -53,35 +104,5 @@ Alerts now include links inline in the text, such as trimet.org or Stop ID #Lid:
 	<string>Completed changing the descriptions of the times from #iArrivals#i to #iDepartures#i.  The times have always been #ideparture#i times,  even though the internal documentation often calls them #iarrival#i times.  It is clearer if we refer to them as departure times.</string>
 	<string>Re-worked departure and proximity alarms, improved user interface and improved accuracy.</string>
 	<string>Several other small bug fixes and tweaks, including more information when a vehicle goes off route.</string>
-	<string>.11.3 (September 2019)</string>
-	<string>Support for iOS 13 dark mode,  including new icons, reversed colors, changing mode on the fly.</string>
-	<string>$TripPlanner Trip Planner now looks up addresses and landmarks using Apple&apos;s geolocating services (instead of TriMet).   This gives more accurate and up-to-date searches with full addresses.</string>
-	<string>$TripPlanner Trip Planner user-interface for inputing addresses has been enlarged and re-designed.</string>
-	<string>$RailMap Updated TriMet MAX map to use the September 2019 version, which highlights that some stops are closing in 2020.</string>
-	<string>Small fix in the color picker, used for tagging vehicles.</string>
-	<string>Minor bug fixes including: fixed issue with creating a bookmark when there is a system-wide alert.</string>
-	<string>.11.2 (August 2019)</string>
-	<string>PDX Bus can now use iCloud to share bookmarks between devices, and to restore bookmarks when the app is deleted and reinstalled.</string>
-	<string>User interface tweaks.</string>
-	<string>Added information about the latest new electric busses.</string>
-	<string>Various bug fixes.</string>
-	<string>Watch:  System-wide alert text will hide when touched.</string>
-	<string>.11.1 (January 2019)</string>
-	<string>iOS 12 Siri Shortcuts:  Use the &quot;Add this stop to Siri&quot; menu item to associate a stop with a phrase for Siri, and Siri will say and show all the arrivals for a single stop.</string>
-	<string>iOS 12 Siri Shortcuts:  Use the  &quot;Add to Siri to launch with bookmark&quot; menu item to associate a bookmark with a phrase for Siri, who will launch PDX Bus and show the bookmark. Siri won&apos;t attempt to read all the arrivals in this case, as there could be a lot as each bookmark can have many stops.</string>
-	<string>iOS 12 Siri Shortcuts:  Use the &quot;Add to Siri&quot; menu item on the locate screen to set up a phrase to launch the app and locate nearby arrivals, routes or show a map.</string>
-	<string>WatchOS 5 Siri Shortcuts: Support for some Siri shortcuts on the watch app (trip planning is not supported from the watch).</string>
-	<string>WatchOS:  Added complications support to launch watch app from a watch face.</string>
-	<string>iOS: Detours are shown for stops without arrivals.</string>
-	<string>All: : Bug fixes;  modernized memory management. I found a place that can cause a hang;  this was probably the real cause of the issue when getting routes.</string>
-	<string>iOS: Fonts.  Now displays the time in larger text when the arrival time is more than an hour away.   Uses Verdana where there are changing numbers - this looks better as the numbers are fixed width. Fixed text alignment issues.</string>
-	<string>All: Now displays the day of the week if arrival time is more than 12 hours away, instead of the date.</string>
-	<string>.11.0.3 (October 2018)</string>
-	<string>Modified route indexing to hopefully stop occasional hang.</string>
-	<string>.11.0.2 (October 2018)</string>
-	<string>I&apos;ve been looking into the way it hangs for some people, especially when getting routes, and hopefully I have a fix.  Thanks for all the bug reports and pictures, it really helps!</string>
-	<string>.11.0.1 (October 2018)</string>
-	<string>Fixed issue where app will not launch on iOS8 and 9.</string>
-	<string>Fixed issue with Refresh not working on Lookup stop by Route.</string>
 </array>
 </plist>

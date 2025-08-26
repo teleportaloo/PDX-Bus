@@ -14,11 +14,10 @@
 
 
 #import "WatchSystemWideHeader.h"
-#import "XMLDepartures.h"
 #import "Settings.h"
+#import "XMLDepartures.h"
 
 @implementation WatchSystemWideHeader
-
 
 + (NSString *)identifier {
     return @"SWH";
@@ -26,17 +25,25 @@
 
 - (void)populate:(XMLDepartures *)xml departures:(NSArray<Departure *> *)deps {
     Detour *det = xml.detourSorter.allDetours[self.index];
-    
+
     if (![Settings isHiddenSystemWideDetour:det.detourId]) {
-        self.label.text = [NSString stringWithFormat:NSLocalizedString(@"△ %@", @"Hide system alert"), det.headerText];
+        self.label.text = [NSString
+            stringWithFormat:NSLocalizedString(@"△ %@", @"Hide system alert"),
+                             det.headerText];
     } else {
-        self.label.text = NSLocalizedString(@"▽ ⚠️System Alert", @"Hide system alert");
+        self.label.text =
+            NSLocalizedString(@"▽ ⚠️System Alert", @"Hide system alert");
     }
 }
 
-- (WatchSelectAction)select:(XMLDepartures *)xml from:(WKInterfaceController *)from context:(WatchArrivalsContext *)context canPush:(bool)push {
-    [Settings toggleHiddenSystemWideDetour:xml.detourSorter.allDetours[self.index].detourId];
-    
+- (WatchSelectAction)select:(XMLDepartures *)xml
+                       from:(WKInterfaceController *)from
+                    context:(WatchArrivalsContext *)context
+                    canPush:(bool)push {
+    [Settings
+        toggleHiddenSystemWideDetour:xml.detourSorter.allDetours[self.index]
+                                         .detourId];
+
     return WatchSelectAction_RefreshUI;
 }
 

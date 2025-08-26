@@ -13,10 +13,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
-#import "TripEndPoint.h"
 #import "TriMetTypes.h"
-
+#import "TripEndPoint.h"
+#import <Foundation/Foundation.h>
 
 #define kDictUserRequestHistorical @"historical"
 
@@ -28,26 +27,26 @@ typedef enum TripTimeChoiceEnum {
 
 @interface TripUserRequest : NSObject
 
-@property (nonatomic, strong) TripEndPoint *fromPoint;
-@property (nonatomic, strong) TripEndPoint *toPoint;
-@property (nonatomic)          TripMode tripMode;
-@property (nonatomic)          TripMin tripMin;
-@property (nonatomic)          int maxItineraries;
-@property (nonatomic)          float walk;
-@property (nonatomic)          bool arrivalTime;
-@property (nonatomic, strong)  NSDate *dateAndTime;
-@property (nonatomic)          TripTimeChoice timeChoice;
-@property (nonatomic)          bool historical;
-@property (nonatomic, readonly, copy) NSString *mode;
-@property (nonatomic, readonly, copy) NSString *min;
-@property (nonatomic, readonly, copy) NSString *minToString;
-@property (nonatomic, readonly, copy) NSString *modeToString;
-@property (nonatomic, readonly, copy) NSMutableDictionary *toDictionary;
-@property (nonatomic, readonly, copy) NSString *timeType;
-@property (nonatomic, readonly, copy) NSString *tripName;
-@property (nonatomic, readonly, copy) NSString *shortName;
-@property (nonatomic, readonly, copy) NSString *optionsAccessability;
-@property (nonatomic, readonly, copy) NSString *optionsDisplayText;
+@property(nonatomic, strong) TripEndPoint *fromPoint;
+@property(nonatomic, strong) TripEndPoint *toPoint;
+@property(nonatomic) TripMode tripMode;
+@property(nonatomic) TripMin tripMin;
+@property(nonatomic) int maxItineraries;
+@property(nonatomic) float walk;
+@property(nonatomic) bool arrivalTime;
+@property(nonatomic, strong) NSDate *dateAndTime;
+@property(nonatomic) TripTimeChoice timeChoice;
+@property(nonatomic) bool historical;
+@property(nonatomic, readonly, copy) NSString *mode;
+@property(nonatomic, readonly, copy) NSString *min;
+@property(nonatomic, readonly, copy) NSString *minToString;
+@property(nonatomic, readonly, copy) NSString *modeToString;
+@property(nonatomic, readonly, copy) NSMutableDictionary *toDictionary;
+@property(nonatomic, readonly, copy) NSString *timeType;
+@property(nonatomic, readonly, copy) NSString *tripName;
+@property(nonatomic, readonly, copy) NSString *shortName;
+@property(nonatomic, readonly, copy) NSString *optionsAccessability;
+@property(nonatomic, readonly, copy) NSString *optionsDisplayText;
 
 - (instancetype)init;
 - (void)clearGpsNames;

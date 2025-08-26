@@ -13,15 +13,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
 #import <CoreLocation/CoreLocation.h>
+#import <Foundation/Foundation.h>
 
-#define COORD_FORMAT                @"%.13f"
-#define COORD_TO_STR(X)             [NSString stringWithFormat: COORD_FORMAT, (X)]
-#define COORD_TO_LAT_LNG_STR(C)     [NSString stringWithFormat: COORD_FORMAT @"," COORD_FORMAT, (C).latitude,  (C).longitude]
-#define COORD_TO_LNG_LAT_STR(C)     [NSString stringWithFormat: COORD_FORMAT @"," COORD_FORMAT, (C).longitude, (C).latitude]
+#define COORD_FORMAT @"%.13f"
+#define COORD_TO_STR(X) [NSString stringWithFormat:COORD_FORMAT, (X)]
+#define COORD_TO_LAT_LNG_STR(C)                                                \
+    [NSString stringWithFormat:COORD_FORMAT @"," COORD_FORMAT, (C).latitude,   \
+                               (C).longitude]
+#define COORD_TO_LNG_LAT_STR(C)                                                \
+    [NSString stringWithFormat:COORD_FORMAT @"," COORD_FORMAT, (C).longitude,  \
+                               (C).latitude]
 
-@interface  CLLocation (Helper)
+@interface CLLocation (Helper)
 
 + (instancetype)withLat:(CLLocationDegrees)lat lng:(CLLocationDegrees)lng;
 + (instancetype)fromStringsLat:(NSString *)lat lng:(NSString *)lng;

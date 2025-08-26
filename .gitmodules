@@ -1,0 +1,3 @@
+[submodule "src/CommonCode"]
+	path = src/CommonCode
+	url = https://github.com/teleportaloo/CommonCode.git

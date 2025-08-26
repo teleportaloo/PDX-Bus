@@ -13,16 +13,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-
-#import <Foundation/Foundation.h>
 #import "StopDistance.h"
+#import <Foundation/Foundation.h>
 
 @interface RouteDistance : NSObject
 
-@property (nonatomic, strong) NSMutableArray<StopDistance *> *stops;
-@property (nonatomic, copy)   NSString *route;
-@property (nonatomic, copy)   NSString *desc;
-@property (nonatomic, copy)   NSString *type;
+@property(nonatomic, strong) NSMutableArray<StopDistance *> *stops;
+@property(nonatomic, copy) NSString *route;
+@property(nonatomic, copy) NSString *desc;
+@property(nonatomic, copy) NSString *type;
 
 - (NSComparisonResult)compareUsingDistance:(RouteDistance *)inStop;
 - (void)sortStopsByDistance;

@@ -13,8 +13,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#import "TextViewLinkCell.h"
 #import "ViewControllerBase.h"
-#import "LinkCell.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

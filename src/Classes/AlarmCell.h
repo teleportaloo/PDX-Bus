@@ -13,14 +13,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <UIKit/UIKit.h>
 #import "ScreenConstants.h"
+#import <UIKit/UIKit.h>
 
 @interface AlarmCell : UITableViewCell
 
-@property (nonatomic) bool fired;
+@property(nonatomic) bool fired;
 
-- (void)populateCellLine1:(NSString *)line1 line2:(NSString *)line2 line2col:(UIColor *)col;
+- (void)populateCellLine1:(NSString *)line1
+                    line2:(NSString *)line2
+                 line2col:(UIColor *)col;
 
 + (AlarmCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier;
 + (CGFloat)rowHeight;

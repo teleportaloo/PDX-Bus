@@ -14,6 +14,7 @@
 
 
 #import "WatchBookmarksContext.h"
+#import "UserParams.h"
 #import "UserState.h"
 
 @interface WatchBookmarksContext ()
@@ -22,37 +23,42 @@
 
 @implementation WatchBookmarksContext
 
-+ (WatchBookmarksContext *)contextWithBookmark:(NSArray *)bookmark title:(NSString *)title locationString:(NSString *)location {
++ (WatchBookmarksContext *)contextWithBookmark:(NSArray<NSString *> *)bookmark
+                                         title:(NSString *)title
+                                locationString:(NSString *)location {
     WatchBookmarksContext *result = [[WatchBookmarksContext alloc] init];
-    
+
     result.singleBookmark = bookmark;
     result.title = title;
     result.location = location;
-    
+
     return result;
 }
 
 + (WatchBookmarksContext *)contextForRecents {
     WatchBookmarksContext *result = [[WatchBookmarksContext alloc] init];
-    
+
     result.recents = YES;
     return result;
 }
 
 - (void)updateUserActivity:(WKInterfaceController *)controller {
     if (!self.recents) {
-        NSMutableDictionary *info = [NSMutableDictionary dictionary];
-        
-        info[kUserFavesChosenName] = self.title;
-        info[kUserFavesLocation] = self.location;
-        [controller updateUserActivity:kHandoffUserActivityBookmark userInfo:info webpageURL:nil];
+        MutableUserParams *info =
+            [MutableUserParams withChosenName:self.title
+                                     location:self.location];
+
+        NSUserActivity *userActivity = [[NSUserActivity alloc]
+            initWithActivityType:kHandoffUserActivityBookmark];
+        userActivity.userInfo = info.dictionary;
+        userActivity.webpageURL = nil;
+        [controller updateUserActivity:userActivity];
     }
 }
 
 - (instancetype)init {
     if ((self = [super initWithSceneName:kBookmarksScene])) {
-
-    }    
+    }
     return self;
 }
 

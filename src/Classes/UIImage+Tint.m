@@ -19,38 +19,41 @@
 
 - (UIImage *)rotatedImageByDegreesFromNorth:(double)degrees {
     CGSize rotateSize = self.size;
-    
+
     /* Note:  This is a graphics context block */
     UIGraphicsBeginImageContextWithOptions(rotateSize, NO, 0.0);
     CGContextRef context = UIGraphicsGetCurrentContext();
-    
+
     CGContextTranslateCTM(context, rotateSize.width / 2, rotateSize.height / 2);
-    CGContextRotateCTM(context, (degrees * M_PI / 180.0) );
+    CGContextRotateCTM(context, (degrees * M_PI / 180.0));
     CGContextScaleCTM(context, 1.0, -1.0);
     CGContextDrawImage(UIGraphicsGetCurrentContext(),
-                       CGRectMake(-rotateSize.width / 2, -rotateSize.height / 2, rotateSize.width, rotateSize.height),
+                       CGRectMake(-rotateSize.width / 2, -rotateSize.height / 2,
+                                  rotateSize.width, rotateSize.height),
                        self.CGImage);
     UIImage *rotatedImage = UIGraphicsGetImageFromCurrentImageContext();
-    
+
     UIGraphicsEndImageContext();
-    
+
     return rotatedImage;
 }
 
 - (UIImage *)tintImageWithColor:(UIColor *)color {
-    CGRect rect = { 0, 0, self.size.width, self.size.height };
-    
+    CGRect rect = {0, 0, self.size.width, self.size.height};
+
     /* Note:  This is a graphics context block */
     UIGraphicsBeginImageContextWithOptions(rect.size, NO, 0.0);
     CGContextRef context = UIGraphicsGetCurrentContext();
-    
+
     CGContextSetFillColorWithColor(context, color.CGColor);
     CGContextFillRect(context, rect); // draw base
-    [self drawInRect:rect blendMode:kCGBlendModeDestinationIn alpha:1.0]; // draw image
+    [self drawInRect:rect
+           blendMode:kCGBlendModeDestinationIn
+               alpha:1.0]; // draw image
     UIImage *tintedImage = UIGraphicsGetImageFromCurrentImageContext();
-    
+
     UIGraphicsEndImageContext();
-    
+
     return tintedImage;
 }
 

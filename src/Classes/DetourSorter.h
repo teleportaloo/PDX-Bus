@@ -13,22 +13,23 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
 #import "Detour.h"
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef NSMutableDictionary<NSNumber*, Detour*> AllTriMetDetours;
+typedef NSMutableDictionary<NSNumber *, Detour *> AllTriMetDetours;
 
 @interface DetourSorter : NSObject
 
-@property (nonatomic, strong) NSMutableOrderedSet<NSNumber*> *detourIds;
-@property (atomic, strong)    AllTriMetDetours *allDetours;
-@property (nonatomic) NSInteger systemWideCount;
+@property(nonatomic, strong) NSMutableOrderedSet<NSNumber *> *detourIds;
+@property(atomic, strong) AllTriMetDetours *allDetours;
+@property(nonatomic) NSInteger systemWideCount;
 
 - (void)safeAddDetour:(Detour *)detour;
 - (void)sort;
 - (void)clear;
+- (bool)hasNonSystemDetours;
 
 @end
 

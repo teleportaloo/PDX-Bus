@@ -14,10 +14,16 @@
 
 
 #import "WhatsNewBasicAction.h"
-#import "NSString+Helper.h"
-#import "UIColor+DarkMode.h"
+#import "NSString+Core.h"
+#import "NSString+MoreMarkup.h"
+#import "UIColor+MoreDarkMode.h"
 
 @implementation WhatsNewBasicAction
+
++ (void)addAction {
+    [WhatsNewViewController addAction:[self class].getPrefix
+                               action:[self class].action];
+}
 
 + (instancetype)action {
     return [[[self class] alloc] init];
@@ -28,14 +34,16 @@
 }
 
 - (void)processAction:(NSString *)text parent:(ViewControllerBase *)parent {
-    [parent.navigationController popViewControllerAnimated:YES];
+    [parent.navigationController popToRootViewControllerAnimated:YES];
 }
 
-- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell text:(NSString *)text {
+- (void)tableView:(UITableView *)tableView
+    willDisplayCell:(UITableViewCell *)cell
+               text:(NSString *)text {
     cell.backgroundColor = [UIColor modeAwareCellBackground];
 }
 
-- (void)updateCell:(LinkCell *)cell tableView:(UITableView *)tableView {
+- (void)updateCell:(TextViewLinkCell *)cell tableView:(UITableView *)tableView {
     cell.textView.backgroundColor = [UIColor clearColor];
     cell.textView.textAlignment = NSTextAlignmentLeft;
     cell.accessoryType = UITableViewCellAccessoryNone;
@@ -45,19 +53,19 @@
 - (NSString *)prefix:(NSString *)item restOfText:(NSString **)rest {
     NSScanner *scanner = [NSScanner scannerWithString:item];
     NSString *prefix = nil;
-    
+
     if (scanner.atEnd) {
         return nil;
     }
-    
+
     scanner.scanLocation = 1;
-    
+
     [scanner scanUpToString:@" " intoString:&prefix];
-    
+
     if (rest && !scanner.atEnd) {
         *rest = [item substringFromIndex:scanner.scanLocation + 1];
     }
-    
+
     return prefix;
 }
 
@@ -70,7 +78,9 @@
 }
 
 - (NSString *)plainTextIndented:(NSString *)fullText {
-    return [NSString stringWithFormat:@"- %@", [self displayMarkedUpText:fullText].removeMarkUp];
+    return [NSString
+        stringWithFormat:@"- %@",
+                         [self displayMarkedUpText:fullText].removeMarkUp];
 }
 
 - (NSString *)plainTextFromMarkUp:(NSString *)fullText {

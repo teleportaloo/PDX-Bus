@@ -19,7 +19,13 @@
 #ifdef PDXBUS_WATCH
 #import <WatchKit/WatchKit.h>
 #else
+
+#if __has_include(<UIKit/UIKit.h>)
 #import <UIKit/UIKit.h>
+#else
+#define PDXBUS_NO_UIKIT
+#endif
+
 #endif
 
 #endif /* PDXBusCore_h */

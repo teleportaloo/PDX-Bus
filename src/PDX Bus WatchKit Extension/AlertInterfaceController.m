@@ -17,7 +17,6 @@
 
 @implementation AlertInterfaceController
 
-
 - (IBAction)okButtonTapped {
     [self popController];
 }
@@ -28,7 +27,7 @@
 
 - (void)awakeWithContext:(id)context {
     [super awakeWithContext:context];
-    
+
     self.alertLabel.attributedText = (NSAttributedString *)context;
 }
 

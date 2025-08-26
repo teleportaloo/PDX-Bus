@@ -13,20 +13,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+#define DEBUG_LEVEL_FOR_FILE LogUI
 
 #import "WatchContext.h"
 #import "DebugLogging.h"
+#import "TaskDispatch.h"
 
 @implementation WatchContext
 
-+ (instancetype)contextWithSceneName:(NSString *)sceneName
-{
++ (instancetype)contextWithSceneName:(NSString *)sceneName {
     return [[[self class] alloc] initWithSceneName:sceneName];
 }
 
-- (instancetype)initWithSceneName:(NSString *)sceneName
-{
+- (instancetype)initWithSceneName:(NSString *)sceneName {
     if ((self = [super init])) {
         self.sceneName = sceneName;
     }
@@ -37,15 +36,16 @@
     [parent pushControllerWithName:self.sceneName context:self];
 }
 
-- (void)delayedPushFrom:(WKInterfaceController *)parent completion:(void (^)(void))completion {
+- (void)delayedPushFrom:(WKInterfaceController *)parent
+             completion:(void (^)(void))completion {
     DEBUG_LOG(@"delayedPushFrom: %@\n", self.sceneName);
-    
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.4 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-        [parent pushControllerWithName:self.sceneName context:self];
-        
-        if (completion) {
-            completion();
-        }
+
+    MainTaskDelay(0.4, ^{
+      [parent pushControllerWithName:self.sceneName context:self];
+
+      if (completion) {
+          completion();
+      }
     });
 }
 

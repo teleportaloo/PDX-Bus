@@ -13,24 +13,28 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
 #import "AlarmFetchArrivalsTask.h"
 #import "Departure.h"
-#import <CoreLocation/CoreLocation.h>
 #import "FormatDistance.h"
+#import <CoreLocation/CoreLocation.h>
+#import <Foundation/Foundation.h>
 
-#define kTargetProximity             (kMetresInAMile / 3)
-#define kBadAccuracy                 (800.0)
-#define kUserDistanceProximity       NSLocalizedString(@"⅓ mile", @"proximity alarm distance")
-#define kUserProximityCellText       NSLocalizedString(@"Proximity alarm (⅓ mile)", @"proximity alarm distance")
-#define kUserProximityDeniedCellText NSLocalizedString(@"Proximity alarm (not authorized)", @"proximity alarm error")
-
+#define kTargetProximity (kMetresInAMile / 3)
+#define kBadAccuracy (800.0)
+#define kUserDistanceProximity                                                 \
+    NSLocalizedString(@"⅓ mile", @"proximity alarm distance")
+#define kUserProximityCellText                                                 \
+    NSLocalizedString(@"Proximity alarm (⅓ mile)", @"proximity alarm "         \
+                                                   @"distance")
+#define kUserProximityDeniedCellText                                           \
+    NSLocalizedString(@"Proximity alarm (not authorized)",                     \
+                      @"proximity alarm error")
 
 @interface AlarmTaskList : NSObject <AlarmObserver, CLLocationManagerDelegate>
 
-@property (nonatomic, readonly, copy) NSArray *taskKeys;
-@property (nonatomic, readonly) NSInteger taskCount;
-@property (nonatomic, strong) id<AlarmObserver> observer;
+@property(nonatomic, readonly, copy) NSArray *taskKeys;
+@property(nonatomic, readonly) NSInteger taskCount;
+@property(nonatomic, strong) id<AlarmObserver> observer;
 
 - (void)cancelTaskForKey:(NSString *)key;
 - (AlarmTask __strong *)taskForKey:(NSString *)key;
@@ -42,7 +46,8 @@
 - (void)cancelTaskForStopIdProximity:(NSString *)stopId;
 - (void)userAlertForProximity:(UIViewController *)parent
                        source:(UIView *)source
-                   completion:(void (^)(bool cancelled, bool accurate))completionHandler;
+                   completion:(void (^)(bool cancelled,
+                                        bool accurate))completionHandler;
 - (void)addTaskForStopIdProximity:(NSString *)stopId
                               loc:(CLLocation *)loc
                              desc:(NSString *)desc

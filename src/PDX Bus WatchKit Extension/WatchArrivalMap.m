@@ -14,19 +14,21 @@
 
 
 #import "WatchArrivalMap.h"
-#import "XMLDepartures.h"
-#import "WatchMapHelper.h"
 #import "DepartureData+watchOSUI.h"
+#import "WatchMapHelper.h"
+#import "XMLDepartures.h"
 
 @implementation WatchArrivalMap
-
 
 + (NSString *)identifier {
     return @"Map";
 }
 
 - (void)populate:(XMLDepartures *)xml departures:(NSArray<Departure *> *)deps {
-    [WatchMapHelper displayMap:self.map purplePin:xml.loc otherPins:deps currentLocation:nil];
+    [WatchMapHelper displayMap:self.map
+                     purplePin:xml.loc
+                     otherPins:deps
+               currentLocation:nil];
 }
 
 @end

@@ -17,14 +17,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-#define kAlertViewOK        NSLocalizedString(@"OK",        @"Alert OK button")
-#define kAlertViewCancel    NSLocalizedString(@"Cancel",    @"Alert Cancel button")
+#define kAlertViewOK NSLocalizedString(@"OK", @"Alert OK button")
+#define kAlertViewCancel NSLocalizedString(@"Cancel", @"Alert Cancel button")
 
 @interface UIAlertController (SimpleMessages)
 
 + (UIAlertController *)simpleOkWithTitle:(nullable NSString *)title
                                  message:(nullable NSString *)message;
-
 
 - (void)showAlert;
 

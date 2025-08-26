@@ -17,11 +17,21 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>11.4.2</string>
+	<string>11.5.2</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>54</string>
+	<string>67</string>
+	<key>NSUserActivityTypes</key>
+	<array>
+		<string>AlertsForRouteIntent</string>
+		<string>ArrivalsAtStopIdIntent</string>
+		<string>ArrivalsIntent</string>
+		<string>LocateStopsIntent</string>
+		<string>RoutesAtStopIdIntent</string>
+		<string>StopLocationIntent</string>
+		<string>SystemWideAlertsIntent</string>
+	</array>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

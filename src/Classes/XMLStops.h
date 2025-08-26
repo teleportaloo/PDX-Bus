@@ -10,17 +10,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <UIKit/UIKit.h>
 #import "Stop.h"
 #import "TriMetXML.h"
 
-@interface XMLStops : TriMetXML<Stop *>
+@interface XMLStops : TriMetXML <Stop *>
 
-@property (nonatomic, copy)   NSString *direction;
-@property (nonatomic, copy)   NSString *routeId;
-@property (nonatomic, copy)   NSString *routeDescription;
-@property (nonatomic, copy)   NSString *afterStopId;
-@property (nonatomic, copy)   NSString *staticQuery;
+@property(nonatomic, copy) NSString *direction;
+@property(nonatomic, copy) NSString *routeId;
+@property(nonatomic, copy) NSString *routeDescription;
+@property(nonatomic, copy) NSString *afterStopId;
+@property(nonatomic, copy) NSString *staticQuery;
 
 - (BOOL)getStopsForRoute:(NSString *)route
                direction:(NSString *)dir

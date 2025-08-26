@@ -13,16 +13,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
 #import "AlertsForRouteIntent.h"
 #import "SystemWideAlertsIntent.h"
+#import <Foundation/Foundation.h>
 
-@interface AlertsIntentHandler<AlertsForRouteIntentHandling, SystemWideAlertsIntentHandling> : NSObject
+@interface AlertsIntentHandler<AlertsForRouteIntentHandling,
+                               SystemWideAlertsIntentHandling> : NSObject
 
 - (void)handleAlertsForRoute:(AlertsForRouteIntent *)intent
-                  completion:(void (^)(AlertsForRouteIntentResponse *response))completion API_AVAILABLE(ios(13.0), macos(10.16), watchos(6.0));
+                  completion:(void (^)(AlertsForRouteIntentResponse *response))
+                                 completion
+    API_AVAILABLE(ios(13.0), macos(10.16), watchos(6.0));
 
 - (void)handleSystemWideAlerts:(SystemWideAlertsIntent *)intent
-            completion:(void (^)(SystemWideAlertsIntentResponse *response))completion API_AVAILABLE(ios(12.0));
+                    completion:
+                        (void (^)(SystemWideAlertsIntentResponse *response))
+                            completion API_AVAILABLE(ios(12.0));
 
 @end

@@ -13,14 +13,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <WatchKit/WatchKit.h>
 #import <Foundation/Foundation.h>
+#import <WatchKit/WatchKit.h>
 
 @interface NumberPadInterfaceController : WKInterfaceController
 
-@property (nonatomic, strong) NSMutableString *stopId;
+@property(nonatomic, strong) NSMutableString *stopId;
 
-@property (strong, nonatomic) IBOutlet WKInterfaceButton *buttonStopId;
+@property(strong, nonatomic) IBOutlet WKInterfaceButton *buttonStopId;
 
 - (IBAction)buttonAction1;
 - (IBAction)buttonAction2;
@@ -37,7 +37,11 @@
 - (IBAction)menuClearAction;
 - (IBAction)sayStopIdAction;
 
-@property (unsafe_unretained, nonatomic) IBOutlet WKInterfaceButton *goButton;
-@property (unsafe_unretained, nonatomic) IBOutlet WKInterfaceButton *backButton;
+@property (weak, nonatomic) IBOutlet WKInterfaceButton *micIcon;
+
+@property(unsafe_unretained, nonatomic) IBOutlet WKInterfaceButton *goButton;
+@property(unsafe_unretained, nonatomic) IBOutlet WKInterfaceButton *backButton;
+
+
 
 @end

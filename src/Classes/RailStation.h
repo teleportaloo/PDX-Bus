@@ -13,42 +13,41 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
 #import "HotSpot.h"
 #import "ScreenConstants.h"
 #import "SearchFilter.h"
+#import <Foundation/Foundation.h>
 
+@interface NSValue (RouteInfo)
+
+@property(nonatomic, readonly) PtrConstRouteInfo PtrConstRouteInfoValue;
+
+@end
 
 @interface RailStation : NSObject <SearchFilter>
 
-@property (nonatomic, strong) NSMutableArray<NSString *> *stopIdArray;
-@property (nonatomic, strong) NSMutableArray<NSString *> *dirArray;
+@property(nonatomic, strong, readonly) NSArray<NSString *> *stopIdArray;
+@property(nonatomic, strong, readonly) NSArray<NSString *> *dirArray;
 
-@property (nonatomic, strong) NSMutableArray<NSString *> *transferStopIdArray;
-@property (nonatomic, strong) NSMutableArray<NSString *> *transferDirArray;
-@property (nonatomic, strong) NSMutableArray<NSString *> *transferNameArray;
-@property (nonatomic, strong) NSMutableArray<NSNumber *> *transferHotSpotIndexArray;
+@property(nonatomic, strong, readonly) NSArray<NSString *> *transferStopIdArray;
+@property(nonatomic, strong, readonly) NSArray<NSString *> *transferDirArray;
+@property(nonatomic, strong, readonly) NSArray<NSString *> *transferNameArray;
+@property(nonatomic, strong, readonly)
+    NSArray<NSNumber *> *transferHotSpotIndexArray;
 
+@property(nonatomic, copy, readonly) NSString *name;
+@property(nonatomic, copy, readonly) NSString *wikiLink;
+@property(nonatomic, readonly) int index;
+@property(nonatomic, readonly, copy) NSString *stringToFilter;
 
-@property (nonatomic, copy)   NSString *station;
-@property (nonatomic, copy)   NSString *wikiLink;
-@property (nonatomic) int index;
-@property (readonly) RailLines line;
-@property (readonly) RailLines line0;
-@property (readonly) RailLines line1;
-@property (nonatomic, readonly, copy) NSString *stringToFilter;
-
-- (instancetype)initFromHotSpot:(HotSpot *)hotspot index:(int)index;
-- (NSComparisonResult)compareUsingStation:(RailStation *)inStation;
 - (void)findTransfers;
 
 - (BOOL)isEqual:(id)other;
 - (NSUInteger)hash;
 
+- (NSArray<NSValue *> *)routeInfoWithTransfers;
 
-+ (NSString *)nameFromHotspot:(HotSpot *)hotspot;
-+ (UITableViewCell *)tableView:(UITableView *)tableView cellWithReuseIdentifier:(NSString *)identifier rowHeight:(CGFloat)height;
-+ (void)populateCell:(UITableViewCell *)cell station:(NSString *)station lines:(RailLines)lines;
-+ (instancetype)fromHotSpot:(HotSpot *)hotspot index:(int)index;
++ (instancetype)fromHotSpotIndex:(int)index;
+
 
 @end

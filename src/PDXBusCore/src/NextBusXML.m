@@ -20,7 +20,9 @@
 // https://retro.umoiq.com/s/xmlFeed?command=predictions&a=portland-sc&stopId=10768
 
 - (NSString *)fullAddressForQuery:(NSString *)query {
-    return [NSString stringWithFormat:@"https://retro.umoiq.com/s/xmlFeed?command=%@", query];
+    return [NSString
+        stringWithFormat:@"https://retro.umoiq.com/s/xmlFeed?command=%@",
+                         query];
 }
 
 @end

@@ -12,47 +12,35 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
-#import "TaskController.h"
 #import "ProgressModalView.h"
+#import "TaskController.h"
+#import <Foundation/Foundation.h>
+
+#import "TaskContainer.h"
+
+@class TaskState;
 
 @protocol BackgroundTaskDone <NSObject>
 
-@property (nonatomic, readonly) UIInterfaceOrientation backgroundTaskOrientation;
+@property(nonatomic, readonly) UIInterfaceOrientation backgroundTaskOrientation;
 
-- (void)backgroundTaskDone:(UIViewController *)viewController cancelled:(bool)cancelled;
+- (void)backgroundTaskDone:(UIViewController *)viewController
+                 cancelled:(bool)cancelled;
 
 @optional
 
-@property (nonatomic, readonly) bool backgroundTaskWait;
+@property(nonatomic, readonly) bool backgroundTaskWait;
 
 - (void)backgroundTaskStarted;
 
 @end
 
-@class TaskState;
+@interface BackgroundTaskContainer : TaskContainer <ProgressDelegate>
 
-@interface BackgroundTaskContainer : NSObject  <TaskController, ProgressDelegate>
-
-@property (atomic, strong)      NSString *title;
-@property (strong)              ProgressModalView *progressModal;             // atomic for thread safety
-@property (atomic, weak)        id<BackgroundTaskDone>     callbackComplete;  // weak
-@property (atomic, strong)      UIViewController *controllerToPop;
-@property (atomic, strong)      NSString *help;
-@property (nonatomic, readonly) bool taskCancelled;
-@property (nonatomic, readonly) bool running;
-@property (atomic)              bool debugMessages;
-@property (atomic)              bool showSizes;
-@property (atomic)              NSInteger bytesDone;
-
-
-- (void)taskStartWithTotal:(NSInteger)total title:(NSString *)title;
-- (void)taskItemsDone:(NSInteger)itemsDone;
-- (void)taskCompleted:(UIViewController *)viewController;
-- (void)taskSetErrorMsg:(NSString *)errMsg;
-- (void)taskSetHelpText:(NSString *)helpText;
-- (void)taskCancel;
-- (void)taskRunAsync:(UIViewController * (^)(TaskState *taskState))block;
+@property(atomic, strong) NSString *title;
+@property(strong) ProgressModalView *progressModal; // atomic for thread safety
+@property(atomic, strong) NSString *help;
+@property(atomic, weak) id<BackgroundTaskDone> callbackComplete; // weak
 
 + (BackgroundTaskContainer *)create:(id<BackgroundTaskDone>)done;
 

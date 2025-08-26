@@ -14,14 +14,17 @@
 
 #import <UIKit/UIKit.h>
 
-#define TOOLBAR_PLACEHOLDER(X, Y) if (X.image == nil) { X.title = Y; }
-
+#define TOOLBAR_PLACEHOLDER(X, Y)                                              \
+    if (X.image == nil) {                                                      \
+        X.title = Y;                                                           \
+    }
 
 @interface UIToolbar (Auto) {
 }
 
++ (UIBarButtonItem *)textButton:(NSString *)text target:(id)target action:(SEL)action;
 + (UIBarButtonItem *)flexSpace;
-+ (UIBarButtonItem *)doneButtonWithTarget:(id)target action:(SEL)action;
++ (UIBarButtonItem *)homeButtonWithTarget:(id)target action:(SEL)action;
 + (UIBarButtonItem *)redoButtonWithTarget:(id)target action:(SEL)action;
 + (UIBarButtonItem *)flashButtonWithTarget:(id)target action:(SEL)action;
 + (UIBarButtonItem *)mapButtonWithTarget:(id)target action:(SEL)action;
@@ -31,6 +34,5 @@
 + (UIBarButtonItem *)settingsButtonWithTarget:(id)target action:(SEL)action;
 + (UIBarButtonItem *)locateButtonWithTarget:(id)target action:(SEL)action;
 + (UIBarButtonItem *)qrScannerButtonWithTarget:(id)target action:(SEL)action;
-
 
 @end

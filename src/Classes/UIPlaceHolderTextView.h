@@ -20,8 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 IB_DESIGNABLE
 @interface UIPlaceHolderTextView : UITextView
 
-@property (nonatomic, strong) IBInspectable NSString *placeholder;
-@property (nonatomic, strong) IBInspectable UIColor *placeholderColor;
+@property(nonatomic, strong) IBInspectable NSString *placeholder;
+@property(nonatomic, strong) IBInspectable UIColor *placeholderColor;
 
 - (void)textChanged:(NSNotification *__nullable)notification;
 

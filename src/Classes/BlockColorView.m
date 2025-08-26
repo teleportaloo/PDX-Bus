@@ -24,6 +24,19 @@
 @implementation BlockColorView
 @dynamic color;
 
+- (instancetype)initWithFrame:(CGRect)frame {
+    if (self = [super initWithFrame:frame]) {
+        _color = nil;
+        self.backgroundColor = [UIColor clearColor];
+    }
+
+    return self;
+}
+
+- (void)dealloc {
+    _color = nil;
+}
+
 - (void)setColor:(UIColor *)color {
     _color = color;
     [self setNeedsDisplay];
@@ -33,26 +46,13 @@
     return _color;
 }
 
-- (instancetype)initWithFrame:(CGRect)frame {
-    if (self = [super initWithFrame:frame]) {
-        self.color = nil;
-        self.backgroundColor = [UIColor clearColor];
-    }
-    
-    return self;
-}
-
-- (void)dealloc {
-    self.color = nil;
-}
-
 - (void)drawRect:(CGRect)rect {
     UIColor *col = self.color;
-    
+
     if (col == nil) {
         col = [UIColor clearColor];
     }
-    
+
     [col setFill];
     UIRectFill(rect);
 }

@@ -14,42 +14,47 @@
 
 
 #import "LocateStopsResponseFactory.h"
+#import "FormatDistance.h"
 #import "LocateStopsIntentHandler.h"
 #import "XMLLocateStops.h"
-#import "FormatDistance.h"
 
 @implementation LocateStopsResponseFactory
 
-+ (LocateStopsIntentResponse *)locateRespond:(LocateStopsIntentResponseCode)code API_AVAILABLE(ios(12.0)) {
-    return [[LocateStopsIntentResponse alloc] initWithCode:code userActivity:nil];
++ (LocateStopsIntentResponse *)locateRespond:(LocateStopsIntentResponseCode)code
+    API_AVAILABLE(ios(12.0)) {
+    return [[LocateStopsIntentResponse alloc] initWithCode:code
+                                              userActivity:nil];
 }
 
 + (LocateStopsIntentResponse *)locate:(CLLocation *)location {
     XMLLocateStops *locator = [XMLLocateStops xml];
-    
+
     locator.maxToFind = 6;
     locator.minDistance = kMetresInAMile;
     locator.mode = TripModeAll;
     locator.location = location;
     locator.includeRoutesInStops = YES;
-    
+
     [locator findNearestStops];
-    
+
     if (locator.gotData) {
         NSMutableArray<NSString *> *results = [NSMutableArray array];
-        
+
         for (StopDistance *stop in locator) {
             [results addObject:stop.stopId];
         }
-        
-        LocateStopsIntentResponse *response = [[LocateStopsIntentResponse alloc] initWithCode:LocateStopsIntentResponseCodeSuccess userActivity:nil];
-        
+
+        LocateStopsIntentResponse *response = [[LocateStopsIntentResponse alloc]
+            initWithCode:LocateStopsIntentResponseCodeSuccess
+            userActivity:nil];
+
         response.stopIds = results;
-        
+
         return response;
     }
-    
-    return [LocateStopsResponseFactory locateRespond:LocateStopsIntentResponseCodeFailure];
+
+    return [LocateStopsResponseFactory
+        locateRespond:LocateStopsIntentResponseCodeFailure];
 }
 
 @end

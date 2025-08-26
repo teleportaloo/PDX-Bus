@@ -13,20 +13,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
+#import "ShapeMutableSegment.h"
 #import "StoppableFetcher.h"
 #import "TriMetInfo.h"
-#import "ShapeMutableSegment.h"
+#import <Foundation/Foundation.h>
 
 @class LegShapeParser;
 
-typedef NSString * _Nonnull (^ReplacementForShapeQueryBlock) (LegShapeParser *_Nonnull xml, NSString * _Nonnull query);
+typedef NSString *_Nonnull (^ReplacementForShapeQueryBlock)(
+    LegShapeParser *_Nonnull xml, NSString *_Nonnull query);
 
 @interface LegShapeParser : StoppableFetcher
 
-@property (nonatomic, strong) ShapeMutableSegment *segment;
-@property (nonatomic, copy)   NSString *lineURL;
-@property (nonatomic, copy)   ReplacementForShapeQueryBlock replaceQueryBlock;
+@property(nonatomic, strong) ShapeMutableSegment *segment;
+@property(nonatomic, copy) NSString *lineURL;
+@property(nonatomic, copy) ReplacementForShapeQueryBlock replaceQueryBlock;
 
 - (void)fetchCoords;
 

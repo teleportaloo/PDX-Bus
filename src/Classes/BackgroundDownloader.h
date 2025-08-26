@@ -6,8 +6,8 @@
 //  Copyright © 2020 Andrew Wallace. All rights reserved.
 //
 
-#import "TriMetXML.h"
 #import "BackgroundDownloadState.h"
+#import "TriMetXML.h"
 
 
 
@@ -22,10 +22,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (BackgroundDownloader *)sharedInstance;
 
-- (bool)startFetchInBackground:(TriMetXML *)xml query:(NSString*)query completion:(BackgroundCompletionHandler)completionHander;
-- (bool)isFetching:(NSString*)query;
-- (void)cancel:(NSString*)query;
-- (NSString * _Nullable)progess:(NSString*)query;
+- (bool)startFetchInBackground:(TriMetXML *)xml
+                         query:(NSString *)query
+                    completion:(BackgroundCompletionHandler)completionHander;
+- (bool)isFetching:(NSString *)query;
+- (void)cancel:(NSString *)query;
+- (NSString *_Nullable)progess:(NSString *)query;
 
 @end
 

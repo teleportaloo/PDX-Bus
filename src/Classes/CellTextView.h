@@ -10,12 +10,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <UIKit/UIKit.h>
 #import "EditableTableViewCell.h"
+#import <UIKit/UIKit.h>
 
-@interface CellTextView : EditableTableViewCell <UITextViewDelegate> 
+@interface CellTextView : EditableTableViewCell <UITextViewDelegate>
 
-@property (nonatomic, strong) UITextView *view;
+@property(nonatomic, strong) UITextView *view;
 @property CGFloat cellLeftOffset;
 
 @end

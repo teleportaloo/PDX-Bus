@@ -20,28 +20,39 @@
 
 #define NO_VEHICLE_ID (-1)
 
-#define TriMetTypeBus           @"Bus"
-#define TriMetTypeMAX           @"MAX"
-#define TriMetTypeWES           @"WES"
-#define TriMetTypeStreetcar     @"Streetcar"
-
+#define TriMetTypeBus @"Bus"
+#define TriMetTypeMAX @"MAX"
+#define TriMetTypeWES @"WES"
+#define TriMetTypeStreetcar @"Streetcar"
 
 typedef struct VehicleInfoStruct {
-    NSInteger min;
-    NSInteger max;
+    NSInteger vehicleIdMin;
+    NSInteger vehicleIdMax;
     NSString *type;
     NSString *markedUpManufacturer;
     NSString *markedUpModel;
     NSString *first_used;
     bool check_for_multiple;
-    NSString *markedUpSpecialInfo;
+    NSString *fuel;
     bool locatable;
-} VehicleInfo;
+} TriMetInfo_Vehicle;
 
-typedef const VehicleInfo *PtrConstVehicleInfo;
+typedef const TriMetInfo_Vehicle *TriMetInfo_VehicleConstPtr;
 
-PtrConstVehicleInfo getTriMetVehicleInfo(void);
-size_t noOfTriMetVehicles(void);
-int compareVehicle(const void *first, const void *second);
+typedef struct VehicleInfoSpecial {
+    NSInteger vehicleId;
+    NSString *markedUpSpecialInfo;
+} TriMetInfo_VehicleSpecial;
+
+typedef const TriMetInfo_VehicleSpecial *TriMetInfo_VehicleSpecialConstPtr;
+
+TriMetInfo_VehicleConstPtr TriMetInfo_getVehicle(void);
+TriMetInfo_VehicleSpecialConstPtr TriMetInfo_getVehicleSpecial(void);
+
+size_t TriMetInfo_noOfVehicles(void);
+size_t TriMetInfo_noOfVehicleSpecials(void);
+
+int TriMetInfo_compareVehicle(const void *first, const void *second);
+int TriMetInfo_compareVehicleSpecial(const void *first, const void *second);
 
 #endif /* TriMetInfoVehicles_h */

@@ -15,7 +15,7 @@
 
 #import "Detour.h"
 
-#define kDetourResuseIdentifier       @"Detour"
+#define kDetourResuseIdentifier @"Detour"
 #define kSystemDetourResuseIdentifier @"SystemAlert"
 
 @interface Detour (iOSUI)

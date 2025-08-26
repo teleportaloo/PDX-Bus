@@ -13,13 +13,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import "XMLLocateStops.h"
 #import "BackgroundTaskContainer.h"
-
+#import "XMLLocateStops.h"
 
 @interface XMLLocateStops (iOSUI)
 
 - (bool)displayErrorIfNoneFound:(id<TaskController>)progress;
-
 
 @end

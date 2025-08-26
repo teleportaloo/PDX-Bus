@@ -18,5 +18,3 @@
 - (void)deselectItemCallback;
 
 @end
-
-

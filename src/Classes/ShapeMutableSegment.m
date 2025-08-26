@@ -25,24 +25,23 @@
     if (self = [super init]) {
         self.coords = [NSMutableArray array];
     }
-    
+
     return self;
 }
 
-- (ShapeCompactSegment*)compact {
+- (ShapeCompactSegment *)compact {
     return [[ShapeCompactSegment alloc] initFromMutable:self];
 }
 
 - (bool)isEqual:(nonnull id<ShapeSegment>)seg {
-    if (self != seg)
-    {
+    if (self != seg) {
         return [self.compact isEqual:seg.compact];
     }
     return TRUE;
 }
 
-- (nonnull RoutePolyline *)polyline:(nonnull UIColor *)color dashPatternId:(int)dashPatternId dashPhase:(CGFloat)dashPhase path:(nonnull ShapeRoutePath *)path {
-    return [self.compact polyline:color dashPatternId:dashPatternId dashPhase:dashPhase path:path];
+- (MKPolyline *)simplePolyline {
+    return self.compact.simplePolyline;
 }
 
 - (NSInteger)count {
@@ -57,8 +56,7 @@
     return nil;
 }
 
-+ (BOOL)supportsSecureCoding
-{
++ (BOOL)supportsSecureCoding {
     return YES;
 }
 

@@ -13,8 +13,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#import "WhatsNewViewController.h"
 #import <Foundation/Foundation.h>
-#import "WhatsNewView.h"
 
 @interface WhatsNewBasicAction : NSObject <WhatsNewSpecialAction>
 
@@ -24,5 +24,6 @@
 
 + (instancetype)action;
 + (bool)matches:(NSString *)string;
++ (void)addAction;
 
 @end

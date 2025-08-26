@@ -13,16 +13,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#define DEBUG_LEVEL_FOR_FILE kLogAlarms
+#define DEBUG_LEVEL_FOR_FILE LogAlarms
 
 #import "AlarmTaskList.h"
 #import "AlarmAccurateStopProximity.h"
 #import "DebugLogging.h"
-#import <objc/runtime.h>
+#import "MainQueueSync.h"
 #import "PDXBusAppDelegate+Methods.h"
-#import "MainQueueSync.h"
+#import "TaskDispatch.h"
 #import "UIAlertController+SimpleMessages.h"
-#import "MainQueueSync.h"
+#import <objc/runtime.h>
 
 #if TARGET_OS_MACCATALYST
 #import <UserNotifications/UserNotifications.h>
@@ -38,9 +38,9 @@
     bool _batchUpdate;
 }
 
-@property (strong) NSThread *backgroundThread;
-@property (atomic) bool atomicTaskRunning;
-@property (atomic, strong) NSDate *nextFetch;
+@property(strong) NSThread *backgroundThread;
+@property(atomic) bool atomicTaskRunning;
+@property(atomic, strong) NSDate *nextFetch;
 
 - (void)runTask;
 - (void)taskUpdate:(id)task;
@@ -51,14 +51,11 @@
 
 @implementation AlarmTaskList
 
-
 + (AlarmTaskList *)sharedInstance {
     static AlarmTaskList *taskList = nil;
 
-    static dispatch_once_t onceToken;
-
-    dispatch_once(&onceToken, ^{
-        taskList = [[AlarmTaskList alloc] init];
+    DoOnce(^{
+      taskList = [[AlarmTaskList alloc] init];
     });
 
     return taskList;
@@ -75,9 +72,8 @@
 #if !TARGET_OS_MACCATALYST
     Class locManClass = (NSClassFromString(@"CLLocationManager"));
 
-    return [AlarmTaskList supported]
-           && locManClass != nil
-           && [locManClass significantLocationChangeMonitoringAvailable];
+    return [AlarmTaskList supported] && locManClass != nil &&
+           [locManClass significantLocationChangeMonitoringAvailable];
 
 #else
     return NO;
@@ -86,16 +82,18 @@
 }
 
 - (void)setApplicationBadgeNumber:(NSInteger)badgeNumber {
-    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+    UNUserNotificationCenter *center =
+        [UNUserNotificationCenter currentNotificationCenter];
 
-    [center getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings *_Nonnull settings) {
-                if (settings.badgeSetting == UNNotificationSettingEnabled) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                               UIApplication *application = [UIApplication sharedApplication];
-                               application.applicationIconBadgeNumber = badgeNumber;
-                           });
-                }
-            }];
+    [center getNotificationSettingsWithCompletionHandler:^(
+                UNNotificationSettings *_Nonnull settings) {
+      if (settings.badgeSetting == UNNotificationSettingEnabled) {
+          MainTask(^{
+            UIApplication *application = [UIApplication sharedApplication];
+            application.applicationIconBadgeNumber = badgeNumber;
+          });
+      }
+    }];
 }
 
 - (void)updateBadge {
@@ -112,8 +110,8 @@
             }
         }
 
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self setApplicationBadgeNumber:count];
+        MainTask(^{
+          [self setApplicationBadgeNumber:count];
         });
 
         // [UIApplication sharedApplication].applicationIconBadgeNumber = count;
@@ -136,7 +134,7 @@
         _backgroundTasks = [[NSMutableDictionary alloc] init];
         _orderedTaskKeys = [[NSMutableArray alloc] init];
         _newTaskKeys = [[NSMutableArray alloc] init];
-        _taskId = 0;             // UIBackgroundTaskInvalid cannot be used in 3.2 OS
+        _taskId = 0; // UIBackgroundTaskInvalid cannot be used in 3.2 OS
         self.atomicTaskRunning = NO;
 
         [self updateBadge];
@@ -162,8 +160,13 @@
 - (void)checkForMute {
     // Cannot check for mute so just warn the user!
     if (self.taskCount == 0) {
-        UIAlertController *alert = [UIAlertController simpleOkWithTitle:NSLocalizedString(@"New Alarm", @"alarm pop-up title")
-                                                                message:NSLocalizedString(@"Note: The alarm will not sound if the device is muted.", @"alarm warning")];
+        UIAlertController *alert = [UIAlertController
+            simpleOkWithTitle:NSLocalizedString(@"New Alarm",
+                                                @"alarm pop-up title")
+                      message:NSLocalizedString(
+                                  @"Note: The alarm will not sound if the "
+                                  @"device is muted.",
+                                  @"alarm warning")];
         [alert showAlert];
     }
 }
@@ -194,13 +197,14 @@
 
 - (bool)hasTaskForStopId:(NSString *)stopId block:(NSString *)block {
     @synchronized(_backgroundTasks) {
-        return _backgroundTasks [[self keyForStopId:stopId block:block]] != nil;
+        return _backgroundTasks[[self keyForStopId:stopId block:block]] != nil;
     }
 }
 
 - (int)minsForTaskWithStopId:(NSString *)stopId block:(NSString *)block {
     @synchronized(_backgroundTasks) {
-        AlarmFetchArrivalsTask *task = _backgroundTasks [[self keyForStopId:stopId block:block]];
+        AlarmFetchArrivalsTask *task =
+            _backgroundTasks[[self keyForStopId:stopId block:block]];
 
         if (task == nil) {
             return 0;
@@ -218,7 +222,10 @@
 
 - (void)taskUpdate:(id)task {
     if (self.observer) {
-        [(NSObject *)self.observer performSelectorOnMainThread:@selector(taskUpdate:) withObject:task waitUntilDone:NO];
+        [(NSObject *)self.observer
+            performSelectorOnMainThread:@selector(taskUpdate:)
+                             withObject:task
+                          waitUntilDone:NO];
     }
 
     AlarmTask *realTask = (AlarmTask *)task;
@@ -231,9 +238,12 @@
 }
 
 - (void)taskStarted:(id)task {
-    @synchronized (_backgroundTasks) {
+    @synchronized(_backgroundTasks) {
         if (self.observer) {
-            [(NSObject *)self.observer performSelectorOnMainThread:@selector(taskStarted:) withObject:task waitUntilDone:NO];
+            [(NSObject *)self.observer
+                performSelectorOnMainThread:@selector(taskStarted:)
+                                 withObject:task
+                              waitUntilDone:NO];
         }
 
         [self runTask];
@@ -258,7 +268,10 @@
         [self removeTask:key fromArray:_orderedTaskKeys];
 
         if (self.observer) {
-            [(NSObject *)self.observer performSelectorOnMainThread:@selector(taskDone:) withObject:task waitUntilDone:NO];
+            [(NSObject *)self.observer
+                performSelectorOnMainThread:@selector(taskDone:)
+                                 withObject:task
+                              waitUntilDone:NO];
         }
 
         [self updateBadge];
@@ -274,17 +287,17 @@
             for (NSString *taskKey in _backgroundTasks) {
                 AlarmTask *task = _backgroundTasks[taskKey];
                 switch (task.alarmState) {
-                    default:
-                    case AlarmStateAccurateInitiallyThenInaccurate:
-                    case AlarmFired:
-                    case AlarmStateAccurateLocationNeeded:
-                    case AlarmStateInaccurateLocationNeeded:
-                        break;
+                default:
+                case AlarmStateAccurateInitiallyThenInaccurate:
+                case AlarmFired:
+                case AlarmStateAccurateLocationNeeded:
+                case AlarmStateInaccurateLocationNeeded:
+                    break;
 
-                    case AlarmStateFetchArrivals:
-                    case AlarmStateNearlyArrived:
-                        [_newTaskKeys addObject:task.key];
-                        break;
+                case AlarmStateFetchArrivals:
+                case AlarmStateNearlyArrived:
+                    [_newTaskKeys addObject:task.key];
+                    break;
                 }
             }
 
@@ -300,8 +313,9 @@
                               loc:(CLLocation *)loc
                              desc:(NSString *)desc
                          accurate:(bool)accurate {
-    @synchronized (_backgroundTasks) {
-        AlarmAccurateStopProximity *newTask = [[AlarmAccurateStopProximity alloc] initWithAccuracy:accurate];
+    @synchronized(_backgroundTasks) {
+        AlarmAccurateStopProximity *newTask =
+            [[AlarmAccurateStopProximity alloc] initWithAccuracy:accurate];
 
         [newTask setStop:stopId loc:loc desc:desc];
         newTask.observer = self;
@@ -309,7 +323,6 @@
         [self checkForMute];
 
         [self cancelTaskForKey:newTask.key];
-
 
         _backgroundTasks[newTask.key] = newTask;
         [_orderedTaskKeys addObject:newTask.key];
@@ -319,7 +332,7 @@
 }
 
 - (bool)hasTaskForStopIdProximity:(NSString *)stopId {
-    @synchronized (_backgroundTasks) {
+    @synchronized(_backgroundTasks) {
         return _backgroundTasks[stopId] != nil;
     }
 }
@@ -329,18 +342,20 @@
 }
 
 - (void)startUpdatingLocation:(CLLocationManager *)manager {
-    CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
+    CLAuthorizationStatus status = [manager authorizationStatus];
 
     if (status == kCLAuthorizationStatusDenied) {
         NSLog(@"Location services are disabled in settings.");
     } else {
         // for iOS 8
-        if ([manager respondsToSelector:@selector(requestAlwaysAuthorization)]) {
+        if ([manager
+                respondsToSelector:@selector(requestAlwaysAuthorization)]) {
             [manager requestAlwaysAuthorization];
         }
 
         // for iOS 9
-        if ([manager respondsToSelector:@selector(setAllowsBackgroundLocationUpdates:)]) {
+        if ([manager respondsToSelector:@selector
+                     (setAllowsBackgroundLocationUpdates:)]) {
             [manager setAllowsBackgroundLocationUpdates:YES];
         }
 
@@ -348,10 +363,13 @@
     }
 }
 
-- (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
+- (void)locationManager:(CLLocationManager *)manager
+     didUpdateLocations:(NSArray *)locations {
 #ifdef DEBUGLOGGING
     CLLocation *mostRecentLocation = locations.lastObject;
-    DEBUG_LOG(@"Current location: %@ %@", @(mostRecentLocation.coordinate.latitude), @(mostRecentLocation.coordinate.longitude));
+    DEBUG_LOG(@"Current location: %@ %@",
+              @(mostRecentLocation.coordinate.latitude),
+              @(mostRecentLocation.coordinate.longitude));
 #endif
 }
 
@@ -382,7 +400,7 @@
     while (!done) {
         @autoreleasepool {
             // Here is where we check if new tasks have been added or remevoed
-            @synchronized (_backgroundTasks) {
+            @synchronized(_backgroundTasks) {
                 // Add items from the new tasks into my active list
                 [taskKeys addObjectsFromArray:_newTaskKeys];
                 [_newTaskKeys removeAllObjects];
@@ -398,8 +416,8 @@
                 }
 
                 if (taskKeys.count == 0 || self.backgroundThread.cancelled) {
-                    // Setting _atomicTaskRunning to NO will mean another thread can
-                    // start processing while we tidy up.
+                    // Setting _atomicTaskRunning to NO will mean another thread
+                    // can start processing while we tidy up.
                     self.atomicTaskRunning = NO;
                     [self.backgroundThread cancel];
                     self.backgroundThread = nil;
@@ -425,35 +443,39 @@
 
                     if (task) {
                         switch (task.alarmState) {
-                            case AlarmFired:
-                                [doneTasks addObject:key];
-                                break;
+                        case AlarmFired:
+                            [doneTasks addObject:key];
+                            break;
 
-                            case AlarmStateNearlyArrived:
+                        case AlarmStateNearlyArrived:
 
-                                if (task.nextFetch == nil || [task.nextFetch compare:[NSDate date]] != NSOrderedDescending) {
+                            if (task.nextFetch == nil ||
+                                [task.nextFetch compare:[NSDate date]] !=
+                                    NSOrderedDescending) {
 #ifndef DEBUG_ALARMS
-                                    // [self taskDone:task];
+                                // [self taskDone:task];
 #endif
-                                    task.alarmState = AlarmFired;
-                                    [doneTasks addObject:key];
-                                    [self taskUpdate:task];
-                                }
+                                task.alarmState = AlarmFired;
+                                [doneTasks addObject:key];
+                                [self taskUpdate:task];
+                            }
 
-                                break;
+                            break;
 
-                            case AlarmStateFetchArrivals:
+                        case AlarmStateFetchArrivals:
 
-                                if (task.nextFetch == nil || [task.nextFetch compare:[NSDate date]] != NSOrderedDescending) {
-                                    // DEBUG_LOG(@"Fetching...");
-                                    task.nextFetch = [task fetch:self];
-                                    [self taskUpdate:task];
-                                }
+                            if (task.nextFetch == nil ||
+                                [task.nextFetch compare:[NSDate date]] !=
+                                    NSOrderedDescending) {
+                                // DEBUG_LOG(@"Fetching...");
+                                task.nextFetch = [task fetch:self];
+                                [self taskUpdate:task];
+                            }
 
-                                break;
+                            break;
 
-                            default:
-                                break;
+                        default:
+                            break;
                         }
                         nextFetch = [task earlierAlert:nextFetch];
 
@@ -472,20 +494,22 @@
                 [doneTasks removeAllObjects];
             }
 
-            if (!done && !self.backgroundThread.cancelled && taskKeys.count > 0) {
-                NSDate *waitUntil = [NSDate dateWithTimeIntervalSinceNow:kLoopTimeSecs];
+            if (!done && !self.backgroundThread.cancelled &&
+                taskKeys.count > 0) {
+                NSDate *waitUntil =
+                    [NSDate dateWithTimeIntervalSinceNow:kLoopTimeSecs];
 
                 __block NSTimeInterval remaining = 0;
                 UIApplication *app = [UIApplication sharedApplication];
                 dispatch_sync(dispatch_get_main_queue(), ^{
-                    remaining = app.backgroundTimeRemaining;
+                  remaining = app.backgroundTimeRemaining;
                 });
 
                 NSDate *sleepUntil = [waitUntil earlierDate:nextFetch];
                 NSTimeInterval waitTime = [sleepUntil timeIntervalSinceNow];
 
-                DEBUG_LOGF(remaining);
-                DEBUG_LOGF(waitTime);
+                DEBUG_LOG_double(remaining);
+                DEBUG_LOG_double(waitTime);
 
                 const NSTimeInterval gap = 10.0;
 
@@ -498,7 +522,7 @@
                 }
 
                 if (!okToWait || self.backgroundThread.cancelled) {
-                    DEBUG_LOGB(self.backgroundThread.cancelled);
+                    DEBUG_LOG_BOOL(self.backgroundThread.cancelled);
                     DEBUG_LOG(@"We must go to sleep. :-(");
 
                     [self.backgroundThread cancel];
@@ -521,7 +545,9 @@
         manager.delegate = nil;
     }
 
-    [(NSObject *)self performSelectorOnMainThread:@selector(taskLoopEnded:) withObject:nil waitUntilDone:NO];
+    [(NSObject *)self performSelectorOnMainThread:@selector(taskLoopEnded:)
+                                       withObject:nil
+                                    waitUntilDone:NO];
 
     DEBUG_FUNCEX();
 }
@@ -530,7 +556,8 @@
     DEBUG_LOG(@"scheduleAgain\n");
     // NSDate *soon = [NSDate dateWithTimeIntervalSinceNow:5.0];
 
-    // NSTimer *timer = [[NSTimer alloc] initWithFireDate:soon interval:0.0 target:self selector:@selector(restartThread:) userInfo:nil repeats:NO];
+    // NSTimer *timer = [[NSTimer alloc] initWithFireDate:soon interval:0.0
+    // target:self selector:@selector(restartThread:) userInfo:nil repeats:NO];
 
     // [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
     [self runTask];
@@ -540,12 +567,16 @@
     if (self.nextFetch) {
         AlarmTask *alertTask = [AlarmTask new];
 
-        NSDictionary *ignore = @{ kDoNotDisplayIfActive: kDoNotDisplayIfActive };
+        NSDictionary *ignore = @{kDoNotDisplayIfActive : kDoNotDisplayIfActive};
 
         DEBUG_LOG(@"Alert in %f", [self.nextFetch timeIntervalSinceNow]);
 
-        [alertTask alert:NSLocalizedString(@"iOS has stopped PDX Bus from checking departures, making alarms inaccurate. "
-                                           @"Please restart PDX Bus so it can update the departure alarms.", @"alarm alert")
+        [alertTask alert:NSLocalizedString(
+                             @"iOS has stopped PDX Bus from checking "
+                             @"departures, making alarms inaccurate. "
+                             @"Please restart PDX Bus so it can update the "
+                             @"departure alarms.",
+                             @"alarm alert")
                 fireDate:self.nextFetch
                   button:AlarmButtonBack
                 userInfo:ignore
@@ -562,27 +593,27 @@
     UIApplication *app = [UIApplication sharedApplication];
 
     _taskId = [app beginBackgroundTaskWithExpirationHandler:^{
-                       DEBUG_LOG(@"Expiration Handler\n");
+      DEBUG_LOG(@"Expiration Handler\n");
 
-                       DEBUG_LOGF(app.backgroundTimeRemaining);
+      DEBUG_LOG_double(app.backgroundTimeRemaining);
 
-                       if (self.backgroundThread) {
-                       [self.backgroundThread cancel];
-                       }
+      if (self.backgroundThread) {
+          [self.backgroundThread cancel];
+      }
 
-                       [self createAlertToWakeUpApp];
-                   }];
+      [self createAlertToWakeUpApp];
+    }];
 
     // Start the long-running task and return immediately.
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [self taskLoop];
-        [app endBackgroundTask:self->_taskId];
+    WorkerTask(^{
+      [self taskLoop];
+      [app endBackgroundTask:self->_taskId];
     });
     DEBUG_FUNCEX();
 }
 
 - (void)runTask {
-    @synchronized (_backgroundTasks) {
+    @synchronized(_backgroundTasks) {
         if (!self.atomicTaskRunning) {
             self.atomicTaskRunning = YES;
             [self rawRunTask];
@@ -591,49 +622,62 @@
 }
 
 - (NSInteger)taskCount {
-    @synchronized (_backgroundTasks) {
+    @synchronized(_backgroundTasks) {
         return _backgroundTasks.count;
     }
 }
 
 - (NSArray *)taskKeys {
-    @synchronized (_backgroundTasks) {
+    @synchronized(_backgroundTasks) {
         return [_orderedTaskKeys copy];
     }
 }
 
 - (AlarmTask __strong *)taskForKey:(NSString *)key {
-    @synchronized (_backgroundTasks) {
+    @synchronized(_backgroundTasks) {
         return _backgroundTasks[key];
     }
 }
 
-- (void)userAlertForProximity:(UIViewController *)parent source:(UIView *)source completion:(void (^)(bool cancelled, bool accurate))completionHandler {
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Proximity Alarm", @"alarm alert title")
-                                                                   message:[NSString stringWithFormat:
-                                                                            NSLocalizedString(@"PDX Bus will track your locaton "
-                                                                                              " and alert"
-                                                                                              " you when you get within %@ of the stop.",
-                                                                                              @"alert question"),
-                                                                            kUserDistanceProximity]
-                                                            preferredStyle:UIAlertControllerStyleAlert];
+- (void)userAlertForProximity:(UIViewController *)parent
+                       source:(UIView *)source
+                   completion:(void (^)(bool cancelled,
+                                        bool accurate))completionHandler {
+    UIAlertController *alert = [UIAlertController
+        alertControllerWithTitle:NSLocalizedString(@"Proximity Alarm",
+                                                   @"alarm alert title")
+                         message:[NSString
+                                     stringWithFormat:
+                                         NSLocalizedString(
+                                             @"PDX Bus will track your locaton "
+                                              " and alert"
+                                              " you when you get within %@ of "
+                                              "the stop.",
+                                             @"alert question"),
+                                         kUserDistanceProximity]
+                  preferredStyle:UIAlertControllerStyleAlert];
 
-    [alert addAction:[UIAlertAction actionWithTitle:kAlertViewOK style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-                                                                                                     completionHandler(FALSE, NO);
-                                                                                                 }]];
+    [alert addAction:[UIAlertAction actionWithTitle:kAlertViewOK
+                                              style:UIAlertActionStyleDefault
+                                            handler:^(UIAlertAction *action) {
+                                              completionHandler(FALSE, NO);
+                                            }]];
 
-    [alert addAction:[UIAlertAction actionWithTitle:kAlertViewCancel style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
-                                                                                                        completionHandler(YES, NO);
-                                                                                                    }]];
+    [alert addAction:[UIAlertAction actionWithTitle:kAlertViewCancel
+                                              style:UIAlertActionStyleCancel
+                                            handler:^(UIAlertAction *action) {
+                                              completionHandler(YES, NO);
+                                            }]];
 
     // Make a small rect in the center, just 10,10
     const CGFloat side = 10;
     CGRect frame = source.frame;
-    CGRect sourceRect = CGRectMake((frame.size.width - side) / 2.0, (frame.size.height - side) / 2.0, side, side);
+    CGRect sourceRect =
+        CGRectMake((frame.size.width - side) / 2.0,
+                   (frame.size.height - side) / 2.0, side, side);
 
     alert.popoverPresentationController.sourceView = source;
     alert.popoverPresentationController.sourceRect = sourceRect;
-
 
     [parent presentViewController:alert animated:YES completion:nil];
 }

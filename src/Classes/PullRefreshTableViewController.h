@@ -23,10 +23,10 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "TableViewWithToolbar.h"
+#import "TableViewControllerWithToolbar.h"
 
 
-@interface PullRefreshTableViewController<FilteredItemType>  : TableViewWithToolbar<FilteredItemType>  {
+@interface PullRefreshTableViewController<FilteredItemType>  : TableViewControllerWithToolbar<FilteredItemType>  {
     UIView *refreshHeaderView;
     UILabel *refreshLabel;
     UIImageView *refreshArrow;

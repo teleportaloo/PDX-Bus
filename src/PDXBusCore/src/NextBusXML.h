@@ -12,9 +12,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
 #import "TriMetXML.h"
+#import <Foundation/Foundation.h>
 
-@interface NextBusXML<ItemType> : TriMetXML<ItemType>
+@interface NextBusXML<ItemType> : TriMetXML <ItemType>
 
 @end

@@ -13,21 +13,23 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+
 NS_ASSUME_NONNULL_BEGIN
 
 @class ShapeCompactSegment;
-@class RoutePolyline;
+@class RouteMultiPolyline;
 @class ShapeRoutePath;
+@class MKPolyline;
 
-@protocol ShapeSegment<NSSecureCoding>
+@protocol ShapeSegment <NSSecureCoding>
 
 - (bool)isEqual:(id<ShapeSegment>)seg;
 - (ShapeCompactSegment *)compact;
-- (RoutePolyline *)polyline:(UIColor *)color dashPatternId:(int)dashPatternId
-                  dashPhase:(CGFloat)dashPhase path:(ShapeRoutePath *)path;
+- (MKPolyline *)simplePolyline;
 
-
-@property (nonatomic) NSInteger count;
+@property(nonatomic) NSInteger count;
 
 @end
 

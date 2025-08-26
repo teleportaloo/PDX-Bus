@@ -10,17 +10,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <UIKit/UIKit.h>
-#import "TableViewControllerWithRefresh.h"
 #import "BackgroundTaskContainer.h"
+#import "TableViewControllerWithRefresh.h"
+#import <UIKit/UIKit.h>
 
 @class XMLRoutes;
 
 @interface RouteView : TableViewControllerWithRefresh
 
-
-
-- (void)fetchRoutesAsync:(id<TaskController>)taskController backgroundRefresh:(bool)backgroundRefresh;
-
+- (void)fetchRoutesAsync:(id<TaskController>)taskController
+       backgroundRefresh:(bool)backgroundRefresh;
 
 @end

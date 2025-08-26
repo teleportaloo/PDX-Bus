@@ -20,11 +20,10 @@
 
 @end
 
-
 @interface ProgressModalView : UIView
 
-@property (nonatomic, weak) id<ProgressDelegate> progressDelegate;
-@property (nonatomic) NSInteger totalItems;
+@property(nonatomic, weak) id<ProgressDelegate> progressDelegate;
+@property(nonatomic) NSInteger totalItems;
 
 - (void)itemsDone:(NSInteger)itemsDone;
 - (void)subItemsDone:(NSInteger)subItemsDone totalSubs:(NSInteger)totalSubs;

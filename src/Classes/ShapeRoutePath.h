@@ -13,22 +13,25 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
-#import <CoreLocation/CoreLocation.h>
+#import "ShapeCompactSegment.h"
 #import "ShapeCoord.h"
 #import "ShapeSegment.h"
-#import "ShapeCompactSegment.h"
+#import <CoreLocation/CoreLocation.h>
+#import <Foundation/Foundation.h>
 
 #define kShapeNoRoute (-1)
 
 @interface ShapeRoutePath : NSObject <NSSecureCoding>
 
-@property (nonatomic, strong) NSMutableArray<id<ShapeSegment>> *segments;
-@property (nonatomic, copy) NSString *dirDesc;
-@property (nonatomic, copy) NSString *desc;
-@property (nonatomic)  NSInteger route;
-@property (nonatomic)  bool direct;
+@property(nonatomic, strong) NSMutableArray<id<ShapeSegment>> *segments;
+@property(nonatomic, copy) NSString *dirDesc;
+@property(nonatomic, copy) NSString *desc;
+@property(nonatomic) NSInteger route;
+@property(nonatomic) bool direct;
+@property(nonatomic, copy) NSString *routeStr;
+@property(nonatomic) bool frequent;
 
-- (NSMutableArray<RoutePolyline *> *)addPolylines:(NSMutableArray<RoutePolyline *> *)lines;
+- (NSMutableArray<RouteMultiPolyline *> *)addPolylines:
+    (NSMutableArray<RouteMultiPolyline *> *)lines;
 
 @end

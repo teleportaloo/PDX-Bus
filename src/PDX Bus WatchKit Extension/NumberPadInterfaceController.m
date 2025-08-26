@@ -13,15 +13,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+#define DEBUG_LEVEL_FOR_FILE LogUI
 
 #import "NumberPadInterfaceController.h"
-#import "WatchArrivalsContext.h"
-#import "NSString+Helper.h"
-#import "DebugLogging.h"
 #import "AlertInterfaceController.h"
-#import "UIKit/UIKit.h"
+#import "DebugLogging.h"
+#import "NSString+MoreMarkup.h"
 #import "UIFont+Utility.h"
+#import "UIKit/UIKit.h"
+#import "WatchArrivalsContext.h"
 
 @interface NumberPadInterfaceController ()
 
@@ -31,13 +31,24 @@
 
 - (void)awakeWithContext:(id)context {
     [super awakeWithContext:context];
-    
+
     self.stopId = [NSMutableString string];
+    
+    UIImage *icon;
+    if (@available(watchOS 11.0, *)) {
+        icon = [UIImage systemImageNamed:@"microphone"];
+    } else {
+        icon = [UIImage systemImageNamed:@"mic"];
+    }
+    
+    [self.micIcon setBackgroundImage:icon];
+    
     [self updateUI];
 }
 
 - (void)willActivate {
-    // This method is called when watch view controller is about to be visible to user
+    // This method is called when watch view controller is about to be visible
+    // to user
     [super willActivate];
 }
 
@@ -48,14 +59,20 @@
 
 - (void)updateUI {
     if (self.stopId.length == 0) {
-        [self.buttonStopId setAttributedTitle:
-         [@"#A#i<stop ID>" attributedStringFromMarkUpWithFont:[UIFont monospacedDigitSystemFontOfSize:16]]];
+        [self.buttonStopId
+            setAttributedTitle:
+                [@"#A#i<stop ID>"
+                    attributedStringFromMarkUpWithFont:
+                        [UIFont monospacedDigitSystemFontOfSize:16]]];
         self.goButton.hidden = YES;
         self.backButton.hidden = YES;
     } else {
-        [self.buttonStopId setAttributedTitle:
-         [[NSString stringWithFormat:@"#W#b%@", self.stopId] attributedStringFromMarkUpWithFont:[UIFont monospacedDigitSystemFontOfSize:18]]];
-        
+        [self.buttonStopId
+            setAttributedTitle:
+                [[NSString stringWithFormat:@"#W#b%@", self.stopId]
+                    attributedStringFromMarkUpWithFont:
+                        [UIFont monospacedDigitSystemFontOfSize:18]]];
+
         self.goButton.hidden = NO;
         self.backButton.hidden = NO;
     }
@@ -63,7 +80,7 @@
 
 - (void)addDigit:(NSString *)digit {
     [self.stopId appendString:digit];
-    [self  updateUI];
+    [self updateUI];
 }
 
 - (IBAction)buttonAction1 {
@@ -108,15 +125,16 @@
 
 - (IBAction)buttonBackAction {
     if (self.stopId.length > 0) {
-        NSRange lastCharacter = { self.stopId.length - 1, 1 };
+        NSRange lastCharacter = {self.stopId.length - 1, 1};
         [self.stopId deleteCharactersInRange:lastCharacter];
-        [self  updateUI];
+        [self updateUI];
     }
 }
 
 - (IBAction)buttonGoAction {
     if (self.stopId.length > 0) {
-        WatchArrivalsContext *context = [ WatchArrivalsContext contextWithStopId:self.stopId ];
+        WatchArrivalsContext *context =
+            [WatchArrivalsContext contextWithStopId:self.stopId];
         [context pushFrom:self];
     }
 }
@@ -127,85 +145,109 @@
 }
 
 - (IBAction)sayStopIdAction {
-    [self presentTextInputControllerWithSuggestions:nil allowedInputMode:WKTextInputModePlain completion:^(NSArray *_Nullable results) {
-        if (results != nil) {
-            NSCharacterSet *numbers  = [NSCharacterSet characterSetWithCharactersInString:@"0123456789"];
-            NSCharacterSet *skippers = [NSCharacterSet characterSetWithCharactersInString:@",."];
-            // uncrustify-off
-            NSDictionary *replacements = @{
-                @"zero":    @"0",
-                @"oh":      @"0",
-                @"one":     @"1",
-                @"two":     @"2",
-                @"three":   @"3",
-                @"four":    @"4",
-                @"five":    @"5",
-                @"six":     @"6",
-                @"seven":   @"7",
-                @"eight":   @"8",
-                @"nine":    @"9"
-            };
-            // uncrustify-on
-            
-            NSInteger stopNum = 0;
-            NSMutableArray *stops = [NSMutableArray array];
-            
-            // Find the numbers in the results
-            for (NSString *result in results) {
-                NSMutableString *replacedResult = result.mutableCopy;
-                
-                [replacements enumerateKeysAndObjectsUsingBlock: ^void (NSString *key, NSString *replacement, BOOL *stop)
-                 {
-                    [replacedResult replaceOccurrencesOfString:key
-                                                    withString:replacement
-                                                       options:NSCaseInsensitiveSearch
-                                                         range:NSMakeRange(0, replacedResult.length)];
-                }];
-                
-                // Skips certain characters
-                NSScanner *scanner = [NSScanner scannerWithString:replacedResult];
-                NSString *segment;
-                NSMutableString *filteredResult = [NSMutableString string];
-                
-                while (!scanner.isAtEnd) {
-                    segment = nil;
-                    [scanner scanUpToCharactersFromSet:skippers intoString:&segment];
-                    
-                    if (segment != nil) {
-                        [filteredResult appendString:segment];
-                    }
-                    
-                    if (!scanner.isAtEnd) {
-                        scanner.scanLocation++;
-                    }
-                }
-                
-                scanner = [NSScanner scannerWithString:filteredResult];
-                DEBUG_LOGS(result);
-                DEBUG_LOGS(filteredResult);
-                
-                while (!scanner.isAtEnd) {
-                    [scanner scanUpToCharactersFromSet:numbers intoString:nil];
-                    
-                    if (!scanner.isAtEnd) {
-                        if ([scanner scanInteger:&stopNum]) {
-                            [stops addObject:[NSString stringWithFormat:@"%lu", (unsigned long)stopNum]];
-                            DEBUG_LOGS((NSString *)stops.lastObject);
-                        }
-                    }
-                }
-            }
-            
-            if (stops.count >= 1) {
-                [self.stopId setString:stops.firstObject];
-                [self updateUI];
-                [self buttonGoAction];
-            } else {
-                [self pushControllerWithName:kAlertScene context:
-                 [@"#b#RNot sure what that was.#W Was it a stop ID?#b Saying each digit works best. This app can only do stop ID #inumbers#i right now." attributedStringFromMarkUpWithFont:[UIFont monospacedDigitSystemFontOfSize:16]]];
-            }
-        }
-    }];
+
+    void (^completion)(NSArray *__nullable results) = ^(
+        NSArray *_Nullable results) {
+      if (results != nil) {
+          NSCharacterSet *numbers =
+              [NSCharacterSet characterSetWithCharactersInString:@"0123456789"];
+          NSCharacterSet *skippers =
+              [NSCharacterSet characterSetWithCharactersInString:@",."];
+          // uncrustify-off
+          NSDictionary *replacements = @{
+              @"zero" : @"0",
+              @"oh" : @"0",
+              @"one" : @"1",
+              @"two" : @"2",
+              @"three" : @"3",
+              @"four" : @"4",
+              @"five" : @"5",
+              @"six" : @"6",
+              @"seven" : @"7",
+              @"eight" : @"8",
+              @"nine" : @"9"
+          };
+          // uncrustify-on
+
+          NSInteger stopNum = 0;
+          NSMutableArray *stops = [NSMutableArray array];
+
+          // Find the numbers in the results
+          for (NSString *result in results) {
+              NSMutableString *replacedResult = result.mutableCopy;
+
+              [replacements enumerateKeysAndObjectsUsingBlock:^void(
+                                NSString *key, NSString *replacement,
+                                BOOL *stop) {
+                [replacedResult
+                    replaceOccurrencesOfString:key
+                                    withString:replacement
+                                       options:NSCaseInsensitiveSearch
+                                         range:NSMakeRange(
+                                                   0, replacedResult.length)];
+              }];
+
+              // Skips certain characters
+              NSScanner *scanner = [NSScanner scannerWithString:replacedResult];
+              NSString *segment;
+              NSMutableString *filteredResult = [NSMutableString string];
+
+              while (!scanner.isAtEnd) {
+                  segment = nil;
+                  [scanner scanUpToCharactersFromSet:skippers
+                                          intoString:&segment];
+
+                  if (segment != nil) {
+                      [filteredResult appendString:segment];
+                  }
+
+                  if (!scanner.isAtEnd) {
+                      scanner.scanLocation++;
+                  }
+              }
+
+              scanner = [NSScanner scannerWithString:filteredResult];
+              DEBUG_LOG_NSString(result);
+              DEBUG_LOG_NSString(filteredResult);
+
+              while (!scanner.isAtEnd) {
+                  [scanner scanUpToCharactersFromSet:numbers intoString:nil];
+
+                  if (!scanner.isAtEnd) {
+                      if ([scanner scanInteger:&stopNum]) {
+                          [stops addObject:[NSString
+                                               stringWithFormat:@"%lu",
+                                                                (unsigned long)
+                                                                    stopNum]];
+                          DEBUG_LOG_NSString((NSString *)stops.lastObject);
+                      }
+                  }
+              }
+          }
+
+          if (stops.count >= 1) {
+              [self.stopId setString:stops.firstObject];
+              [self updateUI];
+              [self buttonGoAction];
+          } else {
+              [self
+                  pushControllerWithName:kAlertScene
+                                 context:
+                                     [@"#b#RNot sure what that was.#W Was it a "
+                                      @"stop ID?#b Saying each digit works "
+                                      @"best. This app can only do stop ID "
+                                      @"#inumbers#i right now."
+                                         attributedStringFromMarkUpWithFont:
+                                             [UIFont
+                                                 monospacedDigitSystemFontOfSize:
+                                                     16]]];
+          }
+      }
+    };
+
+    [self presentTextInputControllerWithSuggestions:nil
+                                   allowedInputMode:WKTextInputModePlain
+                                         completion:completion];
 }
 
 @end

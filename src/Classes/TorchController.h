@@ -13,10 +13,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
-#import <AVFoundation/AVFoundation.h>
 #import "Settings.h"
-
+#import <AVFoundation/AVFoundation.h>
+#import <Foundation/Foundation.h>
 
 @interface TorchController : NSObject
 

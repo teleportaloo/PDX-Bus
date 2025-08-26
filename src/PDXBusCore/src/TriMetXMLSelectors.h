@@ -13,57 +13,69 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#define XML_SHORT_SELECTORS 1
-
 typedef NSDictionary<NSString *, NSString *> XmlAttributes;
 
-#define XML_ATR_DICT                           attributeDict
+typedef void (*XML_PROP_SETTER_IMP)(id, SEL, NSString *);
+#define XML_PROP_SETTER_NAME                                                   \
+    ^(NSString * el) {                                                         \
+      return [NSString stringWithFormat:@"setXml_%@:", el];                    \
+    }
 
-#ifdef XML_SHORT_SELECTORS
+#define XML_PROP_DEBUG @"setXML"
+#define XML_START_DEBUG @"start "
+#define XML_END_DEBUG @"end   "
 
-#define XML_START_PREFIX                       @"sX"
-#define XML_START_SELECTOR                     XML_START_PREFIX @"%@:"
-#define XML_START_ELEMENT(typeName)            - (void)sX ## typeName: (XmlAttributes *)XML_ATR_DICT
-#define CALL_XML_START_ELEMENT_ON(X, typeName) [X sX ## typeName:attributeDict]
+#define XML_ATR_DICT attributeDict
 
-#define XML_END_PREFIX                         @"eX"
-#define XML_END_SELECTOR                       XML_END_PREFIX @"%@"
-#define XML_END_ELEMENT(typeName)              - (void)eX ## typeName
-#define CALL_XML_END_ELEMENT_ON(X, typeName)   [X eX ## typeName]
+#define XML_START_PREFIX @"sX"
 
-#else
+#define XML_START_SELECTOR_NAME                                                \
+    ^(NSString * el) {                                                         \
+      return [NSString stringWithFormat:XML_START_PREFIX @"%@:", el];          \
+    }
 
-#define XML_START_PREFIX                       @"parser:didStartX"
-#define XML_START_SELECTOR                     XML_START_PREFIX @"%@:namespaceURI:qualifiedName:attributes:"
-#define XML_START_ELEMENT(typeName)            - (void)parser: (NSXMLParser *)parser didStartX ## typeName: (NSString *)elementName namespaceURI: (NSString *)namespaceURI qualifiedName: (NSString *)qName attributes: (XmlAttributes *)XML_ATR_DICT
-#define CALL_XML_START_ELEMENT_ON(X, typeName) [X parser:parser didStartX ## typeName:elementName namespaceURI:namespaceURI qualifiedName:qName attributes:attributeDict]
+#define XML_START_ELEMENT(typeName)                                            \
+    -(void)sX##typeName : (XmlAttributes *)XML_ATR_DICT
 
-#define XML_END_PREFIX                         @"parser:didEndX"
-#define XML_END_SELECTOR                       XML_END_PREFIX @"%@:namespaceURI:qualifiedName:"
-#define XML_END_ELEMENT(typeName)              - (void)parser: (NSXMLParser *)parser didEndX ## typeName: (NSString *)elementName namespaceURI: (NSString *)namespaceURI qualifiedName: (NSString *)qName
-#define CALL_XML_END_ELEMENT_ON(X, typeName)   [X parser:parser didEndX ## typeName:elementName namespaceURI:namespaceURI qualifiedName:qName]
+typedef void (*XML_START_ELEMENT_IMP)(id, SEL, NSDictionary *);
 
-#endif
+#define CALL_XML_START_ELEMENT_ON(X, typeName) [X sX##typeName:XML_ATR_DICT]
 
-#define CALL_XML_END_ELEMENT(typeName)         CALL_XML_END_ELEMENT_ON(self, typeName)
-#define CALL_XML_START_ELEMENT(typeName)       CALL_XML_START_ELEMENT_ON(self, typeName)
+#define XML_END_PREFIX @"eX"
 
-#define XML_EQ(attr, val)                      ([attr caseInsensitiveCompare:val] == NSOrderedSame)
+#define XML_END_SELECTOR_NAME                                                  \
+    ^(NSString * el) {                                                         \
+      return [XML_END_PREFIX stringByAppendingString:el];                      \
+    }
 
-// Two options - we use a case-insensative search just in case the XML changed.
-#define XML_ATR_FOR_KEY(dict, X)                dict[X]
+#define XML_END_ELEMENT(typeName) -(void)eX##typeName
 
+typedef void (*XML_END_ELEMENT_IMP)(id, SEL);
 
-#define XML_ELNAME(typeName)                   (NSOrderedSame == [elementName caseInsensitiveCompare:typeName])
-#define XML_NULLABLE_ATR_STR(attr)             ([XML_ATR_DICT nullOrStringForKey:attr])
-#define XML_NULLABLE_ATR_NUM(attr)             ([XML_ATR_DICT nullOrNumForKey:attr])
-#define XML_ATR_INT_OR_MISSING(attr, def)      ([XML_ATR_DICT missingOrIntForKey:attr missing:def])
-#define XML_ATR_INT(attr)                      ([XML_ATR_DICT missingOrIntForKey:attr missing:0])
-#define XML_NON_NULL_ATR_STR(attr)             (XML_NON_NULL_STR(XML_ATR_FOR_KEY(XML_ATR_DICT, attr)))
-#define XML_ATR_TIME(attr)                     ([XML_ATR_DICT getTimeForKey:attr])
-#define XML_ATR_DATE(attr)                     ([XML_ATR_DICT getDateForKey:attr])
-#define XML_ATR_BOOL_DEFAULT_FALSE(attr)       ([XML_ATR_DICT getBoolForKey:attr])
-#define XML_ATR_COORD(attr)                    ([XML_ATR_DICT getDoubleForKey:attr])
-#define XML_ATR_LOCATION(lt, lg)               [CLLocation withLat:XML_ATR_COORD(lt) lng:XML_ATR_COORD(lg)]
-#define XML_ATR_DISTANCE(attr)                 ([XML_ATR_DICT getDistanceForKey:attr])
-#define XML_ZERO_LEN_ATR_STR(attr)             ([XML_ATR_DICT zeroLenOrStringForKey:attr])
+#define CALL_XML_END_ELEMENT_ON(X, typeName) [X eX##typeName]
+
+#define CALL_XML_END_ELEMENT(typeName) CALL_XML_END_ELEMENT_ON(self, typeName)
+#define CALL_XML_START_ELEMENT(typeName)                                       \
+    CALL_XML_START_ELEMENT_ON(self, typeName)
+
+#define XML_EQ(attr, val) ([attr caseInsensitiveCompare:val] == NSOrderedSame)
+
+#define XML_ATR_FOR_KEY(dict, X) dict[X]
+
+#define XML_ELNAME(typeName)                                                   \
+    (NSOrderedSame == [elementName caseInsensitiveCompare:typeName])
+#define XML_NULLABLE_ATR_STR(attr) ([XML_ATR_DICT nullOrStringForKey:attr])
+#define XML_NULLABLE_ATR_NUM(attr) ([XML_ATR_DICT nullOrNumForKey:attr])
+#define XML_ATR_INT_OR_MISSING(attr, def)                                      \
+    ([XML_ATR_DICT missingOrIntForKey:attr missing:def])
+#define XML_ATR_INT(attr) ([XML_ATR_DICT missingOrIntForKey:attr missing:0])
+#define XML_NON_NULL_ATR_STR(attr)                                             \
+    (XML_NON_NULL_STR(XML_ATR_FOR_KEY(XML_ATR_DICT, attr)))
+#define XML_ATR_TIME(attr) ([XML_ATR_DICT getTimeForKey:attr])
+#define XML_ATR_DATE(attr) ([XML_ATR_DICT getDateForKey:attr])
+#define XML_ATR_BOOL_DEFAULT_FALSE(attr) ([XML_ATR_DICT getBoolForKey:attr])
+#define XML_ATR_COORD(attr) ([XML_ATR_DICT getDoubleForKey:attr])
+#define XML_ATR_LOCATION(lt, lg)                                               \
+    [CLLocation withLat:XML_ATR_COORD(lt) lng:XML_ATR_COORD(lg)]
+#define XML_ATR_DISTANCE(attr) ([XML_ATR_DICT getDistanceForKey:attr])
+#define XML_ZERO_LEN_ATR_STR(attr) ([XML_ATR_DICT zeroLenOrStringForKey:attr])

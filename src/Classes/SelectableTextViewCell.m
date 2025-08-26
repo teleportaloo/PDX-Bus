@@ -13,12 +13,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+#define DEBUG_LEVEL_FOR_FILE LogUI
 
 #import "SelectableTextViewCell.h"
 
 @implementation SelectableTextViewCell
-
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
     [super setSelected:selected animated:animated];
@@ -32,9 +31,12 @@
 
 - (void)awakeFromNib {
     [super awakeFromNib];
-    
-    UILongPressGestureRecognizer *longPressGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
-    
+
+    UILongPressGestureRecognizer *longPressGesture =
+        [[UILongPressGestureRecognizer alloc]
+            initWithTarget:self
+                    action:@selector(handleLongPress:)];
+
     [self addGestureRecognizer:longPressGesture];
 }
 
@@ -59,52 +61,55 @@
 }
 
 - (bool)canPerformAction:(SEL)action withSender:(id)sender {
-    
+
     if (action == @selector(enableSelection:)) {
         return YES;
     } else if (action == @selector(disableSelection:)) {
         return YES;
     }
-    
+
     return [super canPerformAction:action withSender:sender];
-    
 }
 
 - (UIMenuController *)setMenu {
     UIMenuController *menu = UIMenuController.sharedMenuController;
-    
+
     if (self.textView.allowSelection) {
-        UIMenuItem *item = [[UIMenuItem alloc] initWithTitle:NSLocalizedString(@"Disable selection", @"menu") action:@selector(disableSelection:)];
-        menu.menuItems = @[item];
+        UIMenuItem *item = [[UIMenuItem alloc]
+            initWithTitle:NSLocalizedString(@"Disable selection", @"menu")
+                   action:@selector(disableSelection:)];
+        menu.menuItems = @[ item ];
     } else {
-        UIMenuItem *item = [[UIMenuItem alloc] initWithTitle:NSLocalizedString(@"Select all", @"menu") action:@selector(enableSelection:)];
-        menu.menuItems = @[item];
+        UIMenuItem *item = [[UIMenuItem alloc]
+            initWithTitle:NSLocalizedString(@"Select all", @"menu")
+                   action:@selector(enableSelection:)];
+        menu.menuItems = @[ item ];
     }
     return menu;
 }
 
 - (void)showMenu:(CGPoint)location inView:(UIView *)view {
     bool firstResponder = view.becomeFirstResponder;
-    
-    NSAssert(firstResponder, @"UIMenuController must be on first responder");
-    
-    UIMenuController *menu = [self setMenu];
-    
-    [menu setTargetRect:view.bounds inView:view];
-    [menu setMenuVisible:TRUE animated:TRUE];
-    
-    
-    DEBUG_LOG(@"first responder %d menu width %f, visible %d", firstResponder, menu.menuFrame.size.width, menu.menuVisible);
+
+    // Crash logs show it sometimes crashes here, so we bail if we can't be
+    // first responder
+    if (firstResponder) {
+        UIMenuController *menu = [self setMenu];
+
+        [menu showMenuFromView:view rect:view.bounds];
+        DEBUG_LOG(@"first responder %d menu width %f, visible %d",
+                  firstResponder, menu.menuFrame.size.width, menu.menuVisible);
+    }
 }
 
 - (void)handleLongPress:(UILongPressGestureRecognizer *)recognizer {
     if (recognizer.state != UIGestureRecognizerStateEnded) {
         return;
     }
-    
-    if (recognizer.view !=nil) {
+
+    if (recognizer.view != nil) {
         CGPoint location = [recognizer locationInView:recognizer.view];
-        
+
         [self showMenu:location inView:recognizer.view];
     }
 }

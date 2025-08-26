@@ -28,11 +28,14 @@ typedef enum WatchSelectActionEnum {
 
 @interface WatchRow : NSObject
 
-@property (nonatomic, strong) NSNumber *index;
+@property(nonatomic, strong) NSNumber *index;
 
 + (NSString *)identifier;
 
 - (void)populate:(XMLDepartures *)xml departures:(NSArray<Departure *> *)deps;
-- (WatchSelectAction)select:(XMLDepartures *)xml from:(WKInterfaceController *)from context:(WatchArrivalsContext *)context canPush:(bool)push;
+- (WatchSelectAction)select:(XMLDepartures *)xml
+                       from:(WKInterfaceController *)from
+                    context:(WatchArrivalsContext *)context
+                    canPush:(bool)push;
 
 @end

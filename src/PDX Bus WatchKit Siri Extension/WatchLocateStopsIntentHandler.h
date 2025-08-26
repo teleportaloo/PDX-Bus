@@ -13,18 +13,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-
-#import <Foundation/Foundation.h>
 #import "LocateStopsIntent.h"
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface WatchLocateStopsIntentHandler<LocateStopsIntentHandling> : NSObject
 
 - (void)handleLocateStops:(LocateStopsIntent *)intent
-               completion:(void (^)(LocateStopsIntentResponse *response))completion API_AVAILABLE(ios(12.0));
-
-
+               completion:
+                   (void (^)(LocateStopsIntentResponse *response))completion
+    API_AVAILABLE(ios(12.0));
 
 @end
 

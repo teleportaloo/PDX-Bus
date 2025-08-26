@@ -13,7 +13,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#define DEBUG_LEVEL_FOR_FILE kLogIntents
+#define DEBUG_LEVEL_FOR_FILE LogIntents
 
 #import "RoutesAtStopIdIntentHandler.h"
 #import "ArrivalsAtStopIdResponseFactory.h"
@@ -22,16 +22,18 @@
 @implementation RoutesAtStopIdIntentHandler
 
 - (void)handleRoutesAtStopId:(RoutesAtStopIdIntent *)intent
-                  completion:(void (^)(RoutesAtStopIdIntentResponse *response))completion {
+                  completion:(void (^)(RoutesAtStopIdIntentResponse *response))
+                                 completion {
     DEBUG_FUNC();
-    
+
     if (intent.stop == nil) {
-        completion([ArrivalsAtStopIdResponseFactory routesRespond:RoutesAtStopIdIntentResponseCodeFailure]);
+        completion([ArrivalsAtStopIdResponseFactory
+            routesRespond:RoutesAtStopIdIntentResponseCodeFailure]);
         return;
     }
-    
+
     completion([ArrivalsAtStopIdResponseFactory responseByRoute:intent.stop]);
-    
+
     return;
 }
 

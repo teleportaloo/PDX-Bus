@@ -1,3 +1,2 @@
-./convert.sh streetcar.html ../../Classes/StreetcarHotSpotTable.txt
-./convert.sh railmap.html ../../Classes/MaxHotSpotTable.txt
-
+./convert.sh streetcar.html ../../Tables/StreetcarHotSpotTable.c
+./convert.sh railmap.html ../../Tables/MaxHotSpotTable.c

@@ -6,7 +6,7 @@
 		<key>Title</key>
 		<string>About TriMet&apos;s Transit Tracker</string>
 		<key>Icon</key>
-		<string>Globe.png</string>
+		<string>TriMet.png</string>
 		<key>LinkM</key>
 		<string>https://trimet.org/transittracker/about.htm</string>
 	</dict>
@@ -14,17 +14,17 @@
 		<key>Title</key>
 		<string>Please be a beta tester!  You&apos;ll get to try out the new features and new versions before everyone else.</string>
 		<key>Icon</key>
-		<string>Globe.png</string>
+		<string>!testtube.2</string>
 		<key>LinkM</key>
 		<string>https://testflight.apple.com/join/0sTZ53wU</string>
 	</dict>
 	<dict>
 		<key>Title</key>
-		<string>PDX Bus web site &amp; Support</string>
+		<string>PDX Bus website &amp; Support</string>
 		<key>Icon</key>
-		<string>Blog.png</string>
+		<string>ActionIcon.png</string>
 		<key>LinkM</key>
-		<string>http://pdxbus.teleportaloo.org</string>
+		<string>https://teleportaloo.org/pdx-bus</string>
 	</dict>
 	<dict>
 		<key>Title</key>
@@ -40,7 +40,7 @@
 		<key>Title</key>
 		<string>Portland Transport Blog</string>
 		<key>Icon</key>
-		<string>Globe.png</string>
+		<string>!globe</string>
 		<key>LinkM</key>
 		<string>http://portlandtransport.com</string>
 	</dict>

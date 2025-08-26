@@ -15,6 +15,6 @@
 
 #import "TriMetXML.h"
 
-@interface TriMetXMLv2<ItemType> : TriMetXML<ItemType>
+@interface TriMetXMLv2<ItemType> : TriMetXML <ItemType>
 
 @end

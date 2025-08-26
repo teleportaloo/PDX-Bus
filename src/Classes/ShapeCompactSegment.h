@@ -14,16 +14,17 @@
 
 
 #import "ShapeSegment.h"
+#import <CoreLocation/CoreLocation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class RoutePolyline;
+@class RouteMultiPolyline;
 @class ShapeRoutePath;
 @class ShapeMutableSegment;
 
 @interface ShapeCompactSegment : NSObject <ShapeSegment>
 
-@property (nonatomic) CLLocationCoordinate2D *coords;
+@property(nonatomic) CLLocationCoordinate2D *coords;
 
 - (instancetype)initFromMutable:(ShapeMutableSegment *)seg;
 

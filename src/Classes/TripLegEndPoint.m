@@ -15,7 +15,7 @@
 
 #import "TripLegEndPoint.h"
 #import "CLLocation+Helper.h"
-#import "NSString+Helper.h"
+#import "NSString+Core.h"
 
 @interface TripLegEndPoint () {
     CLLocation *_loc;
@@ -27,10 +27,9 @@
 
 @dynamic pinTint;
 
-
 - (id)copyWithZone:(NSZone *)zone {
-    TripLegEndPoint *ep = [[ TripLegEndPoint allocWithZone:zone] init];
-    
+    TripLegEndPoint *ep = [[TripLegEndPoint allocWithZone:zone] init];
+
     // ep.xlat               = [self.xlat            copyWithZone:zone];
     // ep.xlon               = [self.xlon            copyWithZone:zone];
     ep.loc = [self.loc copyWithZone:zone];
@@ -45,7 +44,7 @@
     ep.displayTimeText = [self.displayTimeText copyWithZone:zone];
     ep.leftColor = self.leftColor;
     ep.index = self.index;
-    
+
     return ep;
 }
 
@@ -55,7 +54,7 @@
     if (self.strStopId) {
         return [NSString stringWithFormat:@"%d", self.strStopId.intValue];
     }
-    
+
     return nil;
 }
 
@@ -73,7 +72,7 @@
 
 - (bool)pinAction:(id<TaskController>)progress {
     [self.callback chosenEndpoint:self];
-    
+
     return YES;
 }
 
@@ -97,15 +96,16 @@
     if (self.mapText != nil) {
         return [NSString stringWithFormat:@"%d: %@", self.index, self.mapText];
     }
-    
+
     return nil;
 }
 
 - (NSString *)pinMarkedUpSubtitle {
     if (self.mapText != nil) {
-        return [NSString stringWithFormat:@"#R#b%d:#D %@", self.index, self.mapText];
+        return [NSString
+            stringWithFormat:@"#R#b%d:#D %@", self.index, self.mapText];
     }
-    
+
     return nil;
 }
 
@@ -120,18 +120,18 @@
 - (CLLocation *)loc {
     if (self.lat != nil && self.lon != nil) {
         _loc = [CLLocation fromStringsLat:self.lat lng:self.lon];
-        
+
         self.xml_lat = nil;
         self.xml_lon = nil;
         return _loc;
     }
-    
+
     return _loc;
 }
 
 - (void)setLoc:(CLLocation *)loc {
     _loc = loc;
-    
+
     self.xml_lat = nil;
     self.xml_lon = nil;
 }

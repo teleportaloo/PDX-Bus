@@ -19,17 +19,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface UIApplication (Compat)
 
-@property (nonatomic) BOOL compatNetworkActivityIndicatorVisible;
+@property(nonatomic, readonly) CGRect compatStatusBarFrame;
 
-@property (nonatomic, readonly) CGRect compatStatusBarFrame;
+@property(nonatomic, readonly, class) CGRect compatApplicationFrame;
 
-@property (nonatomic, readonly, class) CGRect compatApplicationFrame;
-
-+ (UIWindow *)firstKeyWindow;
++ (UIWindow *__nullable)firstKeyWindow;
 
 - (void)compatOpenURL:(NSURL *)url;
 
-@property (readonly, nonatomic) UIInterfaceOrientation compatStatusBarOrientation;
+@property(readonly, nonatomic)
+    UIInterfaceOrientation compatStatusBarOrientation;
+
++ (UIViewController *__nullable)topViewController;
++ (UIViewController *__nullable)rootViewController;
++ (CGRect)appRect;
 
 @end
 

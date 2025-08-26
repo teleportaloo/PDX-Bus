@@ -17,7 +17,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef  void (^ParallelBlock)(void);
+#if TARGET_OS_WATCH
+#else
+@class TaskState;
+#endif
+
+typedef void (^ParallelBlock)(void);
 
 @interface RunParallelBlocks : NSObject
 
@@ -26,6 +31,13 @@ typedef  void (^ParallelBlock)(void);
 - (void)startBlock:(ParallelBlock)block;
 - (void)waitForBlocks;
 
+#if TARGET_OS_WATCH
+#else
+- (void)waitForBlocksWithState:(TaskState *)state;
+#endif
+
 @end
 
 NS_ASSUME_NONNULL_END
+
+

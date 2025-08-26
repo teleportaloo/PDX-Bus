@@ -13,8 +13,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
 #import "StoppableFetcher.h"
+#import <Foundation/Foundation.h>
 
 @interface ProcessQRCodeString : StoppableFetcher
 

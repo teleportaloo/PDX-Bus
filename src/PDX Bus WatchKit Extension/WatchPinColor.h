@@ -9,19 +9,19 @@
 
 @protocol WatchPinColor
 
-@property (nonatomic, readonly) WKInterfaceMapPinColor pinColor;
-@property (nonatomic, readonly, copy) UIColor *pinTint;
-@property (nonatomic, readonly) bool pinHasBearing;
-@property (nonatomic, readonly) double pinBearing;
-@property (nonatomic, readonly) CLLocationCoordinate2D pinCoord;
-@property (nonatomic, readonly) bool pinHasCoord;
+@property(nonatomic, readonly) WKInterfaceMapPinColor pinColor;
+@property(nonatomic, readonly, copy) UIColor *pinTint;
+@property(nonatomic, readonly) bool pinHasBearing;
+@property(nonatomic, readonly) double pinBearing;
+@property(nonatomic, readonly) CLLocationCoordinate2D pinCoord;
+@property(nonatomic, readonly) bool pinHasCoord;
 
 @end
 
-@interface SimpleWatchPin <WatchPinColor> : NSObject {
+@interface SimpleWatchPin<WatchPinColor> : NSObject {
 }
 
-@property (nonatomic)   WKInterfaceMapPinColor simplePinColor;
-@property (nonatomic)   CLLocationCoordinate2D simpleCoord;
+@property(nonatomic) WKInterfaceMapPinColor simplePinColor;
+@property(nonatomic) CLLocationCoordinate2D simpleCoord;
 
 @end

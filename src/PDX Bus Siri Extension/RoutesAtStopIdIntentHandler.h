@@ -13,12 +13,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
 #import "RoutesAtStopIdIntent.h"
+#import <Foundation/Foundation.h>
 
 @interface RoutesAtStopIdIntentHandler : NSObject
 
 - (void)handleRoutesAtStopId:(RoutesAtStopIdIntent *)intent
-                  completion:(void (^)(RoutesAtStopIdIntentResponse *response))completion API_AVAILABLE(ios(12.0));
+                  completion:(void (^)(RoutesAtStopIdIntentResponse *response))
+                                 completion API_AVAILABLE(ios(12.0));
 
 @end

@@ -15,14 +15,14 @@
 
 #import <Foundation/Foundation.h>
 
-#import <Foundation/Foundation.h>
-#import <CoreLocation/CoreLocation.h>
 #import "TripLegEndPoint.h"
+#import <CoreLocation/CoreLocation.h>
+#import <Foundation/Foundation.h>
 
 @interface GeoLocator : NSObject
 
-@property (atomic) bool waitingForGeocoder;
-@property (atomic, strong) NSError *error;
+@property(atomic) bool waitingForGeocoder;
+@property(atomic, strong) NSError *error;
 
 - (NSMutableArray<TripLegEndPoint *> *)fetchCoordinates:(NSString *)address;
 

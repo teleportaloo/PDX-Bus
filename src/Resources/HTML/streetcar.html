@@ -5,7 +5,7 @@
 <meta name=”viewport” content="width=1200, initial-scale=1.0, user-scalable=true, minimum-scale=1.0, maximum-scale=4.0" />
 <title></title>
 </head>
-
+ 
 <body>
 <h1>Rail Map Hotspots</h1>
 <pre>  </pre>
@@ -14,22 +14,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-    <p>This HTML files is used to design the hotspots on the Streetcar  map.   Use a tool to get the hotspots in the correct place, use the 'convert.sh' tool to create the
+<p>This HTML files is used to design the hotspots on the Streetcar  map.   Use a tool to get the hotspots in the correct place, use the 'convert.sh' tool to create the
     actual code tables in StreetcarHotSpotTable.txt
-
 <ul>
 <li>Replace <tt>&lt;area shape="rect" coords="</tt> with <tt>HS_RECT</tt>(</li>
 <li>Replace <tt>" href="</tt>with <tt>,</tt></li>
 <li>Replace <tt>/&gt;</tt> with <tt>)</tt></li>
-    
 </ul>
-
 </p>
 <p>The Xcode project will make a text file called StreetcarHotSpotTable.txt and include it into RailMapsView.m automatically. </p>
-<p>Note that there is a file called StreetcarHotSpotTiles.txt which is also generated but it is not automatic,
+<p>Note that there is a file called StreetcarHotSpotTiles.c which is also generated but it is not automatic,
 you have to execute a special "test case" called test_generate_HotSpot_tiles to generate that code.</p>
-
-
 <img src="../Portland Streetcar/StreetcarMap.gif" alt="" border="0" usemap="#Map" />
 <map name="Map" id="Map2">
   <area shape="poly" coords="654,1302,698,1226,669,1212,628,1252,587,1293,634,1315" href="s:SW%203rd%20&%20Harrison//W,12382/E,12375" />

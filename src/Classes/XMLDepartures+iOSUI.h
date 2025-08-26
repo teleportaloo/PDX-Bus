@@ -12,17 +12,17 @@
 
 #import "XMLDepartures.h"
 
-#import "MapPin.h"
 #import "DepartureTimesDataProvider.h"
+#import "MapPin.h"
 
 // #import <MapKit/MkAnnotation.h>
 
 @class DepartureTimes;
 @class Departure;
 
-@interface XMLDepartures (iOSUI)  <MapPin, DepartureTimesDataProvider>
+@interface XMLDepartures (iOSUI) <MapPin, DepartureTimesDataProvider>
 
-@property (nonatomic, readonly) CLLocationCoordinate2D coordinate;
-@property (nonatomic, readonly, copy) NSString *title;
+@property(nonatomic, readonly) CLLocationCoordinate2D coordinate;
+@property(nonatomic, readonly, copy) NSString *title;
 
 @end

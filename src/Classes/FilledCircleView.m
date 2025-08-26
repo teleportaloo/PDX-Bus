@@ -21,29 +21,28 @@
 // An empty implementation adversely affects performance during animation.
 - (void)drawRect:(CGRect)rect {
     // Drawing code
-    
+
     CGMutablePathRef fillPath = CGPathCreateMutable();
-    
+
     CGRect outerSquare;
-    
+
     CGFloat width = fmin(CGRectGetWidth(rect), CGRectGetHeight(rect));
-    
+
     outerSquare.origin.x = CGRectGetMidX(rect) - width / 2;
     outerSquare.origin.y = CGRectGetMidY(rect) - width / 2;
     outerSquare.size.width = width;
     outerSquare.size.height = width;
-    
+
     const CGFloat *colors = CGColorGetComponents(self.fillColor.CGColor);
-    
-    
+
     CGPathAddEllipseInRect(fillPath, NULL, outerSquare);
-    
+
     CGContextRef context = UIGraphicsGetCurrentContext();
-    
+
     CGContextSetRGBFillColor(context, colors[0], colors[1], colors[2], 1.0);
     CGContextAddPath(context, fillPath);
     CGContextFillPath(context);
-    
+
     CGPathRelease(fillPath);
 }
 

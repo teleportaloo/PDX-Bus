@@ -13,21 +13,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
-#import "XMLDepartures.h"
 #import "AlarmTask.h"
+#import "XMLDepartures.h"
+#import <Foundation/Foundation.h>
 
 #define DEBUG_BACKGROUND_FETCH
 
 @interface AlarmFetchArrivalsTask : AlarmTask
 
-@property (nonatomic, strong) NSDate *queryTime;
-@property (nonatomic, copy)   NSString *block;
-@property (nonatomic, copy)   NSString *dir;
-@property (nonatomic, strong) XMLDepartures *departures;
-@property (nonatomic)         uint minsToAlert;
-@property (strong)            Departure *lastFetched;
-@property (nonatomic, copy)   NSString *display;
+@property(nonatomic, strong) NSDate *queryTime;
+@property(nonatomic, copy) NSString *block;
+@property(nonatomic, copy) NSString *dir;
+@property(nonatomic, strong) XMLDepartures *departures;
+@property(nonatomic) uint minsToAlert;
+@property(strong) Departure *lastFetched;
+@property(nonatomic, copy) NSString *display;
 
 - (void)startTask;
 

@@ -13,10 +13,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-
-
-#import <Foundation/Foundation.h>
 #import "../PDXBusCore/src/TriMetXML.h"
+#import <Foundation/Foundation.h>
 
 #define MS_EPOCH(X) ((X).timeIntervalSince1970 * 1000)
 
@@ -24,19 +22,23 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface XMLTestFile : NSObject
 
-@property  (nonatomic, strong) NSMutableString *xml;
+@property(nonatomic, strong) NSMutableString *xml;
 
-+ (XMLTestFile *)fileWithOneTag:(NSString *)tag attributes:(NSArray<NSArray<NSString*> *> *)attributes;
++ (XMLTestFile *)fileWithOneTag:(NSString *)tag
+                     attributes:(NSArray<NSArray<NSString *> *> *)attributes;
 - (void)addHeaderTag:(NSDate *)date;
-- (void)startTagWithAttributes:(NSString *)tag attributes:(NSArray<NSArray<NSString*> *> *)attributes;
+- (void)startTagWithAttributes:(NSString *)tag
+                    attributes:(NSArray<NSArray<NSString *> *> *)attributes;
 - (void)closeTag:(NSString *)tag;
-- (void)tagWithAtrributes:(NSString *)tag attributes:(NSArray<NSArray<NSString*> *> *)attributes;
+- (void)tagWithAtrributes:(NSString *)tag
+               attributes:(NSArray<NSArray<NSString *> *> *)attributes;
 - (void)closeHeaderTag;
 
 - (NSString *)makeURLstring;
 
-- (XMLQueryBlock)queryBlock;
-+ (XMLQueryBlock)queryBlockWithFileForClass:(NSDictionary <NSString *, NSString *> *)filesPerClass;
+- (XMLQueryTransformer)queryBlock;
++ (XMLQueryTransformer)queryBlockWithFileForClass:
+    (NSDictionary<NSString *, NSString *> *)filesPerClass;
 
 @end
 

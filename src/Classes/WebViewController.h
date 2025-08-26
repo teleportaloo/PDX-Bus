@@ -10,20 +10,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <UIKit/UIKit.h>
-#import "ViewControllerBase.h"
-#import <WebKit/WebKit.h>
 #import "DeselectItemDelegate.h"
+#import "ViewControllerBase.h"
+#import <UIKit/UIKit.h>
+#import <WebKit/WebKit.h>
 
 @interface WebViewController : ViewControllerBase <WKNavigationDelegate>
 
-@property (nonatomic, copy)   NSString *javsScriptCommand;
-@property (nonatomic, copy)   NSString *urlToDisplay;
+@property(nonatomic, copy) NSString *javsScriptCommand;
+@property(nonatomic, copy) NSString *urlToDisplay;
 
 - (void)setNamedUrl:(NSString *)name;
 - (void)setURLmobile:(NSString *)url full:(NSString *)full;
 - (void)setRawData:(NSData *)rawData title:(NSString *)title;
-- (void)displayPage:(UINavigationController *)nav animated:(BOOL)animated itemToDeselect:(id<DeselectItemDelegate>)deselect;
+- (void)displayPage:(UINavigationController *)nav
+           animated:(BOOL)animated
+     itemToDeselect:(id<DeselectItemDelegate>)deselect;
 
 + (void)displayPage:(NSString *)url
                full:(NSString *)full
@@ -31,12 +33,10 @@
      itemToDeselect:(id<DeselectItemDelegate>)deselect
            whenDone:(UIViewController *)whenDone;
 
-
 + (void)displayNamedPage:(NSString *)name
                navigator:(UINavigationController *)nav
           itemToDeselect:(id<DeselectItemDelegate>)deselect
                 whenDone:(UIViewController *)whenDone;
-
 
 + (void)displayNamedPage:(NSString *)name
                parameter:(NSString *)param

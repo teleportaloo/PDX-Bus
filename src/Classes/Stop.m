@@ -11,71 +11,28 @@
 
 
 #import "Stop.h"
-#import "NSString+Helper.h"
+#import "NSString+Core.h"
+#import "TriMetXML.h"
+#import "TriMetXMLSelectors.h"
+#import "NSDictionary+Types.h"
+#import "CLLocation+Helper.h"
 
 
 @implementation Stop
 
-@dynamic  pinTint;
-
 - (void)dealloc {
-    self.timePoint = nil;
 }
 
-- (MapPinColorValue)pinColor {
-    if (self.timePoint)
-    {
-        return MAP_PIN_COLOR_BLUE;
+- (NSComparisonResult)compareUsingIndex:(Stop *)inStop {
+    if (self.index < inStop.index) {
+        return NSOrderedAscending;
     }
-    return MAP_PIN_COLOR_PURPLE;
-}
 
-- (bool)pinHasBearing {
-    return NO;
-}
-
-- (bool)pinActionMenu {
-    return YES;
-}
-
-- (bool)pinAction:(id<TaskController>)progress {
-    [self.stopObjectCallback returnStopObject:self progress:progress];
-    return YES;
-}
-
-- (NSString *)pinActionText {
-    return [self.stopObjectCallback returnStopObjectActionText];
-}
-
-- (CLLocationCoordinate2D)coordinate {
-    return self.location.coordinate;
-}
-
-- (NSString *)title {
-    return self.desc;
-}
-
-- (NSString *)subtitle {
-    if (self.dir == nil) {
-        return [NSString stringWithFormat:NSLocalizedString(@"Stop ID %@", @"TriMet Stop identifer <number>"), self.stopId];
+    if (self.index > inStop.index) {
+        return NSOrderedDescending;
     }
-    
-    return [NSString stringWithFormat:@"%@ ID %@", self.dir, self.stopId];
-}
 
-- (NSString *)pinMarkedUpSubtitle {
-    NSString *tp = @"";
-    
-    if (self.timePoint)
-    {
-        tp = @"\n#Linfo:timepoint Time point#T";
-    }
-    
-    if (self.dir == nil) {
-        return [NSString stringWithFormat:NSLocalizedString(@"#D%@", @"TriMet Stop identifer <number>"),tp];
-    }
-    
-    return [NSString stringWithFormat:@"#D%@%@", self.dir, tp];
+    return NSOrderedSame;
 }
 
 - (NSComparisonResult)compareUsingStopName:(Stop *)inStop {
@@ -83,34 +40,18 @@
                       options:(NSNumericSearch | NSCaseInsensitiveSearch)];
 }
 
-- (NSComparisonResult)compareUsingIndex:(Stop *)inStop {
-    if (self.index < inStop.index) {
-        return NSOrderedAscending;
-    }
-    
-    if (self.index > inStop.index) {
-        return NSOrderedDescending;
-    }
-    
-    return NSOrderedSame;
-}
-
 - (NSString *)stringToFilter {
     return self.desc;
 }
 
-- (UIColor *)pinTint {
-    return nil;
-}
-
-- (NSString *)pinStopId
-{
-    return self.stopId;
-}
-
-- (NSString *)pinMarkedUpType
-{
-    return nil;
++ (Stop *)fromAttributeDict:(NSDictionary *)XML_ATR_DICT {
+    Stop *stop = [Stop new];
+    stop.stopId = XML_NON_NULL_ATR_STR(@"locid");
+    stop.desc = XML_NON_NULL_ATR_STR(@"desc");
+    stop.timePoint = XML_ATR_BOOL_DEFAULT_FALSE(@"tp");
+    stop.location = XML_ATR_LOCATION(@"lat", @"lng");
+    stop.dir = XML_NON_NULL_ATR_STR(@"dir");
+    return stop;
 }
 
 @end

@@ -6,11 +6,11 @@
 
 "LX7jhP" = "No information for that stop.";
 
-"Pravi5" = "Show arrivals at ${locationName}";
+"Pravi5" = "Show departures at ${locationName}";
 
 "R4ael4" = "View TriMet arrivals";
 
-"TqSNOp" = "At ${stopName} there were no arrivals.";
+"TqSNOp" = "At ${stopName} there were no departures. ${reportingStatus} ${alerts}";
 
 "Ud9d7v" = "${numberOfRoutes} Here's the departures at ${stopName}  ${arrivals}";
 
@@ -18,5 +18,5 @@
 
 "wEz8sE" = "Here's the departures at ${stopName}  ${arrivals}";
 
-"wnTYWL" = "Get arrivals at Stop ID ${stops}";
+"wnTYWL" = "Get departures at Stop ID ${stops}";
 

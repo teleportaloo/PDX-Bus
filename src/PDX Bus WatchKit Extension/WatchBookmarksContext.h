@@ -13,24 +13,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#import "WatchContext.h"
 #import <Foundation/Foundation.h>
 #import <WatchKit/WatchKit.h>
-#import "WatchContext.h"
 
 #define kBookmarksScene @"Bookmarks"
 
 @interface WatchBookmarksContext : WatchContext
 
-@property (strong, nonatomic) NSArray *singleBookmark;
-@property (nonatomic)         bool dictated;
-@property (copy, nonatomic)   NSString *title;
-@property (nonatomic)         bool recents;
-@property (copy, nonatomic)   NSString *location;
-@property (nonatomic)         bool oneTimeShowFirst;
+@property(strong, nonatomic) NSArray<NSString *> *singleBookmark;
+@property(nonatomic) bool dictated;
+@property(copy, nonatomic) NSString *title;
+@property(nonatomic) bool recents;
+@property(copy, nonatomic) NSString *location;
+@property(nonatomic) bool oneTimeShowFirst;
 
 - (void)updateUserActivity:(WKInterfaceController *)controller;
 
-+ (WatchBookmarksContext *)contextWithBookmark:(NSArray *)bookmark title:(NSString *)title locationString:(NSString *)location;
++ (WatchBookmarksContext *)contextWithBookmark:(NSArray<NSString *> *)bookmark
+                                         title:(NSString *)title
+                                locationString:(NSString *)location;
 + (WatchBookmarksContext *)contextForRecents;
 
 @end

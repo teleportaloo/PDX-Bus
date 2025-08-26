@@ -14,135 +14,164 @@
 
 
 #import "Icons.h"
-#import "UIColor+DarkMode.h"
-#import "TintedImageCache.h"
+#import "TaskDispatch.h"
+#import "UIColor+MoreDarkMode.h"
 #import "UIFont+Utility.h"
+
+#define DEBUG_LEVEL_FOR_FILE LogUI
+
+@interface Icons ()
+
+@property NSCache<NSString *, UIImage *> *cache;
+
+@end
 
 @implementation Icons
 
+- (instancetype)init {
+    if ((self = [super init])) {
+        _cache = [NSCache new];
+    }
+
+    return self;
+}
+
++ (Icons *)sharedInstance {
+    static Icons *singleton = nil;
+    DoOnce(^{
+      singleton = [[Icons alloc] init];
+    });
+    return singleton;
+}
+
++ (void)getDelayedIcon:(NSString *)name
+            completion:(void (^)(UIImage *image))completion {
+
+    if (name == nil) {
+        completion(nil);
+        return;
+    }
+
+    UIImage *cachedImage = [Icons.sharedInstance.cache objectForKey:name];
+
+    if (cachedImage != nil) {
+        completion(cachedImage);
+    } else {
+        MainTask(^{
+          // Try again to see if it got in the cache while we
+          // were waiting for the cache to be available. This can
+          // happen when multiple icons are being requested at
+          // once.
+          UIImage *icon = [Icons.sharedInstance.cache objectForKey:name];
+
+          if (icon == nil) {
+
+              DEBUG_LOG(@"Fetching icon %@", name)
+
+              icon = [Icons getIcon:name];
+
+              if (icon != nil) {
+                  [Icons.sharedInstance.cache setObject:icon forKey:name];
+              }
+          } else {
+              DEBUG_LOG(@"Not Fetching icon %@", name)
+          }
+
+          completion(icon);
+        });
+    }
+}
+
 + (UIImage *)getIcon:(NSString *)name {
     UIImage *icon = [UIImage imageNamed:name];
-    
+
     if (icon == nil) {
-        static NSDictionary *replacements;
-        static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{
-            replacements = @{ kIconExpand7      : @"▽",
-                              kIconCollapse7    : @"△" };
-        });
-        NSString *replacement = replacements[name];
-        
-        if (replacement!=nil)
-        {
-            icon = [Icons characterIcon:replacement fg:[UIColor blackColor]];
-        }
-        else
-        {
-            icon = [UIImage imageNamed:kIconAppIconAction];
-        }
+        icon = [UIImage imageNamed:kIconAppIconAction];
     }
-    
+
     icon.accessibilityHint = nil;
     icon.accessibilityLabel = nil;
     return icon;
 }
 
-+ (UIImage *)getToolbarIcon:(NSString *)name {
-    UIImage *icon = [UIImage imageNamed:name];
-    
-    icon.accessibilityHint = nil;
-    icon.accessibilityLabel = nil;
-    return icon;
-}
-
-+ (UIImage *)characterIcon:(NSString *)text fg:(UIColor *)fg
-{
++ (UIImage *)characterIcon:(NSString *)text fg:(UIColor *)fg {
     const CGFloat kTileWidth = 24;
     const CGFloat kTileHeight = 24;
     UIImage *icon;
-    
+
     UIColor *bg = [UIColor clearColor];
-    
-    UIGraphicsBeginImageContextWithOptions(CGSizeMake(kTileWidth, kTileHeight), NO, 0);
+
+    UIGraphicsBeginImageContextWithOptions(CGSizeMake(kTileWidth, kTileHeight),
+                                           NO, 0);
     CGRect rect = CGRectMake(0, 0, kTileWidth, kTileHeight);
-    
+
     if (bg != nil) {
         [bg set];
         UIRectFill(rect);
     }
-    
+
     UIFont *font = nil;
-    
+
     if ([text characterAtIndex:0] < 128) {
         font = [UIFont monospacedDigitSystemFontOfSize:26];
     } else {
         font = [UIFont monospacedDigitSystemFontOfSize:22];
     }
-    
-    NSMutableParagraphStyle *paragraphStyle = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
+
+    NSMutableParagraphStyle *paragraphStyle =
+        [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
     paragraphStyle.alignment = NSTextAlignmentCenter;
-    
-    NSDictionary *attributes = @{ NSFontAttributeName: font, NSForegroundColorAttributeName: fg, NSParagraphStyleAttributeName: paragraphStyle };
+
+    NSDictionary *attributes = @{
+        NSFontAttributeName : font,
+        NSForegroundColorAttributeName : fg,
+        NSParagraphStyleAttributeName : paragraphStyle
+    };
     CGSize textSize = [text sizeWithAttributes:attributes];
-    CGRect textRect = CGRectMake((kTileWidth - textSize.width) / 2, (kTileHeight - textSize.height) / 2, textSize.width, textSize.height);
+    CGRect textRect = CGRectMake((kTileWidth - textSize.width) / 2,
+                                 (kTileHeight - textSize.height) / 2,
+                                 textSize.width, textSize.height);
     [text drawInRect:textRect withAttributes:attributes];
-    
-    
+
     icon = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
-    
+
     return icon;
 }
 
-+ (UIImage *)characterIcon:(NSString *)text
-{
++ (UIImage *)characterIcon:(NSString *)text {
     return [Icons characterIcon:text placeholder:nil];
 }
 
-+ (UIImage *)characterIcon:(NSString *)text placeholder:(UIImage *)placeholder
-{
-    static NSMutableDictionary<NSString *, UIImage *> *cache;
-    
-    static dispatch_once_t onceToken;
-    
++ (UIImage *)characterIcon:(NSString *)text placeholder:(UIImage *)placeholder {
     UIColor *fg = [UIColor modeAwareText];
-    
-    dispatch_once(&onceToken, ^{
-        cache = [NSMutableDictionary dictionary];
-        
-    });
-    
-    NSString *key = [NSString stringWithFormat:@"%@ %@", text, fg.string];
-    
-    UIImage *icon = cache[key];
-    
+
+    NSString *key = [NSString stringWithFormat:@"!%@ %@", text, fg.string];
+
+    UIImage *icon = [Icons.sharedInstance.cache objectForKey:key];
+
     if (icon == nil) {
         icon = [Icons characterIcon:text fg:fg];
-        
-        if (placeholder != nil)
-        {
+
+        if (placeholder != nil) {
             // Check for the default Emoji - which is a kind of ?
             // If so then switch to the placeholder
             UIImage *defImage = [Icons characterIcon:@"\u1fff" placeholder:nil];
-            
-            if ([UIImagePNGRepresentation(defImage) isEqual:UIImagePNGRepresentation(icon)]) {
+
+            if ([UIImagePNGRepresentation(defImage)
+                    isEqual:UIImagePNGRepresentation(icon)]) {
                 icon = placeholder;
             }
         }
-        
-        if (icon == nil)
-        {
+
+        if (icon == nil) {
             icon = [UIImage imageNamed:kIconAppIconAction];
         }
-        
-        cache[key] = icon;
-    }
-    
-    return icon;
-}
 
-+ (UIImage *)getModeAwareIcon:(NSString *)name {
-    return [[TintedImageCache sharedInstance] modeAwareLightenedIcon:name];
+        [Icons.sharedInstance.cache setObject:icon forKey:key];
+    }
+
+    return icon;
 }
 
 @end

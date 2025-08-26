@@ -14,77 +14,81 @@
 
 
 #import "TripLeg.h"
-#import "RouteColorBlobView.h"
+#import "CLLocation+Helper.h"
 #import "DebugLogging.h"
 #import "FormatDistance.h"
+#import "NSString+Core.h"
+#import "NSString+MoreMarkup.h"
+#import "RouteColorBlobView.h"
+#import "TaskDispatch.h"
+#import "TriMetInfo+UI.h"
 #import "ViewControllerBase.h"
-#import "NSString+Helper.h"
-#import "CLLocation+Helper.h"
-
 
 @implementation TripLeg
 
-
 #define ROW_HEIGHT kDepartureCellHeight
 
-- (double)distanceMiles
-{
+- (double)distanceMiles {
     return self.strDistanceMiles.doubleValue;
 }
 
-
-- (NSInteger)durationMins
-{
+- (NSInteger)durationMins {
     return self.strDurationMins.integerValue;
 }
 
 - (NSString *)direction:(NSString *)dir {
     static NSDictionary *strmap = nil;
-    
-    static dispatch_once_t onceToken;
-    
-    dispatch_once(&onceToken, ^{
-        strmap = @{ @"n": @"north",
-                    @"s": @"south",
-                    @"e": @"east",
-                    @"w": @"west",
-                    @"ne": @"northeast",
-                    @"se": @"southeast",
-                    @"sw": @"southwest",
-                    @"nw": @"northwest" };
-    });
-    
+
+    DoOnce((^{
+      strmap = @{
+          @"n" : @"north",
+          @"s" : @"south",
+          @"e" : @"east",
+          @"w" : @"west",
+          @"ne" : @"northeast",
+          @"se" : @"southeast",
+          @"sw" : @"southwest",
+          @"nw" : @"northwest"
+      };
+    }));
+
     NSString *ret = strmap[dir];
-    
+
     if (ret == nil) {
         ret = dir;
     }
-    
+
     return ret;
 }
 
-- (NSString *)mapLink:(NSString *)desc loc:(CLLocation *)loc textType:(TripTextType)type {
+- (NSString *)mapLink:(NSString *)desc
+                  loc:(CLLocation *)loc
+             textType:(TripTextType)type {
     if (loc == nil || type != TripTextTypeHTML) {
         return desc;
     }
-    
-    return [NSString stringWithFormat:@"<a href=\"http://map.google.com/?q=location@%@\">%@</a>",
+
+    return [NSString
+        stringWithFormat:
+            @"<a href=\"http://map.google.com/?q=location@%@\">%@</a>",
             COORD_TO_LAT_LNG_STR(loc.coordinate), desc];
 }
 
-- (NSString *)createFromText:(bool)first textType:(TripTextType)type; {
+- (NSString *)createFromText:(bool)first textType:(TripTextType)type;
+{
     NSMutableString *text = [NSMutableString string];
-    
+
     if (self.from != nil) {
         if (![self.mode isEqualToString:kModeWalk]) {
             if (type == TripTextTypeUI) {
                 self.from.displayTimeText = self.startTimeFormatted;
                 self.from.leftColor = [UIColor modeAwareBlue];
-                
+
                 // Bug in response can give streetcar data as MAX Mode.
-                
+
                 if ([self.mode isEqualToString:kModeBus]) {
-                    self.from.displayModeText = [NSString stringWithFormat:@"Bus %@", self.displayRouteNumber];
+                    self.from.displayModeText = [NSString
+                        stringWithFormat:@"Bus %@", self.displayRouteNumber];
                 } else if ([self.mode isEqualToString:kModeMax]) {
                     self.from.displayModeText = @"MAX";
                 } else if ([self.mode isEqualToString:kModeSc]) {
@@ -92,31 +96,41 @@
                 } else {
                     self.from.displayModeText = self.displayRouteNumber;
                 }
-                
+
                 if (self.from.thruRoute) {
                     self.from.displayModeText = @"Stay on board";
                     self.from.leftColor = [UIColor modeAwareText];
-                    
-                    [text appendFormat:@"#bStay on board#b at %@, route changes to '%@'", self.from.desc, self.routeName];
+
+                    [text appendFormat:
+                              @"#bStay on board#b at %@, route changes to '%@'",
+                              self.from.desc, self.routeName];
                 } else {
                     [text appendFormat:@"#bBoard#b %@", self.routeName];
                 }
             } else {
                 if (self.from.thruRoute) {
-                    [text appendFormat:@"%@ Stay on board at %@,  route changes to '%@'", self.startTimeFormatted,    self.from.desc, self.routeName];
+                    [text appendFormat:
+                              @"%@ Stay on board at %@,  route changes to '%@'",
+                              self.startTimeFormatted, self.from.desc,
+                              self.routeName];
                 } else {
-                    [text appendFormat:@"%@ Board %@",            self.startTimeFormatted, self.routeName];
+                    [text appendFormat:@"%@ Board %@", self.startTimeFormatted,
+                                       self.routeName];
                 }
             }
         } else if (type == TripTextTypeMap) {
             NSInteger mins = self.durationMins;
-            
+
             if (mins > 0) {
-                [text appendFormat:@"Walk %@ %@ ", [FormatDistance formatMiles:self.distanceMiles], [self direction:self.direction]];
+                [text appendFormat:@"Walk %@ %@ ",
+                                   [FormatDistance
+                                       formatMiles:self.distanceMiles],
+                                   [self direction:self.direction]];
             } else {
-                [text appendFormat:@"Walk %@ ",  [self direction:self.direction]];
+                [text
+                    appendFormat:@"Walk %@ ", [self direction:self.direction]];
             }
-            
+
             if (mins == 1) {
                 [text appendString:@"for 1 min "];
             } else if (mins > 1) {
@@ -124,14 +138,14 @@
             }
         }
     }
-    
+
     while ([text replaceOccurrencesOfString:@"  "
                                  withString:@" "
                                     options:NSLiteralSearch
                                       range:NSMakeRange(0, text.length)] > 0) {
         ;
     }
-    
+
     if (text.length != 0) {
         if (type == TripTextTypeHTML) {
             [text appendString:@"<br><br>"];
@@ -139,36 +153,35 @@
             [text appendString:@"\n"];
         }
     }
-    
+
     switch (type) {
-        case TripTextTypeClip:
-        case TripTextTypeHTML:
-            break;
-            
-        case TripTextTypeMap:
-            
-            if (text.length != 0) {
-                self.from.mapText = text;
-            }
-            
-            break;
-            
-        case TripTextTypeUI:
-            
-            if (text.length != 0) {
-                self.from.displayText = text;
-            }
-            
-            break;
+    case TripTextTypeClip:
+    case TripTextTypeHTML:
+        break;
+
+    case TripTextTypeMap:
+
+        if (text.length != 0) {
+            self.from.mapText = text;
+        }
+
+        break;
+
+    case TripTextTypeUI:
+
+        if (text.length != 0) {
+            self.from.displayText = text;
+        }
+
+        break;
     }
     return text;
 }
 
-
-
-- (NSString *)createToText:(bool)last textType:(TripTextType)type; {
+- (NSString *)createToText:(bool)last textType:(TripTextType)type;
+{
     NSMutableString *text = [NSMutableString string];
-    
+
     if (self.to != nil) {
         if ([self.mode isEqualToString:kModeWalk]) {
             if (type == TripTextTypeMap) {
@@ -180,20 +193,27 @@
                     self.to.displayModeText = self.mode;
                     self.to.leftColor = [UIColor modeAwarePurple];
                 }
-                
+
                 NSInteger mins = self.durationMins;
-                
+
                 if (mins > 0) {
                     if (type == TripTextTypeUI) {
-                        [text appendFormat:@"#bWalk#b %@ %@ ", [FormatDistance formatMiles:self.distanceMiles], [self direction:self.direction]];
+                        [text appendFormat:@"#bWalk#b %@ %@ ",
+                                           [FormatDistance
+                                               formatMiles:self.distanceMiles],
+                                           [self direction:self.direction]];
                     } else {
-                        [text appendFormat:@"Walk %@ %@ ", [FormatDistance formatMiles:self.distanceMiles], [self direction:self.direction]];
+                        [text appendFormat:@"Walk %@ %@ ",
+                                           [FormatDistance
+                                               formatMiles:self.distanceMiles],
+                                           [self direction:self.direction]];
                     }
                 } else { // multiple mins
-                    [text appendFormat:@"Walk %@ ",  [self direction:self.direction]];
+                    [text appendFormat:@"Walk %@ ",
+                                       [self direction:self.direction]];
                     self.to.displayModeText = @"Short\nWalk";
                 }
-                
+
                 if (mins == 1) {
                     if (type == TripTextTypeUI) {
                         self.to.displayTimeText = @"1 min";
@@ -202,98 +222,110 @@
                     }
                 } else if (mins > 1) {
                     if (type == TripTextTypeUI) {
-                        self.to.displayTimeText = [NSString stringWithFormat:@"%ld mins", (long)mins];
+                        self.to.displayTimeText =
+                            [NSString stringWithFormat:@"%ld mins", (long)mins];
                     } else {
                         [text appendFormat:@"for %ld minutes ", (long)mins];
                     }
                 }
-                
-                [text appendFormat:@"%@%@",
-                 @"to ",
-                 [self mapLink:self.to.desc loc:self.to.loc textType:type]];
+
+                [text appendFormat:@"%@%@", @"to ",
+                                   [self mapLink:self.to.desc
+                                             loc:self.to.loc
+                                        textType:type]];
             }
         } else { // mode is not to walk
             switch (type) {
-                case TripTextTypeMap:
-                    
-                    if (last) {
-                        [text appendFormat:@"%@ get off at %@", self.endTimeFormatted, self.to.desc];
-                    }
-                    
-                    break;
-                    
-                case TripTextTypeHTML:
-                case TripTextTypeClip:
-                    
-                    if (self.to.thruRoute) {
-                        [text appendFormat:@"%@ stay on board at %@", self.endTimeFormatted, [self mapLink:self.to.desc loc:self.to.loc textType:type]];
-                    } else {
-                        [text appendFormat:@"%@ get off at %@", self.endTimeFormatted, [self mapLink:self.to.desc loc:self.to.loc textType:type]];
-                    }
-                    
-                    break;
-                    
-                case TripTextTypeUI:
-                    self.to.displayTimeText = self.endTimeFormatted;
-                    
-                    if (!self.to.thruRoute) {
-                        self.to.displayModeText = @"Deboard";
-                        self.to.leftColor = [UIColor redColor];
-                        [text appendFormat:@"#bGet off#b at %@", self.to.desc];
-                    }
-                    
-                    break;
+            case TripTextTypeMap:
+
+                if (last) {
+                    [text appendFormat:@"%@ get off at %@",
+                                       self.endTimeFormatted, self.to.desc];
+                }
+
+                break;
+
+            case TripTextTypeHTML:
+            case TripTextTypeClip:
+
+                if (self.to.thruRoute) {
+                    [text appendFormat:@"%@ stay on board at %@",
+                                       self.endTimeFormatted,
+                                       [self mapLink:self.to.desc
+                                                 loc:self.to.loc
+                                            textType:type]];
+                } else {
+                    [text appendFormat:@"%@ get off at %@",
+                                       self.endTimeFormatted,
+                                       [self mapLink:self.to.desc
+                                                 loc:self.to.loc
+                                            textType:type]];
+                }
+
+                break;
+
+            case TripTextTypeUI:
+                self.to.displayTimeText = self.endTimeFormatted;
+
+                if (!self.to.thruRoute) {
+                    self.to.displayModeText = @"Deboard";
+                    self.to.leftColor = [UIColor redColor];
+                    [text appendFormat:@"#bGet off#b at %@", self.to.desc];
+                }
+
+                break;
             }
         }
-        
+
         if (self.to.strStopId != nil) {
             switch (type) {
-                case TripTextTypeMap:
-                    break;
-                    
-                case TripTextTypeUI:
-                case TripTextTypeClip:
-                    [text appendFormat:@" (Stop ID %@)", [self.to stopId]];
-                    break;
-                    
-                case TripTextTypeHTML:
-                    [text appendFormat:@" (Stop ID <a href=\"pdxbus://%@?%@/\">%@</a>)",
-                     self.to.desc.fullyPercentEncodeString,
-                     [self.to stopId], [self.to stopId]];
-                    break;
+            case TripTextTypeMap:
+                break;
+
+            case TripTextTypeUI:
+            case TripTextTypeClip:
+                [text appendFormat:@" (Stop ID %@)", [self.to stopId]];
+                break;
+
+            case TripTextTypeHTML:
+                [text appendFormat:
+                          @" (Stop ID <a href=\"pdxbus://%@?%@/\">%@</a>)",
+                          self.to.desc.fullyPercentEncodeString,
+                          [self.to stopId], [self.to stopId]];
+                break;
             }
         }
     }
-    
+
     switch (type) {
-        case TripTextTypeHTML:
-            
-            if (!self.to.thruRoute) {
-                [text appendFormat:@"<br><br>"];
-            } else {
-                text = [NSMutableString string];
-            }
-            
-            break;
-            
-        case TripTextTypeMap:
-            
-            if (text.length != 0) {
-                self.to.mapText = text;
-            }
-            
-            break;
-            
-        case TripTextTypeClip:
-            [text appendFormat:@"\n"];
-            
-        case TripTextTypeUI:
-            
-            if (!self.to.thruRoute) {
-                self.to.displayText = text;
-            }
-            
-            break;
+    case TripTextTypeHTML:
+
+        if (!self.to.thruRoute) {
+            [text appendFormat:@"<br><br>"];
+        } else {
+            text = [NSMutableString string];
+        }
+
+        break;
+
+    case TripTextTypeMap:
+
+        if (text.length != 0) {
+            self.to.mapText = text;
+        }
+
+        break;
+
+    case TripTextTypeClip:
+        [text appendFormat:@"\n"];
+
+    case TripTextTypeUI:
+
+        if (!self.to.thruRoute) {
+            self.to.displayText = text;
+        }
+
+        break;
     }
     return text;
 }

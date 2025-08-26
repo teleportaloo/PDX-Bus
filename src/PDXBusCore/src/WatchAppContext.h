@@ -13,10 +13,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
-#import "WatchConnectivity/WatchConnectivity.h"
-#import "WatchConnectivity/WCSession.h"
 #import "MemoryCaches.h"
+#import "WatchConnectivity/WCSession.h"
+#import "WatchConnectivity/WatchConnectivity.h"
+#import <Foundation/Foundation.h>
 
 @interface WatchAppContext : NSObject {
 }

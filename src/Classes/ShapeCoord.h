@@ -19,13 +19,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ShapeCoord : NSObject
 
-@property (nonatomic) CLLocationDegrees latitude;
-@property (nonatomic) CLLocationDegrees longitude;
-@property (nonatomic) CLLocationCoordinate2D coord;
+@property(nonatomic) CLLocationDegrees latitude;
+@property(nonatomic) CLLocationDegrees longitude;
+@property(nonatomic) CLLocationCoordinate2D coord;
 
 + (instancetype)coordWithLat:(CLLocationDegrees)lat lng:(CLLocationDegrees)lng;
-
-
 
 @end
 

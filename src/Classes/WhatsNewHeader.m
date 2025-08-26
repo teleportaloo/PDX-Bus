@@ -14,17 +14,24 @@
 
 
 #import "WhatsNewHeader.h"
-#import "TriMetInfo.h"
+#import "TriMetInfo+UI.h"
+#import "UIColor+HTML.h"
 
 @implementation WhatsNewHeader
+
++ (void)load {
+    [[self class] addAction];
+}
 
 + (NSNumber *)getPrefix {
     return @'.';
 }
 
-- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell text:(NSString *)text {
+- (void)tableView:(UITableView *)tableView
+    willDisplayCell:(UITableViewCell *)cell
+               text:(NSString *)text {
     int color = Settings.toolbarColors;
-    
+
     if (color == 0xFFFFFF) {
         cell.backgroundColor = [UIColor modeAwareGrayBackground];
     } else {
@@ -32,7 +39,7 @@
     }
 }
 
-- (void)updateCell:(LinkCell *)cell tableView:(UITableView *)tableView {
+- (void)updateCell:(TextViewLinkCell *)cell tableView:(UITableView *)tableView {
     cell.textView.backgroundColor = [UIColor clearColor];
     cell.textView.textAlignment = NSTextAlignmentCenter;
     cell.accessoryType = UITableViewCellAccessoryNone;

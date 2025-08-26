@@ -13,13 +13,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import "Route.h"
 #import "Detour.h"
+#import "Route.h"
 
 @interface DetoursForRoute : NSObject
 
-@property (nonatomic, strong)   NSMutableArray<Detour *> *detours;
-@property (nonatomic, strong)   Route *route;
-
+@property(nonatomic, strong) NSMutableArray<Detour *> *detours;
+@property(nonatomic, strong) Route *route;
 
 @end

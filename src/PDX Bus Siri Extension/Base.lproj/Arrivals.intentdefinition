@@ -9,11 +9,11 @@
 	<key>INIntentDefinitionNamespace</key>
 	<string>mW0wwY</string>
 	<key>INIntentDefinitionSystemVersion</key>
-	<string>20D91</string>
+	<string>23D60</string>
 	<key>INIntentDefinitionToolsBuildVersion</key>
-	<string>12E262</string>
+	<string>15E204a</string>
 	<key>INIntentDefinitionToolsVersion</key>
-	<string>12.5</string>
+	<string>15.3</string>
 	<key>INIntents</key>
 	<array>
 		<dict>
@@ -101,11 +101,11 @@
 				<array>
 					<dict>
 						<key>INIntentResponseCodeConciseFormatString</key>
-						<string>Here's the departures at ${stopName}  ${arrivals}</string>
+						<string>Here's the departures at ${stopName}  ${arrivals}${reportingStatus}</string>
 						<key>INIntentResponseCodeConciseFormatStringID</key>
 						<string>5uDGPz</string>
 						<key>INIntentResponseCodeFormatString</key>
-						<string>Here's the departures at ${stopName}  ${arrivals}</string>
+						<string>Here's the departures at ${stopName}  ${arrivals}${reportingStatus}</string>
 						<key>INIntentResponseCodeFormatStringID</key>
 						<string>wEz8sE</string>
 						<key>INIntentResponseCodeName</key>
@@ -115,7 +115,7 @@
 					</dict>
 					<dict>
 						<key>INIntentResponseCodeFormatString</key>
-						<string>No departures were found for that stop.</string>
+						<string>No departures were found for that stop. ${reportingStatus}</string>
 						<key>INIntentResponseCodeFormatStringID</key>
 						<string>KbDHMh</string>
 						<key>INIntentResponseCodeName</key>
@@ -131,7 +131,7 @@
 					</dict>
 					<dict>
 						<key>INIntentResponseCodeFormatString</key>
-						<string>At ${stopName} there were no departures.</string>
+						<string>At ${stopName} there were no departures. ${reportingStatus}${alerts}</string>
 						<key>INIntentResponseCodeFormatStringID</key>
 						<string>TqSNOp</string>
 						<key>INIntentResponseCodeName</key>
@@ -141,7 +141,7 @@
 					</dict>
 					<dict>
 						<key>INIntentResponseCodeFormatString</key>
-						<string>${numberOfRoutes} Here's the departures at ${stopName}  ${arrivals}</string>
+						<string>${numberOfRoutes} Here's the departures at ${stopName}  ${arrivals}${reportingStatus}</string>
 						<key>INIntentResponseCodeFormatStringID</key>
 						<string>Ud9d7v</string>
 						<key>INIntentResponseCodeName</key>
@@ -151,7 +151,7 @@
 					</dict>
 					<dict>
 						<key>INIntentResponseCodeFormatString</key>
-						<string>Touch here to see departures at ${stopName}.</string>
+						<string>Touch here to see departures at ${stopName}.${reportingStatus}</string>
 						<key>INIntentResponseCodeFormatStringID</key>
 						<string>kdzRJK</string>
 						<key>INIntentResponseCodeName</key>
@@ -161,7 +161,7 @@
 					</dict>
 				</array>
 				<key>INIntentResponseLastParameterTag</key>
-				<integer>6</integer>
+				<integer>9</integer>
 				<key>INIntentResponseParameters</key>
 				<array>
 					<dict>
@@ -201,6 +201,20 @@
 						<string>numberOfRoutes</string>
 						<key>INIntentResponseParameterTag</key>
 						<integer>6</integer>
+						<key>INIntentResponseParameterType</key>
+						<string>String</string>
+					</dict>
+					<dict>
+						<key>INIntentResponseParameterDisplayName</key>
+						<string>Reporting Status</string>
+						<key>INIntentResponseParameterDisplayNameID</key>
+						<string>ZAUWAt</string>
+						<key>INIntentResponseParameterDisplayPriority</key>
+						<integer>5</integer>
+						<key>INIntentResponseParameterName</key>
+						<string>reportingStatus</string>
+						<key>INIntentResponseParameterTag</key>
+						<integer>9</integer>
 						<key>INIntentResponseParameterType</key>
 						<string>String</string>
 					</dict>

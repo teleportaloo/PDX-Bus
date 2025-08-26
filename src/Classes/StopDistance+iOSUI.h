@@ -13,16 +13,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
 #import "MapPin.h"
 #import "StopDistance.h"
+#import <Foundation/Foundation.h>
 
 @interface StopDistance (iOSUI) <MapPin>
 
-
 // From Annotation
-@property (nonatomic, readonly) CLLocationCoordinate2D coordinate;
-@property (nonatomic, readonly, copy) NSString *title;
-@property (nonatomic, readonly, copy) NSString *subtitle;
+@property(nonatomic, readonly) CLLocationCoordinate2D coordinate;
+@property(nonatomic, readonly, copy) NSString *title;
+@property(nonatomic, readonly, copy) NSString *subtitle;
 
 @end

@@ -13,15 +13,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <UIKit/UIKit.h>
 #import "TriMetInfo.h"
+#import <UIKit/UIKit.h>
 
+#define ROUTE_COLOR_WIDTH 16.0
 
-#define ROUTE_COLOR_WIDTH 14.0
-
-@interface RouteColorBlobView : UIView 
+@interface RouteColorBlobView : UIView
 
 - (void)setRouteColor:(NSString *)route;
-- (bool)setRouteColorLine:(RailLines)line;
+- (bool)setRouteColorLine:(TriMetInfo_ColoredLines)line;
 
 @end

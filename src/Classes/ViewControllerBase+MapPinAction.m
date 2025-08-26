@@ -13,22 +13,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#import "DepartureDetailViewController.h"
 #import "ViewControllerBase+MapPinAction.h"
-#import "DepartureDetailView.h"
 
 @implementation ViewControllerBase (MapPinAction)
 
 - (bool (^__nullable)(id<MapPin>, NSURL *url, UIView *source))linkActionForPin {
     __weak __typeof__(self) weakSelf = self;
-    return ^bool (id<MapPin> pin, NSURL *url, UIView *source) {
-        if ([url.absoluteString hasPrefix:@"action:tap"]) {
-            if ([pin respondsToSelector:@selector(pinAction:)]) {
-                [pin pinAction:weakSelf.backgroundTask];
-            }
-            return NO;
-        } else {
-            return [weakSelf linkAction:url.absoluteString source:source];
-        }
+    return ^bool(id<MapPin> pin, NSURL *url, UIView *source) {
+      if ([url.absoluteString hasPrefix:@"action:tap"]) {
+          if ([pin respondsToSelector:@selector(pinAction:)]) {
+              [pin pinAction:weakSelf.backgroundTask];
+          }
+          return NO;
+      } else {
+          return [weakSelf linkAction:url.absoluteString source:source];
+      }
     };
 }
 

@@ -13,23 +13,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
-#import "Settings.h"
 #import "MemoryCaches.h"
+#import "Settings.h"
 #import "SharedFile.h"
+#import <Foundation/Foundation.h>
 
 #define kCacheDateAndTime 0
-#define kCacheData        1
-#define kAlwaysAgeOut     -1
-#define kNoCache          -1
+#define kCacheData 1
+#define kAlwaysAgeOut -1
+#define kNoCache -1
 
 @interface QueryCacheManager : NSObject <ClearableCache>
 
-@property (nonatomic)           int maxSize;
-@property (nonatomic)           int ageOutDays;
-@property (nonatomic)           bool setAgedOutFlagIfOld;
-@property (nonatomic)           bool agedOut;
-
+@property(nonatomic) int maxSize;
+@property(nonatomic) int ageOutDays;
+@property(nonatomic) bool setAgedOutFlagIfOld;
+@property(nonatomic) bool agedOut;
 
 - (void)addToCache:(NSString *)cacheQuery item:(NSData *)item write:(bool)write;
 - (instancetype)initWithFileName:(NSString *)shortFileName;

@@ -13,7 +13,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+#define DEBUG_LEVEL_FOR_FILE LogUI
 
 #import "LinkResponsiveTextView.h"
 
@@ -23,7 +23,7 @@
     if ((self = [super init])) {
         [self setupLinkDetection];
     }
-    
+
     return self;
 }
 
@@ -31,13 +31,13 @@
     if ((self = [super initWithFrame:frame])) {
         [self setupLinkDetection];
     }
-    
+
     return self;
 }
 
 - (void)awakeFromNib {
     [super awakeFromNib];
-    
+
     [self setupLinkDetection];
 }
 
@@ -45,7 +45,7 @@
     if ((self = [super initWithCoder:coder])) {
         [self setupLinkDetection];
     }
-    
+
     return self;
 }
 
@@ -58,31 +58,38 @@
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
     // location of the tap
     CGPoint location = point;
-    
+
     location.x -= self.textContainerInset.left;
     location.y -= self.textContainerInset.top;
-    
+
     // find the character that's been tapped
-    NSInteger characterIndex = [self.layoutManager characterIndexForPoint:location inTextContainer:self.textContainer fractionOfDistanceBetweenInsertionPoints:nil];
-    
+    NSInteger characterIndex =
+        [self.layoutManager characterIndexForPoint:location
+                                     inTextContainer:self.textContainer
+            fractionOfDistanceBetweenInsertionPoints:nil];
+
     if (characterIndex < self.textStorage.length) {
-        // if the character is a link, handle the tap as UITextView normally would
-        if ([self.textStorage attribute:NSLinkAttributeName atIndex:characterIndex effectiveRange:nil] != nil) {
+        // if the character is a link, handle the tap as UITextView normally
+        // would
+        if ([self.textStorage attribute:NSLinkAttributeName
+                                atIndex:characterIndex
+                         effectiveRange:nil] != nil) {
             return self;
         }
     }
-    
+
     // otherwise return nil so the tap goes on to the next receiver
     return self.allowSelection ? self : nil;
 }
 
-- (BOOL)textView:(UITextView *)textView shouldInteractWithURL:(NSURL *)URL inRange:(NSRange)characterRange interaction:(UITextItemInteraction)interaction
-{
-    if (self.linkAction)
-    {
+- (BOOL)textView:(UITextView *)textView
+    shouldInteractWithURL:(NSURL *)URL
+                  inRange:(NSRange)characterRange
+              interaction:(UITextItemInteraction)interaction {
+    if (self.linkAction) {
         return self.linkAction(self, URL, characterRange, interaction);
     }
-    
+
     return NO;
 }
 
@@ -93,14 +100,15 @@
 /*
 - (BOOL)canPerformAction:(SEL)action withSender:(id)sender {
     NSString *selectorString = NSStringFromSelector(action);
-    
-    
-    NSSet *selectors = [NSSet setWithArray:@[ @"_accessibilitySpeak:",  @"copy:", @"_translate:", @"_share:" ]];;
-    
+
+
+    NSSet *selectors = [NSSet setWithArray:@[ @"_accessibilitySpeak:", @"copy:",
+@"_translate:", @"_share:" ]];;
+
     BOOL canDo = [selectors containsObject:selectorString];
-    
-    DEBUG_LOGB(canDo);
-    
+
+    DEBUG_LOG_BOOL(canDo);
+
     if (canDo) {
         //(re)add menuItems to UIMenuController
         DEBUG_LOG(@"Can do action %@", selectorString);
@@ -114,9 +122,5 @@
     return NO;
 }
  */
-
-
-
-
 
 @end

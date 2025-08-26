@@ -3,10 +3,57 @@
    version = "1.0">
    <ContextStates>
       <ContextState
-         contextName = "-[DepartureDetailView setupShape]:DepartureDetailView.m">
+         contextName = "-[StoppableFetcher connection:didReceiveData:]:StoppableFetcher.m">
+      </ContextState>
+      <ContextState
+         contextName = "::-[AllRailStationView generateArrays]():AllRailStationView.mm">
+      </ContextState>
+      <ContextState
+         contextName = "-[XMLDepartures eXresultSet]:XMLDepartures.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "self.detourSorter.detourIds.count">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[WatchArrivalsInterfaceController loadTableWithDepartures:detailedDeparture:]:WatchArrivalsInterfaceController.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[StoppableFetcher connection:didReceiveResponse:]:StoppableFetcher.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "response.expectedContentLength">
+            </PersistentString>
+         </PersistentStrings>
       </ContextState>
       <ContextState
          contextName = "+[TriMetRouteInfo infoForRouteInt:]:TriMetRouteInfo.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[XMLMultipleDepartures sXdetour:]:XMLMultipleDepartures.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[XMLDepartures(iOSUI) depDetoursPerSection]:XMLDepartures+iOSUI.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[DepartureDetailView setupShape]:DepartureDetailView.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[RailMapHotSpotsView selectItem:]:RailMapHotSpotsView.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "hotSpotRegions[i]">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[XMLDepartures eXdetour]:XMLDepartures.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "self.detourSorter.detourIds.count">
+            </PersistentString>
+         </PersistentStrings>
       </ContextState>
       <ContextState
          contextName = "+[RailMapHotSpots setFillAndStrokeColor:color:]:RailMapHotSpots.m">
@@ -18,23 +65,6 @@
                value = "components[1]">
             </PersistentString>
          </PersistentStrings>
-      </ContextState>
-      <ContextState
-         contextName = "-[StoppableFetcher connection:didReceiveResponse:]:StoppableFetcher.m">
-         <PersistentStrings>
-            <PersistentString
-               value = "response.expectedContentLength">
-            </PersistentString>
-         </PersistentStrings>
-      </ContextState>
-      <ContextState
-         contextName = "-[WatchArrivalsInterfaceController loadTableWithDepartures:detailedDeparture:]:WatchArrivalsInterfaceController.m">
-      </ContextState>
-      <ContextState
-         contextName = "-[StoppableFetcher connection:didReceiveData:]:StoppableFetcher.m">
-      </ContextState>
-      <ContextState
-         contextName = "::-[AllRailStationView generateArrays]():AllRailStationView.mm">
       </ContextState>
    </ContextStates>
 </VariablesViewState>

@@ -8,16 +8,16 @@
 
 
 
-
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#define DEBUG_LEVEL_FOR_FILE kLogDataManagement
+#define DEBUG_LEVEL_FOR_FILE LogData
 
-#import "DebugLogging.h"
 #import "MemoryCaches.h"
+#import "DebugLogging.h"
+#import "TaskDispatch.h"
 
 @interface MemoryCaches () {
     NSHashTable<id<ClearableCache>> *_caches;
@@ -31,17 +31,15 @@
     if ((self = [super init])) {
         _caches = [NSHashTable weakObjectsHashTable];
     }
-    
+
     return self;
 }
 
 + (MemoryCaches *)sharedInstance {
     static MemoryCaches *caches = nil;
-    
-    static dispatch_once_t onceToken;
-    
-    dispatch_once(&onceToken, ^{
-        caches = [[MemoryCaches alloc] init];
+
+    DoOnce(^{
+      caches = [[MemoryCaches alloc] init];
     });
     return caches;
 }
@@ -49,9 +47,9 @@
 + (void)memoryWarning {
     DEBUG_LOG(@"Clearing caches\n");
     MemoryCaches *caches = [MemoryCaches sharedInstance];
-    
+
     for (id<ClearableCache> cache in caches->_caches) {
-        if (cache !=nil) {
+        if (cache != nil) {
             [cache memoryWarning];
         }
     }

@@ -13,18 +13,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
-#import <CoreLocation/CoreLocation.h>
 #import "MapPin.h"
+#import <CoreLocation/CoreLocation.h>
+#import <Foundation/Foundation.h>
 
-@interface RoutePin : NSObject<MapPin>
+@interface RoutePin : NSObject <MapPin>
 
-@property (nonatomic, readonly) CLLocationCoordinate2D coordinate;
-@property (nonatomic) CLLocationCoordinate2D touchPosition;
-@property (nonatomic, strong) UIColor *color;
-@property (nonatomic, copy) NSString *desc;
-@property (nonatomic, copy) NSString *route;
-@property (nonatomic, copy) NSString *dir;
+@property(nonatomic, readonly) CLLocationCoordinate2D coordinate;
+@property(nonatomic) CLLocationCoordinate2D touchPosition;
+@property(nonatomic, strong) UIColor *color;
+@property(nonatomic, copy) NSString *desc;
+@property(nonatomic, copy) NSString *route;
+@property(nonatomic, copy) NSString *dir;
 
 - (BOOL)isEqualToRoutePin:(RoutePin *)pin;
 

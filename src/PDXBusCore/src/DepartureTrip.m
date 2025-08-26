@@ -23,7 +23,7 @@
         self.dir = nil;
         self.route = nil;
     }
-    
+
     return self;
 }
 

@@ -17,15 +17,21 @@
 
 @implementation WhatsNewHighlight
 
++ (void)load {
+    [[self class] addAction];
+}
+
 + (NSNumber *)getPrefix {
     return @'!';
 }
 
-- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell text:(NSString *)text {
+- (void)tableView:(UITableView *)tableView
+    willDisplayCell:(UITableViewCell *)cell
+               text:(NSString *)text {
     cell.backgroundColor = [UIColor redColor];
 }
 
-- (void)updateCell:(LinkCell *)cell tableView:(UITableView *)tableView {
+- (void)updateCell:(TextViewLinkCell *)cell tableView:(UITableView *)tableView {
     cell.textView.backgroundColor = [UIColor clearColor];
     cell.textView.textAlignment = NSTextAlignmentLeft;
     cell.accessoryType = UITableViewCellAccessoryNone;

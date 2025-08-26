@@ -13,27 +13,28 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#import "UIApplication+Compat.h"
+#import "RootViewController.h"
 #import "UIAlertController+SimpleMessages.h"
-#import "PDXBusAppDelegate+Methods.h"
 
 @implementation UIAlertController (SimpleMessages)
 
-+ (UIAlertController *)simpleOkWithTitle:(NSString *)title message:(NSString *)message
-{
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:title
-                                                                   message:message
-                                                            preferredStyle:UIAlertControllerStyleAlert];
++ (UIAlertController *)simpleOkWithTitle:(NSString *)title
+                                 message:(NSString *)message {
+    UIAlertController *alert = [UIAlertController
+        alertControllerWithTitle:title
+                         message:message
+                  preferredStyle:UIAlertControllerStyleAlert];
     [alert addAction:[UIAlertAction actionWithTitle:kAlertViewOK
                                               style:UIAlertActionStyleCancel
                                             handler:nil]];
-     
+
     return alert;
 }
 
-- (void)showAlert
-{
-    UIViewController *top = PDXBusAppDelegate.sharedInstance.navigationController.topViewController;
-     
+- (void)showAlert {
+    UIViewController *top = UIApplication.topViewController;
+
     [top presentViewController:self animated:YES completion:nil];
 }
 

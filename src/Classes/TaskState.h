@@ -13,20 +13,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
 #import "TaskController.h"
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-// Provides a task with a local copy of total and items done.  These are not automatically
-// refected to the UI until forced by the task.
-// Otherwise this is a pass-though, almost a decorator pattern, but it makes is easier to refactor tasks into
-// smaller subtasks and understand the flow.
+// Provides a task with a local copy of total and items done.  These are not
+// automatically refected to the UI until forced by the task. Otherwise this is
+// a pass-though, almost a decorator pattern, but it makes is easier to refactor
+// tasks into smaller subtasks and understand the flow.
 
 @interface TaskState : NSObject <TaskController>
 
-@property (nonatomic) NSInteger total;
-@property (nonatomic) NSInteger itemsDone;
+@property(nonatomic) NSInteger total;
+@property(nonatomic) NSInteger itemsDone;
 
 - (void)displayTotal;
 - (void)displayItemsDone;
@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)startAtomicTask:(NSString *)title;
 - (void)atomicTaskItemDone;
 
-+ (instancetype)state:(id<TaskController>) taskController;
++ (instancetype)state:(id<TaskController>)taskController;
 
 @end
 

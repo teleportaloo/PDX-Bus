@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="18122" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="dfG-2e-wGV">
+<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="23727" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="dfG-2e-wGV">
     <device id="watch38"/>
     <dependencies>
         <deployment identifier="watchOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="18022"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="23705"/>
     </dependencies>
     <scenes>
         <!--Arrivals-->
@@ -213,12 +212,12 @@
                                                 <action selector="doRefreshMenuItem" destination="AgC-eL-Hgc" id="Q3U-t7-w9w"/>
                                             </connections>
                                         </button>
-                                        <button width="35" height="35" alignment="center" backgroundImage="780-building" id="U0g-NO-T4E">
+                                        <button width="35" height="35" alignment="center" backgroundImage="briefcase.fill" catalog="system" id="U0g-NO-T4E">
                                             <connections>
                                                 <action selector="menuItemCommute" destination="AgC-eL-Hgc" id="JLQ-2g-3cn"/>
                                             </connections>
                                         </button>
-                                        <button width="35" height="35" alignment="right" backgroundImage="852-mapa" id="zlW-5u-aYk">
+                                        <button width="35" height="35" alignment="right" backgroundImage="map" catalog="system" id="zlW-5u-aYk">
                                             <connections>
                                                 <action selector="menuItemNearby" destination="AgC-eL-Hgc" id="4BB-Ps-bGJ"/>
                                             </connections>
@@ -299,12 +298,12 @@
                         </group>
                         <group width="1" alignment="left" radius="0.0" id="R5i-do-3KL" userLabel="Menu Group">
                             <items>
-                                <button width="35" height="35" alignment="left" backgroundImage="750-home" id="Osd-kO-r5x">
+                                <button width="35" height="35" alignment="left" backgroundImage="house" catalog="system" id="Osd-kO-r5x">
                                     <connections>
                                         <action selector="menuItemHome" destination="a7b-HT-MQ9" id="v4a-XQ-lmP"/>
                                     </connections>
                                 </button>
-                                <button width="35" height="35" alignment="right" backgroundImage="780-building" id="lzD-gJ-Ugj">
+                                <button width="35" height="35" alignment="right" backgroundImage="briefcase.fill" catalog="system" id="lzD-gJ-Ugj">
                                     <connections>
                                         <action selector="menuItemCommute" destination="a7b-HT-MQ9" id="RWg-cU-nJu"/>
                                     </connections>
@@ -446,12 +445,12 @@
                         </group>
                         <group width="1" alignment="left" radius="0.0" spacing="0.0" id="sDf-Uw-qNA" userLabel="Menu Group">
                             <items>
-                                <button width="35" height="35" alignment="left" verticalAlignment="center" backgroundImage="750-home" id="w70-zU-I0G">
+                                <button width="35" height="35" alignment="left" verticalAlignment="center" backgroundImage="house" catalog="system" id="w70-zU-I0G">
                                     <connections>
                                         <action selector="menuItemHome" destination="dfG-2e-wGV" id="tat-7t-Cum"/>
                                     </connections>
                                 </button>
-                                <button width="35" height="35" alignment="right" verticalAlignment="center" backgroundImage="780-building" id="2Xs-Ov-PoQ">
+                                <button width="35" height="35" alignment="right" verticalAlignment="center" backgroundImage="briefcase.fill" catalog="system" id="2Xs-Ov-PoQ">
                                     <accessibilityTraits key="accessibilityTraits" button="YES" image="YES"/>
                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     <connections>
@@ -485,7 +484,7 @@
                                     <items>
                                         <group width="0.33000000000000002" alignment="left" id="QFO-r3-4iL">
                                             <items>
-                                                <button width="22" height="60" alignment="center" verticalAlignment="center" backgroundImage="mic-128-000000.png" id="ren-nO-NJ3">
+                                                <button width="22" height="60" alignment="center" verticalAlignment="center" id="ren-nO-NJ3">
                                                     <connections>
                                                         <action selector="sayStopIdAction" destination="B0Z-YD-ji3" id="KbL-g0-QUQ"/>
                                                     </connections>
@@ -591,6 +590,7 @@
                         <outlet property="backButton" destination="Mro-1N-4g2" id="2xG-df-cuv"/>
                         <outlet property="buttonStopId" destination="rbF-7Z-ywT" id="MNX-Dl-uGj"/>
                         <outlet property="goButton" destination="8gp-mg-bQc" id="Tzu-SB-uQg"/>
+                        <outlet property="micIcon" destination="ren-nO-NJ3" id="3Ck-v6-VjU"/>
                     </connections>
                 </controller>
             </objects>
@@ -619,9 +619,9 @@
     <color key="tintColor" red="0.51233841661442159" green="0.75400234875706706" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
     <resources>
         <image name="750-home" width="28" height="28"/>
-        <image name="780-building" width="23" height="28"/>
         <image name="845-location-targeta" width="24" height="24"/>
-        <image name="852-mapa" width="24" height="24"/>
-        <image name="mic-128-000000.png" width="16" height="16"/>
+        <image name="briefcase.fill" catalog="system" width="128" height="99"/>
+        <image name="house" catalog="system" width="128" height="105"/>
+        <image name="map" catalog="system" width="128" height="109"/>
     </resources>
 </document>

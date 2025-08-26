@@ -17,19 +17,39 @@
 		<key>Create hotspots from HTML.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>10</integer>
+			<integer>16</integer>
+		</dict>
+		<key>GenerateArrays.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>11</integer>
+		</dict>
+		<key>GenerateStaticTables.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>12</integer>
 		</dict>
 		<key>MAX WES Map Tiles.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>11</integer>
+			<integer>13</integer>
+		</dict>
+		<key>OCLint.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>16</integer>
 		</dict>
 		<key>PDX Bus Arrivals WidgetExtension.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>12</integer>
 		</dict>
-		<key>PDX Bus Debug.xcscheme</key>
+		<key>PDX Bus Debug.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>2</integer>
+		</dict>
+		<key>PDX Bus Distribution.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>1</integer>
@@ -47,17 +67,17 @@
 		<key>PDX Bus Test Plan - Attributes.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>3</integer>
+			<integer>4</integer>
 		</dict>
 		<key>PDX Bus Test Plan - Generate Data.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>4</integer>
+			<integer>5</integer>
 		</dict>
 		<key>PDX Bus Test Plan - Online.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>2</integer>
+			<integer>3</integer>
 		</dict>
 		<key>PDX Bus Today Nearby Extension.xcscheme_^#shared#^_</key>
 		<dict>
@@ -67,12 +87,12 @@
 		<key>PDX Bus Watch Debug.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>5</integer>
+			<integer>6</integer>
 		</dict>
 		<key>PDX Bus Watch Release.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>6</integer>
+			<integer>7</integer>
 		</dict>
 		<key>PDX Bus WatchKit App.xcscheme</key>
 		<dict>
@@ -82,17 +102,17 @@
 		<key>PDXBus Siri Extension.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>7</integer>
+			<integer>8</integer>
 		</dict>
 		<key>PDXBus Siri ExtensionUI.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>8</integer>
+			<integer>9</integer>
 		</dict>
 		<key>PDXBus Siri Watch Extension.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>9</integer>
+			<integer>10</integer>
 		</dict>
 		<key>Process HTML.xcscheme_^#shared#^_</key>
 		<dict>
@@ -102,12 +122,12 @@
 		<key>Streetcar Map Tiles.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>14</integer>
+			<integer>12</integer>
 		</dict>
 		<key>WatchKit Core Lib.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>13</integer>
+			<integer>14</integer>
 		</dict>
 		<key>iOS Core Lib.xcscheme</key>
 		<dict>
@@ -117,7 +137,7 @@
 		<key>iOS Core Lib.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>12</integer>
+			<integer>15</integer>
 		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
@@ -158,6 +178,11 @@
 			<true/>
 		</dict>
 		<key>A18751CC1BD44DF000A7B856</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>A188FA9A2B9CC98E00EF6280</key>
 		<dict>
 			<key>primary</key>
 			<true/>

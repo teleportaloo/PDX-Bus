@@ -13,25 +13,25 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import "NextBusXML.h"
 #import "Detour.h"
+#import "NextBusXML.h"
 #import "XMLDepartures.h"
 
-@interface XMLStreetcarMessages : NextBusXML<Detour*>
+@interface XMLStreetcarMessages : NextBusXML <Detour *>
 
-@property (nonatomic, strong) AllTriMetRoutes* allRoutes;
-@property (nonatomic, strong) NSMutableArray<Route *> *allStreetcarRoutes;
-@property (nonatomic, strong) Route * currentRoute;
-@property (nonatomic, strong) Detour *curentDetour;
-@property (nonatomic, copy) NSString * copyright;
-@property (nonatomic, strong) NSDate * queryTime;
-@property (nonatomic) bool currentAllRoutes;
+@property(nonatomic, strong) AllTriMetRoutes *allRoutes;
+@property(nonatomic, strong) NSMutableArray<Route *> *allStreetcarRoutes;
+@property(nonatomic, strong) Route *currentRoute;
+@property(nonatomic, strong) Detour *curentDetour;
+@property(nonatomic, copy) NSString *copyright;
+@property(nonatomic, strong) NSDate *queryTime;
+@property(nonatomic) bool currentAllRoutes;
 
 - (void)insertDetoursIntoDepartureArray:(XMLDepartures *)departures;
 - (void)alwaysGetMessages;
 - (bool)needToGetMessages;
 - (void)getMessages;
 
-+ (XMLStreetcarMessages*)sharedInstance;
++ (XMLStreetcarMessages *)sharedInstance;
 
 @end

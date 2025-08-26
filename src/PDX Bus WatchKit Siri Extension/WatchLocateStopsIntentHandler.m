@@ -13,8 +13,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-
-#define DEBUG_LEVEL_FOR_FILE kLogIntents
+#define DEBUG_LEVEL_FOR_FILE LogIntents
 
 #import "WatchLocateStopsIntentHandler.h"
 #import "DebugLogging.h"
@@ -22,14 +21,17 @@
 
 @implementation WatchLocateStopsIntentHandler
 
-- (void)handleLocateStops:(LocateStopsIntent *)intent completion:(void (^)(LocateStopsIntentResponse *response))completion {
+- (void)handleLocateStops:(LocateStopsIntent *)intent
+               completion:
+                   (void (^)(LocateStopsIntentResponse *response))completion {
     DEBUG_FUNC();
-    
+
     if (intent.location == nil) {
-        completion([LocateStopsResponseFactory locateRespond:LocateStopsIntentResponseCodeNoLocation]);
+        completion([LocateStopsResponseFactory
+            locateRespond:LocateStopsIntentResponseCodeNoLocation]);
         return;
     }
-    
+
     completion([LocateStopsResponseFactory locate:intent.location.location]);
 }
 

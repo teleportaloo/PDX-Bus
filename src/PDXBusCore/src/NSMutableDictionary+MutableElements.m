@@ -13,28 +13,33 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import "NSMutableDictionary+MutableElements.h"
 #import "DebugLogging.h"
+#import "NSMutableDictionary+MutableElements.h"
 
 @implementation NSMutableDictionary (MutableElements)
 
 + (NSMutableDictionary *)mutableContainersWithContentsOfURL:(NSURL *)url {
     NSData *data = [NSData dataWithContentsOfURL:url];
+    if (!data)
+        return nil;
+
+    NSError *error = nil;
+    id plist = [NSPropertyListSerialization
+        propertyListWithData:data
+                     options:NSPropertyListMutableContainers
+                      format:NULL
+                       error:&error];
+    LOG_NSError(error);
     
-    if (data) {
-        NSError *error = nil;
-        NSMutableDictionary *result = [NSPropertyListSerialization propertyListWithData:data
-                                                                                options:NSPropertyListMutableContainers
-                                                                                 format:nil error:nil];
-        
-        LOG_NSERROR(error);
-        
-        if ([result isKindOfClass:[NSMutableDictionary class]]) {
-            return result;
-        }
+    if (!plist || ![plist isKindOfClass:[NSMutableDictionary class]]) {
+        return nil;
     }
+
+    LOG_NSError(error);
     
-    return nil;
+    NSMutableDictionary *dict = (NSMutableDictionary *)plist;
+
+    return dict;
 }
 
 @end

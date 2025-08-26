@@ -13,12 +13,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
-#import "TableViewWithToolbar.h"
+#import "TableViewControllerWithToolbar.h"
 #import "XMLDepartures.h"
+#import <Foundation/Foundation.h>
 
-@interface AlarmViewMinutes : TableViewWithToolbar <UIPickerViewDelegate, UIPickerViewDataSource>
+@interface AlarmViewMinutes
+    : TableViewControllerWithToolbar <UIPickerViewDelegate,
+                                      UIPickerViewDataSource>
 
-@property (nonatomic, strong) Departure *dep;
+@property(nonatomic, strong) Departure *dep;
 
 @end

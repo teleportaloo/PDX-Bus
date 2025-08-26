@@ -13,20 +13,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#define DEBUG_LEVEL_FOR_FILE kLogParsing
+#define DEBUG_LEVEL_FOR_FILE LogParsing
 
 #import "ReverseGeoLocator.h"
 
-#import "DebugLogging.h"
 #import "CLPlacemark+SimpleAddress.h"
-
+#import "DebugLogging.h"
 
 @implementation ReverseGeoLocator
 
-
 + (bool)supported {
     Class geocoderClass = (NSClassFromString(@"CLGeocoder"));
-    
+
     return geocoderClass != nil;
 }
 
@@ -36,40 +34,50 @@
 
 - (NSString *)fetchAddress:(CLLocation *)loc {
     CLGeocoder *geocoder = [[CLGeocoder alloc] init];
-    
+
     self.waitingForGeocoder = true;
-    
-    [geocoder reverseGeocodeLocation:loc completionHandler:^(NSArray *placemarks, NSError *error) {
-        if (!error) {
-            CLPlacemark *placemark = placemarks.lastObject;
-            
-            NSString *address = [self addressFromPlacemark:placemark];
-            DEBUG_LOG(@"%@\n", address);
-            
-            if (address != nil) {
-                NSMutableString *addressWithNoNewLines = [NSMutableString string];
-                
-                [addressWithNoNewLines appendString:address];
-                
-                [addressWithNoNewLines replaceOccurrencesOfString:@"\n" withString:@" " options:NSCaseInsensitiveSearch range:NSMakeRange(0, addressWithNoNewLines.length)];
-                
-                self.result = addressWithNoNewLines;
-            }
-        }
-        
-        self.error = error;
-        self.waitingForGeocoder = FALSE;
-    }];
-    
+
+    [geocoder
+        reverseGeocodeLocation:loc
+             completionHandler:^(NSArray *placemarks, NSError *error) {
+               if (!error) {
+                   CLPlacemark *placemark = placemarks.lastObject;
+
+                   NSString *address = [self addressFromPlacemark:placemark];
+                   DEBUG_LOG(@"%@\n", address);
+
+                   if (address != nil) {
+                       NSMutableString *addressWithNoNewLines =
+                           [NSMutableString string];
+
+                       [addressWithNoNewLines appendString:address];
+
+                       [addressWithNoNewLines
+                           replaceOccurrencesOfString:@"\n"
+                                           withString:@" "
+                                              options:NSCaseInsensitiveSearch
+                                                range:NSMakeRange(
+                                                          0,
+                                                          addressWithNoNewLines
+                                                              .length)];
+
+                       self.result = addressWithNoNewLines;
+                   }
+               }
+
+               self.error = error;
+               self.waitingForGeocoder = FALSE;
+             }];
+
     while (self.waitingForGeocoder & ![NSThread currentThread].isCancelled) {
         [NSThread sleepForTimeInterval:0.25];
         DEBUG_LOG(@"Waiting for Geocoder\n");
     }
-    
+
     if ([NSThread currentThread].isCancelled) {
         [geocoder cancelGeocode];
     }
-    
+
     return self.result;
 }
 

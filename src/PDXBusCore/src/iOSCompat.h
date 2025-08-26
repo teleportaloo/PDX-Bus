@@ -16,7 +16,13 @@
 #ifndef iOSCompat_h
 #define iOSCompat_h
 
-#define compatSetIfExists(O,S,V) if ([O respondsToSelector:@selector(S)]) { [O S V]; }
-#define compatCallIfExists(O,S)  if ([O respondsToSelector:@selector(S)]) { [O S]; }
+#define compatSetIfExists(O, S, V)                                             \
+    if ([O respondsToSelector:@selector(S)]) {                                 \
+        [O S V];                                                               \
+    }
+#define compatCallIfExists(O, S)                                               \
+    if ([O respondsToSelector:@selector(S)]) {                                 \
+        [O S];                                                                 \
+    }
 
 #endif /* iOSCompat_h */

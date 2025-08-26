@@ -14,43 +14,51 @@
 
 
 #import "WatchArrivalsContextBookmark.h"
+#import "UserParams.h"
 #import "UserState.h"
 
 @interface WatchArrivalsContextBookmark ()
 
-@property (nonatomic, strong) WatchBookmarksContext *bookmarksContext;
-@property (nonatomic)         NSInteger index;
+@property(nonatomic, strong) WatchBookmarksContext *bookmarksContext;
+@property(nonatomic) NSInteger index;
 
 @end
 
 @implementation WatchArrivalsContextBookmark
 
-+ (WatchArrivalsContextBookmark *)contextFromBookmark:(WatchBookmarksContext *)bookmarksContext index:(NSInteger)index {
++ (WatchArrivalsContextBookmark *)contextFromBookmark:
+                                      (WatchBookmarksContext *)bookmarksContext
+                                                index:(NSInteger)index {
     {
-        WatchArrivalsContextBookmark *context = [[WatchArrivalsContextBookmark alloc] init];
-        
+        WatchArrivalsContextBookmark *context =
+            [[WatchArrivalsContextBookmark alloc] init];
+
         context.stopId = bookmarksContext.singleBookmark[index];
         context.showMap = NO;
         context.showDistance = NO;
         context.bookmarksContext = bookmarksContext;
         context.index = index;
-        
+
         if (bookmarksContext.dictated) {
             context.navText = @"Next dictated swipe ←";
         } else {
             context.navText = @"Next stop swipe ←";
         }
-        
+
         return context;
     }
 }
 
-+ (WatchArrivalsContextBookmark *)contextFromRecents:(WatchBookmarksContext *)bookmarksContext index:(NSInteger)index {
++ (WatchArrivalsContextBookmark *)contextFromRecents:
+                                      (WatchBookmarksContext *)bookmarksContext
+                                               index:(NSInteger)index {
     {
-        WatchArrivalsContextBookmark *context = [WatchArrivalsContextBookmark contextFromBookmark:bookmarksContext index:index];
-        
+        WatchArrivalsContextBookmark *context =
+            [WatchArrivalsContextBookmark contextFromBookmark:bookmarksContext
+                                                        index:index];
+
         context.navText = @"Next recent swipe ←";
-        
+
         return context;
     }
 }
@@ -59,7 +67,7 @@
     if ((self = [super init])) {
         self.sceneName = kArrivalsScene;
     }
-    
+
     return self;
 }
 
@@ -69,35 +77,43 @@
 
 - (WatchArrivalsContext *)next {
     WatchArrivalsContext *next = nil;
-    
+
     if (self.hasNext) {
-        next = [WatchArrivalsContextBookmark contextFromBookmark:self.bookmarksContext index:self.index + 1];
-        
+        next = [WatchArrivalsContextBookmark
+            contextFromBookmark:self.bookmarksContext
+                          index:self.index + 1];
+
         next.navText = self.navText;
     }
-    
+
     return next;
 }
 
 - (WatchArrivalsContext *)clone {
     WatchArrivalsContext *clone = nil;
-    
+
     if (self.hasNext) {
-        clone = [WatchArrivalsContextBookmark contextFromBookmark:self.bookmarksContext index:self.index];
-        
+        clone = [WatchArrivalsContextBookmark
+            contextFromBookmark:self.bookmarksContext
+                          index:self.index];
+
         clone.navText = self.navText;
     }
-    
+
     return clone;
 }
 
 - (void)updateUserActivity:(WKInterfaceController *)controller {
     if (!self.bookmarksContext.recents) {
-        NSMutableDictionary *info = [NSMutableDictionary dictionary];
-        
-        info[kUserFavesChosenName] = self.bookmarksContext.title;
-        info[kUserFavesLocation] = self.bookmarksContext.location;
-        [controller updateUserActivity:kHandoffUserActivityBookmark userInfo:info webpageURL:nil];
+        MutableUserParams *info =
+            [MutableUserParams withChosenName:self.bookmarksContext.title
+                                     location:self.bookmarksContext.location];
+
+        NSUserActivity *userActivity = [[NSUserActivity alloc]
+            initWithActivityType:kHandoffUserActivityBookmark];
+        userActivity.userInfo = info.dictionary;
+        userActivity.webpageURL = nil;
+        [controller updateUserActivity:userActivity];
     }
 }
 

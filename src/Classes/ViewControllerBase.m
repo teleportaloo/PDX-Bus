@@ -12,39 +12,43 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#define DEBUG_LEVEL_FOR_FILE kLogUserInterface
+#define DEBUG_LEVEL_FOR_FILE LogUI
 
-#import <Foundation/Foundation.h>
 #import "ViewControllerBase.h"
-#import "FindByLocationView.h"
-#import "FlashViewController.h"
-#import "WebViewController.h"
-#import "NetworkTestView.h"
-#import <Social/Social.h>
-#import "OpenInChromeController.h"
-#import "Settings.h"
-#import "MemoryCaches.h"
-#import "PDXBusAppDelegate+Methods.h"
-#import "InterfaceOrientation.h"
-#import "SafariServices/SafariServices.h"
-#import "RootViewController.h"
-#import "WatchAppContext.h"
-#import "TriMetInfo.h"
+#import "DepartureTimesViewController.h"
 #import "Detour+iOSUI.h"
-#import "TripPlannerSummaryView.h"
-#import "MapViewController.h"
 #import "DetourLocation+iOSUI.h"
-#import "MapViewWithDetourStops.h"
-#import "NSString+Helper.h"
-#import "TintedImageCache.h"
-#import "DepartureTimesView.h"
+#import "DetoursViewController.h"
+#import "DirectionViewController.h"
+#import "FindByLocationViewController.h"
+#import "FlashViewController.h"
 #import "Icons.h"
-#import "DirectionView.h"
+#import "InterfaceOrientation.h"
+#import "MapPin.h"
+#import "MapViewController.h"
+#import "MapViewControllerWithDetourStops.h"
+#import "MemoryCaches.h"
+#import "NSString+DocPath.h"
+#import "NSString+MoreMarkup.h"
+#import "NetworkTestViewController.h"
+#import "PDXBus-Swift.h"
+#import "PDXBusAppDelegate+Methods.h"
+#import "RootViewController.h"
+#import "SafariServices/SafariServices.h"
+#import "Settings.h"
+#import "TaskDispatch.h"
+#import "TriMetInfo+UI.h"
+#import "TripPlannerSummaryViewController.h"
 #import "UIAlertController+SimpleMessages.h"
 #import "UIApplication+Compat.h"
-#import "DetoursView.h"
-#import "MapPin.h"
+#import "UIBarButtonItem+Icons.h"
 #import "UIFont+Utility.h"
+#import "UITableViewCell+Icons.h"
+#import "WatchAppContext.h"
+#import "WebViewController.h"
+#import <Foundation/Foundation.h>
+#import <Social/Social.h>
+#import "UIColor+HTML.h"
 
 @implementation UINavigationController (Rotation_IOS6)
 
@@ -57,7 +61,8 @@
 }
 
 - (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation {
-    return self.viewControllers.lastObject.preferredInterfaceOrientationForPresentation;
+    return self.viewControllers.lastObject
+        .preferredInterfaceOrientationForPresentation;
 }
 
 @end
@@ -73,109 +78,113 @@
 
 @dynamic basicFont;
 
-+ (instancetype)viewController {
-    return [[[self class] alloc] init];
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    if ((self = [super initWithCoder:aDecoder])) {
+        [self memberInit];
+    }
+
+    return self;
+}
+
+- (instancetype)init {
+    if ((self = [super init])) {
+        [self memberInit];
+    }
+    return self;
 }
 
 - (void)dealloc {
     DEBUG_FUNC();
-    
+
     //
     // There is a weak reference to self in the background task - it must
     // be removed if we are dealloc'd.
     //
-    if (self.backgroundTask) {
-        self.backgroundTask.callbackComplete = nil;
+    if (_backgroundTask) {
+        _backgroundTask.callbackComplete = nil;
     }
-    
-    [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                    name:NSUserDefaultsDidChangeNotification
-                                                  object:[NSUserDefaults standardUserDefaults]];
+
+    [[NSNotificationCenter defaultCenter]
+        removeObserver:self
+                  name:NSUserDefaultsDidChangeNotification
+                object:[NSUserDefaults standardUserDefaults]];
+}
+
++ (instancetype)viewController {
+    return [[[self class] alloc] init];
+}
+
++ (UIColor *)contrastingColorForBackgroundColor:(UIColor *)backgroundColor {
+    CGFloat red, green, blue, alpha;
+    [backgroundColor getRed:&red green:&green blue:&blue alpha:&alpha];
+
+    // Perceived brightness (standard luminance formula)
+    CGFloat brightness = (0.299 * red + 0.587 * green + 0.114 * blue);
+
+    return (brightness > 0.6) ? [UIColor blackColor] : [UIColor whiteColor];
 }
 
 - (void)setTheme {
     int color = Settings.toolbarColors;
     bool dark = NO;
     UIColor *uiCol = nil;
-    
-    if (@available(iOS 13.0, *)) {
-        if (self.traitCollection.userInterfaceStyle == UIUserInterfaceStyleDark) {
-            dark = YES;
-        }
+
+    if (self.traitCollection.userInterfaceStyle == UIUserInterfaceStyleDark) {
+        dark = YES;
     }
-    
+
     if (color != 0xFFFFFF && !dark) {
         uiCol = HTML_COLOR(color);
     }
-    
-    if (@available(iOS 15.0, *)) {
-        UINavigationBarAppearance *navBarAppearance = [[UINavigationBarAppearance alloc] init];
-        UIToolbarAppearance *toolbarAppearance = [[UIToolbarAppearance alloc] init];
-        
-        [navBarAppearance configureWithDefaultBackground];
-        [toolbarAppearance configureWithDefaultBackground];
-        
-        if (uiCol) {
-            navBarAppearance.backgroundColor = uiCol;
-            toolbarAppearance.backgroundColor = uiCol;
-        }
-        
-        self.navigationController.navigationBar.standardAppearance = navBarAppearance;
-        self.navigationController.navigationBar.scrollEdgeAppearance = navBarAppearance;
-        
-        DEBUG_LOGO(self.navigationController.toolbar);
-        
-        self.navigationController.toolbar.standardAppearance = toolbarAppearance;
-        self.navigationController.toolbar.scrollEdgeAppearance = toolbarAppearance;
 
-        // Bug as toolbar doesn't change color
-        [self updateToolbar];
+    UINavigationBarAppearance *navBarAppearance =
+        [[UINavigationBarAppearance alloc] init];
+    UIToolbarAppearance *toolbarAppearance = [[UIToolbarAppearance alloc] init];
 
-        
+    [navBarAppearance configureWithDefaultBackground];
+    [toolbarAppearance configureWithDefaultBackground];
+
+    if (uiCol) {
+        navBarAppearance.backgroundColor = uiCol;
+        toolbarAppearance.backgroundColor = uiCol;
+
+        UIColor *iconColor =
+            [ViewControllerBase contrastingColorForBackgroundColor:uiCol];
+
+        self.navigationController.navigationBar.tintColor = iconColor;
+        self.navigationController.toolbar.tintColor = iconColor;
+
     } else {
-    
-        self.navigationController.toolbar.barTintColor = uiCol;
-        self.navigationController.navigationBar.barTintColor = uiCol;
-    
-        if (uiCol) {
-            self.navigationController.toolbar.tintColor = [UIColor whiteColor];
-            self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
-        } else {
-            self.navigationController.toolbar.barTintColor = nil;
-            self.navigationController.navigationBar.barTintColor = nil;
-        }
+        self.navigationController.navigationBar.tintColor = nil;
+        self.navigationController.toolbar.tintColor = nil;
     }
+
+    self.navigationController.navigationBar.standardAppearance =
+        navBarAppearance;
+    self.navigationController.navigationBar.scrollEdgeAppearance =
+        navBarAppearance;
+
+    DEBUG_LOG_description(self.navigationController.toolbar);
+
+    self.navigationController.toolbar.standardAppearance = toolbarAppearance;
+    self.navigationController.toolbar.scrollEdgeAppearance = toolbarAppearance;
+
+    // Bug as toolbar doesn't change color
+    [self updateToolbar];
 }
 
-- (bool)initMembers {
-    if (self.backgroundTask == nil) {
+- (bool)memberInit {
+    if (_backgroundTask == nil) {
         _userState = UserState.sharedInstance;
-        self.backgroundTask = [BackgroundTaskContainer create:self];
+        _backgroundTask = [BackgroundTaskContainer create:self];
         _basicFont = nil;
         _smallFont = nil;
-        
         UIFont.smallFont = self.smallFont;
         UIFont.basicFont = self.basicFont;
+
         return true;
     }
-    
     return false;
-}
-
-- (instancetype)initWithCoder:(NSCoder *)aDecoder {
-    if ((self = [super initWithCoder:aDecoder])) {
-        [self initMembers];
-    }
-    
-    return self;
-}
-
-- (instancetype)init {
-    if ((self = [super init])) {
-        [self initMembers];
-    }
-    
-    return self;
 }
 
 - (void)backToRootButtons:(NSMutableArray *)toolbarItems {
@@ -183,35 +192,46 @@
     [toolbarItems addObject:[UIToolbar flexSpace]];
 }
 
+- (void)updateToolbarMainThread {
+}
+
 - (void)updateToolbar {
+
     NSMutableArray *toolbarItems = [NSMutableArray array];
-    
-    [self backToRootButtons:toolbarItems];
-    
-    [self updateToolbarItems:toolbarItems];
-    
-    
-    [self setToolbarItems:toolbarItems animated:NO];
+
+    [self updateToolbarMainThread];
+
+    WorkerTask(^{
+      [self backToRootButtons:toolbarItems];
+      [self updateToolbarItems:toolbarItems];
+
+      MainTask(^{
+        [self setToolbarItems:toolbarItems animated:NO];
+      });
+    });
 }
 
 #pragma mark Overridden View Methods
 
-// Implement loadView to create a view hierarchy programmatically, without using a nib.
+// Implement loadView to create a view hierarchy programmatically, without using
+// a nib.
 - (void)loadView {
     [super loadView];
-    
+
     [self.navigationController setToolbarHidden:NO animated:NO];
-    
+
     [self setTheme];
-    
-    [self updateToolbar];
 }
 
-// Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
+// Implement viewDidLoad to do additional setup after loading the view,
+// typically from a nib.
 - (void)viewDidLoad {
+    UIFont.smallFont = self.smallFont;
+    UIFont.basicFont = self.basicFont;
+
     [super viewDidLoad];
     //    [self.view bringSubviewToFront:self.toolbar];
-    
+
     /*
      if ([self respondsToSelector:@selector(setEdgesForExtendedLayout:)])
      {
@@ -219,30 +239,32 @@
      self.extendedLayoutIncludesOpaqueBars = NO;
      }
      */
-    
+
     __weak ViewControllerBase *weakSelf = self;
-    
+
 #ifdef DEBUGLOGGING
     NSString *classForLog = NSStringFromClass(self.class);
 #endif
-    
-    [[NSNotificationCenter defaultCenter] addObserverForName:NSUserDefaultsDidChangeNotification
-                                                      object:[NSUserDefaults standardUserDefaults]
-                                                       queue:[NSOperationQueue mainQueue]
-                                                  usingBlock:^(NSNotification *note) {
-        ViewControllerBase *strongSelf = weakSelf;
-        
-        DEBUG_LOG(@"Settings changed in class %p %@", strongSelf, classForLog);
-        
-        if (strongSelf) {
-            [strongSelf handleChangeInUserSettingsOnMainThread:note];
-        }
-    }];
+
+    [[NSNotificationCenter defaultCenter]
+        addObserverForName:NSUserDefaultsDidChangeNotification
+                    object:[NSUserDefaults standardUserDefaults]
+                     queue:[NSOperationQueue mainQueue]
+                usingBlock:^(NSNotification *note) {
+                  ViewControllerBase *strongSelf = weakSelf;
+
+                  DEBUG_LOG(@"Settings changed in class %p %@", strongSelf,
+                            classForLog);
+
+                  if (strongSelf) {
+                      [strongSelf handleChangeInUserSettingsOnMainThread:note];
+                  }
+                }];
 }
 
 - (void)handleChangeInUserSettingsOnMainThread:(NSNotification *)notfication {
     DEBUG_FUNC();
-    DEBUG_CLASS(self);
+    DEBUG_LOG_class(self);
     [self setTheme];
 }
 
@@ -252,40 +274,85 @@
     if (self.backgroundTask.running) {
         return NO;
     }
-    
+
     return YES;
 }
 
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations {
     CGRect bounds = [UIScreen mainScreen].bounds;
-    
+
     // Small devices do not need to orient
     if (bounds.size.width <= MaxiPhoneWidth) {
-        return UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskPortraitUpsideDown;
+        return UIInterfaceOrientationMaskPortrait |
+               UIInterfaceOrientationMaskPortraitUpsideDown;
     }
-    
+
     /*
      if (self.backgroundTask.backgroundThread !=nil)
      {
      return ;
      }
      */
-    
+
     return UIInterfaceOrientationMaskAll;
 }
 
-- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
-    [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context) {
-        [self willRotateTo:[[UIApplication sharedApplication] compatStatusBarOrientation]];
-    }
-                                 completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
-    }
-     ];
-    
+- (void)viewWillTransitionToSize:(CGSize)size
+       withTransitionCoordinator:
+           (id<UIViewControllerTransitionCoordinator>)coordinator {
+    [coordinator
+        animateAlongsideTransition:nil
+                        completion:^(
+                            id<UIViewControllerTransitionCoordinatorContext>
+                                context) {
+                          [self waitForValidWidthWithRetry:0
+                                                     block:^{
+                                                       if (!self.backgroundTask
+                                                                .running) {
+                                                           [self reloadData];
+                                                       }
+                                                     }];
+                        }];
+
     [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
 }
 
 #pragma mark View helper methods
+
+- (void)addDoneButtonSameAsBack {
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]
+        initWithBarButtonSystemItem:UIBarButtonSystemItemDone
+                             target:self
+                             action:@selector(doneButtonTapped)];
+}
+
+- (void)doneButtonTapped {
+    if (self.navigationController) {
+        // If presented via push, pop back
+        [self.navigationController popViewControllerAnimated:YES];
+    } else {
+        // If presented modally, dismiss
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }
+}
+
+- (void)waitForValidWidthWithRetry:(NSInteger)retry
+                             block:(void (^)(void))block {
+    DEBUG_LOG_long(retry) if (retry > 100) return;
+
+    CGFloat width = UIApplication.firstKeyWindow.frame.size.width;
+    DEBUG_LOG_CGFloat(width);
+    if (width > 1) {
+
+        block();
+    } else {
+        dispatch_after(
+            dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.02 * NSEC_PER_SEC)),
+            dispatch_get_main_queue(), ^{
+              [self waitForValidWidthWithRetry:retry + 1 block:block];
+            });
+    }
+}
 
 - (void)willRotateTo:(UIInterfaceOrientation)orientation {
     if (!self.backgroundTask.running) {
@@ -294,6 +361,7 @@
 }
 
 - (void)reloadData {
+    DEBUG_HERE();
     _basicFont = nil;
     _smallFont = nil;
     UIFont.smallFont = self.smallFont;
@@ -303,53 +371,54 @@
 
 - (ScreenInfo)screenInfo {
     ScreenInfo res;
-    
-    CGRect bounds = [UIApplication sharedApplication].delegate.window.bounds;
-    
+
+    CGRect bounds = UIApplication.appRect;
+
     res.appWinWidth = bounds.size.width;
-    
+
     CGRect deviceBounds = [UIScreen mainScreen].bounds;
-    
-    UIInterfaceOrientation orientation = [InterfaceOrientation getInterfaceOrientation:self];
-    
+
+    UIInterfaceOrientation orientation =
+        [InterfaceOrientation getInterfaceOrientation:self];
+
     if (bounds.size.width < deviceBounds.size.width) {
         orientation = UIInterfaceOrientationPortrait;
     }
-    
+
     switch (orientation) {
-        case UIInterfaceOrientationPortraitUpsideDown:
-        case UIInterfaceOrientationPortrait:
-        case UIInterfaceOrientationUnknown:
-            
-            if (bounds.size.width <= WidthiPhone) {
-                res.screenWidth = WidthiPhone;
-            } else if (bounds.size.width <= WidthiPhone6) {
-                res.screenWidth = WidthiPhone6;
-            } else if (bounds.size.width <= WidthiPhone6Plus) {
-                res.screenWidth = WidthiPhone6Plus;
-            } else if (bounds.size.width <= WidthBigVariable) {
-                res.screenWidth = WidthBigVariable;
-            } else {
-                res.screenWidth = WidthBigVariable;
-            }
-            
-            break;
-            
-        case    UIInterfaceOrientationLandscapeLeft:
-        case    UIInterfaceOrientationLandscapeRight:
-            
-            if (bounds.size.width <= WidthiPadWide) {
-                res.screenWidth = WidthiPadWide;
-            } else {
-                res.screenWidth = WidthBigVariable;
-            }
-            
-            break;
-            
-        default:
+    case UIInterfaceOrientationPortraitUpsideDown:
+    case UIInterfaceOrientationPortrait:
+    case UIInterfaceOrientationUnknown:
+
+        if (bounds.size.width <= WidthiPhone) {
+            res.screenWidth = WidthiPhone;
+        } else if (bounds.size.width <= WidthiPhone6) {
+            res.screenWidth = WidthiPhone6;
+        } else if (bounds.size.width <= WidthiPhone6Plus) {
+            res.screenWidth = WidthiPhone6Plus;
+        } else if (bounds.size.width <= WidthBigVariable) {
+            res.screenWidth = WidthBigVariable;
+        } else {
+            res.screenWidth = WidthBigVariable;
+        }
+
+        break;
+
+    case UIInterfaceOrientationLandscapeLeft:
+    case UIInterfaceOrientationLandscapeRight:
+
+        if (bounds.size.width <= WidthiPadWide) {
             res.screenWidth = WidthiPadWide;
+        } else {
+            res.screenWidth = WidthBigVariable;
+        }
+
+        break;
+
+    default:
+        res.screenWidth = WidthiPadWide;
     }
-    
+
     return res;
 }
 
@@ -359,25 +428,26 @@
 
 - (CGRect)middleWindowRect {
     CGRect tableViewRect;
-    
+
     tableViewRect.size.width = self.navigationController.view.frame.size.width;
-    
+
     // DEBUG_LOGR([UIScreen mainScreen].applicationFrame);
-    DEBUG_LOGR([UIScreen mainScreen].bounds);
-    DEBUG_LOGR(UIApplication.firstKeyWindow.frame);
-    DEBUG_LOGR([UIApplication sharedApplication].compatStatusBarFrame);
-    
-    tableViewRect.size.height = UIApplication.compatApplicationFrame.size.height - [self heightOffset];
+    DEBUG_LOG_CGRect([UIScreen mainScreen].bounds);
+    DEBUG_LOG_CGRect(UIApplication.firstKeyWindow.frame);
+    DEBUG_LOG_CGRect([UIApplication sharedApplication].compatStatusBarFrame);
+
+    tableViewRect.size.height =
+        UIApplication.compatApplicationFrame.size.height - [self heightOffset];
     tableViewRect.origin.x = 0;
     tableViewRect.origin.y = 0;
-    
-    DEBUG_LOGR(tableViewRect);
+
+    DEBUG_LOG_CGRect(tableViewRect);
     return tableViewRect;
 }
 
 - (UIView *)clearView {
     UIView *backView = [[UIView alloc] initWithFrame:CGRectZero];
-    
+
     backView.backgroundColor = [UIColor clearColor];
     return backView;
 }
@@ -385,10 +455,14 @@
 #pragma mark Toolbar methods
 
 - (UIBarButtonItem *)doneButton {
-    if (self.stopIdStringCallback != nil && (self.stopIdStringCallback.returnStopIdStringController != nil || [self forceRedoButton])) {
-        return [UIToolbar redoButtonWithTarget:self action:@selector(backButton:)];
+    if (self.stopIdStringCallback != nil &&
+        (self.stopIdStringCallback.returnStopIdStringController != nil ||
+         [self forceRedoButton])) {
+        return [UIToolbar redoButtonWithTarget:self
+                                        action:@selector(backButton:)];
     } else {
-        return [UIToolbar doneButtonWithTarget:self action:@selector(backButton:)];
+        return [UIToolbar homeButtonWithTarget:self
+                                        action:@selector(backButton:)];
     }
 }
 
@@ -412,130 +486,153 @@
         [self.backgroundTask.progressModal removeFromSuperview];
         self.backgroundTask.progressModal = nil;
     }
-    
+
     ;
     [self dismissViewControllerAnimated:YES completion:nil];
 }
+
+- (void)didBecomeActive {
+}
+
 
 - (void)xmlAction:(UIBarButtonItem *)sender {
     // We replace some items in the XML to hide it or to make the reader
     // happy when concatonating.  This was learnt by trial and error!
     // uncrustify-off
     NSDictionary *replacements = @{
-        [TriMetXML appId]   : @"TRIMET_APP_ID",                                 // hide APP ID
-        @"<?xml"            : @"<!--",                                          // XML encoding gets in the way
-        @"?>"               : @"-->",
-        @"<--?xml"          : @"<!--",                                          // XML encoding gets in the way
-        @"?-->"             : @"-->",
-        @"<body"            : @"<wasbody",                                      // This keyword gets dropped
-        @"body>"            : @"wasbody>"
+        [TriMetXML appId] : @"TRIMET_APP_ID", // hide APP ID
+        @"<?xml" : @"<!--",                   // XML encoding gets in the way
+        @"?>" : @"-->",
+        @"<--?xml" : @"<!--", // XML encoding gets in the way
+        @"?-->" : @"-->",
+        @"<body" : @"<wasbody", // This keyword gets dropped
+        @"body>" : @"wasbody>"
     };
     // uncrustify-on
-    
+
     NSMutableData *buffer = [[NSMutableData alloc] init];
-    
+
     [self appendXmlData:buffer];
-    
-    NSMutableString *redactedData = [[NSMutableString alloc] initWithBytes:buffer.bytes
-                                                                    length:buffer.length
-                                                                  encoding:NSUTF8StringEncoding];
-    
-    
-    [replacements enumerateKeysAndObjectsUsingBlock: ^void (NSString *key, NSString *replacement, BOOL *stop)
-     {
-        [redactedData replaceOccurrencesOfString:key
-                                      withString:replacement
-                                         options:NSCaseInsensitiveSearch
-                                           range:NSMakeRange(0, redactedData.length)];
+
+    NSMutableString *redactedData =
+        [[NSMutableString alloc] initWithBytes:buffer.bytes
+                                        length:buffer.length
+                                      encoding:NSUTF8StringEncoding];
+
+    [replacements enumerateKeysAndObjectsUsingBlock:^void(
+                      NSString *key, NSString *replacement, BOOL *stop) {
+      [redactedData
+          replaceOccurrencesOfString:key
+                          withString:replacement
+                             options:NSCaseInsensitiveSearch
+                               range:NSMakeRange(0, redactedData.length)];
     }];
-    
-    
-    [redactedData insertString:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?><root>" atIndex:0];
+
+    [redactedData
+        insertString:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?><root>"
+             atIndex:0];
     [redactedData appendString:@"</root>"];
-    
+
     int viewer = Settings.xmlViewer;
-    
-    if (viewer == 1) {  // Share
-        NSURL *docs = [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
+
+    if (viewer == 1) { // Share
         
-        NSString *path = [docs.path stringByAppendingPathComponent:@"PDXBus Debug Data.xml"];
-        [redactedData writeToFile:path atomically:YES
-                         encoding:NSUTF8StringEncoding error:nil];
-        
-        NSArray *activities = @[ [NSURL fileURLWithPath:path] ];
-        
-        UIActivityViewController *activityViewControntroller = [[UIActivityViewController alloc] initWithActivityItems:activities applicationActivities:nil];
-        activityViewControntroller.excludedActivityTypes = @[];
-        
-        if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
-            UIView *source =  (UIView *)[sender valueForKey:@"view"];
-            
+        // delete any dross! we arem't using a file any more
+        NSString *path = @"PDXBus Debug Data.xml".fullDocPath;
+        [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
+
+        NSArray *activities = @[ redactedData ]; // [NSURL fileURLWithPath:path] ];
+
+        UIActivityViewController *activityViewControntroller =
+            [[UIActivityViewController alloc] initWithActivityItems:activities
+                                              applicationActivities:nil];
+        // activityViewControntroller.excludedActivityTypes = @[];
+
+        if ([[UIDevice currentDevice] userInterfaceIdiom] ==
+            UIUserInterfaceIdiomPad) {
+            UIView *source = (UIView *)[sender valueForKey:@"view"];
+
             if (source == nil) {
                 source = self.view;
             }
-            
-            activityViewControntroller.popoverPresentationController.sourceView = source;
-            activityViewControntroller.popoverPresentationController.sourceRect = CGRectMake(source.bounds.size.width / 2, source.bounds.size.height / 2, 0, 0);
+
+            activityViewControntroller.popoverPresentationController
+                .sourceView = source;
+            activityViewControntroller.popoverPresentationController
+                .sourceRect = CGRectMake(source.bounds.size.width / 2,
+                                         source.bounds.size.height / 2, 0, 0);
         }
-        
-        [self presentViewController:activityViewControntroller animated:true completion:nil];
+
+        [self presentViewController:activityViewControntroller
+                           animated:true
+                         completion:nil];
     } else {
-        [redactedData replaceOccurrencesOfString:@"\\"
-                                      withString:@"\\\\"
-                                         options:NSCaseInsensitiveSearch
-                                           range:NSMakeRange(0, redactedData.length)];
-        
+        [redactedData
+            replaceOccurrencesOfString:@"\\"
+                            withString:@"\\\\"
+                               options:NSCaseInsensitiveSearch
+                                 range:NSMakeRange(0, redactedData.length)];
+
         NSDictionary *replacements2 = @{
             // uncrustify-off
-            @"\"": @"\\\"",
-            @"\n": @" ",
-            @"\r": @" ",
+            @"\"" : @"\\\"",
+            @"\n" : @" ",
+            @"\r" : @" ",
             @"'" : @"\'"
             // uncrustify-on
         };
-        
-        
-        [replacements2 enumerateKeysAndObjectsUsingBlock: ^void (NSString *key, NSString *replacement, BOOL *stop)
-         {
-            [redactedData replaceOccurrencesOfString:key
-                                          withString:replacement
-                                             options:NSCaseInsensitiveSearch
-                                               range:NSMakeRange(0, redactedData.length)];
+
+        [replacements2 enumerateKeysAndObjectsUsingBlock:^void(
+                           NSString *key, NSString *replacement, BOOL *stop) {
+          [redactedData
+              replaceOccurrencesOfString:key
+                              withString:replacement
+                                 options:NSCaseInsensitiveSearch
+                                   range:NSMakeRange(0, redactedData.length)];
         }];
-        
+
         WebViewController *web = [WebViewController viewController];
-        
+
         if (viewer == 2) {
             [web setNamedUrl:@"XML Viewer 2"];
-            web.javsScriptCommand = [NSString stringWithFormat:@"document.getElementById('xmlString').value=\"%@\"; document.forms[0].submit()", redactedData];
+            web.javsScriptCommand = [NSString
+                stringWithFormat:@"document.getElementById('xmlString').value="
+                                 @"\"%@\"; document.forms[0].submit()",
+                                 redactedData];
         } else if (viewer == 3) {
             [web setNamedUrl:@"XML Viewer 3"];
-            web.javsScriptCommand = [NSString stringWithFormat:@"document.getElementById('xml').value=\"%@\"; document.getElementById('pretty_print').submit()", redactedData];
+            web.javsScriptCommand = [NSString
+                stringWithFormat:
+                    @"document.getElementById('xml').value=\"%@\"; "
+                    @"document.getElementById('pretty_print').submit()",
+                    redactedData];
         }
-        
-        DEBUG_LOGS(web.urlToDisplay);
-        DEBUG_LOGS(web.javsScriptCommand);
+
+        DEBUG_LOG_NSString(web.urlToDisplay);
+        DEBUG_LOG_NSString(web.javsScriptCommand);
         [self.navigationController pushViewController:web animated:YES];
     }
 }
 
 - (UIBarButtonItem *)debugXmlButton {
     // create the system-defined "OK or Done" button
-    UIBarButtonItem *xmlButton = [[UIBarButtonItem alloc]
-                                  initWithImage:[Icons getToolbarIcon:kIconXml]
-                                  style:UIBarButtonItemStylePlain
-                                  target:self action:@selector(xmlAction:)];
-    
-    xmlButton.style = UIBarButtonItemStylePlain;
+    UIBarButtonItem *xmlButton =
+        [UIBarButtonItem withSystemImage:kSFIconXml
+                                   style:UIBarButtonItemStylePlain
+                                  target:self
+                                  action:@selector(xmlAction:)];
+
     xmlButton.accessibilityLabel = @"Show XML";
-    
+
     TOOLBAR_PLACEHOLDER(xmlButton, @"XML");
-    
+
     return xmlButton;
 }
 
 - (void)updateToolbarItems:(NSMutableArray *)toolbarItems {
-    [self maybeAddFlashButtonWithSpace:(toolbarItems.count == 0) buttons:toolbarItems big:NO];
+    [self maybeAddFlashButtonWithSpace:(toolbarItems.count == 0)
+                               buttons:toolbarItems
+                                   big:NO];
 }
 
 - (void)updateToolbarItemsWithXml:(NSMutableArray *)toolbarItems {
@@ -548,10 +645,14 @@
 }
 
 - (void)backButton:(id)sender {
-    if (self.stopIdStringCallback != nil && self.stopIdStringCallback.returnStopIdStringController != nil) {
-        [self.navigationController popToViewController:self.stopIdStringCallback.returnStopIdStringController animated:YES];
+    if (self.stopIdStringCallback != nil &&
+        self.stopIdStringCallback.returnStopIdStringController != nil) {
+        [self.navigationController
+            popToViewController:self.stopIdStringCallback
+                                    .returnStopIdStringController
+                       animated:YES];
     } else {
-        [ self.navigationController popToRootViewControllerAnimated:YES];
+        [self.navigationController popToRootViewControllerAnimated:YES];
     }
 }
 
@@ -563,10 +664,9 @@
                                    whenDone:self.callbackWhenDone];
     } else {
         NSMutableString *padding = [NSMutableString string];
-        
+
         [self padRoute:route padding:&padding];
-        
-        
+
         [WebViewController displayNamedPage:@"TriMet Route"
                                   parameter:padding
                                   navigator:self.navigationController
@@ -579,75 +679,82 @@
 
 - (bool)fullScreen {
 #if !TARGET_OS_MACCATALYST
-    CGRect myBounds = [UIApplication sharedApplication].delegate.window.bounds;
+    CGRect myBounds = UIApplication.appRect;
     CGRect fullScreen = [UIScreen mainScreen].bounds;
-    
+
     if (fullScreen.size.width == myBounds.size.width) {
         return YES;
     }
-    
+
     return NO;
-    
+
 #else
     return YES;
-    
+
 #endif
 }
 
 - (bool)videoCaptureSupported {
     if (self.fullScreen) {
-        AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-        
+        AVCaptureDevice *device =
+            [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+
         if (device == nil) {
             return NO;
         }
-        
-        AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
-        
+
+        AVAuthorizationStatus authStatus =
+            [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+
         switch (authStatus) {
-            case AVAuthorizationStatusAuthorized:
-            case AVAuthorizationStatusNotDetermined:
-                return YES;
-                
-            case AVAuthorizationStatusDenied:
-            case AVAuthorizationStatusRestricted:
-                return NO;
+        case AVAuthorizationStatusAuthorized:
+        case AVAuthorizationStatusNotDetermined:
+            return YES;
+
+        case AVAuthorizationStatusDenied:
+        case AVAuthorizationStatusRestricted:
+            return NO;
         }
     }
-    
+
     return NO;
 }
 
 - (void)padRoute:(NSString *)route padding:(NSMutableString **)padding {
     while (route.length + (*padding).length < 3) {
-        [*padding appendString: @"0"];
+        [*padding appendString:@"0"];
     }
-    [*padding appendString: route];
+    [*padding appendString:route];
 }
 
 - (void)networkTips:(NSData *)htmlError networkError:(NSString *)networkError {
     if (htmlError) {
         WebViewController *errorScreen = [WebViewController viewController];
-        [errorScreen setRawData:htmlError title:NSLocalizedString(@"Error Message", @"error")];
-        [errorScreen displayPage:self.navigationController animated:YES itemToDeselect:nil];
+        [errorScreen setRawData:htmlError
+                          title:NSLocalizedString(@"Error Message", @"error")];
+        [errorScreen displayPage:self.navigationController
+                        animated:YES
+                  itemToDeselect:nil];
     } else {
-        NetworkTestView *networkTest = [NetworkTestView viewController];
+        NetworkTestViewController *networkTest =
+            [NetworkTestViewController viewController];
         networkTest.networkErrorFromQuery = networkError;
-        [networkTest fetchNetworkStatusAsync:self.backgroundTask backgroundRefresh:NO];
+        [networkTest fetchNetworkStatusAsync:self.backgroundTask
+                           backgroundRefresh:NO];
     }
 }
 
 #pragma mark Text Manipulation Methods
 
-- (UILabel *)create_UITextView:(UIColor *)backgroundColor font:(UIFont *)font; {
+- (UILabel *)create_UITextView:(UIColor *)backgroundColor font:(UIFont *)font;
+{
     CGRect frame = CGRectMake(0.0, 0.0, 100.0, 200.0);
-    
-    
+
     UILabel *textView = [[UILabel alloc] initWithFrame:frame];
-    
+
     textView.textColor = [UIColor modeAwareText];
     textView.font = font; // ;
-    
+
     //    textView.delegate = self;
     //    textView.editable = NO;
     if (backgroundColor == nil) {
@@ -655,22 +762,32 @@
     } else {
         textView.backgroundColor = backgroundColor;
     }
-    
+
     textView.lineBreakMode = NSLineBreakByWordWrapping;
     textView.adjustsFontSizeToFitWidth = YES;
     textView.numberOfLines = 0;
-    
+
     // note: for UITextView, if you don't like autocompletion while typing use:
     // myTextView.autocorrectionType = UITextAutocorrectionTypeNo;
-    
+
     return textView;
 }
 
++ (CGFloat)windowWidth {
+    CGFloat windowWidth = UIApplication.appRect.size.width;
+
+    if (windowWidth == 0) {
+        windowWidth = UIScreen.mainScreen.bounds.size.width;
+    }
+    DEBUG_LOG_CGFloat(UIApplication.appRect.size.width);
+    DEBUG_LOG_CGFloat(UIScreen.mainScreen.bounds.size.width);
+    return windowWidth;
+}
 
 - (UIFont *)smallFont {
     if (_smallFont == nil) {
         if (SMALL_SCREEN) {
-            if (self.screenInfo.screenWidth >= WidthiPhone6) {
+            if (ViewControllerBase.windowWidth >= WidthiPhone6) {
                 _smallFont = [UIFont monospacedDigitSystemFontOfSize:16.0];
             } else {
                 _smallFont = [UIFont monospacedDigitSystemFontOfSize:14.0];
@@ -679,14 +796,14 @@
             _smallFont = [UIFont monospacedDigitSystemFontOfSize:22.0];
         }
     }
-    
+
     return _smallFont;
 }
 
 - (UIFont *)basicFont {
     if (_basicFont == nil) {
         if (SMALL_SCREEN) {
-            if (self.screenInfo.screenWidth >= WidthiPhone6) {
+            if (ViewControllerBase.windowWidth >= WidthiPhone6) {
                 _basicFont = [UIFont monospacedDigitSystemFontOfSize:20.0];
             } else {
                 _basicFont = [UIFont monospacedDigitSystemFontOfSize:18.0];
@@ -695,15 +812,17 @@
             _basicFont = [UIFont monospacedDigitSystemFontOfSize:22.0];
         }
     }
-    
+
     return _basicFont;
 }
 
 #pragma mark Background Task methods
 
-- (void)backgroundTaskDone:(UIViewController *)viewController cancelled:(bool)cancelled {
+- (void)backgroundTaskDone:(UIViewController *)viewController
+                 cancelled:(bool)cancelled {
     if (!cancelled) {
-        [self.navigationController pushViewController:viewController animated:YES];
+        [self.navigationController pushViewController:viewController
+                                             animated:YES];
     }
 }
 
@@ -713,83 +832,35 @@
 
 #pragma mark Standard Object methods
 
-
 - (void)didReceiveMemoryWarning {
     // Releases the view if it doesn't have a superview.
-    
+
     if (self.viewLoaded && self.view.window == nil) {
         self.view = nil;
     }
-    
+
     // Release any cached data, images, etc that aren't in use.
     [MemoryCaches memoryWarning];
-    
+
     [super didReceiveMemoryWarning];
 }
 
-- (bool)canTweet {
-    Class messageClass = (NSClassFromString(@"TWTweetComposeViewController"));
-    
-    if (messageClass != nil) {
-        return YES;
-        
-        // if ([TWTweetComposeViewController canSendTweet]) {
-        //    return YES;
-        //}
-    }
-    
-    return NO;
+- (void)instagramAt:(NSString *)user {
+    [[UIApplication sharedApplication]
+        compatOpenURL:[NSURL
+                          URLWithString:[WebViewController namedURL:@"Instagram"
+                                                              param:user]]];
 }
 
-- (void)tweetAt:(NSString *)twitterUser {
-    NSString *twitter = [NSString stringWithFormat:@"twitter:"];
-    
-    if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:twitter]]) {
-        NSString *twitter = [NSString stringWithFormat:@"twitter://user?screen_name=%@", twitterUser];
-        
-        if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:twitter]]) {
-            [[UIApplication sharedApplication] compatOpenURL:[NSURL URLWithString:twitter]];
-        }
-    } else {
-        NSString *twitter = [WebViewController namedURL:@"Twitter" param:twitterUser];
-        [self openBrowserFrom:self path:twitter];
-    }
+- (void)blueskyAt:(NSString *)user {
+    [[UIApplication sharedApplication]
+        compatOpenURL:[NSURL
+                          URLWithString:[WebViewController namedURL:@"Bluesky"
+                                                              param:user]]];
 }
 
-- (void)triMetTweetFrom:(UIView *)view {
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"TriMet on Twitter", @"alert title")
-                                                                   message:NSLocalizedString(@"Which twitter account do you need?", @"alert message")
-                                                            preferredStyle:UIAlertControllerStyleActionSheet];
-    
-    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"@TriMetAlerts - Distruption and Alert Info", @"alert item")
-                                              style:UIAlertActionStyleDefault
-                                            handler:^(UIAlertAction *action) {
-        [self tweetAt:@"trimetalerts"];
-    }]];
-    
-    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"@TriMetHelp - Rider Support", @"alert item")
-                                              style:UIAlertActionStyleDefault
-                                            handler:^(UIAlertAction *action) {
-        [self tweetAt:@"trimethelp"];
-    }]];
-    
-    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"@TriMet - General Info", @"alert item")
-                                              style:UIAlertActionStyleDefault
-                                            handler:^(UIAlertAction *action) {
-        [self tweetAt:@"trimet"];
-    }]];
-    
-    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"alert item")
-                                              style:UIAlertActionStyleCancel
-                                            handler:^(UIAlertAction *action) {
-        [self clearSelection];
-    }]];
-    
-    
-    alert.popoverPresentationController.sourceView = view;
-    alert.popoverPresentationController.sourceRect = CGRectMake(0, 0, view.frame.size.width, view.frame.size.height);
-    
-    [self presentViewController:alert animated:YES completion:nil];
+- (void)triMetBlueskyFrom:(UIView *)view {
+    [self blueskyAt:@"trimet.org"];
 }
 
 - (void)clearSelection {
@@ -799,32 +870,24 @@
     if (self.stopIdStringCallback) {
         return self.stopIdStringCallback.returnStopIdStringController;
     }
-    
-    return nil;
-}
 
-- (bool)openBrowserFrom:(UIViewController *)view path:(NSString *)path {
-    if (Settings.useChrome && [ OpenInChromeController sharedInstance].chromeInstalled) {
-        if ([[OpenInChromeController sharedInstance] openInChrome:[NSURL URLWithString:path]
-                                                  withCallbackURL:[NSURL URLWithString:@"pdxbus:"]
-                                                     createNewTab:NO]) {
-            return YES;
-        }
-    }
-    
-    return [self openSafariFrom:self path:path];
+    return nil;
 }
 
 - (bool)openSafariFrom:(UIViewController *)view path:(NSString *)path {
     Class safariClass = (NSClassFromString(@"SFSafariViewController"));
-    
+
     NSURL *url = [NSURL URLWithString:path];
-    
+
     if (safariClass != nil) {
-        SFSafariViewController *vc = [[SFSafariViewController alloc] initWithURL:url];
-        
+        SFSafariViewController *vc =
+            [[SFSafariViewController alloc] initWithURL:url];
+
         // vc.delegate = self
-        [view presentViewController:vc animated:YES completion:^{}];
+        [view presentViewController:vc
+                           animated:YES
+                         completion:^{
+                         }];
         return TRUE;
     } else {
         if ([[UIApplication sharedApplication] canOpenURL:url]) {
@@ -832,26 +895,43 @@
             return TRUE;
         }
     }
-    
+
     return FALSE;
 }
 
-- (void)facebookWithId:(NSString *)fbid path:(NSString *)fbpath {
-    if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:fbid]]) {
-        [[UIApplication sharedApplication] compatOpenURL:[NSURL URLWithString:fbid]];
-    } else {
-        [self openBrowserFrom:self path:fbpath];
-    }
-    
+- (void)facebookAt:(NSString *)user {
+    [[UIApplication sharedApplication]
+        compatOpenURL:[NSURL
+                          URLWithString:[WebViewController namedURL:@"Facebook"
+                                                              param:user]]];
+}
+
+- (void)tipJarCell:(UITableViewCell *)cell {
+    cell.textLabel.text = NSLocalizedString(@"Support Us!", @"main menu item");
+    cell.textLabel.textColor = [UIColor modeAwareText];
+
+    cell.imageView.image = [UIImage systemImageNamed:@"heart.fill"];
+    cell.imageView.tintColor = UIColor.redColor;
+
+    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+}
+
+- (void)tipJar {
+    [TipJarManager.shared
+        showTipJar:self
+           message:@"PDX Bus is developed by volunteers, using public data "
+                   @"provided by TriMet.\n\nLeave a tip to support the app "
+                   @"❤️.\n\nThere are no extra features to buy - the app is "
+                   @"free and fully featured."];
     [self clearSelection];
 }
 
 - (void)buyMeACoffeeCell:(UITableViewCell *)cell {
-    cell.textLabel.text = NSLocalizedString(@"Buy Me A Coffee", @"main menu item");
+    cell.textLabel.text =
+        NSLocalizedString(@"Buy Me A Coffee", @"main menu item");
     cell.textLabel.textColor = [UIColor modeAwareText];
-    cell.imageView.image = [Icons getIcon:kIconBuyMeACoffee];
+    cell.namedIcon = kIconBuyMeACoffee;
     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-    
 }
 
 - (void)buyMeACoffee {
@@ -860,17 +940,13 @@
 }
 
 - (void)facebookTriMet {
-    static NSString *fbid = @"fb://profile/270344585472";
-    NSString *fbpath = [WebViewController namedURL:@"Facebook TriMet"];
-    
-    [self facebookWithId:fbid path:fbpath];
+    [self facebookAt:@"TriMet"];
+    [self clearSelection];
 }
 
-- (void)facebook {
-    static NSString *fbid = @"fb://profile/218101161593";
-    NSString *fbpath = [WebViewController namedURL:@"Facebook PDXBus"];
-    
-    [self facebookWithId:fbid path:fbpath];
+- (void)facebookPDXBus {
+    [self facebookAt:@"PDXBus"];
+    [self clearSelection];
 }
 
 - (void)favesChanged {
@@ -879,8 +955,8 @@
 }
 
 - (void)updateWatch {
-    RootViewController *root = PDXBusAppDelegate.sharedInstance.rootViewController;
-    
+    RootViewController *root = RootViewController.currentRootViewController;
+
     if (root.session) {
         [WatchAppContext updateWatch:root.session];
     }
@@ -893,29 +969,39 @@
 
 - (void)displayActionSheet:(UIAlertController *)alert {
     alert.popoverPresentationController.sourceView = self.view;
-    alert.popoverPresentationController.sourceRect = CGRectMake(self.view.frame.size.width / 2, self.view.frame.size.height / 2, 10, 10);
-    
-    [self.navigationController presentViewController:alert animated:YES completion:nil];
+    alert.popoverPresentationController.sourceRect =
+        CGRectMake(self.view.frame.size.width / 2,
+                   self.view.frame.size.height / 2, 10, 10);
+
+    [self.navigationController presentViewController:alert
+                                            animated:YES
+                                          completion:nil];
 }
 
-- (UIBarButtonItem *)segBarButtonWithItems:(NSArray *)items action:(SEL)action selectedIndex:(NSInteger)selectedIndex {
+- (UIBarButtonItem *)segBarButtonWithItems:(NSArray *)items
+                                    action:(SEL)action
+                             selectedIndex:(NSInteger)selectedIndex {
     UISegmentedControl *seg = [[UISegmentedControl alloc] initWithItems:items];
-    
-    [seg addTarget:self action:action forControlEvents:UIControlEventValueChanged];
-    
+
+    [seg addTarget:self
+                  action:action
+        forControlEvents:UIControlEventValueChanged];
+
     if (selectedIndex != kSegNoSelectedIndex) {
         seg.selectedSegmentIndex = selectedIndex;
     }
-    
+
     return [[UIBarButtonItem alloc] initWithCustomView:seg];
 }
 
-- (void)maybeAddFlashButtonWithSpace:(bool)space buttons:(NSMutableArray *)array big:(bool)big {
+- (void)maybeAddFlashButtonWithSpace:(bool)space
+                             buttons:(NSMutableArray *)array
+                                 big:(bool)big {
     if (Settings.flashingLightIcon) {
         if (space) {
             [array addObject:[UIToolbar flexSpace]];
         }
-        
+
         if (big) {
             [array addObject:[self bigFlashButton]];
         } else {
@@ -925,11 +1011,13 @@
 }
 
 - (UIBarButtonItem *)flashButton {
-    return [UIToolbar flashButtonWithTarget:self action:@selector(flashButton:)];
+    return [UIToolbar flashButtonWithTarget:self
+                                     action:@selector(flashButton:)];
 }
 
 - (UIBarButtonItem *)bigFlashButton {
-    return [UIToolbar flashButtonWithTarget:self action:@selector(flashButton:)];
+    return [UIToolbar flashButtonWithTarget:self
+                                     action:@selector(flashButton:)];
 }
 
 - (void)flashButton:(UIBarButtonItem *)sender {
@@ -940,58 +1028,83 @@
     [nav pushViewController:[FlashViewController viewController] animated:YES];
 }
 
-+ (void)flashScreen:(UINavigationController *)nav button:(UIBarButtonItem *)button {
++ (void)flashScreen:(UINavigationController *)nav
+             button:(UIBarButtonItem *)button {
     if (Settings.flashingLightWarning) {
         Settings.flashingLightWarning = NO;
-        
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Flashing Light", @"Alert title")
-                                                                       message:NSLocalizedString(@"If you have photosensitive epilepsy please be aware that you may be affected by the flashing light. Would you like to disable this feature? This warning will not be shown again.", @"Warning text")
-                                                                preferredStyle:UIAlertControllerStyleAlert];
-        
+
+        UIAlertController *alert = [UIAlertController
+            alertControllerWithTitle:NSLocalizedString(@"Flashing Light",
+                                                       @"Alert title")
+                             message:
+                                 NSLocalizedString(
+                                     @"If you have photosensitive epilepsy "
+                                     @"please be aware that you may be "
+                                     @"affected by the flashing light. Would "
+                                     @"you like to disable this feature? This "
+                                     @"warning will not be shown again.",
+                                     @"Warning text")
+                      preferredStyle:UIAlertControllerStyleAlert];
+
         ViewControllerBase *top = nil;
-        
+
         if ([nav.topViewController isKindOfClass:[ViewControllerBase class]]) {
             top = (ViewControllerBase *)nav.topViewController;
         }
-        
-        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Disable", @"Button text") style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
-            Settings.flashingLightIcon = NO;
-            
-            if (top != nil) {
-                [top updateToolbar];
-            }
-        }]];
-        
-        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Continue", @"Buttin text") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-            Settings.flashingLightIcon = YES;
-            
-            if (top != nil) {
-                [top updateToolbar];
-            }
-            
-            [ViewControllerBase flashLight:nav];
-        }]];
-        
+
+        [alert addAction:[UIAlertAction
+                             actionWithTitle:NSLocalizedString(@"Disable",
+                                                               @"Button text")
+                                       style:UIAlertActionStyleDestructive
+                                     handler:^(UIAlertAction *action) {
+                                       Settings.flashingLightIcon = NO;
+
+                                       if (top != nil) {
+                                           [top updateToolbar];
+                                       }
+                                     }]];
+
+        [alert addAction:[UIAlertAction
+                             actionWithTitle:NSLocalizedString(@"Continue",
+                                                               @"Buttin text")
+                                       style:UIAlertActionStyleDefault
+                                     handler:^(UIAlertAction *action) {
+                                       Settings.flashingLightIcon = YES;
+
+                                       if (top != nil) {
+                                           [top updateToolbar];
+                                       }
+
+                                       [ViewControllerBase flashLight:nav];
+                                     }]];
+
         alert.popoverPresentationController.barButtonItem = button;
-        
-        [nav.topViewController presentViewController:alert animated:YES completion:nil];
+
+        [nav.topViewController presentViewController:alert
+                                            animated:YES
+                                          completion:nil];
     } else {
         [ViewControllerBase flashLight:nav];
     }
 }
 
 - (bool)canGoDeeperAlert {
-    if (![DepartureTimesView canGoDeeper]) {
-        UIAlertController *alert = [UIAlertController simpleOkWithTitle:nil
-                                                                message:NSLocalizedString(@"Too many windows are open.", @"error")];
+    if (![DepartureTimesViewController canGoDeeper]) {
+        UIAlertController *alert = [UIAlertController
+            simpleOkWithTitle:nil
+                      message:NSLocalizedString(@"Too many windows are open.",
+                                                @"error")];
         [self presentViewController:alert animated:YES completion:nil];
         return NO;
     }
-    
+
     return YES;
 }
 
-- (BOOL)textView:(UITextView *)textView shouldInteractWithURL:(NSURL *)URL inRange:(NSRange)characterRange interaction:(UITextItemInteraction)interaction {
+- (BOOL)textView:(UITextView *)textView
+    shouldInteractWithURL:(NSURL *)URL
+                  inRange:(NSRange)characterRange
+              interaction:(UITextItemInteraction)interaction {
     return [self linkAction:URL.absoluteString source:textView];
 }
 
@@ -999,89 +1112,84 @@
     NSString *stoplink = @"id:";
     NSString *routeLink = @"route:";
     NSString *tpLink = @"info:timepoint";
-    
-    if (([link containsString:@"trimet.org/a"])
-        || ([link containsString:@"trimet.org/#alerts/"])) {
-        if ([self isKindOfClass:[DetoursView class]]) {
-            UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Service Alerts", @"Title")
-                                                                           message:NSLocalizedString(@"All Service Alerts are displayed here.", @"error")
-                                                                    preferredStyle:UIAlertControllerStyleAlert];
-            [alert addAction:[UIAlertAction actionWithTitle:kAlertViewOK
-                                                      style:UIAlertActionStyleCancel
-                                                    handler:nil]];
-            
-            [alert addAction:[UIAlertAction actionWithTitle:[NSString stringWithFormat:@"Open %@", link]
-                                                      style:UIAlertActionStyleDefault
-                                                    handler:^(UIAlertAction *_Nonnull action) {
-                [WebViewController displayPage:link
-                                          full:nil
-                                     navigator:self.navigationController
-                                itemToDeselect:nil
-                                      whenDone:self.callbackWhenDone];
-            }]];
-            
-            [self presentViewController:alert animated:YES completion:nil];
-        } else {
-            [[DetoursView viewController] fetchDetoursAsync:self.backgroundTask];
-        }
-        
-        return NO;
-    }
-    
+
     if ([link containsString:@"trimet.org/#/planner"]) {
-        TripPlannerSummaryView *tripStart = [TripPlannerSummaryView viewController];
-        @synchronized (_userState) {
+        TripPlannerSummaryViewController *tripStart =
+            [TripPlannerSummaryViewController viewController];
+        @synchronized(_userState) {
             [tripStart.tripQuery addStopsFromUserFaves:_userState.faves];
         }
         [self.navigationController pushViewController:tripStart animated:YES];
         return NO;
     } else if ([link hasPrefix:stoplink]) {
         if ([self canGoDeeperAlert]) {
-            DepartureTimesView *viewController = [DepartureTimesView viewController];
+            DepartureTimesViewController *viewController =
+                [DepartureTimesViewController viewController];
             viewController.stopIdStringCallback = self.stopIdStringCallback;
-            
-            [viewController fetchTimesForLocationAsync:self.backgroundTask stopId:[link substringFromIndex:stoplink.length]];
+
+            [viewController
+                fetchTimesForLocationAsync:self.backgroundTask
+                                    stopId:[link
+                                               substringFromIndex:stoplink
+                                                                      .length]];
         }
-        
+
         return NO;
     } else if ([link hasPrefix:routeLink]) {
         if ([self canGoDeeperAlert]) {
-            DirectionView *directionView = [DirectionView viewController];
+            DirectionViewController *directionView =
+                [DirectionViewController viewController];
             directionView.stopIdStringCallback = self.stopIdStringCallback;
-            [directionView fetchDirectionsAsync:self.backgroundTask route:[link substringFromIndex:routeLink.length]];
+            [directionView
+                fetchDirectionsAsync:self.backgroundTask
+                               route:[link
+                                         substringFromIndex:routeLink.length]];
         }
-        
+
         return NO;
     } else if ([link hasPrefix:tpLink]) {
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Time Points", @"alert title")
-                                                                       message:NSLocalizedString(@"Blue stops are Time Points - one of several stops on each route that serves as a benchmark for whether a trip is running on time.", @"alert message")
-                                                                preferredStyle:UIAlertControllerStyleActionSheet];
-        
-        
-        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Show TriMet dashboard", @"alert item")
-                                                  style:UIAlertActionStyleDefault
-                                                handler:^(UIAlertAction *action) {
-            [WebViewController displayNamedPage:@"TriMet Dashboard"
-                                      navigator:self.navigationController
-                                 itemToDeselect:nil
-                                       whenDone:nil];
-        }]];
-        
-        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"alert item")
-                                                  style:UIAlertActionStyleCancel
-                                                handler:^(UIAlertAction *action) {
-            [self clearSelection];
-        }]];
-        
-        
+        UIAlertController *alert = [UIAlertController
+            alertControllerWithTitle:NSLocalizedString(@"Time Points",
+                                                       @"alert title")
+                             message:NSLocalizedString(
+                                         @"Blue stops are Time Points - one of "
+                                         @"several stops on each route that "
+                                         @"serves as a benchmark for whether a "
+                                         @"trip is running on time.",
+                                         @"alert message")
+                      preferredStyle:UIAlertControllerStyleActionSheet];
+
+        [alert
+            addAction:
+                [UIAlertAction
+                    actionWithTitle:NSLocalizedString(@"Show TriMet dashboard",
+                                                      @"alert item")
+                              style:UIAlertActionStyleDefault
+                            handler:^(UIAlertAction *action) {
+                              [WebViewController
+                                  displayNamedPage:@"TriMet Dashboard"
+                                         navigator:self.navigationController
+                                    itemToDeselect:nil
+                                          whenDone:nil];
+                            }]];
+
+        [alert addAction:[UIAlertAction
+                             actionWithTitle:NSLocalizedString(@"Cancel",
+                                                               @"alert item")
+                                       style:UIAlertActionStyleCancel
+                                     handler:^(UIAlertAction *action) {
+                                       [self clearSelection];
+                                     }]];
+
         alert.popoverPresentationController.sourceView = source;
-        alert.popoverPresentationController.sourceRect = CGRectMake(0, 0, source.frame.size.width, source.frame.size.height);
-        
+        alert.popoverPresentationController.sourceRect =
+            CGRectMake(0, 0, source.frame.size.width, source.frame.size.height);
+
         [self presentViewController:alert animated:YES completion:nil];
-        
+
         return NO;
     }
-    
+
     return YES;
 }
 

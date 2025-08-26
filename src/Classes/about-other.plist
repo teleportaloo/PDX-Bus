@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<array>
+	<dict>
+		<key>Title</key>
+		<string>I made a free app that helps you find your current location on a local offline trail map. Trail maps often include more detailed information than regular maps, such as local landmarks, trail names, distances, surface types, and steepness.</string>
+		<key>Icon</key>
+		<string>tml.png</string>
+		<key>LinkM</key>
+		<string>https://apps.apple.com/us/app/trail-map-locator/id6743632891</string>
+	</dict>
+</array>
+</plist>

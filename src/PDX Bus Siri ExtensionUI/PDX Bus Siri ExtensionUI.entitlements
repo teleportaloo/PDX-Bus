@@ -6,5 +6,7 @@
 	<array>
 		<string>group.teleportaloo.pdxbus</string>
 	</array>
+    <key>com.apple.developer.siri</key>
+    <true/>
 </dict>
 </plist>

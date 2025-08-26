@@ -10,20 +10,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <CoreLocation/CoreLocation.h>
 #import "Route.h"
+#import <CoreLocation/CoreLocation.h>
 
 @interface StopDistance : NSObject
 
-@property (nonatomic, strong) CLLocation *location;
-@property (nonatomic) CLLocationDistance distanceMeters;
-@property (nonatomic) CLLocationAccuracy accuracy;
-@property (nonatomic, copy) NSString *stopId;
-@property (nonatomic, copy) NSString *desc;
-@property (nonatomic, copy) NSString *dir;
-@property (nonatomic, strong) NSMutableArray<Route *> *routes;
+@property(nonatomic, strong) CLLocation *location;
+@property(nonatomic) CLLocationDistance distanceMeters;
+@property(nonatomic) CLLocationAccuracy accuracy;
+@property(nonatomic, copy) NSString *stopId;
+@property(nonatomic, copy) NSString *desc;
+@property(nonatomic, copy) NSString *dir;
+@property(nonatomic, strong) NSMutableArray<Route *> *routes;
 
-- (instancetype)initWithStopId:(int)stopId distanceMeters:(CLLocationDistance)dist accuracy:(CLLocationAccuracy)acc;
+- (instancetype)initWithStopId:(int)stopId
+                distanceMeters:(CLLocationDistance)dist
+                      accuracy:(CLLocationAccuracy)acc;
 - (NSComparisonResult)compareUsingDistance:(StopDistance *)inStop;
 
 @end

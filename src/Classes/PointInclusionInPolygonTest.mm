@@ -25,7 +25,7 @@
  */
 
 /*
- * https://wrf.ecse.rpi.edu//Research/Short_Notes/pnpoly.html
+ * https://wrfranklin.org/Research/Short_Notes/pnpoly.html
  * Modified for the objective C objects CG points
  * Compare with original C code
  */

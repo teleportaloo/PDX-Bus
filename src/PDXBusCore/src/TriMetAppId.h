@@ -18,7 +18,7 @@
 
 //
 // Get an app id before you can use this code!
-// http://developer.trimet.org/registration/
+// https://developer.trimet.org/appid/registration/
 //
 
 #error Get an APP ID from TriMet then copy it letter by letter into the macro below.

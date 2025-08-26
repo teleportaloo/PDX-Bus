@@ -11,22 +11,25 @@
 
 
 #import "XMLDetours.h"
-#import "Detour.h"
-#import "NSString+Helper.h"
 #import "CLLocation+Helper.h"
-#import "TriMetInfo.h"
 #import "DebugLogging.h"
+#import "Detour.h"
 #import "NSDictionary+Types.h"
+#import "NSString+Core.h"
+#import "TriMetInfo.h"
 #import "TriMetXMLSelectors.h"
+#import "XMLRoutes.h"
 
 static NSString *detourURLStringV2 = @"alerts/route/%@/infolink/true";
+static NSString *detourURLLocIdStringV2 = @"alerts/locIDs/%@/infolink/true";
 static NSString *allDetoursURLStringV2 = @"alerts/infolink/true";
-static NSString *systemWideDetoursOnlyV2 = @"alerts/infolink/true/systemWideOnly/true";
+static NSString *systemWideDetoursOnlyV2 =
+    @"alerts/infolink/true/systemWideOnly/true";
 
 @interface XMLDetours ()
 
-@property (nonatomic, strong) Detour *currentDetour;
-@property (nonatomic, copy) NSString *route;
+@property(nonatomic, strong) Detour *currentDetour;
+@property(nonatomic, copy) NSString *route;
 
 @end
 
@@ -36,38 +39,45 @@ static NSString *systemWideDetoursOnlyV2 = @"alerts/infolink/true/systemWideOnly
     if ((self = [super init])) {
         self.allRoutes = [NSMutableDictionary dictionary];
     }
-    
+
     return self;
 }
 
-- (Route *)route:(NSString *)route desc:(NSString *)desc {
-    Route *result = self.allRoutes[route];
-    
-    if (result == nil) {
-        result = [Route new];
-        result.desc = desc;
-        result.route = route;
-        [self.allRoutes setObject:result forKey:route];
-    }
-    
-    return result;
+- (bool)cacheSelectors {
+    return YES;
 }
 
 #pragma mark Initialize parsing
 
 - (BOOL)getDetoursForRoute:(NSString *)route {
     self.route = route;
-    BOOL ret = [self startParsing:[NSString stringWithFormat:detourURLStringV2, route]];
-    
+    BOOL ret = [self
+        startParsing:[NSString stringWithFormat:detourURLStringV2, route]];
+
     self.route = nil;
     return ret;
 }
 
 - (BOOL)getDetoursForRoutes:(NSArray<NSString *> *)routeIdArray {
-    NSMutableString *routeIds = [NSString commaSeparatedStringFromStringEnumerator:routeIdArray];
-    
-    BOOL ret = [self startParsing:[NSString stringWithFormat:detourURLStringV2, routeIds]];
-    
+    NSMutableString *routeIds =
+        [NSString commaSeparatedStringFromStringEnumerator:routeIdArray];
+
+    BOOL ret = [self
+        startParsing:[NSString stringWithFormat:detourURLStringV2, routeIds]];
+
+    self.route = nil;
+    return ret;
+}
+
+- (BOOL)getDetoursForLocIds:(NSArray<NSString *> *)locIdArray {
+
+    NSMutableString *locIDs =
+        [NSString commaSeparatedStringFromStringEnumerator:locIdArray];
+
+    BOOL ret =
+        [self startParsing:[NSString stringWithFormat:detourURLLocIdStringV2,
+                                                      locIDs]];
+
     self.route = nil;
     return ret;
 }
@@ -88,44 +98,36 @@ XML_START_ELEMENT(resultSet) {
 }
 
 XML_START_ELEMENT(alert) {
-    self.currentDetour = [Detour fromAttributeDict:XML_ATR_DICT allRoutes:self.allRoutes addEmoji:!self.noEmojis];
+    self.currentDetour = [Detour fromAttributeDict:XML_ATR_DICT
+                                         allRoutes:self.allRoutes
+                                          addEmoji:!self.noEmojis];
 }
 
-XML_START_ELEMENT(detour) {
-    CALL_XML_START_ELEMENT(alert);
-}
+XML_START_ELEMENT(detour) { CALL_XML_START_ELEMENT(alert); }
 
 XML_START_ELEMENT(route) {
     NSString *rt = XML_NON_NULL_ATR_STR(@"route");
-    
+
     if (self.route == nil || [self.route isEqualToString:rt]) {
-        [self.currentDetour.routes addObject:[self route:rt desc:XML_NON_NULL_ATR_STR(@"desc")]];
+
+        Route *result = self.allRoutes[rt];
+
+        if (result == nil) {
+            result = [Route fromAttributeDict:XML_ATR_DICT];
+            [self.allRoutes setObject:result forKey:rt];
+        }
+
+        [self.currentDetour.routes addObject:result];
     }
 }
 
 XML_START_ELEMENT(location) {
-    DetourLocation *loc = [DetourLocation new];
-    
-    // <location id="12798" desc="SW Oak & 1st" dir="Westbound" lat="45.5204099477081" lng="-122.671968433183" passengerCode="E" no_service_flag="false"/>
-    
-    loc.desc = XML_NON_NULL_ATR_STR(@"desc");
-    loc.stopId = XML_NON_NULL_ATR_STR(@"id");
-    loc.dir = XML_NON_NULL_ATR_STR(@"dir");
-    
-    [loc setPassengerCodeFromString:XML_NULLABLE_ATR_STR(@"passengerCode")];
-    
-    loc.noServiceFlag = XML_ATR_BOOL_DEFAULT_FALSE(@"no_service_flag");
-    loc.location = XML_ATR_LOCATION(@"lat", @"lng");
-    
+    DetourLocation *loc = [DetourLocation fromAttributeDict:XML_ATR_DICT];
     [self.currentDetour.locations addObject:loc];
 }
 
-XML_END_ELEMENT(alert) {
-    [self.items addObject:self.currentDetour];
-}
+XML_END_ELEMENT(alert) { [self.items addObject:self.currentDetour]; }
 
-XML_END_ELEMENT(detour) {
-    CALL_XML_END_ELEMENT(alert);
-}
+XML_END_ELEMENT(detour) { CALL_XML_END_ELEMENT(alert); }
 
 @end

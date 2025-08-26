@@ -10,14 +10,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <UIKit/UIKit.h>
-#import "TableViewControllerWithRefresh.h"
 #import "Stop.h"
+#import "TableViewControllerWithRefresh.h"
+#import <UIKit/UIKit.h>
 
 @class XMLStops;
 @class Departure;
 
-@interface StopView : TableViewControllerWithRefresh<ReturnStopObject>
+@interface StopView : TableViewControllerWithRefresh <ReturnStopObject>
 
 - (void)fetchStopsAsync:(id<TaskController>)taskController
                   route:(NSString *)routeid
