@@ -66,9 +66,9 @@ Links
 
 Things to know before building
 ------------------------------
-* CommonCode is a submodule - you will need to init it. Change directory to src/CommonCode
-`git submodule init`
-`git submodule update`
+* CommonCode is a submodule - you will need to init it. Change directory to src/CommonCode  
+`git submodule init`  
+`git submodule update`  
 * PDX Bus is built with the latest iPhone SDK with Xcode 16.4 - available free
 from [Apple](http://developer.apple.com) in their Mac App store.
 * Before building this code you will need to register with TriMet 
