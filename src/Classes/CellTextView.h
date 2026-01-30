@@ -15,7 +15,7 @@
 
 @interface CellTextView : EditableTableViewCell <UITextViewDelegate>
 
-@property(nonatomic, strong) UITextView *view;
+@property (nonatomic, strong) UITextView *view;
 @property CGFloat cellLeftOffset;
 
 @end

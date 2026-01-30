@@ -19,8 +19,8 @@
 @interface TripPlannerLocationListViewController
     : TableViewControllerWithToolbar <ReturnTripLegEndPoint>
 
-@property(nonatomic, strong) XMLTrips *tripQuery;
-@property(nonatomic) bool from;
+@property (nonatomic, strong) XMLTrips *tripQuery;
+@property (nonatomic) bool from;
 
 - (void)chosenEndpoint:(TripLegEndPoint *)endpoint;
 

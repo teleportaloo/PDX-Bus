@@ -19,6 +19,6 @@
 
 @interface WatchDetour : WatchRow
 
-@property(strong, nonatomic) IBOutlet WKInterfaceLabel *label;
+@property (strong, nonatomic) IBOutlet WKInterfaceLabel *label;
 
 @end

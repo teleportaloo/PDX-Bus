@@ -22,7 +22,7 @@
 
 @interface XMLDepartures (iOSUI) <MapPin, DepartureTimesDataProvider>
 
-@property(nonatomic, readonly) CLLocationCoordinate2D coordinate;
-@property(nonatomic, readonly, copy) NSString *title;
+@property (nonatomic, readonly) CLLocationCoordinate2D coordinate;
+@property (nonatomic, readonly, copy) NSString *title;
 
 @end

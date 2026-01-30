@@ -63,8 +63,7 @@
 
 - (NSString *)depGetSectionHeader {
     if (self.locDir != nil && self.locDir.length != 0) {
-        return
-            [NSString stringWithFormat:@"%@ (%@)", self.locDesc, self.locDir];
+        return [NSString stringWithFormat:@"%@ (%@)", self.locDesc, self.locDir];
     }
 
     return self.locDesc;
@@ -86,12 +85,10 @@
     NSString *status = @"";
 
     if (self.reportingStatus != ReportingStatusNone) {
-        status =
-            [NSString stringWithFormat:@" #R%@#K", self.reportingStatusText];
+        status = [NSString stringWithFormat:@" #R%@#K", self.reportingStatusText];
     }
 
-    return
-        [NSString stringWithFormat:@"#b#KStop ID %@.%@", self.stopId, status];
+    return [NSString stringWithFormat:@"#b#KStop ID %@.%@", self.stopId, status];
 }
 
 - (StopDistance *)depDistance {
@@ -148,6 +145,10 @@
 
 - (NSOrderedSet<NSNumber *> *)depDetoursPerSection {
     return self.detourSorter.detourIds;
+}
+
+- (NSString *)key {
+    return nil;
 }
 
 @end

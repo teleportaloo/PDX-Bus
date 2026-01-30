@@ -22,14 +22,10 @@
 
 @interface BlockColorDb : NSObject <ClearableCache>
 
-@property(nonatomic, copy) NSDictionary *db;
-@property(nonatomic, strong)
-    NSMutableDictionary<NSString *, NSDictionary *> *colorMap;
-@property(nonatomic, readonly, copy) NSArray *keys;
+@property (nonatomic, copy) NSDictionary *db;
+@property (nonatomic, readonly, copy) NSArray *keys;
 
-- (void)addColor:(UIColor *)color
-        forBlock:(NSString *)block
-     description:(NSString *)desc;
+- (void)addColor:(UIColor *)color forBlock:(NSString *)block description:(NSString *)desc;
 - (UIColor *)colorForBlock:(NSString *)block;
 - (NSString *)descForBlock:(NSString *)block;
 - (NSDate *)timeForBlock:(NSString *)block;

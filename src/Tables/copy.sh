@@ -1,6 +1,9 @@
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 // FILE: copy.sh
-//------------------------------------------------------------------------------
-cp MaxHotSpotTiles.c /Users/andy/Documents/github/PDX-Bus/src/Tables/.
-cp StreetcarHotSpotTiles.c /Users/andy/Documents/github/PDX-Bus/src/Tables/.
-cp StaticStationData.c /Users/andy/Documents/github/PDX-Bus/src/Tables/.
+//--------------------------------------------------------------------------------------------------
+// clang-format off
+// uncrustify-off
+cp MaxHotSpotTiles.def /Users/andy/Documents/git/PDXBus/src/Tables/.
+cp StreetcarHotSpotTiles.def /Users/andy/Documents/git/PDXBus/src/Tables/.
+cp StaticStationData.c /Users/andy/Documents/git/PDXBus/src/Tables/.
+cp TriMetAppIdSalt.h /Users/andy/Documents/git/PDXBus/src/Tables/.

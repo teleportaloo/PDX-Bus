@@ -8,56 +8,51 @@
 
 #import <Foundation/Foundation.h>
 
-#define kLinkTypeHttp	'h'
-#define kLinkTypeWiki	'w'
-#define kLinkTypeStop	's'
-#define kLinkTypeNorth	'n'
-#define kLinkType1		'1'
-#define kLinkType2		'2'
-#define kLinkType3		'3'
-#define kLinkTypeDir	'd'
+#define kLinkTypeHttp 'h'
+#define kLinkTypeWiki 'w'
+#define kLinkTypeStop 's'
+#define kLinkTypeNorth 'n'
+#define kLinkType1 '1'
+#define kLinkType2 '2'
+#define kLinkType3 '3'
+#define kLinkTypeDir 'd'
 
-
-typedef struct hotspot_struct
-{
-	const CGPoint *vertices;
-	int	nVertices;
-	const char *action;
-	bool touched;
+typedef struct hotspot_struct {
+    const CGPoint *vertices;
+    int nVertices;
+    const char *action;
+    bool touched;
 } HOTSPOT;
 
 #define MAXHOTSPOTS 137
 
 @interface Hotspot : NSObject {
-	int _index;
+    int _index;
 }
 
-@property (readonly) (int)index;
-@property (readonly) (char)type;
-@property (readonly) (HOTSPOT*)hotspot;
+@property (readonly)(int) index;
+@property (readonly)(char) type;
+@property (readonly)(HOTSPOT *) hotspot;
 
-+ (Hotspot*)createFromHotspot:(int)index;
-+ (Hotspot*)matchTapX:(CGFloat)x Y:(CGFloat)y;
++ (Hotspot *)createFromHotspot:(int)index;
++ (Hotspot *)matchTapX:(CGFloat)x Y:(CGFloat)y;
 
 @end
 
-
 #pragma mark WikiHotspot
-@interface StationHotspot: WikiHotspot
-{
-	NSString *_wiki;
+@interface StationHotspot : WikiHotspot {
+    NSString *_wiki;
 }
 @property (retain, nonatomic) NSString *wiki;
 
 @end
 
 #pragma mark StationHotspot
-@interface StationHotspot: Hotspot
-{
-	NSString *_name;
-	NSString *_wiki;
-	NSMutableArray *_locs;
-	NSMutableArray *_dirs;
+@interface StationHotspot : Hotspot {
+    NSString *_name;
+    NSString *_wiki;
+    NSMutableArray *_locs;
+    NSMutableArray *_dirs;
 }
 
 @property (retain, nonatomic) NSString *name;
@@ -68,15 +63,10 @@ typedef struct hotspot_struct
 @end
 
 #pragma mark DirectionHotspot
-@interface StationHotspot: Hotspot
-{
-	NSString *_route;
+@interface StationHotspot : Hotspot {
+    NSString *_route;
 }
 
 @property (retain, nonatomic) NSString *_route;
 
 @end
-
-
-
-

@@ -62,18 +62,16 @@ static NSDictionary *delayedLocate;
 
 - (void)forceCommute {
     if (![self runCommuterBookmarkOnlyOnce:NO]) {
-        NSString *errorMsg =
-            NSLocalizedString(@"#WNo commuter bookmark was found for the "
-                              @"current day of the week and time.\n\n"
-                              @"#CTo create a commuter bookmark, go to the "
-                              @"iPhone to edit a bookmark to set which days to "
-                              @"use it for the morning or evening commute.",
-                              @"commuter bookmark error");
+        NSString *errorMsg = NSLocalizedString(@"#WNo commuter bookmark was found for the "
+                                               @"current day of the week and time.\n\n"
+                                               @"#CTo create a commuter bookmark, go to the "
+                                               @"iPhone to edit a bookmark to set which days to "
+                                               @"use it for the morning or evening commute.",
+                                               @"commuter bookmark error");
 
         [self pushControllerWithName:kAlertScene
-                             context:[errorMsg
-                                         attributedStringFromMarkUpWithFont:
-                                             [UIFont systemFontOfSize:16.0]]];
+                             context:[errorMsg attributedStringFromMarkUpWithFont:
+                                                   [UIFont systemFontOfSize:16.0]]];
     }
 }
 
@@ -81,8 +79,7 @@ static NSDictionary *delayedLocate;
     bool atRoot = NO;
 
     WKExtension *sharedExtention = [WKExtension sharedExtension];
-    WKInterfaceController *rootInterfaceController =
-        sharedExtention.rootInterfaceController;
+    WKInterfaceController *rootInterfaceController = sharedExtention.rootInterfaceController;
 
     if ([rootInterfaceController isKindOfClass:[self class]]) {
         if (rootInterfaceController == self) {
@@ -110,9 +107,7 @@ static NSDictionary *delayedLocate;
             [self popToRootController];
             DEBUG_LOG(@"runCommuterBookmarkOnlyOnce: popped\n");
         } else {
-            [[WatchContext contextWithSceneName:kNearbyScene]
-                delayedPushFrom:self
-                     completion:nil];
+            [[WatchContext contextWithSceneName:kNearbyScene] delayedPushFrom:self completion:nil];
         }
     }
 }
@@ -147,8 +142,7 @@ static NSDictionary *delayedLocate;
     NSDictionary *bookmark = nil;
 
     if (!extensionDelegate.backgrounded) {
-        bookmark = [UserState.sharedInstance
-            checkForCommuterBookmarkShowOnlyOnce:onlyOnce];
+        bookmark = [UserState.sharedInstance checkForCommuterFaveShowOnlyOnce:onlyOnce];
 
         [self processBookmark:bookmark];
     } else {
@@ -165,13 +159,11 @@ static NSDictionary *delayedLocate;
 
         NSString *location = bookmark.valLocation;
         NSString *title = bookmark.valChosenName;
-        NSArray<NSString *> *stopIdArray =
-            location.mutableArrayFromCommaSeparatedString;
+        NSArray<NSString *> *stopIdArray = location.mutableArrayFromCommaSeparatedString;
 
-        WatchBookmarksContext *context =
-            [WatchBookmarksContext contextWithBookmark:stopIdArray
-                                                 title:title
-                                        locationString:location];
+        WatchBookmarksContext *context = [WatchBookmarksContext contextWithBookmark:stopIdArray
+                                                                              title:title
+                                                                     locationString:location];
         context.oneTimeShowFirst = YES;
 
         DEBUG_LOG(@"delayedDisplayOfCommuterBookmark: delayed push\n");

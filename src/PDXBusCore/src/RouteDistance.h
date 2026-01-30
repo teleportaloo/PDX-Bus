@@ -18,10 +18,10 @@
 
 @interface RouteDistance : NSObject
 
-@property(nonatomic, strong) NSMutableArray<StopDistance *> *stops;
-@property(nonatomic, copy) NSString *route;
-@property(nonatomic, copy) NSString *desc;
-@property(nonatomic, copy) NSString *type;
+@property (nonatomic, strong) NSMutableArray<StopDistance *> *stops;
+@property (nonatomic, copy) NSString *route;
+@property (nonatomic, copy) NSString *desc;
+@property (nonatomic, copy) NSString *type;
 
 - (NSComparisonResult)compareUsingDistance:(RouteDistance *)inStop;
 - (void)sortStopsByDistance;

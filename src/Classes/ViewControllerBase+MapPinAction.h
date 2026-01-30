@@ -20,8 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ViewControllerBase (MapPinAction)
 
-- (bool (^__nullable)(id<MapPin> pin, NSURL *url,
-                      UIView *source))linkActionForPin;
+- (bool (^__nullable)(id<MapPin> pin, NSURL *url, UIView *source))linkActionForPin;
 
 @end
 

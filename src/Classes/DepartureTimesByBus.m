@@ -67,17 +67,15 @@
 
     if (d.block != nil) {
         if (d.vehicleIds && d.vehicleIds.count > 0) {
-            return [NSString
-                stringWithFormat:NSLocalizedString(@"#K#b(Vehicle ID %@) ",
-                                                   @"trip info small text"),
-                                 d.vehicleIds[0]];
+            return [NSString stringWithFormat:NSLocalizedString(@"#K#b(Vehicle ID %@) ",
+                                                                @"trip info small text"),
+                                              d.vehicleIds[0]];
         }
 
         return @"(No Vehicle ID)";
     }
 
-    return NSLocalizedString(@"#b#R(" kBlockNameC "Trip ID unavailable)",
-                             @"error text");
+    return NSLocalizedString(@"#b#R(" kBlockNameC "Trip ID unavailable)", @"error text");
 }
 
 - (StopDistance *)depDistance {

@@ -23,16 +23,15 @@
 @interface WatchBookmarksInterfaceController
     : InterfaceControllerWithCommuterBookmark <WCSessionDelegate>
 
-@property(strong, nonatomic) NSUserActivity *userActivity;
+@property (strong, nonatomic) NSUserActivity *userActivity;
+@property (copy, nonatomic) NSString *sessionState;
 
-@property(strong, nonatomic) IBOutlet WKInterfaceTable *bookmarkTable;
-@property(strong, nonatomic) IBOutlet WKInterfaceGroup *topGroup;
-@property(strong, nonatomic) IBOutlet WKInterfaceLabel *mainTextLabel;
-@property(strong, nonatomic) IBOutlet WKInterfaceLabel *bookmarkLabel;
-@property(unsafe_unretained, nonatomic)
-    IBOutlet WKInterfaceButton *menuHomeButton;
-@property(unsafe_unretained, nonatomic)
-    IBOutlet WKInterfaceButton *menuCommuteButton;
+@property (strong, nonatomic) IBOutlet WKInterfaceTable *bookmarkTable;
+@property (strong, nonatomic) IBOutlet WKInterfaceGroup *topGroup;
+@property (strong, nonatomic) IBOutlet WKInterfaceLabel *mainTextLabel;
+@property (strong, nonatomic) IBOutlet WKInterfaceLabel *bookmarkLabel;
+@property (unsafe_unretained, nonatomic) IBOutlet WKInterfaceButton *menuHomeButton;
+@property (unsafe_unretained, nonatomic) IBOutlet WKInterfaceButton *menuCommuteButton;
 
 - (void)applicationDidBecomeActive;
 - (void)processUserActivity;

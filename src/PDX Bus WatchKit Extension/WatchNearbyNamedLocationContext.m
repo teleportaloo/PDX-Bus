@@ -24,10 +24,8 @@
     return self;
 }
 
-+ (WatchNearbyNamedLocationContext *)contextWithName:(NSString *)name
-                                            location:(CLLocation *)loc {
-    WatchNearbyNamedLocationContext *result =
-        [[WatchNearbyNamedLocationContext alloc] init];
++ (WatchNearbyNamedLocationContext *)contextWithName:(NSString *)name location:(CLLocation *)loc {
+    WatchNearbyNamedLocationContext *result = [[WatchNearbyNamedLocationContext alloc] init];
 
     result.name = name;
     result.loc = loc;

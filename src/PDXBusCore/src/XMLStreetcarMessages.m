@@ -25,7 +25,7 @@
 + (XMLStreetcarMessages *)sharedInstance {
     static XMLStreetcarMessages *sharedInstance = nil;
 
-    DoOnce(^{
+    DO_ONCE(^{
       // here was a retain
       sharedInstance = [XMLStreetcarMessages xml];
     });
@@ -44,8 +44,7 @@
         if (info != nil) {
             result.desc = info->full_name;
         } else {
-            result.desc = [NSString
-                stringWithFormat:@"Portland Streetcar route:%@", route];
+            result.desc = [NSString stringWithFormat:@"Portland Streetcar route:%@", route];
         }
 
         [self.allRoutes setObject:result forKey:route];
@@ -65,8 +64,7 @@
 }
 
 - (bool)needToGetMessages {
-    return (!_hasData || self.queryTime == nil ||
-            [self.queryTime timeIntervalSinceNow] < -120);
+    return (!_hasData || self.queryTime == nil || [self.queryTime timeIntervalSinceNow] < -120);
 }
 
 XML_START_ELEMENT(body) {
@@ -118,8 +116,7 @@ XML_END_ELEMENT(body) {
                         existing.routes = [NSMutableOrderedSet orderedSet];
                     }
 
-                    [existing.routes
-                        addObjectsFromArray:itemToAdd.routes.array];
+                    [existing.routes addObjectsFromArray:itemToAdd.routes.array];
                 }
 
                 break;
@@ -161,15 +158,12 @@ XML_END_ELEMENT(message) {
     self.curentDetour = nil;
 }
 
-XML_START_ELEMENT(text) {
-    self.contentOfCurrentProperty = [NSMutableString string];
-}
+XML_START_ELEMENT(text) { self.contentOfCurrentProperty = [NSMutableString string]; }
 
 XML_END_ELEMENT(text) {
     if (self.curentDetour) {
         self.curentDetour.detourDesc =
-            [TriMetXML replaceXMLcodes:self.contentOfCurrentProperty]
-                .stringByTrimmingWhitespace;
+            [TriMetXML replaceXMLcodes:self.contentOfCurrentProperty].stringByTrimmingWhitespace;
         self.curentDetour.routes = [NSMutableOrderedSet orderedSet];
 
         if (self.currentRoute) {
@@ -180,16 +174,14 @@ XML_END_ELEMENT(text) {
             if (self.allStreetcarRoutes == nil) {
                 self.allStreetcarRoutes = [NSMutableArray array];
 
-                NSSet<NSString *> *streetcarRouteIds =
-                    [TriMetInfo streetcarRoutes];
+                NSSet<NSString *> *streetcarRouteIds = [TriMetInfo streetcarRoutes];
 
                 for (NSString *rt in streetcarRouteIds) {
                     [self.allStreetcarRoutes addObject:[self route:rt]];
                 }
             }
 
-            [self.curentDetour.routes
-                addObjectsFromArray:self.allStreetcarRoutes];
+            [self.curentDetour.routes addObjectsFromArray:self.allStreetcarRoutes];
         }
     }
 
@@ -218,8 +210,7 @@ XML_START_ELEMENT(stop) {
                     if ([route.routeId isEqualToString:dep.route]) {
                         dep.detour = YES;
                         [dep.sortedDetours safeAddDetour:detour];
-                        [departures.allRoutes setObject:route
-                                                 forKey:route.routeId];
+                        [departures.allRoutes setObject:route forKey:route.routeId];
                         break;
                     }
                 }

@@ -24,31 +24,25 @@
 - (void)showLocationAlert:(NSString *)reason {
 
     UIAlertController *alert = [UIAlertController
-        alertControllerWithTitle:NSLocalizedString(
-                                     @"Location Authorization Needed",
-                                     @"alarm pop-up title")
-                         message:[NSString
-                                     stringWithFormat:
-                                         NSLocalizedString(
-                                             @"%@. Go to the settings app and "
-                                             @"select PDX Bus to re-enable "
-                                             @"location services.",
-                                             @"alarm warning"),
-                                         reason]
+        alertControllerWithTitle:NSLocalizedString(@"Location Authorization Needed",
+                                                   @"alarm pop-up title")
+                         message:[NSString stringWithFormat:NSLocalizedString(
+                                                                @"%@. Go to the settings app and "
+                                                                @"select PDX Bus to re-enable "
+                                                                @"location services.",
+                                                                @"alarm warning"),
+                                                            reason]
                   preferredStyle:UIAlertControllerStyleAlert];
 
     [alert
-        addAction:
-            [UIAlertAction
-                actionWithTitle:kAlertViewOK
-                          style:UIAlertActionStyleDestructive
-                        handler:^(UIAlertAction *action) {
-                          [[UIApplication sharedApplication]
-                              compatOpenURL:
-                                  [NSURL
-                                      URLWithString:
-                                          UIApplicationOpenSettingsURLString]];
-                        }]];
+        addAction:[UIAlertAction
+                      actionWithTitle:kAlertViewOK
+                                style:UIAlertActionStyleDestructive
+                              handler:^(UIAlertAction *action) {
+                                [[UIApplication sharedApplication]
+                                    compatOpenURL:
+                                        [NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+                              }]];
 
     [alert addAction:[UIAlertAction actionWithTitle:kAlertViewCancel
                                               style:UIAlertActionStyleCancel
@@ -59,24 +53,18 @@
     [self presentViewController:alert animated:YES completion:nil];
 }
 
-+ (bool)locationAuthorizedOrNotDeterminedWithBackground:
-    (bool)backgroundRequired {
-    return [UIViewController
-        locationAuthorizedOrNotDeterminedBackgroundRequired:backgroundRequired
-                                             viewController:nil];
++ (bool)locationAuthorizedOrNotDeterminedWithBackground:(bool)backgroundRequired {
+    return [UIViewController locationAuthorizedOrNotDeterminedBackgroundRequired:backgroundRequired
+                                                                  viewController:nil];
 }
 
-- (bool)locationAuthorizedOrNotDeterminedAlertWithBackground:
-    (bool)backgroundRequired {
-    return [UIViewController
-        locationAuthorizedOrNotDeterminedBackgroundRequired:backgroundRequired
-                                             viewController:self];
+- (bool)locationAuthorizedOrNotDeterminedAlertWithBackground:(bool)backgroundRequired {
+    return [UIViewController locationAuthorizedOrNotDeterminedBackgroundRequired:backgroundRequired
+                                                                  viewController:self];
 }
 
-+ (bool)
-    locationAuthorizedOrNotDeterminedBackgroundRequired:(bool)backgroundRequired
-                                         viewController:
-                                             (UIViewController *)controller {
++ (bool)locationAuthorizedOrNotDeterminedBackgroundRequired:(bool)backgroundRequired
+                                             viewController:(UIViewController *)controller {
 
     CLLocationManager *locMan = [[CLLocationManager alloc] init];
     CLAuthorizationStatus status = locMan.authorizationStatus;
@@ -129,15 +117,13 @@
         NSString *fullMessage = nil;
 
         if (backgroundRequired) {
-            fullMessage = [NSString
-                stringWithFormat:@"PDX Bus is not authorized to get current "
-                                 @"location information in the background, %@",
-                                 reason];
+            fullMessage = [NSString stringWithFormat:@"PDX Bus is not authorized to get current "
+                                                     @"location information in the background, %@",
+                                                     reason];
         } else {
-            fullMessage =
-                [NSString stringWithFormat:@"PDX Bus is not authorized to get "
-                                           @"current location information, %@",
-                                           reason];
+            fullMessage = [NSString stringWithFormat:@"PDX Bus is not authorized to get "
+                                                     @"current location information, %@",
+                                                     reason];
         }
 
         [controller showLocationAlert:fullMessage];

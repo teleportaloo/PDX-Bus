@@ -62,19 +62,20 @@ typedef struct SavedImageStruct {
     PtrConstHotSpot _hotSpotRegions;
 }
 
-@property(nonatomic, strong) UIScrollView *scrollView;
+@property (nonatomic, strong) UIScrollView *scrollView;
 
-@property(nonatomic) bool picker;
-@property(nonatomic, strong) NSMutableArray *stopIDs;
-@property(nonatomic, strong) RailMapHotSpotsView *hotSpots;
-@property(nonatomic, strong) TilingView *imageView;
-@property(nonatomic, strong) UIImageView *lowResBackgroundImage;
-@property(nonatomic, strong) UISegmentedControl *railMapSeg;
-@property(nonatomic, strong) UIBarButtonItem *segButton;
+@property (nonatomic) bool picker;
+@property (nonatomic, strong) NSMutableArray *stopIDs;
+@property (nonatomic, strong) RailMapHotSpotsView *hotSpots;
+@property (nonatomic, strong) TilingView *imageView;
+@property (nonatomic, strong) UIImageView *lowResBackgroundImage;
+@property (nonatomic, strong) UISegmentedControl *railMapSeg;
+@property (nonatomic, strong) UIBarButtonItem *segButton;
 
-@property(nonatomic, strong) UITapGestureRecognizer *singleTap;
-@property(nonatomic, strong) UITapGestureRecognizer *doubleTap;
-@property(nonatomic, strong) UITapGestureRecognizer *twoFingerTap;
+@property (nonatomic, strong) UITapGestureRecognizer *singleTap;
+@property (nonatomic, strong) UITapGestureRecognizer *doubleTap;
+@property (nonatomic, strong) UITapGestureRecognizer *twoFingerTap;
+@property (nonatomic) bool zoomOnNextLayout;
 
 - (void)scannerInc:(NSScanner *)scanner;
 - (void)nextSlash:(NSScanner *)scanner intoString:(NSString **)substr;
@@ -93,7 +94,6 @@ typedef struct SavedImageStruct {
         _hotSpotRegions = HotSpotArrays.sharedInstance.hotSpots;
 
         _easterEgg = EasterEggStart;
-        self.backgroundTask = [BackgroundTaskContainer create:self];
 
         int mapId;
 
@@ -119,25 +119,11 @@ typedef struct SavedImageStruct {
 #define ZOOM_VIEW_TAG 100
 #define ZOOM_STEP 1.5
 
-// OK - we need a little adjustment here for iOS7.  It took we a while to get
-// this right - I'm exactly sure what is going on but on the iPad we need to
-// make the height a little bigger in some cases. Annoying.
-
-- (CGFloat)heightOffset {
-    if (SMALL_SCREEN || (self.screenInfo.screenWidth == WidthBigVariable)) {
-        return -
-            [UIApplication sharedApplication].compatStatusBarFrame.size.height;
-    }
-
-    return 0.0;
-}
-
 #pragma mark ReturnStop callbacks
 
 - (void)returnStopObject:(Stop *)stop progress:(id<TaskController>)progress {
     if (self.stopIdStringCallback) {
-        [self.stopIdStringCallback returnStopIdString:stop.stopId
-                                                 desc:stop.desc];
+        [self.stopIdStringCallback returnStopIdString:stop.stopId desc:stop.desc];
         return;
     }
 
@@ -145,8 +131,7 @@ typedef struct SavedImageStruct {
         [DepartureTimesViewController viewController];
 
     departureViewController.displayName = stop.desc;
-    [departureViewController fetchTimesForLocationAsync:progress
-                                                 stopId:stop.stopId];
+    [departureViewController fetchTimesForLocationAsync:progress stopId:stop.stopId];
 }
 
 #pragma mark BackgroundTask methods
@@ -166,16 +151,14 @@ typedef struct SavedImageStruct {
     CLLocation *here;
     bool tp;
 
-    NearestVehiclesMapViewController *mapPage =
-        [NearestVehiclesMapViewController viewController];
+    NearestVehiclesMapViewController *mapPage = [NearestVehiclesMapViewController viewController];
 
     mapPage.staticOverlays = YES;
 
     if (_railMapIndex == kRailMapPdxStreetcar) {
         mapPage.trimetRoutes = [NSSet set];
         mapPage.streetcarRoutes = [TriMetInfo streetcarRoutes];
-        mapPage.title =
-            NSLocalizedString(@"Portland Streetcar", @"map page title");
+        mapPage.title = NSLocalizedString(@"Portland Streetcar", @"map page title");
     } else {
         mapPage.streetcarRoutes = [NSSet set];
         mapPage.trimetRoutes = [TriMetInfo triMetRailLines];
@@ -213,7 +196,7 @@ typedef struct SavedImageStruct {
         }
     }
 
-    mapPage.staticAnnotations = mapPage.annotations.copy;
+    mapPage.staticAnnotations = mapPage.allAnnotations.copy;
     mapPage.staticOverlays = YES;
 
     mapPage.stopIdStringCallback = self.stopIdStringCallback;
@@ -228,8 +211,7 @@ typedef struct SavedImageStruct {
         _railMap = HotSpotArrays.sharedInstance.railMaps + _railMapIndex;
         _selectedItem = -1;
 
-        Settings.showStreetcarMapFirst =
-            (_railMapIndex == kRailMapPdxStreetcar);
+        Settings.showStreetcarMapFirst = (_railMapIndex == kRailMapPdxStreetcar);
 
         [self loadImage];
     }
@@ -238,18 +220,21 @@ typedef struct SavedImageStruct {
 #pragma mark ViewControllerBase methods
 
 - (void)updateToolbarMainThread {
-    self.segButton = [self segBarButtonWithItems:@[ @"MAX & WES", @"Streetcar" ]
-                                          action:@selector(toggleMap:)
-                                   selectedIndex:_railMapIndex];
+    if (self.segButton == nil) {
+        self.segButton = [self segBarButtonWithItems:@[ @"MAX & WES", @"Streetcar" ]
+                                              action:@selector(toggleMap:)
+                                       selectedIndex:_railMapIndex];
+    }
 
     self.railMapSeg = self.segButton.customView;
 }
 
-- (void)updateToolbarItems:(NSMutableArray *)toolbarItems {
+- (void)updateToolbarItems:(NSMutableArray<UIBarButtonItem *> *)toolbarItems {
 
     [toolbarItems addObjectsFromArray:@[
-        [UIToolbar mapButtonWithTarget:self action:@selector(showMap:)],
-        [UIToolbar flexSpace], self.segButton
+        [UIBarButtonItem mapButtonWithTarget:self action:@selector(showMap:)],
+        [UIBarButtonItem flexSpace],
+        self.segButton
     ]];
 
     [self maybeAddFlashButtonWithSpace:YES buttons:toolbarItems big:NO];
@@ -272,16 +257,14 @@ typedef struct SavedImageStruct {
 
 - (void)setupGestureRecognizers {
     // Single tap (1 finger)
-    self.singleTap = [[UITapGestureRecognizer alloc]
-        initWithTarget:self
-                action:@selector(handleSingleTap:)];
+    self.singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                             action:@selector(handleSingleTap:)];
     self.singleTap.cancelsTouchesInView = NO;
     self.singleTap.delegate = self;
 
     // Double tap (1 finger)
-    self.doubleTap = [[UITapGestureRecognizer alloc]
-        initWithTarget:self
-                action:@selector(handleDoubleTap:)];
+    self.doubleTap = [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                             action:@selector(handleDoubleTap:)];
     self.doubleTap.numberOfTapsRequired = 2;
     self.doubleTap.cancelsTouchesInView = NO;
     self.doubleTap.delegate = self;
@@ -290,9 +273,8 @@ typedef struct SavedImageStruct {
     [self.singleTap requireGestureRecognizerToFail:self.doubleTap];
 
     // Two-finger single tap
-    self.twoFingerTap = [[UITapGestureRecognizer alloc]
-        initWithTarget:self
-                action:@selector(handleTwoFingerTap:)];
+    self.twoFingerTap =
+        [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTwoFingerTap:)];
     self.twoFingerTap.numberOfTouchesRequired = 2;
     self.twoFingerTap.numberOfTapsRequired = 1;
 
@@ -339,20 +321,58 @@ typedef struct SavedImageStruct {
     return YES;
 }
 
+static const CGFloat kToolbarClearance = 8.0;
+
+- (CGFloat)toolbarHeight {
+    UINavigationController *nc = self.navigationController;
+    UIToolbar *tb = nc.toolbar;
+    if (!nc || nc.isToolbarHidden || !tb || tb.isHidden || tb.alpha <= 0.001)
+        return 0.0;
+    return [tb sizeThatFits:CGSizeMake(CGRectGetWidth(self.view.bounds), CGFLOAT_MAX)].height;
+}
+
+// Call this for ANY scroll view you want under the toolbar (table, collection, text, custom)
+- (void)applyUnderlapInsetsForScrollView:(UIScrollView *)sv {
+    // We manage insets manually
+    sv.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    if (@available(iOS 15.0, *))
+        sv.automaticallyAdjustsScrollIndicatorInsets = NO;
+
+    const CGFloat tbH = [self toolbarHeight];
+    const CGFloat safeBottom = self.view.safeAreaInsets.bottom;
+    const CGFloat desired = MAX(tbH, safeBottom) + kToolbarClearance;
+
+    // 1) Content inset: provide room to scroll items fully above the toolbar
+    UIEdgeInsets inset = sv.contentInset;
+    if (fabs(inset.bottom - desired) > 0.5) {
+        // Preserve visual position to avoid a jump
+        CGPoint off = sv.contentOffset;
+        CGFloat delta = desired - inset.bottom;
+        inset.bottom = desired;
+        sv.contentInset = inset;
+        sv.contentOffset = CGPointMake(off.x, off.y - delta);
+    }
+
+    // 2) Scroll indicators: keep them clear of the toolbar
+    UIEdgeInsets v = sv.verticalScrollIndicatorInsets;
+    if (fabs(v.bottom - desired) > 0.5) {
+        v.bottom = desired;
+        sv.verticalScrollIndicatorInsets = v;
+    }
+}
+
 - (void)loadImage {
     NSString *path = [[NSBundle mainBundle]
-        pathForResource:[NSString stringWithFormat:@"%@_Placeholder",
-                                                   _railMap->fileName]
+        pathForResource:[NSString stringWithFormat:@"%@_Placeholder", _railMap->fileName]
                  ofType:@"gif"];
 
-    self.lowResBackgroundImage = [[UIImageView alloc]
-        initWithFrame:(CGRect){CGPointZero, _railMap->size}];
+    self.lowResBackgroundImage =
+        [[UIImageView alloc] initWithFrame:(CGRect){CGPointZero, _railMap->size}];
 
     self.lowResBackgroundImage.image = [UIImage imageWithContentsOfFile:path];
     self.lowResBackgroundImage.userInteractionEnabled = YES;
 
-    self.imageView = [[TilingView alloc] initWithImageName:_railMap->fileName
-                                                      size:_railMap->size];
+    self.imageView = [[TilingView alloc] initWithImageName:_railMap->fileName size:_railMap->size];
 
     [self.lowResBackgroundImage setTag:ZOOM_VIEW_TAG];
     self.imageView.frame = self.lowResBackgroundImage.bounds;
@@ -372,8 +392,7 @@ typedef struct SavedImageStruct {
     // scale
     minimumScale = scrollFrame.size.width / imageFrame.size.width;
 
-    self.scrollView.minimumZoomScale =
-        scrollFrame.size.height / imageFrame.size.height;
+    self.scrollView.minimumZoomScale = scrollFrame.size.height / imageFrame.size.height;
 
     // the zoom rect is in the content view's coordinates.
     //    At a zoom scale of 1.0, it would be the size of the imageScrollView's
@@ -382,12 +401,16 @@ typedef struct SavedImageStruct {
 
     self.scrollView.minimumZoomScale = minimumScale;
 
-    self.hotSpots =
-        [[RailMapHotSpotsView alloc] initWithImageView:self.imageView
-                                                   map:_railMap];
+    self.hotSpots = [[RailMapHotSpotsView alloc] initWithImageView:self.imageView map:_railMap];
 
     self.title = _railMap->title;
 
+    self.zoomOnNextLayout = YES;
+
+    [self.view setNeedsLayout];
+}
+
+- (void)initialZoom {
     SavedImage *saved = _savedImage + _railMapIndex;
 
     if (saved->saved) {
@@ -397,8 +420,7 @@ typedef struct SavedImageStruct {
         CGRect zoom;
         CGRect imageFrame = self.imageView.frame;
         CGRect scrollFrame = self.scrollView.frame;
-        CGFloat scale =
-            (scrollFrame.size.height / imageFrame.size.height) * 1.25;
+        CGFloat scale = (scrollFrame.size.height / imageFrame.size.height) * 1.25;
 
         zoom.size.width = self.scrollView.frame.size.width / scale;
         zoom.size.height = self.scrollView.frame.size.height / scale;
@@ -406,8 +428,11 @@ typedef struct SavedImageStruct {
         zoom.origin.x = ((imageFrame.size.width - zoom.size.width) / 2.0);
         zoom.origin.y = ((imageFrame.size.height - zoom.size.height) / 2.0);
 
-        DEBUG_LOG(@"Zoom: w %f h %f x %f y %f\n", zoom.size.width,
-                  zoom.size.height, zoom.origin.x, zoom.origin.y);
+        DEBUG_LOG(@"Zoom: w %f h %f x %f y %f\n",
+                  zoom.size.width,
+                  zoom.size.height,
+                  zoom.origin.x,
+                  zoom.origin.y);
 
         [self.scrollView zoomToRect:zoom animated:NO];
     }
@@ -416,28 +441,46 @@ typedef struct SavedImageStruct {
 - (void)loadView {
     [super loadView];
 
-    // Set the size for the table view
-    CGRect bounds = self.middleWindowRect;
-
     /// set up main scroll view
-    self.scrollView = [[UIScrollView alloc] initWithFrame:bounds];
+    self.scrollView = [[UIScrollView alloc] initWithFrame:CGRectZero];
     self.scrollView.backgroundColor = [UIColor blackColor];
     self.scrollView.delegate = self;
     [self.scrollView setBouncesZoom:YES];
-    self.scrollView.autoresizingMask =
-        (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
+    self.scrollView.translatesAutoresizingMaskIntoConstraints = NO;
+    self.scrollView.delaysContentTouches = NO;
+
+    self.scrollView.contentInsetAdjustmentBehavior =
+        UIScrollViewContentInsetAdjustmentNever; // we take full control
+    self.scrollView.contentInset = UIEdgeInsetsZero;
+    self.scrollView.verticalScrollIndicatorInsets = UIEdgeInsetsZero;
+    self.scrollView.horizontalScrollIndicatorInsets = UIEdgeInsetsZero;
+
     [self.view addSubview:self.scrollView];
 
-    self.scrollView.delaysContentTouches = NO;
+    [NSLayoutConstraint activateConstraints:@[
+        [self.scrollView.topAnchor constraintEqualToAnchor:self.view.topAnchor],
+        [self.scrollView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
+        [self.scrollView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
+        [self.scrollView.bottomAnchor
+            constraintEqualToAnchor:self.view.bottomAnchor], // <- NOT safe area
+    ]];
+
+    // No manual insets anywhere
+    // self.additionalSafeAreaInsets = UIEdgeInsetsZero;
 
     [self loadImage];
 
-    // [self toggleShowAll];
-
-    // [self.scrollView scrollRectToVisible:zoom animated:NO];
-    [self updateToolbar];
+    [self setTheme];
 
     [self setupGestureRecognizers];
+}
+
+- (void)viewDidLayoutSubviews {
+    if (self.zoomOnNextLayout) {
+        self.zoomOnNextLayout = NO;
+        [self initialZoom];
+    }
+    [self applyUnderlapInsetsForScrollView:self.scrollView];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -491,8 +534,7 @@ typedef struct SavedImageStruct {
     NSString *url = HS_ACTION(*hs);
 
     NSScanner *scanner = [NSScanner scannerWithString:url];
-    NSCharacterSet *colon =
-        [NSCharacterSet characterSetWithCharactersInString:@":"];
+    NSCharacterSet *colon = [NSCharacterSet characterSetWithCharactersInString:@":"];
 
     NSString *substr;
     NSString *stationName = @"";
@@ -527,12 +569,11 @@ typedef struct SavedImageStruct {
     case kLinkType1:
     case kLinkType2:
     case kLinkType3: {
-        [WebViewController
-               displayPage:@"http://www.teleportaloo.org/pdxbus/easteregg/"
-                      full:nil
-                 navigator:self.navigationController
-            itemToDeselect:self
-                  whenDone:self.callbackWhenDone];
+        [WebViewController displayPage:@"http://www.teleportaloo.org/pdxbus/easteregg/"
+                                  full:nil
+                             navigator:self.navigationController
+                        itemToDeselect:self
+                              whenDone:self.callbackWhenDone];
 
         _easterEgg = EasterEggStart;
         break;
@@ -548,12 +589,11 @@ typedef struct SavedImageStruct {
 
         wikiLink = [url substringFromIndex:scanner.scanLocation];
 
-        [WebViewController
-            displayNamedPage:@"Wikipedia"
-                   parameter:[wikiLink stringByRemovingPercentEncoding]
-                   navigator:self.navigationController
-              itemToDeselect:self
-                    whenDone:self.callbackWhenDone];
+        [WebViewController displayNamedPage:@"Wikipedia"
+                                  parameter:[wikiLink stringByRemovingPercentEncoding]
+                                  navigator:self.navigationController
+                             itemToDeselect:self
+                                   whenDone:self.callbackWhenDone];
 
         break;
     }
@@ -582,8 +622,7 @@ typedef struct SavedImageStruct {
         // [self nextSlash:scanner intoString:&substr];
         [self nextSlash:scanner intoString:&stationName];
 
-        DirectionViewController *dirView =
-            [DirectionViewController viewController];
+        DirectionViewController *dirView = [DirectionViewController viewController];
         dirView.stopIdStringCallback = self.stopIdStringCallback;
         [dirView fetchDirectionsAsync:self.backgroundTask route:stationName];
         break;
@@ -609,8 +648,7 @@ typedef struct SavedImageStruct {
         //[self.hotSpots selectItem:i];
 
         RailStation *station = [RailStation fromHotSpotIndex:i];
-        RailStationTableViewController *railView =
-            [RailStationTableViewController viewController];
+        RailStationTableViewController *railView = [RailStationTableViewController viewController];
         railView.station = station;
         railView.stopIdStringCallback = self.stopIdStringCallback;
         railView.from = self.from;
@@ -667,8 +705,7 @@ typedef struct SavedImageStruct {
 #pragma mark TapDetectingImageViewDelegate methods
 
 - (void)listAction:(id)unused {
-    AllRailStationViewController *allRail =
-        [AllRailStationViewController viewController];
+    AllRailStationViewController *allRail = [AllRailStationViewController viewController];
 
     allRail.stopIdStringCallback = self.stopIdStringCallback;
     [self.navigationController pushViewController:allRail animated:YES];
@@ -678,25 +715,21 @@ typedef struct SavedImageStruct {
     if (self.showNextOnAppearance) {
 
         do {
-            _selectedItem =
-                _railMap->hotSpots->first +
-                ((_selectedItem - _railMap->hotSpots->first + 1) %
-                 (_railMap->hotSpots->last - _railMap->hotSpots->first + 1));
+            _selectedItem = _railMap->hotSpots->first +
+                            ((_selectedItem - _railMap->hotSpots->first + 1) %
+                             (_railMap->hotSpots->last - _railMap->hotSpots->first + 1));
         } while (HS_TYPE(_hotSpotRegions[_selectedItem]) != kLinkTypeStop);
 
         [RailMapHotSpotsView touch:_hotSpotRegions + _selectedItem];
         // selectedItem = i;
         [self.hotSpots setNeedsDisplay];
-        [self processHotSpot:_hotSpotRegions + _selectedItem
-                        item:_selectedItem];
+        [self processHotSpot:_hotSpotRegions + _selectedItem item:_selectedItem];
         self.showNextOnAppearance = NO;
     }
 
-    UIBarButtonItem *list = [[UIBarButtonItem alloc]
-        initWithTitle:NSLocalizedString(@"A-Z", @"List button")
-                style:UIBarButtonItemStylePlain
-               target:self
-               action:@selector(listAction:)];
+    UIBarButtonItem *list = [UIBarButtonItem textButton:NSLocalizedString(@"A-Z", @"List button")
+                                                 target:self
+                                                 action:@selector(listAction:)];
 
     self.navigationItem.rightBarButtonItem = list;
 
@@ -737,9 +770,7 @@ typedef struct SavedImageStruct {
 
     const RailMapTile *tile = &_railMap->tiles[x][y];
 
-    int i = [RailMapViewController findHotSpotInMap:_railMap
-                                               tile:tile
-                                              point:_tapPoint];
+    int i = [RailMapViewController findHotSpotInMap:_railMap tile:tile point:_tapPoint];
 
     if (i != NO_HOTSPOT_FOUND) {
         [RailMapHotSpotsView touch:_hotSpotRegions + i];
@@ -747,7 +778,7 @@ typedef struct SavedImageStruct {
         [self.hotSpots selectItem:i];
         [self.hotSpots setNeedsDisplay];
 
-        MainTask(^{
+        MAIN_TASK(^{
           [self selectedHotspot];
         });
 
@@ -760,8 +791,7 @@ typedef struct SavedImageStruct {
     return HotSpotArrays.sharedInstance.railMaps + n;
 }
 
-- (void)backgroundTaskDone:(UIViewController *)viewController
-                 cancelled:(bool)cancelled {
+- (void)backgroundTaskDone:(UIViewController *)viewController cancelled:(bool)cancelled {
     if (cancelled) {
         [self.hotSpots fadeOut];
     }

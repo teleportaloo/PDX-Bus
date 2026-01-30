@@ -20,9 +20,9 @@
 
 @interface XMLLocateVehicles : TriMetXMLv2 <Vehicle *>
 
-@property(nonatomic) double dist;
-@property(nonatomic, strong) CLLocation *location;
-@property(nonatomic) bool noErrorAlerts;
+@property (nonatomic) double dist;
+@property (nonatomic, strong) CLLocation *location;
+@property (nonatomic) bool noErrorAlerts;
 
 - (bool)findNearestVehicles:(NSSet<NSString *> *)routeIdSet
                   direction:(NSString *)direction

@@ -25,7 +25,7 @@
 #define GENERATED_ARRAY(X) (X)
 #else
 #define GENERATED_ARRAY(X) (NULL)
-#endif
+#endif // GENERATE_ARRAYS
 
 @implementation HotSpotArrays
 
@@ -44,7 +44,7 @@
 + (HotSpotArrays *)sharedInstance {
     static HotSpotArrays *singleton = nil;
 
-    DoOnce(^{
+    DO_ONCE(^{
       singleton = [[HotSpotArrays alloc] init];
     });
 
@@ -59,7 +59,7 @@
 
 + (void)initialize {
     DEBUG_BLOCK(^{
-      DoOnce(^{
+      DO_ONCE(^{
         DEBUG_LOG_long(sizeof(HotSpot));
 
         int i;
@@ -95,10 +95,10 @@
 //
 // First... concat three symbols
 #define CAT3_IMPL(a, b, c) a##b##c
-#define CAT3(a, b, c) CAT3_IMPL(a, b, c)
+#define CAT3(a, b, c) CAT3_IMPL(a, _##b##_, c)
 
 // Now constuct a unique name from the prefix, map and line no
-#define UNIQUE_LINE_NO_NAME(prefix) CAT3(prefix, HS_MAP, __LINE__)
+#define UNIQUE_LINE_NAME(prefix, MAP) CAT3(prefix, MAP, __LINE__)
 
 #define CAT2_IMPL(a, b) a##b
 #define CAT2(a, b) CAT2_IMPL(a, b)
@@ -112,14 +112,12 @@
 //------------------------------------------------------------------------------
 // We use the line number and the map number to create a unique static array
 // name for the virtices or rects
-#define HS_POLY(P, STR)                                                        \
-    static const CGPoint UNIQUE_LINE_NO_NAME(_pts_)[] = {HS_BRACES P};
+#define HS_POLY(M, P, STR) static const CGPoint UNIQUE_LINE_NAME(_pts_, M)[] = {HS_BRACES P};
 
-#define HS_RECT(X1, Y1, X2, Y2, STR)                                           \
-    static const CGRect UNIQUE_LINE_NO_NAME(_rect_)[] = {                      \
-        (X1), (Y1), (X2) - (X1), (Y2) - (Y1)};
+#define HS_RECT(M, X1, Y1, X2, Y2, STR)                                                            \
+    static const CGRect UNIQUE_LINE_NAME(_rect_, M)[] = {(X1), (Y1), (X2) - (X1), (Y2) - (Y1)};
 
-#include "HotSpotTables.h"
+#include "HotSpotTables.def"
 
 #undef HS_POLY
 #undef HS_RECT
@@ -129,25 +127,24 @@
 //------------------------------------------------------------------------------
 // The polygons and rects from the HTML become static arrays of vertices
 
-#define HS_POLY(P, STR)                                                        \
-    (const HotSpot) {                                                          \
-        .coords.vertices = UNIQUE_LINE_NO_NAME(_pts_), .isRect = 0,            \
-        .nVertices = sizeof(UNIQUE_LINE_NO_NAME(_pts_)) /                      \
-                     sizeof(UNIQUE_LINE_NO_NAME(_pts_)[0]),                    \
-        .action = @STR, .nMap = HS_MAP                                         \
-    }                                                                          \
+#define HS_POLY(M, P, STR)                                                                         \
+    (const HotSpot) {                                                                              \
+        .coords.vertices = UNIQUE_LINE_NAME(_pts_, M), .isRect = 0,                                \
+        .nVertices = sizeof(UNIQUE_LINE_NAME(_pts_, M)) / sizeof(UNIQUE_LINE_NAME(_pts_, M)[0]),   \
+        .action = @STR, .nMap = (M)                                                                \
+    }                                                                                              \
     ,
 
-#define HS_RECT(X1, Y1, X2, Y2, STR)                                           \
-    (const HotSpot) {                                                          \
-        .coords.rect = UNIQUE_LINE_NO_NAME(_rect_), .isRect = 1,               \
-        .nVertices = 4, .action = @STR, .nMap = HS_MAP                         \
-    }                                                                          \
+#define HS_RECT(M, X1, Y1, X2, Y2, STR)                                                            \
+    (const HotSpot) {                                                                              \
+        .coords.rect = UNIQUE_LINE_NAME(_rect_, M), .isRect = 1, .nVertices = 4, .action = @STR,   \
+        .nMap = (M)                                                                                \
+    }                                                                                              \
     ,
 
 static const HotSpot hotSpotRegions[] = {
 
-#include "HotSpotTables.h"
+#include "HotSpotTables.def"
 
 };
 
@@ -158,24 +155,23 @@ static const HotSpot hotSpotRegions[] = {
 
 #ifndef GENERATE_ARRAYS
 static ConstHotSpotIndex noHotspots[] = {MAP_END};
-#endif
+#endif // GENERATE_ARRAYS
 
 //------------------------------------------------------------------------------
 #pragma mark PASS 1 - create static arrays of hotspot indexes for each tile
 //------------------------------------------------------------------------------
 
-#define MAP_TILE_STATIC_ARRAY(SZ)
+#define MAP_TILE_STATIC_ARRAY(M, SZ)
 #define MAP_TILE_STATIC_END_ARRAY
 
-#define MAP_TILE_STATIC_ROW(X, SZ)
+#define MAP_TILE_STATIC_ROW(M, X, SZ)
 #define MAP_TILE_STATIC_END_ROW
 
-#define MAP_TILES(X, Y, A)                                                     \
-    static ConstHotSpotIndex UNIQUE_LINE_NO_NAME(_hotspots_)[] = {HS_BRACES A, \
-                                                                  MAP_END};
-#define MAP_NONE(X, Y)
+#define MAP_TILES(M, X, Y, A)                                                                      \
+    static ConstHotSpotIndex UNIQUE_LINE_NAME(_hotspots_, M)[] = {HS_BRACES A, MAP_END};
+#define MAP_NONE(M, X, Y)
 
-#include "HotSpotTileTables.h"
+#include "HotSpotTileTables.def"
 
 #undef MAP_TILE_STATIC_ARRAY
 #undef MAP_TILE_STATIC_END_ARRAY
@@ -187,19 +183,18 @@ static ConstHotSpotIndex noHotspots[] = {MAP_END};
 //-----------------------------------------------------------------------------
 #pragma mark PASS 2 - create static arrays of rows for the above arrays per tile
 //------------------------------------------------------------------------------
-#define MAP_TILE_STATIC_ARRAY(SZ)
+#define MAP_TILE_STATIC_ARRAY(M, SZ)
 #define MAP_TILE_STATIC_END_ARRAY
 
-#define MAP_TILE_STATIC_ROW(X, SZ)                                             \
-    static const RailMapTile UNIQUE_LINE_NO_NAME(_row_)[] = {
-#define MAP_TILE_STATIC_END_ROW                                                \
-    }                                                                          \
+#define MAP_TILE_STATIC_ROW(M, X, SZ) static const RailMapTile UNIQUE_LINE_NAME(_row_, M)[] = {
+#define MAP_TILE_STATIC_END_ROW                                                                    \
+    }                                                                                              \
     ;
 
-#define MAP_TILES(X, Y, A) UNIQUE_LINE_NO_NAME(_hotspots_),
-#define MAP_NONE(X, Y) noHotspots,
+#define MAP_TILES(M, X, Y, A) UNIQUE_LINE_NAME(_hotspots_, M),
+#define MAP_NONE(M, X, Y) noHotspots,
 
-#include "HotSpotTileTables.h"
+#include "HotSpotTileTables.def"
 
 #undef MAP_TILE_STATIC_ARRAY
 #undef MAP_TILE_STATIC_END_ARRAY
@@ -210,21 +205,20 @@ static ConstHotSpotIndex noHotspots[] = {MAP_END};
 
 //------------------------------------------------------------------------------
 #pragma mark PASS 3 - make a big array of all the rows
-// Give it a unique name of tiles + HS_MAP
+// Give it a unique name of tiles + M
 //------------------------------------------------------------------------------
-#define MAP_TILE_STATIC_ARRAY(SZ)                                              \
-    static const RailMapTile *CAT2(tiles, HS_MAP)[] = {
-#define MAP_TILE_STATIC_END_ARRAY                                              \
-    }                                                                          \
+#define MAP_TILE_STATIC_ARRAY(M, SZ) static const RailMapTile *CAT2(tiles, M)[] = {
+#define MAP_TILE_STATIC_END_ARRAY                                                                  \
+    }                                                                                              \
     ;
 
-#define MAP_TILE_STATIC_ROW(X, SZ) UNIQUE_LINE_NO_NAME(_row_),
+#define MAP_TILE_STATIC_ROW(M, X, SZ) UNIQUE_LINE_NAME(_row_, M),
 #define MAP_TILE_STATIC_END_ROW
 
-#define MAP_TILES(X, Y, A)
-#define MAP_NONE(X, Y)
+#define MAP_TILES(M, X, Y, A)
+#define MAP_NONE(M, X, Y)
 
-#include "HotSpotTileTables.h"
+#include "HotSpotTileTables.def"
 
 #undef MAP_TILE_STATIC_ARRAY
 #undef MAP_TILE_STATIC_END_ARRAY
@@ -237,24 +231,24 @@ static ConstHotSpotIndex noHotspots[] = {MAP_END};
 #pragma mark Rail maps
 //------------------------------------------------------------------------------
 
-#define RAIL_MAP(TITLE, FILE, W, H, TX, TY, HS, T)                             \
-    {                                                                          \
-        @TITLE, @FILE, {W, H}, GENERATED_ARRAY(HS), TX, TY,                    \
-            GENERATED_ARRAY(T), {                                              \
-            (CGFloat) W / TX, (CGFloat)H / TY,                                 \
-        }                                                                      \
+#define RAIL_MAP(TITLE, FILE, W, H, TX, TY, HS, T, M)                                              \
+    {                                                                                              \
+        @TITLE, @FILE, {W, H}, GENERATED_ARRAY(HS), TX, TY, GENERATED_ARRAY(T),                    \
+            {                                                                                      \
+                (CGFloat)W / TX,                                                                   \
+                (CGFloat)H / TY,                                                                   \
+            },                                                                                     \
+            M                                                                                      \
     }
 
 #ifndef GENERATE_ARRAYS
 #define ONLY_RAILMAP_DATA
 #import "../Tables/StaticStationData.c"
-#endif
+#endif // GENERATE_ARRAYS
 
 static const RailMap railmaps[] = {
-    RAIL_MAP("MAX & WES Map", "MAXWESMap", 3000, 1700, 30, 15,
-             &railMapHotSpots[0], tiles0),
-    RAIL_MAP("Streetcar Map", "StreetcarMap", 1500, 2102, 15, 20,
-             &railMapHotSpots[1], tiles1),
+    RAIL_MAP("MAX & WES Map", "MAXWESMap", 3000, 1700, 30, 15, &railMapHotSpots[0], tiles0, 0),
+    RAIL_MAP("Streetcar Map", "StreetcarMap", 1500, 2102, 15, 20, &railMapHotSpots[1], tiles1, 1),
     {nil, 0, 0}};
 
 @end

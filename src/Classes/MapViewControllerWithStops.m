@@ -22,7 +22,7 @@
 
 @interface MapViewControllerWithStops ()
 
-@property(nonatomic, strong) XMLStops *stopData;
+@property (nonatomic, strong) XMLStops *stopData;
 
 @end
 
@@ -51,22 +51,20 @@
              returnStop:(id<ReturnStopObject>)returnStop {
     self.stopData = [XMLStops xml];
 
-    if (!self.backgroundRefresh &&
-        [self.stopData getStopsForRoute:routeid
-                              direction:dir
-                            description:@""
-                            cacheAction:TriMetXMLCheckRouteCache]) {
+    if (!self.backgroundRefresh && [self.stopData getStopsForRoute:routeid
+                                                         direction:dir
+                                                       description:@""
+                                                       cacheAction:TriMetXMLCheckRouteCache]) {
         [self addStops:returnStop];
         [taskController taskCompleted:self];
     } else {
         [taskController taskRunAsync:^(TaskState *taskState) {
           [taskState startAtomicTask:kGettingStops];
 
-          [self.stopData
-              getStopsForRoute:routeid
-                     direction:dir
-                   description:@""
-                   cacheAction:TriMetXMLForceFetchAndUpdateRouteCache];
+          [self.stopData getStopsForRoute:routeid
+                                direction:dir
+                              description:@""
+                              cacheAction:TriMetXMLForceFetchAndUpdateRouteCache];
 
           [self addStops:returnStop];
           [taskState atomicTaskItemDone];

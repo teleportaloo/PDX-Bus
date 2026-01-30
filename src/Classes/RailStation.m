@@ -15,11 +15,11 @@
 
 #import "RailStation.h"
 #import "DebugLogging.h"
+#import "NSString+Convenience.h"
 #include "StationData.h"
 #import "TaskDispatch.h"
 #import "TriMetInfo.h"
 #import "XMLStops.h"
-#import "NSString+Convenience.h"
 
 @implementation NSValue (RouteInfo)
 
@@ -31,19 +31,19 @@
 
 @interface RailStation ()
 
-@property(nonatomic, strong) NSArray<NSString *> *stopIdArray;
-@property(nonatomic, strong) NSArray<NSString *> *dirArray;
+@property (nonatomic, strong) NSArray<NSString *> *stopIdArray;
+@property (nonatomic, strong) NSArray<NSString *> *dirArray;
 
-@property(nonatomic, strong) NSArray<NSString *> *transferStopIdArray;
-@property(nonatomic, strong) NSArray<NSString *> *transferDirArray;
-@property(nonatomic, strong) NSArray<NSString *> *transferNameArray;
-@property(nonatomic, strong) NSArray<NSNumber *> *transferHotSpotIndexArray;
-@property(nonatomic, strong) NSArray<NSValue *> *routeInfoWithTransfersArray;
-@property(nonatomic, strong) NSArray<NSValue *> *routeInfoArray;
+@property (nonatomic, strong) NSArray<NSString *> *transferStopIdArray;
+@property (nonatomic, strong) NSArray<NSString *> *transferDirArray;
+@property (nonatomic, strong) NSArray<NSString *> *transferNameArray;
+@property (nonatomic, strong) NSArray<NSNumber *> *transferHotSpotIndexArray;
+@property (nonatomic, strong) NSArray<NSValue *> *routeInfoWithTransfersArray;
+@property (nonatomic, strong) NSArray<NSValue *> *routeInfoArray;
 
-@property(nonatomic, copy) NSString *name;
-@property(nonatomic, copy) NSString *wikiLink;
-@property(nonatomic) int index;
+@property (nonatomic, copy) NSString *name;
+@property (nonatomic, copy) NSString *wikiLink;
+@property (nonatomic) int index;
 
 @end
 
@@ -81,8 +81,7 @@
             @"MAXN" : NSLocalizedString(@"MAX Northbound", @"Train direction"),
             @"MAXS" : NSLocalizedString(@"MAX Southbound", @"Train direction"),
             @"WESS" : NSLocalizedString(@"WES Southbound", @"Train direction"),
-            @"WESA" :
-                NSLocalizedString(@"WES Both Directions", @"Train direction"),
+            @"WESA" : NSLocalizedString(@"WES Both Directions", @"Train direction"),
         };
     }
 
@@ -97,8 +96,7 @@
 
 + (NSString *)nameFromHotspot:(PtrConstHotSpot)hotspot {
     NSScanner *scanner = [NSScanner scannerWithString:HS_ACTION(*hotspot)];
-    NSCharacterSet *colon =
-        [NSCharacterSet characterSetWithCharactersInString:@":"];
+    NSCharacterSet *colon = [NSCharacterSet characterSetWithCharactersInString:@":"];
 
     NSString *substr;
     NSString *stationName = @"";
@@ -118,7 +116,7 @@
 + (instancetype)fromHotSpotIndex:(int)index {
     static NSCache<NSNumber *, RailStation *> *cache;
     static RailStation *dummy;
-    DoOnce(^{
+    DO_ONCE(^{
       cache = [[NSCache alloc] init];
       dummy = [[RailStation alloc] initDummy];
     });
@@ -150,6 +148,10 @@
 
 - (instancetype)initFromHotSpotIndex:(int)index {
     if ((self = [super init])) {
+        if (index > HotSpotArrays.sharedInstance.hotSpotCount) {
+            return nil;
+        }
+
         PtrConstHotSpot hotspot = HotSpotArrays.sharedInstance.hotSpots + index;
 
         if (HS_TYPE(*hotspot) != kLinkTypeStop || hotspot->nVertices == 0) {
@@ -164,12 +166,10 @@
             return nil;
         }
 
-        NSArray *sections =
-            [[action substringFromIndex:2] componentsSeparatedByString:@"/"];
+        NSArray *sections = [[action substringFromIndex:2] componentsSeparatedByString:@"/"];
 
         if (sections.count < 2) {
-            ERROR_LOG(@"Station index %d doesn't have enough section %ld",
-                      index, sections.count);
+            ERROR_LOG(@"Station index %d doesn't have enough section %ld", index, sections.count);
             return nil;
         }
 
@@ -177,8 +177,7 @@
         wiki = sections[1];
 
         self.name = [stationName stringByRemovingPercentEncoding];
-        self.wikiLink =
-            (wiki.length == 0) ? nil : wiki.stringByRemovingPercentEncoding;
+        self.wikiLink = (wiki.length == 0) ? nil : wiki.stringByRemovingPercentEncoding;
         NSMutableArray *stopIdArray = [NSMutableArray array];
         NSMutableArray *dirArray = [NSMutableArray array];
         NSMutableArray *transferStopIdArray = [NSMutableArray array];
@@ -188,13 +187,12 @@
         NSString *stopId = nil;
 
         for (NSInteger section = 2; section < sections.count; section++) {
-            NSArray *dirAndStopId =
-                [sections[section] componentsSeparatedByString:@","];
+            NSArray *dirAndStopId = [sections[section] componentsSeparatedByString:@","];
 
             if (dirAndStopId.count < 2) {
-                ERROR_LOG(
-                    @"Station index %@ doesn't have enough items in stop %@",
-                    stationName, sections[section]);
+                ERROR_LOG(@"Station index %@ doesn't have enough items in stop %@",
+                          stationName,
+                          sections[section]);
                 continue;
             }
 
@@ -244,8 +242,8 @@
                 }
 
                 if (!found) {
-                    [transferNameArray addObject:@"unknown"];
-                    [transferDirArray addObject:@"unknown"];
+                    [transferNameArray addObject:@"Unknown"];
+                    [transferDirArray addObject:@"Unknown"];
                     [transferHotSpotIndexArray addObject:@(0)];
                 }
             }
@@ -277,8 +275,6 @@
     return self.name.hash;
 }
 
-
-
 - (NSArray<NSValue *> *)routeInfoWithTransfers {
     if (self.routeInfoWithTransfersArray == nil) {
 
@@ -291,14 +287,15 @@
         }
 
         for (PtrConstRouteInfo info = TriMetInfoColoredLines.allLines;
-             info->route_number != kNoRoute; info++) {
+             info->route_number != kNoRoute;
+             info++) {
             if (lines & info->line_bit) {
                 [routeInfo addObject:[NSValue valueWithPointer:info]];
             }
         }
 
-        [routeInfo sortUsingComparator:^NSComparisonResult(
-                       NSNumber *_Nonnull obj1, NSNumber *_Nonnull obj2) {
+        [routeInfo sortUsingComparator:^NSComparisonResult(NSNumber *_Nonnull obj1,
+                                                           NSNumber *_Nonnull obj2) {
           return TriMetInfo_compareSortOrder(obj1.PtrConstRouteInfoValue,
                                              obj2.PtrConstRouteInfoValue);
         }];

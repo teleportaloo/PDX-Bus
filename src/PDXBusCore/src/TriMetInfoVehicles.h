@@ -25,6 +25,12 @@
 #define TriMetTypeWES @"WES"
 #define TriMetTypeStreetcar @"Streetcar"
 
+#if defined __cplusplus
+extern "C" {
+#else
+#import <Foundation/Foundation.h>
+#endif // __cplusplus
+
 typedef struct VehicleInfoStruct {
     NSInteger vehicleIdMin;
     NSInteger vehicleIdMax;
@@ -54,5 +60,9 @@ size_t TriMetInfo_noOfVehicleSpecials(void);
 
 int TriMetInfo_compareVehicle(const void *first, const void *second);
 int TriMetInfo_compareVehicleSpecial(const void *first, const void *second);
+
+#if defined __cplusplus
+}
+#endif // __cplusplus
 
 #endif /* TriMetInfoVehicles_h */

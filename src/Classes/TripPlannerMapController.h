@@ -19,7 +19,7 @@
 
 @interface TripPlannerMapController : MapViewController
 
-@property(nonatomic, strong) TripItinerary *it;
+@property (nonatomic, strong) TripItinerary *it;
 
 - (void)fetchShapesAsync:(id<TaskController>)taskController;
 

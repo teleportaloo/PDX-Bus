@@ -13,9 +13,8 @@
 #import "TableViewControllerWithToolbar.h"
 #import <UIKit/UIKit.h>
 
-@interface SupportViewController
-    : TableViewControllerWithToolbar <CLLocationManagerDelegate>
+@interface SupportViewController : TableViewControllerWithToolbar <CLLocationManagerDelegate>
 
-@property(nonatomic) bool hideButton;
+@property (nonatomic) bool hideButton;
 
 @end

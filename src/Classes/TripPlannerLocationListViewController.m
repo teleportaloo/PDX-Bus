@@ -23,7 +23,7 @@
 
 @interface TripPlannerLocationListViewController ()
 
-@property(nonatomic, strong) NSMutableArray<TripLegEndPoint *> *locList;
+@property (nonatomic, strong) NSMutableArray<TripLegEndPoint *> *locList;
 
 @end
 
@@ -44,62 +44,41 @@ static int depthCount = 0;
 - (void)feedback:(UIBarButtonItem *)sender {
     UIAlertController *alert = [UIAlertController
         alertControllerWithTitle:NSLocalizedString(@"Feedback", @"Alert title")
-                         message:NSLocalizedString(
-                                     @"If a business or address is missing "
-                                     @"from this list, please contact TriMet "
-                                     @"with the details.",
-                                     @"Warning text")
+                         message:NSLocalizedString(@"If a business or address is missing "
+                                                   @"from this list, please contact TriMet "
+                                                   @"with the details.",
+                                                   @"Warning text")
                   preferredStyle:UIAlertControllerStyleAlert];
 
     [alert
-        addAction:
-            [UIAlertAction
-                actionWithTitle:NSLocalizedString(@"Trip Planneer Feedback",
-                                                  @"Button text")
-                          style:UIAlertActionStyleDefault
-                        handler:^(UIAlertAction *action) {
-                          [WebViewController
-                              displayNamedPage:@"TriMet Trip Planner Feedback"
-                                     navigator:self.navigationController
-                                itemToDeselect:self
-                                      whenDone:self.callbackWhenDone];
-                        }]];
+        addAction:[UIAlertAction
+                      actionWithTitle:NSLocalizedString(@"Trip Planneer Feedback", @"Button text")
+                                style:UIAlertActionStyleDefault
+                              handler:^(UIAlertAction *action) {
+                                [WebViewController displayNamedPage:@"TriMet Trip Planner Feedback"
+                                                          navigator:self.navigationController
+                                                     itemToDeselect:self
+                                                           whenDone:self.callbackWhenDone];
+                              }]];
 
-    [alert addAction:[UIAlertAction
-                         actionWithTitle:NSLocalizedString(@"Cancel",
-                                                           @"Button text")
-                                   style:UIAlertActionStyleCancel
-                                 handler:^(UIAlertAction *action){
-                                 }]];
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"Button text")
+                                              style:UIAlertActionStyleCancel
+                                            handler:^(UIAlertAction *action){
+                                            }]];
 
-    UIView *source = (UIView *)[sender valueForKey:@"view"];
-
-    if (source == nil) {
-        source = self.view;
-    }
-
-    alert.popoverPresentationController.sourceView = source;
-    alert.popoverPresentationController.sourceRect = CGRectMake(
-        source.frame.size.width / 2, source.frame.size.height / 2, 0, 0);
-
-    [self.navigationController presentViewController:alert
-                                            animated:YES
-                                          completion:nil];
+    [self.navigationController presentViewController:alert animated:YES completion:nil];
 }
 
-- (void)updateToolbarItems:(NSMutableArray *)toolbarItems {
-    [toolbarItems
-        addObject:[UIToolbar mapButtonWithTarget:self
-                                          action:@selector(showMap:)]];
+- (void)updateToolbarItems:(NSMutableArray<UIBarButtonItem *> *)toolbarItems {
+    [toolbarItems addObject:[UIBarButtonItem mapButtonWithTarget:self action:@selector(showMap:)]];
 
-    if (self.locList && self.locList.count > 0 &&
-        !self.locList.firstObject.fromAppleMaps) {
-        [toolbarItems addObject:[UIToolbar flexSpace]];
+    if (self.locList && self.locList.count > 0 && !self.locList.firstObject.fromAppleMaps) {
+        [toolbarItems addObject:[UIBarButtonItem flexSpace]];
 
         UIBarButtonItem *button =
-            [UIToolbar textButton:NSLocalizedString(@"Feedback", @"warning")
-                           target:self
-                           action:@selector(feedback:)];
+            [UIBarButtonItem textButton:NSLocalizedString(@"Feedback", @"warning")
+                                 target:self
+                                 action:@selector(feedback:)];
 
         [toolbarItems addObject:button];
     }
@@ -151,8 +130,7 @@ static int depthCount = 0;
         self.tripQuery.userRequest.fromPoint.locationDesc = endpoint.desc;
         self.tripQuery.userRequest.fromPoint.coordinates = endpoint.loc;
 
-        if (self.tripQuery.toList &&
-            !self.tripQuery.userRequest.toPoint.useCurrentLocation) {
+        if (self.tripQuery.toList && !self.tripQuery.userRequest.toPoint.useCurrentLocation) {
             TripPlannerLocationListViewController *locView =
                 [TripPlannerLocationListViewController viewController];
 
@@ -186,7 +164,7 @@ static int depthCount = 0;
     MapViewController *mapPage = [MapViewController viewController];
 
     mapPage.stopIdStringCallback = self.stopIdStringCallback;
-    mapPage.annotations = (NSMutableArray<id<MapPin>> *)self.locList;
+    mapPage.allAnnotations = (NSMutableArray<id<MapPin>> *)self.locList;
 
     if (self.from) {
         mapPage.title = NSLocalizedString(@"Uncertain Start", @"page title");
@@ -203,15 +181,12 @@ static int depthCount = 0;
 
 #pragma mark Table View methods
 
-- (NSString *)tableView:(UITableView *)tableView
-    titleForHeaderInSection:(NSInteger)section {
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
     if (self.from) {
-        if (self.locList && self.locList.count > 0 &&
-            self.locList.firstObject.fromAppleMaps) {
-            return NSLocalizedString(
-                @"Searching Apple maps found multiple possible starting "
-                @"locations - select a choice from below, or view on a map:",
-                @"section header");
+        if (self.locList && self.locList.count > 0 && self.locList.firstObject.fromAppleMaps) {
+            return NSLocalizedString(@"Searching Apple maps found multiple possible starting "
+                                     @"locations - select a choice from below, or view on a map:",
+                                     @"section header");
         }
 
         if (self.tripQuery.fromAppleFailed) {
@@ -223,32 +198,27 @@ static int depthCount = 0;
                 @"section header");
         }
 
-        return NSLocalizedString(
-            @"The TriMet Trip Planner found multiple possible starting "
-            @"locations - select a choice from below, or view on a map:",
-            @"section header");
+        return NSLocalizedString(@"The TriMet Trip Planner found multiple possible starting "
+                                 @"locations - select a choice from below, or view on a map:",
+                                 @"section header");
     }
 
-    if (self.locList && self.locList.count > 0 &&
-        self.locList.firstObject.fromAppleMaps) {
-        return NSLocalizedString(
-            @"Searching Apple maps found multiple possible destinations - "
-            @"select a choice from below, or view on a map:",
-            @"section header");
+    if (self.locList && self.locList.count > 0 && self.locList.firstObject.fromAppleMaps) {
+        return NSLocalizedString(@"Searching Apple maps found multiple possible destinations - "
+                                 @"select a choice from below, or view on a map:",
+                                 @"section header");
     }
 
     if (self.tripQuery.toAppleFailed) {
-        return NSLocalizedString(
-            @"Apple maps could not find that destination, we we checked with "
-            @"TriMet.\n\nThe TriMet Trip Planner found multiple possible "
-            @"destinations - select a choice from below, or view on a map:",
-            @"section header");
+        return NSLocalizedString(@"Apple maps could not find that destination, we we checked with "
+                                 @"TriMet.\n\nThe TriMet Trip Planner found multiple possible "
+                                 @"destinations - select a choice from below, or view on a map:",
+                                 @"section header");
     }
 
-    return NSLocalizedString(
-        @"The TriMet Trip Planner found multiple possible destinations - "
-        @"select a choice from below, or view on a map:",
-        @"section header");
+    return NSLocalizedString(@"The TriMet Trip Planner found multiple possible destinations - "
+                             @"select a choice from below, or view on a map:",
+                             @"section header");
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -256,41 +226,28 @@ static int depthCount = 0;
 }
 
 // Customize the number of rows in the table view.
-- (NSInteger)tableView:(UITableView *)tableView
-    numberOfRowsInSection:(NSInteger)section {
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     return self.locList.count;
 }
 
-- (CGFloat)tableView:(UITableView *)tableView
-    heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     return UITableViewAutomaticDimension;
 }
 
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)tableView
          cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell *cell = [self tableView:tableView
-           multiLineCellWithReuseIdentifier:@"TripLocation"];
 
-    TripLegEndPoint *p = self.locList[indexPath.row];
+    UITableViewCell *cell = [self tableView:tableView cellWithReuseIdentifier:@"TripLocation"];
 
-    cell.textLabel.text = p.desc;
-    cell.textLabel.font = self.basicFont;
-    cell.textLabel.adjustsFontSizeToFitWidth = true;
-    cell.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
-    cell.accessibilityLabel = p.desc.phonetic;
-
-    return cell;
+    return [self multiLine:cell
+                      text:self.locList[indexPath.row].desc
+                      icon:nil
+             accessoryType:UITableViewCellAccessoryDisclosureIndicator
+            selectionStyle:UITableViewCellSelectionStyleBlue];
 }
 
-- (void)tableView:(UITableView *)tableView
-    didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    // Navigation logic may go here. Create and push another view controller.
-    // AnotherViewController *anotherViewController = [[AnotherViewController
-    // alloc] initWithNibName:@"AnotherView" bundle:nil];
-    // [self.navigationController pushViewController:anotherViewController];
-    // [anotherViewController release];
-
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [self chosenEndpoint:self.locList[indexPath.row]];
 }
 

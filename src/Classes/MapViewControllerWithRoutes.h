@@ -21,7 +21,7 @@
 
 @interface MapViewControllerWithRoutes : MapViewController
 
-@property(nonatomic, strong) NSSet *pinClassesToFit;
+@property (nonatomic, strong) NSSet *pinClassesToFit;
 
 - (void)fetchRoutesAsync:(id<TaskController>)taskController
                   routes:(NSArray<NSString *> *)routes

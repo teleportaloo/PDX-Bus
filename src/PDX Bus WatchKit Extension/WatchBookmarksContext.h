@@ -21,12 +21,12 @@
 
 @interface WatchBookmarksContext : WatchContext
 
-@property(strong, nonatomic) NSArray<NSString *> *singleBookmark;
-@property(nonatomic) bool dictated;
-@property(copy, nonatomic) NSString *title;
-@property(nonatomic) bool recents;
-@property(copy, nonatomic) NSString *location;
-@property(nonatomic) bool oneTimeShowFirst;
+@property (strong, nonatomic) NSArray<NSString *> *singleBookmark;
+@property (nonatomic) bool dictated;
+@property (copy, nonatomic) NSString *title;
+@property (nonatomic) bool recents;
+@property (copy, nonatomic) NSString *location;
+@property (nonatomic) bool oneTimeShowFirst;
 
 - (void)updateUserActivity:(WKInterfaceController *)controller;
 

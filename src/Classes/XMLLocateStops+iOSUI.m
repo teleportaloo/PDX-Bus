@@ -27,10 +27,8 @@
     if (self.count == 0 && !self.gotData) {
         if (!thread.cancelled) {
             [progress taskCancel];
-            [progress
-                taskSetErrorMsg:NSLocalizedString(
-                                    @"Network problem: please try again later.",
-                                    @"error message")];
+            [progress taskSetErrorMsg:NSLocalizedString(@"Network problem: please try again later.",
+                                                        @"error message")];
 
             return true;
         }
@@ -38,16 +36,13 @@
         if (!thread.cancelled) {
             [progress taskCancel];
 
-            NSArray *modes =
-                @[ @"bus stops", @"train stops", @"bus or train stops" ];
+            NSArray *modes = @[ @"bus stops", @"train stops", @"bus or train stops" ];
 
             [progress
-                taskSetErrorMsg:
-                    [NSString
-                        stringWithFormat:@"No %@ were found within %@.",
-                                         modes[self.mode],
-                                         [FormatDistance
-                                             formatMetres:self.minDistance]]];
+                taskSetErrorMsg:[NSString stringWithFormat:@"No %@ were found within %@.",
+                                                           modes[self.mode],
+                                                           [FormatDistance
+                                                               formatMetres:self.minDistance]]];
             return true;
         }
     }

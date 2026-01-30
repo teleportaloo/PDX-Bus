@@ -34,12 +34,10 @@
 
 - (void)testDeepCopy {
     // Tests if the deep copy leaks
-    NSURL *myURL =
-        [[NSBundle bundleForClass:[self class]] URLForResource:@"test-dict"
-                                                 withExtension:@"plist"];
+    NSURL *myURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"test-dict"
+                                                            withExtension:@"plist"];
 
-    NSMutableDictionary *dict =
-        [NSMutableDictionary dictionaryWithContentsOfURL:myURL];
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithContentsOfURL:myURL];
     NSDictionary *deep = [dict deepCopy];
     __weak NSDictionary *weakDeep = deep;
     [self addTeardownBlock:^{

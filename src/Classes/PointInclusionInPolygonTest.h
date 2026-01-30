@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 
 @interface PointInclusionInPolygonTest : NSObject
- 
-+ (bool)pnpoly:(int) npol points:(const CGPoint *)p  x:(CGFloat)x y:(CGFloat) y;
+
++ (bool)pnpoly:(int)npol points:(const CGPoint *)p x:(CGFloat)x y:(CGFloat)y;
 
 @end

@@ -36,19 +36,19 @@ typedef enum ReportingStatusEnum {
 
 @interface XMLDepartures : TriMetXMLv2 <Departure *>
 
-@property(nonatomic, strong) StopDistance *distance;
-@property(nonatomic, copy) NSString *locDesc;
-@property(nonatomic, copy) NSString *stopId;
-@property(nonatomic, strong) CLLocation *loc;
-@property(nonatomic, copy) NSString *locDir;
-@property(nonatomic, copy) NSString *blockFilter;
-@property(nonatomic, copy) NSString *sectionTitle;
-@property(nonatomic, strong) NSDate *queryTime;
-@property(nonatomic, strong) Detour *currentDetour;
-@property(nonatomic, strong) DetourSorter *detourSorter;
-@property(atomic, strong) AllTriMetRoutes *allRoutes;
-@property(nonatomic) bool nextBusFeedInTriMetData;
-@property(nonatomic) ReportingStatus reportingStatus;
+@property (nonatomic, strong) StopDistance *distance;
+@property (nonatomic, copy) NSString *locDesc;
+@property (nonatomic, copy) NSString *stopId;
+@property (nonatomic, strong) CLLocation *loc;
+@property (nonatomic, copy) NSString *locDir;
+@property (nonatomic, copy) NSString *blockFilter;
+@property (nonatomic, copy) NSString *sectionTitle;
+@property (nonatomic, strong) NSDate *queryTime;
+@property (nonatomic, strong) Detour *currentDetour;
+@property (nonatomic, strong) DetourSorter *detourSorter;
+@property (atomic, strong) AllTriMetRoutes *allRoutes;
+@property (nonatomic) bool nextBusFeedInTriMetData;
+@property (nonatomic) ReportingStatus reportingStatus;
 
 - (BOOL)getDeparturesForStopId:(NSString *)stopId block:(NSString *)block;
 - (Departure *_Nullable)getFirstDepartureForDirection:(NSString *_Nullable)dir;

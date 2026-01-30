@@ -17,18 +17,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SessionSingleton
-    : NSObject <NSURLSessionDataDelegate, NSURLSessionDelegate>
+@interface SessionSingleton : NSObject <NSURLSessionDataDelegate, NSURLSessionDelegate>
 
 + (instancetype)sharedInstance;
-- (NSURLSessionDataTask *_Nullable)
-    dataTaskWithURL:(NSURL *)url
-        cachePolicy:(NSURLRequestCachePolicy)cachePolicy
-           delegate:(id<NSURLSessionDataDelegate>)delegate;
-+ (NSURLSessionDataTask *_Nullable)
-    dataTaskWithURL:(NSURL *)url
-        cachePolicy:(NSURLRequestCachePolicy)cachePolicy
-           delegate:(id<NSURLSessionDataDelegate>)delegate;
+- (NSURLSessionDataTask *_Nullable)dataTaskWithURL:(NSURL *)url
+                                       cachePolicy:(NSURLRequestCachePolicy)cachePolicy
+                                          delegate:(id<NSURLSessionDataDelegate>)delegate;
++ (NSURLSessionDataTask *_Nullable)dataTaskWithURL:(NSURL *)url
+                                       cachePolicy:(NSURLRequestCachePolicy)cachePolicy
+                                          delegate:(id<NSURLSessionDataDelegate>)delegate;
 + (void)removeTask:(NSURLSessionDataTask *)task;
 + (void)clearCache;
 + (NSCachedURLResponse *)response:(NSCachedURLResponse *)cachedResponse

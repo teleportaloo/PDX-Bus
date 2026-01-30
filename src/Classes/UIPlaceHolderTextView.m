@@ -16,7 +16,7 @@
 
 @interface UIPlaceHolderTextView ()
 
-@property(nonatomic, strong) UILabel *placeHolderLabel;
+@property (nonatomic, strong) UILabel *placeHolderLabel;
 
 @end
 
@@ -35,7 +35,7 @@ CGFloat const UI_PLACEHOLDER_TEXT_CHANGED_ANIMATION_DURATION = 0.25;
     [_placeholder release];
     _placeholder = nil;
     [super dealloc];
-#endif
+#endif // objc_arc
 }
 
 - (void)awakeFromNib {
@@ -51,22 +51,20 @@ CGFloat const UI_PLACEHOLDER_TEXT_CHANGED_ANIMATION_DURATION = 0.25;
         [self setPlaceholderColor:[UIColor lightGrayColor]];
     }
 
-    [[NSNotificationCenter defaultCenter]
-        addObserver:self
-           selector:@selector(textChanged:)
-               name:UITextViewTextDidChangeNotification
-             object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(textChanged:)
+                                                 name:UITextViewTextDidChangeNotification
+                                               object:nil];
 }
 
 - (id)initWithFrame:(CGRect)frame {
     if ((self = [super initWithFrame:frame])) {
         [self setPlaceholder:@""];
         [self setPlaceholderColor:[UIColor lightGrayColor]];
-        [[NSNotificationCenter defaultCenter]
-            addObserver:self
-               selector:@selector(textChanged:)
-                   name:UITextViewTextDidChangeNotification
-                 object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(textChanged:)
+                                                     name:UITextViewTextDidChangeNotification
+                                                   object:nil];
     }
 
     return self;

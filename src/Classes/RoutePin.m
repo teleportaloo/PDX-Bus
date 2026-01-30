@@ -103,4 +103,8 @@
     return result;
 }
 
+- (NSString *)key {
+    return nil;
+}
+
 @end

@@ -17,8 +17,7 @@
 #import "MapViewControllerWithRoutes.h"
 #import "XMLDepartures.h"
 
-@interface MapViewControllerWithDetourStops
-    : MapViewControllerWithRoutes <UITextViewDelegate>
+@interface MapViewControllerWithDetourStops : MapViewControllerWithRoutes <UITextViewDelegate>
 
 - (void)fetchLocationsMaybeAsync:(id<TaskController>)taskController
                          detours:(NSArray<Detour *> *)detours

@@ -18,11 +18,9 @@
 @implementation XMLToTestCode
 
 - (void)emitProperty {
-    if (self.contentOfCurrentProperty &&
-        self.contentOfCurrentProperty.length > 0 &&
+    if (self.contentOfCurrentProperty && self.contentOfCurrentProperty.length > 0 &&
         [self.contentOfCurrentProperty
-            stringByTrimmingCharactersInSet:
-                [NSCharacterSet whitespaceAndNewlineCharacterSet]]
+            stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]
                 .length != 0) {
         NSMutableString *prop = self.contentOfCurrentProperty;
 
@@ -51,8 +49,7 @@
                                  options:NSLiteralSearch
                                    range:NSMakeRange(0, [prop length])];
 
-        [self.result
-            appendFormat:@"[xmlFile.xml appendString:@\"%@\"]\n", prop];
+        [self.result appendFormat:@"[xmlFile.xml appendString:@\"%@\"]\n", prop];
     }
     self.contentOfCurrentProperty = nil;
 }
@@ -80,8 +77,7 @@
     }
 
     [self.result
-        appendFormat:@"[xmlFile startTagWithAttributes:@\"%@\" attributes:@[\n",
-                     elementName];
+        appendFormat:@"[xmlFile startTagWithAttributes:@\"%@\" attributes:@[\n", elementName];
 
     __block bool first = YES;
 
@@ -90,8 +86,7 @@
       if (!first) {
           [self.result appendFormat:@",\n"];
       }
-      [self.result appendFormat:@"        @[@\"%@\", @\"%@\"]", (NSString *)key,
-                                (NSString *)obj];
+      [self.result appendFormat:@"        @[@\"%@\", @\"%@\"]", (NSString *)key, (NSString *)obj];
       first = NO;
     }];
 

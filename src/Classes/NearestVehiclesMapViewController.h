@@ -20,12 +20,12 @@
 
 @interface NearestVehiclesMapViewController : MapViewController <HiddenTaskDone>
 
-@property(nonatomic, strong) NSSet<NSString *> *streetcarRoutes;
-@property(nonatomic, strong) NSSet<NSString *> *trimetRoutes;
-@property(nonatomic, copy) NSString *direction;
-@property(nonatomic) bool alwaysFetch;
-@property(nonatomic) bool allRoutes;
-@property(nonatomic) MapViewLineOptions defaultFitOption;
+@property (nonatomic, strong) NSSet<NSString *> *streetcarRoutes;
+@property (nonatomic, strong) NSSet<NSString *> *trimetRoutes;
+@property (nonatomic, copy) NSString *direction;
+@property (nonatomic) bool alwaysFetch;
+@property (nonatomic) bool allRoutes;
+@property (nonatomic) MapViewLineOptions defaultFitOption;
 
 - (void)fetchNearestVehiclesAsync:(id<TaskController>)taskController;
 - (void)fetchNearestVehiclesAndStopsAsync:(id<TaskController>)taskController

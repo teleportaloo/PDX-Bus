@@ -15,7 +15,6 @@
 
 #import <Intents/Intents.h>
 
-API_AVAILABLE(watchos(3.2))
 @interface IntentHandler : INExtension
 
 @end

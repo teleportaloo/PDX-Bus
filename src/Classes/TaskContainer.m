@@ -26,8 +26,7 @@
 #import "UIApplication+Compat.h"
 
 @interface TaskContainer ()
-@property(atomic, retain)
-    NSMapTable<NSObject *, dispatch_block_t> *cancelObservers;
+@property (atomic, retain) NSMapTable<NSObject *, dispatch_block_t> *cancelObservers;
 
 @end
 
@@ -40,8 +39,7 @@
 
         if (!self.backgroundThread.cancelled) {
             [self.backgroundThread cancel];
-            for (dispatch_block_t block in self.cancelObservers
-                     .objectEnumerator) {
+            for (dispatch_block_t block in self.cancelObservers.objectEnumerator) {
                 block();
             }
         }
@@ -72,9 +70,9 @@
 
 - (instancetype)init {
     if ((self = [super init])) {
-        self.cancelObservers = [NSMapTable
-            mapTableWithKeyOptions:NSPointerFunctionsOpaquePersonality
-                      valueOptions:NSPointerFunctionsStrongMemory];
+        self.cancelObservers =
+            [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsOpaquePersonality
+                                  valueOptions:NSPointerFunctionsStrongMemory];
     }
 
     return self;
@@ -101,10 +99,10 @@
 }
 
 - (void)runBlock:(UIViewController * (^)(TaskState *taskState))block {
-    static NSMutableData *globalSyncObject;
+    static NSNumber *globalSyncObject;
 
-    DoOnce(^{
-      globalSyncObject = [[NSMutableData alloc] initWithLength:1];
+    DO_ONCE(^{
+      globalSyncObject = @(42);
     });
 
     // This forces the background thread only to run one at a time - no
@@ -123,8 +121,7 @@
             // screen flashes and it is annoying.
             UIViewController *result = block(taskState);
 
-            NSTimeInterval elapsed =
-                [[NSDate date] timeIntervalSinceDate:start];
+            NSTimeInterval elapsed = [[NSDate date] timeIntervalSinceDate:start];
             NSTimeInterval remaining = 0.3 - elapsed;
 
             if (remaining > 0) {
@@ -139,8 +136,7 @@
 - (void)taskRunAsync:(UIViewController * (^)(TaskState *state))block {
     // We need to use the NSThread mechanism so we can cancel it easily, but I
     // want to use the blocks as it makes the passing of variables very easy.
-    [self performSelectorInBackground:@selector(runBlock:)
-                           withObject:[block copy]];
+    [self performSelectorInBackground:@selector(runBlock:) withObject:[block copy]];
 }
 
 - (void)taskCompleted:(UIViewController *)viewController {
@@ -154,16 +150,13 @@
       DEBUG_PROGRESS(self, @"finishing");
 
       if (self.errMsg) {
-          UIAlertController *alert =
-              [UIAlertController simpleOkWithTitle:nil message:self.errMsg];
+          [UIAlertController simpleOkWithTitle:nil
+                                       message:self.errMsg
+                                viewController:self.parent ?: UIApplication.topViewController
+                                    completion:^{
+                                      [self finish];
+                                    }];
 
-          UIViewController *top = UIApplication.topViewController;
-
-          [top presentViewController:alert
-                            animated:YES
-                          completion:^{
-                            [self finish];
-                          }];
           self.errMsg = nil;
       } else {
           DEBUG_LOG(@"finish");
@@ -189,8 +182,7 @@
 - (void)triMetXML:(TriMetXML *)xml finishedFetchingData:(bool)fromCache {
 }
 
-- (void)triMetXML:(TriMetXML *_Nonnull)xml
-    incrementalBytes:(long long)incremental {
+- (void)triMetXML:(TriMetXML *_Nonnull)xml incrementalBytes:(long long)incremental {
 }
 
 @end

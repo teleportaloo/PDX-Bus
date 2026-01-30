@@ -24,24 +24,23 @@
 
 @interface WatchArrivalsContext : WatchContext
 
-@property(nonatomic, copy) NSString *stopDesc;
-@property(nonatomic, copy) NSString *navText;
-@property(nonatomic, readonly) bool hasNext;
-@property(nonatomic) bool showMap;
-@property(nonatomic) bool showDistance;
-@property(nonatomic) double distance;
-@property(nonatomic, copy) NSString *stopId;
-@property(nonatomic, copy) NSString *detailBlock;
-@property(nonatomic, copy) NSString *detailDir;
-@property(nonatomic, strong) XMLDepartures *departures;
-@property(nonatomic, readonly, strong) WatchArrivalsContext *next;
-@property(nonatomic, readonly, strong) WatchArrivalsContext *clone;
+@property (nonatomic, copy) NSString *stopDesc;
+@property (nonatomic, copy) NSString *navText;
+@property (nonatomic, readonly) bool hasNext;
+@property (nonatomic) bool showMap;
+@property (nonatomic) bool showDistance;
+@property (nonatomic) double distance;
+@property (nonatomic, copy) NSString *stopId;
+@property (nonatomic, copy) NSString *detailBlock;
+@property (nonatomic, copy) NSString *detailDir;
+@property (nonatomic, strong) XMLDepartures *departures;
+@property (nonatomic, readonly, strong) WatchArrivalsContext *next;
+@property (nonatomic, readonly, strong) WatchArrivalsContext *clone;
 
 - (void)updateUserActivity:(WKInterfaceController *)controller;
 
 + (WatchArrivalsContext *)contextWithStopId:(NSString *)stopId;
-+ (WatchArrivalsContext *)contextWithStopId:(NSString *)stopId
-                                   distance:(double)distance;
++ (WatchArrivalsContext *)contextWithStopId:(NSString *)stopId distance:(double)distance;
 + (WatchArrivalsContext *)contextWithStopId:(NSString *)stopId
                                    distance:(double)distance
                                    stopDesc:(NSString *)stopDesc;

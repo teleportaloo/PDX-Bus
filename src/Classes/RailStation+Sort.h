@@ -19,7 +19,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface RailStation (Sort)
 
-
 // This should only be used for testing and generating arrays - there is
 // a nice table of pre-sorted stations provided... this was used to make it.
 + (NSArray<RailStation *> *)sortedStations;

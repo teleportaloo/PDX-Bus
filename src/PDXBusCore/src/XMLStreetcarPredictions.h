@@ -18,10 +18,10 @@
 
 @interface XMLStreetcarPredictions : NextBusXML <Departure *>
 
-@property(nonatomic, copy) NSString *blockFilter;
-@property(nonatomic, copy) NSString *copyright;
-@property(nonatomic, copy) NSString *nextBusRouteId;
-@property(nonatomic, copy) NSString *stopTitle;
+@property (nonatomic, copy) NSString *blockFilter;
+@property (nonatomic, copy) NSString *copyright;
+@property (nonatomic, copy) NSString *nextBusRouteId;
+@property (nonatomic, copy) NSString *stopTitle;
 
 - (BOOL)getDeparturesForStopId:(NSString *)location;
 

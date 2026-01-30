@@ -52,14 +52,16 @@
         PtrConstRouteInfo info = [TriMetInfo infoForRouteNum:self.route];
 
         if (info == nil) {
-            color = self.frequent ? [UIColor modeAwareFrequentBusColor]
-                                  : [UIColor modeAwareBusColor];
+            color =
+                self.frequent ? [UIColor modeAwareFrequentBusColor] : [UIColor modeAwareBusColor];
             dashPatternId = 1;
             dashPhase = 0;
         } else {
             color = HTML_COLOR(info->html_color);
             dashPatternId = info->dash_pattern;
             dashPhase = info->dash_phase * kPolyLineSegLength;
+
+            color = color.modeAwareVariant;
         }
     }
 
@@ -73,12 +75,11 @@
 
         [polys addObject:seg.simplePolyline];
     }
-    
+
     DEBUG_LOG_NSString(self.desc);
     DEBUG_LOG_long(polys.count);
 
-    RouteMultiPolyline *line =
-        [[RouteMultiPolyline alloc] initWithPolylines:polys];
+    RouteMultiPolyline *line = [[RouteMultiPolyline alloc] initWithPolylines:polys];
 
     line.color = color;
     line.dashPatternId = dashPatternId;
@@ -108,20 +109,18 @@
 
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
     if ((self = [super init])) {
-        self.segments =
-            [aDecoder decodeObjectOfClasses:[NSSet setWithArray:@[
-                          [NSMutableArray class], [ShapeCompactSegment class]
-                      ]]
-                                     forKey:kKeySegments];
+        self.segments = [aDecoder decodeObjectOfClasses:[NSSet setWithArray:@[
+                                      [NSMutableArray class],
+                                      [ShapeCompactSegment class]
+                                  ]]
+                                                 forKey:kKeySegments];
 
         if (self.segments == nil) {
             self.segments = [NSMutableArray array];
         }
 
-        self.dirDesc = [aDecoder decodeObjectOfClass:[NSString class]
-                                              forKey:kKeyDirDesc];
-        self.desc = [aDecoder decodeObjectOfClass:[NSString class]
-                                           forKey:kKeyDesc];
+        self.dirDesc = [aDecoder decodeObjectOfClass:[NSString class] forKey:kKeyDirDesc];
+        self.desc = [aDecoder decodeObjectOfClass:[NSString class] forKey:kKeyDesc];
         self.route = [aDecoder decodeIntegerForKey:kKeyRoute];
         self.direct = [aDecoder decodeBoolForKey:kKeyDirect];
 
@@ -138,8 +137,7 @@
 
 - (void)setRoute:(NSInteger)route {
     if (self.route != kShapeNoRoute) {
-        self.routeStr =
-            [NSString stringWithFormat:@"%lu", (unsigned long)route];
+        self.routeStr = [NSString stringWithFormat:@"%lu", (unsigned long)route];
     }
     _route = route;
 }

@@ -25,12 +25,10 @@
 @implementation DebugInterfaceController
 
 - (void)reloadData {
-    NSDictionary *commuter =
-        [UserState.sharedInstance checkForCommuterBookmarkShowOnlyOnce:NO];
+    NSDictionary *commuter = [UserState.sharedInstance checkForCommuterFaveShowOnlyOnce:NO];
 
     if (commuter == nil) {
-        self.CommuterStatus.text =
-            @"No commuter bookmark configured for this time.";
+        self.CommuterStatus.text = @"No commuter bookmark configured for this time.";
     } else {
         NSDate *lastRun = UserState.sharedInstance.lastRun;
         UserParams *params = commuter.userParams;
@@ -38,13 +36,13 @@
         self.CommuterStatus.text = params.valChosenName;
 
         if (lastRun != nil) {
-            self.CommuterStatus.text = [NSString
-                stringWithFormat:
-                    @"%@ last run %@", params.valChosenName,
-                    [NSDateFormatter
-                        localizedStringFromDate:lastRun
-                                      dateStyle:NSDateFormatterMediumStyle
-                                      timeStyle:NSDateFormatterMediumStyle]];
+            self.CommuterStatus.text =
+                [NSString stringWithFormat:@"%@ last run %@",
+                                           params.valChosenName,
+                                           [NSDateFormatter
+                                               localizedStringFromDate:lastRun
+                                                             dateStyle:NSDateFormatterMediumStyle
+                                                             timeStyle:NSDateFormatterMediumStyle]];
         } else {
             self.CommuterStatus.text = commuter.userParams.valChosenName;
         }

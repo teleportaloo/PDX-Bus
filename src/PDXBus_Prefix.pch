@@ -27,6 +27,6 @@
     #import <sqlite3.h>
 
     #import "DebugLogging.h"
-#endif
+#endif // __OBJC__
 
 #define SDK3

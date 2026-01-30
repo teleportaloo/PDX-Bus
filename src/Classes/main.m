@@ -13,10 +13,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <UIKit/UIKit.h>
 #import "PDXBusAppDelegate.h"
+#import <UIKit/UIKit.h>
 
-int main(int argc, char * argv[]) {
+int main(int argc, char *argv[]) {
     @autoreleasepool {
         return UIApplicationMain(argc, argv, nil, NSStringFromClass([PDXBusAppDelegate class]));
     }

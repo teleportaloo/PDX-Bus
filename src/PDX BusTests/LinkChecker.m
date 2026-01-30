@@ -22,17 +22,15 @@
 @interface LinkChecker () {
 }
 
-#define LOG_RESULT(s, ...)                                                     \
-    [self.log addObject:[NSString stringWithFormat:(s), ##__VA_ARGS__]]
+#define LOG_RESULT(s, ...) [self.log addObject:[NSString stringWithFormat:(s), ##__VA_ARGS__]]
 
-@property(atomic, strong) NSURLSession *session;
-@property(atomic, strong)
-    NSMutableDictionary<NSNumber *, NSString *> *urlsToFind;
-@property(atomic, strong) NSMutableDictionary<NSNumber *, NSDate *> *queryStart;
-@property(atomic) NSInteger maxLinks;
-@property(atomic, strong) NSMutableArray<NSString *> *log;
-@property(atomic, strong) NSMutableSet<NSString *> *ignoreSet;
-@property(atomic, strong) NSMutableSet<NSString *> *secondGo;
+@property (atomic, strong) NSURLSession *session;
+@property (atomic, strong) NSMutableDictionary<NSNumber *, NSString *> *urlsToFind;
+@property (atomic, strong) NSMutableDictionary<NSNumber *, NSDate *> *queryStart;
+@property (atomic) NSInteger maxLinks;
+@property (atomic, strong) NSMutableArray<NSString *> *log;
+@property (atomic, strong) NSMutableSet<NSString *> *ignoreSet;
+@property (atomic, strong) NSMutableSet<NSString *> *secondGo;
 
 @end
 
@@ -77,9 +75,12 @@
             case NSURLErrorAppTransportSecurityRequiresSecureConnection: {
                 LOG_RESULT(@"LINK %@ *** INSECURE  %@ - non-secure link "
                            @"requires manual check for %@",
-                           self.context, url,
+                           self.context,
+                           url,
                            task.currentRequest.URL.absoluteString);
-                XCTFail(@"%@ cannot check link  %@ %@", self.context, url,
+                XCTFail(@"%@ cannot check link  %@ %@",
+                        self.context,
+                        url,
                         task.currentRequest.URL.absoluteString);
                 break;
             }
@@ -87,7 +88,9 @@
                 if ([self.secondGo containsObject:url]) {
                     LOG_RESULT(@"LINK %@ *** TIMED OUT %@ - timed-out (%3.2fs) "
                                @"link requires manual check ",
-                               self.context, url, (float)interval);
+                               self.context,
+                               url,
+                               (float)interval);
                 }
                 break;
             }
@@ -116,8 +119,7 @@
 - (void)URLSession:(NSURLSession *)session
               dataTask:(NSURLSessionDataTask *)dataTask
     didReceiveResponse:(NSURLResponse *)response
-     completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))
-                           completionHandler {
+     completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
     bool ok = YES;
 
     NSDate *queryStart = self.queryStart[@(dataTask.taskIdentifier)];
@@ -130,7 +132,8 @@
         NSInteger statusCode = [((NSHTTPURLResponse *)response) statusCode];
 
         if (statusCode != 200) {
-            LOG_RESULT(@"LINK %@ *** %03d       %@ error code", self.context,
+            LOG_RESULT(@"LINK %@ *** %03d       %@ error code",
+                       self.context,
                        (int)statusCode,
                        self.urlsToFind[@(dataTask.taskIdentifier)]);
             XCTFail(@"Link not found:  %@ %d",
@@ -143,9 +146,8 @@
     if (ok) {
 #if 1
         NSString *url = self.urlsToFind[@(dataTask.taskIdentifier)];
-        LOG_RESULT(@"LINK %@     IN %3.2fs FOUND     %@", self.context,
-                   interval, url);
-#endif
+        LOG_RESULT(@"LINK %@     IN %3.2fs FOUND     %@", self.context, interval, url);
+#endif // 1
     }
 
     [self.urlsToFind removeObjectForKey:@(dataTask.taskIdentifier)];
@@ -155,9 +157,7 @@
 
 - (void)checkWikiLink:(NSString *)wiki {
     if (wiki) {
-        [self checkLink:[NSString
-                            stringWithFormat:
-                                @"https://en.m.wikipedia.org/wiki/%@", wiki]];
+        [self checkLink:[NSString stringWithFormat:@"https://en.m.wikipedia.org/wiki/%@", wiki]];
     }
 }
 
@@ -188,8 +188,7 @@
 
         if (![self.ignoreSet containsObject:link]) {
             self.maxLinks++;
-            NSURLSessionTask *task =
-                [self.session dataTaskWithURL:[NSURL URLWithString:link]];
+            NSURLSessionTask *task = [self.session dataTaskWithURL:[NSURL URLWithString:link]];
             self.urlsToFind[@(task.taskIdentifier)] = link;
             self.queryStart[@(task.taskIdentifier)] = NSDate.date;
             [self.ignoreSet addObject:link];
@@ -208,8 +207,7 @@
     while (self.urlsToFind.count != 0) {
         if (todo != self.urlsToFind.count) {
             todo = self.urlsToFind.count;
-            DEBUG_LOG_RAW(@"LINK %@     WAITING   Waiting for %d link(s)",
-                          self.context, (int)todo);
+            DEBUG_LOG_RAW(@"LINK %@     WAITING   Waiting for %d link(s)", self.context, (int)todo);
         }
         [NSThread sleepForTimeInterval:0.25];
     }
@@ -218,10 +216,9 @@
     for (NSString *item in self.log) {
         DEBUG_LOG_RAW(@"%@", item);
     }
-#endif
+#endif // DEBUGLOGGING
 
-    DEBUG_LOG_RAW(@"LINK %@     DONE      %d checked", self.context,
-                  (int)self.maxLinks);
+    DEBUG_LOG_RAW(@"LINK %@     DONE      %d checked", self.context, (int)self.maxLinks);
 }
 
 @end

@@ -19,7 +19,7 @@
 #import <UIKit/UIKit.h>
 #if !TARGET_OS_MACCATALYST
 #import <AddressBookUI/ABPeoplePickerNavigationController.h>
-#endif
+#endif // !TARGET_OS_MACCATALYST
 #import "CellTextField.h"
 #import "CellTextView.h"
 #import "TripPlannerBaseViewController.h"
@@ -31,18 +31,16 @@
                                      ReturnStopIdString,
 #if !TARGET_OS_MACCATALYST
                                      ABPeoplePickerNavigationControllerDelegate,
-#endif
+#endif // !TARGET_OS_MACCATALYST
                                      CNContactPickerDelegate>
 
-@property(nonatomic, readonly, strong) UIViewController *controller;
-@property(nonatomic) bool from;
-@property(nonatomic, strong) UIViewController *popBackTo;
+@property (nonatomic, readonly, strong) UIViewController *controller;
+@property (nonatomic) bool from;
+@property (nonatomic, strong) UIViewController *popBackTo;
 
 - (void)browseForStop;
 - (void)selectFromRailMap;
-- (void)gotPlace:(NSString *)place
-         setUiText:(bool)setText
-    additionalInfo:(NSString *)info;
+- (void)gotPlace:(NSString *)place setUiText:(bool)setText additionalInfo:(NSString *)info;
 - (void)cancelAction:(id)sender;
 - (void)initEndPoint;
 - (void)nextScreen;

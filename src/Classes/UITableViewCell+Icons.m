@@ -13,27 +13,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#import "BoxedIcon.h"
 #import "Icons.h"
 #import "UITableViewCell+Icons.h"
 
 @implementation UITableViewCell (Icons)
 
-- (void)setNamedIcon:(NSString *)name {
-    [Icons getDelayedIcon:name
-               completion:^(UIImage *image) {
-                 self.imageView.image = image;
-                 [self setNeedsLayout];
-               }];
-}
+- (void)setIcon:(BoxedIcon *)icon {
+    if (icon == nil) {
+        self.imageView.image = nil;
+        self.imageView.tintColor = nil;
+        return;
+    }
 
-- (void)setSystemIcon:(NSString *)name {
-    self.imageView.image = [UIImage systemImageNamed:name];
-    self.imageView.tintColor = nil;
-}
-
-- (void)systemIcon:(NSString *)name tint:(UIColor *)tint {
-    self.imageView.image = [UIImage systemImageNamed:name];
-    self.imageView.tintColor = tint;
+    self.imageView.image = icon.image;
+    self.imageView.tintColor = icon.tint;
 }
 
 @end

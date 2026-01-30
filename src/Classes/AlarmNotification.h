@@ -19,10 +19,9 @@
 
 @interface AlarmNotification : NSObject <MapPin>
 
-@property(nonatomic) UIApplicationState previousState;
+@property (nonatomic) UIApplicationState previousState;
 
-- (void)application:(UIApplication *)app
-    didReceiveLocalNotification:(UNNotificationRequest *)notif;
+- (void)application:(UIApplication *)app didReceiveLocalNotification:(UNNotificationRequest *)notif;
 + (void)executeAction:(NSDictionary *)userInfo;
 
 @end

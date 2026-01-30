@@ -14,11 +14,11 @@
 
 
 #import "TableViewControllerWithToolbar.h"
-#import <Foundation/Foundation.h>
 #import "UserParams.h"
+#import <Foundation/Foundation.h>
 
 @interface DayOfTheWeekViewController : TableViewControllerWithToolbar
 
-@property(nonatomic, strong) MutableUserParams *originalFave;
+@property (nonatomic, strong) MutableUserParams *originalFave;
 
 @end

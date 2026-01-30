@@ -21,15 +21,15 @@
     NSString *str = nil;
 
     if ([query characterAtIndex:query.length - 1] == '&') {
-        str = [NSString
-            stringWithFormat:
-                @"https://developer.trimet.org/ws/V2/%@appID=%@&json=false",
-                query, [TriMetXML appId]];
+        str =
+            [NSString stringWithFormat:@"https://developer.trimet.org/ws/V2/%@appID=%@&json=false",
+                                       query,
+                                       TriMetXML.appId];
     } else {
-        str = [NSString
-            stringWithFormat:
-                @"https://developer.trimet.org/ws/V2/%@/appID/%@/json/false",
-                query, [TriMetXML appId]];
+        str =
+            [NSString stringWithFormat:@"https://developer.trimet.org/ws/V2/%@/appID/%@/json/false",
+                                       query,
+                                       TriMetXML.appId];
     }
 
     return str;

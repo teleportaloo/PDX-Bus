@@ -51,15 +51,15 @@
     int _tasksDone;
 }
 
-@property(nonatomic, strong) WatchArrivalsContext *arrivalsContext;
-@property(nonatomic, strong) NSTimer *refreshTimer;
-@property(atomic, strong) NSDate *lastUpdate;
-@property(nonatomic, strong) XMLDepartures *departures;
-@property(nonatomic, strong) NSMutableArray<Detour *> *systemWideDetours;
-@property(nonatomic, strong) NSMutableArray<Detour *> *stopDetours;
-@property(nonatomic, strong) Departure *detailDeparture;
-@property(nonatomic, copy) NSString *detailStreetcarId;
-@property(nonatomic, copy) NSString *progressTitle;
+@property (nonatomic, strong) WatchArrivalsContext *arrivalsContext;
+@property (nonatomic, strong) NSTimer *refreshTimer;
+@property (atomic, strong) NSDate *lastUpdate;
+@property (nonatomic, strong) XMLDepartures *departures;
+@property (nonatomic, strong) NSMutableArray<Detour *> *systemWideDetours;
+@property (nonatomic, strong) NSMutableArray<Detour *> *stopDetours;
+@property (nonatomic, strong) Departure *detailDeparture;
+@property (nonatomic, copy) NSString *detailStreetcarId;
+@property (nonatomic, copy) NSString *progressTitle;
 
 @end
 
@@ -150,15 +150,13 @@
             [rowTypes addObject:[WatchNoArrivals identifier]];
             [rowIndices addObject:@(0)];
         } else {
-            NSMutableSet *detoursNoLongerFound =
-                Settings.hiddenSystemWideDetours.mutableCopy;
+            NSMutableSet *detoursNoLongerFound = Settings.hiddenSystemWideDetours.mutableCopy;
 
             for (NSInteger i = 0; i < self.systemWideDetours.count; i++) {
                 [rowTypes addObject:[WatchSystemWideHeader identifier]];
                 [rowIndices addObject:self.systemWideDetours[i].detourId];
 
-                [detoursNoLongerFound
-                    removeObject:self.systemWideDetours[i].detourId];
+                [detoursNoLongerFound removeObject:self.systemWideDetours[i].detourId];
             }
 
             [Settings removeOldSystemWideDetours:detoursNoLongerFound];
@@ -189,8 +187,7 @@
                 NSSet *hidden = Settings.hiddenSystemWideDetours;
 
                 for (i = 0; i < first.sortedDetours.systemWideCount; i++) {
-                    if (![hidden
-                            containsObject:first.sortedDetours.detourIds[i]]) {
+                    if (![hidden containsObject:first.sortedDetours.detourIds[i]]) {
                         [rowTypes addObject:[WatchSystemWideDetour identifier]];
                         [rowIndices addObject:first.sortedDetours.detourIds[i]];
                     }
@@ -200,14 +197,12 @@
 
                 if (i < first.sortedDetours.detourIds.count) {
                     [rowTypes addObject:[WatchDetourHeader identifier]];
-                    [rowIndices
-                        addObject:@(first.sortedDetours.detourIds.count - i)];
+                    [rowIndices addObject:@(first.sortedDetours.detourIds.count - i)];
 
                     if (!Settings.hideWatchDetours) {
                         for (; i < first.sortedDetours.detourIds.count; i++) {
                             [rowTypes addObject:[WatchDetour identifier]];
-                            [rowIndices
-                                addObject:first.sortedDetours.detourIds[i]];
+                            [rowIndices addObject:first.sortedDetours.detourIds[i]];
                         }
                     }
                 }
@@ -218,8 +213,7 @@
     }
 
     default: {
-        NSMutableSet *detoursNoLongerFound =
-            Settings.hiddenSystemWideDetours.mutableCopy;
+        NSMutableSet *detoursNoLongerFound = Settings.hiddenSystemWideDetours.mutableCopy;
 
         for (Detour *det in self.systemWideDetours) {
             [rowTypes addObject:[WatchSystemWideHeader identifier]];
@@ -276,8 +270,7 @@
     }
 
     if (self.arrivalsContext.showDistance) {
-        self.distanceLabel.text =
-            [FormatDistance formatMetres:self.arrivalsContext.distance];
+        self.distanceLabel.text = [FormatDistance formatMetres:self.arrivalsContext.distance];
 
         self.distanceLabel.hidden = NO;
     } else {
@@ -288,11 +281,9 @@
         UserState *userData = UserState.sharedInstance;
         userData.readOnly = FALSE;
         NSString *longDesc =
-            [NSString stringWithFormat:@"%@ (%@)", self.departures.locDesc,
-                                       self.departures.locDir];
-        NSDictionary *recent =
-            [userData addToRecentsWithStopId:self.arrivalsContext.stopId
-                                 description:longDesc];
+            [NSString stringWithFormat:@"%@ (%@)", self.departures.locDesc, self.departures.locDir];
+        NSDictionary *recent = [userData addToRecentStops:self.arrivalsContext.stopId
+                                              description:longDesc];
 
         if ([WCSession isSupported] && recent) {
             MutableUserParams *params = MutableUserParams.new;
@@ -337,12 +328,11 @@
                 [self.refreshTimer invalidate];
             }
 
-            self.refreshTimer =
-                [NSTimer scheduledTimerWithTimeInterval:kRefreshTime - diff
-                                                 target:self
-                                               selector:@selector(refresh:)
-                                               userInfo:nil
-                                                repeats:NO];
+            self.refreshTimer = [NSTimer scheduledTimerWithTimeInterval:kRefreshTime - diff
+                                                                 target:self
+                                                               selector:@selector(refresh:)
+                                                               userInfo:nil
+                                                                repeats:NO];
         }
     }
 }
@@ -351,10 +341,8 @@
     NSDictionary *data = result;
 
     if (data != nil) {
-        XMLDepartures *departures =
-            [data objectForKey:NSStringFromClass([XMLDepartures class])];
-        Departure *detailedDep =
-            [data objectForKey:NSStringFromClass([Departure class])];
+        XMLDepartures *departures = [data objectForKey:NSStringFromClass([XMLDepartures class])];
+        Departure *detailedDep = [data objectForKey:NSStringFromClass([Departure class])];
 
         [self loadTableWithDepartures:departures detailedDeparture:detailedDep];
     } else {
@@ -378,8 +366,7 @@
 
 // static NSDate *startTime = nil;
 
-- (void)triMetXML:(TriMetXML *_Nonnull)xml
-    incrementalBytes:(long long)incremental {
+- (void)triMetXML:(TriMetXML *_Nonnull)xml incrementalBytes:(long long)incremental {
 }
 
 - (void)extractDetours:(XMLDepartures *)departures {
@@ -387,8 +374,7 @@
     self.stopDetours = [NSMutableArray array];
 
     [departures.detourSorter.allDetours
-        enumerateKeysAndObjectsUsingBlock:^void(NSNumber *detourId,
-                                                Detour *detour, BOOL *stop) {
+        enumerateKeysAndObjectsUsingBlock:^void(NSNumber *detourId, Detour *detour, BOOL *stop) {
           if (detour.systemWide) {
               [self.systemWideDetours addObject:detour];
           }
@@ -420,9 +406,8 @@
     [self sendProgress:++_tasksDone total:_tasks];
 
     if (_arrivalsContext.detailBlock && !self.backgroundThread.cancelled) {
-        newDetailDep =
-            [departures departureForBlock:_arrivalsContext.detailBlock
-                                      dir:_arrivalsContext.detailDir];
+        newDetailDep = [departures departureForBlock:_arrivalsContext.detailBlock
+                                                 dir:_arrivalsContext.detailDir];
 
         if (newDetailDep == nil && self.detailDeparture) {
             newDetailDep = self.detailDeparture.copy;
@@ -430,8 +415,7 @@
         }
 
         if (newDetailDep) {
-            if (newDetailDep.needToFetchStreetcarLocation &&
-                !self.backgroundThread.cancelled) {
+            if (newDetailDep.needToFetchStreetcarLocation && !self.backgroundThread.cancelled) {
                 [self sendProgress:_tasksDone total:++_tasks];
 
                 NSString *streetcarRoute = newDetailDep.route;
@@ -444,12 +428,10 @@
                     XMLStreetcarPredictions *streetcarArrivals =
                         [XMLStreetcarPredictions xmlWithOneTimeDelegate:self];
 
-                    [streetcarArrivals
-                        getDeparturesForStopId:newDetailDep.stopId];
+                    [streetcarArrivals getDeparturesForStopId:newDetailDep.stopId];
 
                     for (Departure *vehicle in streetcarArrivals) {
-                        if ([vehicle.block
-                                isEqualToString:newDetailDep.block]) {
+                        if ([vehicle.block isEqualToString:newDetailDep.block]) {
                             newDetailDep.streetcarId = vehicle.streetcarId;
                             self.detailStreetcarId = newDetailDep.streetcarId;
                             break;
@@ -458,27 +440,23 @@
                 }
 
                 // Now get the locations of the steetcars and find ours
-                XMLStreetcarLocations *locs = [XMLStreetcarLocations
-                    sharedInstanceForRoute:streetcarRoute];
+                XMLStreetcarLocations *locs =
+                    [XMLStreetcarLocations sharedInstanceForRoute:streetcarRoute];
 
                 locs.oneTimeDelegate = self;
                 [locs getLocations];
 
-                if (newDetailDep.streetcar &&
-                    [newDetailDep.route isEqualToString:streetcarRoute]) {
+                if (newDetailDep.streetcar && [newDetailDep.route isEqualToString:streetcarRoute]) {
                     [locs insertLocation:newDetailDep];
                 }
-            } else if ((newDetailDep.blockPosition == nil ||
-                        newDetailDep.invalidated) &&
+            } else if ((newDetailDep.blockPosition == nil || newDetailDep.invalidated) &&
                        !self.backgroundThread.cancelled) {
-                XMLLocateVehicles *vehicles =
-                    [XMLLocateVehicles xmlWithOneTimeDelegate:self];
-                [vehicles
-                    findNearestVehicles:nil
-                              direction:nil
-                                 blocks:[NSSet setWithObject:newDetailDep.block]
-                               vehicles:nil
-                                  since:nil];
+                XMLLocateVehicles *vehicles = [XMLLocateVehicles xmlWithOneTimeDelegate:self];
+                [vehicles findNearestVehicles:nil
+                                    direction:nil
+                                       blocks:[NSSet setWithObject:newDetailDep.block]
+                                     vehicles:nil
+                                        since:nil];
 
                 if (vehicles.count > 0) {
                     Vehicle *data = vehicles.items.firstObject;
@@ -491,14 +469,12 @@
     NSMutableDictionary *result = [NSMutableDictionary dictionary];
 
     if (!self.backgroundThread.cancelled) {
-        [result setObject:departures
-                   forKey:NSStringFromClass(departures.class)];
+        [result setObject:departures forKey:NSStringFromClass(departures.class)];
         [self extractDetours:departures];
     }
 
     if (newDetailDep) {
-        [result setObject:newDetailDep
-                   forKey:NSStringFromClass(newDetailDep.class)];
+        [result setObject:newDetailDep forKey:NSStringFromClass(newDetailDep.class)];
     }
 
     if (!self.backgroundThread.cancelled) {
@@ -529,8 +505,7 @@
             [progress appendString:@"◎"];
         }
 
-        [self setTitle:[NSString stringWithFormat:@"%@ %@", progress,
-                                                  self.progressTitle]];
+        [self setTitle:[NSString stringWithFormat:@"%@ %@", progress, self.progressTitle]];
     } else {
         [self setTitle:self.progressTitle];
     }
@@ -568,8 +543,8 @@
     if (self.lastUpdate == nil && _arrivalsContext.departures == nil) {
         self.loadingGroup.hidden = NO;
         self.loadingLabel.hidden = NO;
-        self.loadingLabel.text = [NSString
-            stringWithFormat:@"Loading\nStop ID %@", _arrivalsContext.stopId];
+        self.loadingLabel.text =
+            [NSString stringWithFormat:@"Loading\nStop ID %@", _arrivalsContext.stopId];
         self.navGroup.hidden = YES;
 
         if (_arrivalsContext.detailBlock) {
@@ -581,10 +556,8 @@
         self.progressTitle = @"Refreshing";
         [self loadTableWithDepartures:_arrivalsContext.departures
                     detailedDeparture:[_arrivalsContext.departures
-                                          departureForBlock:_arrivalsContext
-                                                                .detailBlock
-                                                        dir:_arrivalsContext
-                                                                .detailDir]];
+                                          departureForBlock:_arrivalsContext.detailBlock
+                                                        dir:_arrivalsContext.detailDir]];
         _arrivalsContext.departures = nil;
     } else {
         self.loadingGroup.hidden = YES;
@@ -606,8 +579,7 @@
     [self refresh:@YES];
 }
 
-- (void)table:(WKInterfaceTable *)table
-    didSelectRowAtIndex:(NSInteger)rowIndex {
+- (void)table:(WKInterfaceTable *)table didSelectRowAtIndex:(NSInteger)rowIndex {
     WatchRow *item = [self.arrivalsTable rowControllerAtIndex:rowIndex];
     NSString *block = _arrivalsContext.detailBlock;
 
@@ -658,9 +630,8 @@
 
 - (IBAction)menuItemNearby {
     if (self.departures.loc) {
-        [[WatchNearbyNamedLocationContext
-            contextWithName:self.departures.locDesc
-                   location:self.departures.loc] pushFrom:self];
+        [[WatchNearbyNamedLocationContext contextWithName:self.departures.locDesc
+                                                 location:self.departures.loc] pushFrom:self];
     }
 }
 

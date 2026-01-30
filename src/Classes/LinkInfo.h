@@ -17,13 +17,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-
 @interface LinkInfo : PlistParams
 
-@property(readonly, nonatomic, copy) NSString *valLinkFull;
-@property(readonly, nonatomic, copy) NSString *valLinkMobile;
-@property(readonly, nonatomic, copy) NSString *valLinkTitle;
-@property(readonly, nonatomic, copy) NSString *valLinkIcon;
+@property (readonly, nonatomic, copy) NSString *valLinkFull;
+@property (readonly, nonatomic, copy) NSString *valLinkMobile;
+@property (readonly, nonatomic, copy) NSString *valLinkTitle;
+@property (readonly, nonatomic, copy) NSString *valLinkIcon;
 
 @end
 

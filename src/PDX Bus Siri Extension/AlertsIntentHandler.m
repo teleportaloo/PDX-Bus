@@ -22,29 +22,22 @@
 @implementation AlertsIntentHandler
 
 - (void)handleAlertsForRoute:(AlertsForRouteIntent *)intent
-                  completion:(void (^)(AlertsForRouteIntentResponse *response))
-                                 completion
-    API_AVAILABLE(ios(13.0), macos(10.16), watchos(6.0)) {
+                  completion:(void (^)(AlertsForRouteIntentResponse *response))completion {
     DEBUG_FUNC();
 
     if (intent.routeNumber == nil) {
-        completion([AlertsResponseFactory
-            alertsRespond:AlertsForRouteIntentResponseCodeFailure]);
+        completion([AlertsResponseFactory alertsRespond:AlertsForRouteIntentResponseCodeFailure]);
         return;
     }
 
-    bool systemWide = intent.includeSystemWideAlerts != nil
-                          ? intent.includeSystemWideAlerts.boolValue
-                          : true;
+    bool systemWide =
+        intent.includeSystemWideAlerts != nil ? intent.includeSystemWideAlerts.boolValue : true;
 
-    completion([AlertsResponseFactory alertsForRoute:intent.routeNumber
-                                          systemWide:systemWide]);
+    completion([AlertsResponseFactory alertsForRoute:intent.routeNumber systemWide:systemWide]);
 }
 
 - (void)handleSystemWideAlerts:(SystemWideAlertsIntent *)intent
-                    completion:
-                        (void (^)(SystemWideAlertsIntentResponse *response))
-                            completion API_AVAILABLE(ios(12.0)) {
+                    completion:(void (^)(SystemWideAlertsIntentResponse *response))completion {
 
     DEBUG_FUNC();
 

@@ -26,12 +26,11 @@
 
 @end
 
-@interface DepartureDetailViewController
-    : TableViewControllerWithRefresh <ReturnStopObject>
+@interface DepartureDetailViewController : TableViewControllerWithRefresh <ReturnStopObject>
 
-@property(nonatomic, weak) id<DepartureDetailDelegate> delegate;
-@property(nonatomic, copy) NSString *stops;
-@property(nonatomic, assign) bool allowBrowseForDestination;
+@property (nonatomic, weak) id<DepartureDetailDelegate> delegate;
+@property (nonatomic, copy) NSString *stops;
+@property (nonatomic, assign) bool allowBrowseForDestination;
 
 - (void)fetchDepartureAsync:(id<TaskController>)taskController
                         dep:(Departure *)dep

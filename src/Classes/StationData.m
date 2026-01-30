@@ -35,7 +35,7 @@ static const StopInfo stopInfo[] = {
 
 static const int sortedColoredLines[] = {0};
 
-#endif
+#endif // GENERATE_ARRAYS
 
 int compareStopInfos(const void *first, const void *second) {
     return (int)(((StopInfo *)first)->stopId - ((StopInfo *)second)->stopId);
@@ -77,9 +77,11 @@ int compareStopInfos(const void *first, const void *second) {
     RailStation *res = nil;
     StopInfo key = {(long)stopId.longLongValue, 0, 0, 0};
 
-    StopInfo *result = (StopInfo *)bsearch(
-        &key, stopInfo, sizeof(stopInfo) / sizeof(stopInfo[0]),
-        sizeof(stopInfo[0]), compareStopInfos);
+    StopInfo *result = (StopInfo *)bsearch(&key,
+                                           stopInfo,
+                                           sizeof(stopInfo) / sizeof(stopInfo[0]),
+                                           sizeof(stopInfo[0]),
+                                           compareStopInfos);
 
     if (result) {
         res = [RailStation fromHotSpotIndex:result->hotspot];
@@ -93,9 +95,11 @@ int compareStopInfos(const void *first, const void *second) {
 
     StopInfo key = {(long)stopId.longLongValue, 0};
 
-    StopInfo *result = (StopInfo *)bsearch(
-        &key, stopInfo, sizeof(stopInfo) / sizeof(stopInfo[0]),
-        sizeof(stopInfo[0]), compareStopInfos);
+    StopInfo *result = (StopInfo *)bsearch(&key,
+                                           stopInfo,
+                                           sizeof(stopInfo) / sizeof(stopInfo[0]),
+                                           sizeof(stopInfo[0]),
+                                           compareStopInfos);
 
     if (result) {
         res = [CLLocation withLat:result->lat lng:result->lng];
@@ -109,9 +113,11 @@ int compareStopInfos(const void *first, const void *second) {
 
     StopInfo key = {(long)stopId.longLongValue, 0};
 
-    StopInfo *result = (StopInfo *)bsearch(
-        &key, stopInfo, sizeof(stopInfo) / sizeof(stopInfo[0]),
-        sizeof(stopInfo[0]), compareStopInfos);
+    StopInfo *result = (StopInfo *)bsearch(&key,
+                                           stopInfo,
+                                           sizeof(stopInfo) / sizeof(stopInfo[0]),
+                                           sizeof(stopInfo[0]),
+                                           compareStopInfos);
 
     if (result) {
         lines = result->lines;
@@ -123,9 +129,11 @@ int compareStopInfos(const void *first, const void *second) {
 + (bool)tpFromStopId:(NSString *)stopId {
     StopInfo key = {(long)stopId.longLongValue, 0};
 
-    StopInfo *result = (StopInfo *)bsearch(
-        &key, stopInfo, sizeof(stopInfo) / sizeof(stopInfo[0]),
-        sizeof(stopInfo[0]), compareStopInfos);
+    StopInfo *result = (StopInfo *)bsearch(&key,
+                                           stopInfo,
+                                           sizeof(stopInfo) / sizeof(stopInfo[0]),
+                                           sizeof(stopInfo[0]),
+                                           compareStopInfos);
 
     if (result) {
         return result->tp;

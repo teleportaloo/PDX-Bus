@@ -30,18 +30,17 @@
  * Compare with original C code
  */
 
-#if 0
- int pnpoly(int nvert, float *vertx, float *verty, float testx, float testy)
- {
-   int i, j, c = 0;
-   for (i = 0, j = nvert-1; i < nvert; j = i++) {
-     if ( ((verty[i]>testy) != (verty[j]>testy)) &&
-      (testx < (vertx[j]-vertx[i]) * (testy-verty[i]) / (verty[j]-verty[i]) + vertx[i]) )
-        c = !c;
-   }
-   return c;
- }
-#endif
+#ifdef ORIGINAL_PN_POLY
+int pnpoly(int nvert, float *vertx, float *verty, float testx, float testy) {
+    int i, j, c = 0;
+    for (i = 0, j = nvert - 1; i < nvert; j = i++) {
+        if (((verty[i] > testy) != (verty[j] > testy)) &&
+            (testx < (vertx[j] - vertx[i]) * (testy - verty[i]) / (verty[j] - verty[i]) + vertx[i]))
+            c = !c;
+    }
+    return c;
+}
+#endif // ORIGINAL_PN_POLY
 
 #import "PointInclusionInPolygonTest.h"
 
@@ -56,8 +55,7 @@
         pj = p + j;
         pi = p + i;
 
-        if ((((pi->y <= y) && (y < pj->y)) ||
-             ((pj->y <= y) && (y < pi->y))) &&
+        if ((((pi->y <= y) && (y < pj->y)) || ((pj->y <= y) && (y < pi->y))) &&
             (x < (pj->x - pi->x) * (y - pi->y) / (pj->y - pi->y) + pi->x)) {
             c = !c;
         }

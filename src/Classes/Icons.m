@@ -13,7 +13,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#define ICONS_IMPL
+
 #import "Icons.h"
+#import "BoxedIcon.h"
+#import "IconNames.h"
+#import "NSString+MoreMarkup.h"
 #import "TaskDispatch.h"
 #import "UIColor+MoreDarkMode.h"
 #import "UIFont+Utility.h"
@@ -22,71 +27,67 @@
 
 @interface Icons ()
 
-@property NSCache<NSString *, UIImage *> *cache;
-
 @end
 
 @implementation Icons
 
-- (instancetype)init {
-    if ((self = [super init])) {
-        _cache = [NSCache new];
-    }
++ (void)load {
+    [NSString
+        setSystemImageAlternatives:^UIImage *(NSString *name, UIImageSymbolConfiguration *config) {
+          UIImage *image = [UIImage systemImageNamed:name withConfiguration:config];
 
-    return self;
-}
+          if (image == nil) {
+              name = [Icons alternatives:name];
 
-+ (Icons *)sharedInstance {
-    static Icons *singleton = nil;
-    DoOnce(^{
-      singleton = [[Icons alloc] init];
-    });
-    return singleton;
-}
-
-+ (void)getDelayedIcon:(NSString *)name
-            completion:(void (^)(UIImage *image))completion {
-
-    if (name == nil) {
-        completion(nil);
-        return;
-    }
-
-    UIImage *cachedImage = [Icons.sharedInstance.cache objectForKey:name];
-
-    if (cachedImage != nil) {
-        completion(cachedImage);
-    } else {
-        MainTask(^{
-          // Try again to see if it got in the cache while we
-          // were waiting for the cache to be available. This can
-          // happen when multiple icons are being requested at
-          // once.
-          UIImage *icon = [Icons.sharedInstance.cache objectForKey:name];
-
-          if (icon == nil) {
-
-              DEBUG_LOG(@"Fetching icon %@", name)
-
-              icon = [Icons getIcon:name];
-
-              if (icon != nil) {
-                  [Icons.sharedInstance.cache setObject:icon forKey:name];
+              if (name) {
+                  image = [UIImage systemImageNamed:name withConfiguration:config];
               }
-          } else {
-              DEBUG_LOG(@"Not Fetching icon %@", name)
           }
-
-          completion(icon);
-        });
-    }
+          return image;
+        }];
 }
 
-+ (UIImage *)getIcon:(NSString *)name {
++ (BoxedIcon *)assetOrSystemBoxedIcon:(NSString *)name {
+    if (name) {
+        if (name.length > 1 && name.firstUnichar == '!') {
+            return [BoxedSystemIcon withName:[name substringFromIndex:1]];
+        } else {
+            return [BoxedNamedIcon withName:name];
+        }
+    }
+
+    return nil;
+}
+
+static inline UIImage *placeholderIcon(CGFloat pointSize) {
+    CGSize size = CGSizeMake(pointSize, pointSize);
+    UIGraphicsImageRendererFormat *fmt = [UIGraphicsImageRendererFormat defaultFormat];
+    fmt.opaque = NO;
+    fmt.scale = UIScreen.mainScreen.scale; // correct pixels for the device
+
+    UIGraphicsImageRenderer *renderer = [[UIGraphicsImageRenderer alloc] initWithSize:size
+                                                                               format:fmt];
+    return [renderer imageWithActions:^(UIGraphicsImageRendererContext *_Nonnull ctx) {
+      [[UIColor clearColor] setFill];
+      UIRectFill((CGRect){.origin = CGPointZero, .size = size});
+    }];
+}
+
++ (UIImage *)placeholder {
+    static UIImage *blank = nil;
+
+    DO_ONCE(^{
+      blank = placeholderIcon(22.0);
+    });
+
+    return blank;
+}
+
++ (UIImage *)assetIcon:(NSString *)name {
     UIImage *icon = [UIImage imageNamed:name];
 
     if (icon == nil) {
-        icon = [UIImage imageNamed:kIconAppIconAction];
+        icon = [UIImage imageNamed:kIconAppIconActionName];
     }
 
     icon.accessibilityHint = nil;
@@ -101,8 +102,7 @@
 
     UIColor *bg = [UIColor clearColor];
 
-    UIGraphicsBeginImageContextWithOptions(CGSizeMake(kTileWidth, kTileHeight),
-                                           NO, 0);
+    UIGraphicsBeginImageContextWithOptions(CGSizeMake(kTileWidth, kTileHeight), NO, 0);
     CGRect rect = CGRectMake(0, 0, kTileWidth, kTileHeight);
 
     if (bg != nil) {
@@ -130,7 +130,8 @@
     CGSize textSize = [text sizeWithAttributes:attributes];
     CGRect textRect = CGRectMake((kTileWidth - textSize.width) / 2,
                                  (kTileHeight - textSize.height) / 2,
-                                 textSize.width, textSize.height);
+                                 textSize.width,
+                                 textSize.height);
     [text drawInRect:textRect withAttributes:attributes];
 
     icon = UIGraphicsGetImageFromCurrentImageContext();
@@ -144,34 +145,78 @@
 }
 
 + (UIImage *)characterIcon:(NSString *)text placeholder:(UIImage *)placeholder {
-    UIColor *fg = [UIColor modeAwareText];
+    UIColor *fg = [UIColor modeAwareBlue];
 
-    NSString *key = [NSString stringWithFormat:@"!%@ %@", text, fg.string];
+    UIImage *icon = [Icons characterIcon:text fg:fg];
 
-    UIImage *icon = [Icons.sharedInstance.cache objectForKey:key];
+    if (placeholder != nil) {
+        // Check for the default Emoji - which is a kind of ?
+        // If so then switch to the placeholder
+        UIImage *defImage = [Icons characterIcon:@"\u1fff" placeholder:nil];
+
+        if ([UIImagePNGRepresentation(defImage) isEqual:UIImagePNGRepresentation(icon)]) {
+            icon = placeholder;
+        }
+    }
 
     if (icon == nil) {
-        icon = [Icons characterIcon:text fg:fg];
-
-        if (placeholder != nil) {
-            // Check for the default Emoji - which is a kind of ?
-            // If so then switch to the placeholder
-            UIImage *defImage = [Icons characterIcon:@"\u1fff" placeholder:nil];
-
-            if ([UIImagePNGRepresentation(defImage)
-                    isEqual:UIImagePNGRepresentation(icon)]) {
-                icon = placeholder;
-            }
-        }
-
-        if (icon == nil) {
-            icon = [UIImage imageNamed:kIconAppIconAction];
-        }
-
-        [Icons.sharedInstance.cache setObject:icon forKey:key];
+        icon = [UIImage imageNamed:kIconAppIconActionName];
     }
 
     return icon;
+}
+
++ (NSString *)alternatives:(NSString *)name {
+    static dispatch_once_t onceToken;
+    static NSDictionary<NSString *, NSString *> *alternatives;
+
+    dispatch_once(&onceToken, ^{
+      alternatives = @{
+
+#define ICON(X, S)
+#define SF_ICON(X, S)
+#define SF_ICON_ALT(X, S, A) X##Name : A,
+#define SF_ICON_TINT(X, S, C)
+#define SF_ICON_ALT_TINT(X, S, A, C) SF_ICON_ALT(X, S, A)
+
+#include "IconNames.def"
+
+#undef ICON
+#undef SF_ICON
+#undef SF_ICON_ALT
+#undef SF_ICON_TINT
+#undef SF_ICON_ALT_TINT
+
+      };
+      DEBUG_LOG_long(alternatives.count);
+    });
+
+    return alternatives[name];
+}
+
++ (UIImage *)safeSystemIcon:(NSString *)name {
+    static NSCache<NSString *, UIImage *> *iconCache;
+
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+      iconCache = [[NSCache alloc] init];
+    });
+
+    UIImage *image = [iconCache objectForKey:name];
+
+    if (!image) {
+        image = [UIImage systemImageNamed:name];
+
+        if (!image) {
+            image = [UIImage systemImageNamed:[Icons alternatives:name]];
+        }
+
+        if (image) {
+            [iconCache setObject:image forKey:name];
+        }
+    }
+
+    return image;
 }
 
 @end

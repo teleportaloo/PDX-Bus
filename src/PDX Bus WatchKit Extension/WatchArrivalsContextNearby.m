@@ -17,8 +17,8 @@
 
 @interface WatchArrivalsContextNearby ()
 
-@property(nonatomic, strong) XMLLocateStops *stops;
-@property(nonatomic) NSInteger index;
+@property (nonatomic, strong) XMLLocateStops *stops;
+@property (nonatomic) NSInteger index;
 
 @end
 
@@ -28,8 +28,7 @@
                                                  index:(NSInteger)index;
 {
     {
-        WatchArrivalsContextNearby *context =
-            [[WatchArrivalsContextNearby alloc] init];
+        WatchArrivalsContextNearby *context = [[WatchArrivalsContextNearby alloc] init];
 
         StopDistance *item = stops[index];
 
@@ -61,9 +60,7 @@
     WatchArrivalsContext *next = nil;
 
     if (self.hasNext) {
-        next =
-            [WatchArrivalsContextNearby contextFromNearbyStops:self.stops
-                                                         index:self.index + 1];
+        next = [WatchArrivalsContextNearby contextFromNearbyStops:self.stops index:self.index + 1];
     }
 
     return next;
@@ -73,8 +70,7 @@
     WatchArrivalsContext *next = nil;
 
     if (self.hasNext) {
-        next = [WatchArrivalsContextNearby contextFromNearbyStops:self.stops
-                                                            index:self.index];
+        next = [WatchArrivalsContextNearby contextFromNearbyStops:self.stops index:self.index];
     }
 
     return next;

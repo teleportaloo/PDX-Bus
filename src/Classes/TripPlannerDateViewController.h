@@ -17,8 +17,8 @@
 
 @interface TripPlannerDateViewController : TripPlannerBaseViewController
 
-@property(nonatomic, strong) NSArray<NSMutableDictionary *> *userFaves;
-@property(nonatomic) bool popBack;
+@property (nonatomic, strong) NSArray<NSMutableDictionary *> *userFaves;
+@property (nonatomic) bool popBack;
 
 - (void)initializeFromBookmark:(TripUserRequest *)req;
 - (void)nextScreen:(UINavigationController *)controller

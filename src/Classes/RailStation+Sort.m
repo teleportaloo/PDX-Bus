@@ -36,8 +36,7 @@
 }
 
 - (NSComparisonResult)compareUsingName:(RailStation *)inStation {
-    return [self.name compare:inStation.name
-                      options:(NSNumericSearch | NSCaseInsensitiveSearch)];
+    return [self.name compare:inStation.name options:(NSNumericSearch | NSCaseInsensitiveSearch)];
 }
 
 @end

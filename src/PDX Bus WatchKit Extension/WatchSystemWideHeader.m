@@ -28,11 +28,9 @@
 
     if (![Settings isHiddenSystemWideDetour:det.detourId]) {
         self.label.text = [NSString
-            stringWithFormat:NSLocalizedString(@"△ %@", @"Hide system alert"),
-                             det.headerText];
+            stringWithFormat:NSLocalizedString(@"△ %@", @"Hide system alert"), det.headerText];
     } else {
-        self.label.text =
-            NSLocalizedString(@"▽ ⚠️System Alert", @"Hide system alert");
+        self.label.text = NSLocalizedString(@"▽ ⚠️System Alert", @"Hide system alert");
     }
 }
 
@@ -40,9 +38,7 @@
                        from:(WKInterfaceController *)from
                     context:(WatchArrivalsContext *)context
                     canPush:(bool)push {
-    [Settings
-        toggleHiddenSystemWideDetour:xml.detourSorter.allDetours[self.index]
-                                         .detourId];
+    [Settings toggleHiddenSystemWideDetour:xml.detourSorter.allDetours[self.index].detourId];
 
     return WatchSelectAction_RefreshUI;
 }

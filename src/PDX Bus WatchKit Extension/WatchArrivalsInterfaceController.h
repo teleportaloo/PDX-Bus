@@ -24,16 +24,15 @@
 @interface WatchArrivalsInterfaceController
     : InterfaceControllerWithCommuterBookmark <TriMetXMLDelegate>
 
-@property(strong, nonatomic) IBOutlet WKInterfaceLabel *loadingLabel;
-@property(strong, nonatomic) IBOutlet WKInterfaceButton *nextButton;
-@property(strong, nonatomic) IBOutlet WKInterfaceTable *arrivalsTable;
-@property(strong, nonatomic) IBOutlet WKInterfaceLabel *labelRefreshing;
-@property(strong, nonatomic) IBOutlet WKInterfaceLabel *distanceLabel;
-@property(strong, nonatomic) IBOutlet WKInterfaceLabel *stopDescription;
-@property(strong, nonatomic) IBOutlet WKInterfaceGroup *navGroup;
-@property(strong, nonatomic) IBOutlet WKInterfaceGroup *loadingGroup;
-@property(unsafe_unretained, nonatomic)
-    IBOutlet WKInterfaceButton *locateButton;
+@property (strong, nonatomic) IBOutlet WKInterfaceLabel *loadingLabel;
+@property (strong, nonatomic) IBOutlet WKInterfaceButton *nextButton;
+@property (strong, nonatomic) IBOutlet WKInterfaceTable *arrivalsTable;
+@property (strong, nonatomic) IBOutlet WKInterfaceLabel *labelRefreshing;
+@property (strong, nonatomic) IBOutlet WKInterfaceLabel *distanceLabel;
+@property (strong, nonatomic) IBOutlet WKInterfaceLabel *stopDescription;
+@property (strong, nonatomic) IBOutlet WKInterfaceGroup *navGroup;
+@property (strong, nonatomic) IBOutlet WKInterfaceGroup *loadingGroup;
+@property (unsafe_unretained, nonatomic) IBOutlet WKInterfaceButton *locateButton;
 
 - (IBAction)swipeLeft:(id)sender;
 - (IBAction)swipeDown:(id)sender;

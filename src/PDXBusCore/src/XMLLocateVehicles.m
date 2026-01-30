@@ -27,7 +27,7 @@
 @interface XMLLocateVehicles () {
 }
 
-@property(nonatomic, copy) NSString *direction;
+@property (nonatomic, copy) NSString *direction;
 
 @end
 
@@ -64,20 +64,17 @@
     }
 
     if (routeIdSet) {
-        routeQuery =
-            [NSString commaSeparatedStringFromStringEnumerator:routeIdSet];
+        routeQuery = [NSString commaSeparatedStringFromStringEnumerator:routeIdSet];
         [routeQuery insertString:@"/routes/" atIndex:0];
     }
 
     if (blockIdSet) {
-        blockQuery =
-            [NSString commaSeparatedStringFromStringEnumerator:blockIdSet];
+        blockQuery = [NSString commaSeparatedStringFromStringEnumerator:blockIdSet];
         [blockQuery insertString:@"/blocks/" atIndex:0];
     }
 
     if (vehicleIdSet) {
-        vehicleQuery =
-            [NSString commaSeparatedStringFromStringEnumerator:vehicleIdSet];
+        vehicleQuery = [NSString commaSeparatedStringFromStringEnumerator:vehicleIdSet];
         [vehicleQuery insertString:@"/ids/" atIndex:0];
     }
 
@@ -85,34 +82,36 @@
         MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(
             self.location.coordinate, self.dist * 2.0, self.dist * 2.0);
         CLLocationCoordinate2D northWestCorner, southEastCorner;
-        northWestCorner.latitude = self.location.coordinate.latitude -
-                                   (region.span.latitudeDelta / 2.0);
-        northWestCorner.longitude = self.location.coordinate.longitude +
-                                    (region.span.longitudeDelta / 2.0);
-        southEastCorner.latitude = self.location.coordinate.latitude +
-                                   (region.span.latitudeDelta / 2.0);
-        southEastCorner.longitude = self.location.coordinate.longitude -
-                                    (region.span.longitudeDelta / 2.0);
+        northWestCorner.latitude =
+            self.location.coordinate.latitude - (region.span.latitudeDelta / 2.0);
+        northWestCorner.longitude =
+            self.location.coordinate.longitude + (region.span.longitudeDelta / 2.0);
+        southEastCorner.latitude =
+            self.location.coordinate.latitude + (region.span.latitudeDelta / 2.0);
+        southEastCorner.longitude =
+            self.location.coordinate.longitude - (region.span.longitudeDelta / 2.0);
 
-        double lonmin =
-            fmin(northWestCorner.longitude, southEastCorner.longitude);
-        double latmin =
-            fmin(northWestCorner.latitude, southEastCorner.latitude);
-        double lonmax =
-            fmax(northWestCorner.longitude, southEastCorner.longitude);
-        double latmax =
-            fmax(northWestCorner.latitude, southEastCorner.latitude);
+        double lonmin = fmin(northWestCorner.longitude, southEastCorner.longitude);
+        double latmin = fmin(northWestCorner.latitude, southEastCorner.latitude);
+        double lonmax = fmax(northWestCorner.longitude, southEastCorner.longitude);
+        double latmax = fmax(northWestCorner.latitude, southEastCorner.latitude);
 
         query = [NSString
-            stringWithFormat:
-                @"vehicles/bbox/%@,%@,%@,%@/xml/true/onRouteOnly/true%@%@%@%@",
-                COORD_TO_STR(lonmin), COORD_TO_STR(latmin),
-                COORD_TO_STR(lonmax), COORD_TO_STR(latmax), routeQuery,
-                blockQuery, vehicleQuery, dateQuery];
+            stringWithFormat:@"vehicles/bbox/%@,%@,%@,%@/xml/true/onRouteOnly/true%@%@%@%@",
+                             COORD_TO_STR(lonmin),
+                             COORD_TO_STR(latmin),
+                             COORD_TO_STR(lonmax),
+                             COORD_TO_STR(latmax),
+                             routeQuery,
+                             blockQuery,
+                             vehicleQuery,
+                             dateQuery];
     } else {
-        query = [NSString
-            stringWithFormat:@"vehicles/xml/true/onRouteOnly/true%@%@%@%@",
-                             routeQuery, blockQuery, vehicleQuery, dateQuery];
+        query = [NSString stringWithFormat:@"vehicles/xml/true/onRouteOnly/true%@%@%@%@",
+                                           routeQuery,
+                                           blockQuery,
+                                           vehicleQuery,
+                                           dateQuery];
     }
 
     self.direction = direction;
@@ -120,8 +119,7 @@
     bool res = [self startParsing:query cacheAction:TriMetXMLNoCaching];
 
     if (self.gotData) {
-        [self.items
-            sortUsingSelector:NSSelectorFromString(@"compareUsingDistance:")];
+        [self.items sortUsingSelector:NSSelectorFromString(@"compareUsingDistance:")];
         [self cleanup];
     }
 
@@ -145,8 +143,7 @@ XML_START_ELEMENT(vehicle) {
         currentVehicle.routeNumber = XML_NON_NULL_ATR_STR(@"routeNumber");
         currentVehicle.direction = dir;
         currentVehicle.signMessage = XML_NON_NULL_ATR_STR(@"signMessage");
-        currentVehicle.signMessageLong =
-            XML_NON_NULL_ATR_STR(@"signMessageLong");
+        currentVehicle.signMessageLong = XML_NON_NULL_ATR_STR(@"signMessageLong");
         currentVehicle.type = XML_NON_NULL_ATR_STR(@"type");
         currentVehicle.locationTime = XML_ATR_DATE(@"time");
         currentVehicle.garage = XML_NON_NULL_ATR_STR(@"garage");
@@ -155,14 +152,12 @@ XML_START_ELEMENT(vehicle) {
         currentVehicle.location = XML_ATR_LOCATION(@"latitude", @"longitude");
         currentVehicle.loadPercentage =
             XML_ATR_INT_OR_MISSING(@"loadPercentage", kNoLoadPercentage);
-        currentVehicle.inCongestion =
-            XML_ATR_BOOL_DEFAULT_FALSE(@"inCongestion");
+        currentVehicle.inCongestion = XML_ATR_BOOL_DEFAULT_FALSE(@"inCongestion");
         currentVehicle.offRoute = XML_ATR_BOOL_DEFAULT_FALSE(@"offRoute");
         currentVehicle.delay = XML_NULLABLE_ATR_STR(@"delay");
 
         if (self.location != nil) {
-            currentVehicle.distance =
-                [currentVehicle.location distanceFromLocation:self.location];
+            currentVehicle.distance = [currentVehicle.location distanceFromLocation:self.location];
         }
 
         [self addItem:currentVehicle];

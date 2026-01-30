@@ -22,17 +22,20 @@
 #import "FormatDistance.h"
 #import "MapViewController.h"
 #import "RootViewController.h"
+#import "ShapeCoord.h"
+#import "ShapeMutableSegment.h"
+#import "ShapeRoutePath.h"
+#import "ShapeSegment.h"
 #import "SimpleAnnotation.h"
 #import "UIApplication+Compat.h"
 #import "UIViewController+LocationAuthorization.h"
 #import "UserInfo.h"
-#import "iOSCompat.h"
 
 #ifdef DEBUG_ALARMS
 #define kDataDictLoc @"loc"
 #define kDataDictState @"state"
 #define kDataDictAppState @"appstate"
-#endif
+#endif // DEBUG_ALARMS
 
 @interface AlarmAccurateStopProximity () {
     bool _accurate;
@@ -40,8 +43,8 @@
     bool _significant;
 }
 
-@property(nonatomic, strong) CLLocation *destination;
-@property(strong) CLLocationManager *locationManager;
+@property (nonatomic, strong) CLLocation *destination;
+@property (strong) CLLocationManager *locationManager;
 
 - (void)startUpdatingLocation;
 - (void)stopUpdatingLocation;
@@ -60,8 +63,8 @@
         [_locationManager requestAlwaysAuthorization];
         _locationManager.pausesLocationUpdatesAutomatically = NO;
 
-        compatSetIfExists(_locationManager, setAllowsBackgroundLocationUpdates:,
-                          YES); // iOS9
+        _locationManager.allowsBackgroundLocationUpdates = YES;
+        _locationManager.activityType = CLActivityTypeOtherNavigation;
 
         _accurate = accurate;
 
@@ -74,8 +77,7 @@
         _updating = NO;
         _significant = NO;
 
-        if ([UIViewController
-                locationAuthorizedOrNotDeterminedWithBackground:YES]) {
+        if ([UIViewController locationAuthorizedOrNotDeterminedWithBackground:YES]) {
             [self startUpdatingLocation];
         }
 
@@ -83,7 +85,7 @@
 
 #ifdef DEBUG_ALARMS
         self.dataReceived = [[NSMutableArray alloc] init];
-#endif
+#endif // DEBUG_ALARMS
     }
 
     return self;
@@ -95,8 +97,7 @@
 
 - (void)deleteLocationManager {
     if (self.locationManager != nil) {
-        compatSetIfExists(self.locationManager,
-                          setAllowsBackgroundLocationUpdates:, NO); //  iOS9
+        self.locationManager.allowsBackgroundLocationUpdates = NO;
 
         [self stopUpdatingLocation];
         [self stopMonitoringSignificantLocationChanges];
@@ -142,8 +143,8 @@
 }
 
 - (CLLocationDistance)distanceFromLocation:(CLLocation *)location {
-    CLLocationDistance dist = [self.destination distanceFromLocation:location] -
-                              location.horizontalAccuracy / 2;
+    CLLocationDistance dist =
+        [self.destination distanceFromLocation:location] - location.horizontalAccuracy / 2;
 
     if (dist < 0) {
         return -dist;
@@ -159,12 +160,10 @@
      didUpdateLocations:(NSArray<CLLocation *> *)locations {
     CLLocation *newLocation = locations.lastObject;
 
-    CLLocationDistance minPossibleDist =
-        [self distanceFromLocation:newLocation];
+    CLLocationDistance minPossibleDist = [self distanceFromLocation:newLocation];
 
     if (manager.accuracyAuthorization == CLAccuracyAuthorizationReducedAccuracy) {
-        [manager requestTemporaryFullAccuracyAuthorizationWithPurposeKey:
-                     @"NearbySearch"];
+        [manager requestTemporaryFullAccuracyAuthorizationWithPurposeKey:@"NearbySearch"];
     }
 
 #ifdef DEBUG_ALARMS
@@ -182,21 +181,18 @@
     AlarmLocationNeeded previousState = self.alarmState;
 
     [self.dataReceived addObject:dict];
-#endif
+#endif // DEBUG_ALARMS
 
     DEBUG_LOG_description(newLocation);
 
     double becomeAccurate = Settings.useGpsWithin;
 
-    if (newLocation.timestamp.timeIntervalSinceNow < -5 * 60 ||
-        self.alarmState == AlarmFired) {
+    if (newLocation.timestamp.timeIntervalSinceNow < -5 * 60 || self.alarmState == AlarmFired) {
         // too old
         return;
     }
 
-    [self performSelector:@selector(self)
-               withObject:nil
-               afterDelay:(NSTimeInterval)0.1];
+    [self performSelector:@selector(self) withObject:nil afterDelay:(NSTimeInterval)0.1];
 
     if (newLocation.horizontalAccuracy < kBadAccuracy &&
         self.alarmState == AlarmStateAccurateInitiallyThenInaccurate) {
@@ -222,16 +218,14 @@
         info.valMapLng = self.destination.coordinate.longitude;
         info.valCurLat = newLocation.coordinate.latitude;
         info.valCurLng = newLocation.coordinate.longitude;
-        info.valCurTimestamp =
-            [NSDateFormatter localizedStringFromDate:newLocation.timestamp
-                                           dateStyle:NSDateFormatterMediumStyle
-                                           timeStyle:NSDateFormatterLongStyle];
+        info.valCurTimestamp = [NSDateFormatter localizedStringFromDate:newLocation.timestamp
+                                                              dateStyle:NSDateFormatterMediumStyle
+                                                              timeStyle:NSDateFormatterLongStyle];
 
-        [self alert:[NSString
-                        stringWithFormat:NSLocalizedString(
-                                             @"You are within %@ of %@",
-                                             @"gives a distance to a stop"),
-                                         kUserDistanceProximity, self.desc]
+        [self alert:[NSString stringWithFormat:NSLocalizedString(@"You are within %@ of %@",
+                                                                 @"gives a distance to a stop"),
+                                               kUserDistanceProximity,
+                                               self.desc]
                 fireDate:nil
                   button:AlarmButtonMap
                 userInfo:info.dictionary
@@ -240,11 +234,11 @@
 
 #ifdef DEBUG_ALARMS
         _done = true;
-#endif
+#endif // DEBUG_ALARMS
         self.alarmState = AlarmFired;
     } else if (minPossibleDist <= becomeAccurate) {
         self.alarmState = AlarmStateAccurateLocationNeeded;
-        
+
     } else if (minPossibleDist > becomeAccurate && !_accurate &&
                self.alarmState != AlarmStateAccurateInitiallyThenInaccurate) {
         self.alarmState = AlarmStateInaccurateLocationNeeded;
@@ -266,18 +260,15 @@
         [self stopUpdatingLocation];
         [self stopMonitoringSignificantLocationChanges];
 
-        compatSetIfExists(self.locationManager,
-                          setAllowsBackgroundLocationUpdates:, NO); // iOS9
+        self.locationManager.allowsBackgroundLocationUpdates = NO;
 
-        NSTimer *timer = [[NSTimer alloc]
-            initWithFireDate:[NSDate dateWithTimeIntervalSinceNow:0.5]
-                    interval:0.1
-                      target:self
-                    selector:@selector(delayedDelete:)
-                    userInfo:nil
-                     repeats:NO];
-        [[NSRunLoop currentRunLoop] addTimer:timer
-                                     forMode:NSDefaultRunLoopMode];
+        NSTimer *timer = [[NSTimer alloc] initWithFireDate:[NSDate dateWithTimeIntervalSinceNow:0.5]
+                                                  interval:0.1
+                                                    target:self
+                                                  selector:@selector(delayedDelete:)
+                                                  userInfo:nil
+                                                   repeats:NO];
+        [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
         break;
     }
 
@@ -293,11 +284,10 @@
         [self.dataReceived addObject:dict2];
     }
 
-#endif
+#endif // DEBUG_ALARMS
 }
 
-- (void)locationManager:(CLLocationManager *)manager
-       didFailWithError:(NSError *)error {
+- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
     DEBUG_LOG(@"location error %@\n", [error localizedDescription]);
 
     switch (error.code) {
@@ -305,12 +295,10 @@
         break;
 
     case kCLErrorDenied:
-        [self alert:[NSString
-                        stringWithFormat:NSLocalizedString(
-                                             @"Unable to acquire location - "
-                                             @"proximity alarm cancelled %@",
-                                             @"location error with alarm name"),
-                                         error.localizedDescription]
+        [self alert:[NSString stringWithFormat:NSLocalizedString(@"Unable to acquire location - "
+                                                                 @"proximity alarm cancelled %@",
+                                                                 @"location error with alarm name"),
+                                               error.localizedDescription]
                 fireDate:nil
                   button:AlarmButtonNone
                 userInfo:nil
@@ -333,7 +321,7 @@
 - (void)cancelTask {
 #ifdef DEBUG_ALARMS
     _done = true;
-#endif
+#endif // DEBUG_ALARMS
     [self.observer taskDone:self];
 }
 
@@ -344,10 +332,10 @@
 #else
     return 0;
 
-#endif
+#endif // DEBUG_ALARMS
 }
 
-- (NSString *)internalData:(int)item {
+- (void)internalData:(int)item completion:(void (^)(NSString *))completionHandler {
 #ifdef DEBUG_ALARMS
     NSMutableString *str = [NSMutableString string];
 
@@ -356,24 +344,21 @@
     CLLocation *loc = dict[kDataDictLoc];
 
     if (loc != nil) {
-        [str appendFormat:@"%@\n",
-                          COORD_TO_LAT_LNG_STR(loc.coordinate.latitude)];
+        [str appendFormat:@"%@\n", COORD_TO_LAT_LNG_STR(loc.coordinate)];
         [str appendFormat:@"dist: %f\n", [self distanceFromLocation:loc]];
         [str appendFormat:@"accuracy: %f\n", loc.horizontalAccuracy];
 
-        [str appendFormat:
-                 @"%@\n",
-                 [NSDateFormatter
-                     localizedStringFromDate:loc.timestamp
-                                   dateStyle:NSDateFormatterMediumStyle
-                                   timeStyle:NSDateFormatterMediumStyle]];
+        [str appendFormat:@"%@\n",
+                          [NSDateFormatter localizedStringFromDate:loc.timestamp
+                                                         dateStyle:NSDateFormatterMediumStyle
+                                                         timeStyle:NSDateFormatterMediumStyle]];
     }
 
     [str appendFormat:@"%@\n", dict[kDataDictAppState]];
 
-#define CASE_ENUM_TO_STR(X)                                                    \
-    case X:                                                                    \
-        [str appendFormat:@"%s\n", #X];                                        \
+#define CASE_ENUM_TO_STR(X)                                                                        \
+    case X:                                                                                        \
+        [str appendFormat:@"%s\n", #X];                                                            \
         break
     NSNumber *taskState = dict[kDataDictState];
 
@@ -391,11 +376,10 @@
         }
     }
 
-    return str;
+    completionHandler(str);
 
-#else // ifdef DEBUG_ALARMS
-    return nil;
-
+#else  // ifdef DEBUG_ALARMS
+    completionHandler(nil);
 #endif // ifdef DEBUG_ALARMS
 }
 
@@ -408,22 +392,18 @@
 
         SimpleAnnotation *currentLocation = [SimpleAnnotation annotation];
         currentLocation.pinColor = MAP_PIN_COLOR_PURPLE;
-        currentLocation.pinTitle =
-            NSLocalizedString(@"Current Location", @"map pin text");
+        currentLocation.pinTitle = NSLocalizedString(@"Current Location", @"map pin text");
         currentLocation.coordinate = self.locationManager.location.coordinate;
         currentLocation.pinSubtitle = [NSString
-            stringWithFormat:
-                NSLocalizedString(@"as of %@", @"shows the date"),
-                [NSDateFormatter
-                    localizedStringFromDate:self.locationManager.location
-                                                .timestamp
-                                  dateStyle:NSDateFormatterMediumStyle
-                                  timeStyle:NSDateFormatterLongStyle]];
+            stringWithFormat:NSLocalizedString(@"as of %@", @"shows the date"),
+                             [NSDateFormatter
+                                 localizedStringFromDate:self.locationManager.location.timestamp
+                                               dateStyle:NSDateFormatterMediumStyle
+                                               timeStyle:NSDateFormatterLongStyle]];
         [mapPage addPin:currentLocation];
 
-        [UIApplication.topViewController.navigationController
-            pushViewController:mapPage
-                      animated:YES];
+        [UIApplication.topViewController.navigationController pushViewController:mapPage
+                                                                        animated:YES];
     }
 }
 
@@ -445,8 +425,7 @@
 
 - (NSString *)subtitle {
     return [NSString
-        stringWithFormat:NSLocalizedString(@"Stop ID %@",
-                                           @"TriMet Stop identifer <number>"),
+        stringWithFormat:NSLocalizedString(@"Stop ID %@", @"TriMet Stop identifer <number>"),
                          self.stopId];
 }
 
@@ -469,8 +448,7 @@
     NSString *accuracy = nil;
 
     if (self.alarmState == AlarmFired) {
-        accuracy = NSLocalizedString(@"Final distance:",
-                                     @"final distance that triggered alarm");
+        accuracy = NSLocalizedString(@"Final distance:", @"final distance that triggered alarm");
     } else if (self.locationManager.location.horizontalAccuracy > 200 ||
                self.alarmState != AlarmStateAccurateLocationNeeded) {
         accuracy = NSLocalizedString(@"Approx distance:", @"distance to alarm");
@@ -482,8 +460,7 @@
         str = NSLocalizedString(@"Near by", @"final stop is very close");
     } else {
         str =
-            [NSString stringWithFormat:@"%@ %@", accuracy,
-                                       [FormatDistance formatMetres:distance]];
+            [NSString stringWithFormat:@"%@ %@", accuracy, [FormatDistance formatMetres:distance]];
     }
 
     return str;
@@ -516,13 +493,13 @@
 
         mapPage.lineOptions = MapViewFitLines;
 
-        mapPage.lineCoords = [NSMutableArray array];
+        mapPage.shapes = [NSMutableArray array];
 
         seg.coords = coords;
 
         path.segments = [NSMutableArray arrayWithObject:seg];
 
-        [mapPage.lineCoords addObject:path];
+        [mapPage.shapes addObject:path];
     }
 
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
@@ -532,15 +509,12 @@
     [mapPage addPin:self];
 
     SimpleAnnotation *currentLocation = [SimpleAnnotation annotation];
-    currentLocation.pinColor = MKPinAnnotationColorPurple;
-    currentLocation.pinTitle =
-        NSLocalizedString(@"Current Location", @"map pin text");
+    currentLocation.pinColor = MAP_PIN_COLOR_PURPLE;
+    currentLocation.pinTitle = NSLocalizedString(@"Current Location", @"map pin text");
     currentLocation.coordinate = self.locationManager.location.coordinate;
     currentLocation.pinSubtitle = [NSString
         stringWithFormat:NSLocalizedString(@"as of %@", @"shows the date"),
-                         [dateFormatter
-                             stringFromDate:self.locationManager.location
-                                                .timestamp]];
+                         [dateFormatter stringFromDate:self.locationManager.location.timestamp]];
     [mapPage addPin:currentLocation];
 
     [navController pushViewController:mapPage animated:YES];
@@ -548,8 +522,7 @@
 }
 
 - (void)locationManagerDidChangeAuthorization:(CLLocationManager *)manager {
-    [UIApplication.topViewController
-        locationAuthorizedOrNotDeterminedAlertWithBackground:YES];
+    [UIApplication.topViewController locationAuthorizedOrNotDeterminedAlertWithBackground:YES];
 }
 
 - (UIColor *)pinTint {

@@ -22,14 +22,17 @@
 }
 
 + (NSString *)identifier {
-    return @"link cell";
+    return kTextViewLinkCellId;
 }
 
 - (void)awakeFromNib {
     [super awakeFromNib];
 
     self.textView.delegate = self;
-    
+}
+
++ (TextViewLinkCell *)dequeue:(UITableView *)tableView {
+    return [tableView dequeueReusableCellWithIdentifier:kTextViewLinkCellId];
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {

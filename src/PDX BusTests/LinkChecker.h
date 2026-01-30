@@ -20,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface LinkChecker : NSObject <NSURLSessionDelegate> {
 }
 
-@property(nonatomic, copy) NSString *context;
+@property (nonatomic, copy) NSString *context;
 
 + (instancetype)withContext:(NSString *)context;
 - (instancetype)initWithContext:(NSString *)context;

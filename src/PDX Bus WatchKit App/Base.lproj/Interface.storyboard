@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="23727" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="dfG-2e-wGV">
+<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="24128" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="dfG-2e-wGV">
     <device id="watch38"/>
     <dependencies>
         <deployment identifier="watchOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="23705"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="24017"/>
     </dependencies>
     <scenes>
         <!--Arrivals-->
@@ -58,7 +58,7 @@
                                                     </label>
                                                 </items>
                                             </group>
-                                            <imageView width="2" height="1" alignment="right" id="Ng2-Mz-rh5" userLabel="Block Color"/>
+                                            <imageView width="4" height="1" alignment="right" id="Ng2-Mz-rh5" userLabel="Block Color"/>
                                         </items>
                                         <color key="backgroundColor" red="0.98387513826350592" green="1" blue="0.98595916549955653" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <edgeInsets key="margins" left="0.0" right="3" top="0.0" bottom="0.0"/>
@@ -188,7 +188,7 @@
                             <items>
                                 <group width="1" alignment="left" radius="0.0" id="lfU-8C-hcE" userLabel="Next Group">
                                     <items>
-                                        <button width="35" height="35" alignment="left" backgroundImage="750-home" id="4LI-2c-hKe">
+                                        <button width="35" height="35" alignment="left" backgroundImage="house.fill" catalog="system" id="4LI-2c-hKe">
                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                             <connections>
                                                 <action selector="homeButtonTapped" destination="AgC-eL-Hgc" id="aXc-an-jsS"/>
@@ -333,7 +333,7 @@
                         <label alignment="left" textAlignment="left" numberOfLines="0" id="e7g-QK-das"/>
                         <group width="1" alignment="left" id="hgV-ba-OvB" userLabel="Menu Group">
                             <items>
-                                <button width="35" height="35" alignment="left" backgroundImage="750-home" id="0Gb-Sb-n4N">
+                                <button width="35" height="35" alignment="left" backgroundImage="house.fill" catalog="system" id="0Gb-Sb-n4N">
                                     <connections>
                                         <action selector="menuItemHome" destination="ed0-6G-j56" id="Kkr-S1-Iay"/>
                                     </connections>
@@ -370,7 +370,7 @@
                                         <action selector="topRecentStops" destination="dfG-2e-wGV" id="swV-N5-Wtt"/>
                                     </connections>
                                 </button>
-                                <button width="35" height="35" alignment="center" backgroundImage="845-location-targeta" id="sis-up-c3O">
+                                <button width="35" height="35" alignment="center" backgroundImage="location.fill" catalog="system" id="sis-up-c3O">
                                     <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     <color key="backgroundColor" red="0.25" green="0.25" blue="0.25" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     <connections>
@@ -618,10 +618,10 @@
     </scenes>
     <color key="tintColor" red="0.51233841661442159" green="0.75400234875706706" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
     <resources>
-        <image name="750-home" width="28" height="28"/>
-        <image name="845-location-targeta" width="24" height="24"/>
         <image name="briefcase.fill" catalog="system" width="128" height="99"/>
         <image name="house" catalog="system" width="128" height="105"/>
+        <image name="house.fill" catalog="system" width="128" height="105"/>
+        <image name="location.fill" catalog="system" width="128" height="121"/>
         <image name="map" catalog="system" width="128" height="109"/>
     </resources>
 </document>

@@ -14,11 +14,11 @@
 
 
 #import "DetourLocation.h"
+#import "CLLocation+Helper.h"
 #import "NSDictionary+Types.h"
 #import "NSString+Core.h"
 #import "TriMetXML.h"
 #import "TriMetXMLSelectors.h"
-#import "CLLocation+Helper.h"
 
 @implementation DetourLocation
 

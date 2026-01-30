@@ -24,33 +24,32 @@
 
 @interface XMLTrips : TriMetXML <TripItinerary *>
 
-@property(nonatomic, strong) TripUserRequest *userRequest;
-@property(nonatomic, strong) NSArray<NSMutableDictionary*> *userFaves;
+@property (nonatomic, strong) TripUserRequest *userRequest;
+@property (nonatomic, strong) NSArray<NSMutableDictionary *> *userFaves;
 
-@property(nonatomic, strong) TripLegEndPoint *resultFrom;
-@property(nonatomic, strong) TripLegEndPoint *resultTo;
+@property (nonatomic, strong) TripLegEndPoint *resultFrom;
+@property (nonatomic, strong) TripLegEndPoint *resultTo;
 
-@property(nonatomic) bool reversed;
+@property (nonatomic) bool reversed;
 
-@property(nonatomic, copy, setter=setXml_date:) NSString *queryDateFormatted;
-@property(nonatomic, copy, setter=setXml_time:) NSString *queryTimeFormatted;
+@property (nonatomic, copy, setter=setXml_date:) NSString *queryDateFormatted;
+@property (nonatomic, copy, setter=setXml_time:) NSString *queryTimeFormatted;
 
-@property(nonatomic, readonly, copy) NSString *shortName;
-@property(nonatomic, readonly, copy) NSString *longName;
-@property(nonatomic, readonly, copy) NSString *mediumName;
+@property (nonatomic, readonly, copy) NSString *shortName;
+@property (nonatomic, readonly, copy) NSString *longName;
+@property (nonatomic, readonly, copy) NSString *mediumName;
 
-@property(nonatomic, strong) NSMutableArray<TripLegEndPoint *> *toList;
-@property(nonatomic, strong) NSMutableArray<TripLegEndPoint *> *fromList;
+@property (nonatomic, strong) NSMutableArray<TripLegEndPoint *> *toList;
+@property (nonatomic, strong) NSMutableArray<TripLegEndPoint *> *fromList;
 
-@property(nonatomic) bool toAppleFailed;
-@property(nonatomic) bool fromAppleFailed;
+@property (nonatomic) bool toAppleFailed;
+@property (nonatomic) bool fromAppleFailed;
 
 - (void)fetchItineraries:(NSData *)rawData;
 - (XMLTrips *)createReverse;
 - (XMLTrips *)createAuto;
 - (void)saveTrip;
 - (void)resetCurrentLocation;
-- (void)addStopsFromUserFaves:(NSArray *)userFaves;
 - (instancetype)init;
 - (NSUserActivity *)userActivity;
 

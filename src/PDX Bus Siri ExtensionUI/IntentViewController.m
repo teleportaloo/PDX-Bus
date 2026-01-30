@@ -18,10 +18,8 @@
 #ifdef PDXBUS_EXTENSION
 #define LARGE_SCREEN NO
 #else
-#define LARGE_SCREEN                                                           \
-    (PDXBusAppDelegate.sharedInstance.appRect.size.width >=                 \
-     kLargeScreenWidth)
-#endif
+#define LARGE_SCREEN (PDXBusAppDelegate.sharedInstance.appRect.size.width >= kLargeScreenWidth)
+#endif // PDXBUS_EXTENSION
 #define SMALL_SCREEN !(LARGE_SCREEN)
 
 #import "IntentViewController.h"
@@ -65,16 +63,13 @@
 #pragma mark - INUIHostedViewControlling
 
 // Prepare your view controller for the interaction to handle.
-- (void)
-    configureViewForParameters:(NSSet<INParameter *> *)parameters
-                 ofInteraction:(INInteraction *)interaction
-           interactiveBehavior:(INUIInteractiveBehavior)interactiveBehavior
-                       context:(INUIHostedViewContext)context
-                    completion:
-                        (void (^)(BOOL success,
-                                  NSSet<INParameter *> *configuredParameters,
-                                  CGSize desiredSize))completion
-    API_AVAILABLE(ios(11.0)) {
+- (void)configureViewForParameters:(NSSet<INParameter *> *)parameters
+                     ofInteraction:(INInteraction *)interaction
+               interactiveBehavior:(INUIInteractiveBehavior)interactiveBehavior
+                           context:(INUIHostedViewContext)context
+                        completion:(void (^)(BOOL success,
+                                             NSSet<INParameter *> *configuredParameters,
+                                             CGSize desiredSize))completion {
     // Do configuration here, including preparing views and calculating a
     // desired size for presentation.
     DEBUG_FUNC();
@@ -82,8 +77,7 @@
     NSUserActivity *activity = nil;
 
     if ([interaction.intent isKindOfClass:[ArrivalsIntent class]]) {
-        ArrivalsIntentResponse *response =
-            (ArrivalsIntentResponse *)interaction.intentResponse;
+        ArrivalsIntentResponse *response = (ArrivalsIntentResponse *)interaction.intentResponse;
         activity = response.userActivity;
     }
 
@@ -132,31 +126,25 @@
     return sz;
 }
 
-// - (NSUInteger)table
-
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return self.departures.count;
 }
 
-- (NSInteger)tableView:(UITableView *)tableView
-    numberOfRowsInSection:(NSInteger)section {
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     DEBUG_FUNC();
     return self.departures[section].count + 1;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView
                 disclaimerCell:(NSString *)resuseIdentifier {
-    UITableViewCell *cell =
-        [tableView dequeueReusableCellWithIdentifier:resuseIdentifier];
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:resuseIdentifier];
 
     if (cell == nil) {
-        cell =
-            [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle
-                                   reuseIdentifier:resuseIdentifier];
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle
+                                      reuseIdentifier:resuseIdentifier];
         cell.detailTextLabel.text = kTriMetDisclaimerText;
         cell.detailTextLabel.adjustsFontSizeToFitWidth = YES;
-        cell.detailTextLabel.baselineAdjustment =
-            UIBaselineAdjustmentAlignCenters;
+        cell.detailTextLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
         cell.detailTextLabel.textColor = [UIColor modeAwareGrayText];
         cell.detailTextLabel.backgroundColor = [UIColor clearColor];
         cell.detailTextLabel.numberOfLines = 1;
@@ -182,16 +170,13 @@
     } else {
         cell = [self tableView:tableView disclaimerCell:@"static"];
         cell.textLabel.attributedText =
-            [NSString
-                stringWithFormat:
-                    NSLocalizedString(
-                        @"%@ Updated: %@",
-                        @"text followed by time data was fetched"),
-                    xml.depStaticText,
-                    [NSDateFormatter
-                        localizedStringFromDate:xml.depQueryTime
-                                      dateStyle:NSDateFormatterNoStyle
-                                      timeStyle:NSDateFormatterMediumStyle]]
+            [NSString stringWithFormat:NSLocalizedString(@"%@ Updated: %@",
+                                                         @"text followed by time data was fetched"),
+                                       xml.depStaticText,
+                                       [NSDateFormatter
+                                           localizedStringFromDate:xml.depQueryTime
+                                                         dateStyle:NSDateFormatterNoStyle
+                                                         timeStyle:NSDateFormatterMediumStyle]]
                 .attributedStringFromMarkUp;
         cell.textLabel.numberOfLines = 0;
     }
@@ -199,15 +184,13 @@
     return cell;
 }
 
-- (NSString *)tableView:(UITableView *)tableView
-    titleForHeaderInSection:(NSInteger)section {
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
     XMLDepartures *xml = self.departures[section];
 
     return xml.depGetSectionHeader;
 }
 
-- (CGFloat)tableView:(UITableView *)tableView
-    heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     return [DepartureCell cellHeightWithTallRouteLabel:NO];
 }
 

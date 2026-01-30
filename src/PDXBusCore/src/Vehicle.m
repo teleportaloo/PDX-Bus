@@ -55,8 +55,7 @@
     } else if (seconds == 1) {
         lastSeen = @"Located 1s ago";
     } else if (seconds < 120) {
-        lastSeen = [NSString
-            stringWithFormat:@"Located %lus ago", (unsigned long)seconds];
+        lastSeen = [NSString stringWithFormat:@"Located %lus ago", (unsigned long)seconds];
     } else if (seconds > (3600)) {
         lastSeen = @"Located over an hour ago";
     } else if (seconds >= 120) {
@@ -65,8 +64,7 @@
         if (mins == 1) {
             lastSeen = @"Located 1 min ago";
         } else {
-            lastSeen = [NSString
-                stringWithFormat:@"Located %lu mins ago", (unsigned long)mins];
+            lastSeen = [NSString stringWithFormat:@"Located %lu mins ago", (unsigned long)mins];
         }
     }
 

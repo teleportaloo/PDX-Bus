@@ -22,8 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
 // The purpose of this is to have these accesses atomic and to separate the
 // fonts from the strings
 
-@property(class, atomic, strong) UIFont *smallFont;
-@property(class, atomic, strong) UIFont *basicFont;
+@property (class, atomic, strong) UIFont *smallFont;
+@property (class, atomic, strong) UIFont *basicFont;
 
 + (UIFont *)monospacedDigitSystemFontOfSize:(CGFloat)fontSize;
 + (UIFont *)boldMonospacedDigitSystemFontOfSize:(CGFloat)fontSize;

@@ -33,8 +33,7 @@
         [self.mins setText:nil];
     } else {
         if (deps.count == 1) {
-            [self.heading
-                setAttributedText:[dep headingWithStatusFullSign:YES]];
+            [self.heading setAttributedText:[dep headingWithStatusFullSign:YES]];
         } else {
             [self.heading setAttributedText:[dep headingWithStatusFullSign:NO]];
         }

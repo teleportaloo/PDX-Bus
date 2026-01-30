@@ -12,48 +12,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-/* Screen Widths of Devices
-
-
- iPad 2                  768
- iPad Air                768
- iPad Retina             768
-
- iPad Wide               1024
-
- iPhone 4 / 4S           320
- iPhone 5 / 5S           320
- iPhone 6                375
- iPhone 6 Plus           414
-
-*/
-
 #define kLargeScreenWidth 694
 
 #ifdef PDXBUS_EXTENSION
 #define LARGE_SCREEN NO
 #else
-#define LARGE_SCREEN                                                           \
-    ((UIApplication.appRect.size.width >= kLargeScreenWidth) ||                \
-     (UIApplication.appRect.size.width == 0 &&                                 \
+
+#define SCREEN_WIDTH (UIApplication.appRect.size.width ?: UIScreen.mainScreen.bounds.size.width)
+#define LARGE_SCREEN                                                                               \
+    ((UIApplication.appRect.size.width >= kLargeScreenWidth) ||                                    \
+     (UIApplication.appRect.size.width == 0 &&                                                     \
       UIScreen.mainScreen.bounds.size.width >= kLargeScreenWidth))
-#endif
+#endif // PDXBUS_EXTENSION
 
 #define SMALL_SCREEN !(LARGE_SCREEN)
-
-typedef enum ScreenWidthEnum {
-    WidthiPhone = 320,
-    WidthiPhone6 = 375,
-    WidthiPhone6Plus = 414,
-    MaxiPhoneWidth = 414,
-    WidthBigVariable = 768,
-    WidthiPadWide = 1024
-} ScreenWidth;
-
-#define ScaleFromiPhone(X, W)                                                  \
-    ((((double)X) / (double)WidthiPhone) * (double)(W))
-
-typedef struct ScreenInfoStruct {
-    ScreenWidth screenWidth;
-    CGFloat appWinWidth;
-} ScreenInfo;

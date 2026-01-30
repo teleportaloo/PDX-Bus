@@ -21,7 +21,7 @@ static NSString *stopsURLString = @"routeConfig/route/%@/dir/%@/stops/true";
 
 @interface XMLStops ()
 
-@property(nonatomic, strong) Stop *currentStopObject;
+@property (nonatomic, strong) Stop *currentStopObject;
 
 @end
 
@@ -39,9 +39,8 @@ static NSString *stopsURLString = @"routeConfig/route/%@/dir/%@/stops/true";
     self.routeDescription = desc;
     self.afterStopId = stopId;
 
-    return [self
-        startParsing:[NSString stringWithFormat:stopsURLString, route, dir]
-         cacheAction:cacheAction];
+    return [self startParsing:[NSString stringWithFormat:stopsURLString, route, dir]
+                  cacheAction:cacheAction];
 }
 
 - (BOOL)getStopsForRoute:(NSString *)route
@@ -53,9 +52,8 @@ static NSString *stopsURLString = @"routeConfig/route/%@/dir/%@/stops/true";
     self.routeDescription = desc;
     self.afterStopId = nil;
 
-    return [self
-        startParsing:[NSString stringWithFormat:stopsURLString, route, dir]
-         cacheAction:cacheAction];
+    return [self startParsing:[NSString stringWithFormat:stopsURLString, route, dir]
+                  cacheAction:cacheAction];
 }
 
 #pragma mark Parser callbacks

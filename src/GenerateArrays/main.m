@@ -25,6 +25,8 @@ int main(int argc, const char *argv[]) {
 
         [generator generateHotSpotTiles];
 
+        [generator generateSalt];
+
         [generator generateCopySh];
     }
     return 0;

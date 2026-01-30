@@ -35,24 +35,24 @@
 @interface UserInfo ()
 
 // Tell compiler to generate setter and getter, but setter is protected
-@property(nonatomic, copy) NSData *valXml;
-@property(nonatomic, copy) NSString *valLocs;
+@property (nonatomic, copy) NSData *valXml;
+@property (nonatomic, copy) NSString *valLocs;
 
-@property(nonatomic, copy) NSString *valStopId;
-@property(nonatomic, copy) NSString *valAlarmBlock;
-@property(nonatomic, copy) NSString *valAlarmDir;
-@property(nonatomic, copy) NSString *valStopMapDesc;
-@property(nonatomic) double valMapLat;
-@property(nonatomic) double valMapLng;
-@property(nonatomic) double valCurLat;
-@property(nonatomic) double valCurLng;
-@property(nonatomic, copy) NSString *valCurTimestamp;
-@property(nonatomic, copy) NSString *valDist;
-@property(nonatomic, copy) NSString *valMode;
-@property(nonatomic, copy) NSString *valShow;
+@property (nonatomic, copy) NSString *valStopId;
+@property (nonatomic, copy) NSString *valAlarmBlock;
+@property (nonatomic, copy) NSString *valAlarmDir;
+@property (nonatomic, copy) NSString *valStopMapDesc;
+@property (nonatomic) double valMapLat;
+@property (nonatomic) double valMapLng;
+@property (nonatomic) double valCurLat;
+@property (nonatomic) double valCurLng;
+@property (nonatomic, copy) NSString *valCurTimestamp;
+@property (nonatomic, copy) NSString *valDist;
+@property (nonatomic, copy) NSString *valMode;
+@property (nonatomic, copy) NSString *valShow;
 
 // Redeclared from parent so we can access
-@property(nonatomic, retain) NSMutableDictionary *mDict;
+@property (nonatomic, retain) NSMutableDictionary *mDict;
 
 @end
 

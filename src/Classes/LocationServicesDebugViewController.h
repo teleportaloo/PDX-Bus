@@ -19,10 +19,10 @@
 
 #ifdef DEBUG_ALARMS
 
-@interface LocationServicesDebugViewController : TableViewWithToolbar
+@interface LocationServicesDebugViewController : TableViewControllerWithToolbar
 
-@property(nonatomic, strong) AlarmTask *data;
+@property (nonatomic, strong) AlarmTask *data;
 
 @end
 
-#endif
+#endif // DEBUG_ALARMS

@@ -1,3 +1,5 @@
+// clang-format off
+// uncrustify-off
 
 /*
  * This code was generated from HTML using the script 'convert.sh'

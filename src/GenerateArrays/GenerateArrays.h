@@ -23,6 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)generateStaticStationData;
 - (void)generateHotSpotTiles;
 - (void)generateCopySh;
+- (void)generateSalt;
 
 @end
 

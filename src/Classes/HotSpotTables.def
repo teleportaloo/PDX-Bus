@@ -1,0 +1,13 @@
+//
+//  HotSpotTables.def
+//  PDX Bus
+//
+//  Created by Andy Wallace on 8/5/25.
+//  Copyright © 2025 Andrew Wallace. All rights reserved.
+//
+
+/* INSERT_LICENSE */
+
+#include "../Tables/MaxHotSpotTable.def"
+#include "../Tables/StreetcarHotSpotTable.def"
+

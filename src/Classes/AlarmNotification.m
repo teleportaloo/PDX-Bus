@@ -31,7 +31,7 @@
     SystemSoundID _soundID;
 }
 
-@property(nonatomic, strong) UNNotificationRequest *notification;
+@property (nonatomic, strong) UNNotificationRequest *notification;
 
 @end
 
@@ -65,15 +65,11 @@
                 coord.latitude = userInfo.valCurLat;
                 coord.longitude = userInfo.valCurLng;
 
-                SimpleAnnotation *currentLocation =
-                    [SimpleAnnotation annotation];
+                SimpleAnnotation *currentLocation = [SimpleAnnotation annotation];
                 currentLocation.pinColor = MAP_PIN_COLOR_PURPLE;
-                currentLocation.pinTitle =
-                    NSLocalizedString(@"Current Location", @"map pin");
+                currentLocation.pinTitle = NSLocalizedString(@"Current Location", @"map pin");
                 currentLocation.pinSubtitle = [NSString
-                    stringWithFormat:NSLocalizedString(
-                                         @"as of %@",
-                                         "location as of time {time}"),
+                    stringWithFormat:NSLocalizedString(@"as of %@", "location as of time {time}"),
                                      stamp];
                 currentLocation.coordinate = coord;
                 [mapPage addPin:currentLocation];
@@ -87,8 +83,7 @@
             NSString *dir = userInfo.valAlarmDir;
 
             [[DepartureDetailViewController viewController]
-                fetchDepartureAsync:RootViewController.currentRootViewController
-                                        .backgroundTask
+                fetchDepartureAsync:RootViewController.currentRootViewController.backgroundTask
                              stopId:stopId
                               block:block
                                 dir:dir
@@ -112,7 +107,7 @@
     if (notif.content.userInfo) {
         [AlarmNotification executeAction:notif.content.userInfo];
     }
-#endif
+#endif // TARGET_OS_MACCATALYST
 }
 
 - (MapPinColorValue)pinColor {
@@ -143,8 +138,7 @@
 
 - (NSString *)subtitle {
     return [NSString
-        stringWithFormat:NSLocalizedString(@"Stop ID %@",
-                                           @"TriMet Stop identifer <number>"),
+        stringWithFormat:NSLocalizedString(@"Stop ID %@", @"TriMet Stop identifer <number>"),
                          self.userInfo.userInfo.valStopId];
 }
 
@@ -161,6 +155,10 @@
 }
 
 - (NSString *)pinMarkedUpType {
+    return nil;
+}
+
+- (NSString *)key {
     return nil;
 }
 

@@ -49,14 +49,13 @@
 
 - (void)sort {
     XmlParseSync() {
-        [self.detourIds
-            sortUsingComparator:^NSComparisonResult(
-                NSNumber *_Nonnull detourId1, NSNumber *_Nonnull detourId2) {
-              Detour *d1 = self.allDetours[detourId1];
-              Detour *d2 = self.allDetours[detourId2];
+        [self.detourIds sortUsingComparator:^NSComparisonResult(NSNumber *_Nonnull detourId1,
+                                                                NSNumber *_Nonnull detourId2) {
+          Detour *d1 = self.allDetours[detourId1];
+          Detour *d2 = self.allDetours[detourId2];
 
-              return [d1 compare:d2];
-            }];
+          return [d1 compare:d2];
+        }];
 
         self.systemWideCount = 0;
 

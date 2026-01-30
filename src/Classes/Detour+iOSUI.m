@@ -22,25 +22,8 @@
 
 @implementation Detour (iOSUI)
 
-+ (UILabel *)create_UITextView:(UIFont *)font {
-    CGRect frame = CGRectMake(0.0, 0.0, 100.0, 100.0);
-
-    UILabel *textView = [[UILabel alloc] initWithFrame:frame];
-
-    textView.textColor = [UIColor modeAwareText];
-    textView.font = font;
-    textView.backgroundColor = [UIColor clearColor];
-    textView.lineBreakMode = NSLineBreakByWordWrapping;
-    textView.adjustsFontSizeToFitWidth = YES;
-    textView.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
-    textView.numberOfLines = 0;
-
-    return textView;
-}
-
 - (bool)hasInfo {
-    return (self.infoLinkUrl != nil || self.locations.count != 0 ||
-            self.extractStops.count != 0);
+    return (self.infoLinkUrl != nil || self.locations.count != 0 || self.extractStops.count != 0);
 }
 
 - (NSString *)reuseIdentifer {
@@ -56,12 +39,10 @@
 
     if (self.beginDate) {
         date = [NSString
-            stringWithFormat:
-                @"\n#A#(Effective as of %@#)",
-                [NSDateFormatter
-                    localizedStringFromDate:self.beginDate
-                                  dateStyle:NSDateFormatterMediumStyle
-                                  timeStyle:NSDateFormatterShortStyle]];
+            stringWithFormat:@"\n#A#(Effective as of %@#)",
+                             [NSDateFormatter localizedStringFromDate:self.beginDate
+                                                            dateStyle:NSDateFormatterMediumStyle
+                                                            timeStyle:NSDateFormatterShortStyle]];
     }
 
     if (self.endDate) {
@@ -76,19 +57,19 @@
         }
 
         date = [NSString
-            stringWithFormat:
-                @"%@%@#A#(Ends %@#)", date, gap,
-                [NSDateFormatter
-                    localizedStringFromDate:self.endDate
-                                  dateStyle:NSDateFormatterMediumStyle
-                                  timeStyle:NSDateFormatterShortStyle]];
+            stringWithFormat:@"%@%@#A#(Ends %@#)",
+                             date,
+                             gap,
+                             [NSDateFormatter localizedStringFromDate:self.endDate
+                                                            dateStyle:NSDateFormatterMediumStyle
+                                                            timeStyle:NSDateFormatterShortStyle]];
     }
 
     if (Settings.showDetourIds) {
-        date = [NSString
-            stringWithFormat:@"%@\n#A#(%@ID:%ld#)", date,
-                             DETOUR_TYPE_FROM_ID(self.detourId),
-                             (long)DETOUR_ID_STRIP_TAG(self.detourId)];
+        date = [NSString stringWithFormat:@"%@\n#A#(%@ID:%ld#)",
+                                          date,
+                                          DETOUR_TYPE_FROM_ID(self.detourId),
+                                          (long)DETOUR_ID_STRIP_TAG(self.detourId)];
     }
 
     return date;
@@ -102,11 +83,15 @@
     return self.systemWide ? @"#!" : @"#O";
 }
 
-- (NSString *)markedUpDescriptionWithHeader:(NSString *)additionalText {
-    NSString *header = self.markedUpHeaderNewl;
-
-    return [NSString stringWithFormat:@"%@%@%@%@%@%@%@", self.headerColor,
-                                      header, self.alertColor, self.detectStops,
+- (NSString *)markedUpDescriptionShowHeader:(bool)showHeader
+                                  showRoute:(bool)showRoute
+                             additionalText:(NSString *)additionalText {
+    return [NSString stringWithFormat:@"%@%@%@%@%@%@%@%@",
+                                      (showHeader || showRoute) ? self.headerColor : @"",
+                                      showHeader ? self.markedUpHeaderNewl : @"",
+                                      showRoute ? self.markedUpRoutes : @"",
+                                      self.alertColor,
+                                      self.detourTextWithDetectedStops,
                                       self.markedUpLink,
                                       additionalText ? additionalText : @"",
                                       self.dateString];
@@ -143,9 +128,11 @@
         header = self.markedUpHeaderNewl;
     }
 
-    return [NSString stringWithFormat:@"%@%@%@%@%@%@", header,
+    return [NSString stringWithFormat:@"%@%@%@%@%@%@",
+                                      header,
                                       self.systemWide ? @"#!" : @"#O",
-                                      self.detectStops, self.markedUpLink,
+                                      self.detourTextWithDetectedStops,
+                                      self.markedUpLink,
                                       additionalText ? additionalText : @"",
                                       self.dateString];
 }
@@ -153,8 +140,8 @@
 - (NSString *)markedUpHeaderNewl {
     if (self.headerText && self.headerText.length > 0 &&
         ![self.headerText isEqualToString:self.detourDesc]) {
-        return [NSString stringWithFormat:@"%@#b%@#b\n", self.headerColor,
-                                          self.headerText.safeEscapeForMarkUp];
+        return [NSString
+            stringWithFormat:@"%@#b%@#b\n", self.headerColor, self.headerText.safeEscapeForMarkUp];
     }
 
     return @"";
@@ -163,8 +150,8 @@
 - (NSString *)markedUpHeader {
     if (self.headerText && self.headerText.length > 0 &&
         ![self.headerText isEqualToString:self.detourDesc]) {
-        return [NSString stringWithFormat:@"%@#b%@#b", self.headerColor,
-                                          self.headerText.safeEscapeForMarkUp];
+        return [NSString
+            stringWithFormat:@"%@#b%@#b", self.headerColor, self.headerText.safeEscapeForMarkUp];
     }
 
     return @"";
@@ -187,12 +174,15 @@
 }
 
 - (NSString *)markedUpDescriptionWithoutInfo:(NSString *)additionalText {
-    return [NSString
-        stringWithFormat:@"%@%@%@%@%@%@%@#(#A (ID %d) #)", self.markedUpRoutes,
-                         self.markedUpHeaderNewl, self.alertColor,
-                         self.detectStops, self.markedUpNoMap,
-                         additionalText ? additionalText : @"", self.dateString,
-                         ABS(self.detourId.intValue)];
+    return [NSString stringWithFormat:@"%@%@%@%@%@%@%@#(#A (ID %d) #)",
+                                      self.markedUpRoutes,
+                                      self.markedUpHeaderNewl,
+                                      self.alertColor,
+                                      self.detourTextWithDetectedStops,
+                                      self.markedUpNoMap,
+                                      additionalText ? additionalText : @"",
+                                      self.dateString,
+                                      ABS(self.detourId.intValue)];
 }
 
 @end

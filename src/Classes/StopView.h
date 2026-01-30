@@ -17,7 +17,7 @@
 @class XMLStops;
 @class Departure;
 
-@interface StopView : TableViewControllerWithRefresh <ReturnStopObject>
+@interface StopViewController : TableViewControllerWithRefresh <ReturnStopObject>
 
 - (void)fetchStopsAsync:(id<TaskController>)taskController
                   route:(NSString *)routeid
@@ -26,7 +26,6 @@
           directionName:(NSString *)dirName
       backgroundRefresh:(bool)backgroundRefresh;
 
-- (void)fetchDestinationsAsync:(id<TaskController>)taskController
-                           dep:(Departure *)dep;
+- (void)fetchDestinationsAsync:(id<TaskController>)taskController dep:(Departure *)dep;
 
 @end

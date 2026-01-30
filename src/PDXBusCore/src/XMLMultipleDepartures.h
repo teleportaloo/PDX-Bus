@@ -21,16 +21,15 @@
 
 @interface XMLMultipleDepartures : TriMetXMLv2 <XMLDepartures *>
 
-@property(nonatomic, strong)
-    NSMutableDictionary<NSString *, XMLDepartures *> *stops;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, XMLDepartures *> *stops;
 
-@property(nonatomic) bool nextBusFeedInTriMetData;
-@property(nonatomic, copy) NSString *blockFilter;
-@property(nonatomic, strong) NSDate *queryTime;
-@property(nonatomic, copy) NSString *stopIds;
-@property(nonatomic, strong) AllTriMetDetours *allDetours;
-@property(nonatomic, strong) AllTriMetRoutes *allRoutes;
-@property(nonatomic) bool reportingStatusSection;
+@property (nonatomic) bool nextBusFeedInTriMetData;
+@property (nonatomic, copy) NSString *blockFilter;
+@property (nonatomic, strong) NSDate *queryTime;
+@property (nonatomic, copy) NSString *stopIds;
+@property (nonatomic, strong) AllTriMetDetours *allDetours;
+@property (nonatomic, strong) AllTriMetRoutes *allRoutes;
+@property (nonatomic) bool reportingStatusSection;
 
 - (BOOL)getDeparturesForStopIds:(NSString *)stopIds block:(NSString *)block;
 - (BOOL)getDeparturesForStopIds:(NSString *)stopIds;

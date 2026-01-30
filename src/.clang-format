@@ -1,0 +1,26 @@
+# .clang-format
+BasedOnStyle: LLVM
+
+# Line width
+ColumnLimit: 100
+
+# Indentation
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+
+# Pointer & reference alignment
+DerivePointerAlignment: false
+PointerAlignment: Right    # e.g. NSString *name
+
+# Objective-C tweaks
+ObjCBlockIndentWidth: 2
+ObjCBreakBeforeNestedBlockParam: true
+ObjCSpaceAfterProperty: true
+ObjCSpaceBeforeProtocolList: true
+ObjCBinPackProtocolList: Never
+
+# Function & argument wrapping
+AllowShortIfStatementsOnASingleLine: false
+BinPackArguments: false
+BinPackParameters: false

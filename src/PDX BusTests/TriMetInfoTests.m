@@ -67,12 +67,11 @@
     // Build
 
     // Operate
-    bool tableSorted =
-        [TriMetInfoTests tableIsSorted:(void *)TriMetInfo_getVehicle()
-                                   nel:TriMetInfo_noOfVehicles()
-                                 width:sizeof(TriMetInfo_Vehicle)
-                               compare:TriMetInfo_compareVehicle
-                                 table:@"Vehicle"];
+    bool tableSorted = [TriMetInfoTests tableIsSorted:(void *)TriMetInfo_getVehicle()
+                                                  nel:TriMetInfo_noOfVehicles()
+                                                width:sizeof(TriMetInfo_Vehicle)
+                                              compare:TriMetInfo_compareVehicle
+                                                table:@"Vehicle"];
 
     // Assert
     XCTAssert(tableSorted);
@@ -82,12 +81,11 @@
     // Build
 
     // Operate
-    bool tableSorted =
-        [TriMetInfoTests tableIsSorted:(void *)TriMetInfo_getVehicleSpecial()
-                                   nel:TriMetInfo_noOfVehicleSpecials()
-                                 width:sizeof(TriMetInfo_VehicleSpecial)
-                               compare:TriMetInfo_compareVehicleSpecial
-                                 table:@"VehicleSpecial"];
+    bool tableSorted = [TriMetInfoTests tableIsSorted:(void *)TriMetInfo_getVehicleSpecial()
+                                                  nel:TriMetInfo_noOfVehicleSpecials()
+                                                width:sizeof(TriMetInfo_VehicleSpecial)
+                                              compare:TriMetInfo_compareVehicleSpecial
+                                                table:@"VehicleSpecial"];
 
     // Assert
     XCTAssert(tableSorted);
@@ -100,12 +98,10 @@
     // Operate
     TriMetInfo_VehicleConstPtr vehicles = TriMetInfo_getVehicle();
 
-    for (TriMetInfo_VehicleConstPtr vehicle = vehicles; vehicle->type != nil;
-         vehicle++) {
+    for (TriMetInfo_VehicleConstPtr vehicle = vehicles; vehicle->type != nil; vehicle++) {
 
         [linkChecker
-            checkLinksInAttributedString:vehicle->markedUpModel
-                                             .attributedStringFromMarkUp];
+            checkLinksInAttributedString:vehicle->markedUpModel.attributedStringFromMarkUp];
     }
 
     [linkChecker waitUntilDone];
@@ -118,11 +114,10 @@
     // Operate
     TriMetInfo_VehicleSpecialConstPtr specials = TriMetInfo_getVehicleSpecial();
 
-    for (TriMetInfo_VehicleSpecialConstPtr special = specials;
-         special->markedUpSpecialInfo != nil; special++) {
+    for (TriMetInfo_VehicleSpecialConstPtr special = specials; special->markedUpSpecialInfo != nil;
+         special++) {
         [linkChecker
-            checkLinksInAttributedString:special->markedUpSpecialInfo
-                                             .attributedStringFromMarkUp];
+            checkLinksInAttributedString:special->markedUpSpecialInfo.attributedStringFromMarkUp];
     }
 
     [linkChecker waitUntilDone];
@@ -138,8 +133,7 @@
     NSInteger records = 0;
 
     // Assert
-    for (TriMetInfo_VehicleConstPtr vehicle = vehicles; vehicle->type != nil;
-         vehicle++) {
+    for (TriMetInfo_VehicleConstPtr vehicle = vehicles; vehicle->type != nil; vehicle++) {
         NSInteger min = vehicle->vehicleIdMin;
         NSInteger max = vehicle->vehicleIdMax;
         NSInteger mid = (vehicle->vehicleIdMin + vehicle->vehicleIdMax) / 2;
@@ -147,12 +141,9 @@
         count += (vehicle->vehicleIdMax - vehicle->vehicleIdMin) + 1;
         records++;
 
-        XCTAssertEqual([TriMetInfo vehicleInfo:min], vehicle, @"Vehicle %ld",
-                       min);
-        XCTAssertEqual([TriMetInfo vehicleInfo:max], vehicle, @"Vehicle %ld",
-                       max);
-        XCTAssertEqual([TriMetInfo vehicleInfo:mid], vehicle, @"Vehicle %ld",
-                       mid);
+        XCTAssertEqual([TriMetInfo vehicleInfo:min], vehicle, @"Vehicle %ld", min);
+        XCTAssertEqual([TriMetInfo vehicleInfo:max], vehicle, @"Vehicle %ld", max);
+        XCTAssertEqual([TriMetInfo vehicleInfo:mid], vehicle, @"Vehicle %ld", mid);
     }
 
     DEBUG_LOG(@"Count %ld in %ld records", (long)count, (long)records);
@@ -166,10 +157,12 @@
 
     // Assert
     for (PtrConstRouteInfo route = routes; route->full_name != nil; route++) {
-        XCTAssertEqual([TriMetInfo infoForRouteNum:route->route_number], route,
-                       @"Route %ld", route->route_number);
-        XCTAssertEqual([TriMetInfo infoForLine:route->line_bit], route,
-                       @"Line %ld", (long)route->line_bit);
+        XCTAssertEqual([TriMetInfo infoForRouteNum:route->route_number],
+                       route,
+                       @"Route %ld",
+                       route->route_number);
+        XCTAssertEqual(
+            [TriMetInfo infoForLine:route->line_bit], route, @"Line %ld", (long)route->line_bit);
     }
 }
 
@@ -192,12 +185,11 @@
     // Build
 
     // Operate
-    bool tableSorted =
-        [TriMetInfoTests tableIsSorted:TriMetInfoColoredLines.allLines
-                                   nel:TriMetInfoColoredLines.numOfLines
-                                 width:sizeof(TriMetInfo_Route)
-                               compare:TriMetInfo_compareRouteNumber
-                                 table:@"Route Info by route number"];
+    bool tableSorted = [TriMetInfoTests tableIsSorted:TriMetInfoColoredLines.allLines
+                                                  nel:TriMetInfoColoredLines.numOfLines
+                                                width:sizeof(TriMetInfo_Route)
+                                              compare:TriMetInfo_compareRouteNumber
+                                                table:@"Route Info by route number"];
 
     // Assert
     XCTAssert(tableSorted);
@@ -207,12 +199,11 @@
     // Build
 
     // Operate
-    bool tableSorted =
-        [TriMetInfoTests tableIsSorted:TriMetInfoColoredLines.allLines
-                                   nel:TriMetInfoColoredLines.numOfLines
-                                 width:sizeof(TriMetInfo_Route)
-                               compare:TriMetInfo_compareRouteLineBit
-                                 table:@"Route info by line"];
+    bool tableSorted = [TriMetInfoTests tableIsSorted:TriMetInfoColoredLines.allLines
+                                                  nel:TriMetInfoColoredLines.numOfLines
+                                                width:sizeof(TriMetInfo_Route)
+                                              compare:TriMetInfo_compareRouteLineBit
+                                                table:@"Route info by line"];
 
     // Assert
     XCTAssert(tableSorted);
@@ -230,19 +221,24 @@
     for (Route *route in sut) {
         info = [TriMetInfo infoForRoute:route.routeId];
 
-        if (route.routeColor != 0x084C8D && route.routeColor != 0) {
-            XCTAssert(info != nil, @"Route: %@", route.desc);
+        // Route 13 is the MAX Red Line shuttle which for some reason has a color
+        // All bus routes now appear to have a color
+        if (route.routeColor != 0x4679aa && route.routeColor != 0x084C8D && route.routeColor != 0 &&
+            ![route.routeId isEqualToString:@"13"]) {
+            XCTAssert(info != nil, @"Route: %@ %@", route.desc, route.routeId);
             if (info != nil) {
                 // XCTAssert(info->html_color == route.routeColor, @"Route: %@",
                 // route.desc);
-                DEBUG_ASSERT_WARNING(
-                    info->html_color == route.routeColor,
-                    @"Route %@,%@ has a different color 0x%06lx 0x%06lx",
-                    route.routeId, route.desc, (long)info->html_color,
-                    (long)route.routeColor);
+                DEBUG_ASSERT_WARNING(info->html_color == route.routeColor,
+                                     @"Route %@,%@ has a different color 0x%06lx 0x%06lx",
+                                     route.routeId,
+                                     route.desc,
+                                     (long)info->html_color,
+                                     (long)route.routeColor);
                 XCTAssertEqualObjects(info->full_name, route.desc);
 
-                XCTAssertEqual(route.routeSortOrder, info->sort_order,
+                XCTAssertEqual(route.routeSortOrder,
+                               info->sort_order,
                                @"sort order for %d should be %d",
                                (int)info->route_number,
                                (int)route.routeSortOrder);
@@ -250,8 +246,7 @@
         }
     }
 
-    for (info = TriMetInfoColoredLines.allLines; info->short_name != nil;
-         info++) {
+    for (info = TriMetInfoColoredLines.allLines; info->short_name != nil; info++) {
         bool found = NO;
 
         for (Route *route in sut) {
@@ -298,8 +293,7 @@
             if (info != nil) {
                 XCTAssert(info->opposite != 0);
             } else if (![TriMetInfo isSingleLoopRoute:route.routeId]) {
-                DEBUG_TEST_WARNING(@"Route %@, %@ has one direction",
-                                   route.routeId, route.desc);
+                DEBUG_TEST_WARNING(@"Route %@, %@ has one direction", route.routeId, route.desc);
             }
         }
     }

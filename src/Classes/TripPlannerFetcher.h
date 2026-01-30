@@ -18,8 +18,8 @@
 
 @interface TripPlannerFetcher : NSObject
 
-@property(nonatomic, strong) XMLTrips *tripQuery;
-@property(nonatomic, strong) TripEndPoint *currentEndPoint;
+@property (nonatomic, strong) XMLTrips *tripQuery;
+@property (nonatomic, strong) TripEndPoint *currentEndPoint;
 
 - (void)nextScreen:(UINavigationController *)controller
       forceResults:(bool)forceResults

@@ -45,9 +45,9 @@
     }
 
     return [NSString
-        stringWithFormat:NSLocalizedString(@"Stop ID %@ %@",
-                                           @"TriMet Stop identifer <number>"),
-                         self.stopId, dir];
+        stringWithFormat:NSLocalizedString(@"Stop ID %@ %@", @"TriMet Stop identifer <number>"),
+                         self.stopId,
+                         dir];
 }
 
 - (UIColor *)pinTint {
@@ -70,13 +70,13 @@
     }
 
     NSMutableString *result = [NSMutableString
-        stringWithFormat:NSLocalizedString(@"%@ %@",
-                                           @"TriMet Stop identifer <number>"),
-                         self.stopId.markedUpLinkToStopId, dir];
+        stringWithFormat:NSLocalizedString(@"%@ %@", @"TriMet Stop identifer <number>"),
+                         self.stopId.markedUpLinkToStopId,
+                         dir];
 
-    NSString *distance = [NSString
-        stringWithFormat:NSLocalizedString(@"\nDistance %@", @"stop distance"),
-                         [FormatDistance formatMetres:self.distanceMeters]];
+    NSString *distance =
+        [NSString stringWithFormat:NSLocalizedString(@"\nDistance %@", @"stop distance"),
+                                   [FormatDistance formatMetres:self.distanceMeters]];
 
     [result appendString:distance];
 
@@ -87,8 +87,7 @@
                 [result appendFormat:@"\n·\t%@", route.desc];
             } else {
                 for (Direction *direction in route.directions.allValues) {
-                    [result appendFormat:@"\n·\t%@ #i%@#i", route.desc,
-                                         direction.desc];
+                    [result appendFormat:@"\n·\t%@ #i%@#i", route.desc, direction.desc];
                 }
             }
         }
@@ -96,6 +95,10 @@
     }
     DEBUG_LOG_NSString(result);
     return result;
+}
+
+- (NSString *)key {
+    return nil;
 }
 
 @end

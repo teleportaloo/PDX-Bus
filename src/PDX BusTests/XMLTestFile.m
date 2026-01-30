@@ -40,9 +40,8 @@
 }
 
 - (void)addHeaderTag:(NSDate *)date {
-    [self.xml appendFormat:
-                  @"\n<resultSet xmlns=\"urn:trimet:rt\" queryTime=\"%lld\">\n",
-                  (long long)([date timeIntervalSince1970] * 1000.0)];
+    [self.xml appendFormat:@"\n<resultSet xmlns=\"urn:trimet:rt\" queryTime=\"%lld\">\n",
+                           (long long)([date timeIntervalSince1970] * 1000.0)];
 }
 
 - (void)closeHeaderTag {
@@ -50,20 +49,17 @@
     DEBUG_LOG_NSString(self.xml);
 }
 
-- (void)tagWithAtrributes:(NSString *)tag
-               attributes:(NSArray<NSArray<NSString *> *> *)attributes {
+- (void)tagWithAtrributes:(NSString *)tag attributes:(NSArray<NSArray<NSString *> *> *)attributes {
     [self tagLineWithAtrributes:tag attributes:attributes close:YES];
 }
 
 - (void)startTagWithAttributes:(NSString *)tag
-                    attributes:
-                        (nonnull NSArray<NSArray<NSString *> *> *)attributes {
+                    attributes:(nonnull NSArray<NSArray<NSString *> *> *)attributes {
     [self tagLineWithAtrributes:tag attributes:attributes close:NO];
 }
 
 - (void)tagLineWithAtrributes:(NSString *)tag
-                   attributes:
-                       (nonnull NSArray<NSArray<NSString *> *> *)attributes
+                   attributes:(nonnull NSArray<NSArray<NSString *> *> *)attributes
                         close:(bool)close {
     [self.xml appendString:@"<"];
     [self.xml appendString:tag];
@@ -91,26 +87,23 @@
 
 - (NSString *)makeURLstring {
     NSData *data = [self.xml dataUsingEncoding:NSUTF8StringEncoding];
-    return [NSString stringWithFormat:@"data:text/plain;base64,%@",
-                                      [data base64EncodedStringWithOptions:0]];
+    return [NSString
+        stringWithFormat:@"data:text/plain;base64,%@", [data base64EncodedStringWithOptions:0]];
 }
 
 - (XMLQueryTransformer)queryBlock {
-    return ^NSString *_Nonnull(TriMetXML *_Nonnull xml,
-                               NSString *_Nonnull query) {
+    return ^NSString *_Nonnull(TriMetXML *_Nonnull xml, NSString *_Nonnull query) {
         return self.makeURLstring;
     };
 }
 
 + (XMLQueryTransformer)queryBlockWithFileForClass:
     (NSDictionary<NSString *, NSString *> *)filesPerClass {
-    return ^NSString *_Nonnull(TriMetXML *_Nonnull xml,
-                               NSString *_Nonnull query) {
+    return ^NSString *_Nonnull(TriMetXML *_Nonnull xml, NSString *_Nonnull query) {
         NSString *name = NSStringFromClass([xml class]);
         NSString *file = filesPerClass[name];
-        NSURL *myURL =
-            [[NSBundle bundleForClass:[self class]] URLForResource:file
-                                                     withExtension:@"xml"];
+        NSURL *myURL = [[NSBundle bundleForClass:[self class]] URLForResource:file
+                                                                withExtension:@"xml"];
         return myURL.absoluteString;
     };
 }

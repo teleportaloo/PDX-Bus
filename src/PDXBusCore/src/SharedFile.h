@@ -21,11 +21,11 @@
 
 @interface SharedFile : NSObject
 
-@property(class, nonatomic, readonly) bool canUseSharedFilePath;
-@property(strong) NSURL *urlToSharedFile;
-@property(nonatomic, copy) NSString *shortName;
-@property(atomic) dispatch_group_t bgGroup;
-@property(atomic) dispatch_queue_t bgQueue;
+@property (class, nonatomic, readonly) bool canUseSharedFilePath;
+@property (strong) NSURL *urlToSharedFile;
+@property (nonatomic, copy) NSString *shortName;
+@property (atomic) dispatch_group_t bgGroup;
+@property (atomic) dispatch_queue_t bgQueue;
 
 - (instancetype)initWithFileName:(NSString *)shortFileNamem
                   initFromBundle:(bool)initFromBundle

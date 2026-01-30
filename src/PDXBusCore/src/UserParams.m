@@ -36,25 +36,25 @@
 @interface UserParams ()
 
 // Tell compiler to generate setter and getter, but setter is protected
-@property(nonatomic, copy) NSString *valChosenName;
-@property(nonatomic, copy) NSString *valOriginalName;
-@property(nonatomic, copy) NSString *valLocation;
-@property(nonatomic, retain) NSMutableDictionary *valTrip;
-@property(nonatomic, retain) NSData *valTripResults;
-@property(nonatomic) int valDayOfWeek;
-@property(nonatomic) bool valMorning;
-@property(nonatomic, copy) NSString *valBlock;
-@property(nonatomic, copy) NSString *valDir;
-@property(nonatomic, copy) NSString *valVehicleId;
+@property (nonatomic, copy) NSString *valChosenName;
+@property (nonatomic, copy) NSString *valOriginalName;
+@property (nonatomic, copy) NSString *valLocation;
+@property (nonatomic, retain) NSMutableDictionary *valTrip;
+@property (nonatomic, retain) NSData *valTripResults;
+@property (nonatomic) int valDayOfWeek;
+@property (nonatomic) bool valMorning;
+@property (nonatomic, copy) NSString *valBlock;
+@property (nonatomic, copy) NSString *valDir;
+@property (nonatomic, copy) NSString *valVehicleId;
 
-@property(nonatomic) int valLocateMode;
-@property(nonatomic) int valLocateShow;
-@property(nonatomic) int valLocateDist;
+@property (nonatomic) int valLocateMode;
+@property (nonatomic) int valLocateShow;
+@property (nonatomic) int valLocateDist;
 
-@property(nonatomic, retain) NSDictionary *valRecent;
+@property (nonatomic, retain) NSDictionary *valRecent;
 
 // Redeclared from parent so we can access
-@property(nonatomic, retain) NSMutableDictionary *mDict;
+@property (nonatomic, retain) NSMutableDictionary *mDict;
 
 @end
 
@@ -99,8 +99,7 @@ PROP_NSDictionary(Recent, @"recent", nil);
 @dynamic valLocateDist;
 @dynamic valRecent;
 
-+ (MutableUserParams *)withChosenName:(NSString *)chosenName
-                             location:(NSString *)location {
++ (MutableUserParams *)withChosenName:(NSString *)chosenName location:(NSString *)location {
     MutableUserParams *params = MutableUserParams.new;
     params.valChosenName = chosenName;
     params.valLocation = location;

@@ -31,11 +31,13 @@
 #import "TriMetInfo+UI.h"
 #import "TripPlannerSummaryViewController.h"
 #import "UIApplication+Compat.h"
+#import "UIColor+HTML.h"
 #import "ViewControllerBase+LinkCell.h"
 #import "WebViewController.h"
 #import "WhatsNewBasicAction.h"
 #import "WhatsNewHeader.h"
-#import "UIColor+HTML.h"
+
+enum { kRowItem, kRowBack };
 
 @interface WhatsNewViewController () {
     id<WhatsNewSpecialAction> _basicAction;
@@ -45,12 +47,10 @@
 
 @implementation WhatsNewViewController
 
-static NSMutableDictionary<NSNumber *, id<WhatsNewSpecialAction>>
-    *specialActions;
+static NSMutableDictionary<NSNumber *, id<WhatsNewSpecialAction>> *specialActions;
 
-+ (void)addAction:(NSNumber *)character
-           action:(id<WhatsNewSpecialAction>)action {
-    DoOnce(^{
++ (void)addAction:(NSNumber *)character action:(id<WhatsNewSpecialAction>)action {
+    DO_ONCE(^{
       specialActions = [NSMutableDictionary dictionary];
     });
 
@@ -64,22 +64,17 @@ static NSMutableDictionary<NSNumber *, id<WhatsNewSpecialAction>>
 + (NSString *)version {
     return [NSString
         stringWithFormat:@"%@ %@",
-                         [NSBundle mainBundle]
-                             .infoDictionary[@"CFBundleShortVersionString"],
-                         [NSBundle mainBundle]
-                             .infoDictionary[@"CFBundleVersion"]];
+                         [NSBundle mainBundle].infoDictionary[@"CFBundleShortVersionString"],
+                         [NSBundle mainBundle].infoDictionary[@"CFBundleVersion"]];
 }
 
 - (bool)plainStringMatch:(NSString *)markup search:(NSString *)search {
     id<WhatsNewSpecialAction> action = [self getAction:markup];
 
-    return [[action displayMarkedUpText:markup].removeMarkUp
-        hasCaseInsensitiveSubstring:search];
+    return [[action displayMarkedUpText:markup].removeMarkUp hasCaseInsensitiveSubstring:search];
 }
 
-- (id)filteredObject:(id)i
-        searchString:(NSString *)searchText
-               index:(NSInteger)index {
+- (id)filteredObject:(id)i searchString:(NSString *)searchText index:(NSInteger)index {
     NSMutableArray *results = [NSMutableArray array];
     WhatsNewSection *section = (WhatsNewSection *)i;
 
@@ -132,9 +127,8 @@ static NSMutableDictionary<NSNumber *, id<WhatsNewSpecialAction>>
     if ((self = [super init])) {
         self.title = NSLocalizedString(@"What's new?", @"page title");
         NSArray *newTextArray = [[NSArray alloc]
-            initWithContentsOfFile:[[NSBundle mainBundle]
-                                       pathForResource:@"whats-new"
-                                                ofType:@"plist"]];
+            initWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"whats-new"
+                                                                   ofType:@"plist"]];
 
         _basicAction = [WhatsNewBasicAction action];
 
@@ -149,20 +143,19 @@ static NSMutableDictionary<NSNumber *, id<WhatsNewSpecialAction>>
         }
 
         NSLog(@"%@\n", output);
-#endif
+#endif // DEBUGLOGGING
         self.enableSearch = YES;
         self.searchableItems = [NSMutableArray array];
 
         NSMutableArray *current = [NSMutableArray array];
         [current addObject:@""];
         [current
-            addObject:[NSString stringWithFormat:
-                                    NSLocalizedString(
-                                        @"#bPDX Bus got an upgrade! Here's "
-                                        @"what's new in version #R%@#D.",
-                                        @"section header"),
-                                    [NSBundle mainBundle].infoDictionary
-                                        [@"CFBundleShortVersionString"]]];
+            addObject:[NSString
+                          stringWithFormat:NSLocalizedString(@"#bPDX Bus got an upgrade! Here's "
+                                                             @"what's new in version #R%@#D.",
+                                                             @"section header"),
+                                           [NSBundle mainBundle]
+                                               .infoDictionary[@"CFBundleShortVersionString"]]];
 
         [self.searchableItems addObject:current];
 
@@ -179,8 +172,7 @@ static NSMutableDictionary<NSNumber *, id<WhatsNewSpecialAction>>
     return self;
 }
 
-- (NSString *)tableView:(UITableView *)tableView
-    titleForHeaderInSection:(NSInteger)section {
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
     NSMutableArray<WhatsNewSection *> *items = [self filteredData:tableView];
 
     if (section < items.count) {
@@ -233,8 +225,7 @@ static NSMutableDictionary<NSNumber *, id<WhatsNewSpecialAction>>
     return [self filteredData:tableView].count;
 }
 
-- (NSInteger)tableView:(UITableView *)tableView
-    numberOfRowsInSection:(NSInteger)section {
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     NSMutableArray<WhatsNewSection *> *items = [self filteredData:tableView];
 
     if (section < items.count) {
@@ -247,9 +238,7 @@ static NSMutableDictionary<NSNumber *, id<WhatsNewSpecialAction>>
 - (void)tableView:(UITableView *)tableView
       willDisplayCell:(UITableViewCell *)cell
     forRowAtIndexPath:(NSIndexPath *)indexPath {
-    [super tableView:tableView
-          willDisplayCell:cell
-        forRowAtIndexPath:indexPath];
+    [super tableView:tableView willDisplayCell:cell forRowAtIndexPath:indexPath];
 
     NSMutableArray<WhatsNewSection *> *items = [self filteredData:tableView];
 
@@ -262,80 +251,10 @@ static NSMutableDictionary<NSNumber *, id<WhatsNewSpecialAction>>
     }
 }
 
-- (UITableViewCell *)tableView:(UITableView *)tableView
-         cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    NSMutableArray<WhatsNewSection *> *items = [self filteredData:tableView];
-
-    if (indexPath.section < items.count) {
-        NSString *fullText =
-            [self filteredData:tableView][indexPath.section][indexPath.row + 1];
-
-        id<WhatsNewSpecialAction> action = [self getAction:fullText];
-
-        NSAttributedString *text = [action displayMarkedUpText:fullText]
-                                       .smallAttributedStringFromMarkUp;
-
-        TextViewLinkCell *cell = (TextViewLinkCell *)[self.tableView
-            dequeueReusableCellWithIdentifier:MakeCellId(kSectionText)];
-
-        cell.textView.attributedText = text;
-
-        [action updateCell:cell tableView:tableView];
-
-        cell.urlCallback = self.urlActionCalback;
-
-        [self updateAccessibility:cell];
-
-        return cell;
-    } else {
-
-        UITableViewCell *cell = [self tableView:tableView
-                        cellWithReuseIdentifier:MakeCellId(kSectionDone)];
-        cell.textLabel.font =
-            self.basicFont; //  [UIFont fontWithName:@"Ariel" size:14];
-        cell.textLabel.adjustsFontSizeToFitWidth = YES;
-        cell.textLabel.text =
-            NSLocalizedString(@"Back to PDX Bus", @"button text");
-        cell.textLabel.textAlignment = NSTextAlignmentCenter;
-        cell.backgroundColor = [UIColor modeAwareCellBackground];
-
-        return cell;
-    }
-
-    return nil;
-}
-
-- (CGFloat)tableView:(UITableView *)tableView
-    heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    NSMutableArray<WhatsNewSection *> *items = [self filteredData:tableView];
-
-    if (indexPath.section < items.count) {
-        return UITableViewAutomaticDimension;
-    }
-
-    return [self basicRowHeight];
-}
-
-- (void)tableView:(UITableView *)tableView
-    didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    NSMutableArray<WhatsNewSection *> *items = [self filteredData:tableView];
-
-    if (indexPath.section < items.count) {
-        NSString *markup = items[indexPath.section][indexPath.row + 1];
-
-        id<WhatsNewSpecialAction> action = [self getAction:markup];
-
-        [action processAction:markup parent:self];
-    } else {
-        [self.navigationController popToRootViewControllerAnimated:YES];
-    }
-}
-
 - (void)viewDidLoad {
     [super viewDidLoad];
 
-    [self.tableView registerNib:[TextViewLinkCell nib]
-         forCellReuseIdentifier:MakeCellId(kSectionText)];
+    [self.tableView registerNib:[TextViewLinkCell nib] forCellReuseIdentifier:kTextViewLinkCellId];
 
     [self safeScrollToTop];
 }
@@ -343,44 +262,38 @@ static NSMutableDictionary<NSNumber *, id<WhatsNewSpecialAction>>
 #pragma mark Callback selectors
 
 - (void)xxxTripPlanner {
-    TripPlannerSummaryViewController *tripStart =
-        [TripPlannerSummaryViewController viewController];
+    TripPlannerSummaryViewController *tripStart = [TripPlannerSummaryViewController viewController];
 
-    @synchronized(_userState) {
-        [tripStart.tripQuery addStopsFromUserFaves:_userState.faves];
-    }
+    tripStart.tripQuery.userFaves = _userState.stopsFromFaves;
 
     // Push the detail view controller
     [self.navigationController pushViewController:tripStart animated:YES];
 }
 
 - (void)xxxFx {
-    [DirectionViewController.viewController
-        fetchDirectionsAsync:self.backgroundTask
-                       route:@"2"];
+    [DirectionViewController.viewController fetchDirectionsAsync:self.backgroundTask route:@"2"];
 }
 
 - (void)xxxRailMap {
     Settings.showStreetcarMapFirst = NO;
-    [self.navigationController
-        pushViewController:RailMapViewController.viewController
-                  animated:YES];
+    [self.navigationController pushViewController:RailMapViewController.viewController
+                                         animated:YES];
 }
 
 - (void)xxxTipJar {
-    [self tipJar];
+    [self vt_tipJar_tableView:nil didSelectRowAtIP:nil extra:nil vTable:nil offset:0];
+
+    [self showTipJar];
 }
 
 - (void)xxxStreetcarMap {
     Settings.showStreetcarMapFirst = YES;
-    [self.navigationController
-        pushViewController:RailMapViewController.viewController
-                  animated:YES];
+    [self.navigationController pushViewController:RailMapViewController.viewController
+                                         animated:YES];
 }
 
 - (void)xxxVehicles {
-    NearestVehiclesMapViewController *mapView =
-        [NearestVehiclesMapViewController viewController];
+    NearestVehiclesMapViewController *mapView = [NearestVehiclesMapViewController viewController];
 
     mapView.title = NSLocalizedString(@"All Vehicles", "page title");
     mapView.alwaysFetch = YES;
@@ -390,14 +303,12 @@ static NSMutableDictionary<NSNumber *, id<WhatsNewSpecialAction>>
 }
 
 - (void)xxxStations {
-    [self.navigationController
-        pushViewController:AllRailStationViewController.viewController
-                  animated:YES];
+    [self.navigationController pushViewController:AllRailStationViewController.viewController
+                                         animated:YES];
 }
 
 - (void)xxxDetours {
-    [DetoursViewController.viewController
-        fetchDetoursAsync:self.backgroundTask];
+    [DetoursViewController.viewController fetchDetoursAsync:self.backgroundTask];
 }
 
 - (void)xxxFbTriMet {
@@ -410,23 +321,88 @@ static NSMutableDictionary<NSNumber *, id<WhatsNewSpecialAction>>
 }
 
 - (void)xxxShowHighlights {
-    [self.navigationController
-        pushViewController:BlockColorViewController.viewController
-                  animated:YES];
+    [self.navigationController pushViewController:BlockColorViewController.viewController
+                                         animated:YES];
 }
 
 - (void)xxxBluesky {
     if (self.tableView.indexPathForSelectedRow != nil) {
-        UITableViewCell *cell = [self.tableView
-            cellForRowAtIndexPath:self.tableView.indexPathForSelectedRow];
-        [self triMetBlueskyFrom:cell.contentView];
+        [self triMetBluesky];
     }
 }
 
 - (void)xxxCheckNetwork {
-    [NetworkTestViewController.viewController
-        fetchNetworkStatusAsync:self.backgroundTask
-              backgroundRefresh:NO];
+    [NetworkTestViewController.viewController fetchNetworkStatusAsync:self.backgroundTask
+                                                    backgroundRefresh:NO];
 }
+
+//--------------------------------------------------------------------------------------------------
+//                               Virtual Cell Table
+//--------------------------------------------------------------------------------------------------
+#define VTABLE_CLASS WhatsNewViewController
+//--------------------------------------------------------------------------------------------------
+
+- (NSInteger)tableView:(UITableView *)tableView
+          vTableOffset:(NSIndexPath *)indexPath
+              extraOut:(__autoreleasing id *)extra {
+
+    NSMutableArray<WhatsNewSection *> *items = [self filteredData:tableView];
+
+    if (indexPath.section < items.count) {
+        *extra = items[indexPath.section][indexPath.row + 1];
+        return kRowItem;
+    }
+    return kRowBack;
+}
+
+//--------------------------------------------------------------------------------------------------
+#pragma mark kRowItem
+
+CELL_CONFIG_METHOD(kRowItem) {
+    NSString *fullText = (NSString *)extra;
+
+    id<WhatsNewSpecialAction> action = [self getAction:fullText];
+
+    TextViewLinkCell *cell =
+        (TextViewLinkCell *)[self.tableView dequeueReusableCellWithIdentifier:kTextViewLinkCellId];
+
+    [self textCell:cell
+                  text:[action displayMarkedUpText:fullText]
+                  icon:nil
+         accessoryType:UITableViewCellAccessoryNone
+        selectionStyle:UITableViewCellSelectionStyleNone];
+
+    [action updateCell:cell tableView:tableView];
+    [self updateAccessibility:cell];
+
+    return cell;
+}
+
+CELL_SELECT_METHOD(kRowItem) {
+    NSString *fullText = (NSString *)extra;
+    id<WhatsNewSpecialAction> action = [self getAction:fullText];
+    [action processAction:fullText parent:self];
+}
+
+STATIC_VTABLE_VCS_H(kRowItem, auto);
+
+//--------------------------------------------------------------------------------------------------
+#pragma mark kRowBack
+
+BASIC_CELL_SELECT(kRowBack,
+                  NSLocalizedString(@"Back to PDX Bus", @"button text"),
+                  nil,
+                  UITableViewCellAccessoryNone) {
+    [self.navigationController popToRootViewControllerAnimated:YES];
+}
+
+//--------------------------------------------------------------------------------------------------
+
+CELL_VTABLE_MAP{
+    CELL_MAP(kRowItem),
+    CELL_MAP(kRowBack),
+};
+
+//--------------------------------------------------------------------------------------------------
 
 @end

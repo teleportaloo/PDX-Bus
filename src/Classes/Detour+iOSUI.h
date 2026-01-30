@@ -23,10 +23,10 @@
 - (NSString *)reuseIdentifer;
 - (NSString *)markedUpHeader;
 - (NSString *)markedUpDescription:(NSString *)additionalText;
-- (NSString *)markedUpDescriptionWithHeader:(NSString *)additionalText;
+- (NSString *)markedUpDescriptionShowHeader:(bool)showHeader
+                                  showRoute:(bool)showRoute
+                             additionalText:(NSString *)additionalText;
 - (NSString *)markedUpDescriptionWithoutInfo:(NSString *)additionalText;
 - (bool)hasInfo;
-
-+ (UILabel *)create_UITextView:(UIFont *)font;
 
 @end

@@ -19,6 +19,6 @@
 
 @interface WatchArrivalMap : WatchRow
 
-@property(strong, nonatomic) IBOutlet WKInterfaceMap *map;
+@property (strong, nonatomic) IBOutlet WKInterfaceMap *map;
 
 @end

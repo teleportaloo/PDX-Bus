@@ -14,8 +14,8 @@
 
 
 #import "LinkInfo.h"
-#import "PlistMacros.h"
 #import "DebugLogging.h"
+#import "PlistMacros.h"
 
 #define DEBUG_LEVEL_FOR_FILE LogUI
 
@@ -27,13 +27,13 @@
 @interface LinkInfo ()
 
 // Tell compiler to generate setter and getter, but setter is protected
-@property(nonatomic, copy) NSString *valLinkFull;
-@property(nonatomic, copy) NSString *valLinkMobile;
-@property(nonatomic, copy) NSString *valLinkTitle;
-@property(nonatomic, copy) NSString *valLinkIcon;
+@property (nonatomic, copy) NSString *valLinkFull;
+@property (nonatomic, copy) NSString *valLinkMobile;
+@property (nonatomic, copy) NSString *valLinkTitle;
+@property (nonatomic, copy) NSString *valLinkIcon;
 
 // Redeclared from parent so we can access
-@property(nonatomic, retain) NSMutableDictionary *mDict;
+@property (nonatomic, retain) NSMutableDictionary *mDict;
 
 @end
 
@@ -57,5 +57,3 @@ PROP_NSString(LinkIcon, kIcon, nil);
 }
 
 @end
-
-

@@ -18,23 +18,22 @@
 
 #define DEBUG_LEVEL_FOR_FILE LogData
 
-#define BUS_FLEET(YEAR, MANU, MODEL, LENGTH, MIN, MAX, FUEL)                   \
-    {                                                                          \
-        MIN, MAX, TriMetTypeBus, @MANU, @MODEL, @YEAR, NO, FUEL, YES           \
+#define BUS_FLEET(YEAR, MANU, MODEL, LENGTH, MIN, MAX, FUEL)                                       \
+    {                                                                                              \
+        MIN, MAX, TriMetTypeBus, @MANU, @MODEL, @YEAR, NO, FUEL, YES                               \
     }
 
-#define MAX_FLEET(TYPE, MIN, MAX, MANU, MODEL, YEAR)                           \
-    {                                                                          \
-        MIN, MAX, TriMetTypeMAX @" " TYPE, @MANU, @MODEL, @YEAR, YES, nil, YES \
+#define MAX_FLEET(TYPE, MIN, MAX, MANU, MODEL, YEAR)                                               \
+    {                                                                                              \
+        MIN, MAX, TriMetTypeMAX @" " TYPE, @MANU, @MODEL, @YEAR, YES, nil, YES                     \
     }
-#define WES_FLEET(MIN, MAX, MANU, MODEL, YEAR)                                 \
-    {                                                                          \
-        MIN, MAX, TriMetTypeWES, @MANU, @MODEL, @YEAR, YES, nil, NO            \
+#define WES_FLEET(MIN, MAX, MANU, MODEL, YEAR)                                                     \
+    {                                                                                              \
+        MIN, MAX, TriMetTypeWES, @MANU, @MODEL, @YEAR, YES, nil, NO                                \
     }
-#define STREETCAR_FLEET(MANU, MODEL, N, YEAR, MIN, MAX)                        \
-    {                                                                          \
-        1##MIN - 1000, 1##MAX - 1000, TriMetTypeStreetcar, @MANU, @MODEL,      \
-            @YEAR, NO, nil, NO                                                 \
+#define STREETCAR_FLEET(MANU, MODEL, N, YEAR, MIN, MAX)                                            \
+    {                                                                                              \
+        1##MIN - 1000, 1##MAX - 1000, TriMetTypeStreetcar, @MANU, @MODEL, @YEAR, NO, nil, NO       \
     }
 
 #define STREETCAR_SPECIAL(NUM, INFO) {1##NUM - 1000, INFO}
@@ -52,42 +51,36 @@
 // https://en.wikipedia.org/wiki/Portland_Streetcar
 
 #define MORE_INFO "#b(more info)#b#T"
-#define kBombardier                                                            \
-    "Bombardier "                                                              \
+#define kBombardier                                                                                \
+    "Bombardier "                                                                                  \
     "#Lhttps://en.wikipedia.org/wiki/Bombardier_Transportation " MORE_INFO
-#define kD40LF                                                                 \
-    "D40LF #Lhttps://en.wikipedia.org/wiki/New_Flyer_Low_Floor " MORE_INFO
-#define kD40LFR                                                                \
-    "D40LFR #Lhttps://en.wikipedia.org/wiki/New_Flyer_Low_Floor " MORE_INFO
-#define kLFBRT                                                                 \
-    "Low Floor BRT "                                                           \
+#define kD40LF "D40LF #Lhttps://en.wikipedia.org/wiki/New_Flyer_Low_Floor " MORE_INFO
+#define kD40LFR "D40LFR #Lhttps://en.wikipedia.org/wiki/New_Flyer_Low_Floor " MORE_INFO
+#define kLFBRT                                                                                     \
+    "Low Floor BRT "                                                                               \
     "#Lhttps://en.wikipedia.org/wiki/Gillig_Low_Floor " MORE_INFO
-#define kLFBRTH                                                                \
-    "Low Floor BRT Hybrid "                                                    \
+#define kLFBRTH                                                                                    \
+    "Low Floor BRT Hybrid "                                                                        \
     "#Lhttps://en.wikipedia.org/wiki/Gillig_Low_Floor " MORE_INFO
-#define kXC                                                                    \
-    "Xcelsior CHARGE™ ⚡︎ "                                                     \
+#define kXC                                                                                        \
+    "Xcelsior CHARGE™ ⚡︎ "                                                                         \
     "#Lhttps://en.wikipedia.org/wiki/New_Flyer_Xcelsior " MORE_INFO
 #define kSD660 "SD660 #Lhttps://en.wikipedia.org/wiki/Siemens_SD660 " MORE_INFO
-#define kS70                                                                   \
-    "S70 #Lhttps://en.wikipedia.org/wiki/Siemens_S700_and_S70 " MORE_INFO
-#define kS700                                                                  \
-    "S700 #Lhttps://en.wikipedia.org/wiki/Siemens_S700_and_S70 " MORE_INFO
+#define kS70 "S70 #Lhttps://en.wikipedia.org/wiki/Siemens_S700_and_S70 " MORE_INFO
+#define kS700 "S700 #Lhttps://en.wikipedia.org/wiki/Siemens_S700_and_S70 " MORE_INFO
 #define k10T "10 T #Lhttps://en.wikipedia.org/wiki/Skoda_10_T " MORE_INFO
-#define kTrio12                                                                \
-    "Trio type 12 #Lhttps://en.wikipedia.org/wiki/Inekon_12_Trio " MORE_INFO
-#define kUnited                                                                \
-    "United Streetcar "                                                        \
+#define kTrio12 "Trio type 12 #Lhttps://en.wikipedia.org/wiki/Inekon_12_Trio " MORE_INFO
+#define kUnited                                                                                    \
+    "United Streetcar "                                                                            \
     "#Lhttps://en.wikipedia.org/wiki/United_Streetcar " MORE_INFO
-#define kBrookville                                                            \
-    "Brookville Equipment "                                                    \
-    "#Lhttps://en.wikipedia.org/wiki/"                                         \
+#define kBrookville                                                                                \
+    "Brookville Equipment "                                                                        \
+    "#Lhttps://en.wikipedia.org/wiki/"                                                             \
     "Brookville_Equipment_Corporation " MORE_INFO
-#define kLFPlus                                                                \
-    "Low Floor Plus "                                                          \
+#define kLFPlus                                                                                    \
+    "Low Floor Plus "                                                                              \
     "#Lhttps://en.wikipedia.org/wiki/Gillig_Low_Floor#Variants " MORE_INFO
-#define kArtic                                                                 \
-    "Nova LFS Artic  #Lhttps://en.wikipedia.org/wiki/Nova_Bus " MORE_INFO
+#define kArtic "Nova LFS Artic  #Lhttps://en.wikipedia.org/wiki/Nova_Bus " MORE_INFO
 
 #define FUEL_HYBRID @"Diesel-electric hybrid"
 #define FUEL_BIODIESEL @"Biodiesel"
@@ -175,9 +168,7 @@ static const TriMetInfo_VehicleSpecial vehicleInfo_Special[] =
 
 // uncrustify-on
 
-TriMetInfo_VehicleConstPtr TriMetInfo_getVehicle(void) {
-    return &(vehicleInfo[0]);
-}
+TriMetInfo_VehicleConstPtr TriMetInfo_getVehicle(void) { return &(vehicleInfo[0]); }
 
 TriMetInfo_VehicleSpecialConstPtr TriMetInfo_getVehicleSpecial(void) {
     return &(vehicleInfo_Special[0]);

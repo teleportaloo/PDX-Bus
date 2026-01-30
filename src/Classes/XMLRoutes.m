@@ -20,13 +20,12 @@
 static NSString *routesURLString = @"routeConfig";
 static NSString *routesAndDirsURLString = @"routeConfig/dir/true";
 static NSString *someRoutesURLString = @"routeConfig/routes/%@/dir/true";
-static NSString *someRoutesWithStops =
-    @"routeConfig/routes/%@/dir/true/stops/true";
+static NSString *someRoutesWithStops = @"routeConfig/routes/%@/dir/true/stops/true";
 
 @interface XMLRoutes ()
 
-@property(nonatomic, strong) Route *currentRouteObject;
-@property(nonatomic, strong) Direction *currentDirectionObject;
+@property (nonatomic, strong) Route *currentRouteObject;
+@property (nonatomic, strong) Direction *currentDirectionObject;
 
 @end
 
@@ -36,34 +35,28 @@ static NSString *someRoutesWithStops =
 
 - (NSDictionary<NSString *, Stop *> *)getAllRailStops {
     PtrConstRouteInfo info = nil;
-    NSMutableDictionary<NSString *, Stop *> *allStops =
-        [NSMutableDictionary dictionary];
+    NSMutableDictionary<NSString *, Stop *> *allStops = [NSMutableDictionary dictionary];
 
     NSMutableArray *railRoutes = [NSMutableArray array];
 
-    for (info = TriMetInfoColoredLines.allLines; info->short_name != nil;
-         info++) {
+    for (info = TriMetInfoColoredLines.allLines; info->short_name != nil; info++) {
         if (info->includeAsRailStop) {
-            [railRoutes
-                addObject:[NSString stringWithFormat:@"%ld",
-                                                     (long)info->route_number]];
+            [railRoutes addObject:[NSString stringWithFormat:@"%ld", (long)info->route_number]];
         }
     }
 
-    [self getStops:[NSString
-                       commaSeparatedStringFromStringEnumerator:railRoutes]
+    [self getStops:[NSString commaSeparatedStringFromStringEnumerator:railRoutes]
         cacheAction:TriMetXMLNoCaching];
 
     if (self.gotData) {
         for (Route *route in self) {
-            [route.directions
-                enumerateKeysAndObjectsUsingBlock:^(
-                    NSString *_Nonnull key, Direction *_Nonnull direction,
-                    BOOL *_Nonnull stopLoop) {
-                  for (Stop *stop in direction.stops) {
-                      allStops[stop.stopId] = stop;
-                  }
-                }];
+            [route.directions enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull key,
+                                                                  Direction *_Nonnull direction,
+                                                                  BOOL *_Nonnull stopLoop) {
+              for (Stop *stop in direction.stops) {
+                  allStops[stop.stopId] = stop;
+              }
+            }];
         }
     }
 
@@ -84,15 +77,13 @@ static NSString *someRoutesWithStops =
 }
 
 - (BOOL)getDirections:(NSString *)route cacheAction:(CacheAction)cacheAction {
-    return [self
-        startParsing:[NSString stringWithFormat:someRoutesURLString, route]
-         cacheAction:cacheAction];
+    return [self startParsing:[NSString stringWithFormat:someRoutesURLString, route]
+                  cacheAction:cacheAction];
 }
 
 - (BOOL)getStops:(NSString *)route cacheAction:(CacheAction)cacheAction {
-    return [self
-        startParsing:[NSString stringWithFormat:someRoutesWithStops, route]
-         cacheAction:cacheAction];
+    return [self startParsing:[NSString stringWithFormat:someRoutesWithStops, route]
+                  cacheAction:cacheAction];
 }
 
 #pragma mark Parser callbacks
@@ -104,9 +95,7 @@ XML_START_ELEMENT(resultSet) {
     _hasData = YES;
 }
 
-XML_START_ELEMENT(route) {
-    self.currentRouteObject = [Route fromAttributeDict:XML_ATR_DICT];
-}
+XML_START_ELEMENT(route) { self.currentRouteObject = [Route fromAttributeDict:XML_ATR_DICT]; }
 
 XML_START_ELEMENT(dir) {
     self.currentDirectionObject = [Direction new];

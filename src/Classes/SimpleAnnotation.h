@@ -20,18 +20,18 @@
     double _bearing;
 }
 
-@property(nonatomic, readonly, copy) NSString *title;
-@property(nonatomic, readonly, copy) NSString *subtitle;
-@property(nonatomic) MapPinColorValue pinColor;
-@property(nonatomic) CLLocationCoordinate2D coordinate;
-@property(nonatomic, readonly) bool pinActionMenu;
-@property(nonatomic, copy) NSString *pinTitle;
-@property(nonatomic, copy) NSString *pinSubtitle;
-@property(nonatomic, copy) UIColor *pinTint;
-@property(nonatomic, copy) UIColor *pinBlobTint;
-@property(nonatomic, copy) NSString *pinMarkedUpSubtitle;
-@property(nonatomic, copy) NSString *pinMarkedUpType;
-@property(nonatomic) double pinBearing;
+@property (nonatomic, readonly, copy) NSString *title;
+@property (nonatomic, readonly, copy) NSString *subtitle;
+@property (nonatomic) MapPinColorValue pinColor;
+@property (nonatomic) CLLocationCoordinate2D coordinate;
+@property (nonatomic, readonly) bool pinActionMenu;
+@property (nonatomic, copy) NSString *pinTitle;
+@property (nonatomic, copy) NSString *pinSubtitle;
+@property (nonatomic, copy) UIColor *pinTint;
+@property (nonatomic, copy) UIColor *pinBlobTint;
+@property (nonatomic, copy) NSString *pinMarkedUpSubtitle;
+@property (nonatomic, copy) NSString *pinMarkedUpType;
+@property (nonatomic) double pinBearing;
 
 + (instancetype)annotation;
 

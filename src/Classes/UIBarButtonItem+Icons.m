@@ -13,43 +13,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#import "BoxedIcon.h"
 #import "Icons.h"
+#import "UIBarButtonItem+Auto.h"
 #import "UIBarButtonItem+Icons.h"
 
 @implementation UIBarButtonItem (Icons)
 
-+ (instancetype)withSystemImage:(nullable NSString *)name
-                          style:(UIBarButtonItemStyle)style
-                         target:(nullable id)target
-                         action:(nullable SEL)action {
-
-    
-    UIImage *image = [UIImage systemImageNamed:name];
-    image = [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithImage:image
-                                                             style:style
-                                                            target:target
-                                                            action:action];
-
-    return item;
-}
-
-+ (instancetype)withNamedImage:(nullable NSString *)name
-                         style:(UIBarButtonItemStyle)style
-                        target:(nullable id)target
-                        action:(nullable SEL)action {
-
-    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithImage:nil
-                                                             style:style
-                                                            target:target
-                                                            action:action];
-
-    [Icons getDelayedIcon:name
-               completion:^(UIImage *image) {
-                 item.image = image;
-               }];
-
-    return item;
++ (instancetype)withIcon:(nullable BoxedIcon *)icon
+                  target:(nullable id)target
+                  action:(nullable SEL)action {
+    return [UIBarButtonItem imageButton:icon.image target:target action:action];
 }
 
 @end

@@ -27,8 +27,7 @@
 
     if (det.infoLinkUrl) {
         self.label.text = [NSString
-            stringWithFormat:NSLocalizedString(@"%@ (See iPhone for link)",
-                                               @"detour text"),
+            stringWithFormat:NSLocalizedString(@"%@ (See iPhone for link)", @"detour text"),
                              det.detourDesc];
     } else {
         self.label.text = det.detourDesc;

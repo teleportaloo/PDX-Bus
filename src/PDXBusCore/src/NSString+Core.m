@@ -27,7 +27,7 @@
 #define REG_WORD(X) @"\\b" X @"\\b"
 #define CLEAR(X) X, @""
     static NSArray *replacements;
-    DoOnce((^{
+    DO_ONCE((^{
       replacements = @[
           @[ CLEAR(@"\\(Stop ID \\d+\\)") ],
           @[ REG_WORD(@"SW"), @"southwest" ],
@@ -59,8 +59,7 @@
 #define isUpper(X) ((X) >= 'A' && (X) <= 'Z')
 
         unichar decider = rep.lastObject.firstUnichar;
-        NSRegularExpressionOptions opts =
-            isUpper(decider) ? 0 : NSRegularExpressionCaseInsensitive;
+        NSRegularExpressionOptions opts = isUpper(decider) ? 0 : NSRegularExpressionCaseInsensitive;
         NSRegularExpression *regex =
             [NSRegularExpression regularExpressionWithPattern:rep.firstObject
                                                       options:opts

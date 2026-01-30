@@ -39,8 +39,7 @@
 
     self.alpha = components[3];
 
-    CGContextSetRGBFillColor(context, components[0], components[1],
-                             components[2], components[3]);
+    CGContextSetRGBFillColor(context, components[0], components[1], components[2], components[3]);
     CGContextAddPath(context, roundRectPath);
     CGContextFillPath(context);
 

@@ -34,29 +34,25 @@ typedef enum TripTextTypeEnum {
 
 @interface TripLeg : NSObject
 
-@property(nonatomic, strong) NSString *mode;
-@property(nonatomic, strong) NSString *order;
-@property(nonatomic, strong, setter=setXml_date:)
-    NSString *startStartDateFormatted;
-@property(nonatomic, strong, setter=setXml_startTime:)
-    NSString *startTimeFormatted;
-@property(nonatomic, strong, setter=setXml_endTime:) NSString *endTimeFormatted;
-@property(nonatomic, strong, setter=setXml_duration:) NSString *strDurationMins;
-@property(nonatomic, readonly) NSInteger durationMins;
-@property(nonatomic, copy, setter=setXml_distance:) NSString *strDistanceMiles;
-@property(nonatomic, readonly) double distanceMiles;
-@property(nonatomic, strong, setter=setXml_number:)
-    NSString *displayRouteNumber;
-@property(nonatomic, strong, setter=setXml_internalNumber:)
-    NSString *internalRouteNumber;
-@property(nonatomic, strong, setter=setXml_name:) NSString *routeName;
-@property(nonatomic, strong, setter=setXml_key:) NSString *key;
-@property(nonatomic, strong, setter=setXml_direction:) NSString *direction;
-@property(nonatomic, strong, setter=setXml_block:) NSString *block;
+@property (nonatomic, strong) NSString *mode;
+@property (nonatomic, strong) NSString *order;
+@property (nonatomic, strong, setter=setXml_date:) NSString *startStartDateFormatted;
+@property (nonatomic, strong, setter=setXml_startTime:) NSString *startTimeFormatted;
+@property (nonatomic, strong, setter=setXml_endTime:) NSString *endTimeFormatted;
+@property (nonatomic, strong, setter=setXml_duration:) NSString *strDurationMins;
+@property (nonatomic, readonly) NSInteger durationMins;
+@property (nonatomic, copy, setter=setXml_distance:) NSString *strDistanceMiles;
+@property (nonatomic, readonly) double distanceMiles;
+@property (nonatomic, strong, setter=setXml_number:) NSString *displayRouteNumber;
+@property (nonatomic, strong, setter=setXml_internalNumber:) NSString *internalRouteNumber;
+@property (nonatomic, strong, setter=setXml_name:) NSString *routeName;
+@property (nonatomic, strong, setter=setXml_key:) NSString *key;
+@property (nonatomic, strong, setter=setXml_direction:) NSString *direction;
+@property (nonatomic, strong, setter=setXml_block:) NSString *block;
 
-@property(nonatomic, strong) TripLegEndPoint *from;
-@property(nonatomic, strong) TripLegEndPoint *to;
-@property(nonatomic, strong) LegShapeParser *legShape;
+@property (nonatomic, strong) TripLegEndPoint *from;
+@property (nonatomic, strong) TripLegEndPoint *to;
+@property (nonatomic, strong) LegShapeParser *legShape;
 
 - (NSString *)createFromText:(bool)first textType:(TripTextType)type;
 - (NSString *)createToText:(bool)last textType:(TripTextType)type;

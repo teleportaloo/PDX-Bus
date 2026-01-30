@@ -38,7 +38,7 @@
 + (MemoryCaches *)sharedInstance {
     static MemoryCaches *caches = nil;
 
-    DoOnce(^{
+    DO_ONCE(^{
       caches = [[MemoryCaches alloc] init];
     });
     return caches;

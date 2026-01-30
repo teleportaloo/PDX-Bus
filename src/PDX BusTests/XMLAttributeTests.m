@@ -94,16 +94,15 @@
 
     // Assert
     XCTAssert(tester.gotData);
-    XCTAssertEqualWithAccuracy(tester.queryTime.timeIntervalSince1970,
-                               date.timeIntervalSince1970, 0.001);
+    XCTAssertEqualWithAccuracy(
+        tester.queryTime.timeIntervalSince1970, date.timeIntervalSince1970, 0.001);
     XCTAssertNil(tester.parseError);
 }
 
 - (void)test_TriMetXML_XML_ATR_DATE {
     // Build
-    XMLTestFile *xmlFile =
-        [XMLTestFile fileWithOneTag:XML_TEST_ATTRIBUTE_TAG
-                         attributes:@[ @[ @"item", @"56000" ] ]];
+    XMLTestFile *xmlFile = [XMLTestFile fileWithOneTag:XML_TEST_ATTRIBUTE_TAG
+                                            attributes:@[ @[ @"item", @"56000" ] ]];
     XMLAttributeTester *tester = [XMLAttributeTester xml];
 
     tester.action = ^(XmlAttributes *attributeDict, XMLAttributeTester *xml) {
@@ -118,8 +117,7 @@
     XCTAssert(tester.gotData);
     XCTAssertEqual(tester.count, 2);
 
-    XCTAssertEqualObjects(tester.nextItem,
-                          [NSDate dateWithTimeIntervalSince1970:56]);
+    XCTAssertEqualObjects(tester.nextItem, [NSDate dateWithTimeIntervalSince1970:56]);
     XCTAssertEqualObjects(tester.nextItem, @"0x0");
     XCTAssertNil(tester.parseError);
 }
@@ -173,9 +171,8 @@
 
 - (void)test_TriMetXML_XML_NON_NULL_ATR_STR {
     // Build
-    XMLTestFile *xmlFile =
-        [XMLTestFile fileWithOneTag:XML_TEST_ATTRIBUTE_TAG
-                         attributes:@[ @[ @"item", @"hello" ] ]];
+    XMLTestFile *xmlFile = [XMLTestFile fileWithOneTag:XML_TEST_ATTRIBUTE_TAG
+                                            attributes:@[ @[ @"item", @"hello" ] ]];
     XMLAttributeTester<NSString *> *tester = [XMLAttributeTester xml];
 
     tester.action = ^(XmlAttributes *attributeDict, XMLAttributeTester *xml) {
@@ -197,9 +194,8 @@
 
 - (void)test_TriMetXML_XML_NULLABLE_ATR_STR {
     // Build
-    XMLTestFile *xmlFile =
-        [XMLTestFile fileWithOneTag:XML_TEST_ATTRIBUTE_TAG
-                         attributes:@[ @[ @"item", @"hello" ] ]];
+    XMLTestFile *xmlFile = [XMLTestFile fileWithOneTag:XML_TEST_ATTRIBUTE_TAG
+                                            attributes:@[ @[ @"item", @"hello" ] ]];
     XMLAttributeTester<NSString *> *tester = [XMLAttributeTester xml];
 
     tester.action = ^(XmlAttributes *attributeDict, XMLAttributeTester *xml) {
@@ -221,9 +217,8 @@
 
 - (void)test_TriMet_XML_XML_NULLABLE_ATR_NUM {
     // Build
-    XMLTestFile *xmlFile =
-        [XMLTestFile fileWithOneTag:XML_TEST_ATTRIBUTE_TAG
-                         attributes:@[ @[ @"item", @"456" ] ]];
+    XMLTestFile *xmlFile = [XMLTestFile fileWithOneTag:XML_TEST_ATTRIBUTE_TAG
+                                            attributes:@[ @[ @"item", @"456" ] ]];
     XMLAttributeTester *tester = [XMLAttributeTester xml];
 
     tester.action = ^(XmlAttributes *attributeDict, XMLAttributeTester *xml) {
@@ -245,9 +240,8 @@
 
 - (void)test_TriMetXML_XML_ATR_TIME {
     // Build
-    XMLTestFile *xmlFile =
-        [XMLTestFile fileWithOneTag:XML_TEST_ATTRIBUTE_TAG
-                         attributes:@[ @[ @"item", @"1234567890" ] ]];
+    XMLTestFile *xmlFile = [XMLTestFile fileWithOneTag:XML_TEST_ATTRIBUTE_TAG
+                                            attributes:@[ @[ @"item", @"1234567890" ] ]];
     XMLAttributeTester<NSString *> *tester = [XMLAttributeTester xml];
 
     tester.action = ^(XmlAttributes *attributeDict, XMLAttributeTester *xml) {
@@ -334,20 +328,13 @@
 
     [xmlFile addHeaderTag:[NSDate date]];
     [xmlFile tagWithAtrributes:XML_TEST_ATTRIBUTE_TAG
-                    attributes:@[
-                        @[ @"lat", @"-1.3141593141593" ], @[ @"lng", @"2" ]
-                    ]];
-    [xmlFile tagWithAtrributes:XML_TEST_ATTRIBUTE_TAG
-                    attributes:@[ @[ @"lat", @"1" ] ]];
-    [xmlFile tagWithAtrributes:XML_TEST_ATTRIBUTE_TAG
-                    attributes:@[ @[ @"lng", @"1" ] ]];
-    [xmlFile tagWithAtrributes:XML_TEST_ATTRIBUTE_TAG
-                    attributes:@[
-                        @[ @"lat", @"45.479869999998" ],
-                        @[ @"lng", @"-122.70219199998" ]
-                    ]];
-    [xmlFile tagWithAtrributes:XML_TEST_ATTRIBUTE_TAG
-                    attributes:@[ @[ @"what", @"1" ] ]];
+                    attributes:@[ @[ @"lat", @"-1.3141593141593" ], @[ @"lng", @"2" ] ]];
+    [xmlFile tagWithAtrributes:XML_TEST_ATTRIBUTE_TAG attributes:@[ @[ @"lat", @"1" ] ]];
+    [xmlFile tagWithAtrributes:XML_TEST_ATTRIBUTE_TAG attributes:@[ @[ @"lng", @"1" ] ]];
+    [xmlFile
+        tagWithAtrributes:XML_TEST_ATTRIBUTE_TAG
+               attributes:@[ @[ @"lat", @"45.479869999998" ], @[ @"lng", @"-122.70219199998" ] ]];
+    [xmlFile tagWithAtrributes:XML_TEST_ATTRIBUTE_TAG attributes:@[ @[ @"what", @"1" ] ]];
     [xmlFile closeHeaderTag];
 
     XMLAttributeTester<NSString *> *tester = [XMLAttributeTester xml];
@@ -367,17 +354,15 @@
     XCTAssertEqualObjects(tester.nextItem, @"-1.3141593141593,2.0000000000000");
     XCTAssertEqualObjects(tester.nextItem, @"1.0000000000000,0.0000000000000");
     XCTAssertEqualObjects(tester.nextItem, @"0.0000000000000,1.0000000000000");
-    XCTAssertEqualObjects(tester.nextItem,
-                          @"45.4798699999980,-122.7021919999800");
+    XCTAssertEqualObjects(tester.nextItem, @"45.4798699999980,-122.7021919999800");
     XCTAssertEqualObjects(tester.nextItem, @"0.0000000000000,0.0000000000000");
     XCTAssertNil(tester.parseError);
 }
 
 - (void)test_TriMetXML_XML_ATR_DISTANCE {
     // Build
-    XMLTestFile *xmlFile =
-        [XMLTestFile fileWithOneTag:XML_TEST_ATTRIBUTE_TAG
-                         attributes:@[ @[ @"item", @"991234567890" ] ]];
+    XMLTestFile *xmlFile = [XMLTestFile fileWithOneTag:XML_TEST_ATTRIBUTE_TAG
+                                            attributes:@[ @[ @"item", @"991234567890" ] ]];
     XMLAttributeTester<NSString *> *tester = [XMLAttributeTester xml];
 
     tester.action = ^(XmlAttributes *attributeDict, XMLAttributeTester *xml) {
@@ -398,9 +383,8 @@
 
 - (void)test_TriMetXML_XML_ZERO_LEN_ATR_STR {
     // Build
-    XMLTestFile *xmlFile =
-        [XMLTestFile fileWithOneTag:XML_TEST_ATTRIBUTE_TAG
-                         attributes:@[ @[ @"item", @"well hello dolly" ] ]];
+    XMLTestFile *xmlFile = [XMLTestFile fileWithOneTag:XML_TEST_ATTRIBUTE_TAG
+                                            attributes:@[ @[ @"item", @"well hello dolly" ] ]];
     XMLAttributeTester<NSString *> *tester = [XMLAttributeTester xml];
 
     tester.action = ^(XmlAttributes *attributeDict, XMLAttributeTester *xml) {
@@ -431,10 +415,9 @@
     // This date is the Friday before
     NSDate *date = [dateFormatter dateFromString:@"31/12/2021 03:30:00 A"];
 
-    DEBUG_LOG_NSString([NSDateFormatter
-        localizedStringFromDate:date
-                      dateStyle:NSDateFormatterShortStyle
-                      timeStyle:NSDateFormatterMediumStyle]);
+    DEBUG_LOG_NSString([NSDateFormatter localizedStringFromDate:date
+                                                      dateStyle:NSDateFormatterShortStyle
+                                                      timeStyle:NSDateFormatterMediumStyle]);
 
     // Operate
     NSTimeInterval interval = [tester secondsUntilEndOfServiceSunday:date];
@@ -455,10 +438,9 @@
     // The week after Christmas is in fact first week of 2021
     NSDate *date = [dateFormatter dateFromString:@"24/12/2020 03:30:00 A"];
 
-    DEBUG_LOG_NSString([NSDateFormatter
-        localizedStringFromDate:date
-                      dateStyle:NSDateFormatterShortStyle
-                      timeStyle:NSDateFormatterMediumStyle]);
+    DEBUG_LOG_NSString([NSDateFormatter localizedStringFromDate:date
+                                                      dateStyle:NSDateFormatterShortStyle
+                                                      timeStyle:NSDateFormatterMediumStyle]);
 
     // Operate
     NSTimeInterval interval = [tester secondsUntilEndOfServiceSunday:date];

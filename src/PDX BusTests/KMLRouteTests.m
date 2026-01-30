@@ -42,8 +42,7 @@
     // Build
     KMLRoutes *sut = [KMLRoutes xml];
 
-    sut.queryTransformer = [XMLTestFile
-        queryBlockWithFileForClass:@{@"KMLRoutes" : @"kml-routes"}];
+    sut.queryTransformer = [XMLTestFile queryBlockWithFileForClass:@{@"KMLRoutes" : @"kml-routes"}];
 
     // Operate
     [sut fetchNowForced:YES];
@@ -61,10 +60,8 @@
     id<ShapeSegment> seg = path.segments[0];
 
     XCTAssertEqual(seg.count, 266);
-    XCTAssertEqualWithAccuracy(seg.compact.coords[0].latitude, 45.4762299486,
-                               0.0000000001);
-    XCTAssertEqualWithAccuracy(seg.compact.coords[0].longitude, -122.721885142,
-                               0.000000001);
+    XCTAssertEqualWithAccuracy(seg.compact.coords[0].latitude, 45.4762299486, 0.0000000001);
+    XCTAssertEqualWithAccuracy(seg.compact.coords[0].longitude, -122.721885142, 0.000000001);
 }
 
 - (void)test_Online_KMLRoutes {
@@ -84,34 +81,28 @@
     XCTAssert(path != nil);
     XCTAssertEqual(path.route, 1);
     XCTAssertEqualObjects(path.desc, @"1 Vermont");
-    XCTAssertEqualObjects(path.dirDesc,
-                          @"To Hayhurst and Maplewood via Vermont");
+    XCTAssertEqualObjects(path.dirDesc, @"To Hayhurst and Maplewood via Vermont");
     XCTAssertEqual(path.segments.count, 41);
 
     if (path != nil) {
         id<ShapeSegment> seg = path.segments[0];
 
         XCTAssertEqual(seg.count, 17);
-        XCTAssertEqualWithAccuracy(seg.compact.coords[0].latitude,
-                                   45.4764268846, 0.0000000001);
-        XCTAssertEqualWithAccuracy(seg.compact.coords[0].longitude,
-                                   -122.742690184, 0.000000001);
+        XCTAssertEqualWithAccuracy(seg.compact.coords[0].latitude, 45.4764268846, 0.0000000001);
+        XCTAssertEqualWithAccuracy(seg.compact.coords[0].longitude, -122.742690184, 0.000000001);
     }
 
     NSSet *routesToIgnore = [NSSet setWithArray:@[ @"98" ]];
 
     for (Route *route in routes) {
-        ShapeRoutePath *path = [sut lineCoordsForRoute:route.routeId
-                                             direction:@"0"];
+        ShapeRoutePath *path = [sut lineCoordsForRoute:route.routeId direction:@"0"];
         if (![routesToIgnore containsObject:route.routeId]) {
-            DEBUG_ASSERT_WARNING(path != nil, @"Route %@ missing- %@",
-                                 route.routeId, route.desc);
+            DEBUG_ASSERT_WARNING(path != nil, @"Route %@ missing- %@", route.routeId, route.desc);
         } else {
             DEBUG_TEST_WARNING(@"Route %@ has no shapes", route.routeId);
         }
         if (path != nil) {
-            DEBUG_LOG(@"Route %@ has %ld segments", route.routeId,
-                      (long)path.segments.count);
+            DEBUG_LOG(@"Route %@ has %ld segments", route.routeId, (long)path.segments.count);
         }
     }
 }

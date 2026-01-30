@@ -25,8 +25,7 @@
 
 static NSString *allTriMetCircularRoutes = @"18";
 
-#define RGB(R, G, B)                                                           \
-    (((((R) & 0xFF) << 16) | (((G) & 0xFF) << 8) | ((B) & 0xFF)))
+#define RGB(R, G, B) (((((R) & 0xFF) << 16) | (((G) & 0xFF) << 8) | ((B) & 0xFF)))
 #define RGB_RED RGB(255, 0, 0)
 #define RGB_WHITE RGB(255, 255, 255)
 
@@ -84,9 +83,8 @@ int TriMetInfo_compareSortOrder(const void *first, const void *second) {
 + (NSSet<NSString *> *)allCircularRoutes {
     static NSSet<NSString *> *loops;
 
-    DoOnce(^{
-      loops = [NSSet setWithArray:allTriMetCircularRoutes
-                                      .mutableArrayFromCommaSeparatedString];
+    DO_ONCE(^{
+      loops = [NSSet setWithArray:allTriMetCircularRoutes.mutableArrayFromCommaSeparatedString];
     });
 
     return loops;

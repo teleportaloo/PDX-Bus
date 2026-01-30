@@ -25,8 +25,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface TaskState : NSObject <TaskController>
 
-@property(nonatomic) NSInteger total;
-@property(nonatomic) NSInteger itemsDone;
+@property (nonatomic) NSInteger total;
+@property (nonatomic) NSInteger itemsDone;
 
 - (void)displayTotal;
 - (void)displayItemsDone;

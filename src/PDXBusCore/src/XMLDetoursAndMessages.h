@@ -21,9 +21,9 @@
 
 @interface XMLDetoursAndMessages : TriMetXML
 
-@property(nonatomic, strong) XMLStreetcarMessages *messages;
-@property(nonatomic, strong) NSArray<NSString *> *routes;
-@property(nonatomic, strong) XMLDetours *detours;
+@property (nonatomic, strong) XMLStreetcarMessages *messages;
+@property (nonatomic, strong) NSArray<NSString *> *routes;
+@property (nonatomic, strong) XMLDetours *detours;
 
 - (void)checkRoutesForStreetcar:(NSArray<NSString *> *)routes;
 - (instancetype)initWithRoutes:(NSArray<NSString *> *)routes;

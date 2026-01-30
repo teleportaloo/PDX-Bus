@@ -17,13 +17,13 @@
 #import "Departure.h"
 #import "TriMetInfo+UI.h"
 #import "UIAlertController+SimpleMessages.h"
-#import "UIFont+Utility.h"
-#import "UIToolbar+Auto.h"
+#import "UIBarButtonItem+Auto.h"
 #import "UIColor+HTML.h"
+#import "UIFont+Utility.h"
 
 @interface BigRouteViewController ()
 
-@property(nonatomic, strong) UIView *textView;
+@property (nonatomic, strong) UIView *textView;
 
 @end
 
@@ -40,18 +40,17 @@
 }
 
 - (void)infoAction:(id)sender {
-    UIAlertController *alert = [UIAlertController
+    [UIAlertController
         simpleOkWithTitle:NSLocalizedString(@"Info", @"alert title")
-                  message:
-                      NSLocalizedString(
-                          @"This Bus line identifier screen is intended as an "
-                          @"alternative to the large-print book provided to "
-                          @"partially sighted travelers to let the operator "
-                          @"know which bus they need to board.\n\nNote: the "
-                          @"screen will not dim while this is displayed, so "
-                          @"this will drain the battery quicker.",
-                          @"feature information")];
-    [self presentViewController:alert animated:YES completion:nil];
+                  message:NSLocalizedString(@"This Bus line identifier screen is intended as an "
+                                            @"alternative to the large-print book provided to "
+                                            @"partially sighted travelers to let the operator "
+                                            @"know which bus they need to board.\n\nNote: the "
+                                            @"screen will not dim while this is displayed, so "
+                                            @"this will drain the battery quicker.",
+                                            @"feature information")
+           viewController:self
+               completion:nil];
 }
 
 - (void)createTextView {
@@ -106,11 +105,9 @@
         self.view.backgroundColor = HTML_COLOR(info->html_bg_color);
     }
 
-    UIBarButtonItem *button = [[UIBarButtonItem alloc]
-        initWithTitle:NSLocalizedString(@"info", @"button text")
-                style:UIBarButtonItemStylePlain
-               target:self
-               action:@selector(infoAction:)];
+    UIBarButtonItem *button = [UIBarButtonItem textButton:NSLocalizedString(@"info", @"button text")
+                                                   target:self
+                                                   action:@selector(infoAction:)];
 
     self.navigationItem.rightBarButtonItem = button;
     [self.navigationController setToolbarHidden:NO animated:NO];
@@ -128,10 +125,9 @@
     [self.navigationController popViewControllerAnimated:YES];
 }
 
-- (void)updateToolbarItems:(NSMutableArray *)toolbarItems {
-    [toolbarItems
-        addObject:[UIToolbar noSleepButtonWithTarget:self
-                                              action:@selector(infoAction:)]];
+- (void)updateToolbarItems:(NSMutableArray<UIBarButtonItem *> *)toolbarItems {
+    [toolbarItems addObject:[UIBarButtonItem noSleepButtonWithTarget:self
+                                                              action:@selector(infoAction:)]];
     [self maybeAddFlashButtonWithSpace:YES buttons:toolbarItems big:NO];
 }
 

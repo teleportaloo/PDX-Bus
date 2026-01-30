@@ -80,4 +80,4 @@ int TriMetInfo_compareRouteNumber(const void *first, const void *second);
 int TriMetInfo_compareRouteLineBit(const void *first, const void *second);
 int TriMetInfo_compareSortOrder(const void *first, const void *second);
 
-#endif /* TriMetInfoRailLines_h */
+#endif // !TriMetInfoColoredLines_h

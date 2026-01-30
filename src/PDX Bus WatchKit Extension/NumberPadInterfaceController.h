@@ -18,9 +18,9 @@
 
 @interface NumberPadInterfaceController : WKInterfaceController
 
-@property(nonatomic, strong) NSMutableString *stopId;
+@property (nonatomic, strong) NSMutableString *stopId;
 
-@property(strong, nonatomic) IBOutlet WKInterfaceButton *buttonStopId;
+@property (strong, nonatomic) IBOutlet WKInterfaceButton *buttonStopId;
 
 - (IBAction)buttonAction1;
 - (IBAction)buttonAction2;
@@ -39,9 +39,7 @@
 
 @property (weak, nonatomic) IBOutlet WKInterfaceButton *micIcon;
 
-@property(unsafe_unretained, nonatomic) IBOutlet WKInterfaceButton *goButton;
-@property(unsafe_unretained, nonatomic) IBOutlet WKInterfaceButton *backButton;
-
-
+@property (unsafe_unretained, nonatomic) IBOutlet WKInterfaceButton *goButton;
+@property (unsafe_unretained, nonatomic) IBOutlet WKInterfaceButton *backButton;
 
 @end

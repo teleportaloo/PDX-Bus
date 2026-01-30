@@ -47,8 +47,7 @@
                    DEBUG_LOG(@"%@\n", address);
 
                    if (address != nil) {
-                       NSMutableString *addressWithNoNewLines =
-                           [NSMutableString string];
+                       NSMutableString *addressWithNoNewLines = [NSMutableString string];
 
                        [addressWithNoNewLines appendString:address];
 
@@ -56,10 +55,7 @@
                            replaceOccurrencesOfString:@"\n"
                                            withString:@" "
                                               options:NSCaseInsensitiveSearch
-                                                range:NSMakeRange(
-                                                          0,
-                                                          addressWithNoNewLines
-                                                              .length)];
+                                                range:NSMakeRange(0, addressWithNoNewLines.length)];
 
                        self.result = addressWithNoNewLines;
                    }

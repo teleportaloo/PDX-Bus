@@ -19,12 +19,12 @@
 
 @interface RoutePin : NSObject <MapPin>
 
-@property(nonatomic, readonly) CLLocationCoordinate2D coordinate;
-@property(nonatomic) CLLocationCoordinate2D touchPosition;
-@property(nonatomic, strong) UIColor *color;
-@property(nonatomic, copy) NSString *desc;
-@property(nonatomic, copy) NSString *route;
-@property(nonatomic, copy) NSString *dir;
+@property (nonatomic, readonly) CLLocationCoordinate2D coordinate;
+@property (nonatomic) CLLocationCoordinate2D touchPosition;
+@property (nonatomic, strong) UIColor *color;
+@property (nonatomic, copy) NSString *desc;
+@property (nonatomic, copy) NSString *route;
+@property (nonatomic, copy) NSString *dir;
 
 - (BOOL)isEqualToRoutePin:(RoutePin *)pin;
 

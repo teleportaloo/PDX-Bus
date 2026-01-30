@@ -42,8 +42,8 @@
 - (void)test_XMLRoutes_routes {
     // Build
     XMLRoutes *sut = [XMLRoutes xml];
-    sut.queryTransformer = [XMLTestFile
-        queryBlockWithFileForClass:@{@"XMLRoutes" : @"routeConfig-routes"}];
+    sut.queryTransformer =
+        [XMLTestFile queryBlockWithFileForClass:@{@"XMLRoutes" : @"routeConfig-routes"}];
 
     // Operate
     [sut getRoutesCacheAction:TriMetXMLNoCaching];
@@ -62,8 +62,8 @@
 - (void)test_XMLRoutes_routeWithStops {
     // Build
     XMLRoutes *sut = [XMLRoutes xml];
-    sut.queryTransformer = [XMLTestFile
-        queryBlockWithFileForClass:@{@"XMLRoutes" : @"routeConfig-stops"}];
+    sut.queryTransformer =
+        [XMLTestFile queryBlockWithFileForClass:@{@"XMLRoutes" : @"routeConfig-stops"}];
 
     // Operate
     [sut getStops:@"14" cacheAction:TriMetXMLNoCaching];
@@ -97,8 +97,8 @@
 - (void)test_XMLRoutes_directions {
     // Build
     XMLRoutes *sut = [XMLRoutes xml];
-    sut.queryTransformer = [XMLTestFile
-        queryBlockWithFileForClass:@{@"XMLRoutes" : @"routeConfig-directions"}];
+    sut.queryTransformer =
+        [XMLTestFile queryBlockWithFileForClass:@{@"XMLRoutes" : @"routeConfig-directions"}];
 
     // Operate
     [sut getDirections:@"19" cacheAction:TriMetXMLNoCaching];
@@ -120,14 +120,11 @@
 - (void)test_XMLRoutes_stops {
     // Build
     XMLStops *sut = [XMLStops xml];
-    sut.queryTransformer = [XMLTestFile
-        queryBlockWithFileForClass:@{@"XMLStops" : @"routeConfig-stops"}];
+    sut.queryTransformer =
+        [XMLTestFile queryBlockWithFileForClass:@{@"XMLStops" : @"routeConfig-stops"}];
 
     // Operate
-    [sut getStopsForRoute:@"14"
-                direction:@"0"
-              description:@""
-              cacheAction:TriMetXMLNoCaching];
+    [sut getStopsForRoute:@"14" direction:@"0" description:@"" cacheAction:TriMetXMLNoCaching];
 
     // Assert
     XCTAssert(sut.gotData);
@@ -146,14 +143,13 @@
 - (void)test_XMLRoutes_locateStops {
     // Build
     XMLLocateStops *sut = [XMLLocateStops xml];
-    sut.queryTransformer = [XMLTestFile
-        queryBlockWithFileForClass:@{@"XMLLocateStops" : @"stops-locate"}];
+    sut.queryTransformer =
+        [XMLTestFile queryBlockWithFileForClass:@{@"XMLLocateStops" : @"stops-locate"}];
 
     sut.maxToFind = 6;
     sut.minDistance = kMetresInAMile;
     sut.mode = TripModeAll;
     sut.location = [CLLocation withLat:45.530612 lng:-122.698688];
-    sut.includeRoutesInStops = NO;
 
     // Operate
     [sut findNearestStops];
@@ -173,9 +169,8 @@
 - (void)test_XMLLocateStops_routes {
     // Build
     XMLLocateStops *sut = [XMLLocateStops xml];
-    sut.queryTransformer = [XMLTestFile queryBlockWithFileForClass:@{
-        @"XMLLocateStops" : @"stops-locate-routes"
-    }];
+    sut.queryTransformer =
+        [XMLTestFile queryBlockWithFileForClass:@{@"XMLLocateStops" : @"stops-locate-routes"}];
 
     sut.maxToFind = 6;
     sut.minDistance = kMetresInAMile;

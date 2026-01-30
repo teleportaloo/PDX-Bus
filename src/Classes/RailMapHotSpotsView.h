@@ -18,8 +18,8 @@
 
 @interface RailMapHotSpotsView : UIView
 
-@property(nonatomic, strong) UIView *mapView;
-@property(nonatomic) bool showAll;
+@property (nonatomic, strong) UIView *mapView;
+@property (nonatomic) bool showAll;
 
 - (instancetype)initWithImageView:(UIView *)imgView map:(PtrConstRailMap)map;
 - (void)fadeOut;

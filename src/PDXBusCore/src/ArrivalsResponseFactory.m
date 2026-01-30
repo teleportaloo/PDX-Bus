@@ -26,13 +26,11 @@
 
 @implementation ArrivalsResponseFactory
 
-+ (ArrivalsIntentResponse *)arrivalsRespond:(ArrivalsIntentResponseCode)code
-    API_AVAILABLE(ios(12.0)) {
++ (ArrivalsIntentResponse *)arrivalsRespond:(ArrivalsIntentResponseCode)code {
     return [[ArrivalsIntentResponse alloc] initWithCode:code userActivity:nil];
 }
 
-+ (NSMutableArray<NSString *> *)arrivals:(XMLDepartures *)dep
-                                  stopId:(NSString *)stopId {
++ (NSMutableArray<NSString *> *)arrivals:(XMLDepartures *)dep stopId:(NSString *)stopId {
     NSMutableArray<NSString *> *arrivals = [NSMutableArray array];
 
     DEBUG_HERE();
@@ -42,16 +40,14 @@
     if (dep.gotData && dep.loc != nil) {
         DEBUG_HERE();
 
-        bool detours = (dep.detourSorter.allDetours &&
-                        dep.detourSorter.allDetours.count > 0);
+        bool detours = (dep.detourSorter.allDetours && dep.detourSorter.allDetours.count > 0);
         bool allHaveDetours = YES;
 
-        NSString *stopName =
-            [XMLDepartures fixLocationForSpeaking:dep.stopName];
+        NSString *stopName = [XMLDepartures fixLocationForSpeaking:dep.stopName];
 
         UserState *state = UserState.sharedInstance;
 
-        [state addToRecentsWithStopId:dep.stopId description:stopName];
+        [state addToRecentStops:dep.stopId description:stopName];
 
         NSMutableArray *routes = [NSMutableArray array];
         NSMutableDictionary *times = [NSMutableDictionary dictionary];
@@ -98,70 +94,53 @@
                         [routeArrivals appendString:@", "];
 
                         if (i == routeTimes.count) {
-                            [routeArrivals
-                                appendString:NSLocalizedString(@" and ",
-                                                               @"Siri and")];
+                            [routeArrivals appendString:NSLocalizedString(@" and ", @"Siri and")];
                         }
                     }
 
-                    if (d.minsToArrival == 0 &&
-                        d.status == ArrivalStatusScheduled) {
+                    if (d.minsToArrival == 0 && d.status == ArrivalStatusScheduled) {
                         [routeArrivals
-                            appendString:NSLocalizedString(@"scheduled for now",
-                                                           @"Siri text")];
+                            appendString:NSLocalizedString(@"scheduled for now", @"Siri text")];
                     } else if (d.minsToArrival == 0) {
-                        [routeArrivals
-                            appendString:NSLocalizedString(@"due now",
-                                                           @"Siri text")];
+                        [routeArrivals appendString:NSLocalizedString(@"due now", @"Siri text")];
                     } else if (d.minsToArrival == 1) {
                         [routeArrivals
-                            appendFormat:NSLocalizedString(@"%@1 min",
-                                                           @"Siri text"),
+                            appendFormat:NSLocalizedString(@"%@1 min", @"Siri text"),
                                          (d.status == ArrivalStatusScheduled)
-                                             ? NSLocalizedString(
-                                                   @"scheduled in ",
-                                                   @"Siri text")
+                                             ? NSLocalizedString(@"scheduled in ", @"Siri text")
                                              : @""];
                     } else if (d.minsToArrival < 60) {
                         [routeArrivals
                             appendFormat:@"%@%d mins",
                                          (d.status == ArrivalStatusScheduled)
-                                             ? NSLocalizedString(
-                                                   @"scheduled in ",
-                                                   @"Siri text")
+                                             ? NSLocalizedString(@"scheduled in ", @"Siri text")
                                              : @"",
                                          d.minsToArrival];
                     } else {
                         ArrivalWindow arrivalWindow;
-                        NSDateFormatter *dateFormatter = [d
-                            dateAndTimeFormatterWithPossibleLongDateStyle:
-                                kLongDateFormatWeekday
-                                                            arrivalWindow:
-                                                                &arrivalWindow];
+                        NSDateFormatter *dateFormatter =
+                            [d dateAndTimeFormatterWithPossibleLongDateStyle:kLongDateFormatWeekday
+                                                               arrivalWindow:&arrivalWindow];
 
                         NSString *timeText = @"";
 
                         if (arrivalWindow == ArrivalSoon) {
-                            timeText = NSLocalizedString(@"scheduled at ",
-                                                         @"Siri text");
+                            timeText = NSLocalizedString(@"scheduled at ", @"Siri text");
                         } else {
-                            timeText = NSLocalizedString(@"scheduled on ",
-                                                         @"Siri text");
+                            timeText = NSLocalizedString(@"scheduled on ", @"Siri text");
                         }
 
-                        [routeArrivals
-                            appendFormat:@"%@%@", timeText,
-                                         [dateFormatter
-                                             stringFromDate:d.departureTime]];
+                        [routeArrivals appendFormat:@"%@%@",
+                                                    timeText,
+                                                    [dateFormatter stringFromDate:d.departureTime]];
                     }
                 }
 
                 routesSpoken++;
                 [arrivals
-                    addObject:[NSString
-                                  stringWithFormat:NSLocalizedString(
-                                                       @"%@, %@", @"Siri text"),
-                                                   route, routeArrivals]];
+                    addObject:[NSString stringWithFormat:NSLocalizedString(@"%@, %@", @"Siri text"),
+                                                         route,
+                                                         routeArrivals]];
             }
 
             if (dep.reportingStatus != ReportingStatusNone) {
@@ -171,22 +150,18 @@
             if (detours) {
                 if (routes.count > 1) {
                     if (allHaveDetours) {
-                        [arrivals addObject:NSLocalizedString(
-                                                @"All routes have alerts, "
-                                                @"check PDX Bus for details",
-                                                @"Siri text")];
+                        [arrivals addObject:NSLocalizedString(@"All routes have alerts, "
+                                                              @"check PDX Bus for details",
+                                                              @"Siri text")];
                     } else {
-                        [arrivals
-                            addObject:NSLocalizedString(
-                                          @"There are alerts for some of these "
-                                          @"routes, check PDX Bus for details",
-                                          @"Siri text")];
+                        [arrivals addObject:NSLocalizedString(@"There are alerts for some of these "
+                                                              @"routes, check PDX Bus for details",
+                                                              @"Siri text")];
                     }
                 } else {
-                    [arrivals addObject:NSLocalizedString(
-                                            @"\nThere's an alert for this "
-                                            @"route, check PDX Bus for details",
-                                            @"Siri text")];
+                    [arrivals addObject:NSLocalizedString(@"\nThere's an alert for this "
+                                                          @"route, check PDX Bus for details",
+                                                          @"Siri text")];
                 }
             }
         }
@@ -199,8 +174,7 @@
 }
 
 + (ArrivalsIntentResponse *)responseForStops:(NSString *)stopsString {
-    NSArray<NSString *> *stopIdArray =
-        stopsString.mutableArrayFromCommaSeparatedString;
+    NSArray<NSString *> *stopIdArray = stopsString.mutableArrayFromCommaSeparatedString;
 
     DEBUG_HERE();
     // There will be only 1 batch here
@@ -210,26 +184,22 @@
 
     DEBUG_HERE();
 
-    NSArray *lines = [ArrivalsResponseFactory arrivals:deps
-                                                stopId:stopIdArray.firstObject];
+    NSArray *lines = [ArrivalsResponseFactory arrivals:deps stopId:stopIdArray.firstObject];
 
     if (deps.gotData) {
         DEBUG_HERE();
 
-        NSUserActivity *activity = [[NSUserActivity alloc]
-            initWithActivityType:@"org.teleportaloo.pdxbus.xmlarrivals"];
+        NSUserActivity *activity =
+            [[NSUserActivity alloc] initWithActivityType:@"org.teleportaloo.pdxbus.xmlarrivals"];
 
-        activity.userInfo = [UserInfo withXml:deps.rawData
-                                         locs:stopIdArray.firstObject]
-                                .dictionary;
+        activity.userInfo = [UserInfo withXml:deps.rawData locs:stopIdArray.firstObject].dictionary;
 
         if (lines == nil) {
-            ArrivalsIntentResponse *response = [[ArrivalsIntentResponse alloc]
-                initWithCode:ArrivalsIntentResponseCodeNoArrivals
-                userActivity:nil];
+            ArrivalsIntentResponse *response =
+                [[ArrivalsIntentResponse alloc] initWithCode:ArrivalsIntentResponseCodeNoArrivals
+                                                userActivity:nil];
 
-            response.stopName =
-                [XMLDepartures fixLocationForSpeaking:deps.stopName];
+            response.stopName = [XMLDepartures fixLocationForSpeaking:deps.stopName];
 
             response.reportingStatus = deps.reportingStatusText;
             if (deps.detourSorter.detourIds.count > 0) {
@@ -249,15 +219,11 @@
         } else {
             ArrivalsIntentResponse *response = nil;
 
-            NSMutableString *arrivals =
-                [NSMutableString stringWithString:@":\n\n"];
+            NSMutableString *arrivals = [NSMutableString stringWithString:@":\n\n"];
 
-            [arrivals
-                appendString:[NSString
-                                 textSeparatedStringFromEnumerator:lines
-                                                          selector:@selector
-                                                          (self)
-                                                         separator:@".\n\n"]];
+            [arrivals appendString:[NSString textSeparatedStringFromEnumerator:lines
+                                                                      selector:@selector(self)
+                                                                     separator:@".\n\n"]];
 
             [arrivals appendString:@".\n"];
 
@@ -266,18 +232,16 @@
                     initWithCode:ArrivalsIntentResponseCodeBigSuccess
                     userActivity:nil];
                 response.numberOfRoutes = [NSString
-                    stringWithFormat:NSLocalizedString(
-                                         @"There are many routes here, this "
-                                         @"may take a while. ",
-                                         @"Siri text")];
+                    stringWithFormat:NSLocalizedString(@"There are many routes here, this "
+                                                       @"may take a while. ",
+                                                       @"Siri text")];
             } else {
-                response = [[ArrivalsIntentResponse alloc]
-                    initWithCode:ArrivalsIntentResponseCodeSuccess
-                    userActivity:nil];
+                response =
+                    [[ArrivalsIntentResponse alloc] initWithCode:ArrivalsIntentResponseCodeSuccess
+                                                    userActivity:nil];
             }
 
-            response.stopName =
-                [XMLDepartures fixLocationForSpeaking:deps.stopName];
+            response.stopName = [XMLDepartures fixLocationForSpeaking:deps.stopName];
             response.reportingStatus = deps.reportingStatusText;
             response.arrivals = arrivals;
             if (deps.detourSorter.detourIds.count > 0) {
@@ -293,8 +257,7 @@
         }
     } else {
         DEBUG_HERE();
-        return ([ArrivalsResponseFactory
-            arrivalsRespond:ArrivalsIntentResponseCodeQueryFailure]);
+        return ([ArrivalsResponseFactory arrivalsRespond:ArrivalsIntentResponseCodeQueryFailure]);
     }
 }
 

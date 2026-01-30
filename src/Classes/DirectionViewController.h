@@ -23,6 +23,5 @@
 - (void)fetchDirectionsAsync:(id<TaskController>)taskController
                        route:(NSString *)route
            backgroundRefresh:(bool)backgroundRefresh;
-- (void)fetchDirectionsAsync:(id<TaskController>)taskController
-                       route:(NSString *)route;
+- (void)fetchDirectionsAsync:(id<TaskController>)taskController route:(NSString *)route;
 @end

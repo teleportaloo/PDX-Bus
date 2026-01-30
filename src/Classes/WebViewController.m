@@ -30,18 +30,18 @@
     bool _navigated;
 }
 
-@property(nonatomic, strong) NSData *rawDataToDisplay;
-@property(nonatomic, copy) NSString *dataToDisplay;
-@property(nonatomic, strong) WKWebView *webView;
-@property(nonatomic, strong) UIBarButtonItem *webBack;
-@property(nonatomic, strong) UIBarButtonItem *webForward;
-@property(nonatomic, strong) UIBarButtonItem *safari;
-@property(nonatomic, strong) UIViewController *whenDone;
-@property(nonatomic) bool showErrors;
-@property(nonatomic, strong) NSURL *localURL;
-@property(nonatomic) NSInteger rssLinkItem;
+@property (nonatomic, strong) NSData *rawDataToDisplay;
+@property (nonatomic, copy) NSString *dataToDisplay;
+@property (nonatomic, strong) WKWebView *webView;
+@property (nonatomic, strong) UIBarButtonItem *webBack;
+@property (nonatomic, strong) UIBarButtonItem *webForward;
+@property (nonatomic, strong) UIBarButtonItem *safari;
+@property (nonatomic, strong) UIViewController *whenDone;
+@property (nonatomic) bool showErrors;
+@property (nonatomic, strong) NSURL *localURL;
+@property (nonatomic) NSInteger rssLinkItem;
 
-- (void)updateToolbarItems:(NSMutableArray *)toolbarItems;
+- (void)updateToolbarItems:(NSMutableArray<UIBarButtonItem *> *)toolbarItems;
 - (void)setRawData:(NSData *)rawData title:(NSString *)title;
 - (void)displayPage:(UINavigationController *)nav
            animated:(BOOL)animated
@@ -78,57 +78,45 @@
         self.urlToDisplay = url;
     }
 
-    self.title =
-        NSLocalizedString(@"Loading page...", @"Initial web page title");
+    self.title = NSLocalizedString(@"Loading page...", @"Initial web page title");
 }
 
 - (void)setNamedUrl:(NSString *)name {
     self.urlToDisplay = [WebViewController namedURL:name];
-    self.title =
-        NSLocalizedString(@"Loading page...", @"Initial web page title");
+    self.title = NSLocalizedString(@"Loading page...", @"Initial web page title");
 }
 
 #pragma mark ViewControllerBase methods
 
-- (void)updateToolbarItems:(NSMutableArray *)toolbarItems {
+- (void)updateToolbarItems:(NSMutableArray<UIBarButtonItem *> *)toolbarItems {
     [toolbarItems removeAllObjects];
     // match each of the toolbar item's style match the selection in the
     // "UIBarButtonItemStyle" segmented control
     UIBarButtonItemStyle style = UIBarButtonItemStylePlain;
 
-    self.safari = [[UIBarButtonItem alloc]
-        initWithBarButtonSystemItem:UIBarButtonSystemItemAction
-                             target:self
-                             action:@selector(safariButton:)];
+    self.safari = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction
+                                                                target:self
+                                                                action:@selector(safariButton:)];
     self.safari.style = style;
 
-    self.webBack = [UIBarButtonItem withSystemImage:kSFIconWebBack
-                                              style:style
-                                             target:self
-                                             action:@selector(webBackButton:)];
-    self.webBack.accessibilityLabel = @"Back";
+    self.webBack = [UIBarButtonItem iconButton:kIconWebBack
+                            accessabilityLabel:NSLocalizedString(@"Back", @"toolbar item")
+                                        target:self
+                                        action:@selector(webBackButton:)];
 
-    TOOLBAR_PLACEHOLDER(self.webBack,
-                        NSLocalizedString(@"back", @"placeholder"));
-
-    self.webForward =
-        [UIBarButtonItem withSystemImage:kSFIconWebForward
-                                   style:style
-                                  target:self
-                                  action:@selector(webForwardButton:)];
-    self.webForward.accessibilityLabel = @"Forward";
+    self.webForward = [UIBarButtonItem iconButton:kIconWebForward
+                               accessabilityLabel:NSLocalizedString(@"Forward", @"toolbar item")
+                                           target:self
+                                           action:@selector(webForwardButton:)];
     self.webForward.style = style;
-
-    TOOLBAR_PLACEHOLDER(self.webBack,
-                        NSLocalizedString(@"next", @"placeholder"));
 
     if (self.rawDataToDisplay == nil && self.localURL == nil) {
         [toolbarItems addObject:self.webBack];
-        [toolbarItems addObject:[UIToolbar flexSpace]];
+        [toolbarItems addObject:[UIBarButtonItem flexSpace]];
         [toolbarItems addObject:self.webForward];
-        [toolbarItems addObject:[UIToolbar flexSpace]];
+        [toolbarItems addObject:[UIBarButtonItem flexSpace]];
         [toolbarItems addObject:self.safari];
-        [toolbarItems addObject:[UIToolbar flexSpace]];
+        [toolbarItems addObject:[UIBarButtonItem flexSpace]];
     }
 
     [toolbarItems addObject:[self doneButton]];
@@ -145,35 +133,27 @@
                NSURL *address = [NSURL URLWithString:result];
 
                UIAlertController *alert = [UIAlertController
-                   alertControllerWithTitle:NSLocalizedString(@"Safari",
-                                                              @"alert title")
+                   alertControllerWithTitle:NSLocalizedString(@"Safari", @"alert title")
                                     message:nil
                              preferredStyle:UIAlertControllerStyleActionSheet];
 
+               [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Open in Safari",
+                                                                                 @"alert title")
+                                                         style:UIAlertActionStyleDefault
+                                                       handler:^(UIAlertAction *action) {
+                                                         [[UIApplication sharedApplication]
+                                                             compatOpenURL:address];
+                                                       }]];
+
                [alert addAction:[UIAlertAction
-                                    actionWithTitle:NSLocalizedString(
-                                                        @"Open in Safari",
-                                                        @"alert title")
-                                              style:UIAlertActionStyleDefault
-                                            handler:^(UIAlertAction *action) {
-                                              [[UIApplication sharedApplication]
-                                                  compatOpenURL:address];
-                                            }]];
+                                    actionWithTitle:NSLocalizedString(@"Cancel", @"button text")
+                                              style:UIAlertActionStyleCancel
+                                            handler:nil]];
 
-               alert.popoverPresentationController.barButtonItem = sender;
-
-               [alert
-                   addAction:[UIAlertAction
-                                 actionWithTitle:NSLocalizedString(
-                                                     @"Cancel", @"button text")
-                                           style:UIAlertActionStyleCancel
-                                         handler:nil]];
-
-               [self presentViewController:alert
-                                  animated:YES
-                                completion:^{
-                                  [self clearSelection];
-                                }];
+               [self displayPopover:alert
+                         completion:^{
+                           [self clearSelection];
+                         }];
            }
          }];
 }
@@ -199,59 +179,52 @@
 
 #pragma mark View methods
 
-// OK - we need a little adjustment here for iOS7.  It took we a while to get
-// this right - I'm exactly sure what is going on but on the iPad we need to
-// make the height a little bigger in some cases. Annoying.
+- (void)viewDidLoad {
+    [super viewDidLoad];
 
-- (CGFloat)heightOffset {
-    if (LARGE_SCREEN || (self.screenInfo.screenWidth == WidthBigVariable)) {
-        return -
-            [UIApplication sharedApplication].compatStatusBarFrame.size.height;
-    }
+    // Show a toolbar and allow content to extend underneath it
+    self.navigationController.toolbarHidden = NO;   // show the toolbar
+    self.edgesForExtendedLayout = UIRectEdgeBottom; // underlap the *bottom* bar
+    self.extendedLayoutIncludesOpaqueBars = YES;    // even if the bar is opaque
 
-    return 0.0;
-}
+    // WKWebView setup
+    WKWebViewConfiguration *cfg = [WKWebViewConfiguration new];
+    self.webView = [[WKWebView alloc] initWithFrame:CGRectZero configuration:cfg];
+    self.webView.translatesAutoresizingMaskIntoConstraints = NO;
+    self.webView.allowsBackForwardNavigationGestures = YES;
 
-- (void)loadView {
-    [super loadView];
+    // Let UIKit manage content insets for safe area / bars
+    self.webView.scrollView.contentInsetAdjustmentBehavior =
+        UIScrollViewContentInsetAdjustmentAutomatic;
+    self.webView.scrollView.automaticallyAdjustsScrollIndicatorInsets = YES;
 
-    // Set the size for the table view
-    CGRect webViewRect = self.middleWindowRect;
+    [self.view addSubview:self.webView];
 
-    /// webViewRect.size.width = [[UIScreen mainScreen]
-    /// applicationFrame].size.width;
-    // webViewRect.size.height = [[UIScreen mainScreen]
-    // applicationFrame].size.height - [self heightOffset]; webViewRect.origin.x
-    // = 0; webViewRect.origin.y = 0;
-
-    // Create a table viiew
-    self.webView = [[WKWebView alloc] initWithFrame:webViewRect];
-    // set the autoresizing mask so that the table will always fill the view
-    self.webView.autoresizingMask =
-        (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
-
-    self.webView.backgroundColor = [UIColor whiteColor];
-    // self.webView.scalesPageToFit = YES;
+    // Pin to VIEW edges (not safe area) so it actually goes under the toolbar
+    [NSLayoutConstraint activateConstraints:@[
+        [self.webView.topAnchor constraintEqualToAnchor:self.view.topAnchor],
+        [self.webView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
+        [self.webView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
+        [self.webView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
+    ]];
 
     // set the tableview delegate to this object
     self.webView.navigationDelegate = self;
 
-    [self.view addSubview:self.webView];
+    self.webView.backgroundColor = [UIColor whiteColor];
 
     if (self.rawDataToDisplay != nil) {
         NSString *path = [NSBundle mainBundle].bundlePath;
         NSURL *baseURL = [NSURL fileURLWithPath:path];
 
         // Remove the apps ID from the data
-        NSMutableString *stringData =
-            [[NSMutableString alloc] initWithData:self.rawDataToDisplay
-                                         encoding:NSUTF8StringEncoding];
+        NSMutableString *stringData = [[NSMutableString alloc] initWithData:self.rawDataToDisplay
+                                                                   encoding:NSUTF8StringEncoding];
 
-        [stringData
-            replaceOccurrencesOfString:[TriMetXML appId]
-                            withString:@"[hidden application ID]"
-                               options:NSCaseInsensitiveSearch
-                                 range:NSMakeRange(0, stringData.length)];
+        [stringData replaceOccurrencesOfString:TriMetXML.appId
+                                    withString:@"[hidden application ID]"
+                                       options:NSCaseInsensitiveSearch
+                                         range:NSMakeRange(0, stringData.length)];
 
         // [self.webView loadData:self.rawDataToDisplay MIMEType:@"text/html"
         // textEncodingName:@"UTF-8" baseURL:baseURL];
@@ -262,9 +235,7 @@
         [self.webView loadRequest:[NSURLRequest requestWithURL:self.localURL]];
     } else {
         [self.webView
-            loadRequest:
-                [NSURLRequest
-                    requestWithURL:[NSURL URLWithString:self.urlToDisplay]]];
+            loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:self.urlToDisplay]]];
     }
 }
 
@@ -276,19 +247,17 @@
 
 #pragma mark UIWebView delegate methods
 
-- (void)webView:(WKWebView *)webView
-    didFinishNavigation:(WKNavigation *)navigation {
+- (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
     if (!_navigated) {
         self.webBack.enabled = YES;
         self.webForward.enabled = webView.canGoForward;
 
-        [self.webView
-            evaluateJavaScript:@"document.title"
-             completionHandler:^(NSString *result, NSError *_Nullable error) {
-               if (result) {
-                   self.title = result;
-               }
-             }];
+        [self.webView evaluateJavaScript:@"document.title"
+                       completionHandler:^(NSString *result, NSError *_Nullable error) {
+                         if (result) {
+                             self.title = result;
+                         }
+                       }];
 
         NSString *js = @"\
         var d = "
@@ -308,8 +277,7 @@
 
         if (self.javsScriptCommand) {
             [self.webView evaluateJavaScript:self.javsScriptCommand
-                           completionHandler:^(NSString *result,
-                                               NSError *_Nullable error) {
+                           completionHandler:^(NSString *result, NSError *_Nullable error) {
                              LOG_NSError(error);
                            }];
         }
@@ -323,20 +291,17 @@
             withError:(NSError *)error {
     if (self.showErrors) {
         // report the error inside the webview
-        NSString *errorString = [NSString
-            stringWithFormat:@"<html><center><font size=+5 color='red'>An "
-                             @"error occurred:<br>%@</font></center></html>",
-                             error.localizedDescription];
+        NSString *errorString =
+            [NSString stringWithFormat:@"<html><center><font size=+5 color='red'>An "
+                                       @"error occurred:<br>%@</font></center></html>",
+                                       error.localizedDescription];
         [webView loadHTMLString:errorString baseURL:nil];
     } else {
-        if (!([error.domain isEqualToString:@"NSURLErrorDomain"] &&
-              error.code == -999)) {
-            UIAlertController *alert = [UIAlertController
-                simpleOkWithTitle:NSLocalizedString(@"Web Page Error",
-                                                    @"page title")
-                          message:error.localizedDescription];
-
-            [self presentViewController:alert animated:YES completion:nil];
+        if (!([error.domain isEqualToString:@"NSURLErrorDomain"] && error.code == -999)) {
+            [UIAlertController simpleOkWithTitle:NSLocalizedString(@"Web Page Error", @"page title")
+                                         message:error.localizedDescription
+                                  viewController:self
+                                      completion:nil];
         }
     }
 }
@@ -365,14 +330,11 @@
         [webPage displayPage:nav animated:YES itemToDeselect:deselect];
     } @catch (NSException *exception) {
         ERROR_LOG(@"Exception: %@ %@\n", exception.name, exception.reason);
-        UIAlertController *alert = [UIAlertController
-            simpleOkWithTitle:NSLocalizedString(@"Unable to open link",
-                                                @"error")
-                      message:[NSString stringWithFormat:@"Reason: %@",
-                                                         exception.reason]];
-        [nav.topViewController presentViewController:alert
-                                            animated:YES
-                                          completion:nil];
+        [UIAlertController
+            simpleOkWithTitle:NSLocalizedString(@"Unable to open link", @"error")
+                      message:[NSString stringWithFormat:@"Reason: %@", exception.reason]
+               viewController:nav.topViewController
+                   completion:nil];
     }
 }
 
@@ -390,14 +352,11 @@
         [webPage displayPage:nav animated:YES itemToDeselect:deselect];
     } @catch (NSException *exception) {
         ERROR_LOG(@"Exception: %@ %@\n", exception.name, exception.reason);
-        UIAlertController *alert = [UIAlertController
-            simpleOkWithTitle:NSLocalizedString(@"Unable to open link",
-                                                @"error")
-                      message:[NSString stringWithFormat:@"Reason: %@",
-                                                         exception.reason]];
-        [nav.topViewController presentViewController:alert
-                                            animated:YES
-                                          completion:nil];
+        [UIAlertController
+            simpleOkWithTitle:NSLocalizedString(@"Unable to open link", @"error")
+                      message:[NSString stringWithFormat:@"Reason: %@", exception.reason]
+               viewController:nav.topViewController
+                   completion:nil];
     }
 }
 
@@ -416,14 +375,11 @@
         [webPage displayPage:nav animated:YES itemToDeselect:deselect];
     } @catch (NSException *exception) {
         ERROR_LOG(@"Exception: %@ %@\n", exception.name, exception.reason);
-        UIAlertController *alert = [UIAlertController
-            simpleOkWithTitle:NSLocalizedString(@"Unable to open link",
-                                                @"error")
-                      message:[NSString stringWithFormat:@"Reason: %@",
-                                                         exception.reason]];
-        [nav.topViewController presentViewController:alert
-                                            animated:YES
-                                          completion:nil];
+        [UIAlertController
+            simpleOkWithTitle:NSLocalizedString(@"Unable to open link", @"error")
+                      message:[NSString stringWithFormat:@"Reason: %@", exception.reason]
+               viewController:nav.topViewController
+                   completion:nil];
     }
 }
 
@@ -454,21 +410,23 @@
         compatOpenURL:[NSURL URLWithString:[WebViewController namedURL:name]]];
 }
 + (NSString *)namedURL:(NSString *)name {
+    if (name == nil) {
+        return nil;
+    }
     static NSDictionary *links;
 
 #ifdef DEBUGLOGGING
     static NSMutableSet *itemsLeft;
-#endif
+#endif // DEBUGLOGGING
 
-    DoOnce(^{
+    DO_ONCE(^{
       links = [NSDictionary
-          dictionaryWithContentsOfFile:[[NSBundle mainBundle]
-                                           pathForResource:@"web-links"
-                                                    ofType:@"plist"]];
+          dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"web-links"
+                                                                       ofType:@"plist"]];
 
 #ifdef DEBUGLOGGING
       itemsLeft = [NSMutableSet setWithArray:links.allKeys];
-#endif
+#endif // DEBUGLOGGING
     });
 
     NSDictionary *item = links[name];
@@ -507,7 +465,7 @@
     for (NSString *left in itemsLeft) {
         DEBUG_LOG(@"Not used: %@", left);
     }
-#endif
+#endif // DEBUGLOGGING
 
     return final;
 }

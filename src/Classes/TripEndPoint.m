@@ -53,7 +53,8 @@
     [ret appendFormat:@"%@Place=%@", toOrFrom, ms];
 
     if (self.coordinates != nil) {
-        [ret appendFormat:@"&%@Coord=%@", toOrFrom,
+        [ret appendFormat:@"&%@Coord=%@",
+                          toOrFrom,
                           COORD_TO_LNG_LAT_STR(self.coordinates.coordinate)];
     }
 
@@ -74,10 +75,8 @@
     }
 
     if (self.coordinates != nil) {
-        dict[kDictEndPointLocationLat] =
-            @(self.coordinates.coordinate.latitude);
-        dict[kDictEndPointLocationLng] =
-            @(self.coordinates.coordinate.longitude);
+        dict[kDictEndPointLocationLat] = @(self.coordinates.coordinate.latitude);
+        dict[kDictEndPointLocationLng] = @(self.coordinates.coordinate.longitude);
     }
 
     return dict;
@@ -111,8 +110,7 @@
         return false;
     }
 
-    NSNumber *useCurrentLocation =
-        [self forceNSNumber:dict[kDictEndPointUseCurrentLocation]];
+    NSNumber *useCurrentLocation = [self forceNSNumber:dict[kDictEndPointUseCurrentLocation]];
 
     if (useCurrentLocation) {
         self.useCurrentLocation = useCurrentLocation.boolValue;
@@ -127,8 +125,7 @@
     NSNumber *lng = [self forceNSNumber:dict[kDictEndPointLocationLng]];
 
     if (lat != nil && lng != nil) {
-        self.coordinates = [CLLocation withLat:lat.doubleValue
-                                           lng:lng.doubleValue];
+        self.coordinates = [CLLocation withLat:lat.doubleValue lng:lng.doubleValue];
     }
 
     return YES;
@@ -136,8 +133,7 @@
 
 - (bool)equalsTripEndPoint:(TripEndPoint *)endPoint {
     return self.useCurrentLocation == endPoint.useCurrentLocation &&
-           (self.useCurrentLocation ||
-            (self.locationDesc == nil && endPoint.locationDesc == nil) ||
+           (self.useCurrentLocation || (self.locationDesc == nil && endPoint.locationDesc == nil) ||
             (self.locationDesc != nil &&
              [self.locationDesc isEqualToString:endPoint.locationDesc]));
 }
@@ -178,15 +174,13 @@
     }
 
     if (self.additionalInfo) {
-        return
-            [NSString stringWithFormat:@"%@ - Stop ID %@",
-                                       self.additionalInfo.safeEscapeForMarkUp,
-                                       self.locationDesc.safeEscapeForMarkUp];
+        return [NSString stringWithFormat:@"%@ - Stop ID %@",
+                                          self.additionalInfo.safeEscapeForMarkUp,
+                                          self.locationDesc.safeEscapeForMarkUp];
     }
 
     return [NSString
-        stringWithFormat:NSLocalizedString(@"Stop ID %@",
-                                           @"TriMet Stop identifer <number>"),
+        stringWithFormat:NSLocalizedString(@"Stop ID %@", @"TriMet Stop identifer <number>"),
                          self.locationDesc.safeEscapeForMarkUp];
 }
 

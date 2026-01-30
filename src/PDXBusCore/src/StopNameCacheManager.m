@@ -32,7 +32,7 @@
 
 - (instancetype)init {
     if ((self = [super initWithFileName:@"stopNameCache.plist"])) {
-        self.maxSize = 55;
+        self.maxSize = 256;
     }
 
     return self;
@@ -41,7 +41,7 @@
 + (NSString *)shortDirection:(NSString *)dir {
     static NSDictionary *directions = nil;
 
-    DoOnce((^{
+    DO_ONCE((^{
       directions = @{
           @"Northbound" : @"N",
           @"Southbound" : @"S",
@@ -100,8 +100,7 @@
                        updated:(bool *)updated
                     completion:(void (^__nullable)(int item))completion {
     NSMutableArray<NSString *> *itemsToFetch = [NSMutableArray array];
-    NSMutableDictionary<NSString *, NSArray *> *names =
-        [NSMutableDictionary dictionary];
+    NSMutableDictionary<NSString *, NSArray *> *names = [NSMutableDictionary dictionary];
     __block int items = 0;
 
     for (NSString *stopId in stopIds) {
@@ -115,8 +114,7 @@
             if (fetchAndCache) {
                 [itemsToFetch addObject:stopId];
             } else {
-                NSString *name = [NSString
-                    stringWithFormat:@"Stop ID %@ (getting full name)", stopId];
+                NSString *name = [NSString stringWithFormat:@"Stop ID %@\n(getting name)", stopId];
                 result = @[ stopId, name, name ];
 
                 if (updated) {
@@ -135,7 +133,7 @@
                                                           error:&error];
 #else
             result = [NSKeyedUnarchiver unarchiveObjectWithData:data];
-#endif
+#endif // !PDXBUS_WATCH
 
             if (fetchAndCache && result &&
                 result.count < (kStopNameCacheArraySizeWithShortDescription)) {
@@ -152,18 +150,17 @@
     }
 
     if (itemsToFetch.count > 0 && fetchAndCache) {
-        __block NSArray *batches =
-            [XMLMultipleDepartures batchesFromEnumerator:stopIds
-                                          selToGetStopId:@selector(self)
-                                                     max:INT_MAX];
+        __block NSArray *batches = [XMLMultipleDepartures batchesFromEnumerator:stopIds
+                                                                 selToGetStopId:@selector(self)
+                                                                            max:INT_MAX];
         int batch = 0;
 
         RunParallelBlocks *parallelBlocks = [RunParallelBlocks instance];
 
         while (batch < batches.count) {
             [parallelBlocks startBlock:^{
-              XMLMultipleDepartures *multiple = [XMLMultipleDepartures
-                  xmlWithOptions:DepOptionsOneMin | DepOptionsNoDetours];
+              XMLMultipleDepartures *multiple =
+                  [XMLMultipleDepartures xmlWithOptions:DepOptionsOneMin | DepOptionsNoDetours];
 
               [multiple getDeparturesForStopIds:batches[batch]];
 
@@ -179,14 +176,12 @@
                           if (deps.locDesc != nil) {
                               if (deps.locDir.length > 0) {
                                   longDesc = [NSString
-                                      stringWithFormat:@"%@ (%@)", deps.locDesc,
-                                                       deps.locDir];
-                                  shortDesc = [NSString
-                                      stringWithFormat:
-                                          @"%@: %@",
-                                          [StopNameCacheManager
-                                              shortDirection:deps.locDir],
-                                          deps.locDesc];
+                                      stringWithFormat:@"%@ (%@)", deps.locDesc, deps.locDir];
+                                  shortDesc =
+                                      [NSString stringWithFormat:@"%@: %@",
+                                                                 [StopNameCacheManager
+                                                                     shortDirection:deps.locDir],
+                                                                 deps.locDesc];
                               } else {
                                   longDesc = deps.locDesc;
                                   shortDesc = longDesc;
@@ -194,15 +189,12 @@
 
                               cache = YES;
                           } else {
-                              longDesc =
-                                  [NSString stringWithFormat:@"Stop ID - %@",
-                                                             deps.stopId];
+                              longDesc = [NSString stringWithFormat:@"Stop ID - %@", deps.stopId];
                               shortDesc = longDesc;
                           }
 
                           if (deps.stopId && longDesc && shortDesc) {
-                              NSArray *result =
-                                  @[ deps.stopId, longDesc, shortDesc ];
+                              NSArray *result = @[ deps.stopId, longDesc, shortDesc ];
 
                               if (updated) {
                                   *updated = YES;
@@ -214,13 +206,13 @@
 #ifndef PDXBUS_WATCH
                                   // Untested
                                   NSError *error = nil;
-                                  NSData *data = [NSKeyedArchiver
-                                      archivedDataWithRootObject:result
-                                           requiringSecureCoding:NO
-                                                           error:&error];
+                                  NSData *data =
+                                      [NSKeyedArchiver archivedDataWithRootObject:result
+                                                            requiringSecureCoding:NO
+                                                                            error:&error];
 #else
                                         NSData *data = [NSKeyedArchiver archivedDataWithRootObject:result];
-#endif
+#endif // !PDXBUS_WATCH
                                   [self addToCache:stopId item:data write:YES];
                               }
                           }

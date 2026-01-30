@@ -21,8 +21,7 @@
 @implementation WhatsNewBasicAction
 
 + (void)addAction {
-    [WhatsNewViewController addAction:[self class].getPrefix
-                               action:[self class].action];
+    [WhatsNewViewController addAction:[self class].getPrefix action:[self class].action];
 }
 
 + (instancetype)action {
@@ -78,9 +77,7 @@
 }
 
 - (NSString *)plainTextIndented:(NSString *)fullText {
-    return [NSString
-        stringWithFormat:@"- %@",
-                         [self displayMarkedUpText:fullText].removeMarkUp];
+    return [NSString stringWithFormat:@"- %@", [self displayMarkedUpText:fullText].removeMarkUp];
 }
 
 - (NSString *)plainTextFromMarkUp:(NSString *)fullText {

@@ -18,19 +18,15 @@
 
 @interface KMLPlacemark : NSObject
 
-@property(nonatomic, copy, setter=setXml_route_number:)
-    NSString *strInternalRouteNumber;
-@property(nonatomic) NSInteger internalRouteNumber;
-@property(nonatomic, copy, setter=setXml_direction:) NSString *dir;
-@property(nonatomic, copy, setter=setXml_route_description:)
-    NSString *routeDescription;
-@property(nonatomic, copy, setter=setXml_public_route_number:)
-    NSString *displayRouteNumber;
-@property(nonatomic, copy, setter=setXml_direction_description:)
-    NSString *dirDesc;
-@property(nonatomic, copy, setter=setXml_frequent:) NSString *frequent;
+@property (nonatomic, copy, setter=setXml_route_number:) NSString *strInternalRouteNumber;
+@property (nonatomic) NSInteger internalRouteNumber;
+@property (nonatomic, copy, setter=setXml_direction:) NSString *dir;
+@property (nonatomic, copy, setter=setXml_route_description:) NSString *routeDescription;
+@property (nonatomic, copy, setter=setXml_public_route_number:) NSString *displayRouteNumber;
+@property (nonatomic, copy, setter=setXml_direction_description:) NSString *dirDesc;
+@property (nonatomic, copy, setter=setXml_frequent:) NSString *frequent;
 
-@property(nonatomic, strong) ShapeRoutePath *path;
+@property (nonatomic, strong) ShapeRoutePath *path;
 
 // Not used - could be later
 // @property (nonatomic, copy) NSString *xfrequent;

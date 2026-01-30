@@ -49,12 +49,11 @@ typedef ConstHotSpot *PtrConstHotSpot;
 
 #define HOTSPOT_IS_RECT(X) ((X)->isRect == 1)
 #define HOTSPOT_IS_POLY(X) ((X)->isRect == 0)
-#define HOTSPOT_HIT(HS, P)                                                     \
-    (((HOTSPOT_IS_POLY(HS) &&                                                  \
-       [PointInclusionInPolygonTest pnpoly:(HS)->nVertices                     \
-                                    points:(HS)->coords.vertices               \
-                                         x:(P).x                               \
-                                         y:(P).y]) ||                          \
+#define HOTSPOT_HIT(HS, P)                                                                         \
+    (((HOTSPOT_IS_POLY(HS) && [PointInclusionInPolygonTest pnpoly:(HS)->nVertices                  \
+                                                           points:(HS)->coords.vertices            \
+                                                                x:(P).x                            \
+                                                                y:(P).y]) ||                       \
       (HOTSPOT_IS_RECT(HS) && CGRectContainsPoint(*HS->coords.rect, (P)))))
 
 #define MAP_END 0xFF
@@ -89,6 +88,7 @@ typedef struct RailMapStruct {
     int yTiles;
     const RailMapTile **tiles;
     CGSize tileSize;
+    int map;
 } RailMap;
 
 typedef const RailMap *PtrConstRailMap;

@@ -16,11 +16,6 @@
 
 @interface PDXBusAppDelegate (Methods)
 
-- (BOOL)processURL:(NSString *)url protocol:(NSString *)protocol;
-- (BOOL)processBookMarkFromURL:(NSString *)bookmark
-                      protocol:(NSString *)protocol;
-- (BOOL)processStopFromURL:(NSString *)stop;
-- (BOOL)processCommandFromURL:(NSString *)command;
 - (void)cleanStart;
 - (void)cleanExit;
 

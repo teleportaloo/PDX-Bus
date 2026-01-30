@@ -24,16 +24,14 @@
 
 - (NSArray *)dashPattern {
     static NSArray<NSArray *> *pattern;
-    DoOnce((^{
+    DO_ONCE((^{
       pattern = @[
-          @[ @1, @1 ], @[ @3, @5 ],
+          @[ @1, @1 ],
+          @[ @3, @5 ],
           @[ @kPolyLineSegLength, @(kPolyLineSegLength * 2) ],
           @[ @kPolyLineSegLength, @(kPolyLineSegLength * 3) ],
           @[ @kPolyLineSegLength, @(kPolyLineSegLength * 4) ],
-          @[
-              @2, @kPolyLineSegLength, @kPolyLineSegLength,
-              @(kPolyLineSegLength * 2)
-          ]
+          @[ @2, @kPolyLineSegLength, @kPolyLineSegLength, @(kPolyLineSegLength * 2) ]
       ];
     }));
 

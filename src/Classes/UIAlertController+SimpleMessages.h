@@ -22,10 +22,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface UIAlertController (SimpleMessages)
 
-+ (UIAlertController *)simpleOkWithTitle:(nullable NSString *)title
-                                 message:(nullable NSString *)message;
-
-- (void)showAlert;
++ (void)simpleOkWithTitle:(nullable NSString *)title
+                  message:(nullable NSString *)message
+           viewController:(UIViewController *)viewControlller
+               completion:(void (^__nullable)(void))completion;
 
 @end
 

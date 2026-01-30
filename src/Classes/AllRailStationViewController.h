@@ -22,8 +22,7 @@ typedef int (*StopInfoCompare)(const void *, const void *);
 
 #define kSearchItemStation @"org.teleportaloo.pdxbus.station"
 
-@interface AllRailStationViewController
-    : TableViewControllerWithToolbar <ReturnStopObject>
+@interface AllRailStationViewController : TableViewControllerWithToolbar <ReturnStopObject>
 
 - (void)indexStations;
 

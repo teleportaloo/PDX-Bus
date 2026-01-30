@@ -25,8 +25,9 @@
 #import "NSString+DocPath.h"
 #import "PDXBusAppDelegate+Methods.h"
 #import "RootViewController.h"
-#import "StopView.h"
+#import "StopViewController.h"
 
+#import "UIApplication+Compat.h"
 #import "UserInfo.h"
 #import "UserParams.h"
 #import "UserState.h"
@@ -37,11 +38,10 @@
 #import "XMLStops.h"
 #import <CoreSpotlight/CoreSpotlight.h>
 #import <SystemConfiguration/SystemConfiguration.h>
-#import "UIApplication+Compat.h"
 
 #if TARGET_OS_MACCATALYST
 #import <UserNotifications/UserNotifications.h>
-#endif
+#endif // TARGET_OS_MACCATALYST
 
 // Xcode 14 Beta 5: [<_UINavigationBarContentViewLayout valueForUndefinedKey:]:
 // this class is not key value coding-compliant for the key inlineTitleView.
@@ -59,8 +59,8 @@
     Method impMethod = class_getInstanceMethod([self class], selector);
 
     if (impMethod) {
-        class_addMethod(cls, selector, method_getImplementation(impMethod),
-                        method_getTypeEncoding(impMethod));
+        class_addMethod(
+            cls, selector, method_getImplementation(impMethod), method_getTypeEncoding(impMethod));
     }
 }
 
@@ -69,7 +69,7 @@
 }
 
 @end
-#endif
+#endif // DEBUG
 
 @implementation PDXBusAppDelegate
 
@@ -98,7 +98,7 @@
 
     UserState *userData = UserState.sharedInstance;
 
-    [userData cacheState];
+    [userData cacheStateNow];
 }
 
 - (void)cleanStart {
@@ -125,13 +125,13 @@
 }
 
 - (BOOL)application:(UIApplication *)application
-didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     DEBUG_FUNC();
     // [actualRootViewController initRootWindow];
 
     // Check for data in Documents directory. Copy default appData.plist to
     // Documents if not found.
-    
+
     NSFileManager *fileManager = [NSFileManager defaultManager];
 
     NSError *error = nil;
@@ -144,24 +144,22 @@ didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 
     [fileManager removeItemAtPath:oldDatabase1 error:&error];
 
-    UNUserNotificationCenter *center =
-        [UNUserNotificationCenter currentNotificationCenter];
+    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
 
-    [center requestAuthorizationWithOptions:(UNAuthorizationOptionBadge |
-                                             UNAuthorizationOptionSound |
-                                             UNAuthorizationOptionAlert)
-                          completionHandler:^(BOOL granted,
-                                              NSError *_Nullable error) {
-                            if (!error) {
-                                // NSLog(@"request authorization succeeded!");
-                                // [self showAlert];
-                            }
-                          }];
+    [center
+        requestAuthorizationWithOptions:(UNAuthorizationOptionBadge | UNAuthorizationOptionSound |
+                                         UNAuthorizationOptionAlert)
+                      completionHandler:^(BOOL granted, NSError *_Nullable error) {
+                        if (!error) {
+                            // NSLog(@"request authorization succeeded!");
+                            // [self showAlert];
+                        }
+                      }];
 
     center.delegate = self;
 
     [center removeAllPendingNotificationRequests];
-    
+
     return true;
 }
 
@@ -178,8 +176,7 @@ didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center
        willPresentNotification:(UNNotification *)notification
          withCompletionHandler:
-             (void (^)(UNNotificationPresentationOptions options))
-                 completionHandler {
+             (void (^)(UNNotificationPresentationOptions options))completionHandler {
     completionHandler(UNNotificationPresentationOptionBadge |
                       UNNotificationPresentationOptionSound |
                       UNNotificationPresentationOptionBanner);
@@ -194,8 +191,7 @@ didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
              withCompletionHandler:(void (^)(void))completionHandler {
     AlarmNotification *notify = [[AlarmNotification alloc] init];
 
-    UIApplicationState previousState =
-        [UIApplication sharedApplication].applicationState;
+    UIApplicationState previousState = [UIApplication sharedApplication].applicationState;
 
     notify.previousState = previousState;
 
@@ -215,8 +211,7 @@ didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     openSettingsForNotification:(nullable UNNotification *)notification {
     AlarmNotification *notify = [[AlarmNotification alloc] init];
 
-    UIApplicationState previousState =
-        [UIApplication sharedApplication].applicationState;
+    UIApplicationState previousState = [UIApplication sharedApplication].applicationState;
 
     notify.previousState = previousState;
 

@@ -51,4 +51,8 @@
     return _bearing;
 }
 
+- (NSString *)key {
+    return nil;
+}
+
 @end

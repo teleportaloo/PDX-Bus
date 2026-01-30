@@ -7,16 +7,6 @@
 	<key>PreferenceSpecifiers</key>
 	<array>
 		<dict>
-			<key>Type</key>
-			<string>PSToggleSwitchSpecifier</string>
-			<key>Title</key>
-			<string>Show debug progress messages</string>
-			<key>Key</key>
-			<string>progress_debug</string>
-			<key>DefaultValue</key>
-			<false/>
-		</dict>
-		<dict>
 			<key>Title</key>
 			<string>Show a link to TriMet&apos;s Transit Tracker for each stop:</string>
 			<key>Type</key>
@@ -99,16 +89,6 @@
 			<string>show_detour_ids</string>
 			<key>DefaultValue</key>
 			<false/>
-		</dict>
-		<dict>
-			<key>Type</key>
-			<string>PSToggleSwitchSpecifier</string>
-			<key>Title</key>
-			<string>Use GPS for all alarms</string>
-			<key>Key</key>
-			<string>use_gps_for_all_alarms</string>
-			<key>DefaultValue</key>
-			<true/>
 		</dict>
 		<dict>
 			<key>Type</key>

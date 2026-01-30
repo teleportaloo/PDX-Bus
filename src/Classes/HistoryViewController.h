@@ -24,9 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (bool)tableView:(UITableView *)tableView isHistorySection:(NSInteger)section;
 - (NSInteger)historySection:(UITableView *)tableView;
 - (NSMutableArray<NSDictionary *> *)loadItems;
-- (NSString *)noItems;
-- (NSDictionary *)tableView:(UITableView *)tableView
-               filteredDict:(NSInteger)item;
+- (NSString *)infoText;
+- (NSDictionary *)tableView:(UITableView *)tableView filteredDict:(NSInteger)item;
 
 @end
 

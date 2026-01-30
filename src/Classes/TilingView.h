@@ -49,7 +49,7 @@
 
 @interface TilingView : UIView
 
-@property(assign) BOOL annotates;
+@property (assign) BOOL annotates;
 
 - (instancetype)initWithImageName:(NSString *)name size:(CGSize)size;
 - (UIImage *)tileForScale:(CGFloat)scale row:(int)row col:(int)col;

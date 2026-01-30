@@ -20,16 +20,16 @@
 @interface Route : NSObject {
 }
 
-@property(nonatomic, strong)
-    NSMutableDictionary<NSString *, Direction *> *directions;
-@property(nonatomic, readonly) bool systemWide;
-@property(nonatomic, readonly) NSInteger systemWideId;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, Direction *> *directions;
+@property (nonatomic, readonly) bool systemWide;
+@property (nonatomic, readonly) NSInteger systemWideId;
 
-@property(nonatomic, copy) NSString *routeId;
-@property(nonatomic, copy) NSString *desc;
-@property(nonatomic) NSInteger routeSortOrder;
-@property(nonatomic) NSInteger routeColor;
-@property(nonatomic) NSNumber *frequentService;
+@property (nonatomic, copy) NSString *routeId;
+@property (nonatomic, copy) NSString *desc;
+@property (nonatomic) NSInteger routeSortOrder;
+@property (nonatomic) NSInteger routeColor;
+@property (nonatomic) NSNumber *frequentService;
+@property (nonatomic) NSString *type;
 
 - (NSComparisonResult)compare:(Route *)route2;
 - (BOOL)isEqualToRoute:(Route *)route;

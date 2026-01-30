@@ -75,16 +75,14 @@ NSString const *caseKey = @"pdxbus";
 - (NSDate *)getDateForKey:(NSString *)key {
     NSString *val = OBJ_FOR_KEY(self, key);
 
-    if (val == nil || !XML_STR_CLASS(val) || val.length == 0 ||
-        val.integerValue == 0) {
+    if (val == nil || !XML_STR_CLASS(val) || val.length == 0 || val.integerValue == 0) {
         return nil;
     }
 
     return TriMetToNSDate((TriMetTime)val.longLongValue);
 }
 
-- (NSInteger)missingOrIntForKey:(NSString *_Nonnull)key
-                        missing:(NSInteger)missing {
+- (NSInteger)missingOrIntForKey:(NSString *_Nonnull)key missing:(NSInteger)missing {
     NSString *val = OBJ_FOR_KEY(self, key);
 
     if (val == nil) {
@@ -109,7 +107,7 @@ NSString const *caseKey = @"pdxbus";
 - (bool)getBoolForKey:(NSString *)key {
     static NSDictionary<NSString *, NSNumber *> *bools;
 
-    DoOnce((^{
+    DO_ONCE((^{
       bools = @{
           @"true" : @(true),
           @"false" : @(false),

@@ -23,13 +23,11 @@ NS_ASSUME_NONNULL_BEGIN
 // isKindOfClass:[NSString class]]
 #define XML_STR_CLASS(X) (TRUE)
 
-#define XML_NON_NULL_STR(STR)                                                  \
-    (XML_STR_CLASS(STR) ? (((STR) == nil ? @"?" : (STR))) : nil)
+#define XML_NON_NULL_STR(STR) (XML_STR_CLASS(STR) ? (((STR) == nil ? @"?" : (STR))) : nil)
 
 @interface NSDictionary (Types)
 
-- (NSInteger)missingOrIntForKey:(NSString *_Nonnull)key
-                        missing:(NSInteger)missing;
+- (NSInteger)missingOrIntForKey:(NSString *_Nonnull)key missing:(NSInteger)missing;
 - (NSString *_Nullable)nullOrStringForKey:(NSString *_Nonnull)key;
 - (NSNumber *_Nullable)nullOrNumForKey:(NSString *_Nonnull)key;
 - (NSString *)zeroLenOrStringForKey:(NSString *_Nonnull)key;

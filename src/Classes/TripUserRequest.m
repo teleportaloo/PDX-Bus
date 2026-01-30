@@ -175,11 +175,10 @@
 }
 
 - (bool)readDictionary:(NSDictionary *)dict {
-    self.fromPoint = [TripEndPoint
-        fromDictionary:[self
-                           forceNSDictionary:dict[kDictUserRequestFromPoint]]];
-    self.toPoint = [TripEndPoint
-        fromDictionary:[self forceNSDictionary:dict[kDictUserRequestToPoint]]];
+    self.fromPoint =
+        [TripEndPoint fromDictionary:[self forceNSDictionary:dict[kDictUserRequestFromPoint]]];
+    self.toPoint =
+        [TripEndPoint fromDictionary:[self forceNSDictionary:dict[kDictUserRequestToPoint]]];
 
     NSNumber *tripMode = [self forceNSNumber:dict[kDictUserRequestTripMode]];
 
@@ -189,8 +188,7 @@
 
     self.tripMin = tripMin ? tripMin.intValue : Settings.tripMin;
 
-    NSNumber *maxItineraries =
-        [self forceNSNumber:dict[kDictUserRequestMaxItineraries]];
+    NSNumber *maxItineraries = [self forceNSNumber:dict[kDictUserRequestMaxItineraries]];
 
     self.maxItineraries = maxItineraries ? maxItineraries.intValue : 6;
 
@@ -198,13 +196,11 @@
 
     self.walk = walk ? walk.floatValue : Settings.maxWalkingDistance;
 
-    NSNumber *arrivalTime =
-        [self forceNSNumber:dict[kDictUserRequestArrivalTime]];
+    NSNumber *arrivalTime = [self forceNSNumber:dict[kDictUserRequestArrivalTime]];
 
     self.arrivalTime = arrivalTime ? arrivalTime.boolValue : false;
 
-    NSNumber *timeChoice =
-        [self forceNSNumber:dict[kDictUserRequestTimeChoice]];
+    NSNumber *timeChoice = [self forceNSNumber:dict[kDictUserRequestTimeChoice]];
 
     if (timeChoice) {
         self.timeChoice = timeChoice.intValue;
@@ -234,14 +230,12 @@
 
     if (tripItem) {
         tripItem[kDictUserRequestHistorical] = @"yes";
-        userActivity = [[NSUserActivity alloc]
-            initWithActivityType:kHandoffUserActivityBookmark];
+        userActivity = [[NSUserActivity alloc] initWithActivityType:kHandoffUserActivityBookmark];
         MutableUserParams *info = MutableUserParams.new;
 
         info.valTrip = tripItem.mutableCopy;
 
-        userActivity.title =
-            [NSString stringWithFormat:@"Launch PDX Bus & plan trip %@", title];
+        userActivity.title = [NSString stringWithFormat:@"Launch PDX Bus & plan trip %@", title];
 
         userActivity.eligibleForSearch = YES;
         userActivity.eligibleForPrediction = YES;
@@ -264,13 +258,12 @@
 }
 
 - (NSString *)tripName {
-    return [NSString stringWithFormat:@"From: %@\nTo: %@",
-                                      self.fromPoint.locationDesc == nil
-                                          ? kAcquiredLocation
-                                          : self.fromPoint.locationDesc,
-                                      self.toPoint.locationDesc == nil
-                                          ? kAcquiredLocation
-                                          : self.toPoint.locationDesc];
+    return
+        [NSString stringWithFormat:@"From: %@\nTo: %@",
+                                   self.fromPoint.locationDesc == nil ? kAcquiredLocation
+                                                                      : self.fromPoint.locationDesc,
+                                   self.toPoint.locationDesc == nil ? kAcquiredLocation
+                                                                    : self.toPoint.locationDesc];
 }
 
 - (NSString *)shortName {
@@ -282,8 +275,7 @@
         if (self.fromPoint.useCurrentLocation) {
             title = [NSString stringWithFormat:@"From %@", kAcquiredLocation];
         } else {
-            title = [NSString
-                stringWithFormat:@"From %@", self.fromPoint.locationDesc];
+            title = [NSString stringWithFormat:@"From %@", self.fromPoint.locationDesc];
         }
     }
 
@@ -291,30 +283,29 @@
 }
 
 - (NSString *)optionsAccessability {
-    NSString *walk =
-        [XMLTrips distanceMapSingleton][[XMLTrips distanceToIndex:self.walk]];
+    NSString *walk = [XMLTrips distanceMapSingleton][[XMLTrips distanceToIndex:self.walk]];
 
     return [NSString stringWithFormat:@"Options, Maximum walking distance %@ "
                                       @"miles, Travel by %@, Show the %@",
-                                      walk, self.mode, self.min];
+                                      walk,
+                                      self.mode,
+                                      self.min];
 }
 
 - (NSString *)optionsDisplayText {
-    NSString *walk =
-        [XMLTrips distanceMapSingleton][[XMLTrips distanceToIndex:self.walk]];
+    NSString *walk = [XMLTrips distanceMapSingleton][[XMLTrips distanceToIndex:self.walk]];
 
-    return [NSString
-        stringWithFormat:@"Max walk: %@ miles\nTravel by: %@\nShow the: %@",
-                         walk, self.mode, self.min];
+    return [NSString stringWithFormat:@"Max walk: %@ miles\nTravel by: %@\nShow the: %@",
+                                      walk,
+                                      self.mode,
+                                      self.min];
 }
 
 - (bool)equalsTripUserRequest:(TripUserRequest *)userRequest {
     return [self.fromPoint equalsTripEndPoint:userRequest.fromPoint] &&
            [self.toPoint equalsTripEndPoint:userRequest.toPoint] &&
-           self.tripMode == userRequest.tripMode &&
-           self.tripMin == userRequest.tripMin &&
-           self.maxItineraries == userRequest.maxItineraries &&
-           self.walk == userRequest.walk &&
+           self.tripMode == userRequest.tripMode && self.tripMin == userRequest.tripMin &&
+           self.maxItineraries == userRequest.maxItineraries && self.walk == userRequest.walk &&
            self.timeChoice == userRequest.timeChoice;
 }
 

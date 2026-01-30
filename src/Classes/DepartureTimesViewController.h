@@ -21,20 +21,18 @@
 
 #define kSectionRowInit -1
 
-#define kCacheWarning                                                          \
-    NSLocalizedString(@"WARNING: No network - extrapolated times",             \
-                      @"error message")
+#define kCacheWarning                                                                              \
+    NSLocalizedString(@"WARNING: No network - extrapolated times", @"error message")
 
 @class XMLDepartures;
 @class Departure;
 
 typedef NSMutableArray<NSNumber *> SectionRows;
 
-@interface DepartureTimesViewController
-    : TableViewControllerWithRefresh <DepartureDetailDelegate>
+@interface DepartureTimesViewController : TableViewControllerWithRefresh <DepartureDetailDelegate>
 
-@property(nonatomic, copy) NSString *displayName;
-@property(nonatomic) bool blockSort;
+@property (nonatomic, copy) NSString *displayName;
+@property (nonatomic) bool blockSort;
 
 - (void)fetchTimesForVehicleAsync:(id<TaskController>)taskController
                             route:(NSString *)route
@@ -54,8 +52,7 @@ typedef NSMutableArray<NSNumber *> SectionRows;
                             stopId:(NSString *)stopId
                              title:(NSString *)title;
 
-- (void)fetchTimesForLocationAsync:(id<TaskController>)taskController
-                            stopId:(NSString *)stopId;
+- (void)fetchTimesForLocationAsync:(id<TaskController>)taskController stopId:(NSString *)stopId;
 
 - (void)fetchTimesForLocationAsync:(id<TaskController>)taskController
                             stopId:(NSString *)stopId
@@ -75,15 +72,12 @@ typedef NSMutableArray<NSNumber *> SectionRows;
 - (void)fetchTimesForNearestStopsAsync:(id<TaskController>)taskController
                                  stops:(NSArray<StopDistance *> *)stops;
 
-- (void)fetchTimesViaQrCodeRedirectAsync:(id<TaskController>)taskController
-                                     URL:(NSString *)url;
+- (void)fetchTimesViaQrCodeRedirectAsync:(id<TaskController>)taskController URL:(NSString *)url;
 
-- (void)fetchTimesForStopInOtherDirectionAsync:
-            (id<TaskController>)taskController
+- (void)fetchTimesForStopInOtherDirectionAsync:(id<TaskController>)taskController
                                      departure:(Departure *)dep;
 
-- (void)fetchTimesForStopInOtherDirectionAsync:
-            (id<TaskController>)taskController
+- (void)fetchTimesForStopInOtherDirectionAsync:(id<TaskController>)taskController
                                     departures:(XMLDepartures *)deps;
 
 - (void)resort;

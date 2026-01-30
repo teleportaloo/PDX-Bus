@@ -41,9 +41,8 @@
 
     // Build
     XMLStreetcarMessages *sut = [XMLStreetcarMessages xml];
-    sut.queryTransformer = [XMLTestFile queryBlockWithFileForClass:@{
-        @"XMLStreetcarMessages" : @"nextbus-no-messages"
-    }];
+    sut.queryTransformer = [XMLTestFile
+        queryBlockWithFileForClass:@{@"XMLStreetcarMessages" : @"nextbus-no-messages"}];
 
     // Operate
     [sut getMessages];
@@ -57,9 +56,8 @@
 
     // Build
     XMLStreetcarMessages *sut = [XMLStreetcarMessages xml];
-    sut.queryTransformer = [XMLTestFile queryBlockWithFileForClass:@{
-        @"XMLStreetcarMessages" : @"nextbus-messages"
-    }];
+    sut.queryTransformer =
+        [XMLTestFile queryBlockWithFileForClass:@{@"XMLStreetcarMessages" : @"nextbus-messages"}];
 
     // Operate
     [sut alwaysGetMessages];
@@ -91,9 +89,8 @@
 - (void)test_XMLStreetcarMessages_nextbusPredictions {
     // Build
     XMLStreetcarPredictions *sut = [XMLStreetcarPredictions xml];
-    sut.queryTransformer = [XMLTestFile queryBlockWithFileForClass:@{
-        @"XMLStreetcarPredictions" : @"nextbus-predictions"
-    }];
+    sut.queryTransformer = [XMLTestFile
+        queryBlockWithFileForClass:@{@"XMLStreetcarPredictions" : @"nextbus-predictions"}];
 
     // Operate
     [sut getDeparturesForStopId:@"9600"];
@@ -103,8 +100,7 @@
     XCTAssertNil(sut.parseError);
 
     XCTAssertEqualObjects(sut.nextBusRouteId, nil);
-    XCTAssertEqualObjects(sut.copyright,
-                          @"All data copyright Portland Streetcar 2020.");
+    XCTAssertEqualObjects(sut.copyright, @"All data copyright Portland Streetcar 2020.");
     XCTAssertEqualObjects(sut.stopTitle, @"SW 11th & Alder");
 
     // First Departure
@@ -113,12 +109,10 @@
     XCTAssertEqualObjects(dep.dir, nil);
     XCTAssertEqual(dep.status, ArrivalStatusEstimated);
     XCTAssertEqual(MS_EPOCH(dep.departureTime), 0);
-    XCTAssertEqualObjects(dep.fullSign,
-                          @"NS North/South NS Line to South Waterfront");
+    XCTAssertEqualObjects(dep.fullSign, @"NS North/South NS Line to South Waterfront");
     XCTAssertEqualObjects(dep.route, nil);
     XCTAssertEqual(MS_EPOCH(dep.scheduledTime), 0);
-    XCTAssertEqualObjects(dep.shortSign,
-                          @"NS North/South NS Line to South Waterfront");
+    XCTAssertEqualObjects(dep.shortSign, @"NS North/South NS Line to South Waterfront");
     XCTAssertEqualObjects(dep.stopId, nil);
     XCTAssert(!dep.dropOffOnly);
     XCTAssertEqual(dep.blockPositionFeet, 0);
@@ -133,12 +127,10 @@
 - (void)test_XMLStreetcarLocations_NextBusLocations {
 
     // Build
-    XMLStreetcarLocations *sut =
-        [XMLStreetcarLocations sharedInstanceForRoute:@"195"];
+    XMLStreetcarLocations *sut = [XMLStreetcarLocations sharedInstanceForRoute:@"195"];
 
-    sut.queryTransformer = [XMLTestFile queryBlockWithFileForClass:@{
-        @"XMLStreetcarLocations" : @"nextbus-locations"
-    }];
+    sut.queryTransformer =
+        [XMLTestFile queryBlockWithFileForClass:@{@"XMLStreetcarLocations" : @"nextbus-locations"}];
 
     // Operate
     [sut getLocations];
@@ -150,8 +142,7 @@
     XCTAssertEqualObjects(veh.type, kVehicleTypeStreetcar);
     XCTAssertEqualObjects(veh.block, @"SC022");
     XCTAssertEqualObjects(veh.routeNumber, @"195");
-    XCTAssertEqualWithAccuracy(
-        [[NSDate date] timeIntervalSinceDate:veh.locationTime], 6, 1);
+    XCTAssertEqualWithAccuracy([[NSDate date] timeIntervalSinceDate:veh.locationTime], 6, 1);
     XCTAssertEqual(veh.location.coordinate.latitude, 45.5190785);
     XCTAssertEqual(veh.location.coordinate.longitude, -122.660727);
     XCTAssertEqualObjects(veh.speedKmHr, @"8");

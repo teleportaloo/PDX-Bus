@@ -17,9 +17,7 @@
 
 @interface UIViewController (LocationAuthorization)
 
-- (bool)locationAuthorizedOrNotDeterminedAlertWithBackground:
-    (bool)backgroundRequired;
-+ (bool)locationAuthorizedOrNotDeterminedWithBackground:
-    (bool)backgroundRequired;
+- (bool)locationAuthorizedOrNotDeterminedAlertWithBackground:(bool)backgroundRequired;
++ (bool)locationAuthorizedOrNotDeterminedWithBackground:(bool)backgroundRequired;
 
 @end

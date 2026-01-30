@@ -34,7 +34,7 @@
     return 0;
 }
 
-- (NSString *)noItems {
+- (NSString *)infoText {
     return @"";
 }
 
@@ -44,14 +44,15 @@
 }
 
 - (void)initSearchArray {
-    @synchronized(_userState) {
-        self.searchableItems = [NSMutableArray array];
-        self.localRecents = [self loadItems];
+    [_userState accessArray:[self loadItems]
+                      block:^(NSMutableArray *safeArray) {
+                        self.searchableItems = [NSMutableArray array];
+                        self.localRecents = safeArray;
 
-        for (int i = 0; i < self.localRecents.count; i++) {
-            [self.searchableItems addObject:@(i)];
-        }
-    }
+                        for (int i = 0; i < self.localRecents.count; i++) {
+                            [self.searchableItems addObject:@(i)];
+                        }
+                      }];
 }
 
 - (instancetype)init {
@@ -77,6 +78,8 @@
     self.tableView.allowsSelectionDuringEditing = YES;
     self.navigationItem.rightBarButtonItem = self.editButtonItem;
 
+    self.tableView.estimatedSectionHeaderHeight = 0;
+
     [self safeScrollToTop];
 }
 
@@ -85,15 +88,7 @@
     [super viewDidAppear:animated];
 }
 
-- (void)didReceiveMemoryWarning {
-    // Releases the view if it doesn't have a superview.
-    [super didReceiveMemoryWarning];
-
-    // Release any cached data, images, etc that aren't in use.
-}
-
-- (NSDictionary *)tableView:(UITableView *)tableView
-               filteredDict:(NSInteger)item {
+- (NSDictionary *)tableView:(UITableView *)tableView filteredDict:(NSInteger)item {
     NSNumber *i = [self filteredData:tableView][item];
 
     return self.localRecents[i.integerValue];
@@ -101,13 +96,12 @@
 
 #pragma mark Table View methods
 
-- (NSString *)tableView:(UITableView *)tableView
-    titleForHeaderInSection:(NSInteger)section {
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
     if ([self tableView:tableView isHistorySection:section]) {
         if (self.localRecents.count == 0) {
             return NSLocalizedString(@"No items in history", @"section title");
         } else if (tableView == self.tableView) {
-            return [self noItems];
+            return [self infoText];
         }
     }
 
@@ -119,34 +113,38 @@
 }
 
 // Customize the number of rows in the table view.
-- (NSInteger)tableView:(UITableView *)tableView
-    numberOfRowsInSection:(NSInteger)section {
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     return [self filteredData:tableView].count;
 }
 
-- (CGFloat)tableView:(UITableView *)tableView
-    heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     return UITableViewAutomaticDimension;
+}
+
+- (UITableViewCellEditingStyle)tableView:tableView
+           editingStyleForRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
+    return UITableViewCellEditingStyleDelete;
 }
 
 // Override if you support editing the list
 - (void)tableView:(UITableView *)tableView
     commitEditingStyle:(UITableViewCellEditingStyle)editingStyle
      forRowAtIndexPath:(NSIndexPath *)indexPath {
-    @synchronized(_userState) {
-        if (editingStyle == UITableViewCellEditingStyleDelete) {
-            self.localRecents = [self loadItems];
-            [self.localRecents removeObjectAtIndex:indexPath.row];
-            [self favesChanged];
-            [_userState cacheState];
-            [self initSearchArray];
+    if (editingStyle == UITableViewCellEditingStyleDelete) {
+        [_userState accessArray:[self loadItems]
+                          block:^(NSMutableArray *safeArray) {
+                            self.localRecents = safeArray;
+                            [self.localRecents removeObjectAtIndex:indexPath.row];
+                          }];
 
-            [tableView deleteRowsAtIndexPaths:@[ indexPath ]
-                             withRowAnimation:YES];
+        [self userStateChanged];
+        [_userState cacheState];
+        [self initSearchArray];
 
-            if (self.localRecents.count == 0) {
-                [self reloadData];
-            }
+        [tableView deleteRowsAtIndexPaths:@[ indexPath ] withRowAnimation:YES];
+
+        if (self.localRecents.count == 0) {
+            [self reloadData];
         }
     }
 }
@@ -167,32 +165,30 @@
         DEBUG_LOG_NSIndexPath(fromIndexPath);
         DEBUG_LOG_NSIndexPath(toIndexPath);
 
-        @synchronized(_userState) {
-            self.localRecents = [self loadItems];
-            NSDictionary *move = self.localRecents[fromIndexPath.row];
+        [_userState accessArray:[self loadItems]
+                          block:^(NSMutableArray *safeArray) {
+                            self.localRecents = safeArray;
+                            NSDictionary *move = self.localRecents[fromIndexPath.row];
 
-            if (fromIndexPath.row < toIndexPath.row) {
-                [self.localRecents insertObject:move
-                                        atIndex:toIndexPath.row + 1];
-                [self.localRecents removeObjectAtIndex:fromIndexPath.row];
-            } else {
-                [self.localRecents removeObjectAtIndex:fromIndexPath.row];
-                [self.localRecents insertObject:move atIndex:toIndexPath.row];
-            }
-
-            [_userState cacheState];
-            [self favesChanged];
-            [self initSearchArray];
-        }
+                            if (fromIndexPath.row < toIndexPath.row) {
+                                [self.localRecents insertObject:move atIndex:toIndexPath.row + 1];
+                                [self.localRecents removeObjectAtIndex:fromIndexPath.row];
+                            } else {
+                                [self.localRecents removeObjectAtIndex:fromIndexPath.row];
+                                [self.localRecents insertObject:move atIndex:toIndexPath.row];
+                            }
+                          }];
+        [_userState cacheState];
+        [self userStateChanged];
+        [self initSearchArray];
     }
 
-    DEBUG_LOG_ulong(_userState.recents.count);
+    DEBUG_LOG_ulong(_userState.recentStops.count);
 }
 
-- (BOOL)tableView:(UITableView *)tableView
-    canEditRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (tableView == self.tableView &&
-        [self tableView:tableView isHistorySection:indexPath.section]) {
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (tableView == self.tableView && [self tableView:tableView
+                                           isHistorySection:indexPath.section]) {
         return YES;
     }
 
@@ -200,11 +196,10 @@
 }
 
 // Override if you support conditional rearranging of the list
-- (BOOL)tableView:(UITableView *)tableView
-    canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
+- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
     // Return NO if you do not want the item to be re-orderable.
-    if (tableView == self.tableView &&
-        [self tableView:tableView isHistorySection:indexPath.section]) {
+    if (tableView == self.tableView && [self tableView:tableView
+                                           isHistorySection:indexPath.section]) {
         return YES;
     }
 
@@ -213,14 +208,10 @@
 
 - (NSIndexPath *)tableView:(UITableView *)tableView
     targetIndexPathForMoveFromRowAtIndexPath:(NSIndexPath *)sourceIndexPath
-                         toProposedIndexPath:
-                             (NSIndexPath *)proposedDestinationIndexPath {
+                         toProposedIndexPath:(NSIndexPath *)proposedDestinationIndexPath {
     if (tableView == self.tableView) {
-        if (![self tableView:tableView
-                isHistorySection:proposedDestinationIndexPath.section]) {
-            return
-                [NSIndexPath indexPathForRow:0
-                                   inSection:[self historySection:tableView]];
+        if (![self tableView:tableView isHistorySection:proposedDestinationIndexPath.section]) {
+            return [NSIndexPath indexPathForRow:0 inSection:[self historySection:tableView]];
         }
     }
 

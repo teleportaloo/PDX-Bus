@@ -33,9 +33,9 @@
 
 @interface WatchBookmarksInterfaceController ()
 
-@property(strong, nonatomic) WCSession *session;
-@property(strong, nonatomic) WatchBookmarksContext *bookmarksContext;
-@property(strong, nonatomic) NSArray *displayedItems;
+@property (strong, nonatomic) WCSession *session;
+@property (strong, nonatomic) WatchBookmarksContext *bookmarksContext;
+@property (strong, nonatomic) NSArray *displayedItems;
 
 - (IBAction)swipeDown:(id)sender;
 - (IBAction)menuItemHome;
@@ -64,9 +64,7 @@
                      completion:nil];
 
     if (updated) {
-        [self performSelectorOnMainThread:@selector(cacheUpdated:)
-                               withObject:nil
-                            waitUntilDone:NO];
+        [self performSelectorOnMainThread:@selector(cacheUpdated:) withObject:nil waitUntilDone:NO];
     }
 
     return nil;
@@ -75,8 +73,7 @@
 - (void)displayStopsInBookmark {
     self.title = self.bookmarksContext.title;
     self.displayedItems = self.bookmarksContext.singleBookmark;
-    [self.bookmarkTable setNumberOfRows:self.displayedItems.count
-                            withRowType:@"Bookmark"];
+    [self.bookmarkTable setNumberOfRows:self.displayedItems.count withRowType:@"Bookmark"];
 
     StopNameCacheManager *stopNameCache = [TriMetXML getStopNameCacheManager];
 
@@ -90,8 +87,7 @@
         NSArray *stopInfo = names[self.displayedItems[i]];
 
         if (stopInfo) {
-            [row.bookmarkName
-                setText:[StopNameCacheManager getShortName:stopInfo]];
+            [row.bookmarkName setText:[StopNameCacheManager getShortName:stopInfo]];
         }
     }
 
@@ -109,12 +105,18 @@
     self.mainTextLabel.hidden = text;
 }
 
+#ifdef DEBUGLOGGING
+#define BUILD_TIME @" " @__TIME__
+#else
+#define BUILD_TIME @""
+#endif // DEBUGLOGGING
+
 - (void)reloadData {
     if (self.bookmarksContext == nil || self.bookmarksContext.recents) {
         self.displayedItems = nil;
 
         // force a reload
-        self.state.rawData = nil;
+        self.state.watchData = nil;
 
         if (self.bookmarksContext == nil) {
             self.title = @"PDX Bus";
@@ -124,56 +126,50 @@
                 self.mainTextLabel.text = [NSString
                     stringWithFormat:@"Set up bookmarks on iPhone. "
                                      @"Trip Planner not supported on Watch."
-                                     @"\nVersion %@.%@ #%ld",
-                                     [NSBundle mainBundle].infoDictionary
-                                         [@"CFBundleShortVersionString"],
+                                     @"\nVersion %@.%@ #%ld%@" BUILD_TIME,
                                      [NSBundle mainBundle]
-                                         .infoDictionary[@"CFBundleVersion"],
-                                     (long)self.state.watchSequence];
+                                         .infoDictionary[@"CFBundleShortVersionString"],
+                                     [NSBundle mainBundle].infoDictionary[@"CFBundleVersion"],
+                                     (long)self.state.watchSequence,
+                                     self.sessionState ?: @""];
                 ;
             } else {
                 self.displayedItems = nil;
                 self.mainTextLabel.text = [NSString
-                    stringWithFormat:
-                        @"Please run the iPhone app once; it will send "
-                        @"bookmarks to the watch.\nVersion %@.%@ #%ld",
-                        [NSBundle mainBundle]
-                            .infoDictionary[@"CFBundleShortVersionString"],
-                        [NSBundle mainBundle]
-                            .infoDictionary[@"CFBundleVersion"],
-                        (long)self.state.watchSequence];
+                    stringWithFormat:@"Please run the iPhone app once; it will send "
+                                     @"bookmarks to the watch.\nVersion %@.%@ #%ld%@",
+                                     [NSBundle mainBundle]
+                                         .infoDictionary[@"CFBundleShortVersionString"],
+                                     [NSBundle mainBundle].infoDictionary[@"CFBundleVersion"],
+                                     (long)self.state.watchSequence,
+                                     self.sessionState ?: @""];
             }
 
             self.menuHomeButton.hidden = YES;
             self.bookmarkLabel.hidden = NO;
-            self.menuCommuteButton.horizontalAlignment =
-                WKInterfaceObjectHorizontalAlignmentCenter;
+            self.menuCommuteButton.horizontalAlignment = WKInterfaceObjectHorizontalAlignmentCenter;
 
             [self setupButtonsAndTextTopHidden:NO textHidden:NO];
         } else {
             self.title = @"Recents";
-            self.displayedItems = self.state.recents;
+            self.displayedItems = self.state.recentStops;
 
             [self setupButtonsAndTextTopHidden:YES textHidden:YES];
 
             self.bookmarkLabel.hidden = YES;
             self.menuHomeButton.hidden = NO;
-            self.menuCommuteButton.horizontalAlignment =
-                WKInterfaceObjectHorizontalAlignmentRight;
+            self.menuCommuteButton.horizontalAlignment = WKInterfaceObjectHorizontalAlignmentRight;
         }
 
         if (self.displayedItems.count > 0) {
-            [self.bookmarkTable setNumberOfRows:self.displayedItems.count
-                                    withRowType:@"Bookmark"];
+            [self.bookmarkTable setNumberOfRows:self.displayedItems.count withRowType:@"Bookmark"];
 
             for (NSInteger i = 0; i < self.bookmarkTable.numberOfRows; i++) {
-                WatchBookmark *row =
-                    [self.bookmarkTable rowControllerAtIndex:i];
+                WatchBookmark *row = [self.bookmarkTable rowControllerAtIndex:i];
 
                 // what type is displayedItems
                 NSObject *obj = self.displayedItems[i];
-                NSDictionary *dict =
-                    SAFE_OBJ(obj, NSDictionary, NSDictionary.dictionary);
+                NSDictionary *dict = SAFE_OBJ(obj, NSDictionary, NSDictionary.dictionary);
                 UserParams *item = dict.userParams;
 
                 [row.bookmarkName setText:item.valChosenName];
@@ -181,12 +177,10 @@
         } else {
             if (self.bookmarksContext == nil) {
                 if ([WatchAppContext gotBookmarks:NO]) {
-                    [self.bookmarkTable setNumberOfRows:1
-                                            withRowType:@"No bookmarks"];
+                    [self.bookmarkTable setNumberOfRows:1 withRowType:@"No bookmarks"];
                 }
             } else {
-                [self.bookmarkTable setNumberOfRows:1
-                                        withRowType:@"No recents"];
+                [self.bookmarkTable setNumberOfRows:1 withRowType:@"No recents"];
             }
         }
     } else if (self.bookmarksContext.singleBookmark != nil) {
@@ -200,13 +194,13 @@
             self.nextScreen = YES;
             self.title = self.baseTitle;
 
-            [self delayedPush:[WatchArrivalsContextBookmark
-                                  contextFromBookmark:self.bookmarksContext
-                                                index:0]
-                   completion:^{
-                     self.nextScreen = NO;
-                     self.title = self.baseTitle;
-                   }];
+            [self
+                delayedPush:[WatchArrivalsContextBookmark contextFromBookmark:self.bookmarksContext
+                                                                        index:0]
+                 completion:^{
+                   self.nextScreen = NO;
+                   self.title = self.baseTitle;
+                 }];
         }
 
         [self setupButtonsAndTextTopHidden:YES textHidden:YES];
@@ -226,17 +220,18 @@
         self.session = [WCSession defaultSession];
         self.session.delegate = self;
         [self.session activateSession];
+        self.sessionState = @" 😴";
 
         if (self.session.applicationContext) {
             [WatchAppContext writeAppContext:self.session.applicationContext];
         }
     } else {
+        self.sessionState = @" 🙁";
         [self reloadData];
     }
 }
 
-- (void)table:(WKInterfaceTable *)table
-    didSelectRowAtIndex:(NSInteger)rowIndex {
+- (void)table:(WKInterfaceTable *)table didSelectRowAtIndex:(NSInteger)rowIndex {
     if (self.bookmarksContext == nil || self.bookmarksContext.recents) {
         if (rowIndex < self.displayedItems.count) {
             NSDictionary *selectedItem = self.displayedItems[rowIndex];
@@ -244,8 +239,7 @@
             NSString *stopIds = params.valLocation;
             NSString *title = params.valChosenName;
 
-            NSArray<NSString *> *stopIdArray =
-                stopIds.mutableArrayFromCommaSeparatedString;
+            NSArray<NSString *> *stopIdArray = stopIds.mutableArrayFromCommaSeparatedString;
 
             if (stopIdArray.count > 1) {
                 WatchBookmarksContext *context =
@@ -269,38 +263,33 @@
                     }
 
                     [[WatchArrivalsContextBookmark
-                        contextFromRecents:[WatchBookmarksContext
-                                               contextWithBookmark:recentStops
-                                                             title:title
-                                                    locationString:stopIds]
+                        contextFromRecents:[WatchBookmarksContext contextWithBookmark:recentStops
+                                                                                title:title
+                                                                       locationString:stopIds]
                                      index:rowIndex] pushFrom:self];
                 } else {
-                    [[WatchArrivalsContextBookmark contextWithStopId:stopIds]
-                        pushFrom:self];
+                    [[WatchArrivalsContextBookmark contextWithStopId:stopIds] pushFrom:self];
                 }
             }
         }
     } else {
         [[WatchArrivalsContextBookmark contextFromBookmark:self.bookmarksContext
-                                                     index:rowIndex]
-            pushFrom:self];
+                                                     index:rowIndex] pushFrom:self];
     }
 }
 
 - (void)applicationDidBecomeActive {
 #ifdef DEBUGLOGGING
     bool pushedCommuterBookmark =
-#endif
+#endif // DEBUGLOGGING
         [self autoCommute];
     DEBUG_LOG(@"Auto-commute? %d", pushedCommuterBookmark);
 }
 
 - (void)processUserActivity {
-    if ([self.userActivity.activityType
-            isEqualToString:kHandoffUserActivityBookmark]) {
+    if ([self.userActivity.activityType isEqualToString:kHandoffUserActivityBookmark]) {
         [self processBookmark:self.userActivity.userInfo];
-    } else if ([self.userActivity.activityType
-                   isEqualToString:kHandoffUserActivityLocation]) {
+    } else if ([self.userActivity.activityType isEqualToString:kHandoffUserActivityLocation]) {
         [self processLocation:self.userActivity.userInfo];
     }
 }
@@ -371,13 +360,10 @@
 }
 
 - (void)session:(WCSession *)session
-    didReceiveApplicationContext:
-        (NSDictionary<NSString *, id> *)applicationContext {
-    [WatchAppContext writeAppContext:applicationContext];
+    didReceiveApplicationContext:(NSDictionary<NSString *, id> *)applicationContext {
 
-    [self performSelectorOnMainThread:@selector(reloadData)
-                           withObject:nil
-                        waitUntilDone:NO];
+    [WatchAppContext writeAppContext:applicationContext];
+    [self performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
 }
 
 - (void)extentionForgrounded {
@@ -386,6 +372,10 @@
 - (void)session:(WCSession *)session
     activationDidCompleteWithState:(WCSessionActivationState)activationState
                              error:(nullable NSError *)error {
+
+    if (error) {
+        self.sessionState = [NSString stringWithFormat:@"😢 %ld", (long)error.code];
+    }
 }
 
 @end

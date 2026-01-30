@@ -37,8 +37,7 @@
 
     if (extension.rootInterfaceController != nil) {
         WatchBookmarksInterfaceController *root =
-            (WatchBookmarksInterfaceController *)
-                extension.rootInterfaceController;
+            (WatchBookmarksInterfaceController *)extension.rootInterfaceController;
 
         [root applicationDidBecomeActive];
     }
@@ -76,8 +75,7 @@
         INIntent *intent = nil;
 
         WatchBookmarksInterfaceController *root =
-            (WatchBookmarksInterfaceController *)
-                extension.rootInterfaceController;
+            (WatchBookmarksInterfaceController *)extension.rootInterfaceController;
 
         DEBUG_LOG_description(userActivity.userInfo);
 
@@ -87,29 +85,24 @@
 
         if (intent && [intent isKindOfClass:[ArrivalsIntent class]]) {
             ArrivalsIntent *arrivals = (ArrivalsIntent *)intent;
-            root.userActivity = [[NSUserActivity alloc]
-                initWithActivityType:kHandoffUserActivityBookmark];
-            root.userActivity.userInfo =
-                [MutableUserParams withChosenName:arrivals.locationName
-                                         location:arrivals.stops]
-                    .dictionary;
+            root.userActivity =
+                [[NSUserActivity alloc] initWithActivityType:kHandoffUserActivityBookmark];
+            root.userActivity.userInfo = [MutableUserParams withChosenName:arrivals.locationName
+                                                                  location:arrivals.stops]
+                                             .dictionary;
             [root processUserActivity];
-        } else if ([userActivity.activityType
-                       isEqualToString:kHandoffUserActivityBookmark]) {
-            if (userActivity.userInfo &&
-                userActivity.userInfo.userParams.immutableTrip != nil) {
+        } else if ([userActivity.activityType isEqualToString:kHandoffUserActivityBookmark]) {
+            if (userActivity.userInfo && userActivity.userInfo.userParams.immutableTrip != nil) {
                 [root pushControllerWithName:kAlertScene
-                                     context:
-                                         [@"#b#WSorry, the PDX Bus watch app "
-                                          @"does not support Trip Planning."
-                                             attributedStringFromMarkUpWithFont:
-                                                 [UIFont systemFontOfSize:16]]];
+                                     context:[@"#b#WSorry, the PDX Bus watch app "
+                                              @"does not support Trip Planning."
+                                                 attributedStringFromMarkUpWithFont:
+                                                     [UIFont systemFontOfSize:16]]];
             } else {
                 root.userActivity = userActivity;
                 [root processUserActivity];
             }
-        } else if ([userActivity.activityType
-                       isEqualToString:kHandoffUserActivityLocation]) {
+        } else if ([userActivity.activityType isEqualToString:kHandoffUserActivityLocation]) {
             root.userActivity = userActivity;
             [root processUserActivity];
         }
@@ -119,8 +112,7 @@
 }
 
 - (void)handleIntent:(INIntent *)intent
-    completionHandler:
-        (void (^)(INIntentResponse *intentResponse))completionHandler {
+    completionHandler:(void (^)(INIntentResponse *intentResponse))completionHandler {
 }
 
 @end

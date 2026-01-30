@@ -27,15 +27,14 @@
 
 @interface KMLRoutes : TriMetXML <NSArray *>
 
-@property(weak, nonatomic, readonly) NSEnumerator<NSString *> *keyEnumerator;
+@property (weak, nonatomic, readonly) NSEnumerator<NSString *> *keyEnumerator;
 
 - (void)fetchNowForced:(bool)always;
 - (void)fetchInBackgroundForced:(bool)always;
 - (NSString *)downloadProgress;
 - (void)cancelBackgroundFetch;
 - (ShapeRoutePath *)lineCoordsForKey:(NSString *)key;
-- (ShapeRoutePath *)lineCoordsForRoute:(NSString *)route
-                             direction:(NSString *)dir;
+- (ShapeRoutePath *)lineCoordsForRoute:(NSString *)route direction:(NSString *)dir;
 - (bool)cached;
 - (int)cacheAgeInDays;
 - (NSDate *)cacheDate;

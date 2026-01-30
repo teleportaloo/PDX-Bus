@@ -31,9 +31,6 @@
 
 @interface SceneDelegate ()
 
-@property(nonatomic) bool cleanExitLastTime;
-@property(nonatomic, copy) NSString *pathToCleanExit;
-
 @end
 
 @implementation SceneDelegate
@@ -46,24 +43,28 @@
         UIWindowScene *windowScene = (UIWindowScene *)scene;
         self.window = [[UIWindow alloc] initWithWindowScene:windowScene];
 
-        UIViewController *rootVC =
-            [[RootViewController alloc] init]; // customize as needed
+        UIViewController *rootVC = [[RootViewController alloc] init]; // customize as needed
         UINavigationController *nav =
             [[UINavigationController alloc] initWithRootViewController:rootVC];
-        
+
         self.window.backgroundColor = [UIColor systemBackgroundColor];
         self.window.rootViewController = nav;
         [self.window makeKeyAndVisible];
+
+        if (connectionOptions.URLContexts.count > 0) {
+            // Defer to next runloop so UI exists before routing
+            dispatch_async(dispatch_get_main_queue(), ^{
+              [self handleIncomingURLContexts:connectionOptions.URLContexts];
+            });
+        }
     }
 }
 
 - (RootViewController *)currentRootViewController {
-    return ((UINavigationController *)self.window.rootViewController)
-        .viewControllers.firstObject;
+    return ((UINavigationController *)self.window.rootViewController).viewControllers.firstObject;
 }
 
-- (void)scene:(UIScene *)scene
-    openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts {
+- (void)handleIncomingURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts {
     DEBUG_FUNC();
 
     NSURL *url = nil;
@@ -94,8 +95,7 @@
     }
 
     NSScanner *scanner = [NSScanner scannerWithString:strUrl];
-    NSCharacterSet *slash =
-        [NSCharacterSet characterSetWithCharactersInString:@"/"];
+    NSCharacterSet *slash = [NSCharacterSet characterSetWithCharactersInString:@"/"];
     NSString *section;
     NSString *protocol;
 
@@ -127,19 +127,19 @@
     if (rootViewController != nil) {
         [rootViewController reloadData];
     }
+}
 
-    return;
+- (void)scene:(UIScene *)scene openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts {
+    [self handleIncomingURLContexts:URLContexts];
 }
 
 #pragma mark Application Helper functions
 
-#define HEX_DIGIT(B)                                                           \
-    (B <= '9' ? (B) - '0' : (((B) < 'G') ? (B) - 'A' + 10 : (B) - 'a' + 10))
+#define HEX_DIGIT(B) (B <= '9' ? (B) - '0' : (((B) < 'G') ? (B) - 'A' + 10 : (B) - 'a' + 10))
 
 - (BOOL)processURL:(NSString *)url protocol:(NSString *)protocol {
     NSScanner *scanner = [NSScanner scannerWithString:url];
-    NSCharacterSet *query =
-        [NSCharacterSet characterSetWithCharactersInString:@"?"];
+    NSCharacterSet *query = [NSCharacterSet characterSetWithCharactersInString:@"?"];
 
     if (url.length == 0) {
         return YES;
@@ -160,8 +160,7 @@
 
 - (BOOL)processCommandFromURL:(NSString *)command {
     NSScanner *scanner = [NSScanner scannerWithString:command];
-    NSCharacterSet *delim =
-        [NSCharacterSet characterSetWithCharactersInString:@"=&"];
+    NSCharacterSet *delim = [NSCharacterSet characterSetWithCharactersInString:@"=&"];
     NSString *token = nil;
     NSCharacterSet *blankSet = [[NSCharacterSet alloc] init];
 
@@ -182,19 +181,15 @@
         }
     } else if ([token caseInsensitiveCompare:@"commute"] == NSOrderedSame) {
         rootViewController.initialAction = InitialAction_Commute;
-    } else if ([token caseInsensitiveCompare:@"bookmark"] == NSOrderedSame &&
-               !scanner.atEnd) {
+    } else if ([token caseInsensitiveCompare:@"bookmark"] == NSOrderedSame && !scanner.atEnd) {
         scanner.scanLocation++;
 
         if (!scanner.atEnd) {
             NSString *bookmarkName = nil;
-            [scanner scanUpToCharactersFromSet:blankSet
-                                    intoString:&bookmarkName];
-            rootViewController.initialBookmarkName =
-                [bookmarkName stringByRemovingPercentEncoding];
+            [scanner scanUpToCharactersFromSet:blankSet intoString:&bookmarkName];
+            rootViewController.initialBookmarkName = [bookmarkName stringByRemovingPercentEncoding];
         }
-    } else if ([token caseInsensitiveCompare:@"bookmarknumber"] ==
-                   NSOrderedSame &&
+    } else if ([token caseInsensitiveCompare:@"bookmarknumber"] == NSOrderedSame &&
                !scanner.atEnd) {
         scanner.scanLocation++;
 
@@ -213,8 +208,7 @@
     } else if ([token caseInsensitiveCompare:@"back"] == NSOrderedSame) {
         if ([rootViewController.navigationController.topViewController
                 isKindOfClass:[WebViewController class]]) {
-            [rootViewController.navigationController
-                popViewControllerAnimated:YES];
+            [rootViewController.navigationController popViewControllerAnimated:YES];
         }
     } else if ([token caseInsensitiveCompare:@"map"] == NSOrderedSame) {
         rootViewController.initialAction = InitialAction_Map;
@@ -248,17 +242,15 @@
     return YES;
 }
 
-- (BOOL)processBookMarkFromURL:(NSString *)bookmark
-                      protocol:(NSString *)protocol {
+- (BOOL)processBookMarkFromURL:(NSString *)bookmark protocol:(NSString *)protocol {
     NSScanner *scanner = [NSScanner scannerWithString:bookmark];
-    NSCharacterSet *query =
-        [NSCharacterSet characterSetWithCharactersInString:@"?"];
+    NSCharacterSet *query = [NSCharacterSet characterSetWithCharactersInString:@"?"];
 
     if (bookmark.length == 0) {
         return YES;
     }
 
-    NSString *name = nil;
+    __block NSString *name = nil;
     NSString *stops = nil;
 
     [scanner scanUpToCharactersFromSet:query intoString:&name];
@@ -270,8 +262,7 @@
     UserState *userData = UserState.sharedInstance;
 
     // If this is an encoded dictionary we have to decode it
-    if ([stops characterAtIndex:0] == 'd' &&
-        [protocol isEqualToString:@"pdxbus2:"]) {
+    if ([stops characterAtIndex:0] == 'd' && [protocol isEqualToString:@"pdxbus2:"]) {
         DEBUG_LOG(@"dictionary");
         NSMutableData *encodedDictionary =
             [[NSMutableData alloc] initWithCapacity:stops.length / 2];
@@ -289,41 +280,42 @@
         NSError *error = nil;
         NSPropertyListFormat fmt = NSPropertyListBinaryFormat_v1_0;
 
-        DEBUG_LOG(@"Stops: %@ %ld data length %ld stops/2 %ld\n", stops,
+        DEBUG_LOG(@"Stops: %@ %ld data length %ld stops/2 %ld\n",
+                  stops,
                   (unsigned long)stops.length,
                   (unsigned long)encodedDictionary.length,
                   (unsigned long)stops.length / 2);
 
         NSMutableDictionary *d = nil;
 
-        d = [NSPropertyListSerialization
-            propertyListWithData:encodedDictionary
-                         options:NSPropertyListMutableContainers
-                          format:&fmt
-                           error:&error];
+        d = [NSPropertyListSerialization propertyListWithData:encodedDictionary
+                                                      options:NSPropertyListMutableContainers
+                                                       format:&fmt
+                                                        error:&error];
 
         if (d != nil) {
-            @synchronized(userData) {
-                [userData.faves addObject:d];
-            }
+            [userData accessArray:userData.faves
+                            block:^(NSMutableArray *safeArray) {
+                              [safeArray addObject:d];
+                            }];
         }
     } else if ([stops characterAtIndex:0] != 'd') {
-        @synchronized(userData) {
-            if (name == nil || name.length == 0) {
-                name = kNewBookMark;
-            }
+        [userData accessArray:userData.faves
+                        block:^(NSMutableArray *safeArray) {
+                          if (name == nil || name.length == 0) {
+                              name = kNewBookMark;
+                          }
 
-            if (stops != nil && stops.length != 0 &&
-                userData.faves.count < kMaxFaves) {
+                          if (stops != nil && stops.length != 0 && safeArray.count < kMaxFaves) {
 
-                NSString *fullName = [name stringByRemovingPercentEncoding];
+                              NSString *fullName = [name stringByRemovingPercentEncoding];
 
-                MutableUserParams *newFave = MutableUserParams.new;
-                newFave.valChosenName = fullName;
-                newFave.valLocation = stops;
-                [userData.faves addObject:newFave.mutableDictionary];
-            }
-        }
+                              MutableUserParams *newFave = MutableUserParams.new;
+                              newFave.valChosenName = fullName;
+                              newFave.valLocation = stops;
+                              [safeArray addObject:newFave.mutableDictionary];
+                          }
+                        }];
     }
 
     [userData cacheState];
@@ -334,10 +326,8 @@
 - (void)processLaunchArgs:(NSScanner *)scanner {
     NSMutableDictionary *launchArgs = [NSMutableDictionary dictionary];
 
-    NSCharacterSet *delim =
-        [NSCharacterSet characterSetWithCharactersInString:@"&"];
-    NSCharacterSet *equals =
-        [NSCharacterSet characterSetWithCharactersInString:@"="];
+    NSCharacterSet *delim = [NSCharacterSet characterSetWithCharactersInString:@"&"];
+    NSCharacterSet *equals = [NSCharacterSet characterSetWithCharactersInString:@"="];
 
     while (!scanner.atEnd) {
         NSString *option = nil;
@@ -366,12 +356,11 @@
 
     [PDXBusAppDelegate.sharedInstance cleanStart];
 
-
     RootViewController *rootViewController = self.currentRootViewController;
 
     if (Settings.autoCommute) {
         rootViewController.commuterBookmark =
-            [UserState.sharedInstance checkForCommuterBookmarkShowOnlyOnce:YES];
+            [UserState.sharedInstance checkForCommuterFaveShowOnlyOnce:YES];
     }
 
     [rootViewController executeInitialAction];
@@ -381,27 +370,26 @@
     [list resumeOnActivate];
 
     if (!newWindow && rootViewController) {
-        UIViewController *topView =
-            rootViewController.navigationController.topViewController;
+        UIViewController *topView = rootViewController.navigationController.topViewController;
 
         if ([topView respondsToSelector:@selector(didBecomeActive)]) {
             [topView performSelector:@selector(didBecomeActive)];
         }
     }
-    
-    
 }
 
-- (void)scene:(UIScene *)scene
-    continueUserActivity:(NSUserActivity *)userActivity {
+- (void)sceneWillResignActive:(UIScene *)scene {
+    [UserState.sharedInstance cacheStateNow];
+}
+
+- (void)scene:(UIScene *)scene continueUserActivity:(NSUserActivity *)userActivity {
     DEBUG_FUNC();
 
     RootViewController *rootViewController = self.currentRootViewController;
 
     bool siri = NO;
 
-    if ([userActivity.interaction.intent
-            isKindOfClass:[ArrivalsIntent class]]) {
+    if ([userActivity.interaction.intent isKindOfClass:[ArrivalsIntent class]]) {
 
         MutableUserParams *params = MutableUserParams.new;
         params.valLocation = userActivity.userInfo.userInfo.valLocs;
@@ -414,19 +402,15 @@
         }
 
         siri = YES;
-    } else if ([userActivity.interaction.intent
-                   isKindOfClass:[AlertsForRouteIntent class]]) {
+    } else if ([userActivity.interaction.intent isKindOfClass:[AlertsForRouteIntent class]]) {
         rootViewController.initialAction = InitialAction_UserActivityAlerts;
 
-        AlertsForRouteIntent *intent =
-            (AlertsForRouteIntent *)userActivity.interaction.intent;
+        AlertsForRouteIntent *intent = (AlertsForRouteIntent *)userActivity.interaction.intent;
 
-        NSString *routeNumber =
-            [TriMetInfo routeNumberFromInput:intent.routeNumber];
+        NSString *routeNumber = [TriMetInfo routeNumberFromInput:intent.routeNumber];
 
         if (routeNumber) {
-            rootViewController.initialActionArgs =
-                @{kUserInfoAlertRoute : routeNumber};
+            rootViewController.initialActionArgs = @{kUserInfoAlertRoute : routeNumber};
         }
 
         if (rootViewController != nil) {
@@ -434,8 +418,7 @@
         }
 
         siri = YES;
-    } else if ([userActivity.interaction.intent
-                   isKindOfClass:[SystemWideAlertsIntent class]]) {
+    } else if ([userActivity.interaction.intent isKindOfClass:[SystemWideAlertsIntent class]]) {
         rootViewController.initialAction = InitialAction_UserActivityAlerts;
 
         if (rootViewController != nil) {
@@ -446,8 +429,7 @@
     }
 
     if (siri) {
-    } else if ([userActivity.activityType
-                   isEqualToString:CSSearchableItemActionType]) {
+    } else if ([userActivity.activityType isEqualToString:CSSearchableItemActionType]) {
         rootViewController.initialActionArgs = userActivity.userInfo;
 
         rootViewController.initialAction = InitialAction_UserActivitySearch;
@@ -455,8 +437,7 @@
         if (rootViewController != nil) {
             [rootViewController executeInitialAction];
         }
-    } else if ([userActivity.activityType
-                   isEqualToString:kHandoffUserActivityBookmark]) {
+    } else if ([userActivity.activityType isEqualToString:kHandoffUserActivityBookmark]) {
         rootViewController.initialActionArgs = userActivity.userInfo;
 
         rootViewController.initialAction = InitialAction_UserActivityBookmark;
@@ -464,8 +445,7 @@
         if (rootViewController != nil) {
             [rootViewController executeInitialAction];
         }
-    } else if ([userActivity.activityType
-                   isEqualToString:kHandoffUserActivityLocation]) {
+    } else if ([userActivity.activityType isEqualToString:kHandoffUserActivityLocation]) {
         rootViewController.initialActionArgs = userActivity.userInfo;
 
         rootViewController.initialAction = InitialAction_Locate;
@@ -479,8 +459,8 @@
 - (void)scene:(UIScene *)scene
     didFailToContinueUserActivityWithType:(NSString *)userActivityType
                                     error:(NSError *)error {
-    NSLog(@"Failed to continue user activity: %@ (%@)", userActivityType,
-          error.localizedDescription);
+    NSLog(
+        @"Failed to continue user activity: %@ (%@)", userActivityType, error.localizedDescription);
 
     // Handle fallback UI or error messaging
 }
@@ -505,8 +485,7 @@
     RootViewController *rootViewController = self.currentRootViewController;
 
     if (rootViewController) {
-        UIViewController *topView =
-            rootViewController.navigationController.topViewController;
+        UIViewController *topView = rootViewController.navigationController.topViewController;
 
         if ([topView respondsToSelector:@selector(didEnterBackground)]) {
             [topView performSelector:@selector(didEnterBackground)];

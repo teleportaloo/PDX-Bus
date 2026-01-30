@@ -26,9 +26,9 @@
 + (NSString *)docFolder {
     static NSString *docFolder;
 
-    DoOnce(^{
-      NSArray *paths = NSSearchPathForDirectoriesInDomains(
-          NSDocumentDirectory, NSUserDomainMask, YES);
+    DO_ONCE(^{
+      NSArray *paths =
+          NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
 
       docFolder = paths.firstObject;
     });

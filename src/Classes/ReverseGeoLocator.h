@@ -18,9 +18,9 @@
 
 @interface ReverseGeoLocator : NSObject
 
-@property(atomic) bool waitingForGeocoder;
-@property(atomic, strong) NSString *result;
-@property(atomic, strong) NSError *error;
+@property (atomic) bool waitingForGeocoder;
+@property (atomic, strong) NSString *result;
+@property (atomic, strong) NSError *error;
 
 - (NSString *)fetchAddress:(CLLocation *)loc;
 

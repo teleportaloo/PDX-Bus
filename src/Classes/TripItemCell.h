@@ -20,12 +20,12 @@
 
 @interface TripItemCell : UITableViewCell
 
-@property(strong, nonatomic) IBOutlet RouteColorBlobView *routeColorView;
-@property(strong, nonatomic) IBOutlet UILabel *modeLabel;
-@property(strong, nonatomic) IBOutlet UILabel *bodyLabel;
-@property(strong, nonatomic) IBOutlet NSLayoutConstraint *modeLabelWidth;
-@property(nonatomic, readonly) bool large;
-@property(nonatomic, copy) NSString *markedUpBodyText;
+@property (strong, nonatomic) IBOutlet RouteColorBlobView *routeColorView;
+@property (strong, nonatomic) IBOutlet UILabel *modeLabel;
+@property (strong, nonatomic) IBOutlet UILabel *bodyLabel;
+@property (strong, nonatomic) IBOutlet NSLayoutConstraint *modeLabelWidth;
+@property (nonatomic, readonly) bool large;
+@property (nonatomic, copy) NSString *markedUpBodyText;
 
 - (void)update;
 - (void)populateMarkedUpBody:(NSString *)markedUpBody
@@ -33,6 +33,13 @@
                         time:(NSString *)time
                    leftColor:(UIColor *)col
                        route:(NSString *)route;
+
+- (void)populateMarkedUpBody:(NSString *)markedUpBody
+                        mode:(NSString *)mode
+                        time:(NSString *)time
+                   leftColor:(UIColor *)col
+                       route:(NSString *)route
+                 accessLabel:(NSString *)accessLabel;
 
 + (UINib *)nib;
 

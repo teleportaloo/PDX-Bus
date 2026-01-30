@@ -20,12 +20,14 @@
 
 #define DEBUG_LEVEL_FOR_FILE LogTask
 
-@interface RunParallelBlocks ()
+@interface RunParallelBlocks () {
+    dispatch_queue_t _syncQueue;
+    dispatch_semaphore_t _allDone;
+}
 
-@property(nonatomic, strong) NSMutableSet<NSThread *> *runningThreads;
-@property(nonatomic, strong) NSMutableSet<NSNumber *> *runningBlocks;
-@property(nonatomic) NSInteger items;
-@property(nonatomic, strong) dispatch_semaphore_t allDone;
+@property (nonatomic, strong) NSMutableSet<NSThread *> *rawRunningThreads;
+@property (nonatomic, strong) NSMutableSet<NSNumber *> *rawRunningBlocks;
+@property (nonatomic) NSInteger items;
 
 @end
 
@@ -37,8 +39,10 @@
 
 - (instancetype)init {
     if ((self = [super init])) {
-        _runningThreads = [NSMutableSet set];
-        _runningBlocks = [NSMutableSet set];
+        _rawRunningThreads = [NSMutableSet set];
+        _rawRunningBlocks = [NSMutableSet set];
+        _syncQueue = dispatch_queue_create("org.teleportaloo.pdxbus.parallel.sync",
+                                           DISPATCH_QUEUE_CONCURRENT);
     }
     return self;
 }
@@ -53,79 +57,90 @@
     }
 }
 
+- (NSInteger)nextKey {
+    __block NSInteger key = 0;
+    dispatch_barrier_sync(_syncQueue, ^{
+      key = self.items++;
+    });
+    return key;
+}
+
 - (void)startBlock:(ParallelBlock)block {
     if (!block)
         return;
 
-    @synchronized(self) {
-        if ([NSThread currentThread].isCancelled)
-            return;
+    if ([NSThread currentThread].isCancelled)
+        return;
 
-        if (Settings.networkInParallel) {
-            NSInteger key = self.items++;
-            __weak typeof(self) weakSelf = self;
+    if (Settings.networkInParallel) {
+        NSInteger key = self.nextKey;
+        __weak typeof(self) weakSelf = self;
 
-            ParallelBlock wrapper = ^{
-              __strong typeof(self) strongSelf = weakSelf;
-              if (!strongSelf)
-                  return; // If self is gone, just bail out
+        ParallelBlock wrapper = ^{
+          __strong typeof(self) strongSelf = weakSelf;
+          if (!strongSelf)
+              return; // If self is gone, just bail out
 
-              NSThread *thread = [NSThread currentThread];
-              @synchronized(strongSelf) {
-                  [strongSelf.runningThreads addObject:thread];
-              }
+          NSThread *thread = [NSThread currentThread];
+          dispatch_barrier_async(self->_syncQueue, ^{
+            [strongSelf.rawRunningThreads addObject:thread];
+          });
 
-              if (!thread.isCancelled) {
-                  block();
-              }
+          if (!thread.isCancelled) {
+              block();
+          }
 
-              @synchronized(strongSelf) {
-                  [strongSelf.runningBlocks removeObject:@(key)];
-                  [strongSelf.runningThreads removeObject:thread];
+          dispatch_barrier_sync(self->_syncQueue, ^{
+            [strongSelf.rawRunningBlocks removeObject:@(key)];
+            [strongSelf.rawRunningThreads removeObject:thread];
 
-                  DEBUG_LOG(@"Task %ld done. %ld tasks left", (long)key,
-                            (long)self.runningBlocks.count)
+            DEBUG_LOG(
+                @"Task %ld done. %ld tasks left", (long)key, (long)self.rawRunningBlocks.count);
 
-                  if (strongSelf.runningBlocks.count == 0 &&
-                      strongSelf.allDone) {
-                      dispatch_semaphore_signal(strongSelf.allDone);
-                  }
-              }
-            };
-
-            [self.runningBlocks addObject:@(key)];
-            [self performSelectorInBackground:@selector(runBlock:)
-                                   withObject:[wrapper copy]];
-        } else {
-            self.items++;
-            if (![NSThread currentThread].isCancelled) {
-                block();
+            if (self.rawRunningBlocks.count == 0 && strongSelf->_allDone) {
+                dispatch_semaphore_signal(strongSelf->_allDone);
             }
+          });
+        };
+
+        dispatch_barrier_async(self->_syncQueue, ^{
+          [self.rawRunningBlocks addObject:@(key)];
+        });
+
+        [self performSelectorInBackground:@selector(runBlock:) withObject:[wrapper copy]];
+    } else {
+        (void)self.nextKey;
+        if (![NSThread currentThread].isCancelled) {
+            block();
         }
     }
+}
+
+- (NSInteger)runningCount {
+    __block NSInteger count = 0;
+    dispatch_sync(_syncQueue, ^{
+      count = self.rawRunningBlocks.count;
+    });
+    return count;
 }
 
 - (void)waitForBlocks {
     DEBUG_FUNC();
 
-    @synchronized(self) {
-        if (self.runningBlocks.count == 0) {
-            DEBUG_FUNCEX();
-            return;
-        }
-        self.allDone = dispatch_semaphore_create(0);
-
-        DEBUG_LOG(@"Waiting for %ld tasks", (long)self.runningBlocks.count)
+    if (self.runningCount == 0) {
+        DEBUG_FUNCEX();
+        return;
     }
 
-    while (dispatch_semaphore_wait(
-               self.allDone,
-               dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 0.5)) != 0) {
+    _allDone = dispatch_semaphore_create(0);
 
-        @synchronized(self) {
-            if ([NSThread currentThread].isCancelled) {
-                [self cancelAllThreads];
-            }
+    DEBUG_LOG(@"Waiting for %ld tasks", (long)self.rawRunningBlocks.count);
+
+    while (dispatch_semaphore_wait(_allDone,
+                                   dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 0.5)) != 0) {
+
+        if ([NSThread currentThread].isCancelled) {
+            [self cancelAllThreads];
         }
     }
 
@@ -138,38 +153,40 @@
 - (void)waitForBlocksWithState:(TaskState *)state {
     DEBUG_FUNC();
 
-    @synchronized(self) {
-        if (self.runningBlocks.count == 0) {
-            DEBUG_FUNCEX();
-            return;
-        }
-        self.allDone = dispatch_semaphore_create(0);
-
-        __weak __typeof(self) weakSelf = self;
-        
-        [state addCancelObserver:self
-                           block:^{
-                             [weakSelf cancelAllThreads];
-                           }];
-
-        DEBUG_LOG(@"Waiting for %ld tasks", (long)self.runningBlocks.count)
+    if (self.runningCount == 0) {
+        DEBUG_FUNCEX();
+        return;
     }
 
-    dispatch_semaphore_wait(self.allDone, DISPATCH_TIME_FOREVER);
-    
-    @synchronized(self) {
-        [state removeCancelObserver:self];
-    }
+    _allDone = dispatch_semaphore_create(0);
+
+    __weak __typeof(self) weakSelf = self;
+
+    [state addCancelObserver:self
+                       block:^{
+                         __strong typeof(self) strongSelf = weakSelf;
+                         if (!strongSelf)
+                             return; //
+                         [strongSelf cancelAllThreads];
+                       }];
+
+    DEBUG_LOG(@"Waiting for %ld tasks", (long)self.rawRunningBlocks.count);
+
+    dispatch_semaphore_wait(_allDone, DISPATCH_TIME_FOREVER);
+
+    [state removeCancelObserver:self];
 
     DEBUG_FUNCEX();
 }
-#endif
+#endif // TARGET_OS_WATCH
 
 - (void)cancelAllThreads {
-    DEBUG_FUNC();
-    for (NSThread *thread in self.runningThreads) {
-        [thread cancel];
-    }
+    DEBUG_LOG(@"Cancelling all threads");
+    dispatch_sync(_syncQueue, ^{
+      for (NSThread *thread in self.rawRunningThreads) {
+          [thread cancel];
+      }
+    });
 }
 
 @end

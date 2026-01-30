@@ -24,19 +24,18 @@
         return nil;
 
     NSError *error = nil;
-    id plist = [NSPropertyListSerialization
-        propertyListWithData:data
-                     options:NSPropertyListMutableContainers
-                      format:NULL
-                       error:&error];
+    id plist = [NSPropertyListSerialization propertyListWithData:data
+                                                         options:NSPropertyListMutableContainers
+                                                          format:NULL
+                                                           error:&error];
     LOG_NSError(error);
-    
+
     if (!plist || ![plist isKindOfClass:[NSMutableDictionary class]]) {
         return nil;
     }
 
     LOG_NSError(error);
-    
+
     NSMutableDictionary *dict = (NSMutableDictionary *)plist;
 
     return dict;

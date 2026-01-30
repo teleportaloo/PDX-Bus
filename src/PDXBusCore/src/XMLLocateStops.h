@@ -20,13 +20,12 @@
 
 @interface XMLLocateStops : TriMetXML <StopDistance *>
 
-@property(nonatomic) unsigned int maxToFind;
-@property(nonatomic) double minDistance;
-@property(nonatomic) TripMode mode;
-@property(nonatomic, strong) CLLocation *location;
-@property(nonatomic) bool includeRoutesInStops;
+@property (nonatomic) unsigned int maxToFind;
+@property (nonatomic) double minDistance;
+@property (nonatomic) TripMode mode;
+@property (nonatomic, strong) CLLocation *location;
 
-@property(nonatomic, strong) NSMutableArray<RouteDistance *> *routes;
+@property (nonatomic, strong) NSMutableArray<RouteDistance *> *routes;
 
 - (bool)findNearestRoutes;
 - (bool)findNearestStops;

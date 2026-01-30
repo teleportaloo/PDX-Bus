@@ -37,9 +37,8 @@
 - (void)test_XMLMultipleDepartures {
     // Build
     XMLMultipleDepartures *sut = [XMLMultipleDepartures xml];
-    sut.queryTransformer = [XMLTestFile queryBlockWithFileForClass:@{
-        @"XMLMultipleDepartures" : @"arrivals-multiple-stops"
-    }];
+    sut.queryTransformer = [XMLTestFile
+        queryBlockWithFileForClass:@{@"XMLMultipleDepartures" : @"arrivals-multiple-stops"}];
 
     // Operate
     [sut getDeparturesForStopIds:@"9818, 365, 9837"];
@@ -105,9 +104,8 @@
 
 - (void)test_reportingStatus {
     XMLMultipleDepartures *sut = [XMLMultipleDepartures xml];
-    sut.queryTransformer = [XMLTestFile queryBlockWithFileForClass:@{
-        @"XMLMultipleDepartures" : @"arrivals-reporting-status"
-    }];
+    sut.queryTransformer = [XMLTestFile
+        queryBlockWithFileForClass:@{@"XMLMultipleDepartures" : @"arrivals-reporting-status"}];
 
     // Operate
     [sut getDeparturesForStopIds:@"9838,9821,8169,364"];
@@ -129,9 +127,8 @@
 - (void)test_XMLDepartures {
     // Build
     XMLDepartures *sut = [XMLDepartures xml];
-    sut.queryTransformer = [XMLTestFile queryBlockWithFileForClass:@{
-        @"XMLDepartures" : @"arrivals-single-stop"
-    }];
+    sut.queryTransformer =
+        [XMLTestFile queryBlockWithFileForClass:@{@"XMLDepartures" : @"arrivals-single-stop"}];
 
     // Operate
     [sut getDeparturesForStopId:@"9837"];
@@ -143,8 +140,7 @@
     XCTAssert(!sut.hasError);
 
     // Stop
-    XCTAssertEqualObjects(sut.locDesc,
-                          @"Fair Complex/Hillsboro Airport MAX Stn");
+    XCTAssertEqualObjects(sut.locDesc, @"Fair Complex/Hillsboro Airport MAX Stn");
     XCTAssertEqualObjects(sut.locDir, @"Westbound");
     XCTAssertEqual(sut.loc.coordinate.latitude, 45.5269236271043);
     XCTAssertEqual(sut.loc.coordinate.longitude, -122.946499150393);
@@ -222,8 +218,7 @@
     XCTAssertEqualObjects(dep.dir, @"1");
     XCTAssertEqual(dep.status, ArrivalStatusEstimated);
     XCTAssertEqual(MS_EPOCH(dep.departureTime), 1602014880000);
-    XCTAssertEqualObjects(dep.fullSign,
-                          @"Portland Streetcar NS Line to South Waterfront");
+    XCTAssertEqualObjects(dep.fullSign, @"Portland Streetcar NS Line to South Waterfront");
     XCTAssertEqualObjects(dep.route, @"193");
     XCTAssertEqual(MS_EPOCH(dep.scheduledTime), 1602014880000);
     XCTAssertEqualObjects(dep.shortSign, @"NS Line to South Waterfront");
@@ -243,9 +238,8 @@
 - (void)test_XMLDepartures_errorMessage {
     // Build
     XMLDepartures *sut = [XMLDepartures xml];
-    sut.queryTransformer = [XMLTestFile queryBlockWithFileForClass:@{
-        @"XMLDepartures" : @"arrivals-error-message"
-    }];
+    sut.queryTransformer =
+        [XMLTestFile queryBlockWithFileForClass:@{@"XMLDepartures" : @"arrivals-error-message"}];
 
     // Operate
     [sut getDeparturesForStopId:@"1"];

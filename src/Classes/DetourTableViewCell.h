@@ -22,6 +22,8 @@
 #define DETOUR_BUTTON_COLLAPSE 1
 #define DETOUR_BUTTON_MAP 2
 
+#define kDetourTableViewCellNib @"DetourTableViewCell"
+
 @class DetourTableViewCell;
 
 typedef void (^ButtonAction)(DetourTableViewCell *cell, NSInteger tag);
@@ -31,14 +33,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface DetourTableViewCell
     : SelectableTextViewCell <UITextViewDelegate, UIGestureRecognizerDelegate>
-@property(strong, nonatomic) IBOutlet LinkResponsiveTextView *textView;
-@property(nonatomic, copy) ButtonAction buttonCallback;
-@property(nonatomic, copy) DetourUrlAction urlCallback;
+@property (strong, nonatomic) IBOutlet LinkResponsiveTextView *textView;
+@property (nonatomic, copy) ButtonAction buttonCallback;
+@property (nonatomic, copy) DetourUrlAction urlCallback;
 
-@property(nonatomic, strong) Detour *detour;
-@property(nonatomic) bool includeHeaderInDescription;
+@property (nonatomic, strong) Detour *detour;
 
-- (void)populateCell:(Detour *)detour route:(NSString *_Nullable)route;
+- (void)populateCell:(Detour *)detour
+               route:(NSString *)route
+          showHeader:(bool)showHeader
+           showRoute:(bool)showRoute;
 
 + (UINib *)nib;
 

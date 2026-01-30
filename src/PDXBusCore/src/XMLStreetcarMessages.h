@@ -19,13 +19,13 @@
 
 @interface XMLStreetcarMessages : NextBusXML <Detour *>
 
-@property(nonatomic, strong) AllTriMetRoutes *allRoutes;
-@property(nonatomic, strong) NSMutableArray<Route *> *allStreetcarRoutes;
-@property(nonatomic, strong) Route *currentRoute;
-@property(nonatomic, strong) Detour *curentDetour;
-@property(nonatomic, copy) NSString *copyright;
-@property(nonatomic, strong) NSDate *queryTime;
-@property(nonatomic) bool currentAllRoutes;
+@property (nonatomic, strong) AllTriMetRoutes *allRoutes;
+@property (nonatomic, strong) NSMutableArray<Route *> *allStreetcarRoutes;
+@property (nonatomic, strong) Route *currentRoute;
+@property (nonatomic, strong) Detour *curentDetour;
+@property (nonatomic, copy) NSString *copyright;
+@property (nonatomic, strong) NSDate *queryTime;
+@property (nonatomic) bool currentAllRoutes;
 
 - (void)insertDetoursIntoDepartureArray:(XMLDepartures *)departures;
 - (void)alwaysGetMessages;

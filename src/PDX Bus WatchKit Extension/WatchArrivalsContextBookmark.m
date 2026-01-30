@@ -19,19 +19,17 @@
 
 @interface WatchArrivalsContextBookmark ()
 
-@property(nonatomic, strong) WatchBookmarksContext *bookmarksContext;
-@property(nonatomic) NSInteger index;
+@property (nonatomic, strong) WatchBookmarksContext *bookmarksContext;
+@property (nonatomic) NSInteger index;
 
 @end
 
 @implementation WatchArrivalsContextBookmark
 
-+ (WatchArrivalsContextBookmark *)contextFromBookmark:
-                                      (WatchBookmarksContext *)bookmarksContext
++ (WatchArrivalsContextBookmark *)contextFromBookmark:(WatchBookmarksContext *)bookmarksContext
                                                 index:(NSInteger)index {
     {
-        WatchArrivalsContextBookmark *context =
-            [[WatchArrivalsContextBookmark alloc] init];
+        WatchArrivalsContextBookmark *context = [[WatchArrivalsContextBookmark alloc] init];
 
         context.stopId = bookmarksContext.singleBookmark[index];
         context.showMap = NO;
@@ -49,13 +47,11 @@
     }
 }
 
-+ (WatchArrivalsContextBookmark *)contextFromRecents:
-                                      (WatchBookmarksContext *)bookmarksContext
++ (WatchArrivalsContextBookmark *)contextFromRecents:(WatchBookmarksContext *)bookmarksContext
                                                index:(NSInteger)index {
     {
         WatchArrivalsContextBookmark *context =
-            [WatchArrivalsContextBookmark contextFromBookmark:bookmarksContext
-                                                        index:index];
+            [WatchArrivalsContextBookmark contextFromBookmark:bookmarksContext index:index];
 
         context.navText = @"Next recent swipe ←";
 
@@ -79,9 +75,8 @@
     WatchArrivalsContext *next = nil;
 
     if (self.hasNext) {
-        next = [WatchArrivalsContextBookmark
-            contextFromBookmark:self.bookmarksContext
-                          index:self.index + 1];
+        next = [WatchArrivalsContextBookmark contextFromBookmark:self.bookmarksContext
+                                                           index:self.index + 1];
 
         next.navText = self.navText;
     }
@@ -93,9 +88,8 @@
     WatchArrivalsContext *clone = nil;
 
     if (self.hasNext) {
-        clone = [WatchArrivalsContextBookmark
-            contextFromBookmark:self.bookmarksContext
-                          index:self.index];
+        clone = [WatchArrivalsContextBookmark contextFromBookmark:self.bookmarksContext
+                                                            index:self.index];
 
         clone.navText = self.navText;
     }
@@ -105,12 +99,11 @@
 
 - (void)updateUserActivity:(WKInterfaceController *)controller {
     if (!self.bookmarksContext.recents) {
-        MutableUserParams *info =
-            [MutableUserParams withChosenName:self.bookmarksContext.title
-                                     location:self.bookmarksContext.location];
+        MutableUserParams *info = [MutableUserParams withChosenName:self.bookmarksContext.title
+                                                           location:self.bookmarksContext.location];
 
-        NSUserActivity *userActivity = [[NSUserActivity alloc]
-            initWithActivityType:kHandoffUserActivityBookmark];
+        NSUserActivity *userActivity =
+            [[NSUserActivity alloc] initWithActivityType:kHandoffUserActivityBookmark];
         userActivity.userInfo = info.dictionary;
         userActivity.webpageURL = nil;
         [controller updateUserActivity:userActivity];

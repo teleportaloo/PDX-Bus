@@ -17,7 +17,7 @@
 
 @interface NetworkTestViewController : TableViewControllerWithRefresh
 
-@property(nonatomic, copy) NSString *networkErrorFromQuery;
+@property (nonatomic, copy) NSString *networkErrorFromQuery;
 
 - (void)fetchNetworkStatusAsync:(id<TaskController>)taskController
               backgroundRefresh:(bool)backgroundRefresh;

@@ -51,8 +51,7 @@
     if (tasks > 0 || getKml) {
         [taskController taskRunAsync:^(TaskState *taskState) {
           [taskState taskStartWithTotal:(getKml ? 1 : 0) + tasks
-                                  title:NSLocalizedString(@"getting details",
-                                                          @"progress message")];
+                                  title:NSLocalizedString(@"getting details", @"progress message")];
 
           if (tasks > 0) {
               action(taskState);
@@ -62,19 +61,16 @@
               KMLRoutes *kml = [KMLRoutes xmlWithOneTimeDelegate:taskState];
               self.shapes = [NSMutableArray array];
 
-              [taskState
-                  taskSubtext:NSLocalizedString(@"started to get route paths",
-                                                @"progress message")];
+              [taskState taskSubtext:NSLocalizedString(@"started to get route paths",
+                                                       @"progress message")];
               [kml fetchInBackgroundForced:NO];
 
               if (directions) {
-                  for (int i = 0; i < routes.count && i < directions.count;
-                       i++) {
+                  for (int i = 0; i < routes.count && i < directions.count; i++) {
                       NSString *r = routes[i];
                       NSString *d = directions[i];
 
-                      ShapeRoutePath *path = [kml lineCoordsForRoute:r
-                                                           direction:d];
+                      ShapeRoutePath *path = [kml lineCoordsForRoute:r direction:d];
 
                       if (path) {
                           [self.shapes addObject:path];
@@ -84,16 +80,14 @@
                   for (int i = 0; i < routes.count; i++) {
                       NSString *r = routes[i];
 
-                      ShapeRoutePath *path =
-                          [kml lineCoordsForRoute:r
-                                        direction:kKmlFirstDirection];
+                      ShapeRoutePath *path = [kml lineCoordsForRoute:r
+                                                           direction:kKmlFirstDirection];
 
                       if (path != nil) {
                           [self.shapes addObject:path];
                       }
 
-                      path = [kml lineCoordsForRoute:r
-                                           direction:kKmlOptionalDirection];
+                      path = [kml lineCoordsForRoute:r direction:kKmlOptionalDirection];
 
                       if (path) {
                           [self.shapes addObject:path];

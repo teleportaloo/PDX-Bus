@@ -20,7 +20,7 @@
 
 @interface TripPlannerBookmarkViewController ()
 
-@property(nonatomic, strong) NSMutableArray *locList;
+@property (nonatomic, strong) NSMutableArray *locList;
 
 @end
 
@@ -34,27 +34,23 @@
 
 #pragma mark Data fetchers
 
-- (void)fetchNamesForStopIdsAsync:(id<TaskController>)taskController
-                          stopIds:(NSString *)stopIds {
+- (void)fetchNamesForStopIdsAsync:(id<TaskController>)taskController stopIds:(NSString *)stopIds {
     [taskController taskRunAsync:^(TaskState *taskState) {
       self.locList = [NSMutableArray array];
 
-      NSArray<NSString *> *stopIdArray =
-          stopIds.mutableArrayFromCommaSeparatedString;
+      NSArray<NSString *> *stopIdArray = stopIds.mutableArrayFromCommaSeparatedString;
 
       [taskState taskStartWithTotal:stopIdArray.count
-                              title:NSLocalizedString(@"getting stop names",
-                                                      @"progress message")];
+                              title:NSLocalizedString(@"getting stop names", @"progress message")];
 
       StopNameCacheManager *stopNameCache = [TriMetXML getStopNameCacheManager];
 
-      NSDictionary *names =
-          [stopNameCache getStopNames:stopIdArray
-                        fetchAndCache:YES
-                              updated:nil
-                           completion:^(int item) {
-                             [taskController taskItemsDone:item + 1];
-                           }];
+      NSDictionary *names = [stopNameCache getStopNames:stopIdArray
+                                          fetchAndCache:YES
+                                                updated:nil
+                                             completion:^(int item) {
+                                               [taskController taskItemsDone:item + 1];
+                                             }];
 
       for (NSString *stopId in stopIdArray) {
           NSArray *stopName = names[stopId];
@@ -77,18 +73,7 @@
         self.title = NSLocalizedString(@"Bookmarked stops", @"page title");
     }
 
-    // Uncomment the following line to display an Edit button in the navigation
-    // bar for this view controller. self.navigationItem.rightBarButtonItem =
-    // self.editButtonItem;
-    
     [self addDoneButtonSameAsBack];
-}
-
-- (void)didReceiveMemoryWarning {
-    // Releases the view if it doesn't have a superview.
-    [super didReceiveMemoryWarning];
-
-    // Release any cached data, images, etc that aren't in use.
 }
 
 #pragma mark Table view methods
@@ -97,8 +82,7 @@
     return 1;
 }
 
-- (NSString *)tableView:(UITableView *)tableView
-    titleForHeaderInSection:(NSInteger)section {
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
     if (self.from) {
         return NSLocalizedString(@"Choose a starting stop:", @"section header");
     }
@@ -107,45 +91,25 @@
 }
 
 // Customize the number of rows in the table view.
-- (NSInteger)tableView:(UITableView *)tableView
-    numberOfRowsInSection:(NSInteger)section {
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     return self.locList.count;
 }
 
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)tableView
          cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell *cell = [self tableView:tableView
-                    cellWithReuseIdentifier:@"tripbookmark"];
 
-    NSArray *stopInfo = self.locList[indexPath.row];
-
-    // cell.textLabel.text = dep.locDesc;
-    cell.textLabel.text = [StopNameCacheManager getLongName:stopInfo];
-
-    cell.textLabel.adjustsFontSizeToFitWidth = true;
-    cell.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
-    cell.textLabel.font = self.basicFont;
-
-    if (cell.textLabel.text != nil) {
-        cell.accessoryType = UITableViewCellAccessoryNone;
-    }
-
-    return cell;
+    return [self multiLine:[self tableView:tableView cellWithReuseIdentifier:@"tripbookmark"]
+                      text:[StopNameCacheManager getLongName:self.locList[indexPath.row]]
+                      icon:nil
+             accessoryType:UITableViewCellAccessoryNone
+            selectionStyle:UITableViewCellSelectionStyleBlue];
 }
 
-- (void)tableView:(UITableView *)tableView
-    didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    // Navigation logic may go here. Create and push another view controller.
-    // AnotherViewController *anotherViewController = [[AnotherViewController
-    // alloc] initWithNibName:@"AnotherView" bundle:nil];
-    // [self.navigationController pushViewController:anotherViewController];
-    // [anotherViewController release];
-
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     NSArray *stopInfo = self.locList[indexPath.row];
-    [self.stopIdStringCallback
-        returnStopIdString:[StopNameCacheManager getStopId:stopInfo]
-                      desc:[StopNameCacheManager getLongName:stopInfo]];
+    [self.stopIdStringCallback returnStopIdString:[StopNameCacheManager getStopId:stopInfo]
+                                             desc:[StopNameCacheManager getLongName:stopInfo]];
 }
 
 @end

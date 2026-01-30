@@ -39,15 +39,11 @@
 - (void)test_XMLLocateVehicles {
     // Build
     XMLLocateVehicles *sut = [XMLLocateVehicles xml];
-    sut.queryTransformer = [XMLTestFile
-        queryBlockWithFileForClass:@{@"XMLLocateVehicles" : @"vehicles"}];
+    sut.queryTransformer =
+        [XMLTestFile queryBlockWithFileForClass:@{@"XMLLocateVehicles" : @"vehicles"}];
 
     // Operate
-    [sut findNearestVehicles:nil
-                   direction:nil
-                      blocks:nil
-                    vehicles:nil
-                       since:nil];
+    [sut findNearestVehicles:nil direction:nil blocks:nil vehicles:nil since:nil];
 
     // Assert
     XCTAssert(sut.gotData);

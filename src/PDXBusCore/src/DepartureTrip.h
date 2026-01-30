@@ -24,13 +24,13 @@
 
 @interface DepartureTrip : NSObject
 
-@property(nonatomic, copy) NSString *name;
-@property(nonatomic) unsigned long distanceFeet;
-@property(nonatomic) unsigned long progressFeet;
-@property(nonatomic, strong) NSDate *startTime;
-@property(nonatomic, strong) NSDate *endTime;
-@property(nonatomic, copy) NSString *route;
-@property(nonatomic, copy) NSString *dir;
+@property (nonatomic, copy) NSString *name;
+@property (nonatomic) unsigned long distanceFeet;
+@property (nonatomic) unsigned long progressFeet;
+@property (nonatomic, strong) NSDate *startTime;
+@property (nonatomic, strong) NSDate *endTime;
+@property (nonatomic, copy) NSString *route;
+@property (nonatomic, copy) NSString *dir;
 
 - (instancetype)init;
 

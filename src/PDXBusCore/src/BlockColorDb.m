@@ -23,10 +23,14 @@
 #import "UserState.h"
 #import <CoreGraphics/CoreGraphics.h>
 
-@interface BlockColorDb ()
+@interface BlockColorDb () {
+    dispatch_queue_t _syncQueue;
 
-@property(nonatomic, strong) NSMutableDictionary *colorCache;
-@property(nonatomic, strong) SharedFile *file;
+    NSMutableDictionary<NSString *, NSDictionary *> *_rawColorMap;
+    NSMutableDictionary<NSString *, UIColor *> *_rawColorCache;
+}
+
+@property (nonatomic, strong) SharedFile *file;
 
 @end
 
@@ -36,85 +40,88 @@
 
 - (instancetype)init {
     if ((self = [super init])) {
-        _colorMap = [NSMutableDictionary dictionary];
+        _rawColorMap = [NSMutableDictionary dictionary];
 
         _file = [SharedFile fileWithName:blockFile initFromBundle:NO sync:self];
 
+        _syncQueue =
+            dispatch_queue_create("com.pdxbus.blockcolors.sync", DISPATCH_QUEUE_CONCURRENT);
+
         [MemoryCaches addCache:self];
 
-        [self readFromFile];
+        [self rawReadFromFile];
 
-        _colorCache = [NSMutableDictionary dictionary];
+        _rawColorCache = [NSMutableDictionary dictionary];
     }
 
     return self;
 }
 
 - (void)dealloc {
-    @synchronized(self) {
-        [MemoryCaches removeCache:self];
-    }
+    [MemoryCaches removeCache:self];
 }
 
-- (void)writeToFile {
-    [self.file writeDictionaryBinary:self.colorMap];
+- (void)rawWriteToFile {
+    [self.file writeDictionaryBinary:_rawColorMap];
 }
 
 - (void)forceFileRead {
-    @synchronized(self) {
-        _colorMap = nil;
-    }
+    dispatch_barrier_async(_syncQueue, ^{
+      self->_rawColorMap = nil;
+    });
 }
 
 - (void)openFile {
-    @synchronized(self) {
-        if (_colorMap == nil) {
-            [self readFromFile];
-            self.colorCache = [NSMutableDictionary dictionary];
-        }
+    dispatch_barrier_async(_syncQueue, ^{
+      [self rawOpenFile];
+    });
+}
+
+- (void)rawOpenFile {
+    if (self->_rawColorMap == nil) {
+        [self rawReadFromFile];
+        _rawColorCache = [NSMutableDictionary dictionary];
     }
 }
 
 - (void)memoryWarning {
-    @synchronized(self) {
-        DEBUG_LOG(@"Releasing color map %p\n", (id)_colorMap);
-        self.colorMap = nil;
-        self.colorCache = [NSMutableDictionary dictionary];
-    }
+    dispatch_barrier_sync(_syncQueue, ^{
+      DEBUG_LOG(@"Releasing color map %p\n", (id)self->_rawColorMap);
+      self->_rawColorMap = nil;
+      self->_rawColorCache = [NSMutableDictionary dictionary];
+    });
 }
 
-- (void)readFromFile {
-    @synchronized(self) {
-        if (self.file.urlToSharedFile != nil) {
-            NSPropertyListFormat format;
+- (void)rawReadFromFile {
+    if (self.file.urlToSharedFile != nil) {
+        NSPropertyListFormat format;
 
-            self.colorMap = [self.file readFromFile:&format];
+        _rawColorMap = [self.file readFromFile:&format];
 
-            if (self.colorMap && format != NSPropertyListBinaryFormat_v1_0) {
-                [self writeToFile];
-            };
-        }
+        if (_rawColorMap && format != NSPropertyListBinaryFormat_v1_0) {
+            [self rawWriteToFile];
+        };
+    }
 
-        if (self.colorMap == nil) {
-            self.colorMap = [NSMutableDictionary dictionary];
-        }
+    if (_rawColorMap == nil) {
+        _rawColorMap = [NSMutableDictionary dictionary];
     }
 }
 
 - (void)clearAll {
-    @synchronized(self) {
-        self.colorCache = [NSMutableDictionary dictionary];
-        self.colorMap = [NSMutableDictionary dictionary];
+    dispatch_barrier_async(_syncQueue, ^{
+      self->_rawColorMap = [NSMutableDictionary dictionary];
+      self->_rawColorCache = [NSMutableDictionary dictionary];
 
-        [self writeToFile];
-        UserState.sharedInstance.favesChanged = YES;
-    }
+      [self rawWriteToFile];
+      UserState.sharedInstance.dirty = YES;
+    });
 }
 
 + (BlockColorDb *)sharedInstance {
     static BlockColorDb *singleton = nil;
 
-    DoOnce(^{
+    DO_ONCE(^{
       singleton = [[BlockColorDb alloc] init];
     });
 
@@ -122,136 +129,138 @@
 }
 
 - (UIColor *)colorForBlock:(NSString *)block {
-    @synchronized(self) {
-        [self openFile];
+    __block UIColor *col = nil;
+    dispatch_sync(_syncQueue, ^{
+      [self rawOpenFile];
 
-        if (block == nil) {
-            return [UIColor clearColor];
-        }
+      if (block == nil) {
+          col = [UIColor clearColor];
+          return;
+      }
 
-        UIColor *col = _colorCache[block];
+      col = self->_rawColorCache[block];
 
-        if (col != nil) {
-            return col;
-        } else {
-            NSDictionary *dict = _colorMap[block];
+      if (col == nil) {
+          NSDictionary *dict = self->_rawColorMap[block];
 
-            if (dict == nil) {
-                return nil;
-            }
-
-            col = dict.blockColorInfo.color;
-            [_colorCache setObject:col forKey:block];
-        }
-
-        return col;
-    }
+          if (dict) {
+              col = dict.blockColorInfo.color;
+              [self->_rawColorCache setObject:col forKey:block];
+          }
+      }
+    });
+    return col;
 }
 
-- (void)addColor:(UIColor *)color
-        forBlock:(NSString *)block
-     description:(NSString *)desc {
-    @synchronized(self) {
-        [self openFile];
+- (void)addColor:(UIColor *)color forBlock:(NSString *)block description:(NSString *)desc {
+    dispatch_barrier_async(_syncQueue, ^{
+      [self rawOpenFile];
 
-        if (color == nil) {
-            [_colorMap removeObjectForKey:block];
-            [_colorCache removeObjectForKey:block];
-            [self writeToFile];
-            return;
-        }
+      if (color == nil) {
+          [self->_rawColorMap removeObjectForKey:block];
+          [self->_rawColorCache removeObjectForKey:block];
+          dispatch_async(self->_syncQueue, ^{
+            [self rawWriteToFile];
+          });
+          return;
+      }
 
-        MutableBlockColorInfo *info = MutableBlockColorInfo.new;
+      MutableBlockColorInfo *info = MutableBlockColorInfo.new;
 
-        info.color = color;
-        info.valDesc = desc;
-        info.valTime = [NSDate date].timeIntervalSinceReferenceDate;
+      info.color = color;
+      info.valDesc = desc;
+      info.valTime = [NSDate date].timeIntervalSinceReferenceDate;
 
-        while (_colorMap.count > 50) {
-            // Find the oldest item
-            __block double oldestTime = MAXFLOAT;
-            __block NSString *oldestKey = nil;
-            __block NSTimeInterval time;
+      while (self->_rawColorMap.count > 128) {
+          // Find the oldest item
+          __block double oldestTime = MAXFLOAT;
+          __block NSString *oldestKey = nil;
+          __block NSTimeInterval time;
 
-            [_colorMap enumerateKeysAndObjectsUsingBlock:^void(
-                           NSString *key, NSDictionary *color, BOOL *stop) {
-              time = color.blockColorInfo.valTime;
-              if (time <= oldestTime) {
-                  oldestTime = time;
-                  oldestKey = key;
-              }
-            }];
-
-            if (oldestKey == nil) {
-                // bad!
-                break;
+          [self->_rawColorMap enumerateKeysAndObjectsUsingBlock:^void(
+                                  NSString *key, NSDictionary *color, BOOL *stop) {
+            time = color.blockColorInfo.valTime;
+            if (time <= oldestTime) {
+                oldestTime = time;
+                oldestKey = key;
             }
+          }];
 
-            [_colorMap removeObjectForKey:oldestKey];
-            [_colorCache removeObjectForKey:oldestKey];
-        }
+          if (oldestKey == nil) {
+              // bad!
+              break;
+          }
 
-        _colorMap[block] = info.dictionary;
-        _colorCache[block] = color;
+          [self->_rawColorMap removeObjectForKey:oldestKey];
+          [self->_rawColorCache removeObjectForKey:oldestKey];
+      }
 
-        [self writeToFile];
+      self->_rawColorMap[block] = info.dictionary;
+      self->_rawColorCache[block] = color;
 
-        UserState.sharedInstance.favesChanged = YES;
-    }
+      dispatch_async(self->_syncQueue, ^{
+        [self rawWriteToFile];
+      });
+
+      UserState.sharedInstance.dirty = YES;
+    });
 }
 
 - (NSArray *)keys {
-    @synchronized(self) {
-        [self openFile];
-        return _colorMap.allKeys;
-    }
+    __block NSArray *result = nil;
+    dispatch_sync(_syncQueue, ^{
+      [self rawOpenFile];
+      result = self->_rawColorMap.allKeys;
+    });
+    return result;
 }
 
 - (NSString *)descForBlock:(NSString *)block {
-    @synchronized(self) {
-        [self openFile];
+    __block NSString *result = nil;
+    dispatch_sync(_syncQueue, ^{
+      [self rawOpenFile];
 
-        NSDictionary *item = _colorMap[block];
+      NSDictionary *item = _rawColorMap[block];
 
-        if (item == nil) {
-            return nil;
-        }
-
-        return item.blockColorInfo.valDesc;
-    }
+      if (item != nil) {
+          result = item.blockColorInfo.valDesc;
+      }
+    });
+    return result;
 }
 
 - (NSDictionary *)db {
-    @synchronized(self) {
-        [self openFile];
-        return _colorMap;
-    }
+    __block NSDictionary *result = nil;
+    dispatch_sync(_syncQueue, ^{
+      [self rawOpenFile];
+      result = _rawColorMap;
+    });
+    return result;
 }
 
 - (void)setDb:(NSDictionary *)db {
-    @synchronized(self) {
-        [self openFile];
+    dispatch_barrier_async(_syncQueue, ^{
+      [self rawOpenFile];
 
-        self.colorMap = [NSMutableDictionary dictionaryWithDictionary:db];
-        self.colorCache = [NSMutableDictionary dictionary];
+      self->_rawColorMap = [NSMutableDictionary dictionaryWithDictionary:db];
+      self->_rawColorCache = [NSMutableDictionary dictionary];
 
-        [self writeToFile];
-    }
+      [self rawWriteToFile];
+    });
 }
 
 - (NSDate *)timeForBlock:(NSString *)block {
-    @synchronized(self) {
-        [self openFile];
+    __block NSDate *result = nil;
+    dispatch_sync(_syncQueue, ^{
+      [self rawOpenFile];
 
-        NSDictionary *item = _colorMap[block];
+      NSDictionary *item = _rawColorMap[block];
 
-        if (item == nil) {
-            return nil;
-        }
-
-        return [NSDate
-            dateWithTimeIntervalSinceReferenceDate:item.blockColorInfo.valTime];
-    }
+      if (item != nil) {
+          result = [NSDate dateWithTimeIntervalSinceReferenceDate:item.blockColorInfo.valTime];
+      }
+    });
+    return result;
 }
 
 + (UIImage *)imageWithColor:(UIColor *)color {

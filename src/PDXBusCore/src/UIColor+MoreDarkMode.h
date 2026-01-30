@@ -22,10 +22,9 @@ NS_ASSUME_NONNULL_BEGIN
 #ifdef PDXBUS_WATCH
 #define IOS_DARK_MODE (false)
 #else
-#define IOS_DARK_MODE                                                          \
-    ([UIScreen mainScreen].traitCollection.userInterfaceStyle ==               \
-     UIUserInterfaceStyleDark)
-#endif
+#define IOS_DARK_MODE                                                                              \
+    ([UIScreen mainScreen].traitCollection.userInterfaceStyle == UIUserInterfaceStyleDark)
+#endif // IOS_DARK_MODE
 
 @interface UIColor (MoreDarkMode)
 
@@ -41,6 +40,15 @@ NS_ASSUME_NONNULL_BEGIN
 + (UIColor *)modeAwarePurple;
 
 - (NSString *)string;
+
+/// Return a variant better suited for dark backgrounds by ensuring a minimum HSV "brightness".
+/// - Parameters:
+///   - minBrightness: Floor for brightness/value in [0,1]. 0.72–0.80 is a good range; try 0.75.
+/// - Returns: Adjusted color with same hue/saturation, boosted brightness.
+- (UIColor *)modeAwareVariantWithMinBrightness:(CGFloat)minBrightness;
+
+/// Convenience default (minBrightness = 0.75).
+- (UIColor *)modeAwareVariant;
 
 @end
 NS_ASSUME_NONNULL_END

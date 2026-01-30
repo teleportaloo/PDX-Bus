@@ -17,6 +17,8 @@
 #import "SelectableTextViewCell.h"
 #import <UIKit/UIKit.h>
 
+#define kTextViewLinkCellId @"link cell"
+
 @class TextViewLinkCell;
 
 typedef bool (^UrlAction)(TextViewLinkCell *cell, NSString *url);
@@ -25,11 +27,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface TextViewLinkCell
     : SelectableTextViewCell <UITextViewDelegate, UIGestureRecognizerDelegate>
-@property(strong, nonatomic) IBOutlet LinkResponsiveTextView *textView;
-@property(nonatomic, copy) UrlAction urlCallback;
+@property (strong, nonatomic) IBOutlet LinkResponsiveTextView *textView;
+@property (nonatomic, copy) UrlAction urlCallback;
 
 + (UINib *)nib;
 + (NSString *)identifier;
++ (TextViewLinkCell *)dequeue:(UITableView *)tableView;
 
 @end
 

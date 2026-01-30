@@ -35,8 +35,7 @@
     return context;
 }
 
-+ (WatchArrivalsContext *)contextWithStopId:(NSString *)stopId
-                                   distance:(double)distance {
++ (WatchArrivalsContext *)contextWithStopId:(NSString *)stopId distance:(double)distance {
     WatchArrivalsContext *context = [[WatchArrivalsContext alloc] init];
 
     context.stopId = stopId;
@@ -68,8 +67,7 @@
 }
 
 - (void)updateUserActivity:(WKInterfaceController *)controller {
-    MutableUserParams *info = [MutableUserParams withChosenName:self.stopId
-                                                       location:self.stopId];
+    MutableUserParams *info = [MutableUserParams withChosenName:self.stopId location:self.stopId];
 
     if (self.detailBlock) {
         info.valBlock = self.detailBlock;
@@ -79,16 +77,16 @@
         info.valDir = self.detailDir;
     }
 
-    NSURL *webpageUrl = [NSURL
-        URLWithString:[NSString stringWithFormat:@"https://trimet.org/arrivals/"
-                                                 @"small/tracker?locationID=%@",
-                                                 self.stopId]];
+    NSURL *webpageUrl =
+        [NSURL URLWithString:[NSString stringWithFormat:@"https://trimet.org/arrivals/"
+                                                        @"small/tracker?locationID=%@",
+                                                        self.stopId]];
 
-        NSUserActivity *userActivity = [[NSUserActivity alloc]
-            initWithActivityType:kHandoffUserActivityBookmark];
-        userActivity.userInfo = info.dictionary;
-        userActivity.webpageURL = webpageUrl;
-        [controller updateUserActivity:userActivity];
+    NSUserActivity *userActivity =
+        [[NSUserActivity alloc] initWithActivityType:kHandoffUserActivityBookmark];
+    userActivity.userInfo = info.dictionary;
+    userActivity.webpageURL = webpageUrl;
+    [controller updateUserActivity:userActivity];
 }
 
 - (bool)hasNext {

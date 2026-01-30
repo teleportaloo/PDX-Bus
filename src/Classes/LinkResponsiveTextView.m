@@ -63,10 +63,9 @@
     location.y -= self.textContainerInset.top;
 
     // find the character that's been tapped
-    NSInteger characterIndex =
-        [self.layoutManager characterIndexForPoint:location
-                                     inTextContainer:self.textContainer
-            fractionOfDistanceBetweenInsertionPoints:nil];
+    NSInteger characterIndex = [self.layoutManager characterIndexForPoint:location
+                                                          inTextContainer:self.textContainer
+                                 fractionOfDistanceBetweenInsertionPoints:nil];
 
     if (characterIndex < self.textStorage.length) {
         // if the character is a link, handle the tap as UITextView normally

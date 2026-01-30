@@ -24,8 +24,8 @@
 #import <UIKit/UIKit.h>
 #else
 #define PDXBUS_NO_UIKIT
-#endif
+#endif // UIKit
 
-#endif
+#endif // PDXBUS_WATCH
 
 #endif /* PDXBusCore_h */

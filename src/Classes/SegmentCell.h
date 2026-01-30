@@ -17,9 +17,7 @@
 
 @interface SegmentCell : UITableViewCell
 
-- (void)createSegmentWithContent:(NSArray *)content
-                          target:(NSObject *)target
-                          action:(SEL)action;
+- (void)createSegmentWithContent:(NSArray *)content target:(NSObject *)target action:(SEL)action;
 
 + (instancetype)tableView:(UITableView *)tableView
           reuseIdentifier:(NSString *)reuseIdentifier

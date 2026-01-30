@@ -18,11 +18,12 @@
 
 @interface TaskContainer : NSObject <TaskController>
 
-@property(atomic, strong) NSThread *backgroundThread;
+@property (atomic, strong) NSThread *backgroundThread;
 
-@property(nonatomic, readonly) bool running;
-@property(atomic, strong) NSString *errMsg;
-@property(atomic, strong) UIViewController *controllerToPop;
+@property (nonatomic, readonly) bool running;
+@property (atomic, strong) NSString *errMsg;
+@property (atomic, strong) UIViewController *controllerToPop;
+@property (atomic, weak) UIViewController *parent;
 
 - (void)finish;
 

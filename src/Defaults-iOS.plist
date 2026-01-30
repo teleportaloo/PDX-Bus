@@ -54,8 +54,6 @@
 	<real>3218.688</real>
 	<key>debug_xml3</key>
 	<integer>0</integer>
-	<key>progress_debug</key>
-	<false/>
 	<key>show_transit_tracker</key>
 	<false/>
 	<key>show_sizes</key>
@@ -70,8 +68,6 @@
 	<false/>
 	<key>show_detour_ids</key>
 	<false/>
-	<key>use_gps_for_all_alarms</key>
-	<true/>
 	<key>network_timeout2</key>
 	<integer>20</integer>
 	<key>first_launch_with_icloud</key>

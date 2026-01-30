@@ -17,161 +17,169 @@
 
 #import "TaskState.h"
 
-@interface TaskState ()
+@interface TaskState () {
+    dispatch_queue_t _queue;
+}
 
-@property(nonatomic, strong) id<TaskController> taskController;
+@property (nonatomic, strong) id<TaskController> taskController;
 
 @end
 
 @implementation TaskState
 
 + (instancetype)state:(id<TaskController>)taskController {
-    TaskState *state = [[[self class] alloc] init];
+    return [[[self class] alloc] init:taskController];
+}
 
-    state.taskController = taskController;
-
-    return state;
+- (instancetype)init:(id<TaskController>)taskController {
+    if ((self = [super init])) {
+        self.taskController = taskController;
+        _queue = dispatch_queue_create("org.teleportaloo.taskstate.queue", DISPATCH_QUEUE_SERIAL);
+    }
+    return self;
 }
 
 - (void)displayTotal {
-    @synchronized(self) {
-        [self.taskController taskTotalItems:self.total];
-    }
+    dispatch_async(_queue, ^{
+      [self.taskController taskTotalItems:self.total];
+    });
 }
 
 - (void)displayItemsDone {
-    @synchronized(self) {
-        [self.taskController taskItemsDone:self.itemsDone];
-    }
+    dispatch_async(_queue, ^{
+      [self.taskController taskItemsDone:self.itemsDone];
+    });
 }
 
 - (void)startAtomicTask:(NSString *)title {
-    @synchronized(self) {
-        self.total = 1;
-        [self startTask:title];
-    }
+    dispatch_async(_queue, ^{
+      self.total = 1;
+      [self startTask:title];
+    });
 }
 
 - (void)atomicTaskItemDone {
-    @synchronized(self) {
-        self.itemsDone = 1;
-        [self displayItemsDone];
-    }
+    dispatch_async(_queue, ^{
+      self.itemsDone = 1;
+      [self displayItemsDone];
+    });
 }
 
 - (void)startTask:(NSString *)title {
-    @synchronized(self) {
-        [self.taskController taskStartWithTotal:self.total title:title];
-    }
+    dispatch_async(_queue, ^{
+      [self.taskController taskStartWithTotal:self.total title:title];
+    });
 }
 
 - (void)decrementTotalAndDisplay {
-    @synchronized(self) {
-        self.total--;
-        [self displayTotal];
-    }
+    dispatch_async(_queue, ^{
+      self.total--;
+      [self displayTotal];
+    });
 }
 
 - (void)incrementItemsDoneAndDisplay {
-    @synchronized(self) {
-        self.itemsDone++;
-        [self displayItemsDone];
-    }
+    dispatch_async(_queue, ^{
+      self.itemsDone++;
+      [self displayItemsDone];
+    });
 }
 
 - (void)taskStartWithTotal:(NSInteger)total title:(NSString *)title {
-    @synchronized(self) {
-        self.total = total;
-        [self.taskController taskStartWithTotal:total title:title];
-    }
+    dispatch_async(_queue, ^{
+      self.total = total;
+      [self.taskController taskStartWithTotal:total title:title];
+    });
 }
 
 - (void)taskItemsDone:(NSInteger)itemsDone {
-    @synchronized(self) {
-        self.itemsDone = itemsDone;
-        [self.taskController taskItemsDone:itemsDone];
-    }
+    dispatch_async(_queue, ^{
+      self.itemsDone = itemsDone;
+      [self.taskController taskItemsDone:itemsDone];
+    });
 }
 
 - (void)taskTotalItems:(NSInteger)totalItems {
-    @synchronized(self) {
-        self.total = totalItems;
-        [self.taskController taskTotalItems:totalItems];
-    }
+    dispatch_async(_queue, ^{
+      self.total = totalItems;
+      [self.taskController taskTotalItems:totalItems];
+    });
 }
 
 - (void)taskSubtext:(NSString *)subtext {
-    @synchronized(self) {
-        DEBUG_LOG_NSString(subtext);
-        [self.taskController taskSubtext:subtext];
-    }
+    dispatch_async(_queue, ^{
+      DEBUG_LOG_NSString(subtext);
+      [self.taskController taskSubtext:subtext];
+    });
 }
 
 - (void)taskCompleted:(UIViewController *)viewController {
-    @synchronized(self) {
-        [self.taskController taskCompleted:viewController];
-    }
+    dispatch_async(_queue, ^{
+      [self.taskController taskCompleted:viewController];
+    });
 }
 
 - (void)taskSetErrorMsg:(NSString *)errMsg {
-    @synchronized(self) {
-        [self.taskController taskSetErrorMsg:errMsg];
-    }
+    dispatch_async(_queue, ^{
+      [self.taskController taskSetErrorMsg:errMsg];
+    });
 }
 
 - (void)taskRunAsync:(UIViewController * (^)(TaskState *))block {
-    @synchronized(self) {
-        [self.taskController taskRunAsync:block];
-    }
+    dispatch_async(_queue, ^{
+      [self.taskController taskRunAsync:block];
+    });
 }
 
 - (void)taskCancel {
-    @synchronized(self) {
-        [self.taskController taskCancel];
-    }
+    dispatch_async(_queue, ^{
+      [self.taskController taskCancel];
+    });
 }
 
 - (bool)taskCancelled {
-    @synchronized(self) {
-        return [self.taskController taskCancelled];
-    }
+    __block bool result = NO;
+    dispatch_sync(_queue, ^{
+      result = [self.taskController taskCancelled];
+    });
+    return result;
 }
 
 - (bool)debugMessages {
-    @synchronized(self) {
-        return [self.taskController debugMessages];
-    }
+    __block bool result = NO;
+    dispatch_async(_queue, ^{
+      result = [self.taskController debugMessages];
+    });
+    return result;
 }
 
 - (void)triMetXML:(TriMetXML *_Nonnull)xml startedFetchingData:(bool)fromCache {
-    @synchronized(self) {
-        [self.taskController triMetXML:xml startedFetchingData:fromCache];
-    }
+    dispatch_async(_queue, ^{
+      [self.taskController triMetXML:xml startedFetchingData:fromCache];
+    });
 }
 
-- (void)triMetXML:(TriMetXML *_Nonnull)xml
-    finishedFetchingData:(bool)fromCache {
-    @synchronized(self) {
-        [self.taskController triMetXML:xml finishedFetchingData:fromCache];
-    }
+- (void)triMetXML:(TriMetXML *_Nonnull)xml finishedFetchingData:(bool)fromCache {
+    dispatch_async(_queue, ^{
+      [self.taskController triMetXML:xml finishedFetchingData:fromCache];
+    });
 }
 
-- (void)triMetXML:(TriMetXML *_Nonnull)xml
-    incrementalBytes:(long long)incremental {
-    @synchronized(self) {
-        [self.taskController triMetXML:xml incrementalBytes:incremental];
-    }
+- (void)triMetXML:(TriMetXML *_Nonnull)xml incrementalBytes:(long long)incremental {
+    dispatch_async(_queue, ^{
+      [self.taskController triMetXML:xml incrementalBytes:incremental];
+    });
 }
 
 - (void)addCancelObserver:(NSObject *)key block:(dispatch_block_t)block {
-    @synchronized(self) {
-        [self.taskController addCancelObserver:key block:block];
-    }
+    dispatch_async(_queue, ^{
+      [self.taskController addCancelObserver:key block:block];
+    });
 }
 - (void)removeCancelObserver:(NSObject *)key {
-    @synchronized(self) {
-        [self.taskController removeCancelObserver:key];
-    }
+    dispatch_async(_queue, ^{
+      [self.taskController removeCancelObserver:key];
+    });
 }
 
 @end

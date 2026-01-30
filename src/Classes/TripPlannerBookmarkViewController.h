@@ -17,9 +17,8 @@
 
 @interface TripPlannerBookmarkViewController : TableViewControllerWithToolbar
 
-@property(nonatomic) bool from;
+@property (nonatomic) bool from;
 
-- (void)fetchNamesForStopIdsAsync:(id<TaskController>)taskController
-                          stopIds:(NSString *)stopIds;
+- (void)fetchNamesForStopIdsAsync:(id<TaskController>)taskController stopIds:(NSString *)stopIds;
 
 @end

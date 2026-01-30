@@ -23,7 +23,7 @@
 
 + (MKAnnotationView *)viewForPin:(id<MapPin>)pin
                          mapView:(MKMapView *)mapView
-                       urlAction:(bool (^__nullable)(id<MapPin>, NSURL *url,
-                                                     UIView *source))urlAction;
+                       urlAction:
+                           (bool (^__nullable)(id<MapPin>, NSURL *url, UIView *source))urlAction;
 
 @end

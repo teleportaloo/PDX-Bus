@@ -23,8 +23,8 @@
 
 - (instancetype)init {
     if ((self = [super init])) {
-        self.replaceQueryBlock = ^NSString *_Nonnull(
-            LegShapeParser *_Nonnull xml, NSString *_Nonnull query) {
+        self.replaceQueryBlock =
+            ^NSString *_Nonnull(LegShapeParser *_Nonnull xml, NSString *_Nonnull query) {
             NSMutableString *mutableQuery = query.mutableCopy;
 
             // The "URL" initially looks like this - we need to remove the
@@ -32,16 +32,12 @@
             // /transweb/ws/V1/BlockGeoWS/appID/xxxxx/bksTsIDeTeID/3305,X,11:21
             // AM,15,11:58 AM,7751
 
-            [mutableQuery
-                deleteCharactersInRange:NSMakeRange(
-                                            0, 9)]; // /transweb is 9 characters
+            [mutableQuery deleteCharactersInRange:NSMakeRange(0, 9)]; // /transweb is 9 characters
 
             return [NSString
-                stringWithFormat:
-                    @"https://developer.trimet.org%@",
-                    [mutableQuery
-                        stringByAddingPercentEncodingWithAllowedCharacters:
-                            [NSCharacterSet URLQueryAllowedCharacterSet]]];
+                stringWithFormat:@"https://developer.trimet.org%@",
+                                 [mutableQuery stringByAddingPercentEncodingWithAllowedCharacters:
+                                                   [NSCharacterSet URLQueryAllowedCharacterSet]]];
         };
     }
 
@@ -54,16 +50,14 @@
 
         DEBUG_LOG(@"Query %@\n", fullQuery);
 
-        [self fetchDataByPolling:fullQuery
-                     cachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
+        [self fetchDataByPolling:fullQuery cachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
 
         if (self.rawData) {
             NSError *error = 0;
 
-            NSDictionary *json =
-                [NSJSONSerialization JSONObjectWithData:self.rawData
-                                                options:0
-                                                  error:&error];
+            NSDictionary *json = [NSJSONSerialization JSONObjectWithData:self.rawData
+                                                                 options:0
+                                                                   error:&error];
 
             DEBUG_LOG_description(json);
 
@@ -108,8 +102,7 @@
                     NSNumber *x = xy[@"x"];
                     NSNumber *y = xy[@"y"];
 
-                    if (EXPECTED_CLASS(x, NSNumber) &&
-                        EXPECTED_CLASS(y, NSNumber)) {
+                    if (EXPECTED_CLASS(x, NSNumber) && EXPECTED_CLASS(y, NSNumber)) {
                         ShapeCoord *coord = [ShapeCoord new];
 
                         CLLocationDegrees xCoord = x.doubleValue;
@@ -123,8 +116,7 @@
                         //
                         coord.longitude =
                             +((((atan(((xCoord * 0.3048) - 2500000) /
-                                      (6350713.93 -
-                                       ((yCoord * 0.3048) - 166910.7663)))) *
+                                      (6350713.93 - ((yCoord * 0.3048) - 166910.7663)))) *
                                 180) /
                                (3.14159265359 * 0.709186016884)) -
                               120.5);
@@ -133,32 +125,26 @@
                              ((((yCoord * 0.3048) - 166910.7663) -
                                (((xCoord * 0.3048) - 2500000) *
                                 tan((atan(((xCoord * 0.3048) - 2500000) /
-                                          (6350713.93 - ((yCoord * 0.3048) -
-                                                         166910.7663)))) /
+                                          (6350713.93 - ((yCoord * 0.3048) - 166910.7663)))) /
                                     2))) *
                               (0.000008999007999 +
                                (((yCoord * 0.3048) - 166910.7663) -
                                 (((xCoord * 0.3048) - 2500000) *
                                  tan((atan(((xCoord * 0.3048) - 2500000) /
-                                           (6350713.93 - ((yCoord * 0.3048) -
-                                                          166910.7663)))) /
+                                           (6350713.93 - ((yCoord * 0.3048) - 166910.7663)))) /
                                      2))) *
                                    (-7.1202E-015 +
                                     (((yCoord * 0.3048) - 166910.7663) -
                                      (((xCoord * 0.3048) - 2500000) *
-                                      tan((atan(
-                                              ((xCoord * 0.3048) - 2500000) /
-                                              (6350713.93 - ((yCoord * 0.3048) -
-                                                             166910.7663)))) /
+                                      tan((atan(((xCoord * 0.3048) - 2500000) /
+                                                (6350713.93 - ((yCoord * 0.3048) - 166910.7663)))) /
                                           2))) *
                                         (-3.6863E-020 +
                                          (((yCoord * 0.3048) - 166910.7663) -
                                           (((xCoord * 0.3048) - 2500000) *
-                                           tan((atan(((xCoord * 0.3048) -
-                                                      2500000) /
+                                           tan((atan(((xCoord * 0.3048) - 2500000) /
                                                      (6350713.93 -
-                                                      ((yCoord * 0.3048) -
-                                                       166910.7663)))) /
+                                                      ((yCoord * 0.3048) - 166910.7663)))) /
                                                2))) *
                                              -1.3188E-027)))));
                         [self.segment.coords addObject:coord];

@@ -23,13 +23,13 @@
 
 @interface ShapeRoutePath : NSObject <NSSecureCoding>
 
-@property(nonatomic, strong) NSMutableArray<id<ShapeSegment>> *segments;
-@property(nonatomic, copy) NSString *dirDesc;
-@property(nonatomic, copy) NSString *desc;
-@property(nonatomic) NSInteger route;
-@property(nonatomic) bool direct;
-@property(nonatomic, copy) NSString *routeStr;
-@property(nonatomic) bool frequent;
+@property (nonatomic, strong) NSMutableArray<id<ShapeSegment>> *segments;
+@property (nonatomic, copy) NSString *dirDesc;
+@property (nonatomic, copy) NSString *desc;
+@property (nonatomic) NSInteger route;
+@property (nonatomic) bool direct;
+@property (nonatomic, copy) NSString *routeStr;
+@property (nonatomic) bool frequent;
 
 - (NSMutableArray<RouteMultiPolyline *> *)addPolylines:
     (NSMutableArray<RouteMultiPolyline *> *)lines;

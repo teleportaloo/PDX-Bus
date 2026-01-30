@@ -21,34 +21,26 @@
 
 @implementation ComplicationController
 
-- (void)getCurrentTimelineEntryForComplication:
-            (nonnull CLKComplication *)complication
-                                   withHandler:(nonnull void (^)(
-                                                   CLKComplicationTimelineEntry
-                                                       *_Nullable))handler {
-    [self
-        getLocalizableSampleTemplateForComplication:complication
-                                        withHandler:^(
-                                            CLKComplicationTemplate
-                                                *_Nullable complicationTemplate) {
-                                          CLKComplicationTimelineEntry *entry =
-                                              [[CLKComplicationTimelineEntry
-                                                  alloc] init];
+- (void)getCurrentTimelineEntryForComplication:(nonnull CLKComplication *)complication
+                                   withHandler:
+                                       (nonnull void (^)(CLKComplicationTimelineEntry *_Nullable))
+                                           handler {
+    [self getLocalizableSampleTemplateForComplication:complication
+                                          withHandler:^(CLKComplicationTemplate
+                                                            *_Nullable complicationTemplate) {
+                                            CLKComplicationTimelineEntry *entry =
+                                                [[CLKComplicationTimelineEntry alloc] init];
 
-                                          entry.complicationTemplate =
-                                              complicationTemplate;
-                                          entry.date = [NSDate date];
-                                          handler(entry);
-                                        }];
+                                            entry.complicationTemplate = complicationTemplate;
+                                            entry.date = [NSDate date];
+                                            handler(entry);
+                                          }];
 }
 
-- (void)
-    getSupportedTimeTravelDirectionsForComplication:
-        (nonnull CLKComplication *)complication
-                                        withHandler:
-                                            (nonnull void (^)(
-                                                CLKComplicationTimeTravelDirections))
-                                                handler {
+- (void)getSupportedTimeTravelDirectionsForComplication:(nonnull CLKComplication *)complication
+                                            withHandler:
+                                                (nonnull void (^)(
+                                                    CLKComplicationTimeTravelDirections))handler {
     handler(CLKComplicationTimeTravelDirectionNone);
 }
 
@@ -65,13 +57,9 @@
     return image;
 }
 
-- (void)
-    getLocalizableSampleTemplateForComplication:(CLKComplication *)complication
-                                    withHandler:
-                                        (void (^)(
-                                            CLKComplicationTemplate *__nullable
-                                                complicationTemplate))handler
-    API_AVAILABLE(watchos(3.0)) {
+- (void)getLocalizableSampleTemplateForComplication:(CLKComplication *)complication
+                                        withHandler:(void (^)(CLKComplicationTemplate *__nullable
+                                                                  complicationTemplate))handler {
     CLKComplicationTemplate *template;
 
     DEBUG_HERE();
@@ -82,19 +70,16 @@
         UIImage *image = [ComplicationController image:@"Complication/Modular"];
         CLKComplicationTemplateModularSmallSimpleImage *temp =
             [[CLKComplicationTemplateModularSmallSimpleImage alloc] init];
-        temp.imageProvider =
-            [CLKImageProvider imageProviderWithOnePieceImage:image];
+        temp.imageProvider = [CLKImageProvider imageProviderWithOnePieceImage:image];
         template = temp;
         break;
     }
 
     case CLKComplicationFamilyCircularSmall: {
-        UIImage *image =
-            [ComplicationController image:@"Complication/Circular"];
+        UIImage *image = [ComplicationController image:@"Complication/Circular"];
         CLKComplicationTemplateCircularSmallSimpleImage *temp =
             [[CLKComplicationTemplateCircularSmallSimpleImage alloc] init];
-        temp.imageProvider =
-            [CLKImageProvider imageProviderWithOnePieceImage:image];
+        temp.imageProvider = [CLKImageProvider imageProviderWithOnePieceImage:image];
         template = temp;
         break;
     }
@@ -105,19 +90,16 @@
     case CLKComplicationFamilyUtilitarianSmallFlat: {
         CLKComplicationTemplateUtilitarianSmallFlat *temp =
             [[CLKComplicationTemplateUtilitarianSmallFlat alloc] init];
-        temp.textProvider =
-            [CLKSimpleTextProvider textProviderWithText:@"PDX BUS"];
+        temp.textProvider = [CLKSimpleTextProvider textProviderWithText:@"PDX BUS"];
         template = temp;
         break;
     }
 
     case CLKComplicationFamilyUtilitarianSmall: {
-        UIImage *image =
-            [ComplicationController image:@"Complication/Utilitarian"];
+        UIImage *image = [ComplicationController image:@"Complication/Utilitarian"];
         CLKComplicationTemplateUtilitarianSmallSquare *temp =
             [[CLKComplicationTemplateUtilitarianSmallSquare alloc] init];
-        temp.imageProvider =
-            [CLKImageProvider imageProviderWithOnePieceImage:image];
+        temp.imageProvider = [CLKImageProvider imageProviderWithOnePieceImage:image];
         template = temp;
         break;
     }
@@ -128,13 +110,10 @@
 
     case CLKComplicationFamilyGraphicCorner: {
         if (@available(watchOS 5.0, *)) {
-            UIImage *image =
-                [ComplicationController image:@"Complication/Graphic Corner"];
+            UIImage *image = [ComplicationController image:@"Complication/Graphic Corner"];
             CLKComplicationTemplateGraphicCornerCircularImage *temp =
-                [[CLKComplicationTemplateGraphicCornerCircularImage alloc]
-                    init];
-            temp.imageProvider =
-                [CLKFullColorImageProvider providerWithFullColorImage:image];
+                [[CLKComplicationTemplateGraphicCornerCircularImage alloc] init];
+            temp.imageProvider = [CLKFullColorImageProvider providerWithFullColorImage:image];
             template = temp;
         }
 
@@ -146,12 +125,10 @@
 
     case CLKComplicationFamilyGraphicCircular: {
         if (@available(watchOS 5.0, *)) {
-            UIImage *image =
-                [ComplicationController image:@"Complication/Graphic Circular"];
+            UIImage *image = [ComplicationController image:@"Complication/Graphic Circular"];
             CLKComplicationTemplateGraphicCircularImage *temp =
                 [[CLKComplicationTemplateGraphicCircularImage alloc] init];
-            temp.imageProvider =
-                [CLKFullColorImageProvider providerWithFullColorImage:image];
+            temp.imageProvider = [CLKFullColorImageProvider providerWithFullColorImage:image];
             template = temp;
         }
 

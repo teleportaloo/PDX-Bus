@@ -22,8 +22,9 @@
 
 #define kNoAction @""
 
-@interface ViewControllerBase
-    : UIViewController <BackgroundTaskDone, UITextViewDelegate> {
+@class BoxedIcon;
+
+@interface ViewControllerBase : UIViewController <BackgroundTaskDone, UITextViewDelegate> {
     UserState *_userState;
 }
 
@@ -33,70 +34,49 @@
 + (instancetype)viewController;
 
 // Callback with stop ID support
-@property(nonatomic, readonly, strong) UIBarButtonItem *doneButton;
-@property(nonatomic, strong) id<ReturnStopIdString> stopIdStringCallback;
-@property(nonatomic, readonly) bool forceRedoButton;
-@property(nonatomic, readonly, strong) UIViewController *callbackWhenDone;
+@property (nonatomic, readonly, strong) UIBarButtonItem *doneButton;
+@property (nonatomic, strong) id<ReturnStopIdString> stopIdStringCallback;
+@property (nonatomic, readonly) bool forceRedoButton;
+@property (nonatomic, readonly, strong) UIViewController *callbackWhenDone;
 - (void)backButton:(id)sender;
 - (void)backToRootButtons:(NSMutableArray *)toolbarItems;
 
 // Model done button that does the same as back
 - (void)addDoneButtonSameAsBack;
-
-#define XML_DEBUG_INIT()                                                       \
-    if (Settings.debugXML) {                                                   \
-        self.xml = [NSMutableArray array];                                     \
-    } else {                                                                   \
-        self.xml = nil;                                                        \
-    }
-
-// XML Debug support
-#define XML_DEBUG_RAW_DATA(X)                                                  \
-    if ((X) && (X).rawData && self.xml != nil) {                               \
-        @synchronized(self) {                                                  \
-            [self.xml addObject:X];                                            \
-        }                                                                      \
-    }
-@property(nonatomic, readonly, strong) UIBarButtonItem *debugXmlButton;
-@property(atomic, strong) NSMutableArray<TriMetXML *> *xml;
-- (void)appendXmlData:(NSMutableData *)buffer;
-- (void)xmlAction:(UIView *)button;
-- (void)updateToolbarItemsWithXml:(NSMutableArray *)toolbarItems;
+@property (nonatomic, readonly, strong) UIBarButtonItem *debugXmlButton;
+@property (atomic, strong) NSMutableArray<TriMetXML *> *debugXml;
+- (void)appendDebugXmlData:(NSMutableData *)buffer;
+- (void)debugXmlAddParser:(TriMetXML *)xml;
+- (void)debugXmlInit;
+- (void)debugXmlAction:(UIView *)button;
+- (void)updateToolbarItemsWithXml:(NSMutableArray<UIBarButtonItem *> *)toolbarItems;
 
 // Flash button support
-@property(nonatomic, readonly, strong) UIBarButtonItem *flashButton;
-@property(nonatomic, readonly, strong) UIBarButtonItem *bigFlashButton;
-+ (void)flashScreen:(UINavigationController *)nav
-             button:(UIBarButtonItem *)button;
+@property (nonatomic, readonly, strong) UIBarButtonItem *flashButton;
+@property (nonatomic, readonly, strong) UIBarButtonItem *bigFlashButton;
++ (void)flashScreen:(UINavigationController *)nav button:(UIBarButtonItem *)button;
 - (void)maybeAddFlashButtonWithSpace:(bool)space
-                             buttons:(NSMutableArray *)array
+                             buttons:(NSMutableArray<UIBarButtonItem *> *)array
                                  big:(bool)big;
 
 // View Helpers
-@property(nonatomic, readonly, strong) UIView *clearView;
-- (UILabel *)create_UITextView:(UIColor *)backgroundColor font:(UIFont *)font;
+@property (nonatomic, readonly, strong) UIView *clearView;
 - (UIBarButtonItem *)segBarButtonWithItems:(NSArray *)items
                                     action:(SEL)action
                              selectedIndex:(NSInteger)selectedIndex;
 
-// Helpers for sizes
-@property(nonatomic, readonly) CGFloat heightOffset;
-@property(nonatomic, readonly) CGRect middleWindowRect;
-@property(nonatomic, readonly) ScreenInfo screenInfo;
-
 // Helpers for fonts
-@property(nonatomic, readonly, copy) UIFont *basicFont;
-@property(nonatomic, readonly, copy) UIFont *smallFont;
+@property (nonatomic, readonly, copy) UIFont *basicFont;
+@property (nonatomic, readonly, copy) UIFont *smallFont;
 
 // Video capture
-@property(nonatomic, readonly) bool videoCaptureSupported;
+@property (nonatomic, readonly) bool videoCaptureSupported;
 
 // Task manager
-@property(nonatomic, strong) BackgroundTaskContainer *backgroundTask;
+@property (nonatomic, strong) BackgroundTaskContainer *backgroundTask;
 
 // Route helpers
 - (void)showRouteSchedule:(NSString *)route;
-- (void)padRoute:(NSString *)route padding:(NSMutableString **)padding;
 
 // Browser helpers
 - (void)facebookPDXBus;
@@ -104,15 +84,11 @@
 - (bool)openSafariFrom:(UIViewController *)view path:(NSString *)path;
 - (void)instagramAt:(NSString *)user;
 - (void)blueskyAt:(NSString *)user;
-- (void)triMetBlueskyFrom:(UIView *)view;
-- (void)buyMeACoffeeCell:(UITableViewCell *)cell;
-- (void)buyMeACoffee;
-- (void)tipJarCell:(UITableViewCell *)cell;
-- (void)tipJar;
+- (void)triMetBluesky;
 
 // Toolbar helpers
 - (void)updateToolbarMainThread;
-- (void)updateToolbarItems:(NSMutableArray *)toolbarItems;
+- (void)updateToolbarItems:(NSMutableArray<UIBarButtonItem *> *)toolbarItems;
 - (void)updateToolbar;
 
 // Error handling
@@ -120,14 +96,22 @@
 - (bool)canGoDeeperAlert;
 
 // UI stuff
-- (void)displayActionSheet:(UIAlertController *)alert;
+- (void)displayPopover:(UIViewController *)alert completion:(void (^__nullable)(void))completion;
+
+- (void)displayPopover:(UIViewController *)alert
+                  view:(UIView *)view
+            completion:(void (^__nullable)(void))completion;
+
+- (void)displayPopover:(UIViewController *)alert
+     fromBarButtonItem:(UIBarButtonItem *_Nullable)item
+            completion:(void (^__nullable)(void))completion;
 - (void)willRotateTo:(UIInterfaceOrientation)orientation;
 - (void)clearSelection;
 - (void)setTheme;
 
 // Data management
 - (void)updateWatch;
-- (void)favesChanged;
+- (void)userStateChanged;
 
 // Links
 - (bool)linkAction:(NSString *)link source:(UIView *)source;

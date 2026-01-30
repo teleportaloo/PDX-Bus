@@ -12,6 +12,7 @@
 
 #import "CellTextField.h"
 #import "ScreenConstants.h"
+#import "UIApplication+Compat.h"
 #import "UIFont+Utility.h"
 
 // UITableView row heights
@@ -33,11 +34,7 @@
 
 @implementation CellTextField
 
-static CGRect bounds;
-static bool bigScreen;
-
-- (instancetype)initWithStyle:(UITableViewCellStyle)style
-              reuseIdentifier:(NSString *)identifier {
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)identifier {
     self = [super initWithStyle:style reuseIdentifier:identifier];
 
     if (self) {
@@ -70,12 +67,11 @@ static bool bigScreen;
 
     CGRect contentRect = self.contentView.bounds;
 
-    CGRect frame = CGRectMake(
-        contentRect.origin.x + self.cellLeftOffset,
-        contentRect.origin.y +
-            (([CellTextField cellHeight] - [CellTextField editHeight]) / 2),
-        contentRect.size.width - (self.cellLeftOffset + 8.0),
-        [CellTextField editHeight]);
+    CGRect frame = CGRectMake(contentRect.origin.x + self.cellLeftOffset,
+                              contentRect.origin.y +
+                                  (([CellTextField cellHeight] - [CellTextField editHeight]) / 2),
+                              contentRect.size.width - (self.cellLeftOffset + 8.0),
+                              [CellTextField editHeight]);
 
     self.view.frame = frame;
 }
@@ -84,23 +80,8 @@ static bool bigScreen;
     [_view resignFirstResponder];
 }
 
-+ (void)initHeight {
-    if (bounds.size.width == 0) {
-        bounds = [UIScreen mainScreen].bounds;
-
-        // Small devices do not need to orient
-        if (bounds.size.width <= MaxiPhoneWidth) {
-            bigScreen = false;
-        } else {
-            bigScreen = true;
-        }
-    }
-}
-
 + (CGFloat)cellHeight {
-    [CellTextField initHeight];
-
-    if (bigScreen) {
+    if (LARGE_SCREEN) {
         return kUIBigRowHeight;
     }
 
@@ -108,9 +89,7 @@ static bool bigScreen;
 }
 
 + (CGFloat)editHeight {
-    [CellTextField initHeight];
-
-    if (bigScreen) {
+    if (LARGE_SCREEN) {
         return kBigTextFieldHeight;
     }
 
@@ -118,9 +97,7 @@ static bool bigScreen;
 }
 
 + (UIFont *)editFont {
-    [CellTextField initHeight];
-
-    if (bigScreen) {
+    if (LARGE_SCREEN) {
         return [UIFont monospacedDigitSystemFontOfSize:24.0];
     }
 
@@ -134,8 +111,7 @@ static bool bigScreen;
     BOOL beginEditing = YES;
 
     // Allow the cell delegate to override the decision to begin editing.
-    if (self.delegate &&
-        [self.delegate respondsToSelector:@selector(cellShouldBeginEditing:)]) {
+    if (self.delegate && [self.delegate respondsToSelector:@selector(cellShouldBeginEditing:)]) {
         beginEditing = [self.delegate cellShouldBeginEditing:self];
     }
 
@@ -149,8 +125,7 @@ static bool bigScreen;
 
 - (void)textFieldDidEndEditing:(UITextField *)textField {
     // Notify the cell delegate that editing ended.
-    if (self.delegate &&
-        [self.delegate respondsToSelector:@selector(cellDidEndEditing:)]) {
+    if (self.delegate && [self.delegate respondsToSelector:@selector(cellDidEndEditing:)]) {
         [self.delegate cellDidEndEditing:self];
     }
 

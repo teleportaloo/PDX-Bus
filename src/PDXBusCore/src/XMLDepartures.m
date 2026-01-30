@@ -34,19 +34,19 @@ typedef enum TopLevelStateEnum {
 
 @interface XMLDepartures ()
 
-@property(nonatomic, strong) Departure *currentDepartureObject;
-@property(nonatomic, strong) DepartureTrip *currentTrip;
-@property(nonatomic, strong) NSMutableData *streetcarData;
-@property(nonatomic) unsigned int options;
+@property (nonatomic, strong) Departure *currentDepartureObject;
+@property (nonatomic, strong) DepartureTrip *currentTrip;
+@property (nonatomic, strong) NSMutableData *streetcarData;
+@property (nonatomic) unsigned int options;
 
-@property(nonatomic) TopLevelState topLevelState;
+@property (nonatomic) TopLevelState topLevelState;
 
 @end
 
-#define XmlExpectedState(X)                                                    \
-    if (self.topLevelState != X) {                                             \
-        ERROR_LOG(@"Unexpected state %d", self.topLevelState);                 \
-        return;                                                                \
+#define XmlExpectedState(X)                                                                        \
+    if (self.topLevelState != X) {                                                                 \
+        ERROR_LOG(@"Unexpected state %d", self.topLevelState);                                     \
+        return;                                                                                    \
     }
 
 @implementation XMLDepartures
@@ -95,8 +95,7 @@ typedef enum TopLevelStateEnum {
 
 - (Departure *)departureForBlock:(NSString *)block dir:(NSString *)dir {
     for (Departure *dep in self) {
-        if ([dep.block isEqualToString:block] &&
-            [dep.dir isEqualToString:dir]) {
+        if ([dep.block isEqualToString:block] && [dep.dir isEqualToString:dir]) {
             return dep;
         }
     }
@@ -128,10 +127,10 @@ typedef enum TopLevelStateEnum {
           mins = Settings.minsForArrivals;
       }
 
-      [self startParsing:
-                [NSString stringWithFormat:@"arrivals/locIDs/%@/streetcar/true/"
-                                           @"showPosition/true/minutes/%@",
-                                           self.stopId, mins]
+      [self startParsing:[NSString stringWithFormat:@"arrivals/locIDs/%@/streetcar/true/"
+                                                    @"showPosition/true/minutes/%@",
+                                                    self.stopId,
+                                                    mins]
              cacheAction:TriMetXMLUseShortTermCache];
     }];
 }
@@ -140,14 +139,12 @@ typedef enum TopLevelStateEnum {
     if (self.stopId) {
         action();
 
-        NSArray<NSString *> *stopIdArray =
-            self.stopId.mutableArrayFromCommaSeparatedString;
+        NSArray<NSString *> *stopIdArray = self.stopId.mutableArrayFromCommaSeparatedString;
 
         int nStops = (int)stopIdArray.count;
 
         if (nStops > 1) {
-            self.locDesc =
-                [NSString stringWithFormat:@"Stop Ids:%@", self.stopId];
+            self.locDesc = [NSString stringWithFormat:@"Stop Ids:%@", self.stopId];
             self.loc = nil;
         }
 
@@ -158,8 +155,7 @@ typedef enum TopLevelStateEnum {
         // [self.itemArray addObjectsFromArray:sorted];
 
         if (self.nextBusFeedInTriMetData) {
-            XMLStreetcarMessages *messages =
-                [XMLStreetcarMessages sharedInstance];
+            XMLStreetcarMessages *messages = [XMLStreetcarMessages sharedInstance];
             messages.queryTransformer = self.queryTransformer;
             [messages getMessages];
             [messages insertDetoursIntoDepartureArray:self];
@@ -221,15 +217,13 @@ typedef enum TopLevelStateEnum {
         status = NSLocalizedString(@"All departures canceled.", "stop status");
         break;
     case ReportingStatusScheduled:
-        status =
-            NSLocalizedString(@"All departures show scheduled.", "stop status");
+        status = NSLocalizedString(@"All departures show scheduled.", "stop status");
         break;
     case ReportinglStatusNotReported:
         status = NSLocalizedString(@"Departures not reported.", "stop status");
         break;
     case ReportingStatusHourEstimates:
-        status = NSLocalizedString(@"Estimated for the next hour only.",
-                                   "stop status");
+        status = NSLocalizedString(@"Estimated for the next hour only.", "stop status");
         break;
     }
 
@@ -243,7 +237,7 @@ typedef enum TopLevelStateEnum {
     for (NSString *key in dict) {
         DEBUG_LOG(@"Key %@ value %@\n", key, dict[key]);
     }
-#endif
+#endif // DEBUGLOGGING
 }
 
 #pragma mark Start Elements
@@ -273,11 +267,10 @@ XML_START_ELEMENT(location) {
     case StateDetour:
 #ifndef PDXBUS_WATCH
         if (!DepOption(DepOptionsNoDetours) && self.currentDetour != nil) {
-            DetourLocation *loc =
-                [DetourLocation fromAttributeDict:XML_ATR_DICT];
+            DetourLocation *loc = [DetourLocation fromAttributeDict:XML_ATR_DICT];
             [self.currentDetour.locations addObject:loc];
         }
-#endif
+#endif // !PDXBUS_WATCH
         break;
     case StateReportingStatus: {
         NSString *locId = XML_NON_NULL_ATR_STR(@"id");
@@ -316,8 +309,7 @@ XML_START_ELEMENT(arrival) {
         block = @"?";
     }
 
-    if (((self.blockFilter == nil) ||
-         ([self.blockFilter isEqualToString:block])) &&
+    if (((self.blockFilter == nil) || ([self.blockFilter isEqualToString:block])) &&
         ((!DepOption(DepOptionsFirstOnly) || self.count < 1))) {
         Departure *dep = [Departure new];
 
@@ -341,17 +333,15 @@ XML_START_ELEMENT(arrival) {
         static NSString *prefix = @"Portland Streetcar ";
         NSInteger prefixLen = prefix.length;
 
-        if (dep.shortSign.length > prefixLen &&
-            [dep.fullSign isEqualToString:dep.shortSign]) {
+        if (dep.shortSign.length > prefixLen && [dep.fullSign isEqualToString:dep.shortSign]) {
             NSString *replace = @"";
 
             // Streetcar names are a little long.  Chop off the portland part
-            if ([[dep.shortSign substringToIndex:prefixLen]
-                    isEqualToString:prefix]) {
-                dep.shortSign = [NSString
-                    stringWithFormat:@"%@%@", replace,
-                                     [self.currentDepartureObject.shortSign
-                                         substringFromIndex:prefixLen]];
+            if ([[dep.shortSign substringToIndex:prefixLen] isEqualToString:prefix]) {
+                dep.shortSign = [NSString stringWithFormat:@"%@%@",
+                                                           replace,
+                                                           [self.currentDepartureObject.shortSign
+                                                               substringFromIndex:prefixLen]];
             }
         }
 
@@ -367,8 +357,7 @@ XML_START_ELEMENT(arrival) {
         }
 
         dep.reason = XML_NULLABLE_ATR_STR(@"reason");
-        dep.loadPercentage =
-            XML_ATR_INT_OR_MISSING(@"loadPercentage", kNoLoadPercentage);
+        dep.loadPercentage = XML_ATR_INT_OR_MISSING(@"loadPercentage", kNoLoadPercentage);
         dep.locationDesc = self.locDesc;
         dep.stopId = XML_NON_NULL_ATR_STR(@"locid");
         dep.locationDir = self.locDir;
@@ -394,8 +383,7 @@ XML_START_ELEMENT(arrival) {
         [dep extrapolateFromNow];
 
         dep.scheduledTime = XML_ATR_DATE(@"scheduled");
-        dep.nextBusFeedInTriMetData =
-            XML_ATR_BOOL_DEFAULT_FALSE(@"nextBusFeed");
+        dep.nextBusFeedInTriMetData = XML_ATR_BOOL_DEFAULT_FALSE(@"nextBusFeed");
         dep.streetcar = XML_ATR_BOOL_DEFAULT_FALSE(@"streetCar");
 
         if (dep.nextBusFeedInTriMetData ||
@@ -422,22 +410,17 @@ XML_START_ELEMENT(blockPosition) {
         NSString *lng = XML_NON_NULL_ATR_STR(@"lng");
 
         if (lat != nil && lng != nil) {
-            self.currentDepartureObject.blockPosition =
-                [CLLocation fromStringsLat:lat lng:lng];
+            self.currentDepartureObject.blockPosition = [CLLocation fromStringsLat:lat lng:lng];
         }
 
-        self.currentDepartureObject.blockPositionDir =
-            XML_NON_NULL_ATR_STR(@"direction");
-        self.currentDepartureObject.blockPositionRouteNumber =
-            XML_NON_NULL_ATR_STR(@"routeNumber");
+        self.currentDepartureObject.blockPositionDir = XML_NON_NULL_ATR_STR(@"direction");
+        self.currentDepartureObject.blockPositionRouteNumber = XML_NON_NULL_ATR_STR(@"routeNumber");
 
-        self.currentDepartureObject.nextStopId =
-            XML_NON_NULL_ATR_STR(@"nextLocID");
+        self.currentDepartureObject.nextStopId = XML_NON_NULL_ATR_STR(@"nextLocID");
 
         // self.currentDepartureObject.blockPositionFeet   =
         // XML_ATR_DISTANCE(feet);
-        self.currentDepartureObject.blockPositionHeading =
-            XML_NON_NULL_ATR_STR(@"heading");
+        self.currentDepartureObject.blockPositionHeading = XML_NON_NULL_ATR_STR(@"heading");
 
         self.currentDepartureObject.hasBlock = true;
     }
@@ -448,10 +431,8 @@ XML_START_ELEMENT(trip) {
     if (self.currentDepartureObject != nil) {
         self.currentTrip = [DepartureTrip new];
         self.currentTrip.name = XML_NON_NULL_ATR_STR(@"desc");
-        self.currentTrip.distanceFeet =
-            (unsigned long)XML_ATR_DISTANCE(@"destDist");
-        self.currentTrip.progressFeet =
-            (unsigned long)XML_ATR_DISTANCE(@"progress");
+        self.currentTrip.distanceFeet = (unsigned long)XML_ATR_DISTANCE(@"destDist");
+        self.currentTrip.progressFeet = (unsigned long)XML_ATR_DISTANCE(@"progress");
         self.currentTrip.route = XML_NON_NULL_ATR_STR(@"route");
         self.currentTrip.dir = XML_NON_NULL_ATR_STR(@"dir");
 
@@ -474,8 +455,7 @@ XML_START_ELEMENT(layover) {
 XML_START_ELEMENT(trackingError) {
     XmlExpectedState(StateArrival);
     if (self.currentDepartureObject != nil) {
-        self.currentDepartureObject.trackingErrorOffRoute =
-            XML_ATR_BOOL_DEFAULT_FALSE(@"offRoute");
+        self.currentDepartureObject.trackingErrorOffRoute = XML_ATR_BOOL_DEFAULT_FALSE(@"offRoute");
         self.currentDepartureObject.trackingError = YES;
     }
 }
@@ -486,8 +466,7 @@ XML_START_ELEMENT(detour) {
     case StateArrival:
         if (self.currentDepartureObject != nil) {
             NSNumber *detourId = @(TRIMET_DETOUR_ID(XML_ATR_INT(@"id")));
-            [self.currentDepartureObject.sortedDetours.detourIds
-                addObject:detourId];
+            [self.currentDepartureObject.sortedDetours.detourIds addObject:detourId];
             self.currentDepartureObject.detour = YES;
         }
         break;
@@ -495,18 +474,15 @@ XML_START_ELEMENT(detour) {
         self.topLevelState = StateDetour;
         // If we have a desc attibute then we are definately in the later detour
         // section we may get here if filtering on a block otherwise.
-        if (!DepOption(DepOptionsNoDetours) &&
-            XML_NULLABLE_ATR_STR(@"desc") != nil) {
+        if (!DepOption(DepOptionsNoDetours) && XML_NULLABLE_ATR_STR(@"desc") != nil) {
             NSNumber *detourId = @(TRIMET_DETOUR_ID(XML_ATR_INT(@"id")));
-            Detour *detour =
-                [self.detourSorter.allDetours objectForKey:detourId];
+            Detour *detour = [self.detourSorter.allDetours objectForKey:detourId];
 
             if (detour == nil) {
                 detour = [Detour fromAttributeDict:XML_ATR_DICT
                                          allRoutes:self.allRoutes
                                           addEmoji:YES];
-                [self.detourSorter.allDetours setObject:detour
-                                                 forKey:detour.detourId];
+                [self.detourSorter.allDetours setObject:detour forKey:detour.detourId];
             }
 
             self.currentDetour = detour;
@@ -514,9 +490,8 @@ XML_START_ELEMENT(detour) {
             if (self.currentDetour.systemWide) {
                 // System-wide alerts go at the top
                 for (Departure *dep in self) {
-                    [dep.sortedDetours.detourIds
-                        insertObject:self.currentDetour.detourId
-                             atIndex:0];
+                    [dep.sortedDetours.detourIds insertObject:self.currentDetour.detourId
+                                                      atIndex:0];
                 }
             }
         }
@@ -539,15 +514,14 @@ XML_START_ELEMENT(route) {
     case StateDetour:
         if (!DepOption(DepOptionsNoDetours)) {
             if (self.currentDetour) {
-                [self.currentDetour.routes
-                    addObject:[self route:XML_NON_NULL_ATR_STR(@"route")
-                                     desc:XML_NON_NULL_ATR_STR(@"desc")]];
+                [self.currentDetour.routes addObject:[self route:XML_NON_NULL_ATR_STR(@"route")
+                                                            desc:XML_NON_NULL_ATR_STR(@"desc")]];
             }
         }
         break;
     }
 }
-#endif
+#endif // !PDXBUS_WATCH
 
 #pragma mark End Elements
 
@@ -558,18 +532,17 @@ XML_END_ELEMENT(detour) {
         if (self.currentDetour && !self.currentDetour.systemWide) {
             for (NSString *stop in self.currentDetour.extractStops) {
                 if ([stop isEqualToString:self.stopId]) {
-                    [self.detourSorter.detourIds
-                        addObject:self.currentDetour.detourId];
+                    [self.detourSorter.detourIds addObject:self.currentDetour.detourId];
                 }
             }
 
             for (DetourLocation *detourLoc in self.currentDetour.locations) {
                 if ([detourLoc.stopId isEqualToString:self.stopId]) {
-                    [self.detourSorter.detourIds
-                        addObject:self.currentDetour.detourId];
+                    [self.detourSorter.detourIds addObject:self.currentDetour.detourId];
 
                     DEBUG_LOG(@"Location match: Adding detour %p %@ %@ %ld",
-                              self.detourSorter, self.stopId,
+                              self.detourSorter,
+                              self.stopId,
                               self.currentDetour.detourId,
                               (long)self.detourSorter.detourIds.count);
                 }
@@ -585,8 +558,7 @@ XML_END_ELEMENT(detour) {
 
 XML_END_ELEMENT(error) {
     if (self.currentDepartureObject != nil) {
-        self.currentDepartureObject.errorMessage =
-            self.contentOfCurrentProperty;
+        self.currentDepartureObject.errorMessage = self.contentOfCurrentProperty;
         self.contentOfCurrentProperty = nil;
         self.locDesc = @"Error message";
 
@@ -607,24 +579,22 @@ XML_END_ELEMENT(arrival) {
 XML_END_ELEMENT(reportingStatus) { self.topLevelState = StateTop; }
 
 XML_END_ELEMENT(resultSet) {
-    if ((self.items == nil || self.items.count == 0) &&
-        !self.detourSorter.hasNonSystemDetours) {
-        [self.detourSorter.allDetours
-            enumerateKeysAndObjectsUsingBlock:^(NSNumber *_Nonnull key,
-                                                Detour *_Nonnull detour,
-                                                BOOL *_Nonnull stop) {
-              if (!detour.systemWide) {
-                  [self.detourSorter.detourIds addObject:key];
-              }
-            }];
+    if ((self.items == nil || self.items.count == 0) && !self.detourSorter.hasNonSystemDetours) {
+        [self.detourSorter.allDetours enumerateKeysAndObjectsUsingBlock:^(NSNumber *_Nonnull key,
+                                                                          Detour *_Nonnull detour,
+                                                                          BOOL *_Nonnull stop) {
+          if (!detour.systemWide) {
+              [self.detourSorter.detourIds addObject:key];
+          }
+        }];
     } else {
         for (Departure *dep in self) {
             [dep.sortedDetours sort];
         }
     }
 
-    DEBUG_LOG(@"Sorting %p %ld", self.detourSorter,
-              (unsigned long)self.detourSorter.detourIds.count);
+    DEBUG_LOG(
+        @"Sorting %p %ld", self.detourSorter, (unsigned long)self.detourSorter.detourIds.count);
     [self.detourSorter sort];
 }
 
@@ -635,20 +605,18 @@ static NSMutableDictionary *cachedDetours = nil;
 + (NSString *)fixLocationForSpeaking:(NSString *)loc {
     static NSDictionary<NSString *, NSString *> *replacements;
 
-    DoOnce(^{
+    DO_ONCE(^{
       replacements = @{@"Stn" : @"Station"};
     });
 
     NSMutableString *fixedStopName = [NSMutableString stringWithString:loc];
 
-    [replacements enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull key,
-                                                      NSString *_Nonnull obj,
-                                                      BOOL *_Nonnull stop) {
-      [fixedStopName
-          replaceOccurrencesOfString:key
-                          withString:obj
-                             options:NSLiteralSearch
-                               range:NSMakeRange(0, fixedStopName.length)];
+    [replacements enumerateKeysAndObjectsUsingBlock:^(
+                      NSString *_Nonnull key, NSString *_Nonnull obj, BOOL *_Nonnull stop) {
+      [fixedStopName replaceOccurrencesOfString:key
+                                     withString:obj
+                                        options:NSLiteralSearch
+                                          range:NSMakeRange(0, fixedStopName.length)];
     }];
 
     return fixedStopName;

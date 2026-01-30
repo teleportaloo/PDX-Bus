@@ -25,8 +25,8 @@
                                       MFMailComposeViewControllerDelegate,
                                       EKEventViewDelegate>
 
-@property(nonatomic, strong) XMLTrips *tripQuery;
-@property(nonatomic, strong) NSUserActivity *userActivity;
+@property (nonatomic, strong) XMLTrips *tripQuery;
+@property (nonatomic, strong) NSUserActivity *userActivity;
 
 - (instancetype)initWithHistoryItem:(int)item;
 

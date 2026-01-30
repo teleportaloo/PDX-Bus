@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (ShapeCompactSegment *)compact;
 - (MKPolyline *)simplePolyline;
 
-@property(nonatomic) NSInteger count;
+@property (nonatomic) NSInteger count;
 
 @end
 

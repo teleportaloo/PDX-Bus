@@ -8,7 +8,6 @@
 
 #import "RoutePathOverlay.h"
 
-
 @implementation RoutePathOverlay
 
 @end

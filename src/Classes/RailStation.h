@@ -20,25 +20,24 @@
 
 @interface NSValue (RouteInfo)
 
-@property(nonatomic, readonly) PtrConstRouteInfo PtrConstRouteInfoValue;
+@property (nonatomic, readonly) PtrConstRouteInfo PtrConstRouteInfoValue;
 
 @end
 
 @interface RailStation : NSObject <SearchFilter>
 
-@property(nonatomic, strong, readonly) NSArray<NSString *> *stopIdArray;
-@property(nonatomic, strong, readonly) NSArray<NSString *> *dirArray;
+@property (nonatomic, strong, readonly) NSArray<NSString *> *stopIdArray;
+@property (nonatomic, strong, readonly) NSArray<NSString *> *dirArray;
 
-@property(nonatomic, strong, readonly) NSArray<NSString *> *transferStopIdArray;
-@property(nonatomic, strong, readonly) NSArray<NSString *> *transferDirArray;
-@property(nonatomic, strong, readonly) NSArray<NSString *> *transferNameArray;
-@property(nonatomic, strong, readonly)
-    NSArray<NSNumber *> *transferHotSpotIndexArray;
+@property (nonatomic, strong, readonly) NSArray<NSString *> *transferStopIdArray;
+@property (nonatomic, strong, readonly) NSArray<NSString *> *transferDirArray;
+@property (nonatomic, strong, readonly) NSArray<NSString *> *transferNameArray;
+@property (nonatomic, strong, readonly) NSArray<NSNumber *> *transferHotSpotIndexArray;
 
-@property(nonatomic, copy, readonly) NSString *name;
-@property(nonatomic, copy, readonly) NSString *wikiLink;
-@property(nonatomic, readonly) int index;
-@property(nonatomic, readonly, copy) NSString *stringToFilter;
+@property (nonatomic, copy, readonly) NSString *name;
+@property (nonatomic, copy, readonly) NSString *wikiLink;
+@property (nonatomic, readonly) int index;
+@property (nonatomic, readonly, copy) NSString *stringToFilter;
 
 - (void)findTransfers;
 
@@ -48,6 +47,5 @@
 - (NSArray<NSValue *> *)routeInfoWithTransfers;
 
 + (instancetype)fromHotSpotIndex:(int)index;
-
 
 @end

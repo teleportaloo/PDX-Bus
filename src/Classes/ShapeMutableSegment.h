@@ -20,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ShapeMutableSegment : NSObject <ShapeSegment>
 
-@property(nonatomic, strong) NSMutableArray<ShapeCoord *> *coords;
+@property (nonatomic, strong) NSMutableArray<ShapeCoord *> *coords;
 
 - (ShapeCompactSegment *)compact;
 

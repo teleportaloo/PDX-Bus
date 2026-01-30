@@ -18,8 +18,7 @@
 #import "Settings.h"
 #import <Foundation/Foundation.h>
 
-@interface AlarmAccurateStopProximity
-    : AlarmTask <CLLocationManagerDelegate, MapPin>
+@interface AlarmAccurateStopProximity : AlarmTask <CLLocationManagerDelegate, MapPin>
 
 - (void)setStop:(NSString *)stopId loc:(CLLocation *)loc desc:(NSString *)desc;
 - (instancetype)initWithAccuracy:(bool)accurate;

@@ -27,14 +27,11 @@
     // cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     cell.selectionStyle = UITableViewCellSelectionStyleBlue;
     cell.routeLabel.text = self.desc;
-    cell.timeLabel.text =
-        [FormatDistance formatMetres:self.stops.firstObject.distanceMeters];
+    cell.timeLabel.text = [FormatDistance formatMetres:self.stops.firstObject.distanceMeters];
     cell.timeLabel.textColor = [UIColor modeAwareBlue];
 
     cell.accessibilityLabel =
-        [NSString stringWithFormat:@"%@, %@", cell.routeLabel.text,
-                                   cell.timeLabel.text]
-            .phonetic;
+        [NSString stringWithFormat:@"%@, %@", cell.routeLabel.text, cell.timeLabel.text].phonetic;
     cell.routeLabel.textColor = [UIColor modeAwareText];
     [cell.routeColorView setRouteColor:self.route];
 }

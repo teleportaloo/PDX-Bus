@@ -15,7 +15,7 @@
 #import "MapPin.h"
 #import "RouteMultiPolyline.h"
 #import "ShapeRoutePath.h"
-#import "UIToolbar+Auto.h"
+#import "UIBarButtonItem+Auto.h"
 #import "ViewControllerBase.h"
 #import "XMLDepartures.h"
 #import <MapKit/MapKit.h>
@@ -27,18 +27,17 @@ typedef enum MapViewLineOptionsEnum {
     MapViewNoFitLines
 } MapViewLineOptions;
 
-@interface MapViewController
-    : ViewControllerBase <MKMapViewDelegate, BackgroundTaskDone>
+@interface MapViewController : ViewControllerBase <MKMapViewDelegate, BackgroundTaskDone>
 
-@property(nonatomic, copy) NSString *msgText;
-@property(nonatomic, strong) NSMutableArray<ShapeRoutePath *> *shapes;
-@property(nonatomic) MapViewLineOptions lineOptions;
-@property(nonatomic) bool nextPrevButtons;
-@property(nonatomic, strong) NSMutableArray<id<MapPin>> *annotations;
-@property(nonatomic, strong) NSMutableArray<id<MapPin>> *staticAnnotations;
-@property(nonatomic, strong) MKMapView *mapView;
-@property(nonatomic) bool backgroundRefresh;
-@property(nonatomic) bool staticOverlays;
+@property (nonatomic, copy) NSString *msgText;
+@property (nonatomic, strong) NSMutableArray<ShapeRoutePath *> *shapes;
+@property (nonatomic) MapViewLineOptions lineOptions;
+@property (nonatomic) bool nextPrevButtons;
+@property (nonatomic, strong) NSMutableArray<id<MapPin>> *allAnnotations;
+@property (nonatomic, strong) NSMutableArray<id<MapPin>> *staticAnnotations;
+@property (nonatomic, strong) MKMapView *mapView;
+@property (nonatomic) bool backgroundRefresh;
+@property (nonatomic) bool staticOverlays;
 
 - (void)addPin:(id<MapPin>)pin;
 - (void)addDataToMap:(bool)zoom animate:(bool)animate;
@@ -46,5 +45,6 @@ typedef enum MapViewLineOptionsEnum {
 - (void)removeOverlays;
 - (void)didEnterBackground;
 - (void)didBecomeActive;
+- (void)installMapView;
 
 @end

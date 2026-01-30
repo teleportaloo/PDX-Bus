@@ -28,10 +28,10 @@
     dispatch_semaphore_t _locationAvailable;
 }
 
-@property(nonatomic, strong) CLLocation *lastLocation;
-@property(nonatomic, strong) CLLocationManager *locationManager;
-@property(nonatomic, copy) NSString *error;
-@property(nonatomic, weak) TaskState *state;
+@property (nonatomic, strong) CLLocation *lastLocation;
+@property (nonatomic, strong) CLLocationManager *locationManager;
+@property (nonatomic, copy) NSString *error;
+@property (nonatomic, weak) TaskState *state;
 
 @end
 
@@ -56,7 +56,7 @@
     _waitingForLocation = true;
     self.state = state;
 
-    MainTask(^{
+    MAIN_TASK(^{
       [self authorize];
       [self startLocating];
     });
@@ -66,15 +66,14 @@
 
     __weak __typeof(self) weakSelf = self;
 
-    [state
-        addCancelObserver:self
-                    block:^{
-                      __strong __typeof(self) strongSelf = weakSelf;
-                      if (!strongSelf)
-                          return;
+    [state addCancelObserver:self
+                       block:^{
+                         __strong __typeof(self) strongSelf = weakSelf;
+                         if (!strongSelf)
+                             return;
 
-                      dispatch_semaphore_signal(strongSelf->_locationAvailable);
-                    }];
+                         dispatch_semaphore_signal(strongSelf->_locationAvailable);
+                       }];
 
     CLLocation *result = nil;
 
@@ -89,24 +88,20 @@
             _waitingForLocation = false;
         } else if (_failed) {
             _waitingForLocation = false;
-            [state taskSetErrorMsg:
-                       [NSString
-                           stringWithFormat:
-                               @"Unable to get location. Please check the "
-                               @"settings to "
-                               @"ensure location access has been granted. %@",
-                               self.error ? self.error : @""]];
+            [state
+                taskSetErrorMsg:[NSString
+                                    stringWithFormat:@"Unable to get location. Please check the "
+                                                     @"settings to "
+                                                     @"ensure location access has been granted. %@",
+                                                     self.error ? self.error : @""]];
         } else {
             if (self.lastLocation) {
                 if (self.lastLocation.horizontalAccuracy > _accuracy) {
-                    [state
-                        taskSubtext:
-                            [NSString
-                                stringWithFormat:
-                                    @"Locating +/- %@",
-                                    [FormatDistance
-                                        formatMetres:self.lastLocation
-                                                         .horizontalAccuracy]]];
+                    [state taskSubtext:[NSString stringWithFormat:
+                                                     @"Locating +/- %@",
+                                                     [FormatDistance
+                                                         formatMetres:self.lastLocation
+                                                                          .horizontalAccuracy]]];
                 } else {
                     _waitingForLocation = false;
                     result = self.lastLocation;
@@ -124,8 +119,7 @@
     return result;
 }
 
-+ (CLLocation *)locateWithAccuracy:(double)accuracy
-                         taskState:(TaskState *)state {
++ (CLLocation *)locateWithAccuracy:(double)accuracy taskState:(TaskState *)state {
 
     TaskLocator *task = [[TaskLocator alloc] initWithAccuracy:accuracy];
 
@@ -149,8 +143,7 @@
         return;
     }
 
-    if (self.locationManager.accuracyAuthorization ==
-        CLAccuracyAuthorizationReducedAccuracy) {
+    if (self.locationManager.accuracyAuthorization == CLAccuracyAuthorizationReducedAccuracy) {
         [self.state taskSubtext:@"Using approximate location"];
         DEBUG_LOG(@"Adjusting accuracy");
         if (_accuracy < 5000) {
@@ -169,8 +162,7 @@
     dispatch_semaphore_signal(self->_locationAvailable);
 }
 
-- (void)locationManager:(CLLocationManager *)manager
-       didFailWithError:(NSError *)error {
+- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
     DEBUG_LOG(@"location error %@\n", [error localizedDescription]);
 
     if (!_waitingForLocation) {
@@ -182,8 +174,7 @@
     case kCLErrorLocationUnknown:
         DEBUG_LOG(@"kCLErrorLocationUnknown");
 
-        [self.state
-            taskSubtext:[NSString stringWithFormat:@"Unknown location"]];
+        [self.state taskSubtext:[NSString stringWithFormat:@"Unknown location"]];
         break;
     default:
     case kCLErrorNetwork:
@@ -204,8 +195,7 @@
 
     _failed = false;
 
-    if (self.locationManager.accuracyAuthorization ==
-            CLAccuracyAuthorizationReducedAccuracy &&
+    if (self.locationManager.accuracyAuthorization == CLAccuracyAuthorizationReducedAccuracy &&
         !_askedForFullAccuracyOnce) {
         _askedForFullAccuracyOnce = YES;
         __weak __typeof(self) weakSelf = self;

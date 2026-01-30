@@ -13,6 +13,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+// #define TEST_DATA
+// #define SYSTEM_WIDE
+
 #import "TriMetXML.h"
 #import "XMLDetours.h"
 #import "XMLMultipleDepartures.h"
@@ -24,27 +27,27 @@
 
 @implementation TriMetXML (TestData)
 
-#if 0
+#ifdef TEST_DATA
 
 #define LOG_QUERY(STR) ERROR_LOG(@"**** Using test data: %@", STR)
 #define CLASS_2_STR(X) NSStringFromClass([X class])
-#define STR_2_BLOCK(STR)                                                       \
-    ^(TriMetXML * xml, NSString * query) {                                     \
-      NSString *str = STR;                                                     \
-      LOG_QUERY(str);                                                          \
-      return str;                                                              \
+#define STR_2_BLOCK(STR)                                                                           \
+    ^(TriMetXML * xml, NSString * query) {                                                         \
+      NSString *str = STR;                                                                         \
+      LOG_QUERY(str);                                                                              \
+      return str;                                                                                  \
     }
 #define CLASS_QUERY(C, STR) CLASS_2_STR(C) : STR_2_BLOCK(STR)
 
-#define CLASS_STOPS_2_STR(C, S, STR)                                           \
-    CLASS_2_STR(C)                                                             \
-        : ^(TriMetXML * xml, NSString * query) {                               \
-            if (stringContains(query, S)) {                                    \
-                NSString *str = STR;                                           \
-                LOG_QUERY(str);                                                \
-                return str;                                                    \
-            }                                                                  \
-            return [xml fullAddressForQuery:query];                            \
+#define CLASS_STOPS_2_STR(C, S, STR)                                                               \
+    CLASS_2_STR(C)                                                                                 \
+        : ^(TriMetXML * xml, NSString * query) {                                                   \
+            if (stringContains(query, S)) {                                                        \
+                NSString *str = STR;                                                               \
+                LOG_QUERY(str);                                                                    \
+                return str;                                                                        \
+            }                                                                                      \
+            return [xml fullAddressForQuery:query];                                                \
           }
 
 static bool stringContains(NSString *haystack, NSArray<NSString *> *needles) {
@@ -60,16 +63,32 @@ static bool stringContains(NSString *haystack, NSArray<NSString *> *needles) {
     static NSDictionary<NSString *, XMLQueryTransformer> *tx;
 
     tx = @{
-        // Detours with a system wide detour.
+    // Detours with a system wide detour.
+#ifdef SYSTEM_WIDE
         CLASS_QUERY(XMLDetours,
                     @"https://raw.githubusercontent.com/teleportaloo/"
                     @"TriMetTestData/refs/heads/master/alertsv2.xml"),
 
         // Actual streercar alarts
-        CLASS_QUERY(XMLStreetcarMessages, @"https://raw.githubusercontent.com/"
-                                          @"teleportaloo/"
-                                          @"TriMetTestData/refs/heads/master/"
-                                          @"Streetcar-messages.xml"),
+        CLASS_QUERY(XMLStreetcarMessages,
+                    @"https://raw.githubusercontent.com/"
+                    @"teleportaloo/"
+                    @"TriMetTestData/refs/heads/master/"
+                    @"Streetcar-messages.xml"),
+#else
+
+        CLASS_QUERY(XMLDetours,
+                    @"https://raw.githubusercontent.com/teleportaloo/"
+                    @"TriMetTestData/refs/heads/master/noalerts.xml"),
+
+        // Actual streercar alarts
+        CLASS_QUERY(XMLStreetcarMessages,
+                    @"https://raw.githubusercontent.com/"
+                    @"teleportaloo/"
+                    @"TriMetTestData/refs/heads/master/"
+                    @"No-streetcar-messages.xml"),
+
+#endif // SYSTEM_WIDE
 
         // Departure with a system wide detour
         CLASS_STOPS_2_STR(XMLMultipleDepartures,
@@ -97,6 +116,6 @@ static bool stringContains(NSString *haystack, NSArray<NSString *> *needles) {
     };
 };
 
-#endif
+#endif // TEST_DATA
 
 @end

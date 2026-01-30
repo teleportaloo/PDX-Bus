@@ -18,8 +18,7 @@
 @implementation CLLocation (Helper)
 
 + (instancetype)fromStringsLat:(NSString *)lat lng:(NSString *)lng {
-    return [[[self class] alloc] initWithLatitude:lat.doubleValue
-                                        longitude:lng.doubleValue];
+    return [[[self class] alloc] initWithLatitude:lat.doubleValue longitude:lng.doubleValue];
 }
 
 + (instancetype)withLat:(CLLocationDegrees)lat lng:(CLLocationDegrees)lng {

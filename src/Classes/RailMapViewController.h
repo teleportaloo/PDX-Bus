@@ -16,23 +16,22 @@
 #import "HotSpot.h"
 #import "SimpleAnnotation.h"
 #import "Stop.h"
+#import "TilingView.h"
 #import "ViewControllerBase.h"
 #import "XMLStops.h"
 #import <UIKit/UIKit.h>
-#import "TilingView.h"
 
 #define NO_HOTSPOT_FOUND (-1)
 
-@interface RailMapViewController
-    : ViewControllerBase <ReturnStopObject, UIScrollViewDelegate,
-                          DeselectItemDelegate, UIGestureRecognizerDelegate>
+@interface RailMapViewController : ViewControllerBase <ReturnStopObject,
+                                                       UIScrollViewDelegate,
+                                                       DeselectItemDelegate,
+                                                       UIGestureRecognizerDelegate>
 
-@property(nonatomic) bool from;
-@property(nonatomic) bool showNextOnAppearance;
+@property (nonatomic) bool from;
+@property (nonatomic) bool showNextOnAppearance;
 
-+ (int)findHotSpotInMap:(PtrConstRailMap)map
-                   tile:(const RailMapTile *)tile
-                  point:(CGPoint)tapPoint;
++ (int)findHotSpotInMap:(PtrConstRailMap)map tile:(const RailMapTile *)tile point:(CGPoint)tapPoint;
 + (PtrConstRailMap)railMap:(int)n;
 
 @end

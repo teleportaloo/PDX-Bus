@@ -22,8 +22,7 @@
 @implementation WatchRoutesAtStopIdIntentHandler
 
 - (void)handleRoutesAtStopId:(RoutesAtStopIdIntent *)intent
-                  completion:(void (^)(RoutesAtStopIdIntentResponse *response))
-                                 completion {
+                  completion:(void (^)(RoutesAtStopIdIntentResponse *response))completion {
     DEBUG_FUNC();
 
     if (intent.stop == nil) {

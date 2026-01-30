@@ -21,6 +21,7 @@
 #import "../Classes/RailStation+Sort.h"
 #import "../Classes/StationData.h"
 #import "../Classes/XMLRoutes.h"
+#import "../PDXBusCore/src/CLLocation+Helper.h"
 #import "../PDXBusCore/src/NSString+Core.h"
 #import "../PDXBusCore/src/TriMetInfo.h"
 #import "../PDXBusCore/src/TriMetInfoColoredLines.h"
@@ -41,8 +42,7 @@ static RailMap generatedRailMaps[MAX_RAIL_MAPS];
     int nHotSpots = HotSpotArrays.sharedInstance.hotSpotCount;
     NSMutableString *codeText = [NSMutableString string];
 
-    [codeText
-        appendFormat:@"\nstatic const TriMetInfo_ColoredLines %@[]={\n", name];
+    [codeText appendFormat:@"\nstatic const TriMetInfo_ColoredLines %@[]={\n", name];
     int i;
 
     for (i = 0; i < nHotSpots; i++) {
@@ -101,12 +101,14 @@ static RailMap generatedRailMaps[MAX_RAIL_MAPS];
         @"//",
         @"// These are the colors for the lines of each rail station in the hotspot array.",
         @"// It is calculated by gettng the stops for each station and merging them in.",
-        @"// Much easier than doing it by hand!", @"//",
+        @"// Much easier than doing it by hand!",
+        @"//",
         @"// There is one array for each direction"
     ]));
 
     for (PtrConstRouteInfo routeInfo = TriMetInfoColoredLines.allLines;
-         routeInfo->route_number != kNoRoute; routeInfo++) {
+         routeInfo->route_number != kNoRoute;
+         routeInfo++) {
         routeNumber = [TriMetInfo routeIdString:routeInfo];
 
         [self addLine:routeInfo->line_bit
@@ -128,21 +130,15 @@ static RailMap generatedRailMaps[MAX_RAIL_MAPS];
         }
     }
 
-    [self generateRouteDirection:sortedStations
-                           lines:createRailLines0
-                            name:@"railLines0"];
+    [self generateRouteDirection:sortedStations lines:createRailLines0 name:@"railLines0"];
 
-    [self generateRouteDirection:sortedStations
-                           lines:createRailLines1
-                            name:@"railLines1"];
+    [self generateRouteDirection:sortedStations lines:createRailLines1 name:@"railLines1"];
 }
 
 - (NSString *)sectionForTitle:(NSString *)title {
     NSString *section = [NSString stringWithFormat:@"@\"%@\"", title];
 
-    return [section stringByPaddingToLength:7
-                                 withString:@" "
-                            startingAtIndex:0];
+    return [section stringByPaddingToLength:7 withString:@" " startingAtIndex:0];
 }
 
 - (void)generateSections:(NSArray<RailStation *> *)sortedStations {
@@ -152,24 +148,22 @@ static RailMap generatedRailMaps[MAX_RAIL_MAPS];
     CODE_COMMENT((@[
         @"//",
         @"// These are the sections for the rail view screen, only displayed when no",
-        @"// searching is happening", @"//", @""
+        @"// searching is happening",
+        @"//",
+        @""
     ]));
 
-    [codeText
-        appendFormat:
-            @"\nstatic const TriMetInfo_AlphaSections alphaSections[]={\n"];
+    [codeText appendFormat:@"\nstatic const TriMetInfo_AlphaSections alphaSections[]={\n"];
     [codeText appendFormat:@"//  Section   Offset Count\n"];
 
     RailStation *r = sortedStations[0];
-    NSString *title =
-        [NSString stringWithFormat:@"%c", [r.name characterAtIndex:0]];
+    NSString *title = [NSString stringWithFormat:@"%c", [r.name characterAtIndex:0]];
     NSString *next = nil;
     int offset = 0;
     int count = 1;
 
     NSArray *specialCases = @[ @"NW", @"NE", @"SW", @"SE", @"NE", @"S", @"N" ];
-    NSCharacterSet *specialCasesStart =
-        [NSCharacterSet characterSetWithCharactersInString:@"NS"];
+    NSCharacterSet *specialCasesStart = [NSCharacterSet characterSetWithCharactersInString:@"NS"];
 
     for (i = 1; i < sortedStations.count; i++) {
         r = [sortedStations objectAtIndex:i];
@@ -194,7 +188,9 @@ static RailMap generatedRailMaps[MAX_RAIL_MAPS];
 
         if (![next isEqualToString:title]) {
             [codeText appendFormat:@"    { %@, %5d, %5d},\n",
-                                   [self sectionForTitle:title], offset, count];
+                                   [self sectionForTitle:title],
+                                   offset,
+                                   count];
             title = next;
             offset = i;
             count = 1;
@@ -203,27 +199,26 @@ static RailMap generatedRailMaps[MAX_RAIL_MAPS];
         }
     }
 
-    [codeText appendFormat:@"    { %@, %5d, %5d},\n",
-                           [self sectionForTitle:title], offset, count];
+    [codeText appendFormat:@"    { %@, %5d, %5d},\n", [self sectionForTitle:title], offset, count];
 
     [codeText appendString:closeBrace];
 
     CODE_STRING(codeText);
 }
 
-- (TriMetInfo_ColoredLines)linesForStop:(NSString *)stopId
-                              allRoutes:(XMLRoutes *)allRoutes {
+- (TriMetInfo_ColoredLines)linesForStop:(NSString *)stopId allRoutes:(XMLRoutes *)allRoutes {
     __block TriMetInfo_ColoredLines lines = 0;
     for (PtrConstRouteInfo routeInfo = TriMetInfoColoredLines.allLines;
-         routeInfo->route_number != kNoRoute; routeInfo++) {
+         routeInfo->route_number != kNoRoute;
+         routeInfo++) {
         NSString *routeNumber = [TriMetInfo routeIdString:routeInfo];
 
         for (Route *route in allRoutes) {
             if ([route.routeId isEqualToString:routeNumber]) {
                 [route.directions
-                    enumerateKeysAndObjectsUsingBlock:^(
-                        NSString *_Nonnull key, Direction *_Nonnull direction,
-                        BOOL *_Nonnull stopIteration) {
+                    enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull key,
+                                                        Direction *_Nonnull direction,
+                                                        BOOL *_Nonnull stopIteration) {
                       for (Stop *stop in direction.stops) {
                           if ([stop.stopId isEqualToString:stopId]) {
                               lines |= routeInfo->line_bit;
@@ -248,7 +243,8 @@ static RailMap generatedRailMaps[MAX_RAIL_MAPS];
     CODE_COMMENT((@[
         @"//",
         @"// This table allows a quick lookup of a hot spot and location from a stop ID.",
-        @"// Only the IDs of rail stations are in here.", @"//"
+        @"// Only the IDs of rail stations are in here.",
+        @"//"
     ]));
 
     int stopIndex = 0;
@@ -258,13 +254,10 @@ static RailMap generatedRailMaps[MAX_RAIL_MAPS];
             stopInfo2[stopIndex].stopId = loc.intValue;
             stopInfo2[stopIndex].hotspot = rs.index;
 
-            stopInfo2[stopIndex].lat =
-                allRailStops[loc].location.coordinate.latitude;
-            stopInfo2[stopIndex].lng =
-                allRailStops[loc].location.coordinate.longitude;
+            stopInfo2[stopIndex].lat = allRailStops[loc].location.coordinate.latitude;
+            stopInfo2[stopIndex].lng = allRailStops[loc].location.coordinate.longitude;
             stopInfo2[stopIndex].tp = allRailStops[loc].timePoint;
-            stopInfo2[stopIndex].lines = [self linesForStop:loc
-                                                  allRoutes:allRoutes];
+            stopInfo2[stopIndex].lines = [self linesForStop:loc allRoutes:allRoutes];
 
             stopIndex++;
         }
@@ -276,11 +269,13 @@ static RailMap generatedRailMaps[MAX_RAIL_MAPS];
     [codeText appendString:@"//   Stop ID  Index Latitude                 "
                            @"Longitude                  TP Lines\n"];
     for (i = 0; i < stopIndex; i++) {
-        [codeText
-            appendFormat:@"    { %5d, %5d, %10.20f, %10.20f, %d, 0x%04x},\n",
-                         (int)stopInfo2[i].stopId, (int)stopInfo2[i].hotspot,
-                         stopInfo2[i].lat, stopInfo2[i].lng, stopInfo2[i].tp,
-                         stopInfo2[i].lines];
+        [codeText appendFormat:@"    { %5d, %5d, %10.20f, %10.20f, %d, 0x%04x},\n",
+                               (int)stopInfo2[i].stopId,
+                               (int)stopInfo2[i].hotspot,
+                               stopInfo2[i].lat,
+                               stopInfo2[i].lng,
+                               stopInfo2[i].tp,
+                               stopInfo2[i].lines];
     }
 
     [codeText appendString:closeBrace];
@@ -292,27 +287,40 @@ static RailMap generatedRailMaps[MAX_RAIL_MAPS];
     NSArray<RailStation *> *sortedStations = [RailStation sortedStations];
 
     CODE_FILE(@"StaticStationData.c");
-    
+
     CODE_LICENSE;
 
     CODE_STRING(@"#ifndef ONLY_RAILMAP_DATA\n");
 
-    CODE_COMMENT((@[
-        @"// Machine Generated File, generated using the GenerateArrays app."
-    ]));
+    CODE_COMMENT((@[ @"// Machine Generated File, generated using the GenerateArrays app." ]));
 
     [self generateAlphaStations:sortedStations];
 
     XMLRoutes *allRoutes = [XMLRoutes xml];
     NSDictionary<NSString *, Stop *> *allRailStops = allRoutes.getAllRailStops;
 
+    NSMutableDictionary *mutableStops = allRailStops.mutableCopy;
+
+    // NW 9th and Lovejoy is closed, but I want it in there for when it comes back
+    // The test code will give an error when it comes back
+    NSString *closedStop = @"13606";
+    Stop *stop13606 = mutableStops[closedStop];
+    if (stop13606 == nil) {
+        stop13606 = [[Stop alloc] init];
+        stop13606.stopId = closedStop;
+        stop13606.desc = @"NW 9th & Lovejoy";
+        stop13606.timePoint = FALSE;
+        stop13606.location = [CLLocation withLat:45.53005947732400215955
+                                             lng:-122.68049902593500632975];
+        mutableStops[closedStop] = stop13606;
+        allRailStops = mutableStops;
+    }
+
     [self generateRouteColors:sortedStations allRoutes:allRoutes];
 
     [self generateSections:sortedStations];
 
-    [self generateStopIdTable:sortedStations
-                 allRailStops:allRailStops
-                    allRoutes:allRoutes];
+    [self generateStopIdTable:sortedStations allRailStops:allRailStops allRoutes:allRoutes];
 
     [self generateLinesInOrder];
 
@@ -320,7 +328,7 @@ static RailMap generatedRailMaps[MAX_RAIL_MAPS];
 
     [self generationRailMapData];
 
-    CODE_STRING(@"#endif\n");
+    CODE_STRING(@"#endif // ONLY_RAILMAP_DATA\n");
 
     CODE_LOG_FILE_END;
 }
@@ -335,25 +343,22 @@ static RailMap generatedRailMaps[MAX_RAIL_MAPS];
         [sortedLines addObject:@(i)];
     }
 
-    [sortedLines sortUsingComparator:^NSComparisonResult(
-                     NSNumber *_Nonnull obj1, NSNumber *_Nonnull obj2) {
-      PtrConstRouteInfo i1 = lines + obj1.integerValue;
-      PtrConstRouteInfo i2 = lines + obj2.integerValue;
+    [sortedLines
+        sortUsingComparator:^NSComparisonResult(NSNumber *_Nonnull obj1, NSNumber *_Nonnull obj2) {
+          PtrConstRouteInfo i1 = lines + obj1.integerValue;
+          PtrConstRouteInfo i2 = lines + obj2.integerValue;
 
-      return TriMetInfo_compareSortOrder(i1, i2);
-    }];
+          return TriMetInfo_compareSortOrder(i1, i2);
+        }];
 
-    CODE_COMMENT((@[
-        @"//", @"// These are the TriMet Colored Lines in the sort order", @"//"
-    ]));
+    CODE_COMMENT((@[ @"//", @"// These are the TriMet Colored Lines in the sort order", @"//" ]));
 
     NSMutableString *codeText = [NSMutableString string];
 
     [codeText appendString:@"\nstatic const int sortedColoredLines[]={\n"];
 
     for (int i = 0; i < noOfLines; i++) {
-        [codeText
-            appendFormat:@"    %ld,\n", (long)sortedLines[i].integerValue];
+        [codeText appendFormat:@"    %ld,\n", (long)sortedLines[i].integerValue];
     }
 
     [codeText appendString:closeBrace];
@@ -394,13 +399,11 @@ static RailMap generatedRailMaps[MAX_RAIL_MAPS];
 
     generatedRailMapHotSpots[railMap].last = nHotSpots - 1;
 
-    CODE_COMMENT(
-        (@[ @"//", @"// These are the hot spots for each map", @"//" ]));
+    CODE_COMMENT((@[ @"//", @"// These are the hot spots for each map", @"//" ]));
 
     NSMutableString *codeText = [NSMutableString string];
 
-    [codeText
-        appendString:@"\nstatic const RailMapHotSpots railMapHotSpots[]={\n"];
+    [codeText appendString:@"\nstatic const RailMapHotSpots railMapHotSpots[]={\n"];
 
     for (int i = 0; i < nRailMaps; i++) {
 
@@ -432,7 +435,8 @@ static RailMap generatedRailMaps[MAX_RAIL_MAPS];
 
     for (i = 0; i < sortedStations.count; i++) {
         [codeText appendFormat:@"    %3d,     /* %@ */\n",
-                               sortedStations[i].index, sortedStations[i].name];
+                               sortedStations[i].index,
+                               sortedStations[i].name];
     }
 
     [codeText appendString:closeBrace];
@@ -446,12 +450,10 @@ static RailMap generatedRailMaps[MAX_RAIL_MAPS];
 
     PtrConstHotSpot hotSpotRegions = HotSpotArrays.sharedInstance.hotSpots;
 
-    NSMutableArray<NSMutableArray<NSMutableSet<NSNumber *> *> *> *xTiles =
-        [NSMutableArray array];
+    NSMutableArray<NSMutableArray<NSMutableSet<NSNumber *> *> *> *xTiles = [NSMutableArray array];
 
     for (x = 0; x < map->xTiles; x++) {
-        NSMutableArray<NSMutableSet<NSNumber *> *> *yTiles =
-            [NSMutableArray array];
+        NSMutableArray<NSMutableSet<NSNumber *> *> *yTiles = [NSMutableArray array];
         [xTiles addObject:yTiles];
 
         for (y = 0; y < map->yTiles; y++) {
@@ -493,7 +495,7 @@ static RailMap generatedRailMaps[MAX_RAIL_MAPS];
     NSInteger max = 0;
 
     [output
-        appendFormat:@"/* -- */ MAP_TILE_STATIC_ARRAY(%d)\n", (int)tiles.count];
+        appendFormat:@"/* -- */ MAP_TILE_STATIC_ARRAY(%d, %d)\n", (int)map->map, (int)tiles.count];
 
     int x, y;
 
@@ -501,7 +503,9 @@ static RailMap generatedRailMaps[MAX_RAIL_MAPS];
         NSArray<NSSet<NSNumber *> *> *ya = tiles[x];
         // DEBUG_LOG(@"Stripe size %lu\n", (unsigned long)stripeSet.count);
 
-        [output appendFormat:@"/* -- */ MAP_TILE_STATIC_ROW(%d,%d)\n", x,
+        [output appendFormat:@"/* -- */ MAP_TILE_STATIC_ROW(%d,%d,%d)\n",
+                             (int)map->map,
+                             x,
                              (int)ya.count];
 
         for (y = 0; y < ya.count; y++) {
@@ -511,16 +515,18 @@ static RailMap generatedRailMaps[MAX_RAIL_MAPS];
             // NSArray<NSSortDescriptor *> *)
             NSMutableArray<NSNumber *> *items = [NSMutableArray array];
 
-            [set enumerateObjectsUsingBlock:^(NSNumber *_Nonnull obj,
-                                              BOOL *_Nonnull stop) {
+            [set enumerateObjectsUsingBlock:^(NSNumber *_Nonnull obj, BOOL *_Nonnull stop) {
               [items addObject:obj];
             }];
 
             if (items.count > 0) {
                 [items sortUsingSelector:@selector(compare:)];
 
-                [output appendFormat:@"/* %02d */ MAP_TILES( %2d, %2d, (",
-                                     (int)set.count, x, y];
+                [output appendFormat:@"/* %02d */ MAP_TILES(%d, %2d, %2d, (",
+                                     (int)set.count,
+                                     (int)map->map,
+                                     x,
+                                     y];
                 total += set.count;
 
                 if (set.count > max) {
@@ -533,14 +539,16 @@ static RailMap generatedRailMaps[MAX_RAIL_MAPS];
                         [output appendString:@","];
                     }
                     first = false;
-                    [output
-                        appendFormat:@"%d", n.intValue - map->hotSpots->first];
+                    [output appendFormat:@"%d", n.intValue - map->hotSpots->first];
                 }
 
                 [output appendFormat:@") )\n"];
             } else {
-                [output appendFormat:@"/* %02d */ MAP_NONE(  %2d, %2d )\n",
-                                     (int)set.count, x, y];
+                [output appendFormat:@"/* %02d */ MAP_NONE( %d, %2d, %2d )\n",
+                                     (int)set.count,
+                                     (int)map->map,
+                                     x,
+                                     y];
             }
         }
 
@@ -555,8 +563,7 @@ static RailMap generatedRailMaps[MAX_RAIL_MAPS];
 
 + (void)makeTiles:(PtrConstRailMap)map {
     NSMutableString *output = [NSMutableString string];
-    NSArray<NSArray<NSSet<NSNumber *> *> *> *tiles =
-        [GenerateArrays tileScan:map];
+    NSArray<NSArray<NSSet<NSNumber *> *> *> *tiles = [GenerateArrays tileScan:map];
 
     [GenerateArrays dumpTiles:tiles map:map output:output];
 
@@ -564,8 +571,8 @@ static RailMap generatedRailMaps[MAX_RAIL_MAPS];
 }
 
 - (void)generateHotSpotTiles {
-    CODE_FILE(@"MaxHotSpotTiles.c");
-    
+    CODE_FILE(@"MaxHotSpotTiles.def");
+
     CODE_LICENSE;
 
     CODE_COMMENT((@[
@@ -577,10 +584,11 @@ static RailMap generatedRailMaps[MAX_RAIL_MAPS];
 
     [GenerateArrays makeTiles:&generatedRailMaps[kRailMapMaxWes]];
     CODE_RULE;
+
     CODE_LOG_FILE_END;
 
-    CODE_FILE(@"StreetcarHotSpotTiles.c");
-    
+    CODE_FILE(@"StreetcarHotSpotTiles.def");
+
     CODE_LICENSE;
 
     CODE_COMMENT((@[
@@ -592,6 +600,33 @@ static RailMap generatedRailMaps[MAX_RAIL_MAPS];
 
     [GenerateArrays makeTiles:&generatedRailMaps[kRailMapPdxStreetcar]];
     CODE_RULE;
+
+    CODE_LOG_FILE_END;
+}
+
+- (void)generateSalt {
+    CODE_FILE(@"TriMetAppIdSalt.h");
+
+    CODE_LICENSE;
+
+    CODE_COMMENT((@[
+        @"// Machine Generated File, generated using the GenerateArrays app.",
+        @"// Random Salt for App ID"
+    ]));
+
+    CODE_RULE;
+
+    CODE_STRING(([NSString
+        stringWithFormat:@"#define APP_ID_FIRST   0x%X", (uint8_t)arc4random_uniform(16)]));
+
+    for (int i = 1; i <= 25; i++) {
+        CODE_STRING(([NSString stringWithFormat:@"#define APP_ID_SALT_%-2d 0x%02X",
+                                                i,
+                                                (uint8_t)arc4random_uniform(256)]));
+    }
+
+    CODE_RULE;
+
     CODE_LOG_FILE_END;
 }
 
@@ -603,9 +638,10 @@ static RailMap generatedRailMaps[MAX_RAIL_MAPS];
     path = path.stringByDeletingLastPathComponent;
     path = path.stringByDeletingLastPathComponent;
 
-    CODE_LOG(@"cp MaxHotSpotTiles.c %@/Tables/.", path);
-    CODE_LOG(@"cp StreetcarHotSpotTiles.c %@/Tables/.", path);
+    CODE_LOG(@"cp MaxHotSpotTiles.def %@/Tables/.", path);
+    CODE_LOG(@"cp StreetcarHotSpotTiles.def %@/Tables/.", path);
     CODE_LOG(@"cp StaticStationData.c %@/Tables/.", path);
+    CODE_LOG(@"cp TriMetAppIdSalt.h %@/Tables/.", path);
     CODE_LOG_FILE_END;
 }
 

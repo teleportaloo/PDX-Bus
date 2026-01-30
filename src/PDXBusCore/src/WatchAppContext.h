@@ -22,7 +22,7 @@
 }
 
 + (bool)writeAppContext:(NSDictionary *)appContext;
-+ (void)updateWatch:(WCSession *)session API_AVAILABLE(ios(9.0));
++ (void)updateWatch:(WCSession *)session;
 + (WatchAppContext *)sharedInstance;
 + (bool)gotBookmarks:(bool)update;
 

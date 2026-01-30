@@ -15,12 +15,11 @@
 
 @interface CellTextField : EditableTableViewCell <UITextFieldDelegate>
 
-@property(nonatomic, strong) UITextField *view;
+@property (nonatomic, strong) UITextField *view;
 @property CGFloat cellLeftOffset;
 
 + (CGFloat)cellHeight;
 + (CGFloat)editHeight;
-+ (void)initHeight;
 + (UIFont *)editFont;
 
 @end

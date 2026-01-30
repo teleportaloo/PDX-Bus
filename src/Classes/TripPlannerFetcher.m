@@ -27,8 +27,8 @@
 @interface TripPlannerFetcher () {
 }
 
-@property(nonatomic, strong) UINavigationController *backgroundTaskController;
-@property(nonatomic) bool backgroundTaskForceResults;
+@property (nonatomic, strong) UINavigationController *backgroundTaskController;
+@property (nonatomic) bool backgroundTaskForceResults;
 
 @end
 
@@ -45,13 +45,10 @@
     if (self.tripQuery.userRequest.fromPoint.useCurrentLocation == false &&
         self.tripQuery.userRequest.toPoint.useCurrentLocation == false) {
         findLocation = false;
-    } else if (self.tripQuery.userRequest.fromPoint.useCurrentLocation ==
-                   true &&
-               !postQuery) {
+    } else if (self.tripQuery.userRequest.fromPoint.useCurrentLocation == true && !postQuery) {
         findLocation = true; // (self.tripQuery.fromPoint.lat==nil);
         self.currentEndPoint = self.tripQuery.userRequest.fromPoint;
-    } else if (self.tripQuery.userRequest.toPoint.useCurrentLocation == true &&
-               !postQuery) {
+    } else if (self.tripQuery.userRequest.toPoint.useCurrentLocation == true && !postQuery) {
         findLocation = true; // (self.tripQuery.toPoint.lat==nil);
         self.currentEndPoint = self.tripQuery.userRequest.toPoint;
     }
@@ -62,8 +59,7 @@
             taskContainer:taskContainer];
 }
 
-- (void)subTaskFetchNames:(NSMutableArray *)geoNamesRequired
-                taskState:(TaskState *)taskState {
+- (void)subTaskFetchNames:(NSMutableArray *)geoNamesRequired taskState:(TaskState *)taskState {
     for (TripEndPoint *point in geoNamesRequired) {
         ReverseGeoLocator *geocoder = [[ReverseGeoLocator alloc] init];
 
@@ -113,11 +109,9 @@
 - (void)subTaskFetchGeosAndTrip:(NSMutableArray *)geoCoordsRequired
                geoNamesRequired:(NSMutableArray *)geoNamesRequired
                       taskState:(TaskState *)taskState {
-    taskState.total +=
-        (int)geoNamesRequired.count + (int)geoCoordsRequired.count;
+    taskState.total += (int)geoNamesRequired.count + (int)geoCoordsRequired.count;
 
-    [taskState
-        taskSubtext:NSLocalizedString(@"geolocating", @"progress message")];
+    [taskState taskSubtext:NSLocalizedString(@"geolocating", @"progress message")];
 
     RunParallelBlocks *parallelBlocks = [RunParallelBlocks instance];
 
@@ -138,8 +132,7 @@
     [parallelBlocks waitForBlocksWithState:taskState];
 
     if (self.tripQuery.toList == nil || self.tripQuery.fromList == nil) {
-        [taskState taskSubtext:NSLocalizedString(@"planning trip",
-                                                 @"progress message")];
+        [taskState taskSubtext:NSLocalizedString(@"planning trip", @"progress message")];
         self.tripQuery.oneTimeDelegate = taskState;
         [self.tripQuery fetchItineraries:nil];
 
@@ -173,9 +166,8 @@
 
       if (findLocation) {
           taskState.total++;
-          
-          CLLocation *location = [TaskLocator locateWithAccuracy:200.0
-                                                       taskState:taskState];
+
+          CLLocation *location = [TaskLocator locateWithAccuracy:200.0 taskState:taskState];
 
           if (location) {
               TripEndPoint *point = nil;
@@ -207,15 +199,13 @@
       }
 
       if (canGeocode &&
-          [GeoLocator addressNeedsCoords:self.tripQuery.userRequest.toPoint
-                                             .locationDesc] &&
+          [GeoLocator addressNeedsCoords:self.tripQuery.userRequest.toPoint.locationDesc] &&
           self.tripQuery.userRequest.toPoint.coordinates == nil) {
           [geoCoordsRequired addObject:self.tripQuery.userRequest.toPoint];
       }
 
       if (canGeocode &&
-          [GeoLocator addressNeedsCoords:self.tripQuery.userRequest.fromPoint
-                                             .locationDesc] &&
+          [GeoLocator addressNeedsCoords:self.tripQuery.userRequest.fromPoint.locationDesc] &&
           self.tripQuery.userRequest.fromPoint.coordinates == nil) {
           [geoCoordsRequired addObject:self.tripQuery.userRequest.fromPoint];
       }
@@ -245,8 +235,7 @@
           }];
           // Push the detail view controller
           return (UIViewController *)locView;
-      } else if (self.tripQuery.toList != nil &&
-                 !self.backgroundTaskForceResults &&
+      } else if (self.tripQuery.toList != nil && !self.backgroundTaskForceResults &&
                  !self.tripQuery.userRequest.toPoint.useCurrentLocation) {
           __block TripPlannerLocationListViewController *locView = nil;
 

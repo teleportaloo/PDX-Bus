@@ -22,14 +22,11 @@
 
 @protocol BackgroundTaskDone <NSObject>
 
-@property(nonatomic, readonly) UIInterfaceOrientation backgroundTaskOrientation;
-
-- (void)backgroundTaskDone:(UIViewController *)viewController
-                 cancelled:(bool)cancelled;
+- (void)backgroundTaskDone:(UIViewController *)viewController cancelled:(bool)cancelled;
 
 @optional
 
-@property(nonatomic, readonly) bool backgroundTaskWait;
+@property (nonatomic, readonly) bool backgroundTaskWait;
 
 - (void)backgroundTaskStarted;
 
@@ -37,11 +34,12 @@
 
 @interface BackgroundTaskContainer : TaskContainer <ProgressDelegate>
 
-@property(atomic, strong) NSString *title;
-@property(strong) ProgressModalView *progressModal; // atomic for thread safety
-@property(atomic, strong) NSString *help;
-@property(atomic, weak) id<BackgroundTaskDone> callbackComplete; // weak
+@property (atomic, strong) NSString *title;
+@property (strong) ProgressModalView *progressModal; // atomic for thread safety
+@property (atomic, strong) NSString *help;
+@property (atomic, weak) id<BackgroundTaskDone> callbackComplete; // weak
+@property (atomic) bool showSizes;
 
-+ (BackgroundTaskContainer *)create:(id<BackgroundTaskDone>)done;
++ (BackgroundTaskContainer *)create:(id<BackgroundTaskDone>)done parent:(UIViewController *)parent;
 
 @end

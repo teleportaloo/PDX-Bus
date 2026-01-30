@@ -37,12 +37,11 @@
     SelImpPair _currentSelImp;
 }
 
-@property(nonatomic, strong) KMLPlacemark *currentPlacemark;
-@property(nonatomic, copy) NSString *currentAttribute;
-@property(nonatomic, strong)
-    NSMutableDictionary<NSString *, KMLPlacemark *> *routes;
+@property (nonatomic, strong) KMLPlacemark *currentPlacemark;
+@property (nonatomic, copy) NSString *currentAttribute;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, KMLPlacemark *> *routes;
 
-@property(nonatomic, strong) SelImpCache selImpCache;
+@property (nonatomic, strong) SelImpCache selImpCache;
 
 @end
 
@@ -63,7 +62,7 @@ static QueryCacheManager *kmlCache = nil;
 }
 
 + (void)initCaches {
-    DoOnce(^{
+    DO_ONCE(^{
       kmlCache = [QueryCacheManager cacheWithFileName:@"kmlCache.plist"];
       kmlCache.setAgedOutFlagIfOld = YES;
       kmlCache.maxSize = INT_MAX;
@@ -105,8 +104,7 @@ XML_END_ELEMENT(Document) {
     if (self.routes.count > 0 && ![NSThread currentThread].isCancelled) {
         [KMLRoutes deleteCacheFile];
         [self.routes enumerateKeysAndObjectsUsingBlock:^(
-                         NSString *_Nonnull key, KMLPlacemark *_Nonnull obj,
-                         BOOL *_Nonnull stop) {
+                         NSString *_Nonnull key, KMLPlacemark *_Nonnull obj, BOOL *_Nonnull stop) {
           NSError *error = nil;
           NSData *archive = [NSKeyedArchiver archivedDataWithRootObject:obj.path
                                                   requiringSecureCoding:NO
@@ -137,38 +135,31 @@ XML_END_ELEMENT(Placemark) {
 
         if (item == nil) {
             [self.routes setObject:self.currentPlacemark forKey:key];
-            self.currentPlacemark.path.route =
-                self.currentPlacemark.internalRouteNumber;
+            self.currentPlacemark.path.route = self.currentPlacemark.internalRouteNumber;
 
             NSString *publicRoute = self.currentPlacemark.displayRouteNumber;
 
-            if (publicRoute == nil ||
-                [publicRoute isEqualToString:kKmlNoRouteNumber]) {
-                self.currentPlacemark.path.desc =
-                    self.currentPlacemark.routeDescription;
+            if (publicRoute == nil || [publicRoute isEqualToString:kKmlNoRouteNumber]) {
+                self.currentPlacemark.path.desc = self.currentPlacemark.routeDescription;
             } else {
-                self.currentPlacemark.path.desc = [NSString
-                    stringWithFormat:@"%@ %@",
-                                     self.currentPlacemark.displayRouteNumber,
-                                     self.currentPlacemark.routeDescription];
+                self.currentPlacemark.path.desc =
+                    [NSString stringWithFormat:@"%@ %@",
+                                               self.currentPlacemark.displayRouteNumber,
+                                               self.currentPlacemark.routeDescription];
             }
 
             self.currentPlacemark.path.dirDesc = self.currentPlacemark.dirDesc;
             self.currentPlacemark.path.frequent =
-                ([self.currentPlacemark.frequent
-                     caseInsensitiveCompare:@"true"] == NSOrderedSame);
+                ([self.currentPlacemark.frequent caseInsensitiveCompare:@"true"] == NSOrderedSame);
         } else {
-            [item.path.segments
-                addObjectsFromArray:self.currentPlacemark.path.segments];
+            [item.path.segments addObjectsFromArray:self.currentPlacemark.path.segments];
         }
     }
 
     self.currentPlacemark = nil;
 }
 
-XML_START_ELEMENT(Data) {
-    self.currentAttribute = XML_NON_NULL_ATR_STR(@"name");
-}
+XML_START_ELEMENT(Data) { self.currentAttribute = XML_NON_NULL_ATR_STR(@"name"); }
 
 XML_END_ELEMENT(Data) { self.currentAttribute = nil; }
 
@@ -187,8 +178,7 @@ XML_END_ELEMENT(value) {
     if (self.contentOfCurrentProperty) {
         if (_currentSelImp.imp != nil) {
             XML_PROP_SETTER_IMP setter = (void *)_currentSelImp.imp;
-            setter(self.currentPlacemark, _currentSelImp.sel,
-                   self.contentOfCurrentProperty);
+            setter(self.currentPlacemark, _currentSelImp.sel, self.contentOfCurrentProperty);
             _currentSelImp.imp = nil;
             _currentSelImp.sel = nil;
         }
@@ -196,9 +186,7 @@ XML_END_ELEMENT(value) {
     }
 }
 
-XML_START_ELEMENT(coordinates) {
-    self.contentOfCurrentProperty = [NSMutableString string];
-}
+XML_START_ELEMENT(coordinates) { self.contentOfCurrentProperty = [NSMutableString string]; }
 
 XML_END_ELEMENT(coordinates) {
     if (self.contentOfCurrentProperty) {
@@ -302,9 +290,7 @@ static BOOL scanDoubleFast(const char **p, locale_t loc, double *out) {
 }
 
 - (NSString *)fullAddressForQuery:(NSString *)query {
-    return
-        [NSString stringWithFormat:
-                      @"https://developer.trimet.org/gis/data/tm_routes.kml"];
+    return [NSString stringWithFormat:@"https://developer.trimet.org/gis/data/tm_routes.kml"];
 }
 
 - (bool)parseRawData {
@@ -338,24 +324,19 @@ static BOOL scanDoubleFast(const char **p, locale_t loc, double *out) {
 
         int lastTriedDaysAgo = [kmlCache cacheAgeInDays:kLastAttemptKey];
 
-        if ((!self.cached &&
-             (lastTriedDaysAgo >= 1 || lastTriedDaysAgo == kNoCache)) ||
-            always) {
-            BackgroundDownloader *downloader =
-                [BackgroundDownloader sharedInstance];
+        if ((!self.cached && (lastTriedDaysAgo >= 1 || lastTriedDaysAgo == kNoCache)) || always) {
+            BackgroundDownloader *downloader = [BackgroundDownloader sharedInstance];
 
-            [downloader
-                startFetchInBackground:self
-                                 query:kQuery
-                            completion:^(
-                                TriMetXML *xml,
-                                BackgroundFinalCompletion completionHandler) {
-                              WorkerTask(^{
-                                KMLRoutes *kml = (KMLRoutes *)xml;
-                                [kml createCacheFromBackground];
-                                completionHandler();
-                              });
-                            }];
+            [downloader startFetchInBackground:self
+                                         query:kQuery
+                                    completion:^(TriMetXML *xml,
+                                                 BackgroundFinalCompletion completionHandler) {
+                                      WORKER_TASK(^{
+                                        KMLRoutes *kml = (KMLRoutes *)xml;
+                                        [kml createCacheFromBackground];
+                                        completionHandler();
+                                      });
+                                    }];
         }
     }
 }
@@ -377,8 +358,7 @@ static BOOL scanDoubleFast(const char **p, locale_t loc, double *out) {
     @synchronized(kmlCache) {
         NSString *kmlQuery = self.queryTransformer(self, kQuery);
 
-        BackgroundDownloader *downloader =
-            [BackgroundDownloader sharedInstance];
+        BackgroundDownloader *downloader = [BackgroundDownloader sharedInstance];
 
         if ([downloader isFetching:kmlQuery]) {
             [downloader cancel:kmlQuery];
@@ -394,8 +374,7 @@ static BOOL scanDoubleFast(const char **p, locale_t loc, double *out) {
             bool fetch = YES;
 
             if (Settings.kmlWifiOnly && !always) {
-                Reachability *reachability =
-                    [Reachability reachabilityForInternetConnection];
+                Reachability *reachability = [Reachability reachabilityForInternetConnection];
                 [reachability startNotifier];
 
                 NetworkStatus status = [reachability currentReachabilityStatus];
@@ -445,8 +424,7 @@ static BOOL scanDoubleFast(const char **p, locale_t loc, double *out) {
     }
 }
 
-- (ShapeRoutePath *)lineCoordsForRoute:(NSString *)route
-                             direction:(NSString *)dir {
+- (ShapeRoutePath *)lineCoordsForRoute:(NSString *)route direction:(NSString *)dir {
     return [self lineCoordsForKey:kKmlkey(route, dir)];
 }
 

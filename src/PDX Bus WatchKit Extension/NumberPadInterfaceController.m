@@ -33,16 +33,16 @@
     [super awakeWithContext:context];
 
     self.stopId = [NSMutableString string];
-    
+
     UIImage *icon;
     if (@available(watchOS 11.0, *)) {
         icon = [UIImage systemImageNamed:@"microphone"];
     } else {
         icon = [UIImage systemImageNamed:@"mic"];
     }
-    
+
     [self.micIcon setBackgroundImage:icon];
-    
+
     [self updateUI];
 }
 
@@ -60,18 +60,14 @@
 - (void)updateUI {
     if (self.stopId.length == 0) {
         [self.buttonStopId
-            setAttributedTitle:
-                [@"#A#i<stop ID>"
-                    attributedStringFromMarkUpWithFont:
-                        [UIFont monospacedDigitSystemFontOfSize:16]]];
+            setAttributedTitle:[@"#A#i<stop ID>" attributedStringFromMarkUpWithFont:
+                                                     [UIFont monospacedDigitSystemFontOfSize:16]]];
         self.goButton.hidden = YES;
         self.backButton.hidden = YES;
     } else {
-        [self.buttonStopId
-            setAttributedTitle:
-                [[NSString stringWithFormat:@"#W#b%@", self.stopId]
-                    attributedStringFromMarkUpWithFont:
-                        [UIFont monospacedDigitSystemFontOfSize:18]]];
+        [self.buttonStopId setAttributedTitle:[[NSString stringWithFormat:@"#W#b%@", self.stopId]
+                                                  attributedStringFromMarkUpWithFont:
+                                                      [UIFont monospacedDigitSystemFontOfSize:18]]];
 
         self.goButton.hidden = NO;
         self.backButton.hidden = NO;
@@ -133,8 +129,7 @@
 
 - (IBAction)buttonGoAction {
     if (self.stopId.length > 0) {
-        WatchArrivalsContext *context =
-            [WatchArrivalsContext contextWithStopId:self.stopId];
+        WatchArrivalsContext *context = [WatchArrivalsContext contextWithStopId:self.stopId];
         [context pushFrom:self];
     }
 }
@@ -146,13 +141,11 @@
 
 - (IBAction)sayStopIdAction {
 
-    void (^completion)(NSArray *__nullable results) = ^(
-        NSArray *_Nullable results) {
+    void (^completion)(NSArray *__nullable results) = ^(NSArray *_Nullable results) {
       if (results != nil) {
           NSCharacterSet *numbers =
               [NSCharacterSet characterSetWithCharactersInString:@"0123456789"];
-          NSCharacterSet *skippers =
-              [NSCharacterSet characterSetWithCharactersInString:@",."];
+          NSCharacterSet *skippers = [NSCharacterSet characterSetWithCharactersInString:@",."];
           // uncrustify-off
           NSDictionary *replacements = @{
               @"zero" : @"0",
@@ -177,14 +170,11 @@
               NSMutableString *replacedResult = result.mutableCopy;
 
               [replacements enumerateKeysAndObjectsUsingBlock:^void(
-                                NSString *key, NSString *replacement,
-                                BOOL *stop) {
-                [replacedResult
-                    replaceOccurrencesOfString:key
-                                    withString:replacement
-                                       options:NSCaseInsensitiveSearch
-                                         range:NSMakeRange(
-                                                   0, replacedResult.length)];
+                                NSString *key, NSString *replacement, BOOL *stop) {
+                [replacedResult replaceOccurrencesOfString:key
+                                                withString:replacement
+                                                   options:NSCaseInsensitiveSearch
+                                                     range:NSMakeRange(0, replacedResult.length)];
               }];
 
               // Skips certain characters
@@ -194,8 +184,7 @@
 
               while (!scanner.isAtEnd) {
                   segment = nil;
-                  [scanner scanUpToCharactersFromSet:skippers
-                                          intoString:&segment];
+                  [scanner scanUpToCharactersFromSet:skippers intoString:&segment];
 
                   if (segment != nil) {
                       [filteredResult appendString:segment];
@@ -215,10 +204,8 @@
 
                   if (!scanner.isAtEnd) {
                       if ([scanner scanInteger:&stopNum]) {
-                          [stops addObject:[NSString
-                                               stringWithFormat:@"%lu",
-                                                                (unsigned long)
-                                                                    stopNum]];
+                          [stops
+                              addObject:[NSString stringWithFormat:@"%lu", (unsigned long)stopNum]];
                           DEBUG_LOG_NSString((NSString *)stops.lastObject);
                       }
                   }
@@ -230,17 +217,13 @@
               [self updateUI];
               [self buttonGoAction];
           } else {
-              [self
-                  pushControllerWithName:kAlertScene
-                                 context:
-                                     [@"#b#RNot sure what that was.#W Was it a "
-                                      @"stop ID?#b Saying each digit works "
-                                      @"best. This app can only do stop ID "
-                                      @"#inumbers#i right now."
-                                         attributedStringFromMarkUpWithFont:
-                                             [UIFont
-                                                 monospacedDigitSystemFontOfSize:
-                                                     16]]];
+              [self pushControllerWithName:kAlertScene
+                                   context:[@"#b#RNot sure what that was.#W Was it a "
+                                            @"stop ID?#b Saying each digit works "
+                                            @"best. This app can only do stop ID "
+                                            @"#inumbers#i right now."
+                                               attributedStringFromMarkUpWithFont:
+                                                   [UIFont monospacedDigitSystemFontOfSize:16]]];
           }
       }
     };

@@ -15,15 +15,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 <p>This HTML files is used to design the hotspots on the Streetcar  map.   Use a tool to get the hotspots in the correct place, use the 'convert.sh' tool to create the
-    actual code tables in StreetcarHotSpotTable.txt
+    actual code tables in StreetcarHotSpotTable.txt</p>
 <ul>
 <li>Replace <tt>&lt;area shape="rect" coords="</tt> with <tt>HS_RECT</tt>(</li>
 <li>Replace <tt>" href="</tt>with <tt>,</tt></li>
 <li>Replace <tt>/&gt;</tt> with <tt>)</tt></li>
 </ul>
-</p>
 <p>The Xcode project will make a text file called StreetcarHotSpotTable.txt and include it into RailMapsView.m automatically. </p>
-<p>Note that there is a file called StreetcarHotSpotTiles.c which is also generated but it is not automatic,
+<p>Note that there is a file called StreetcarHotSpotTiles.def which is also generated but it is not automatic,
 you have to execute a special "test case" called test_generate_HotSpot_tiles to generate that code.</p>
 <img src="../Portland Streetcar/StreetcarMap.gif" alt="" border="0" usemap="#Map" />
 <map name="Map" id="Map2">

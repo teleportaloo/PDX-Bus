@@ -37,18 +37,15 @@
 
         CGContextRef context = UIGraphicsGetCurrentContext();
 
-        CGContextSetRGBStrokeColor(context, 1.0, 0.0, 0.0,
-                                   self.hidden ? 0.0 : 1.0);
+        CGContextSetRGBStrokeColor(context, 1.0, 0.0, 0.0, self.hidden ? 0.0 : 1.0);
         CGContextSetLineWidth(context, 2);
 
         CGPathMoveToPoint(fillPath, NULL, rect.origin.x, rect.origin.y);
-        CGPathAddLineToPoint(fillPath, NULL, rect.origin.x + rect.size.width,
-                             rect.origin.y + rect.size.height);
+        CGPathAddLineToPoint(
+            fillPath, NULL, rect.origin.x + rect.size.width, rect.origin.y + rect.size.height);
 
-        CGPathMoveToPoint(fillPath, NULL, rect.origin.x + rect.size.width,
-                          rect.origin.y);
-        CGPathAddLineToPoint(fillPath, NULL, rect.origin.x,
-                             rect.origin.y + rect.size.height);
+        CGPathMoveToPoint(fillPath, NULL, rect.origin.x + rect.size.width, rect.origin.y);
+        CGPathAddLineToPoint(fillPath, NULL, rect.origin.x, rect.origin.y + rect.size.height);
 
         CGContextAddPath(context, fillPath);
         CGContextStrokePath(context);

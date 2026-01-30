@@ -26,9 +26,7 @@
 #define kVehicleIds @"vehicleIds"
 
 #define kRecentTrips @"trips"
-#define kLast @"last"
 #define kLastTrip @"last_trip"
-#define kLastNames @"last_names"
 #define kLastRunApp @"last_run"
 
 #define kLastLocate @"last_locate"
@@ -45,11 +43,10 @@
 
 #define kiCloudKeyPrefixSize 4
 #define kiCloudKey(i) [NSString stringWithFormat:@"fave%ld", (long)(i)]
-#define kisCloudKeyFave(key)                                                   \
-    (((key).length > kiCloudKeyPrefixSize) &&                                  \
+#define kisCloudKeyFave(key)                                                                       \
+    (((key).length > kiCloudKeyPrefixSize) &&                                                      \
      [[key substringToIndex:kiCloudKeyPrefixSize] isEqualToString:@"fave"])
-#define kCloudKeyItem(key)                                                     \
-    [[key substringFromIndex:kiCloudKeyPrefixSize] integerValue]
+#define kCloudKeyItem(key) [[key substringFromIndex:kiCloudKeyPrefixSize] integerValue]
 
 #define kMaxRecentStops 25
 #define kMaxRecentTrips 25
@@ -57,12 +54,6 @@
 @interface NSArray (MutableDeepCopy)
 
 - (NSMutableArray *)mutableDeepCopy;
-
-@end
-
-@interface NSDictionary (MutableDeepCopy)
-
-- (NSMutableDictionary *)mutableDeepCopy;
 
 @end
 
@@ -91,67 +82,115 @@
 - (NSMutableDictionary *)mutableDeepCopy {
     NSMutableDictionary *newDict = NSMutableDictionary.dictionary;
 
-    [self enumerateKeysAndObjectsUsingBlock:^(id _Nonnull key, id _Nonnull obj,
-                                              BOOL *_Nonnull stop) {
-      if ([obj isKindOfClass:NSDictionary.class]) {
-          [newDict setObject:[(NSDictionary *)obj mutableDeepCopy] forKey:key];
-      } else if ([obj isKindOfClass:NSArray.class]) {
-          [newDict setObject:[(NSArray *)obj mutableDeepCopy] forKey:key];
-      } else {
-          [newDict setObject:obj forKey:key];
-      }
-    }];
+    [self
+        enumerateKeysAndObjectsUsingBlock:^(id _Nonnull key, id _Nonnull obj, BOOL *_Nonnull stop) {
+          if ([obj isKindOfClass:NSDictionary.class]) {
+              [newDict setObject:[(NSDictionary *)obj mutableDeepCopy] forKey:key];
+          } else if ([obj isKindOfClass:NSArray.class]) {
+              [newDict setObject:[(NSArray *)obj mutableDeepCopy] forKey:key];
+          } else {
+              [newDict setObject:obj forKey:key];
+          }
+        }];
 
     return newDict;
 }
 
 @end
 
+@interface UserState () {
+    dispatch_queue_t _syncQueue;
+    bool _rawDirty;
+    NSMutableDictionary *_rawData;
+}
+
+@end
+
 @implementation UserState
 
+static NSMutableDictionary *safeMutableDictionary(NSObject *obj) {
+    if ([obj isKindOfClass:[NSMutableDictionary class]]) {
+        return (NSMutableDictionary *)obj;
+    } else if ([obj isKindOfClass:[NSDictionary class]]) {
+        return ((NSDictionary *)obj).mutableDeepCopy;
+    } else {
+        return nil;
+    }
+}
+
+static NSMutableArray *safeMutableArray(NSObject *obj) {
+    if ([obj isKindOfClass:[NSMutableArray class]]) {
+        return (NSMutableArray *)obj;
+    } else if ([obj isKindOfClass:[NSArray class]]) {
+        return ((NSArray *)obj).mutableDeepCopy;
+    } else {
+        return nil;
+    }
+}
+
+@dynamic dirty;
+@dynamic watchData;
+
+- (bool)dirty {
+    __block bool result = NO;
+    dispatch_sync(_syncQueue, ^{
+      result = _rawDirty;
+    });
+    return result;
+}
+
+- (void)setDirty:(bool)favesChanged {
+    dispatch_barrier_async(_syncQueue, ^{
+      self->_rawDirty = favesChanged;
+    });
+}
+
 - (void)memoryWarning {
-    @synchronized(self) {
-        DEBUG_LOG(@"Clearing app data %p\n", self.rawData);
-        [self cacheState];
-        self.rawData = nil;
-    }
+    dispatch_barrier_sync(_syncQueue, ^{
+      DEBUG_LOG(@"Clearing app data %p\n", self->_rawData);
+      [self rawWriteState:NO];
+      self->_rawData = nil;
+    });
 }
 
-- (NSMutableArray *)getOrInitItem:(NSString *)item {
-    @synchronized(self) {
-        NSMutableArray *cache = self.rawData[item];
-        if (cache == nil) {
-            cache = [NSMutableArray array];
+- (NSMutableArray *)rawGetOrInitItem:(NSString *)item {
+    bool readOnly = self.readOnly;
+    NSMutableArray *cache = self->_rawData[item];
+    if (cache == nil) {
+        cache = [NSMutableArray array];
 
-            self.rawData[item] = cache;
-            [self cacheState];
-        }
-        return cache;
+        self->_rawData[item] = cache;
+        [self rawWriteState:readOnly];
     }
+    return cache;
 }
 
-- (void)load {
-    @synchronized(self) {
-        if (self.rawData == nil) {
-            // We have to read the property list and make it mutable
-            self.rawData = [NSMutableDictionary
-                mutableContainersWithContentsOfURL:self.sharedUserCopyOfPlist
-                                                       .urlToSharedFile];
+- (void)rawLoad {
+    if (_rawData == nil) {
+        // We have to read the property list and make it mutable
+        _rawData = [NSMutableDictionary
+            mutableContainersWithContentsOfURL:_sharedUserCopyOfPlist.urlToSharedFile];
 
-            [self getOrInitItem:kRecentTrips];
-            [self getOrInitItem:kVehicleIds];
-        }
+        [self rawGetOrInitItem:kRecentTrips];
+        [self rawGetOrInitItem:kVehicleIds];
     }
 }
 
 - (instancetype)init {
     if ((self = [super init])) {
-        self.sharedUserCopyOfPlist = [SharedFile fileWithName:kDefaultFile
-                                               initFromBundle:YES
-                                                         sync:self];
-        self.readOnly = FALSE;
-        self.lastRunKey = kLastRunApp;
-        [self load];
+        _sharedUserCopyOfPlist = [SharedFile fileWithName:kDefaultFile
+                                           initFromBundle:YES
+                                                     sync:self];
+
+        _syncQueue = dispatch_queue_create("org.teleportaloo.pdxbus.UserState.sync",
+                                           DISPATCH_QUEUE_CONCURRENT);
+
+        _readOnly = FALSE;
+        _lastRunKey = kLastRunApp;
+
+        dispatch_barrier_async(_syncQueue, ^{
+          [self rawLoad];
+        });
     }
 
     return self;
@@ -160,7 +199,7 @@
 + (UserState *)sharedInstance {
     static UserState *singleton = nil;
 
-    DoOnce(^{
+    DO_ONCE(^{
       singleton = [[UserState alloc] init];
       [MemoryCaches addCache:singleton];
     });
@@ -168,14 +207,13 @@
 }
 
 - (NSMutableDictionary *)newFave {
-    return [MutableUserParams withChosenName:kNewBookMark
-                                    location:[NSString string]]
+    return [MutableUserParams withChosenName:kNewBookMark location:[NSString string]]
         .mutableDictionary;
 }
 
 #ifndef PDXBUS_WATCH
 
-- (void)fillGapInFaves:(NSMutableArray *)faves upTo:(NSInteger)total {
+- (void)rawFillGapInFaves:(NSMutableArray *)faves upTo:(NSInteger)total {
     NSUbiquitousKeyValueStore *store = [NSUbiquitousKeyValueStore defaultStore];
 
     while (total > faves.count) {
@@ -191,7 +229,7 @@
     }
 }
 
-#endif
+#endif // !PDXBUS_WATCH
 
 - (void)clearCloud {
 #ifndef PDXBUS_WATCH
@@ -203,97 +241,96 @@
     }
 
     [store synchronize];
-#endif
+#endif // !PDXBUS_WATCH
 }
 
 - (void)mergeWithCloud:(NSArray *)changed {
 #ifndef PDXBUS_WATCH
 
     DEBUG_FUNC();
-    @synchronized(self) {
-        NSMutableArray<NSMutableDictionary *> *faves = self.faves;
-        NSUbiquitousKeyValueStore *store =
-            [NSUbiquitousKeyValueStore defaultStore];
 
-        if (changed) {
-            for (NSString *key in changed) {
-                if ([key isEqual:kiCloudTotal]) {
-                    NSNumber *total = [store objectForKey:key];
+    bool readOnly = self.readOnly;
 
-                    // Delete any that are not needed
-                    NSInteger items = 0;
+    dispatch_barrier_sync(_syncQueue, ^{
+      NSMutableArray<NSMutableDictionary *> *faves = self.rawFaves;
+      NSUbiquitousKeyValueStore *store = [NSUbiquitousKeyValueStore defaultStore];
 
-                    if (total != nil) {
-                        items = total.integerValue;
-                    }
+      if (changed) {
+          for (NSString *key in changed) {
+              if ([key isEqual:kiCloudTotal]) {
+                  NSNumber *total = [store objectForKey:key];
 
-                    if (items < faves.count) {
-                        DEBUG_LOG_long(faves.count - items);
+                  // Delete any that are not needed
+                  NSInteger items = 0;
 
-                        while (items < faves.count) {
-                            [self.faves removeLastObject];
-                        }
-                    } else if (items > faves.count) {
-                        DEBUG_LOG_long(items - faves.count);
+                  if (total != nil) {
+                      items = total.integerValue;
+                  }
 
-                        [self fillGapInFaves:faves upTo:items];
-                    }
-                } else if (kisCloudKeyFave(key)) {
-                    NSInteger item = kCloudKeyItem(key);
-                    NSDictionary *cloudFave = [store objectForKey:key];
-                    DEBUG_LOG_NSString(key);
+                  if (items < faves.count) {
+                      DEBUG_LOG_long(faves.count - items);
 
-                    if (cloudFave) {
-                        // Pad out, but should never happen!
-                        [self fillGapInFaves:faves upTo:item];
-                        faves[item] = [cloudFave mutableDeepCopy];
-                    }
-                }
-            }
-        } else {
-            // Replace them all the first time
-            NSNumber *total = [store objectForKey:kiCloudTotal];
+                      while (items < faves.count) {
+                          [self.rawFaves removeLastObject];
+                      }
+                  } else if (items > faves.count) {
+                      DEBUG_LOG_long(items - faves.count);
 
-            if (total != nil) {
-                [faves removeAllObjects];
+                      [self rawFillGapInFaves:faves upTo:items];
+                  }
+              } else if (kisCloudKeyFave(key)) {
+                  NSInteger item = kCloudKeyItem(key);
+                  NSDictionary *cloudFave = [store objectForKey:key];
+                  DEBUG_LOG_NSString(key);
 
-                for (NSInteger item = 0; item < total.integerValue; item++) {
-                    NSString *key = kiCloudKey(item);
-                    NSDictionary *fave = [store dictionaryForKey:key];
+                  if (cloudFave) {
+                      // Pad out, but should never happen!
+                      [self rawFillGapInFaves:faves upTo:item];
+                      faves[item] = [cloudFave mutableDeepCopy];
+                  }
+              }
+          }
+      } else {
+          // Replace them all the first time
+          NSNumber *total = [store objectForKey:kiCloudTotal];
 
-                    if (fave) {
-                        [faves addObject:[fave mutableDeepCopy]];
-                    } else {
-                        [faves addObject:self.newFave];
-                    }
-                }
-            }
-        }
+          if (total != nil) {
+              [faves removeAllObjects];
 
-        [self cacheState];
-    }
+              for (NSInteger item = 0; item < total.integerValue; item++) {
+                  NSString *key = kiCloudKey(item);
+                  NSDictionary *fave = [store dictionaryForKey:key];
+
+                  if (fave) {
+                      [faves addObject:[fave mutableDeepCopy]];
+                  } else {
+                      [faves addObject:self.newFave];
+                  }
+              }
+          }
+      }
+
+      [self rawWriteState:readOnly];
+    });
 #endif // ifndef PDXBUS_WATCH
 }
 
-- (void)writeToiCloud {
+- (void)rawWriteToCloud {
 #ifndef PDXBUS_WATCH
 
-    if (Settings.iCloudToken && !Settings.firstLaunchWithiCloudAvailable &&
-        self.canWriteToCloud) {
+    if (Settings.iCloudToken && !Settings.firstLaunchWithiCloudAvailable && self.canWriteToCloud) {
         // Write to iCloud
-        NSUbiquitousKeyValueStore *store =
-            [NSUbiquitousKeyValueStore defaultStore];
+        NSUbiquitousKeyValueStore *store = [NSUbiquitousKeyValueStore defaultStore];
 
         if (store) {
             NSNumber *total = [store objectForKey:kiCloudTotal];
-            NSArray *faves = self.faves;
+            NSArray *faves = self.rawFaves;
 
             DEBUG_LOG_description(total);
 
             if (total != nil) {
                 if (total.intValue > faves.count) {
-                    for (NSInteger item = faves.count; item < total.intValue;
-                         item++) {
+                    for (NSInteger item = faves.count; item < total.intValue; item++) {
                         [store removeObjectForKey:kiCloudKey(item)];
                     }
                 }
@@ -309,14 +346,13 @@
                     NSString *key = kiCloudKey(i);
                     NSDictionary *cloudFave = [store dictionaryForKey:key];
 
-                    if (cloudFave == nil ||
-                        ![cloudFave isEqualToDictionary:fave]) {
+                    if (cloudFave == nil || ![cloudFave isEqualToDictionary:fave]) {
                         [store setObject:[fave mutableDeepCopy] forKey:key];
                     }
                 }
 
-                if (total == nil || total.intValue != self.faves.count) {
-                    total = [NSNumber numberWithInteger:self.faves.count];
+                if (total == nil || total.intValue != faves.count) {
+                    total = [NSNumber numberWithInteger:faves.count];
                     [store setObject:total forKey:kiCloudTotal];
                 }
             }
@@ -329,323 +365,319 @@
 #endif // ifndef PDXBUS_WATCH
 }
 
+- (void)writeToCloud {
+    dispatch_sync(_syncQueue, ^{
+      [self rawWriteToCloud];
+    });
+}
+
+- (void)rawWriteState:(bool)readyOnly {
+    if (_rawData && !readyOnly) {
+        [_sharedUserCopyOfPlist writeDictionary:_rawData];
+        [self rawWriteToCloud];
+    }
+}
+
 - (void)cacheState {
-    @synchronized(self) {
-        if (self.rawData && !self.readOnly) {
-            [self.sharedUserCopyOfPlist writeDictionary:self.rawData];
-            [self writeToiCloud];
-        }
-    }
+    // This can be async - this is the point to save UI time
+    bool readOnly = self.readOnly;
+    dispatch_async(_syncQueue, ^{
+      [self rawWriteState:readOnly];
+    });
 }
-
-- (void)clearLastArrivals {
-    @synchronized(self) {
-        [self load];
-        self.rawData[kLast] = @"";
-        [self.rawData removeObjectForKey:kLastNames];
-    }
-}
-
-- (void)setLastArrivals:(NSString *)locations {
-    @synchronized(self) {
-        [self load];
-        self.rawData[kLast] = locations;
-
-        DEBUG_PRINTF("setLastArrivals %s\n",
-                     [locations cStringUsingEncoding:NSUTF8StringEncoding]);
-        [self cacheState];
-    }
-}
-
-- (void)setLastNames:(NSArray *)names {
-    @synchronized(self) {
-        [self load];
-
-        if (names != nil) {
-            self.rawData[kLastNames] = names;
-        } else {
-            [self.rawData removeObjectForKey:kLastNames];
-        }
-
-        [self cacheState];
-    }
+- (void)cacheStateNow {
+    bool readOnly = self.readOnly;
+    dispatch_barrier_sync(_syncQueue, ^{
+      [self rawWriteState:readOnly];
+    });
 }
 
 - (NSDictionary *)takeMeHomeUserRequest {
-    @synchronized(self) {
-        [self load];
-        NSMutableDictionary *takeMeHome = self.rawData[kTakeMeHome];
-
-        return takeMeHome;
-    }
+    return (NSDictionary *)[self item:kTakeMeHome];
 }
 
 - (void)saveTakeMeHomeUserRequest:(NSDictionary *)userRequest {
-    @synchronized(self) {
-        [self load];
-        self.rawData[kTakeMeHome] = userRequest;
+    bool readOnly = self.readOnly;
+    dispatch_barrier_async(_syncQueue, ^{
+      [self rawLoad];
+      self->_rawData[kTakeMeHome] = userRequest;
+      [self rawWriteState:readOnly];
+    });
+}
 
-        [self cacheState];
-    }
+- (NSMutableDictionary *)watchData {
+    __block NSMutableDictionary *result = nil;
+    dispatch_sync(_syncQueue, ^{
+      result = self->_rawData;
+    });
+    return result;
+}
+
+- (void)setWatchData:(NSMutableDictionary *)watchData {
+    bool readOnly = self.readOnly;
+    dispatch_barrier_async(_syncQueue, ^{
+      self->_rawData = watchData.mutableDeepCopy;
+      [self rawWriteState:readOnly];
+    });
 }
 
 - (NSUInteger)watchSequence {
-    @synchronized(self) {
-        [self load];
-        NSNumber *seq = self.rawData[kWatchSequenceNumber];
+    __block NSUInteger result = 0;
+    dispatch_sync(_syncQueue, ^{
+      [self rawLoad];
+      NSNumber *seq = self->_rawData[kWatchSequenceNumber];
 
-        if (seq == nil) {
-            seq = @(0);
-        }
+      if (seq == nil) {
+          seq = @(0);
+      }
 
-        return (NSUInteger)seq.integerValue;
-    }
+      result = (NSUInteger)seq.integerValue;
+    });
+    return result;
 }
 
 - (void)incrementWatchSequence {
-    @synchronized(self) {
-        [self load];
-        NSNumber *seq = self.rawData[kWatchSequenceNumber];
+    bool readOnly = self.readOnly;
+    dispatch_barrier_async(_syncQueue, ^{
+      [self rawLoad];
+      NSNumber *seq = self->_rawData[kWatchSequenceNumber];
 
-        if (seq == nil) {
-            seq = @(0);
-        }
-        self.rawData[kWatchSequenceNumber] =
-            @((seq.integerValue + 1) % 0xFFFFFFFF);
-        [self cacheState];
-    }
+      if (seq == nil) {
+          seq = @(0);
+      }
+      self->_rawData[kWatchSequenceNumber] = @((seq.integerValue + 1) % 0xFFFFFFFF);
+      [self rawWriteState:readOnly];
+    });
 }
 
 - (void)addToRecentTripsWithUserRequest:(NSDictionary *)userRequest
                             description:(NSString *)desc
                                    blob:(NSData *)blob {
-    @synchronized(self) {
-        [self load];
+    bool readOnly = self.readOnly;
+    dispatch_barrier_async(_syncQueue, ^{
+      [self rawLoad];
 
-        NSMutableArray *recentTrips = [self getOrInitItem:kRecentTrips];
+      NSMutableArray *recentTrips = [self rawGetOrInitItem:kRecentTrips];
 
-        NSDictionary *newItem =
-            [MutableUserParams withChosenName:desc
-                                         trip:userRequest.mutableCopy
-                                  tripResults:blob]
-                .dictionary;
+      NSDictionary *newItem = [MutableUserParams withChosenName:desc
+                                                           trip:userRequest.mutableCopy
+                                                    tripResults:blob]
+                                  .dictionary;
 
-        [recentTrips insertObject:newItem atIndex:0];
+      [recentTrips insertObject:newItem atIndex:0];
 
-        while (recentTrips.count > kMaxRecentTrips) {
-            [recentTrips removeLastObject];
-        }
+      while (recentTrips.count > kMaxRecentTrips) {
+          [recentTrips removeLastObject];
+      }
 
-        _favesChanged = true;
-        [self cacheState];
-    }
+      self->_rawDirty = true;
+      [self rawWriteState:readOnly];
+    });
 }
 
-- (NSDictionary *)addToRecentsWithStopId:(NSString *)stopId
-                             description:(NSString *)desc {
-    @synchronized(self) {
-        [self load];
+- (NSDictionary *)addToRecentStops:(NSString *)stopId description:(NSString *)desc {
+    MutableUserParams *newItem = nil;
+    newItem = MutableUserParams.new;
+    newItem.valLocation = stopId;
+    newItem.valOriginalName = desc;
+    newItem.valChosenName = desc;
 
-        MutableUserParams *newItem = nil;
+    bool readOnly = self.readOnly;
+    dispatch_barrier_async(_syncQueue, ^{
+      [self rawLoad];
 
-        NSMutableArray<NSDictionary *> *recents = self.recents;
+      NSMutableArray<NSDictionary *> *recents = self.rawRecentStops;
 
-        int j = 0;
+      int j = 0;
 
-        for (j = 0; j < recents.count; j++) {
-            if ([recents[j].userParams.valLocation isEqualToString:stopId]) {
-                [recents removeObjectAtIndex:j];
-                j--;
-            }
-        }
+      for (j = 0; j < recents.count; j++) {
+          if ([recents[j].userParams.valLocation isEqualToString:stopId]) {
+              [recents removeObjectAtIndex:j];
+              j--;
+          }
+      }
 
-        newItem = MutableUserParams.new;
+      [recents insertObject:newItem.mutableDictionary atIndex:0];
 
-        newItem.valLocation = stopId;
-        newItem.valOriginalName = desc;
-        newItem.valChosenName = desc;
+      while (recents.count > kMaxRecentStops) {
+          [recents removeLastObject];
+      }
 
-        [recents insertObject:newItem.mutableDictionary atIndex:0];
+      self->_rawDirty = true;
+      [self rawWriteState:readOnly];
+    });
 
-        while (recents.count > kMaxRecentStops) {
-            [recents removeLastObject];
-        }
-
-        _favesChanged = true;
-        [self cacheState];
-
-        return newItem.dictionary;
-    }
+    return newItem.dictionary;
 }
 
 - (void)addToVehicleIds:(NSString *)vehicleId {
-    @synchronized(self) {
-        [self load];
 
-        MutableUserParams *newItem = nil;
+    bool readOnly = self.readOnly;
+    dispatch_barrier_async(_syncQueue, ^{
+      [self rawLoad];
 
-        // NSMutableArray *userFaves = [self.favesAndRecents
-        // objectForKey:kFaves];
-        NSMutableArray<NSDictionary *> *vehicleIds = self.rawData[kVehicleIds];
+      MutableUserParams *newItem = nil;
+      NSMutableArray<NSDictionary *> *vehicleIds = self->_rawData[kVehicleIds];
 
-        int j = 0;
+      int j = 0;
 
-        for (j = 0; j < vehicleIds.count; j++) {
-            if ([vehicleIds[j].userParams.valVehicleId
-                    isEqualToString:vehicleId]) {
-                [vehicleIds removeObjectAtIndex:j];
-                j--;
-            }
-        }
+      for (j = 0; j < vehicleIds.count; j++) {
+          if ([vehicleIds[j].userParams.valVehicleId isEqualToString:vehicleId]) {
+              [vehicleIds removeObjectAtIndex:j];
+              j--;
+          }
+      }
 
-        newItem = MutableUserParams.new;
+      newItem = MutableUserParams.new;
 
-        newItem.valVehicleId = vehicleId;
+      newItem.valVehicleId = vehicleId;
 
-        [vehicleIds insertObject:newItem.mutableDictionary atIndex:0];
+      [vehicleIds insertObject:newItem.mutableDictionary atIndex:0];
 
-        while (vehicleIds.count > kMaxRecentStops) {
-            [vehicleIds removeLastObject];
-        }
+      while (vehicleIds.count > kMaxRecentStops) {
+          [vehicleIds removeLastObject];
+      }
 
-        _favesChanged = true;
-        [self cacheState];
-    }
+      self->_rawDirty = true;
+      [self rawWriteState:readOnly];
+    });
+}
+
+- (NSObject *)item:(NSString *)item {
+    __block NSObject *result = nil;
+    dispatch_sync(_syncQueue, ^{
+      [self rawLoad];
+      result = self->_rawData[item];
+    });
+    return result;
+}
+
+- (NSMutableArray *)rawFaves {
+    [self rawLoad];
+    return safeMutableArray(self->_rawData[kFaves]);
+}
+
+- (NSMutableArray *)stopsFromFaves {
+    NSMutableArray *justStops = [NSMutableArray array];
+    dispatch_sync(_syncQueue, ^{
+      for (NSDictionary *dict in [self rawFaves]) {
+          if (dict.userParams.valLocation != nil) {
+              [justStops insertObject:dict.copy atIndex:justStops.count];
+          }
+      }
+    });
+    return justStops;
+}
+
+- (void)accessArray:(NSMutableArray *)array block:(void (^)(NSMutableArray *item))block {
+    dispatch_barrier_sync(_syncQueue, ^{
+      block(array);
+    });
 }
 
 - (NSMutableArray *)faves {
-    @synchronized(self) {
-        [self load];
-        return self.rawData[kFaves];
-    }
+    return safeMutableArray([self item:kFaves]);
 }
 
 - (NSArray *)favesArrivalsOnly {
-    @synchronized(self) {
-        [self load];
+    NSMutableArray *favesArrivalsOnly = [NSMutableArray array];
 
-        NSMutableArray *favesArrivalsOnly = [NSMutableArray array];
-        NSMutableArray<NSMutableDictionary *> *faves = self.faves;
-
-        NSDictionary *item;
-
-        for (item in faves) {
-            if (item.userParams.valTrip == nil) {
-                [favesArrivalsOnly addObject:item];
-            }
+    NSArray<NSMutableDictionary *> *faves = self.faves;
+    for (NSDictionary *item in faves) {
+        if (item.userParams.valTrip == nil) {
+            [favesArrivalsOnly addObject:item];
         }
-
-        return favesArrivalsOnly;
     }
+
+    return favesArrivalsOnly;
 }
 
-- (NSMutableArray *)recents {
-    @synchronized(self) {
-        [self load];
+- (NSMutableArray *)rawRecentStops {
+    [self rawLoad];
 
-        NSMutableArray<NSDictionary *> *recents = nil;
-        id existing = self.rawData[kRecents];
+    NSMutableArray<NSDictionary *> *recents = nil;
+    id existing = self->_rawData[kRecents];
 
-        if ([existing isKindOfClass:[NSMutableArray class]]) {
-            recents = (NSMutableArray *)existing;
-        } else if ([existing isKindOfClass:[NSArray class]]) {
-            recents = [existing mutableCopy];
-        } else {
-            recents = [NSMutableArray array];
-            _favesChanged = true;
-        }
-
-        self.rawData[kRecents] = recents;
-
-        return recents;
+    if ([existing isKindOfClass:[NSMutableArray class]]) {
+        recents = (NSMutableArray *)existing;
+    } else if ([existing isKindOfClass:[NSArray class]]) {
+        recents = [existing mutableCopy];
+    } else {
+        recents = [NSMutableArray array];
+        self->_rawDirty = true;
     }
+
+    self->_rawData[kRecents] = recents;
+
+    return recents;
+}
+
+- (NSMutableArray *)recentStops {
+    __block NSMutableArray *result = nil;
+
+    // This does write, so we do a sync barrier
+    dispatch_barrier_sync(_syncQueue, ^{
+      result = self.rawRecentStops;
+    });
+    return result;
 }
 
 - (NSMutableArray *)vehicleIds {
-    @synchronized(self) {
-        [self load];
-        return self.rawData[kVehicleIds];
-    }
+    return safeMutableArray([self item:kVehicleIds]);
 }
 
 - (NSMutableArray *)recentTrips {
-    @synchronized(self) {
-        [self load];
-        return self.rawData[kRecentTrips];
-    }
-}
-
-- (NSString *)last {
-    @synchronized(self) {
-        [self load];
-        return self.rawData[kLast];
-    }
-}
-
-- (NSArray *)lastNames {
-    @synchronized(self) {
-        [self load];
-        return self.rawData[kLastNames];
-    }
+    return safeMutableArray([self item:kRecentTrips]);
 }
 
 - (void)setLastRun:(NSDate *)last {
-    @synchronized(self) {
-        [self load];
+    bool readOnly = self.readOnly;
+    dispatch_barrier_async(_syncQueue, ^{
+      [self rawLoad];
 
-        if (last != nil) {
-            self.rawData[self.lastRunKey] = last;
-        } else {
-            [self.rawData removeObjectForKey:kLastRunWatch];
-            [self.rawData removeObjectForKey:kLastRunApp];
-        }
-    }
-    [self cacheState];
+      if (last != nil) {
+          self->_rawData[self.lastRunKey] = last;
+      } else {
+          [self->_rawData removeObjectForKey:kLastRunWatch];
+          [self->_rawData removeObjectForKey:kLastRunApp];
+      }
+      [self rawWriteState:readOnly];
+    });
 }
 
 - (NSDate *)lastRun {
-    @synchronized(self) {
-        [self load];
-        return self.rawData[self.lastRunKey];
-    }
+    return (NSDate *)[self item:self.lastRunKey];
 }
 
 - (NSMutableDictionary *)lastTrip {
-    @synchronized(self) {
-        [self load];
-        return self.rawData[kLastTrip];
-    }
+    return safeMutableDictionary([self item:kLastTrip]);
 }
 
 - (void)setLastTrip:(NSMutableDictionary *)dict {
-    @synchronized(self) {
-        [self load];
-        self.rawData[kLastTrip] = dict;
-    }
-
-    self.favesChanged = YES;
-    [self cacheState];
+    bool readOnly = self.readOnly;
+    dispatch_barrier_async(_syncQueue, ^{
+      [self rawLoad];
+      self->_rawData[kLastTrip] = dict;
+      [self rawWriteState:readOnly];
+      self->_rawDirty = YES;
+    });
 }
 
 - (NSMutableDictionary *)lastLocate {
-    @synchronized(self) {
-        [self load];
-        return self.rawData[kLastLocate];
-    }
+    return safeMutableDictionary([self item:kLastLocate]);
 }
 
 - (void)setLastLocate:(NSMutableDictionary *)dict {
-    @synchronized(self) {
-        [self load];
-        self.rawData[kLastLocate] = dict;
-    }
-
-    self.favesChanged = YES;
-    [self cacheState];
+    bool readOnly = self.readOnly;
+    dispatch_barrier_async(_syncQueue, ^{
+      [self rawLoad];
+      self->_rawData[kLastLocate] = dict;
+      self->_rawDirty = YES;
+      [self rawWriteState:readOnly];
+    });
 }
 
-- (NSDictionary *)checkForCommuterBookmarkShowOnlyOnce:(bool)onlyOnce {
-    [self load];
+- (NSDictionary *)checkForCommuterFaveShowOnlyOnce:(bool)onlyOnce {
     NSDate *lastRun = self.lastRun;
     NSDate *now = [NSDate date];
 
@@ -665,17 +697,14 @@
     self.readOnly = readOnly;
     bool firstRunInPeriod = YES;
 
-    unsigned unitFlags = NSCalendarUnitYear | NSCalendarUnitMonth |
-                         NSCalendarUnitDay | kCFCalendarUnitHour |
-                         kCFCalendarUnitWeekday;
+    unsigned unitFlags = NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay |
+                         kCFCalendarUnitHour | kCFCalendarUnitWeekday;
 
     NSCalendar *cal = [NSCalendar currentCalendar];
-    NSDateComponents *nowComponents = [cal components:(NSUInteger)unitFlags
-                                             fromDate:now];
+    NSDateComponents *nowComponents = [cal components:(NSUInteger)unitFlags fromDate:now];
 
     if (lastRun != nil) {
-        NSDateComponents *lastComponents = [cal components:(NSUInteger)unitFlags
-                                                  fromDate:lastRun];
+        NSDateComponents *lastComponents = [cal components:(NSUInteger)unitFlags fromDate:lastRun];
 
         if (lastComponents.year == nowComponents.year &&
             lastComponents.month == nowComponents.month &&
@@ -719,19 +748,16 @@
     NSBundle *bundle = [NSBundle mainBundle];
     NSString *pathToDefaultPlist = [bundle pathForResource:kDefaultFileName
                                                     ofType:kDefaultFileType];
-    NSURL *defaultPlist = [[NSURL alloc] initFileURLWithPath:pathToDefaultPlist
-                                                 isDirectory:NO];
+    NSURL *defaultPlist = [[NSURL alloc] initFileURLWithPath:pathToDefaultPlist isDirectory:NO];
 
     if (defaultPlist) {
-        NSDictionary *defaultDict =
-            [NSDictionary dictionaryWithContentsOfURL:defaultPlist];
+        NSDictionary *defaultDict = [NSDictionary dictionaryWithContentsOfURL:defaultPlist];
 
         if (defaultDict != nil) {
             NSArray *faves = defaultDict[kFaves];
             return ![faves isEqualToArray:self.faves];
         }
     }
-
     return YES;
 }
 

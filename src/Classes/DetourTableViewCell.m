@@ -14,8 +14,8 @@
 
 
 #import "DetourTableViewCell.h"
+#include "BoxedIcon.h"
 #import "Detour+iOSUI.h"
-#include "Icons.h"
 #import "NSString+Core.h"
 #import "NSString+MoreMarkup.h"
 #import "Settings.h"
@@ -24,7 +24,7 @@
 @implementation DetourTableViewCell
 
 + (UINib *)nib {
-    return [UINib nibWithNibName:@"DetourTableViewCell" bundle:nil];
+    return [UINib nibWithNibName:kDetourTableViewCellNib bundle:nil];
 }
 
 - (void)awakeFromNib {
@@ -45,19 +45,17 @@
     }
 }
 
-- (void)addDetourButtons:(Detour *)detour
-         routeDisclosure:(bool)routeDisclosure {
+- (void)addDetourButtons:(Detour *)detour routeDisclosure:(bool)routeDisclosure {
     UIButton *button = nil;
     NSMutableArray *buttons = [NSMutableArray array];
 
-    bool hidden = detour.systemWide &&
-                  [Settings isHiddenSystemWideDetour:detour.detourId];
+    bool hidden = detour.systemWide && [Settings isHiddenSystemWideDetour:detour.detourId];
     CGFloat next = 0;
 
 #define AB_GAP 10
 #define SMALL_BUTTON_SIDE 10
-#define NEXT_RECT(F, SZ)                                                       \
-    F = CGRectMake(next, (DETOUR_ACCESSORY_BUTTON_SIZE - SZ) / 2, SZ, SZ);     \
+#define NEXT_RECT(F, SZ)                                                                           \
+    F = CGRectMake(next, (DETOUR_ACCESSORY_BUTTON_SIZE - SZ) / 2, SZ, SZ);                         \
     next += SZ
 #define NEXT_GAP next += AB_GAP
 #define FINAL_RECT CGRectMake(0, 0, next, DETOUR_ACCESSORY_BUTTON_SIZE)
@@ -67,17 +65,10 @@
         button = [UIButton buttonWithType:UIButtonTypeCustom];
         NEXT_RECT(button.frame, DETOUR_ACCESSORY_BUTTON_SIZE);
 
-        NSString *icon;
+        BoxedIcon *icon = hidden ? kIconChevronUp : kIconChevronDown;
 
-        if (hidden) {
-            icon = kSFIconChevronUp;
-        } else {
-            icon = kSFIconChevronDown;
-        }
-        
-        [button setImage:[UIImage systemImageNamed:icon] forState:UIControlStateNormal];
+        [button setImage:icon.image forState:UIControlStateNormal];
 
-    
         button.accessibilityLabel = @"Hide or show detour";
         button.tag = DETOUR_BUTTON_COLLAPSE;
         [button addTarget:self
@@ -86,15 +77,15 @@
         [buttons addObject:button];
     }
 
-    if (routeDisclosure && detour.routes && detour.routes.count > 0 &&
-        !hidden && !detour.systemWide) {
+    if (routeDisclosure && detour.routes && detour.routes.count > 0 && !hidden &&
+        !detour.systemWide) {
         NEXT_GAP;
         button = [UIButton buttonWithType:UIButtonTypeCustom];
 
         NEXT_RECT(button.frame, SMALL_BUTTON_SIDE);
-        
-        [button setImage:[UIImage systemImageNamed:kSFIconWebForward] forState:UIControlStateNormal];
-    
+
+        [button setImage:kIconWebForward.image forState:UIControlStateNormal];
+
         // width += (buttons.count > 0 ? AB_WGAP + AB_WIDTH  : 0);
         button.userInteractionEnabled = NO;
 
@@ -116,18 +107,18 @@
 
 - (NSString *)routeLink:(NSString *)route {
     if (route) {
-        return
-            [NSString stringWithFormat:@"\n#Lroute:%@ See route info#T", route];
+        return [NSString stringWithFormat:@"\n#Lroute:%@ See route info#T", route];
     }
     return nil;
 }
 
-- (void)populateCell:(Detour *)detour route:(NSString *)route {
+- (void)populateCell:(Detour *)detour
+               route:(NSString *)route
+          showHeader:(bool)showHeader
+           showRoute:(bool)showRoute {
     [self resetForReuse];
-    if (detour.systemWide &&
-        [Settings isHiddenSystemWideDetour:detour.detourId]) {
-        self.textView.attributedText =
-            detour.markedUpHeader.smallAttributedStringFromMarkUp;
+    if (detour.systemWide && [Settings isHiddenSystemWideDetour:detour.detourId]) {
+        self.textView.attributedText = detour.markedUpHeader.smallAttributedStringFromMarkUp;
     } else {
         NSString *routeLink = [self routeLink:route];
 
@@ -135,20 +126,14 @@
             routeLink = nil;
         }
 
-        if (self.includeHeaderInDescription) {
-            self.textView.attributedText =
-                [detour markedUpDescriptionWithHeader:routeLink]
-                    .smallAttributedStringFromMarkUp;
-        } else {
-            self.textView.attributedText =
-                [detour markedUpDescription:routeLink]
-                    .smallAttributedStringFromMarkUp;
-        }
+        self.textView.attributedText = [detour markedUpDescriptionShowHeader:showHeader
+                                                                   showRoute:showRoute
+                                                              additionalText:routeLink]
+                                           .smallAttributedStringFromMarkUp;
     }
 
     self.textLabel.accessibilityLabel =
-        [detour markedUpDescription:[self routeLink:route]]
-            .removeMarkUp.phonetic;
+        [detour markedUpDescription:[self routeLink:route]].removeMarkUp.phonetic;
 
     self.selectionStyle = UITableViewCellSelectionStyleNone;
 

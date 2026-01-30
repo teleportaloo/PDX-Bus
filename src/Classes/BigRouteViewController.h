@@ -19,6 +19,6 @@
 
 @interface BigRouteViewController : ViewControllerBase
 
-@property(nonatomic, strong) Departure *departure;
+@property (nonatomic, strong) Departure *departure;
 
 @end

@@ -27,10 +27,11 @@
     CGContextTranslateCTM(context, rotateSize.width / 2, rotateSize.height / 2);
     CGContextRotateCTM(context, (degrees * M_PI / 180.0));
     CGContextScaleCTM(context, 1.0, -1.0);
-    CGContextDrawImage(UIGraphicsGetCurrentContext(),
-                       CGRectMake(-rotateSize.width / 2, -rotateSize.height / 2,
-                                  rotateSize.width, rotateSize.height),
-                       self.CGImage);
+    CGContextDrawImage(
+        UIGraphicsGetCurrentContext(),
+        CGRectMake(
+            -rotateSize.width / 2, -rotateSize.height / 2, rotateSize.width, rotateSize.height),
+        self.CGImage);
     UIImage *rotatedImage = UIGraphicsGetImageFromCurrentImageContext();
 
     UIGraphicsEndImageContext();
@@ -46,10 +47,8 @@
     CGContextRef context = UIGraphicsGetCurrentContext();
 
     CGContextSetFillColorWithColor(context, color.CGColor);
-    CGContextFillRect(context, rect); // draw base
-    [self drawInRect:rect
-           blendMode:kCGBlendModeDestinationIn
-               alpha:1.0]; // draw image
+    CGContextFillRect(context, rect);                                     // draw base
+    [self drawInRect:rect blendMode:kCGBlendModeDestinationIn alpha:1.0]; // draw image
     UIImage *tintedImage = UIGraphicsGetImageFromCurrentImageContext();
 
     UIGraphicsEndImageContext();

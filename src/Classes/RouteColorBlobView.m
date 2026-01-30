@@ -24,12 +24,12 @@
 
 @interface RouteColorBlobView ()
 
-@property(nonatomic) UIColor *color;
-@property(nonatomic) UIColor *strokeColor;
-@property(nonatomic) bool square;
-@property(nonatomic) CGPathDrawingMode drawingMode;
-@property(nonatomic) NSAttributedString *route;
-@property(nonatomic) CGFloat lineWidth;
+@property (nonatomic) UIColor *color;
+@property (nonatomic) UIColor *strokeColor;
+@property (nonatomic) bool square;
+@property (nonatomic) CGPathDrawingMode drawingMode;
+@property (nonatomic) NSAttributedString *route;
+@property (nonatomic) CGFloat lineWidth;
 
 @end
 
@@ -69,13 +69,12 @@
             break;
         case LineTypeBus: {
             static UIFont *tinyFont;
-            DoOnce(^{
+            DO_ONCE(^{
               tinyFont = [UIFont monospacedDigitSystemFontOfSize:14.0];
             });
 
-            self.route =
-                [[NSString stringWithFormat:@"#W%ld", info->route_number]
-                    attributedStringFromMarkUpWithFont:tinyFont];
+            self.route = [[NSString stringWithFormat:@"#W%ld", info->route_number]
+                attributedStringFromMarkUpWithFont:tinyFont];
 
             _square = false;
             _drawingMode = kCGPathFillStroke;
@@ -130,10 +129,8 @@
 
         CGFloat width = fmin(CGRectGetWidth(rect), CGRectGetHeight(rect));
 
-        outerSquare.origin.x =
-            0.75 + CGRectGetMidX(rect) - width / 2 + (_lineWidth / 2);
-        outerSquare.origin.y =
-            0.75 + CGRectGetMidY(rect) - width / 2 + (_lineWidth / 2);
+        outerSquare.origin.x = 0.75 + CGRectGetMidX(rect) - width / 2 + (_lineWidth / 2);
+        outerSquare.origin.y = 0.75 + CGRectGetMidY(rect) - width / 2 + (_lineWidth / 2);
         outerSquare.size.width = width - 1.5 - _lineWidth;
         outerSquare.size.height = width - 1.5 - _lineWidth;
 
@@ -145,30 +142,27 @@
         }
 
         CGContextRef context = UIGraphicsGetCurrentContext();
-        
+
         [self.strokeColor setStroke];
 
         CGContextSetLineWidth(context, _lineWidth);
-        
+
         [self.color setFill];
-        
+
         CGContextAddPath(context, fillPath);
         CGContextDrawPath(context, _drawingMode);
         CGPathRelease(fillPath);
 
         if (_route != 0) {
-            CTLineRef line =
-                CTLineCreateWithAttributedString((CFAttributedStringRef)_route);
+            CTLineRef line = CTLineCreateWithAttributedString((CFAttributedStringRef)_route);
             CGAffineTransform trans = CGAffineTransformMakeScale(1, -1);
             CGContextSetTextMatrix(context, trans);
             CGRect stringRect = CTLineGetImageBounds(line, context);
             CGContextSetTextPosition(
                 context,
-                outerSquare.origin.x +
-                    (outerSquare.size.width - stringRect.size.width - 2) / 2,
-                rect.size.height -
-                    (outerSquare.origin.y +
-                     (outerSquare.size.height - stringRect.size.height) / 2));
+                outerSquare.origin.x + (outerSquare.size.width - stringRect.size.width - 2) / 2,
+                rect.size.height - (outerSquare.origin.y +
+                                    (outerSquare.size.height - stringRect.size.height) / 2));
             CTLineDraw(line, context);
             CFRelease(line);
         }

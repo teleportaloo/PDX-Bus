@@ -38,26 +38,34 @@
     // each test method in the class.
 }
 
-#define OBJ_CHECK(X, V)                                                        \
-    params.X = V;                                                              \
-    XCTAssertEqualObjects(params.X, V);                                        \
-    expectedSize++;                                                            \
-    XCTAssertEqual(expectedSize, params.dictionary.count);
-#define OBJ_CHECK_NOT_EQUALITY(X, V)                                           \
-    params.X = V;                                                              \
-    expectedSize++;                                                            \
-    XCTAssertEqual(expectedSize, params.dictionary.count);                     \
-    (void)params.X;
-#define VAL_CHECK(X, V)                                                        \
-    params.X = V;                                                              \
-    XCTAssertEqual(params.X, V);                                               \
-    expectedSize++;                                                            \
-    XCTAssertEqual(expectedSize, params.dictionary.count);
+#define OBJ_CHECK(X, V)                                                                            \
+    do {                                                                                           \
+        params.X = V;                                                                              \
+        XCTAssertEqualObjects(params.X, V);                                                        \
+        expectedSize++;                                                                            \
+        XCTAssertEqual(expectedSize, params.dictionary.count);                                     \
+    } while (0)
+#define OBJ_CHECK_NOT_EQUALITY(X, V)                                                               \
+    do {                                                                                           \
+        params.X = V;                                                                              \
+        expectedSize++;                                                                            \
+        XCTAssertEqual(expectedSize, params.dictionary.count);                                     \
+        (void)params.X;                                                                            \
+    } while (0)
+#define VAL_CHECK(X, V)                                                                            \
+    do {                                                                                           \
+        params.X = V;                                                                              \
+        XCTAssertEqual(params.X, V);                                                               \
+        expectedSize++;                                                                            \
+        XCTAssertEqual(expectedSize, params.dictionary.count);                                     \
+    } while (0)
 
-#define CHECK_EXIST(X, B)                                                      \
-    XCTAssertEqual(params.X, false);                                           \
-    B();                                                                       \
-    XCTAssertEqual(params.X, true)
+#define CHECK_EXIST(X, B)                                                                          \
+    do {                                                                                           \
+        XCTAssertEqual(params.X, false);                                                           \
+        B();                                                                                       \
+        XCTAssertEqual(params.X, true);                                                            \
+    } while (0)
 
 - (void)testUserParams {
     MutableUserParams *params = MutableUserParams.new;
@@ -72,8 +80,7 @@
     OBJ_CHECK(valOriginalName, @"nope");
     OBJ_CHECK(valLocation, @"123");
     OBJ_CHECK(valTrip, @{@"trip" : @"hey"}.mutableCopy);
-    OBJ_CHECK(valTripResults,
-              [@"some data" dataUsingEncoding:NSUTF8StringEncoding]);
+    OBJ_CHECK(valTripResults, [@"some data" dataUsingEncoding:NSUTF8StringEncoding]);
     VAL_CHECK(valDayOfWeek, 2);
     VAL_CHECK(valMorning, true);
     OBJ_CHECK(valBlock, @"1234");

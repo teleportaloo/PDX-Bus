@@ -8,10 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-
 @interface TriMetQuery : NSObject {
-
-	
 }
 
 - (BOOL)isDataSourceAvailable;

@@ -15,13 +15,13 @@
 
 @interface StopDistance : NSObject
 
-@property(nonatomic, strong) CLLocation *location;
-@property(nonatomic) CLLocationDistance distanceMeters;
-@property(nonatomic) CLLocationAccuracy accuracy;
-@property(nonatomic, copy) NSString *stopId;
-@property(nonatomic, copy) NSString *desc;
-@property(nonatomic, copy) NSString *dir;
-@property(nonatomic, strong) NSMutableArray<Route *> *routes;
+@property (nonatomic, strong) CLLocation *location;
+@property (nonatomic) CLLocationDistance distanceMeters;
+@property (nonatomic) CLLocationAccuracy accuracy;
+@property (nonatomic, copy) NSString *stopId;
+@property (nonatomic, copy) NSString *desc;
+@property (nonatomic, copy) NSString *dir;
+@property (nonatomic, strong) NSMutableArray<Route *> *routes;
 
 - (instancetype)initWithStopId:(int)stopId
                 distanceMeters:(CLLocationDistance)dist

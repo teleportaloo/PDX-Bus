@@ -17,6 +17,6 @@
 
 @interface DepartureTimesByBus : NSObject <DepartureTimesDataProvider>
 
-@property(nonatomic, strong) NSMutableArray<Departure *> *departureItems;
+@property (nonatomic, strong) NSMutableArray<Departure *> *departureItems;
 
 @end

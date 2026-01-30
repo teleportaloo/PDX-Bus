@@ -15,6 +15,6 @@
 
 @interface AboutViewController : TableViewControllerWithToolbar
 
-@property(nonatomic) bool hideButton;
+@property (nonatomic) bool hideButton;
 
 @end

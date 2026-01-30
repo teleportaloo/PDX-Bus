@@ -22,13 +22,12 @@
 @implementation WatchLocateStopsIntentHandler
 
 - (void)handleLocateStops:(LocateStopsIntent *)intent
-               completion:
-                   (void (^)(LocateStopsIntentResponse *response))completion {
+               completion:(void (^)(LocateStopsIntentResponse *response))completion {
     DEBUG_FUNC();
 
     if (intent.location == nil) {
-        completion([LocateStopsResponseFactory
-            locateRespond:LocateStopsIntentResponseCodeNoLocation]);
+        completion(
+            [LocateStopsResponseFactory locateRespond:LocateStopsIntentResponseCodeNoLocation]);
         return;
     }
 

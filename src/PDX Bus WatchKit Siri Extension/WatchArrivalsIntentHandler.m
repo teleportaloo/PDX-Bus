@@ -28,8 +28,7 @@
     DEBUG_FUNC();
 
     if (@available(watchOS 5.0, *)) {
-        ArrivalsIntentResponse *response =
-            [ArrivalsResponseFactory responseForStops:intent.stops];
+        ArrivalsIntentResponse *response = [ArrivalsResponseFactory responseForStops:intent.stops];
         completion(response);
     } else {
         // Fallback on earlier versions
@@ -37,9 +36,7 @@
 }
 
 - (void)handleArrivalsAtStopId:(ArrivalsAtStopIdIntent *)intent
-                    completion:
-                        (void (^)(ArrivalsAtStopIdIntentResponse *response))
-                            completion {
+                    completion:(void (^)(ArrivalsAtStopIdIntentResponse *response))completion {
     DEBUG_FUNC();
 
     if (intent.stop == nil) {
@@ -62,6 +59,6 @@
     return responds;
 }
 
-#endif
+#endif // DEBUGLOGGING
 
 @end

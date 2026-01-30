@@ -20,15 +20,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface AlertsResponseFactory : NSObject
 
-+ (AlertsForRouteIntentResponse *)alertsRespond:
-    (AlertsForRouteIntentResponseCode)code API_AVAILABLE(ios(12.0));
-+ (AlertsForRouteIntentResponse *)alertsForRoute:(NSString *)route
-                                      systemWide:(bool)systemWide
-    API_AVAILABLE(ios(12.0));
++ (AlertsForRouteIntentResponse *)alertsRespond:(AlertsForRouteIntentResponseCode)code;
++ (AlertsForRouteIntentResponse *)alertsForRoute:(NSString *)route systemWide:(bool)systemWide;
 
 + (SystemWideAlertsIntentResponse *)systemWideAlertsRespond:
-    (SystemWideAlertsIntentResponseCode)code API_AVAILABLE(ios(12.0));
-+ (SystemWideAlertsIntentResponse *)systemWideAlerts API_AVAILABLE(ios(12.0));
+    (SystemWideAlertsIntentResponseCode)code;
++ (SystemWideAlertsIntentResponse *)systemWideAlerts;
 
 @end
 

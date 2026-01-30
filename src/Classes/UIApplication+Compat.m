@@ -19,37 +19,6 @@
 
 #if !TARGET_OS_MACCATALYST
 
-- (CGRect)compatStatusBarFrame {
-    CGRect statusBarFrame = CGRectZero;
-
-    for (UIScene *scene in [UIApplication sharedApplication].connectedScenes) {
-        if (scene.activationState == UISceneActivationStateForegroundActive &&
-            [scene isKindOfClass:[UIWindowScene class]]) {
-
-            UIWindowScene *windowScene = (UIWindowScene *)scene;
-            statusBarFrame = windowScene.statusBarManager.statusBarFrame;
-            break;
-        }
-    }
-
-    return statusBarFrame;
-}
-
-+ (CGRect)compatApplicationFrame {
-    CGRect rect = UIApplication.firstKeyWindow.frame;
-
-    if (UIApplication.firstKeyWindow.frame.size.width == 0.0 &&
-        UIApplication.firstKeyWindow.frame.size.height == 0.0) {
-        rect = [UIScreen mainScreen].bounds;
-    }
-
-    rect.size.height -=
-        [UIApplication firstKeyWindow]
-            .windowScene.statusBarManager.statusBarFrame.size.height;
-
-    return rect;
-}
-
 + (CGRect)appRect {
     CGRect windowBounds = CGRectZero;
 
@@ -66,21 +35,74 @@
     UIWindow *keyWindow = self.firstKeyWindow;
 
     if (keyWindow) {
-        return ((UINavigationController *)keyWindow.rootViewController)
-            .viewControllers.firstObject;
+        return ((UINavigationController *)keyWindow.rootViewController).viewControllers.firstObject;
     }
 
     return nil;
 }
 
-+ (UIViewController *)topViewController {
-    UIViewController *rootViewController = self.rootViewController;
-
-    if (rootViewController) {
-        return rootViewController.navigationController.topViewController;
++ (UIWindowScene *)activeWindowScene {
+    // Prefer a foreground-active scene
+    for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
+        if (scene.activationState == UISceneActivationStateForegroundActive &&
+            [scene isKindOfClass:UIWindowScene.class]) {
+            return (UIWindowScene *)scene;
+        }
     }
-
+    // Fallback: any scene with windows
+    for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
+        if ([scene isKindOfClass:UIWindowScene.class]) {
+            UIWindowScene *ws = (UIWindowScene *)scene;
+            if (ws.windows.count > 0)
+                return ws;
+        }
+    }
     return nil;
+}
+
++ (UIViewController *)topViewController {
+    UIWindowScene *scene = [self activeWindowScene];
+    if (!scene)
+        return nil;
+
+    // Find a key window first; otherwise take the first non-hidden window with a rootVC
+    UIWindow *targetWindow = nil;
+    for (UIWindow *w in scene.windows) {
+        if (w.isKeyWindow) {
+            targetWindow = w;
+            break;
+        }
+    }
+    if (!targetWindow) {
+        for (UIWindow *w in scene.windows) {
+            if (!w.isHidden && w.alpha > 0.0 && w.rootViewController) {
+                targetWindow = w;
+                break;
+            }
+        }
+    }
+    if (!targetWindow)
+        return nil;
+
+    UIViewController *top = targetWindow.rootViewController;
+    if (!top)
+        return nil;
+
+    // Walk presented stack
+    while (top.presentedViewController) {
+        top = top.presentedViewController;
+    }
+    // If it's a nav controller, use the visible VC
+    if ([top isKindOfClass:UINavigationController.class]) {
+        top = ((UINavigationController *)top).visibleViewController ?: top;
+    }
+    // If it's a tab controller, use the selected VC
+    if ([top isKindOfClass:UITabBarController.class]) {
+        UIViewController *sel = ((UITabBarController *)top).selectedViewController;
+        if (sel)
+            top = sel;
+    }
+    return top;
 }
 
 + (UIWindow *)firstKeyWindow {
@@ -107,10 +129,6 @@
         }];
 }
 
-- (UIInterfaceOrientation)compatStatusBarOrientation {
-    return [UIApplication firstKeyWindow].windowScene.interfaceOrientation;
-}
-
 #else // if !TARGET_OS_MACCATALYST
 
 - (BOOL)compatNetworkActivityIndicatorVisible {
@@ -120,35 +138,14 @@
 - (void)setCompatNetworkActivityIndicatorVisible:(BOOL)visable {
 }
 
-- (CGRect)compatStatusBarFrame {
-    return [UIApplication firstKeyWindow]
-        .windowScene.statusBarManager.statusBarFrame;
-}
-
-+ (CGRect)compatApplicationFrame {
-    CGRect rect = UIApplication.firstKeyWindow.frame;
-
-    if (UIApplication.firstKeyWindow.frame.size.width == 0.0 &&
-        UIApplication.firstKeyWindow.frame.size.height == 0.0) {
-        rect = [UIScreen mainScreen].bounds;
-    }
-
-    rect.size.height -=
-        [UIApplication firstKeyWindow]
-            .windowScene.statusBarManager.statusBarFrame.size.height;
-
-    return rect;
-}
-
 + (UIWindow *)firstKeyWindow {
-    return [UIApplication.sharedApplication.windows
-               filteredArrayUsingPredicate:[NSPredicate
-                                               predicateWithBlock:^BOOL(
-                                                   UIWindow *object,
-                                                   NSDictionary *bindings) {
-                                                 return object.isKeyWindow;
-                                               }]]
-        .firstObject;
+    return
+        [UIApplication.sharedApplication.windows
+            filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(
+                                                         UIWindow *object, NSDictionary *bindings) {
+              return object.isKeyWindow;
+            }]]
+            .firstObject;
 }
 
 - (void)compatOpenURL:(NSURL *)url {
@@ -157,10 +154,6 @@
                   options:@{}
         completionHandler:^(BOOL success){
         }];
-}
-
-- (UIInterfaceOrientation)compatStatusBarOrientation {
-    return [UIApplication firstKeyWindow].windowScene.interfaceOrientation;
 }
 
 #endif // if !TARGET_OS_MACCATALYST

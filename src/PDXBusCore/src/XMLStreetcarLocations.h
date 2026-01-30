@@ -21,8 +21,7 @@
 
 @interface XMLStreetcarLocations : NextBusXML <ClearableCache>
 
-@property(nonatomic, strong)
-    NSMutableDictionary<NSString *, Vehicle *> *locations;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, Vehicle *> *locations;
 
 - (instancetype)initWithRoute:(NSString *)route;
 - (void)insertLocation:(Departure *)dep;
@@ -30,8 +29,7 @@
 
 + (void)insertLocationsIntoXmlDeparturesArray:(NSArray *)xmlDeps
                                     forRoutes:(NSSet<NSString *> *)routes;
-+ (NSSet<NSString *> *)getStreetcarRoutesInXMLDeparturesArray:
-    (NSArray *)xmlDeps;
++ (NSSet<NSString *> *)getStreetcarRoutesInXMLDeparturesArray:(NSArray *)xmlDeps;
 + (XMLStreetcarLocations *)sharedInstanceForRoute:(NSString *)route;
 
 @end

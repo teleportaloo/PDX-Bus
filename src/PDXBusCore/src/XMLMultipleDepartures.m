@@ -27,9 +27,9 @@
 
 @interface XMLMultipleDepartures ()
 
-@property(nonatomic) unsigned int options;
-@property(nonatomic, strong) XMLDepartures *currentStop;
-@property(nonatomic, strong) Detour *currentDetour;
+@property (nonatomic) unsigned int options;
+@property (nonatomic, strong) XMLDepartures *currentStop;
+@property (nonatomic, strong) Detour *currentDetour;
 
 @end
 
@@ -80,18 +80,17 @@
           mins = Settings.minsForArrivals;
       }
 
-      [self startParsing:
-                [NSString stringWithFormat:@"arrivals/locIDs/%@/streetcar/true/"
-                                           @"showPosition/true/minutes/%@",
-                                           self.stopIds, mins]
+      [self startParsing:[NSString stringWithFormat:@"arrivals/locIDs/%@/streetcar/true/"
+                                                    @"showPosition/true/minutes/%@",
+                                                    self.stopIds,
+                                                    mins]
              cacheAction:TriMetXMLUseShortTermCache];
     }];
 }
 
 - (void)reloadWithAction:(void (^__nullable)(void))action {
     if (self.stopIds == nil && self.stops.count > 0) {
-        self.stopIds =
-            [NSString commaSeparatedStringFromStringEnumerator:self.stops];
+        self.stopIds = [NSString commaSeparatedStringFromStringEnumerator:self.stops];
     }
 
     action();
@@ -112,8 +111,7 @@
 
     if (!_hasData) {
         [self initItems];
-        NSArray<NSString *> *stopIdArray =
-            self.stopIds.mutableArrayFromCommaSeparatedString;
+        NSArray<NSString *> *stopIdArray = self.stopIds.mutableArrayFromCommaSeparatedString;
 
         for (NSString *stopId in stopIdArray) {
             XMLDepartures *xml = [XMLDepartures xml];
@@ -141,11 +139,10 @@ XML_START_ELEMENT(location) {
     } else if (self.currentDetour != nil) {
 #ifndef PDXBUS_WATCH
         if (!DepOption(DepOptionsNoDetours)) {
-            DetourLocation *loc =
-                [DetourLocation fromAttributeDict:XML_ATR_DICT];
+            DetourLocation *loc = [DetourLocation fromAttributeDict:XML_ATR_DICT];
             [self.currentDetour.locations addObject:loc];
         }
-#endif
+#endif // !PDXBUS_WATCH
     } else {
         NSString *stopId = XML_NON_NULL_ATR_STR(@"id");
 
@@ -182,8 +179,7 @@ XML_START_ELEMENT(reportingStatus) {
 
     if (self.stops.count > 0) {
         [self.stops enumerateKeysAndObjectsUsingBlock:^(
-                        NSString *_Nonnull key, XMLDepartures *_Nonnull xml,
-                        BOOL *_Nonnull stop) {
+                        NSString *_Nonnull key, XMLDepartures *_Nonnull xml, BOOL *_Nonnull stop) {
           CALL_XML_START_ELEMENT_ON(xml, reportingStatus);
         }];
     }
@@ -200,27 +196,20 @@ XML_START_ELEMENT(error) {
 
     if (self.stops.count > 0) {
         [self.stops enumerateKeysAndObjectsUsingBlock:^(
-                        NSString *_Nonnull key, XMLDepartures *_Nonnull xml,
-                        BOOL *_Nonnull stop) {
+                        NSString *_Nonnull key, XMLDepartures *_Nonnull xml, BOOL *_Nonnull stop) {
           CALL_XML_START_ELEMENT_ON(xml, resultSet);
           CALL_XML_START_ELEMENT_ON(xml, error);
         }];
     }
 }
 
-XML_START_ELEMENT(blockPosition) {
-    CALL_XML_START_ELEMENT_ON(self.currentStop, blockPosition);
-}
+XML_START_ELEMENT(blockPosition) { CALL_XML_START_ELEMENT_ON(self.currentStop, blockPosition); }
 
 XML_START_ELEMENT(trip) { CALL_XML_START_ELEMENT_ON(self.currentStop, trip); }
 
-XML_START_ELEMENT(layover) {
-    CALL_XML_START_ELEMENT_ON(self.currentStop, layover);
-}
+XML_START_ELEMENT(layover) { CALL_XML_START_ELEMENT_ON(self.currentStop, layover); }
 
-XML_START_ELEMENT(trackingError) {
-    CALL_XML_START_ELEMENT_ON(self.currentStop, trackingError);
-}
+XML_START_ELEMENT(trackingError) { CALL_XML_START_ELEMENT_ON(self.currentStop, trackingError); }
 
 XML_START_ELEMENT(detour) {
     // There is a detour element inside an arrival and one outside
@@ -229,8 +218,7 @@ XML_START_ELEMENT(detour) {
     } else {
         // If we have a desc attibute then we are definately in the later detour
         // section we may get here if filtering on a block otherwise.
-        if (!DepOption(DepOptionsNoDetours) &&
-            XML_NULLABLE_ATR_STR(@"desc") != nil) {
+        if (!DepOption(DepOptionsNoDetours) && XML_NULLABLE_ATR_STR(@"desc") != nil) {
             NSNumber *detourId = @(TRIMET_DETOUR_ID(XML_ATR_INT(@"id")));
             Detour *detour = [self.allDetours objectForKey:detourId];
 
@@ -245,14 +233,13 @@ XML_START_ELEMENT(detour) {
 
             if (self.currentDetour.systemWide) {
                 // System-wide alerts go at the top
-                [self.stops
-                    enumerateKeysAndObjectsUsingBlock:^(
-                        NSString *_Nonnull key, XMLDepartures *_Nonnull xml,
-                        BOOL *_Nonnull stop) {
-                      for (Departure *dep in xml) {
-                          [dep.sortedDetours safeAddDetour:self.currentDetour];
-                      }
-                    }];
+                [self.stops enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull key,
+                                                                XMLDepartures *_Nonnull xml,
+                                                                BOOL *_Nonnull stop) {
+                  for (Departure *dep in xml) {
+                      [dep.sortedDetours safeAddDetour:self.currentDetour];
+                  }
+                }];
             }
         }
     }
@@ -276,13 +263,12 @@ XML_START_ELEMENT(route) {
         }
     }
 }
-#endif
+#endif // !PDXBUS_WATCH
 
 XML_END_ELEMENT(detour) {
     if (!self.currentStop && !self.currentDetour.systemWide) {
         [self.stops enumerateKeysAndObjectsUsingBlock:^(
-                        NSString *_Nonnull key, XMLDepartures *_Nonnull xml,
-                        BOOL *_Nonnull stop) {
+                        NSString *_Nonnull key, XMLDepartures *_Nonnull xml, BOOL *_Nonnull stop) {
           xml.currentDetour = self.currentDetour;
           CALL_XML_END_ELEMENT_ON(xml, detour);
         }];
@@ -295,14 +281,13 @@ XML_END_ELEMENT(detour) {
 
 XML_END_ELEMENT(error) {
     if (self.currentStop != nil) {
-        self.currentStop.contentOfCurrentProperty =
-            self.contentOfCurrentProperty;
+        self.currentStop.contentOfCurrentProperty = self.contentOfCurrentProperty;
         CALL_XML_END_ELEMENT_ON(self.currentStop, error);
 
         if (self.stops.count > 0) {
-            [self.stops enumerateKeysAndObjectsUsingBlock:^(
-                            NSString *_Nonnull key, XMLDepartures *_Nonnull xml,
-                            BOOL *_Nonnull stop) {
+            [self.stops enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull key,
+                                                            XMLDepartures *_Nonnull xml,
+                                                            BOOL *_Nonnull stop) {
               xml.contentOfCurrentProperty = self.contentOfCurrentProperty;
               CALL_XML_END_ELEMENT_ON(xml, error);
             }];
@@ -325,16 +310,14 @@ XML_END_ELEMENT(reportingStatus) {
 
     if (self.stops.count > 0) {
         [self.stops enumerateKeysAndObjectsUsingBlock:^(
-                        NSString *_Nonnull key, XMLDepartures *_Nonnull xml,
-                        BOOL *_Nonnull stop) {
+                        NSString *_Nonnull key, XMLDepartures *_Nonnull xml, BOOL *_Nonnull stop) {
           CALL_XML_END_ELEMENT_ON(xml, reportingStatus);
         }];
     }
 }
 
 XML_END_ELEMENT(resultSet) {
-    NSArray<NSString *> *stopIdArray =
-        self.stopIds.mutableArrayFromCommaSeparatedString;
+    NSArray<NSString *> *stopIdArray = self.stopIds.mutableArrayFromCommaSeparatedString;
 
     for (NSString *stopId in stopIdArray) {
         XMLDepartures *xml = self.stops[stopId];
@@ -352,8 +335,7 @@ XML_END_ELEMENT(resultSet) {
     }
 
     if (self.currentStop && self.currentStop.items.count > 0 &&
-        self.currentStop.items.firstObject.errorMessage != nil &&
-        self.items.count == 0) {
+        self.currentStop.items.firstObject.errorMessage != nil && self.items.count == 0) {
         [self addItem:self.currentStop];
         self.currentStop = nil;
     }
@@ -382,8 +364,7 @@ XML_END_ELEMENT(resultSet) {
 + (instancetype)xmlWithOneTimeDelegate:(id<TriMetXMLDelegate> _Nonnull)delegate
                          sharedDetours:(AllTriMetDetours *)allDetours
                           sharedRoutes:(AllTriMetRoutes *)allRoutes {
-    XMLMultipleDepartures *multiple =
-        [XMLMultipleDepartures xmlWithOneTimeDelegate:delegate];
+    XMLMultipleDepartures *multiple = [XMLMultipleDepartures xmlWithOneTimeDelegate:delegate];
 
     XmlParseSync() {
         multiple.allRoutes = allRoutes;

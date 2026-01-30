@@ -14,8 +14,8 @@
 
 
 #import "CodeWriter.h"
-#import "../PDXBusCore/src/NSString+DocPath.h"
 #import "../CommonCode/TaskDispatch.h"
+#import "../PDXBusCore/src/NSString+DocPath.h"
 #import "DebugLogging.h"
 
 @interface CodeWriter ()
@@ -38,9 +38,7 @@
 
 + (void)file:(NSString *)str {
     CodeWriter.sharedInstance.finalFilename = str;
-    [[NSFileManager defaultManager]
-        removeItemAtPath:CodeWriter.sharedInstance.filename
-                   error:NULL];
+    [[NSFileManager defaultManager] removeItemAtPath:CodeWriter.sharedInstance.filename error:NULL];
 }
 
 + (void)write:(NSString *)str {
@@ -57,39 +55,36 @@
 + (void)moveIntoPlace {
     NSError *error = nil;
 
-    [[NSFileManager defaultManager]
-        removeItemAtPath:CodeWriter.sharedInstance.finalFilename
-                   error:&error];
+    [[NSFileManager defaultManager] removeItemAtPath:CodeWriter.sharedInstance.finalFilename
+                                               error:&error];
 
     LOG_NSError_info(error, @"removeItemAtPath");
 
-    [[NSFileManager defaultManager]
-        moveItemAtPath:CodeWriter.sharedInstance.filename
-                toPath:CodeWriter.sharedInstance.finalFilename
-                 error:&error];
+    [[NSFileManager defaultManager] moveItemAtPath:CodeWriter.sharedInstance.filename
+                                            toPath:CodeWriter.sharedInstance.finalFilename
+                                             error:&error];
 
     LOG_NSError_info(error, @"moveItemAtPath");
 }
 
-#define NSLogCode(FORMAT, ...)                                                 \
-    printf("%s\n",                                                             \
-           [[NSString stringWithFormat:FORMAT, ##__VA_ARGS__] UTF8String]);
+#define NSLogCode(FORMAT, ...)                                                                     \
+    do {                                                                                           \
+        printf("%s\n", [[NSString stringWithFormat:FORMAT, ##__VA_ARGS__] UTF8String]);            \
+    } while (0)
 
 + (void)dump {
     NSError *error = nil;
-    NSString *code =
-        [NSString stringWithContentsOfFile:CodeWriter.sharedInstance.filename
-                                  encoding:NSUTF8StringEncoding
-                                     error:&error];
+    NSString *code = [NSString stringWithContentsOfFile:CodeWriter.sharedInstance.filename
+                                               encoding:NSUTF8StringEncoding
+                                                  error:&error];
 
     LOG_NSError(error);
 
     //------------------------------------------------------------------------------"
-    NSLogCode(
-        @"\n//################ Machine Generated Code "
-        @"######################################\n%@\n//############# End of "
-        @"Machine Generated Code ##################################\n",
-        code);
+    NSLogCode(@"\n//################ Machine Generated Code "
+              @"######################################\n%@\n//############# End of "
+              @"Machine Generated Code ##################################\n",
+              code);
 
     //
 }
@@ -97,7 +92,7 @@
 + (CodeWriter *)sharedInstance {
     static CodeWriter *singleton = nil;
 
-    DoOnce(^{
+    DO_ONCE(^{
       singleton = [[CodeWriter alloc] init];
     });
 

@@ -36,14 +36,14 @@
 }
 
 - (NSMutableArray *)loadItems {
-    return _userState.recents;
+    return _userState.recentStops;
 }
 
 - (bool)tableView:(UITableView *)tableView isHistorySection:(NSInteger)section {
     return YES;
 }
 
-- (NSString *)noItems {
+- (NSString *)infoText {
     return NSLocalizedString(@"These recently viewed stops can be re-used to "
                              @"get current departures.",
                              @"section title");
@@ -62,39 +62,22 @@
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)tableView
          cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell *cell = [self tableView:tableView
-                    cellWithReuseIdentifier:kPlainId];
 
-    cell.editingAccessoryType = UITableViewCellAccessoryNone;
-    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-    // Set up the cell
+    UserParams *item = [self tableView:tableView filteredDict:indexPath.row].userParams;
 
-    UserParams *item =
-        [self tableView:tableView filteredDict:indexPath.row].userParams;
+    UITableViewCell *cell = [self tableView:tableView cellWithReuseIdentifier:kPlainId];
 
-    cell.textLabel.text = item.valOriginalName;
-    cell.textLabel.font = self.basicFont;
-    cell.textLabel.numberOfLines = 0;
-    [self updateAccessibility:cell];
-    cell.systemIcon = kSFIconRecent;
-    cell.textLabel.adjustsFontSizeToFitWidth = YES;
-    cell.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
-    return cell;
+    return [self simpleCell:cell
+                       text:item.valOriginalName
+                       icon:kIconRecent
+              accessoryType:UITableViewCellAccessoryDisclosureIndicator
+             selectionStyle:UITableViewCellSelectionStyleNone];
 }
 
-- (void)tableView:(UITableView *)tableView
-    didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    // Navigation logic may go here. Create and push another view controller.
-    // AnotherViewController *anotherViewController = [[AnotherViewController
-    // alloc] initWithNibName:@"AnotherView" bundle:nil];
-    // [self.navigationController pushViewController:anotherViewController];
-    // [anotherViewController release];
-
-    // [self chosenEndpoint:[self.locList objectAtIndex:indexPath.row] ];
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     DepartureTimesViewController *departureViewController =
         [DepartureTimesViewController viewController];
-    UserParams *item =
-        [self tableView:tableView filteredDict:indexPath.row].userParams;
+    UserParams *item = [self tableView:tableView filteredDict:indexPath.row].userParams;
 
     departureViewController.displayName = item.valOriginalName;
     [departureViewController fetchTimesForLocationAsync:self.backgroundTask

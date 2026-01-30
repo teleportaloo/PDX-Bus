@@ -34,7 +34,7 @@
 #define Compat_StreetFromAddress(A) ((NSString *)A.street)
 #define Compat_CityFromAddress(A) ((NSString *)A.city)
 #define Compat_StateFromAddress(A) ((NSString *)A.state)
-#endif
+#endif // !TARGET_OS_MACCATALYST
 
 - (NSString *)simpleAddress {
     NSMutableString *address = [NSMutableString string];

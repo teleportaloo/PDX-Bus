@@ -88,19 +88,16 @@
     TriMetTime mins = SecsToMins(t);
 
     if (mins == 1) {
-        [str appendString:NSLocalizedString(@" 1 min",
-                                            @"how long a bus layover will be")];
+        [str appendString:NSLocalizedString(@" 1 min", @"how long a bus layover will be")];
     }
 
     if (mins > 1) {
-        [str appendFormat:NSLocalizedString(@" %lld mins",
-                                            @"how long a bus layover will be"),
-                          mins];
+        [str
+            appendFormat:NSLocalizedString(@" %lld mins", @"how long a bus layover will be"), mins];
     }
 
     if (secs > 0) {
-        [str appendFormat:NSLocalizedString(@" %02lld secs",
-                                            @"how long a bus layover will be"),
+        [str appendFormat:NSLocalizedString(@" %02lld secs", @"how long a bus layover will be"),
                           secs];
     }
 
@@ -108,8 +105,7 @@
 }
 
 - (const TriMetInfo_Vehicle *)vehicleInfo {
-    if (_vehicleInfo == nil && self.vehicleIds != nil &&
-        self.vehicleIds.count > 0) {
+    if (_vehicleInfo == nil && self.vehicleIds != nil && self.vehicleIds.count > 0) {
         _vehicleInfo = [TriMetInfo vehicleInfo:self.vehicleIds[0].integerValue];
     }
 
@@ -173,26 +169,22 @@
 }
 
 - (void)makeTimeAdjustment:(NSTimeInterval)interval {
-    self.queryTime =
-        [self.queryTime dateByAddingTimeInterval:-self.timeAdjustment];
+    self.queryTime = [self.queryTime dateByAddingTimeInterval:-self.timeAdjustment];
     self.timeAdjustment = interval;
-    self.queryTime =
-        [self.queryTime dateByAddingTimeInterval:self.timeAdjustment];
+    self.queryTime = [self.queryTime dateByAddingTimeInterval:self.timeAdjustment];
 }
 
 - (NSComparisonResult)compareUsingTime:(Departure *)inData;
 { return [self.departureTime compare:inData.departureTime]; }
 
 - (bool)notToSchedule {
-    return (self.status != ArrivalStatusScheduled &&
-            self.scheduledTime != nil &&
+    return (self.status != ArrivalStatusScheduled && self.scheduledTime != nil &&
             SecsToMins([self.scheduledTime timeIntervalSince1970]) !=
                 SecsToMins([self.departureTime timeIntervalSince1970]));
 }
 
 - (bool)actuallyLate {
-    return (self.status != ArrivalStatusScheduled &&
-            self.scheduledTime != nil &&
+    return (self.status != ArrivalStatusScheduled && self.scheduledTime != nil &&
             SecsToMins([self.scheduledTime timeIntervalSince1970]) !=
                 SecsToMins([self.departureTime timeIntervalSince1970]) &&
             [self.scheduledTime timeIntervalSinceDate:self.queryTime] < 0);
@@ -200,8 +192,7 @@
 
 - (NSString *)descAndDir {
     if (self.locationDir != nil && self.locationDir.length != 0) {
-        return [NSString
-            stringWithFormat:@"%@ (%@)", self.locationDesc, self.locationDir];
+        return [NSString stringWithFormat:@"%@ (%@)", self.locationDesc, self.locationDir];
     }
 
     return self.locationDesc;
@@ -228,15 +219,13 @@
     self.blockPositionRouteNumber = data.routeNumber;
     self.blockPositionDir = data.direction;
 
-    self.blockPositionFeet =
-        [self.stopLocation distanceFromLocation:data.location] *
-        kFeetInAMetre; // convert meters to feet
+    self.blockPositionFeet = [self.stopLocation distanceFromLocation:data.location] *
+                             kFeetInAMetre; // convert meters to feet
 }
 
 - (NSArray *)vehicleIdsForStreetcar {
     if (self.streetcarId) {
-        NSString *vehicleId =
-            [TriMetInfo vehicleIdFromStreetcarId:self.streetcarId];
+        NSString *vehicleId = [TriMetInfo vehicleIdFromStreetcarId:self.streetcarId];
 
         if (vehicleId) {
             return @[ vehicleId ];
@@ -246,10 +235,8 @@
     return nil;
 }
 
-- (NSDateFormatter *)
-    dateAndTimeFormatterWithPossibleLongDateStyle:(NSString *)longDateFormat
-                                    arrivalWindow:
-                                        (ArrivalWindow *)arrivalWindow {
+- (NSDateFormatter *)dateAndTimeFormatterWithPossibleLongDateStyle:(NSString *)longDateFormat
+                                                     arrivalWindow:(ArrivalWindow *)arrivalWindow {
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
 
     dateFormatter.dateStyle = NSDateFormatterMediumStyle;
@@ -257,13 +244,11 @@
 
     // If date is tomorrow and more than 12 hours away then put the full date
 
-    NSTimeInterval timeToArrival =
-        [self.departureTime timeIntervalSinceDate:[NSDate date]];
+    NSTimeInterval timeToArrival = [self.departureTime timeIntervalSinceDate:[NSDate date]];
 
     if (([[dateFormatter stringFromDate:self.departureTime]
             isEqualToString:[dateFormatter stringFromDate:[NSDate date]]]) ||
-        (timeToArrival < 11 * 60 * 60) ||
-        self.status == ArrivalStatusEstimated) {
+        (timeToArrival < 11 * 60 * 60) || self.status == ArrivalStatusEstimated) {
         dateFormatter.dateStyle = NSDateFormatterNoStyle;
         dateFormatter.timeStyle = NSDateFormatterShortStyle;
 

@@ -18,17 +18,15 @@
 #import <Foundation/Foundation.h>
 #import <WatchKit/WatchKit.h>
 
-@interface InterfaceControllerWithBackgroundThread
-    : WKInterfaceController <ExtentionWakeDelegate>
+@interface InterfaceControllerWithBackgroundThread : WKInterfaceController <ExtentionWakeDelegate>
 
-@property(atomic, strong) NSThread *backgroundThread;
-@property(nonatomic, readonly) bool backgroundThreadRunning;
+@property (atomic, strong) NSThread *backgroundThread;
+@property (nonatomic, readonly) bool backgroundThreadRunning;
 
 - (void)startBackgroundTask;
 - (void)cancelBackgroundTask;
 
-- (void)delayedPush:(WatchContext *)context
-         completion:(void (^)(void))completion;
+- (void)delayedPush:(WatchContext *)context completion:(void (^)(void))completion;
 - (void)sendProgress:(int)progress total:(int)total;
 
 - (id)backgroundTask;

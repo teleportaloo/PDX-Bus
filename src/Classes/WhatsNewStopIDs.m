@@ -33,8 +33,7 @@
         [DepartureTimesViewController viewController];
 
     departureViewController.displayName = @"";
-    [departureViewController fetchTimesForLocationAsync:parent.backgroundTask
-                                                 stopId:stopIds];
+    [departureViewController fetchTimesForLocationAsync:parent.backgroundTask stopId:stopIds];
 }
 
 @end

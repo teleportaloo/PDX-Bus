@@ -1,8 +1,8 @@
-//RouteMultiPolyline//  RoutePolyline.h
-//  PDX Bus
+// RouteMultiPolyline//  RoutePolyline.h
+//   PDX Bus
 //
-//  Created by Andrew Wallace on 9/17/16.
-//  Copyright © 2016 Andrew Wallace
+//   Created by Andrew Wallace on 9/17/16.
+//   Copyright © 2016 Andrew Wallace
 //
 
 
@@ -24,13 +24,13 @@
     CLLocationCoordinate2D _touchPosition;
 }
 
-@property(nonatomic, strong) UIColor *color;
-@property(nonatomic) CGFloat dashPhase;
-@property(weak, nonatomic, readonly) NSArray<NSNumber *> *dashPattern;
-@property(nonatomic) int dashPatternId;
-@property(nonatomic, copy) NSString *desc;
-@property(nonatomic, copy) NSString *route;
-@property(nonatomic, copy) NSString *dir;
+@property (nonatomic, strong) UIColor *color;
+@property (nonatomic) CGFloat dashPhase;
+@property (weak, nonatomic, readonly) NSArray<NSNumber *> *dashPattern;
+@property (nonatomic) int dashPatternId;
+@property (nonatomic, copy) NSString *desc;
+@property (nonatomic, copy) NSString *route;
+@property (nonatomic, copy) NSString *dir;
 
 - (MKMultiPolylineRenderer *)renderer;
 - (RoutePin *)routePin;

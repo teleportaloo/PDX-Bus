@@ -11,12 +11,11 @@
 
 
 #import "Stop.h"
+#import "CLLocation+Helper.h"
+#import "NSDictionary+Types.h"
 #import "NSString+Core.h"
 #import "TriMetXML.h"
 #import "TriMetXMLSelectors.h"
-#import "NSDictionary+Types.h"
-#import "CLLocation+Helper.h"
-
 
 @implementation Stop
 
@@ -36,8 +35,7 @@
 }
 
 - (NSComparisonResult)compareUsingStopName:(Stop *)inStop {
-    return [self.desc compare:inStop.desc
-                      options:(NSNumericSearch | NSCaseInsensitiveSearch)];
+    return [self.desc compare:inStop.desc options:(NSNumericSearch | NSCaseInsensitiveSearch)];
 }
 
 - (NSString *)stringToFilter {

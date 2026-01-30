@@ -18,11 +18,9 @@
 
 @interface WatchArrivalsContextBookmark : WatchArrivalsContext
 
-+ (WatchArrivalsContextBookmark *)contextFromBookmark:
-                                      (WatchBookmarksContext *)bookmarksContext
++ (WatchArrivalsContextBookmark *)contextFromBookmark:(WatchBookmarksContext *)bookmarksContext
                                                 index:(NSInteger)index;
-+ (WatchArrivalsContextBookmark *)contextFromRecents:
-                                      (WatchBookmarksContext *)bookmarksContext
++ (WatchArrivalsContextBookmark *)contextFromRecents:(WatchBookmarksContext *)bookmarksContext
                                                index:(NSInteger)index;
 
 @end

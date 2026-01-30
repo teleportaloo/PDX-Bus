@@ -15,11 +15,13 @@
 #import "TriMetXML.h"
 #import <Foundation/Foundation.h>
 
-#define DEBUG_PROGRESS(X, s, ...)                                              \
-    DEBUG_LOG(s, ##__VA_ARGS__);                                               \
-    if (X.debugMessages) {                                                     \
-        [X taskSubtext:[NSString stringWithFormat:(s), ##__VA_ARGS__]];        \
-    }
+#define DEBUG_PROGRESS(X, s, ...)                                                                  \
+    do {                                                                                           \
+        DEBUG_LOG(s, ##__VA_ARGS__);                                                               \
+        if (X.debugMessages) {                                                                     \
+            [X taskSubtext:[NSString stringWithFormat:(s), ##__VA_ARGS__]];                        \
+        }                                                                                          \
+    } while (0)
 
 @class TaskState;
 @class UIViewController;
@@ -37,6 +39,5 @@
 - (bool)debugMessages;
 - (void)addCancelObserver:(NSObject *)key block:(dispatch_block_t)block;
 - (void)removeCancelObserver:(NSObject *)key;
-
 
 @end

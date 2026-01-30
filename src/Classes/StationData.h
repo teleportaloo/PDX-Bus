@@ -26,8 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (TriMetInfo_ColoredLines)railLines0:(int)index;
 + (TriMetInfo_ColoredLines)railLines1:(int)index;
 + (const int *)getSortedColoredLines;
-+ (const TriMetInfo_AlphaSections *)getAlphaSectionsAndCount:
-    (size_t *__nullable)count;
++ (const TriMetInfo_AlphaSections *)getAlphaSectionsAndCount:(size_t *__nullable)count;
 + (RailStation *_Nullable)railstationFromStopId:(NSString *)stopId;
 + (CLLocation *_Nullable)locationFromStopId:(NSString *)stopId;
 + (TriMetInfo_ColoredLines)railLinesForStopId:(NSString *)stopId;

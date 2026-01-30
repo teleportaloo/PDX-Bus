@@ -36,8 +36,7 @@
         Class captureDeviceClass = NSClassFromString(@"AVCaptureDevice");
 
         if (captureDeviceClass != nil) {
-            AVCaptureDevice *device =
-                [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+            AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
 
             if (device.hasTorch && device.hasFlash) {
                 supported = YES;
@@ -52,8 +51,7 @@
 
 - (void)on {
     if ([TorchController supported] && Settings.flashLed) {
-        AVCaptureDevice *device =
-            [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+        AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
 
         [device lockForConfiguration:nil];
 
@@ -66,8 +64,7 @@
 
 - (void)off {
     if ([TorchController supported]) {
-        AVCaptureDevice *device =
-            [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+        AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
 
         [device lockForConfiguration:nil];
 
@@ -80,8 +77,7 @@
 
 - (void)toggle {
     if ([TorchController supported]) {
-        AVCaptureDevice *device =
-            [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+        AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
 
         [device lockForConfiguration:nil];
 

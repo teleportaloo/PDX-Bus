@@ -25,9 +25,11 @@
 
 + (TriMetInfo_VehicleConstPtr)vehicleInfo:(NSInteger)vehicleId {
     TriMetInfo_Vehicle key = {vehicleId, NO_VEHICLE_ID, nil, nil, nil, nil};
-    return (TriMetInfo_VehicleConstPtr)bsearch(
-        &key, TriMetInfo_getVehicle(), TriMetInfo_noOfVehicles(),
-        sizeof(TriMetInfo_Vehicle), TriMetInfo_compareVehicle);
+    return (TriMetInfo_VehicleConstPtr)bsearch(&key,
+                                               TriMetInfo_getVehicle(),
+                                               TriMetInfo_noOfVehicles(),
+                                               sizeof(TriMetInfo_Vehicle),
+                                               TriMetInfo_compareVehicle);
 }
 
 + (NSString *)vehicleInfoSpecial:(NSInteger)vehicleId {
@@ -35,10 +37,11 @@
     TriMetInfo_VehicleSpecial key = {vehicleId, nil};
 
     TriMetInfo_VehicleSpecialConstPtr found =
-        (TriMetInfo_VehicleSpecialConstPtr)bsearch(
-            &key, TriMetInfo_getVehicleSpecial(),
-            TriMetInfo_noOfVehicleSpecials(), sizeof(TriMetInfo_VehicleSpecial),
-            TriMetInfo_compareVehicleSpecial);
+        (TriMetInfo_VehicleSpecialConstPtr)bsearch(&key,
+                                                   TriMetInfo_getVehicleSpecial(),
+                                                   TriMetInfo_noOfVehicleSpecials(),
+                                                   sizeof(TriMetInfo_VehicleSpecial),
+                                                   TriMetInfo_compareVehicleSpecial);
 
     if (found) {
         return found->markedUpSpecialInfo;
@@ -48,39 +51,33 @@
 
 + (NSString *)markedUpVehicleString:(NSString *)vehicleId {
     NSString *string;
-    const TriMetInfo_Vehicle *vehicle =
-        [TriMetInfo vehicleInfo:vehicleId.integerValue];
+    const TriMetInfo_Vehicle *vehicle = [TriMetInfo vehicleInfo:vehicleId.integerValue];
 
     if (vehicle == nil) {
         if (vehicleId != nil) {
-            string = [NSString
-                stringWithFormat:@"Vehicle ID #b%@#b\n#b#RNo vehicle info.#b",
-                                 vehicleId];
+            string =
+                [NSString stringWithFormat:@"Vehicle ID #b%@#b\n#b#RNo vehicle info.#b", vehicleId];
         } else {
             string = @"#b#RNo vehicle info.#b";
         }
     } else {
-        NSString *markedUpSpecialInfo =
-            [self vehicleInfoSpecial:vehicleId.integerValue];
+        NSString *markedUpSpecialInfo = [self vehicleInfoSpecial:vehicleId.integerValue];
         string = [NSString
             stringWithFormat:@"Vehicle ID #D#b%@#b - #b%@#b#D\nMade by "
                              @"#b%@#b#D%@%@\nIntroduced #b#D%@#b#D%@",
-                             vehicleId, vehicle->type,
+                             vehicleId,
+                             vehicle->type,
                              vehicle->markedUpManufacturer,
                              vehicle->markedUpModel.length != 0
                                  ? [NSString
-                                       stringWithFormat:@"\nModel #D#b%@#b",
-                                                        vehicle->markedUpModel]
+                                       stringWithFormat:@"\nModel #D#b%@#b", vehicle->markedUpModel]
                                  : @"",
                              vehicle->fuel == nil
                                  ? @""
-                                 : [NSString stringWithFormat:@" #D#b%@#b",
-                                                              vehicle->fuel],
+                                 : [NSString stringWithFormat:@" #D#b%@#b", vehicle->fuel],
                              vehicle -> first_used,
                              markedUpSpecialInfo
-                                 ? [NSString
-                                       stringWithFormat:@"\n%@",
-                                                        markedUpSpecialInfo]
+                                 ? [NSString stringWithFormat:@"\n%@", markedUpSpecialInfo]
                                  : @""];
     }
 
@@ -109,10 +106,9 @@
 + (PtrConstRouteInfo)infoForKeyword:(NSString *)key {
     NSString *lower = [key lowercaseString];
 
-    for (PtrConstRouteInfo info = [TriMetInfoColoredLines allLines];
-         info->route_number != kNoRoute; info++) {
-        NSArray<NSString *> *keyWords =
-            info->key_words.mutableArrayFromCommaSeparatedString;
+    for (PtrConstRouteInfo info = [TriMetInfoColoredLines allLines]; info->route_number != kNoRoute;
+         info++) {
+        NSArray<NSString *> *keyWords = info->key_words.mutableArrayFromCommaSeparatedString;
 
         for (NSString *keyWord in keyWords) {
             if ([lower containsString:keyWord]) {
@@ -126,16 +122,20 @@
 
 + (PtrConstRouteInfo)infoForLine:(TriMetInfo_ColoredLines)line {
     TriMetInfo_Route key = {0, line, 0, 0, 0, 0, 0, nil, nil, nil, nil, NO};
-    return bsearch(&key, [TriMetInfoColoredLines allLines],
+    return bsearch(&key,
+                   [TriMetInfoColoredLines allLines],
                    [TriMetInfoColoredLines numOfLines],
-                   sizeof(TriMetInfo_Route), TriMetInfo_compareRouteLineBit);
+                   sizeof(TriMetInfo_Route),
+                   TriMetInfo_compareRouteLineBit);
 }
 
 + (PtrConstRouteInfo)infoForRouteNum:(NSInteger)route {
     TriMetInfo_Route key = {route, 0, 0, 0, 0, 0, 0, nil, nil, nil, nil, NO};
-    return bsearch(&key, [TriMetInfoColoredLines allLines],
+    return bsearch(&key,
+                   [TriMetInfoColoredLines allLines],
                    [TriMetInfoColoredLines numOfLines],
-                   sizeof(TriMetInfo_Route), TriMetInfo_compareRouteNumber);
+                   sizeof(TriMetInfo_Route),
+                   TriMetInfo_compareRouteNumber);
 }
 
 + (PtrConstRouteInfo)infoForRoute:(NSString *)route {
@@ -145,18 +145,19 @@
 + (NSString *)tinyNameForRoute:(NSString *)route {
     PtrConstRouteInfo info = [TriMetInfo infoForRoute:route];
     if (info) {
-        return  info->tiny_name;
+        return info->tiny_name;
     }
     return route;
 }
 
 + (NSSet<NSString *> *)streetcarRoutes {
     static NSMutableSet<NSString *> *routeIds = nil;
-    DoOnce(^{
+    DO_ONCE(^{
       routeIds = [NSMutableSet set];
 
       for (PtrConstRouteInfo info = [TriMetInfoColoredLines allLines];
-           info->route_number != kNoRoute; info++) {
+           info->route_number != kNoRoute;
+           info++) {
           if (info->lineType == LineTypeStreetcar) {
               [routeIds addObject:[TriMetInfo routeIdString:info]];
           }
@@ -168,13 +169,13 @@
 
 + (NSSet<NSString *> *)triMetRailLines {
     static NSMutableSet<NSString *> *routeIds = nil;
-    DoOnce(^{
+    DO_ONCE(^{
       routeIds = [NSMutableSet set];
       // HERE
       for (PtrConstRouteInfo routeInfo = [TriMetInfoColoredLines allLines];
-           routeInfo->route_number != kNoRoute; routeInfo++) {
-          if (routeInfo->lineType == LineTypeMAX ||
-              routeInfo->lineType == LineTypeWES) {
+           routeInfo->route_number != kNoRoute;
+           routeInfo++) {
+          if (routeInfo->lineType == LineTypeMAX || routeInfo->lineType == LineTypeWES) {
               [routeIds addObject:[TriMetInfo routeIdString:routeInfo]];
           }
       }
@@ -196,8 +197,7 @@
         NSString *routeNumber = [input justNumbers];
 
         if (routeNumber.length == 0) {
-            routeNumber =
-                [TriMetInfo routeIdString:[TriMetInfo infoForKeyword:input]];
+            routeNumber = [TriMetInfo routeIdString:[TriMetInfo infoForKeyword:input]];
         }
 
         return routeNumber;

@@ -13,11 +13,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#import "DebugLogging.h"
 #import "TaskDispatch.h"
 #import "TriMetInfo+UI.h"
-#import "UIColor+MoreDarkMode.h"
-#import "DebugLogging.h"
 #import "UIColor+HTML.h"
+#import "UIColor+MoreDarkMode.h"
 
 #define DEBUG_LEVEL_FOR_FILE LogUI
 
@@ -55,7 +55,7 @@
     if (IOS_DARK_MODE) {
         return [UIColor quaternarySystemFillColor];
     }
-#endif
+#endif // !PDXBUS_WATCH
     return HTML_COLOR(0xFFFF99);
 }
 
@@ -64,7 +64,7 @@
     if (IOS_DARK_MODE) {
         return HTML_COLOR(0xFFFF99);
     }
-#endif
+#endif // !PDXBUS_WATCH
     return [UIColor blackColor];
 }
 
@@ -73,7 +73,7 @@
     if (IOS_DARK_MODE) {
         return [UIColor quaternarySystemFillColor];
     }
-#endif
+#endif // !PDXBUS_WATCH
     return [UIColor colorWithRed:0.97 green:0.97 blue:0.97 alpha:1.0];
 }
 
@@ -86,7 +86,7 @@
     if (IOS_DARK_MODE) {
         return [UIColor blackColor];
     }
-#endif
+#endif // !PDXBUS_WATCH
     return [UIColor whiteColor];
 }
 
@@ -95,7 +95,7 @@
     if (IOS_DARK_MODE) {
         return [UIColor secondarySystemBackgroundColor];
     }
-#endif
+#endif // !PDXBUS_WATCH
     return [UIColor colorWithRed:0.95 green:0.95 blue:0.95 alpha:1.0];
 }
 
@@ -104,7 +104,7 @@
     if (IOS_DARK_MODE) {
         return [UIColor blueColor];
     }
-#endif
+#endif // !PDXBUS_WATCH
     return [UIColor whiteColor];
 }
 
@@ -113,8 +113,54 @@
     if (IOS_DARK_MODE) {
         return [UIColor systemPurpleColor];
     }
-#endif
+#endif // !PDXBUS_WATCH
     return [UIColor purpleColor];
+}
+
+- (UIColor *)modeAwareVariant {
+    return [self modeAwareVariantWithMinBrightness:0.75];
+}
+
+- (UIColor *)modeAwareVariantWithMinBrightness:(CGFloat)minBrightness {
+
+    if (!IOS_DARK_MODE) {
+        return self;
+    }
+
+    minBrightness = MAX(0.0, MIN(1.0, minBrightness));
+
+    CGFloat h = 0, s = 0, b = 0, a = 0;
+
+    // Try HSB decomposition first
+    if ([self getHue:&h saturation:&s brightness:&b alpha:&a]) {
+        if (b < minBrightness) {
+            b = minBrightness;
+        }
+        return [UIColor colorWithHue:h saturation:s brightness:b alpha:a];
+    }
+
+    // Fallback for grayscale colorspaces
+    CGFloat white = 0;
+    if ([self getWhite:&white alpha:&a]) {
+        // If it's a dark gray, lift it to the floor; else leave as-is.
+        if (white < minBrightness) {
+            white = minBrightness;
+        }
+        return [UIColor colorWithWhite:white alpha:a];
+    }
+
+    /*
+    // Last resort: convert to sRGB then try again
+    UIColor *srgb = [self colorUsingColorSpaceName:NULL]; // no-op on iOS; keep for API symmetry
+    if ([srgb getHue:&h saturation:&s brightness:&b alpha:&a]) {
+        if (b < minBrightness) {
+            b = minBrightness;
+        }
+        return [UIColor colorWithHue:h saturation:s brightness:b alpha:a];
+    }
+     */
+
+    return self; // If all else fails, return original.
 }
 
 @end

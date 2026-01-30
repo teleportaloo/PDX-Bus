@@ -22,9 +22,7 @@
 
 @implementation ViewControllerBase (DetourTableViewCell)
 
-- (bool)detourLink:(NSString *)link
-            detour:(Detour *)detour
-            source:(UIView *)view {
+- (bool)detourLink:(NSString *)link detour:(Detour *)detour source:(UIView *)view {
     if ([self linkAction:link source:view]) {
         if ([link isEqualToString:@"detourmap:"]) {
             if ([self canGoDeeperAlert]) {

@@ -32,15 +32,14 @@
     [newHeaders removeObjectForKey:@"Expires"];
     [newHeaders removeObjectForKey:@"s-maxage"];
 
-    NSHTTPURLResponse *newResponse =
-        [[NSHTTPURLResponse alloc] initWithURL:self.URL
-                                    statusCode:self.statusCode
-                                   HTTPVersion:@"HTTP/1.1"
-                                  headerFields:newHeaders];
+    NSHTTPURLResponse *newResponse = [[NSHTTPURLResponse alloc] initWithURL:self.URL
+                                                                 statusCode:self.statusCode
+                                                                HTTPVersion:@"HTTP/1.1"
+                                                               headerFields:newHeaders];
 
 #ifdef DEBUGLOGGING
     [newResponse maxAgeDate];
-#endif
+#endif // DEBUGLOGGING
 
     return newResponse;
 }
@@ -57,8 +56,7 @@
     NSTimeInterval maxAge = HTTP_NO_AGE;
 
     if ([cacheControl hasPrefix:HTTP_MAX_AGE]) {
-        maxAge =
-            [cacheControl substringFromIndex:HTTP_MAX_AGE.length].longLongValue;
+        maxAge = [cacheControl substringFromIndex:HTTP_MAX_AGE.length].longLongValue;
     }
 
     return maxAge;

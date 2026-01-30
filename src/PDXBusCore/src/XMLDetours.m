@@ -23,13 +23,12 @@
 static NSString *detourURLStringV2 = @"alerts/route/%@/infolink/true";
 static NSString *detourURLLocIdStringV2 = @"alerts/locIDs/%@/infolink/true";
 static NSString *allDetoursURLStringV2 = @"alerts/infolink/true";
-static NSString *systemWideDetoursOnlyV2 =
-    @"alerts/infolink/true/systemWideOnly/true";
+static NSString *systemWideDetoursOnlyV2 = @"alerts/infolink/true/systemWideOnly/true";
 
 @interface XMLDetours ()
 
-@property(nonatomic, strong) Detour *currentDetour;
-@property(nonatomic, copy) NSString *route;
+@property (nonatomic, strong) Detour *currentDetour;
+@property (nonatomic, copy) NSString *route;
 
 @end
 
@@ -51,19 +50,16 @@ static NSString *systemWideDetoursOnlyV2 =
 
 - (BOOL)getDetoursForRoute:(NSString *)route {
     self.route = route;
-    BOOL ret = [self
-        startParsing:[NSString stringWithFormat:detourURLStringV2, route]];
+    BOOL ret = [self startParsing:[NSString stringWithFormat:detourURLStringV2, route]];
 
     self.route = nil;
     return ret;
 }
 
 - (BOOL)getDetoursForRoutes:(NSArray<NSString *> *)routeIdArray {
-    NSMutableString *routeIds =
-        [NSString commaSeparatedStringFromStringEnumerator:routeIdArray];
+    NSMutableString *routeIds = [NSString commaSeparatedStringFromStringEnumerator:routeIdArray];
 
-    BOOL ret = [self
-        startParsing:[NSString stringWithFormat:detourURLStringV2, routeIds]];
+    BOOL ret = [self startParsing:[NSString stringWithFormat:detourURLStringV2, routeIds]];
 
     self.route = nil;
     return ret;
@@ -71,12 +67,9 @@ static NSString *systemWideDetoursOnlyV2 =
 
 - (BOOL)getDetoursForLocIds:(NSArray<NSString *> *)locIdArray {
 
-    NSMutableString *locIDs =
-        [NSString commaSeparatedStringFromStringEnumerator:locIdArray];
+    NSMutableString *locIDs = [NSString commaSeparatedStringFromStringEnumerator:locIdArray];
 
-    BOOL ret =
-        [self startParsing:[NSString stringWithFormat:detourURLLocIdStringV2,
-                                                      locIDs]];
+    BOOL ret = [self startParsing:[NSString stringWithFormat:detourURLLocIdStringV2, locIDs]];
 
     self.route = nil;
     return ret;

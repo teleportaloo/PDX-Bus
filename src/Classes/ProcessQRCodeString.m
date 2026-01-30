@@ -19,7 +19,7 @@
 
 @interface ProcessQRCodeString ()
 
-@property(nonatomic, copy) NSString *stopId;
+@property (nonatomic, copy) NSString *stopId;
 
 @end
 
@@ -38,8 +38,7 @@
         [self checkURL:originalURL];
 
         if (!self.stopId) {
-            [self fetchDataByPolling:originalURL
-                         cachePolicy:NSURLRequestReloadIgnoringCacheData];
+            [self fetchDataByPolling:originalURL cachePolicy:NSURLRequestReloadIgnoringCacheData];
         }
     }
 
@@ -49,8 +48,7 @@
 - (void)URLSession:(NSURLSession *)session
               dataTask:(NSURLSessionDataTask *)dataTask
     didReceiveResponse:(NSURLResponse *)response
-     completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))
-                           completionHandler {
+     completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
 
     // We got data - time to stop this now - we don't want the data we just
     // wanted to catch the redirect if there was any
@@ -79,8 +77,7 @@
         } else if (scanner.atEnd) {
             return;
         } else {
-            NSCharacterSet *slash =
-                [NSCharacterSet characterSetWithCharactersInString:@"/"];
+            NSCharacterSet *slash = [NSCharacterSet characterSetWithCharactersInString:@"/"];
             scanner.scanLocation = scanner.scanLocation + URL_TRIMET.length;
 
             while ([str characterAtIndex:scanner.scanLocation] == '0') {
@@ -105,8 +102,7 @@
                           task:(NSURLSessionTask *)task
     willPerformHTTPRedirection:(NSHTTPURLResponse *)response
                     newRequest:(NSURLRequest *)request
-             completionHandler:
-                 (void (^)(NSURLRequest *_Nullable))completionHandler {
+             completionHandler:(void (^)(NSURLRequest *_Nullable))completionHandler {
     DEBUG_LOG_NSString(request.URL.absoluteString);
 
     [self checkURL:request.URL.absoluteString];

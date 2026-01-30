@@ -18,6 +18,6 @@
 
 @interface DebugInterfaceController : WKInterfaceController
 - (IBAction)ClearCommuterBookmark;
-@property(strong, nonatomic) IBOutlet WKInterfaceLabel *CommuterStatus;
+@property (strong, nonatomic) IBOutlet WKInterfaceLabel *CommuterStatus;
 
 @end

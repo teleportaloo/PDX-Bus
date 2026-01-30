@@ -56,8 +56,7 @@
     }
 
     if (purplePin != nil) {
-        [map addAnnotation:purplePin.coordinate
-              withPinColor:WKInterfaceMapPinColorPurple];
+        [map addAnnotation:purplePin.coordinate withPinColor:WKInterfaceMapPinColorPurple];
 
         [WatchMapHelper expandTopLeft:&topLeftCoord
                           bottomRight:&bottomRightCoord
@@ -71,29 +70,21 @@
             if (pin.pinHasCoord) {
                 CLLocationCoordinate2D loc = pin.pinCoord;
 
-                [WatchMapHelper expandTopLeft:&topLeftCoord
-                                  bottomRight:&bottomRightCoord
-                                          loc:loc];
+                [WatchMapHelper expandTopLeft:&topLeftCoord bottomRight:&bottomRightCoord loc:loc];
 
                 if (pin.pinTint == nil) {
                     [map addAnnotation:loc withPinColor:pin.pinColor];
                 } else if (pin.pinHasBearing) {
-                    bool bus =
-                        [pin.pinTint isEqual:[UIColor modeAwareBusColor]];
+                    bool bus = [pin.pinTint isEqual:[UIColor modeAwareBusColor]];
 
                     UIImage *plainImage = [[UIImage imageNamed:kIconUp2x]
                         rotatedImageByDegreesFromNorth:pin.pinBearing];
 
                     if (!bus) {
-                        UIImage *tintedImage =
-                            [plainImage tintImageWithColor:pin.pinTint];
-                        [map addAnnotation:loc
-                                 withImage:tintedImage
-                              centerOffset:CGPointZero];
+                        UIImage *tintedImage = [plainImage tintImageWithColor:pin.pinTint];
+                        [map addAnnotation:loc withImage:tintedImage centerOffset:CGPointZero];
                     } else {
-                        [map addAnnotation:loc
-                                 withImage:plainImage
-                              centerOffset:CGPointZero];
+                        [map addAnnotation:loc withImage:plainImage centerOffset:CGPointZero];
                     }
                 }
             }
@@ -103,17 +94,13 @@
     MKCoordinateRegion region;
 
     region.center.latitude =
-        topLeftCoord.latitude -
-        (topLeftCoord.latitude - bottomRightCoord.latitude) * 0.5;
+        topLeftCoord.latitude - (topLeftCoord.latitude - bottomRightCoord.latitude) * 0.5;
     region.center.longitude =
-        topLeftCoord.longitude +
-        (bottomRightCoord.longitude - topLeftCoord.longitude) * 0.5;
-    region.span.latitudeDelta =
-        fabs(topLeftCoord.latitude - bottomRightCoord.latitude) *
-        1.6; // Add a little extra space on the sides
-    region.span.longitudeDelta =
-        fabs(bottomRightCoord.longitude - topLeftCoord.longitude) *
-        1.2; // Add a little extra space on the sides
+        topLeftCoord.longitude + (bottomRightCoord.longitude - topLeftCoord.longitude) * 0.5;
+    region.span.latitudeDelta = fabs(topLeftCoord.latitude - bottomRightCoord.latitude) *
+                                1.6; // Add a little extra space on the sides
+    region.span.longitudeDelta = fabs(bottomRightCoord.longitude - topLeftCoord.longitude) *
+                                 1.2; // Add a little extra space on the sides
 
     if (region.span.latitudeDelta == 0.0) {
         region.span.latitudeDelta = 0.004;
@@ -127,8 +114,7 @@
         if (@available(watchOS 6.1, *)) {
             map.showsUserLocation = YES;
         } else {
-            [map addAnnotation:purplePin.coordinate
-                  withPinColor:WKInterfaceMapPinColorGreen];
+            [map addAnnotation:purplePin.coordinate withPinColor:WKInterfaceMapPinColorGreen];
         }
     }
 }

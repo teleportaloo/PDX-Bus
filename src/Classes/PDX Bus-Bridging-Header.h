@@ -9,7 +9,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+#import "BoxedIcon.h"
 #import "DebugLogging.h"
-#import "Icons.h"
-#import "WebViewController.h"
 #import "UIFont+Utility.h"
+#import "WebViewController.h"

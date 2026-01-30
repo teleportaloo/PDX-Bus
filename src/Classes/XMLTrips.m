@@ -30,12 +30,12 @@
 
 @interface XMLTrips ()
 
-@property(nonatomic, strong) TripItinerary *currentItinerary;
-@property(nonatomic, strong) TripLeg *currentLeg;
-@property(nonatomic, strong) id currentObject;
-@property(nonatomic, copy) NSString *currentTagData;
-@property(nonatomic, strong) NSMutableArray *currentList;
-@property(nonatomic, strong) SelImpClassCache selImpClassCache;
+@property (nonatomic, strong) TripItinerary *currentItinerary;
+@property (nonatomic, strong) TripLeg *currentLeg;
+@property (nonatomic, strong) id currentObject;
+@property (nonatomic, copy) NSString *currentTagData;
+@property (nonatomic, strong) NSMutableArray *currentList;
+@property (nonatomic, strong) SelImpClassCache selImpClassCache;
 
 @end
 
@@ -54,19 +54,13 @@ static NSString *tripURLString =
     reverse.userRequest.fromPoint = [[TripEndPoint alloc] init];
     reverse.userRequest.toPoint = [[TripEndPoint alloc] init];
 
-    reverse.userRequest.fromPoint.locationDesc =
-        self.userRequest.toPoint.locationDesc;
-    reverse.userRequest.fromPoint.coordinates =
-        self.userRequest.toPoint.coordinates;
-    reverse.userRequest.fromPoint.useCurrentLocation =
-        self.userRequest.toPoint.useCurrentLocation;
+    reverse.userRequest.fromPoint.locationDesc = self.userRequest.toPoint.locationDesc;
+    reverse.userRequest.fromPoint.coordinates = self.userRequest.toPoint.coordinates;
+    reverse.userRequest.fromPoint.useCurrentLocation = self.userRequest.toPoint.useCurrentLocation;
 
-    reverse.userRequest.toPoint.locationDesc =
-        self.userRequest.fromPoint.locationDesc;
-    reverse.userRequest.toPoint.coordinates =
-        self.userRequest.fromPoint.coordinates;
-    reverse.userRequest.toPoint.useCurrentLocation =
-        self.userRequest.fromPoint.useCurrentLocation;
+    reverse.userRequest.toPoint.locationDesc = self.userRequest.fromPoint.locationDesc;
+    reverse.userRequest.toPoint.coordinates = self.userRequest.fromPoint.coordinates;
+    reverse.userRequest.toPoint.useCurrentLocation = self.userRequest.fromPoint.useCurrentLocation;
 
     reverse.userRequest.dateAndTime = self.userRequest.dateAndTime;
     reverse.userRequest.arrivalTime = self.userRequest.arrivalTime;
@@ -87,18 +81,13 @@ static NSString *tripURLString =
     copy.userRequest.fromPoint = [[TripEndPoint alloc] init];
     copy.userRequest.toPoint = [[TripEndPoint alloc] init];
 
-    copy.userRequest.fromPoint.locationDesc =
-        self.userRequest.fromPoint.locationDesc;
-    copy.userRequest.fromPoint.coordinates =
-        self.userRequest.fromPoint.coordinates;
-    copy.userRequest.fromPoint.useCurrentLocation =
-        self.userRequest.fromPoint.useCurrentLocation;
+    copy.userRequest.fromPoint.locationDesc = self.userRequest.fromPoint.locationDesc;
+    copy.userRequest.fromPoint.coordinates = self.userRequest.fromPoint.coordinates;
+    copy.userRequest.fromPoint.useCurrentLocation = self.userRequest.fromPoint.useCurrentLocation;
 
-    copy.userRequest.toPoint.locationDesc =
-        self.userRequest.toPoint.locationDesc;
+    copy.userRequest.toPoint.locationDesc = self.userRequest.toPoint.locationDesc;
     copy.userRequest.toPoint.coordinates = self.userRequest.toPoint.coordinates;
-    copy.userRequest.toPoint.useCurrentLocation =
-        self.userRequest.toPoint.useCurrentLocation;
+    copy.userRequest.toPoint.useCurrentLocation = self.userRequest.toPoint.useCurrentLocation;
 
     copy.userRequest.dateAndTime =
         [self.userRequest.dateAndTime copyWithZone:NSDefaultMallocZone()];
@@ -162,18 +151,17 @@ static NSString *tripURLString =
         self.userRequest.dateAndTime = [NSDate date];
     }
 
-    NSString *finalTripURLString = [NSString
-        stringWithFormat:tripURLString,
-                         [self.userRequest.fromPoint toQuery:@"from"],
-                         [self.userRequest.toPoint toQuery:@"to"],
-                         [dateFormatter
-                             stringFromDate:self.userRequest.dateAndTime],
-                         [timeFormatter
-                             stringFromDate:self.userRequest.dateAndTime],
-                         (self.userRequest.arrivalTime ? @"A" : @"D"),
-                         self.userRequest.walk, [self.userRequest modeToString],
-                         [self.userRequest minToString],
-                         self.userRequest.maxItineraries];
+    NSString *finalTripURLString =
+        [NSString stringWithFormat:tripURLString,
+                                   [self.userRequest.fromPoint toQuery:@"from"],
+                                   [self.userRequest.toPoint toQuery:@"to"],
+                                   [dateFormatter stringFromDate:self.userRequest.dateAndTime],
+                                   [timeFormatter stringFromDate:self.userRequest.dateAndTime],
+                                   (self.userRequest.arrivalTime ? @"A" : @"D"),
+                                   self.userRequest.walk,
+                                   [self.userRequest modeToString],
+                                   [self.userRequest minToString],
+                                   self.userRequest.maxItineraries];
 
     // self.itineraries = nil;
     self.currentLeg = nil;
@@ -230,8 +218,7 @@ static NSString *tripURLString =
                 [leg createFromText:(l == 0) textType:TripTextTypeUI];
                 leg.to.xml_number = leg.internalRouteNumber;
 
-                [leg createToText:(l == it.legs.count - 1)
-                         textType:TripTextTypeUI];
+                [leg createToText:(l == it.legs.count - 1) textType:TripTextTypeUI];
                 leg.from.xml_number = leg.internalRouteNumber;
 
                 if (leg.from && leg.from.displayText != nil) {
@@ -252,15 +239,13 @@ static NSString *tripURLString =
     // Fix up the reverse geocoded names
     if (self.resultFrom) {
         if (self.userRequest.fromPoint.coordinates != nil) {
-            self.resultFrom.xml_description =
-                self.userRequest.fromPoint.locationDesc;
+            self.resultFrom.xml_description = self.userRequest.fromPoint.locationDesc;
         }
     }
 
     if (self.resultTo) {
         if (self.userRequest.toPoint.coordinates != nil) {
-            self.resultTo.xml_description =
-                self.userRequest.toPoint.locationDesc;
+            self.resultTo.xml_description = self.userRequest.toPoint.locationDesc;
         }
     }
 
@@ -330,14 +315,11 @@ XML_START_ELEMENT(special) {
     NSString *tag = XML_NON_NULL_ATR_STR(@"id");
 
     if (XML_EQ(tag, @"honored")) {
-        self.currentTagData =
-            NSLocalizedString(@"Honored Citizen: $%@\n", @"fare type");
+        self.currentTagData = NSLocalizedString(@"Honored Citizen: $%@\n", @"fare type");
     } else if (XML_EQ(tag, @"youth")) {
-        self.currentTagData =
-            NSLocalizedString(@"Youth/Student: $%@\n", @"fare type");
+        self.currentTagData = NSLocalizedString(@"Youth/Student: $%@\n", @"fare type");
     } else {
-        self.currentTagData =
-            [NSString stringWithFormat:@"%@ ($%@)", tag, @"%@"];
+        self.currentTagData = [NSString stringWithFormat:@"%@ ($%@)", tag, @"%@"];
     }
 }
 
@@ -379,13 +361,11 @@ XML_START_ELEMENT(fromList) {
 }
 
 XML_END_ELEMENT(regular) {
-    [self.currentItinerary.fare
-        appendFormat:@"Adult: $%@\n", self.contentOfCurrentProperty];
+    [self.currentItinerary.fare appendFormat:@"Adult: $%@\n", self.contentOfCurrentProperty];
 }
 
 XML_END_ELEMENT(special) {
-    [self.currentItinerary.fare
-        appendFormat:self.currentTagData, self.contentOfCurrentProperty];
+    [self.currentItinerary.fare appendFormat:self.currentTagData, self.contentOfCurrentProperty];
 }
 
 XML_END_ELEMENT(leg) {
@@ -431,28 +411,22 @@ XML_END_ELEMENT(url) {
     didEndElement:(NSString *)elementName
      namespaceURI:(NSString *)namespaceURI
     qualifiedName:(NSString *)qName {
-    [super parser:parser
-        didEndElement:elementName
-         namespaceURI:namespaceURI
-        qualifiedName:qName];
+    [super parser:parser didEndElement:elementName namespaceURI:namespaceURI qualifiedName:qName];
 
     if (qName) {
         elementName = qName;
     }
 
     if (self.currentObject != nil) {
-        SelImpPair selImp =
-            [self.selImpClassCache selImpForElement:elementName
-                                            selName:XML_PROP_SETTER_NAME
-                                                obj:self.currentObject
-                                              debug:XML_PROP_DEBUG];
+        SelImpPair selImp = [self.selImpClassCache selImpForElement:elementName
+                                                            selName:XML_PROP_SETTER_NAME
+                                                                obj:self.currentObject
+                                                              debug:XML_PROP_DEBUG];
 
         if (selImp.imp) {
-            DEBUG_LOG(@"XML==:%@=%@", elementName,
-                      self.contentOfCurrentProperty);
+            DEBUG_LOG(@"XML==:%@=%@", elementName, self.contentOfCurrentProperty);
             XML_PROP_SETTER_IMP setter = (void *)selImp.imp;
-            setter(self.currentObject, selImp.sel,
-                   self.contentOfCurrentProperty);
+            setter(self.currentObject, selImp.sel, self.contentOfCurrentProperty);
         }
     }
 
@@ -469,10 +443,9 @@ XML_END_ELEMENT(url) {
     UserState *userData = UserState.sharedInstance;
 
     if (self.rawData != nil) {
-        [userData
-            addToRecentTripsWithUserRequest:[self.userRequest toDictionary]
-                                description:[self longName]
-                                       blob:self.rawData];
+        [userData addToRecentTripsWithUserRequest:[self.userRequest toDictionary]
+                                      description:[self longName]
+                                             blob:self.rawData];
     }
 }
 
@@ -484,18 +457,13 @@ XML_END_ELEMENT(url) {
         if (self.resultTo != nil && self.resultTo.desc != nil) {
             title = [NSString stringWithFormat:@"To %@", self.resultTo.desc];
         } else {
-            title = [NSString
-                stringWithFormat:@"To %@",
-                                 self.userRequest.toPoint.locationDesc];
+            title = [NSString stringWithFormat:@"To %@", self.userRequest.toPoint.locationDesc];
         }
     } else if (self.userRequest.fromPoint.locationDesc != nil) {
         if (self.resultFrom != nil && self.resultFrom.desc != nil) {
-            title =
-                [NSString stringWithFormat:@"From %@", self.resultFrom.desc];
+            title = [NSString stringWithFormat:@"From %@", self.resultFrom.desc];
         } else {
-            title = [NSString
-                stringWithFormat:@"From %@",
-                                 self.userRequest.fromPoint.locationDesc];
+            title = [NSString stringWithFormat:@"From %@", self.userRequest.fromPoint.locationDesc];
         }
     }
 
@@ -503,7 +471,8 @@ XML_END_ELEMENT(url) {
 }
 
 - (NSString *)longName {
-    return [NSString stringWithFormat:@"%@%@ %@", [self mediumName],
+    return [NSString stringWithFormat:@"%@%@ %@",
+                                      [self mediumName],
                                       [self.userRequest timeType],
                                       [self.userRequest getDateAndTime]];
 }
@@ -515,8 +484,7 @@ XML_END_ELEMENT(url) {
         if (self.resultFrom != nil && self.resultFrom.desc != nil) {
             [title appendFormat:@"From: %@\n", self.resultFrom.desc];
         } else {
-            [title appendFormat:@"From: %@\n",
-                                self.userRequest.fromPoint.locationDesc];
+            [title appendFormat:@"From: %@\n", self.userRequest.fromPoint.locationDesc];
         }
     } else {
         [title appendFormat:@"From: Acquired Location\n"];
@@ -526,8 +494,7 @@ XML_END_ELEMENT(url) {
         if (self.resultTo != nil && self.resultTo.desc != nil) {
             [title appendFormat:@"To: %@\n", self.resultTo.desc];
         } else {
-            [title appendFormat:@"To: %@\n",
-                                self.userRequest.toPoint.locationDesc];
+            [title appendFormat:@"To: %@\n", self.userRequest.toPoint.locationDesc];
         }
     } else {
         [title appendFormat:@"To: %@\n", kAcquiredLocation];
@@ -538,18 +505,6 @@ XML_END_ELEMENT(url) {
 
 - (NSUserActivity *)userActivity {
     return [self.userRequest userActivityWithTitle:self.shortName];
-}
-
-- (void)addStopsFromUserFaves:(NSArray *)userFaves {
-    NSMutableArray *justStops = [NSMutableArray array];
-
-    for (NSDictionary *dict in userFaves) {
-        if (dict.userParams.valLocation != nil) {
-            [justStops insertObject:dict atIndex:justStops.count];
-        }
-    }
-
-    self.userFaves = justStops;
 }
 
 - (instancetype)init {

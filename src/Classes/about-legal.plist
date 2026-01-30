@@ -12,7 +12,7 @@
 		<key>Title</key>
 		<string>App icon by Rob Alan</string>
 		<key>Icon</key>
-		<string>ActionIcon.png</string>
+		<string>ActionIcon</string>
 		<key>LinkM</key>
 		<string>https://x.com/robalan</string>
 	</dict>
@@ -29,14 +29,6 @@
 		<string>!doc.plaintext</string>
 		<key>LinkM</key>
 		<string>https://wrfranklin.org/Research/Short_Notes/pnpoly.html</string>
-	</dict>
-	<dict>
-		<key>Title</key>
-		<string>Pull to Refresh (c) 2010 Leah Culver</string>
-		<key>Icon</key>
-		<string>!doc.plaintext</string>
-		<key>LinkM</key>
-		<string>https://github.com/leah/PullToRefresh</string>
 	</dict>
 	<dict>
 		<key>Title</key>
@@ -74,7 +66,7 @@
 		<key>Title</key>
 		<string>TML map icon created by Freepik - Flaticon</string>
 		<key>Icon</key>
-		<string>tml.png</string>
+		<string>tml</string>
 		<key>LinkM</key>
 		<string>https://www.flaticon.com/free-icons/map</string>
 	</dict>

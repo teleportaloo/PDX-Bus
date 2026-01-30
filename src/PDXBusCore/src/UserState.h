@@ -17,22 +17,19 @@
 #import "Settings.h"
 #import "SharedFile.h"
 
-#define kUserFavesDescription                                                  \
+#define kUserFavesDescription                                                                      \
     NSLocalizedString(@"Launch PDX Bus & open bookmark %@", @"bookmark name")
-#define kAddBookmarkToSiri                                                     \
-    NSLocalizedString(@"Add to Siri to launch PDX Bus with bookmark",          \
-                      @"button text")
+#define kAddBookmarkToSiri                                                                         \
+    NSLocalizedString(@"Add to Siri to launch PDX Bus with bookmark", @"button text")
 
 #define kMaxFaves 30
 #define kNoBookmark -1
 
 #define kLastRunWatch @"last_run_watch"
 
-#define kNewBookMark                                                           \
-    NSLocalizedString(@"New Stop Bookmark", @"new bookmark name")
-#define kNewTripBookMark                                                       \
-    NSLocalizedString(@"New Trip Bookmark", @"new bookmark name")
-#define kNewTakeMeSomewhereBookMark                                            \
+#define kNewBookMark NSLocalizedString(@"New Stop Bookmark", @"new bookmark name")
+#define kNewTripBookMark NSLocalizedString(@"New Trip Bookmark", @"new bookmark name")
+#define kNewTakeMeSomewhereBookMark                                                                \
     NSLocalizedString(@"Take me <somewhere> now", @"new bookmark name")
 
 #define kNewSavedTrip @"New Saved Trip"
@@ -47,46 +44,67 @@
 
 #define kiCloudTotal @"total"
 
+@interface NSDictionary (MutableDeepCopy)
+
+- (NSMutableDictionary *)mutableDeepCopy;
+
+@end
+
 @interface UserState : NSObject <ClearableCache>
 
-@property(strong) NSMutableDictionary *rawData;
-@property(weak, readonly) NSMutableArray<NSMutableDictionary *> *faves;
-@property(weak, readonly) NSArray<NSDictionary *> *favesArrivalsOnly;
-@property(weak, readonly) NSMutableArray<NSDictionary *> *recents;
-@property(weak, readonly) NSMutableArray<NSDictionary *> *vehicleIds;
-@property(weak, readonly) NSMutableArray<NSDictionary *> *recentTrips;
-@property(weak, readonly) NSString *last;
-@property(weak, readonly) NSArray<NSString *> *lastNames;
-@property(strong) NSMutableDictionary *lastTrip;
-@property(strong) NSMutableDictionary *lastLocate;
-@property bool favesChanged;
-@property(weak) NSDate *lastRun;
-@property(strong) SharedFile *sharedUserCopyOfPlist;
-@property bool readOnly;
-@property(strong, nonatomic) NSString *lastRunKey;
-@property(nonatomic, readonly, copy) NSDictionary *takeMeHomeUserRequest;
-@property(nonatomic, readonly) NSTimeInterval locationDatabaseAge;
-@property(nonatomic, readonly) bool hasEverChanged;
-@property(atomic) bool canWriteToCloud;
++ (UserState *)sharedInstance;
 
-- (void)incrementWatchSequence;
-- (NSUInteger)watchSequence;
+// Caching & writing to iCloud
+@property bool readOnly;
+@property (atomic) bool canWriteToCloud;
+@property (nonatomic, readonly) NSTimeInterval locationDatabaseAge;
+@property (strong, nonatomic) NSString *lastRunKey;
+- (void)cacheState;
+- (void)cacheStateNow;
+- (void)mergeWithCloud:(NSArray *)changed;
+- (void)clearCloud;
+- (void)writeToCloud;
+
+// Read / write array safely inside our access domain
+- (void)accessArray:(NSMutableArray *)array block:(void (^)(NSMutableArray *safeArray))block;
+
+// Faves (aka bookmarks)
+- (NSMutableArray<NSMutableDictionary *> *)faves;
+- (NSMutableArray *)stopsFromFaves;
+- (NSArray<NSDictionary *> *)favesArrivalsOnly;
+- (bool)hasEverChanged;
+@property (nonatomic) bool dirty;
+- (NSDictionary *)checkForCommuterFaveShowOnlyOnce:(bool)onlyOnce;
+
+// Recent stops
+- (NSMutableArray<NSDictionary *> *)recentStops;
+- (NSDictionary *)addToRecentStops:(NSString *)stopId description:(NSString *)desc;
+
+// Vehicle IDs
+- (NSMutableArray<NSDictionary *> *)vehicleIds;
+- (void)addToVehicleIds:(NSString *)vehicleId;
+
+// Trips
+@property (strong) NSMutableDictionary *lastTrip;
+- (NSMutableArray<NSDictionary *> *)recentTrips;
 - (void)addToRecentTripsWithUserRequest:(NSDictionary *)userRequest
                             description:(NSString *)desc
                                    blob:(NSData *)blob;
-- (NSDictionary *)addToRecentsWithStopId:(NSString *)stopId
-                             description:(NSString *)desc;
-- (NSDictionary *)checkForCommuterBookmarkShowOnlyOnce:(bool)onlyOnce;
+- (NSDictionary *)takeMeHomeUserRequest;
 - (void)saveTakeMeHomeUserRequest:(NSDictionary *)userReqest;
-- (void)addToVehicleIds:(NSString *)vehicleId;
-- (void)setLastArrivals:(NSString *)locations;
-- (void)mergeWithCloud:(NSArray *)changed;
-- (void)clearCloud;
-- (void)setLastNames:(NSArray *)names;
-- (void)clearLastArrivals;
-- (void)writeToiCloud;
-- (void)cacheState;
 
-+ (UserState *)sharedInstance;
+// Locate
+@property (strong) NSMutableDictionary *lastLocate;
+
+// Last run
+@property (strong) NSDate *lastRun;
+
+// Watch Sequence
+- (void)incrementWatchSequence;
+- (NSUInteger)watchSequence;
+
+// Raw data and file.
+@property (strong) NSMutableDictionary *watchData;
+@property (strong) SharedFile *sharedUserCopyOfPlist;
 
 @end

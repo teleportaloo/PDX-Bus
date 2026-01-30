@@ -19,9 +19,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface Direction : NSObject
 
-@property(nonatomic, copy) NSString *dir;
-@property(nonatomic, copy) NSString *desc;
-@property(nonatomic, retain) NSMutableArray<Stop *> *stops;
+@property (nonatomic, copy) NSString *dir;
+@property (nonatomic, copy) NSString *desc;
+@property (nonatomic, retain) NSMutableArray<Stop *> *stops;
 
 + (Direction *)withDir:(NSString *)dir desc:(NSString *)desc;
 

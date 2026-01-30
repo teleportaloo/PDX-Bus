@@ -28,7 +28,7 @@ typedef enum WatchSelectActionEnum {
 
 @interface WatchRow : NSObject
 
-@property(nonatomic, strong) NSNumber *index;
+@property (nonatomic, strong) NSNumber *index;
 
 + (NSString *)identifier;
 

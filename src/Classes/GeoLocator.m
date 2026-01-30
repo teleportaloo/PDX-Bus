@@ -64,7 +64,7 @@
     const CLLocationDegrees Y0 = -123.153522;
     const CLLocationDegrees Y1 = -122.249926;
 
-    DoOnce((^{
+    DO_ONCE((^{
       CLLocationCoordinate2D triMetCenter = {(X0 + X1) / 2.0, (Y0 + Y1) / 2.0};
 
       region.center = triMetCenter;
@@ -81,23 +81,20 @@
 
     MKLocalSearch *search = [[MKLocalSearch alloc] initWithRequest:request];
 
-    [search startWithCompletionHandler:^(
-                MKLocalSearchResponse *_Nullable response,
-                NSError *_Nullable error) {
+    [search startWithCompletionHandler:^(MKLocalSearchResponse *_Nullable response,
+                                         NSError *_Nullable error) {
       if (!error) {
           for (MKMapItem *mapItem in response.mapItems) {
               MKPlacemark *p = mapItem.placemark;
 
               if (p.coordinate.latitude >= X0 && p.coordinate.latitude <= X1 &&
-                  p.coordinate.longitude >= Y0 &&
-                  p.coordinate.longitude <= Y1) {
+                  p.coordinate.longitude >= Y0 && p.coordinate.longitude <= Y1) {
                   DEBUG_LOG(@"Placemark %@", mapItem.placemark.description);
 
                   TripLegEndPoint *ep = [TripLegEndPoint new];
 
                   NSArray *lines = p.simpleAddressLines;
-                  NSString *addressString =
-                      [lines componentsJoinedByString:@"\n"];
+                  NSString *addressString = [lines componentsJoinedByString:@"\n"];
 
                   if (addressString != nil) {
                       if ([p.name isEqualToString:lines.firstObject] ||
@@ -105,8 +102,7 @@
                           ep.displayText = addressString;
                       } else {
                           ep.displayText =
-                              [NSString stringWithFormat:@"%@\n%@", p.name,
-                                                         addressString];
+                              [NSString stringWithFormat:@"%@\n%@", p.name, addressString];
                       }
                   } else if (p.name != nil) {
                       ep.displayText = p.name;

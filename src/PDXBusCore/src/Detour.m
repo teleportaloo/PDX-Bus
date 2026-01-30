@@ -24,7 +24,7 @@
 
 @interface Detour ()
 
-@property(nonatomic, copy) NSString *detourWithDetectedStopIds;
+@property (nonatomic, copy) NSString *detourWithDetectedStopIds;
 
 @end
 
@@ -39,8 +39,7 @@
 }
 
 - (BOOL)isEqual:(id)anObject {
-    return self.detourId.unsignedIntegerValue ==
-           ((Detour *)anObject).detourId.unsignedIntegerValue;
+    return self.detourId.unsignedIntegerValue == ((Detour *)anObject).detourId.unsignedIntegerValue;
     // If it's an object. Otherwise use a simple comparison like self.personId
     // == anObject.personId
 }
@@ -57,7 +56,7 @@
     return self.embeddedStops.allObjects;
 }
 
-- (NSString *)detectStops {
+- (NSString *)detourTextWithDetectedStops {
     if (self.detourWithDetectedStopIds == nil) {
         [self stopScanner];
     }
@@ -68,8 +67,7 @@
 - (void)skipSpaces:(NSMutableString *)result
         scanString:(NSString *)scanString
            scanner:(NSScanner *)scanner {
-    while (!scanner.isAtEnd &&
-           [scanString characterAtIndex:scanner.scanLocation] == ' ') {
+    while (!scanner.isAtEnd && [scanString characterAtIndex:scanner.scanLocation] == ' ') {
         [result appendString:@" "];
         scanner.scanLocation++;
     }
@@ -82,16 +80,13 @@
     static NSCharacterSet *numbers;
     static NSArray<NSString *> *searchStrings;
 
-    DoOnce((^{
+    DO_ONCE((^{
       // An open or a close brace will end the search for stop Ids in a
       // sequence. An open brace is unexpected so stopping is the safest.
-      numbersOrBrace =
-          [NSCharacterSet characterSetWithCharactersInString:@"0123456789)("];
-      numbers =
-          [NSCharacterSet characterSetWithCharactersInString:@"0123456789"];
+      numbersOrBrace = [NSCharacterSet characterSetWithCharactersInString:@"0123456789)("];
+      numbers = [NSCharacterSet characterSetWithCharactersInString:@"0123456789"];
 
-      searchStrings =
-          @[ @"(stop id", @"( stop id", @"#h" ]; // String is made lower case
+      searchStrings = @[ @"(stop id", @"( stop id", @"#h" ]; // String is made lower case
     }));
 
     NSMutableString *result = self.detourDesc.safeEscapeForMarkUp.mutableCopy;
@@ -116,11 +111,9 @@
                 [result appendString:segment];
             }
 
-            if (!scanner.isAtEnd &&
-                scanner.scanLocation + prefix.length < scanString.length) {
+            if (!scanner.isAtEnd && scanner.scanLocation + prefix.length < scanString.length) {
                 NSString *text = [scanString
-                    substringWithRange:NSMakeRange(scanner.scanLocation,
-                                                   prefix.length)];
+                    substringWithRange:NSMakeRange(scanner.scanLocation, prefix.length)];
 
                 scanner.scanLocation += prefix.length;
 
@@ -130,15 +123,12 @@
                     segment = nil;
 
                     // Oddly, spaces here will vanish
-                    [self skipSpaces:result
-                          scanString:scanString
-                             scanner:scanner];
+                    [self skipSpaces:result scanString:scanString scanner:scanner];
 
                     // If we have a # we do not tolerate junk between the # and
                     // the number
                     if (!scanner.isAtEnd && braces) {
-                        [scanner scanUpToCharactersFromSet:numbersOrBrace
-                                                intoString:&segment];
+                        [scanner scanUpToCharactersFromSet:numbersOrBrace intoString:&segment];
 
                         if (segment) {
                             [result appendString:segment];
@@ -147,25 +137,20 @@
 
                     if (!scanner.isAtEnd) {
                         // Any kind of brace will stop the scanning for IDs.
-                        unichar charAtIndex =
-                            [scanString characterAtIndex:scanner.scanLocation];
+                        unichar charAtIndex = [scanString characterAtIndex:scanner.scanLocation];
                         if (charAtIndex == ')' || charAtIndex == '(') {
                             break;
                         }
 
                         segment = nil;
 
-                        if ([scanner scanCharactersFromSet:numbers
-                                                intoString:&segment]) {
+                        if ([scanner scanCharactersFromSet:numbers intoString:&segment]) {
                             stop = segment.longLongValue;
 
                             if (stop > 0) {
-                                [result appendFormat:@"#Lid:%lld %@#T", stop,
-                                                     segment];
+                                [result appendFormat:@"#Lid:%lld %@#T", stop, segment];
                                 [self.embeddedStops
-                                    addObject:[NSString
-                                                  stringWithFormat:@"%lld",
-                                                                   stop]];
+                                    addObject:[NSString stringWithFormat:@"%lld", stop]];
                             } else if (segment) {
                                 [result appendString:segment];
                             }
@@ -173,9 +158,7 @@
                             break;
                         }
 
-                        [self skipSpaces:result
-                              scanString:scanString
-                                 scanner:scanner];
+                        [self skipSpaces:result scanString:scanString scanner:scanner];
 
                         // If we have a # then stop after the first number
                         if (!braces) {
@@ -188,8 +171,7 @@
                 // ensures no characters are lost even the junk.
                 NSString *text = [scanString
                     substringWithRange:NSMakeRange(scanner.scanLocation,
-                                                   scanString.length -
-                                                       scanner.scanLocation)];
+                                                   scanString.length - scanner.scanLocation)];
                 [result appendString:text];
                 break;
             } else {
@@ -253,11 +235,9 @@
     NSNumber *detourId = @(TRIMET_DETOUR_ID(XML_ATR_INT(@"id")));
 
     result.detourDesc =
-        [TriMetXML replaceXMLcodes:XML_NON_NULL_ATR_STR(@"desc")]
-            .stringByTrimmingWhitespace;
+        [TriMetXML replaceXMLcodes:XML_NON_NULL_ATR_STR(@"desc")].stringByTrimmingWhitespace;
     result.headerText =
-        [TriMetXML replaceXMLcodes:XML_NON_NULL_ATR_STR(@"header_text")]
-            .stringByTrimmingWhitespace;
+        [TriMetXML replaceXMLcodes:XML_NON_NULL_ATR_STR(@"header_text")].stringByTrimmingWhitespace;
     // result.infoLinkUrl =
 
     NSString *url = XML_NULLABLE_ATR_STR(@"info_link_url");
@@ -271,9 +251,8 @@
 
         for (NSString *prefix in prefixes) {
             // There might be several URLs here.  Take the last one.
-            NSRange lastURL =
-                [url rangeOfString:prefix
-                           options:NSCaseInsensitiveSearch | NSBackwardsSearch];
+            NSRange lastURL = [url rangeOfString:prefix
+                                         options:NSCaseInsensitiveSearch | NSBackwardsSearch];
 
             if (lastURL.length > 0) {
                 url = [url substringFromIndex:lastURL.location + 1];
@@ -300,26 +279,23 @@
         if (addEmoji) {
             static NSDictionary<NSString *, NSString *> *prefixes = nil;
 
-            DoOnce(^{
+            DO_ONCE(^{
               prefixes = [[NSDictionary alloc]
-                  initWithContentsOfFile:[[NSBundle mainBundle]
-                                             pathForResource:@"DetourEmoji"
-                                                      ofType:@"plist"]];
+                  initWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"DetourEmoji"
+                                                                         ofType:@"plist"]];
             });
 
             __block NSString *symbol = @"⚠️";
 
             [prefixes enumerateKeysAndObjectsUsingBlock:^(
-                          NSString *_Nonnull key, NSString *_Nonnull obj,
-                          BOOL *_Nonnull stop) {
+                          NSString *_Nonnull key, NSString *_Nonnull obj, BOOL *_Nonnull stop) {
               if ([result.headerText hasCaseInsensitiveSubstring:key]) {
                   symbol = obj;
                   *stop = YES;
               }
             }];
 
-            result.headerText =
-                [NSString stringWithFormat:@"%@ %@", symbol, result.headerText];
+            result.headerText = [NSString stringWithFormat:@"%@ %@", symbol, result.headerText];
         }
 
         Route *route = [Route systemWide:detourId];

@@ -16,7 +16,6 @@
 #import "ViewControllerBase.h"
 #import <AVFoundation/AVFoundation.h>
 
-@interface QrCodeReaderViewController
-    : ViewControllerBase <AVCaptureMetadataOutputObjectsDelegate>
+@interface QrCodeReaderViewController : ViewControllerBase <AVCaptureMetadataOutputObjectsDelegate>
 
 @end

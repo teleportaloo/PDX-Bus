@@ -19,7 +19,6 @@
 @interface RoutesAtStopIdIntentHandler : NSObject
 
 - (void)handleRoutesAtStopId:(RoutesAtStopIdIntent *)intent
-                  completion:(void (^)(RoutesAtStopIdIntentResponse *response))
-                                 completion API_AVAILABLE(ios(12.0));
+                  completion:(void (^)(RoutesAtStopIdIntentResponse *response))completion;
 
 @end

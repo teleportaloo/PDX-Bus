@@ -17,15 +17,19 @@
 
 #import "TableViewControllerWithRefresh.h"
 #import "DebugLogging.h"
+#import "NSString+MoreMarkup.h"
+#import "TaskDispatch.h"
 #import "UIFont+Utility.h"
 
 @interface TableViewControllerWithRefresh <FilteredItemType>() {
     bool _timerPaused;
 }
 
-@property(nonatomic, strong) NSTimer *refreshTimer;
-@property(nonatomic, strong) NSDate *lastRefresh;
-@property(nonatomic, strong) UIBarButtonItem *refreshButton;
+@property (nonatomic, strong) NSTimer *refreshTimer;
+@property (nonatomic, strong) NSDate *lastRefresh;
+@property (nonatomic, strong) UIBarButtonItem *refreshButton;
+@property (nonatomic, strong) NSAttributedString *refreshControlText;
+@property (nonatomic) bool animateNext;
 
 @end
 
@@ -60,8 +64,9 @@
     if (sinceRefresh <= -(NSTimeInterval)kRefreshInterval) {
         [self stopTimer];
         [self refreshAction:timer];
-        [self setRefreshButtonText:NSLocalizedString(@"Refreshing",
-                                                     @"Refresh button text")];
+        [self setRefreshButtonText:NSLocalizedString(@"Refreshing", @"Refresh button text")
+                    forceAnimation:YES
+                       animateNext:YES];
         updateTimeOnButton = NO;
     }
 
@@ -73,11 +78,12 @@
         }
 
         [self setRefreshButtonText:
-                  [NSString stringWithFormat:
-                                NSLocalizedString(
-                                    @"Refresh in %d",
-                                    @"Refresh button text {number of seconds}"),
-                                secs]];
+                  [NSString stringWithFormat:NSLocalizedString(
+                                                 @"Refresh in %d",
+                                                 @"Refresh button text {number of seconds}"),
+                                             secs]
+                    forceAnimation:NO
+                       animateNext:NO];
 
         [self countDownTimer];
     }
@@ -86,11 +92,55 @@
 - (void)countDownTimer {
 }
 
-- (void)setRefreshButtonText:(NSString *)text {
-    // iOS10 needs this as it will flash
+- (void)endRefreshing {
     [UIView performWithoutAnimation:^{
-      self.refreshButton.title = text;
+      self.tableView.refreshControl.attributedTitle = self.refreshControlText;
+      [self.tableView.refreshControl layoutIfNeeded];
     }];
+
+    [self.tableView.refreshControl endRefreshing];
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+      [self.view setNeedsLayout];
+      [self.view layoutIfNeeded];
+      // [self applyUnderlapInsetsForToolbar];
+    });
+}
+
+- (void)setRefreshButtonText:(NSString *)text
+              forceAnimation:(bool)forceAnimation
+                 animateNext:(bool)animateNext {
+    if (forceAnimation || self.animateNext) {
+        self.refreshButton.title = text;
+    } else {
+
+        // iOS10 needs this as it will flash
+        [UIView performWithoutAnimation:^{
+          self.refreshButton.title = text;
+        }];
+    }
+
+    self.animateNext = animateNext;
+}
+
+- (void)updateRefreshDate:(NSDate *)date {
+    MAIN_TASK((^{
+      if (self.tableView.refreshControl) {
+          if (date) {
+              self.refreshControlText =
+                  [NSString
+                      stringWithFormat:NSLocalizedString(@"#bLast updated:#b %@",
+                                                         @"pull to refresh text"),
+                                       [NSDateFormatter
+                                           localizedStringFromDate:date
+                                                         dateStyle:NSDateFormatterNoStyle
+                                                         timeStyle:NSDateFormatterMediumStyle]]
+                      .attributedStringFromMarkUp;
+          } else {
+              self.refreshControlText = nil;
+          }
+      }
+    }));
 }
 
 - (void)refreshAction:(id)unused {
@@ -115,29 +165,27 @@
 
     __weak __typeof(self) weakSelf = self;
 
-    NSTimer *t = [NSTimer
-        scheduledTimerWithTimeInterval:1.0
-                               repeats:YES
-                                 block:^(__kindof NSTimer *_Nonnull timer) {
-                                   DEBUG_LOG_description(timer);
-                                   __strong __typeof(self) strongSelf =
-                                       weakSelf;
-                                   if (!strongSelf) {
-                                       [timer invalidate];
-                                       DEBUG_LOG(@"Timer with no target");
-                                       return;
-                                   }
+    NSTimer *t = [NSTimer scheduledTimerWithTimeInterval:1.0
+                                                 repeats:YES
+                                                   block:^(__kindof NSTimer *_Nonnull timer) {
+                                                     DEBUG_LOG_description(timer);
+                                                     __strong __typeof(self) strongSelf = weakSelf;
+                                                     if (!strongSelf) {
+                                                         [timer invalidate];
+                                                         DEBUG_LOG(@"Timer with no target");
+                                                         return;
+                                                     }
 
-                                   // If this isn't the current timer (e.g., an
-                                   // older one firing), quietly kill it.
-                                   if (timer != strongSelf.refreshTimer) {
-                                       [timer invalidate];
-                                       DEBUG_LOG(@"Rogue timer");
-                                       return;
-                                   }
+                                                     // If this isn't the current timer (e.g., an
+                                                     // older one firing), quietly kill it.
+                                                     if (timer != strongSelf.refreshTimer) {
+                                                         [timer invalidate];
+                                                         DEBUG_LOG(@"Rogue timer");
+                                                         return;
+                                                     }
 
-                                   [strongSelf countDownAction:timer];
-                                 }];
+                                                     [strongSelf countDownAction:timer];
+                                                   }];
 
     [[NSRunLoop mainRunLoop] addTimer:t forMode:NSDefaultRunLoopMode];
 
@@ -152,7 +200,7 @@
     if (self.refreshTimer != nil) {
         [self.refreshTimer invalidate];
         self.refreshTimer = nil;
-        [self setRefreshButtonText:kRefreshText];
+        [self setRefreshButtonText:kRefreshText forceAnimation:YES animateNext:YES];
         self.lastRefresh = nil;
     }
 }
@@ -193,13 +241,13 @@
     [self unpauseTimer];
 }
 
-- (void)backgroundTaskDone:(UIViewController *)viewController
-                 cancelled:(bool)cancelled {
+- (void)backgroundTaskDone:(UIViewController *)viewController cancelled:(bool)cancelled {
     if (self.backgroundRefresh && !cancelled) {
         [self startTimer];
     }
 
     [super backgroundTaskDone:viewController cancelled:cancelled];
+    [self endRefreshing];
 }
 
 - (void)backgroundTaskStarted {
@@ -208,7 +256,14 @@
 }
 
 - (void)viewDidLoad {
-    self.disablePull = ((self.refreshFlags & kRefreshPull) == 0);
+
+    if ((self.refreshFlags & kRefreshPull) != 0) {
+        UIRefreshControl *rc = [[UIRefreshControl alloc] init];
+        [rc addTarget:self
+                      action:@selector(refreshAction:)
+            forControlEvents:UIControlEventValueChanged];
+        self.tableView.refreshControl = rc;
+    }
 
     [super viewDidLoad];
 
@@ -221,12 +276,12 @@
         self.refreshButton.target = self;
         self.refreshButton.action = @selector(refreshAction:);
 
+        self.refreshButton.title = kRefreshText;
         NSMutableParagraphStyle *paragraphStyle = NSMutableParagraphStyle.new;
         paragraphStyle.alignment = NSTextAlignmentRight;
 
         [self.refreshButton setTitleTextAttributes:@{
-            NSFontAttributeName :
-                [UIFont monospacedDigitSystemFontOfSize:UIFont.labelFontSize],
+            NSFontAttributeName : [UIFont monospacedDigitSystemFontOfSize:UIFont.labelFontSize],
             NSParagraphStyleAttributeName : paragraphStyle
         }
                                           forState:UIControlStateNormal];
@@ -234,7 +289,7 @@
         self.navigationItem.rightBarButtonItem = self.refreshButton;
 
         if ((self.refreshFlags & kRefreshTimer) == 0) {
-            [self setRefreshButtonText:kRefreshText];
+            [self setRefreshButtonText:kRefreshText forceAnimation:YES animateNext:YES];
         }
     }
 }
@@ -246,8 +301,7 @@
 }
 
 - (void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event {
-    if (event.subtype == UIEventSubtypeMotionShake &&
-        (self.refreshFlags & kRefreshShake)) {
+    if (event.subtype == UIEventSubtypeMotionShake && (self.refreshFlags & kRefreshShake)) {
         UIViewController *top = self.navigationController.visibleViewController;
 
         if ([top respondsToSelector:@selector(refreshAction:)]) {

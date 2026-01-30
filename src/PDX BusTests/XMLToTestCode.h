@@ -19,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface XMLToTestCode : TriMetXML
 
-@property(nonatomic, strong) NSMutableString *result;
+@property (nonatomic, strong) NSMutableString *result;
 
 @end
 

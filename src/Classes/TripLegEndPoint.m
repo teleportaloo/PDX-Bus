@@ -102,8 +102,7 @@
 
 - (NSString *)pinMarkedUpSubtitle {
     if (self.mapText != nil) {
-        return [NSString
-            stringWithFormat:@"#R#b%d:#D %@", self.index, self.mapText];
+        return [NSString stringWithFormat:@"#R#b%d:#D %@", self.index, self.mapText];
     }
 
     return nil;
@@ -134,6 +133,10 @@
 
     self.xml_lat = nil;
     self.xml_lon = nil;
+}
+
+- (NSString *)key {
+    return nil;
 }
 
 @end

@@ -19,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SimpleStop : SimpleAnnotation
 
-@property(nonatomic, copy) NSString *stopId;
+@property (nonatomic, copy) NSString *stopId;
 
 @end
 

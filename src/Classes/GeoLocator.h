@@ -21,8 +21,8 @@
 
 @interface GeoLocator : NSObject
 
-@property(atomic) bool waitingForGeocoder;
-@property(atomic, strong) NSError *error;
+@property (atomic) bool waitingForGeocoder;
+@property (atomic, strong) NSError *error;
 
 - (NSMutableArray<TripLegEndPoint *> *)fetchCoordinates:(NSString *)address;
 

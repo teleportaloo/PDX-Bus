@@ -22,8 +22,8 @@
 
 @interface ProgressModalView : UIView
 
-@property(nonatomic, weak) id<ProgressDelegate> progressDelegate;
-@property(nonatomic) NSInteger totalItems;
+@property (nonatomic, weak) id<ProgressDelegate> progressDelegate;
+@property (nonatomic) NSInteger totalItems;
 
 - (void)itemsDone:(NSInteger)itemsDone;
 - (void)subItemsDone:(NSInteger)subItemsDone totalSubs:(NSInteger)totalSubs;
@@ -31,10 +31,11 @@
 - (void)addSubtext:(NSString *)subtext;
 - (void)addHelpText:(NSString *)helpText;
 
-- (ProgressModalView *)initWithParent:(UIView *)back
-                                items:(NSInteger)items
-                                title:(NSString *)title
-                             delegate:(id<ProgressDelegate>)delegate
-                          orientation:(UIInterfaceOrientation)orientation;
++ (ProgressModalView *)presentWithParent:(UIViewController *)parent
+                                   items:(NSInteger)items
+                                   title:(NSString *)title
+                                delegate:(id<ProgressDelegate>)delegate;
+
+- (void)dismiss;
 
 @end

@@ -15,15 +15,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 <p>This HTML files is used to design the hotspots on the TriMet rail map.  Use a tool to get the hotspots in the correct place, use the 'convert.sh' tool to create the
-actual code tables in MaxHotSpotTable.txt
+actual code tables in MaxHotSpotTable.def</p>
 <ul>
 <li>Replace <tt>&lt;area&nbsp;shape=&quot;poly&quot;&nbsp;coords=&quot;</tt> with HS_START_POLY</li>
 <li>Replace <tt>&quot;&nbsp;href=</tt> with HS_END_POLY</li>
 <li>Replace <tt>/&gt;</tt> with HS_END</li>
 </ul>
-</p>
-<p>The Xcode project will make a text file called MaxHotSpotTable.txt and include it into RailMapsView.m automatically. </p>
-<p>Note that there is a file called MaxHotSpotTiles.c which is also generated but it is not automatic,
+<p>The Xcode project will make a text file called MaxHotSpotTable.def and include it into RailMapsView.m automatically. </p>
+<p>Note that there is a file called MaxHotSpotTiles.def which is also generated but it is not automatic,
 you have to execute a special "test case" called test_generate_HotSpot_tiles to generate that code.</p>
 <img src="../TriMet/MAXWESMap.gif" alt="" border="0" usemap="#Map" />
 <map name="Map" id="Map">

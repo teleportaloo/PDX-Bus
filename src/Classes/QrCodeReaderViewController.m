@@ -19,22 +19,22 @@
 #import "RoundedTransparentRectView.h"
 #import "Settings.h"
 #import "TaskDispatch.h"
+#import "UIColor+HTML.h"
 #import "UIColor+MoreDarkMode.h"
 #import "UIFont+Utility.h"
-#import "UIColor+HTML.h"
 
 #define kLightCtrlOn (0)
 #define kLightCtrlOff (1)
 
 @interface QrCodeReaderViewController ()
 
-@property(nonatomic, strong) AVCaptureSession *captureSession;
-@property(nonatomic, strong) AVCaptureVideoPreviewLayer *videoPreviewLayer;
-@property(nonatomic, strong) UIView *viewPreview;
-@property(nonatomic) bool isReading;
-@property(nonatomic, strong) UISegmentedControl *lightSegControl;
-@property(nonatomic, strong) RoundedTransparentRectView *qrCodeHighlight;
-@property(nonatomic, strong) UIBarButtonItem *segButton;
+@property (nonatomic, strong) AVCaptureSession *captureSession;
+@property (nonatomic, strong) AVCaptureVideoPreviewLayer *videoPreviewLayer;
+@property (nonatomic, strong) UIView *viewPreview;
+@property (nonatomic) bool isReading;
+@property (nonatomic, strong) UISegmentedControl *lightSegControl;
+@property (nonatomic, strong) RoundedTransparentRectView *qrCodeHighlight;
+@property (nonatomic, strong) UIBarButtonItem *segButton;
 
 @end
 
@@ -51,8 +51,7 @@
         Class captureDeviceClass = NSClassFromString(@"AVCaptureDevice");
 
         if (captureDeviceClass != nil) {
-            AVCaptureDevice *device =
-                [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+            AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
 
             if (device.hasTorch && device.hasFlash) {
                 supported = YES;
@@ -74,9 +73,8 @@
         AVCaptureDevice *captureDevice =
             [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
 
-        AVCaptureDeviceInput *input =
-            [AVCaptureDeviceInput deviceInputWithDevice:captureDevice
-                                                  error:&error];
+        AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice
+                                                                            error:&error];
 
         if (!input) {
             LOG_NSError(error);
@@ -86,26 +84,22 @@
         self.captureSession = [[AVCaptureSession alloc] init];
         [self.captureSession addInput:input];
 
-        AVCaptureMetadataOutput *captureMetadataOutput =
-            [[AVCaptureMetadataOutput alloc] init];
+        AVCaptureMetadataOutput *captureMetadataOutput = [[AVCaptureMetadataOutput alloc] init];
         [self.captureSession addOutput:captureMetadataOutput];
 
         dispatch_queue_t dispatchQueue;
-        dispatchQueue = dispatch_queue_create("myQueue", NULL);
-        [captureMetadataOutput setMetadataObjectsDelegate:self
-                                                    queue:dispatchQueue];
+        dispatchQueue = dispatch_queue_create("org.teleportaloo.pdxbus.qrcode", NULL);
+        [captureMetadataOutput setMetadataObjectsDelegate:self queue:dispatchQueue];
         [captureMetadataOutput
-            setMetadataObjectTypes:
-                [NSArray arrayWithObject:AVMetadataObjectTypeQRCode]];
+            setMetadataObjectTypes:[NSArray arrayWithObject:AVMetadataObjectTypeQRCode]];
 
-        self.videoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc]
-            initWithSession:self.captureSession];
-        [self.videoPreviewLayer
-            setVideoGravity:AVLayerVideoGravityResizeAspectFill];
+        self.videoPreviewLayer =
+            [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.captureSession];
+        [self.videoPreviewLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
         [self.videoPreviewLayer setFrame:self.viewPreview.layer.bounds];
         [self.viewPreview.layer addSublayer:self.videoPreviewLayer];
 
-        WorkerTask(^{
+        WORKER_TASK(^{
           [self->_captureSession startRunning];
         });
     }
@@ -117,14 +111,13 @@
     didOutputMetadataObjects:(NSArray *)metadataObjects
               fromConnection:(AVCaptureConnection *)connection {
     if (metadataObjects != nil && [metadataObjects count] > 0 && _isReading) {
-        AVMetadataMachineReadableCodeObject *metadataObj =
-            [metadataObjects objectAtIndex:0];
+        AVMetadataMachineReadableCodeObject *metadataObj = [metadataObjects objectAtIndex:0];
 
         if ([[metadataObj type] isEqualToString:AVMetadataObjectTypeQRCode]) {
             _isReading = NO;
             dispatch_sync(dispatch_get_main_queue(), ^{
-              AVMetadataObject *displayObj = [self.videoPreviewLayer
-                  transformedMetadataObjectForMetadataObject:metadataObj];
+              AVMetadataObject *displayObj =
+                  [self.videoPreviewLayer transformedMetadataObjectForMetadataObject:metadataObj];
               self.qrCodeHighlight.frame = displayObj.bounds;
               [self.qrCodeHighlight setNeedsDisplay];
 
@@ -137,8 +130,7 @@
     }
 }
 
-- (void)backgroundTaskDone:(UIViewController *)viewController
-                 cancelled:(bool)cancelled {
+- (void)backgroundTaskDone:(UIViewController *)viewController cancelled:(bool)cancelled {
     self.qrCodeHighlight.frame = CGRectNull;
     if (!cancelled) {
         [super backgroundTaskDone:viewController cancelled:cancelled];
@@ -162,26 +154,38 @@
 
     self.title = NSLocalizedString(@"QR Code Reader", @"screen title");
 
-    CGRect viewRect = self.middleWindowRect;
+    // If you want the content behind the bottom toolbar
+    self.edgesForExtendedLayout = UIRectEdgeBottom; // underlap bottom
+    self.extendedLayoutIncludesOpaqueBars = YES;    // even if toolbar is opaque
+    self.navigationController.toolbarHidden = NO;   // show toolbar
 
-    self.viewPreview = [[UIView alloc] initWithFrame:viewRect];
-
+    // Container view that will sit UNDER the toolbar (full-bleed)
+    self.viewPreview = [[UIView alloc] initWithFrame:CGRectZero];
+    self.viewPreview.translatesAutoresizingMaskIntoConstraints = NO;
+    self.viewPreview.backgroundColor = [UIColor blackColor]; // optional
     [self.view addSubview:self.viewPreview];
+
+    // Pin to controller VIEW edges (NOT safe area) so it runs under the bar
+    [NSLayoutConstraint activateConstraints:@[
+        [self.viewPreview.topAnchor constraintEqualToAnchor:self.view.topAnchor],
+        [self.viewPreview.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
+        [self.viewPreview.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
+        [self.viewPreview.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
+    ]];
 
     self.view.backgroundColor = [UIColor grayColor];
 
     const CGFloat margin = 20;
 
-    NSString *text =
-        NSLocalizedString(@"Position a TriMet QR code in front of the camera "
-                          @"to scan it and show the departures.",
-                          @"QR scanner instructions");
+    NSString *text = NSLocalizedString(@"Position a TriMet QR code in front of the camera "
+                                       @"to scan it and show the departures.",
+                                       @"QR scanner instructions");
     UIFont *font = [UIFont monospacedDigitSystemFontOfSize:20];
 
-    NSStringDrawingOptions options = NSStringDrawingTruncatesLastVisibleLine |
-                                     NSStringDrawingUsesLineFragmentOrigin;
+    NSStringDrawingOptions options =
+        NSStringDrawingTruncatesLastVisibleLine | NSStringDrawingUsesLineFragmentOrigin;
 
-    CGFloat width = viewRect.size.width - margin * 2;
+    CGFloat width = self.navigationController.view.frame.size.width - margin * 2;
 
     NSDictionary *attr = @{NSFontAttributeName : font};
     CGRect bounds = [text boundingRectWithSize:CGSizeMake(width, MAXFLOAT)
@@ -207,13 +211,11 @@
 
     [self.view addSubview:label];
 
-    RoundedTransparentRectView *view =
-        [[RoundedTransparentRectView alloc] init];
+    RoundedTransparentRectView *view = [[RoundedTransparentRectView alloc] init];
 
     view.backgroundColor = [UIColor clearColor];
 
-    view.color =
-        [HTML_COLOR(Settings.toolbarColors) colorWithAlphaComponent:0.75];
+    view.color = [HTML_COLOR(Settings.toolbarColors) colorWithAlphaComponent:0.75];
 
     self.qrCodeHighlight = view;
 
@@ -222,8 +224,7 @@
 
 - (void)handleChangeInUserSettingsOnMainThread:(NSNotification *)notfication {
     [super handleChangeInUserSettingsOnMainThread:notfication];
-    self.qrCodeHighlight.color =
-        [HTML_COLOR(Settings.toolbarColors) colorWithAlphaComponent:0.75];
+    self.qrCodeHighlight.color = [HTML_COLOR(Settings.toolbarColors) colorWithAlphaComponent:0.75];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -253,8 +254,7 @@
 
 - (void)on {
     if (self.torchSupported) {
-        AVCaptureDevice *device =
-            [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+        AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
 
         [device lockForConfiguration:nil];
 
@@ -267,8 +267,7 @@
 
 - (void)off {
     if (self.torchSupported) {
-        AVCaptureDevice *device =
-            [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+        AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
 
         [device lockForConfiguration:nil];
 
@@ -288,21 +287,22 @@
 }
 
 - (void)updateToolbarMainThread {
-    self.segButton = [self segBarButtonWithItems:@[ @"Light", @"Off" ]
-                                          action:@selector(toggleFlash:)
-                                   selectedIndex:kLightCtrlOff];
+    if (self.segButton == nil) {
+        self.segButton = [self segBarButtonWithItems:@[ @"Light", @"Off" ]
+                                              action:@selector(toggleFlash:)
+                                       selectedIndex:kLightCtrlOff];
+    }
 }
 
-- (void)updateToolbarItems:(NSMutableArray *)toolbarItems {
+- (void)updateToolbarItems:(NSMutableArray<UIBarButtonItem *> *)toolbarItems {
     [toolbarItems
-        addObject:[[UIBarButtonItem alloc]
-                      initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
-                                           target:self
-                                           action:@selector(cancel:)]];
+        addObject:[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
+                                                                target:self
+                                                                action:@selector(cancel:)]];
 
     if (self.torchSupported) {
         self.lightSegControl = self.segButton.customView;
-        [toolbarItems addObject:[UIToolbar flexSpace]];
+        [toolbarItems addObject:[UIBarButtonItem flexSpace]];
         [toolbarItems addObject:self.segButton];
     }
 

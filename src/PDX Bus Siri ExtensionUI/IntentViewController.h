@@ -17,8 +17,7 @@
 #import <IntentsUI/IntentsUI.h>
 
 @interface IntentViewController
-    : UIViewController <INUIHostedViewControlling, UITableViewDelegate,
-                        UITableViewDataSource>
-@property(strong, nonatomic) IBOutlet UITableView *tableView;
-@property(strong, nonatomic) NSMutableArray<XMLDepartures *> *departures;
+    : UIViewController <INUIHostedViewControlling, UITableViewDelegate, UITableViewDataSource>
+@property (strong, nonatomic) IBOutlet UITableView *tableView;
+@property (strong, nonatomic) NSMutableArray<XMLDepartures *> *departures;
 @end

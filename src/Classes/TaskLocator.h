@@ -13,16 +13,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
+#import "BackgroundTaskContainer.h"
 #import "CoreLocation/CoreLocation.h"
 #import "TaskState.h"
-#import "BackgroundTaskContainer.h"
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface TaskLocator : NSObject <CLLocationManagerDelegate>
 
-+ (CLLocation*)locateWithAccuracy:(CLLocationAccuracy)accuracy taskState:(TaskState *)state;
++ (CLLocation *)locateWithAccuracy:(CLLocationAccuracy)accuracy taskState:(TaskState *)state;
 
 @end
 

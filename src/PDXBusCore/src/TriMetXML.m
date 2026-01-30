@@ -15,44 +15,48 @@
 
 #ifndef DEBUGLOGGING
 #pragma clang diagnostic ignored "-Wunreachable-code"
-#endif
+#endif // !DEBUGLOGGING
 
 #import "TriMetXML.h"
 #import "TriMetTypes.h"
 #ifndef PDXBUS_WATCH
 #import <SystemConfiguration/SystemConfiguration.h>
-#endif
+#endif // !PDXBUS_WATCH
+
 #import "DebugLogging.h"
 #import "NSHTTPURLResponse+Headers.h"
-#import "QueryCacheManager.h"
 #import "SelImpCache.h"
 #import "SessionSingleton.h"
 #import "Settings.h"
 #import "StopNameCacheManager.h"
 #import "TaskDispatch.h"
 #import "TriMetAppId.h"
+#import "TriMetAppIdSaltStore.h"
 #import "TriMetXMLSelectors.h"
 #import <objc/runtime.h>
+
+#import "../../Tables/TriMetAppIdSalt.h"
 
 #define kShortTermCacheAge (20 * 60) // 15 mins
 
 #ifdef DEBUGLOGGING
-#define DEBUG_XML(s, ...)                                                      \
-    if (DEBUG_ON_FOR_FILE) {                                                   \
-        NSLog(@"<%-12s: %@> %@", CommonDebugLogStr(DEBUG_LEVEL_FOR_FILE),      \
-              NSStringFromClass([self class]),                                 \
-              [NSString stringWithFormat:(s), ##__VA_ARGS__]);                 \
+#define DEBUG_XML(s, ...)                                                                          \
+    if (DEBUG_ON_FOR_FILE) {                                                                       \
+        NSLog(@"<%-12s: %@> %@",                                                                   \
+              CommonDebugLogStr(DEBUG_LEVEL_FOR_FILE),                                             \
+              NSStringFromClass([self class]),                                                     \
+              [NSString stringWithFormat:(s), ##__VA_ARGS__]);                                     \
     }
 #else
 #define DEBUG_XML(s, ...)
-#endif
+#endif // DEBUGLOGGING
 
 @interface TriMetXML <ItemType>() {
 }
 
-@property(nonatomic, strong) SelImpCache _Nullable startSels;
-@property(nonatomic, strong) SelImpCache _Nullable endSels;
-@property(nonatomic) CacheAction currentCacheAction;
+@property (nonatomic, strong) SelImpCache _Nullable startSels;
+@property (nonatomic, strong) SelImpCache _Nullable endSels;
+@property (nonatomic) CacheAction currentCacheAction;
 
 @end
 
@@ -64,11 +68,10 @@ static XMLQueryTransformer globalQueryTransformer;
 
 @implementation TriMetXML
 + (void)initialize {
-    
 }
 
 + (NSObject *)parseSyncObject {
-    DoOnce(^{
+    DO_ONCE(^{
       staticParseSyncObject = [[NSMutableData alloc] initWithLength:1];
     });
 
@@ -79,15 +82,14 @@ static XMLQueryTransformer globalQueryTransformer;
     return [[[self class] alloc] init];
 }
 
-+ (instancetype _Nonnull)xmlWithOneTimeDelegate:
-    (id<TriMetXMLDelegate> _Nonnull)delegate {
++ (instancetype _Nonnull)xmlWithOneTimeDelegate:(id<TriMetXMLDelegate> _Nonnull)delegate {
     TriMetXML *xml = [[[self class] alloc] init];
     xml.oneTimeDelegate = delegate;
     return xml;
 }
 
 + (void)initCaches {
-    DoOnce(^{
+    DO_ONCE(^{
       stopNameCache = [StopNameCacheManager cache];
 
       // Old caches.
@@ -126,22 +128,20 @@ static XMLQueryTransformer globalQueryTransformer;
     if (self = [super init]) {
 #ifdef PDXBUS_WATCH
         self.giveUp = 30.0;
-#endif
+#endif // PDXBUS_WATCH
         self.queryTransformer = TriMetXML.globalQueryTransformer;
     }
 
     return self;
 }
 
-
-+ (XMLQueryTransformer) globalQueryTransformer {
++ (XMLQueryTransformer)globalQueryTransformer {
     return globalQueryTransformer;
 }
 
-+ (void)setGlobalQueryTransformer:(XMLQueryTransformer) block {
++ (void)setGlobalQueryTransformer:(XMLQueryTransformer)block {
     globalQueryTransformer = block;
 }
-
 
 #pragma mark Data checks
 
@@ -150,9 +150,6 @@ static XMLQueryTransformer globalQueryTransformer;
     static BOOL checkNetwork = YES;
     static BOOL isDataSourceAvailable = NO;
 
-    // if (checkNetwork || forceCheck) { // Since checking the reachability of a
-    // host can be expensive, cache the result and perform the reachability
-    // check once.
     if (forceCheck) {
         Boolean success;
         const char *host_name = "developer.trimet.org";
@@ -168,7 +165,7 @@ static XMLQueryTransformer globalQueryTransformer;
         return isDataSourceAvailable;
     }
 
-#endif
+#endif // !PDXBUS_WATCH
     return YES;
 }
 
@@ -179,26 +176,17 @@ static XMLQueryTransformer globalQueryTransformer;
 #pragma mark Item array
 
 - (id)objectAtIndexedSubscript:(NSInteger)index {
-    // Let an exception occur
-    // if (self.items != nil)
-    //{
     return self.items[index];
-    //}
-    // return nil;
 }
 
 - (void)addItem:(id)item {
     [self.items addObject:item];
 }
 
-- (NSUInteger)
-    countByEnumeratingWithState:(NSFastEnumerationState *)state
-                        objects:
-                            (id __unsafe_unretained _Nullable[_Nonnull])buffer
-                          count:(NSUInteger)len {
-    return [self.items countByEnumeratingWithState:state
-                                           objects:buffer
-                                             count:len];
+- (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state
+                                  objects:(id __unsafe_unretained _Nullable[_Nonnull])buffer
+                                    count:(NSUInteger)len {
+    return [self.items countByEnumeratingWithState:state objects:buffer count:len];
 }
 
 - (void)clearItems {
@@ -224,59 +212,106 @@ static XMLQueryTransformer globalQueryTransformer;
 }
 
 - (NSString *)displayDate:(NSDate *)queryTime {
-    return
-        [NSString stringWithFormat:
-                      NSLocalizedString(@"Updated: %@", @"updated time"),
-                      [NSDateFormatter
-                          localizedStringFromDate:queryTime
-                                        dateStyle:NSDateFormatterShortStyle
-                                        timeStyle:NSDateFormatterMediumStyle]];
+    if (queryTime != nil) {
+        return [NSString
+            stringWithFormat:NSLocalizedString(@"Updated: %@", @"updated time"),
+                             [NSDateFormatter localizedStringFromDate:queryTime
+                                                            dateStyle:NSDateFormatterShortStyle
+                                                            timeStyle:NSDateFormatterMediumStyle]];
+    } else {
+        return @"";
+    }
 }
 
-// 25 character TriMet app ID is stored at rest in an encoded way to make it
-// hard to find These macros encode it in a static way using the compiler to
+// 25 character TriMet app ID is stored at rest in an scrambled way to make it
+// hard to find. These macros encode it in a static way using the compiler to
 // encode it and a small amount of code to decode it.
-#define ENC(A, B, J)                                                           \
-    (char)(((A) ^ ((B))) | (0x##J << 4)) // EOR with previous digit and add some
-                                         // junk fo the top digit
-#define SEED 0xA
-#define DE_ENC(E, B) (((E) & 0xF) ^ ((B)))
-#define APP_ID_SIZE (25)
 
-#define ENCODED_APPID(L01, L02, L03, L04, L05, L06, L07, L08, L09, L10, L11,   \
-                      L12, L13, L14, L15, L16, L17, L18, L19, L20, L21, L22,   \
-                      L23, L24, L25)                                           \
-    {(ENC(0x##L01, SEED, 2)),    (ENC(0x##L02, 0x##L01, 4)),                   \
-     (ENC(0x##L03, 0x##L02, 3)), (ENC(0x##L04, 0x##L03, F)),                   \
-     (ENC(0x##L05, 0x##L04, 6)), (ENC(0x##L06, 0x##L05, A)),                   \
-     (ENC(0x##L07, 0x##L06, 8)), (ENC(0x##L08, 0x##L07, 8)),                   \
-     (ENC(0x##L09, 0x##L08, 8)), (ENC(0x##L10, 0x##L09, 5)),                   \
-     (ENC(0x##L11, 0x##L10, A)), (ENC(0x##L12, 0x##L11, 3)),                   \
-     (ENC(0x##L13, 0x##L12, 0)), (ENC(0x##L14, 0x##L13, 8)),                   \
-     (ENC(0x##L15, 0x##L14, D)), (ENC(0x##L16, 0x##L15, 3)),                   \
-     (ENC(0x##L17, 0x##L16, 1)), (ENC(0x##L18, 0x##L17, 3)),                   \
-     (ENC(0x##L19, 0x##L18, 1)), (ENC(0x##L20, 0x##L19, 9)),                   \
-     (ENC(0x##L21, 0x##L20, 8)), (ENC(0x##L22, 0x##L21, A)),                   \
-     (ENC(0x##L23, 0x##L22, 2)), (ENC(0x##L24, 0x##L23, E)),                   \
-     (ENC(0x##L25, 0x##L24, 0))}
+#define SCRAM(CLEAR, PREV, JUNK, SALT)                                                             \
+    (uint8_t)((((CLEAR) ^ ((PREV))) | (0x##JUNK << 4)) ^ (APP_ID_SALT_##SALT))
+
+#define DE_SCRAM(ENCODED, PREV, SALT) (uint8_t)((((ENCODED) ^ (SALT)) & 0xF) ^ (PREV))
+
+#define ENCODED_APPID(L01,                                                                         \
+                      L02,                                                                         \
+                      L03,                                                                         \
+                      L04,                                                                         \
+                      L05,                                                                         \
+                      L06,                                                                         \
+                      L07,                                                                         \
+                      L08,                                                                         \
+                      L09,                                                                         \
+                      L10,                                                                         \
+                      L11,                                                                         \
+                      L12,                                                                         \
+                      L13,                                                                         \
+                      L14,                                                                         \
+                      L15,                                                                         \
+                      L16,                                                                         \
+                      L17,                                                                         \
+                      L18,                                                                         \
+                      L19,                                                                         \
+                      L20,                                                                         \
+                      L21,                                                                         \
+                      L22,                                                                         \
+                      L23,                                                                         \
+                      L24,                                                                         \
+                      L25)                                                                         \
+    {(SCRAM(0x##L01, APP_ID_FIRST, 2, 1)), (SCRAM(0x##L02, 0x##L01, 4, 2)),                        \
+     (SCRAM(0x##L03, 0x##L02, 3, 3)),      (SCRAM(0x##L04, 0x##L03, F, 4)),                        \
+     (SCRAM(0x##L05, 0x##L04, 6, 5)),      (SCRAM(0x##L06, 0x##L05, A, 6)),                        \
+     (SCRAM(0x##L07, 0x##L06, 8, 7)),      (SCRAM(0x##L08, 0x##L07, 8, 8)),                        \
+     (SCRAM(0x##L09, 0x##L08, 8, 9)),      (SCRAM(0x##L10, 0x##L09, 5, 10)),                       \
+     (SCRAM(0x##L11, 0x##L10, A, 11)),     (SCRAM(0x##L12, 0x##L11, 3, 12)),                       \
+     (SCRAM(0x##L13, 0x##L12, 0, 13)),     (SCRAM(0x##L14, 0x##L13, 8, 14)),                       \
+     (SCRAM(0x##L15, 0x##L14, D, 15)),     (SCRAM(0x##L16, 0x##L15, 3, 16)),                       \
+     (SCRAM(0x##L17, 0x##L16, 1, 17)),     (SCRAM(0x##L18, 0x##L17, 3, 18)),                       \
+     (SCRAM(0x##L19, 0x##L18, 1, 19)),     (SCRAM(0x##L20, 0x##L19, 9, 20)),                       \
+     (SCRAM(0x##L21, 0x##L20, 8, 21)),     (SCRAM(0x##L22, 0x##L21, A, 22)),                       \
+     (SCRAM(0x##L23, 0x##L22, 2, 23)),     (SCRAM(0x##L24, 0x##L23, E, 24)),                       \
+     (SCRAM(0x##L25, 0x##L24, 0, 25))}
+
+static const uint8_t scrambledAppId[APP_ID_SIZE] = TRIMET_APP_ID;
+
+#define DEBUG_LOG_Bytes(P, SZ)                                                                     \
+    do {                                                                                           \
+        NSMutableString *s = [NSMutableString string];                                             \
+        for (size_t i = 0; i < SZ; i++)                                                            \
+            [s appendFormat:@"%02X ", (P)[i]];                                                     \
+        DEBUG_LOG(DEBUG_ITEM_PREFIX @"%@", #P, s);                                                 \
+    } while (0)
+
+#define HEX_DIGIT_FAST(i) ((char)("0123456789ABCDEF"[(i) & 0xF]))
 
 + (NSString *)appId {
-    static NSMutableString *appId;
+    static NSString *appId;
 
-    DoOnce((^{
-      appId = [NSMutableString string];
-      static char raw[APP_ID_SIZE] = TRIMET_APP_ID;
-      char *pRaw = raw;
-      char previous = SEED;
-      char current;
+    DO_ONCE((^{
+      uint8_t previous = APP_ID_FIRST;
+      uint8_t current;
+
+      const uint8_t *salt = TriMetAppIdSalt();
+
+      DEBUG_LOG_longX(APP_ID_FIRST);
+      DEBUG_LOG_Bytes(salt, APP_ID_SIZE);
+      DEBUG_LOG_Bytes(scrambledAppId, APP_ID_SIZE);
+
+      // format to NSString hex
+      unichar buf[APP_ID_SIZE];
 
       for (int i = 0; i < APP_ID_SIZE; i++) {
-          current = DE_ENC(*pRaw, previous);
+          current = DE_SCRAM(scrambledAppId[i], previous, salt[i]);
           previous = current;
-          [appId appendFormat:@"%c",
-                              current > 9 ? current + 'A' - 10 : current + '0'];
-          pRaw++;
+          buf[i] = HEX_DIGIT_FAST(current);
       }
+
+      appId = [NSString stringWithCharacters:buf length:APP_ID_SIZE];
+
+      DEBUG_LOG_Bytes(buf, APP_ID_SIZE);
+
+      memset(buf, 0, APP_ID_SIZE);
+
+      DEBUG_LOG_NSString(appId);
     }));
 
     return appId;
@@ -288,13 +323,13 @@ static XMLQueryTransformer globalQueryTransformer;
     NSString *str = nil;
 
     if ([query characterAtIndex:query.length - 1] == '&') {
-        str = [NSString
-            stringWithFormat:@"https://developer.trimet.org/ws/V1/%@&appID=%@",
-                             query, [TriMetXML appId]];
+        str = [NSString stringWithFormat:@"https://developer.trimet.org/ws/V1/%@&appID=%@",
+                                         query,
+                                         TriMetXML.appId];
     } else {
-        str = [NSString
-            stringWithFormat:@"https://developer.trimet.org/ws/V1/%@/appID/%@",
-                             query, [TriMetXML appId]];
+        str = [NSString stringWithFormat:@"https://developer.trimet.org/ws/V1/%@/appID/%@",
+                                         query,
+                                         TriMetXML.appId];
     }
 
     return str;
@@ -311,8 +346,7 @@ static XMLQueryTransformer globalQueryTransformer;
         [self.oneTimeDelegate triMetXML:self startedFetchingData:FALSE];
     }
 
-    [self fetchDataByPolling:str
-                 cachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
+    [self fetchDataByPolling:str cachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
 
     if (self.oneTimeDelegate) {
         [self.oneTimeDelegate triMetXML:self finishedFetchingData:FALSE];
@@ -320,15 +354,13 @@ static XMLQueryTransformer globalQueryTransformer;
 }
 
 - (void)makeRouteCacheRequest:(NSString *)cacheKey {
-    [self fetchDataByPolling:cacheKey
-                 cachePolicy:NSURLRequestReturnCacheDataDontLoad];
+    [self fetchDataByPolling:cacheKey cachePolicy:NSURLRequestReturnCacheDataDontLoad];
     self.itemFromCache = YES;
     self.cacheTime = self.httpDate;
 }
 
 - (bool)makeShortTermCacheRequest:(NSString *)cacheKey {
-    [self fetchDataByPolling:cacheKey
-                 cachePolicy:NSURLRequestReturnCacheDataDontLoad];
+    [self fetchDataByPolling:cacheKey cachePolicy:NSURLRequestReturnCacheDataDontLoad];
     self.itemFromCache = YES;
     return self.rawData != nil;
 }
@@ -385,8 +417,7 @@ static XMLQueryTransformer globalQueryTransformer;
             break;
         }
 
-        while (!_hasData && tries > 0 &&
-               ![NSThread currentThread].isCancelled) {
+        while (!_hasData && tries > 0 && ![NSThread currentThread].isCancelled) {
             if ([TriMetXML isDataSourceAvailable:NO] == YES &&
                 ![NSThread currentThread].isCancelled) {
                 self.rawData = nil;
@@ -413,17 +444,14 @@ static XMLQueryTransformer globalQueryTransformer;
 #ifdef DEBUG
 
             if (self.htmlError != nil) {
-                NSString *debug =
-                    [[NSString alloc] initWithBytes:[self.htmlError bytes]
-                                             length:[self.htmlError length]
-                                           encoding:NSUTF8StringEncoding];
-                DEBUG_PRINTF("HTML: %s\n",
-                             [debug cStringUsingEncoding:NSUTF8StringEncoding]);
+                NSString *debug = [[NSString alloc] initWithBytes:[self.htmlError bytes]
+                                                           length:[self.htmlError length]
+                                                         encoding:NSUTF8StringEncoding];
+                DEBUG_PRINTF("HTML: %s\n", [debug cStringUsingEncoding:NSUTF8StringEncoding]);
             }
 
-#endif
-        } else if (![NSThread currentThread].isCancelled &&
-                   !self.itemFromCache) {
+#endif // DEBUG
+        } else if (![NSThread currentThread].isCancelled && !self.itemFromCache) {
         }
 
         [self clearRawData];
@@ -439,7 +467,7 @@ static XMLQueryTransformer globalQueryTransformer;
     return DEBUG_ON_FOR_FILE;
 #else
     return NO;
-#endif
+#endif // DEBUGLOGGING
 }
 
 - (void)initSelectors {
@@ -448,7 +476,7 @@ static XMLQueryTransformer globalQueryTransformer;
 
     Class cls = self.class;
 
-    DoOnce(^{
+    DO_ONCE(^{
       allStartSelectors = [NSMapTable strongToStrongObjectsMapTable];
       allEndSelectors = [NSMapTable strongToStrongObjectsMapTable];
     });
@@ -467,11 +495,6 @@ static XMLQueryTransformer globalQueryTransformer;
 
         bool succeeded = NO;
 
-        // Moved from synchronous to asyncronous calls
-        // NSURL *URL = [NSURL URLWithString:str];
-        // NSXMLParser *parser = [[NSXMLParser alloc]
-        // initWithContentsOfURL:URL]; Set self as the delegate of the parser so
-        // that it will receive the parser delegate methods callbacks.
         NSXMLParser *parser = [[NSXMLParser alloc] initWithData:self.rawData];
 
         parser.delegate = self;
@@ -516,8 +539,7 @@ static XMLQueryTransformer globalQueryTransformer;
 
     if (self.fullQuery) {
         start = [NSString
-            stringWithFormat:@"<query url=\"%@\">",
-                             [TriMetXML insertXMLcodes:self.fullQuery]];
+            stringWithFormat:@"<query url=\"%@\">", [TriMetXML insertXMLcodes:self.fullQuery]];
     } else {
         start = [NSString stringWithFormat:@"<query>"];
     }
@@ -552,14 +574,9 @@ static XMLQueryTransformer globalQueryTransformer;
 static NSDictionary *replacements = nil;
 
 + (void)makeReplacements {
-    DoOnce((^{
-      replacements = @{
-          @"<" : @"&lt;",
-          @">" : @"&gt;",
-          @"\"" : @"&quot;",
-          @"'" : @"&apos;",
-          @" " : @"&nbsp;"
-      };
+    DO_ONCE((^{
+      replacements =
+          @{@"<" : @"&lt;", @">" : @"&gt;", @"\"" : @"&quot;", @"'" : @"&apos;", @" " : @"&nbsp;"};
     }));
 }
 
@@ -641,11 +658,10 @@ static NSDictionary *replacements = nil;
             }
         }
 
-        SelImpPair elSelImp =
-            [self.startSels selImpForElement:elementName
-                                     selName:XML_START_SELECTOR_NAME
-                                         obj:self
-                                       debug:XML_START_DEBUG];
+        SelImpPair elSelImp = [self.startSels selImpForElement:elementName
+                                                       selName:XML_START_SELECTOR_NAME
+                                                           obj:self
+                                                         debug:XML_START_DEBUG];
 
         if (elSelImp.imp != nil) {
             XML_START_ELEMENT_IMP startElementFunc = (void *)elSelImp.imp;
@@ -672,11 +688,10 @@ static NSDictionary *replacements = nil;
             DEBUG_XML(@"  content: %@\n", self.contentOfCurrentProperty);
         }
 
-        SelImpPair elSelImp =
-            [self.endSels selImpForElement:elementName
-                                   selName:XML_END_SELECTOR_NAME
-                                       obj:self
-                                     debug:XML_END_DEBUG];
+        SelImpPair elSelImp = [self.endSels selImpForElement:elementName
+                                                     selName:XML_END_SELECTOR_NAME
+                                                         obj:self
+                                                       debug:XML_END_DEBUG];
 
         if (elSelImp.imp != nil) {
             XML_END_ELEMENT_IMP endElementFunc = (void *)elSelImp.imp;
@@ -694,9 +709,8 @@ static NSDictionary *replacements = nil;
 - (NSTimeInterval)secondsUntilEndOfServiceSunday:(NSDate *)date {
 
     NSCalendar *cal = [NSCalendar currentCalendar];
-    int units = NSCalendarUnitWeekOfYear | NSCalendarUnitYearForWeekOfYear |
-                NSCalendarUnitWeekday | NSCalendarUnitHour |
-                NSCalendarUnitMinute | NSCalendarUnitSecond;
+    int units = NSCalendarUnitWeekOfYear | NSCalendarUnitYearForWeekOfYear | NSCalendarUnitWeekday |
+                NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
 
     NSDateComponents *nowDateComponents = [cal components:units fromDate:date];
 
@@ -720,11 +734,9 @@ static NSDictionary *replacements = nil;
 - (void)URLSession:(NSURLSession *)session
              dataTask:(NSURLSessionDataTask *)dataTask
     willCacheResponse:(NSCachedURLResponse *)proposedResponse
-    completionHandler:(void (^)(NSCachedURLResponse *_Nullable cachedResponse))
-                          completionHandler {
+    completionHandler:(void (^)(NSCachedURLResponse *_Nullable cachedResponse))completionHandler {
     if ([proposedResponse.response isKindOfClass:[NSHTTPURLResponse class]]) {
-        NSHTTPURLResponse *httpResponse =
-            (NSHTTPURLResponse *)proposedResponse.response;
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)proposedResponse.response;
         self.httpDate = httpResponse.headerDate;
 
         switch (self.currentCacheAction) {
@@ -736,8 +748,7 @@ static NSDictionary *replacements = nil;
             } else {
                 completionHandler([SessionSingleton
                                   response:proposedResponse
-                    withExpirationDuration:
-                        [self secondsUntilEndOfServiceSunday:self.httpDate]]);
+                    withExpirationDuration:[self secondsUntilEndOfServiceSunday:self.httpDate]]);
             }
             break;
         case TriMetXMLNoCaching:

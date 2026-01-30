@@ -33,9 +33,8 @@
     [super awakeFromNib];
 
     UILongPressGestureRecognizer *longPressGesture =
-        [[UILongPressGestureRecognizer alloc]
-            initWithTarget:self
-                    action:@selector(handleLongPress:)];
+        [[UILongPressGestureRecognizer alloc] initWithTarget:self
+                                                      action:@selector(handleLongPress:)];
 
     [self addGestureRecognizer:longPressGesture];
 }
@@ -75,14 +74,14 @@
     UIMenuController *menu = UIMenuController.sharedMenuController;
 
     if (self.textView.allowSelection) {
-        UIMenuItem *item = [[UIMenuItem alloc]
-            initWithTitle:NSLocalizedString(@"Disable selection", @"menu")
-                   action:@selector(disableSelection:)];
+        UIMenuItem *item =
+            [[UIMenuItem alloc] initWithTitle:NSLocalizedString(@"Disable selection", @"menu")
+                                       action:@selector(disableSelection:)];
         menu.menuItems = @[ item ];
     } else {
-        UIMenuItem *item = [[UIMenuItem alloc]
-            initWithTitle:NSLocalizedString(@"Select all", @"menu")
-                   action:@selector(enableSelection:)];
+        UIMenuItem *item =
+            [[UIMenuItem alloc] initWithTitle:NSLocalizedString(@"Select all", @"menu")
+                                       action:@selector(enableSelection:)];
         menu.menuItems = @[ item ];
     }
     return menu;
@@ -98,7 +97,9 @@
 
         [menu showMenuFromView:view rect:view.bounds];
         DEBUG_LOG(@"first responder %d menu width %f, visible %d",
-                  firstResponder, menu.menuFrame.size.width, menu.menuVisible);
+                  firstResponder,
+                  menu.menuFrame.size.width,
+                  menu.menuVisible);
     }
 }
 

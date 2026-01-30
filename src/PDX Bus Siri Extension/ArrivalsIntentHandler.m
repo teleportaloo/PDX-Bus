@@ -26,8 +26,7 @@
     DEBUG_FUNC();
 
     if (intent.stops == nil) {
-        completion([ArrivalsResponseFactory
-            arrivalsRespond:ArrivalsIntentResponseCodeFailure]);
+        completion([ArrivalsResponseFactory arrivalsRespond:ArrivalsIntentResponseCodeFailure]);
         return;
     }
 
@@ -35,9 +34,7 @@
 }
 
 - (void)handleArrivalsAtStopId:(ArrivalsAtStopIdIntent *)intent
-                    completion:
-                        (void (^)(ArrivalsAtStopIdIntentResponse *response))
-                            completion {
+                    completion:(void (^)(ArrivalsAtStopIdIntentResponse *response))completion {
     DEBUG_FUNC();
 
     if (intent.stop == nil) {

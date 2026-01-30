@@ -32,7 +32,7 @@
 @interface HotSpotTests : XCTestCase {
 }
 
-@property(atomic, strong) LinkChecker *linkChecker;
+@property (atomic, strong) LinkChecker *linkChecker;
 
 @end
 
@@ -53,8 +53,7 @@
 
 - (void)test_Online_HOTSPOT_Integrity {
     PtrConstHotSpot hotSpots = HotSpotArrays.sharedInstance.hotSpots;
-    NSDictionary<NSString *, Stop *> *allRailStops =
-        [XMLRoutes getAllRailStops];
+    NSDictionary<NSString *, Stop *> *allRailStops = [XMLRoutes getAllRailStops];
 
     int nHotSpots = HotSpotArrays.sharedInstance.hotSpotCount;
 
@@ -64,9 +63,8 @@
     self.linkChecker.context = NSSTR_FUNC;
 
     // Check that each station has a hotspot
-    [allRailStops enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull route,
-                                                      Stop *_Nonnull stop,
-                                                      BOOL *_Nonnull stopLoop) {
+    [allRailStops enumerateKeysAndObjectsUsingBlock:^(
+                      NSString *_Nonnull route, Stop *_Nonnull stop, BOOL *_Nonnull stopLoop) {
       RailStation *station = [StationData railstationFromStopId:stop.stopId];
 
       XCTAssert(station != nil, @"StopId: %@ %@", stop.stopId, stop.desc);
@@ -77,11 +75,11 @@
     // Check that each hotspot still has a station
     for (PtrConstHotSpot hs = hotSpots; i < nHotSpots; hs++, i++) {
         XCTAssert(hs->action != NULL);
-       
+
         NSString *action = HS_ACTION(*hs);
-        
+
         XCTAssert(action.length > 0);
-       
+
         switch (HS_TYPE(*hs)) {
         default:
             break;
@@ -91,6 +89,9 @@
             bool foundNameMatch = NO;
             NSString *name = nil;
             bool mutlipleNames = NO;
+
+            // NW 9th and Lovejoy is closed temporarily
+            NSSet *ignore = [NSSet setWithArray:@[ @"13606" ]];
 
             XCTAssertNotNil(station, @"Station %d", i);
 
@@ -103,27 +104,31 @@
             for (NSString *stationStopId in station.stopIdArray) {
                 Stop *stop = allRailStops[stationStopId];
 
+                // NW 9th and Lovehjoy is closed temporarily
+                if ([ignore containsObject:stationStopId] && stop == nil) {
+                    continue;
+                } else if ([ignore containsObject:stationStopId]) {
+                    XCTAssertNil(stop, @"StopId %@ was expected to be nil!", stationStopId);
+                }
+
                 if (stop == nil) {
                     XCTAssertNotNil(stop, @"StopId %@", stationStopId);
                 } else if (name == nil) {
                     name = stop.desc;
                 } else if (![name isEqual:stop.desc]) {
-                    DEBUG_TEST_WARNING(@"TriMet mismatch too:  '%@' vs '%@'",
-                                       name, stop.desc);
+                    DEBUG_TEST_WARNING(@"TriMet mismatch too:  '%@' vs '%@'", name, stop.desc);
                     mutlipleNames = YES;
                 }
 
                 if (stop != nil) {
                     if (![stop.desc hasPrefix:station.name]) {
                         // Search from back to get the last space character
-                        NSRange range =
-                            [station.name rangeOfString:@" "
-                                                options:NSBackwardsSearch];
+                        NSRange range = [station.name rangeOfString:@" " options:NSBackwardsSearch];
 
                         // Take the first substring: from 0 to the space
                         // character
-                        NSString *removedLastWord = [station.name
-                            substringToIndex:range.location]; // @"this is a"
+                        NSString *removedLastWord =
+                            [station.name substringToIndex:range.location]; // @"this is a"
 
                         if ([stop.desc hasPrefix:removedLastWord]) {
                             foundNameMatch = YES;
@@ -136,11 +141,11 @@
 
             // 13607 is allowed to be different, it's a weird stop with a combo
             // name
-            if (!foundNameMatch && ![station.stopIdArray[0] isEqual:@"13607"]) {
+            if (!foundNameMatch && ![station.stopIdArray[0] isEqual:@"13607"] &&
+                ![ignore containsObject:station.stopIdArray[0]]) {
                 XCTAssert(!mutlipleNames, @"Station: %@", station.name);
                 XCTAssert(foundNameMatch, @"Station: %@", station.name);
-                XCTAssertEqualObjects(name, station.name, @"Station: %@",
-                                      station.name);
+                XCTAssertEqualObjects(name, station.name, @"Station: %@", station.name);
             }
 
             // Check the transfers work both ways
@@ -149,12 +154,10 @@
             NSString *stopId;
 
             for (stopId in station.transferStopIdArray) {
-                RailStation *transfer =
-                    [StationData railstationFromStopId:stopId];
+                RailStation *transfer = [StationData railstationFromStopId:stopId];
 
-                XCTAssertNotNil(transfer,
-                                @"No station for transfer %@ in station %@",
-                                stopId, station.name);
+                XCTAssertNotNil(
+                    transfer, @"No station for transfer %@ in station %@", stopId, station.name);
 
                 if (transfer != nil) {
                     bool found = NO;
@@ -174,9 +177,8 @@
                         }
                     }
 
-                    XCTAssert(found,
-                              @"No opposite for transfer %@ in station %@",
-                              stopId, station.name);
+                    XCTAssert(
+                        found, @"No opposite for transfer %@ in station %@", stopId, station.name);
                 }
             }
 

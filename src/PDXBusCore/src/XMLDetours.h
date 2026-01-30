@@ -16,8 +16,8 @@
 
 @interface XMLDetours : TriMetXMLv2 <Detour *>
 
-@property(nonatomic, strong) AllTriMetRoutes *allRoutes;
-@property(nonatomic) bool noEmojis;
+@property (nonatomic, strong) AllTriMetRoutes *allRoutes;
+@property (nonatomic) bool noEmojis;
 
 - (BOOL)getDetoursForRoutes:(NSArray<NSString *> *)routeIdArray;
 - (BOOL)getDetoursForRoute:(NSString *)route;

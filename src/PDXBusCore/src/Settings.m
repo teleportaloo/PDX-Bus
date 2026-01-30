@@ -23,7 +23,6 @@
 #import "TriMetTypes.h"
 
 @interface Settings () {
-    NSUserDefaults *_defaults;
 }
 
 + (Settings *)sharedInstance;
@@ -43,7 +42,7 @@
 
         if (obj) {
             DEBUG_LOG(@"Transitioning %@", key);
-            [_defaults setObject:obj forKey:key];
+            [self.defaults setObject:obj forKey:key];
             [old removeObjectForKey:key];
         }
     }
@@ -54,23 +53,22 @@
     if ((self = [super init])) {
 
 #if !TARGET_OS_MACCATALYST
-        _defaults = [[NSUserDefaults alloc] initWithSuiteName:kSharedDomain];
+        self.defaults = [[NSUserDefaults alloc] initWithSuiteName:kSharedDomain];
 #ifdef PDXBUS_WATCH
         NSString *defaults = @"Defaults-watchOS";
 #else
         NSString *defaults = @"Defaults-iOS";
 
-#endif
+#endif // PDXBUS_WATCH
 #else
         NSString *defaults = @"Defaults-macOS";
-        _defaults = [NSUserDefaults standardUserDefaults];
-#endif
+        self.defaults = [NSUserDefaults standardUserDefaults];
+#endif // !TARGET_OS_MACCATALYST
 
         NSDictionary *defaultValues = [[NSDictionary alloc]
-            initWithContentsOfFile:[[NSBundle mainBundle]
-                                       pathForResource:defaults
-                                                ofType:@"plist"]];
-        [_defaults registerDefaults:defaultValues];
+            initWithContentsOfFile:[[NSBundle mainBundle] pathForResource:defaults
+                                                                   ofType:@"plist"]];
+        [self.defaults registerDefaults:defaultValues];
 
 #ifndef PDXBUS_WATCH
 #if !TARGET_OS_MACCATALYST
@@ -79,31 +77,30 @@
 
         BOOL transitioned = YES;
 
-        if ([_defaults objectForKey:kTransitioned] == nil) {
+        if ([self.defaults objectForKey:kTransitioned] == nil) {
             transitioned = NO;
         } else {
-            transitioned = [_defaults boolForKey:kTransitioned];
+            transitioned = [self.defaults boolForKey:kTransitioned];
         }
 
         if (!transitioned) {
             NSUserDefaults *old = [NSUserDefaults standardUserDefaults];
 
             [self transition:defaultValues.allKeys from:old];
-            [self transition:@[ kiCloudTokenKey, kSystemWideDetoursKey ]
-                        from:old];
+            [self transition:@[ kiCloudTokenKey, kSystemWideDetoursKey ] from:old];
 
-            [_defaults setBool:YES forKey:kTransitioned];
+            [self.defaults setBool:YES forKey:kTransitioned];
 
             CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication);
         }
-#endif
+#endif // !TARGET_OS_MACCATALYST
         DEBUG_BLOCK(^{
           NSDictionary *defaultsDict =
               [[NSUserDefaults standardUserDefaults] dictionaryRepresentation];
           DEBUG_LOG(@"Current UserDefaults: %@", defaultsDict);
         });
 
-#endif // ifdef PDXBUS_WATCH
+#endif // !PDXBUS_WATCH
     }
 
     return self;
@@ -112,7 +109,7 @@
 + (Settings *)sharedInstance {
     static Settings *singleton = nil;
 
-    DoOnce(^{
+    DO_ONCE(^{
       singleton = [[Settings alloc] init];
     });
     return singleton;
@@ -122,72 +119,69 @@
 // uncrustify-off
 // Note - uncrustify messes this up even if we try to switch it off.
 
-#define GET_BOOL(PROPERTY, V)                                                  \
-    +(bool)PROPERTY {                                                          \
-        bool setting = [Settings.sharedInstance->_defaults boolForKey:(V)];    \
-        DEBUG_LOG(@"Setting " V " %@", setting ? @"True" : @"False");          \
-        return setting;                                                        \
+#define GET_BOOL(PROPERTY, V)                                                                      \
+    +(bool)PROPERTY {                                                                              \
+        bool setting = [Settings.sharedInstance.defaults boolForKey:(V)];                          \
+        DEBUG_LOG(@"Setting " V " %@", setting ? @"True" : @"False");                              \
+        return setting;                                                                            \
     }
 
-#define GET_FLOAT(PROPERTY, V)                                                 \
-    +(float)PROPERTY {                                                         \
-        float setting = [Settings.sharedInstance->_defaults floatForKey:(V)];  \
-        DEBUG_LOG(@"Setting " V " %f", setting);                               \
-        return setting;                                                        \
+#define GET_FLOAT(PROPERTY, V)                                                                     \
+    +(float)PROPERTY {                                                                             \
+        float setting = [Settings.sharedInstance.defaults floatForKey:(V)];                        \
+        DEBUG_LOG(@"Setting " V " %f", setting);                                                   \
+        return setting;                                                                            \
     }
 
-#define GET_INT(PROPERTY, V)                                                   \
-    +(int)PROPERTY {                                                           \
-        int setting =                                                          \
-            (int)[Settings.sharedInstance->_defaults integerForKey:(V)];       \
-        DEBUG_LOG(@"Setting " V " %d", setting);                               \
-        return setting;                                                        \
+#define GET_INT(PROPERTY, V)                                                                       \
+    +(int)PROPERTY {                                                                               \
+        int setting = (int)[Settings.sharedInstance.defaults integerForKey:(V)];                   \
+        DEBUG_LOG(@"Setting " V " %d", setting);                                                   \
+        return setting;                                                                            \
     }
 
-#define SET_INT(SET_PROPERTY, V)                                               \
-    +(void)SET_PROPERTY : (int)setting {                                       \
-        [Settings.sharedInstance->_defaults setInteger:setting forKey:(V)];    \
-        DEBUG_LOG(@"Set Setting " V " %d", setting);                           \
+#define SET_INT(SET_PROPERTY, V)                                                                   \
+    +(void)SET_PROPERTY : (int)setting {                                                           \
+        [Settings.sharedInstance.defaults setInteger:setting forKey:(V)];                          \
+        DEBUG_LOG(@"Set Setting " V " %d", setting);                                               \
     }
 
-#define GET_STR(PROPERTY, V)                                                   \
-    +(NSString *)PROPERTY {                                                    \
-        NSString *setting =                                                    \
-            [Settings.sharedInstance->_defaults stringForKey:(V)];             \
-        DEBUG_LOG(@"Setting " V " %@", setting);                               \
-        return setting;                                                        \
+#define GET_STR(PROPERTY, V)                                                                       \
+    +(NSString *)PROPERTY {                                                                        \
+        NSString *setting = [Settings.sharedInstance.defaults stringForKey:(V)];                   \
+        DEBUG_LOG(@"Setting " V " %@", setting);                                                   \
+        return setting;                                                                            \
     }
 
-#define G_OBJ(PROPERTY, V)                                                     \
-    +(NSObject *)PROPERTY {                                                    \
-        NSObject *setting =                                                    \
-            [Settings.sharedInstance->_defaults objectForKey:(V)];             \
-        DEBUG_LOG(@"Setting " V " %p", setting);                               \
-        return setting;                                                        \
+#define G_OBJ(PROPERTY, V)                                                                         \
+    +(NSObject *)PROPERTY {                                                                        \
+        NSObject *setting = [Settings.sharedInstance.defaults objectForKey:(V)];                   \
+        DEBUG_LOG(@"Setting " V " %p", setting);                                                   \
+        return setting;                                                                            \
     }
 
-#define S_OBJ(SET_PROPERTY, V)                                                 \
-    +(void)SET_PROPERTY : (NSObject *)setting {                                \
-        [Settings.sharedInstance->_defaults setObject:setting forKey:(V)];     \
-        DEBUG_LOG(@"Set Setting " V " %p", setting);                           \
+#define S_OBJ(SET_PROPERTY, V)                                                                     \
+    +(void)SET_PROPERTY : (NSObject *)setting {                                                    \
+        [Settings.sharedInstance.defaults setObject:setting forKey:(V)];                           \
+        DEBUG_LOG(@"Set Setting " V " %p", setting);                                               \
     }
 
-#define S_BOOL(SET_PROPERTY, V)                                                \
-    +(void)SET_PROPERTY : (_Bool)setting {                                     \
-        [Settings.sharedInstance->_defaults setBool:setting forKey:(V)];       \
-        DEBUG_LOG(@"Set Setting " V " %@", setting ? @"True" : @"False");      \
+#define S_BOOL(SET_PROPERTY, V)                                                                    \
+    +(void)SET_PROPERTY : (_Bool)setting {                                                         \
+        [Settings.sharedInstance.defaults setBool:setting forKey:(V)];                             \
+        DEBUG_LOG(@"Set Setting " V " %@", setting ? @"True" : @"False");                          \
     }
 
-#define SET_GET_BOOL(READ, V, SET)                                             \
-    GET_BOOL(READ, V)                                                          \
+#define SET_GET_BOOL(READ, V, SET)                                                                 \
+    GET_BOOL(READ, V)                                                                              \
     S_BOOL(SET, V)
 
-#define SET_GET_INT(READ, V, SET)                                              \
-    GET_INT(READ, V)                                                           \
+#define SET_GET_INT(READ, V, SET)                                                                  \
+    GET_INT(READ, V)                                                                               \
     SET_INT(SET, V)
 
-#define SET_GET_OBJ(READ, V, SET)                                              \
-    G_OBJ(READ, V)                                                             \
+#define SET_GET_OBJ(READ, V, SET)                                                                  \
+    G_OBJ(READ, V)                                                                                 \
     S_OBJ(SET, V)
 
 //  OP  Type  Get Method                       Value to Read Set Method
@@ -199,19 +193,16 @@ GET_BOOL(commuteButton, @"commute_button")
 SET_GET_BOOL(flashingLightIcon, @"flashing_light_icon", setFlashingLightIcon)
 GET_INT(rawToolbarColors, @"toolbar_colors")
 SET_GET_BOOL(flashLed, @"flash_led", setFlashLed)
-SET_GET_BOOL(flashingLightWarning, @"flashing_light_warning",
-             setFlashingLightWarning)
+SET_GET_BOOL(flashingLightWarning, @"flashing_light_warning", setFlashingLightWarning)
 GET_BOOL(autoRefresh, @"auto_refresh")
 GET_BOOL(groupByArrivalsIcon, @"group_by_arrivals_icon")
-SET_GET_BOOL(autoLocateShowOptions, @"auto_locate_show_options",
-             setAutoLocateShowOptions)
+SET_GET_BOOL(autoLocateShowOptions, @"auto_locate_show_options", setAutoLocateShowOptions)
 GET_BOOL(useAppleGeoLocator, @"use_apple_geolocator")
 GET_FLOAT(maxWalkingDistance, @"max_walking_distance")
 GET_INT(travelBy, @"travel_by")
 GET_INT(tripMin, @"min")
 GET_STR(alarmSoundFile, @"alarm_sound")
-SET_GET_BOOL(showStreetcarMapFirst, @"streetcar_map_first",
-             setShowStreetcarMapFirst)
+SET_GET_BOOL(showStreetcarMapFirst, @"streetcar_map_first", setShowStreetcarMapFirst)
 GET_BOOL(searchStations, @"search_stations")
 GET_BOOL(searchBookmarks, @"search_bookmarks")
 GET_BOOL(searchRoutes, @"search_routes")
@@ -220,7 +211,6 @@ GET_BOOL(kmlWifiOnly, @"kml_route_only_wifi")
 GET_INT(vehicleLocatorDistance, @"vehicle_locator_distance2")
 GET_FLOAT(useGpsWithin, @"proximity_gps")
 GET_INT(xmlViewer, @"debug_xml3")
-GET_BOOL(progressDebug, @"progress_debug")
 GET_BOOL(networkInParallel, @"network_in_parallel")
 GET_BOOL(showTransitTracker, @"show_transit_tracker")
 GET_BOOL(showSizes, @"show_sizes")
@@ -229,13 +219,12 @@ GET_BOOL(clearCacheOnUnexpectedRestart, @"clear_cache")
 GET_BOOL(useVehicleLocator, @"use_beta_vehicle_locator")
 GET_BOOL(showTrips, @"show_trips")
 GET_BOOL(showDetourIds, @"show_detour_ids")
-GET_BOOL(useGpsForAllAlarms, @"use_gps_for_all_alarms")
 GET_INT(networkTimeout, @"network_timeout2")
-SET_GET_BOOL(firstLaunchWithiCloudAvailable, @"first_launch_with_icloud",
+SET_GET_BOOL(firstLaunchWithiCloudAvailable,
+             @"first_launch_with_icloud",
              setFirstLaunchWithiCloudAvailable)
 SET_GET_BOOL(hideWatchDetours, @"watch_hidden_detours", setHideWatchDetours)
-SET_GET_OBJ(rawSystemWideDetours, kSystemWideDetoursKey,
-            setRawSystemWideDetours)
+SET_GET_OBJ(rawSystemWideDetours, kSystemWideDetoursKey, setRawSystemWideDetours)
 SET_GET_OBJ(iCloudToken, kiCloudTokenKey, setRawCloudToken)
 
 // uncrustify-on
@@ -302,8 +291,7 @@ SET_GET_OBJ(iCloudToken, kiCloudTokenKey, setRawCloudToken)
 }
 
 + (void)toggleHiddenSystemWideDetour:(NSNumber *)detourId {
-    NSMutableSet<NSNumber *> *hidden =
-        Settings.hiddenSystemWideDetours.mutableCopy;
+    NSMutableSet<NSNumber *> *hidden = Settings.hiddenSystemWideDetours.mutableCopy;
 
     if ([hidden containsObject:detourId]) {
         [hidden removeObject:detourId];
@@ -321,17 +309,15 @@ SET_GET_OBJ(iCloudToken, kiCloudTokenKey, setRawCloudToken)
 + (void)setICloudToken:(id)iCloudToken {
     if (iCloudToken) {
 #ifdef PDXBUS_WATCH
-        Settings.rawCloudToken =
-            [NSKeyedArchiver archivedDataWithRootObject:iCloudToken];
+        Settings.rawCloudToken = [NSKeyedArchiver archivedDataWithRootObject:iCloudToken];
 #else
-        Settings.rawCloudToken =
-            [NSKeyedArchiver archivedDataWithRootObject:iCloudToken
-                                  requiringSecureCoding:NO
-                                                  error:nil];
+        Settings.rawCloudToken = [NSKeyedArchiver archivedDataWithRootObject:iCloudToken
+                                                       requiringSecureCoding:NO
+                                                                       error:nil];
 
-#endif
+#endif // PDXBUS_WATCH
     } else {
-        [Settings.sharedInstance->_defaults removeObjectForKey:kiCloudTokenKey];
+        [Settings.sharedInstance.defaults removeObjectForKey:kiCloudTokenKey];
     }
 }
 

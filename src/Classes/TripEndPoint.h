@@ -20,13 +20,13 @@
 
 @interface TripEndPoint : NSObject
 
-@property(nonatomic, strong) NSString *locationDesc;
-@property(nonatomic, strong) NSString *additionalInfo;
-@property(nonatomic, strong) CLLocation *coordinates;
-@property(nonatomic) bool useCurrentLocation;
-@property(nonatomic, readonly, copy) NSDictionary *toDictionary;
-@property(nonatomic, readonly, copy) NSString *displayText;
-@property(nonatomic, readonly, copy) NSString *markedUpUserInputDisplayText;
+@property (nonatomic, strong) NSString *locationDesc;
+@property (nonatomic, strong) NSString *additionalInfo;
+@property (nonatomic, strong) CLLocation *coordinates;
+@property (nonatomic) bool useCurrentLocation;
+@property (nonatomic, readonly, copy) NSDictionary *toDictionary;
+@property (nonatomic, readonly, copy) NSString *displayText;
+@property (nonatomic, readonly, copy) NSString *markedUpUserInputDisplayText;
 
 - (NSString *)toQuery:(NSString *)toOrFrom;
 - (bool)readDictionary:(NSDictionary *)dict;

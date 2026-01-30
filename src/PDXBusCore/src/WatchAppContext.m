@@ -31,7 +31,7 @@
 + (WatchAppContext *)sharedInstance {
     static WatchAppContext *singleton = nil;
 
-    DoOnce(^{
+    DO_ONCE(^{
       singleton = [[WatchAppContext alloc] init];
     });
 
@@ -46,12 +46,12 @@
 }
 
 #ifndef PDXBUS_WATCH
-- (void)updateWatch:(WCSession *)session API_AVAILABLE(ios(9.0)) {
+- (void)updateWatch:(WCSession *)session {
     NSDictionary *blockColorData = [BlockColorDb sharedInstance].db;
 
     if (session != nil && session.isWatchAppInstalled) {
         [UserState.sharedInstance incrementWatchSequence];
-        NSDictionary *appData = UserState.sharedInstance.rawData;
+        NSDictionary *appData = UserState.sharedInstance.watchData;
 
         Class uuidClass = (NSClassFromString(@"NSUUID"));
         NSString *UUID = nil;
@@ -71,8 +71,7 @@
         bool sent = [session updateApplicationContext:appContext error:&error];
 
         if (!sent || error != nil) {
-            ERROR_LOG(@"Failed to push bookmarks to watch %@\n",
-                      error.description);
+            ERROR_LOG(@"Failed to push bookmarks to watch %@\n", error.description);
         }
     }
 }
@@ -138,15 +137,11 @@
 
         if (appData) {
             [self gotBookmarks:YES];
-            NSDate *savedLastRun = state.lastRun;
-
-            state.rawData =
-                [NSMutableDictionary dictionaryWithDictionary:appData];
-
-            state.lastRun = savedLastRun;
 
             state.readOnly = NO;
-            [state cacheState];
+            NSDate *savedLastRun = state.lastRun;
+            state.watchData = appData.mutableDeepCopy;
+            state.lastRun = savedLastRun;
             state.readOnly = YES;
 
             updatedBookmarks = YES;

@@ -15,6 +15,8 @@
 #import "TableViewControllerWithToolbar.h"
 #import "AlertsForRouteIntent.h"
 #import "BearingAnnotationView.h"
+#import "CellTextField.h"
+#import "DatePickerCell.h"
 #import "DepartureTimesViewController.h"
 #import "Detour+iOSUI.h"
 #import "DetourTableViewCell.h"
@@ -26,32 +28,46 @@
 #import "NSString+Core.h"
 #import "NSString+MoreMarkup.h"
 #import "NetworkTestViewController.h"
+#import "PDXBus-Swift.h"
 #import "PDXBusAppDelegate+Methods.h"
+#import "PickerCell.h"
 #import "SearchFilter.h"
+#import "SegmentCell.h"
 #import "TaskDispatch.h"
+#import "TextViewLinkCell.h"
 #import "TriMetInfo+UI.h"
 #import "TripPlannerSummaryViewController.h"
 #import "UIApplication+Compat.h"
 #import "UIFont+Utility.h"
+#import "UITableViewCell+Icons.h"
 #import "ViewControllerBase+DetourTableViewCell.h"
+#import "ViewControllerBase+LinkCell.h"
 #import "ViewControllerBase+MapPinAction.h"
 #import "WebViewController.h"
-#import "iOSCompat.h"
 #import <CoreTelephony/CTCarrier.h>
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
 #import <MapKit/MapKit.h>
 #import <UIKit/UISearchDisplayController.h>
 
+#define VTABLE(T) (((T) < _vTableMapSize) ? *(_vTableMap + (T)) : nil)
+
+NSString *kSimpleId = @"simple";
+NSString *kActionCellId = @"action";
+NSString *kLinkCellWithIconId = @"linkicon";
+
 @interface TableViewControllerWithToolbar <FilteredItemType>() {
     NSMutableArray<FilteredItemType> *_filteredItems;
     bool _mapShowsUserLocation;
     UIFont *_smallFont;
+
+    const RowVTable *const *_vTableMap;
+    size_t _vTableMapSize;
 }
 
-@property(nonatomic, strong) NSMutableArray<NSNumber *> *sectionTypes;
-@property(nonatomic, strong)
-    NSMutableArray<NSMutableArray<NSNumber *> *> *perSectionRowTypes;
-@property(nonatomic, strong) NSArray *savedOverlays;
+@property (nonatomic, strong) NSMutableArray<NSNumber *> *sectionTypes;
+@property (nonatomic, strong) NSMutableArray<NSMutableArray<NSNumber *> *> *perSectionRowTypes;
+@property (nonatomic, strong) NSArray *savedOverlays;
+@property (nonatomic, strong) TriMetXML *disclaimerXml;
 
 @end
 
@@ -59,18 +75,19 @@
 
 static NSString *callString = @"tel:1-503-238-RIDE";
 
+// Tune this if you want a tiny gap above the toolbar when scrolled to the end.
+static const CGFloat kToolbarClearance = 10.0;
+
 - (bool)canCallTriMet {
     CTTelephonyNetworkInfo *networkInfo = [[CTTelephonyNetworkInfo alloc] init];
-    CTCarrier *carrier =
-        networkInfo.serviceSubscriberCellularProviders.allValues.firstObject;
+    CTCarrier *carrier = networkInfo.serviceSubscriberCellularProviders.allValues.firstObject;
 
     // Device has a carrier, and allows VOICE
     return (carrier.carrierName.length > 0);
 }
 
 - (void)callTriMet {
-    [[UIApplication sharedApplication]
-        compatOpenURL:[NSURL URLWithString:callString]];
+    [[UIApplication sharedApplication] compatOpenURL:[NSURL URLWithString:callString]];
 };
 
 #define MAP_TAG 4
@@ -105,105 +122,146 @@ static CGFloat leftInset;
 
         // only cleans up properly if animations are complete
         MKMapView *finalOne = self.mapView;
-        [finalOne performSelector:@selector(self)
-                       withObject:nil
-                       afterDelay:(NSTimeInterval)4.0];
+        [finalOne performSelector:@selector(self) withObject:nil afterDelay:(NSTimeInterval)4.0];
 
         self.mapView = nil;
     }
 }
 
+#pragma mark - Underlap core
+
+- (CGFloat)toolbarHeight {
+    UINavigationController *nc = self.navigationController;
+    UIToolbar *tb = nc.toolbar;
+    if (!nc || nc.isToolbarHidden || !tb || tb.isHidden || tb.alpha <= 0.001)
+        return 0.0;
+    // Accurate on all devices/sizes
+    return [tb sizeThatFits:CGSizeMake(CGRectGetWidth(self.view.bounds), CGFLOAT_MAX)].height;
+}
+
+- (NSDictionary<NSNumber *, NSValue *> *)makeVTable {
+    return [NSDictionary dictionary];
+}
+
 #pragma mark View overridden methods
+
+- (RowVTableTable)getvTable {
+    return nil;
+}
+- (size_t)getvTableSize {
+    return 0;
+}
+
+- (void)loadView {
+    _vTableMap = [self getvTable];
+    _vTableMapSize = [self getvTableSize];
+
+    DEBUG_BLOCK(^{
+      [self debugCheckCells];
+    });
+    [super loadView];
+    [self recreateNewTable];
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.edgesForExtendedLayout = UIRectEdgeNone;
-
-    self.tableView.backgroundColor = [UIColor modeAwareAppBackground];
-
-    self.tableView.sectionHeaderTopPadding = 0;
 }
 
 - (void)recreateNewTable {
     if (self.tableView != nil) {
         [self.tableView removeFromSuperview];
-        self.tableView = nil;
     }
 
-    // Set the size for the table view
-    CGRect tableViewRect = self.middleWindowRect;
+    // 1) Bars policy (works whether toolbar is opaque or translucent)
+    self.navigationController.toolbarHidden = NO;
 
-    // Create a table view
-    self.tableView = [[UITableView alloc] initWithFrame:tableViewRect
-                                                  style:self.style];
-    // set the autoresizing mask so that the table will always fill the view
-    self.tableView.autoresizingMask =
-        (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
+    // 2) Create table & pin to VIEW EDGES (not safe area)
+    UITableView *tv = [[UITableView alloc] initWithFrame:CGRectZero style:self.style];
+    tv.translatesAutoresizingMaskIntoConstraints = NO;
 
-    compatSetIfExists(self.tableView, setCellLayoutMarginsFollowReadableWidth:,
-                      NO); // iOS9
+    // Let the view extend behind the toolbar
+    self.edgesForExtendedLayout = UIRectEdgeBottom;
+    self.extendedLayoutIncludesOpaqueBars = YES;
 
-    // set the tableview delegate to this object
-    self.tableView.delegate = self;
+    // Let UIKit manage content insets for sizing
+    self.tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+    self.tableView.automaticallyAdjustsScrollIndicatorInsets = YES;
 
-    // Set the table view datasource to the data source
-    self.tableView.dataSource = self;
+    tv.contentInset = UIEdgeInsetsZero;
+    tv.verticalScrollIndicatorInsets = UIEdgeInsetsZero;
+    tv.horizontalScrollIndicatorInsets = UIEdgeInsetsZero;
+    tv.delegate = self;
+    tv.dataSource = self;
+    [self.view addSubview:tv];
+    self.tableView = tv;
+
+    [NSLayoutConstraint activateConstraints:@[
+        [tv.topAnchor constraintEqualToAnchor:self.view.topAnchor],
+        [tv.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
+        [tv.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
+        [tv.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
+    ]];
+
+    // Trim grouped padding that can look like a phantom gap
+    if (self.style == UITableViewStyleGrouped || self.style == UITableViewStyleInsetGrouped) {
+        self.tableView.sectionHeaderTopPadding = 0.0;
+        self.tableView.sectionFooterHeight = 0.0;
+        self.tableView.estimatedSectionFooterHeight = 0.0;
+    }
 
     if (self.enableSearch) {
-        // The TableViewController used to display the results of a search
-        UITableViewController *searchResultsController =
+        UITableViewController *resultsVC =
             [[UITableViewController alloc] initWithStyle:UITableViewStylePlain];
-        // searchResultsController.automaticallyAdjustsScrollViewInsets = NO; //
-        // Remove table view insets
-        searchResultsController.tableView.dataSource = self;
-        searchResultsController.tableView.delegate = self;
+        resultsVC.tableView.dataSource = self;
+        resultsVC.tableView.delegate = self;
 
-        searchResultsController.extendedLayoutIncludesOpaqueBars = YES;
+        UISearchController *sc =
+            [[UISearchController alloc] initWithSearchResultsController:resultsVC];
+        sc.searchResultsUpdater = self;
+        sc.obscuresBackgroundDuringPresentation = YES;
+        sc.hidesNavigationBarDuringPresentation = NO;
+        sc.searchBar.delegate = self;
+        sc.searchBar.searchBarStyle = UISearchBarStyleMinimal;
+        sc.searchBar.backgroundImage = [UIImage new];
+        sc.searchBar.backgroundColor = UIColor.modeAwareAppBackground;
+        sc.searchBar.tintColor = UIColor.modeAwareText;
 
-        searchResultsController.tableView.contentInsetAdjustmentBehavior =
-            UIScrollViewContentInsetAdjustmentAutomatic;
-
-        self.extendedLayoutIncludesOpaqueBars = YES;
+        self.searchController = sc;
         self.definesPresentationContext = YES;
 
-        self.searchController = [[UISearchController alloc]
-            initWithSearchResultsController:searchResultsController];
-        self.searchController.searchBar.scopeButtonTitles = [NSArray array];
-        self.searchController.searchResultsUpdater = self;
-#ifdef TARGET_OS_MACCATALYST
-        self.searchController.obscuresBackgroundDuringPresentation = YES;
-#else
-        self.searchController.dimsBackgroundDuringPresentation = YES;
-#endif
-        self.searchController.hidesNavigationBarDuringPresentation = NO;
-        self.searchController.searchBar.delegate = self;
-        self.searchController.searchBar.backgroundImage =
-            [[UIImage alloc] init];
-        self.searchController.searchBar.backgroundColor =
-            UIColor.modeAwareAppBackground;
-        self.searchController.searchBar.searchBarStyle =
-            UISearchBarStyleMinimal;
-
-        self.tableView.tableHeaderView = self.searchController.searchBar;
-        self.definesPresentationContext = YES;
-        // self.tableHeaderHeight = [self searchRowHeight];
-
-        UIView *topView = [[UIView alloc]
-            initWithFrame:CGRectMake(0, -200, self.tableView.bounds.size.width,
-                                     200)];
-        [topView setBackgroundColor:[UIColor modeAwareAppBackground]];
-        [self.tableView addSubview:topView];
+        // Put search in the nav bar so it “pulls down to reveal”
+        self.navigationItem.searchController = sc;
+        self.navigationItem.hidesSearchBarWhenScrolling = YES; // pull to reveal
+        self.navigationController.navigationBar.prefersLargeTitles = NO;
     }
 
-    self.tableView.contentInsetAdjustmentBehavior =
-        self.neverAdjustContentInset
-            ? UIScrollViewContentInsetAdjustmentNever
-            : UIScrollViewContentInsetAdjustmentAutomatic;
+    // In viewDidLoad (or right after creating the search controller)
+    self.navigationController.navigationBar.prefersLargeTitles = NO;
+    self.navigationItem.largeTitleDisplayMode =
+        UINavigationItemLargeTitleDisplayModeNever; // iOS 11+
+    self.navigationItem.title = self.title;
 
-    [self.view addSubview:self.tableView];
+    for (size_t i = 0; i < _vTableMapSize; i++) {
+        const RowVTable *vt = (_vTableMap[i]);
 
-    // Hide all the cell lines at the end
-    self.tableView.tableFooterView = [[UIView alloc] init];
+        if (vt && vt->selRegister) {
+            CELL_REG_IMP imp = (CELL_REG_IMP)[self methodForSelector:vt->selRegister];
+            imp(self, vt->selRegister, self.tableView, vt, i);
+        }
+    }
+}
+
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+
+    // Keep indicators readable above the toolbar/home indicator
+    CGFloat desiredBottom =
+        MAX([self toolbarHeight], self.view.safeAreaInsets.bottom) + kToolbarClearance;
+    UIEdgeInsets v = self.tableView.verticalScrollIndicatorInsets;
+    if (fabs(v.bottom - desiredBottom) > 0.5) {
+        v.bottom = desiredBottom;
+        self.tableView.verticalScrollIndicatorInsets = v;
+    }
 }
 
 - (UIBarPosition)positionForBar:(id<UIBarPositioning>)bar {
@@ -214,8 +272,10 @@ static CGFloat leftInset;
     }
 }
 
-- (bool)neverAdjustContentInset {
-    return NO;
+// Call this as well after you change toolbar items or show/hide the toolbar.
+- (void)setToolbarItems:(NSArray<UIBarButtonItem *> *)toolbarItems animated:(BOOL)animated {
+    [super setToolbarItems:toolbarItems animated:animated];
+    [self.view setNeedsLayout];
 }
 
 - (UIColor *)lighterColorForColor:(UIColor *)c {
@@ -235,12 +295,9 @@ static CGFloat leftInset;
     return ((id<SearchFilter>)i).stringToFilter;
 }
 
-- (id)filteredObject:(id)i
-        searchString:(NSString *)searchText
-               index:(NSInteger)index {
-    NSRange range =
-        [[self stringToFilter:i] rangeOfString:searchText
-                                       options:NSCaseInsensitiveSearch];
+- (id)filteredObject:(id)i searchString:(NSString *)searchText index:(NSInteger)index {
+    NSRange range = [[self stringToFilter:i] rangeOfString:searchText
+                                                   options:NSCaseInsensitiveSearch];
 
     if (range.location != NSNotFound) {
         return i;
@@ -264,9 +321,7 @@ static CGFloat leftInset;
             NSInteger index = 0;
 
             for (id i in self.searchableItems) {
-                id obj = [self filteredObject:i
-                                 searchString:searchText
-                                        index:index];
+                id obj = [self filteredObject:i searchString:searchText index:index];
 
                 if (obj) {
                     [filtered addObject:obj];
@@ -286,19 +341,10 @@ static CGFloat leftInset;
 
     if (self.searchController != nil && self.searchController.isActive) {
         UITableViewController *searchView =
-            (UITableViewController *)
-                self.searchController.searchResultsController;
+            (UITableViewController *)self.searchController.searchResultsController;
         [searchView.tableView reloadData];
     } else {
         [self.tableView reloadData];
-    }
-}
-
-- (void)loadView {
-    [super loadView];
-
-    @autoreleasepool {
-        [self recreateNewTable];
     }
 }
 
@@ -329,11 +375,9 @@ static CGFloat leftInset;
         [self.tableView deselectRowAtIndexPath:ip animated:YES];
     }
 
-    if (self.enableSearch && self.searchController &&
-        self.searchController.isActive) {
+    if (self.enableSearch && self.searchController && self.searchController.isActive) {
         UITableViewController *searchView =
-            (UITableViewController *)
-                self.searchController.searchResultsController;
+            (UITableViewController *)self.searchController.searchResultsController;
 
         if (searchView.tableView && !searchView.tableView.isHidden) {
             NSIndexPath *ip = searchView.tableView.indexPathForSelectedRow;
@@ -347,8 +391,8 @@ static CGFloat leftInset;
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning]; // Releases the view if it doesn't have a
-                                     // superview Release anything that's not
-                                     // essential, such as cached data
+    // superview Release anything that's not
+    // essential, such as cached data
 }
 
 #pragma mark Style
@@ -361,13 +405,108 @@ static CGFloat leftInset;
 
 - (UITableViewCell *)tableView:(UITableView *)tableView
          cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    ERROR_LOG(@"Unexpected default cell used.");
 
-    UITableViewCell *cell = [self tableView:tableView
-                    cellWithReuseIdentifier:@"default"];
+    id extra = nil;
+    NSInteger offset = [self tableView:tableView vTableOffset:indexPath extraOut:&extra];
+
+    RowVTablePtrConst vt = VTABLE(offset);
+
+    UITableViewCell *cell = nil;
+
+    if (vt && vt->selConfigure) {
+        CELL_CONFIG_IMP imp = (CELL_CONFIG_IMP)[self methodForSelector:vt->selConfigure];
+        cell = imp(self, vt->selConfigure, tableView, indexPath, extra, vt, offset);
+    } else if (vt && vt->selUpdate) {
+        CELL_UPDATE_IMP imp = (CELL_UPDATE_IMP)[self methodForSelector:vt->selUpdate];
+        cell = [self tableView:tableView cellWithReuseIdentifier:vt->reuseId];
+        imp(self, vt->selUpdate, tableView, cell, indexPath, extra, vt, offset);
+    }
+
+    if (cell == nil) {
+        SEL sel = CELL_CONFIG_SEL(default);
+        CELL_CONFIG_IMP imp = (CELL_CONFIG_IMP)[self methodForSelector:sel];
+        cell = imp(self, sel, tableView, indexPath, extra, vt, offset);
+    }
 
     return cell;
 }
+
+CELL_CONFIG_METHOD(default) {
+    ERROR_LOG(@"Unexpected default cell used.");
+    UITableViewCell *cell = [self tableView:tableView cellWithReuseIdentifier:@"default"];
+
+    NSString *cls = NSStringFromClass(self.class);
+
+#ifdef DEBUGLOGGING
+    NSDictionary *offsets = TableViewControllerWithToolbar.debugCellTypeStore[cls];
+
+    if (offsets) {
+        cell.textLabel.text = [NSString
+            stringWithFormat:@"Missing cell %@ %@ %ld", cls, offsets[@(offset)], (long)offset];
+        cell.textLabel.adjustsFontSizeToFitWidth = YES;
+    }
+#else
+    cell.textLabel.text = [NSString stringWithFormat:@"Missing cell %@ %ld", cls, (long)offset];
+    cell.textLabel.adjustsFontSizeToFitWidth = YES;
+#endif // DEBUGLOGGING
+    return cell;
+}
+
+- (void)tableView:(UITableView *)tableView
+    accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath {
+
+    id extra = nil;
+    NSInteger offset = [self tableView:tableView vTableOffset:indexPath extraOut:&extra];
+
+    RowVTablePtrConst vt = VTABLE(offset);
+
+    SEL sel = CELL_ACCESSORY_SEL(default);
+
+    if (vt && vt->selAccessoryTapped) {
+        sel = vt->selAccessoryTapped;
+    }
+
+    CELL_ACCESSORY_IMP imp = (CELL_ACCESSORY_IMP)[self methodForSelector:sel];
+    imp(self, sel, tableView, indexPath, extra, vt, offset);
+}
+
+CELL_ACCESSORY_METHOD(default) {}
+
+- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
+
+    id extra = nil;
+    NSInteger offset = [self tableView:tableView vTableOffset:indexPath extraOut:&extra];
+
+    RowVTablePtrConst vt = VTABLE(offset);
+
+    SEL sel = CELL_CAN_MOVE_SEL(default);
+
+    if (vt && vt->selCanMove) {
+        sel = vt->selCanMove;
+    }
+    CELL_CAN_MOVE_IMP imp = (CELL_CAN_MOVE_IMP)[self methodForSelector:sel];
+    return imp(self, sel, tableView, indexPath, extra, vt, offset);
+}
+
+CELL_CAN_MOVE_METHOD(default) { return NO; }
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+
+    id extra = nil;
+    NSInteger offset = [self tableView:tableView vTableOffset:indexPath extraOut:&extra];
+
+    RowVTablePtrConst vt = VTABLE(offset);
+
+    SEL sel = CELL_SELECT_SEL(default);
+
+    if (vt && vt->selSelect) {
+        sel = vt->selSelect;
+    }
+    CELL_SELECT_IMP imp = (CELL_SELECT_IMP)[self methodForSelector:sel];
+    imp(self, sel, tableView, indexPath, extra, vt, offset);
+}
+
+CELL_SELECT_METHOD(default) {}
 
 - (CGFloat)leftInset {
     return leftInset;
@@ -376,19 +515,74 @@ static CGFloat leftInset;
 - (void)tableView:(UITableView *)tableView
       willDisplayCell:(UITableViewCell *)cell
     forRowAtIndexPath:(NSIndexPath *)indexPath {
-    if ([cell.reuseIdentifier isEqualToString:kDisclaimerCellId]) {
-        cell.backgroundColor = [UIColor modeAwareDisclaimerBackground];
-    } else if ([cell.reuseIdentifier
-                   isEqualToString:kSystemDetourResuseIdentifier]) {
-        cell.backgroundColor = [UIColor modeAwareSystemWideAlertBackground];
-    } else {
-        cell.backgroundColor = [UIColor modeAwareCellBackground];
+
+    id extra = nil;
+    NSInteger offset = [self tableView:tableView vTableOffset:indexPath extraOut:&extra];
+
+    RowVTablePtrConst vt = VTABLE(offset);
+
+    SEL sel = CELL_WILL_DISPLAY_SEL(default);
+
+    if (vt && vt->selWillDisplayCell) {
+        sel = vt->selWillDisplayCell;
     }
+
+    CELL_WILL_DISPLAY_IMP imp = (CELL_WILL_DISPLAY_IMP)[self methodForSelector:sel];
+    imp(self, sel, tableView, cell, indexPath, extra, vt, offset);
 
     if (cell.layoutMargins.left > leftInset) {
         leftInset = cell.layoutMargins.left;
     }
 }
+
+CELL_WILL_DISPLAY_METHOD(default) {
+    if ([cell.reuseIdentifier isEqualToString:kDisclaimerCellId]) {
+        cell.backgroundColor = [UIColor modeAwareDisclaimerBackground];
+    } else if ([cell.reuseIdentifier isEqualToString:kSystemDetourResuseIdentifier]) {
+        cell.backgroundColor = [UIColor modeAwareSystemWideAlertBackground];
+    } else {
+        cell.backgroundColor = [UIColor modeAwareCellBackground];
+    }
+}
+
+- (bool)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+    id extra = nil;
+    NSInteger offset = [self tableView:tableView vTableOffset:indexPath extraOut:&extra];
+
+    RowVTablePtrConst vt = VTABLE(offset);
+
+    SEL sel = CELL_CAN_EDIT_SEL(default);
+
+    if (vt && vt->selCanEditRow) {
+        sel = vt->selCanEditRow;
+    }
+
+    CELL_CAN_EDIT_IMP imp = (CELL_CAN_EDIT_IMP)[self methodForSelector:sel];
+    return imp(self, sel, tableView, indexPath, extra, vt, offset);
+}
+
+CELL_CAN_EDIT_METHOD(default) { return NO; }
+
+- (UITableViewCellEditingStyle)tableView:(UITableView *)tableView
+           editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath {
+
+    id extra = nil;
+    NSInteger offset = [self tableView:tableView vTableOffset:indexPath extraOut:&extra];
+
+    RowVTablePtrConst vt = VTABLE(offset);
+
+    SEL sel = CELL_EDITING_STYLE_SEL(default);
+
+    if (vt && vt->selEditingStyle) {
+        sel = vt->selEditingStyle;
+    }
+    CELL_EDITING_STYLE_IMP imp = (CELL_EDITING_STYLE_IMP)[self methodForSelector:sel];
+    return imp(self, sel, tableView, indexPath, extra, vt, offset);
+}
+
+CELL_EDITING_STYLE_METHOD(default) { return UITableViewCellEditingStyleNone; }
+
+CELL_EDITING_STYLE_METHOD(insert) { return UITableViewCellEditingStyleInsert; }
 
 #pragma mark Table view call helper methods
 
@@ -402,8 +596,7 @@ static CGFloat leftInset;
 
 - (void)updateAccessibility:(UITableViewCell *)cell {
     if (cell.textLabel.attributedText != nil) {
-        cell.textLabel.accessibilityLabel =
-            cell.textLabel.attributedText.string.phonetic;
+        cell.textLabel.accessibilityLabel = cell.textLabel.attributedText.string.phonetic;
     } else if (cell.textLabel.text != nil) {
         cell.textLabel.accessibilityLabel = cell.textLabel.text.phonetic;
     }
@@ -418,17 +611,14 @@ static CGFloat leftInset;
 #define MAIN_FONT_SIZE 16.0
 #define SMALL_FONT_SIZE 12.0
 
-    UITableViewCell *cell =
-        [tableView dequeueReusableCellWithIdentifier:kDisclaimerCellId];
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kDisclaimerCellId];
 
     if (cell == nil) {
-        cell =
-            [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle
-                                   reuseIdentifier:kDisclaimerCellId];
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle
+                                      reuseIdentifier:kDisclaimerCellId];
 
-        cell.textLabel.font =
-            [UIFont monospacedDigitSystemFontOfSize:MAIN_FONT_SIZE
-                                             weight:UIFontWeightBold];
+        cell.textLabel.font = [UIFont monospacedDigitSystemFontOfSize:MAIN_FONT_SIZE
+                                                               weight:UIFontWeightBold];
         cell.textLabel.adjustsFontSizeToFitWidth = YES;
         cell.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
         cell.textLabel.highlightedTextColor = [UIColor whiteColor];
@@ -438,11 +628,9 @@ static CGFloat leftInset;
 
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
 
-        cell.detailTextLabel.font =
-            [UIFont monospacedDigitSystemFontOfSize:SMALL_FONT_SIZE];
+        cell.detailTextLabel.font = [UIFont monospacedDigitSystemFontOfSize:SMALL_FONT_SIZE];
         cell.detailTextLabel.adjustsFontSizeToFitWidth = YES;
-        cell.detailTextLabel.baselineAdjustment =
-            UIBaselineAdjustmentAlignCenters;
+        cell.detailTextLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
         cell.detailTextLabel.highlightedTextColor = [UIColor whiteColor];
         cell.detailTextLabel.textColor = [UIColor modeAwareGrayText];
         cell.detailTextLabel.backgroundColor = [UIColor clearColor];
@@ -452,6 +640,35 @@ static CGFloat leftInset;
     }
 
     return cell;
+}
+
+- (UITableViewCell *)disclaimerCell:(TriMetXML *)xml noResults:(NSString *)noResults {
+    UITableViewCell *cell = [self disclaimerCell:self.tableView];
+
+    self.disclaimerXml = xml;
+
+    if (xml.items == nil) {
+        [self noNetworkDisclaimerCell:cell];
+    } else if (xml.count == 0) {
+        [self addTextToDisclaimerCell:cell text:noResults];
+        cell.accessoryType = UITableViewCellAccessoryNone;
+    } else {
+        [self addTextToDisclaimerCell:cell
+                                 text:[NSString
+                                          stringWithFormat:@"%@", [xml displayDate:xml.cacheTime]]];
+        cell.accessoryType = UITableViewCellAccessoryNone;
+    }
+
+    [self updateDisclaimerAccessibility:cell];
+    return cell;
+}
+
+CELL_SELECT_METHOD(disclaimer) {
+    if (self.disclaimerXml.items == nil) {
+        [self networkTips:self.disclaimerXml.htmlError
+             networkError:self.disclaimerXml.networkErrorMsg];
+        [self clearSelection];
+    }
 }
 
 - (void)updateDisclaimerAccessibility:(UITableViewCell *)cell {
@@ -480,8 +697,7 @@ static CGFloat leftInset;
     if (trimetDisclaimer) {
         if (text != nil) {
             cell.detailTextLabel.text =
-                [NSString stringWithFormat:@"Streetcar: %@\n%@", text,
-                                           kTriMetDisclaimerText];
+                [NSString stringWithFormat:@"Streetcar: %@\n%@", text, kTriMetDisclaimerText];
             cell.detailTextLabel.numberOfLines = 2;
         } else {
             cell.detailTextLabel.text = kTriMetDisclaimerText;
@@ -520,18 +736,6 @@ static CGFloat leftInset;
     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 }
 
-- (CGFloat)heightOffset {
-    if (@available(iOS 15.0, *)) {
-
-        // In ios13 we added this on, and here we take it off again. C'est la
-        // vie.
-        return -[UIApplication firstKeyWindow]
-                    .windowScene.statusBarManager.statusBarFrame.size.height;
-    }
-
-    return -[UIApplication sharedApplication].compatStatusBarFrame.size.height;
-}
-
 - (CGFloat)basicRowHeight {
     if (SMALL_SCREEN) {
         return 40.0;
@@ -550,8 +754,7 @@ static CGFloat leftInset;
 
 #pragma mark Background task implementaion
 
-- (void)backgroundTaskDone:(UIViewController *)viewController
-                 cancelled:(bool)cancelled {
+- (void)backgroundTaskDone:(UIViewController *)viewController cancelled:(bool)cancelled {
     if (self.backgroundRefresh) {
         self.backgroundRefresh = false;
 
@@ -564,8 +767,7 @@ static CGFloat leftInset;
         }
     } else {
         if (!cancelled) {
-            [self.navigationController pushViewController:viewController
-                                                 animated:YES];
+            [self.navigationController pushViewController:viewController animated:YES];
         } else {
             NSIndexPath *ip = self.tableView.indexPathForSelectedRow;
 
@@ -593,8 +795,7 @@ static CGFloat leftInset;
 }
 
 #pragma mark Search filter
-- (void)updateSearchResultsForSearchController:
-    (UISearchController *)searchController {
+- (void)updateSearchResultsForSearchController:(UISearchController *)searchController {
     if (searchController.isActive) {
         [self reloadData];
     }
@@ -605,8 +806,7 @@ static CGFloat leftInset;
 
     if (self.searchController != nil && self.searchController.isActive) {
         UITableViewController *searchView =
-            (UITableViewController *)
-                self.searchController.searchResultsController;
+            (UITableViewController *)self.searchController.searchResultsController;
         items = [self filteredData:searchView.tableView];
     } else {
         items = [self filteredData:self.tableView];
@@ -630,13 +830,11 @@ static CGFloat leftInset;
     if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1) {
         CGRect nbFrame = self.navigationController.navigationBar.frame;
         __block CGRect vFrame = self.view.frame;
-        __block CGFloat diff =
-            nbFrame.size.height + nbFrame.origin.y - vFrame.origin.y;
+        __block CGFloat diff = nbFrame.size.height + nbFrame.origin.y - vFrame.origin.y;
 
         if (diff != 0.0) {
             __block CGSize size = self.tableView.contentSize;
-            [UIView
-                animateWithDuration:UINavigationControllerHideShowBarDuration
+            [UIView animateWithDuration:UINavigationControllerHideShowBarDuration
                 delay:0.0
                 options:UIViewAnimationOptionCurveEaseOut
                 animations:^{
@@ -705,8 +903,7 @@ static CGFloat leftInset;
     return kNoRowSectionTypeFound;
 }
 
-- (NSIndexPath *)firstIndexPathOfSectionType:(NSInteger)sectionType
-                                     rowType:(NSInteger)rowType {
+- (NSIndexPath *)firstIndexPathOfSectionType:(NSInteger)sectionType rowType:(NSInteger)rowType {
     if (self.sectionTypes) {
         for (int section = 0; section < self.sectionTypes.count; section++) {
             NSNumber *t = self.sectionTypes[section];
@@ -737,8 +934,7 @@ static CGFloat leftInset;
 }
 
 - (void)clearSection:(NSInteger)section {
-    [self.perSectionRowTypes setObject:[NSMutableArray array]
-                    atIndexedSubscript:section];
+    [self.perSectionRowTypes setObject:[NSMutableArray array] atIndexedSubscript:section];
 }
 
 - (NSInteger)addRowType:(NSInteger)type forSectionType:(NSInteger)sectionType {
@@ -791,6 +987,14 @@ static CGFloat leftInset;
     return types.count - 1;
 }
 
+- (NSInteger)addRowTypes:(NSArray *)array {
+    NSMutableArray *types = self.perSectionRowTypes.lastObject;
+
+    [self.perSectionRowTypes.lastObject addObjectsFromArray:array];
+
+    return types.count - 1;
+}
+
 - (NSInteger)addRowType:(NSInteger)type count:(NSInteger)count {
     NSMutableArray *types = self.perSectionRowTypes.lastObject;
 
@@ -812,8 +1016,7 @@ static CGFloat leftInset;
 }
 
 - (NSInteger)rowsInSection:(NSInteger)section {
-    if (self.perSectionRowTypes != nil &&
-        section < self.perSectionRowTypes.count) {
+    if (self.perSectionRowTypes != nil && section < self.perSectionRowTypes.count) {
         return self.perSectionRowTypes[section].count;
     }
 
@@ -832,8 +1035,7 @@ static CGFloat leftInset;
     return self.sections;
 }
 
-- (NSInteger)tableView:(UITableView *)tableView
-    numberOfRowsInSection:(NSInteger)section {
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     return [self rowsInSection:section];
 }
 
@@ -860,20 +1062,19 @@ static CGFloat leftInset;
 - (UITableViewCell *)getMapCell:(NSString *)id
                withUserLocation:(bool)userLocation
                      completion:(void (^_Nullable)(MKMapView *))completion {
-    CGRect middleRect = self.middleWindowRect;
 
-    CGRect mapRect =
-        CGRectMake(0, 0, middleRect.size.width, [self mapCellHeight]);
+    CGFloat width = self.navigationController.view.frame.size.width;
+
+    CGRect mapRect = CGRectMake(0, 0, width, [self mapCellHeight]);
 
     UITableViewCell *cell = [self tableView:self.tableView
                     cellWithReuseIdentifier:MakeCellId(kRowMap)];
 
-    __block MKMapView *map =
-        (MKMapView *)[cell.contentView viewWithTag:MAP_TAG];
+    __block MKMapView *map = (MKMapView *)[cell.contentView viewWithTag:MAP_TAG];
 
     if (map == nil) {
 
-        MainTask(^{
+        MAIN_TASK(^{
           [self finishWithMapView];
 
           map = [[MKMapView alloc] initWithFrame:mapRect];
@@ -893,9 +1094,8 @@ static CGFloat leftInset;
           map.rotateEnabled = FALSE;
           map.delegate = self;
 
-          UITapGestureRecognizer *tapRec = [[UITapGestureRecognizer alloc]
-              initWithTarget:self
-                      action:@selector(didTapMap:)];
+          UITapGestureRecognizer *tapRec =
+              [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTapMap:)];
 
           [map addGestureRecognizer:tapRec];
 
@@ -922,13 +1122,29 @@ static CGFloat leftInset;
     return [self tableView:tableView heightForRowAtIndexPath:indexPath];
 }
 
-- (CGFloat)tableView:(UITableView *)tableView
-    heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return self.tableView.rowHeight;
+- (NSInteger)tableView:(UITableView *)tableView
+          vTableOffset:(NSIndexPath *)indexPath
+              extraOut:(id __autoreleasing *)extra {
+    return [self rowType:indexPath];
 }
 
-- (MKAnnotationView *)mapView:(MKMapView *)mv
-            viewForAnnotation:(id<MKAnnotation>)annotation {
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    id extra = nil;
+    NSInteger offset = [self tableView:tableView vTableOffset:indexPath extraOut:&extra];
+    RowVTablePtrConst vt = VTABLE(offset);
+
+    SEL sel = CELL_HEIGHT_SEL(default);
+    if (vt && vt->selHeight) {
+        sel = vt->selHeight;
+    }
+
+    CELL_HEIGHT_IMP imp = (CELL_HEIGHT_IMP)[self methodForSelector:sel];
+    return imp(self, sel, tableView, indexPath, extra, vt, offset);
+}
+
+CELL_HEIGHT_METHOD(default) { return self.tableView.rowHeight; }
+
+- (MKAnnotationView *)mapView:(MKMapView *)mv viewForAnnotation:(id<MKAnnotation>)annotation {
     MKAnnotationView *retView = nil;
 
     if (annotation == mv.userLocation) {
@@ -960,142 +1176,113 @@ static CGFloat leftInset;
 
 - (UITableViewCell *)tableView:(UITableView *)tableView
        cellWithReuseIdentifier:(NSString *)resuseIdentifier {
-    UITableViewCell *cell =
-        [tableView dequeueReusableCellWithIdentifier:resuseIdentifier];
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:resuseIdentifier];
 
     if (cell == nil) {
-        cell =
-            [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault
-                                   reuseIdentifier:resuseIdentifier];
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault
+                                      reuseIdentifier:resuseIdentifier];
     }
 
     cell.backgroundColor = [UIColor modeAwareCellBackground];
     return cell;
 }
 
-- (UITableViewCell *)tableView:(UITableView *)tableView
-    multiLineCellWithReuseIdentifier:(NSString *)resuseIdentifier {
-    UITableViewCell *cell =
-        [tableView dequeueReusableCellWithIdentifier:resuseIdentifier];
-
-    if (cell == nil) {
-        cell =
-            [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault
-                                   reuseIdentifier:resuseIdentifier];
-        cell.textLabel.numberOfLines = 0;
-    }
-
-    cell.backgroundColor = [UIColor modeAwareCellBackground];
-    return cell;
+CELL_REG_METHOD(linkCell) {
+    [tableView registerClass:LabelLinkCellWithIcon.class
+        forCellReuseIdentifier:kLinkCellWithIconId];
 }
 
-- (UITableViewCell *)tableView:(UITableView *)tableView
-    multiLineCellWithReuseIdentifier:(NSString *)resuseIdentifier
-                                font:(UIFont *)font {
-    UITableViewCell *cell =
-        [tableView dequeueReusableCellWithIdentifier:resuseIdentifier];
+CELL_CREATION_METHOD(actionCell) {
+    [cell prepareForReuse];
 
-    if (cell == nil) {
-        cell =
-            [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault
-                                   reuseIdentifier:resuseIdentifier];
-        cell.textLabel.numberOfLines = 0;
-        cell.textLabel.font = font;
-    }
-
-    cell.backgroundColor = [UIColor modeAwareCellBackground];
-    return cell;
-}
-
-- (UITableViewCell *)tableViewCell:(UITableView *)tableView {
-    UITableViewCell *cell = [self tableView:tableView
-                    cellWithReuseIdentifier:@"1"];
-    cell.accessoryType = UITableViewCellAccessoryNone;
     cell.textLabel.font = self.basicFont;
     cell.textLabel.adjustsFontSizeToFitWidth = YES;
-    cell.textLabel.textAlignment = NSTextAlignmentLeft;
     cell.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
-    cell.textLabel.textColor = [UIColor modeAwareText];
-    cell.selectionStyle = UITableViewCellSelectionStyleNone;
-    cell.imageView.image = nil;
+    cell.textLabel.textColor = [UIColor modeAwareGrayText];
+
+    cell.icon = icon;
+
+    cell.textLabel.text = text;
+    cell.accessoryType = accType;
+    cell.selectionStyle = selStyle;
+
+    [self updateAccessibility:cell];
 
     return cell;
 }
 
-- (UITableViewCell *)tableViewMultiLineCell:(UITableView *)tableView
-                                       font:(UIFont *)font {
-    UITableViewCell *cell = [self tableView:tableView
-           multiLineCellWithReuseIdentifier:@"0"];
-    cell.accessoryType = UITableViewCellAccessoryNone;
-    cell.textLabel.font = font;
-    cell.textLabel.adjustsFontSizeToFitWidth = NO;
-    cell.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
+CELL_CREATION_METHOD(markupCell) {
+    [cell prepareForReuse];
+    [self baseCell:cell accessory:accType selection:selStyle];
+    cell.textLabel.attributedText = text.attributedStringFromMarkUp;
+
+    cell.icon = icon;
+
+    [self updateAccessibility:cell];
+    return cell;
+}
+
+CELL_CREATION_METHOD(multiLine) {
+    [cell prepareForReuse];
     cell.textLabel.numberOfLines = 0;
-    cell.textLabel.textAlignment = NSTextAlignmentLeft;
+    cell.textLabel.font = self.basicFont;
+    cell.textLabel.attributedText = text.attributedStringFromMarkUp;
+    cell.accessoryType = accType;
+    cell.selectionStyle = selStyle;
+
+    cell.icon = icon;
+
+    cell.backgroundColor = [UIColor modeAwareCellBackground];
+    [self updateAccessibility:cell];
+
+    return cell;
+}
+
+CELL_CREATION_METHOD(paraLine) {
+    [cell prepareForReuse];
+    cell.textLabel.numberOfLines = 0;
+    cell.textLabel.font = self.smallFont;
+    cell.textLabel.attributedText = text.smallAttributedStringFromMarkUp;
+    cell.accessoryType = accType;
+    cell.selectionStyle = selStyle;
+
+    cell.icon = icon;
+
+    cell.backgroundColor = [UIColor modeAwareCellBackground];
+    [self updateAccessibility:cell];
+
+    return cell;
+}
+
+CELL_CREATION_METHOD(simpleCell) {
+    [cell prepareForReuse];
+    [self baseCell:cell accessory:accType selection:selStyle];
+
     cell.textLabel.textColor = [UIColor modeAwareText];
-    cell.selectionStyle = UITableViewCellSelectionStyleNone;
-    cell.imageView.image = nil;
+    cell.textLabel.text = text;
+
+    cell.icon = icon;
+
+    [self updateAccessibility:cell];
+
     return cell;
 }
 
-- (UITableViewCell *)tableView:(UITableView *)tableView
-                    imageNamed:(NSString *)image
-                   systemImage:(bool)systemImage
-                simpleLinkCell:(NSString *)text
-                          link:(NSString *)link {
-    static NSString *cellId = @"link";
-    UITableViewCell *cell =
-        [tableView dequeueReusableCellWithIdentifier:cellId];
+CELL_CREATION_METHOD(textCell) {
+    [cell prepareForReuse];
 
-    if (cell == nil) {
-        cell =
-            [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle
-                                   reuseIdentifier:cellId];
-    }
+    TextViewLinkCell *textCell = (TextViewLinkCell *)cell;
+    textCell.textView.attributedText = text.smallAttributedStringFromMarkUp;
+    textCell.selectionStyle = selStyle;
+    textCell.accessoryType = accType;
+    textCell.urlCallback = self.urlActionCalback;
 
-    if (link == nil) {
-        cell.selectionStyle = UITableViewCellSelectionStyleNone;
-        cell.accessoryType = UITableViewCellAccessoryNone;
-    } else {
-        cell.selectionStyle = UITableViewCellSelectionStyleBlue;
-        cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-    }
-
-    UIListContentConfiguration *config =
-        [UIListContentConfiguration cellConfiguration];
-    config.text = text;
-    config.secondaryText = link;
-    if (image) {
-        if (image.firstUnichar == '!') {
-            systemImage = true;
-            image = [image substringFromIndex:1];
-        }
-
-        if (systemImage) {
-            config.image = [UIImage systemImageNamed:image];
-            cell.contentConfiguration = config;
-        } else {
-            [Icons getDelayedIcon:image
-                       completion:^(UIImage *_Nonnull image) {
-                         config.image = image;
-                         cell.contentConfiguration = config;
-                       }];
-        }
-    } else {
-        cell.contentConfiguration = config;
-    }
-
-    cell.accessibilityLabel =
-        [NSString stringWithFormat:@"Link to %@", cell.textLabel.text.phonetic];
-    return cell;
+    return textCell;
 }
 
-- (UITableViewCell *)tableViewMultiLineBasicCell:(UITableView *)tableView {
-    return [self tableViewMultiLineCell:tableView font:self.basicFont];
-}
-
-- (UITableViewCell *)tableViewMultiLineParaCell:(UITableView *)tableView {
-    return [self tableViewMultiLineCell:tableView font:self.smallFont];
+CELL_REG_METHOD(TextViewLinkCell) {
+    [self.tableView registerNib:TextViewLinkCell.nib
+         forCellReuseIdentifier:TextViewLinkCell.identifier];
 }
 
 - (void)detourToggle:(Detour *)detour
@@ -1110,10 +1297,9 @@ static CGFloat leftInset;
 }
 
 - (void)safeScrollToTop {
-    MainTask(^{
+    MAIN_TASK(^{
       if ([self tableView:self.tableView numberOfRowsInSection:0] > 0) {
-          [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0
-                                                                    inSection:0]
+          [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]
                                 atScrollPosition:UITableViewScrollPositionTop
                                         animated:NO];
       }
@@ -1121,27 +1307,38 @@ static CGFloat leftInset;
 }
 
 - (DetourTableViewCell *)detourCell:(Detour *)det
+                              route:(Route *)route
                           indexPath:(NSIndexPath *)indexPath {
-    DetourTableViewCell *dcell =
-        [self.tableView dequeueReusableCellWithIdentifier:det.reuseIdentifer];
+    return [self detourCell:det route:route indexPath:indexPath showHeader:NO showRoute:NO];
+}
 
-    [dcell populateCell:det route:nil];
+- (DetourTableViewCell *)detourCell:(Detour *)det
+                              route:(Route *)route
+                          indexPath:(NSIndexPath *)indexPath
+                         showHeader:(bool)includeHeader
+                          showRoute:(bool)showRoute {
+    DetourTableViewCell *dcell = nil;
+    if (det) {
+        dcell = [self.tableView dequeueReusableCellWithIdentifier:det.reuseIdentifer];
 
-    __weak __typeof__(self) weakSelf = self;
+        [dcell populateCell:det route:route.routeId showHeader:includeHeader showRoute:showRoute];
 
-    dcell.buttonCallback = ^(DetourTableViewCell *cell, NSInteger tag) {
-      [weakSelf detourAction:cell.detour
-                  buttonType:tag
-                   indexPath:indexPath
-               reloadSection:NO];
-    };
+        __weak __typeof__(self) weakSelf = self;
 
-    dcell.urlCallback = self.detourActionCalback;
+        dcell.buttonCallback = ^(DetourTableViewCell *cell, NSInteger tag) {
+          [weakSelf detourAction:cell.detour buttonType:tag indexPath:indexPath reloadSection:NO];
+        };
+
+        dcell.urlCallback = self.detourActionCalback;
+    } else {
+        dcell = [self.tableView dequeueReusableCellWithIdentifier:kDetourResuseIdentifier];
+        dcell.textView.text = NSLocalizedString(@"Detour information not known.", @"error message");
+        dcell.accessoryType = UITableViewCellAccessoryNone;
+        dcell.selectionStyle = UITableViewCellSelectionStyleNone;
+    }
 
     return dcell;
 }
-
-
 
 - (void)detourAction:(Detour *)detour
           buttonType:(NSInteger)buttonType
@@ -1162,10 +1359,8 @@ static CGFloat leftInset;
     if (buttonType == DETOUR_BUTTON_COLLAPSE) {
         UITableView *table = self.tableView;
 
-        if (self.enableSearch && self.searchController &&
-            self.searchController.isActive) {
-            table = ((UITableViewController *)(self.searchController
-                                                   .searchResultsController))
+        if (self.enableSearch && self.searchController && self.searchController.isActive) {
+            table = ((UITableViewController *)(self.searchController.searchResultsController))
                         .tableView;
         }
 
@@ -1174,28 +1369,24 @@ static CGFloat leftInset;
         [table beginUpdates];
 
         if (reloadSection) {
-            NSArray<NSIndexPath *> *visiblePaths =
-                table.indexPathsForVisibleRows;
+            NSArray<NSIndexPath *> *visiblePaths = table.indexPathsForVisibleRows;
 
             NSMutableIndexSet *indices = [NSMutableIndexSet indexSet];
 
             for (NSIndexPath *ip in visiblePaths) {
                 UITableViewCell *cell = [table cellForRowAtIndexPath:ip];
                 if (cell) {
-                    if ([cell.reuseIdentifier
-                            isEqualToString:kSystemDetourResuseIdentifier]) {
+                    if ([cell.reuseIdentifier isEqualToString:kSystemDetourResuseIdentifier]) {
                         [indices addIndex:ip.section];
                     }
                 }
             }
 
             if (indices.count > 0) {
-                [table reloadSections:indices
-                     withRowAnimation:UITableViewRowAnimationAutomatic];
+                [table reloadSections:indices withRowAnimation:UITableViewRowAnimationAutomatic];
             }
         } else {
-            NSArray<NSIndexPath *> *visiblePaths =
-                table.indexPathsForVisibleRows;
+            NSArray<NSIndexPath *> *visiblePaths = table.indexPathsForVisibleRows;
 
             NSMutableArray *indices = [NSMutableArray array];
 
@@ -1203,8 +1394,7 @@ static CGFloat leftInset;
                 UITableViewCell *cell = [table cellForRowAtIndexPath:ip];
 
                 if (cell) {
-                    if ([cell.reuseIdentifier
-                            isEqualToString:kSystemDetourResuseIdentifier]) {
+                    if ([cell.reuseIdentifier isEqualToString:kSystemDetourResuseIdentifier]) {
                         [indices addObject:ip];
                     }
                 }
@@ -1223,18 +1413,18 @@ static CGFloat leftInset;
 - (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
     [super traitCollectionDidChange:previousTraitCollection];
 
-    if (previousTraitCollection.userInterfaceStyle !=
-        self.traitCollection.userInterfaceStyle) {
+    if (previousTraitCollection.userInterfaceStyle != self.traitCollection.userInterfaceStyle) {
         // Clear the image cache as half of it is not needed
         if (self.enableSearch && self.searchController) {
-            self.searchController.searchBar.backgroundColor =
-                UIColor.modeAwareAppBackground;
+            self.searchController.searchBar.backgroundColor = UIColor.modeAwareAppBackground;
         }
 
         [self reloadData];
     }
 
     self.tableView.backgroundColor = [UIColor modeAwareAppBackground];
+
+    [self.view setNeedsLayout];
 }
 
 - (void)tableView:(UITableView *)table
@@ -1257,23 +1447,19 @@ static CGFloat leftInset;
     [self presentViewController:viewController animated:YES completion:nil];
 }
 
-- (void)addVoiceShortcutViewController:
-            (INUIAddVoiceShortcutViewController *)controller
+- (void)addVoiceShortcutViewController:(INUIAddVoiceShortcutViewController *)controller
             didFinishWithVoiceShortcut:(nullable INVoiceShortcut *)voiceShortcut
-                                 error:(nullable NSError *)error
-    API_AVAILABLE(ios(12.0)) {
+                                 error:(nullable NSError *)error {
     [controller dismissViewControllerAnimated:YES completion:nil];
 }
 
-- (void)addVoiceShortcutViewControllerDidCancel:
-    (INUIAddVoiceShortcutViewController *)controller API_AVAILABLE(ios(12.0)) {
+- (void)addVoiceShortcutViewControllerDidCancel:(INUIAddVoiceShortcutViewController *)controller {
     [controller dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)didEnterBackground {
     if (self.mapView && self.mapView.overlays) {
-        self.savedOverlays =
-            [[NSArray alloc] initWithArray:self.mapView.overlays copyItems:NO];
+        self.savedOverlays = [[NSArray alloc] initWithArray:self.mapView.overlays copyItems:NO];
         [self.mapView removeOverlays:self.savedOverlays];
     }
 
@@ -1286,6 +1472,146 @@ static CGFloat leftInset;
         [self.mapView addOverlays:self.savedOverlays];
         self.savedOverlays = nil;
     }
+}
+
+- (UITableViewCell *)baseCell:(UITableViewCell *)cell
+                    accessory:(UITableViewCellAccessoryType)accType
+                    selection:(UITableViewCellSelectionStyle)selStyle {
+
+    cell.textLabel.font = self.basicFont;
+    cell.textLabel.adjustsFontSizeToFitWidth = YES;
+    cell.textLabel.minimumScaleFactor = 0.5;
+    cell.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
+    cell.textLabel.numberOfLines = 1;
+    cell.accessoryType = accType;
+    cell.backgroundColor = [UIColor modeAwareCellBackground];
+    cell.textLabel.adjustsFontForContentSizeCategory = NO;
+    cell.selectionStyle = selStyle;
+
+    return cell;
+}
+
++ (NSMutableDictionary *)debugCellTypeStore {
+    static NSMutableDictionary *s;
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+      s = [NSMutableDictionary new];
+    });
+    return s;
+}
+
++ (void)debugCheckSelMissing:(Class)cls sel:(SEL)selector vtable:(RowVTablePtrConst)vTable {
+    if ([cls instancesRespondToSelector:selector]) {
+        ERROR_LOG(@"class %@ should not respond to %@",
+                  NSStringFromClass(cls),
+                  NSStringFromSelector(selector));
+    }
+
+    //    ASSERT(![cls instancesRespondToSelector:selector]);
+}
+
++ (void)debugRegisterCellType:(NSInteger)type
+            standardSelectors:(RowVTablePtrConst)sels
+                      inClass:(Class)cls {
+    @synchronized(self) {
+        NSString *key = NSStringFromClass(cls);
+        NSMutableDictionary *byEnum = self.debugCellTypeStore[key];
+
+        if (byEnum == nil) {
+            byEnum = [NSMutableDictionary new];
+            self.debugCellTypeStore[key] = byEnum;
+        }
+
+        [byEnum setObject:[NSValue valueWithBytes:sels objCType:@encode(RowVTable)] forKey:@(type)];
+    }
+}
+
+- (void)debugCheckCells {
+    NSString *key = NSStringFromClass(self.class);
+    NSMutableDictionary *cells = TableViewControllerWithToolbar.debugCellTypeStore[key];
+
+    DEBUG_LOG(@"Checking %@", key);
+
+    for (NSNumber *number in cells) {
+        ASSERT(number.integerValue < _vTableMapSize);
+        if (number.integerValue < _vTableMapSize) {
+            if (_vTableMap[number.integerValue] == nil) {
+                NSValue *value = cells[number];
+                RowVTable vTable;
+                [value getValue:&vTable];
+                ERROR_LOG(
+                    @"%@ is missing row map entry for %@ %d", key, vTable.reuseId, number.intValue);
+            }
+            ASSERT(_vTableMap[number.integerValue] != nil);
+        }
+    }
+}
+
+CELL_HEIGHT_METHOD(basic) { return [self basicRowHeight]; }
+CELL_HEIGHT_METHOD(narrow) { return [self narrowRowHeight]; }
+CELL_HEIGHT_METHOD(auto) { return UITableViewAutomaticDimension; }
+CELL_HEIGHT_METHOD(SegmentCell) { return SegmentCell.rowHeight; }
+CELL_HEIGHT_METHOD(mapCell) { return [self mapCellHeight]; }
+CELL_HEIGHT_METHOD(CellTextField) { return [CellTextField cellHeight]; }
+CELL_CAN_EDIT_METHOD(yes) { return YES; }
+CELL_EDITING_STYLE_METHOD(delete) { return UITableViewCellEditingStyleDelete; }
+CELL_SELECT_METHOD(LabelLinkCellWithIcon) {
+    LabelLinkCellWithIcon *cell =
+        (LabelLinkCellWithIcon *)[tableView cellForRowAtIndexPath:indexPath];
+
+    [WebViewController displayPage:cell.link
+                              full:cell.link
+                         navigator:self.navigationController
+                    itemToDeselect:self
+                          whenDone:self.callbackWhenDone];
+}
+CELL_REG_METHOD(DetourTableViewCell) {
+    [self.tableView registerNib:[DetourTableViewCell nib]
+         forCellReuseIdentifier:kSystemDetourResuseIdentifier];
+    [self.tableView registerNib:[DetourTableViewCell nib]
+         forCellReuseIdentifier:kDetourResuseIdentifier];
+}
+CELL_REG_METHOD(PickerCell) {
+    [self.tableView registerNib:[PickerCell nib] forCellReuseIdentifier:MakeCellId(PickerCell)];
+}
+CELL_REG_METHOD(DatePickerCell) {
+    [self.tableView registerNib:[DatePickerCell nib]
+         forCellReuseIdentifier:MakeCellId(DatePickerCell)];
+}
+CELL_CAN_MOVE_METHOD(yes) { return YES; }
+
+CELL_CONFIG_METHOD(tipJar) {
+    UITableViewCell *cell = [self tableView:tableView cellWithReuseIdentifier:kSimpleId];
+
+    [self baseCell:cell
+         accessory:UITableViewCellAccessoryDisclosureIndicator
+         selection:UITableViewCellSelectionStyleBlue];
+
+    cell.textLabel.text = TipJarManager.shared.hasTipped
+                              ? NSLocalizedString(@"Thanks for Supporting Us!", @"main menu item")
+                              : NSLocalizedString(@"Support Us!", @"main menu item");
+    cell.textLabel.textColor = [UIColor modeAwareText];
+
+    cell.icon = TipJarManager.shared.hasTipped ? kIconHeartFull : kIconHeart;
+
+    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+
+    [self updateAccessibility:cell];
+
+    return cell;
+}
+
+- (void)showTipJar {
+    [TipJarManager.shared showTipJar:self
+                             message:@"PDX Bus is developed by volunteers, using public data "
+                                     @"provided by TriMet.\n\nLeave a tip to support the app "
+                                     @"❤️.\n\nThere are no extra features to buy - the app is "
+                                     @"free and fully featured."];
+}
+
+CELL_SELECT_METHOD(tipJar) {
+    [self showTipJar];
+    [self clearSelection];
 }
 
 @end

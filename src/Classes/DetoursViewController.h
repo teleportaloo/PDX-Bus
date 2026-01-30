@@ -15,13 +15,11 @@
 #import "XMLDetoursAndMessages.h"
 #import <UIKit/UIKit.h>
 
-@interface DetoursViewController
-    : TableViewControllerWithRefresh <DetoursForRoute *>
+@interface DetoursViewController : TableViewControllerWithRefresh <DetoursForRoute *>
 
 - (void)fetchDetoursAsync:(id<TaskController>)taskController;
 
-- (void)fetchDetoursAsync:(id<TaskController>)taskController
-                    route:(NSString *)route;
+- (void)fetchDetoursAsync:(id<TaskController>)taskController route:(NSString *)route;
 
 - (void)fetchDetoursAsync:(id<TaskController>)taskController
                    routes:(NSArray *)routes

@@ -26,11 +26,9 @@
 - (void)finish {
     DEBUG_FUNC();
 
-    bool cancelled =
-        (self.backgroundThread != nil && self.backgroundThread.cancelled);
+    bool cancelled = (self.backgroundThread != nil && self.backgroundThread.cancelled);
 
-    [self.hiddenTaskCallback hiddenTaskDone:self.controllerToPop
-                                  cancelled:cancelled];
+    [self.hiddenTaskCallback hiddenTaskDone:self.controllerToPop cancelled:cancelled];
 
     [super finish];
 

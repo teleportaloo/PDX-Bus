@@ -23,8 +23,8 @@
     TripMode _currentMode;
 }
 
-@property(nonatomic, strong) StopDistance *currentStop;
-@property(nonatomic, strong) NSMutableDictionary *routeStore;
+@property (nonatomic, strong) StopDistance *currentStop;
+@property (nonatomic, strong) NSMutableDictionary *routeStore;
 
 @end
 
@@ -34,18 +34,11 @@
 
 - (bool)findNearestStops {
     NSString *query = [NSString
-        stringWithFormat:@"stops/ll/%@%@%@%@",
+        stringWithFormat:@"stops/ll/%@%@/showRoutes/true/showRouteDirs/true",
                          COORD_TO_LNG_LAT_STR(self.location.coordinate),
                          (self.minDistance > 0.0
-                              ? [NSString stringWithFormat:@"/meters/%f",
-                                                           self.minDistance]
-                              : @""),
-                         ((self.mode != TripModeAll ||
-                           self.includeRoutesInStops)
-                              ? @"/showRoutes/true"
-                              : @""),
-                         self.includeRoutesInStops ? @"/showRouteDirs/true"
-                                                   : @""];
+                              ? [NSString stringWithFormat:@"/meters/%f", self.minDistance]
+                              : @"")];
 
     bool res = [self startParsing:query cacheAction:TriMetXMLNoCaching];
 
@@ -65,8 +58,7 @@
         stringWithFormat:@"stops/ll/%@%@%@",
                          COORD_TO_LNG_LAT_STR(self.location.coordinate),
                          (self.minDistance > 0.0
-                              ? [NSString stringWithFormat:@"/meters/%f",
-                                                           self.minDistance]
+                              ? [NSString stringWithFormat:@"/meters/%f", self.minDistance]
                               : @""),
                          @"/showRoutes/true"];
 
@@ -99,7 +91,7 @@
 
 #pragma mark Parser callbacks
 
-- (bool)modeMatch:(TripMode)first second:(TripMode)second {
+static bool modeMatch(TripMode first, TripMode second) {
     if (first == second) {
         return true;
     }
@@ -129,31 +121,34 @@ XML_START_ELEMENT(location) {
     self.currentStop.distanceMeters =
         [self.location distanceFromLocation:self.currentStop.location];
 
-    if (self.includeRoutesInStops) {
-        self.currentStop.routes = [NSMutableArray array];
-    }
+    self.currentStop.routes = [NSMutableArray array];
 }
 
 XML_START_ELEMENT(route) {
     NSString *type = XML_NON_NULL_ATR_STR(@"type");
     NSString *number = XML_NON_NULL_ATR_STR(@"route");
+    TripMode routeMode = TripModeNone;
 
-    if (self.includeRoutesInStops && self.currentStop.routes) {
+    if (self.currentStop.routes) {
         NSString *desc = XML_NON_NULL_ATR_STR(@"desc");
 
         if (desc) {
             Route *route = [Route new];
             route.desc = desc;
             route.routeId = number;
+            route.type = type;
             [self.currentStop.routes addObject:route];
         }
-    } else {
+    }
+
+    if (_mode != TripModeAll) {
         // Route 98 is the MAX Shuttle and makes all max trains look like bus
         // stops
         if (number.intValue != 98) {
             switch ([type characterAtIndex:0]) {
             case 'R':
             case 'r':
+                routeMode = TripModeTrainOnly;
                 switch (_currentMode) {
                 case TripModeNone:
                 case TripModeTrainOnly:
@@ -171,6 +166,7 @@ XML_START_ELEMENT(route) {
 
             case 'B':
             case 'b':
+                routeMode = TripModeBusOnly;
                 switch (_currentMode) {
                 case TripModeNone:
                 case TripModeBusOnly:
@@ -189,14 +185,17 @@ XML_START_ELEMENT(route) {
                 _currentMode = TripModeAll;
                 break;
             }
+        } else {
+            _currentMode = TripModeAll;
         }
+    }
 
-        if (self.routeStore != nil && [self modeMatch:_currentMode
-                                               second:_mode]) {
-            NSString *xmlRoute = XML_NON_NULL_ATR_STR(@"route");
+    if (self.routeStore != nil && modeMatch(_currentMode, _mode)) {
+        NSString *xmlRoute = XML_NON_NULL_ATR_STR(@"route");
 
-            RouteDistance *rd = self.routeStore[xmlRoute];
+        RouteDistance *rd = self.routeStore[xmlRoute];
 
+        if (modeMatch(routeMode, _mode)) {
             if (rd == nil) {
                 NSString *desc = XML_NON_NULL_ATR_STR(@"desc");
 
@@ -207,15 +206,14 @@ XML_START_ELEMENT(route) {
 
                 self.routeStore[xmlRoute] = rd;
             }
-
-            [rd.stops addObject:self.currentStop];
         }
+
+        [rd.stops addObject:self.currentStop];
     }
 }
 
 XML_START_ELEMENT(dir) {
-    if (self.includeRoutesInStops && self.currentStop &&
-        self.currentStop.routes) {
+    if (self.currentStop && self.currentStop.routes) {
         NSString *dir = XML_NON_NULL_ATR_STR(@"dir");
         NSString *desc = XML_NON_NULL_ATR_STR(@"desc");
 
@@ -227,7 +225,7 @@ XML_START_ELEMENT(dir) {
 }
 
 XML_END_ELEMENT(location) {
-    if ([self modeMatch:_currentMode second:_mode]) {
+    if (modeMatch(_currentMode, _mode)) {
         [self addItem:self.currentStop];
     }
 

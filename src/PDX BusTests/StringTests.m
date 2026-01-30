@@ -158,12 +158,9 @@
     NSString *sut = @" #bBold";
 
     // Operate
-    NSAttributedString *str =
-        [sut attributedStringFromMarkUpWithFont:[UIFont systemFontOfSize:16]];
+    NSAttributedString *str = [sut attributedStringFromMarkUpWithFont:[UIFont systemFontOfSize:16]];
 
-    UIFont *font = [str attribute:NSFontAttributeName
-                          atIndex:1
-                   effectiveRange:nil];
+    UIFont *font = [str attribute:NSFontAttributeName atIndex:1 effectiveRange:nil];
     UIFontDescriptor *fontDescriptor = font.fontDescriptor;
 
     // Assert
@@ -178,22 +175,17 @@
     NSString *sut = @" #bbold #b#iitalic";
 
     // Operate
-    NSAttributedString *str =
-        [sut attributedStringFromMarkUpWithFont:[UIFont systemFontOfSize:16]];
+    NSAttributedString *str = [sut attributedStringFromMarkUpWithFont:[UIFont systemFontOfSize:16]];
 
-    UIFont *font = [str attribute:NSFontAttributeName
-                          atIndex:6
-                   effectiveRange:nil];
+    UIFont *font = [str attribute:NSFontAttributeName atIndex:6 effectiveRange:nil];
     UIFontDescriptor *fontDescriptor = font.fontDescriptor;
 
     // Assert
     XCTAssertEqual(fontDescriptor.symbolicTraits & UIFontDescriptorTraitItalic,
                    UIFontDescriptorTraitItalic);
-    XCTAssertEqual(fontDescriptor.symbolicTraits & UIFontDescriptorTraitBold,
-                   0);
+    XCTAssertEqual(fontDescriptor.symbolicTraits & UIFontDescriptorTraitBold, 0);
     XCTAssertEqual(fontDescriptor.pointSize, 16);
-    XCTAssertEqualObjects(fontDescriptor.postscriptName,
-                          @".SFUI-RegularItalic");
+    XCTAssertEqualObjects(fontDescriptor.postscriptName, @".SFUI-RegularItalic");
 }
 
 - (void)test_attribute_colour {
@@ -201,12 +193,9 @@
     NSString *sut = @" #OGreen";
 
     // Operate
-    NSAttributedString *str =
-        [sut attributedStringFromMarkUpWithFont:[UIFont systemFontOfSize:16]];
+    NSAttributedString *str = [sut attributedStringFromMarkUpWithFont:[UIFont systemFontOfSize:16]];
 
-    UIColor *color = [str attribute:NSForegroundColorAttributeName
-                            atIndex:1
-                     effectiveRange:nil];
+    UIColor *color = [str attribute:NSForegroundColorAttributeName atIndex:1 effectiveRange:nil];
 
     // Assert
     XCTAssertEqualObjects(color, [UIColor orangeColor]);
@@ -217,8 +206,7 @@
     NSString *sut = @" #GG#BB#Nb";
 
     // Operate
-    NSAttributedString *str =
-        [sut attributedStringFromMarkUpWithFont:[UIFont systemFontOfSize:16]];
+    NSAttributedString *str = [sut attributedStringFromMarkUpWithFont:[UIFont systemFontOfSize:16]];
 
     // Assert
     XCTAssertEqualObjects([str attribute:NSForegroundColorAttributeName
@@ -240,15 +228,12 @@
     NSString *sut = @"#Lhttp://apple.com Text#T";
 
     // Operate
-    NSAttributedString *str =
-        [sut attributedStringFromMarkUpWithFont:[UIFont systemFontOfSize:16]];
+    NSAttributedString *str = [sut attributedStringFromMarkUpWithFont:[UIFont systemFontOfSize:16]];
 
     // Assert
-    XCTAssertEqualObjects(((NSURL *)[str attribute:NSLinkAttributeName
-                                           atIndex:1
-                                    effectiveRange:nil])
-                              .absoluteString,
-                          @"http://apple.com");
+    XCTAssertEqualObjects(
+        ((NSURL *)[str attribute:NSLinkAttributeName atIndex:1 effectiveRange:nil]).absoluteString,
+        @"http://apple.com");
 }
 
 @end

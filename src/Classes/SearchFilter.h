@@ -15,5 +15,5 @@
 #import <Foundation/Foundation.h>
 
 @protocol SearchFilter <NSObject>
-@property(nonatomic, readonly, copy) NSString *stringToFilter;
+@property (nonatomic, readonly, copy) NSString *stringToFilter;
 @end

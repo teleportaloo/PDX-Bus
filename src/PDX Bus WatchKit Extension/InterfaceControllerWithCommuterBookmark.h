@@ -18,12 +18,11 @@
 
 #define kNextScreenTitle @"➡️Commuter"
 
-@interface InterfaceControllerWithCommuterBookmark
-    : InterfaceControllerWithBackgroundThread
+@interface InterfaceControllerWithCommuterBookmark : InterfaceControllerWithBackgroundThread
 
-@property(nonatomic) bool nextScreen;
-@property(copy, nonatomic) NSString *baseTitle;
-@property(strong, nonatomic) UserState *state;
+@property (nonatomic) bool nextScreen;
+@property (copy, nonatomic) NSString *baseTitle;
+@property (strong, nonatomic) UserState *state;
 
 - (bool)autoCommute;
 - (bool)delayedDisplayOfCommuterBookmark;

@@ -10,8 +10,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import "TableViewControllerWithToolbar.h"
 #import "MapKit/Mapkit.h"
+#import "TableViewControllerWithToolbar.h"
 #import "TriMetTypes.h"
 #import <IntentsUI/IntentsUI.h>
 #import <UIKit/UIKit.h>
@@ -25,11 +25,9 @@
 #define kAccMile 300
 #define kAcc3Miles 800
 
-@interface FindByLocationViewController
-    : TableViewControllerWithToolbar <MKMapViewDelegate>
+@interface FindByLocationViewController : TableViewControllerWithToolbar <MKMapViewDelegate>
 
-- (instancetype)initWithLocation:(CLLocation *)location
-                     description:(NSString *)locationName;
+- (instancetype)initWithLocation:(CLLocation *)location description:(NSString *)locationName;
 - (instancetype)init;
 
 - (void)actionArgs:(NSDictionary *)args;

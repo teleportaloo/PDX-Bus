@@ -17,11 +17,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class BoxedIcon;
+
 @interface UITableViewCell (Icons)
 
-- (void)setNamedIcon:(NSString *__nullable)name;
-- (void)setSystemIcon:(NSString *)name;
-- (void)systemIcon:(NSString *)name tint:(UIColor *)tint;
+- (void)setIcon:(BoxedIcon *__nullable)icon;
 
 @end
 

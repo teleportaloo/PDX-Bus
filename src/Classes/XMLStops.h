@@ -15,11 +15,11 @@
 
 @interface XMLStops : TriMetXML <Stop *>
 
-@property(nonatomic, copy) NSString *direction;
-@property(nonatomic, copy) NSString *routeId;
-@property(nonatomic, copy) NSString *routeDescription;
-@property(nonatomic, copy) NSString *afterStopId;
-@property(nonatomic, copy) NSString *staticQuery;
+@property (nonatomic, copy) NSString *direction;
+@property (nonatomic, copy) NSString *routeId;
+@property (nonatomic, copy) NSString *routeDescription;
+@property (nonatomic, copy) NSString *afterStopId;
+@property (nonatomic, copy) NSString *staticQuery;
 
 - (BOOL)getStopsForRoute:(NSString *)route
                direction:(NSString *)dir

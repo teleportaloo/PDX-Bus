@@ -31,18 +31,14 @@
            cellWithReuseIdentifier:(NSString *)identifier
                          rowHeight:(CGFloat)height
                        rightMargin:(bool)rightMargin {
-    RailStationViewCell *cell =
-        [tableView dequeueReusableCellWithIdentifier:identifier];
+    RailStationViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
 
     if (cell == nil) {
 
-        cell = [[RailStationViewCell alloc]
-              initWithStyle:UITableViewCellStyleDefault
-            reuseIdentifier:identifier];
+        cell = [[RailStationViewCell alloc] initWithStyle:UITableViewCellStyleDefault
+                                          reuseIdentifier:identifier];
 
-        [cell configWithRowHeight:height
-                      rightMargin:rightMargin
-                      fixedMargin:0.0];
+        [cell configWithRowHeight:height rightMargin:rightMargin fixedMargin:0.0];
     }
 
     return cell;
@@ -53,18 +49,14 @@
                          rowHeight:(CGFloat)height
                        rightMargin:(bool)rightMargin
                        fixedMargin:(CGFloat)fixedMargin {
-    RailStationViewCell *cell =
-        [tableView dequeueReusableCellWithIdentifier:identifier];
+    RailStationViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
 
     if (cell == nil) {
 
-        cell = [[RailStationViewCell alloc]
-              initWithStyle:UITableViewCellStyleDefault
-            reuseIdentifier:identifier];
+        cell = [[RailStationViewCell alloc] initWithStyle:UITableViewCellStyleDefault
+                                          reuseIdentifier:identifier];
 
-        [cell configWithRowHeight:height
-                      rightMargin:rightMargin
-                      fixedMargin:fixedMargin];
+        [cell configWithRowHeight:height rightMargin:rightMargin fixedMargin:fixedMargin];
     }
 
     return cell;

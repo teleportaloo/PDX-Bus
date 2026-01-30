@@ -19,6 +19,6 @@
 
 @interface TripPlannerBaseViewController : TableViewControllerWithToolbar
 
-@property(nonatomic, strong) XMLTrips *tripQuery;
+@property (nonatomic, strong) XMLTrips *tripQuery;
 
 @end

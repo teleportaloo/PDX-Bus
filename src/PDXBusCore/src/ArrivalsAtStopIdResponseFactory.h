@@ -21,20 +21,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ArrivalsAtStopIdResponseFactory : NSObject
 
-+ (StopLocationIntentResponse *)locationRespond:
-    (StopLocationIntentResponseCode)code API_AVAILABLE(ios(12.0));
-+ (StopLocationIntentResponse *)stopLocation:(NSNumber *)stopId
-    API_AVAILABLE(ios(12.0));
++ (StopLocationIntentResponse *)locationRespond:(StopLocationIntentResponseCode)code;
++ (StopLocationIntentResponse *)stopLocation:(NSNumber *)stopId;
 
-+ (ArrivalsAtStopIdIntentResponse *)arrivalsRespond:
-    (ArrivalsAtStopIdIntentResponseCode)code API_AVAILABLE(ios(12.0));
-+ (ArrivalsAtStopIdIntentResponse *)responseForStop:(NSNumber *)stopId
-    API_AVAILABLE(ios(12.0));
++ (ArrivalsAtStopIdIntentResponse *)arrivalsRespond:(ArrivalsAtStopIdIntentResponseCode)code;
++ (ArrivalsAtStopIdIntentResponse *)responseForStop:(NSNumber *)stopId;
 
-+ (RoutesAtStopIdIntentResponse *)routesRespond:
-    (RoutesAtStopIdIntentResponseCode)code API_AVAILABLE(ios(12.0));
-+ (RoutesAtStopIdIntentResponse *)responseByRoute:(NSNumber *)stopId
-    API_AVAILABLE(ios(12.0));
++ (RoutesAtStopIdIntentResponse *)routesRespond:(RoutesAtStopIdIntentResponseCode)code;
++ (RoutesAtStopIdIntentResponse *)responseByRoute:(NSNumber *)stopId;
 
 @end
 

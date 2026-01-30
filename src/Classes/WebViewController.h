@@ -17,8 +17,8 @@
 
 @interface WebViewController : ViewControllerBase <WKNavigationDelegate>
 
-@property(nonatomic, copy) NSString *javsScriptCommand;
-@property(nonatomic, copy) NSString *urlToDisplay;
+@property (nonatomic, copy) NSString *javsScriptCommand;
+@property (nonatomic, copy) NSString *urlToDisplay;
 
 - (void)setNamedUrl:(NSString *)name;
 - (void)setURLmobile:(NSString *)url full:(NSString *)full;

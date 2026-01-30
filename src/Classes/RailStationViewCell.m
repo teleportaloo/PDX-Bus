@@ -23,9 +23,9 @@
 @interface RailStationViewCell () {
 }
 
-@property(nonatomic) CGFloat rightMargin;
-@property(nonatomic) CGFloat fixedMargin;
-@property(nonatomic, weak) NSLayoutConstraint *widthContraint;
+@property (nonatomic) CGFloat rightMargin;
+@property (nonatomic) CGFloat fixedMargin;
+@property (nonatomic, weak) NSLayoutConstraint *widthContraint;
 
 @end
 
@@ -52,15 +52,13 @@
 - (void)configWithRowHeight:(CGFloat)height
                 rightMargin:(bool)rightMargin
                 fixedMargin:(CGFloat)fixedMargin {
-    UIView *maxColors = [[UIView alloc]
-        initWithFrame:CGRectMake(0, 0, MAX_LINE_SIDE * MAX_LINES, height)];
+    UIView *maxColors =
+        [[UIView alloc] initWithFrame:CGRectMake(0, 0, MAX_LINE_SIDE * MAX_LINES, height)];
     CGRect rect;
 
     for (int i = 0; i < MAX_LINES; i++) {
-        rect = CGRectMake((MAX_LINE_SIDE + MAX_LINE_GAP) * i, 0, MAX_LINE_SIDE,
-                          MAX_LINE_SIDE);
-        RouteColorBlobView *max =
-            [[RouteColorBlobView alloc] initWithFrame:rect];
+        rect = CGRectMake((MAX_LINE_SIDE + MAX_LINE_GAP) * i, 0, MAX_LINE_SIDE, MAX_LINE_SIDE);
+        RouteColorBlobView *max = [[RouteColorBlobView alloc] initWithFrame:rect];
         max.tag = MAX_LINES + MAX_TAG - i - 1;
         [maxColors addSubview:max];
     }
@@ -88,55 +86,44 @@
     if (fixedMargin == 0.0) {
         [maxColors.rightAnchor
             constraintEqualToAnchor:self.contentView.rightAnchor
-                           constant:-(MAX_LINE_SIDE * MAX_LINES +
-                                      self.rightMargin)]
+                           constant:-(MAX_LINE_SIDE * MAX_LINES + self.rightMargin)]
             .active = YES;
     } else {
-        [maxColors.rightAnchor
-            constraintEqualToAnchor:self.rightAnchor
-                           constant:-(MAX_LINE_SIDE * MAX_LINES + fixedMargin)]
+        [maxColors.rightAnchor constraintEqualToAnchor:self.rightAnchor
+                                              constant:-(MAX_LINE_SIDE * MAX_LINES + fixedMargin)]
             .active = YES;
     }
 
-    [maxColors.centerYAnchor
-        constraintEqualToAnchor:self.contentView.centerYAnchor
-                       constant:-MAX_LINE_SIDE / 2]
+    [maxColors.centerYAnchor constraintEqualToAnchor:self.contentView.centerYAnchor
+                                            constant:-MAX_LINE_SIDE / 2]
         .active = YES;
 
     label.text = @" ";
 
     label.translatesAutoresizingMaskIntoConstraints = FALSE;
-    [label.topAnchor constraintEqualToAnchor:self.textLabel.topAnchor].active =
-        YES;
-    [label.leadingAnchor constraintEqualToAnchor:self.textLabel.leadingAnchor]
-        .active = YES;
-    [label.bottomAnchor constraintEqualToAnchor:self.textLabel.bottomAnchor]
-        .active = YES;
+    [label.topAnchor constraintEqualToAnchor:self.textLabel.topAnchor].active = YES;
+    [label.leadingAnchor constraintEqualToAnchor:self.textLabel.leadingAnchor].active = YES;
+    [label.bottomAnchor constraintEqualToAnchor:self.textLabel.bottomAnchor].active = YES;
 
     self.widthContraint =
         [label.rightAnchor constraintEqualToAnchor:self.textLabel.rightAnchor
-                                          constant:-(MAX_LINE_SIDE * MAX_LINES +
-                                                     self.rightMargin)];
+                                          constant:-(MAX_LINE_SIDE * MAX_LINES + self.rightMargin)];
 
     self.widthContraint.priority = 999;
     self.widthContraint.active = YES;
 
     // label.backgroundColor = UIColor.greenColor;
-    self.textLabel.font = [UIFont fontWithName:@"HelveticaNeue"
-                                          size:self.textLabel.font.pointSize];
+    self.textLabel.font = [UIFont fontWithName:@"HelveticaNeue" size:self.textLabel.font.pointSize];
 }
 
-- (int)addLineTag:(int)tag
-             line:(TriMetInfo_ColoredLines)line
-            lines:(TriMetInfo_ColoredLines)lines {
+- (int)addLineTag:(int)tag line:(TriMetInfo_ColoredLines)line lines:(TriMetInfo_ColoredLines)lines {
     if (tag - MAX_TAG > MAX_LINES) {
         return tag;
     }
 
     UIView *maxColors = [self.textLabel viewWithTag:LINES_TAG];
 
-    RouteColorBlobView *view =
-        (RouteColorBlobView *)[maxColors viewWithTag:tag];
+    RouteColorBlobView *view = (RouteColorBlobView *)[maxColors viewWithTag:tag];
 
     if (lines & line) {
         if ([view setRouteColorLine:line]) {
@@ -147,8 +134,7 @@
     return tag;
 }
 
-- (void)populateCellWithStation:(NSString *)station
-                          lines:(TriMetInfo_ColoredLines)lines {
+- (void)populateCellWithStation:(NSString *)station lines:(TriMetInfo_ColoredLines)lines {
 
     int tag = MAX_TAG;
 
@@ -173,12 +159,11 @@
         tag = [self addLineTag:tag line:info->line_bit lines:lines];
     }
 
-    self.widthContraint.constant = -(MAX_LINE_SIDE * (tag - MAX_TAG) +
-                                     self.rightMargin + self.fixedMargin);
+    self.widthContraint.constant =
+        -(MAX_LINE_SIDE * (tag - MAX_TAG) + self.rightMargin + self.fixedMargin);
 
     for (; tag < MAX_TAG + MAX_LINES; tag++) {
-        RouteColorBlobView *view =
-            (RouteColorBlobView *)[maxColors viewWithTag:tag];
+        RouteColorBlobView *view = (RouteColorBlobView *)[maxColors viewWithTag:tag];
         view.hidden = YES;
     }
     [self layoutIfNeeded];

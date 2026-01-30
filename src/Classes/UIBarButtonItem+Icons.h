@@ -19,15 +19,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface UIBarButtonItem (Icons)
 
-+ (instancetype)withNamedImage:(nullable NSString *)image
-                         style:(UIBarButtonItemStyle)style
-                        target:(nullable id)target
-                        action:(nullable SEL)action;
-
-+ (instancetype)withSystemImage:(nullable NSString *)name
-                          style:(UIBarButtonItemStyle)style
-                         target:(nullable id)target
-                         action:(nullable SEL)action;
++ (instancetype)withIcon:(nullable BoxedIcon *)icon
+                  target:(nullable id)target
+                  action:(nullable SEL)action;
 
 @end
 

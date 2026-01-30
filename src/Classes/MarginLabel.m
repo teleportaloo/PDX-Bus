@@ -19,8 +19,8 @@
 
 - (void)drawTextInRect:(CGRect)rect {
 
-    UIEdgeInsets insets = UIEdgeInsetsMake(self.topInset, self.leftInset,
-                                           self.bottomInset, self.rightInset);
+    UIEdgeInsets insets =
+        UIEdgeInsetsMake(self.topInset, self.leftInset, self.bottomInset, self.rightInset);
     [super drawTextInRect:UIEdgeInsetsInsetRect(rect, insets)];
 }
 
@@ -32,8 +32,7 @@
 
 - (void)setBounds:(CGRect)newBounds {
     [super setBounds:newBounds];
-    self.preferredMaxLayoutWidth =
-        self.bounds.size.width - (self.leftInset + self.rightInset);
+    self.preferredMaxLayoutWidth = self.bounds.size.width - (self.leftInset + self.rightInset);
 }
 
 @end

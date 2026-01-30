@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ShapeCompactSegment : NSObject <ShapeSegment>
 
-@property(nonatomic) CLLocationCoordinate2D *coords;
+@property (nonatomic) CLLocationCoordinate2D *coords;
 
 - (instancetype)initFromMutable:(ShapeMutableSegment *)seg;
 

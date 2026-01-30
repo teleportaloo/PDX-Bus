@@ -12,10 +12,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import <Foundation/Foundation.h>
 #import "TriMetXML.h"
+#import <Foundation/Foundation.h>
 
-#define DEBUG_PROGRESS(X, s, ...) DEBUG_LOG(s, ## __VA_ARGS__); if (X.debugMessages) { [X taskSubtext:[NSString stringWithFormat:(s), ## __VA_ARGS__]]; }
+#define DEBUG_PROGRESS(X, s, ...)                                                                  \
+    DEBUG_LOG(s, ##__VA_ARGS__);                                                                   \
+    if (X.debugMessages) {                                                                         \
+        [X taskSubtext:[NSString stringWithFormat:(s), ##__VA_ARGS__]];                            \
+    }
 
 @class TaskState;
 
@@ -31,4 +35,3 @@
 - (bool)taskCancelled;
 - (bool)debugMessages;
 @end
-

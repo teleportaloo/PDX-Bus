@@ -19,6 +19,7 @@
 #import "FormatDistance.h"
 #import "KMLRoutes.h"
 #import "MainQueueSync.h"
+#import "MarginLabel.h"
 #import "NSString+MoreMarkup.h"
 #import "RunParallelBlocks.h"
 #import "ShapeRoutePath.h"
@@ -42,14 +43,15 @@
     bool _timerPaused;
 }
 
-@property(nonatomic, strong) XMLLocateStops *stopLocator;
-@property(nonatomic, strong) XMLLocateVehicles *locator;
-@property(nonatomic, strong) HiddenTaskContainer *hiddenTaskContainer;
+@property (nonatomic, strong) XMLLocateStops *stopLocator;
+@property (nonatomic, strong) XMLLocateVehicles *locator;
+@property (nonatomic, strong) HiddenTaskContainer *hiddenTaskContainer;
 
-@property(nonatomic, strong) NSTimer *refreshTimer;
-@property(nonatomic, strong) NSDate *lastRefresh;
-@property(nonatomic, strong) UIBarButtonItem *refreshButton;
-@property(nonatomic, strong) UILabel *updatedLabel;
+@property (nonatomic, strong) NSTimer *refreshTimer;
+@property (nonatomic, strong) NSDate *lastRefresh;
+@property (nonatomic, strong) UIBarButtonItem *refreshButton;
+@property (nonatomic, strong) UILabel *updatedLabel;
+@property (nonatomic) NSLayoutConstraint *bottomAboveToolbar;
 @end
 
 @implementation NearestVehiclesMapViewController
@@ -70,8 +72,7 @@
 
 - (void)timerFired:(NSTimer *)timer {
     [self stopTimer];
-    [self setRefreshButtonText:NSLocalizedString(@"Refreshing",
-                                                 @"Refresh button text")];
+    [self setRefreshButtonText:NSLocalizedString(@"Refreshing", @"Refresh button text")];
     [self refreshAction:timer];
     _timerPaused = YES;
 }
@@ -94,11 +95,10 @@
         }
 
         [self setRefreshButtonText:
-                  [NSString stringWithFormat:
-                                NSLocalizedString(
-                                    @"Refresh in %d",
-                                    @"Refresh button text {number of seconds}"),
-                                secs]];
+                  [NSString stringWithFormat:NSLocalizedString(
+                                                 @"Refresh in %d",
+                                                 @"Refresh button text {number of seconds}"),
+                                             secs]];
 
         [self countDownTimer];
     }
@@ -126,37 +126,35 @@
 
     __weak __typeof(self) weakSelf = self;
 
-    self.refreshTimer = [NSTimer
-        timerWithTimeInterval:1
-                      repeats:YES
-                        block:^(NSTimer *_Nonnull timer) {
-                          __strong __typeof(self) strongSelf = weakSelf;
-                          if (!strongSelf || strongSelf.refreshTimer == nil ||
-                              !strongSelf.refreshTimer.valid) {
-                              [timer invalidate];
-                              if (strongSelf) {
-                                  strongSelf.refreshTimer = nil;
-                              }
-                              return;
-                          }
-                          if (timer != self.refreshTimer) {
-                              [timer invalidate];
-                              return;
-                          }
+    self.refreshTimer =
+        [NSTimer timerWithTimeInterval:1
+                               repeats:YES
+                                 block:^(NSTimer *_Nonnull timer) {
+                                   __strong __typeof(self) strongSelf = weakSelf;
+                                   if (!strongSelf || strongSelf.refreshTimer == nil ||
+                                       !strongSelf.refreshTimer.valid) {
+                                       [timer invalidate];
+                                       if (strongSelf) {
+                                           strongSelf.refreshTimer = nil;
+                                       }
+                                       return;
+                                   }
+                                   if (timer != self.refreshTimer) {
+                                       [timer invalidate];
+                                       return;
+                                   }
 
-                          [strongSelf countDownAction:timer];
-                        }];
+                                   [strongSelf countDownAction:timer];
+                                 }];
 
-    [[NSRunLoop currentRunLoop] addTimer:self.refreshTimer
-                                 forMode:NSDefaultRunLoopMode];
+    [[NSRunLoop currentRunLoop] addTimer:self.refreshTimer forMode:NSDefaultRunLoopMode];
 }
 
 - (void)stopTimer {
     if (self.refreshTimer != nil) {
         [self.refreshTimer invalidate];
         self.refreshTimer = nil;
-        [self setRefreshButtonText:NSLocalizedString(@"Refresh",
-                                                     @"Refresh button text")];
+        [self setRefreshButtonText:NSLocalizedString(@"Refresh", @"Refresh button text")];
     }
 }
 
@@ -202,8 +200,7 @@
     // self unpauseTimer];
 }
 
-- (bool)displayErrorIfNoneFound:(XMLLocateVehicles *)locator
-                       progress:(id<TaskController>)progress {
+- (bool)displayErrorIfNoneFound:(XMLLocateVehicles *)locator progress:(id<TaskController>)progress {
     NSThread *thread = [NSThread currentThread];
 
     if (locator.noErrorAlerts) {
@@ -213,10 +210,8 @@
     if (locator.count == 0 && !locator.gotData) {
         if (!thread.cancelled) {
             [progress taskCancel];
-            [progress
-                taskSetErrorMsg:NSLocalizedString(
-                                    @"Network problem: please try again later.",
-                                    @"progress message")];
+            [progress taskSetErrorMsg:NSLocalizedString(@"Network problem: please try again later.",
+                                                        @"progress message")];
 
             return true;
         }
@@ -225,13 +220,12 @@
             [progress taskCancel];
 
             [progress
-                taskSetErrorMsg:
-                    [NSString stringWithFormat:
-                                  NSLocalizedString(
-                                      @"No vehicles were found within %@, note "
-                                      @"Streetcar is not supported.",
-                                      @"error message"),
-                                  [FormatDistance formatMetres:locator.dist]]];
+                taskSetErrorMsg:[NSString
+                                    stringWithFormat:NSLocalizedString(
+                                                         @"No vehicles were found within %@, note "
+                                                         @"Streetcar is not supported.",
+                                                         @"error message"),
+                                                     [FormatDistance formatMetres:locator.dist]]];
             return true;
         }
     }
@@ -258,8 +252,7 @@
 - (void)subTaskFetchShapes:(TaskState *)taskState rightNow:(bool)now {
     KMLRoutes *kml = [KMLRoutes xmlWithOneTimeDelegate:taskState];
 
-    NSSet<NSString *> *all =
-        [self.streetcarRoutes setByAddingObjectsFromSet:self.trimetRoutes];
+    NSSet<NSString *> *all = [self.streetcarRoutes setByAddingObjectsFromSet:self.trimetRoutes];
 
     if (self.allRoutes) {
         if (now) {
@@ -287,23 +280,20 @@
         self.shapes = [NSMutableArray array];
         for (NSString *route in all) {
             if (self.direction) {
-                ShapeRoutePath *path = [kml lineCoordsForRoute:route
-                                                     direction:self.direction];
+                ShapeRoutePath *path = [kml lineCoordsForRoute:route direction:self.direction];
 
                 if (path) {
                     [self.shapes addObject:path];
                 }
             } else {
-                ShapeRoutePath *path =
-                    [kml lineCoordsForRoute:route direction:kKmlFirstDirection];
+                ShapeRoutePath *path = [kml lineCoordsForRoute:route direction:kKmlFirstDirection];
 
                 if (path) {
                     [self.shapes addObject:path];
                 }
 
-                ShapeRoutePath *second =
-                    [kml lineCoordsForRoute:route
-                                  direction:kKmlOptionalDirection];
+                ShapeRoutePath *second = [kml lineCoordsForRoute:route
+                                                       direction:kKmlOptionalDirection];
 
                 if (second) {
                     [self.shapes addObject:second];
@@ -328,20 +318,18 @@
                           blocks:nil
                         vehicles:nil
                            since:nil];
-    XML_DEBUG_RAW_DATA(locator);
+    [self debugXmlAddParser:locator];
 
     [taskState incrementItemsDoneAndDisplay];
 
     @synchronized(self) {
         if (![self displayErrorIfNoneFound:locator progress:taskState]) {
-            for (int i = 0; i < locator.count && !taskState.taskCancelled;
-                 i++) {
+            for (int i = 0; i < locator.count && !taskState.taskCancelled; i++) {
                 Vehicle *ui = locator.items[i];
 
                 if ([ui typeMatchesMode:mode] &&
                     (self.stopLocator == nil ||
-                     [ui.location
-                         distanceFromLocation:self.stopLocator.location] <=
+                     [ui.location distanceFromLocation:self.stopLocator.location] <=
                          self.stopLocator.minDistance)) {
                     [self addPin:ui];
                 }
@@ -350,32 +338,29 @@
     }
 }
 
-- (void)subTaskLocateStreetcarVehicles:
-            (NSSet<NSString *> *)streetcarRoutesForVehicles
+- (void)subTaskLocateStreetcarVehicles:(NSSet<NSString *> *)streetcarRoutesForVehicles
                              taskState:(TaskState *)taskState
                         parallelBlocks:(RunParallelBlocks *)parallelBlocks {
+
     for (NSString *route in streetcarRoutesForVehicles) {
         [parallelBlocks startBlock:^{
-          XMLStreetcarLocations *loc =
-              [XMLStreetcarLocations sharedInstanceForRoute:route];
+          XMLStreetcarLocations *loc = [XMLStreetcarLocations sharedInstanceForRoute:route];
 
           loc.oneTimeDelegate = taskState;
           [loc.locations removeAllObjects];
           [loc getLocations];
 
           @synchronized(self) {
-              XML_DEBUG_RAW_DATA(loc);
+              [self debugXmlAddParser:loc];
 
               [taskState incrementItemsDoneAndDisplay];
 
               [loc.locations enumerateKeysAndObjectsUsingBlock:^(
-                                 NSString *streecarId, Vehicle *vehicle,
-                                 BOOL *stop) {
+                                 NSString *streecarId, Vehicle *vehicle, BOOL *stop) {
                 if (self.direction == nil || vehicle.direction == nil ||
                     [vehicle.direction isEqualToString:self.direction]) {
                     if (self.stopLocator == nil ||
-                        [vehicle.location
-                            distanceFromLocation:self.stopLocator.location] <=
+                        [vehicle.location distanceFromLocation:self.stopLocator.location] <=
                             self.stopLocator.minDistance) {
                         [self addPin:vehicle];
                     }
@@ -394,12 +379,11 @@
 
     @synchronized(self) {
         if (![self.stopLocator displayErrorIfNoneFound:taskState]) {
-            for (int i = 0;
-                 i < self.stopLocator.count && !taskState.taskCancelled; i++) {
+            for (int i = 0; i < self.stopLocator.count && !taskState.taskCancelled; i++) {
                 [self addPin:self.stopLocator.items[i]];
             }
 
-            self.staticAnnotations = self.annotations.copy;
+            self.staticAnnotations = self.allAnnotations.copy;
         }
     }
 }
@@ -409,7 +393,7 @@
            backgroundRefresh:(bool)backgroundRefresh {
     [taskController taskRunAsync:^(TaskState *taskState) {
       self.backgroundRefresh = backgroundRefresh;
-      XML_DEBUG_INIT();
+      [self debugXmlInit];
 
       TripMode mode = TripModeAll;
 
@@ -429,8 +413,7 @@
       if (locator.location == nil) {
           taskState.total++;
 
-          locator.location = [TaskLocator locateWithAccuracy:locator.dist
-                                                   taskState:taskState];
+          locator.location = [TaskLocator locateWithAccuracy:locator.dist taskState:taskState];
 
           if (self.stopLocator) {
               self.stopLocator.location = locator.location;
@@ -442,20 +425,17 @@
           [self subTaskLocateStops:taskState];
       }
 
-      if (self.stopLocator.includeRoutesInStops) {
-          NSMutableSet *triMetRoutes = NSMutableSet.set;
-          NSMutableSet *streetcarRoutes = NSMutableSet.set;
+      NSMutableSet *triMetRoutes = NSMutableSet.set;
+      NSMutableSet *streetcarRoutes = NSMutableSet.set;
 
-          for (StopDistance *stop in self.stopLocator.items) {
-              for (Route *route in stop.routes) {
-                  PtrConstRouteInfo info =
-                      [TriMetInfo infoForRoute:route.routeId];
+      for (StopDistance *stop in self.stopLocator.items) {
+          for (Route *route in stop.routes) {
+              PtrConstRouteInfo info = [TriMetInfo infoForRoute:route.routeId];
 
-                  if (info && info->lineType == LineTypeStreetcar) {
-                      [streetcarRoutes addObject:route.routeId];
-                  } else {
-                      [triMetRoutes addObject:route.routeId];
-                  }
+              if (info && info->lineType == LineTypeStreetcar) {
+                  [streetcarRoutes addObject:route.routeId];
+              } else {
+                  [triMetRoutes addObject:route.routeId];
               }
           }
 
@@ -468,28 +448,25 @@
 
           [taskState taskSubtext:@"getting vehicles"];
 
-          if ((self.trimetRoutes == nil || self.trimetRoutes.count > 0) &&
-              fetchVehicles) {
+          if ((self.trimetRoutes == nil || self.trimetRoutes.count > 0) && fetchVehicles) {
               taskState.total++;
               [parallelBlocks startBlock:^{
-                [self subTaskLocateTriMetVehicles:locator
-                                             mode:mode
-                                        taskState:taskState];
+                [self subTaskLocateTriMetVehicles:locator mode:mode taskState:taskState];
               }];
           }
 
-          if (self.streetcarRoutes.count > 0 && mode != TripModeBusOnly &&
-              fetchVehicles) {
+          if ((self.streetcarRoutes == nil || self.streetcarRoutes.count > 0) &&
+              mode != TripModeBusOnly && fetchVehicles) {
               taskState.total++;
-              [self subTaskLocateStreetcarVehicles:self.streetcarRoutes
-                                         taskState:taskState
-                                    parallelBlocks:parallelBlocks];
+              [self
+                  subTaskLocateStreetcarVehicles:self.streetcarRoutes ?: TriMetInfo.streetcarRoutes
+                                       taskState:taskState
+                                  parallelBlocks:parallelBlocks];
           }
 
           [parallelBlocks waitForBlocksWithState:taskState];
 
-          if ((self.allRoutes || self.trimetRoutes.count > 0 ||
-               self.streetcarRoutes.count > 0) &&
+          if ((self.allRoutes || self.trimetRoutes.count > 0 || self.streetcarRoutes.count > 0) &&
               Settings.kmlRoutes) {
 
               [self subTaskFetchShapes:taskState rightNow:NO];
@@ -519,11 +496,9 @@
         CLLocationDegrees Y0 = -122.249926;
         CLLocationDegrees Y1 = -123.153522;
 
-        CLLocationCoordinate2D triMetCenter = {(X0 + X1) / 2.0,
-                                               (Y0 + Y1) / 2.0};
+        CLLocationCoordinate2D triMetCenter = {(X0 + X1) / 2.0, (Y0 + Y1) / 2.0};
 
-        here = [CLLocation withLat:triMetCenter.latitude
-                               lng:triMetCenter.longitude];
+        here = [CLLocation withLat:triMetCenter.latitude lng:triMetCenter.longitude];
     }
 
     self.locator.location = here;
@@ -552,8 +527,7 @@
     self.navigationItem.rightBarButtonItem.enabled = NO;
 }
 
-- (void)hiddenTaskDone:(UIViewController *)viewController
-             cancelled:(bool)cancelled {
+- (void)hiddenTaskDone:(UIViewController *)viewController cancelled:(bool)cancelled {
     self.hiddenTaskContainer = nil;
     self.navigationItem.rightBarButtonItem.enabled = YES;
 
@@ -586,11 +560,9 @@
     NSString *timeStr = [dateFormatter stringFromDate:updated];
 
     NSAttributedString *text =
-        [NSString stringWithFormat:@"Updated: #U%@", timeStr]
-            .smallAttributedStringFromMarkUp;
+        [NSString stringWithFormat:@"Updated: #U%@", timeStr].smallAttributedStringFromMarkUp;
 
     self.updatedLabel.attributedText = text;
-    self.updatedLabel.frame = self.updateLabelFrame;
     [self.view bringSubviewToFront:self.updatedLabel];
 }
 
@@ -601,46 +573,33 @@
         self.hiddenTaskContainer = [[HiddenTaskContainer alloc] init];
 
         self.hiddenTaskContainer.hiddenTaskCallback = self;
+        self.hiddenTaskContainer.parent = self;
 
-        [self.annotations removeAllObjects];
+        [self.allAnnotations removeAllObjects];
 
-        [self fetchNearestVehiclesAsync:self.hiddenTaskContainer
-                      backgroundRefresh:YES];
+        [self fetchNearestVehiclesAsync:self.hiddenTaskContainer backgroundRefresh:YES];
     }
 }
 
-- (CGRect)updateLabelFrame {
-    CGFloat inset = UIApplication.firstKeyWindow.safeAreaInsets.bottom;
-
-    const CGSize size = [self.updatedLabel.attributedText size];
-
-    CGFloat toolbarHeight = self.navigationController.toolbar.frame.size.height;
-    CGRect bounds = self.view.frame;
-
-    DEBUG_LOG(@"bounds %f, %f, %f, %f\n", bounds.origin.x, bounds.origin.y,
-              bounds.size.width, bounds.size.height);
-    DEBUG_LOG(@"inset %f\n", inset);
-    DEBUG_LOG(@"tb height  %f\n", toolbarHeight);
-
-#define kLabelMargin 5
-
-    CGFloat labelHeight = size.height + kLabelMargin * 2;
-
-    CGRect rect = CGRectMake(kLabelMargin + CGRectGetMinX(bounds),
-                             CGRectGetMinY(bounds) + CGRectGetHeight(bounds) -
-                                 labelHeight - toolbarHeight - inset,
-                             size.width + kLabelMargin * 2, labelHeight);
-
-    self.updatedLabel.frame = rect;
-
-    return rect;
+- (CGFloat)toolbarHeight {
+    UIToolbar *tb = self.navigationController.toolbar;
+    if (!tb || self.navigationController.isToolbarHidden || tb.isHidden || tb.alpha <= 0.001)
+        return 0.0;
+    return [tb sizeThatFits:CGSizeMake(CGRectGetWidth(self.view.bounds), CGFLOAT_MAX)].height;
 }
 
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
-
-    self.updatedLabel.frame = self.updateLabelFrame;
     [self.view bringSubviewToFront:self.updatedLabel];
+
+    // Place badge above whichever is taller: toolbar vs. home-indicator safe area
+    const CGFloat safeBottom = self.view.safeAreaInsets.bottom;
+    const CGFloat desiredGap = MAX([self toolbarHeight], safeBottom) + kAboveToolbar;
+
+    CGFloat newConstant = -desiredGap; // because it's from view.bottomAnchor
+    if (fabs(self.bottomAboveToolbar.constant - newConstant) > 0.5) {
+        self.bottomAboveToolbar.constant = newConstant;
+    }
 }
 
 - (void)buttonRefreshAction:(id)unused {
@@ -656,8 +615,7 @@
 
         [self.backgroundTask taskRunAsync:^(TaskState *taskState) {
           taskState.total = 2;
-          [taskState startTask:NSLocalizedString(@"Downloading route paths",
-                                                 @"alert item")];
+          [taskState startTask:NSLocalizedString(@"Downloading route paths", @"alert item")];
 
           [self subTaskFetchShapes:taskState rightNow:YES];
 
@@ -679,107 +637,110 @@
 
 - (void)updateTapped {
     UIAlertController *alert = [UIAlertController
-        alertControllerWithTitle:NSLocalizedString(@"Transit Map Options",
-                                                   @"alert title")
-                         message:NSLocalizedString(
-                                     @"Route paths can be shown. Route paths "
-                                     @"will be updated monthly.",
-                                     "alert message")
+        alertControllerWithTitle:NSLocalizedString(@"Transit Map Options", @"alert title")
+                         message:NSLocalizedString(@"Route paths can be shown. Route paths "
+                                                   @"will be updated monthly.",
+                                                   "alert message")
                   preferredStyle:UIAlertControllerStyleActionSheet];
 
     if (Settings.kmlRoutes && self.lineOptions == MapViewNoLines) {
-        [alert
-            addAction:[UIAlertAction
-                          actionWithTitle:NSLocalizedString(@"Show route paths",
-                                                            @"alert item")
-                                    style:UIAlertActionStyleDefault
-                                  handler:^(UIAlertAction *action) {
-                                    self.lineOptions = self.defaultFitOption;
-                                    [self updateOverlays];
-                                  }]];
-    }
-
-    if (Settings.kmlRoutes && self.lineOptions != MapViewNoLines) {
-        [alert
-            addAction:[UIAlertAction
-                          actionWithTitle:NSLocalizedString(@"Hide route paths",
-                                                            @"alert item")
-                                    style:UIAlertActionStyleDefault
-                                  handler:^(UIAlertAction *action) {
-                                    self.lineOptions = MapViewNoLines;
-                                    [self updateOverlays];
-                                  }]];
-    }
-
-    if (Settings.kmlRoutes) {
-        [alert
-            addAction:[UIAlertAction actionWithTitle:NSLocalizedString(
-                                                         @"Update route paths",
-                                                         @"alert item")
-                                               style:UIAlertActionStyleDefault
-                                             handler:^(UIAlertAction *action) {
-                                               [self updateRoutePaths];
-                                               [self updateOverlays];
-                                             }]];
-
         [alert addAction:[UIAlertAction
-                             actionWithTitle:
-                                 NSLocalizedString(
-                                     @"Delete route paths and stop updates",
-                                     @"alert item")
-                                       style:UIAlertActionStyleDestructive
+                             actionWithTitle:NSLocalizedString(@"Show route paths", @"alert item")
+                                       style:UIAlertActionStyleDefault
                                      handler:^(UIAlertAction *action) {
-                                       self.lineOptions = MapViewNoLines;
-                                       Settings.rawKmlRoutes = kKmlNever;
-                                       [KMLRoutes deleteCacheFile];
+                                       self.lineOptions = self.defaultFitOption;
                                        [self updateOverlays];
                                      }]];
     }
 
-    if (!Settings.kmlRoutes) {
+    if (Settings.kmlRoutes && self.lineOptions != MapViewNoLines) {
         [alert addAction:[UIAlertAction
-                             actionWithTitle:NSLocalizedString(
-                                                 @"Download route paths",
-                                                 @"alert item")
+                             actionWithTitle:NSLocalizedString(@"Hide route paths", @"alert item")
                                        style:UIAlertActionStyleDefault
                                      handler:^(UIAlertAction *action) {
-                                       [self updateRoutePaths];
+                                       self.lineOptions = MapViewNoLines;
+                                       [self updateOverlays];
                                      }]];
     }
 
-    [alert addAction:[UIAlertAction
-                         actionWithTitle:NSLocalizedString(@"Cancel",
-                                                           @"alert item")
-                                   style:UIAlertActionStyleCancel
-                                 handler:^(UIAlertAction *action){
-                                 }]];
+    if (Settings.kmlRoutes) {
+        [alert addAction:[UIAlertAction
+                             actionWithTitle:NSLocalizedString(@"Update route paths", @"alert item")
+                                       style:UIAlertActionStyleDefault
+                                     handler:^(UIAlertAction *action) {
+                                       [self updateRoutePaths];
+                                       [self updateOverlays];
+                                     }]];
 
-    alert.popoverPresentationController.sourceView = self.view;
-    alert.popoverPresentationController.sourceRect = self.updatedLabel.frame;
+        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(
+                                                            @"Delete route paths and stop updates",
+                                                            @"alert item")
+                                                  style:UIAlertActionStyleDestructive
+                                                handler:^(UIAlertAction *action) {
+                                                  self.lineOptions = MapViewNoLines;
+                                                  Settings.rawKmlRoutes = kKmlNever;
+                                                  [KMLRoutes deleteCacheFile];
+                                                  [self updateOverlays];
+                                                }]];
+    }
 
-    [self presentViewController:alert animated:YES completion:nil];
+    if (!Settings.kmlRoutes) {
+        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Download route paths",
+                                                                          @"alert item")
+                                                  style:UIAlertActionStyleDefault
+                                                handler:^(UIAlertAction *action) {
+                                                  [self updateRoutePaths];
+                                                }]];
+    }
+
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"alert item")
+                                              style:UIAlertActionStyleCancel
+                                            handler:^(UIAlertAction *action){
+                                            }]];
+
+    [self displayPopover:alert view:self.updatedLabel completion:nil];
 }
 
+static const CGFloat kEdge = 10.0;         // left margin
+static const CGFloat kAboveToolbar = 30.0; // gap above toolbar
+
 - (void)viewDidLoad {
-    CGRect rect = CGRectNull;
 
-    self.updatedLabel = [[UILabel alloc] initWithFrame:rect];
+    MarginLabel *badge = [[MarginLabel alloc] init];
+    badge.topInset = 6;
+    badge.leftInset = 12;
+    badge.bottomInset = 6;
+    badge.rightInset = 12;
+    badge.translatesAutoresizingMaskIntoConstraints = NO;
+    badge.textAlignment = NSTextAlignmentCenter;
+    badge.numberOfLines = 1;
+    badge.font = [UIFont preferredFontForTextStyle:UIFontTextStyleCallout];
+    badge.textColor = [UIColor labelColor];
+    badge.backgroundColor = [[UIColor tertiarySystemBackgroundColor] colorWithAlphaComponent:0.7];
+    badge.layer.cornerRadius = 8;
+    badge.layer.masksToBounds = YES;
+    badge.layer.borderWidth = 1.0;
+    badge.adjustsFontSizeToFitWidth = YES;
+    badge.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
 
-    self.updatedLabel.textAlignment = NSTextAlignmentCenter;
-    self.updatedLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
+    [self.view addSubview:badge];
 
-    self.updatedLabel.adjustsFontSizeToFitWidth = YES;
+    self.updatedLabel = badge;
 
-    self.updatedLabel.layer.borderWidth = 1.0;
-    self.updatedLabel.layer.cornerRadius = 8;
-    self.updatedLabel.layer.masksToBounds = YES;
+    // Leading + width (you said you can compute width/x—constraints shown anyway)
+    [NSLayoutConstraint activateConstraints:@[
+        [badge.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor constant:kEdge],
+        // Either fixed width or content hugging. If fixed:
+        // [badge.widthAnchor constraintEqualToConstant:computedWidth],
+    ]];
 
-    self.updatedLabel.textColor = [UIColor labelColor];
-    self.updatedLabel.backgroundColor = [UIColor tertiarySystemBackgroundColor];
+    // Pin bottom via a constraint we’ll update each layout pass
+    self.bottomAboveToolbar = [badge.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor
+                                                                 constant:-20.0]; // temp
+    self.bottomAboveToolbar.active = YES;
 
     UITapGestureRecognizer *tapGestureRecognizer =
-        [[UITapGestureRecognizer alloc] initWithTarget:self
-                                                action:@selector(updateTapped)];
+        [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(updateTapped)];
 
     tapGestureRecognizer.numberOfTapsRequired = 1;
     [self.updatedLabel addGestureRecognizer:tapGestureRecognizer];
@@ -791,19 +752,16 @@
     [super viewDidLoad];
 
     if (Settings.useVehicleLocator || self.alwaysFetch) {
-        self.refreshButton = [[UIBarButtonItem alloc]
-            initWithTitle:NSLocalizedString(@"Refresh", @"text")
-                    style:UIBarButtonItemStylePlain
-                   target:self
-                   action:@selector(buttonRefreshAction:)];
+        self.refreshButton = [UIBarButtonItem textButton:NSLocalizedString(@"Refresh", @"text")
+                                                  target:self
+                                                  action:@selector(buttonRefreshAction:)];
         self.navigationItem.rightBarButtonItem = self.refreshButton;
 
         NSMutableParagraphStyle *paragraphStyle = NSMutableParagraphStyle.new;
         paragraphStyle.alignment = NSTextAlignmentRight;
 
         [self.refreshButton setTitleTextAttributes:@{
-            NSFontAttributeName :
-                [UIFont monospacedDigitSystemFontOfSize:UIFont.labelFontSize],
+            NSFontAttributeName : [UIFont monospacedDigitSystemFontOfSize:UIFont.labelFontSize],
             NSParagraphStyleAttributeName : paragraphStyle
         }
                                           forState:UIControlStateNormal];
@@ -832,7 +790,6 @@
                               minDistance:(double)min
                                      mode:(TripMode)mode {
     self.stopLocator = [XMLLocateStops xml];
-    self.stopLocator.includeRoutesInStops = YES;
     self.lineOptions = MapViewNoFitLines;
     self.defaultFitOption = MapViewNoFitLines;
 
@@ -845,9 +802,7 @@
     self.stopLocator.mode = mode;
     self.stopLocator.minDistance = min;
 
-    [self fetchNearestVehicles:self.locator
-                taskController:taskController
-             backgroundRefresh:NO];
+    [self fetchNearestVehicles:self.locator taskController:taskController backgroundRefresh:NO];
 }
 
 @end

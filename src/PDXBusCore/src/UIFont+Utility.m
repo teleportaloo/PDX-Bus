@@ -38,13 +38,11 @@ static UIFont *basicFont;
 }
 
 + (UIFont *)monospacedDigitSystemFontOfSize:(CGFloat)fontSize {
-    return [UIFont monospacedDigitSystemFontOfSize:fontSize
-                                            weight:UIFontWeightRegular];
+    return [UIFont monospacedDigitSystemFontOfSize:fontSize weight:UIFontWeightRegular];
 }
 
 + (UIFont *)boldMonospacedDigitSystemFontOfSize:(CGFloat)fontSize {
-    return [UIFont monospacedDigitSystemFontOfSize:fontSize
-                                            weight:UIFontWeightBold];
+    return [UIFont monospacedDigitSystemFontOfSize:fontSize weight:UIFontWeightBold];
 }
 
 @end

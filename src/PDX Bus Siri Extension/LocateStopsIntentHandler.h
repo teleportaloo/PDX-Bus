@@ -19,8 +19,6 @@
 @interface LocateStopsIntentHandler<LocateStopsIntentHandling> : NSObject
 
 - (void)handleLocateStops:(LocateStopsIntent *)intent
-               completion:
-                   (void (^)(LocateStopsIntentResponse *response))completion
-    API_AVAILABLE(ios(12.0));
+               completion:(void (^)(LocateStopsIntentResponse *response))completion;
 
 @end

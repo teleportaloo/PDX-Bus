@@ -25,10 +25,10 @@
 
 @interface QueryCacheManager : NSObject <ClearableCache>
 
-@property(nonatomic) int maxSize;
-@property(nonatomic) int ageOutDays;
-@property(nonatomic) bool setAgedOutFlagIfOld;
-@property(nonatomic) bool agedOut;
+@property (nonatomic) int maxSize;
+@property (nonatomic) int ageOutDays;
+@property (nonatomic) bool setAgedOutFlagIfOld;
+@property (nonatomic) bool agedOut;
 
 - (void)addToCache:(NSString *)cacheQuery item:(NSData *)item write:(bool)write;
 - (instancetype)initWithFileName:(NSString *)shortFileName;

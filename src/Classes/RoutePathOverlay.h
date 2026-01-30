@@ -8,9 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-
 @interface RoutePathOverlay : NSObject {
-
 }
 
 @end

@@ -20,7 +20,7 @@
 
 @interface Links : XCTestCase
 
-@property(atomic, strong) LinkChecker *linkChecker;
+@property (atomic, strong) LinkChecker *linkChecker;
 
 @end
 
@@ -42,9 +42,8 @@
 
 - (void)testAbout {
     NSArray *sut =
-        [NSArray arrayWithContentsOfFile:[[NSBundle mainBundle]
-                                             pathForResource:@"about-links"
-                                                      ofType:@"plist"]];
+        [NSArray arrayWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"about-links"
+                                                                         ofType:@"plist"]];
 
     self.linkChecker.context = NSSTR_FUNC;
 
@@ -58,9 +57,8 @@
 
 - (void)testLegal {
     NSArray *sut =
-        [NSArray arrayWithContentsOfFile:[[NSBundle mainBundle]
-                                             pathForResource:@"about-legal"
-                                                      ofType:@"plist"]];
+        [NSArray arrayWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"about-legal"
+                                                                         ofType:@"plist"]];
 
     self.linkChecker.context = NSSTR_FUNC;
 
@@ -74,15 +72,13 @@
 
 - (void)testOtherLinks {
     NSDictionary<NSString *, NSDictionary *> *sut = [NSDictionary
-        dictionaryWithContentsOfFile:[[NSBundle mainBundle]
-                                         pathForResource:@"web-links"
-                                                  ofType:@"plist"]];
+        dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"web-links"
+                                                                     ofType:@"plist"]];
 
     self.linkChecker.context = NSSTR_FUNC;
 
-    [sut enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull key,
-                                             NSDictionary *_Nonnull obj,
-                                             BOOL *_Nonnull stop) {
+    [sut enumerateKeysAndObjectsUsingBlock:^(
+             NSString *_Nonnull key, NSDictionary *_Nonnull obj, BOOL *_Nonnull stop) {
       NSString *testString = obj[@"TestString"];
       NSString *testString2 = obj[@"TestString2"];
 
@@ -110,9 +106,8 @@
 
 - (void)testWhatsNew {
     NSArray *sut =
-        [[NSArray alloc] initWithContentsOfFile:[[NSBundle mainBundle]
-                                                    pathForResource:@"whats-new"
-                                                             ofType:@"plist"]];
+        [[NSArray alloc] initWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"whats-new"
+                                                                                ofType:@"plist"]];
 
     WhatsNewWeb *webAction = [WhatsNewWeb action];
 

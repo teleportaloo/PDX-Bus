@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface XMLTestFile : NSObject
 
-@property(nonatomic, strong) NSMutableString *xml;
+@property (nonatomic, strong) NSMutableString *xml;
 
 + (XMLTestFile *)fileWithOneTag:(NSString *)tag
                      attributes:(NSArray<NSArray<NSString *> *> *)attributes;
@@ -30,8 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)startTagWithAttributes:(NSString *)tag
                     attributes:(NSArray<NSArray<NSString *> *> *)attributes;
 - (void)closeTag:(NSString *)tag;
-- (void)tagWithAtrributes:(NSString *)tag
-               attributes:(NSArray<NSArray<NSString *> *> *)attributes;
+- (void)tagWithAtrributes:(NSString *)tag attributes:(NSArray<NSArray<NSString *> *> *)attributes;
 - (void)closeHeaderTag;
 
 - (NSString *)makeURLstring;

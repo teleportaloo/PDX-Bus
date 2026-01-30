@@ -19,10 +19,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MarginLabel : UILabel
 
-@property(nonatomic) CGFloat topInset;
-@property(nonatomic) CGFloat bottomInset;
-@property(nonatomic) CGFloat leftInset;
-@property(nonatomic) CGFloat rightInset;
+@property (nonatomic) CGFloat topInset;
+@property (nonatomic) CGFloat bottomInset;
+@property (nonatomic) CGFloat leftInset;
+@property (nonatomic) CGFloat rightInset;
 
 @end
 

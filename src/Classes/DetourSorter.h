@@ -22,9 +22,9 @@ typedef NSMutableDictionary<NSNumber *, Detour *> AllTriMetDetours;
 
 @interface DetourSorter : NSObject
 
-@property(nonatomic, strong) NSMutableOrderedSet<NSNumber *> *detourIds;
-@property(atomic, strong) AllTriMetDetours *allDetours;
-@property(nonatomic) NSInteger systemWideCount;
+@property (nonatomic, strong) NSMutableOrderedSet<NSNumber *> *detourIds;
+@property (atomic, strong) AllTriMetDetours *allDetours;
+@property (nonatomic) NSInteger systemWideCount;
 
 - (void)safeAddDetour:(Detour *)detour;
 - (void)sort;

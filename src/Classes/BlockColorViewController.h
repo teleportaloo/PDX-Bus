@@ -17,7 +17,6 @@
 #import "TableViewControllerWithToolbar.h"
 #import <UIKit/UIKit.h>
 
-@interface BlockColorViewController
-    : TableViewControllerWithToolbar
+@interface BlockColorViewController : TableViewControllerWithToolbar
 
 @end

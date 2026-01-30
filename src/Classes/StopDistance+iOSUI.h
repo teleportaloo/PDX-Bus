@@ -20,8 +20,8 @@
 @interface StopDistance (iOSUI) <MapPin>
 
 // From Annotation
-@property(nonatomic, readonly) CLLocationCoordinate2D coordinate;
-@property(nonatomic, readonly, copy) NSString *title;
-@property(nonatomic, readonly, copy) NSString *subtitle;
+@property (nonatomic, readonly) CLLocationCoordinate2D coordinate;
+@property (nonatomic, readonly, copy) NSString *title;
+@property (nonatomic, readonly, copy) NSString *subtitle;
 
 @end

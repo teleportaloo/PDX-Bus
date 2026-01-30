@@ -73,8 +73,7 @@
             ShapeCompactSegment *compact = seg.compact;
 
             if (compact && compact.coords && self.coords) {
-                return memcmp(self.coords, compact.coords,
-                              _count * sizeof(_coords[0])) == 0;
+                return memcmp(self.coords, compact.coords, _count * sizeof(_coords[0])) == 0;
             }
         }
     }
@@ -97,8 +96,7 @@
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
     if ((self = [super init])) {
         NSUInteger length = 0;
-        const uint8_t *bytes = [aDecoder decodeBytesForKey:kKeyCoords
-                                            returnedLength:&length];
+        const uint8_t *bytes = [aDecoder decodeBytesForKey:kKeyCoords returnedLength:&length];
 
         // check size
         if (length % sizeof(CLLocationCoordinate2D) == 0) {

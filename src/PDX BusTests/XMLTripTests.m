@@ -39,17 +39,15 @@
     // Build
     XMLTrips *sut = [XMLTrips xml];
 
-    sut.queryTransformer = [XMLTestFile
-        queryBlockWithFileForClass:@{@"XMLTrips" : @"trip-planner"}];
+    sut.queryTransformer =
+        [XMLTestFile queryBlockWithFileForClass:@{@"XMLTrips" : @"trip-planner"}];
 
     NSDictionary *userRequestDict = @{
         @"arrivalTime" : @(0),
-        @"dateAndTime" : [NSDate
-            dateWithTimeIntervalSince1970:0], // Doesn't matter "2020-10-09
-                                              // 05:42:09 +0000"
+        @"dateAndTime" : [NSDate dateWithTimeIntervalSince1970:0], // Doesn't matter "2020-10-09
+                                                                   // 05:42:09 +0000"
         @"fromPoint" : @{
-            @"additionalInfo" :
-                @"Fair Complex/Hillsboro Airport MAX Stn (Eastbound)",
+            @"additionalInfo" : @"Fair Complex/Hillsboro Airport MAX Stn (Eastbound)",
             @"locationDesc" : @"9838",
             @"useCurrentLocation" : @0
         },
@@ -65,8 +63,7 @@
         @"walk" : @0.75
     };
 
-    TripUserRequest *userRequest =
-        [TripUserRequest fromDictionary:userRequestDict];
+    TripUserRequest *userRequest = [TripUserRequest fromDictionary:userRequestDict];
 
     sut.userRequest = userRequest;
 
@@ -92,9 +89,7 @@
     XCTAssertEqual(it.numberOfTripLegs, 4);
     XCTAssertEqual(it.walkingTimeMins, 0);
     XCTAssertEqual(it.transitTimeMins, 54);
-    XCTAssertEqualObjects(
-        it.fare,
-        @"Adult: $2.50\nHonored Citizen: $1.25\nYouth/Student: $1.25\n");
+    XCTAssertEqualObjects(it.fare, @"Adult: $2.50\nHonored Citizen: $1.25\nYouth/Student: $1.25\n");
     XCTAssertEqualObjects(it.travelTime, @"61 mins, including 7 mins waiting.");
     XCTAssertEqualObjects(it.shortTravelTime, @"Travel time: 1:01");
     XCTAssert(it.hasFare);
@@ -107,9 +102,8 @@
     // XCTAssertEqualObjects(  ep.xlon,                        nil);
     XCTAssertEqualObjects(ep.desc, @"Fair Complex/Hillsboro Airport MAX Stn");
     XCTAssertEqualObjects(ep.strStopId, @"9838");
-    XCTAssertEqualObjects(
-        ep.displayText,
-        @"#bStart at#b Fair Complex/Hillsboro Airport MAX Stn (Stop ID 9838)");
+    XCTAssertEqualObjects(ep.displayText,
+                          @"#bStart at#b Fair Complex/Hillsboro Airport MAX Stn (Stop ID 9838)");
     XCTAssertEqualObjects(ep.mapText, nil);
     XCTAssertEqualObjects(ep.displayModeText, @"Start");
     XCTAssertEqualObjects(ep.displayTimeText, nil);
@@ -150,9 +144,8 @@
     // XCTAssertEqualObjects(  ep.xlon,                        @"-122.674172");
     XCTAssertEqualObjects(ep.desc, @"Yamhill District MAX Station");
     XCTAssertEqualObjects(ep.strStopId, @"8336");
-    XCTAssertEqualObjects(
-        ep.displayText,
-        @"#bGet off#b at Yamhill District MAX Station (Stop ID 8336)");
+    XCTAssertEqualObjects(ep.displayText,
+                          @"#bGet off#b at Yamhill District MAX Station (Stop ID 8336)");
     XCTAssertEqualObjects(ep.mapText, nil);
     XCTAssertEqualObjects(ep.displayModeText, @"Deboard");
     XCTAssertEqualObjects(ep.displayTimeText, @"11:28 PM");
@@ -173,27 +166,22 @@
     // Build
     XMLTrips *sut = [XMLTrips xml];
 
-    sut.queryTransformer =
-        [XMLTestFile queryBlockWithFileForClass:@{@"XMLTrips" : @"trip-lists"}];
+    sut.queryTransformer = [XMLTestFile queryBlockWithFileForClass:@{@"XMLTrips" : @"trip-lists"}];
 
     NSDictionary *userRequestDict = @{
         @"arrivalTime" : @(0),
-        @"dateAndTime" : [NSDate
-            dateWithTimeIntervalSince1970:0], // Doesn't matter "2020-10-09
-                                              // 05:42:09 +0000"
-        @"fromPoint" :
-            @{@"locationDesc" : @"City hall", @"useCurrentLocation" : @0},
+        @"dateAndTime" : [NSDate dateWithTimeIntervalSince1970:0], // Doesn't matter "2020-10-09
+                                                                   // 05:42:09 +0000"
+        @"fromPoint" : @{@"locationDesc" : @"City hall", @"useCurrentLocation" : @0},
         @"maxItineraries" : @6,
         @"timeChoice" : @0,
-        @"toPoint" :
-            @{@"locationDesc" : @"Middle  school", @"useCurrentLocation" : @0},
+        @"toPoint" : @{@"locationDesc" : @"Middle  school", @"useCurrentLocation" : @0},
         @"tripMin" : @0,
         @"tripMode" : @2,
         @"walk" : @0.75
     };
 
-    TripUserRequest *userRequest =
-        [TripUserRequest fromDictionary:userRequestDict];
+    TripUserRequest *userRequest = [TripUserRequest fromDictionary:userRequestDict];
 
     sut.userRequest = userRequest;
 
@@ -233,12 +221,11 @@
     // Build
     LegShapeParser *sut = [[LegShapeParser alloc] init];
 
-    NSURL *myURL =
-        [[NSBundle bundleForClass:[self class]] URLForResource:@"trip-route"
-                                                 withExtension:@"json"];
+    NSURL *myURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"trip-route"
+                                                            withExtension:@"json"];
 
-    sut.replaceQueryBlock = ^NSString *_Nonnull(LegShapeParser *_Nonnull xml,
-                                                NSString *_Nonnull query) {
+    sut.replaceQueryBlock =
+        ^NSString *_Nonnull(LegShapeParser *_Nonnull xml, NSString *_Nonnull query) {
         return myURL.absoluteString;
     };
 
@@ -253,12 +240,11 @@
     // Build
     LegShapeParser *sut = [[LegShapeParser alloc] init];
 
-    NSURL *myURL =
-        [[NSBundle bundleForClass:[self class]] URLForResource:@"trip-route2"
-                                                 withExtension:@"json"];
+    NSURL *myURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"trip-route2"
+                                                            withExtension:@"json"];
 
-    sut.replaceQueryBlock = ^NSString *_Nonnull(LegShapeParser *_Nonnull xml,
-                                                NSString *_Nonnull query) {
+    sut.replaceQueryBlock =
+        ^NSString *_Nonnull(LegShapeParser *_Nonnull xml, NSString *_Nonnull query) {
         return myURL.absoluteString;
     };
 
@@ -267,10 +253,9 @@
 
     // Assert
     XCTAssertEqual(sut.segment.count, 32);
-    XCTAssertEqualWithAccuracy(sut.segment.compact.coords[0].latitude,
-                               45.515199877, 0.000000001);
-    XCTAssertEqualWithAccuracy(sut.segment.compact.coords[0].longitude,
-                               -122.675600059, 0.000000001);
+    XCTAssertEqualWithAccuracy(sut.segment.compact.coords[0].latitude, 45.515199877, 0.000000001);
+    XCTAssertEqualWithAccuracy(
+        sut.segment.compact.coords[0].longitude, -122.675600059, 0.000000001);
 }
 
 @end

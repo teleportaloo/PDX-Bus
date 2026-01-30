@@ -16,16 +16,16 @@
 #import "TaskDispatch.h"
 #import "TorchController.h"
 #import "UIAlertController+SimpleMessages.h"
+#import "UIBarButtonItem+Auto.h"
 #import "UIFont+Utility.h"
-#import "UIToolbar+Auto.h"
 
 @interface FlashViewController () {
     int _color;
     TorchController *_torch;
 }
 
-@property(nonatomic, strong) NSTimer *flashTimer;
-@property(nonatomic, strong) UIBarButtonItem *segButton;
+@property (nonatomic, strong) NSTimer *flashTimer;
+@property (nonatomic, strong) UIBarButtonItem *segButton;
 
 @end
 
@@ -50,16 +50,16 @@
 }
 
 - (void)infoAction:(id)sender {
-    UIAlertController *alert = [UIAlertController
+    [UIAlertController
         simpleOkWithTitle:NSLocalizedString(@"Info", @"Alert title")
-                  message:NSLocalizedString(
-                              @"This flashing screen is intended to be used to "
-                              @"catch the attention of a bus operator at "
-                              @"night.\n\nNote: the screen will not dim while "
-                              @"this is displayed, so this will drain the "
-                              @"battery quicker.",
-                              @"Warning text")];
-    [self presentViewController:alert animated:YES completion:nil];
+                  message:NSLocalizedString(@"This flashing screen is intended to be used to "
+                                            @"catch the attention of a bus operator at "
+                                            @"night.\n\nNote: the screen will not dim while "
+                                            @"this is displayed, so this will drain the "
+                                            @"battery quicker.",
+                                            @"Warning text")
+           viewController:self
+               completion:nil];
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
@@ -69,11 +69,12 @@
 - (void)changeColor:(NSTimer *)timer {
     static NSArray *colors = nil;
 
-    DoOnce((^{
+    DO_ONCE((^{
       colors = @[
           [UIColor blackColor],
           [UIColor colorWithRed:0.0 green:1.0 blue:1.0 alpha:1.0],
-          [UIColor blackColor], [UIColor whiteColor]
+          [UIColor blackColor],
+          [UIColor whiteColor]
       ];
     }));
 
@@ -92,36 +93,32 @@
 
     __weak __typeof(self) weakSelf = self;
 
-    self.flashTimer = [NSTimer
-        timerWithTimeInterval:0.25
-                      repeats:YES
-                        block:^(NSTimer *_Nonnull timer) {
-                          __strong __typeof(self) strongSelf = weakSelf;
-                          if (!strongSelf || strongSelf.flashTimer == nil ||
-                              !strongSelf.flashTimer.valid) {
-                              [timer invalidate];
-                              if (strongSelf) {
-                                  strongSelf.flashTimer = nil;
-                              }
-                              return;
-                          }
-                          if (timer != self.flashTimer) {
-                              [timer invalidate];
-                              return;
-                          }
+    self.flashTimer = [NSTimer timerWithTimeInterval:0.25
+                                             repeats:YES
+                                               block:^(NSTimer *_Nonnull timer) {
+                                                 __strong __typeof(self) strongSelf = weakSelf;
+                                                 if (!strongSelf || strongSelf.flashTimer == nil ||
+                                                     !strongSelf.flashTimer.valid) {
+                                                     [timer invalidate];
+                                                     if (strongSelf) {
+                                                         strongSelf.flashTimer = nil;
+                                                     }
+                                                     return;
+                                                 }
+                                                 if (timer != self.flashTimer) {
+                                                     [timer invalidate];
+                                                     return;
+                                                 }
 
-                          [strongSelf changeColor:timer];
-                        }];
+                                                 [strongSelf changeColor:timer];
+                                               }];
 
-    [[NSRunLoop currentRunLoop] addTimer:self.flashTimer
-                                 forMode:NSDefaultRunLoopMode];
+    [[NSRunLoop currentRunLoop] addTimer:self.flashTimer forMode:NSDefaultRunLoopMode];
     self.title = NSLocalizedString(@"Flashing Light", @"Screen title");
 
-    UIBarButtonItem *info = [[UIBarButtonItem alloc]
-        initWithTitle:NSLocalizedString(@"info", @"Button text")
-                style:UIBarButtonItemStylePlain
-               target:self
-               action:@selector(infoAction:)];
+    UIBarButtonItem *info = [UIBarButtonItem textButton:NSLocalizedString(@"info", @"Button text")
+                                                 target:self
+                                                 action:@selector(infoAction:)];
 
     self.navigationItem.rightBarButtonItem = info;
 
@@ -136,9 +133,9 @@
 
     CGRect frame = self.view.frame;
     CGRect rect = CGRectMake(frame.origin.x,
-                             frame.origin.y + frame.size.height - TEXT_HEIGHT -
-                                 TOOLBAR_HEIGHT * 3,
-                             frame.size.width, TEXT_HEIGHT);
+                             frame.origin.y + frame.size.height - TEXT_HEIGHT - TOOLBAR_HEIGHT * 3,
+                             frame.size.width,
+                             TEXT_HEIGHT);
 
     label = [[UILabel alloc] initWithFrame:rect];
     label.font = [UIFont boldMonospacedDigitSystemFontOfSize:20];
@@ -152,8 +149,7 @@
     label.backgroundColor = [UIColor clearColor];
     label.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     [self.view addSubview:label];
-    label.text =
-        NSLocalizedString(@"Device sleep disabled!", @"Button warning");
+    label.text = NSLocalizedString(@"Device sleep disabled!", @"Button warning");
 
     if (_torch) {
         [_torch on];
@@ -198,18 +194,20 @@
 }
 
 - (void)updateToolbarMainThread {
-    self.segButton = [self segBarButtonWithItems:@[
-        NSLocalizedString(@"Flash LED", @"Short segment button text"),
-        NSLocalizedString(@"LED Off", @"Short segment button text")
-    ]
-                                          action:@selector(toggleLed:)
-                                   selectedIndex:Settings.flashLed ? 0 : 1];
+    if (self.segButton == nil) {
+        self.segButton = [self segBarButtonWithItems:@[
+            NSLocalizedString(@"Flash LED", @"Short segment button text"),
+            NSLocalizedString(@"LED Off", @"Short segment button text")
+        ]
+                                              action:@selector(toggleLed:)
+                                       selectedIndex:Settings.flashLed ? 0 : 1];
+    }
 }
 
-- (void)updateToolbarItems:(NSMutableArray *)toolbarItems {
+- (void)updateToolbarItems:(NSMutableArray<UIBarButtonItem *> *)toolbarItems {
     if (_torch) {
         [toolbarItems addObject:self.segButton];
-        [toolbarItems addObject:[UIToolbar flexSpace]];
+        [toolbarItems addObject:[UIBarButtonItem flexSpace]];
     }
 }
 

@@ -17,8 +17,8 @@
 @interface EditableTableViewCell : UITableViewCell
 
 // Exposes the delegate property to other objects.
-@property(nonatomic, weak) id<EditableTableViewCellDelegate> delegate;
-@property(nonatomic, assign) BOOL isInlineEditing;
+@property (nonatomic, weak) id<EditableTableViewCellDelegate> delegate;
+@property (nonatomic, assign) BOOL isInlineEditing;
 
 // Informs the cell to stop editing, resulting in keyboard/pickers/etc. being
 // ordered out and first responder status resigned.

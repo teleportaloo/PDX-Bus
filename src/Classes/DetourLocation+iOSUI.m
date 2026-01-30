@@ -28,8 +28,7 @@
 
 - (NSString *)subtitle {
     if (self.noServiceFlag) {
-        return [NSString
-            stringWithFormat:@"No service at Stop ID %@", self.stopId];
+        return [NSString stringWithFormat:@"No service at Stop ID %@", self.stopId];
     }
 
     return [NSString stringWithFormat:@"Stop ID %@", self.stopId];
@@ -54,12 +53,10 @@
 
 - (NSString *)pinMarkedUpStopId {
     if (self.noServiceFlag) {
-        return [NSString stringWithFormat:@"#DNo service at %@",
-                                          self.stopId.markedUpLinkToStopId];
+        return [NSString stringWithFormat:@"#DNo service at %@", self.stopId.markedUpLinkToStopId];
     }
 
-    return
-        [NSString stringWithFormat:@"#D%@", self.stopId.markedUpLinkToStopId];
+    return [NSString stringWithFormat:@"#D%@", self.stopId.markedUpLinkToStopId];
 }
 
 - (UIColor *)pinTint {
@@ -75,6 +72,10 @@
 }
 
 - (NSString *)pinMarkedUpType {
+    return nil;
+}
+
+- (NSString *)key {
     return nil;
 }
 

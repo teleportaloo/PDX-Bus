@@ -19,14 +19,14 @@
 
 @interface Stop : NSObject <SearchFilter>
 
-@property(nonatomic, copy) NSString *stopId;
-@property(nonatomic, copy) NSString *desc;
-@property(nonatomic, copy) NSString *dir;
-@property(nonatomic) bool timePoint;
-@property(nonatomic, strong) CLLocation *location;
-@property(nonatomic, strong) id<ReturnStopObject> stopObjectCallback;
-@property(nonatomic) NSUInteger index;
-@property(nonatomic, readonly, copy) NSString *stringToFilter;
+@property (nonatomic, copy) NSString *stopId;
+@property (nonatomic, copy) NSString *desc;
+@property (nonatomic, copy) NSString *dir;
+@property (nonatomic) bool timePoint;
+@property (nonatomic, strong) CLLocation *location;
+@property (nonatomic, strong) id<ReturnStopObject> stopObjectCallback;
+@property (nonatomic) NSUInteger index;
+@property (nonatomic, readonly, copy) NSString *stringToFilter;
 
 + (Stop *)fromAttributeDict:(NSDictionary *)XML_ATR_DICT;
 
@@ -34,7 +34,7 @@
 
 @protocol ReturnStopObject
 
-@property(nonatomic, readonly, copy) NSString *returnStopObjectActionText;
+@property (nonatomic, readonly, copy) NSString *returnStopObjectActionText;
 
 - (void)returnStopObject:(Stop *)stop progress:(id<TaskController>)progress;
 

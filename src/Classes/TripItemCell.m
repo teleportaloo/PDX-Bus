@@ -19,8 +19,8 @@
 #import "DebugLogging.h"
 #import "NSString+Core.h"
 #import "NSString+MoreMarkup.h"
-#import "ViewControllerBase.h"
 #import "UIApplication+Compat.h"
+#import "ViewControllerBase.h"
 
 @interface TripItemCell () {
     NSString *_markedUpBodyText;
@@ -42,31 +42,41 @@
                         mode:(NSString *)mode
                         time:(NSString *)time
                    leftColor:(UIColor *)col
+                       route:(NSString *)route
+                 accessLabel:(NSString *)accessLabel {
+
+    [self populateMarkedUpBody:markedUpBody mode:mode time:time leftColor:col route:route];
+
+    if (accessLabel) {
+        self.accessibilityLabel = accessLabel;
+    }
+}
+
+- (void)populateMarkedUpBody:(NSString *)markedUpBody
+                        mode:(NSString *)mode
+                        time:(NSString *)time
+                   leftColor:(UIColor *)col
                        route:(NSString *)route {
     if (col == nil) {
         col = [UIColor grayColor];
     }
 
     if (time == nil) {
-        self.modeLabel.text =
-            mode; //  @"1 2 3 4 5 6 7 8 9 a b c d e f g h i j k l m n";
+        self.modeLabel.text = mode; //  @"1 2 3 4 5 6 7 8 9 a b c d e f g h i j k l m n";
     } else {
         self.modeLabel.text = [NSString stringWithFormat:@"%@\n%@", mode, time];
     }
 
     self.modeLabel.textColor = col;
 
-    self.markedUpBodyText =
-        markedUpBody; // @"the quick brown fox jumped over the lazy dog's tail
-                      // and yelped as he did it.  Yes he did.";
+    self.markedUpBodyText = markedUpBody; // @"the quick brown fox jumped over the lazy dog's tail
+                                          // and yelped as he did it.  Yes he did.";
 
     DEBUG_LOG(@"Width: %f\n", self.bodyLabel.bounds.size.width);
     DEBUG_LOG(@"Text: %@\n", markedUpBody);
 
     [self.routeColorView setRouteColor:route];
 
-    //    DEBUG_LOG(@"Route: %@  body %@ r %f g %f b %f\n", route, body,
-    //    colorStripe.red, colorStripe.green, colorStripe.blue);
     [self update];
 }
 
@@ -76,8 +86,8 @@
 
 - (void)setMarkedUpBodyText:(NSString *)markedUpBodyText {
     _markedUpBodyText = markedUpBodyText;
-    self.bodyLabel.attributedText = [self.markedUpBodyText
-        attributedStringFromMarkUpWithFont:self.bodyFont];
+    self.bodyLabel.attributedText =
+        [self.markedUpBodyText attributedStringFromMarkUpWithFont:self.bodyFont];
 }
 
 - (void)awakeFromNib {
@@ -129,14 +139,14 @@
 
 - (void)update {
     self.modeLabel.font = self.boldBodyFont;
-    self.bodyLabel.attributedText = [self.markedUpBodyText
-        attributedStringFromMarkUpWithFont:self.bodyFont];
+    self.bodyLabel.attributedText =
+        [self.markedUpBodyText attributedStringFromMarkUpWithFont:self.bodyFont];
     self.modeLabelWidth.constant = self.large ? 100.0 : 75.0;
 
-    self.accessibilityLabel =
-        [NSString stringWithFormat:@"%@, ,%@", [self labelText:self.modeLabel],
-                                   [self labelText:self.bodyLabel]]
-            .phonetic;
+    self.accessibilityLabel = [NSString stringWithFormat:@"%@, ,%@",
+                                                         [self labelText:self.modeLabel],
+                                                         [self labelText:self.bodyLabel]]
+                                  .phonetic;
 }
 
 - (void)layoutSubviews {

@@ -23,9 +23,9 @@
     int _total;
 }
 
-@property(nonatomic, strong) WatchContext *delayedContext;
-@property(nonatomic, copy) void (^delayedBlock)(void);
-@property(nonatomic) bool displayed;
+@property (nonatomic, strong) WatchContext *delayedContext;
+@property (nonatomic, copy) void (^delayedBlock)(void);
+@property (nonatomic) bool displayed;
 
 @end
 
@@ -89,9 +89,7 @@
     _progress = progress;
     _total = total;
 
-    [self performSelectorOnMainThread:@selector(receiveProgress:)
-                           withObject:nil
-                        waitUntilDone:NO];
+    [self performSelectorOnMainThread:@selector(receiveProgress:) withObject:nil waitUntilDone:NO];
 }
 
 - (void)startBackgroundTask {

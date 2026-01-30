@@ -15,6 +15,7 @@
 
 #import "BlockColorView.h"
 #import "CanceledBusOverlay.h"
+#import "ProgressLabel.h"
 #import "RouteColorBlobView.h"
 #import "ScreenConstants.h"
 #import <UIKit/UIKit.h>
@@ -27,21 +28,19 @@
 
 @interface DepartureCell : UITableViewCell
 
-@property(weak, nonatomic, readonly) UILabel *routeLabel;
-@property(weak, nonatomic, readonly) UILabel *timeLabel;
-@property(weak, nonatomic, readonly) UILabel *minsLabel;
-@property(weak, nonatomic, readonly) UILabel *unitLabel;
-@property(weak, nonatomic, readonly) RouteColorBlobView *routeColorView;
-@property(weak, nonatomic, readonly) UILabel *scheduledLabel;
-@property(weak, nonatomic, readonly) UILabel *detourLabel;
-@property(weak, nonatomic, readonly) UILabel *fullLabel;
-@property(weak, nonatomic, readonly) BlockColorView *blockColorView;
-@property(weak, nonatomic, readonly) CanceledBusOverlay *cancelledOverlayView;
-@property(nonatomic, readonly) bool large;
-@property(nonatomic, strong) NSLayoutConstraint *heightConstraint;
+@property (weak, nonatomic, readonly) UILabel *routeLabel;
+@property (weak, nonatomic, readonly) UILabel *timeLabel;
+@property (weak, nonatomic, readonly) UILabel *minsLabel;
+@property (weak, nonatomic, readonly) UILabel *unitLabel;
+@property (weak, nonatomic, readonly) RouteColorBlobView *routeColorView;
+@property (weak, nonatomic, readonly) UILabel *scheduledLabel;
+@property (weak, nonatomic, readonly) UILabel *detourLabel;
+@property (weak, nonatomic, readonly) ProgressLabel *fullLabel;
+@property (weak, nonatomic, readonly) BlockColorView *blockColorView;
+@property (weak, nonatomic, readonly) CanceledBusOverlay *cancelledOverlayView;
+@property (nonatomic, readonly) bool large;
+@property (nonatomic, strong) NSLayoutConstraint *heightConstraint;
 
-// - (DepartureCell *)initWithReuseIdentifier:(NSString *)identifier
-// tallRouteLabel:(bool)tallRouteTable;
 - (DepartureCell *)initGenericWithReuseIdentifier:(NSString *)identifier;
 
 + (instancetype)tableView:(UITableView *)tableView

@@ -17,6 +17,7 @@
 
 #import "DepartureCell.h"
 #import "DebugLogging.h"
+#import "ProgressLabel.h"
 #import "ScreenConstants.h"
 #import "UIApplication+Compat.h"
 #import "UIColor+MoreDarkMode.h"
@@ -24,9 +25,8 @@
 #import "ViewControllerBase.h"
 
 #define kStandardWidth (320)
-#define DEPARTURE_CELL_HEIGHT                                                  \
-    (DEPARTURE_CELL_USE_LARGE ? kLargeDepartureCellHeight                      \
-                              : kDepartureCellHeight)
+#define DEPARTURE_CELL_HEIGHT                                                                      \
+    (DEPARTURE_CELL_USE_LARGE ? kLargeDepartureCellHeight : kDepartureCellHeight)
 
 @interface DepartureCell () {
     bool _tallRouteLabel;
@@ -89,8 +89,8 @@ enum VIEW_TAGS {
     return (UILabel *)[self viewWithTag:DETOUR_TAG];
 }
 
-- (UILabel *)fullLabel {
-    return (UILabel *)[self viewWithTag:FULL_TAG];
+- (ProgressLabel *)fullLabel {
+    return (ProgressLabel *)[self viewWithTag:FULL_TAG];
 }
 
 - (BlockColorView *)blockColorView {
@@ -160,8 +160,7 @@ const CGFloat normalLabelHeight = 26.0;
     }
 
     if (_tallRouteLabel && !self.large) {
-        attr->routeLabelExpansion =
-            MAX(attr->labelHeight, attr->minsUnitHeight * 2);
+        attr->routeLabelExpansion = MAX(attr->labelHeight, attr->minsUnitHeight * 2);
         attr->minsFontSize = 43.0;
         attr->minsWidth = 70.0;
         attr->mainFontSize = 24.0;
@@ -186,11 +185,8 @@ const CGFloat normalLabelHeight = 26.0;
     attr->leftColumnWidth = attr->shortLeftColumnWidth + attr->minsWidth;
     attr->longLeftColumnWidth = width - self.layoutMargins.left - rightMargin;
 
-    attr->minsGap =
-        ((attr->innerCellHeight - attr->labelHeight - attr->minsUnitHeight) /
-         3.0);
-    attr->rowGap =
-        ((attr->innerCellHeight - attr->labelHeight - attr->labelHeight) / 3.0);
+    attr->minsGap = ((attr->innerCellHeight - attr->labelHeight - attr->minsUnitHeight) / 3.0);
+    attr->rowGap = ((attr->innerCellHeight - attr->labelHeight - attr->labelHeight) / 3.0);
 
     attr->blockColorHeight = attr->innerCellHeight - 5;
     attr->blockColorLeft = width - blockColorGap - blockColorWidth;
@@ -199,8 +195,7 @@ const CGFloat normalLabelHeight = 26.0;
 + (instancetype)tableView:(UITableView *)tableView
     cellWithReuseIdentifier:(NSString *)identifier
              tallRouteLabel:(bool)tallRouteTable {
-    DepartureCell *cell =
-        [tableView dequeueReusableCellWithIdentifier:identifier];
+    DepartureCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
 
     if (cell == nil) {
         cell = [[DepartureCell alloc] initWithReuseIdentifier:identifier
@@ -218,60 +213,59 @@ static inline CGRect blockColorRect(DepartureCellAttributes *attr) {
 }
 
 - (CGRect)routeRect:(DepartureCellAttributes *)attr width:(CGFloat)width {
-    return CGRectMake(self.layoutMargins.left, attr->minsGap, width,
+    return CGRectMake(self.layoutMargins.left,
+                      attr->minsGap,
+                      width,
                       attr->labelHeight + attr->routeLabelExpansion);
 }
 
 - (CGRect)routeColorRect:(DepartureCellAttributes *)attr {
     return CGRectMake((self.layoutMargins.left - ROUTE_COLOR_WIDTH) / 2,
-                      attr->minsGap, ROUTE_COLOR_WIDTH,
+                      attr->minsGap,
+                      ROUTE_COLOR_WIDTH,
                       attr->labelHeight + attr->routeLabelExpansion);
 }
 
 - (CGRect)timeRect:(DepartureCellAttributes *)attr width:(CGFloat)width {
-    // DEBUG_LOGF(self.layoutMargins.left);
     return CGRectMake(self.layoutMargins.left,
-                      attr->routeLabelExpansion + attr->minsGap +
-                          attr->labelHeight + attr->minsGap,
-                      width, attr->minsUnitHeight);
+                      attr->routeLabelExpansion + attr->minsGap + attr->labelHeight + attr->minsGap,
+                      width,
+                      attr->minsUnitHeight);
 }
 
 static inline CGRect minsRect(DepartureCellAttributes *attr) {
-    return CGRectMake(attr->minsLeft, attr->minsGap, attr->minsWidth,
+    return CGRectMake(attr->minsLeft,
+                      attr->minsGap,
+                      attr->minsWidth,
                       attr->labelHeight + attr->routeLabelExpansion);
 }
 
 static inline CGRect unitRect(DepartureCellAttributes *attr) {
     return CGRectMake(attr->minsLeft,
-                      attr->minsGap + attr->labelHeight + attr->minsGap +
-                          attr->routeLabelExpansion,
-                      attr->minsWidth, attr->minsUnitHeight);
+                      attr->minsGap + attr->labelHeight + attr->minsGap + attr->routeLabelExpansion,
+                      attr->minsWidth,
+                      attr->minsUnitHeight);
 }
 
 - (DepartureCell *)initWithReuseIdentifier:(NSString *)identifier
                             tallRouteLabel:(bool)tallRouteLabel {
-    if (self = [super initWithStyle:UITableViewCellStyleDefault
-                    reuseIdentifier:identifier]) {
+    if (self = [super initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier]) {
         _tallRouteLabel = tallRouteLabel;
         DepartureCellAttributes attr;
 
         self.backgroundColor = [UIColor modeAwareCellBackground];
 
-        [self initDepartureCellAttributesWithWidth:kStandardWidth
-                                        attribures:&attr];
+        [self initDepartureCellAttributesWithWidth:kStandardWidth attribures:&attr];
 
-        BlockColorView *blockColor =
-            [[BlockColorView alloc] initWithFrame:blockColorRect(&attr)];
+        BlockColorView *blockColor = [[BlockColorView alloc] initWithFrame:blockColorRect(&attr)];
         blockColor.tag = BLOCK_COLOR_TAG;
         [self.contentView addSubview:blockColor];
 
         UILabel *label;
-        label = [[UILabel alloc]
-            initWithFrame:[self routeRect:&attr
-                                    width:attr.shortLeftColumnWidth]];
+        label = [[UILabel alloc] initWithFrame:[self routeRect:&attr
+                                                         width:attr.shortLeftColumnWidth]];
         label.tag = ROUTE_TAG;
-        label.font = [UIFont fontWithName:@"HelveticaNeue-Bold"
-                                     size:attr.mainFontSize];
+        label.font = [UIFont fontWithName:@"HelveticaNeue-Bold" size:attr.mainFontSize];
         label.adjustsFontSizeToFitWidth = YES;
         label.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
         label.highlightedTextColor = [UIColor whiteColor];
@@ -285,17 +279,15 @@ static inline CGRect unitRect(DepartureCellAttributes *attr) {
 
         [self.contentView addSubview:label];
 
-        RouteColorBlobView *colorStripe = [[RouteColorBlobView alloc]
-            initWithFrame:[self routeColorRect:&attr]];
+        RouteColorBlobView *colorStripe =
+            [[RouteColorBlobView alloc] initWithFrame:[self routeColorRect:&attr]];
         colorStripe.tag = ROUTE_COLOR_TAG;
         [self.contentView addSubview:colorStripe];
 
-        UIFont *smallTimeFont =
-            [UIFont monospacedDigitSystemFontOfSize:attr.timeFontSize];
+        UIFont *smallTimeFont = [UIFont monospacedDigitSystemFontOfSize:attr.timeFontSize];
 
-        label = [[UILabel alloc]
-            initWithFrame:[self timeRect:&attr
-                                   width:attr.shortLeftColumnWidth]];
+        label = [[UILabel alloc] initWithFrame:[self timeRect:&attr
+                                                        width:attr.shortLeftColumnWidth]];
         label.tag = TIME_TAG;
         label.font = smallTimeFont;
         label.adjustsFontSizeToFitWidth = YES;
@@ -304,9 +296,8 @@ static inline CGRect unitRect(DepartureCellAttributes *attr) {
 
         [self.contentView addSubview:label];
 
-        label = [[UILabel alloc]
-            initWithFrame:[self timeRect:&attr
-                                   width:attr.shortLeftColumnWidth]];
+        label = [[UILabel alloc] initWithFrame:[self timeRect:&attr
+                                                        width:attr.shortLeftColumnWidth]];
         label.tag = SCHEDULED_TAG;
         label.font = smallTimeFont;
         label.adjustsFontSizeToFitWidth = YES;
@@ -314,9 +305,8 @@ static inline CGRect unitRect(DepartureCellAttributes *attr) {
         label.highlightedTextColor = [UIColor whiteColor];
         [self.contentView addSubview:label];
 
-        label = [[UILabel alloc]
-            initWithFrame:[self timeRect:&attr
-                                   width:attr.shortLeftColumnWidth]];
+        label = [[UILabel alloc] initWithFrame:[self timeRect:&attr
+                                                        width:attr.shortLeftColumnWidth]];
         label.tag = DETOUR_TAG;
         label.font = smallTimeFont;
         label.adjustsFontSizeToFitWidth = YES;
@@ -324,8 +314,8 @@ static inline CGRect unitRect(DepartureCellAttributes *attr) {
         label.highlightedTextColor = [UIColor whiteColor];
         [self.contentView addSubview:label];
 
-        label = [[UILabel alloc]
-            initWithFrame:[self timeRect:&attr width:attr.leftColumnWidth]];
+        label = [[ProgressLabel alloc] initWithFrame:[self timeRect:&attr
+                                                              width:attr.leftColumnWidth]];
         label.tag = FULL_TAG;
         label.font = smallTimeFont;
         label.adjustsFontSizeToFitWidth = YES;
@@ -335,15 +325,13 @@ static inline CGRect unitRect(DepartureCellAttributes *attr) {
 
         label = [[UILabel alloc] initWithFrame:minsRect(&attr)];
         label.tag = MINS_TAG;
-        label.font = [UIFont fontWithName:@"HelveticaNeue-bold"
-                                     size:attr.minsFontSize];
+        label.font = [UIFont fontWithName:@"HelveticaNeue-bold" size:attr.minsFontSize];
         label.adjustsFontSizeToFitWidth = YES;
         label.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
         label.highlightedTextColor = [UIColor whiteColor];
         [self.contentView addSubview:label];
 
-        CanceledBusOverlay *canceled =
-            [[CanceledBusOverlay alloc] initWithFrame:minsRect(&attr)];
+        CanceledBusOverlay *canceled = [[CanceledBusOverlay alloc] initWithFrame:minsRect(&attr)];
         canceled.tag = CANCELED_OVERLAY_TAG;
         canceled.backgroundColor = [UIColor clearColor];
         canceled.hidden = YES;
@@ -351,8 +339,7 @@ static inline CGRect unitRect(DepartureCellAttributes *attr) {
 
         label = [[UILabel alloc] initWithFrame:unitRect(&attr)];
         label.tag = UNIT_TAG;
-        label.font = [UIFont fontWithName:@"HelveticaNeue"
-                                     size:attr.unitFontSize];
+        label.font = [UIFont fontWithName:@"HelveticaNeue" size:attr.unitFontSize];
         label.adjustsFontSizeToFitWidth = YES;
         label.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
         label.highlightedTextColor = [UIColor whiteColor];
@@ -366,25 +353,21 @@ static inline CGRect unitRect(DepartureCellAttributes *attr) {
 
 + (instancetype)tableView:(UITableView *)tableView
     genericWithReuseIdentifier:(NSString *)identifier {
-    DepartureCell *cell =
-        [tableView dequeueReusableCellWithIdentifier:identifier];
+    DepartureCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
 
     if (cell == nil) {
-        cell =
-            [[DepartureCell alloc] initGenericWithReuseIdentifier:identifier];
+        cell = [[DepartureCell alloc] initGenericWithReuseIdentifier:identifier];
     }
 
     return cell;
 }
 
 - (DepartureCell *)initGenericWithReuseIdentifier:(NSString *)identifier {
-    if (self = [super initWithStyle:UITableViewCellStyleDefault
-                    reuseIdentifier:identifier]) {
+    if (self = [super initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier]) {
         DepartureCellAttributes attr;
 
         _tallRouteLabel = NO;
-        [self initDepartureCellAttributesWithWidth:kStandardWidth
-                                        attribures:&attr];
+        [self initDepartureCellAttributesWithWidth:kStandardWidth attribures:&attr];
 
         /*
          Create labels for the text fields; set the highlight color so that when
@@ -392,54 +375,46 @@ static inline CGRect unitRect(DepartureCellAttributes *attr) {
          */
         UILabel *label;
 
-        BlockColorView *blockColor =
-            [[BlockColorView alloc] initWithFrame:blockColorRect(&attr)];
+        BlockColorView *blockColor = [[BlockColorView alloc] initWithFrame:blockColorRect(&attr)];
         blockColor.tag = BLOCK_COLOR_TAG;
         [self.contentView addSubview:blockColor];
 
-        label = [[UILabel alloc]
-            initWithFrame:[self routeRect:&attr width:attr.leftColumnWidth]];
+        label = [[UILabel alloc] initWithFrame:[self routeRect:&attr width:attr.leftColumnWidth]];
         label.tag = ROUTE_TAG;
-        label.font =
-            [UIFont boldMonospacedDigitSystemFontOfSize:attr.mainFontSize];
+        label.font = [UIFont boldMonospacedDigitSystemFontOfSize:attr.mainFontSize];
         label.adjustsFontSizeToFitWidth = YES;
         [self.contentView addSubview:label];
         label.highlightedTextColor = [UIColor whiteColor];
         label.backgroundColor = [UIColor clearColor];
 
-        RouteColorBlobView *colorStripe = [[RouteColorBlobView alloc]
-            initWithFrame:[self routeColorRect:&attr]];
+        RouteColorBlobView *colorStripe =
+            [[RouteColorBlobView alloc] initWithFrame:[self routeColorRect:&attr]];
         colorStripe.tag = ROUTE_COLOR_TAG;
         [self.contentView addSubview:colorStripe];
 
-        label = [[UILabel alloc]
-            initWithFrame:[self timeRect:&attr width:attr.leftColumnWidth]];
+        label = [[UILabel alloc] initWithFrame:[self timeRect:&attr width:attr.leftColumnWidth]];
         label.tag = TIME_TAG;
-        label.font =
-            [UIFont monospacedDigitSystemFontOfSize:attr.timeFontSize
-                                             weight:UIFontWeightRegular];
+        label.font = [UIFont monospacedDigitSystemFontOfSize:attr.timeFontSize
+                                                      weight:UIFontWeightRegular];
         label.adjustsFontSizeToFitWidth = YES;
         [self.contentView addSubview:label];
         label.highlightedTextColor = [UIColor whiteColor];
 
-        label = [[UILabel alloc]
-            initWithFrame:[self timeRect:&attr width:attr.leftColumnWidth]];
+        label = [[UILabel alloc] initWithFrame:[self timeRect:&attr width:attr.leftColumnWidth]];
         label.tag = SCHEDULED_TAG;
         label.font = [UIFont monospacedDigitSystemFontOfSize:attr.unitFontSize];
         label.adjustsFontSizeToFitWidth = YES;
         [self.contentView addSubview:label];
         label.highlightedTextColor = [UIColor whiteColor];
 
-        label = [[UILabel alloc]
-            initWithFrame:[self timeRect:&attr width:attr.leftColumnWidth]];
+        label = [[UILabel alloc] initWithFrame:[self timeRect:&attr width:attr.leftColumnWidth]];
         label.tag = DETOUR_TAG;
         label.font = [UIFont monospacedDigitSystemFontOfSize:attr.unitFontSize];
         label.adjustsFontSizeToFitWidth = YES;
         [self.contentView addSubview:label];
         label.highlightedTextColor = [UIColor whiteColor];
 
-        label = [[UILabel alloc]
-            initWithFrame:[self timeRect:&attr width:attr.leftColumnWidth]];
+        label = [[UILabel alloc] initWithFrame:[self timeRect:&attr width:attr.leftColumnWidth]];
         label.tag = FULL_TAG;
         label.font = [UIFont monospacedDigitSystemFontOfSize:attr.unitFontSize];
         label.adjustsFontSizeToFitWidth = YES;
@@ -457,8 +432,7 @@ static CGFloat labelWidth(UILabel *label) {
 
     if (label != nil & label.text != nil && label.text.length != 0) {
         NSStringDrawingOptions options =
-            NSStringDrawingTruncatesLastVisibleLine |
-            NSStringDrawingUsesLineFragmentOrigin;
+            NSStringDrawingTruncatesLastVisibleLine | NSStringDrawingUsesLineFragmentOrigin;
 
         NSDictionary *attr = @{NSFontAttributeName : label.font};
         CGRect rect = [label.text boundingRectWithSize:CGSizeMake(9999, 9999)
@@ -476,8 +450,7 @@ static inline CGFloat moveLabelNextX(CGFloat nextX, UILabel *label) {
     if (text != nil && text.length != 0) {
         label.hidden = NO;
         CGFloat width = labelWidth(label);
-        label.frame = CGRectMake(nextX, label.frame.origin.y, width,
-                                 label.frame.size.height);
+        label.frame = CGRectMake(nextX, label.frame.origin.y, width, label.frame.size.height);
         nextX += width;
     } else {
         label.hidden = YES;
@@ -491,16 +464,14 @@ static inline CGFloat moveLabelNextX(CGFloat nextX, UILabel *label) {
 
 static inline void resetLabelFontSize(UILabel *label, CGFloat sz) {
     if (label.font.pointSize != sz) {
-        label.font = [UIFont fontWithDescriptor:label.font.fontDescriptor
-                                           size:sz];
+        label.font = [UIFont fontWithDescriptor:label.font.fontDescriptor size:sz];
     }
 }
 
 - (void)resetConstraints {
     DepartureCellAttributes attr;
 
-    [self initDepartureCellAttributesWithWidth:self.frame.size.width
-                                    attribures:&attr];
+    [self initDepartureCellAttributesWithWidth:self.frame.size.width attribures:&attr];
     [self setConstraintsForAttr:&attr];
 }
 
@@ -512,22 +483,21 @@ static inline void resetLabelFontSize(UILabel *label, CGFloat sz) {
     DEBUG_LOG_CGFloat(height);
 
     if (self.heightConstraint == nil) {
-        self.heightConstraint = [NSLayoutConstraint
-            constraintWithItem:self
-                     attribute:NSLayoutAttributeHeight
-                     relatedBy:NSLayoutRelationGreaterThanOrEqual
-                        toItem:nil
-                     attribute:NSLayoutAttributeNotAnAttribute
-                    multiplier:1
-                      constant:height];
+        self.heightConstraint =
+            [NSLayoutConstraint constraintWithItem:self
+                                         attribute:NSLayoutAttributeHeight
+                                         relatedBy:NSLayoutRelationGreaterThanOrEqual
+                                            toItem:nil
+                                         attribute:NSLayoutAttributeNotAnAttribute
+                                        multiplier:1
+                                          constant:height];
 
         // This stops an exception and allows other constraints to also be taken
         // into account
         self.heightConstraint.priority = UILayoutPriorityDefaultLow;
 
         [self addConstraint:self.heightConstraint];
-    } else if (self.heightConstraint.constant != height ||
-               self.frame.size.height != height) {
+    } else if (self.heightConstraint.constant != height || self.frame.size.height != height) {
         DEBUG_LOG_CGFloat(self.heightConstraint.constant);
         self.heightConstraint.constant = height;
     }
@@ -536,8 +506,7 @@ static inline void resetLabelFontSize(UILabel *label, CGFloat sz) {
 - (void)layoutSubviews {
     DepartureCellAttributes attr;
 
-    [self initDepartureCellAttributesWithWidth:self.frame.size.width
-                                    attribures:&attr];
+    [self initDepartureCellAttributesWithWidth:self.frame.size.width attribures:&attr];
     [self setConstraintsForAttr:&attr];
     [super layoutSubviews];
 
@@ -587,10 +556,6 @@ static inline void resetLabelFontSize(UILabel *label, CGFloat sz) {
 
     const CGFloat gap = 0.0;
 
-    // self.detourLabel.text = [NSString stringWithFormat:@"h%d c%d f%d",
-    // (int)height, (int)self.heightConstraint.constant,
-    // (int)self.frame.size.height];
-
     if (self.unitLabel) {
         CGFloat fullWidth = labelWidth(self.detourLabel);
         CGFloat unitLeft = self.unitLabel.frame.origin.x;
@@ -611,8 +576,7 @@ static inline void resetLabelFontSize(UILabel *label, CGFloat sz) {
 + (CGFloat)cellHeightWithTallRouteLabel:(bool)tallRouteLabel {
     return (DEPARTURE_CELL_USE_LARGE
                 ? kLargeDepartureCellHeight
-                : (kDepartureCellHeight +
-                   (tallRouteLabel ? normalLabelHeight : 0.0)));
+                : (kDepartureCellHeight + (tallRouteLabel ? normalLabelHeight : 0.0)));
 }
 
 @end

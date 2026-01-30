@@ -36,10 +36,12 @@
 - (id)handlerForIntent:(INIntent *)intent {
     DEBUG_LOG_description([intent class]);
 
-#define RETURN_INTENT_HANDER(INTENT_CLASS, HANDLER_CLASS)                      \
-    if ([intent isKindOfClass:[INTENT_CLASS class]]) {                         \
-        return [[HANDLER_CLASS alloc] init];                                   \
-    }
+#define RETURN_INTENT_HANDER(INTENT_CLASS, HANDLER_CLASS)                                          \
+    do {                                                                                           \
+        if ([intent isKindOfClass:[INTENT_CLASS class]]) {                                         \
+            return [[HANDLER_CLASS alloc] init];                                                   \
+        }                                                                                          \
+    } while (0)
 
     // Each Intent Class has a class with the same name followed by Handler.
 

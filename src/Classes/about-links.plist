@@ -6,7 +6,7 @@
 		<key>Title</key>
 		<string>About TriMet&apos;s Transit Tracker</string>
 		<key>Icon</key>
-		<string>TriMet.png</string>
+		<string>TriMet</string>
 		<key>LinkM</key>
 		<string>https://trimet.org/transittracker/about.htm</string>
 	</dict>
@@ -22,7 +22,7 @@
 		<key>Title</key>
 		<string>PDX Bus website &amp; Support</string>
 		<key>Icon</key>
-		<string>ActionIcon.png</string>
+		<string>ActionIcon</string>
 		<key>LinkM</key>
 		<string>https://teleportaloo.org/pdx-bus</string>
 	</dict>
@@ -30,7 +30,7 @@
 		<key>Title</key>
 		<string>TriMet</string>
 		<key>Icon</key>
-		<string>TriMet.png</string>
+		<string>TriMet</string>
 		<key>LinkM</key>
 		<string>https://trimet.org/m/</string>
 		<key>LinkF</key>

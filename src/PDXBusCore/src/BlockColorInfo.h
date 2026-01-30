@@ -20,27 +20,27 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface BlockColorInfo : PlistParams
 
-@property(readonly, nonatomic) CGFloat valR;
-@property(readonly, nonatomic) CGFloat valG;
-@property(readonly, nonatomic) CGFloat valB;
-@property(readonly, nonatomic) CGFloat valA;
-@property(readonly, nonatomic) NSTimeInterval valTime;
-@property(readonly, nonatomic, copy) NSString *valDesc;
+@property (readonly, nonatomic) CGFloat valR;
+@property (readonly, nonatomic) CGFloat valG;
+@property (readonly, nonatomic) CGFloat valB;
+@property (readonly, nonatomic) CGFloat valA;
+@property (readonly, nonatomic) NSTimeInterval valTime;
+@property (readonly, nonatomic, copy) NSString *valDesc;
 
-@property(readonly, nonatomic, copy) UIColor *color;
+@property (readonly, nonatomic, copy) UIColor *color;
 
 @end
 
 @interface MutableBlockColorInfo : BlockColorInfo
 
-@property(nonatomic) CGFloat valR;
-@property(nonatomic) CGFloat valG;
-@property(nonatomic) CGFloat valB;
-@property(nonatomic) CGFloat valA;
-@property(nonatomic) NSTimeInterval valTime;
-@property(nonatomic, copy) NSString *valDesc;
+@property (nonatomic) CGFloat valR;
+@property (nonatomic) CGFloat valG;
+@property (nonatomic) CGFloat valB;
+@property (nonatomic) CGFloat valA;
+@property (nonatomic) NSTimeInterval valTime;
+@property (nonatomic, copy) NSString *valDesc;
 
-@property(nonatomic, copy) UIColor *color;
+@property (nonatomic, copy) UIColor *color;
 
 - (NSMutableDictionary *)mutableDictionary;
 

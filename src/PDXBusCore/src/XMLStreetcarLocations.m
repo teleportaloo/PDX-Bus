@@ -26,7 +26,7 @@
     TriMetTime _lastTime;
 }
 
-@property(nonatomic, copy) NSString *route;
+@property (nonatomic, copy) NSString *route;
 
 @end
 
@@ -59,8 +59,7 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
         XMLStreetcarLocations *singleLocations = singleLocationsPerLine[route];
 
         if (singleLocations == nil) {
-            singleLocations =
-                [[XMLStreetcarLocations alloc] initWithRoute:route];
+            singleLocations = [[XMLStreetcarLocations alloc] initWithRoute:route];
 
             singleLocationsPerLine[route] = singleLocations;
         }
@@ -69,8 +68,7 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
     }
 }
 
-+ (NSSet<NSString *> *)getStreetcarRoutesInXMLDeparturesArray:
-    (NSArray *)xmlDeps {
++ (NSSet<NSString *> *)getStreetcarRoutesInXMLDeparturesArray:(NSArray *)xmlDeps {
     NSMutableSet<NSString *> *routes = [NSMutableSet set];
 
     for (XMLDepartures *deps in xmlDeps) {
@@ -88,13 +86,11 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
                                     forRoutes:(NSSet<NSString *> *)routes {
     XmlParseSync() {
         for (NSString *route in routes) {
-            XMLStreetcarLocations *locs =
-                [XMLStreetcarLocations sharedInstanceForRoute:route];
+            XMLStreetcarLocations *locs = [XMLStreetcarLocations sharedInstanceForRoute:route];
 
             for (XMLDepartures *deps in xmlDeps) {
                 for (Departure *departure in deps.items) {
-                    if (departure.streetcar &&
-                        [departure.route isEqualToString:route]) {
+                    if (departure.streetcar && [departure.route isEqualToString:route]) {
                         [locs insertLocation:departure];
                     }
                 }
@@ -107,10 +103,9 @@ static NSMutableDictionary *singleLocationsPerLine = nil;
 
 - (BOOL)getLocations {
     _hasData = false;
-    [self
-        startParsing:[NSString stringWithFormat:
-                                   @"vehicleLocations&a=portland-sc&r=%@&t=%qu",
-                                   self.route, 0LL]]; // _lastTime]];
+    [self startParsing:[NSString stringWithFormat:@"vehicleLocations&a=portland-sc&r=%@&t=%qu",
+                                                  self.route,
+                                                  0LL]]; // _lastTime]];
     return true;
 }
 
@@ -151,8 +146,7 @@ XML_START_ELEMENT(vehicle) {
     NSString *dirTag = XML_NON_NULL_ATR_STR(@"dirTag");
 
     NSScanner *scanner = [NSScanner scannerWithString:dirTag];
-    NSCharacterSet *underscore =
-        [NSCharacterSet characterSetWithCharactersInString:@"_"];
+    NSCharacterSet *underscore = [NSCharacterSet characterSetWithCharactersInString:@"_"];
     NSString *aLoc;
 
     [scanner scanUpToCharactersFromSet:underscore intoString:&aLoc];
@@ -184,16 +178,15 @@ XML_END_ELEMENT(body) {
 
     if (pos != nil) {
         dep.blockPosition = pos.location;
-        dep.blockPositionFeet =
-            [dep.stopLocation distanceFromLocation:pos.location] *
-            kFeetInAMetre; // convert meters to feet
+        dep.blockPositionFeet = [dep.stopLocation distanceFromLocation:pos.location] *
+                                kFeetInAMetre; // convert meters to feet
         dep.blockPositionHeading = pos.bearing;
         dep.blockPositionAt = pos.locationTime;
     }
 }
 
 - (void)memoryWarning {
-    @synchronized(self) {
+    XmlParseSync() {
         DEBUG_LOG(@"Clearing streetcar location cache %p\n", self.locations);
         self.locations = nil;
         _lastTime = 0;

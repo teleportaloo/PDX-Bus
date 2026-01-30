@@ -29,17 +29,17 @@
 @interface BlockColorInfo ()
 
 // Tell compiler to generate setter and getter, but setter is protected
-@property(nonatomic) CGFloat valR;
-@property(nonatomic) CGFloat valG;
-@property(nonatomic) CGFloat valB;
-@property(nonatomic) CGFloat valA;
-@property(nonatomic) NSTimeInterval valTime;
-@property(nonatomic, copy) NSString *valDesc;
+@property (nonatomic) CGFloat valR;
+@property (nonatomic) CGFloat valG;
+@property (nonatomic) CGFloat valB;
+@property (nonatomic) CGFloat valA;
+@property (nonatomic) NSTimeInterval valTime;
+@property (nonatomic, copy) NSString *valDesc;
 
-@property(nonatomic, copy) UIColor *color;
+@property (nonatomic, copy) UIColor *color;
 
 // Redeclared from parent so we can access
-@property(nonatomic, retain) NSMutableDictionary *mDict;
+@property (nonatomic, retain) NSMutableDictionary *mDict;
 
 @end
 
@@ -53,10 +53,7 @@ PROP_NSNumber(Time, kKeyT, NSTimeInterval, doubleValue, 0);
 PROP_NSString(Desc, kKeyD, @"");
 
 - (UIColor *)color {
-    return [UIColor colorWithRed:self.valR
-                           green:self.valG
-                            blue:self.valB
-                           alpha:self.valA];
+    return [UIColor colorWithRed:self.valR green:self.valG blue:self.valB alpha:self.valA];
 }
 
 - (void)setColor:(UIColor *)col {

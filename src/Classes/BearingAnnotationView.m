@@ -16,6 +16,7 @@
 #define DEBUG_LEVEL_FOR_FILE LogUI
 
 #import "BearingAnnotationView.h"
+#import "BoxedIcon.h"
 #import "DebugLogging.h"
 #import "FilledCircleView.h"
 #import "Icons.h"
@@ -36,8 +37,7 @@
 
 - (instancetype)initWithAnnotation:(nullable id<MKAnnotation>)annotation
                    reuseIdentifier:(nullable NSString *)reuseIdentifier {
-    if ((self = [super initWithAnnotation:annotation
-                          reuseIdentifier:reuseIdentifier])) {
+    if ((self = [super initWithAnnotation:annotation reuseIdentifier:reuseIdentifier])) {
         self.autoresizesSubviews = NO;
     }
     return self;
@@ -55,20 +55,15 @@ CGFloat TruncatingRemainder(CGFloat x, CGFloat dividingBy) {
     return x - dividingBy * floor(x / dividingBy);
 }
 
-+ (CGAffineTransform)arrowTransformdForPin:(id<MapPin>)pin
-                                  rotation:(CGFloat)mapRotation {
-    CGFloat rotationDegrees =
-        TruncatingRemainder(pin.pinBearing - mapRotation, 360);
-    CGAffineTransform transform = CGAffineTransformRotate(
-        CGAffineTransformIdentity, (rotationDegrees * M_PI) / 180.0);
++ (CGAffineTransform)arrowTransformdForPin:(id<MapPin>)pin rotation:(CGFloat)mapRotation {
+    CGFloat rotationDegrees = TruncatingRemainder(pin.pinBearing - mapRotation, 360);
+    CGAffineTransform transform =
+        CGAffineTransformRotate(CGAffineTransformIdentity, (rotationDegrees * M_PI) / 180.0);
     return transform;
 }
 
-+ (void)rotateText:(MarginLabel *)label
-               pin:(id<MapPin>)pin
-          rotation:(CGFloat)mapRotation {
-    CGFloat rotationDegrees =
-        TruncatingRemainder(pin.pinBearing - mapRotation, 360);
++ (void)rotateText:(MarginLabel *)label pin:(id<MapPin>)pin rotation:(CGFloat)mapRotation {
+    CGFloat rotationDegrees = TruncatingRemainder(pin.pinBearing - mapRotation, 360);
     // Normalize
     if (rotationDegrees < -180) {
         rotationDegrees += 360;
@@ -88,17 +83,17 @@ CGFloat TruncatingRemainder(CGFloat x, CGFloat dividingBy) {
 
     // Rotate to align with arrow
     rotationDegrees += 90;
-    label.transform = CGAffineTransformRotate(CGAffineTransformIdentity,
-                                              (rotationDegrees * M_PI) / 180.0);
+    label.transform =
+        CGAffineTransformRotate(CGAffineTransformIdentity, (rotationDegrees * M_PI) / 180.0);
 }
 
 - (void)updateDirectionInPlace:(MKMapView *)mapView {
 
     if ([self.annotation conformsToProtocol:@protocol(MapPin)]) {
         id<MapPin> pin = (id<MapPin>)self.annotation;
-        CGAffineTransform transform = [BearingAnnotationView
-            arrowTransformdForPin:(id<MapPin>)pin
-                         rotation:mapView.camera.heading];
+        CGAffineTransform transform =
+            [BearingAnnotationView arrowTransformdForPin:(id<MapPin>)pin
+                                                rotation:mapView.camera.heading];
         UIView *view = [self viewWithTag:ARROW_TAG];
 
         if (view) {
@@ -129,11 +124,10 @@ CGFloat TruncatingRemainder(CGFloat x, CGFloat dividingBy) {
         static UIImage *arrowImage;
         static UIFont *smallTextFont;
 
-        DoOnce(^{
-          outlineImage = [[UIImage imageNamed:kIconUpHead]
-              imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-          arrowImage = [[UIImage imageNamed:kIconUp]
-              imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        DO_ONCE(^{
+          outlineImage =
+              [kIconUpHead.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+          arrowImage = [kIconUp.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
           smallTextFont = [UIFont boldMonospacedDigitSystemFontOfSize:10.0];
         });
 
@@ -148,9 +142,9 @@ CGFloat TruncatingRemainder(CGFloat x, CGFloat dividingBy) {
         [self removeOldView:OUTLINE_TAG];
         [self removeOldView:TEXT_TAG];
 
-        CGAffineTransform transform = [BearingAnnotationView
-            arrowTransformdForPin:(id<MapPin>)pin
-                         rotation:mapView.camera.heading];
+        CGAffineTransform transform =
+            [BearingAnnotationView arrowTransformdForPin:(id<MapPin>)pin
+                                                rotation:mapView.camera.heading];
 
         UIColor *blockColor = nil;
 
@@ -165,19 +159,16 @@ CGFloat TruncatingRemainder(CGFloat x, CGFloat dividingBy) {
         arrowView.tag = ARROW_TAG;
         [self addSubview:arrowView];
 
-        UIImageView *outlineView =
-            [[UIImageView alloc] initWithImage:outlineImage];
+        UIImageView *outlineView = [[UIImageView alloc] initWithImage:outlineImage];
         outlineView.transform = transform;
         outlineView.tintColor = [UIColor blackColor];
         outlineView.tag = OUTLINE_TAG;
         [self addSubview:outlineView];
 
         if (blockColor != nil) {
-            CGRect blobRect =
-                CGRectInset(arrowView.frame, arrowView.frame.size.width / 3,
-                            arrowView.frame.size.height / 3);
-            FilledCircleView *view =
-                [[FilledCircleView alloc] initWithFrame:blobRect];
+            CGRect blobRect = CGRectInset(
+                arrowView.frame, arrowView.frame.size.width / 3, arrowView.frame.size.height / 3);
+            FilledCircleView *view = [[FilledCircleView alloc] initWithFrame:blobRect];
 
             view.fillColor = blockColor;
             view.backgroundColor = [UIColor clearColor];
@@ -193,14 +184,13 @@ CGFloat TruncatingRemainder(CGFloat x, CGFloat dividingBy) {
                 textLabel.textColor = [UIColor modeAwareBusText];
                 textLabel.backgroundColor = [UIColor clearColor];
 
-                CGFloat textHeight =
-                    arrowView.frame.size.height / 2.2; // A size that works!
+                CGFloat textHeight = arrowView.frame.size.height / 2.2; // A size that works!
 
-                textLabel.frame = CGRectMake(
-                    arrowView.frame.origin.x,
-                    arrowView.frame.origin.y +
-                        (arrowView.frame.size.height - textHeight) / 2.0,
-                    arrowView.frame.size.width, textHeight);
+                textLabel.frame = CGRectMake(arrowView.frame.origin.x,
+                                             arrowView.frame.origin.y +
+                                                 (arrowView.frame.size.height - textHeight) / 2.0,
+                                             arrowView.frame.size.width,
+                                             textHeight);
 
                 textLabel.text = text;
                 textLabel.adjustsFontSizeToFitWidth = YES;
@@ -223,25 +213,23 @@ CGFloat TruncatingRemainder(CGFloat x, CGFloat dividingBy) {
 
 + (MKAnnotationView *)viewForPin:(id<MapPin>)pin
                          mapView:(MKMapView *)mapView
-                       urlAction:(bool (^__nullable)(id<MapPin>, NSURL *url,
-                                                     UIView *source))urlAction {
+                       urlAction:
+                           (bool (^__nullable)(id<MapPin>, NSURL *url, UIView *source))urlAction {
 
     MKAnnotationView *annotationView = nil;
 
     if (!pin.pinHasBearing) {
         NSString *ident = [NSString stringWithFormat:@"stop"];
-        MKPinAnnotationView *view = (MKPinAnnotationView *)[mapView
-            dequeueReusableAnnotationViewWithIdentifier:ident];
+        MKPinAnnotationView *view =
+            (MKPinAnnotationView *)[mapView dequeueReusableAnnotationViewWithIdentifier:ident];
 
         if (view == nil) {
-            view = [[MKPinAnnotationView alloc] initWithAnnotation:pin
-                                                   reuseIdentifier:ident];
+            view = [[MKPinAnnotationView alloc] initWithAnnotation:pin reuseIdentifier:ident];
         }
 
         view.annotation = pin;
 
-        if ([view respondsToSelector:@selector(pinTintColor)] &&
-            pin.pinTint != nil) {
+        if ([view respondsToSelector:@selector(pinTintColor)] && pin.pinTint != nil) {
             view.pinTintColor = pin.pinTint;
         } else {
 
@@ -273,12 +261,11 @@ CGFloat TruncatingRemainder(CGFloat x, CGFloat dividingBy) {
     } else {
         NSString *ident = [NSString stringWithFormat:@"bearing"];
 
-        BearingAnnotationView *view = (BearingAnnotationView *)[mapView
-            dequeueReusableAnnotationViewWithIdentifier:ident];
+        BearingAnnotationView *view =
+            (BearingAnnotationView *)[mapView dequeueReusableAnnotationViewWithIdentifier:ident];
 
         if (view == nil) {
-            view = [[BearingAnnotationView alloc] initWithAnnotation:pin
-                                                     reuseIdentifier:ident];
+            view = [[BearingAnnotationView alloc] initWithAnnotation:pin reuseIdentifier:ident];
         }
 
         view.annotation = pin;
@@ -288,45 +275,32 @@ CGFloat TruncatingRemainder(CGFloat x, CGFloat dividingBy) {
         annotationView = view;
     }
 
-    NSMutableString *markedUpSubtitle = [NSMutableString
-        stringWithString:pin.pinMarkedUpType != nil ? pin.pinMarkedUpType
-                                                    : @""];
+    NSMutableString *markedUpSubtitle =
+        [NSMutableString stringWithString:pin.pinMarkedUpType != nil ? pin.pinMarkedUpType : @""];
 
-    if ([pin respondsToSelector:@selector(pinMarkedUpStopId)] &&
-        pin.pinMarkedUpStopId != nil) {
-        [markedUpSubtitle
-            appendFormat:markedUpSubtitle.length > 0 ? @"\n" : @""];
+    if ([pin respondsToSelector:@selector(pinMarkedUpStopId)] && pin.pinMarkedUpStopId != nil) {
+        [markedUpSubtitle appendFormat:markedUpSubtitle.length > 0 ? @"\n" : @""];
         [markedUpSubtitle appendFormat:@"%@", pin.pinMarkedUpStopId];
-    } else if ([pin respondsToSelector:@selector(pinStopId)] &&
-               pin.pinStopId != nil) {
-        [markedUpSubtitle
-            appendFormat:markedUpSubtitle.length > 0 ? @"\n" : @""];
-        [markedUpSubtitle
-            appendFormat:@"#D%@", pin.pinStopId.markedUpLinkToStopId];
+    } else if ([pin respondsToSelector:@selector(pinStopId)] && pin.pinStopId != nil) {
+        [markedUpSubtitle appendFormat:markedUpSubtitle.length > 0 ? @"\n" : @""];
+        [markedUpSubtitle appendFormat:@"#D%@", pin.pinStopId.markedUpLinkToStopId];
     }
 
-    if ([pin respondsToSelector:@selector(pinMarkedUpSubtitle)] &&
-        pin.pinMarkedUpSubtitle != nil) {
-        [markedUpSubtitle
-            appendFormat:markedUpSubtitle.length > 0 ? @"\n" : @""];
+    if ([pin respondsToSelector:@selector(pinMarkedUpSubtitle)] && pin.pinMarkedUpSubtitle != nil) {
+        [markedUpSubtitle appendFormat:markedUpSubtitle.length > 0 ? @"\n" : @""];
         [markedUpSubtitle appendString:pin.pinMarkedUpSubtitle];
     }
 
-#ifdef DEBUGLOGGING
-    if (DEBUG_ON_FOR_FILE) {
-        [markedUpSubtitle appendFormat:@"\n#DDebug - class #b%@#b",
-                                       NSStringFromClass(pin.class)];
-    }
-#endif
+    DEBUG_BLOCK((^{
+      [markedUpSubtitle appendFormat:@"\n#DDebug - class #b%@#b", NSStringFromClass(pin.class)];
+    }));
 
     NSString *actionText = nil;
 
     if ([pin pinActionMenu]) {
 
-        if ([pin respondsToSelector:@selector
-                 (pinAction:)]) { //  && [self.tappedAnnot mapTapped])
-            if (([pin respondsToSelector:@selector(pinUseAction)] &&
-                 pin.pinUseAction) ||
+        if ([pin respondsToSelector:@selector(pinAction:)]) { //  && [self.tappedAnnot mapTapped])
+            if (([pin respondsToSelector:@selector(pinUseAction)] && pin.pinUseAction) ||
                 !([pin respondsToSelector:@selector(pinUseAction)])) {
                 actionText = nil;
 
@@ -335,15 +309,13 @@ CGFloat TruncatingRemainder(CGFloat x, CGFloat dividingBy) {
                 }
 
                 if (actionText == nil) {
-                    actionText =
-                        NSLocalizedString(@"Choose this stop", @"button text");
+                    actionText = NSLocalizedString(@"Choose this stop", @"button text");
                 }
             }
         }
 
         if (actionText && actionText.length > 0) {
-            [markedUpSubtitle
-                appendFormat:markedUpSubtitle.length > 0 ? @"\n" : @""];
+            [markedUpSubtitle appendFormat:markedUpSubtitle.length > 0 ? @"\n" : @""];
             [markedUpSubtitle appendFormat:@"#Laction:tap %@#T", actionText];
         }
     }
@@ -361,42 +333,42 @@ CGFloat TruncatingRemainder(CGFloat x, CGFloat dividingBy) {
         }
 
         subLabel.delegate = subLabel;
-        subLabel.linkAction =
-            ^bool(LinkResponsiveTextView *_Nonnull view, NSURL *_Nonnull url,
-                  NSRange characterRange, UITextItemInteraction interaction) {
-              return urlAction(pin, url, view);
-            };
+        subLabel.linkAction = ^bool(LinkResponsiveTextView *_Nonnull view,
+                                    NSURL *_Nonnull url,
+                                    NSRange characterRange,
+                                    UITextItemInteraction interaction) {
+          return urlAction(pin, url, view);
+        };
 
         subLabel.scrollEnabled = NO;
         subLabel.attributedText = [markedUpSubtitle
-            attributedStringFromMarkUpWithFont:
-                [UIFont monospacedDigitSystemFontOfSize:16.0]];
+            attributedStringFromMarkUpWithFont:[UIFont monospacedDigitSystemFontOfSize:16.0]];
 
         const CGFloat sizeWidth = 310;
         CGSize sz = [subLabel sizeThatFits:CGSizeMake(sizeWidth, MAXFLOAT)];
 
-        NSLayoutConstraint *width = [NSLayoutConstraint
-            constraintWithItem:subLabel
-                     attribute:NSLayoutAttributeWidth
-                     relatedBy:NSLayoutRelationGreaterThanOrEqual
-                        toItem:nil
-                     attribute:NSLayoutAttributeNotAnAttribute
-                    multiplier:1
-                      constant:sz.width];
-        NSLayoutConstraint *height = [NSLayoutConstraint
-            constraintWithItem:subLabel
-                     attribute:NSLayoutAttributeHeight
-                     relatedBy:NSLayoutRelationGreaterThanOrEqual
-                        toItem:nil
-                     attribute:NSLayoutAttributeNotAnAttribute
-                    multiplier:1
-                      constant:sz.height];
+        NSLayoutConstraint *width =
+            [NSLayoutConstraint constraintWithItem:subLabel
+                                         attribute:NSLayoutAttributeWidth
+                                         relatedBy:NSLayoutRelationGreaterThanOrEqual
+                                            toItem:nil
+                                         attribute:NSLayoutAttributeNotAnAttribute
+                                        multiplier:1
+                                          constant:sz.width];
+        NSLayoutConstraint *height =
+            [NSLayoutConstraint constraintWithItem:subLabel
+                                         attribute:NSLayoutAttributeHeight
+                                         relatedBy:NSLayoutRelationGreaterThanOrEqual
+                                            toItem:nil
+                                         attribute:NSLayoutAttributeNotAnAttribute
+                                        multiplier:1
+                                          constant:sz.height];
 
         // [subLabel setNumberOfLines:0];
         [subLabel addConstraint:width];
         [subLabel addConstraint:height];
     }
-    
+
     [annotationView setNeedsLayout];
 
     return annotationView;

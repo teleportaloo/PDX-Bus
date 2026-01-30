@@ -18,13 +18,9 @@
 
 @class RootViewController;
 
-@interface PDXBusAppDelegate
-    : NSObject <UIApplicationDelegate, UNUserNotificationCenterDelegate>
+@interface PDXBusAppDelegate : NSObject <UIApplicationDelegate, UNUserNotificationCenterDelegate>
 
-@property(nonatomic) bool cleanExitLastTime;
-@property(nonatomic, copy) NSString *pathToCleanExit;
-
-
-
+@property (nonatomic) bool cleanExitLastTime;
+@property (nonatomic, copy) NSString *pathToCleanExit;
 
 @end

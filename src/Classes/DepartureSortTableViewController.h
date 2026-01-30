@@ -19,7 +19,7 @@
 
 @interface DepartureSortTableViewController : TableViewControllerWithToolbar
 
-@property(nonatomic, strong) DepartureTimesViewController *depView;
+@property (nonatomic, strong) DepartureTimesViewController *depView;
 
 - (void)sortSegmentChanged:(id)sender;
 

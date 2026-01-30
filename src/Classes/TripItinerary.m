@@ -71,9 +71,9 @@
     NSInteger h = t / 60;
     NSInteger m = t % 60;
 
-    [strTime appendFormat:NSLocalizedString(@"Travel time: %ld:%02ld",
-                                            @"hours, mins"),
-                          (long)h, (long)m];
+    [strTime appendFormat:NSLocalizedString(@"Travel time: %ld:%02ld", @"hours, mins"),
+                          (long)h,
+                          (long)m];
     return strTime;
 }
 
@@ -82,8 +82,7 @@
         return @"1 min";
     }
 
-    return [NSString
-        stringWithFormat:NSLocalizedString(@"%ld mins", @"minutes"), (long)t];
+    return [NSString stringWithFormat:NSLocalizedString(@"%ld mins", @"minutes"), (long)t];
 }
 
 - (NSString *)travelTime {
@@ -97,9 +96,9 @@
         NSInteger walking = self.walkingTimeMins;
 
         if (walking > 0) {
-            [strTime appendFormat:NSLocalizedString(@", including %@ walking",
-                                                    @"time info, minutes"),
-                                  [self mins:walking]];
+            [strTime
+                appendFormat:NSLocalizedString(@", including %@ walking", @"time info, minutes"),
+                             [self mins:walking]];
             inc = true;
         }
     }
@@ -109,13 +108,11 @@
 
         if (waiting > 0) {
             if (!inc) {
-                [strTime
-                    appendFormat:NSLocalizedString(@", including %@ waiting",
-                                                   @"time info, minutes"),
-                                 [self mins:waiting]];
-            } else {
-                [strTime appendFormat:NSLocalizedString(@" and %@ waiting",
+                [strTime appendFormat:NSLocalizedString(@", including %@ waiting",
                                                         @"time info, minutes"),
+                                      [self mins:waiting]];
+            } else {
+                [strTime appendFormat:NSLocalizedString(@" and %@ waiting", @"time info, minutes"),
                                       [self mins:waiting]];
             }
         }
@@ -156,18 +153,17 @@
 
         if (type == TripTextTypeUI) {
             self.startPoint.displayModeText = @"Start";
-            [text appendFormat:@"%@%@", nearTo ? @"" : @"#bStart at#b ",
+            [text appendFormat:@"%@%@",
+                               nearTo ? @"" : @"#bStart at#b ",
                                firstPoint.desc.safeEscapeForMarkUp];
         } else if (type == TripTextTypeHTML && firstPoint.loc != nil) {
-            [text appendFormat:
-                      @"%@<a "
-                      @"href=\"http://map.google.com/?q=location@%@\">%@</a>",
-                      nearTo ? @"Start " : @"Start at ",
-                      COORD_TO_LAT_LNG_STR(firstPoint.coordinate),
-                      firstPoint.desc];
-        } else {
-            [text appendFormat:@"%@%@", nearTo ? @"Starting " : @"Starting at ",
+            [text appendFormat:@"%@<a "
+                               @"href=\"http://map.google.com/?q=location@%@\">%@</a>",
+                               nearTo ? @"Start " : @"Start at ",
+                               COORD_TO_LAT_LNG_STR(firstPoint.coordinate),
                                firstPoint.desc];
+        } else {
+            [text appendFormat:@"%@%@", nearTo ? @"Starting " : @"Starting at ", firstPoint.desc];
         }
     }
 
@@ -175,7 +171,8 @@
         if (type == TripTextTypeHTML) {
             [text appendFormat:@" (Stop ID <a href=\"pdxbus://%@?%@/\">%@</a>)",
                                self.startPoint.desc.fullyPercentEncodeString,
-                               [self.startPoint stopId], firstPoint.stopId];
+                               [self.startPoint stopId],
+                               firstPoint.stopId];
         } else {
             [text appendFormat:@" (Stop ID %@)", self.startPoint.stopId];
         }

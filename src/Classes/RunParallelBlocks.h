@@ -20,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 #if TARGET_OS_WATCH
 #else
 @class TaskState;
-#endif
+#endif // TARGET_OS_WATCH
 
 typedef void (^ParallelBlock)(void);
 
@@ -34,10 +34,8 @@ typedef void (^ParallelBlock)(void);
 #if TARGET_OS_WATCH
 #else
 - (void)waitForBlocksWithState:(TaskState *)state;
-#endif
+#endif // TARGET_OS_WATCH
 
 @end
 
 NS_ASSUME_NONNULL_END
-
-

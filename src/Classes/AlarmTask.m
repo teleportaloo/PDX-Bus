@@ -25,6 +25,7 @@
 #import "RootViewController.h"
 #import "TaskDispatch.h"
 #import "TriMetInfo+UI.h"
+#import "UIAlertController+SimpleMessages.h"
 #import "ViewControllerBase.h"
 #import <UserNotifications/UserNotifications.h>
 
@@ -32,13 +33,13 @@
 
 @interface AlarmTask ()
 
-@property(strong) UNNotificationRequest *alarm;
-@property(readonly, nonatomic) int threadReferenceCount;
-@property(nonatomic) bool alarmWarningDisplayed;
-@property(nonatomic, readonly, copy) NSString *cellDescription;
-@property(nonatomic, readonly, copy) NSString *cellToGo;
+@property (strong) UNNotificationRequest *notifReq;
+@property (readonly, nonatomic) int threadReferenceCount;
+@property (nonatomic) bool alarmWarningDisplayed;
+@property (nonatomic, readonly, copy) NSString *cellDescription;
+@property (nonatomic, readonly, copy) NSString *cellToGo;
 
-@property(nonatomic, readonly, copy) UIColor *color;
+@property (nonatomic, readonly, copy) UIColor *color;
 
 @end
 
@@ -50,7 +51,7 @@
     if ((self = [super init])) {
 #ifdef DEBUG_ALARMS
         _dataReceived = [[NSMutableArray alloc] init];
-#endif
+#endif // DEBUG_ALARMS
         _alarmWarningDisplayed = NO;
     }
 
@@ -86,8 +87,7 @@
     case AlarmButtonMap:
         return NSLocalizedString(@"Show map", @"Back text");
     case AlarmButtonBack:
-        return NSLocalizedString(@"Back to PDX Bus",
-                                 @"Button to return to PDX Bus");
+        return NSLocalizedString(@"Back to PDX Bus", @"Button to return to PDX Bus");
     case AlarmButtonDepartures:
         return NSLocalizedString(@"Show departures", @"alert text");
     }
@@ -111,8 +111,7 @@
 #ifdef DEBUGLOGGING
     DEBUG_LOG(@"Alerts: %@\n", dump);
 
-    UNUserNotificationCenter *center =
-        [UNUserNotificationCenter currentNotificationCenter];
+    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
 
     [center getPendingNotificationRequestsWithCompletionHandler:^(
                 NSArray<UNNotificationRequest *> *_Nonnull requests) {
@@ -120,55 +119,49 @@
           DEBUG_LOG(@"Notifications %lu\n", (unsigned long)requests.count);
 
           for (UNNotificationRequest *notif in requests) {
-              if ([notif.trigger
-                      isKindOfClass:[UNTimeIntervalNotificationTrigger
-                                        class]]) {
+              if ([notif.trigger isKindOfClass:[UNTimeIntervalNotificationTrigger class]]) {
 
                   UNTimeIntervalNotificationTrigger *trigger =
                       (UNTimeIntervalNotificationTrigger *)notif.trigger;
 
-                  DEBUG_LOG(
-                      @"Notif %@ %@\n", notif.content.body,
-                      [NSDateFormatter
-                          localizedStringFromDate:trigger.nextTriggerDate
-                                        dateStyle:NSDateFormatterMediumStyle
-                                        timeStyle:NSDateFormatterLongStyle]);
+                  DEBUG_LOG(@"Notif %@ %@\n",
+                            notif.content.body,
+                            [NSDateFormatter localizedStringFromDate:trigger.nextTriggerDate
+                                                           dateStyle:NSDateFormatterMediumStyle
+                                                           timeStyle:NSDateFormatterLongStyle]);
               }
           }
       }
     }];
-#endif
+#endif // DEBUGLOGGING
 }
 
 - (void)cancelNotification {
 
-    UNUserNotificationCenter *center =
-        [UNUserNotificationCenter currentNotificationCenter];
+    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
 
 #ifdef DEBUGLOGGING
     [self dumpAlerts:@"before!"];
-#endif
+#endif // DEBUGLOGGING
 
-    if (self.alarm != nil) {
-        [center removePendingNotificationRequestsWithIdentifiers:
-                    [NSArray arrayWithObject:self.alarm.identifier]];
+    if (self.notifReq != nil) {
+        DEBUG_LOG_NSString(self.notifReq.identifier);
+        [center removePendingNotificationRequestsWithIdentifiers:@[ self.notifReq.identifier ]];
+        self.notifReq = nil;
     }
 
 #ifdef DEBUGLOGGING
     [self dumpAlerts:@"deleted!"];
-#endif
+#endif // DEBUGLOGGING
 }
 
 - (UNNotificationCategory *)catForButton:(AlarmButton)button {
     return [UNNotificationCategory
         categoryWithIdentifier:[self buttonCat:button]
-                       actions:@[
-                           [UNNotificationAction
-                               actionWithIdentifier:[self buttonCat:button]
-                                              title:[self buttonText:button]
-                                            options:
-                                                UNNotificationActionOptionForeground]
-                       ]
+                       actions:@[ [UNNotificationAction
+                                   actionWithIdentifier:[self buttonCat:button]
+                                                  title:[self buttonText:button]
+                                                options:UNNotificationActionOptionForeground] ]
              intentIdentifiers:@[]
                        options:UNNotificationCategoryOptionNone];
 }
@@ -182,22 +175,16 @@
     DEBUG_FUNC();
     DEBUG_LOG_BOOL(thisThread);
 
-    [MainQueueSync runSyncOnMainQueueWithoutDeadlocking:^{
-      UNUserNotificationCenter *center =
-          [UNUserNotificationCenter currentNotificationCenter];
-
-      DoOnce(^{
-        NSMutableSet *catagories = [NSMutableSet set];
-
-        [catagories addObject:[self catForButton:AlarmButtonBack]];
-        [catagories addObject:[self catForButton:AlarmButtonMap]];
-        [catagories addObject:[self catForButton:AlarmButtonDepartures]];
-      });
+    MAIN_TASK((^{
+      UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
 
       [self cancelNotification];
 
       DEBUG_LOG(@"Alert: %@ \nuserInfo %d \nbutton %d \ndefault sound %d\n",
-                string, userInfo != nil, button, defaultSound);
+                string,
+                userInfo != nil,
+                button,
+                defaultSound);
 
       NSDate *displayDate = fireDate;
 
@@ -220,49 +207,40 @@
                               repeats:NO];
       }
 
-      UNMutableNotificationContent *content =
-          [[UNMutableNotificationContent alloc] init];
+      UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
 
-      //  content.sound = defaultSound ? UILocalNotificationDefaultSoundName :
-      //  Settings.alarmSoundFile;
-
-      content.body =
-          [NSString stringWithFormat:
-                        @"%@%@ %@", approx,
-                        [NSDateFormatter
-                            localizedStringFromDate:displayDate
-                                          dateStyle:NSDateFormatterNoStyle
-                                          timeStyle:NSDateFormatterShortStyle],
-                        string];
+      content.body = [NSString
+          stringWithFormat:@"%@%@ %@",
+                           approx,
+                           [NSDateFormatter localizedStringFromDate:displayDate
+                                                          dateStyle:NSDateFormatterNoStyle
+                                                          timeStyle:NSDateFormatterShortStyle],
+                           string];
 
       content.userInfo = userInfo;
       content.badge = nil;
 
       content.sound = defaultSound
                           ? UNNotificationSound.defaultCriticalSound
-                          : [UNNotificationSound
-                                criticalSoundNamed:Settings.alarmSoundFile];
+                          : [UNNotificationSound criticalSoundNamed:Settings.alarmSoundFile];
 
       content.categoryIdentifier = [self buttonCat:button];
 
       content.interruptionLevel = UNNotificationInterruptionLevelTimeSensitive;
 
-      NSString *identifier =
-          [NSString stringWithFormat:@"org.teleportaloo.PDXBus %p", self];
+      NSString *identifier = [NSString stringWithFormat:@"org.teleportaloo.PDXBus %p", self];
 
-      self.alarm = [UNNotificationRequest requestWithIdentifier:identifier
-                                                        content:content
-                                                        trigger:trigger];
-      // self.alarm.hasAction                    = (userInfo != nil) || (button
-      // != nil); self.alarm.alertAction                  = button;
+      self.notifReq = [UNNotificationRequest requestWithIdentifier:identifier
+                                                           content:content
+                                                           trigger:trigger];
 
-      [center addNotificationRequest:self.alarm
+      [center addNotificationRequest:self.notifReq
                withCompletionHandler:^(NSError *_Nullable error){
 
                }];
 
       [self dumpAlerts:@"done!"];
-    }];
+    }));
 
     DEBUG_FUNCEX();
 }
@@ -303,8 +281,8 @@
     return 0;
 }
 
-- (NSString *)internalData:(int)item {
-    return nil;
+- (void)internalData:(int)item completion:(void (^)(NSString *))completionHandler {
+    completionHandler(nil);
 }
 
 - (NSDate *)fetch:(AlarmTaskList *)parent;
@@ -313,17 +291,17 @@
 - (void)showToUser:(BackgroundTaskContainer *)backgroundTask {
 }
 
-- (NSString *)systemIcon {
+- (BoxedIcon *)icon {
     switch (self.alarmState) {
     case AlarmStateFetchArrivals:
     case AlarmStateNearlyArrived:
     case AlarmStateAccurateLocationNeeded:
     case AlarmStateAccurateInitiallyThenInaccurate:
     case AlarmStateInaccurateLocationNeeded:
-        return kSFIconAlarm;
+        return kIconAlarm;
 
     case AlarmFired:
-        return kSFIconAlarmFired;
+        return kIconAlarmFired;
     }
     return nil;
 }
@@ -345,13 +323,11 @@
     return nil;
 }
 
-- (NSString *)cellReuseIdentifier:(NSString *)identifier
-                            width:(ScreenWidth)width {
-    return [NSString stringWithFormat:@"%@-%d", identifier, width];
+- (NSString *)cellReuseIdentifier:(NSString *)identifier width:(CGFloat)width {
+    return [NSString stringWithFormat:@"%@-%f", identifier, width];
 }
 
-- (void)accessoryButtonTapped:(UIButton *)button
-                    withEvent:(UIControlEvents)event {
+- (void)accessoryButtonTapped:(UIButton *)button withEvent:(UIControlEvents)event {
     [self.observer taskDone:self];
 }
 
@@ -360,17 +336,12 @@
         cell.fired = YES;
 
         UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-        
-        UIImage *image = [UIImage systemImageNamed:kSFIconDelete];
-        
-        
-        CGRect frame = CGRectMake(0.0, 0.0, image.size.width,
-                                  image.size.height);
-        button.frame = frame;
-        [button setBackgroundImage:image
-                          forState:UIControlStateNormal];
 
-        button.tintColor = kSFIconDeleteTint;
+        UIImage *image = kIconDelete.image;
+        CGRect frame = CGRectMake(0.0, 0.0, image.size.width, image.size.height);
+        button.frame = frame;
+        [button setBackgroundImage:image forState:UIControlStateNormal];
+        button.tintColor = kIconDelete.tint;
 
         [button addTarget:self
                       action:@selector(accessoryButtonTapped:withEvent:)
@@ -381,7 +352,7 @@
 #else
         cell.accessoryView = button;
         cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-#endif
+#endif // DEBUG_ALARMS
     } else {
         cell.fired = NO;
         cell.accessoryView = nil;
@@ -390,12 +361,10 @@
 #else
         cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 
-#endif
+#endif // DEBUG_ALARMS
     }
 
-    [cell populateCellLine1:self.cellDescription
-                      line2:self.cellToGo
-                   line2col:[self color]];
+    [cell populateCellLine1:self.cellDescription line2:self.cellToGo line2col:[self color]];
 }
 
 - (int)threadReferenceCount {
@@ -403,14 +372,12 @@
 }
 
 - (NSDate *)earlierAlert:(NSDate *)alert {
-
-    if (self.alarm && self.alarm.trigger && self.nextFetch) {
-        if ([self.alarm.trigger
-                isKindOfClass:[UNTimeIntervalNotificationTrigger class]]) {
+    if (self.notifReq && self.notifReq.trigger && self.nextFetch) {
+        if ([self.notifReq.trigger isKindOfClass:[UNTimeIntervalNotificationTrigger class]]) {
             UNTimeIntervalNotificationTrigger *trigger =
-                (UNTimeIntervalNotificationTrigger *)self.alarm.trigger;
+                (UNTimeIntervalNotificationTrigger *)self.notifReq.trigger;
 
-            return [[alert earlierDate:trigger.nextTriggerDate]
+            return [[(alert ?: NSDate.distantFuture) earlierDate:trigger.nextTriggerDate]
                 earlierDate:self.nextFetch];
         }
     }
@@ -419,14 +386,18 @@
 }
 
 - (void)showMap:(UINavigationController *)navController {
+    [UIAlertController simpleOkWithTitle:@"No map"
+                                 message:@"No map to show"
+                          viewController:navController
+                              completion:nil];
 }
 
 - (NSString *)appState {
     NSMutableString *str = [NSMutableString string];
 
-#define CASE_ENUM_TO_STR(X)                                                    \
-    case X:                                                                    \
-        [str appendFormat:@"%s", #X];                                          \
+#define CASE_ENUM_TO_STR(X)                                                                        \
+    case X:                                                                                        \
+        [str appendFormat:@"%s", #X];                                                              \
         break
 
     __block UIApplicationState appState;

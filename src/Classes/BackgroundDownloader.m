@@ -19,11 +19,9 @@
 
 @interface BackgroundDownloader ()
 
-@property(strong, atomic)
-    NSMutableDictionary<NSString *, NSString *> *absQueryFromOriginal;
-@property(strong, atomic)
-    NSMutableDictionary<NSString *, BackgroundDownloadState *>
-        *stateForAbsQuery;
+@property (strong, atomic) NSMutableDictionary<NSString *, NSString *> *absQueryFromOriginal;
+@property (strong, atomic)
+    NSMutableDictionary<NSString *, BackgroundDownloadState *> *stateForAbsQuery;
 
 @end
 
@@ -47,7 +45,7 @@
 + (BackgroundDownloader *)sharedInstance {
     static BackgroundDownloader *singleton = nil;
 
-    DoOnce(^{
+    DO_ONCE(^{
       singleton = [[BackgroundDownloader alloc] init];
     });
 
@@ -85,25 +83,22 @@
             return NO;
         }
 
-        NSString *fullQuery =  xml.queryTransformer(xml, query);
+        NSString *fullQuery = xml.queryTransformer(xml, query);
 
-        NSURLRequest *request =
-            [NSURLRequest requestWithURL:[NSURL URLWithString:fullQuery]];
+        NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:fullQuery]];
 
         NSURLSessionConfiguration *config = [NSURLSessionConfiguration
             backgroundSessionConfigurationWithIdentifier:@"PDX Bus background"];
 
-        config.requestCachePolicy =
-            NSURLRequestReloadIgnoringLocalAndRemoteCacheData;
+        config.requestCachePolicy = NSURLRequestReloadIgnoringLocalAndRemoteCacheData;
         config.allowsCellularAccess = !Settings.kmlWifiOnly;
 
-        NSURLSession *backgroundSession = [NSURLSession
-            sessionWithConfiguration:config
-                            delegate:self
-                       delegateQueue:[NSOperationQueue mainQueue]];
+        NSURLSession *backgroundSession =
+            [NSURLSession sessionWithConfiguration:config
+                                          delegate:self
+                                     delegateQueue:[NSOperationQueue mainQueue]];
 
-        NSURLSessionDownloadTask *task =
-            [backgroundSession downloadTaskWithRequest:request];
+        NSURLSessionDownloadTask *task = [backgroundSession downloadTaskWithRequest:request];
 
         NSString *absQuery = [BackgroundDownloader absQuery:task];
 
@@ -134,24 +129,18 @@
         BackgroundDownloadState *state = self.stateForAbsQuery[absQuery];
 
         if (totalBytesExpectedToWrite > 0) {
-            double percentDone =
-                (double)totalBytesWritten / (double)totalBytesExpectedToWrite;
-            state.progress =
-                [NSString stringWithFormat:@"%.0f%%", percentDone * 100.0];
+            double percentDone = (double)totalBytesWritten / (double)totalBytesExpectedToWrite;
+            state.progress = [NSString stringWithFormat:@"%.0f%%", percentDone * 100.0];
         } else {
             NSString *result = nil;
 
             if (bytesWritten < 1024) {
-                result =
-                    [NSString stringWithFormat:@"%d Bytes", (int)bytesWritten];
+                result = [NSString stringWithFormat:@"%d Bytes", (int)bytesWritten];
             } else if (bytesWritten < (1024 * 1024)) {
-                result = [NSString
-                    stringWithFormat:@"%.2f K",
-                                     (((float)(bytesWritten)) / 1024.0)];
+                result = [NSString stringWithFormat:@"%.2f K", (((float)(bytesWritten)) / 1024.0)];
             } else {
-                result = [NSString
-                    stringWithFormat:@"%.2f MB",
-                                     ((float)(bytesWritten) / (1024 * 1024))];
+                result =
+                    [NSString stringWithFormat:@"%.2f MB", ((float)(bytesWritten) / (1024 * 1024))];
             }
 
             state.progress = result;
@@ -173,8 +162,7 @@
 
             NSError *error = nil;
 
-            if (![[NSFileManager defaultManager] removeItemAtURL:location
-                                                           error:&error]) {
+            if (![[NSFileManager defaultManager] removeItemAtURL:location error:&error]) {
                 LOG_NSError(error);
             }
 
@@ -193,15 +181,14 @@
     @synchronized(self.absQueryFromOriginal) {
         [self.stateForAbsQuery removeObjectForKey:absQuery];
 
-        [self.absQueryFromOriginal
-            enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull key,
-                                                NSString *_Nonnull obj,
-                                                BOOL *_Nonnull stop) {
-              if ([obj isEqualToString:absQuery]) {
-                  *stop = YES;
-                  [self.absQueryFromOriginal removeObjectForKey:key];
-              }
-            }];
+        [self.absQueryFromOriginal enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull key,
+                                                                       NSString *_Nonnull obj,
+                                                                       BOOL *_Nonnull stop) {
+          if ([obj isEqualToString:absQuery]) {
+              *stop = YES;
+              [self.absQueryFromOriginal removeObjectForKey:key];
+          }
+        }];
     }
 }
 
@@ -210,8 +197,7 @@
     didCompleteWithError:(nullable NSError *)error {
     @synchronized(self.absQueryFromOriginal) {
         if ([task isKindOfClass:[NSURLSessionDownloadTask class]]) {
-            NSURLSessionDownloadTask *downloadTask =
-                (NSURLSessionDownloadTask *)task;
+            NSURLSessionDownloadTask *downloadTask = (NSURLSessionDownloadTask *)task;
 
             NSString *absQuery = [BackgroundDownloader absQuery:downloadTask];
 

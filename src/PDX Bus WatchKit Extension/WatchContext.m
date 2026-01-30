@@ -36,11 +36,10 @@
     [parent pushControllerWithName:self.sceneName context:self];
 }
 
-- (void)delayedPushFrom:(WKInterfaceController *)parent
-             completion:(void (^)(void))completion {
+- (void)delayedPushFrom:(WKInterfaceController *)parent completion:(void (^)(void))completion {
     DEBUG_LOG(@"delayedPushFrom: %@\n", self.sceneName);
 
-    MainTaskDelay(0.4, ^{
+    MAIN_TASK_DELAY(0.4, ^{
       [parent pushControllerWithName:self.sceneName context:self];
 
       if (completion) {

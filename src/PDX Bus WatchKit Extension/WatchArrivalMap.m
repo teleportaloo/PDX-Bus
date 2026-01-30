@@ -25,10 +25,7 @@
 }
 
 - (void)populate:(XMLDepartures *)xml departures:(NSArray<Departure *> *)deps {
-    [WatchMapHelper displayMap:self.map
-                     purplePin:xml.loc
-                     otherPins:deps
-               currentLocation:nil];
+    [WatchMapHelper displayMap:self.map purplePin:xml.loc otherPins:deps currentLocation:nil];
 }
 
 @end

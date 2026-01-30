@@ -18,12 +18,14 @@
 
 #define COORD_FORMAT @"%.13f"
 #define COORD_TO_STR(X) [NSString stringWithFormat:COORD_FORMAT, (X)]
-#define COORD_TO_LAT_LNG_STR(C)                                                \
-    [NSString stringWithFormat:COORD_FORMAT @"," COORD_FORMAT, (C).latitude,   \
-                               (C).longitude]
-#define COORD_TO_LNG_LAT_STR(C)                                                \
-    [NSString stringWithFormat:COORD_FORMAT @"," COORD_FORMAT, (C).longitude,  \
-                               (C).latitude]
+#define COORD_TO_LAT_LNG_STR(C)                                                                    \
+    [NSString stringWithFormat:COORD_FORMAT @"," COORD_FORMAT,                                     \
+                               (double)(C).latitude,                                               \
+                               (double)(C).longitude]
+#define COORD_TO_LNG_LAT_STR(C)                                                                    \
+    [NSString stringWithFormat:COORD_FORMAT @"," COORD_FORMAT,                                     \
+                               (double)(C).longitude,                                              \
+                               (double)(C).latitude]
 
 @interface CLLocation (Helper)
 

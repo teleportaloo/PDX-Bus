@@ -23,8 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)configWithRowHeight:(CGFloat)height
                 rightMargin:(bool)rightMargin
                 fixedMargin:(CGFloat)fixedMargin;
-- (void)populateCellWithStation:(NSString *)station
-                          lines:(TriMetInfo_ColoredLines)lines;
+- (void)populateCellWithStation:(NSString *)station lines:(TriMetInfo_ColoredLines)lines;
 
 @end
 

@@ -19,9 +19,9 @@
 #import "NSString+MoreMarkup.h"
 #import "TaskDispatch.h"
 #import "TriMetInfo+UI.h"
+#import "UIColor+HTML.h"
 #import "UIFont+Utility.h"
 #import <CoreText/CoreText.h>
-#import "UIColor+HTML.h"
 
 @implementation Departure (watchOSUI)
 
@@ -83,9 +83,11 @@
             }
 
             CGContextRef context = UIGraphicsGetCurrentContext();
-            CGContextSetRGBFillColor(context, COL_HTML_R(raw->html_color),
+            CGContextSetRGBFillColor(context,
+                                     COL_HTML_R(raw->html_color),
                                      COL_HTML_G(raw->html_color),
-                                     COL_HTML_B(raw->html_color), 1.0);
+                                     COL_HTML_B(raw->html_color),
+                                     1.0);
             CGContextAddPath(context, fillPath);
             CGContextFillPath(context);
 
@@ -93,28 +95,23 @@
 
             if (raw->lineType == LineTypeBus) {
                 static UIFont *tinyFont;
-                DoOnce(^{
+                DO_ONCE(^{
                   tinyFont = [UIFont monospacedDigitSystemFontOfSize:14.0];
                 });
 
-                NSAttributedString *route = [[NSString
-                    stringWithFormat:@"#W%ld", (long)raw->route_number]
-                    attributedStringFromMarkUpWithFont:tinyFont];
+                NSAttributedString *route =
+                    [[NSString stringWithFormat:@"#W%ld", (long)raw->route_number]
+                        attributedStringFromMarkUpWithFont:tinyFont];
 
-                CTLineRef line = CTLineCreateWithAttributedString(
-                    (CFAttributedStringRef)route);
+                CTLineRef line = CTLineCreateWithAttributedString((CFAttributedStringRef)route);
                 CGAffineTransform trans = CGAffineTransformMakeScale(1, -1);
                 CGContextSetTextMatrix(context, trans);
                 CGRect stringRect = CTLineGetImageBounds(line, context);
                 CGContextSetTextPosition(
                     context,
-                    outerSquare.origin.x +
-                        (outerSquare.size.width - stringRect.size.width - 2) /
-                            2,
-                    rect.size.height -
-                        (outerSquare.origin.y +
-                         (outerSquare.size.height - stringRect.size.height) /
-                             2));
+                    outerSquare.origin.x + (outerSquare.size.width - stringRect.size.width - 2) / 2,
+                    rect.size.height - (outerSquare.origin.y +
+                                        (outerSquare.size.height - stringRect.size.height) / 2));
                 CTLineDraw(line, context);
                 CFRelease(line);
             }
@@ -133,7 +130,7 @@
 - (UIImage *)blockImageColor {
     BlockColorDb *db = [BlockColorDb sharedInstance];
 
-    db.colorMap = nil;
+    [db clearAll];
 
     UIColor *color = [db colorForBlock:self.block];
 
@@ -221,9 +218,8 @@
     NSString *sign = fullSign ? self.fullSign : self.shortSign;
 
     if (sign != nil) {
-        NSAttributedString *subString = [sign attributedStringWithAttributes:@{
-            NSForegroundColorAttributeName : statusColor
-        }];
+        NSAttributedString *subString =
+            [sign attributedStringWithAttributes:@{NSForegroundColorAttributeName : statusColor}];
         [string appendAttributedString:subString];
     }
 

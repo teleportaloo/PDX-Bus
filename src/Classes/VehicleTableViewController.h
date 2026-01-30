@@ -18,7 +18,7 @@
 
 @interface VehicleTableViewController : TableViewControllerWithToolbar
 
-@property(nonatomic, strong) XMLLocateVehicles *locator;
+@property (nonatomic, strong) XMLLocateVehicles *locator;
 
 - (void)fetchNearestVehiclesAsync:(id<TaskController>)taskController
                          location:(CLLocation *)here

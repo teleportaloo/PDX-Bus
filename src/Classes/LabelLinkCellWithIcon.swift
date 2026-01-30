@@ -20,7 +20,6 @@ class LabelLinkCellWithIcon: UITableViewCell {
     static func dequeue(
         from tableView: UITableView,
         imageNamed imageName: String?,
-        systemImage: Bool,
         title text: String,
         namedLink: String
     ) -> LabelLinkCellWithIcon {
@@ -28,26 +27,14 @@ class LabelLinkCellWithIcon: UITableViewCell {
         return dequeue(
             from: tableView,
             imageNamed: imageName,
-            systemImage: systemImage,
             title: text,
             link: WebViewController.namedURL(namedLink)
         )
     }
 
-    static func dequeue(
-        from tableView: UITableView,
-        imageNamed imageName: String?,
-        systemImage: Bool,
-        title text: String,
-        link: String?
-    ) -> LabelLinkCellWithIcon {
-
-        let cellId = "link"
-        let cell =
-            tableView.dequeueReusableCell(withIdentifier: cellId)
-            as? LabelLinkCellWithIcon
-            ?? LabelLinkCellWithIcon(style: .subtitle, reuseIdentifier: cellId)
-
+    func config(
+        text: String
+    ) -> UIListContentConfiguration {
         var config = UIListContentConfiguration.subtitleCell()
         config.text = text
         config.secondaryText = link
@@ -64,36 +51,75 @@ class LabelLinkCellWithIcon: UITableViewCell {
             bottom: 10,
             trailing: 16
         )
+        return config
+    }
 
-        // Handle image (deferred only if needed)
-        if var name = imageName {
-            var isSystem = systemImage
-            if name.first == "!" {
-                name.removeFirst()
-                isSystem = true
-            }
-
-            if isSystem {
-                config.image = UIImage(systemName: name)
-                cell.contentConfiguration = config
-            } else {
-                // Defer setting contentConfiguration until async icon is loaded
-                Icons.getDelayedIcon(name) { image in
-                    var asyncConfig = config
-                    asyncConfig.image = image
-                    cell.contentConfiguration = asyncConfig
-                }
-            }
-        } else {
-            cell.contentConfiguration = config
-        }
-        
+    func styles(link: String?, alwaysSelectable: Bool) {
         if link != nil {
-            cell.accessoryType = .disclosureIndicator;
+            self.accessoryType = .disclosureIndicator
+            self.selectionStyle = .blue
+        } else if alwaysSelectable {
+            self.selectionStyle = .blue
+            self.accessoryType = .none
         } else {
-            cell.accessoryType = .none;
+            self.accessoryType = .none
+            self.selectionStyle = .none
         }
-        cell.link = link
+    }
+
+    func update(
+        boxedIcon: BoxedIcon,
+        title text: String,
+        namedLink: String?,
+        alwaysSelectable: Bool = false
+    ) {
+        self.link = WebViewController.namedURL(namedLink)
+        var config = self.config(text: text)
+        config.image = boxedIcon.image()
+        config.imageProperties.tintColor = boxedIcon.tint()
+        self.contentConfiguration = config
+
+        self.styles(link: link, alwaysSelectable: alwaysSelectable)
+
+    }
+
+    func update(
+        imageNamed imageName: String?,
+        title text: String,
+        link: String?,
+        alwaysSelectable: Bool = false
+    ) {
+        self.link = link
+        var config = self.config(text: text)
+
+        let boxed = Icons.assetOrSystemBoxedIcon(imageName)
+
+        if let boxed = boxed {
+            config.image = boxed.image()
+            config.imageProperties.tintColor = boxed.tint()
+        }
+
+        self.contentConfiguration = config
+
+        self.styles(link: link, alwaysSelectable: alwaysSelectable)
+
+    }
+
+    static func dequeue(
+        from tableView: UITableView,
+        imageNamed imageName: String?,
+        title text: String,
+        link: String?
+    ) -> LabelLinkCellWithIcon {
+
+        let cellId = "link"
+        let cell =
+            tableView.dequeueReusableCell(withIdentifier: cellId)
+            as? LabelLinkCellWithIcon
+            ?? LabelLinkCellWithIcon(style: .default, reuseIdentifier: cellId)
+
+        cell.update(imageNamed: imageName, title: text, link: link)
+
         return cell
     }
 }

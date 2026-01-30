@@ -20,16 +20,15 @@
 @class RailMapViewController;
 @class ShapeRoutePath;
 
-@interface RailStationTableViewController
-    : TableViewControllerWithRefresh <ReturnStopObject>
+@interface RailStationTableViewController : TableViewControllerWithRefresh <ReturnStopObject>
 
-@property(nonatomic, strong) RailMapViewController *map;
-@property(nonatomic, strong) RailStation *station;
-@property(nonatomic) bool from;
+@property (nonatomic, strong) RailMapViewController *map;
+@property (nonatomic, strong) RailStation *station;
+@property (nonatomic) bool from;
 
-@property(nonatomic, readonly, copy) NSString *actionText;
+@property (nonatomic, readonly, copy) NSString *actionText;
 
-@property(nonatomic) MKMapRect mapFlyTo;
+@property (nonatomic) MKMapRect mapFlyTo;
 
 - (void)returnStopObject:(Stop *)stop progress:(id<TaskController>)progress;
 - (void)fetchShapesAndDetoursAsync:(id<TaskController>)taskController;

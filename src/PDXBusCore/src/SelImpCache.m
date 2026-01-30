@@ -48,10 +48,7 @@ static inline SelImpPair UnboxSelImpPair(NSValue *v) {
 
     NSMutableDictionary *cache = [self cacheForClass:obj.class];
 
-    return [cache selImpForElement:elementName
-                           selName:nameBlock
-                               obj:obj
-                             debug:debug];
+    return [cache selImpForElement:elementName selName:nameBlock obj:obj debug:debug];
 }
 
 @end
@@ -72,13 +69,11 @@ static inline SelImpPair UnboxSelImpPair(NSValue *v) {
         SEL elementSel = NSSelectorFromString(selName);
 
         if (![obj respondsToSelector:elementSel]) {
-            DEBUG_LOG(@"M %@ <- %d not %@\n", debug, (int)self.count + 1,
-                      elementName);
+            DEBUG_LOG(@"M %@ <- %d not %@\n", debug, (int)self.count + 1, elementName);
         } else {
             elSelImp.sel = elementSel;
             elSelImp.imp = [obj methodForSelector:elementSel];
-            DEBUG_LOG(@"M %@ <- %d    %@\n", debug, (int)self.count + 1,
-                      elementName);
+            DEBUG_LOG(@"M %@ <- %d    %@\n", debug, (int)self.count + 1, elementName);
         }
         [self setObject:BoxSelImpPair(elSelImp) forKey:elementName];
     } else {

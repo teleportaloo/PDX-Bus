@@ -30,7 +30,7 @@
     PtrConstRailMap _railMap;
 }
 
-@property(nonatomic) int selectedItem;
+@property (nonatomic) int selectedItem;
 
 @end
 
@@ -40,8 +40,8 @@ static PtrConstHotSpot hotSpotRegions;
 static NSMutableSet<NSValue *> *touched;
 
 - (instancetype)initWithImageView:(UIView *)mapView map:(PtrConstRailMap)map {
-    self = [super initWithFrame:CGRectMake(0, 0, mapView.frame.size.width,
-                                           mapView.frame.size.height)];
+    self =
+        [super initWithFrame:CGRectMake(0, 0, mapView.frame.size.width, mapView.frame.size.height)];
     self.backgroundColor = [UIColor clearColor];
 
     self.mapView = mapView;
@@ -53,7 +53,7 @@ static NSMutableSet<NSValue *> *touched;
     _railMap = map;
     hotSpotRegions = HotSpotArrays.sharedInstance.hotSpots;
 
-    DoOnce(^{
+    DO_ONCE(^{
       touched = NSMutableSet.set;
     });
 
@@ -126,12 +126,9 @@ static NSMutableSet<NSValue *> *touched;
     DEBUG_LOG_BOOL(self.showAll);
 
     if (HS_TYPE(*hs) == '#') {
-        [RailMapHotSpotsView setFillAndStrokeColor:context
-                                             color:[UIColor greenColor]];
-    } else if ([RailMapHotSpotsView touched:hs] && self.showAll &&
-               HS_TYPE(*hs) != kLinkTypeTest) {
-        [RailMapHotSpotsView setFillAndStrokeColor:context
-                                             color:[UIColor yellowColor]];
+        [RailMapHotSpotsView setFillAndStrokeColor:context color:[UIColor greenColor]];
+    } else if ([RailMapHotSpotsView touched:hs] && self.showAll && HS_TYPE(*hs) != kLinkTypeTest) {
+        [RailMapHotSpotsView setFillAndStrokeColor:context color:[UIColor yellowColor]];
     } else {
         UIColor *col;
         switch (HS_TYPE(*hs)) {
@@ -173,17 +170,20 @@ static NSMutableSet<NSValue *> *touched;
         // Draw curves between the midpoints of the polygon's sides with the
         // vertex as the control point.
 
-        CGContextMoveToPoint(context, (vertices[0].x + vertices[1].x) / 2,
-                             (vertices[0].y + vertices[1].y) / 2);
+        CGContextMoveToPoint(
+            context, (vertices[0].x + vertices[1].x) / 2, (vertices[0].y + vertices[1].y) / 2);
 
         for (int i = 1; i < hs->nVertices; i++) {
-            CGContextAddQuadCurveToPoint(
-                context, vertices[i].x, vertices[i].y,
-                (vertices[i].x + vertices[(i + 1) % nVertices].x) / 2,
-                (vertices[i].y + vertices[(i + 1) % nVertices].y) / 2);
+            CGContextAddQuadCurveToPoint(context,
+                                         vertices[i].x,
+                                         vertices[i].y,
+                                         (vertices[i].x + vertices[(i + 1) % nVertices].x) / 2,
+                                         (vertices[i].y + vertices[(i + 1) % nVertices].y) / 2);
         }
 
-        CGContextAddQuadCurveToPoint(context, vertices[0].x, vertices[0].y,
+        CGContextAddQuadCurveToPoint(context,
+                                     vertices[0].x,
+                                     vertices[0].y,
                                      (vertices[0].x + vertices[1].x) / 2,
                                      (vertices[0].y + vertices[1].y) / 2);
         CGContextFillPath(context);
@@ -199,8 +199,8 @@ static NSMutableSet<NSValue *> *touched;
 
     // CGPathAddRects(fillPath, NULL, &rect, 1);
     CGFloat width = 20.0;
-    CGRect rect = CGRectMake(_touchPoint.x - width / 2.0,
-                             _touchPoint.y - width / 2.0, width, width);
+    CGRect rect =
+        CGRectMake(_touchPoint.x - width / 2.0, _touchPoint.y - width / 2.0, width, width);
 
     CGRect square;
 
@@ -238,8 +238,7 @@ static NSMutableSet<NSValue *> *touched;
 
         if (!self.showAll) {
             if (self.selectedItem != -1) {
-                [self drawHotspot:&(hotSpotRegions[self.selectedItem])
-                          context:context];
+                [self drawHotspot:&(hotSpotRegions[self.selectedItem]) context:context];
             } else if (_touchPoint.x != 0.0) {
                 [self drawBlob:context];
             }
@@ -248,8 +247,7 @@ static NSMutableSet<NSValue *> *touched;
                 [self drawBlob:context];
             }
 
-            for (int j = _railMap->hotSpots->first;
-                 j <= _railMap->hotSpots->last; j++) {
+            for (int j = _railMap->hotSpots->first; j <= _railMap->hotSpots->last; j++) {
                 hs = hotSpotRegions + j;
 
                 if (hs->nVertices > 0) {
@@ -257,8 +255,7 @@ static NSMutableSet<NSValue *> *touched;
                 }
             }
 
-            CGContextSetStrokeColorWithColor(context,
-                                             [UIColor orangeColor].CGColor);
+            CGContextSetStrokeColorWithColor(context, [UIColor orangeColor].CGColor);
 
             for (CGFloat x = 0; x < _railMap->xTiles; x++) {
                 CGFloat xp = x * _railMap->tileSize.width;
@@ -277,15 +274,12 @@ static NSMutableSet<NSValue *> *touched;
                                         kCGTextFill); // This is the default
             [[UIColor blackColor] setFill];           // This is the default
 
-            CGContextSetTextMatrix(
-                context, CGAffineTransformMake(1.0, 0.0, 0.0, -1.0, 0.0, 0.0));
+            CGContextSetTextMatrix(context, CGAffineTransformMake(1.0, 0.0, 0.0, -1.0, 0.0, 0.0));
 
             for (int x = 0; x < _railMap->xTiles; x++) {
                 for (int y = 0; y < _railMap->yTiles; y++) {
-                    CGFloat xp = x * _railMap->tileSize.width +
-                                 _railMap->tileSize.width / 2.0;
-                    CGFloat yp = y * _railMap->tileSize.height +
-                                 _railMap->tileSize.height / 2.0;
+                    CGFloat xp = x * _railMap->tileSize.width + _railMap->tileSize.width / 2.0;
+                    CGFloat yp = y * _railMap->tileSize.height + _railMap->tileSize.height / 2.0;
 
                     ConstHotSpotIndex *index = _railMap->tiles[x][y].hotspots;
 
@@ -296,13 +290,11 @@ static NSMutableSet<NSValue *> *touched;
                         count++;
                     }
 
-                    NSString *sizeText =
-                        [NSString stringWithFormat:@"%d", count];
+                    NSString *sizeText = [NSString stringWithFormat:@"%d", count];
 
                     [sizeText drawAtPoint:CGPointMake(xp, yp)
                            withAttributes:@{
-                               NSFontAttributeName :
-                                   [UIFont fontWithName:@"Helvetica" size:12]
+                               NSFontAttributeName : [UIFont fontWithName:@"Helvetica" size:12]
                            }];
                 }
             }

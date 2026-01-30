@@ -25,9 +25,8 @@
 
 @interface BackgroundTaskContainer ()
 
-@property(atomic) bool debugMessages;
-@property(atomic) bool showSizes;
-@property(atomic) NSInteger bytesDone;
+@property (atomic) bool debugMessages;
+@property (atomic) NSInteger bytesDone;
 
 @end
 
@@ -37,9 +36,11 @@
     _callbackComplete = nil;
 }
 
-+ (BackgroundTaskContainer *)create:(id<BackgroundTaskDone>)done { // Here
++ (BackgroundTaskContainer *)create:(id<BackgroundTaskDone>)done
+                             parent:(UIViewController *)parent { // Here
     BackgroundTaskContainer *btc = [[[self class] alloc] init];
     btc.callbackComplete = done;
+    btc.parent = parent;
     return btc;
 }
 
@@ -57,24 +58,16 @@
 
     self.title = title;
     [MainQueueSync runSyncOnMainQueueWithoutDeadlocking:^{
-      UIWindow *keyWindow = UIApplication.firstKeyWindow;
-
       if (self.progressModal == nil) {
-          if ([self.callbackComplete
-                  respondsToSelector:@selector(backgroundTaskStarted)]) {
+          if ([self.callbackComplete respondsToSelector:@selector(backgroundTaskStarted)]) {
               [self.callbackComplete backgroundTaskStarted];
           }
 
-          self.progressModal = [[ProgressModalView alloc]
-              initWithParent:keyWindow
-                       items:total
-                       title:self.title
-                    delegate:(self.backgroundThread != nil ? self : nil)
-                 orientation:[self.callbackComplete backgroundTaskOrientation]];
-
-          [keyWindow addSubview:self.progressModal];
-          [keyWindow bringSubviewToFront:self.progressModal];
-          [keyWindow layoutSubviews];
+          self.progressModal =
+              [ProgressModalView presentWithParent:self.parent
+                                             items:total
+                                             title:self.title
+                                          delegate:(self.backgroundThread != nil ? self : nil)];
 
           [self.progressModal addHelpText:self.help];
       } else {
@@ -82,8 +75,7 @@
       }
     }];
 
-    if ([self.callbackComplete
-            respondsToSelector:@selector(backgroundTaskWait)]) {
+    if ([self.callbackComplete respondsToSelector:@selector(backgroundTaskWait)]) {
         while ([self.callbackComplete backgroundTaskWait]) {
             [NSThread sleepForTimeInterval:0.3];
         }
@@ -91,19 +83,19 @@
 }
 
 - (void)taskSubtext:(NSString *)subtext {
-    MainTask(^{
+    MAIN_TASK(^{
       [self addBytes:subtext];
     });
 }
 
 - (void)taskItemsDone:(NSInteger)itemsDone {
-    MainTask(^{
+    MAIN_TASK(^{
       [self.progressModal itemsDone:itemsDone];
     });
 }
 
 - (void)taskTotalItems:(NSInteger)totalItems {
-    MainTask(^{
+    MAIN_TASK(^{
       [self.progressModal totalItems:totalItems];
     });
 }
@@ -111,10 +103,8 @@
 - (void)finish {
     DEBUG_FUNC();
 
-    bool cancelled =
-        (self.backgroundThread != nil && self.backgroundThread.cancelled);
-    [self.callbackComplete backgroundTaskDone:self.controllerToPop
-                                    cancelled:cancelled];
+    bool cancelled = (self.backgroundThread != nil && self.backgroundThread.cancelled);
+    [self.callbackComplete backgroundTaskDone:self.controllerToPop cancelled:cancelled];
     self.progressModal = nil;
     [super finish];
 }
@@ -130,20 +120,18 @@
       DEBUG_PROGRESS(self, @"finishing");
 
       if (self.progressModal) {
-          [self.progressModal removeFromSuperview];
+          [self.progressModal dismiss];
+          self.progressModal = nil;
       }
 
       if (self.errMsg) {
-          UIAlertController *alert =
-              [UIAlertController simpleOkWithTitle:nil message:self.errMsg];
+          [UIAlertController simpleOkWithTitle:nil
+                                       message:self.errMsg
+                                viewController:self.parent
+                                    completion:^{
+                                      [self finish];
+                                    }];
 
-          UIViewController *top = UIApplication.topViewController;
-
-          [top presentViewController:alert
-                            animated:YES
-                          completion:^{
-                            [self finish];
-                          }];
           self.errMsg = nil;
       } else {
           DEBUG_LOG(@"finish");
@@ -160,12 +148,11 @@
     NSString *result = nil;
 
     if (bytes < 1024) {
-        result = [NSString stringWithFormat:@"%d B%@", (int)bytes,
-                                            fromCache ? @" cached" : @""];
+        result = [NSString stringWithFormat:@"%d B%@", (int)bytes, fromCache ? @" cached" : @""];
     } else if (bytes < (1024 * 1024)) {
-        result =
-            [NSString stringWithFormat:@"%.2f K%@", (((float)(bytes)) / 1024.0),
-                                       fromCache ? @" cached" : @""];
+        result = [NSString stringWithFormat:@"%.2f K%@",
+                                            (((float)(bytes)) / 1024.0),
+                                            fromCache ? @" cached" : @""];
     } else {
         result = [NSString stringWithFormat:@"%.2f MB%@",
                                             ((float)(bytes) / (1024 * 1024)),
@@ -176,13 +163,13 @@
 }
 
 - (void)triMetXML:(TriMetXML *)xml startedFetchingData:(bool)fromCache {
-    MainTask(^{
+    MAIN_TASK(^{
       [self.progressModal subItemsDone:1 totalSubs:5];
     });
 }
 
 - (void)triMetXML:(TriMetXML *)xml finishedFetchingData:(bool)fromCache {
-    MainTask(^{
+    MAIN_TASK(^{
       [self.progressModal subItemsDone:4 totalSubs:5];
       [self addBytes:@""];
     });
@@ -202,19 +189,16 @@
 - (void)addBytes:(NSString *)text {
     if (self.bytesDone > 0 && self.showSizes) {
         [self.progressModal
-            addSubtext:[NSString stringWithFormat:@"%@ %@",
-                                                  [self bytes:self.bytesDone],
-                                                  text]];
+            addSubtext:[NSString stringWithFormat:@"%@ %@", [self bytes:self.bytesDone], text]];
     } else {
         [self.progressModal addSubtext:text];
     }
 }
 
-- (void)triMetXML:(TriMetXML *_Nonnull)xml
-    incrementalBytes:(long long)incremental {
+- (void)triMetXML:(TriMetXML *_Nonnull)xml incrementalBytes:(long long)incremental {
     self.bytesDone += incremental;
 
-    MainTask(^{
+    MAIN_TASK(^{
       [self.progressModal subItemsDone:3 totalSubs:5];
       if (self.showSizes) {
           [self addBytes:@""];

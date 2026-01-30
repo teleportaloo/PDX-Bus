@@ -20,38 +20,38 @@
 
 #define DEBUG_LEVEL_FOR_FILE LogNet
 
-@interface SessionSingleton ()
+@interface SessionSingleton () {
+    dispatch_queue_t _syncQueue;
+    NSMutableDictionary<NSNumber *, id<NSURLSessionDataDelegate>> *_rawTasks;
+}
 
-@property(nonatomic, retain)
-    NSMutableDictionary<NSNumber *, id<NSURLSessionDataDelegate>> *tasks;
-@property(nonatomic, retain) NSURLSession *session;
-@property(nonatomic, retain) NSURLCache *urlCache;
+@property (nonatomic, retain) NSURLSession *session;
+@property (nonatomic, retain) NSURLCache *urlCache;
 
 @end
 
-#define DEBUG_TASK(T)                                                          \
-    DEBUG_LOG_description(T.originalRequest.URL.absoluteString);               \
+#define DEBUG_TASK(T)                                                                              \
+    DEBUG_LOG_description(T.originalRequest.URL.absoluteString);                                   \
     DEBUG_LOG_description(T)
 #define DEBUG_DELEGATE(P) DEBUG_LOG_description(P)
 
 @implementation SessionSingleton
 
 static SessionSingleton *singleton;
-static NSMutableData *syncObject;
 
 + (instancetype)sharedInstance {
-
-    DoOnce(^{
-      syncObject = [[NSMutableData alloc] initWithLength:1];
-    });
-
-    @synchronized(syncObject) {
+    @synchronized(self) {
         if (singleton == nil) {
             singleton = [[SessionSingleton alloc] init];
         }
+        return singleton;
     }
+}
 
-    return singleton;
++ (void)wipeSharedInstance {
+    @synchronized(self) {
+        singleton = nil;
+    }
 }
 
 + (void)clearCache {
@@ -66,26 +66,17 @@ static NSMutableData *syncObject;
     [[SessionSingleton sharedInstance] removeTask:task];
 }
 
-- (void)removeTask:(NSURLSessionDataTask *)task {
-    if (task) {
-        @synchronized(syncObject) {
-            [self.tasks removeObjectForKey:@(task.taskIdentifier)];
-
-            DEBUG_LOG(@"Task done %ld - #%ld", (long)self.tasks.count,
-                      (long)task.taskIdentifier);
-        }
-    }
-}
-
 - (instancetype)init {
     if ((self = [super init])) {
         NSUInteger cacheSizeMemory = 8 * 1024 * 1024;
         NSUInteger cacheSizeDisk = 50 * 1024 * 1024;
 
-        self.urlCache =
-            [[NSURLCache alloc] initWithMemoryCapacity:cacheSizeMemory
-                                          diskCapacity:cacheSizeDisk
-                                              diskPath:nil];
+        _syncQueue = dispatch_queue_create("org.teleportaloo.pdxbus.session.sync",
+                                           DISPATCH_QUEUE_CONCURRENT);
+
+        self.urlCache = [[NSURLCache alloc] initWithMemoryCapacity:cacheSizeMemory
+                                                      diskCapacity:cacheSizeDisk
+                                                          diskPath:nil];
 
         NSURLSessionConfiguration *configuration =
             [NSURLSessionConfiguration defaultSessionConfiguration];
@@ -93,21 +84,31 @@ static NSMutableData *syncObject;
         self.session = [NSURLSession sessionWithConfiguration:configuration
                                                      delegate:self
                                                 delegateQueue:nil];
-        self.tasks = [NSMutableDictionary dictionary];
+        self->_rawTasks = [NSMutableDictionary dictionary];
     }
 
     return self;
 }
 
-- (id<NSURLSessionDataDelegate>)delegateForTask:(NSURLSessionTask *)task
-                                       selector:(SEL)selector {
+- (void)removeTask:(NSURLSessionDataTask *)task {
+    if (task) {
+        dispatch_barrier_async(_syncQueue, ^{
+          [self->_rawTasks removeObjectForKey:@(task.taskIdentifier)];
+
+          DEBUG_LOG(
+              @"Task done %ld - #%ld", (long)self->_rawTasks.count, (long)task.taskIdentifier);
+        });
+    }
+}
+
+- (id<NSURLSessionDataDelegate>)delegateForTask:(NSURLSessionTask *)task selector:(SEL)selector {
     NSURLSessionDataTask *dataTask = (NSURLSessionDataTask *)task;
 
-    id<NSURLSessionDataDelegate> delegate;
+    __block id<NSURLSessionDataDelegate> delegate;
 
-    @synchronized(syncObject) {
-        delegate = self.tasks[@(dataTask.taskIdentifier)];
-    }
+    dispatch_sync(_syncQueue, ^{
+      delegate = self->_rawTasks[@(dataTask.taskIdentifier)];
+    });
 
     if ([delegate respondsToSelector:selector]) {
         return delegate;
@@ -118,42 +119,37 @@ static NSMutableData *syncObject;
 
 + (NSURLSessionDataTask *)dataTaskWithURL:(NSURL *)url
                               cachePolicy:(NSURLRequestCachePolicy)cachePolicy
-                                 delegate:
-                                     (id<NSURLSessionDataDelegate>)delegate {
-    SessionSingleton *session = [SessionSingleton sharedInstance];
+                                 delegate:(id<NSURLSessionDataDelegate>)delegate {
 
-    return [session dataTaskWithURL:url
-                        cachePolicy:cachePolicy
-                           delegate:delegate];
+    SessionSingleton *session = [SessionSingleton sharedInstance];
+    return [session dataTaskWithURL:url cachePolicy:cachePolicy delegate:delegate];
 }
 
 - (NSURLSessionDataTask *)dataTaskWithURL:(NSURL *)url
                               cachePolicy:(NSURLRequestCachePolicy)cachePolicy
-                                 delegate:
-                                     (id<NSURLSessionDataDelegate>)delegate {
+                                 delegate:(id<NSURLSessionDataDelegate>)delegate {
+
     NSURLSessionDataTask *task = nil;
+    if (self.session != nil) {
+        NSURLRequest *request = [NSURLRequest requestWithURL:url
+                                                 cachePolicy:cachePolicy
+                                             timeoutInterval:DBL_MAX];
+        task = [self.session dataTaskWithRequest:request];
 
-    @synchronized(syncObject) {
-        if (self.session != nil) {
-            NSURLRequest *request = [NSURLRequest requestWithURL:url
-                                                     cachePolicy:cachePolicy
-                                                 timeoutInterval:DBL_MAX];
+        dispatch_barrier_async(_syncQueue, ^{
+          self->_rawTasks[@(task.taskIdentifier)] = delegate;
+        });
 
-            task = [self.session dataTaskWithRequest:request];
-
-            self.tasks[@(task.taskIdentifier)] = delegate;
-            DEBUG_LOG(@"Task started %ld - #%ld", (long)self.tasks.count,
-                      (long)task.taskIdentifier);
-        }
+        DEBUG_LOG(
+            @"Task started %ld - #%ld", (long)self->_rawTasks.count, (long)task.taskIdentifier);
     }
+
     return task;
 }
 
-- (void)URLSession:(NSURLSession *)session
-    taskIsWaitingForConnectivity:(NSURLSessionTask *)task
-    API_AVAILABLE(macos(10.13), ios(11.0), watchos(4.0), tvos(11.0)) {
-    id<NSURLSessionTaskDelegate> delegate = [self delegateForTask:task
-                                                         selector:_cmd];
+- (void)URLSession:(NSURLSession *)session taskIsWaitingForConnectivity:(NSURLSessionTask *)task {
+
+    id<NSURLSessionTaskDelegate> delegate = [self delegateForTask:task selector:_cmd];
 
     DEBUG_TASK(task);
     DEBUG_DELEGATE(delegate);
@@ -167,10 +163,9 @@ static NSMutableData *syncObject;
                           task:(NSURLSessionTask *)task
     willPerformHTTPRedirection:(NSHTTPURLResponse *)response
                     newRequest:(NSURLRequest *)request
-             completionHandler:
-                 (void (^)(NSURLRequest *_Nullable))completionHandler {
-    id<NSURLSessionTaskDelegate> delegate = [self delegateForTask:task
-                                                         selector:_cmd];
+             completionHandler:(void (^)(NSURLRequest *_Nullable))completionHandler {
+
+    id<NSURLSessionTaskDelegate> delegate = [self delegateForTask:task selector:_cmd];
 
     DEBUG_TASK(task);
     DEBUG_DELEGATE(delegate);
@@ -192,8 +187,8 @@ static NSMutableData *syncObject;
              didSendBodyData:(int64_t)bytesSent
               totalBytesSent:(int64_t)totalBytesSent
     totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend {
-    id<NSURLSessionTaskDelegate> delegate = [self delegateForTask:task
-                                                         selector:_cmd];
+
+    id<NSURLSessionTaskDelegate> delegate = [self delegateForTask:task selector:_cmd];
 
     DEBUG_TASK(task);
     DEBUG_DELEGATE(delegate);
@@ -210,10 +205,9 @@ static NSMutableData *syncObject;
 - (void)URLSession:(NSURLSession *)session
              dataTask:(NSURLSessionDataTask *)dataTask
     willCacheResponse:(NSCachedURLResponse *)proposedResponse
-    completionHandler:(void (^)(NSCachedURLResponse *_Nullable cachedResponse))
-                          completionHandler {
-    id<NSURLSessionDataDelegate> delegate = [self delegateForTask:dataTask
-                                                         selector:_cmd];
+    completionHandler:(void (^)(NSCachedURLResponse *_Nullable cachedResponse))completionHandler {
+
+    id<NSURLSessionDataDelegate> delegate = [self delegateForTask:dataTask selector:_cmd];
 
     DEBUG_TASK(dataTask);
     DEBUG_DELEGATE(delegate);
@@ -230,20 +224,19 @@ static NSMutableData *syncObject;
 
 - (void)URLSession:(NSURLSession *)session
                           task:(NSURLSessionTask *)task
-    didFinishCollectingMetrics:(NSURLSessionTaskMetrics *)metrics
-    API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0)) {
-    id<NSURLSessionTaskDelegate> delegate = [self delegateForTask:task
-                                                         selector:_cmd];
+    didFinishCollectingMetrics:(NSURLSessionTaskMetrics *)metrics {
+
+    id<NSURLSessionTaskDelegate> delegate = [self delegateForTask:task selector:_cmd];
 
     DEBUG_TASK(task);
     DEBUG_DELEGATE(delegate);
-    DEBUG_LOG(@"Task time: %@, %f, redirects %d", task.originalRequest.URL.host,
-              metrics.taskInterval.duration, (int)metrics.redirectCount);
+    DEBUG_LOG(@"Task time: %@, %f, redirects %d",
+              task.originalRequest.URL.host,
+              metrics.taskInterval.duration,
+              (int)metrics.redirectCount);
 
     if (delegate) {
-        [delegate URLSession:session
-                                  task:task
-            didFinishCollectingMetrics:metrics];
+        [delegate URLSession:session task:task didFinishCollectingMetrics:metrics];
     }
 }
 
@@ -254,8 +247,7 @@ static NSMutableData *syncObject;
                     task:(NSURLSessionTask *)task
     didCompleteWithError:(nullable NSError *)error {
 
-    id<NSURLSessionDataDelegate> delegate = [self delegateForTask:task
-                                                         selector:_cmd];
+    id<NSURLSessionDataDelegate> delegate = [self delegateForTask:task selector:_cmd];
 
     DEBUG_TASK(task);
     DEBUG_DELEGATE(delegate);
@@ -279,10 +271,9 @@ static NSMutableData *syncObject;
 - (void)URLSession:(NSURLSession *)session
               dataTask:(NSURLSessionDataTask *)dataTask
     didReceiveResponse:(NSURLResponse *)response
-     completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))
-                           completionHandler {
-    id<NSURLSessionDataDelegate> delegate = [self delegateForTask:dataTask
-                                                         selector:_cmd];
+     completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
+
+    id<NSURLSessionDataDelegate> delegate = [self delegateForTask:dataTask selector:_cmd];
 
     DEBUG_TASK(dataTask);
     DEBUG_DELEGATE(delegate);
@@ -304,16 +295,14 @@ static NSMutableData *syncObject;
 - (void)URLSession:(NSURLSession *)session
                  dataTask:(NSURLSessionDataTask *)dataTask
     didBecomeDownloadTask:(NSURLSessionDownloadTask *)downloadTask {
-    id<NSURLSessionDataDelegate> delegate = [self delegateForTask:dataTask
-                                                         selector:_cmd];
+
+    id<NSURLSessionDataDelegate> delegate = [self delegateForTask:dataTask selector:_cmd];
 
     DEBUG_TASK(dataTask);
     DEBUG_DELEGATE(delegate);
 
     if (delegate) {
-        [delegate URLSession:session
-                         dataTask:dataTask
-            didBecomeDownloadTask:downloadTask];
+        [delegate URLSession:session dataTask:dataTask didBecomeDownloadTask:downloadTask];
     }
 }
 
@@ -325,8 +314,8 @@ static NSMutableData *syncObject;
 - (void)URLSession:(NSURLSession *)session
           dataTask:(NSURLSessionDataTask *)dataTask
     didReceiveData:(NSData *)data {
-    id<NSURLSessionDataDelegate> delegate = [self delegateForTask:dataTask
-                                                         selector:_cmd];
+
+    id<NSURLSessionDataDelegate> delegate = [self delegateForTask:dataTask selector:_cmd];
 
     DEBUG_TASK(dataTask);
     DEBUG_DELEGATE(delegate);
@@ -334,49 +323,30 @@ static NSMutableData *syncObject;
     if (delegate) {
         [delegate URLSession:session dataTask:dataTask didReceiveData:data];
     }
-
-#if 0 // Some test code for a random failure
-    @synchronized (syncObject) {
-        static int killer;
-    
-        killer++;
-    
-        if (killer == 5)
-        {
-            [session invalidateAndCancel];
-            killer = 0;
-        }
-    }
-#endif
 }
 
-- (void)URLSession:(NSURLSession *)session
-    didBecomeInvalidWithError:(nullable NSError *)error {
+- (void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(nullable NSError *)error {
 
     LOG_NSError(error);
-
-    @synchronized(syncObject) {
-        singleton = nil;
-        self.session = nil;
-        ;
-        [self.tasks removeAllObjects];
-    }
+    dispatch_barrier_async(_syncQueue, ^{
+      [self->_rawTasks removeAllObjects];
+    });
+    [SessionSingleton wipeSharedInstance];
 }
 
 + (NSCachedURLResponse *)response:(NSCachedURLResponse *)cachedResponse
            withExpirationDuration:(NSTimeInterval)duration {
 
     if ([cachedResponse.response isKindOfClass:[NSHTTPURLResponse class]]) {
-        NSHTTPURLResponse *httpResponse =
-            (NSHTTPURLResponse *)[cachedResponse response];
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)[cachedResponse response];
 
         NSHTTPURLResponse *newResponse = [httpResponse withMaxAge:duration];
 
-        cachedResponse = [[NSCachedURLResponse alloc]
-            initWithResponse:newResponse
-                        data:[cachedResponse.data mutableCopy]
-                    userInfo:newResponse.allHeaderFields
-               storagePolicy:cachedResponse.storagePolicy];
+        cachedResponse =
+            [[NSCachedURLResponse alloc] initWithResponse:newResponse
+                                                     data:[cachedResponse.data mutableCopy]
+                                                 userInfo:newResponse.allHeaderFields
+                                            storagePolicy:cachedResponse.storagePolicy];
     }
     return cachedResponse;
 }

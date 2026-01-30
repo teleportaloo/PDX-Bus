@@ -12,8 +12,8 @@
 
 #import "Route.h"
 #import "DebugLogging.h"
-#import "TriMetInfo.h"
 #import "NSDictionary+Types.h"
+#import "TriMetInfo.h"
 #import "TriMetXML.h"
 #import "TriMetXMLSelectors.h"
 
@@ -30,8 +30,7 @@
 + (instancetype)systemWide:(NSNumber *)detourId {
     Route *route = [Route new];
 
-    route.routeId = [NSString
-        stringWithFormat:@"%@ %d", kSystemWideRouteId, detourId.intValue];
+    route.routeId = [NSString stringWithFormat:@"%@ %d", kSystemWideRouteId, detourId.intValue];
     route.desc = kSystemWideDetour;
     return route;
 }
@@ -42,8 +41,7 @@
 
 - (NSInteger)systemWideId {
     if (self.routeId.length >= (kSystemWideRouteId.length + 1)) {
-        return [self.routeId substringFromIndex:(kSystemWideRouteId.length + 1)]
-            .integerValue;
+        return [self.routeId substringFromIndex:(kSystemWideRouteId.length + 1)].integerValue;
     }
 
     return 0;
@@ -139,24 +137,22 @@
 }
 
 + (Route *)fromAttributeDict:(NSDictionary *)XML_ATR_DICT {
-    Route * route = [Route new];
-    
+    Route *route = [Route new];
+
     route.routeId = XML_NON_NULL_ATR_STR(@"route");
     route.desc = XML_NON_NULL_ATR_STR(@"desc");
     route.routeSortOrder = XML_ATR_INT(@"routeSortOrder");
 
     if (XML_NULLABLE_ATR_STR(@"frequentService")) {
-        route.frequentService =
-            @(XML_ATR_BOOL_DEFAULT_FALSE(@"frequentService"));
+        route.frequentService = @(XML_ATR_BOOL_DEFAULT_FALSE(@"frequentService"));
     }
 
     NSString *color = XML_NULLABLE_ATR_STR(@"routeColor");
 
     if (color) {
-        route.routeColor =
-            strtol([color UTF8String], nil, 16);
+        route.routeColor = strtol([color UTF8String], nil, 16);
     }
-    
+
     return route;
 }
 

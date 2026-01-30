@@ -44,12 +44,11 @@
 
 - (void)updateUserActivity:(WKInterfaceController *)controller {
     if (!self.recents) {
-        MutableUserParams *info =
-            [MutableUserParams withChosenName:self.title
-                                     location:self.location];
+        MutableUserParams *info = [MutableUserParams withChosenName:self.title
+                                                           location:self.location];
 
-        NSUserActivity *userActivity = [[NSUserActivity alloc]
-            initWithActivityType:kHandoffUserActivityBookmark];
+        NSUserActivity *userActivity =
+            [[NSUserActivity alloc] initWithActivityType:kHandoffUserActivityBookmark];
         userActivity.userInfo = info.dictionary;
         userActivity.webpageURL = nil;
         [controller updateUserActivity:userActivity];

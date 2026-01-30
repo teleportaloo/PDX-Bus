@@ -22,10 +22,9 @@
 #import <UIKit/UIKit.h>
 
 @interface EditBookMarkViewController
-    : TableViewControllerWithToolbar <EditableTableViewCellDelegate,
-                                      ReturnStopIdString>
+    : TableViewControllerWithToolbar <EditableTableViewCellDelegate, ReturnStopIdString>
 
-@property(nonatomic) bool invalidItem;
+@property (nonatomic) bool invalidItem;
 
 - (void)timeSegmentChanged:(id)sender;
 - (void)editBookMark:(NSMutableDictionary *)fave item:(uint)i;
@@ -37,6 +36,6 @@
 - (void)setupArrivalSections;
 - (void)setupTripSections;
 
-+ (NSString *)daysString:(int)days;
++ (NSString *)daysString:(unsigned int)days;
 
 @end

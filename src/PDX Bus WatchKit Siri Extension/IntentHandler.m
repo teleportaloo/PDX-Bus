@@ -29,27 +29,26 @@
 
 @implementation IntentHandler
 
-- (id)handlerForIntent:(INIntent *)intent API_AVAILABLE(watchos(3.2)) {
+- (id)handlerForIntent:(INIntent *)intent {
     // This is the default implementation.  If you want different objects to
     // handle different intents, you can override this and return the handler
     // you want for that particular intent.
 
-#define RETURN_INTENT_HANDER(INTENT_CLASS, HANDLER_CLASS)                      \
-    if ([intent isKindOfClass:[INTENT_CLASS class]]) {                         \
-        return [[HANDLER_CLASS alloc] init];                                   \
-    }
+#define RETURN_INTENT_HANDER(INTENT_CLASS, HANDLER_CLASS)                                          \
+    do {                                                                                           \
+        if ([intent isKindOfClass:[INTENT_CLASS class]]) {                                         \
+            return [[HANDLER_CLASS alloc] init];                                                   \
+        }                                                                                          \
+    } while (0)
 
     if (@available(watchOS 5.0, *)) {
         RETURN_INTENT_HANDER(ArrivalsIntent, WatchArrivalsIntentHandler);
-        RETURN_INTENT_HANDER(ArrivalsAtStopIdIntent,
-                             WatchArrivalsIntentHandler);
+        RETURN_INTENT_HANDER(ArrivalsAtStopIdIntent, WatchArrivalsIntentHandler);
         RETURN_INTENT_HANDER(AlertsForRouteIntent, WatchAlertsIntentHandler);
         RETURN_INTENT_HANDER(SystemWideAlertsIntent, WatchAlertsIntentHandler);
         RETURN_INTENT_HANDER(LocateStopsIntent, WatchLocateStopsIntentHandler);
-        RETURN_INTENT_HANDER(RoutesAtStopIdIntent,
-                             WatchRoutesAtStopIdIntentHandler);
-        RETURN_INTENT_HANDER(StopLocationIntent,
-                             WatchStopLocationIntentHandler);
+        RETURN_INTENT_HANDER(RoutesAtStopIdIntent, WatchRoutesAtStopIdIntentHandler);
+        RETURN_INTENT_HANDER(StopLocationIntent, WatchStopLocationIntentHandler);
     } else {
         // Fallback on earlier versions
     }

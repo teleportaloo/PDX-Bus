@@ -13,7 +13,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import "PullRefreshTableViewController.h"
+#import "TableViewControllerWithToolbar.h"
 
 #define kRefreshText NSLocalizedString(@"Refresh", @"Refresh departure button")
 
@@ -21,19 +21,21 @@
 #define kRefreshTimer 0x02
 #define kRefreshPull 0x04
 #define kRefreshShake 0x08
-#define kRefreshAll                                                            \
-    (kRefreshButton | kRefreshTimer | kRefreshPull | kRefreshShake)
+#define kRefreshAll (kRefreshButton | kRefreshTimer | kRefreshPull | kRefreshShake)
 #define kRefreshNoTimer (kRefreshButton | kRefreshPull | kRefreshShake)
 
 @interface TableViewControllerWithRefresh<FilteredItemType>
-    : PullRefreshTableViewController <FilteredItemType>
+    : TableViewControllerWithToolbar <FilteredItemType>
 
-@property(nonatomic) NSInteger refreshFlags;
+@property (nonatomic) NSInteger refreshFlags;
 
 - (void)stopTimer;
 - (void)startTimer;
-- (void)setRefreshButtonText:(NSString *)text;
+- (void)setRefreshButtonText:(NSString *)text
+              forceAnimation:(bool)forceAnimation
+                 animateNext:(bool)animateNext;
 - (void)refreshAction:(id)unused;
 - (void)countDownTimer;
+- (void)updateRefreshDate:(NSDate *)date;
 
 @end

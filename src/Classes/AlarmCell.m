@@ -15,9 +15,9 @@
 
 #import "AlarmCell.h"
 #import "DebugLogging.h"
+#import "UIApplication+Compat.h"
 #import "UIColor+MoreDarkMode.h"
 #import "ViewControllerBase.h"
-#import "UIApplication+Compat.h"
 
 // #define ALARM_NAME_TAG    1
 /// #define ALARM_TOGO_TAG    2
@@ -35,8 +35,7 @@
 
 - (instancetype)initWithStyle:(UITableViewCellStyle)style
               reuseIdentifier:(NSString *)reuseIdentifier {
-    self = [super initWithStyle:UITableViewCellStyleSubtitle
-                reuseIdentifier:reuseIdentifier];
+    self = [super initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:reuseIdentifier];
 
     if (self) {
         // Initialization code.
@@ -66,18 +65,15 @@
 }
 
 + (AlarmCell *)tableviewCellWithReuseIdentifier:(NSString *)identifier {
-    AlarmCell *cell =
-        [[AlarmCell alloc] initWithStyle:UITableViewCellStyleDefault
-                         reuseIdentifier:identifier];
+    AlarmCell *cell = [[AlarmCell alloc] initWithStyle:UITableViewCellStyleDefault
+                                       reuseIdentifier:identifier];
 
     [cell setUpViews];
 
     return cell;
 }
 
-- (void)populateCellLine1:(NSString *)line1
-                    line2:(NSString *)line2
-                 line2col:(UIColor *)col {
+- (void)populateCellLine1:(NSString *)line1 line2:(NSString *)line2 line2col:(UIColor *)col {
     self.textLabel.text = line1;
     self.textLabel.adjustsFontSizeToFitWidth = YES;
     self.textLabel.baselineAdjustment = UIBaselineAdjustmentAlignCenters;

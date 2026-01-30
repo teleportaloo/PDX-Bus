@@ -46,15 +46,13 @@
     [xmlFile addHeaderTag:[NSDate date]];
     [xmlFile tagWithAtrributes:@"alert "
                     attributes:@[
-                        @[ @"begin", @"1495713600000" ], @[ @"end", @"" ],
+                        @[ @"begin", @"1495713600000" ],
+                        @[ @"end", @"" ],
                         @[ @"id", @"1" ],
                         @[ @"info_link_url", @"https://trimet.org" ],
                         @[ @"header_text", @"Thanksgiving Day Service" ],
                         @[ @"system_wide_flag", @"true" ],
-                        @[
-                            @"desc",
-                            @"A system-wide event with balloons is happening."
-                        ]
+                        @[ @"desc", @"A system-wide event with balloons is happening." ]
                     ]];
 
     [xmlFile closeHeaderTag];
@@ -74,11 +72,10 @@
     XCTAssertEqual(DETOUR_TYPE_FROM_ID(sut[0].detourId), @"");
     XCTAssertEqualObjects(sut[0].infoLinkUrl, @"https://trimet.org");
     XCTAssertEqual(sut[0].systemWide, TRUE);
-    XCTAssertEqualObjects(sut[0].detourDesc,
-                          @"A system-wide event with balloons is happening.");
-    XCTAssertEqualObjects(sut[0].detectStops.removeMarkUp, sut[0].detourDesc);
+    XCTAssertEqualObjects(sut[0].detourDesc, @"A system-wide event with balloons is happening.");
+    XCTAssertEqualObjects(sut[0].detourTextWithDetectedStops.removeMarkUp, sut[0].detourDesc);
 
-    DEBUG_LOG(@"Processed detour %@", sut[0].detectStops.removeMarkUp);
+    DEBUG_LOG(@"Processed detour %@", sut[0].detourTextWithDetectedStops.removeMarkUp);
     DEBUG_LOG(@"Original detour  %@", sut[0].detourDesc);
 
     XCTAssertNil(sut.parseError);
@@ -92,18 +89,13 @@
     [xmlFile addHeaderTag:[NSDate date]];
     [xmlFile tagWithAtrributes:@"alert "
                     attributes:@[
-                        @[ @"begin", @"1495713600000" ], @[ @"end", @"" ],
+                        @[ @"begin", @"1495713600000" ],
+                        @[ @"end", @"" ],
                         @[ @"id", @"1" ],
-                        @[
-                            @"info_link_url",
-                            @"https://trimet.org https://gobytram.org"
-                        ],
+                        @[ @"info_link_url", @"https://trimet.org https://gobytram.org" ],
                         @[ @"header_text", @"Thanksgiving Day Service" ],
                         @[ @"system_wide_flag", @"true" ],
-                        @[
-                            @"desc",
-                            @"A system-wide event with balloons is happening."
-                        ]
+                        @[ @"desc", @"A system-wide event with balloons is happening." ]
                     ]];
 
     [xmlFile closeHeaderTag];
@@ -116,9 +108,9 @@
     // Assert
     XCTAssertEqualObjects(sut[0].infoLinkUrl, @"https://gobytram.org");
     XCTAssertNil(sut.parseError);
-    XCTAssertEqualObjects(sut[0].detectStops.removeMarkUp, sut[0].detourDesc);
+    XCTAssertEqualObjects(sut[0].detourTextWithDetectedStops.removeMarkUp, sut[0].detourDesc);
 
-    DEBUG_LOG(@"Processed detour %@", sut[0].detectStops.removeMarkUp);
+    DEBUG_LOG(@"Processed detour %@", sut[0].detourTextWithDetectedStops.removeMarkUp);
     DEBUG_LOG(@"Original detour  %@", sut[0].detourDesc);
 }
 
@@ -130,18 +122,13 @@
     [xmlFile addHeaderTag:[NSDate date]];
     [xmlFile tagWithAtrributes:@"alert "
                     attributes:@[
-                        @[ @"begin", @"1495713600000" ], @[ @"end", @"" ],
+                        @[ @"begin", @"1495713600000" ],
+                        @[ @"end", @"" ],
                         @[ @"id", @"1" ],
-                        @[
-                            @"info_link_url",
-                            @"https://trimet.org HTTP://gobytram.org"
-                        ],
+                        @[ @"info_link_url", @"https://trimet.org HTTP://gobytram.org" ],
                         @[ @"header_text", @"Thanksgiving Day Service" ],
                         @[ @"system_wide_flag", @"true" ],
-                        @[
-                            @"desc",
-                            @"A system-wide event with balloons is happening."
-                        ]
+                        @[ @"desc", @"A system-wide event with balloons is happening." ]
                     ]];
 
     [xmlFile closeHeaderTag];
@@ -154,9 +141,9 @@
     // Assert
     XCTAssertEqualObjects(sut[0].infoLinkUrl, @"HTTP://gobytram.org");
     XCTAssertNil(sut.parseError);
-    XCTAssertEqualObjects(sut[0].detectStops.removeMarkUp, sut[0].detourDesc);
+    XCTAssertEqualObjects(sut[0].detourTextWithDetectedStops.removeMarkUp, sut[0].detourDesc);
 
-    DEBUG_LOG(@"Processed detour %@", sut[0].detectStops.removeMarkUp);
+    DEBUG_LOG(@"Processed detour %@", sut[0].detourTextWithDetectedStops.removeMarkUp);
     DEBUG_LOG(@"Original detour  %@", sut[0].detourDesc);
 }
 
@@ -169,8 +156,10 @@
     [xmlFile
         startTagWithAttributes:@"alert"
                     attributes:@[
-                        @[ @"begin", @"1495713600000" ], @[ @"end", @"" ],
-                        @[ @"id", @"10" ], @[ @"info_link_url", @"" ],
+                        @[ @"begin", @"1495713600000" ],
+                        @[ @"end", @"" ],
+                        @[ @"id", @"10" ],
+                        @[ @"info_link_url", @"" ],
                         @[ @"header_text", @"" ],
                         @[ @"system_wide_flag", @"false" ],
                         @[
@@ -206,8 +195,7 @@
     XCTAssertEqual(sut.count, 1);
     XCTAssertEqualObjects(result.headerText, @"");
 
-    XCTAssertEqualObjects(result.beginDate,
-                          [NSDate dateWithTimeIntervalSince1970:1495713600]);
+    XCTAssertEqualObjects(result.beginDate, [NSDate dateWithTimeIntervalSince1970:1495713600]);
     XCTAssertEqual(DETOUR_ID_STRIP_TAG(result.detourId), 10);
     XCTAssertEqual(DETOUR_TYPE_FROM_ID(result.detourId), @"");
     XCTAssertEqualObjects(result.infoLinkUrl, nil);
@@ -219,9 +207,9 @@
     XCTAssert([result.embeddedStops containsObject:@"17"]);
     XCTAssert([result.embeddedStops containsObject:@"18"]);
     XCTAssert([result.embeddedStops containsObject:@"1234567"]);
-    XCTAssertEqualObjects(result.detectStops.removeMarkUp, result.detourDesc);
+    XCTAssertEqualObjects(result.detourTextWithDetectedStops.removeMarkUp, result.detourDesc);
 
-    DEBUG_LOG(@"Processed detour %@", result.detectStops.removeMarkUp);
+    DEBUG_LOG(@"Processed detour %@", result.detourTextWithDetectedStops.removeMarkUp);
     DEBUG_LOG(@"Original detour  %@", result.detourDesc);
 }
 
@@ -234,8 +222,10 @@
     [xmlFile
         startTagWithAttributes:@"alert"
                     attributes:@[
-                        @[ @"begin", @"1495713600000" ], @[ @"end", @"" ],
-                        @[ @"id", @"10" ], @[ @"info_link_url", @"" ],
+                        @[ @"begin", @"1495713600000" ],
+                        @[ @"end", @"" ],
+                        @[ @"id", @"10" ],
+                        @[ @"info_link_url", @"" ],
                         @[ @"header_text", @"" ],
                         @[ @"system_wide_flag", @"false" ],
                         @[
@@ -254,15 +244,16 @@
                         @[ @"no_service_flag", @"false" ],
                     ]];
 
-    [xmlFile
-        tagWithAtrributes:@"location"
-               attributes:@[
-                   @[ @"id", @"7122" ], @[ @"desc", @"NW 21st &amp; Lovejoy" ],
-                   @[ @"dir", @"Northbound" ], @[ @"lat", @"45.530113999998" ],
-                   @[ @"lng", @"-122.69447499998" ],
-                   @[ @"no_service_flag", @"false" ],
-                   @[ @"passengerCode", @"E" ]
-               ]];
+    [xmlFile tagWithAtrributes:@"location"
+                    attributes:@[
+                        @[ @"id", @"7122" ],
+                        @[ @"desc", @"NW 21st &amp; Lovejoy" ],
+                        @[ @"dir", @"Northbound" ],
+                        @[ @"lat", @"45.530113999998" ],
+                        @[ @"lng", @"-122.69447499998" ],
+                        @[ @"no_service_flag", @"false" ],
+                        @[ @"passengerCode", @"E" ]
+                    ]];
 
     [xmlFile closeTag:@"alert"];
 
@@ -282,8 +273,7 @@
     XCTAssertEqualObjects(result.headerText, @"");
     //    XCTAssertEqualObjects(          result.detectStops, @"");
 
-    XCTAssertEqualObjects(result.beginDate,
-                          [NSDate dateWithTimeIntervalSince1970:1495713600]);
+    XCTAssertEqualObjects(result.beginDate, [NSDate dateWithTimeIntervalSince1970:1495713600]);
     XCTAssertEqual(DETOUR_ID_STRIP_TAG(result.detourId), 10);
     XCTAssertEqual(DETOUR_TYPE_FROM_ID(result.detourId), @"");
     XCTAssertEqualObjects(result.infoLinkUrl, nil);
@@ -296,9 +286,9 @@
     XCTAssert([result.embeddedStops containsObject:@"13202"]);
     XCTAssert([result.embeddedStops containsObject:@"12899"]);
     XCTAssert([result.embeddedStops containsObject:@"6832"]);
-    XCTAssertEqualObjects(result.detectStops.removeMarkUp, result.detourDesc);
+    XCTAssertEqualObjects(result.detourTextWithDetectedStops.removeMarkUp, result.detourDesc);
 
-    DEBUG_LOG(@"Processed detour %@", result.detectStops.removeMarkUp);
+    DEBUG_LOG(@"Processed detour %@", result.detourTextWithDetectedStops.removeMarkUp);
     DEBUG_LOG(@"Original detour  %@", result.detourDesc);
 
     XCTAssertEqual(result.locations.count, 1);
@@ -322,8 +312,10 @@
     [xmlFile
         startTagWithAttributes:@"alert"
                     attributes:@[
-                        @[ @"begin", @"1495713600000" ], @[ @"end", @"" ],
-                        @[ @"id", @"10" ], @[ @"info_link_url", @"" ],
+                        @[ @"begin", @"1495713600000" ],
+                        @[ @"end", @"" ],
+                        @[ @"id", @"10" ],
+                        @[ @"info_link_url", @"" ],
                         @[ @"header_text", @"" ],
                         @[ @"system_wide_flag", @"false" ],
                         @[
@@ -345,9 +337,9 @@
     NSArray<NSString *> *stops = result.extractStops;
 
     // Assert
-    XCTAssertEqualObjects(result.detectStops.removeMarkUp, result.detourDesc);
+    XCTAssertEqualObjects(result.detourTextWithDetectedStops.removeMarkUp, result.detourDesc);
 
-    DEBUG_LOG(@"Processed detour %@", result.detectStops.removeMarkUp);
+    DEBUG_LOG(@"Processed detour %@", result.detourTextWithDetectedStops.removeMarkUp);
     DEBUG_LOG(@"Original detour  %@", result.detourDesc);
 
     XCTAssertEqual(stops.count, 14);
@@ -372,8 +364,7 @@
     // Build
     XMLDetours *sut = [XMLDetours xml];
 
-    sut.queryTransformer =
-        [XMLTestFile queryBlockWithFileForClass:@{@"XMLDetours" : @"detours"}];
+    sut.queryTransformer = [XMLTestFile queryBlockWithFileForClass:@{@"XMLDetours" : @"detours"}];
 
     // Operate
     [sut getDetours];
@@ -391,14 +382,13 @@
     XCTAssertEqual(DETOUR_TYPE_FROM_ID(result.detourId), @"");
     XCTAssertEqualObjects(result.infoLinkUrl, nil);
     XCTAssertEqual(result.systemWide, FALSE);
-    XCTAssertEqualObjects(
-        result.detourDesc,
-        @"The stop at SW Columbia & 1st (Stop ID 12795) is closed long-term "
-        @"for construction. Use the temporary stop at SW Columbia & 2nd (Stop "
-        @"ID 14053).");
-    XCTAssertEqualObjects(result.detectStops.removeMarkUp, result.detourDesc);
+    XCTAssertEqualObjects(result.detourDesc,
+                          @"The stop at SW Columbia & 1st (Stop ID 12795) is closed long-term "
+                          @"for construction. Use the temporary stop at SW Columbia & 2nd (Stop "
+                          @"ID 14053).");
+    XCTAssertEqualObjects(result.detourTextWithDetectedStops.removeMarkUp, result.detourDesc);
 
-    DEBUG_LOG(@"Processed detour %@", result.detectStops.removeMarkUp);
+    DEBUG_LOG(@"Processed detour %@", result.detourTextWithDetectedStops.removeMarkUp);
     DEBUG_LOG(@"Original detour  %@", result.detourDesc);
 }
 

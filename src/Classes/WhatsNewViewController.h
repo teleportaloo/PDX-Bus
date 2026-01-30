@@ -13,8 +13,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#import "TextViewLinkCell.h"
 #import "TableViewControllerWithToolbar.h"
+#import "TextViewLinkCell.h"
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
@@ -34,12 +34,10 @@
 
 typedef NSMutableArray<NSString *> WhatsNewSection;
 
-@interface WhatsNewViewController
-    : TableViewControllerWithToolbar <WhatsNewSection *>
+@interface WhatsNewViewController : TableViewControllerWithToolbar <WhatsNewSection *>
 
 + (NSString *)version;
 
-+ (void)addAction:(NSNumber *)character
-           action:(id<WhatsNewSpecialAction>)action;
++ (void)addAction:(NSNumber *)character action:(id<WhatsNewSpecialAction>)action;
 
 @end

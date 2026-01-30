@@ -53,11 +53,9 @@
 
 - (NSString *)subtitle {
     if (self.dir == nil) {
-        return
-            [NSString stringWithFormat:NSLocalizedString(
-                                           @"Stop ID %@",
-                                           @"TriMet Stop identifer <number>"),
-                                       self.stopId];
+        return [NSString
+            stringWithFormat:NSLocalizedString(@"Stop ID %@", @"TriMet Stop identifer <number>"),
+                             self.stopId];
     }
 
     return [NSString stringWithFormat:@"%@ ID %@", self.dir, self.stopId];
@@ -72,9 +70,7 @@
 
     if (self.dir == nil) {
         return [NSString
-            stringWithFormat:NSLocalizedString(
-                                 @"#D%@", @"TriMet Stop identifer <number>"),
-                             tp];
+            stringWithFormat:NSLocalizedString(@"#D%@", @"TriMet Stop identifer <number>"), tp];
     }
 
     return [NSString stringWithFormat:@"#D%@%@", self.dir, tp];
@@ -89,6 +85,10 @@
 }
 
 - (NSString *)pinMarkedUpType {
+    return nil;
+}
+
+- (NSString *)key {
     return nil;
 }
 

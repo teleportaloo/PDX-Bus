@@ -19,11 +19,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface WatchNearbyNamedLocationContext : WatchContext
 
-@property(nonatomic, strong) CLLocation *loc;
-@property(nonatomic, copy) NSString *name;
+@property (nonatomic, strong) CLLocation *loc;
+@property (nonatomic, copy) NSString *name;
 
-+ (WatchNearbyNamedLocationContext *)contextWithName:(NSString *)name
-                                            location:(CLLocation *)loc;
++ (WatchNearbyNamedLocationContext *)contextWithName:(NSString *)name location:(CLLocation *)loc;
 
 @end
 

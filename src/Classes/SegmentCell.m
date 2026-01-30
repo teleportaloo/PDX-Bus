@@ -23,17 +23,16 @@
 
 @interface SegmentCell ()
 
-@property(nonatomic, strong) UISegmentedControl *segment;
+@property (nonatomic, strong) UISegmentedControl *segment;
 
 @end
 
 @implementation SegmentCell
 
-- (void)createSegmentWithContent:(NSArray *)content
-                          target:(NSObject *)target
-                          action:(SEL)action {
+- (void)createSegmentWithContent:(NSArray *)content target:(NSObject *)target action:(SEL)action {
     CGRect frame = CGRectMake((kSegRowWidth - kUISegWidth) / 2,
-                              (kSegRowHeight - kUISegHeight) / 2, kUISegWidth,
+                              (kSegRowHeight - kUISegHeight) / 2,
+                              kUISegWidth,
                               kUISegHeight);
 
     self.segment = [[UISegmentedControl alloc] initWithItems:content];
@@ -41,9 +40,7 @@
     self.segment.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     self.selectionStyle = UITableViewCellSelectionStyleNone;
     self.isAccessibilityElement = NO;
-    [self.segment addTarget:target
-                     action:action
-           forControlEvents:UIControlEventValueChanged];
+    [self.segment addTarget:target action:action forControlEvents:UIControlEventValueChanged];
     [self.contentView addSubview:self.segment];
     [self layoutSubviews];
 }
@@ -54,8 +51,8 @@
                    target:(NSObject *)target
                    action:(SEL)action
             selectedIndex:(NSInteger)index {
-    SegmentCell *cell = (SegmentCell *)[tableView
-        dequeueReusableCellWithIdentifier:reuseIdentifier];
+    SegmentCell *cell =
+        (SegmentCell *)[tableView dequeueReusableCellWithIdentifier:reuseIdentifier];
 
     if (cell == nil) {
         cell = [[[self class] alloc] initWithStyle:UITableViewCellStyleDefault
@@ -71,8 +68,7 @@
     [super layoutSubviews];
 
     if (self.imageView) {
-        CGFloat imageRight =
-            self.imageView.frame.origin.x + self.imageView.frame.size.width;
+        CGFloat imageRight = self.imageView.frame.origin.x + self.imageView.frame.size.width;
 
         if (self.segment.frame.origin.x <= imageRight) {
             CGFloat adjustment = imageRight - self.segment.frame.origin.x + 5;

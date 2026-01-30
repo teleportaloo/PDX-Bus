@@ -23,6 +23,8 @@
 #define kDoNotDisplayIfActive @"not if active"
 #define kNoBadge @"no badge"
 
+@class BoxedIcon;
+
 typedef enum AlarmLocationNeededEnum {
     AlarmStateFetchArrivals,
     AlarmStateNearlyArrived,
@@ -40,8 +42,8 @@ typedef enum AlarmButtonEnum {
 } AlarmButton;
 
 #ifdef DEBUGLOGGING
-// #define DEBUG_ALARMS
-#endif
+#define DEBUG_ALARMS
+#endif // DEBUGLOGGING
 
 @protocol AlarmObserver <NSObject>
 
@@ -56,24 +58,24 @@ typedef enum AlarmButtonEnum {
 @interface AlarmTask : NSObject {
 #ifdef DEBUG_ALARMS
     bool _done;
-#endif
+#endif // DEBUG_ALARMS
 }
 
-@property(nonatomic, weak) id<AlarmObserver> observer; // weak
-@property(nonatomic, copy) NSString *desc;
-@property(atomic) AlarmLocationNeeded alarmState;
-@property(nonatomic, strong) NSDate *nextFetch;
-@property(nonatomic, copy) NSString *stopId;
-@property(nonatomic, readonly, copy) NSString *key;
-@property(nonatomic, readonly, copy) NSString *systemIcon;
+@property (nonatomic, weak) id<AlarmObserver> observer; // weak
+@property (nonatomic, copy) NSString *desc;
+@property (atomic) AlarmLocationNeeded alarmState;
+@property (nonatomic, strong) NSDate *nextFetch;
+@property (nonatomic, copy) NSString *stopId;
+@property (nonatomic, readonly, copy) NSString *key;
+@property (nonatomic, readonly) BoxedIcon *icon;
 
 // Debugging helpers
-@property(nonatomic, readonly, copy) NSString *appState;
-@property(nonatomic, readonly) int internalDataItems;
+@property (nonatomic, readonly, copy) NSString *appState;
+@property (nonatomic, readonly) int internalDataItems;
 
 - (void)cancelTask;
 - (void)startTask;
-- (NSString *)internalData:(int)item;
+- (void)internalData:(int)item completion:(void (^)(NSString *))completionHandler;
 - (NSDate *)fetch:(AlarmTaskList *)parent;
 - (void)locationManager:(CLLocationManager *)manager
     didUpdateToLocation:(CLLocation *)newLocation
@@ -86,14 +88,13 @@ typedef enum AlarmButtonEnum {
       thisThread:(bool)thisThread;
 - (void)cancelNotification;
 - (void)showToUser:(BackgroundTaskContainer *)backgroundTask;
-- (NSString *)cellReuseIdentifier:(NSString *)identifier
-                            width:(ScreenWidth)width;
+- (NSString *)cellReuseIdentifier:(NSString *)identifier width:(CGFloat)width;
 - (void)populateCell:(AlarmCell *)cell;
 - (NSDate *)earlierAlert:(NSDate *)alert;
 
 #ifdef DEBUG_ALARMS
-@property(strong) NSMutableArray *dataReceived;
+@property (strong) NSMutableArray *dataReceived;
 - (void)showMap:(UINavigationController *)navController;
-#endif
+#endif // DEBUG_ALARMS
 
 @end

@@ -48,19 +48,17 @@ static NSString *const kHandledKey = @"com.pdxbus.DelayedURLProtocol.handled";
         return;
     }
 
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW,
-                                 (int64_t)(gCompletionDelay * NSEC_PER_SEC)),
-                   dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
-                     NSHTTPURLResponse *resp =
-                         [[NSHTTPURLResponse alloc] initWithURL:r.URL
-                                                     statusCode:200
-                                                    HTTPVersion:@"HTTP/1.1"
-                                                   headerFields:@{}];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(gCompletionDelay * NSEC_PER_SEC)),
+                   dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0),
+                   ^{
+                     NSHTTPURLResponse *resp = [[NSHTTPURLResponse alloc] initWithURL:r.URL
+                                                                           statusCode:200
+                                                                          HTTPVersion:@"HTTP/1.1"
+                                                                         headerFields:@{}];
                      [self.client URLProtocol:self
                            didReceiveResponse:resp
                            cacheStoragePolicy:NSURLCacheStorageNotAllowed];
-                     NSData *data =
-                         [@"ok" dataUsingEncoding:NSUTF8StringEncoding];
+                     NSData *data = [@"ok" dataUsingEncoding:NSUTF8StringEncoding];
                      [self.client URLProtocol:self didLoadData:data];
                      [self.client URLProtocolDidFinishLoading:self];
                    });
@@ -76,12 +74,12 @@ static NSString *const kHandledKey = @"com.pdxbus.DelayedURLProtocol.handled";
 //                               cachePolicy:(NSURLRequestCachePolicy)cachePolicy
 //                                  delegate:(id<NSURLSessionDataDelegate>)delegate;
 
-static NSURLSessionDataTask *
-Test_dataTaskWithURL(id selfClass, SEL _cmd, NSURL *url,
-                     NSURLRequestCachePolicy cachePolicy,
-                     id<NSURLSessionDataDelegate> delegate) {
-    NSURLSessionConfiguration *cfg =
-        [NSURLSessionConfiguration ephemeralSessionConfiguration];
+static NSURLSessionDataTask *Test_dataTaskWithURL(id selfClass,
+                                                  SEL _cmd,
+                                                  NSURL *url,
+                                                  NSURLRequestCachePolicy cachePolicy,
+                                                  id<NSURLSessionDataDelegate> delegate) {
+    NSURLSessionConfiguration *cfg = [NSURLSessionConfiguration ephemeralSessionConfiguration];
     cfg.requestCachePolicy = cachePolicy;
     cfg.protocolClasses = @[ DelayedURLProtocol.class ];
     NSURLSession *session = [NSURLSession sessionWithConfiguration:cfg
@@ -138,8 +136,7 @@ static void UnswizzleSessionSingleton(void) {
     f.giveUp = (float)giveUp;
 
     // Start on a background thread so we can cancel if needed
-    XCTestExpectation *done =
-        [self expectationWithDescription:@"fetch finished"];
+    XCTestExpectation *done = [self expectationWithDescription:@"fetch finished"];
 
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
       [f fetchDataByPolling:url cachePolicy:NSURLRequestUseProtocolCachePolicy];
@@ -147,12 +144,11 @@ static void UnswizzleSessionSingleton(void) {
     });
 
     if (cancelAtOrNegOne >= 0) {
-        dispatch_after(
-            dispatch_time(DISPATCH_TIME_NOW,
-                          (int64_t)(cancelAtOrNegOne * NSEC_PER_SEC)),
-            dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
-              [f cancel];
-            });
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(cancelAtOrNegOne * NSEC_PER_SEC)),
+                       dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0),
+                       ^{
+                         [f cancel];
+                       });
     }
 
     [self waitForExpectations:@[ done ] timeout:10.0];
@@ -165,14 +161,12 @@ static void UnswizzleSessionSingleton(void) {
 //    With your guarded signal, it should be safe and `timedOut == YES`.
 - (void)testTimeoutThenLateCompletion_NoCrash_TimedOutSet {
     // Make the protocol finish after 1.0s, but give up after 0.2s
-    StoppableFetcher *f =
-        [self runFetcherWithURLString:@"https://example.com/slow"
-                               giveUp:0.2
-                      completionDelay:1.0
-                             cancelAt:-1];
+    StoppableFetcher *f = [self runFetcherWithURLString:@"https://example.com/slow"
+                                                 giveUp:0.2
+                                        completionDelay:1.0
+                                               cancelAt:-1];
 
-    XCTAssertTrue(f.timedOut,
-                  @"Expected timedOut to be set after giveUp threshold.");
+    XCTAssertTrue(f.timedOut, @"Expected timedOut to be set after giveUp threshold.");
     XCTAssertNil(f.rawData, @"Raw data should be nil on timeout.");
     // If you log "fetchDone was nil at completion" from the delegate, that
     // indicates the race was hit and survived.
@@ -182,11 +176,10 @@ static void UnswizzleSessionSingleton(void) {
 //    Expect no crash and nil data / no timedOut flag.
 - (void)testCancelThenLateCompletion_NoCrash {
     // Completion after 1.0s; cancel at 0.1s; no timeout window
-    StoppableFetcher *f =
-        [self runFetcherWithURLString:@"https://example.com/cancel"
-                               giveUp:5.0
-                      completionDelay:1.0
-                             cancelAt:0.1];
+    StoppableFetcher *f = [self runFetcherWithURLString:@"https://example.com/cancel"
+                                                 giveUp:5.0
+                                        completionDelay:1.0
+                                               cancelAt:0.1];
 
     XCTAssertFalse(f.timedOut, @"Cancel path should not mark timedOut.");
     XCTAssertNil(f.rawData, @"Raw data should be nil after cancel.");
@@ -196,11 +189,10 @@ static void UnswizzleSessionSingleton(void) {
 //    Expect data present and not timed out.
 - (void)testSuccess_NoTimeout_NoCancel {
     // Completion after 0.1s; giveUp after 2.0s
-    StoppableFetcher *f =
-        [self runFetcherWithURLString:@"https://example.com/ok"
-                               giveUp:2.0
-                      completionDelay:0.1
-                             cancelAt:-1];
+    StoppableFetcher *f = [self runFetcherWithURLString:@"https://example.com/ok"
+                                                 giveUp:2.0
+                                        completionDelay:0.1
+                                               cancelAt:-1];
 
     XCTAssertFalse(f.timedOut);
     XCTAssertNotNil(f.rawData);

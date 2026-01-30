@@ -26,13 +26,11 @@
 - (void)populate:(XMLDepartures *)xml departures:(NSArray<Departure *> *)deps {
     self.label.text = [NSString
         stringWithFormat:NSLocalizedString(@"%@ %d %@", @"Hide system alert"),
-                         Settings.hideWatchDetours
-                             ? NSLocalizedString(@"▽ Show", @"detour")
-                             : NSLocalizedString(@"△ Hide", @"detour"),
+                         Settings.hideWatchDetours ? NSLocalizedString(@"▽ Show", @"detour")
+                                                   : NSLocalizedString(@"△ Hide", @"detour"),
                          (int)self.index.integerValue,
-                         self.index.integerValue > 1
-                             ? NSLocalizedString(@"deours", @"detours")
-                             : NSLocalizedString(@"detour", @"detour")];
+                         self.index.integerValue > 1 ? NSLocalizedString(@"deours", @"detours")
+                                                     : NSLocalizedString(@"detour", @"detour")];
 }
 
 - (WatchSelectAction)select:(XMLDepartures *)xml

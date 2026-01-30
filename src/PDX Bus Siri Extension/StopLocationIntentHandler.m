@@ -22,9 +22,7 @@
 @implementation StopLocationIntentHandler
 
 - (void)handleStopLocation:(StopLocationIntent *)intent
-                completion:
-                    (void (^)(StopLocationIntentResponse *response))completion
-    API_AVAILABLE(ios(12.0)) {
+                completion:(void (^)(StopLocationIntentResponse *response))completion {
     DEBUG_FUNC();
 
     if (intent.stop == nil) {

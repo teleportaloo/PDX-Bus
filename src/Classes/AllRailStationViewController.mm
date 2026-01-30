@@ -43,7 +43,7 @@
     size_t _alphaSectionsCnt;
 }
 
-@property(nonatomic) bool appeared;
+@property (nonatomic) bool appeared;
 
 @end
 
@@ -51,18 +51,15 @@
 
 - (instancetype)init {
     if ((self = [super init])) {
-        _stationsAlpha =
-            [StationData getStationAlphaAndCount:&_stationsAlphaCnt];
-        _alphaSections =
-            [StationData getAlphaSectionsAndCount:&_alphaSectionsCnt];
+        _stationsAlpha = [StationData getStationAlphaAndCount:&_stationsAlphaCnt];
+        _alphaSections = [StationData getAlphaSectionsAndCount:&_alphaSectionsCnt];
 
         self.title = NSLocalizedString(@"All Rail Stations", @"screen title");
 
         self.searchableItems = [NSMutableArray array];
 
         for (int i = 0; i < _stationsAlphaCnt; i++) {
-            RailStation *station =
-                [RailStation fromHotSpotIndex:_stationsAlpha[i]];
+            RailStation *station = [RailStation fromHotSpotIndex:_stationsAlpha[i]];
 
             [self.searchableItems addObject:station];
         }
@@ -91,39 +88,36 @@
         NSMutableArray *index = [NSMutableArray array];
 
         for (int i = 0; i < self->_stationsAlphaCnt; i++) {
-            RailStation *station =
-                [RailStation fromHotSpotIndex:self->_stationsAlpha[i]];
+            RailStation *station = [RailStation fromHotSpotIndex:self->_stationsAlpha[i]];
             NSInteger alpha = self->_stationsAlpha[i];
             TriMetInfo_ColoredLines lines = [StationData railLines:(int)alpha];
 
-            CSSearchableItemAttributeSet *attributeSet =
-                [[CSSearchableItemAttributeSet alloc]
-                    initWithItemContentType:UTTypeText.identifier];
+            CSSearchableItemAttributeSet *attributeSet = [[CSSearchableItemAttributeSet alloc]
+                initWithItemContentType:UTTypeText.identifier];
             attributeSet.title = station.name;
 
             NSMutableString *desc = [NSMutableString string];
 
             for (PtrConstRouteInfo info = TriMetInfoColoredLines.allLines;
-                 info->route_number != kNoRoute; info++) {
+                 info->route_number != kNoRoute;
+                 info++) {
                 [self addLineToDescription:desc
                                       line:info->line_bit
                                    station:lines
                                       name:info->full_name];
             }
 
-            attributeSet.contentDescription =
-                [NSString stringWithFormat:@"TriMet station "
-                                           @"serving %@",
-                                           desc];
+            attributeSet.contentDescription = [NSString stringWithFormat:@"TriMet station "
+                                                                         @"serving %@",
+                                                                         desc];
 
             NSString *uniqueId =
-                [NSString stringWithFormat:@"%@:%d", kSearchItemStation,
-                                           self->_stationsAlpha[i]];
+                [NSString stringWithFormat:@"%@:%d", kSearchItemStation, self->_stationsAlpha[i]];
 
-            CSSearchableItem *item = [[CSSearchableItem alloc]
-                initWithUniqueIdentifier:uniqueId
-                        domainIdentifier:@"station"
-                            attributeSet:attributeSet];
+            CSSearchableItem *item =
+                [[CSSearchableItem alloc] initWithUniqueIdentifier:uniqueId
+                                                  domainIdentifier:@"station"
+                                                      attributeSet:attributeSet];
 
             [index addObject:item];
         }
@@ -147,26 +141,21 @@
         return;
     }
 
-    CSSearchableIndex *searchableIndex =
-        [CSSearchableIndex defaultSearchableIndex];
+    CSSearchableIndex *searchableIndex = [CSSearchableIndex defaultSearchableIndex];
 
-    [searchableIndex
-        deleteSearchableItemsWithDomainIdentifiers:@[ @"station" ]
-                                 completionHandler:^(
-                                     NSError *__nullable error) {
-                                   if (error != nil) {
-                                       ERROR_LOG(@"Failed to delete "
-                                                 @"station index %@\n",
-                                                 error.description);
-                                   }
-                                   [self addStationsToIndex];
-                                 }];
+    [searchableIndex deleteSearchableItemsWithDomainIdentifiers:@[ @"station" ]
+                                              completionHandler:^(NSError *__nullable error) {
+                                                if (error != nil) {
+                                                    ERROR_LOG(@"Failed to delete "
+                                                              @"station index %@\n",
+                                                              error.description);
+                                                }
+                                                [self addStationsToIndex];
+                                              }];
 }
 
-- (void)updateToolbarItems:(NSMutableArray *)toolbarItems {
-    [toolbarItems
-        addObject:[UIToolbar mapButtonWithTarget:self
-                                          action:@selector(showMap:)]];
+- (void)updateToolbarItems:(NSMutableArray<UIBarButtonItem *> *)toolbarItems {
+    [toolbarItems addObject:[UIBarButtonItem mapButtonWithTarget:self action:@selector(showMap:)]];
     [self maybeAddFlashButtonWithSpace:YES buttons:toolbarItems big:NO];
 }
 
@@ -212,8 +201,7 @@
     [self.navigationController pushViewController:mapPage animated:YES];
 }
 
-#define kAlphaSection 0
-#define kFilterSection 1
+enum { kAlphaSection, kFilterSection, kSectionRowDisclaimerType };
 
 - (int)sectionType:(UITableView *)tableView section:(NSInteger)section {
     if (tableView == self.tableView) {
@@ -254,8 +242,7 @@
             [titles addObject:UITableViewIndexSearch];
 
             for (int i = 0; i < _alphaSectionsCnt; i++) {
-                [titles
-                    addObject:_alphaSections[i].title];
+                [titles addObject:_alphaSections[i].title];
             }
             return titles;
         } else {
@@ -270,8 +257,7 @@
     sectionForSectionIndexTitle:(NSString *)title
                         atIndex:(NSInteger)index {
     if (title == UITableViewIndexSearch) {
-        [tableView scrollRectToVisible:self.searchController.searchBar.frame
-                              animated:NO];
+        [tableView scrollRectToVisible:self.searchController.searchBar.frame animated:NO];
         return -1;
     }
 
@@ -286,23 +272,7 @@
     return 1;
 }
 
-- (CGFloat)tableView:(UITableView *)tableView
-    heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    switch ([self sectionType:tableView section:indexPath.section]) {
-    case kAlphaSection:
-        return [self basicRowHeight];
-
-    case kSectionRowDisclaimerType:
-        return kDisclaimerCellHeight;
-
-    case kFilterSection:
-        return [self basicRowHeight];
-    }
-    return 0;
-}
-
-- (NSInteger)tableView:(UITableView *)tableView
-    numberOfRowsInSection:(NSInteger)section {
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     switch ([self sectionType:tableView section:section]) {
     case kAlphaSection:
         return _alphaSections[section].items;
@@ -316,14 +286,12 @@
     return 0;
 }
 
-- (RailStation *)stationForIndex:(NSIndexPath *)indexPath
-                       tableView:(UITableView *)tableView {
+- (RailStation *)stationForIndex:(NSIndexPath *)indexPath tableView:(UITableView *)tableView {
     RailStation *station = nil;
 
     switch ([self sectionType:tableView section:indexPath.section]) {
     case kAlphaSection: {
-        int offset =
-            _alphaSections[indexPath.section].offset + (int)indexPath.row;
+        int offset = _alphaSections[indexPath.section].offset + (int)indexPath.row;
         station = self.searchableItems[offset];
     } break;
 
@@ -341,45 +309,7 @@
     return station;
 }
 
-- (UITableViewCell *)tableView:(UITableView *)tableView
-         cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    // Configure the cell
-    UITableViewCell *cell = nil;
-
-    int sectionType = [self sectionType:tableView section:indexPath.section];
-
-    switch (sectionType) {
-    case kAlphaSection:
-    case kFilterSection: {
-        RailStation *station = [self stationForIndex:indexPath
-                                           tableView:tableView];
-
-        RailStationViewCell *railCell = [RailStation
-                          tableView:tableView
-            cellWithReuseIdentifier:MakeCellId(kAlphaSection)
-                          rowHeight:[self tableView:tableView
-                                        heightForRowAtIndexPath:indexPath]
-                        rightMargin:NO
-                        fixedMargin:sectionType == kAlphaSection ? 24.0 : 0.0];
-
-        [railCell
-            populateCellWithStation:station.name.safeEscapeForMarkUp
-                              lines:[StationData railLines:station.index]];
-
-        cell = railCell;
-        break;
-    }
-
-    case kSectionRowDisclaimerType:
-        cell = [self disclaimerCell:tableView];
-        [self updateDisclaimerAccessibility:cell];
-        break;
-    }
-    return cell;
-}
-
-- (NSString *)tableView:(UITableView *)tableView
-    titleForHeaderInSection:(NSInteger)section {
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
     switch ([self sectionType:tableView section:section]) {
     case kAlphaSection:
         return _alphaSections[section].title;
@@ -394,36 +324,11 @@
     return nil;
 }
 
-- (void)tableView:(UITableView *)tableView
-    didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    switch ([self sectionType:tableView section:indexPath.section]) {
-    case kFilterSection:
-    case kAlphaSection: {
-        RailStation *station = [self stationForIndex:indexPath
-                                           tableView:tableView];
-
-        if (station == nil) {
-            return;
-        }
-
-        RailStationTableViewController *railView =
-            [RailStationTableViewController viewController];
-        railView.station = station;
-        railView.stopIdStringCallback = self.stopIdStringCallback;
-        [railView fetchShapesAndDetoursAsync:self.backgroundTask];
-    }
-
-    case kSectionRowDisclaimerType:
-        break;
-    }
-}
-
 #pragma mark ReturnStop callbacks
 
 - (void)returnStopObject:(Stop *)stop progress:(id<TaskController>)progress {
     if (self.stopIdStringCallback) {
-        [self.stopIdStringCallback returnStopIdString:stop.stopId
-                                                 desc:stop.desc];
+        [self.stopIdStringCallback returnStopIdString:stop.stopId desc:stop.desc];
         return;
     }
 
@@ -432,8 +337,7 @@
 
     departureViewController.displayName = stop.desc;
 
-    [departureViewController fetchTimesForLocationAsync:progress
-                                                 stopId:stop.stopId];
+    [departureViewController fetchTimesForLocationAsync:progress stopId:stop.stopId];
 }
 
 - (NSString *)returnStopObjectActionText {
@@ -443,5 +347,72 @@
 
     return @"";
 }
+
+//--------------------------------------------------------------------------------------------------
+//                               Virtual Cell Table
+//--------------------------------------------------------------------------------------------------
+#define VTABLE_CLASS AllRailStationViewController
+
+- (NSInteger)tableView:(UITableView *)tableView
+          vTableOffset:(NSIndexPath *)indexPath
+              extraOut:(__autoreleasing id *)extra {
+
+    return [self sectionType:tableView section:indexPath.section];
+}
+//--------------------------------------------------------------------------------------------------
+#pragma mark kAlphaSection
+
+CELL_CONFIG_METHOD(kAlphaSection) {
+    RailStation *station = [self stationForIndex:indexPath tableView:tableView];
+
+    RailStationViewCell *railCell = [RailStation tableView:tableView
+                                   cellWithReuseIdentifier:MakeCellId(kAlphaSection)
+                                                 rowHeight:[self tableView:tableView
+                                                               heightForRowAtIndexPath:indexPath]
+                                               rightMargin:NO
+                                               fixedMargin:offset == kAlphaSection ? 24.0 : 0.0];
+
+    [railCell populateCellWithStation:station.name.safeEscapeForMarkUp
+                                lines:[StationData railLines:station.index]];
+
+    return railCell;
+}
+
+CELL_SELECT_METHOD(kAlphaSection) {
+    RailStation *station = [self stationForIndex:indexPath tableView:tableView];
+
+    if (station == nil) {
+        return;
+    }
+
+    RailStationTableViewController *railView = [RailStationTableViewController viewController];
+    railView.station = station;
+    railView.stopIdStringCallback = self.stopIdStringCallback;
+    [railView fetchShapesAndDetoursAsync:self.backgroundTask];
+}
+
+STATIC_VTABLE_VCS_H(kAlphaSection, basic);
+
+//--------------------------------------------------------------------------------------------------
+#pragma mark kFilterSection
+
+CELL_STATIC_VTABLE(kFilterSection) = CELL_VTABLE(kAlphaSection);
+
+//--------------------------------------------------------------------------------------------------
+#pragma mark kSectionRowDisclaimerType
+
+CREATE_CELL_WITH_CONFIG(kSectionRowDisclaimerType, nil, auto) {
+    UITableViewCell *cell = [self disclaimerCell:tableView];
+    [self updateDisclaimerAccessibility:cell];
+    return cell;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+CELL_VTABLE_MAP{
+    CELL_MAP(kFilterSection),
+    CELL_MAP(kAlphaSection),
+    CELL_MAP(kSectionRowDisclaimerType),
+};
 
 @end

@@ -25,8 +25,7 @@
 
 - (NSDictionary *)deepCopy {
     CFPropertyListRef localCopy = CFPropertyListCreateDeepCopy(
-        kCFAllocatorDefault, (__bridge CFPropertyListRef)(self),
-        kCFPropertyListImmutable);
+        kCFAllocatorDefault, (__bridge CFPropertyListRef)(self), kCFPropertyListImmutable);
     if (localCopy) {
         NSDictionary *arc = (__bridge NSDictionary *)localCopy;
         CFRelease(localCopy);
@@ -47,7 +46,7 @@
 #else
     return YES;
 
-#endif
+#endif // PDXBUS_WATCH
 }
 
 + (instancetype)fileWithName:(NSString *)shortFileName
@@ -65,29 +64,25 @@
     NSString *fullPathName = shortFileName.fullDocPath;
 
     if ([fileManager fileExistsAtPath:fullPathName]) {
-        NSURL *oldFilePath = [NSURL fileURLWithPath:fullPathName
-                                        isDirectory:NO];
+        NSURL *oldFilePath = [NSURL fileURLWithPath:fullPathName isDirectory:NO];
 
         @try {
             [fileManager removeItemAtPath:oldFilePath.path error:nil];
         } @catch (NSException *exception) {
-            ERROR_LOG(@"moveItemAtURL exception: %@ %@\n", exception.name,
-                      exception.reason);
+            ERROR_LOG(@"moveItemAtURL exception: %@ %@\n", exception.name, exception.reason);
         }
     }
 
     if ([SharedFile canUseSharedFilePath]) {
-        NSURL *sharedContainer = [fileManager
-            containerURLForSecurityApplicationGroupIdentifier:PDXBUS_GROUP];
-        NSURL *urlToSharedFile =
-            [sharedContainer URLByAppendingPathComponent:shortFileName];
+        NSURL *sharedContainer =
+            [fileManager containerURLForSecurityApplicationGroupIdentifier:PDXBUS_GROUP];
+        NSURL *urlToSharedFile = [sharedContainer URLByAppendingPathComponent:shortFileName];
 
         if ([fileManager fileExistsAtPath:urlToSharedFile.path]) {
             @try {
                 [fileManager removeItemAtPath:urlToSharedFile.path error:nil];
             } @catch (NSException *exception) {
-                ERROR_LOG(@"removeItemAtPath exception: %@ %@\n",
-                          exception.name, exception.reason);
+                ERROR_LOG(@"removeItemAtPath exception: %@ %@\n", exception.name, exception.reason);
             }
         }
     }
@@ -105,21 +100,18 @@
         NSString *fullPathName = shortFileName.fullDocPath;
 
         if ([SharedFile canUseSharedFilePath]) {
-            NSURL *sharedContainer = [fileManager
-                containerURLForSecurityApplicationGroupIdentifier:PDXBUS_GROUP];
+            NSURL *sharedContainer =
+                [fileManager containerURLForSecurityApplicationGroupIdentifier:PDXBUS_GROUP];
 
-            self.urlToSharedFile =
-                [sharedContainer URLByAppendingPathComponent:shortFileName];
+            self.urlToSharedFile = [sharedContainer URLByAppendingPathComponent:shortFileName];
 
             DEBUG_LOG_NSString(self.urlToSharedFile.path);
 
-            if (![[NSFileManager defaultManager]
-                    fileExistsAtPath:self.urlToSharedFile.path]) {
+            if (![[NSFileManager defaultManager] fileExistsAtPath:self.urlToSharedFile.path]) {
                 // If we are switching over to a shared file path we move the
                 // old one over, this is transitional code.
                 if ([fileManager fileExistsAtPath:fullPathName]) {
-                    NSURL *oldFilePath = [NSURL fileURLWithPath:fullPathName
-                                                    isDirectory:NO];
+                    NSURL *oldFilePath = [NSURL fileURLWithPath:fullPathName isDirectory:NO];
 
                     @try {
                         NSError *error = nil;
@@ -127,37 +119,31 @@
                                              toURL:self.urlToSharedFile
                                              error:&error];
                     } @catch (NSException *exception) {
-                        ERROR_LOG(@"moveItemAtURL exception: %@ %@\n",
-                                  exception.name, exception.reason);
+                        ERROR_LOG(
+                            @"moveItemAtURL exception: %@ %@\n", exception.name, exception.reason);
                     }
                 }
             }
         } else {
-            self.urlToSharedFile =
-                [[NSURL alloc] initFileURLWithPath:fullPathName isDirectory:NO];
+            self.urlToSharedFile = [[NSURL alloc] initFileURLWithPath:fullPathName isDirectory:NO];
         }
 
-        if (![[NSFileManager defaultManager]
-                fileExistsAtPath:self.urlToSharedFile.path] &&
+        if (![[NSFileManager defaultManager] fileExistsAtPath:self.urlToSharedFile.path] &&
             initFromBundle) {
             NSRange dot = [shortFileName rangeOfString:@"."];
 
             if ([shortFileName rangeOfString:@"."].location != NSNotFound) {
                 NSString *stem = [shortFileName substringToIndex:dot.location];
-                NSString *type =
-                    [shortFileName substringFromIndex:dot.location + 1];
+                NSString *type = [shortFileName substringFromIndex:dot.location + 1];
                 NSBundle *bundle = [NSBundle mainBundle];
 
-                NSString *pathToDefaultPlist = [bundle pathForResource:stem
-                                                                ofType:type];
-                NSURL *defaultPlist =
-                    [[NSURL alloc] initFileURLWithPath:pathToDefaultPlist
-                                           isDirectory:NO];
+                NSString *pathToDefaultPlist = [bundle pathForResource:stem ofType:type];
+                NSURL *defaultPlist = [[NSURL alloc] initFileURLWithPath:pathToDefaultPlist
+                                                             isDirectory:NO];
 
-                if (defaultPlist != nil &&
-                    ![fileManager copyItemAtURL:defaultPlist
-                                          toURL:self.urlToSharedFile
-                                          error:&error]) {
+                if (defaultPlist != nil && ![fileManager copyItemAtURL:defaultPlist
+                                                                 toURL:self.urlToSharedFile
+                                                                 error:&error]) {
                     NSAssert1(0,
                               @"Failed to copy data with error message '%@'.",
                               [error localizedDescription]);
@@ -167,8 +153,7 @@
     }
 
     self.bgGroup = dispatch_group_create();
-    self.bgQueue = dispatch_queue_create("org.teleportaloo.pdxbus.files",
-                                         DISPATCH_QUEUE_SERIAL);
+    self.bgQueue = dispatch_queue_create("org.teleportaloo.pdxbus.files", DISPATCH_QUEUE_SERIAL);
 
     return self;
 }
@@ -194,18 +179,17 @@
     }
 #else
     dispatch_group_wait(self.bgGroup, DISPATCH_TIME_FOREVER);
-#endif
+#endif // DEBUGLOGGING
 
     NSError *error = nil;
     NSData *data = [NSData dataWithContentsOfFile:self.urlToSharedFile.path];
     NSMutableDictionary *result = nil;
 
     if (data != nil) {
-        result = [NSPropertyListSerialization
-            propertyListWithData:data
-                         options:NSPropertyListMutableContainers
-                          format:format
-                           error:&error];
+        result = [NSPropertyListSerialization propertyListWithData:data
+                                                           options:NSPropertyListMutableContainers
+                                                            format:format
+                                                             error:&error];
         LOG_NSError(error);
     }
 
@@ -215,27 +199,21 @@
 - (void)debugCopy {
     dispatch_group_async(self.bgGroup, self.bgQueue, ^{
       NSFileManager *fileManager = [NSFileManager defaultManager];
-      NSString *fullPathName =
-          [NSString stringWithFormat:@"debug_%@", self.shortName].fullDocPath;
-      NSURL *debugFilePath = [NSURL fileURLWithPath:fullPathName
-                                        isDirectory:NO];
+      NSString *fullPathName = [NSString stringWithFormat:@"debug_%@", self.shortName].fullDocPath;
+      NSURL *debugFilePath = [NSURL fileURLWithPath:fullPathName isDirectory:NO];
       NSError *error = nil;
 
       @try {
           [fileManager removeItemAtURL:debugFilePath error:&error];
       } @catch (NSException *exception) {
-          ERROR_LOG(@"removeItemAtURL exception: %@ %@\n", exception.name,
-                    exception.reason);
+          ERROR_LOG(@"removeItemAtURL exception: %@ %@\n", exception.name, exception.reason);
       }
 
       @
       try {
-          [fileManager copyItemAtURL:self.urlToSharedFile
-                               toURL:debugFilePath
-                               error:&error];
+          [fileManager copyItemAtURL:self.urlToSharedFile toURL:debugFilePath error:&error];
       } @catch (NSException *exception) {
-          ERROR_LOG(@"copyItemAtURL exception: %@ %@\n", exception.name,
-                    exception.reason);
+          ERROR_LOG(@"copyItemAtURL exception: %@ %@\n", exception.name, exception.reason);
       }
     });
 }
@@ -248,47 +226,44 @@
       NSError *error = nil;
 
       @try {
-          NSData *data = [NSPropertyListSerialization
-              dataWithPropertyList:copy
-                            format:NSPropertyListBinaryFormat_v1_0
-                           options:0
-                             error:&error];
+          NSData *data =
+              [NSPropertyListSerialization dataWithPropertyList:copy
+                                                         format:NSPropertyListBinaryFormat_v1_0
+                                                        options:0
+                                                          error:&error];
 
           LOG_NSError(error);
 
           if (data) {
-              written = [data writeToFile:self.urlToSharedFile.path
-                               atomically:YES];
+              written = [data writeToFile:self.urlToSharedFile.path atomically:YES];
           }
       } @catch (NSException *exception) {
-          ERROR_LOG(@"writeToURL exception: %@ %@\n", exception.name,
-                    exception.reason);
+          ERROR_LOG(@"writeToURL exception: %@ %@\n", exception.name, exception.reason);
       }
 
       if (!written) {
-          ERROR_LOG(@"Failed to write the cache %@\n",
-                    [self.urlToSharedFile absoluteString]);
+          ERROR_LOG(@"Failed to write the cache %@\n", [self.urlToSharedFile absoluteString]);
       }
 
 #ifdef DEBUGLOGGING
       else {
-          NSDictionary *fileAttributes = [[NSFileManager defaultManager]
-              attributesOfItemAtPath:self.urlToSharedFile.path
-                               error:nil];
+          NSDictionary *fileAttributes =
+              [[NSFileManager defaultManager] attributesOfItemAtPath:self.urlToSharedFile.path
+                                                               error:nil];
 
           if (fileAttributes) {
-              NSNumber *fileSizeNumber =
-                  [fileAttributes objectForKey:NSFileSize];
-              DEBUG_LOG(@"%@ size:%llu (%llu K)\n", self.urlToSharedFile.path,
+              NSNumber *fileSizeNumber = [fileAttributes objectForKey:NSFileSize];
+              DEBUG_LOG(@"%@ size:%llu (%llu K)\n",
+                        self.urlToSharedFile.path,
                         fileSizeNumber.unsignedLongLongValue,
                         fileSizeNumber.unsignedLongLongValue / 1024);
-              DEBUG_LOG(@"%@ entries:%llu\n", self.urlToSharedFile.path,
-                        (unsigned long long)dict.count);
+              DEBUG_LOG(
+                  @"%@ entries:%llu\n", self.urlToSharedFile.path, (unsigned long long)dict.count);
           }
 
           [self debugCopy];
       }
-#endif
+#endif // DEBUGLOGGING
     });
 }
 
@@ -302,36 +277,34 @@
           written = [copy writeToURL:self.urlToSharedFile error:&error];
           LOG_NSError_info(error, @"writeToURL");
       } @catch (NSException *exception) {
-          ERROR_LOG(@"writeToURL exception: %@ %@\n", exception.name,
-                    exception.reason);
+          ERROR_LOG(@"writeToURL exception: %@ %@\n", exception.name, exception.reason);
       }
 
       if (!written) {
-          ERROR_LOG(@"Failed to write the cache %@\n",
-                    [self.urlToSharedFile absoluteString]);
+          ERROR_LOG(@"Failed to write the cache %@\n", [self.urlToSharedFile absoluteString]);
           // clear the local cache, as I assume it is corrupted.
           [self deleteFile];
       }
 
 #ifdef DEBUGLOGGING
       else {
-          NSDictionary *fileAttributes = [[NSFileManager defaultManager]
-              attributesOfItemAtPath:self.urlToSharedFile.path
-                               error:nil];
+          NSDictionary *fileAttributes =
+              [[NSFileManager defaultManager] attributesOfItemAtPath:self.urlToSharedFile.path
+                                                               error:nil];
 
           if (fileAttributes) {
-              NSNumber *fileSizeNumber =
-                  [fileAttributes objectForKey:NSFileSize];
-              DEBUG_LOG(@"%@ size:%llu (%llu K)\n", self.urlToSharedFile.path,
+              NSNumber *fileSizeNumber = [fileAttributes objectForKey:NSFileSize];
+              DEBUG_LOG(@"%@ size:%llu (%llu K)\n",
+                        self.urlToSharedFile.path,
                         fileSizeNumber.unsignedLongLongValue,
                         fileSizeNumber.unsignedLongLongValue / 1024);
-              DEBUG_LOG(@"%@ entries:%llu\n", self.urlToSharedFile.path,
-                        (unsigned long long)dict.count);
+              DEBUG_LOG(
+                  @"%@ entries:%llu\n", self.urlToSharedFile.path, (unsigned long long)dict.count);
           }
 
           [self debugCopy];
       }
-#endif
+#endif // DEBUGLOGGING
     });
 }
 

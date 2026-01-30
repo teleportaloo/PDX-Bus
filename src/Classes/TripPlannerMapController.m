@@ -48,8 +48,7 @@
     [taskState incrementItemsDoneAndDisplay];
 }
 
-- (void)createStraightLineLeg:(TripLeg *)leg
-                       shapes:(NSMutableArray<ShapeRoutePath *> *)shapes {
+- (void)createStraightLineLeg:(TripLeg *)leg shapes:(NSMutableArray<ShapeRoutePath *> *)shapes {
     ShapeRoutePath *path = [ShapeRoutePath new];
     ShapeMutableSegment *seg = [ShapeMutableSegment new];
 
@@ -98,9 +97,7 @@
           TripLeg *leg = [self.it getLeg:i];
 
           if (leg.legShape != nil) {
-              [self subTaskFetchLegShape:leg
-                                  shapes:lineCoords
-                               taskState:taskState];
+              [self subTaskFetchLegShape:leg shapes:lineCoords taskState:taskState];
           }
 
           if (leg.legShape == nil || leg.legShape.segment == nil ||

@@ -40,21 +40,21 @@ typedef enum InitialActionEnum {
     InitialAction_UserActivityAlerts
 } InitialAction;
 
-@interface RootViewController
-    : TableViewControllerWithToolbar <EditableTableViewCellDelegate,
-                                      MFMailComposeViewControllerDelegate,
-                                      AlarmObserver, WCSessionDelegate>
+@interface RootViewController : TableViewControllerWithToolbar <EditableTableViewCellDelegate,
+                                                                MFMailComposeViewControllerDelegate,
+                                                                AlarmObserver,
+                                                                WCSessionDelegate>
 
-@property(nonatomic, strong) NSDictionary *commuterBookmark;
-@property(nonatomic, strong) NSDictionary *initialActionArgs;
-@property(nonatomic) InitialAction initialAction;
-@property(nonatomic, copy) NSString *launchStops;
-@property(nonatomic, strong) NSURL *routingURL;
-@property(nonatomic, copy) NSString *initialBookmarkName;
-@property(nonatomic) int initialBookmarkIndex;
-@property(nonatomic, strong) WCSession *session;
+@property (nonatomic, strong) NSDictionary *commuterBookmark;
+@property (nonatomic, strong) NSDictionary *initialActionArgs;
+@property (nonatomic) InitialAction initialAction;
+@property (nonatomic, copy) NSString *launchStops;
+@property (nonatomic, strong) NSURL *routingURL;
+@property (nonatomic, copy) NSString *initialBookmarkName;
+@property (nonatomic) int initialBookmarkIndex;
+@property (nonatomic, strong) WCSession *session;
 
-@property(null_resettable, nonatomic, strong) IBOutlet UIView *view;
+@property (null_resettable, nonatomic, strong) IBOutlet UIView *view;
 
 - (void)postEditingAction:(UITextView *)textView;
 - (void)commuteAction:(id)sender;

@@ -2,7 +2,13 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <array>
-	<string>.11.5.2 (September 2025)</string>
+	<string>.26.0.0 (December 2025)</string>
+	<string>Updated for iOS 26 - liquid glass support</string>
+	<string>Fixed some cell alignment issues.</string>
+	<string>Fixed missing route info on detours.</string>
+	<string>#bHuuuuge#b re-write of user interface architecture to remove bugs, increase code-reuse and improve stability #iaccross the board#i.</string>
+	<string>Added a graphical representation for how full each bus is.</string>
+	<string>Updated versioning to use year just like Apple does.</string>
 	<string>.11.5.1 (August 2025)</string>
 	<string>Stability and bug fixes from crash logs.</string>
 	<string>Improved responsiveness of the MAX and Streetcar maps.</string>

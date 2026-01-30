@@ -17,14 +17,13 @@
 
 @protocol HiddenTaskDone <NSObject>
 
-- (void)hiddenTaskDone:(UIViewController *)viewController
-             cancelled:(bool)cancelled;
+- (void)hiddenTaskDone:(UIViewController *)viewController cancelled:(bool)cancelled;
 - (void)hiddenTaskStarted;
 
 @end
 
 @interface HiddenTaskContainer : TaskContainer
 
-@property(atomic, strong) id<HiddenTaskDone> hiddenTaskCallback; // weak
+@property (atomic, strong) id<HiddenTaskDone> hiddenTaskCallback; // weak
 
 @end

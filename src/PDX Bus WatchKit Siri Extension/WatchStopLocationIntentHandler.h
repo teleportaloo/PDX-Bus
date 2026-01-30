@@ -21,9 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface WatchStopLocationIntentHandler<StopLocationIntentHandling> : NSObject
 
 - (void)handleStopLocation:(StopLocationIntent *)intent
-                completion:
-                    (void (^)(StopLocationIntentResponse *response))completion
-    API_AVAILABLE(ios(12.0));
+                completion:(void (^)(StopLocationIntentResponse *response))completion;
 
 @end
 
